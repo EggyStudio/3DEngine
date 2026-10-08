@@ -86,6 +86,35 @@ public class ShadowLayoutTests
     }
 
     [Fact]
+    public void The_Light_Lighting_Most_Of_The_Picture_Keeps_Its_Shadows_Past_The_Limit()
+    {
+        // Thirteen shadowed point lights, one past the twelve that cast shadows: twelve bright ones
+        // with a reach of 1 in a corner of the view, and a dimmer lamp whose reach of 10 lights a
+        // wall across it. The corner's lights reach the eye some five times as bright, and cover a
+        // tenth of the picture between them where the lamp covers it whole.
+        var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY) * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);
+        RenderLight Point(Vector3 at, float brightness, float range) =>
+            new() { Kind = LightKind.Point, Position = at, EmittedColor = new Vector3(brightness), Range = range, CastsShadows = true };
+        var lights = Enumerable.Range(0, 12).Select(i => Point(new Vector3(-2.5f + i % 3 * 0.2f, 2 + i / 3 * 0.2f, -6), 50, 1)).ToList();
+        lights.Add(Point(new Vector3(0, 0, -20), 30, 10));
+
+        var kept = LightingUboPrepare.Rank(lights, Enumerable.Range(0, 13), Vector3.Zero, camera, 150).Take(ShadowFit.MaxPointLights).ToList();
+        kept.Should().Contain(12, "the lamp lighting the wall across the view weighs more than a bright light in its corner");
+        kept[0].Should().Be(12, "and it lights most of the picture, so it has the most texels");
+    }
+
+    [Fact]
+    public void A_Lights_Share_Of_The_Picture_Is_What_Its_Reach_Covers()
+    {
+        var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY) * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);
+        LightingUboPrepare.Share(camera, new Vector3(0, 0, -20), 10).Should().Be(1, "a reach wider than the view at its distance covers all of it");
+        LightingUboPrepare.Share(camera, new Vector3(0, 0, -1), 3).Should().Be(1, "a reach round the eye covers all of it");
+        LightingUboPrepare.Share(camera, new Vector3(0, 0, -50), 1).Should().BeApproximately(0.0014f, 0.0005f,
+            "a reach of 1 fifty units off covers about a fiftieth of the view's width and height");
+        LightingUboPrepare.Share(camera, new Vector3(100, 0, -10), 1).Should().Be(0, "a reach off to the side covers none of it");
+    }
+
+    [Fact]
     public void A_Light_Behind_The_Camera_Is_Out_Of_View()
     {
         var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY)

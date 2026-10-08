@@ -295,10 +295,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
     /// <summary>
     /// The candidates in the order they matter to any of <paramref name="views"/>, best first: a
-    /// light some camera sees before one none does, then the one whose light reaching an eye is
-    /// greatest, then the one whose reach comes nearest an eye, so a render target looking where
-    /// the window does not has the lights it sees shadowed too.
+    /// light some camera sees before one none does, then the one whose light reaching an eye,
+    /// weighed by the share of that view's picture its reach covers, is greatest, then the one
+    /// whose reach comes nearest an eye, so a render target looking where the window does not has
+    /// the lights it sees shadowed too.
     /// </summary>
+    /// <remarks>
+    /// The share weighs a lamp lighting a wall across the view above a brighter one lighting a
+    /// corner of it, so the light that lights most of the picture keeps its shadows (<see cref="Share"/>).
+    /// </remarks>
     internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates,
         IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, float distance)
     {
@@ -312,15 +317,47 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
         }
         float Reach(int i) => views.Count == 0 ? 0 : views.Min(view => ReachFrom(i, view.Eye));
+        // The light reaching a view's eye, its brightness over one plus the square of how far its
+        // reach is from the eye, times the share of the view's picture its reach covers, the most
+        // of any view.
         float Reaching(int i)
         {
-            var light = lights[i].EmittedColor;
-            var reach = Reach(i);
-            return (0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z) / (1 + reach * reach);
+            var light = lights[i];
+            var brightness = 0.2126f * light.EmittedColor.X + 0.7152f * light.EmittedColor.Y + 0.0722f * light.EmittedColor.Z;
+            if (views.Count == 0) return brightness;
+            var radius = light.Range > 0 ? light.Range : distance;
+            return views.Max(view =>
+            {
+                var reach = ReachFrom(i, view.Eye);
+                return brightness / (1 + reach * reach) * (view.Camera is { } camera ? Share(camera, light.Position, radius) : 1);
+            });
         }
         bool Seen(int i) => views.Count == 0 || views.Any(view => view.Camera is not { } camera
             || InView(camera, lights[i].Position, lights[i].Range > 0 ? lights[i].Range : distance));
         return candidates.OrderBy(i => Seen(i) ? 0 : 1).ThenByDescending(Reaching).ThenBy(Reach);
+    }
+
+    /// <summary>
+    /// The share of a view's picture, 0 to 1, that a light's reach of <paramref name="radius"/>
+    /// around <paramref name="center"/> covers: the box around it put through
+    /// <paramref name="camera"/> and held within the picture, the whole picture where the box
+    /// reaches round past the eye.
+    /// </summary>
+    internal static float Share(System.Numerics.Matrix4x4 camera, System.Numerics.Vector3 center, float radius)
+    {
+        var low = new System.Numerics.Vector2(float.MaxValue);
+        var high = new System.Numerics.Vector2(float.MinValue);
+        for (int corner = 0; corner < 8; corner++)
+        {
+            var at = center + radius * new System.Numerics.Vector3((corner & 1) * 2 - 1, (corner >> 1 & 1) * 2 - 1, (corner >> 2) * 2 - 1);
+            var clip = System.Numerics.Vector4.Transform(new System.Numerics.Vector4(at, 1), camera);
+            if (clip.W <= 1e-4f) return 1;
+            var shown = new System.Numerics.Vector2(clip.X, clip.Y) / clip.W;
+            (low, high) = (System.Numerics.Vector2.Min(low, shown), System.Numerics.Vector2.Max(high, shown));
+        }
+        var (from, to) = (System.Numerics.Vector2.Clamp(low, -System.Numerics.Vector2.One, System.Numerics.Vector2.One),
+            System.Numerics.Vector2.Clamp(high, -System.Numerics.Vector2.One, System.Numerics.Vector2.One));
+        return MathF.Max(0, to.X - from.X) * MathF.Max(0, to.Y - from.Y) / 4;
     }
 }
 

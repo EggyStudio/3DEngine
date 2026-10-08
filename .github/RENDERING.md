@@ -435,37 +435,41 @@ spot lights with `CastsShadows` set draw into the fourth tile, ranked by what th
 camera the frame draws meshes through, the window's and each render target's: those whose reach
 (their range around them, or the shadow distance for one with none) a camera's frustum holds come
 first, then those whose light reaching an eye is greatest, their brightness over one plus the square
-of how far their reach is from it (`LightingUboPrepare.Rank`), then those whose reach comes nearest
-one. The
-tile is the whole of it for one, a quarter each for up to four, and past four a quarter each for the
-first two and a sixteenth each for the rest, in its lower half (`ShadowFit.SpotTileArea`), each
-through a perspective projection from the light as wide as its outer cone and as deep as its range,
-or the shadow distance for a light with none. A shadowed spot light carries its slot, counted from
-one, in its cone's third component, as a point light does, and its projection and texel width ride
-in the lighting buffer. `ShadowNode` clears the map once and draws the window's meshes into each
-tile in use, before the window's passes, with `shadow.slang`'s vertex stage and no fragment stage,
-through a depth-only pass (`GraphicsDevice.CreateShadowMap`). A render target that draws meshes has
-cascades fitted to its own camera and a lighting buffer of its own (`TargetShadows`), and
-`TargetsNode` draws the map for it before its pass, so a split screen drawn into two textures
-shadows each view. The window's map is drawn after every target, and the point lights' faces, the
-same from every camera, once a frame. Each view draws its own batches and instances, which its model
-pass draws after it, reading each instance's world matrix, color and cutoff, and each tile and face
-pushes its light's view-projection, so the frame's instances are written once for both passes. A
-batch is gathered by the kind of shadow its draws cast as well, none, solid or masked, and a masked
-one is drawn with `shadow.slang`'s fragment stage and its maps, which cuts it out below its cutoff
-as the model pass does, so its shadow has its holes. A blended draw that is clear anywhere is drawn
-the masked way too, its fragment stage keeping a texel where its alpha passes a threshold that
-interleaved gradient noise spreads over the texels, so the nine samples the model pass averages give
-a shadow as dark as the surface is opaque. The map is bound at binding 1 of the lights' set, beside
-the cascades' matrices and texel widths in the lighting buffer, and the white texture takes its
-place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
-little inside its edge, moves the point off its surface by a texel and a half of that cascade along
-its normal, and averages nine comparisons around it. Across the outer fifth of a tile the next
-cascade is read as well and blended in, so the shadow's softness changes over a band where one
-cascade gives way to the next, and past the last cascade's band the shadow fades out rather than
-ending at a line. A spot light's texels widen with distance from it, so its offset grows with that
-distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
-before that stage moved it.
+of how far their reach is from it, times the share of that camera's picture their reach covers, its
+box put through the camera and held within the picture, the whole of it where the box reaches round
+past the eye (`LightingUboPrepare.Rank` and `Share`), the most of any camera, then those whose reach
+comes nearest one. So a lamp lighting a wall across the view keeps its shadows over a brighter one
+lighting a corner of it, at no cost that can be read, `prepare.LightingUboPrepare` in `./e3d command
+profile` taking 0.010 ms in Wick's first doorway and 0.017 to 0.020 ms in Manor's hall with the
+share and without. The tile is the whole of it for one, a quarter each for up to four, and past four
+a quarter each for the first two and a sixteenth each for the rest, in its lower half
+(`ShadowFit.SpotTileArea`), each through a perspective projection from the light as wide as its
+outer cone and as deep as its range, or the shadow distance for a light with none. A shadowed spot
+light carries its slot, counted from one, in its cone's third component, as a point light does, and
+its projection and texel width ride in the lighting buffer. `ShadowNode` clears the map once and
+draws the window's meshes into each tile in use, before the window's passes, with `shadow.slang`'s
+vertex stage and no fragment stage, through a depth-only pass (`GraphicsDevice.CreateShadowMap`). A
+render target that draws meshes has cascades fitted to its own camera and a lighting buffer of its
+own (`TargetShadows`), and `TargetsNode` draws the map for it before its pass, so a split screen
+drawn into two textures shadows each view. The window's map is drawn after every target, and the
+point lights' faces, the same from every camera, once a frame. Each view draws its own batches and
+instances, which its model pass draws after it, reading each instance's world matrix, color and
+cutoff, and each tile and face pushes its light's view-projection, so the frame's instances are
+written once for both passes. A batch is gathered by the kind of shadow its draws cast as well,
+none, solid or masked, and a masked one is drawn with `shadow.slang`'s fragment stage and its maps,
+which cuts it out below its cutoff as the model pass does, so its shadow has its holes. A blended
+draw that is clear anywhere is drawn the masked way too, its fragment stage keeping a texel where
+its alpha passes a threshold that interleaved gradient noise spreads over the texels, so the nine
+samples the model pass averages give a shadow as dark as the surface is opaque. The map is bound at
+binding 1 of the lights' set, beside the cascades' matrices and texel widths in the lighting buffer,
+and the white texture takes its place in a frame with no shadow. The shader takes the nearest
+cascade whose tile holds the point, a little inside its edge, moves the point off its surface by a
+texel and a half of that cascade along its normal, and averages nine comparisons around it. Across
+the outer fifth of a tile the next cascade is read as well and blended in, so the shadow's softness
+changes over a band where one cascade gives way to the next, and past the last cascade's band the
+shadow fades out rather than ending at a line. A spot light's texels widen with distance from it, so
+its offset grows with that distance. A model shader with a vertex stage of its own casts the shadow
+of its mesh as it was before that stage moved it.
 
 Twelve point lights with `CastsShadows` set, chosen and ranked the same way, shadow everything
 around them, each in six faces, a little wider than a right angle so the nine comparisons near a
