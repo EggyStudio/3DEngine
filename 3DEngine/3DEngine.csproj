@@ -58,9 +58,11 @@
         <Content Include="Shaders\**\*">
             <TargetPath>source\shaders\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <!-- In the package, as content files a consuming project copies to the same place. -->
+            <!-- In the package, as content files a consuming project copies to the same place.
+                 Pack puts a file under its own folder below this one, as tonemapping/'s tables,
+                 so the path names no folder of its own. -->
             <Pack>true</Pack>
-            <PackagePath>contentFiles/any/any/source/shaders/%(RecursiveDir)</PackagePath>
+            <PackagePath>contentFiles/any/any/source/shaders/</PackagePath>
             <PackageCopyToOutput>true</PackageCopyToOutput>
             <BuildAction>None</BuildAction>
         </Content>

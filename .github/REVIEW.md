@@ -282,3 +282,9 @@ Shared: the eight are in 3DEngine at this commit, each within one level of BevyC
 for SHARED.md's row to say so. `build/bevy-luts.py` and the CPU model in `TonemapTests` are there
 for BevyCSharp's side to read where a check of its tables apart from Bevy's own drawing is asked
 for.
+
+Item 2, after it: the package put Bevy's tables at `source/shaders/tonemapping/tonemapping/`, since
+pack adds an item's own folder below its PackagePath and the csproj named `%(RecursiveDir)` there
+too, which no file under Shaders had shown before; the path names no folder now, Pusher built from
+the package draws through AgX, and `PackageContentsTests` holds every file under 3DEngine/Shaders to
+its own path in the package.

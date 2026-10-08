@@ -50,6 +50,20 @@ public sealed class PackageContentsTests
     }
 
     [NeedsPackageFact]
+    public void Every_Staged_File_Of_The_Shaders_Folder_Is_At_Its_Own_Path()
+    {
+        // Each file under 3DEngine/Shaders, a subfolder's as Bevy's tables in tonemapping/, at the
+        // path below source/shaders the program reads it from, which a folder named twice misses.
+        using var package = Open();
+        var entries = Entries(package).ToHashSet(StringComparer.Ordinal);
+        var shaders = Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
+        var missing = Directory.EnumerateFiles(shaders, "*", SearchOption.AllDirectories)
+            .Select(file => "contentFiles/any/any/source/shaders/" + Path.GetRelativePath(shaders, file).Replace('\\', '/'))
+            .Where(entry => !entries.Contains(entry));
+        missing.Should().BeEmpty("a game built from the package reads each from where the engine's own build stages it");
+    }
+
+    [NeedsPackageFact]
     public void The_Package_Carries_Its_Readme_License_Notices_And_Release_Notes()
     {
         using var package = Open();
