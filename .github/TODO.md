@@ -322,4 +322,6 @@ checks at the end of STYLE.md report what is left.
   draws 300 frames of it, built and published native, then plays every game through `./e3d`
   (`build/drive-game.sh`), each asserting its walk or its win, Pusher once more in a window on the
   runner's desktop, and follow the README and the first game's steps in new projects. Every example
-  is captured on Linux for the gallery and on macOS for the job's artifact.
+  is captured on Linux for the gallery and on macOS, in a job of its own beside the tests, for its
+  artifact, each capture held to five minutes and the whole to a budget whose end names the last
+  example reached.

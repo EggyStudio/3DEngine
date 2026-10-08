@@ -232,8 +232,8 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # Room for thirteen games after the suite, each a few minutes on the GPU, and every example's
-    # capture, which took 25 minutes on a laptop's GPU, the job having taken 25 of its 120 before.
+    # Room for thirteen games after the suite, each a few minutes on the GPU. Every example's capture
+    # is the macos-examples job's, beside this one.
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
@@ -271,10 +271,6 @@ jobs:
           dotnet tool install dotnet-gcdump --version 10.0.745401 --tool-path "$RUNNER_TEMP/gcdump"
           echo "E3D_GCDUMP=$RUNNER_TEMP/gcdump/dotnet-gcdump" >> "$GITHUB_ENV"
 
-      # The files of raylib's own that its examples load, which a build of the examples copies
-      # beside the program, for the captures below.
-      - run: build/fetch-raylib-resources.sh
-
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       # The suite through build/test.py, as on Linux.
@@ -282,23 +278,6 @@ jobs:
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
-
-      # Every example captured offscreen, as the build workflow's Linux job captures them, each
-      # checked to draw and its session checked for validation errors, a capture that fails
-      # naming the example and why (build/capture-examples.sh). The pictures are kept as the job's
-      # artifact and compared with nothing, since the README's gallery and the measures against
-      # raylib are Linux's. The 253 took 1,481 seconds on a laptop's RTX 4070 (build/capture-examples.sh).
-      - name: Capture every example offscreen
-        timeout-minutes: 50
-        run: build/capture-examples.sh captures/examples png
-
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: examples-macos
-          path: captures/examples/
-          if-no-files-found: ignore
-
 
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
@@ -362,6 +341,65 @@ jobs:
           path: |
             3DEngine.Tests/TestResults/
             captures/
+
+  macos-examples:
+    # Every example captured on the same runner's GPU, a job of its own beside the tests, so the
+    # captures' time is their own and the games, the window, the native publish and the walk keep
+    # theirs. The captures took 3,012 seconds inside the tests' job at b526089c and were stopped
+    # there by the step's 50 minutes, so the step has 140 here and the script a budget of 130, past
+    # which it names the last example reached, and each example 300 seconds, past which it alone
+    # fails. The 253 took 1,481 seconds on a laptop's RTX 4070 (build/capture-examples.sh), and the
+    # script's notice says how many drew here and how long they took.
+    runs-on: macos-15
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v6
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      # As the macos job installs them, for the same reasons.
+      - name: Install MoltenVK, the Vulkan loader and the validation layer
+        run: |
+          brew install molten-vk vulkan-loader vulkan-validationlayers
+          prefix=$(brew --prefix)
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+
+      # The files of raylib's own that its examples load, which a build of the examples copies
+      # beside the program.
+      - run: build/fetch-raylib-resources.sh
+
+      - run: dotnet build 3DEngine.Examples -warnaserror
+
+      # Every example captured offscreen, as the build workflow's Linux job captures them, each
+      # checked to draw and its session checked for validation errors, a capture that fails
+      # naming the example and why (build/capture-examples.sh). The pictures are kept as the job's
+      # artifact with each one's seconds in times.tsv, and compared with nothing, since the
+      # README's gallery and the measures against raylib are Linux's.
+      - name: Capture every example offscreen
+        timeout-minutes: 140
+        env:
+          CAPTURE_MINUTES: '130'
+          CAPTURE_SECONDS: '300'
+        run: build/capture-examples.sh captures/examples png
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: examples-macos
+          path: captures/examples/
+          if-no-files-found: ignore
 
   digest:
     # One page for the commit from the three systems' pages, a line for each system and each cause

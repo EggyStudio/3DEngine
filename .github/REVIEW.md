@@ -10,25 +10,47 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b526089c`. Item 2: the Windows and macOS jobs run `build/play-native.sh Pusher`
-after the step that packs the engine and draws the game, publishing Pusher native from the package
-for the machine's runtime, `win-x64` or `osx-arm64`, linked by the runner's own toolchain as a
-player's machine does, and drawing 300 frames offscreen under the validation layer, each step given
-15 minutes; the script names what failed in an error annotation with the game and the system, a
-publish that fails with the compiler's or the linker's own lines, a run that ends early with its
+Reviewed up to `c58ff65b`. Item 3: the window's scene goes through the HDR frame and one tonemapping
+pass every frame it shows one, a frame of 2D alone straight into the window as before; the frame
+holds its light sRGB-encoded and carried past 1 rather than linear, so a shader of the program's own
+reads the same with effects on or off and the frame's blending and multisampling stay on encoded
+light as the window's were, and `decode.slang` decodes it once, with the scene's depth, for bloom,
+the exposure, the lens passes, the bounce's reflections and the particles drawn over it in linear
+light; the composite decodes, bends and encodes, the engine's curve giving way to a cut at 1 where
+nothing past white can come about, so white stays white as raylib draws it; the output flag stays as
+the view's kind, since a render texture of eight bits still needs the curve in the model pass and a
+probe's faces linear light, which the brief had not weighed; a program's shader drawn into the frame
+has its color held by an FClamp put into its SPIR-V, alpha within 0 and 1 and no channel below 0,
+light past 1 kept (`ShaderProgram.HeldToEightBits`), which brought five raylib pairs back from 15 to
+42 percent apart to their shares; the frame and its pass cost 0.02 to 0.035 ms of the coder's GPU
+with every effect off and 60 bytes a pixel at four samples, written in the guide, RENDERING.md §5
+and TODO.md; twelve references are redrawn, none past 0.79 percent of its pixels, the lit ones at
+the edges of light past white resolved before the curve and the effects' ones on encoded light;
+three tests cover a program's shader drawing alike with bloom on or off, white bent only where light
+past white can come about and an alpha past 1 blending as in an eight-bit frame, and the upgrading
+page's third change that still compiles is a shader that returned linear light for an effect
+(`c58ff65b`). Item 3 is settled; the bounce's lag moves up to item 3 after item 2, and the coder
+takes Verdict 39, then item 2. The suite: 1,557 passed, and on lavapipe under the validation layer
+the rendering tests, 292.
+
+Before them, item 2 came to be settled, the Windows and macOS jobs running `build/play-native.sh
+Pusher` after the step that packs the engine and draws the game, publishing Pusher native from the
+package for the machine's runtime, `win-x64` or `osx-arm64`, linked by the runner's own toolchain as
+a player's machine does, and drawing 300 frames offscreen under the validation layer, each step
+given 15 minutes; the script names what failed in an error annotation with the game and the system,
+a publish that fails with the compiler's or the linker's own lines, a run that ends early with its
 log's last lines, no validation layer or an error from it, where a failed publish had ended it
 through `set -e` with nothing of its own; `ScriptTests` reads the scripts the macOS job names from
 the workflow, so it holds this one to macOS's tools too; 30 seconds cold and 11 warm on the coder's
 machine, the runners' first restore and link a few minutes the next run measures; BUILDING.md and
-TODO.md say both jobs publish it (`b526089c`). Item 2 is settled, and its number goes to the light
-that bounces following a changing light within a frame or two, after item 3, which the coder has
-started. At 07:10 the owner decided that every tonemapper BevyCSharp offers comes to 3DEngine
-(Decision 17), which takes item 2 after item 3, the bounce's lag moving to item 5. The owner pushed
-at 06:15 and the run of `b526089c` came back green on Linux and Windows, the thirteen games, Pusher
-in a window, the native publish and the leak test's hundred apps passing there, which settles
-Verdicts 33 and 37, and failed on macOS at the examples' capture, killed by its 50 minutes with the
-games and the rest behind it skipped, Verdict 39; the examples job was skipped, so Verdicts 30 and
-31 wait on.
+TODO.md say both jobs publish it (`b526089c`). Its number went to the light that bounces following a
+changing light within a frame or two. At 07:10 the owner decided that every tonemapper BevyCSharp
+offers comes to 3DEngine (Decision 17), which takes item 2 after item 3, the bounce's lag moving to
+item 5. The owner pushed at 06:15 and the run of `b526089c` came back green on Linux and Windows,
+the thirteen games, Pusher in a window, the native publish and the leak test's hundred apps passing
+there, which settles Verdicts 33 and 37, and failed on macOS at the examples' capture, killed by its
+50 minutes with the games and the rest behind it skipped, Verdict 39; the examples job was skipped,
+so Verdicts 30 and 31 wait on.
 
 Before them, item 2 came to be settled, the Linux job's capture loop `build/capture-examples.sh`,
 run by both jobs, listing the examples with `sed` where the loop used `grep -P`, which macOS's grep
@@ -46,19 +68,6 @@ pictures matching pixel for pixel and the test failing without the blit in; the 
 from the guide, the cheatsheet, RENDERING.md, TODO.md and the dispatch's warning, and TODO.md's
 testing entry counts 29 frames compared whole (`bb418bfe`). Their numbers went to a game published
 native on Windows and macOS and to the tonemap as a pass over every frame. The suite: 1,554 passed.
-
-Before them, item 3 came to be settled: fault 2's reduction of `gi_trace` came to fault 1's shape,
-every other invocation by its index running a loop whose condition and body read the lights' buffer
-and reading it again after, and a compute harness, `comp.c` with a 20-line GLSL compute shader of
-that shape and nothing undefined in it, crashes the same way, a pointer and the word after it read
-from address 0, and runs with the branch, the loop or its body taken out, on Mesa 25.2.8, 26.2.2 and
-main at `5a273016`; with no ray query and no partly covered pixel in a compute stage, a branch some
-invocations skip is enough, so fault 1 is very likely the same fault reached from a fragment stage,
-`build/mesa/uniform-loop-compute`'s issue text leads with the compute shader and names the fragment
-folder as a second reproduction, fault 1's README says to file the two as one issue, and TODO.md
-points at both; the reductions are stopped (`1461a781`). Its number went to a compute shader writing
-a render texture on a device that stores no image in the window's format, after item 2's captures on
-macOS.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -88,26 +97,19 @@ for a reply. In this order.
    attributions in THIRD-PARTY-NOTICES.md, the other four ported from that shader; a test draws
    SHARED.md's ramp through each and holds it to BevyCSharp's reference within two levels of 255 for
    the formulas and four for the tables; the guide's effects table, the cheatsheet and the upgrading
-   page's Added section name them, and the cost of a sampled table is in the guide. After item 3.
-3. **The tonemap as a pass over every frame.** RENDERING.md's last entry of its order: the curve
-   at the end of the model pass, which runs there while every effect is off and over the HDR frame
-   while any is on, becomes one full-screen pass in every frame, so the window's scene takes one
-   path, a shader of the program's own inside `BeginMode3D` read the same with effects on or off and
-   the model pass's output flag gone, render targets of `BeginTextureMode` kept eight bits and as
-   they look; measured before and after on the examples the guide's table names, the bunnymark and a
-   game at the window's size, the pass's cost written in the guide beside the effects', and the lit
-   references redrawn where they change, each difference explained.
-4. **The first shares recorded from the workflow's own device.** The examples job's first green
-   run puts every pair measured for the first time into notices, which the public listing of the
-   job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
-   own, so the run after holds every pair to them and a share can only fall.
-5. **The bounce following a changing light within a frame or two.** The light-bounce entry's
+   page's Added section name them, and the cost of a sampled table is in the guide. After Verdict
+   39.
+3. **The bounce following a changing light within a frame or two.** The light-bounce entry's
    limit, the screen's probes blended with the frame before's following a changing light some five
    frames late: where the light at a probe changed, a lamp carried or a wick lit, the blend's
    history is rejected or shortened there, so the bounce follows Wick's lamp within a frame or two
    while a still scene keeps its blended calm; the lag counted in frames by a test that moves a lamp
    and reads a probe, measured on Wick's doorway with the cost of telling a change written in the
    guide, and the guide's, RENDERING.md's and TODO.md's sentences updated. After item 2.
+4. **The first shares recorded from the workflow's own device.** The examples job's first green
+   run puts every pair measured for the first time into notices, which the public listing of the
+   job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
+   own, so the run after holds every pair to them and a share can only fall.
 
 ## Verdicts
 
@@ -255,44 +257,19 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 3, the tonemap as a pass over every frame. The window's scene goes through the HDR frame every
-frame it shows one, a mesh, a particle or a shape drawn with depth, and a frame of 2D alone straight
-into the window, where it looks the same. The frame holds its light sRGB-encoded, carried on past 1,
-rather than linear, so a shader of the program's own reads the same with effects on or off,
-returning its color encoded as raylib's do, and the frame's blending and multisampling stay on
-encoded light as the window's were. Where a pass reads the scene's light, bloom, the exposure that
-follows it, the lens passes, the bounce's reflections or particles, `decode.slang` decodes it once
-into a half-float image with the scene's depth, and the window's particles are drawn over that, so
-an additive cloud still adds in linear light; drawn in the encoded frame, the particles' cloud grew
-wide past its reference under bloom. The composite decodes, bends and encodes, and the engine's
-curve gives way to a cut at 1 where nothing past white comes about, no light, sky, probe, bounce,
-particle, bloom or exposure, so a world drawn as raylib draws one keeps white white
-(`BloomRenderer.Bends`). The output flag cannot go while a render texture keeps eight bits and its
-look, since a target still needs the curve and the encoding in the model pass and a probe's faces
-need linear light, so it stays as the view's kind, `output.y` the window's encoded past 1 and
-`output.x` a probe's linear. The raylib measure then found five pairs gone from about 1% to between
-15 and 42%, raylib's lighting shaders raising their alpha past 1 with their gamma correction, which
-an eight-bit frame clamps before blending and a half-float one does not, so a program's shader drawn
-into the frame has its color at location 0 held by an FClamp put into its SPIR-V, alpha 0 to 1 and
-no channel below 0, light past 1 kept (`ShaderProgram.HeldToEightBits`). The five came back to their
-shares, and every pair holds within a point of measured.tsv, `models_animation_blend_custom` at 3.6
-against 3.3 by its capture frame, which wanders from 157 to 159 between runs of one build. On the
-RTX 4070 by `./e3d command profile`, a frame with every effect off costs 0.02 to 0.035 ms more of
-the GPU, 0.047 to 0.082 ms in `shaders_bloom` with bloom off and 0.066 to 0.089 in Pusher at 960 by
-540, the decoding 0.01 to 0.02 where a pass reads the light, and the target 60 bytes a pixel at four
-samples, 124 MB at 1920 by 1080, written in the guide, RENDERING.md §5 with a table, and TODO.md,
-which notes that the frame's multisampled depth could be the window's own. The bunnymark draws no
-scene, its ramp 465,168 and 437,806 against 478,849, and `models_stress` 646,168 and 584,628 against
-615,398, the runs' spread. Twelve references are redrawn from this machine's GPU, those the change
-moves past the step, the same twelve on lavapipe and on the GPU, none past 0.79% of its pixels. In
-the lit frames they differ at the edges of light past white, resolved now before the curve rather
-than after it, and in the frames with effects on, `bloom`, `frame_effects`, `motion_blur`,
-`reflections`, `cornell_box`, `summit` and `wick`, edges and thin lines resolved on encoded light as
-the window's are, so `frame_effects`' 3D line is drawn as raylib draws one; `particles` moved at
-most 2 levels. New tests: a program's model shader draws alike with bloom on or off, white stays
-white with no light and bends once a lamp is made, and a shader's alpha past 1 blends as in an
-eight-bit frame, which reads 64 without the hold. The upgrading page's third change that still
-compiles is a shader that returned linear light for an effect. The suite: 1,557 passed; on lavapipe
-under the validation layer the rendering tests, 292 passed and 2 skipped. Next is Verdict 39, then
-item 2's tonemappers. The macOS job's step log needs a sign-in that this machine lacks, so the
-runner's rate comes from the first run of the new job, whose page will name it.
+Verdict 39. The captures on macOS are a job of their own, `macos-examples`, beside the tests' job,
+which keeps its suite, games, window, native publish and walk, and drops the raylib files it fetched
+for the captures alone. The new job has 160 minutes, its capture step 140, `CAPTURE_MINUTES` 130 and
+`CAPTURE_SECONDS` 300. `build/capture-examples.sh` runs each capture in the background with its
+output in a file rather than through `$(...)`, stops one past its seconds, which fails alone with
+exit code 124 in its error, stops starting examples at the budget with an error naming the last one
+reached and how many were left, and ends with a notice of how many drew of how many, in how long,
+about how long a capture took and the five slowest, each example's seconds and result written to
+`times.tsv` in the artifact. The step log of b526089c needs a sign-in this machine lacks; the public
+API gives the step's 3,012 seconds and the artifact's 22.6 MB, about what 253 captures weigh at the
+72 KB a picture they average here, so the set may have nearly finished with one example hanging,
+which the limit now names, and the first run's notice gives the runner's rate; the set is not cut
+until a notice says a pass does not fit. Tried here: a limit of 2 seconds stopped and named
+`core_basic_window`, three examples drew with their times, and a budget of 0 named none reached;
+bash 3.2 parses the script, and `ScriptTests` reads the new job's scripts. BUILDING.md and TODO.md
+say so.

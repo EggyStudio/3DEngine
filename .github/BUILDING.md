@@ -61,9 +61,12 @@ README shows it: it gives the examples that wait for input their input (a gamepa
 text, taps and swipes), runs it until its scene has settled and its frame rate is measured, and
 captures it. `build/capture-examples.sh <folder> <webp|png> [example...]` captures every example
 with it, or those named, checking each to draw with no error from the validation layer and naming
-any that did not in an error annotation. CI runs it on Linux for the gallery and on macOS for PNGs
-kept as the job's artifact, and a new or changed example's capture in `.github/assets/examples` is
-taken with `capture-example.sh`. The gallery's captures are WebP at the size their window
+any that did not in an error annotation. An example whose capture takes past `CAPTURE_SECONDS`,
+300 unless set, is stopped and fails alone, `CAPTURE_MINUTES` ends the run where it is set, naming
+the last example reached, and the script ends with a notice of how many drew and in how long, each
+example's seconds written to `times.tsv` beside the pictures. CI runs it on Linux for the gallery
+and in a macOS job of its own for PNGs kept as that job's artifact, and a new or changed example's
+capture in `.github/assets/examples` is taken with `capture-example.sh`. The gallery's captures are WebP at the size their window
 is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at quality 85 for a lit
 3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
 `webp` package. The render tests' references stay PNG, since they compare pixels.
