@@ -411,14 +411,14 @@ internal sealed class SceneFieldRenderer : IDisposable
     // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least.
     private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes)
     {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 80, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 96, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, float>(device.Map(buffer));
         for (int s = 0; s < shapes.Count; s++)
         {
-            var (m, center, extents, scale) = shapes[s];
+            var (m, center, extents, scale, color) = shapes[s];
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
-                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0];
-            values.CopyTo(mapped[(s * 20)..]);
+                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, 0];
+            values.CopyTo(mapped[(s * 24)..]);
         }
         device.Unmap(buffer);
         return buffer;

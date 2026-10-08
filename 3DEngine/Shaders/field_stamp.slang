@@ -3,7 +3,10 @@
 // make and its distance to each shape that comes within its brick, a box around a mesh or a part
 // of one in its own space, so a brick stamped last frame and not this one goes back to what the
 // still meshes make. A brick reads the shapes of its own run alone, so a frame's cost grows with
-// the shapes of each brick and not with every shape the frame stamps.
+// the shapes of each brick and not with every shape the frame stamps. Each cell is painted the color
+// of the nearer surface, the still meshes' or a box's, as the build paints a cell its nearest
+// triangle's, so light that bounces off a moving mesh takes its color, and a cell a box painted
+// takes the still meshes' color again once the box has left.
 import scenefield;
 
 struct FieldShape
@@ -17,6 +20,8 @@ struct FieldShape
     float4 centerAndScale;
     // xyz: the box's half extents in its own space.
     float4 extents;
+    // rgb: the mesh's color, linear, its material's times its texture's average.
+    float4 color;
 };
 
 // x: the cascade. y: the brick's place in it, in bricks, a byte an axis. z: where its run of shapes
@@ -36,6 +41,12 @@ RWTexture3D<float> field;
 
 [[vk::binding(4, 0)]]
 ConstantBuffer<SceneFieldInfo> info;
+
+[[vk::binding(5, 0)]] [format("rgba8")]
+RWTexture3D<float4> stillPaint;
+
+[[vk::binding(6, 0)]] [format("rgba8")]
+RWTexture3D<float4> albedoField;
 
 struct StampPush
 {
@@ -66,6 +77,8 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
 
     uint3 at = uint3(cell.xy, cell.z + cascade * size);
     float d = stillField[at];
+    float nearest = abs(d);
+    float4 paint = stillPaint[at];
     for (uint i = 0; i < brick.w; i++)
     {
         uint run = push.counts.x * 4u + brick.z + i;
@@ -75,6 +88,12 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
         float3 q = abs(own) - shape.extents.xyz;
         float box = (length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0)) * shape.centerAndScale.w;
         d = min(d, max(box, -reach));
+        if (abs(box) < min(nearest, reach))
+        {
+            nearest = abs(box);
+            paint = float4(shape.color.rgb, 1.0);
+        }
     }
     field[at] = d;
+    albedoField[at] = paint;
 }

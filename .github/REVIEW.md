@@ -10,10 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `11fbae8e`. The light-bounce entry's gap of skinned and moving meshes held as one
-gray box each: a skinned mesh is stamped as an oriented box a joint, around the rest vertices the
-joint holds most, posed by the joint's latest matrix, which the field keeps for frames that do not
-pose again, the arm posed bent on the GPU reading solid along the forearm at the elbow and empty
+Reviewed up to `f2f6f717`. The light-bounce entry's gap of thin closed meshes and open ones: a
+closed wall thinner than half a cell is held in the field as a double-sided sheet is, the splat
+keeping the nearest face each cell lies straight behind, within 25 degrees, and the way each face
+looks, so a cell in front of one face with an opposite face less than half a cell behind it resolves
+to the middle of the two less half a cell; an edge no other triangle shares by position is marked
+open, and a cell nearest an open edge counts as in front, so an open mesh leaves no wedge below its
+rim; a GPU test covers a slab a fifth of a cell thick and a ground plane, each half failing with its
+rule taken out; a cascade's build costs 0.46 ms where it cost 0.44 and the field takes 1 MB more,
+which the guide says; on lavapipe under validation 159 passed and 1 skipped (`f2f6f717`). Item 3's
+constrained reduction ended in undefined behaviour again, a read of a ray query's instance where the
+query had no hit, lavapipe faulting there by a gather at address 8 where the model pass faults
+reading a descriptor-like pointer and the word after it from address 0, so a third reduction runs
+from the 63 KB module keeping only candidates that fault with the model pass's signature, read by a
+preloaded SIGSEGV handler. Next the field's boxes of moving meshes are painted with their mesh's
+color from a still copy of the field's colors. The suite: 1,547 passed.
+
+Before them, the light-bounce entry's gap of skinned and moving meshes held as one gray box each
+came to be closed: a skinned mesh is stamped as an oriented box a joint, around the rest vertices
+the joint holds most, posed by the joint's latest matrix, which the field keeps for frames that do
+not pose again, the arm posed bent on the GPU reading solid along the forearm at the elbow and empty
 above it where the one box read the opposite; a rigid moving mesh of sixteen triangles or more is
 cut into up to eight parts, each cut the least-volume split along an axis made only where it takes a
 third of the volume away, an L of two boxes cut into its arms with the corner in no part where a
@@ -24,11 +40,7 @@ the bricks, three dancing robots in the Cornell box at `High` costing 0.048 ms o
 ms on the CPU for 147 boxes in 540 bricks where their 57 boxes cost 0.046 and 0.44 to 0.51 before,
 and 0.11 ms on the GPU without the runs; the remarks of `SetSceneField`, the guide, RENDERING.md and
 TODO.md say a moving mesh is held as the boxes of its joints or its parts; on lavapipe under
-validation 157 passed and 1 skipped (`11fbae8e`). Item 3's first reduction ended at 920 bytes in a
-shader reading the instance index of a ray query never initialized, undefined and a crash in the C
-program too, so the reduction runs again from the last step whose query was initialized, proceeded
-and checked, a test keeping those three. Thin closed meshes and wedges under open meshes are next.
-The suite: 1,545 passed.
+validation 157 passed and 1 skipped (`11fbae8e`). The suite: 1,545 passed.
 
 Before them, the light-bounce entry's gap of the screen probes not blended over time came to be
 closed: after the 5 by 5 filter each screen probe blends a fifth of this frame's light with four
@@ -45,22 +57,6 @@ validation 139 passed and 1 skipped (`8ca965bc`). The entry has left the reflect
 unshadowed lamps, which waits on lavapipe's second fault, and the entries after it describe limits
 rather than gaps, the older scene files to consider by the owner's decision. The suite: 1,541
 passed.
-
-Before them, item 5 came to be settled by its sentences, the code kept: apps alive at the same time
-share one watch of their scripts' directories, and apps made one after another each watch again,
-since the leak test's own record shows macOS's heap rising and falling by 6 MB every thirty apps
-with a census finding 0.25 MB more alive from the twentieth app to the hundredth, so the FSEvents
-streams are given back, and a watch kept for the whole process would outlive the directories it
-watches, the suite's deleted test folders among them (`3af649ca`). The light-bounce entry, item 2,
-closes its gap of render textures and probe captures drawn without the field: a render target and a
-reflection probe's faces bind the world's probes and the field, their buffers taking the window's
-cascades with the screen probes and the reflections off, a target drawn before the bounce reading
-the frame before's probes; a window that draws no mesh, as a game that draws its scene into a
-texture and shows the texture alone, gave the field no camera and no meshes, and the field follows
-the first target's camera and holds the targets' meshes; a test draws a room lit by a glowing panel
-into a texture the window shows, lit with the panel on and black with it off where it was drawn in
-its own colors either way; on lavapipe under validation 138 passed and 1 skipped (`7ffcde68`). The
-suite: 1,540 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -326,40 +322,35 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the light-bounce entry, its gap of thin closed meshes and open ones in the field:
+TODO.md's order, the light-bounce entry, its last gap of moving meshes bounced gray:
 
-- **A wall thinner than half a cell.** Each cell's word now carries the way its nearest face looks
-  in eight bits, and the splat keeps apart, in a word a cell, the nearest face the cell lies within
-  25 degrees of straight behind. A cell in front of one face and less than half a cell before
-  another straight behind it, the two looking within 45 degrees of opposite ways, lies against a
-  wall no cell is inside, and the resolve takes the middle of the two less half a cell, as it holds
-  a double-sided sheet, so a ray between the cells on either side meets it. The faces round a
-  box's edge meet square and are not taken for a wall.
-- **No wedge below an open mesh.** The pooled triangles carry in each corner's w whether the edge
-  from it is open, shared by no other triangle by the places of its ends
-  (`SceneFieldRenderer.OpenEdges`), and a cell whose nearest point is on an open edge or its corner
-  is in front, so a ground plane is inside only below its faces.
-- **Tested.** A test builds a closed slab a fifth of a cell thick and a ground plane, and the field
-  crosses zero down the slab's middle and is above zero below the plane past its rim. With the wall
-  rule taken out the slab's least distance is 0.0999 where the test asks at most 0.001, and with the
-  open edges ignored the cell below the rim is at -0.53. A CPU test holds `OpenEdges` to a quad
-  whose triangles share vertices and one whose triangles keep their own.
-- **Cost.** A cascade's build in `shaders_scene_field` takes 0.46 ms on the GPU where it took 0.44,
-  with `field.rebuild 4000` in the Release build, and the field 1 MB more, 5 MB beside its cascades
-  for building one. The guide, RENDERING.md and `SetSceneField`'s remarks say so, and TODO.md's
-  entry loses the gap.
+- **A moving mesh in its color.** The resolve writes the still meshes' colors into a copy of their
+  own beside the image the passes read, and the stamp starts each cell of its bricks from that copy
+  and paints it the color of the nearer of the still surface and the boxes that come within the
+  band, a box its mesh's color as the splat reckons it, the material's times its texture's average
+  in linear light. A cell a box painted takes the still color again once the box has left, as its
+  distance does. The light a moving mesh gives off is not stamped, which would take a copy of the
+  still light too, 2 MB a cascade, and the guide, RENDERING.md, TODO.md and `SetSceneField`'s
+  remarks say so.
+- **Tested.** The red wall test's scene again with the wall swaying a fiftieth of a unit each
+  frame, held as a box and never built: the white block's side facing it reads (58, 34, 34) with
+  the bounce at `Low`, red as with the still wall, and (57.4, 57.4, 57.4) with the painting taken
+  out, which fails the test.
+- **Cost.** Three dancing robots in `shaders_cornell_box`, 147 boxes in 540 bricks, are stamped and
+  painted in 0.062 to 0.067 ms of the GPU where HEAD stamped them in 0.048 to 0.052, a cascade's
+  build in `shaders_scene_field` reads 0.45 to 0.47 ms in both, and the field takes 1 MB a cascade
+  more, 5 MB, all in the Release build beside the numbers the guide holds. The model pass's SPIR-V
+  is byte for byte the same in both builds.
 - **Checked.** lavapipe under the validation layer passed the bounce, reference, render, field,
-  probe and particle tests, 159 and 1 skipped.
-- **Item 3.** The reduction kept to a valid order of ray-query calls ended at 1 KB, but in a shader
-  that reads the committed instance's index of a query with no hit, which the spec leaves undefined.
-  lavapipe faults there gathering from the missing instance at address 8, where the model pass
-  faults reading a pointer and the word after it from address 0 (`mov (%r14),%rsi; mov
-  0x8(%r14),%eax`), as a buffer's descriptor is read. The same shader with the read behind the
-  committed-type test, as the spec asks, runs clean in the C harness. A third reduction, from the
-  63 KB module the first left, keeps only candidates that fault with the model pass's signature,
-  read by a SIGSEGV handler preloaded into the harness.
-- **What the entry has left.** The reflections light what they meet with the lamps unshadowed,
-  which waits on fault 2's report, a moving mesh bounces gray light, and the screen's probes follow
-  a changing light some five frames late. I take the moving mesh's color next, its boxes painted
-  the average of its triangles' colors, unless you name another, and item 3 alongside.
-- The suite: 1,547 passed.
+  probe and particle tests, 160 and 1 skipped.
+- **Item 3.** spirv-reduce, Ubuntu's 2025.1 and the Vulkan SDK's 2026.4 alike, dies by SIGSEGV in
+  its own pass that merges blocks at 27 KB of the signature-held reduction, so it now runs in a loop
+  that merges the last candidate taken with spirv-opt and starts again. Fault 2 is being set up
+  beside it from the split it was found with, `directLight` calling a `lampLight` that holds the
+  lamp loop, in the model pass built without ray queries.
+- **Next.** The light-bounce entry has left the reflections lit by unshadowed lamps, which waits on
+  fault 2's report, and the screen's probes following a changing light five frames late, which the
+  blend over time costs. TODO.md's order then goes past the entries that record limits, to Prose,
+  where the checks at the end of STYLE.md report what the code carried over still breaks, which I
+  take next unless you name another.
+- The suite: 1,548 passed.

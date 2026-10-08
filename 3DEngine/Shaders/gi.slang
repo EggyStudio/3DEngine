@@ -211,8 +211,7 @@ public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin
 }
 
 // A color of the field at p, the cells' colors blended and divided by how much of them a surface
-// painted, so a cell no surface painted lends nothing, or gray where none around p is painted, as
-// at a mesh that moved, which the field holds as a box with no color.
+// painted, so a cell no surface painted lends nothing, or gray where none around p is painted.
 public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p)
 {
     int c = fieldCascade(info, p, 1.0);

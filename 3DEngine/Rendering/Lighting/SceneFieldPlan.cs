@@ -103,9 +103,9 @@ internal sealed class SceneFieldPlan
 
     /// <summary>
     /// A mesh stamped as a box: from the world into its own space, the box's middle and half
-    /// extents there, and the least scale from there to the world.
+    /// extents there, the least scale from there to the world, and the mesh's color in linear light.
     /// </summary>
-    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale);
+    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default);
 
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], Part[]?> _parts;
@@ -288,7 +288,7 @@ internal sealed class SceneFieldPlan
             var w = pose * instance.World;
             if (!Matrix4x4.Invert(w, out var toOwn)) continue;
             var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-            Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale));
+            Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, instance.Color));
             var bounds = own.Transformed(w);
             for (int c = 0; c < Cascades; c++)
             {

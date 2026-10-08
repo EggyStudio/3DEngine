@@ -124,6 +124,37 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Red_Wall_That_Moves_Tints_The_Side_Of_A_White_Block_Facing_It_As_A_Still_One_Does()
+    {
+        Open();
+        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // The scene above with the red wall swaying a fiftieth of a unit each frame, which the field
+        // holds as a box stamped each frame and never builds from its triangles.
+        int drawn = 0;
+        void Draw()
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+            DrawModelEx(slab, new Vector3(-1.6f - drawn++ % 2 * 0.02f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
+            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var bouncing = Capture(Draw);
+        GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.StillCount
+            .Should().Be(2, "the floor and the block are built and the wall is not");
+        SetGlobalIllumination(GlobalIllumination.Off);
+        var still = Capture(Draw);
+
+        var lit = Mean(bouncing, 58, 48, 6, 10);
+        var dark = Mean(still, 58, 48, 6, 10);
+        (lit.X - dark.X).Should().BeGreaterThan(20, $"light the wall sends on reaches the side, {lit} against {dark}");
+        lit.X.Should().BeGreaterThan(lit.Y + 10, $"and it is red, the box the wall is held as painted its color, {lit}");
+        UnloadModel(slab);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Glowing_Panel_Lights_Its_Room_With_No_Light_In_It()
     {
         Open();

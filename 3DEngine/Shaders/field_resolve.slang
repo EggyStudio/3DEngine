@@ -32,6 +32,10 @@ RWTexture3D<float4> glowField;
 [[vk::binding(7, 0)]]
 StructuredBuffer<uint> behind;
 
+// The colors the still meshes paint, kept apart for field_stamp.slang to start its bricks from.
+[[vk::binding(8, 0)]] [format("rgba8")]
+RWTexture3D<float4> stillPaint;
+
 struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
@@ -86,7 +90,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     stillField[at] = d;
     field[at] = d;
     uint color = albedo[(id.z * size + id.y) * size + id.x];
-    albedoField[at] = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
+    float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
+    stillPaint[at] = paint;
+    albedoField[at] = paint;
     uint2 light = glow[(id.z * size + id.y) * size + id.x];
     glowField[at] = float4(unpackHalves(light.x), unpackHalves(light.y).x, 0.0);
 }
