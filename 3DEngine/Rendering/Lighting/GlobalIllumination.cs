@@ -40,6 +40,17 @@ internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField
     WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null);
 
 /// <summary>
+/// What the model pass reads each render target's bounced light from this frame, by the target's
+/// texture id: the world's probes with the target's own screen probes, stood on its own depth,
+/// where it draws meshes through a camera of its own.
+/// </summary>
+internal sealed class TargetIllumination
+{
+    /// <summary>Each target's binding, set as the target's probes are traced ahead of its pass.</summary>
+    public Dictionary<int, IlluminationBinding> ByTarget { get; } = [];
+}
+
+/// <summary>
 /// The light that bounces between surfaces, as cascades of light probes over the scene's distance
 /// field (Radiance Cascades), traced, merged and gathered on the GPU each frame
 /// (<see cref="GraphicsDevice.RecordGlobalIllumination"/>), which the model pass adds to the
@@ -80,6 +91,26 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The window's camera the screen's probes were last placed through, which their blend finds a
     // probe's place in the frame before by, or null where the probes were laid out again since.
     private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
+    // The end of the first cascade's interval, which the screen's probes trace to, this frame.
+    private float _firstInterval;
+
+    // A render target's screen probes, the depth at half its size they stand on, its camera the
+    // frame before and the frame it was last drawn in.
+    private sealed class TargetScreen(GpuScreenProbes screen, ShadowMap depth) : IDisposable
+    {
+        public GpuScreenProbes Screen { get; } = screen;
+        public ShadowMap Depth { get; } = depth;
+        public (Matrix4x4 ViewProjection, Vector3 Eye)? Last { get; set; }
+        public long Drawn { get; set; }
+
+        public void Dispose()
+        {
+            Screen.Dispose();
+            Depth.Dispose();
+        }
+    }
+
+    private readonly Dictionary<int, TargetScreen> _targets = [];
     private GpuReflectionHistory? _history;
     private GpuRayScene? _rays;
     private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
@@ -150,6 +181,13 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 _retired[i].Disposable.Dispose();
                 _retired.RemoveAt(i);
             }
+        renderWorld.TryGet<TargetIllumination>()?.ByTarget.Clear();
+        // A target's probes not drawn the frame before are let go, its history no longer the frame before's.
+        foreach (var (id, state) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
+        {
+            _retired.Add((_frame, state));
+            _targets.Remove(id);
+        }
         var cascades = CascadesIn(renderWorld);
         if (cascades == 0 || renderContext.Device is not GraphicsDevice { CanBounceLight: true } device
             || renderWorld.TryGet<SceneFieldBinding>() is not { On: true } field || renderWorld.TryGet<SceneFieldSettings>() is not { } fieldSettings)
@@ -174,6 +212,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
             intervals[c] = (c == 0 ? 0 : spacing, 2 * spacing);
         }
+        _firstInterval = intervals[0].End;
 
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;
         _black ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
@@ -193,21 +232,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 _screen = device.CreateScreenProbes(width, height, tile);
                 _lastScreen = null;
             }
-            var bytes = new byte[GpuScreenProbes.ViewBytes];
-            // The matrices as they lie in memory, which the shaders, reading them column-major,
-            // multiply a point by as the CPU does.
-            MemoryMarshal.Write(bytes, window.ViewProjection);
-            MemoryMarshal.Write(bytes.AsSpan(64), inverse);
-            var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
-            (floats[32], floats[33], floats[34]) = (window.Eye.X, window.Eye.Y, window.Eye.Z);
-            (floats[36], floats[37], floats[38]) = (tile, _screen.Across, _screen.Down);
-            (floats[40], floats[41], floats[42], floats[43]) = (intervals[0].End / 2, _gi.Probes, ProbeSpacing, cascades);
-            (floats[44], floats[45], floats[46], floats[47]) = (depth.Extent.Width, depth.Extent.Height, width, height);
-            if (_lastScreen is { } last)
-            {
-                MemoryMarshal.Write(bytes.AsSpan(192), last.ViewProjection);
-                (floats[64], floats[65], floats[66], floats[67]) = (last.Eye.X, last.Eye.Y, last.Eye.Z, 1);
-            }
+            var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, _lastScreen);
             _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes)));
             _lastScreen = (window.ViewProjection, window.Eye);
         }
@@ -237,6 +262,67 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _rays = null;
         }
         renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays));
+    }
+
+    /// <summary>
+    /// Traces, blends and holds the screen's probes of render target <paramref name="id"/>, of
+    /// <paramref name="size"/>, as the window's are, stood on a depth at half its size of the meshes
+    /// it draws through <paramref name="camera"/>, after this frame's world probes and ahead of its
+    /// pass, which reads them first as the window's model pass reads its own.
+    /// </summary>
+    /// <remarks>
+    /// Each target has probes, a depth and a history of its own, let go the frame after one it is
+    /// not drawn in. A reflection probe's faces read the world's probes alone.
+    /// </remarks>
+    public void DrawTarget(RenderContext renderContext, RenderWorld renderWorld, int id, Extent2D size, Matrix4x4 camera)
+    {
+        if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<SceneFieldBinding>() is not { On: true } field
+            || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GlobalIlluminationSettings>() is not { } settings
+            || !Matrix4x4.Invert(camera, out var inverse)) return;
+        var tile = TileAt(settings.Quality);
+        var half = new Extent2D(Math.Max(1, size.Width / 2), Math.Max(1, size.Height / 2));
+        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.Depth.Extent != half
+            || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
+        {
+            if (state is not null) _retired.Add((_frame, state));
+            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile), device.CreateDepthTarget(half.Width, half.Height));
+            device.Name(state.Depth.DepthView.Image, $"Render texture {id}'s depth for its screen's probes");
+        }
+        state.Drawn = _frame;
+        models.DrawDepth(renderContext, renderWorld, state.Depth, id);
+        var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
+        var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
+        var bytes = ViewBytes(camera, inverse, at, state.Screen, half, size, state.Last);
+        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, state.Depth.DepthView,
+            state.Depth.Sampler, bytes)));
+        state.Last = (camera, at);
+        var targets = renderWorld.TryGet<TargetIllumination>();
+        if (targets is null) renderWorld.Set(targets = new TargetIllumination());
+        targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, new WindowDepth(state.Depth.DepthView, state.Depth.Sampler, half));
+    }
+
+    // A view's buffer for the screen's probes, as gi_screen.slang reads it: its camera both ways
+    // and its eye, the probes' tile and how many lie across and down, the first interval's half, the
+    // world's probes, their spacing and cascades, the depth's size and the view's, and its camera
+    // and eye the frame before where the probes were placed then. The matrices lie as they do in
+    // memory, which the shaders, reading them column-major, multiply a point by as the CPU does.
+    private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
+        (Matrix4x4 ViewProjection, Vector3 Eye)? last)
+    {
+        var bytes = new byte[GpuScreenProbes.ViewBytes];
+        MemoryMarshal.Write(bytes, viewProjection);
+        MemoryMarshal.Write(bytes.AsSpan(64), inverse);
+        var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
+        (floats[32], floats[33], floats[34]) = (eye.X, eye.Y, eye.Z);
+        (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
+        (floats[40], floats[41], floats[42], floats[43]) = (_firstInterval / 2, _gi!.Probes, ProbeSpacing, _made.Cascades);
+        (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
+        if (last is { } then)
+        {
+            MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);
+            (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, 1);
+        }
+        return bytes;
     }
 
     /// <summary>
@@ -310,6 +396,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         if (_screen is not null) _retired.Add((_frame, _screen));
         if (_history is not null) _retired.Add((_frame, _history));
         if (_rays is not null) _retired.Add((_frame, _rays));
+        foreach (var state in _targets.Values) _retired.Add((_frame, state));
+        _targets.Clear();
         (_gi, _screen, _history, _rays, _lastScreen) = (null, null, null, null, null);
         HistoryViewProjection = null;
     }
@@ -323,6 +411,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _screen?.Dispose();
         _history?.Dispose();
         _rays?.Dispose();
+        foreach (var state in _targets.Values) state.Dispose();
         _black?.Dispose();
     }
 }

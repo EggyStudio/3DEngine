@@ -112,15 +112,16 @@ internal sealed partial class ModelRenderer
     }
 
     /// <summary>
-    /// Draws the depth of the window's meshes that cast a shadow into <paramref name="depth"/>,
-    /// through the cameras they were recorded with, ahead of the window's pass, for the ambient
-    /// occlusion worked out from it.
+    /// Draws the depth of the meshes that cast a shadow into <paramref name="target"/>, the window's
+    /// unless another is named, into <paramref name="depth"/>, through the cameras they were
+    /// recorded with, ahead of that view's pass, for the ambient occlusion worked out from it and
+    /// the screen's probes stood on it.
     /// </summary>
     /// <remarks>
     /// It draws with the shadow pass's pipelines, whose depth-only pass is the same at any size, so a
     /// mesh that casts no shadow is left out, and a blended one keeps texels as often as it is opaque.
     /// </remarks>
-    internal void DrawDepth(RenderContext renderContext, RenderWorld renderWorld, ShadowMap depth)
+    internal void DrawDepth(RenderContext renderContext, RenderWorld renderWorld, ShadowMap depth, int target = 0)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -129,7 +130,7 @@ internal sealed partial class ModelRenderer
             depth.RenderPass, depth.Framebuffers[0], depth.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
         if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
         if (!EnsureShadowPipelines(device, depth.RenderPass, renderWorld)) return;
-        var view = CastingBatches(renderContext, 0, device, draws, meshes, textures, renderWorld);
+        var view = CastingBatches(renderContext, target, device, draws, meshes, textures, renderWorld);
         pass.SetViewport(0, 0, depth.Extent.Width, depth.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, depth.Extent.Width, depth.Extent.Height);
 

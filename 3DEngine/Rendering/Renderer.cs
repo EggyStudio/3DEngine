@@ -110,9 +110,11 @@ internal sealed class Renderer : IDisposable
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
-        // Skinned meshes posed before anything draws them, then render targets, each drawing the
-        // shadow map for its own camera before its pass, then the window's shadow, so the window's
-        // passes can sample the targets and the map as the window's camera needs it.
+        // Skinned meshes posed before anything draws them, then the scene's field, the window's
+        // occlusion and the light that bounces, then render targets, each drawing the shadow map for
+        // its own camera and tracing its own screen probes before its pass, then the window's
+        // shadow, so the window's passes can sample the targets and the map as the window's camera
+        // needs it.
         Graph.AddNode("skinning", new SkinningNode());
         // A new environment map is filtered ahead of every pass that lights by it.
         Graph.AddNode("environment", new EnvironmentNode());
@@ -124,19 +126,20 @@ internal sealed class Renderer : IDisposable
         // Particles are stepped beside the skins, before every pass that might draw them.
         Graph.AddNode("particles", new ParticleNode());
         Graph.AddNodeEdge("scene_field", "particles");
-        Graph.AddNode("targets", new TargetsNode());
-        Graph.AddNodeEdge("particles", "targets");
-        Graph.AddNode("shadows", new ShadowNode());
-        Graph.AddNodeEdge("targets", "shadows");
         // The window's ambient occlusion, from a depth of its own drawn ahead of every pass that
         // lights the window's meshes.
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
-        Graph.AddNodeEdge("shadows", "ambient_occlusion");
-        // The light that bounces, traced through the field before every pass that lights the window.
+        Graph.AddNodeEdge("particles", "ambient_occlusion");
+        // The light that bounces, traced through the field before every pass that lights a view, the
+        // render targets' screen probes with each target after it.
         Graph.AddNode("global_illumination", new GlobalIlluminationNode());
         Graph.AddNodeEdge("ambient_occlusion", "global_illumination");
+        Graph.AddNode("targets", new TargetsNode());
+        Graph.AddNodeEdge("global_illumination", "targets");
+        Graph.AddNode("shadows", new ShadowNode());
+        Graph.AddNodeEdge("targets", "shadows");
         Graph.AddNode("probes", new ProbeNode());
-        Graph.AddNodeEdge("global_illumination", "probes");
+        Graph.AddNodeEdge("shadows", "probes");
         // The window's scene is drawn into the HDR target, and spread where bloom is on, before the
         // window's pass tonemaps it into the window.
         Graph.AddNode("hdr_scene", new HdrSceneNode());

@@ -161,9 +161,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   moving mesh is boxes of its color,
   of its joints or of its parts, that give off none of its light, and the screen's probes, blended
   with the frame before's, hold that within the spread of this frame's light, so they follow a
-  changing light within the frame. Render textures and probe captures take
-  the bounce from the world's probes alone, a frame late, and where the window draws no mesh the
-  field follows the first render texture's camera.
+  changing light within the frame. A render texture that draws meshes through a camera has screen
+  probes of its own, as the window's, in the same frame, probe captures take the bounce from the
+  world's probes alone, and where the window draws no mesh the field follows the first render
+  texture's camera.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

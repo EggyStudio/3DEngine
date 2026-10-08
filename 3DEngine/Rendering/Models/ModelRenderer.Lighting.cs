@@ -76,12 +76,14 @@ internal sealed partial class ModelRenderer
             ? Lit(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : Lit(white, whiteSampler, AmbientOcclusionBinding));
         // And the light that bounced: the window's with its screen's probes and what its glossy
-        // surfaces trace through, and a render target's or a probe capture's from the world's
-        // probes alone, which no camera places. A target is drawn before the frame's bounce is
-        // traced, so it reads the frame before's probes, and none on the first frame.
+        // surfaces trace through, a render target's with screen probes of its own where it draws
+        // meshes through a camera, and a probe capture's from the world's probes alone, which no
+        // camera places, all of this frame's.
         if (gfx is GraphicsDevice bouncing)
             BindBounced(bouncing, set, renderWorld.TryGet<IlluminationBinding>() is { } bounced
-                ? target == 0 ? bounced : bounced with { Screen = null, Depth = null, History = null, Rays = null }
+                ? target == 0 ? bounced
+                : renderWorld.TryGet<TargetIllumination>()?.ByTarget.GetValueOrDefault(target)
+                  ?? bounced with { Screen = null, Depth = null, History = null, Rays = null }
                 : null);
         BindSamplers(gfx, set, white);
         // The environment as the frame's filter left it, or black and no light where it has none.

@@ -10,20 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d9e2bec5`. Item 2: the HDR frame's target draws into the window's own multisampled
-depth (`GraphicsDevice.CreateRenderTargetOnWindowDepth`) and keeps only its resolved depth, which
-the decoding, the lens passes and the reflections read, the window's pass after the composite
-clearing that depth and drawing nothing into it with depth; a target made before the window's depth
-was made again is made again too (`WindowDepthGeneration`), and with one sample the target keeps a
-depth of its own; the target is 44 bytes a pixel at four samples where it was 60, 91 MB at 1920 by
-1080 where it was 124, `nvidia-smi` giving `shaders_bloom` with its bloom off at that size 278 MiB
-before the frame, 405 at `468e32ed` and 374 with the depth lent, the 31 MiB the depth's 16 bytes a
-pixel, written in the guide, RENDERING.md §5 and TODO.md; the references are unchanged, each within
-3 levels of its committed frame on the coder's GPU, and a new test draws a model and shapes with
-depth in one scene at four samples, a bar behind the model hidden where it stands and seen past its
-sides and a cube before it covering it (`d9e2bec5`). Item 2 is settled, and its number goes to the
-bounce in render textures, after item 3, which the coder has started. The suite: 1,569 passed, and
-on lavapipe the rendering tests, 303.
+Reviewed up to `1dd93fa4`. Item 3: `LightingUboPrepare.Rank` keeps a light some camera sees first,
+then weighs each light's brightness at a view's eye, over one plus the square of how far its reach
+is, by the share of that view's picture its reach covers, `LightingUboPrepare.Share` putting the
+reach's box through the camera and holding it within the picture, the whole picture where the box
+reaches round past the eye or where a view has no camera, the most of any view, then how near its
+reach comes, the two spots and four points with the most texels the first of that order; a new test
+makes thirteen shadowed point lights, twelve bright ones in a corner of the view and one lamp
+lighting a wall across it, which reached the eye at 0.30 to the corner's 1.54 each and so was the
+thirteenth with no shadows, and weighed by their shares comes to 0.30 against their 0.14, kept and
+first, with a second test reading the share of a reach round the eye, wider than the view, small and
+far, and off to the side; the prepare takes 0.010 ms in Wick's doorway and 0.017 to 0.020 in Manor's
+hall against 0.010 and 0.020 without, the references drawn again the same, and the guide,
+RENDERING.md §4 and TODO.md say so, the entry's sentence gone (`1dd93fa4`). Item 3 is settled, and
+its number goes to the shadows drawn once for the views that share them, after item 2, which the
+coder has started. The suite: 1,571 passed, and on lavapipe the rendering tests, 305.
+
+Before them, item 2 came to be settled, the HDR frame's target drawing into the window's own
+multisampled depth (`GraphicsDevice.CreateRenderTargetOnWindowDepth`) and keeps only its resolved
+depth, which the decoding, the lens passes and the reflections read, the window's pass after the
+composite clearing that depth and drawing nothing into it with depth; a target made before the
+window's depth was made again is made again too (`WindowDepthGeneration`), and with one sample the
+target keeps a depth of its own; the target is 44 bytes a pixel at four samples where it was 60, 91
+MB at 1920 by 1080 where it was 124, `nvidia-smi` giving `shaders_bloom` with its bloom off at that
+size 278 MiB before the frame, 405 at `468e32ed` and 374 with the depth lent, the 31 MiB the depth's
+16 bytes a pixel, written in the guide, RENDERING.md §5 and TODO.md; the references are unchanged,
+each within 3 levels of its committed frame on the coder's GPU, and a new test draws a model and
+shapes with depth in one scene at four samples, a bar behind the model hidden where it stands and
+seen past its sides and a cube before it covering it (`d9e2bec5`). Its number went to the bounce in
+render textures. The suite: 1,569 passed, and on lavapipe the rendering tests, 303.
 
 Before them, item 3 came to be settled, `gi_screen_filter.slang` holding the frame before's light at
 each screen probe within twice the spread of this frame's light among the like probes around it,
@@ -40,28 +55,6 @@ player's meshes, which settle into the field over its eight frames, so the test'
 blend's lag reads alone; the guide, RENDERING.md and TODO.md say so, the five frames gone
 (`468e32ed`). Its number went to the shadow ranking weighing how much of the picture a light lights.
 The suite: 1,568 passed, and on lavapipe the rendering tests, 302.
-
-Before them, item 2 came to be settled, `SetTonemap` taking Bevy's eight beside the engine's curve,
-Narkowicz's fit and the cut, named as BevyCSharp names them and appended so the four old numbers
-hold; the old `Reinhard` was Bevy's Reinhard by luminance, so it is `ReinhardLuminance` and
-`Reinhard` is Bevy's per channel, the upgrading page's fourth change that still compiles; five
-curves are ported from `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl`, and AgX, Tony
-McMapface and Blender's filmic look the light up in Bevy's own tables, carried by
-`build/bevy-luts.py` as Bevy has them with their Zstandard swapped for KTX2's zlib, 816 KB, which
-.NET reads with no decoder taken, read the first time a curve is chosen, 0.4 to 2.4 ms, into a 3D
-texture at the composite's binding 3 sampled as Bevy samples it, Bevy's two license texts and
-`info.txt` beside them and THIRD-PARTY-NOTICES.md naming Bevy and each table's and curve's authors;
-`TonemapTests` draws SHARED.md's ramp through each and holds it to BevyCSharp's pictures from
-`64ec311`, copied byte for byte, and to a CPU model of each curve and table, all eight within one
-level of both on the coder's GPU and passing on lavapipe; a table costs the composite about 0.002
-ms, in the guide with each table's memory, and the guide's tables, the cheatsheet and the upgrading
-page's Added section name the eight; `Bloom.cs` passed 800 lines, so its two graph nodes moved to
-`HdrNodes.cs` (`379e7907`); the package had put the tables a folder too deep, since pack adds an
-item's own folder below its path and the csproj named `%(RecursiveDir)` there too, so the path names
-no folder, Pusher from the package draws through AgX, and `PackageContentsTests` holds every file
-under `3DEngine/Shaders` to its own path (`1e1eafe2`). Decision 17 was done on both sides, and its
-number went to the frame's depth lent to the window's pass. The suite: 1,566 passed, and on lavapipe
-the rendering tests, 301.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -90,15 +83,14 @@ for a reply. In this order.
    beside the window's, a test drawing the same room into the window and into a render texture and
    reading the two alike, and the entry's sentence dropped; if a second set of screen probes costs
    more than a view can carry, the limit stays with the numbers. After item 3.
-3. **The shadow ranking weighing how much of the picture a light lights.** The lights given
-   shadows, ten spots and twelve points, are ranked by what the camera sees and then by the light
-   that reaches the eye, and TODO.md's shadows entry says the ranking does not weigh how much of the
-   picture a light lights, so a lamp lighting a wall across the view can lose its shadows to a
-   brighter one lighting a corner: each light's share of the picture, the pixels its reach covers in
-   the view, weighs in the rank beside its brightness at the eye, the two spots and four points with
-   the most texels chosen the same way, a test with more shadowed lights than the limits where the
-   one lighting most of the picture keeps its shadows, the ranking's cost measured in Wick's doorway
-   and the hall of shadows, and the entry's sentence dropped. After item 2.
+3. **The shadows drawn once for the views that share them.** TODO.md's shadows entry says each
+   render target that draws meshes draws the sun's cascades and the spot lights' tile again for its
+   own camera, so a game of two views, as Sumo's split screen is, draws its shadows twice a frame:
+   views whose cameras stand within a cascade's reach of each other share one set of cascades fit to
+   both and one spot tile, drawn once, a view too far from the rest keeping its own, the shadows a
+   view reads the same to the eye; the cost measured in Sumo and written in the guide beside the one
+   view's, a test drawing one scene into two near views and reading their shadows alike, and the
+   entry's sentence dropped. After item 2.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -250,21 +242,22 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 3, the shadow ranking weighing the picture a light lights. `LightingUboPrepare.Rank` keeps a
-light some camera sees first, and then weighs each light's brightness at a view's eye, over one plus
-the square of how far its reach is, by the share of that view's picture its reach covers
-(`LightingUboPrepare.Share`, its reach's box put through the camera and held within the picture, the
-whole picture where the box reaches round past the eye or where a view has no camera), the most of
-any view, then how near its reach comes; the two spots and four points with the most texels are the
-first of that order. A new test makes thirteen shadowed point lights, twelve of brightness 50 and a
-reach of 1 in a corner of the view and one of 30 with a reach of 10 lighting a wall across it: the
-corner's lights reached the eye at 1.54 each to the lamp's 0.30, so the lamp was the thirteenth and
-cast none, and weighed by their shares, 0.09 each and the lamp's whole picture, they come to 0.14 to
-the lamp's 0.30, so the lamp is kept and ranked first; a second test reads the share of a reach
-round the eye, wider than the view, small and far, and off to the side. `prepare.LightingUboPrepare`
-takes 0.010 ms in Wick's first doorway and 0.017 to 0.020 ms in Manor's hall with the share, against
-0.010 and 0.020 without, by `./e3d command profile`; no hall of shadows is named in the repository,
-so Manor's hall, with its lanterns and lamps, stood for it. The references drawn again on the GPU
-are the same, Summit's within a level. The guide, RENDERING.md §4 and TODO.md's shadows entry say
-so, the entry's sentence gone. The suite: 1,571 passed; on lavapipe the rendering tests, 305 passed
-and 2 skipped. Next is item 2's number, the bounce in render textures as the window has it.
+Item 2, the bounce in render textures as the window has it. A render target that draws meshes
+through a camera gets screen probes of its own: a depth at half its size of the meshes it draws that
+cast shadows (`ModelRenderer.DrawDepth` for its id), probes traced, blended and held on it as the
+window's are, with a history of their own let go the frame after one the target is not drawn in
+(`GlobalIlluminationRenderer.DrawTarget`, called by the targets node before the target's pass),
+bound for its model pass through `TargetIllumination` and read first by its buffer's screen flag; a
+probe capture keeps the world's probes alone. To read this frame's world probes the targets node now
+runs after `global_illumination`, the window's `shadows` still after every target, the order
+skinning, field, particles, occlusion, bounce, targets, shadows, probes, scene. A new test draws the
+red wall's room into the window and into a render texture of its size shown in the window: the
+block's side reads (111.13, 44.99, 44.99) in the texture against (111.07, 45.04, 45.04) in the
+window, where the texture read (52, 37, 37) with the world's probes alone. Sumo's two views, at 640
+by 720 each, with light bouncing at `Low` turned on through `./e3d eval`, take 1.14 ms of the GPU in
+`targets` where they took 0.62, some 0.26 ms a view, the bounce itself 0.079 against 0.089, by
+`./e3d command profile`, which a view carries, so no limit stays; written in the guide beside the
+window's, RENDERING.md and TODO.md, the entry's sentence gone. The GPU's references are unchanged:
+Summit's frame moves by some 20 pixels with what ran before it, alone or in its class, whichever
+build draws it. The suite: 1,572 passed; on lavapipe the rendering tests, 306 passed and 2 skipped.
+Next is item 3's number, the shadows drawn once for the views that share them.

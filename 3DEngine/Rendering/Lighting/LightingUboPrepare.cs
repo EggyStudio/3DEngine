@@ -107,9 +107,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 var own = casters is not null && draws.ViewProjectionOf(target) is { } camera ? casters.For(camera) : null;
                 var targetUbo = unshadowed;
                 if (own is not null) Apply(ref targetUbo, own);
-                // And the light that bounced, from the world's probes alone, since the screen's
-                // stand on the window's depth and a glossy surface's reflection is traced through it.
+                // And the light that bounced, read from screen probes of the target's own where it
+                // draws through a camera of its own, as the window's, and its glossy surfaces
+                // reflecting the probes and the environment alone, since a reflection is traced
+                // through the window's depth.
                 targetUbo.Indirect = windowUbo.Indirect;
+                if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
+                    targetUbo.Screen = windowUbo.Screen with { Y = 1 };
                 targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));
             }
 

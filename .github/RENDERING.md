@@ -658,13 +658,21 @@ layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
-0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the boxes of its joints or
-its parts the field holds it as, in its color but giving off none of its light.
-A render target and a probe capture read the world's probes alone, their
-buffers given the window's probes and its cascades with the screen's probes and reflections off,
-and as the frame before left them, since targets are drawn before the bounce is traced. Where the
-window draws no mesh the field is placed around the first target's camera and holds the targets'
-meshes (`SceneField.Gather`).
+0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the
+boxes of its joints or its parts the field holds it as, in its color but giving off none of its
+light. A render target that draws meshes through a camera has screen probes of its own, a depth at
+half its size of the meshes it draws that cast shadows (`ModelRenderer.DrawDepth` for its id),
+probes traced, blended and held as the window's on that depth with a history of their own, let go
+the frame after one the target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, before the
+target's pass), and its buffer says to read them first (`TargetIllumination`). The `targets` node
+runs after `global_illumination` for that, before the window's `shadows`, so a target reads this
+frame's world probes. Two views of `games/Sumo` at 640 by 720 take 1.14 ms of the GPU at `Low` in
+`targets` where they took 0.62 with the world's probes alone, and a target's room reads within a
+tenth of a level of the window's (`GlobalIlluminationTests`), where it read some 60 levels apart. A
+probe capture reads the world's probes alone, its buffer given the window's probes and its cascades
+with the screen's probes and reflections off, and a target's glossy surfaces reflect the probes and
+the environment alone. Where the window draws no mesh the field is placed around the first target's
+camera and holds the targets' meshes (`SceneField.Gather`).
 
 ## 5. Render targets and post processing
 

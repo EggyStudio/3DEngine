@@ -12,7 +12,9 @@ namespace Engine;
 /// models, the particles through the camera its models were drawn with, and its immediate shapes
 /// are drawn, in that order, as the window's are. A target that
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
-/// (<see cref="TargetShadows"/>), and the window's is drawn after every target.
+/// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Where light
+/// bounces, such a target's screen probes are traced before it too, as the window's are, after the
+/// frame's world probes (<see cref="GlobalIlluminationRenderer.DrawTarget"/>).
 /// </remarks>
 internal sealed class TargetsNode : INode
 {
@@ -32,6 +34,8 @@ internal sealed class TargetsNode : INode
             if (models is not null && renderWorld.TryGet<TargetShadows>() is { } shadows
                 && shadows.ByTarget.TryGetValue(id, out var own) && own.Shadow is { } shadow)
                 models.DrawShadow(renderContext, renderWorld, shadow, id);
+            if (models is not null && renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(id) is { } camera)
+                renderWorld.TryGet<GlobalIlluminationRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
 
             var keep = clear is null && target.Drawn;
             var c = (clear ?? Color.Blank).ToVector4();

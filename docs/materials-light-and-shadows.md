@@ -392,11 +392,15 @@ lamp is brought in, where it took seven frames, and with the camera sliding the 
 levels a frame to the picture's change where it added 0.27, as `GlobalIlluminationTests` reads them.
 In Wick's first doorway the hold costs nothing that can be read, the bounce taking 0.229 ms at `Low`
 and 0.359 at `High` with it and without, as `./e3d command profile` gives `global_illumination` with
-the frame rate unlimited. A render texture and a reflection probe's faces take the light that
-bounced from the world's probes alone, as the frame before left them, and where the window draws no
-model, as a game that draws its scene into a texture at a low size and shows the texture, the field
-follows the first texture's camera and holds its models. `Config.GlobalIllumination` sets the same
-for an app made from a `Config`.
+the frame rate unlimited. A render texture that draws models through a camera, as each half of a
+split screen, has screen probes of its own, traced, blended and held as the window's are in the same
+frame, so it shows the light that bounced as the window would: two views of `games/Sumo` at 640 by
+720 take 1.14 ms of the GPU at `Low` between them, as `./e3d command profile` gives `targets`, where
+they took 0.62 reading the world's probes alone, some 0.26 ms a view. A reflection probe's faces
+take the light that bounced from the world's probes alone, and where the window draws no model, as a
+game that draws its scene into a texture at a low size and shows the texture, the field follows the
+first texture's camera and holds its models. `Config.GlobalIllumination` sets the same for an app
+made from a `Config`.
 
 ## Rooms that reflect themselves
 

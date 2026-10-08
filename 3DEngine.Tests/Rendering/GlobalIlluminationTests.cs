@@ -284,6 +284,52 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Room_Drawn_Into_A_Render_Texture_Bounces_Its_Light_As_The_Window_Does()
+    {
+        // The red wall and the block, drawn into the window and then into a render texture of the
+        // window's size shown over the window, the block's side, which only the wall's light
+        // reaches, read in each. The texture's screen probes stand on its own depth as the window's
+        // do, in the same frame.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(-1.3f, 0.8f, 0.9f), new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 50);
+        void Room()
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
+            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+        }
+        var window = Capture(Room, camera);
+
+        var texture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
+        for (int frame = 0; frame < 40 && !File.Exists(path); frame++)
+        {
+            BeginTextureMode(texture);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            Room();
+            EndMode3D();
+            EndTextureMode();
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            DrawTextureRec(texture.Texture, new Rectangle(0, 0, texture.Texture.Width, -texture.Texture.Height), Vector2.Zero, Color.White);
+            if (frame == SceneFieldPlan.SettleFrames + 10) TakeScreenshot(path);
+            EndDrawing();
+        }
+        var drawn = LoadImage(path);
+
+        var (inWindow, inTexture) = (Mean(window, 60, 30, 40, 36), Mean(drawn, 60, 30, 40, 36));
+        inWindow.X.Should().BeGreaterThan(60, $"the wall's light reaches the block's side in the window, {inWindow}");
+        Vector3.Distance(inWindow, inTexture).Should().BeLessThan(6, $"and reaches it alike in the render texture, {inTexture} against {inWindow}");
+        UnloadRenderTexture(texture);
+        UnloadModel(slab);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void The_Light_That_Bounces_Holds_Still_As_The_Camera_Slides()
     {
         // A Cornell box the camera slides across a hundredth of a unit a frame, the picture's change
