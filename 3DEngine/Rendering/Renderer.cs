@@ -96,14 +96,14 @@ internal sealed class Renderer : IDisposable
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang")));
-        RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment, server.LoadSync<ShaderProgram>("shaders/immediate_linear.slang").Fragment));
+        RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
         var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");
         var fxaa = server.LoadSync<ShaderProgram>("shaders/fxaa.slang");
         var exposure = server.LoadSync<ShaderProgram>("shaders/exposure.slang");
         RenderWorld.Set(new BloomRenderer(bloom, composite, fxaa, exposure,
             server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang"),
-            server.LoadSync<ShaderProgram>("shaders/velocity.slang")));
+            server.LoadSync<ShaderProgram>("shaders/velocity.slang"), server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
         RenderWorld.Set(new GlobalIlluminationRenderer());
@@ -137,8 +137,8 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("ambient_occlusion", "global_illumination");
         Graph.AddNode("probes", new ProbeNode());
         Graph.AddNodeEdge("global_illumination", "probes");
-        // With bloom on, the window's scene is drawn into the HDR target and spread before the
-        // window's pass composites it.
+        // The window's scene is drawn into the HDR target, and spread where bloom is on, before the
+        // window's pass tonemaps it into the window.
         Graph.AddNode("hdr_scene", new HdrSceneNode());
         Graph.AddNodeEdge("probes", "hdr_scene");
         Graph.AddNode("bloom", new BloomNode());

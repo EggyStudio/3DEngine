@@ -318,7 +318,9 @@ internal sealed partial class ModelRenderer : IDisposable
     // The modules of the program's own shaders, by ShaderStore id, and their pipelines by the pass
     // they draw in.
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams)> _custom = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth), IPipeline> _customPipelines = [];
+    // A program's shader's fragment stage with its color held to an eight-bit frame's, for the HDR frame.
+    private readonly Dictionary<int, IShader> _heldFragments = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -360,10 +362,12 @@ internal sealed partial class ModelRenderer : IDisposable
     /// <summary>
     /// Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>, through
     /// the cameras they were recorded through, or all through <paramref name="viewProjection"/>,
-    /// as a reflection probe's face draws the window's.
+    /// as a reflection probe's face draws the window's, with a shader of the program's own's color
+    /// held to what an eight-bit frame keeps of it where <paramref name="held"/>, as the HDR frame
+    /// asks (<see cref="ShaderProgram.HeldToEightBits"/>).
     /// </summary>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
-        Matrix4x4? viewProjection = null, int? lights = null)
+        Matrix4x4? viewProjection = null, int? lights = null, bool held = false)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -401,7 +405,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 : CustomModules(gfx, draw.Shader, program).ReadsStreams ? meshStreams : Streams.None;
             var wanted = program is null
                 ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth);
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -700,6 +704,7 @@ internal sealed partial class ModelRenderer : IDisposable
             vertex.Dispose();
             fragment.Dispose();
         }
+        foreach (var fragment in _heldFragments.Values) fragment.Dispose();
         foreach (var (set, _) in _materialSets.Values) set.Dispose();
         foreach (var (_, buffer) in _retiredBuffers) buffer.Dispose();
         foreach (var (_, map) in _retiredMaps) map.Dispose();
@@ -751,7 +756,7 @@ internal sealed class ModelNode : INode
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
-        // With bloom on, the window's models were drawn into the HDR frame.
+        // The window's models were drawn into the HDR frame, on every device that makes one.
         if (renderWorld.TryGet<BloomFrame>() is not null) return;
         renderWorld.TryGet<ModelRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
         renderWorld.TryGet<ParticleRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld);

@@ -78,7 +78,7 @@ internal struct LightingUbo
     /// <summary>The reflection probes bound this frame, by the slot their cube is bound at.</summary>
     public ProbeUboArray Probes;
 
-    /// <summary>x: 1 when the view is drawn into the HDR frame, whose light the model pass leaves linear for bloom and the composite. After the probes, so the fields before keep their offsets.</summary>
+    /// <summary>x: 1 when the model pass leaves the view's light linear, a reflection probe's faces. y: 1 when it leaves it encoded on past 1 with no tonemap, the window's, which the pass after the scene bends. After the probes, so the fields before keep their offsets.</summary>
     public Vector4 Output;
 
     /// <summary>x: 1 when the view's ambient light is darkened by the occlusion bound beside the buffer, the window's alone. y: 1 when the shadowed directional light is darkened by its green channel.</summary>

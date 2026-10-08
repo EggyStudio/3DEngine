@@ -49,9 +49,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             renderWorld.Set(shadow);
             Apply(ref ubo, shadow);
         }
-        // With bloom on the window's view is drawn into the HDR frame and leaves its light linear.
+        // The window's view is drawn into the HDR frame, which holds its light encoded on past 1 for
+        // the pass after the scene to bend.
         var windowUbo = ubo;
-        if (BloomRenderer.IsOn(renderWorld)) windowUbo.Output.X = 1;
+        windowUbo.Output.Y = 1;
         // Only the window's view has an occlusion of its own, which it is darkened by.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces.
@@ -79,7 +80,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             }
         }
         var binding = Upload(allocator, in windowUbo);
-        renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
+        renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
 
         // The window's light left linear, as a reflection probe's half-float faces hold it. A probe
         // whose map is of an earlier placement or of lights since changed gives no light to a
@@ -357,6 +358,5 @@ internal sealed class TargetShadows
 /// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet, in UniformBufferBinding?, in CombinedImageSamplerBinding?)"/>.</param>
 /// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
 /// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
-/// <param name="Linear">Whether the window's view is drawn into the HDR frame, which a frame with no light still binds the buffer for, to read its output flag.</param>
-internal sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false, bool Linear = false);
+internal sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false);
 

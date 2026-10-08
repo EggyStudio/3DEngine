@@ -178,16 +178,18 @@ physics, text and fonts, audio, audio streams and waves, and files
   stays a limit, since raylib has no particles and a game that needs that much has bodies.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
-  vignette, FXAA, depth of field and motion blur.** Any of them draws the window's scene into a
-  half-float target and brings it into the window in one pass, after passes of their own for the
-  depth of field and motion blur (RENDERING.md §5). With all of them off the tonemap still runs at
-  the end of the model pass, render targets loaded without formats stay eight bits, a shader of the
-  program's own inside `BeginMode3D` is read as linear in the HDR frame, and motion blur blurs a
-  mesh entity by its own movement where asked, a model drawn with `DrawModel` and a skinned mesh's
-  limbs by the camera's alone. Ambient occlusion darkens the window's light from all around, from a
-  depth of the meshes that cast shadows drawn at half size and from the scene's distance field where
-  it is built, so a mesh that casts none closes nothing off, and render textures and probe captures
-  are drawn without it.
+  vignette, FXAA, depth of field and motion blur.** The window's scene is drawn into a half-float
+  target every frame it shows one and brought into the window in one pass that tonemaps it, after
+  passes of their own for the depth of field and motion blur (RENDERING.md §5), so a shader of the
+  program's own inside `BeginMode3D` reads the same with every effect on or off. Render targets
+  loaded without formats stay eight bits with the curve at the end of the model pass. The frame's
+  target takes 60 bytes a pixel at four samples, 124 MB at 1920 by 1080, its multisampled depth
+  beside the window's own where the window's pass after it draws nothing with depth and could lend
+  it its own. Motion blur blurs a mesh entity by its own movement where asked, a model drawn with
+  `DrawModel` and a skinned mesh's limbs by the camera's alone. Ambient occlusion darkens the
+  window's light from all around, from a depth of the meshes that cast shadows drawn at half size
+  and from the scene's distance field where it is built, so a mesh that casts none closes nothing
+  off, and render textures and probe captures are drawn without it.
 
 ### The device
 

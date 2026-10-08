@@ -281,39 +281,40 @@ exponential of the step, whose bits ride in the push block's last word. Where an
 the node first draws the window's meshes that cast shadows into a depth at half the window's size,
 with `DrawDepth`, as ambient occlusion draws its own, and binds it with the view it was drawn
 through as the step's second set, one written each frame in flight, and the white texture with
-collision off in frames none collides. The step finds a particle's pixel in that depth, the
-surface there in the world through the inverse view-projection, and its normal from the texels
-beside it, turned toward the camera, and a particle that crossed that surface's plane from the
-camera's side in the step bounces off it, keeping the share of its speed into it that rides with
-the collision's two bits in the capacity word's spare high bits, or ends there. A particle already
-behind a surface, as one passing behind a post, crosses nothing. On `shaders_particles` the depth
-costs the graph about 0.03 ms of CPU and the GPU about 0.01 ms. The draw
-(`particles.slang`) imports the model pass, binds its material set with the emitter's texture as
-the base color, white without one, and the window's lights set as sets 0 and 1 and the particles
-as set 2, and draws six vertices an instance, a square facing the camera's eye that `eyeInWorld`
-finds from the view-projection, after the window's meshes into the window or the HDR frame, depth
-tested and not written, added or laid over by alpha. The square is a round dot, or the texture
-tinted where the emitter has one, whole or the frame of a sheet the share of the life gone picks,
-mixed with the next frame by how far the life is through its own where the emitter blends them,
-the branch on the emitter's setting so both samples are taken where every pixel takes them.
-The look's last value packs whether it is lit and textured, the sheet's columns and rows and
-whether they blend into an integer a float holds exactly, since the push block has no room left.
-A lit particle goes through `lit` as a rough surface facing the camera and an unlit one through
-`toDisplay`, so both follow the HDR frame's output flag. Emitters laid over by alpha are drawn after
-the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is.
-Within an emitter laid over by alpha, `particle_sort.slang` sorts after the step, in the emitter's
-buffer after its particles, a key a particle of its negative squared distance from the window's
-eye, a large one for the dead and infinity for the padding to a power of two, by Batcher's bitonic
-sort. Blocks of 512 keys are sorted in a workgroup's shared memory in one dispatch, and an emitter
-of more takes a dispatch for each step across blocks and one for the steps within them after it,
-so 400 particles cost 0.02 ms of the GPU where a dispatch a step took 0.47. The step clears and
-the sort sets a flag in the header, by which the draw reads each instance's particle through the
-sorted keys. `TargetsNode` draws them into each render target after
-its meshes, with its own lights, since the step runs before the targets, through the camera of the
-target's first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn
-through for a camera entity's texture. A target drawn only in 2D has no camera for them. A
-reflection probe's capture draws them into each face after its meshes, through the face from the
-probe's middle, lit by the capture's lights, so a fire in a room glows in its metal.
+collision off in frames none collides. The step finds a particle's pixel in that depth, the surface
+there in the world through the inverse view-projection, and its normal from the texels beside it,
+turned toward the camera, and a particle that crossed that surface's plane from the camera's side in
+the step bounces off it, keeping the share of its speed into it that rides with the collision's two
+bits in the capacity word's spare high bits, or ends there. A particle already behind a surface, as
+one passing behind a post, crosses nothing. On `shaders_particles` the depth costs the graph about
+0.03 ms of CPU and the GPU about 0.01 ms. The draw (`particles.slang`) imports the model pass, binds
+its material set with the emitter's texture as the base color, white without one, and the window's
+lights set as sets 0 and 1 and the particles as set 2, and draws six vertices an instance, a square
+facing the camera's eye that `eyeInWorld` finds from the view-projection, over the window's scene
+decoded to linear light (§5) or after a target's meshes into the target, depth tested and not
+written, added or laid over by alpha. The square is a round dot, or the texture tinted where the
+emitter has one, whole or the frame of a sheet the share of the life gone picks, mixed with the next
+frame by how far the life is through its own where the emitter blends them, the branch on the
+emitter's setting so both samples are taken where every pixel takes them. The look's last value
+packs whether it is lit and textured, the sheet's columns and rows and whether they blend into an
+integer a float holds exactly, since the push block has no room left. A lit particle goes through
+`lit` as a rough surface facing the camera and an unlit one through `toDisplay`, so both follow the
+view's output flag, and the window's particles undo the window's encoding, since they are drawn over
+its decoded light, so an additive cloud adds up in linear light as a glow does. Emitters laid over
+by alpha are drawn after the additive ones, from the farthest from the camera's eye to the nearest
+by where each emitter is. Within an emitter laid over by alpha, `particle_sort.slang` sorts after
+the step, in the emitter's buffer after its particles, a key a particle of its negative squared
+distance from the window's eye, a large one for the dead and infinity for the padding to a power of
+two, by Batcher's bitonic sort. Blocks of 512 keys are sorted in a workgroup's shared memory in one
+dispatch, and an emitter of more takes a dispatch for each step across blocks and one for the steps
+within them after it, so 400 particles cost 0.02 ms of the GPU where a dispatch a step took 0.47.
+The step clears and the sort sets a flag in the header, by which the draw reads each instance's
+particle through the sorted keys. `TargetsNode` draws them into each render target after its meshes,
+with its own lights, since the step runs before the targets, through the camera of the target's
+first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn through
+for a camera entity's texture. A target drawn only in 2D has no camera for them. A reflection
+probe's capture draws them into each face after its meshes, through the face from the probe's
+middle, lit by the capture's lights, so a fire in a room glows in its metal.
 
 ## 4. Lights and shadows
 
@@ -351,11 +352,14 @@ the program's own that works out a color itself.
 The sum goes through a tonemap that leaves the brightest channel alone up to 0.9, bends it smoothly
 toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
 clamp per channel turns it white, and a color below the bend is unchanged. A world with no light
-entities and no environment draws its models unlit, encoded with no curve, so a color near white
-keeps its shade as raylib's does. With bloom off the curve runs at the end
-of the model pass. With bloom on, the window's view writes linear light into the HDR frame instead
-(a flag in its lighting buffer, `output.x`, which `toDisplay` reads), and the curve runs once over
-the frame in the composite (§5), from the module `color.slang` both import.
+entities and no environment draws its models unlit, so a color near white keeps its shade as
+raylib's does. Where the curve runs depends on the view, which a flag in its lighting buffer,
+`output`, tells `toDisplay` and `unlit`. The window's view, `output.y`, writes its light into the
+HDR frame sRGB-encoded with no curve, carried on past 1 (`linearToSrgbPastWhite`), and the curve
+runs once over the frame in the composite (§5), after the frame's blending, from the module
+`color.slang` both import. A render target's view, neither flag, has eight bits to hold its light,
+so its curve and encoding run at the end of the model pass. A reflection probe's faces, `output.x`,
+keep their light linear.
 
 An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
 lights a frame from all around. A Radiance `.hdr` file is read as linear floats, so a sun keeps its
@@ -384,7 +388,7 @@ The filter writes a second cube for the sky, at a quarter of the image's width a
 texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw
 of a cube around the camera with `sky.slang`, which looks the sky cube up along the way from the
 eye through each pixel and sets its depth a millionth inside the far plane, so whatever else the frame
-draws is in front. The draw goes through the model pass's tonemap like a reflection does, and is
+draws is in front. The draw goes through `toDisplay` and the curve like a reflection does, and is
 left out of the shadow map (`ModelDraw.CastsShadow`).
 
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
@@ -618,9 +622,9 @@ of the surface then, the field's shading is taken in its place. A ray that leave
 surface it meets there is shaded as a probe's ray shades one. Where it meets nothing, the probe's or
 the environment's reflection stands, as it does for a surface as it grows rough, the traced
 reflection fading from a roughness of 0.25 to 0.5, and the ambient lights' specular fades with it.
-While light bounces the window's scene is drawn through the HDR frame, and after the model pass
-the frame's scene is copied at half size into an image with its mips, and the window's half-size
-depth beside it (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
+While light bounces, the window's scene decoded to linear light (§5) is copied after the model pass
+at half size into an image with its mips, and the window's half-size depth beside it
+(`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
 
 Where the device traces rays (`VK_KHR_ray_query` with its acceleration structures, turned on at
 start where the driver has them, `GraphicsDevice.CanQueryRays`), the model pass is built a second
@@ -684,35 +688,78 @@ multisampled depth into a single-sampled image by each pixel's first sample, the
 every device has. The multisampled depth is stored even so, because NVIDIA's driver resolves
 nothing from a depth that is not.
 
-`SetBloom(intensity, threshold)` turns on the HDR frame, which is off and costs nothing by default
-(`BloomRenderer`, `Rendering/PostProcess`). Two nodes run between `probes` and `main_pass`.
-`hdr_scene` draws the window's models and its draw list up to its last batch with depth, the 3D
-shapes inside `BeginMode3D`, into a half-float target the size of the window at the window's
-samples, cleared to the clear color decoded to linear. The draw list's shapes there go through
-`immediate_linear.slang`, which decodes their sRGB colors, so a shape below the tonemap's knee
-comes out as it went in. `bloom` halves the target's resolved color five times, down to a
-thirty-second of the window, with Jimenez's thirteen-tap filter, keeping on the first step only the
-light past the threshold, eased in over a tenth of it. It then adds each level back onto the one
-above through a tent, so the first level holds the light spread over every size (`bloom.slang`).
-`main_pass` draws the composite first, the scene with the first level added at the intensity over
-the number of levels, tonemapped and encoded (`composite.slang`). The models node draws nothing
-more, and the immediate node draws the batches after the split over it, so a game's interface is
-never bloomed or tonemapped and keeps raylib's colors, and ImGui after it as before. The targets
-are made the first frame bloom is on and again when the window's size changes, and those they
-replace are destroyed four frames later, as are all of them the first frame bloom is off. At 800
-by 450 on the RTX 4070 the chain takes 0.26 ms and the composite 0.17 ms.
+The window's scene is drawn through the HDR frame every frame the window shows one, a mesh, a
+particle or a shape drawn with depth inside `BeginMode3D` (`BloomRenderer`,
+`Rendering/PostProcess`). A frame of 2D alone is drawn straight into the window, where it looks the
+same. Two nodes run between `probes` and `main_pass`. `hdr_scene` draws the window's models and its
+draw list up to its last batch with depth, the 3D shapes inside `BeginMode3D`, into a half-float
+target the size of the window at the window's samples, cleared to the clear color. The frame holds
+its light sRGB-encoded, as the eight-bit window does, and carried on past 1. The window's view of
+the model pass writes it so (§4), and the 2D colors and the clear color go in as they are. The
+scene's blending and multisampling are done on encoded light, then, as raylib's are and as the
+window's were, a shape keeps its color, and a shader of the program's own returns its color encoded
+wherever it draws. Such a shader drawn into the frame has the color it writes held to what an
+eight-bit frame keeps of it before blending, its alpha between 0 and 1 and no channel below 0, light
+past 1 kept (`ShaderProgram.HeldToEightBits`, a GLSL.std.450 FClamp put into its SPIR-V before each
+store of the color), so a raylib shader whose gamma correction raises its alpha past 1 blends as
+raylib's frame blends it. A render texture's own formats are left as the program wrote them.
 
-The same frame carries the effects of `FrameEffects`, which turn it on when any is away from its
-default: `SetExposure`, `SetTonemap` (the engine's curve, Reinhard's, Narkowicz's fit of ACES, or a
-cut at 1), `SetColorGrading` (saturation and a tint in linear light after the curve, contrast about
-the middle once encoded) and `SetVignette`, all in the composite's push constants. With `SetFxaa`
-the composite draws into an eight-bit target the window's size instead, and `main_pass` draws that
-through FXAA (`fxaa.slang`, the console form of Lottes's, over the encoded colors) before the
-interface. `FrameEffectsTests` reads each from a frame.
+Where a pass reads the scene's light, bloom, an exposure that follows the scene, the depth of field
+or motion blur, the reflections of light that bounces, or the window's particles, `hdr_scene` then
+decodes it texel for texel into a half-float image of one sample (`decode.slang`), writing the
+scene's resolved depth into that image's depth, and draws the window's particles over it, so their
+glow adds up in linear light. Each of those passes reads this image. The scene is decoded before any
+filter reads it, since a filter across an edge before decoding would dim what is bright beside what
+is dark. `bloom` halves the decoded light five times, down to a thirty-second of the window, with
+Jimenez's thirteen-tap filter, keeping on the first step only the light past the threshold, eased
+in over a tenth of it. It then adds each level back onto the one above through a tent, so the first
+level holds the light spread over every size (`bloom.slang`).
+
+`main_pass` draws the composite first, over the whole window, the scene decoded or the decoded image
+read as it is, with the first level added at the intensity over the number of levels, tonemapped and
+encoded (`composite.slang`). The engine's curve gives way to a clamp in a frame where no light past
+white comes about, with no light, sky, probe, bounce, particle, bloom or exposure, so a world drawn
+as raylib draws one keeps a color near white as it is (`BloomRenderer.Bends`). The models node draws
+nothing more, and the immediate node draws the batches after the split over it, so a game's
+interface is never bloomed or tonemapped and keeps raylib's colors, and ImGui after it as before.
+The targets are made the first frame the window shows a scene and again when the window's size
+changes, and those they replace are destroyed four frames later, as are all of them the first frame
+it shows none.
+
+On the laptop's RTX 4070 with the frame rate unlimited, `./e3d command profile` gives the GPU's time
+for each node, the median of seven readings of a second each, before the window's scene took this
+path whatever the effects and after:
+
+| Frame | Before | After |
+|---|---|---|
+| `shaders_bloom` with bloom off, 800 by 450 | `models` 0.037 ms, `main_pass` 0.010 | `hdr_scene` 0.069, `main_pass` 0.013 |
+| `shaders_bloom` with bloom on | `hdr_scene` 0.064, `bloom` 0.034, `main_pass` 0.019 | 0.071, 0.027, 0.016 |
+| `models_loading`, no light | `models` 0.033, `main_pass` 0.049 | `hdr_scene` 0.102, `main_pass` 0.010 |
+| `shaders_cornell_box`, light bouncing | `hdr_scene` 0.095 | 0.111 |
+| `games/Pusher`, 960 by 540 | `models` 0.056, `main_pass` 0.010 | `hdr_scene` 0.075, `main_pass` 0.014 |
+| `games/Wick`, 960 by 540, light bouncing | `hdr_scene` 0.234 | 0.258 |
+
+A frame with every effect off pays some 0.02 to 0.035 ms for the target's clear and resolve and the
+composite, and one that decodes its scene some 0.01 to 0.02 ms more. `textures_bunnymark` draws no
+scene, and `build/raylib-bench/run.sh`'s ramp held 465,168 and 437,806 sprites at sixty frames a
+second after against 478,849 before, its runs' spread, and `models_stress`, whose entities go
+through the frame now, 646,168 and 584,628 against 615,398. The frame's target takes 60 bytes a
+pixel of the GPU's memory at four samples, its multisampled half-float color and depth and the two
+resolved, 22 MB at 800 by 450 and 124 MB at 1920 by 1080, the bloom chain's levels some 3 bytes a
+pixel more and the decoded image 12 where a pass reads it. Its multisampled depth stands beside the
+window's own, which the window's pass after the composite clears and draws nothing into with depth.
+
+The composite carries the effects of `FrameEffects` too: `SetExposure`, `SetTonemap` (the engine's
+curve, Reinhard's, Narkowicz's fit of ACES, or a cut at 1), `SetColorGrading` (saturation and a tint
+in linear light after the curve, contrast about the middle once encoded) and `SetVignette`, all in
+the composite's push constants. With `SetFxaa` the composite draws into an eight-bit target the
+window's size instead, and `main_pass` draws that through FXAA (`fxaa.slang`, the console form of
+Lottes's, over the encoded colors) before the interface. `FrameEffectsTests` reads each from a
+frame.
 
 `SetAutoExposure` makes the exposure follow the scene, in two passes of `exposure.slang` after the
 bloom chain, which keep the log2 of luminance since an eye adapts by ratios and a mean of logs is not
-pulled up by one lamp. The first measures the HDR frame into a target of 64 by 64, each texel the
+pulled up by one lamp. The first measures the decoded light into a target of 64 by 64, each texel the
 mean of sixteen taps over its part of the frame. The second, one texel, weights those toward the
 middle of the picture, four times as much there as at the edges, holds the mean between the
 luminances the exposure's bounds bring to a mid gray of 0.18, and moves the value of the frame before
@@ -721,8 +768,8 @@ frame. Two such texels take turns, each frame writing one from the other, and th
 0.18 by two to the value it reads and multiplies the exposure by that, so nothing is read back.
 
 `SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
-targets the window's size that the composite then reads in place of the scene, both reading the HDR
-target's resolved depth unfiltered and working back to the world through the inverse of the window's
+targets the window's size that the composite then reads in place of the scene, both reading the
+decoded light and the HDR target's resolved depth unfiltered and working back to the world through the inverse of the window's
 camera (`WindowView`, which `CameraExtract` sets from `MeshEntityDraws.WindowCamera`). The depth of
 field (`dof.slang`) gives each pixel a blur from its distance to the eye against the focus, and
 gathers 32 taps on a golden-angle spiral out to the widest blur, a tap counting once its own blur
@@ -744,8 +791,7 @@ blurs nothing. In `models_stress`, where every entity turns each frame, the fram
 entities at sixty frames a second with it on and about 700,000 with the camera's alone.
 
 `SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `shadows` and before every
-pass that lights the window's meshes, whether or not the frame goes through the HDR target
-(`AmbientOcclusionRenderer`). It draws the depth of the window's batches that cast a shadow into a
+pass that lights the window's meshes (`AmbientOcclusionRenderer`). It draws the depth of the window's batches that cast a shadow into a
 depth target half the window's size, through the shadow pass's pipelines, whose depth-only pass is
 the same at any size, pushing each batch's own camera. `ao.slang` then puts each texel back in the
 world through the inverse view-projection, takes its normal from the nearer neighbor along each
@@ -757,8 +803,10 @@ window's lighting buffer says to read it, so `lit` multiplies its material occlu
 the ambient, environment and probe light alone, by the occlusion at half the fragment's position.
 In Manor's rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU.
 
-Render targets drawn with `BeginTextureMode` stay eight bits and tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
-HDR frame as it is, so its sRGB colors are read as linear there.
+Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
+end of the model pass. A shader of the program's own returns its color encoded in either, so it
+reads the same in the window and in a render texture, with every effect on or off, but for light
+past the curve's knee, which the window bends after blending and a render texture before.
 
 ## 6. What a frame costs
 
@@ -1007,9 +1055,7 @@ run to run, with the runtime's compiler and collector in the frame.
 ## Order of work
 
 Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
-shadow cascades with point and spot shadows, bloom and FXAA, the scene's distance field, and light
-that bounces as Radiance Cascades over it with glossy reflections traced through the depth and the
-field and the GPU's own rays for what the field misses are built, in that order. What is left of
-the order is tonemapping as a full-screen pass in every frame, in place
-of the curve at the end of the model pass, which runs there while every effect over the frame is off
-and over the HDR frame while any is on (§5).
+shadow cascades with point and spot shadows, bloom and FXAA, the scene's distance field, light that
+bounces as Radiance Cascades over it with glossy reflections traced through the depth and the field
+and the GPU's own rays for what the field misses, and tonemapping as a full-screen pass over every
+frame that shows a scene (§5) are built, in that order, and nothing of the order is left.

@@ -18,9 +18,10 @@
 // Color is linear inside the pass and sRGB-encoded where it leaves it. baseColor gives linear
 // color, lit takes linear color and gives it encoded, ready to return, and toDisplay encodes a
 // linear color a shader works out itself. A color a shader returns as it is, such as a uniform
-// set from the program, is taken as already encoded, as the 2D passes take every color. With bloom
-// on, the window's view leaves its light linear instead, and the frame is tonemapped and encoded
-// once bloom has spread it.
+// set from the program, is taken as already encoded, as the 2D passes take every color, in the
+// window and in a render texture alike. The window's frame holds light past white, encoded on past
+// 1, and one pass after the scene brings it under 1 with the tonemap, so light is bent there once,
+// after it is blended. A render texture holds eight bits, so its view bends the light here.
 module modelpass;
 
 // sRGB's transfer functions and the tonemap, which a shader importing this module reaches too.
@@ -90,16 +91,18 @@ public float3 emitted(ModelVertexOutput input)
     return materialEmission(input) * emissiveMap.Sample(input.uv).rgb;
 }
 
-// Linear color as the frame stores it, tonemapped first, since a target holds sRGB-encoded bytes.
-// The light is scaled by the view's exposure first, 1 for every view but a reflection probe's
-// faces, which draw at a quarter, so light up to four times the tonemap's knee survives their eight
-// bits and is scaled back as the capture is read. A view drawn into the HDR frame, which bloom
-// spreads and a later pass tonemaps, keeps the light as it is.
+// Linear color as the view stores it. The light is scaled by the view's exposure first, 1 for
+// every view but a reflection probe's faces, which draw at a quarter and are scaled back as the
+// capture is read. The window's frame takes it encoded on past 1, the pass after the scene
+// bending it under 1; a render texture's eight bits take it bent and encoded here; and a probe's
+// faces keep it linear.
 public float3 toDisplay(float3 linear)
 {
     float exposure = lighting.environment.w > 0.0 ? lighting.environment.w : 1.0;
     if (lighting.output.x > 0.0)
         return linear * exposure;
+    if (lighting.output.y > 0.0)
+        return linearToSrgbPastWhite(linear * exposure);
     return linearToSrgb(tonemap(linear * exposure));
 }
 
@@ -307,12 +310,14 @@ public float3 surfaceNormal(ModelVertexOutput input)
     return normalize(t * s * mapped.x + b * s * mapped.y + n * mapped.z);
 }
 
-// A color as it is, given sRGB-encoded for the frame with no tonemap to bend it, or linear for
-// the HDR frame, as raylib's default shader draws a model, its texture times its color, so a
-// color near white is not bent by the curve the lit colors take.
+// A color as it is, given sRGB-encoded with no tonemap to bend it, or linear for a probe's faces,
+// as raylib's default shader draws a model, its texture times its color, so a color near white in
+// a render texture is not bent by the curve the lit colors take there.
 public float3 unlit(float3 albedo)
 {
-    return lighting.output.x > 0.0 ? albedo : linearToSrgb(albedo);
+    if (lighting.output.x > 0.0)
+        return albedo;
+    return lighting.output.y > 0.0 ? linearToSrgbPastWhite(albedo) : linearToSrgb(albedo);
 }
 
 // A linear color lit at this point, given sRGB-encoded for the frame. With light entities it is

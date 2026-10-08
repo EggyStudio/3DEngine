@@ -135,6 +135,114 @@ internal sealed class ShaderProgram
     /// <summary>The locations a stage takes inputs at, so a pipeline feeds those alone.</summary>
     internal static IReadOnlySet<int> InputLocationSet(ReadOnlySpan<byte> spirv) => LocationSet(spirv, storageClass: 1);
 
+    /// <summary>
+    /// The fragment stage <paramref name="spirv"/> with the color it writes at location 0 held to
+    /// what an eight-bit frame keeps of a color before blending, its alpha between 0 and 1 and each
+    /// channel no less than 0, light past 1 kept, or the stage as it is where that color is not a
+    /// float4 stored whole.
+    /// </summary>
+    /// <remarks>
+    /// A shader of a program's own drawn into the window's HDR frame blends there as it would in an
+    /// eight-bit frame, as raylib's do, so an alpha past 1, as a gamma correction raised to the
+    /// alpha too gives, does not push the color under it below 0. Each store into the output is
+    /// put through GLSL.std.450's FClamp between (0, 0, 0, 0) and (max, max, max, 1).
+    /// </remarks>
+    internal static byte[] HeldToEightBits(ReadOnlySpan<byte> spirv)
+    {
+        const uint magic = 0x07230203, opExtInstImport = 11, opExtInst = 12, opMemoryModel = 14, opTypeFloat = 22, opTypeVector = 23,
+            opTypePointer = 32, opConstant = 43, opConstantComposite = 44, opVariable = 59, opStore = 62, opCopyMemory = 63,
+            opAccessChain = 65, opInBoundsAccessChain = 66, opPtrAccessChain = 67, opDecorate = 71, location = 30, output = 3, fClamp = 43;
+        var words = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(spirv);
+        if (words.Length < 5 || words[0] != magic) return spirv.ToArray();
+
+        uint glsl = 0, float32 = 0, vector4 = 0;
+        int vectorAt = -1, memoryModelAt = -1;
+        var pointers = new Dictionary<uint, (uint Class, uint Type)>();
+        var variables = new List<(uint Id, uint Type)>();
+        var locations = new Dictionary<uint, uint>();
+        for (int at = 5, length; at < words.Length; at += length)
+        {
+            length = (int)(words[at] >> 16);
+            if (length == 0 || length > words.Length - at) return spirv.ToArray();
+            switch (words[at] & 0xffff)
+            {
+                case opExtInstImport when NameOf(words.Slice(at + 2, length - 2)) == "GLSL.std.450": glsl = words[at + 1]; break;
+                case opMemoryModel: memoryModelAt = at; break;
+                case opTypeFloat when words[at + 2] == 32: float32 = words[at + 1]; break;
+                case opTypeVector when float32 != 0 && words[at + 2] == float32 && words[at + 3] == 4: (vector4, vectorAt) = (words[at + 1], at); break;
+                case opTypePointer: pointers[words[at + 1]] = (words[at + 2], words[at + 3]); break;
+                case opVariable when words[at + 3] == output: variables.Add((words[at + 2], words[at + 1])); break;
+                case opDecorate when length >= 4 && words[at + 2] == location: locations[words[at + 1]] = words[at + 3]; break;
+            }
+        }
+        var color = variables.FirstOrDefault(v => locations.TryGetValue(v.Id, out var l) && l == 0
+                                                  && pointers.TryGetValue(v.Type, out var p) && p.Type == vector4 && vector4 != 0).Id;
+        if (color == 0 || memoryModelAt < 0) return spirv.ToArray();
+
+        // Only a color stored whole is held, so a stage that writes it a channel at a time is left as it is.
+        var stores = new List<int>();
+        for (int at = 5, length; at < words.Length; at += length)
+        {
+            length = (int)(words[at] >> 16);
+            var opcode = words[at] & 0xffff;
+            if (opcode is opAccessChain or opInBoundsAccessChain or opPtrAccessChain && words[at + 3] == color
+                || opcode == opCopyMemory && words[at + 1] == color)
+                return spirv.ToArray();
+            if (opcode == opStore && words[at + 1] == color) stores.Add(at);
+        }
+        if (stores.Count == 0) return spirv.ToArray();
+
+        var next = words[3];
+        var import = glsl == 0;
+        if (import) glsl = next++;
+        uint zero = next++, one = next++, most = next++, low = next++, high = next++;
+        var constants = new List<uint>
+        {
+            Instruction(opConstant, 4), float32, zero, BitConverter.SingleToUInt32Bits(0f),
+            Instruction(opConstant, 4), float32, one, BitConverter.SingleToUInt32Bits(1f),
+            Instruction(opConstant, 4), float32, most, BitConverter.SingleToUInt32Bits(float.MaxValue),
+            Instruction(opConstantComposite, 7), vector4, low, zero, zero, zero, zero,
+            Instruction(opConstantComposite, 7), vector4, high, most, most, most, one,
+        };
+
+        var held = new List<uint>(words.Length + 64) { words[0], words[1], words[2], 0, words[4] };
+        for (int at = 5, length; at < words.Length; at += length)
+        {
+            length = (int)(words[at] >> 16);
+            if (at == memoryModelAt && import)
+            {
+                // "GLSL.std.450" and its terminating zero in four words, as SPIR-V packs a string.
+                held.Add(Instruction(opExtInstImport, 6));
+                held.Add(glsl);
+                var name = new byte[16];
+                System.Text.Encoding.ASCII.GetBytes("GLSL.std.450").CopyTo(name, 0);
+                held.AddRange(System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(name).ToArray());
+            }
+            if (stores.Contains(at))
+            {
+                var clamped = next++;
+                held.AddRange([Instruction(opExtInst, 8), vector4, clamped, glsl, fClamp, words[at + 2], low, high]);
+                held.Add(words[at]);
+                held.Add(words[at + 1]);
+                held.Add(clamped);
+                for (int i = 3; i < length; i++) held.Add(words[at + i]);
+                continue;
+            }
+            for (int i = 0; i < length; i++) held.Add(words[at + i]);
+            if (at == vectorAt) held.AddRange(constants);
+        }
+        held[3] = next;
+        return System.Runtime.InteropServices.MemoryMarshal.AsBytes(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(held)).ToArray();
+
+        static uint Instruction(uint opcode, uint length) => length << 16 | opcode;
+        static string NameOf(ReadOnlySpan<uint> operands)
+        {
+            var bytes = System.Runtime.InteropServices.MemoryMarshal.AsBytes(operands);
+            var end = bytes.IndexOf((byte)0);
+            return System.Text.Encoding.ASCII.GetString(end < 0 ? bytes : bytes[..end]);
+        }
+    }
+
     // One past the highest location of a variable of the storage class, Input or Output.
     private static int Locations(ReadOnlySpan<byte> spirv, uint storageClass) => LocationSet(spirv, storageClass).DefaultIfEmpty(-1).Max() + 1;
 

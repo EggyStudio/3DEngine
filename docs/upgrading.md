@@ -8,10 +8,10 @@ and the packages of 5.1 made since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Two changes still compile and do something else, and they
+nothing else a game calls has changed. Three changes still compile and do something else, and they
 come first.
 
-## Two that still compile
+## Three that still compile
 
 A capsule takes its rings before its slices, as raylib 6's does. Both are numbers, so a call
 written for 5.1 compiles and draws its capsule with the two swapped.
@@ -37,6 +37,12 @@ higher.
 | `LogLevel.Error` | 4 | 5 |
 | `LogLevel.Critical`, now `LogLevel.Fatal` | 5 | 6 |
 | `LogLevel.None` | | 7 |
+
+A model shader of the program's own returns its color sRGB-encoded with bloom or another effect
+over the frame on, as it does with every effect off and in a render texture, where 5.1 read it as
+linear light while an effect was on. A shader that returns what `lit`, `unlit` or `toDisplay`
+gives, as the guide's do, draws as it did. One that returned a linear color of its own for an
+effect, light past white to glow, returns `toDisplay(light)` in its place.
 
 ## Functions
 

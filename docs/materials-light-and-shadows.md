@@ -89,8 +89,21 @@ shows from behind sets it, and a glTF file says for each of its materials.
 ## Effects over the frame
 
 Besides bloom, eight effects change how the scene is shown, each set by one call and each off until
-set. Any of them draws the scene through the frame that holds light past white, as bloom does, and
-what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result untouched.
+set. The scene is drawn into a frame that holds light past white whether or not any is on, and one
+pass brings that frame into the window, bending the light past white under it with the curve, so a
+scene, and a shader of a program's own drawn in it, look the same whichever effects are on, but for
+what each effect changes. What is drawn after `EndMode3D`, text, shapes and ImGui, goes over the
+result untouched.
+
+That frame and its pass cost some 0.02 to 0.035 ms of a laptop's RTX 4070 with every effect off,
+as `./e3d command profile` gives the GPU's time for `hdr_scene` and `main_pass` with the frame rate
+unlimited: 0.082 ms where the models drawn straight into the window took 0.047 in `shaders_bloom`
+with its bloom off at 800 by 450, and 0.089 where they took 0.066 in `games/Pusher` at 960 by 540.
+Bloom's chain adds about 0.03 ms (`bloom`). Bloom, an exposure that follows the scene, the depth of
+field, motion blur, light that bounces and particles read the scene's light, and the frame is
+decoded for them once, about 0.02 ms more. The frame takes 60 bytes a pixel of the GPU's memory at
+four samples, 22 MB at 800 by 450 and 124 MB at 1920 by 1080. A frame of 2D alone, as
+`textures_bunnymark` draws, draws none of it.
 
 | Call | What it does |
 |---|---|
@@ -328,7 +341,6 @@ the picture, or passes behind what the window shows, is traced on through the fi
 it meets there reflects its color times the light reaching it, so a mirror shows what stands behind
 the camera. A ray that meets nothing leaves the reflection to the probe or the environment map, as
 does a surface as it grows rough, the traced reflection fading out from a roughness of 0.25 to 0.5.
-The frame is drawn through the HDR frame while light bounces, so the frame before is there to read.
 In `shaders_reflections` at `Medium`, the scene's pass takes 0.30 ms of the GPU with its floor
 polished and 0.23 ms with it rough, as `./e3d command profile` names it `hdr_scene`, with the frame
 rate unlimited as above.

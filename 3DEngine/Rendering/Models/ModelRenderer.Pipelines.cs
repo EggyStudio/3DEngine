@@ -30,18 +30,23 @@ internal sealed partial class ModelRenderer
             blend: blend, streams: streams, depth: depth);
     }
 
-    // A material's own shader's pipeline, which leaves faces out as the model pass's own does.
+    // A material's own shader's pipeline, which leaves faces out as the model pass's own does, its
+    // color held to an eight-bit frame's where it draws into the HDR frame.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
-        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true)
+        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
+        var fragment = held
+            ? _heldFragments.TryGetValue(id, out var heldFragment) ? heldFragment
+                : _heldFragments[id] = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, ShaderProgram.HeldToEightBits(program.Fragment)))
+            : modules.Fragment;
         // A vertex stage of the shader's own is fed the inputs it takes and no others, which a
         // stage that reads less than the instance's every row would leave unread, each by its
         // semantic where the reflection names them and otherwise at the location it reads.
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
-        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
+        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
             blend: blend, streams: streams, depth: depth, inputs: own ? ShaderProgram.InputLocationSet(vertex) : null,
             named: own ? program.VertexInputs : [], shaderName: program.Name);
@@ -76,6 +81,7 @@ internal sealed partial class ModelRenderer
             _custom[id].Vertex.Dispose();
             _custom[id].Fragment.Dispose();
             _custom.Remove(id);
+            if (_heldFragments.Remove(id, out var heldFragment)) heldFragment.Dispose();
             foreach (var key in _customPipelines.Keys.Where(k => k.Shader == id).ToArray()) _customPipelines.Remove(key);
             // Its sets may still be read by a frame in flight.
             if (_shaderSets.Remove(id, out var sets)) _retiredShaderSets.Add((_frames, sets));

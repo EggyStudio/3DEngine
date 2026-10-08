@@ -120,5 +120,9 @@ float4 fragmentMain(ParticleOutput particle) : SV_Target
         alpha *= near * near;
     }
     float3 shown = isLit(look) ? lit(color, input) : toDisplay(color * look.z);
+    // The window's particles are drawn over its scene decoded to linear light, so they add and lay
+    // their light over it in linear light, and the window's encoding is undone.
+    if (lighting.output.y > 0.0)
+        shown = srgbToLinear(shown);
     return float4(shown, alpha);
 }

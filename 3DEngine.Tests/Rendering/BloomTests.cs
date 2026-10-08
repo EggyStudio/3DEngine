@@ -6,8 +6,9 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// Draws frames offscreen with bloom on and off and reads chosen pixels. Light past the threshold
-/// spreads into the dark around it, what is drawn after the 3D scene keeps its exact color, and
-/// bloom turned off draws the frame it drew before it was on.
+/// spreads into the dark around it, what is drawn after the 3D scene keeps its exact color, bloom
+/// turned off draws the frame it drew before it was on, and a shader of the program's own draws
+/// alike either way.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -139,5 +140,98 @@ public sealed class BloomTests : IDisposable
             for (int x = 0; x < before.Width; x++)
                 GetImageColor(after, x, y).Should().Be(GetImageColor(before, x, y), $"the pixel at {x}, {y} is drawn as it was with bloom never on");
         UnloadModel(sphere);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Model_Shader_Of_The_Programs_Own_Draws_Alike_With_Bloom_On_Or_Off()
+    {
+        // A color returned as raylib's shaders return one, sRGB-encoded, which the window's scene
+        // reads the same whichever effects are on, its one pass to the window drawn every frame.
+        Open();
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return float4(0.2, 0.6, 0.8, 1.0);
+            }
+            """, "flat.slang");
+        var cube = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        cube.Materials[0].Shader = shader;
+        void Cube()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(_camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        var off = Capture(Cube, "off");
+        SetBloom(1);
+        var on = Capture(Cube, "on");
+
+        foreach (var (frame, what) in new[] { (off, "with bloom off"), (on, "with bloom on, the color under its threshold") })
+        {
+            var c = GetImageColor(frame, 80, 60);
+            Math.Abs(c.R - 51).Should().BeLessThanOrEqualTo(1, $"the color returned is taken as encoded, as a 2D color is, {what}");
+            Math.Abs(c.G - 153).Should().BeLessThanOrEqualTo(1, what);
+            Math.Abs(c.B - 204).Should().BeLessThanOrEqualTo(1, what);
+        }
+        UnloadModel(cube);
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Shader_Of_The_Programs_Own_Blends_As_In_An_Eight_Bit_Frame()
+    {
+        // An alpha past 1, as raylib's shaders give where their gamma correction is raised to the
+        // alpha too, is held at 1 as an eight-bit frame holds it, so the color is laid on as it is
+        // rather than pushing what is under it below 0.
+        Open();
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return float4(0.5, 0.5, 0.5, 1.5);
+            }
+            """, "past.slang");
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.White);
+            BeginMode3D(_camera);
+            BeginShaderMode(shader);
+            DrawCube(Vector3.Zero, 2, 2, 2, Color.White);
+            EndShaderMode();
+            EndMode3D();
+        }, "past");
+
+        Math.Abs(GetImageColor(frame, 80, 60).R - 128).Should().BeLessThanOrEqualTo(1,
+            "the alpha is held at 1, so 0.5 is laid over the white as it is, where 1.5 would leave 0.25");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void White_Is_Bent_Only_Where_Light_Past_White_Can_Come_About()
+    {
+        // With no light, no sky and no effect, the scene is drawn as raylib draws one, white as
+        // white, and once a light can carry the scene past white the engine's curve bends white too.
+        Open();
+        void Cube()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(_camera);
+            DrawCube(Vector3.Zero, 2, 2, 2, Color.White);
+            EndMode3D();
+        }
+
+        var unlit = Capture(Cube, "unlit");
+        CreatePointLight(new Vector3(0, 3, 3), Color.White, 1);
+        var lit = Capture(Cube, "lit");
+
+        GetImageColor(unlit, 80, 60).Should().Be(Color.White, "a frame no light reaches clamps its light, which leaves white as it is");
+        GetImageColor(lit, 80, 60).R.Should().BeInRange(249, 252, "the curve brings 1 to about 0.963, 251 encoded, once a light is made");
     }
 }

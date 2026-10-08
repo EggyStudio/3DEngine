@@ -10,24 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `bb418bfe`. Item 2: the Linux job's capture loop is `build/capture-examples.sh`, run
-by both jobs, listing the examples with `sed` where the loop used `grep -P`, which macOS's grep
+Reviewed up to `b526089c`. Item 2: the Windows and macOS jobs run `build/play-native.sh Pusher`
+after the step that packs the engine and draws the game, publishing Pusher native from the package
+for the machine's runtime, `win-x64` or `osx-arm64`, linked by the runner's own toolchain as a
+player's machine does, and drawing 300 frames offscreen under the validation layer, each step given
+15 minutes; the script names what failed in an error annotation with the game and the system, a
+publish that fails with the compiler's or the linker's own lines, a run that ends early with its
+log's last lines, no validation layer or an error from it, where a failed publish had ended it
+through `set -e` with nothing of its own; `ScriptTests` reads the scripts the macOS job names from
+the workflow, so it holds this one to macOS's tools too; 30 seconds cold and 11 warm on the coder's
+machine, the runners' first restore and link a few minutes the next run measures; BUILDING.md and
+TODO.md say both jobs publish it (`b526089c`). Item 2 is settled, and its number goes to the light
+that bounces following a changing light within a frame or two, after item 3, which the coder has
+started. At 07:10 the owner decided that every tonemapper BevyCSharp offers comes to 3DEngine
+(Decision 17), which takes item 2 after item 3, the bounce's lag moving to item 5. The owner pushed
+at 06:15 and the run of `b526089c` came back green on Linux and Windows, the thirteen games, Pusher
+in a window, the native publish and the leak test's hundred apps passing there, which settles
+Verdicts 33 and 37, and failed on macOS at the examples' capture, killed by its 50 minutes with the
+games and the rest behind it skipped, Verdict 39; the examples job was skipped, so Verdicts 30 and
+31 wait on.
+
+Before them, item 2 came to be settled, the Linux job's capture loop `build/capture-examples.sh`,
+run by both jobs, listing the examples with `sed` where the loop used `grep -P`, which macOS's grep
 lacks, checking each capture wrote a picture and logged no validation error and naming each failure
 with the example, the system, the exit code and the log's last warnings, held by `ScriptTests` to
 macOS's tools and bash 3.2; the macOS job fetches raylib's files before its build and captures the
 253 examples as PNGs after its tests, the artifact `examples-macos`, compared with nothing, 1,481
 seconds on the coder's GPU, so the job comes to some 50 of its 120 minutes and the step is given 50
-(`0dae7bc6`). Item 3: a target's colors are made with storage usage wherever the device stores their
-format, asked once a format, and as a transfer's destination; where it does not, the shader writes a
-stand-in of eight bits a channel in RGBA order or the target's floats, kept with the target's
-texture, the dispatch blitting the target into it before and back after, each channel into its own;
-a test paints one render texture directly and through stand-ins forced, the pictures matching pixel
-for pixel and the test failing without the blit in; the condition is gone from the guide, the
-cheatsheet, RENDERING.md, TODO.md and the dispatch's warning, and TODO.md's testing entry counts 29
-frames compared whole (`bb418bfe`). Both items are settled. With the list down to the two that wait
-on runs and the owner's word on the next large item not yet given, their numbers go to a game
-published native on Windows and macOS, as the Linux job does, and to the tonemap as a pass over
-every frame, RENDERING.md's last entry of its order, measured first. The suite: 1,554 passed.
+(`0dae7bc6`). And item 3 came to be settled: a target's colors are made with storage usage wherever
+the device stores their format, asked once a format, and as a transfer's destination; where it does
+not, the shader writes a stand-in of eight bits a channel in RGBA order or the target's floats, kept
+with the target's texture, the dispatch blitting the target into it before and back after, each
+channel into its own; a test paints one render texture directly and through stand-ins forced, the
+pictures matching pixel for pixel and the test failing without the blit in; the condition is gone
+from the guide, the cheatsheet, RENDERING.md, TODO.md and the dispatch's warning, and TODO.md's
+testing entry counts 29 frames compared whole (`bb418bfe`). Their numbers went to a game published
+native on Windows and macOS and to the tonemap as a pass over every frame. The suite: 1,554 passed.
 
 Before them, item 3 came to be settled: fault 2's reduction of `gi_trace` came to fault 1's shape,
 every other invocation by its index running a loop whose condition and body read the lights' buffer
@@ -42,20 +60,6 @@ points at both; the reductions are stopped (`1461a781`). Its number went to a co
 a render texture on a device that stores no image in the window's format, after item 2's captures on
 macOS.
 
-Before them, item 3's first fault came to reproduce outside the engine: a debug lavapipe from Mesa's
-main showed it taking a pointer from an eight-entry array on the stack indexed by lane and reading
-through a null entry, the NIR for the reduced module the same line for line in the engine and in the
-C harness, and what the engine's frame added was a triangle whose edges cross the groups of pixels
-lavapipe shades together, where the harness had covered every lane; `build/mesa/ray-query-fragment`
-holds a 25-line GLSL shader, a ray query and in its hit branch a loop over a uniform buffer with a
-read of it after, the reduced module cleaned of anything undefined, `repro.c`, a vertex stage
-drawing a triangle over the middle of the view and `run.sh` for an Ubuntu 24.04 container, both
-shaders crashing on Mesa 25.2.8, 26.2.2 and main at `5a273016` and drawing with whole-view coverage,
-a branch on a varying in place of the query, the loop or the read after it taken out or the loop's
-body empty; the README has the issue's text, which names no one, and TODO.md points at it and names
-fault 2 by the lamps' loop ahead of the sun's branch, reproducing inside the engine alone so far
-(`14ad7786`). The suite: 1,553 passed.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -66,24 +70,25 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 33's six games first, then the examples job.** The Windows job of `06b702a1` passed
-   every test and played six of the twelve games; Summit, Tempo, Sumo and Jelly exited before they
-   were ready and Slide and Wordfall died after they opened, each page line ending in lines of
-   information alone, so the reason is unread, Verdict 33's new part, whose three mends are in at
-   `1840cbb5` and read on the next Windows job once the owner pushes, the cause e3d's own look for
-   the game on Windows before cmd.exe had made it, mended at `63581f04`; its macOS job was still
-   playing the games at 21:48, and the same run first shows Pusher in a window on the two runners'
-   desktops (`d559bb05`). The examples job, which carries the guides' blocks and Verdicts 30 and 31,
-   runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
-   when the leak test's host next dies. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
-2. **A game published native on Windows and macOS.** The shipping guide's command, `dotnet
-   publish` with `PublishAot`, is proved on Linux alone, by the examples job's
-   `build/play-native.sh`; the Windows and macOS jobs publish Pusher native from the package with
-   the toolchains the runners have, as a player's machine does, and draw 300 frames of it offscreen
-   under the validation layer through the same script, which picks the runtime by the machine, a
-   failure named on the page; the step's minutes said beside each job's, the Windows job's games'
-   step being the long one.
+1. **Verdict 39 first, then the examples job.** The run of `b526089c`, the first pushed since
+   `06b702a1`: Linux green in 3 minutes; Windows green in 29, its suite of 1,535 with the leak
+   test's hundred apps, Pusher published native in 48 seconds, the thirteen games in 14 minutes and
+   Pusher in a window in 12 seconds, which settles Verdicts 33 and 37; macOS green through its suite
+   of 1,518 and then timed out capturing the examples, Verdict 39, so the examples job, which
+   carries the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test
+   jobs pass. Each push's run is read by the reviewing session, and a failure it names comes first
+   here.
+2. **Every tonemapper BevyCSharp offers (Decision 17).** In the one tonemap pass of item 3,
+   `SetTonemap` gains Bevy's eight, none, Reinhard, Reinhard by luminance, the ACES fit, AgX, the
+   somewhat boring display transform, Tony McMapface and Blender's filmic, named as BevyCSharp's
+   `Tonemapper` names them, the engine's own curve, Narkowicz's fit and the cut kept beside them;
+   AgX, Tony McMapface and Blender's filmic from Bevy 0.19.1's own tables (the cargo registry's
+   `bevy_core_pipeline-0.19.1/src/tonemapping/luts`, with its `info.txt`), carried as the engine's
+   own 3D textures and sampled as Bevy's `tonemapping_shared.wgsl` samples them, with Bevy's
+   attributions in THIRD-PARTY-NOTICES.md, the other four ported from that shader; a test draws
+   SHARED.md's ramp through each and holds it to BevyCSharp's reference within two levels of 255 for
+   the formulas and four for the tables; the guide's effects table, the cheatsheet and the upgrading
+   page's Added section name them, and the cost of a sampled table is in the guide. After item 3.
 3. **The tonemap as a pass over every frame.** RENDERING.md's last entry of its order: the curve
    at the end of the model pass, which runs there while every effect is off and over the HDR frame
    while any is on, becomes one full-screen pass in every frame, so the window's scene takes one
@@ -96,10 +101,17 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
+5. **The bounce following a changing light within a frame or two.** The light-bounce entry's
+   limit, the screen's probes blended with the frame before's following a changing light some five
+   frames late: where the light at a probe changed, a lamp carried or a wick lit, the blend's
+   history is rejected or shortened there, so the bounce follows Wick's lamp within a frame or two
+   while a still scene keeps its blended calm; the lag counted in frames by a test that moves a lamp
+   and reads a probe, measured on Wick's doorway with the cost of telling a change written in the
+   guide, and the guide's, RENDERING.md's and TODO.md's sentences updated. After item 2.
 
 ## Verdicts
 
-Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not given again.
+Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -126,114 +138,20 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-33. **The run of `913e78e0` fails on Windows in every game's opening, and the page says no more
-    than `did not open`.** Read from the page: the suite passed there, 1,452 with 9 skipped,
-    `build/play-game.sh` drew Pusher from the package under the validation layer, and then
-    `build/drive-game.sh` failed for all eight games at `./e3d open`, each error `<game>: did not
-    open.` and nothing after it, since `--quiet` keeps e3d's own refusal off the page and the
-    script's last warnings came from a log that had none or is not where the script looks,
-    `build/sessions/<game>.log`. e3d refuses an opening with a sentence, `could not be started` with
-    the error, or `did not start serving within` its patience naming the log it wrote, and neither
-    reached the page, so the cause of the first opening of the games through a session on Windows is
-    unread. Two things. The script's error for `open` carries e3d's refusal, its code and its
-    sentence, and the last lines of the log e3d names, read from that path, which N 6.7 asks of a
-    failure; and the cause is found with the run of the mend, the eight failing alike pointing at
-    what they share, the session a game serves and e3d waits for on Windows, and not at a game.
-    Mended at `1c848a20`: the cause was e3d's, which on Windows added its `cmd.exe /c start` line to
-    `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that cmd.exe
-    keeps, `start` took the escaped title for the program and the log's path was none; the line goes
-    to cmd.exe as written through `Arguments`, the script keeps e3d's answer as JSON and fails with
-    its code, its sentence and the last five lines of the log it names, and a path that is not there
-    is refused with `NOT_FOUND` where e3d died making the log's folder from it. Unproven until a
-    Windows job runs. The run of `1c848a20` opened every game, and Windows ran out of its 75 minutes
-    in the games' step with no error on the page, so each game has a budget, `DRIVE_MINUTES`, past
-    which a watcher stops it and one error says how far it got by its last status, the games after
-    it played on, the errors written to the script's own output so one said inside `$(ask ...)`
-    reaches the page (`596535ce`); the twelve games timed on lavapipe gave each twelve minutes and
-    the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. The
-    Windows job of `3afcc4d0` was cancelled at the job's 180 minutes in the games' step at 18:31,
-    its annotations holding the tests' notice alone, and the four jobs after it sit in the same
-    step, so no budget fired. The cause reads from the script and e3d together. `drive-game.sh`
-    reads the answer of `./e3d open` through `$(...)`, which ends when every holder of the pipe's
-    write end has closed it; e3d on Windows starts the game through `cmd.exe /c start /b`
-    (`Launch.cs`), and a process made that way is handed every inheritable handle e3d holds, the
-    pipe among them, whatever the line redirects, so the substitution waits for the game to end, the
-    game runs until a stop the script has not reached, and the budget's watcher, started after the
-    opening, never runs; BevyCSharp's Windows step hung the same way the same day, read the same,
-    and its mend at `070e5e0` writes each answer to a file. Three things: the opening's answer is
-    written to a file under the captures folder and read from there, `$(...)` never wrapping a
-    command that starts a program, which the SHARED.md row carries; the watcher starts before the
-    opening, so a game that hangs in its opening is stopped at its budget with `as far as its
-    opening` on the page; and the games' step takes `timeout-minutes` under the job's 180, so a wait
-    ends the step with the page written and not the job with nothing. The four jobs still running
-    end the same way and are not read again. Mended at `5057c3cb`: the opening's answer goes to
-    `captures/<game>-opened.json` and is read from there, the watcher starts before the opening, and
-    the step has 110 of the job's 180 minutes; Pusher played through the script on the working
-    machine. Clearing the inherit flag of e3d's own handles before it starts `cmd.exe`, offered in
-    the reply, is not asked for while nothing waits on them. Unproven until a push. The Windows job
-    of `06b702a1` reached the games with the mends and played six of them, Pusher, Hopper, Swarm,
-    Rally, Manor and Tactics, in under eight minutes, and six failed: Summit, Tempo, Sumo and Jelly
-    did not open, e3d answering `NOT_READY` with the program exited before it was ready, Summit's
-    log ending as its physics world was disposed and Jelly's as its device came up on llvmpipe; and
-    Slide and Wordfall opened and died before their first command, which ended with 2. Every quoted
-    log line is information, none a warning, so a game ends there by a path that logs nothing, a
-    native death or an exit of its own, and the page cannot say which. Three things: e3d's answer
-    and the script's error carry what is known of the end, the exit code where the session or the
-    process gives one and the log's last lines whatever their level, and a game that exits in its
-    startup logs why at warning or worse before it goes; the Windows job's `LocalDumps` key covers
-    every process and not `testhost.exe` alone, the dumps listed on the page, so a game that dies
-    natively on llvmpipe leaves its stack; and the six are then mended by what the dumps and the
-    lines say, their shared cause first, five of the six being the five newest games and Summit the
-    sixth. Mended at `1840cbb5`, the exit code and its meaning in e3d's answer, a warning from an
-    app closing of its own, the log's last three lines and the dumps in the script's error, and
-    Windows' dumps for every process; the Lato pattern a coincidence of the order the games ran in.
-    The cause was e3d's own: on Windows its first look for the game by name could come before
-    cmd.exe had made it, and a look that found none answered the game as exited, so four games were
-    answered so while they went on to serve, and the sessions they left made two later games'
-    commands and stops ambiguous, code 2. Mended at `63581f04`, e3d reading whether cmd.exe still
-    runs before looking, so a game not found while it runs is waited for and one not found after it
-    ended has gone, and the script sending every command and stop to its game by name through
-    `E3D_NAME`, a refused command's error carrying e3d's code and sentence. Settled when a Windows
-    job plays the twelve games.
+39. **The macOS job of `b526089c` times out capturing every example, and the games, the window,
+    the native publish and the walk behind it are skipped.** The step, added at `0dae7bc6` with 50
+    minutes from the coder's GPU's 25 for the 253, ran from 04:23 to 05:13 UTC on the runner's
+    paravirtual GPU through MoltenVK and was killed by its limit, the artifact `examples-macos`
+    holding 22.6 MB of what it drew and the page saying no more than the timeout, where a run that
+    fails says what failed (N 6.7); the steps after it never ran, so the run proved nothing of the
+    thirteen games, Pusher in a window, the native publish or the README walk on macOS, which the
+    Windows job proved whole. The capture goes into a job of its own on macOS beside the test job,
+    never inside it, with its own limit, a budget an example that fails the one and goes on, the
+    script saying at its end how many drew and how long each took and the page naming the last
+    example reached when the budget ends; the job's own time read from this run's log first, since
+    the runner's rate sets what fits. Settled when a macOS run passes its tests, games, window,
+    native publish and walk again and the captures' job ends within its limit saying what it drew.
 
-37. **The Windows jobs of `80227981` and `c4f248fd` fail the Cornell box frame and the offscreen
-    leak test.** Read from the pages: 1,505 passed, 2 failed, 12 skipped and 1 without a result at
-    `80227981`, where the offscreen leak test crashed the test host, in the whole suite after 13
-    minutes and again in the Core part after 5, its output ending at an app's `Startup stage
-    complete`; and 1,507 passed, 2 failed, 12 skipped at `c4f248fd`, where the same test ran through
-    and found the process holding 58 MB more after a hundred apps than after twenty, against 50, the
-    heap flat at 32.17 MB from the thirtieth app on and the threads steady, so what grows is native,
-    what each app leaves in the device or the driver since the field, the bounce and the reflections
-    gave an app images, buffers, pipelines and descriptor sets of their own. In both runs the
-    `cornell_box` frame differs by 3.3% of its pixels from the reference, over the 2% allowed, where
-    the Linux job's lavapipe matches it and the laptop drew it, so the two lavapipes draw the bounce
-    apart. The Windows job of `3afcc4d0` passed every test at 15:31, and the hot reload test that
-    failed once at `80227981` passed at `c4f248fd`, so it is watched and not mended. Three things:
-    the leak test counts the device's objects, images, buffers, pipelines and descriptor sets, after
-    the twentieth app and the hundredth as the soak counts a game's, and names the kinds that grew,
-    so the native growth is read on the page; a test host that dies leaves a minidump,
-    `DOTNET_DbgEnableMiniDump` with the dump under the runner's temp among the artifacts, and the
-    step says which app the test was at from its output; and the frame comparison's notice says
-    where the differing pixels lie, the rows and columns they fall in, so the bounce's difference
-    between the two lavapipes is read from the page, after which the frame is matched on both, by a
-    step made deterministic or by a share set from the two with its reason beside it. Mended at
-    `6a2d916e`: the ledger of Vulkan objects read by the leak test, a minidump and the last progress
-    line of a test host that dies, and the frame's notice saying where the pixels differ,
-    `cornell_box` allowing 5% with its reason, which the macOS job of `4db6fe46` at 2.6% is within.
-    The Windows job of `6a2d916e`, the first with the mends, passed the Cornell frame and lost the
-    leak test again, the host dying at the ninetieth app in the Core part and the ninety-first in
-    the whole suite, a death at the same place twice being a limit reached rather than chance, and
-    the page named the app and no dump, so `createdump` left none for that death. Three more things:
-    the page's account of a lost process carries the last ledger line the test printed, so it says
-    whether any Vulkan object had climbed by the eightieth app; the leak test prints the process's
-    handle count every ten apps, and on Windows its GDI and USER objects through `GetGuiResources`,
-    so a count climbing toward a limit shows before the death; and where `createdump` leaves
-    nothing, the job turns on Windows' own dumps for the test host through the `LocalDumps` key into
-    the same folder, read as a `.dmp` by `dotnet-dump` or WinDbg, so the death's own stack is on the
-    artifacts. Mended at `0ad8636f`, the progress line carrying the ledger, the handles and the GUI
-    objects, and Windows' own dumps kept. The Windows job of `06b702a1` passed both, so the death is
-    intermittent, and the readings tell when it next comes. Settled when a Windows job passes both
-    tests.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -325,21 +243,56 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     experiment of its own, and HTrace's WSGI was passed over as closed and as far more code for a
     hybrid that ghosts when things move.
 
+17. **Every tonemapper BevyCSharp offers is in 3DEngine.** The owner decided on 2026-10-08:
+    Bevy's eight, none, Reinhard, Reinhard by luminance, the ACES fit, AgX, the somewhat boring
+    display transform, Tony McMapface and Blender's filmic, are choices of `SetTonemap` beside the
+    engine's own curve, Narkowicz's fit and the cut, the three Bevy draws through lookup tables from
+    Bevy's own table data with its attributions, the others ported from Bevy's shader, so a picture
+    tonemapped here is the one BevyCSharp draws, proved by one ramp drawn through each in both
+    engines and compared, the ramp defined in SHARED.md and its references made on BevyCSharp's
+    side. Chosen over tables made here for every one, since Bevy's data gives the same picture, and
+    over porting alone, since Tony McMapface and Blender's filmic exist as tables alone.
+
 ## Replies
 
-Item 2, a game published native on Windows and macOS:
-
-- **The step.** The Windows and macOS jobs run `build/play-native.sh Pusher` after the step that
-  packs the engine and draws the game. It publishes Pusher native from the package for the
-  machine's runtime, `win-x64` or `osx-arm64`, linked by the toolchain the runner has, Visual
-  Studio's or Xcode's, as a player's machine does, and draws 300 frames offscreen under the
-  validation layer. Each step is given 15 minutes.
-- **A failure named.** The script now names what failed in an error annotation with the game and
-  the system: a publish that fails, with the compiler's or the linker's own error lines, a run that
-  ends early, with its log's last lines, no validation layer, or an error from it. A failed publish
-  had ended the script by `set -e` with nothing of its own. `ScriptTests` holds it to macOS's tools
-  now that a macOS job runs it.
-- **Its minutes.** Here it publishes and draws in 30 seconds cold and 11 warm. On the runners the
-  first publish restores the native compiler's packages and links with the system's toolchain, so a
-  few minutes is likely beside the Windows job's 180 and the macOS job's some 50 of 120, which the
-  next run measures. BUILDING.md and TODO.md say both jobs publish it.
+Item 3, the tonemap as a pass over every frame. The window's scene goes through the HDR frame every
+frame it shows one, a mesh, a particle or a shape drawn with depth, and a frame of 2D alone straight
+into the window, where it looks the same. The frame holds its light sRGB-encoded, carried on past 1,
+rather than linear, so a shader of the program's own reads the same with effects on or off,
+returning its color encoded as raylib's do, and the frame's blending and multisampling stay on
+encoded light as the window's were. Where a pass reads the scene's light, bloom, the exposure that
+follows it, the lens passes, the bounce's reflections or particles, `decode.slang` decodes it once
+into a half-float image with the scene's depth, and the window's particles are drawn over that, so
+an additive cloud still adds in linear light; drawn in the encoded frame, the particles' cloud grew
+wide past its reference under bloom. The composite decodes, bends and encodes, and the engine's
+curve gives way to a cut at 1 where nothing past white comes about, no light, sky, probe, bounce,
+particle, bloom or exposure, so a world drawn as raylib draws one keeps white white
+(`BloomRenderer.Bends`). The output flag cannot go while a render texture keeps eight bits and its
+look, since a target still needs the curve and the encoding in the model pass and a probe's faces
+need linear light, so it stays as the view's kind, `output.y` the window's encoded past 1 and
+`output.x` a probe's linear. The raylib measure then found five pairs gone from about 1% to between
+15 and 42%, raylib's lighting shaders raising their alpha past 1 with their gamma correction, which
+an eight-bit frame clamps before blending and a half-float one does not, so a program's shader drawn
+into the frame has its color at location 0 held by an FClamp put into its SPIR-V, alpha 0 to 1 and
+no channel below 0, light past 1 kept (`ShaderProgram.HeldToEightBits`). The five came back to their
+shares, and every pair holds within a point of measured.tsv, `models_animation_blend_custom` at 3.6
+against 3.3 by its capture frame, which wanders from 157 to 159 between runs of one build. On the
+RTX 4070 by `./e3d command profile`, a frame with every effect off costs 0.02 to 0.035 ms more of
+the GPU, 0.047 to 0.082 ms in `shaders_bloom` with bloom off and 0.066 to 0.089 in Pusher at 960 by
+540, the decoding 0.01 to 0.02 where a pass reads the light, and the target 60 bytes a pixel at four
+samples, 124 MB at 1920 by 1080, written in the guide, RENDERING.md §5 with a table, and TODO.md,
+which notes that the frame's multisampled depth could be the window's own. The bunnymark draws no
+scene, its ramp 465,168 and 437,806 against 478,849, and `models_stress` 646,168 and 584,628 against
+615,398, the runs' spread. Twelve references are redrawn from this machine's GPU, those the change
+moves past the step, the same twelve on lavapipe and on the GPU, none past 0.79% of its pixels. In
+the lit frames they differ at the edges of light past white, resolved now before the curve rather
+than after it, and in the frames with effects on, `bloom`, `frame_effects`, `motion_blur`,
+`reflections`, `cornell_box`, `summit` and `wick`, edges and thin lines resolved on encoded light as
+the window's are, so `frame_effects`' 3D line is drawn as raylib draws one; `particles` moved at
+most 2 levels. New tests: a program's model shader draws alike with bloom on or off, white stays
+white with no light and bends once a lamp is made, and a shader's alpha past 1 blends as in an
+eight-bit frame, which reads 64 without the hold. The upgrading page's third change that still
+compiles is a shader that returned linear light for an effect. The suite: 1,557 passed; on lavapipe
+under the validation layer the rendering tests, 292 passed and 2 skipped. Next is Verdict 39, then
+item 2's tonemappers. The macOS job's step log needs a sign-in that this machine lacks, so the
+runner's rate comes from the first run of the new job, whose page will name it.

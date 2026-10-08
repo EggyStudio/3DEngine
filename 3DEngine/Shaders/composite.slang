@@ -1,8 +1,9 @@
-// The HDR frame onto the window. The scene's light with the bloom chain's added, scaled by the
-// exposure and the one that follows the scene, brought under 1 by the chosen curve, graded,
-// encoded, and darkened toward the corners.
-// With every effect at its default it is the engine's own curve and encoding, as the model pass
-// does it with the HDR frame off, so only bloom and the effects set tell the two frames apart.
+// The HDR frame onto the window, drawn every frame the window shows a scene. The scene's light,
+// decoded where the frame holds it encoded as the scene drew it, with the bloom chain's added,
+// scaled by the exposure and the one that follows the scene, brought under 1 by the chosen curve,
+// graded, encoded, and darkened toward the corners.
+// With every effect at its default it is the engine's own curve and the encoding, which a render
+// texture's view applies in the model pass, so the window's scene looks as a render texture's.
 import color;
 import fullscreen;
 
@@ -15,6 +16,8 @@ struct CompositePush
     // rgb: the tint, linear. a: where the vignette begins, from the middle toward a corner.
     float4 tint;
     // x: 1 when the exposure follows the scene. y: the luminance it brings the scene's mean to.
+    // z: 1 when the scene is read as the scene drew it, encoded on past 1, and 0 when a pass before
+    // decoded it to linear light.
     float4 exposure;
 };
 
@@ -57,6 +60,8 @@ float3 curve(float3 c, int which)
 float4 fragmentMain(FullscreenOutput input) : SV_Target
 {
     float3 light = scene.SampleLevel(input.uv, 0).rgb;
+    if (push.exposure.z > 0.0)
+        light = srgbToLinear(light);
     if (push.bloom.z > 0.0)
         light += tent(bloom, input.uv, push.bloom.xy) * push.bloom.z;
     float exposure = push.bloom.w;

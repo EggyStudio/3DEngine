@@ -57,7 +57,9 @@ public struct Lighting
     // How many probes are bound, in x, and the probes by the slot their cube is bound at.
     public float4 probeCount;
     public Probe probes[4];
-    // 1 in x when the view is drawn into the HDR frame, whose light toDisplay leaves linear.
+    // 1 in x when toDisplay leaves the view's light linear, a reflection probe's faces, and 1 in y
+    // when it encodes it on past 1 with no tonemap, the window's frame, which a pass after the
+    // scene bends. Neither for a render texture, whose light toDisplay bends and encodes.
     public float4 output;
     // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's alone,
     // and 1 in y when the shadowed directional light is darkened by its green channel, the sun's

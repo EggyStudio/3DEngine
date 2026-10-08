@@ -105,6 +105,9 @@ internal sealed class ParticleRenderer : IDisposable
         _particleBindings = particles.LayoutOf(2);
     }
 
+    /// <summary>Whether particles are drawn into the window this frame, stepped and seen through the window's camera.</summary>
+    internal bool DrawsInWindow(RenderWorld renderWorld) => _drawn.Count > 0 && renderWorld.TryGet<RenderParticles>()?.ViewProjection is not null;
+
     /// <summary>Records the dispatch that steps each emitter's particles this frame, outside any render pass.</summary>
     public void Step(RenderContext renderContext, RenderWorld renderWorld)
     {

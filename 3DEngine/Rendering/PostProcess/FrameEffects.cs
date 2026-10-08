@@ -9,9 +9,9 @@ namespace Engine;
 /// <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
-/// Any of them away from its default draws the scene through the HDR frame, as bloom does, and
-/// applies it in the pass that brings that frame into the window. What is drawn after the scene, a
-/// game's interface and ImGui, is drawn over the result untouched.
+/// Each is applied in the pass that brings the HDR frame into the window, which the window's scene
+/// is drawn through whatever they are set to. What is drawn after the scene, a game's interface and
+/// ImGui, is drawn over the result untouched.
 /// </remarks>
 internal sealed class FrameEffects
 {
@@ -66,7 +66,4 @@ internal sealed class FrameEffects
     /// <summary>Whether motion blur blurs each mesh entity by its own movement as well as the camera's.</summary>
     public bool MotionBlurObjects { get; set; }
 
-    /// <summary>Whether any effect is away from its default, which draws the frame through the HDR target.</summary>
-    public bool Active => Exposure != 1 || AutoExposure || Tonemap != Tonemap.Engine || Contrast != 1 || Saturation != 1
-                          || Tint != Color.White || Vignette > 0 || Fxaa || FocusBlur > 0 || MotionBlur > 0;
 }

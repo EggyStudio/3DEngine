@@ -1,6 +1,7 @@
 // Color conversions every pass that writes the frame agrees on: sRGB's transfer functions and the
-// tonemap that brings light past 1 under it. modelpass exports them to model shaders, and the HDR
-// frame's composite uses the same ones, so a scene looks the same through either.
+// tonemap that brings light past 1 under it. modelpass exports them to model shaders, and the
+// composite that brings the window's HDR frame into the window uses the same ones, so a render
+// texture's scene looks as the window's does.
 module color;
 
 // sRGB's transfer function, exactly rather than as a power of 2.2, so a byte decoded and encoded
@@ -12,7 +13,14 @@ public float3 srgbToLinear(float3 c)
 
 public float3 linearToSrgb(float3 c)
 {
-    c = saturate(c);
+    return linearToSrgbPastWhite(saturate(c));
+}
+
+// The same encoding carried on past 1, as the window's HDR frame holds light brighter than white,
+// which srgbToLinear brings back as it was.
+public float3 linearToSrgbPastWhite(float3 c)
+{
+    c = max(c, 0.0);
     return select(c <= 0.0031308, c * 12.92, 1.055 * pow(c, 1.0 / 2.4) - 0.055);
 }
 

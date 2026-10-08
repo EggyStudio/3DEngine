@@ -18,7 +18,7 @@ internal sealed partial class ModelRenderer
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
-            || (frame.LightCount == 0 && !frame.HasEnvironment && !frame.Linear && target != ProbeCaptureLights
+            || (frame.LightCount == 0 && !frame.HasEnvironment && target != 0 && target != ProbeCaptureLights
                 && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 } && GlobalIlluminationRenderer.CascadesIn(renderWorld) == 0))
         {
             if (_noLights is null)
