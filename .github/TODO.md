@@ -173,10 +173,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   played through, cut or blended, and bouncing off or ending at the scene's distance field where it
   is built and holds the particle, and at the window's depth of the meshes that cast shadows
   elsewhere (RENDERING.md §3 and §4). A render texture drawn only in 2D has no camera to draw them
-  through, those laid over by alpha are sorted from the window's camera in a render texture too,
-  without the field a particle passes through what the window does not show, off screen or behind
-  something, and it passes through shapes drawn without a model. Colliding with the physics world
-  stays a limit, since raylib has no particles and a game that needs that much has bodies.
+  through, without the field a particle passes through what the window does not show, off screen or
+  behind something, and it passes through shapes drawn without a model. Colliding with the physics
+  world stays a limit, since raylib has no particles and a game that needs that much has bodies.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, the engine's
   or one of Bevy's eight, grading, a vignette, FXAA, depth of field and motion blur.** The window's

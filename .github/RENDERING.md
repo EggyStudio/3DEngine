@@ -307,14 +307,19 @@ the step, in the emitter's buffer after its particles, a key a particle of its n
 distance from the window's eye, a large one for the dead and infinity for the padding to a power of
 two, by Batcher's bitonic sort. Blocks of 512 keys are sorted in a workgroup's shared memory in one
 dispatch, and an emitter of more takes a dispatch for each step across blocks and one for the steps
-within them after it, so 400 particles cost 0.02 ms of the GPU where a dispatch a step took 0.47.
-The step clears and the sort sets a flag in the header, by which the draw reads each instance's
-particle through the sorted keys. `TargetsNode` draws them into each render target after its meshes,
-with its own lights, since the step runs before the targets, through the camera of the target's
-first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn through
-for a camera entity's texture. A target drawn only in 2D has no camera for them. A reflection
-probe's capture draws them into each face after its meshes, through the face from the probe's
-middle, lit by the capture's lights, so a fire in a room glows in its metal.
+within them after it, so 400 particles cost 0.02 ms of the GPU where a dispatch a step took 0.47. A
+render target drawn through a camera of its own sorts them again from its eye before its pass, and
+the window again from its own before its scene's particles are drawn where a target sorted after it
+(`ParticleRenderer.SortFor`), each emitter keeping the eye its buffer was last sorted from: an
+emitter of 300 in `games/Sumo`'s two views added 0.025 to 0.03 ms of the GPU to `targets`, as `./e3d
+command profile` gives it, 0.38 against 0.35. The step clears and the sort sets a flag in the
+header, by which the draw reads each instance's particle through the sorted keys. `TargetsNode`
+draws them into each render target after its meshes, with its own lights, since the step runs before
+the targets, through the camera of the target's first `BeginMode3D`, which `Mode3DCamera.Targets`
+keeps, or the one its meshes were drawn through for a camera entity's texture. A target drawn only
+in 2D has no camera for them. A reflection probe's capture draws them into each face after its
+meshes, through the face from the probe's middle, lit by the capture's lights, so a fire in a room
+glows in its metal.
 
 ## 4. Lights and shadows
 

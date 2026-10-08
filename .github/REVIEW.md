@@ -10,21 +10,39 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c7ee9c72`. Item 2: a render target that draws meshes through a camera gets screen
-probes of its own, a depth at half its size of the meshes it draws that cast shadows, probes traced,
-blended and held on it as the window's are, their history let go the frame after one the target is
-not drawn in (`GlobalIlluminationRenderer.DrawTarget`, called by the targets node before the
-target's pass), bound for its model pass through `TargetIllumination`, a probe capture keeping the
-world's probes alone; the targets node runs after `global_illumination` to read this frame's world
-probes, the window's shadows still after every target; a new test draws the red wall's room into the
-window and into a render texture of its size, the block's side reading (111, 45, 45) in both where
-the texture read (52, 37, 37) with the world's probes alone; Sumo's two views at 640 by 720 with the
-bounce at `Low` take 1.14 ms of the GPU in `targets` where they took 0.62, some 0.26 ms a view,
-which a view carries, so no limit stays, written in the guide, RENDERING.md and TODO.md with the
-entry's sentence gone; the references are unchanged, Summit's frame moving by some 20 pixels with
-what ran before it whichever build draws it (`c7ee9c72`). Item 2 is settled, and its number goes to
-particles sorted from each view's camera, after item 3, which the coder has started. The suite:
-1,572 passed, and on lavapipe the rendering tests, 306.
+Reviewed up to `e10961bc`. Item 3: the lights' upload groups the views drawing meshes through a
+camera, the window first and then the targets, each joining the first group whose first cascade,
+fitted to all of the group's cameras and its own, is no more than a quarter wider in its texels than
+any member's own (`LightingUboPrepare.SharedTexelGrowth`), so a view reads its shadows from the
+shared map as from its own; each group gets one shadow, `ModelRenderer.DrawShadow` drawing it once
+by the first of the views sharing it, as the point lights' faces are drawn once by the first view,
+and with no sun every view shares one map; a new test draws one scene into two render textures, two
+cameras a third of a unit apart drawing the map once and each reading within 0.01 percent of its
+pixels of itself drawn alone, two thirty units apart drawing it twice; Sumo's two views, facing each
+other across the ring, share, a probe of that layout finding the shared view apart from itself alone
+at 77 of 28,800 pixels along its shadows' edges, and its render textures take 0.35 to 0.37 ms of the
+GPU in `targets` where they took 0.45, written in the guide, RENDERING.md §4 and TODO.md with the
+entry's sentence gone; the references are unchanged (`e10961bc`). The quarter stands, since a shared
+view's texels grow by a quarter at most and Sumo's edges move by a fraction of a percent. Item 3 is
+settled, and its number goes to the two small limits TODO.md still describes, ImGui's frame started
+in `First` and a 2D render texture's particles, after item 2, which the coder has started; with them
+TODO.md's limits are spent, and the next large item is the owner's to name. The suite: 1,573 passed,
+and on lavapipe the rendering tests, 307.
+
+Before them, item 2 came to be settled, a render target that draws meshes through a camera getting
+screen probes of its own, a depth at half its size of the meshes it draws that cast shadows, probes
+traced, blended and held on it as the window's are, their history let go the frame after one the
+target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, called by the targets node before
+the target's pass), bound for its model pass through `TargetIllumination`, a probe capture keeping
+the world's probes alone; the targets node runs after `global_illumination` to read this frame's
+world probes, the window's shadows still after every target; a new test draws the red wall's room
+into the window and into a render texture of its size, the block's side reading (111, 45, 45) in
+both where the texture read (52, 37, 37) with the world's probes alone; Sumo's two views at 640 by
+720 with the bounce at `Low` take 1.14 ms of the GPU in `targets` where they took 0.62, some 0.26 ms
+a view, which a view carries, so no limit stays, written in the guide, RENDERING.md and TODO.md with
+the entry's sentence gone; the references are unchanged, Summit's frame moving by some 20 pixels
+with what ran before it whichever build draws it (`c7ee9c72`). Its number went to particles sorted
+from each view's camera. The suite: 1,572 passed, and on lavapipe the rendering tests, 306.
 
 Before them, item 3 came to be settled, `LightingUboPrepare.Rank` keeping a light some camera sees
 first, then weighs each light's brightness at a view's eye, over one plus the square of how far its
@@ -41,20 +59,6 @@ hall against 0.010 and 0.020 without, the references drawn again the same, and t
 RENDERING.md §4 and TODO.md say so, the entry's sentence gone (`1dd93fa4`). Its number went to the
 shadows drawn once for the views that share them. The suite: 1,571 passed, and on lavapipe the
 rendering tests, 305.
-
-Before them, item 2 came to be settled, the HDR frame's target drawing into the window's own
-multisampled depth (`GraphicsDevice.CreateRenderTargetOnWindowDepth`) and keeps only its resolved
-depth, which the decoding, the lens passes and the reflections read, the window's pass after the
-composite clearing that depth and drawing nothing into it with depth; a target made before the
-window's depth was made again is made again too (`WindowDepthGeneration`), and with one sample the
-target keeps a depth of its own; the target is 44 bytes a pixel at four samples where it was 60, 91
-MB at 1920 by 1080 where it was 124, `nvidia-smi` giving `shaders_bloom` with its bloom off at that
-size 278 MiB before the frame, 405 at `468e32ed` and 374 with the depth lent, the 31 MiB the depth's
-16 bytes a pixel, written in the guide, RENDERING.md §5 and TODO.md; the references are unchanged,
-each within 3 levels of its committed frame on the coder's GPU, and a new test draws a model and
-shapes with depth in one scene at four samples, a bar behind the model hidden where it stands and
-seen past its sides and a cube before it covering it (`d9e2bec5`). Its number went to the bounce in
-render textures. The suite: 1,569 passed, and on lavapipe the rendering tests, 303.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -82,14 +86,13 @@ for a reply. In this order.
    one emitter into two views from opposite sides and reading each in its own order, the cost of the
    second sort measured in Sumo for the guide, and the entry's sentence dropped, the 2D render
    texture's want of a camera kept as it is. After item 3.
-3. **The shadows drawn once for the views that share them.** TODO.md's shadows entry says each
-   render target that draws meshes draws the sun's cascades and the spot lights' tile again for its
-   own camera, so a game of two views, as Sumo's split screen is, draws its shadows twice a frame:
-   views whose cameras stand within a cascade's reach of each other share one set of cascades fit to
-   both and one spot tile, drawn once, a view too far from the rest keeping its own, the shadows a
-   view reads the same to the eye; the cost measured in Sumo and written in the guide beside the one
-   view's, a test drawing one scene into two near views and reading their shadows alike, and the
-   entry's sentence dropped. After item 2.
+3. **The two small limits left.** TODO.md's ImGui entry says ImGui's frame starts in `PreUpdate`,
+   so calls a system makes in `First` are lost, and its particles entry says a render texture drawn
+   only in 2D has no camera to draw them through: ImGui's frame starts before `First` so a system
+   there draws into it, with a test of a window made in `First`; and a render texture drawn only in
+   2D draws its particles through the window's camera, the one its 2D is laid over, with a test
+   reading an emitter in such a texture; the guide's sentences and the two entries' updated. After
+   item 2.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -241,21 +244,19 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 3, the shadows drawn once for the views that share them. The lights' upload groups the views
-drawing meshes through a camera, the window first and then the targets: each joins the first group
-whose first cascade, fitted to all of the group's cameras and its own (`ShadowFit.FitCascades` over
-several), is no more than a quarter wider in its texels than any member's own
-(`LightingUboPrepare.SharedTexelGrowth`), so a view reads its shadows from the shared map as from
-its own; each group gets one shadow, and `ModelRenderer.DrawShadow` draws a shadow once where the
-views sharing it are drawn one after another, by the first of them with its meshes, as the point
-lights' faces were already drawn by the first view. With no sun every view's map is the same and all
-share it. A new test draws one scene into two render textures side by side: two cameras a third of a
-unit apart draw the map once and each reads within 0.01% of its pixels of itself drawn alone, and
-two thirty units apart draw it twice, the far one reading as it does alone. Sumo's two views share,
-facing each other across the ring, as a probe of that layout showed (one map, the shared view apart
-from itself alone at 77 of 28,800 pixels along its shadows' edges); its render textures take 0.35 to
-0.37 ms of the GPU in `targets` where they took 0.45, by `./e3d command profile`, settled in play,
-written in the guide beside the one view's, RENDERING.md §4 and TODO.md, the entry's sentence gone.
-The GPU's references are unchanged, Summit's frame, which draws no render texture, moving by its
-run-to-run dozen pixels. The suite: 1,573 passed; on lavapipe the rendering tests, 307 passed and 2
-skipped. Next is item 2's number, particles sorted from each view's camera.
+Item 2, particles sorted from each view's camera. Each emitter laid over by alpha keeps the eye its
+buffer was last sorted from, the step sorting from the window's as before, and
+`ParticleRenderer.SortFor` sorts it again from a view's own eye where that differs, outside any
+pass: the targets node for each render target before its pass, its eye that of the camera its
+`BeginMode3D` drew through, and the HDR scene node for the window before the pass its particles are
+drawn in, where a target sorted after the step; a probe's faces draw in the last order sorted, and a
+render texture drawn only in 2D still draws none. A new test draws one stream, blue as it is born at
+the back and red as it ages toward the front, into two render textures from either end: the front
+view shows red in front and the back view blue, where the back view showed (225, 30, 140), the
+window's order. Sumo's dust is additive and so is never sorted; with an emitter of 300 laid over by
+alpha added to its ring through `./e3d eval`, its two views take 0.377 to 0.383 ms of the GPU in
+`targets` where they took 0.352, by `./e3d command profile`, some 0.013 ms a sort, written in the
+guide and RENDERING.md §3, TODO.md's sentence gone and the 2D render texture's want of a camera
+kept. The suite: 1,574 passed; on lavapipe the rendering tests, 308 passed and 2 skipped. Next is
+item 3's number, ImGui's frame begun before First and a 2D render texture's particles through the
+window's camera.

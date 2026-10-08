@@ -347,6 +347,60 @@ public sealed class ParticleTests : IDisposable
         UnloadRenderTexture(target);
     }
 
+    // The stream of the test below, blue as it is born at the back and red as it ages toward the
+    // front, drawn into two render textures from either end of it, each shown in a half of the
+    // window: each lays the particles over far to near from its own camera, so the one at the front
+    // shows the red in front and the one behind the blue.
+    [NeedsVulkanFact]
+    public void One_Cloud_Drawn_Into_Two_Views_From_Either_Side_Is_Laid_Over_In_Each_Ones_Order()
+    {
+        var config = Config.Default.WithWindow("particle test", 320, 120) with { Headless = true, Offscreen = true, Samples = 4, FrameSeconds = 1.0 / 60 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        CreateParticleEmitter(new Vector3(0, 0, -3), ParticleEmitter.Default with
+        {
+            Blend = ParticleBlend.Alpha,
+            MaxParticles = 300,
+            Rate = 150,
+            Life = 2,
+            LifeVariation = 0,
+            Velocity = new Vector3(0, 0, 2),
+            Spread = 0,
+            SpeedVariation = 0,
+            Gravity = Vector3.Zero,
+            StartSize = 0.6f,
+            EndSize = 0.6f,
+            StartColor = new Color(30, 30, 255),
+            EndColor = new Color(255, 30, 30),
+        });
+        Camera3D[] cameras = [new(new Vector3(0, 0, 6), new Vector3(0, 0, -1), Vector3.UnitY, 45), new(new Vector3(0, 0, -8), new Vector3(0, 0, -1), Vector3.UnitY, 45)];
+        var views = cameras.Select(_ => LoadRenderTexture(160, 120)).ToArray();
+        var path = Path.Combine(_folder.Path, "views.png");
+        for (int frame = 0; frame < 100 && !File.Exists(path); frame++)
+        {
+            for (int v = 0; v < 2; v++)
+            {
+                BeginTextureMode(views[v]);
+                ClearBackground(Color.Black);
+                BeginMode3D(cameras[v]);
+                DrawCube(new Vector3(0, -3, -1), 0.05f, 0.05f, 0.05f, Color.Gray);
+                EndMode3D();
+                EndTextureMode();
+            }
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            for (int v = 0; v < 2; v++) DrawTextureRec(views[v].Texture, new Rectangle(0, 0, 160, -120), new Vector2(160 * v, 0), Color.White);
+            if (frame == 89) TakeScreenshot(path);
+            EndDrawing();
+        }
+        File.Exists(path).Should().BeTrue();
+        var image = LoadImage(path);
+        var (front, back) = (GetImageColor(image, 80, 60), GetImageColor(image, 240, 60));
+        ((int)front.R).Should().BeGreaterThan(front.B + 60, $"from the front the nearest, oldest particles are drawn last, not {front}");
+        ((int)back.B).Should().BeGreaterThan(back.R + 60, $"from behind the nearest, youngest particles are drawn last, not {back}");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+        foreach (var view in views) UnloadRenderTexture(view);
+    }
+
     // A stream coming straight at the camera, blue as it is born far away and red as it ages near,
     // every particle over the middle of the picture, so the nearest, red, is in front. 300 sorts in
     // one block of shared memory, and 2000 across four, through the steps between blocks.

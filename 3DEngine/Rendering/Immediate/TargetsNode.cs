@@ -14,7 +14,8 @@ namespace Engine;
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
 /// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Where light
 /// bounces, such a target's screen probes are traced before it too, as the window's are, after the
-/// frame's world probes (<see cref="GlobalIlluminationRenderer.DrawTarget"/>).
+/// frame's world probes (<see cref="GlobalIlluminationRenderer.DrawTarget"/>), and its particles laid
+/// over by alpha are sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).
 /// </remarks>
 internal sealed class TargetsNode : INode
 {
@@ -36,6 +37,7 @@ internal sealed class TargetsNode : INode
                 models.DrawShadow(renderContext, renderWorld, shadow, id);
             if (models is not null && renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(id) is { } camera)
                 renderWorld.TryGet<GlobalIlluminationRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
+            renderWorld.TryGet<ParticleRenderer>()?.SortFor(renderContext, renderWorld, id);
 
             var keep = clear is null && target.Drawn;
             var c = (clear ?? Color.Blank).ToVector4();

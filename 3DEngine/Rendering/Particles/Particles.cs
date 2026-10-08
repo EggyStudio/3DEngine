@@ -80,6 +80,8 @@ internal sealed class ParticleRenderer : IDisposable
         public long Seen;
         public ParticleEmitter Emitter;
         public Vector3 Position;
+        // The eye an emitter laid over by alpha was last sorted from, whose order its buffer holds.
+        public Vector3? SortedFrom;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv, _fragmentSpv;
@@ -107,6 +109,27 @@ internal sealed class ParticleRenderer : IDisposable
 
     /// <summary>Whether particles are drawn into the window this frame, stepped and seen through the window's camera.</summary>
     internal bool DrawsInWindow(RenderWorld renderWorld) => _drawn.Count > 0 && renderWorld.TryGet<RenderParticles>()?.ViewProjection is not null;
+
+    /// <summary>
+    /// Sorts the particles of each emitter laid over by alpha far to near from the eye of
+    /// <paramref name="target"/>'s camera, the window's for 0, where they were last sorted from
+    /// another, outside any render pass and before the view's, so each view lays its clouds over in
+    /// its own order.
+    /// </summary>
+    internal void SortFor(RenderContext renderContext, RenderWorld renderWorld, int target)
+    {
+        if (_drawn.Count == 0 || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<RenderParticles>() is not { } frame) return;
+        Vector3? eye = target == 0 ? frame.ViewProjection is null ? null : frame.Eye
+            : frame.Targets.TryGetValue(target, out var flat) ? flat.Eye
+            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? EyeOf(own) : null;
+        if (eye is not { } from) return;
+        foreach (var state in _drawn)
+            if (state.Emitter.Blend == ParticleBlend.Alpha && state.SortedFrom != from)
+            {
+                device.RecordParticleSort(renderContext.CommandBuffer, state.Gpu, from);
+                state.SortedFrom = from;
+            }
+    }
 
     /// <summary>Records the dispatch that steps each emitter's particles this frame, outside any render pass.</summary>
     public void Step(RenderContext renderContext, RenderWorld renderWorld)
@@ -155,8 +178,10 @@ internal sealed class ParticleRenderer : IDisposable
             state.Next = (state.Next + born) % capacity;
             device.RecordParticles(renderContext.CommandBuffer, state.Gpu, in step);
             // Laid over by alpha, they are sorted far to near from the window's camera, which the
-            // draw then reads them in, render textures' cameras included.
+            // draw then reads them in, and again from a render texture's own before it is drawn
+            // (SortFor).
             if (emitter.Blend == ParticleBlend.Alpha) device.RecordParticleSort(renderContext.CommandBuffer, state.Gpu, frame.Eye);
+            state.SortedFrom = emitter.Blend == ParticleBlend.Alpha ? frame.Eye : null;
             _drawn.Add(state);
         }
 
