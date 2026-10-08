@@ -750,12 +750,26 @@ pixel more and the decoded image 12 where a pass reads it. Its multisampled dept
 window's own, which the window's pass after the composite clears and draws nothing into with depth.
 
 The composite carries the effects of `FrameEffects` too: `SetExposure`, `SetTonemap` (the engine's
-curve, Reinhard's, Narkowicz's fit of ACES, or a cut at 1), `SetColorGrading` (saturation and a tint
-in linear light after the curve, contrast about the middle once encoded) and `SetVignette`, all in
-the composite's push constants. With `SetFxaa` the composite draws into an eight-bit target the
-window's size instead, and `main_pass` draws that through FXAA (`fxaa.slang`, the console form of
-Lottes's, over the encoded colors) before the interface. `FrameEffectsTests` reads each from a
-frame.
+curve, Narkowicz's fit of ACES, a cut at 1, or one of Bevy's eight), `SetColorGrading` (saturation
+and a tint in linear light after the curve, contrast about the middle once encoded) and
+`SetVignette`, all in the composite's push constants. With `SetFxaa` the composite draws into an
+eight-bit target the window's size instead, and `main_pass` draws that through FXAA (`fxaa.slang`,
+the console form of Lottes's, over the encoded colors) before the interface. `FrameEffectsTests`
+reads each from a frame.
+
+Bevy's eight curves are worked out as `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl` works
+them out, its matrices written as dot products, so a picture tonemapped here is the one Bevy draws.
+AgX, Tony McMapface and Blender's filmic look the light up in Bevy's own tables, KTX2 cubes of 32,
+48 and 64 texels a side in half-float RGBA or RGB9E5, which `build/bevy-luts.py` carries from Bevy's
+crate with their Zstandard swapped for zlib, so `TonemapTables` reads them with .NET's `ZLibStream`.
+The first frame a curve with a table is chosen uploads its table as a 3D texture
+(`GraphicsDevice.CreateVolumeTexture`), sampled linearly and held at its edges as Bevy samples it,
+at the composite's binding 3, where a texel stands in for the other curves, and the composite's sets
+are kept by the image they read and the table. `TonemapTests` draws SHARED.md's ramp, 1024 by 8
+pixels from a 4096th to 256 in eight colors, through each and holds it to a model of each curve and
+table on the CPU and to BevyCSharp's picture of it, copied from BevyCSharp's commit 64ec311 under
+`References/tonemapping`, within two levels of 255 for a curve and four for a table, every one
+within one level of both on the RTX 4070.
 
 `SetAutoExposure` makes the exposure follow the scene, in two passes of `exposure.slang` after the
 bloom chain, which keep the log2 of luminance since an eye adapts by ratios and a mean of logs is not

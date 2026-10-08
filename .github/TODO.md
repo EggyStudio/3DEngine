@@ -177,8 +177,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   something, and it passes through shapes drawn without a model. Colliding with the physics world
   stays a limit, since raylib has no particles and a game that needs that much has bodies.
 
-- **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
-  vignette, FXAA, depth of field and motion blur.** The window's scene is drawn into a half-float
+- **Effects over the frame are bloom, exposure fixed or following the scene, a curve, the engine's
+  or one of Bevy's eight, grading, a vignette, FXAA, depth of field and motion blur.** The window's scene is drawn into a half-float
   target every frame it shows one and brought into the window in one pass that tonemaps it, after
   passes of their own for the depth of field and motion blur (RENDERING.md §5), so a shader of the
   program's own inside `BeginMode3D` reads the same with every effect on or off. Render targets

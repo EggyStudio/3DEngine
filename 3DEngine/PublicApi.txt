@@ -2897,9 +2897,16 @@ sealed class Engine.ToggleKeyAttribute : Attribute
   bool DefaultEnabled { get; init; }
 enum Engine.Tonemap : int
   Aces = 2
+  AcesFitted = 6
+  AgX = 7
+  BlenderFilmic = 10
   Clamp = 3
   Engine = 0
+  None = 4
   Reinhard = 1
+  ReinhardLuminance = 5
+  SomewhatBoring = 8
+  TonyMcMapface = 9
 readonly struct Engine.TouchPoint : IEquatable<TouchPoint>
   TouchPoint(long Id, Vector2 Position)
   Vector2 Position { get; init; }

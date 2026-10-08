@@ -228,6 +228,11 @@ that is added. The set is:
 | Microsoft.CodeAnalysis.CSharp | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
+Data is carried where it is the thing itself and not a library: Bevy's three tonemapping tables,
+which `build/bevy-luts.py` brings from Bevy's crate under the licenses THIRD-PARTY-NOTICES.md
+names, so a picture tonemapped through them is the one Bevy draws. They are read with what .NET
+has, their supercompression swapped from Zstandard to zlib, so no decoder is taken for them.
+
 Scene description formats, material graph languages, embedded browsers, web servers, spatial
 audio middleware and an editor are left out. Each brings more surface than the engine has users
 for, and each was tried in an earlier revision of this repository and kept on the `legacy-modules`

@@ -1,8 +1,8 @@
 # Third-party notices
 
-3DEngine is under the Mozilla Public License 2.0 (`LICENSE`). The `3DEngine` package carries only
-the engine's own code, its generator and the shaders compiled from its own sources, and it depends
-on the packages below, which a restore fetches with their own license files. They are named here
+3DEngine is under the Mozilla Public License 2.0 (`LICENSE`). The `3DEngine` package carries the
+engine's own code, its generator, the shaders compiled from its own sources and three of Bevy's
+tonemapping tables, below, and it depends on the packages below, which a restore fetches with their own license files. They are named here
 with their licenses, so a game shipped on the engine can say what it carries.
 
 | Library | Used for | License | Source |
@@ -23,6 +23,23 @@ with their licenses, so a game shipped on the engine can say what it carries.
 The shaders in the package were compiled with Slang (Apache 2.0 with LLVM exceptions,
 https://github.com/shader-slang/slang), which the package does not carry. The Vulkan loader is
 the system's, or MoltenVK's on macOS, and is not carried either.
+
+## Bevy's tonemapping
+
+The package carries three tables of Bevy's (https://github.com/bevyengine/bevy), from its crate
+`bevy_core_pipeline` 0.19.1, under Bevy's MIT or Apache 2.0, whose two texts are beside them in
+`source/shaders/tonemapping`, and `composite.slang` works out four of Bevy's curves as that crate's
+`tonemapping_shared.wgsl` does, under the same licenses. The tables are carried as Bevy has them,
+their supercompression swapped from Zstandard to zlib by `build/bevy-luts.py`, with Bevy's
+`info.txt`, which says how each was made, and Bevy credits them and the curves to these authors:
+
+| Table or curve | By | Source |
+|---|---|---|
+| AgX's table, `agx.ktx2`, for `Tonemap.AgX` | Troy Sobotka, as MrLixm's AgXc gives it | https://github.com/sobotka/AgX, https://github.com/MrLixm/AgXc |
+| Tony McMapface's table, `tony_mc_mapface.ktx2` | Tomasz Stachowiak | https://github.com/h3r2tic/tony-mc-mapface |
+| Blender's filmic table, `blender_filmic.ktx2` | Blender's Filmic view transform, sampled in Blender | https://www.blender.org |
+| The ACES fit, `Tonemap.AcesFitted` | Stephen Hill, from Matt Pettineo's BakingLab | https://github.com/TheRealMJP/BakingLab |
+| The somewhat boring display transform, `Tonemap.SomewhatBoring` | Tomasz Stachowiak | https://github.com/bevyengine/bevy |
 
 The examples in `3DEngine.Examples` that carry raylib's names are raylib's examples
 (https://github.com/raysan5/raylib/tree/master/examples, zlib) written again for the flat API, each

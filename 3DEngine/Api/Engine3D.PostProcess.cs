@@ -61,8 +61,14 @@ public static partial class Engine3D
 
     /// <summary>
     /// Chooses the curve that brings the scene's light past 1 under it: the engine's own, which
-    /// leaves colors under 0.9 as they are, Reinhard's, ACES's filmic one, or a cut at 1.
+    /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the
+    /// eight Bevy offers, drawn as Bevy draws them.
     /// </summary>
+    /// <remarks>
+    /// <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/> and
+    /// <see cref="Tonemap.BlenderFilmic"/> look the light up in Bevy's own tables, each read the
+    /// first time its curve is chosen, which takes that frame a few milliseconds.
+    /// </remarks>
     public static void SetTonemap(Tonemap curve) => Effects.Tonemap = curve;
 
     /// <summary>

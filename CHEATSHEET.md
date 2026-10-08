@@ -740,7 +740,7 @@ void SetShadowMapSize(int size);                                           // Te
 void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold glows into its surroundings, 0 for off
 void SetExposure(float exposure);                                          // Scale the scene's light before its curve (1)
 void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2); // The exposure follows the scene, as an eye adapts
-void SetTonemap(Tonemap curve);                                            // The curve light past 1 is brought under it by: Engine, Reinhard, Aces or Clamp
+void SetTonemap(Tonemap curve);                                            // The curve light past 1 is brought under it by: Engine, Aces, Clamp, or Bevy's None, Reinhard, ReinhardLuminance, AcesFitted, AgX, SomewhatBoring, TonyMcMapface or BlenderFilmic
 void SetColorGrading(float contrast, float saturation, Color tint);        // Grade the scene's color, 1, 1 and white for as it is
 void SetVignette(float intensity, float radius = 0.5f);                    // Darken toward the corners, 0 for none
 void SetFxaa(bool enabled);                                                // Smooth the edges multisampling leaves

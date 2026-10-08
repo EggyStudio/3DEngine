@@ -8,10 +8,10 @@ and the packages of 5.1 made since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Three changes still compile and do something else, and they
+nothing else a game calls has changed. Four changes still compile and do something else, and they
 come first.
 
-## Three that still compile
+## Four that still compile
 
 A capsule takes its rings before its slices, as raylib 6's does. Both are numbers, so a call
 written for 5.1 compiles and draws its capsule with the two swapped.
@@ -43,6 +43,11 @@ over the frame on, as it does with every effect off and in a render texture, whe
 linear light while an effect was on. A shader that returns what `lit`, `unlit` or `toDisplay`
 gives, as the guide's do, draws as it did. One that returned a linear color of its own for an
 effect, light past white to glow, returns `toDisplay(light)` in its place.
+
+`Tonemap.Reinhard` is Bevy's Reinhard, each channel over one plus itself, where 5.1's took the
+color over one plus its luminance, which is `Tonemap.ReinhardLuminance` now. A gray is drawn the
+same by both, and a game that chose Reinhard for how its colors kept their hue chooses
+`Tonemap.ReinhardLuminance`.
 
 ## Functions
 
@@ -191,3 +196,9 @@ guide that shows it.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
   meshes through, so a render texture shadows the lights it sees, as
   [Shadows](materials-light-and-shadows.md#shadows) shows.
+- **Bevy's tonemappers.** `SetTonemap` takes the eight Bevy offers, `Tonemap.None`,
+  `Tonemap.Reinhard`, `Tonemap.ReinhardLuminance`, `Tonemap.AcesFitted`, `Tonemap.AgX`,
+  `Tonemap.SomewhatBoring`, `Tonemap.TonyMcMapface` and `Tonemap.BlenderFilmic`, drawn as Bevy
+  draws them, AgX, Tony McMapface and Blender's filmic from Bevy's own tables, as
+  [Effects over the frame](materials-light-and-shadows.md#effects-over-the-frame) shows with what a
+  table costs.

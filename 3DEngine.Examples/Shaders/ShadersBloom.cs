@@ -32,7 +32,7 @@ public static class ShadersBloom
         {
             t += GetFrameTime();
             if (IsKeyPressed(Key.B)) SetBloom((bloom = !bloom) ? 0.8f : 0);
-            if (IsKeyPressed(Key.T)) SetTonemap(curve = (Tonemap)(((int)curve + 1) % 4));
+            if (IsKeyPressed(Key.T)) SetTonemap(curve = (Tonemap)(((int)curve + 1) % Enum.GetValues<Tonemap>().Length));
             if (IsKeyPressed(Key.V)) SetVignette((vignette = !vignette) ? 0.6f : 0);
             if (IsKeyPressed(Key.G)) SetColorGrading(1, (graded = !graded) ? 0.3f : 1, graded ? new Color(255, 225, 190) : Color.White);
             if (IsKeyPressed(Key.F)) SetFxaa(fxaa = !fxaa);

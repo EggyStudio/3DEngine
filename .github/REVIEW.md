@@ -10,28 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c58ff65b`. Item 3: the window's scene goes through the HDR frame and one tonemapping
-pass every frame it shows one, a frame of 2D alone straight into the window as before; the frame
-holds its light sRGB-encoded and carried past 1 rather than linear, so a shader of the program's own
-reads the same with effects on or off and the frame's blending and multisampling stay on encoded
-light as the window's were, and `decode.slang` decodes it once, with the scene's depth, for bloom,
-the exposure, the lens passes, the bounce's reflections and the particles drawn over it in linear
-light; the composite decodes, bends and encodes, the engine's curve giving way to a cut at 1 where
-nothing past white can come about, so white stays white as raylib draws it; the output flag stays as
-the view's kind, since a render texture of eight bits still needs the curve in the model pass and a
-probe's faces linear light, which the brief had not weighed; a program's shader drawn into the frame
-has its color held by an FClamp put into its SPIR-V, alpha within 0 and 1 and no channel below 0,
-light past 1 kept (`ShaderProgram.HeldToEightBits`), which brought five raylib pairs back from 15 to
-42 percent apart to their shares; the frame and its pass cost 0.02 to 0.035 ms of the coder's GPU
-with every effect off and 60 bytes a pixel at four samples, written in the guide, RENDERING.md §5
-and TODO.md; twelve references are redrawn, none past 0.79 percent of its pixels, the lit ones at
-the edges of light past white resolved before the curve and the effects' ones on encoded light;
-three tests cover a program's shader drawing alike with bloom on or off, white bent only where light
-past white can come about and an alpha past 1 blending as in an eight-bit frame, and the upgrading
-page's third change that still compiles is a shader that returned linear light for an effect
-(`c58ff65b`). Item 3 is settled; the bounce's lag moves up to item 3 after item 2, and the coder
-takes Verdict 39, then item 2. The suite: 1,557 passed, and on lavapipe under the validation layer
-the rendering tests, 292.
+Reviewed up to `ca4d474a`. Verdict 39's mend: the captures on macOS are a job of their own,
+`macos-examples`, beside the tests' job, which keeps its suite, games, window, native publish and
+walk and drops the raylib files fetched for the captures alone; the job has 160 minutes, its step
+140, a budget of 130 (`CAPTURE_MINUTES`) and 300 seconds an example (`CAPTURE_SECONDS`), each
+capture run in the background with its output in a file, one past its seconds stopped and failing
+alone with exit code 124, the budget's end an error naming the last example reached and how many
+were left, and a closing notice saying how many drew of how many, in how long, about how long a
+capture took and the five slowest, each example's seconds and result in `times.tsv` in the artifact;
+the step log of `b526089c` needs a sign-in no session has, and its 3,012 seconds and 22.6 MB, about
+253 pictures at the 72 KB each weighs, say one example hung near the end, which the limit names from
+here on, the set cut only if a notice says a pass does not fit; tried with a limit of 2 seconds,
+which stopped and named `core_basic_window`, and a budget of 0, which named none reached, bash 3.2
+parsing the script and `ScriptTests` reading the new job's scripts (`ca4d474a`). Verdict 39 settles
+on the next macOS run. The coder goes on to item 2, the tonemappers.
+
+Before them, item 3 came to be settled: the window's scene goes through the HDR frame and one
+tonemapping pass every frame it shows one, a frame of 2D alone straight into the window as before;
+the frame holds its light sRGB-encoded and carried past 1 rather than linear, so a shader of the
+program's own reads the same with effects on or off and the frame's blending and multisampling stay
+on encoded light as the window's were, and `decode.slang` decodes it once, with the scene's depth,
+for bloom, the exposure, the lens passes, the bounce's reflections and the particles drawn over it
+in linear light; the composite decodes, bends and encodes, the engine's curve giving way to a cut at
+1 where nothing past white can come about, so white stays white as raylib draws it; the output flag
+stays as the view's kind, since a render texture of eight bits still needs the curve in the model
+pass and a probe's faces linear light, which the brief had not weighed; a program's shader drawn
+into the frame has its color held by an FClamp put into its SPIR-V, alpha within 0 and 1 and no
+channel below 0, light past 1 kept (`ShaderProgram.HeldToEightBits`), which brought five raylib
+pairs back from 15 to 42 percent apart to their shares; the frame and its pass cost 0.02 to 0.035 ms
+of the coder's GPU with every effect off and 60 bytes a pixel at four samples, written in the guide,
+RENDERING.md §5 and TODO.md; twelve references are redrawn, none past 0.79 percent of its pixels,
+the lit ones at the edges of light past white resolved before the curve and the effects' ones on
+encoded light; three tests cover a program's shader drawing alike with bloom on or off, white bent
+only where light past white can come about and an alpha past 1 blending as in an eight-bit frame,
+and the upgrading page's third change that still compiles is a shader that returned linear light for
+an effect (`c58ff65b`). The bounce's lag moved up to item 3 after item 2. The suite: 1,557 passed,
+and on lavapipe under the validation layer the rendering tests, 292.
 
 Before them, item 2 came to be settled, the Windows and macOS jobs running `build/play-native.sh
 Pusher` after the step that packs the engine and draws the game, publishing Pusher native from the
@@ -52,23 +66,6 @@ there, which settles Verdicts 33 and 37, and failed on macOS at the examples' ca
 50 minutes with the games and the rest behind it skipped, Verdict 39; the examples job was skipped,
 so Verdicts 30 and 31 wait on.
 
-Before them, item 2 came to be settled, the Linux job's capture loop `build/capture-examples.sh`,
-run by both jobs, listing the examples with `sed` where the loop used `grep -P`, which macOS's grep
-lacks, checking each capture wrote a picture and logged no validation error and naming each failure
-with the example, the system, the exit code and the log's last warnings, held by `ScriptTests` to
-macOS's tools and bash 3.2; the macOS job fetches raylib's files before its build and captures the
-253 examples as PNGs after its tests, the artifact `examples-macos`, compared with nothing, 1,481
-seconds on the coder's GPU, so the job comes to some 50 of its 120 minutes and the step is given 50
-(`0dae7bc6`). And item 3 came to be settled: a target's colors are made with storage usage wherever
-the device stores their format, asked once a format, and as a transfer's destination; where it does
-not, the shader writes a stand-in of eight bits a channel in RGBA order or the target's floats, kept
-with the target's texture, the dispatch blitting the target into it before and back after, each
-channel into its own; a test paints one render texture directly and through stand-ins forced, the
-pictures matching pixel for pixel and the test failing without the blit in; the condition is gone
-from the guide, the cheatsheet, RENDERING.md, TODO.md and the dispatch's warning, and TODO.md's
-testing entry counts 29 frames compared whole (`bb418bfe`). Their numbers went to a game published
-native on Windows and macOS and to the tonemap as a pass over every frame. The suite: 1,554 passed.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -83,10 +80,10 @@ for a reply. In this order.
    `06b702a1`: Linux green in 3 minutes; Windows green in 29, its suite of 1,535 with the leak
    test's hundred apps, Pusher published native in 48 seconds, the thirteen games in 14 minutes and
    Pusher in a window in 12 seconds, which settles Verdicts 33 and 37; macOS green through its suite
-   of 1,518 and then timed out capturing the examples, Verdict 39, so the examples job, which
-   carries the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test
-   jobs pass. Each push's run is read by the reviewing session, and a failure it names comes first
-   here.
+   of 1,518 and then timed out capturing the examples, Verdict 39, mended at `ca4d474a` with the
+   captures in a job of their own and read on the next macOS run, so the examples job, which carries
+   the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test jobs
+   pass. Each push's run is read by the reviewing session, and a failure it names comes first here.
 2. **Every tonemapper BevyCSharp offers (Decision 17).** In the one tonemap pass of item 3,
    `SetTonemap` gains Bevy's eight, none, Reinhard, Reinhard by luminance, the ACES fit, AgX, the
    somewhat boring display transform, Tony McMapface and Blender's filmic, named as BevyCSharp's
@@ -257,19 +254,31 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Verdict 39. The captures on macOS are a job of their own, `macos-examples`, beside the tests' job,
-which keeps its suite, games, window, native publish and walk, and drops the raylib files it fetched
-for the captures alone. The new job has 160 minutes, its capture step 140, `CAPTURE_MINUTES` 130 and
-`CAPTURE_SECONDS` 300. `build/capture-examples.sh` runs each capture in the background with its
-output in a file rather than through `$(...)`, stops one past its seconds, which fails alone with
-exit code 124 in its error, stops starting examples at the budget with an error naming the last one
-reached and how many were left, and ends with a notice of how many drew of how many, in how long,
-about how long a capture took and the five slowest, each example's seconds and result written to
-`times.tsv` in the artifact. The step log of b526089c needs a sign-in this machine lacks; the public
-API gives the step's 3,012 seconds and the artifact's 22.6 MB, about what 253 captures weigh at the
-72 KB a picture they average here, so the set may have nearly finished with one example hanging,
-which the limit now names, and the first run's notice gives the runner's rate; the set is not cut
-until a notice says a pass does not fit. Tried here: a limit of 2 seconds stopped and named
-`core_basic_window`, three examples drew with their times, and a budget of 0 named none reached;
-bash 3.2 parses the script, and `ScriptTests` reads the new job's scripts. BUILDING.md and TODO.md
-say so.
+Item 2, Bevy's tonemappers. `SetTonemap` takes Bevy's eight beside the engine's curve, Narkowicz's
+fit (`Aces`) and the cut (`Clamp`), named as BevyCSharp names them, `None`, `Reinhard`,
+`ReinhardLuminance`, `AcesFitted`, `AgX`, `SomewhatBoring`, `TonyMcMapface` and `BlenderFilmic`,
+appended so the four old numbers hold. The old `Reinhard` was Bevy's Reinhard by luminance, so it is
+`ReinhardLuminance` now and `Reinhard` is Bevy's per channel, the upgrading page's fourth change
+that still compiles. Five curves are ported from `bevy_core_pipeline` 0.19.1's
+`tonemapping_shared.wgsl`, its matrices as dot products. AgX, Tony McMapface and Blender's filmic
+look the light up in Bevy's own tables, carried by `build/bevy-luts.py` as Bevy has them, format,
+descriptor, key and values and texels, with their Zstandard swapped for KTX2's zlib, 816 KB in all,
+which .NET's `ZLibStream` reads, so no decoder is taken, and DESIGN.md §8 says data is carried so. A
+table is read the first time its curve is chosen, 0.4, 1.6 and 2.4 ms warm, into a 3D texture at the
+composite's binding 3, sampled linearly and held at its edges as Bevy samples it, Tony McMapface's
+kept in RGB9E5. Bevy's two license texts and its `info.txt` are beside the tables, and
+THIRD-PARTY-NOTICES.md names Bevy and the authors it credits for each table and curve.
+`TonemapTests` draws SHARED.md's ramp through each and holds it to BevyCSharp's pictures from its
+64ec311, copied as they are under `References/tonemapping`, and to a CPU model of each curve and
+table, within two levels for a curve and four for a table; all eight are within one level of both on
+the RTX 4070 and pass on lavapipe under the validation layer. A table costs the composite about
+0.002 ms, 0.015 against 0.013 to 0.014 for the engine's curve, written in the guide with each
+table's memory, and the guide's tables, the cheatsheet and the upgrading page's Added section name
+the eight. Bloom.cs passed 800 lines, so its two graph nodes moved to HdrNodes.cs. The suite: 1,566
+passed; on lavapipe the rendering tests, 301 passed and 2 skipped. Next is item 3, the bounce
+following a changing light.
+
+Shared: the eight are in 3DEngine at this commit, each within one level of BevyCSharp's references,
+for SHARED.md's row to say so. `build/bevy-luts.py` and the CPU model in `TonemapTests` are there
+for BevyCSharp's side to read where a check of its tables apart from Bevy's own drawing is asked
+for.

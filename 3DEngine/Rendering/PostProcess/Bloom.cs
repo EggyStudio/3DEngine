@@ -127,6 +127,10 @@ internal sealed class BloomRenderer : IDisposable
     private bool _shownLinear;
     // Whether the engine's curve bends this frame's light, or gives way to a clamp, as Bends says.
     private bool _bends;
+    // Bevy's tables by the curve that looks light up in each, read the first time it is chosen, and
+    // the texel bound in their place for the other curves.
+    private readonly Dictionary<Tonemap, VolumeTexture> _tables = [];
+    private VolumeTexture? _noTable;
     private Matrix4x4? _lastViewProjection;
     private long _lastViewFrame = -2;
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
@@ -148,12 +152,12 @@ internal sealed class BloomRenderer : IDisposable
 
     // What is made for one size of the window: the HDR target, the levels, and the sets each pass
     // reads its source through.
-    private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet?[] down, IDescriptorSet[] up,
-        IDescriptorSet[] composite) : IDisposable
+    private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet?[] down, IDescriptorSet[] up) : IDisposable
     {
-        // The composite's sets by the image they read, the scene or a lens pass's, the two lens
-        // passes' targets once one is on, and their sets by the image they read with the depth.
-        public Dictionary<IImageView, IDescriptorSet[]> CompositeFrom { get; } = new() { [scene.ColorView] = composite };
+        // The composite's sets by the image they read, the scene or a pass's, and the curve's table,
+        // the two lens passes' targets once one is on, and their sets by the image they read with
+        // the depth.
+        public Dictionary<(IImageView Source, IImageView Table), IDescriptorSet[]> CompositeFrom { get; } = [];
         public RenderTarget[]? Lens { get; set; }
         public Dictionary<(IImageView Source, bool Exact, IImageView? Velocity), IDescriptorSet> LensFrom { get; } = [];
 
@@ -342,7 +346,7 @@ internal sealed class BloomRenderer : IDisposable
     /// </summary>
     public void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
     {
-        if (_sized is not { } sized) return;
+        if (_sized is not { } sized || renderContext.Device is not GraphicsDevice device) return;
         if (!_composites.TryGetValue(renderPass, out var pipeline))
             _composites[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _compositeVertex!, _compositeFragment!, _twoTextures!,
                 additive: false, Marshal.SizeOf<CompositePush>());
@@ -359,7 +363,7 @@ internal sealed class BloomRenderer : IDisposable
             Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, _shownLinear ? 0 : 1, 0),
         };
         pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, CompositeSets(renderContext.Device, sized, _shown ?? sized.Scene.ColorView)[_adaptedLast]);
+        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve))[_adaptedLast]);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
@@ -520,18 +524,30 @@ internal sealed class BloomRenderer : IDisposable
         device.UpdateDescriptorSet(sized.VelocityDepth, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 0));
     }
 
-    // The composite's sets reading an image, one for each of the two adapted exposures.
-    private IDescriptorSet[] CompositeSets(IGraphicsDevice gfx, Sized sized, IImageView source)
+    // The composite's sets reading an image and a curve's table, one for each of the two adapted exposures.
+    private IDescriptorSet[] CompositeSets(IGraphicsDevice gfx, Sized sized, IImageView source, VolumeTexture table)
     {
-        if (sized.CompositeFrom.TryGetValue(source, out var sets)) return sets;
-        return sized.CompositeFrom[source] = [.. _adapted!.Select(exposure =>
+        if (sized.CompositeFrom.TryGetValue((source, table.View), out var sets)) return sets;
+        return sized.CompositeFrom[(source, table.View)] = [.. _adapted!.Select(exposure =>
         {
             var set = gfx.CreateDescriptorSet(_twoTextures!);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(source, _sampler!, 0));
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sized.Levels[0].ColorView, _sampler!, 1));
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(exposure.ColorView, _sampler!, 2));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(table.View, table.Sampler, 3));
             return set;
         })];
+    }
+
+    // The table a curve looks light up in, read and uploaded the first time the curve is chosen,
+    // or a texel standing in for a curve worked out without one.
+    private VolumeTexture TableFor(GraphicsDevice device, Tonemap curve)
+    {
+        if (TonemapTables.FileOf(curve) is null)
+            return _noTable ??= device.CreateVolumeTexture(1, Vortice.Vulkan.VkFormat.R16G16B16A16Sfloat, new byte[8]);
+        if (_tables.TryGetValue(curve, out var made)) return made;
+        var table = TonemapTables.Load(curve);
+        return _tables[curve] = device.CreateVolumeTexture(table.Size, table.Format, table.Texels);
     }
 
     /// <summary>
@@ -619,20 +635,12 @@ internal sealed class BloomRenderer : IDisposable
         }
         var down = levels.Select((_, i) => i == 0 ? null : SetOf(levels[i - 1].ColorView)).ToArray();
         var up = levels.Select(level => SetOf(level.ColorView)).ToArray();
-        var adapted = Adapted(device, renderContext);
-        var composite = adapted.Select(exposure =>
-        {
-            var set = device.CreateDescriptorSet(_twoTextures);
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(scene.ColorView, _sampler, 0));
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(levels[0].ColorView, _sampler, 1));
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(exposure.ColorView, _sampler, 2));
-            return set;
-        }).ToArray();
+        Adapted(device, renderContext);
 
         // Every level draws in the same pass, whatever its size, so the two pipelines are made once.
         _down ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: false);
         _up ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: true);
-        return _sized = new Sized(extent, scene, [.. levels], down, up, composite);
+        return _sized = new Sized(extent, scene, [.. levels], down, up);
     }
 
     // The image the scene is decoded into and the sets that read it, the first level's and the
@@ -722,74 +730,13 @@ internal sealed class BloomRenderer : IDisposable
         _oneTexture?.Dispose();
         _twoTextures?.Dispose();
         _fxaaLayout?.Dispose();
+        foreach (var table in _tables.Values) table.Dispose();
+        _noTable?.Dispose();
         _decode?.Dispose();
         _decodeVertex?.Dispose();
         _decodeFragment?.Dispose();
         _decodeLayout?.Dispose();
         _sampler?.Dispose();
         _depthSampler?.Dispose();
-    }
-}
-
-/// <summary>
-/// Render graph node that draws the window's scene into the HDR target every frame it shows one,
-/// and decodes it where a pass reads its light, before <see cref="BloomNode"/> spreads it and
-/// <see cref="MainPassNode"/> composites it into the window.
-/// </summary>
-/// <remarks>
-/// The scene is the window's models and its draw list up to the last batch drawn with depth, the
-/// 3D shapes inside <c>BeginMode3D</c>. What is drawn after that, a game's interface, is left to
-/// <see cref="ImmediateNode"/>, which draws it into the window over the composite, so it is never
-/// bloomed or tonemapped and keeps its exact colors.
-/// </remarks>
-internal sealed class HdrSceneNode : INode
-{
-    /// <inheritdoc />
-    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-    {
-        renderWorld.Remove<BloomFrame>();
-        var bloom = renderWorld.TryGet<BloomRenderer>();
-        if (bloom is null) return;
-        if (!BloomRenderer.ShowsScene(renderWorld) || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain)
-        {
-            bloom.Release();
-            return;
-        }
-
-        var split = Split(renderWorld.TryGet<DrawList>());
-        if (!bloom.DrawScene(renderContext, renderWorld, swapchain.Extent, split)) return;
-        renderWorld.Set(new BloomFrame(split));
-        // The scene's light, kept for the reflections of the frame after where light bounces.
-        if (BloomRenderer.ReadsLight(renderWorld) && bloom.Decode(renderContext, renderWorld) is { } light)
-            renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
-    }
-
-    // The batch after the window's last one drawn with depth, or the first when it has none.
-    private static int Split(DrawList? drawList)
-    {
-        if (drawList is null) return 0;
-        var batches = drawList.Batches;
-        for (int i = batches.Count - 1; i >= 0; i--)
-            if (batches[i].Target == 0 && batches[i].DepthTest) return i + 1;
-        return 0;
-    }
-}
-
-/// <summary>Render graph node that spreads the HDR target's brightest light down and up the bloom chain, and runs the effects that read the scene's light, when <see cref="HdrSceneNode"/> drew it this frame.</summary>
-internal sealed class BloomNode : INode
-{
-    /// <inheritdoc />
-    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-    {
-        if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomRenderer>() is not { } renderer) return;
-        var bloom = renderWorld.TryGet<BloomSettings>();
-        if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom.Threshold);
-        var effects = renderWorld.TryGet<FrameEffects>();
-        if (effects is { AutoExposure: true }) renderer.Adapt(renderContext, effects);
-        // The depth of field and motion blur, run every frame the scene is drawn, so motion blur
-        // knows the camera of the frame before once it is turned on.
-        renderer.Lens(renderContext, renderWorld, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
-        // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
-        if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, bloom, effects);
     }
 }
