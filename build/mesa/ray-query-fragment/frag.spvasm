@@ -1,0 +1,134 @@
+; SPIR-V
+; Version: 1.5
+; The module spirv-reduce cut 3DEngine's model pass down to, its variables initialized and its ray
+; cast from (0, 0, -1): one ray query along the direction the vertex stage gives, and where it meets
+; a triangle, a loop whose condition reads a uniform buffer and whose body reads it, then a read of
+; the same buffer after the loop. frag.glsl is the same in GLSL. Red where the ray met the triangle.
+               OpCapability RayQueryKHR
+               OpCapability Shader
+               OpExtension "SPV_KHR_ray_query"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %lights %scene %color %way
+               OpExecutionMode %main OriginUpperLeft
+               OpDecorate %way Location 3
+               OpMemberDecorate %Light 0 Offset 0
+               OpDecorate %LightArray ArrayStride 64
+               OpMemberDecorate %LightList 0 Offset 0
+               OpDecorate %Lights Block
+               OpMemberDecorate %Lights 0 Offset 0
+               OpMemberDecorate %Lights 1 Offset 48
+               OpMemberDecorate %Lights 2 Offset 64
+               OpDecorate %lights Binding 22
+               OpDecorate %lights DescriptorSet 1
+               OpDecorate %scene Binding 28
+               OpDecorate %scene DescriptorSet 1
+               OpDecorate %color Location 0
+       %void = OpTypeVoid
+         %fn = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+    %v3float = OpTypeVector %float 3
+   %ptrInVec3 = OpTypePointer Input %v3float
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+       %bool = OpTypeBool
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_5 = OpConstant %int 5
+     %int_16 = OpConstant %int 16
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+   %uint_255 = OpConstant %uint 255
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+   %float_m1 = OpConstant %float -1
+%float_10000 = OpConstant %float 10000
+     %origin = OpConstantComposite %v3float %float_0 %float_0 %float_m1
+      %zero3 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+      %zero4 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+        %red = OpConstantComposite %v3float %float_1 %float_0 %float_0
+ %ptrFnVec4 = OpTypePointer Function %v4float
+ %ptrFnVec3 = OpTypePointer Function %v3float
+      %Light = OpTypeStruct %v4float
+ %LightArray = OpTypeArray %Light %int_16
+  %LightList = OpTypeStruct %LightArray
+     %Lights = OpTypeStruct %v4float %v4float %LightList
+  %ptrLights = OpTypePointer Uniform %Lights
+%ptrLightList = OpTypePointer Uniform %LightList
+%ptrLightArray = OpTypePointer Uniform %LightArray
+  %ptrLight = OpTypePointer Uniform %Light
+%ptrUniformVec4 = OpTypePointer Uniform %v4float
+      %Query = OpTypeRayQueryKHR
+   %ptrQuery = OpTypePointer Function %Query
+  %Structure = OpTypeAccelerationStructureKHR
+%ptrStructure = OpTypePointer UniformConstant %Structure
+ %ptrOutVec4 = OpTypePointer Output %v4float
+        %way = OpVariable %ptrInVec3 Input
+     %lights = OpVariable %ptrLights Uniform
+      %scene = OpVariable %ptrStructure UniformConstant
+      %color = OpVariable %ptrOutVec4 Output
+       %main = OpFunction %void None %fn
+      %entry = OpLabel
+     %result = OpVariable %ptrFnVec4 Function
+       %last = OpVariable %ptrFnVec3 Function
+      %query = OpVariable %ptrQuery Function
+               OpStore %result %zero4
+               OpStore %last %zero3
+        %dir = OpLoad %v3float %way
+               OpSelectionMerge %outer None
+               OpSwitch %uint_0 %body1
+      %body1 = OpLabel
+               OpSelectionMerge %middle None
+               OpSwitch %uint_0 %body2
+      %body2 = OpLabel
+               OpSelectionMerge %inner None
+               OpSwitch %uint_0 %body3
+      %body3 = OpLabel
+          %s = OpLoad %Structure %scene
+               OpRayQueryInitializeKHR %query %s %uint_1 %uint_255 %origin %float_0 %dir %float_10000
+          %p = OpRayQueryProceedKHR %bool %query
+          %t = OpRayQueryGetIntersectionTypeKHR %uint %query %uint_1
+       %miss = OpINotEqual %bool %t %uint_1
+               OpSelectionMerge %met None
+               OpBranchConditional %miss %missed %met
+     %missed = OpLabel
+               OpBranch %inner
+        %met = OpLabel
+               OpBranch %header
+     %header = OpLabel
+     %countp = OpAccessChain %ptrUniformVec4 %lights %int_1
+     %counts = OpLoad %v4float %countp
+     %countf = OpCompositeExtract %float %counts 0
+     %count = OpConvertFToS %int %countf
+      %again = OpSLessThan %bool %int_5 %count
+               OpLoopMerge %exit %continue None
+               OpBranchConditional %again %continue %exit
+       %exit = OpLabel
+       %sunp = OpAccessChain %ptrUniformVec4 %lights %int_0
+        %sun = OpLoad %v4float %sunp
+       %sun3 = OpVectorShuffle %v3float %sun %zero4 0 1 2
+      %lastv = OpLoad %v3float %last
+       %dark = OpFMul %v3float %sun3 %lastv
+        %lit = OpFAdd %v3float %dark %red
+     %lit4 = OpCompositeConstruct %v4float %lit %float_1
+               OpStore %result %lit4
+               OpBranch %inner
+   %continue = OpLabel
+       %listp = OpAccessChain %ptrLightList %lights %int_2
+      %arrayp = OpAccessChain %ptrLightArray %listp %int_0
+      %lightp = OpAccessChain %ptrLight %arrayp %int_5
+        %posp = OpAccessChain %ptrUniformVec4 %lightp %uint_0
+        %pos = OpLoad %v4float %posp
+       %pos3 = OpVectorShuffle %v3float %pos %zero4 0 1 2
+               OpStore %last %pos3
+               OpBranch %header
+      %inner = OpLabel
+               OpBranch %middle
+     %middle = OpLabel
+     %value = OpLoad %v4float %result
+               OpBranch %outer
+      %outer = OpLabel
+               OpStore %color %value
+               OpReturn
+               OpFunctionEnd

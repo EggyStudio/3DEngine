@@ -10,21 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `11368439`. Item 5: Wick, the thirteenth game, a puzzle in a dark house of five rooms
-whose one light is the lamp the player carries, which casts shadows, so its light stops at a wall
-and reaches round a corner or through a doorway only as light that bounces through the field, on
-polished floors that reflect it and hide their pits until light falls near them, each wick walked up
-to lit as a shadowed light of its own and the last opening the door, a fall sending the player back
-to the last wick, starting at `Low` with G stepping through the qualities; `games/Wick/House.cs`
-reads the map, draws the house and makes its lights, and the test project compiles the same file, so
-the reference frame of the lamp in the first doorway with the next room's wick burning draws what
-the game draws; `build/drive-game.sh Wick` asserts a walk from the keys and then the autopilot's way
-to every wick and out by the door with no fall, 44 seconds under the validation layer on the coder's
-GPU and 132 on four cores of lavapipe, within the games' twelve minutes; it is in the Windows and
-macOS loops, the examples job with its capture, the soak, the resize storm, the README's gallery and
-games' paragraph, BUILDING.md's count, the light guide's See also and N 4.5's list, whose row counts
-16 left out (`11368439`). Item 5 is settled and out of the list. The coder goes on to item 3's Mesa
-reports, fault 2's reduction at 4.8 KB and fault 1's at 7 KB, then item 2. The suite: 1,551 passed.
+Reviewed up to `95077ce3`. Item 2, taken ahead of item 3 while its reductions run: a bisect of
+`gi.slang` on lavapipe put fault 2 in where the lamps' loop stands, the loop ahead of the sun's
+branch in `directLight` crashing with no function at all and with the branch cut to one read, the
+loop without its spot cone's `smoothstep` or any smaller body drawing, so the model pass's
+`shadeHit` subtracts `hiddenLampLight` after `directLight` as the probes' passes do, the shape
+lavapipe draws, and at `High` `rayReflection` hides each lamp that casts shadows where a ray toward
+it, stopped short of the lamp by `rayBlocked`'s new reach, meets a mesh; a mirror shows a green
+block whose one lamp is shut in a box of six walls, reading under 20 green where it read 56 and lit
+again with the wall toward it left out, the same at `High` past the field for the device's rays; no
+reference moves, drawn with HEAD's shaders and these to the pixel, the tiers measure as the guide's
+table has them, the hall's scene pass 0.30 and 0.23 ms polished and rough, and Wick's doorway some
+0.02 ms more, within the noise; the sentences that said the bounce's lamps were unshadowed, stale
+since `1be7c8ee`, are mended in the remarks, the summaries and the shaders' headers, and TODO.md's
+light-bounce entry drops the limit (`95077ce3`). Item 2 is settled, and its number goes to every
+example captured on macOS too, the fallback until the owner names the next large item. Item 3: fault
+1's reduction ended at 1.9 KB, a ray query and a uniform read after a loop, which crashes only
+inside the engine's frame, the C harness drawing it with the engine's two sets, four samples and a
+half-float target, and a capture replaying to another fault, so a debug lavapipe from Mesa's main is
+being built to compare the two; one more batch of that, and then the report goes with the engine as
+its reproduction; fault 2 stands at 5 KB. The suite: 1,553 passed.
+
+Before them, item 5 came to be settled, Wick, the thirteenth game, a puzzle in a dark house of five
+rooms whose one light is the lamp the player carries, which casts shadows, so its light stops at a
+wall and reaches round a corner or through a doorway only as light that bounces through the field,
+on polished floors that reflect it and hide their pits until light falls near them, each wick walked
+up to lit as a shadowed light of its own and the last opening the door, a fall sending the player
+back to the last wick, starting at `Low` with G stepping through the qualities;
+`games/Wick/House.cs` reads the map, draws the house and makes its lights, and the test project
+compiles the same file, so the reference frame of the lamp in the first doorway with the next room's
+wick burning draws what the game draws; `build/drive-game.sh Wick` asserts a walk from the keys and
+then the autopilot's way to every wick and out by the door with no fall, 44 seconds under the
+validation layer on the coder's GPU and 132 on four cores of lavapipe, within the games' twelve
+minutes; it is in the Windows and macOS loops, the examples job with its capture, the soak, the
+resize storm, the README's gallery and games' paragraph, BUILDING.md's count, the light guide's See
+also and N 4.5's list, whose row counts 16 left out (`11368439`). The coder went on to item 3's
+reports and item 2. The suite: 1,551 passed.
 
 Before them, item 2 came to be settled, the upgrading page's Added section whole, `UpgradingTests`
 reading the two `PublicApi.txt` the other way as well, a type 5.1 lacked named by itself and a
@@ -43,29 +64,6 @@ through doorways by bouncing alone, pits showing only where light falls, the hou
 `House.cs` the test project compiles too, so the lit room's reference frame draws what the game
 draws. Item 3's reductions stand at 6 KB and 8 KB, each report following its reduction's end. The
 suite: 1,550 passed.
-
-Before them, TODO.md's build and release entry came to be done: `build/drive-game.sh` takes `window`
-as its second argument and opens the game through `./e3d` with no `--offscreen`, its captures and
-its error's heading named apart and the empty flag list expanded in the form bash 3.2 takes under
-`set -u`, and the Windows and macOS jobs play Pusher that way after the offscreen games, four
-minutes in a step of six, a failure in the games' own annotation, so SDL's window and the swapchain
-on those two systems are first proved by the next run the owner pushes (`d559bb05`); packing for it
-found `PackageContentsTests` counting one build a shader where `e3d shaders` has compiled a second
-naming `RAY_QUERY` since `1b4edb7e`, which the pack workflow would have refused, so the test counts
-each shader's builds as `SlangLoader.VariantsOf` finds them (`96d9cb06`). Item 3's third fault:
-`build/spirv-tools/merge-blocks/` holds seventeen lines of SPIR-V, two unreachable blocks, the
-second branching back to the first, which `spirv-val` takes and spirv-reduce's block merge dies on
-in v2025.1, the SDK's v2026.4.rc2 and main at `db9f967`, since `MergeWithSuccessor` looks for the
-successor from its predecessor onward, which holds for reachable blocks alone; `run.sh` reproduces
-it with any spirv-reduce, the patch has `CanMergeWithSuccessor` refuse a successor laid out before
-its predecessor, and the issue's text waits for the owner (`9a13915d`); the Mesa faults stand at 11
-KB and, `gi_trace`'s compute shader, 13 KB, the second crashing under the validation layer with no
-error reported first, which points at lavapipe. With that entry TODO.md's order is walked to its
-end, every entry left a limit described, a decision of the owner's, or a wait on lavapipe or on an
-answer, so item 2 was settled and its number given to the upgrading page's Added section, and a
-thirteenth game, the first lit by the bounce, became item 5; RENDERING.md's one entry of its order
-left, the tonemap as a pass over every frame, stays parked, since it costs every program every frame
-and redraws every lit reference for no fault measured. The suite: 1,548 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -88,22 +86,24 @@ for a reply. In this order.
    runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
    when the leak test's host next dies. Each push's run is read by the reviewing session, and a
    failure it names comes first here.
-2. **The reflections' lamps shadowed, in a shape lavapipe draws.** The light-bounce entry's
-   limit, the reflections lighting what they meet with the lamps unshadowed, since lavapipe crashed
-   when the lamps' loop moved into a function of its own: once fault 2's reduction names the
-   construct lavapipe dies on, the shadowed lamps written around it, the Cornell and the lit room's
-   references redrawn where they change and the three tiers' costs measured again for the guide; and
-   if the reduction shows no shape lavapipe takes, the limit stays, said in TODO.md with the reason.
-   After item 3's reports.
+2. **Every example captured on macOS too.** The macOS job captures every example offscreen after
+   its tests as build.yml's Linux job does, each checked to draw and the page naming any that did
+   not, the captures kept as the job's artifact and compared with nothing, since MoltenVK draws
+   apart from lavapipe within the references' allowance, so an example that draws wrongly on Metal
+   alone is found by a push and not by a reader; within the job's time, which stands at 25 minutes
+   of 120. The fallback until the owner names the next large item, after item 3.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
-   a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
-   fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
-   Mesa 25.2 and the report's text written beside each in the repository and TODO.md pointing at
-   them, the filing on Mesa's tracker the owner's since it is done under their account, and
-   SPIRV-Tools' own fault beside them, the block merge in `spirv-reduce` that runs off the end of
-   the layout, with its reproduction and the patch that refuses the merge, for the owner to file
+   the lamps' loop ahead of the sun's branch in `directLight` brings on, and the crash at the first
+   ray query in a fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under
+   lavapipe of Mesa 25.2 and the report's text written beside each in the repository and TODO.md
+   pointing at them, the filing on Mesa's tracker the owner's since it is done under their account,
+   and SPIRV-Tools' own fault beside them, the block merge in `spirv-reduce` that runs off the end
+   of the layout, with its reproduction and the patch that refuses the merge, for the owner to file
    there, so the model pass is held in a shape around a driver's fault only as long as it must be,
-   and the ray-query path is drawn on CPU devices once the fault is mended upstream.
+   and the ray-query path is drawn on CPU devices once the fault is mended upstream; if fault 1
+   still crashes only inside the engine's frame after one more batch, its report goes with the
+   engine as its reproduction, the 1.9 KB module, the steps through `./e3d` that show it and the
+   capture.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -339,38 +339,24 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-The reflections' lamps shadowed, ahead of item 3's reports, whose reductions still run:
+Item 3, fault 1 reproduced outside the engine and written up:
 
-- **The shape lavapipe takes.** A bisect of `gi.slang` on lavapipe found fault 2 in where the
-  lamps' loop stands, not in a function: `directLight` with its loop moved ahead of the sun's branch
-  and no function at all crashes, and so does that loop with the sun's branch cut to one read of
-  `sunColor` after it, while the loop with its spot cone's `smoothstep` taken out does not, nor does
-  any smaller body. The probes' passes already run `hiddenLampLight`'s loop after `directLight`'s,
-  and lavapipe draws them, so the model pass's `shadeHit` subtracts `hiddenLampLight` as
-  `shadeProbeHit` does, and lavapipe under the validation layer drew the bounce, reference, render,
-  field, probe and particle tests with it, 162 passed and 2 skipped, the GPU's rays.
-- **At High.** `rayReflection` hides each lamp that casts shadows where a ray toward it, which
-  `rayBlocked` now stops short of the lamp, meets a mesh.
-- **Tested.** A mirror shows a green block behind the camera whose one lamp is shut in a box of six
-  walls beside it: the block reads green 56 in the mirror with the lamps unshadowed and under 20
-  now, and lit where the box's wall toward it is left out. The same with the block past the field
-  at `High` reads 54 with the rays' test taken out.
-- **The references.** None moves with this change at the comparison's step or at 8 levels: the
-  Cornell box, the lit room, the hall of reflections, the probe and Wick's room drawn with HEAD's
-  shaders and with these match to the pixel, since none has a glossy surface meeting what a
-  shadowed lamp is hidden from. Against the committed references they drift 0.29% (Cornell) and
-  0.80% (the lit room) at the step from the commits since they were drawn, inside their allowances.
-- **Measured.** The tiers in `shaders_cornell_box` read as the guide's table has them, 0.27, 0.31
-  and 0.44 ms, 0.73, 2.80 and 6.81 MB. The hall's scene pass reads 0.30 and 0.23 ms polished and
-  rough with HEAD's shaders and with these, which the guide now gives, and Wick's doorway, two
-  lamps casting shadows, some 0.02 ms more at `Medium` and `High`, the noise between two runs.
-- **Stale sentences.** `SetGlobalIllumination`'s remarks, `GlobalIllumination`'s summary and the
-  headers of `gi.slang` and `rayReflection` said the bounce's lamps were unshadowed, which they have
-  not been since `1be7c8ee`, and say how they are hidden now.
-- **Item 3.** Fault 1's reduction ended at 1.9 KB, a ray query and a uniform read after a loop, but
-  it crashes only inside the engine's frame: the same module in the C harness, with the engine's
-  two sets bound binding for binding, four samples and a half-float target, draws. It still crashes
-  on the host's lavapipe of Mesa 26.2.2. A GFXReconstruct capture replays to another fault of its
-  own, the engine's buffer addresses, so a debug lavapipe from Mesa's main is being built to compare
-  the shader lavapipe compiles in the two harnesses. Fault 2's reduction stands at 5 KB.
-- The suite: 1,553 passed.
+- **What the engine's frame added.** The debug lavapipe built from Mesa's main shows the fault
+  taking a pointer from an eight-entry array on the stack indexed by lane and reading through it,
+  a null entry. The NIR llvmpipe prints for the reduced module is the same line for line in the
+  engine and in the C harness, and the shaders' variants differ in samples, format, depth and
+  blending. None of those bring the crash on in C, but a triangle whose edges cross the groups of
+  pixels shaded together does. The C harness drew one triangle over the whole view, where every
+  lane is covered, and the engine's meshes have edges.
+- **The reproduction.** `build/mesa/ray-query-fragment` holds a 25-line GLSL fragment shader: a ray
+  query, then in its hit branch a loop over a uniform buffer and a read of it after the loop. It
+  also holds the reduced module from the engine, cleaned so nothing in it is undefined, `repro.c`,
+  a vertex stage drawing a triangle over the middle of the view, and `run.sh`. Both shaders crash
+  on Mesa 25.2.8 (Ubuntu 24.04, as `run.sh` runs it), 26.2.2 (the host's Fedora 44) and main at
+  `5a273016`. It draws with the triangle over the whole view, with a branch on a varying in place
+  of the ray query, with the loop or the read after it taken out, or with the loop's body empty.
+  The README has the issue's text for the owner to file, and TODO.md points to it.
+- **Fault 2.** TODO.md now names it by the lamp loop ahead of the sun's branch, and says it
+  reproduces inside the engine alone so far. Plain GLSL with loops over the buffer in divergent
+  branches did not crash in the C harness. Its reduction, `gi_trace`'s compute shader, stands at
+  3.8 KB, and a compute harness for it comes when it ends, its folder beside fault 1's either way.
