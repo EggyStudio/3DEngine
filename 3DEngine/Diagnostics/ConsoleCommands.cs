@@ -37,7 +37,7 @@ public static class ConsoleCommands
         lock (Gate) return Registered.GetValueOrDefault(name);
     }
 
-    /// <summary>Runs a line: the first word names the command and the rest are its arguments.</summary>
+    /// <summary>Runs a line as a command, its first word the command's name and the rest its arguments.</summary>
     /// <returns>The command's answer, a sentence when it is unknown or failed, or <c>null</c> for a blank line.</returns>
     public static string? Run(string line)
     {

@@ -28,7 +28,7 @@ internal sealed class SdlAudioPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("SdlAudioPlugin: Initialising SDL3 audio backend...");
+        Logger.Info("SdlAudioPlugin: Initializing SDL3 audio backend...");
 
         if (!app.World.TryGetResource<AudioServer>(out var server))
         {

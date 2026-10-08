@@ -288,7 +288,7 @@ public sealed partial class OffscreenRenderTests
             DrawTextureRec(right.Texture, new Rectangle(0, 0, 32, -32), new Vector2(32, 0), Color.White);
         }, "split");
 
-        // About five pixels a unit on the ground: pixel 28 is two and a half units right of the
+        // At about five pixels a unit on the ground, pixel 28 is two and a half units right of the
         // cube, in its shadow, and pixel 3 as far left of it, in the sun.
         foreach (var x0 in new[] { 0, 32 })
         {

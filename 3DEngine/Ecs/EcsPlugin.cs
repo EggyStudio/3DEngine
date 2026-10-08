@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Provides core ECS resources (<see cref="EcsWorld"/>, <see cref="EcsCommands"/>) and flushes the command buffer each <see cref="Stage.PostUpdate"/>.</summary>
 /// <remarks>
-/// This plugin initialises the <see cref="EcsWorld"/> and <see cref="EcsCommands"/> resources and
+/// This plugin initializes the <see cref="EcsWorld"/> and <see cref="EcsCommands"/> resources and
 /// registers a <see cref="Stage.PostUpdate"/> system that calls <see cref="EcsCommands.Apply"/>
 /// to flush deferred spawn/despawn/add/remove operations in FIFO order.
 /// </remarks>

@@ -20,7 +20,7 @@ internal sealed class StbTexturesPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("StbTexturesPlugin: Initialising StbImageSharp backend...");
+        Logger.Info("StbTexturesPlugin: Initializing StbImageSharp backend...");
 
         var registry = app.World.Resource<TextureDecoderRegistry>();
 

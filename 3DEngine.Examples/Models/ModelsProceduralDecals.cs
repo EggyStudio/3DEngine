@@ -242,7 +242,7 @@ public static class ModelsProceduralDecals
         return Vector3.Lerp(v0, v1, t);
     }
 
-    // Builds a decal mesh: the model's triangles are transformed into the decal's local space
+    // Builds a decal mesh. The model's triangles are transformed into the decal's local space
     // (so the decal sits at the origin, facing +Z) and clipped against a decalSize-sided box,
     // following the same clip-space projection idea used by engines' decal systems (and by
     // three.js' DecalGeometry, which the technique is commonly traced back to). What's left

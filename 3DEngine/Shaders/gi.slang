@@ -419,9 +419,9 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // a lamp's light does not bounce off the far side of a wall, and where seen is set the light
 // that bounced to it from the probes it sees alone (bouncedSeenAt). The world's probes set it,
 // since every surface's light comes to them. The screen's probes, whose rays are many and short,
-// do not: marching to the probes at each of their hits cost 0.10 to 0.15 ms of the bounce's 0.3
-// to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held 3 levels of
-// its light without it, where it held 247 before either. The model pass's reflections call
+// do not, because marching to the probes at each of their hits cost 0.10 to 0.15 ms of the
+// bounce's 0.3 to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held
+// 3 levels of its light without it, where it held 247 before either. The model pass's reflections call
 // shadeHit, which marches toward neither.
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
     float3 p, float probes, float spacing, float cascades, bool seen)

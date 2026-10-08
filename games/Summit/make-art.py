@@ -175,7 +175,7 @@ obj("house", [("Rock", (-4.4, -5, -4.4), (4.4, -0.4, 4.4)), ("Floor", (-4.4, -0.
               ("Stone", (-4.4, 0, 4), (-0.8, 3.2, 4.4)), ("Stone", (0.8, 0, 4), (4.4, 3.2, 4.4)),
               ("Stone", (-0.8, 2.4, 4), (0.8, 3.2, 4.4)),
               ("Roof", (-4.8, 3.2, -4.8), (4.8, 3.6, 4.8))])
-# A wooden plank, 6 long and 1.4 wide, centred, for the platforms that move.
+# A wooden plank, 6 long and 1.4 wide, centered, for the platforms that move.
 obj("plank", [("Wood", (-3, -0.15, -0.7), (3, 0.15, 0.7))])
 
 # -- Sound, synthesized

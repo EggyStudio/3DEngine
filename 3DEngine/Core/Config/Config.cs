@@ -10,7 +10,7 @@ namespace Engine;
 /// var app = new App(Config.Default);
 /// </code>
 /// <code>
-/// // Customise with named parameters
+/// // Customize with named parameters
 /// var cfg = Config.GetDefault(title: "My Game", width: 1920, height: 1080);
 /// </code>
 /// <code>

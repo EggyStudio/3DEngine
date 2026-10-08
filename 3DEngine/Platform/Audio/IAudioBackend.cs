@@ -26,7 +26,7 @@ public interface IAudioBackend : IDisposable
     /// <summary>Stable backend identifier (e.g. <c>"sdl3"</c>, <c>"null"</c>).</summary>
     string BackendId { get; }
 
-    /// <summary>Initialises the backend (opens device, allocates mixer). Idempotent.</summary>
+    /// <summary>Initializes the backend (opens device, allocates mixer). Idempotent.</summary>
     void Initialize();
 
     /// <summary>Creates a playing voice from <paramref name="sound"/>. Returns <c>0</c> on failure.</summary>

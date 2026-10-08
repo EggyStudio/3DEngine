@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Registers the <see cref="Input"/> resource and wires up the platform input backend.</summary>
 /// <remarks>
-/// During <see cref="IPlugin.Build"/>, this plugin initialises the <see cref="Input"/> resource,
+/// During <see cref="IPlugin.Build"/>, this plugin initializes the <see cref="Input"/> resource,
 /// looks up the optional <see cref="IInputBackend"/> resource from the world, and registers a
 /// <see cref="Stage.Last"/> system that clears per-frame transient state (pressed/released sets,
 /// mouse deltas, wheel, text input) at the end of each frame.

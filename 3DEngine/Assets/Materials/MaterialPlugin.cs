@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>
 /// Registers the user-facing materials subsystem, inserting a singleton
 /// <see cref="MaterialLibrary"/> resource into the <see cref="App"/> world so any
-/// downstream system, importer or behaviour can author and resolve materials through
+/// downstream system, importer or behavior can author and resolve materials through
 /// the same engine-neutral API.
 /// </summary>
 /// <remarks>
@@ -30,7 +30,7 @@ internal sealed class MaterialPlugin : IPlugin
     {
         if (app.World.ContainsResource<MaterialLibrary>())
         {
-            Logger.Debug("MaterialPlugin: MaterialLibrary already present; skipping re-initialisation.");
+            Logger.Debug("MaterialPlugin: MaterialLibrary already present; skipping re-initialization.");
             return;
         }
 

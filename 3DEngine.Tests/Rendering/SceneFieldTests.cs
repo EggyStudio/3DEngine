@@ -143,7 +143,7 @@ public sealed class SceneFieldTests : IDisposable
     public void Figures_Past_What_A_Frame_Stamps_Are_Boxes_Beyond_The_Nearest_And_None_Is_Left_Out()
     {
         // Thirty skinned figures of twenty limbs each, one after another away from the eye, where
-        // a frame stamps 256 boxes: the nearest take their limbs while the rest still have room for
+        // a frame stamps 256 boxes, so the nearest take their limbs while the rest still have room for
         // a box each, eleven of them, and the nineteen beyond are a box each.
         var limbs = Enumerable.Range(0, 20).Select(j => new SceneFieldPlan.Part(new SceneFieldPlan.Box(new Vector3(-0.1f), new Vector3(0.1f)),
             Matrix4x4.CreateTranslation(0, j * 0.1f, 0))).ToArray();

@@ -25,7 +25,7 @@ namespace Engine;
 /// <para>
 /// A compile runs on the file watcher's timer and leaves the new generation pending, and
 /// <see cref="ApplyPending"/> swaps it in on the main thread between frames, where no stage is
-/// running its systems: the prior generation's systems are evicted via
+/// running its systems. There the prior generation's systems are evicted via
 /// <see cref="App.RemoveSystemsBySource"/> (using <see cref="SourceTag"/>), the generated
 /// <c>[GeneratedBehaviorRegistration]</c> methods of the new assembly are invoked under a
 /// <see cref="SystemRegistrationSourceScope"/> so newly added descriptors inherit the same tag,

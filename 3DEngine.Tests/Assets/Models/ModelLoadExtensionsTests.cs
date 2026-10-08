@@ -6,7 +6,7 @@ namespace Engine.Tests.Models;
 
 /// <summary>
 /// Tests for <see cref="ModelLoadExtensions"/> and the <see cref="ModelSpawn"/>
-/// factory: model-flavoured aliases over <see cref="SceneSpawnExtensions"/> /
+/// factory: model-flavored aliases over <see cref="SceneSpawnExtensions"/> /
 /// <see cref="SceneSpawn"/>. Verifies the surface compiles and forwards correctly
 /// without spinning up the full asset pipeline.
 /// </summary>

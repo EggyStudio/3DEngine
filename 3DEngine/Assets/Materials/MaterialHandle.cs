@@ -17,7 +17,7 @@ namespace Engine;
 /// </example>
 public readonly struct MaterialHandle : IEquatable<MaterialHandle>
 {
-    /// <summary>The library that owns this material. <c>null</c> for the default/uninitialised handle.</summary>
+    /// <summary>The library that owns this material. <c>null</c> for the default/uninitialized handle.</summary>
     internal readonly MaterialLibrary? Library;
 
     /// <summary>Backend-agnostic numeric id assigned by the owning library at creation.</summary>

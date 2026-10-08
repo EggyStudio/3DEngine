@@ -221,7 +221,7 @@ internal sealed partial class AssimpModelReader
             }
         }
 
-        // Per-vertex weights are renormalised, since source files in the wild rarely sum exactly
+        // Per-vertex weights are renormalized, since source files in the wild rarely sum exactly
         // to 1.
         for (int v = 0; v < vc; v++)
         {

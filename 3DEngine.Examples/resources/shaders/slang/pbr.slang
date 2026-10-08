@@ -1,8 +1,8 @@
 // raylib's pbr.vs and pbr.fs, written in Slang for the model pass: Cook-Torrance's light from up to
 // four point lights over albedo, metalness, roughness and occlusion maps, a normal map and an
 // emissive one, tonemapped and corrected for gamma at the end. raylib's shader reads its maps by
-// names of its own, and here they are the material's maps the pass binds: the albedo map is the
-// material's texture, the MRA map its metallic-roughness map, read with raylib's channels.
+// names of its own, and here they are the material's maps the pass binds, the albedo map the
+// material's texture and the MRA map its metallic-roughness map, read with raylib's channels.
 import modelpass;
 
 static const int MAX_LIGHTS = 4;

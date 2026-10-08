@@ -199,7 +199,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             }
             catch (Exception ex)
             {
-                Logger.Warn($"SdlAudioBackend: initialisation failed ({ex.GetType().Name}: {ex.Message}). Backend disabled.");
+                Logger.Warn($"SdlAudioBackend: initialization failed ({ex.GetType().Name}: {ex.Message}). Backend disabled.");
             }
         }
     }
@@ -313,7 +313,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             pin.RefCount++;
 
             float vol = parameters.Volume;
-            // Pan defaults to 0 (centre) -> equal-power split = sqrt(0.5) on each side.
+            // Pan defaults to 0 (center) -> equal-power split = sqrt(0.5) on each side.
             float pan = parameters.Pannable ? Math.Clamp(parameters.Pan, -1f, 1f) : 0f;
             ApplyGainAndPan(streamL, streamR, vol, pan);
 

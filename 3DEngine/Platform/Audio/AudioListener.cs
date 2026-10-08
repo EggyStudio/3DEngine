@@ -9,7 +9,7 @@ namespace Engine;
 /// tracks the camera / player.
 /// </summary>
 /// <remarks>
-/// Only one listener entity is honoured per frame; if multiple are present the first
+/// Only one listener entity is honored per frame; if multiple are present the first
 /// query result wins. Convention: attach to the camera entity.
 /// </remarks>
 public struct AudioListener

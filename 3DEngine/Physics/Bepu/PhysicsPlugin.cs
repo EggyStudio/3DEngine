@@ -38,7 +38,7 @@ internal sealed class PhysicsPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("PhysicsPlugin: initialising BepuPhysics v2 backend...");
+        Logger.Info("PhysicsPlugin: initializing BepuPhysics v2 backend...");
         var settings = app.World.GetOrInsertResource(() => new PhysicsSettings());
         var world = new PhysicsWorld(settings);
         app.World.InsertResource(world);

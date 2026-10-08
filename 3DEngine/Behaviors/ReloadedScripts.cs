@@ -17,8 +17,8 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Each component and resource of a type the last generation declared is made again as the new
-/// generation's type of the same name, field by field by name: a field kept keeps its value, one
-/// added starts as the new type's constructor leaves it, and one taken away is dropped. A field of
+/// generation's type of the same name, field by field by name, so a field kept keeps its value,
+/// one added starts as the new type's constructor leaves it, and one taken away is dropped. A field of
 /// the engine's, the program's or .NET's types, an <see cref="Entity"/> among them, is carried as
 /// it is, one of a type the script declares is made again the same way, an enum by the name of its
 /// value, and an array or a list element by element. A component or resource whose type the new

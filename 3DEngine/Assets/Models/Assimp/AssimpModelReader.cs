@@ -5,7 +5,7 @@ namespace Engine;
 
 /// <summary>
 /// <see cref="ISceneReader"/> backed by AssimpNetter. Imports any of the ~40 file
-/// formats the native Assimp library recognises (FBX, OBJ, COLLADA, 3DS, BLEND, PLY,
+/// formats the native Assimp library recognizes (FBX, OBJ, COLLADA, 3DS, BLEND, PLY,
 /// STL, X, MD2/3/5, IFC, ...) and emits a backend-agnostic <see cref="Scene"/> snapshot
 /// in the payloads every reader uses, so the spawn systems after it do not depend on the
 /// importer.

@@ -49,7 +49,7 @@ public interface IAssetLoader<T>
     /// <param name="context">
     /// Provides the byte stream, asset path, and methods for loading sub-assets or dependencies.
     /// </param>
-    /// <param name="ct">Cancellation token honoured for cooperative cancellation.</param>
+    /// <param name="ct">Cancellation token honored for cooperative cancellation.</param>
     /// <returns>The load result containing the asset data (or error).</returns>
     Task<AssetLoadResult<T>> LoadAsync(AssetLoadContext context, CancellationToken ct);
 }

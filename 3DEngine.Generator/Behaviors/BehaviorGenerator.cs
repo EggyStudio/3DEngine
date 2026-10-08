@@ -587,7 +587,7 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
         var arguments = string.Concat(m.Components.Select((c, i) => $", {(c.Writes ? "ref" : "in")} __c{i}.ComponentRefByDenseIndex(__d{i})"));
         // A method that may write the behavior's fields marks it changed, as GetRef marks what it
         // hands out, so a [Changed] filter on the behavior sees it. Parallel runs set the bit
-        // atomically, since neighbouring entities share a word of bits.
+        // atomically, since neighboring entities share a word of bits.
         var parMark = m.IsReadOnly ? "" : "                        __store.MarkChangedByDenseIndexThreadSafe(__i);";
         var seqMark = m.IsReadOnly ? "" : "                __store.MarkChangedByDenseIndex(__i, 0);";
 

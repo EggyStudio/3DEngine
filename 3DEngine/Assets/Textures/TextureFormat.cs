@@ -7,11 +7,11 @@ namespace Engine;
 /// </summary>
 public enum TextureFormat
 {
-    /// <summary>Single channel, 8-bit unsigned normalised.</summary>
+    /// <summary>Single channel, 8-bit unsigned normalized.</summary>
     R8,
-    /// <summary>Two channels, 8-bit unsigned normalised.</summary>
+    /// <summary>Two channels, 8-bit unsigned normalized.</summary>
     Rg8,
-    /// <summary>Four channels, 8-bit unsigned normalised. Most common LDR format.</summary>
+    /// <summary>Four channels, 8-bit unsigned normalized. Most common LDR format.</summary>
     Rgba8,
     /// <summary>Four channels, 16-bit half-float. Mid-range HDR.</summary>
     Rgba16F,

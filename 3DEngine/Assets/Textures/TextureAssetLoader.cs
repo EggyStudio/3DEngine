@@ -17,7 +17,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Color-space hint:</b> the asset server contract has no per-load metadata channel,
-/// so the loader honours a sub-asset label of <c>"linear"</c> or <c>"srgb"</c> on
+/// so the loader honors a sub-asset label of <c>"linear"</c> or <c>"srgb"</c> on
 /// <see cref="AssetPath.Label"/>. <c>SceneSpawner</c> attaches the appropriate label when
 /// loading textures referenced by a <see cref="SceneMaterialPayload"/>; standalone
 /// <c>server.Load&lt;Texture&gt;("foo.png")</c> calls fall back to whatever the decoder

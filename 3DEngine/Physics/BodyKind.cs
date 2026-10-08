@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>The simulation behaviour of a <see cref="PhysicsBody"/>.</summary>
+/// <summary>The simulation behavior of a <see cref="PhysicsBody"/>.</summary>
 public enum BodyKind : byte
 {
     /// <summary>Affected by gravity, forces, impulses, and collisions.</summary>

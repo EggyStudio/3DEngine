@@ -72,8 +72,8 @@ public interface IPlugin
     /// <remarks>
     /// <para>
     /// <b>When this matters:</b> <see cref="App.AddPlugins(IPluginGroup)"/> sorts the group's
-    /// plugins by this property (stable sort: ties keep declaration order) before invoking
-    /// <see cref="App.AddPlugin"/> on each. Plain <see cref="App.AddPlugin"/> calls are still
+    /// plugins by this property, by a stable sort that keeps tied plugins in declaration order,
+    /// before invoking <see cref="App.AddPlugin"/> on each. Plain <see cref="App.AddPlugin"/> calls are still
     /// eager and use the order they're written in.
     /// </para>
     /// <para>

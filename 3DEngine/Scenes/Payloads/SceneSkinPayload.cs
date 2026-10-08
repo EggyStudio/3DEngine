@@ -9,12 +9,12 @@ namespace Engine;
 /// <para>
 /// <b>Influences:</b> the engine standardises on 4 influences per vertex (the de-facto
 /// glTF 2.0 / FBX baseline). Importers that encounter more drop the lowest-weight
-/// influences and renormalise; importers with fewer pad the unused slots with weight 0.
+/// influences and renormalize; importers with fewer pad the unused slots with weight 0.
 /// </para>
 /// <para>
 /// <b>Indices:</b> <see cref="JointIndices"/> stores 4 byte-sized joint ids per vertex
 /// packed into a <see cref="ushort"/>x4 (matching common GPU vertex-attribute layouts).
-/// <see cref="JointWeights"/> stores the matching normalised weights (sum ≈ 1.0).
+/// <see cref="JointWeights"/> stores the matching normalized weights (sum ≈ 1.0).
 /// </para>
 /// </remarks>
 /// <seealso cref="SceneSkeletonPayload"/>
@@ -34,7 +34,7 @@ internal sealed class SceneSkinPayload
     public required ushort[] JointIndices { get; init; }
 
     /// <summary>
-    /// Joint weights per vertex (4 per vertex, flattened, normalised). Length matches
+    /// Joint weights per vertex (4 per vertex, flattened, normalized). Length matches
     /// <see cref="JointIndices"/>.
     /// </summary>
     public required float[] JointWeights { get; init; }

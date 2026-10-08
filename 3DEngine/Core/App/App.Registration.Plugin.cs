@@ -80,7 +80,8 @@ public sealed partial class App
 
     /// <summary>
     /// Adds every plugin in the supplied <see cref="IPluginGroup"/>, sorted by
-    /// <see cref="IPlugin.Order"/> ascending (stable: ties keep the group's declaration order).
+    /// <see cref="IPlugin.Order"/> ascending, by a stable sort that keeps tied plugins in the
+    /// group's declaration order.
     /// Each plugin is then forwarded to <see cref="AddPlugin"/>, which still performs the usual
     /// <see cref="IPlugin.Dependencies"/> validation.
     /// </summary>

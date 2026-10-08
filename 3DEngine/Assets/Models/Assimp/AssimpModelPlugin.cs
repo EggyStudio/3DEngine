@@ -27,7 +27,7 @@ internal sealed class AssimpModelPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("AssimpModelPlugin: Initialising Assimp backend...");
+        Logger.Info("AssimpModelPlugin: Initializing Assimp backend...");
 
         var reader = new AssimpModelReader();
         var loader = new AssimpModelLoader(reader);

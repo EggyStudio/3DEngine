@@ -48,7 +48,7 @@ internal sealed class MaterialLibrary
     /// <summary>Number of materials currently registered.</summary>
     public int Count => _byId.Count;
 
-    /// <summary>Settings controlling default factor values and de-duplication behaviour.</summary>
+    /// <summary>Settings controlling default factor values and de-duplication behavior.</summary>
     public MaterialSettings Settings => _settings;
 
     /// <summary>Creates a library using the default <see cref="MaterialSettings"/>.</summary>

@@ -22,7 +22,7 @@ namespace Engine;
 /// <b>Color-space convention</b> (matches glTF / USD): <see cref="BaseColorTexture"/>
 /// and <see cref="EmissiveTexture"/> store sRGB-encoded values; the other three are
 /// linear. <see cref="SceneSpawner"/> requests the right encoding from the asset server
-/// at load time via the <c>"srgb"</c> / <c>"linear"</c> sub-asset label honoured by
+/// at load time via the <c>"srgb"</c> / <c>"linear"</c> sub-asset label honored by
 /// <see cref="TextureAssetLoader"/>.
 /// </para>
 /// </remarks>

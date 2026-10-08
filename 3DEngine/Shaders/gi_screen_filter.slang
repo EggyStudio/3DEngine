@@ -3,7 +3,7 @@
 // its distance from the eye are to the probe's, so the few rays each probe sends average over many
 // and the tiles the window is cut into do not show. Then with what the probes of the frame before
 // held where the probe's surface was, a fifth of this frame's to four fifths of theirs, so the light
-// does not crawl as the probes slide over the surfaces when the camera moves: the probe's point is
+// does not crawl as the probes slide over the surfaces when the camera moves. The probe's point is
 // found from the window's depth, its place in the frame before through that frame's camera, and the
 // four probes of the frame before around it blended where each stood on a like surface. A probe
 // whose surface the frame before did not show takes this frame's light alone.

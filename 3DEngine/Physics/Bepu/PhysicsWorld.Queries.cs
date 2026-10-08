@@ -85,7 +85,7 @@ public sealed partial class PhysicsWorld
     /// explosion or of a sound heard nearby.
     /// </summary>
     /// <remarks>
-    /// The sphere is swept a hundredth of a millimetre, which Bepu reports a body it starts inside
+    /// The sphere is swept a hundredth of a millimeter, which Bepu reports a body it starts inside
     /// at 0 for, so the bodies are those whose shapes the sphere meets, and not only their bounds.
     /// </remarks>
     internal List<PhysicsBody> Overlap(Vector3 center, float radius)

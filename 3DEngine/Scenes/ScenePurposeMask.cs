@@ -25,7 +25,7 @@ public enum ScenePurposeMask
     /// <summary>Runtime default: <see cref="Default"/> + <see cref="Render"/>.</summary>
     Runtime = Default | Render,
 
-    /// <summary>Editor default: also surface proxy stand-ins for the viewport.</summary>
+    /// <summary>What a tool that shows proxies includes: <see cref="Default"/>, <see cref="Render"/> and <see cref="Proxy"/>.</summary>
     Editor = Default | Render | Proxy,
 
     /// <summary>Every authored purpose (including guides).</summary>

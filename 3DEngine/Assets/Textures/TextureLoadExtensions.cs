@@ -49,31 +49,31 @@ internal static class TextureLoadExtensions
 
     /// <summary>Loads as sRGB-encoded; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
     public static Handle<TextureAsset> LoadTextureSrgb(this AssetServer server, string path, bool generateMips = false) =>
-        server.Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+        server.Load<TextureAsset>(BuildLabeledPath(path, srgb: true, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureSrgb(AssetServer, string, bool)"/>
     public static Handle<TextureAsset> LoadTextureSrgb(this World world, string path, bool generateMips = false) =>
-        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabeledPath(path, srgb: true, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureSrgb(AssetServer, string, bool)"/>
     public static Handle<TextureAsset> LoadTextureSrgb(this BehaviorContext ctx, string path, bool generateMips = false) =>
-        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabeledPath(path, srgb: true, mips: generateMips));
 
     // -- Linear convenience (Normal / MR / Occlusion / data)
 
     /// <summary>Loads as linear; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
     public static Handle<TextureAsset> LoadTextureLinear(this AssetServer server, string path, bool generateMips = false) =>
-        server.Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+        server.Load<TextureAsset>(BuildLabeledPath(path, srgb: false, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureLinear(AssetServer, string, bool)"/>
     public static Handle<TextureAsset> LoadTextureLinear(this World world, string path, bool generateMips = false) =>
-        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabeledPath(path, srgb: false, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureLinear(AssetServer, string, bool)"/>
     public static Handle<TextureAsset> LoadTextureLinear(this BehaviorContext ctx, string path, bool generateMips = false) =>
-        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabeledPath(path, srgb: false, mips: generateMips));
 
-    private static string BuildLabelledPath(string path, bool srgb, bool mips)
+    private static string BuildLabeledPath(string path, bool srgb, bool mips)
     {
         var token = (srgb, mips) switch
         {

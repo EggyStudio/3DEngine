@@ -17,7 +17,7 @@ namespace Engine;
 /// </example>
 public readonly struct PhysicsBody : IEquatable<PhysicsBody>
 {
-    /// <summary>The world that owns this body. <c>null</c> for the default/uninitialised handle.</summary>
+    /// <summary>The world that owns this body. <c>null</c> for the default/uninitialized handle.</summary>
     public readonly PhysicsWorld? World;
 
     /// <summary>Backend-specific handle identifier (Bepu BodyHandle.Value or StaticHandle.Value).</summary>
@@ -75,7 +75,7 @@ public readonly struct PhysicsBody : IEquatable<PhysicsBody>
 
     // -- Forces / impulses
 
-    /// <summary>Applies an instantaneous change in momentum at the body's centre of mass.</summary>
+    /// <summary>Applies an instantaneous change in momentum at the body's center of mass.</summary>
     public void ApplyImpulse(Vector3 impulse) => World!.ApplyImpulse(this, impulse, Vector3.Zero);
 
     /// <summary>Applies an instantaneous change in momentum at a world-space point.</summary>

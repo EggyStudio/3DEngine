@@ -263,7 +263,7 @@ public sealed partial class PhysicsWorld
             if (character.Grounded)
             {
                 // Along the ground, so a walk up or down a slope follows it, and with the pull along
-                // the slope cancelled, so standing still on it stays still.
+                // the slope canceled, so standing still on it stays still.
                 var n = character.GroundNormal;
                 var along = character.Wanted - Vector3.Dot(character.Wanted, n) * n;
                 if (along != Vector3.Zero) along = Vector3.Normalize(along) * character.Wanted.Length();

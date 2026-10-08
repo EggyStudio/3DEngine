@@ -10,7 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f2f6f717`. The light-bounce entry's gap of thin closed meshes and open ones: a
+Reviewed up to `d67d0153`. The light-bounce entry's last gap, moving meshes bouncing gray: the
+resolve keeps a still copy of the field's colors, and the stamp starts each cell from that copy and
+paints it the color of the nearer of the still surface and the boxes, so a cell goes back to the
+still color once a box leaves; the test is the red wall scene with the wall swaying every frame,
+held as a box and never built, the block's side reading red with the painting and gray without,
+which fails the test; with three robots the stamp costs 0.062 to 0.067 ms where it cost 0.048 to
+0.052, a cascade's build unchanged at 0.45 to 0.47 ms, and the field takes 5 MB a cascade where it
+took 4, the model pass byte for byte the same; a moving mesh's own light is still not stamped, since
+a still copy of the glow would cost 2 MB a cascade, which the docs say; on lavapipe under validation
+160 passed and 1 skipped (`d67d0153`). Item 3's `spirv-reduce`, in its 2025.1 and the SDK's 2026.4,
+crashes in its own block-merging pass at 27 KB, so the reduction runs in a loop that merges the last
+accepted module with `spirv-opt` and starts again, the second fault's experiment beside it.
+TODO.md's prose entry is next, STYLE.md's checks still reporting dashes, spaced hyphens, wants,
+clefts, old reference paths and colons to read. The suite: 1,548 passed.
+
+Before them, the light-bounce entry's gap of thin closed meshes and open ones came to be closed: a
 closed wall thinner than half a cell is held in the field as a double-sided sheet is, the splat
 keeping the nearest face each cell lies straight behind, within 25 degrees, and the way each face
 looks, so a cell in front of one face with an opposite face less than half a cell behind it resolves
@@ -20,11 +35,9 @@ rim; a GPU test covers a slab a fifth of a cell thick and a ground plane, each h
 rule taken out; a cascade's build costs 0.46 ms where it cost 0.44 and the field takes 1 MB more,
 which the guide says; on lavapipe under validation 159 passed and 1 skipped (`f2f6f717`). Item 3's
 constrained reduction ended in undefined behaviour again, a read of a ray query's instance where the
-query had no hit, lavapipe faulting there by a gather at address 8 where the model pass faults
-reading a descriptor-like pointer and the word after it from address 0, so a third reduction runs
-from the 63 KB module keeping only candidates that fault with the model pass's signature, read by a
-preloaded SIGSEGV handler. Next the field's boxes of moving meshes are painted with their mesh's
-color from a still copy of the field's colors. The suite: 1,547 passed.
+query had no hit, so a third reduction keeps only candidates that fault with the model pass's
+signature, a descriptor-like pointer read from address 0, through a preloaded SIGSEGV handler. The
+suite: 1,547 passed.
 
 Before them, the light-bounce entry's gap of skinned and moving meshes held as one gray box each
 came to be closed: a skinned mesh is stamped as an oriented box a joint, around the rest vertices
@@ -41,22 +54,6 @@ ms on the CPU for 147 boxes in 540 bricks where their 57 boxes cost 0.046 and 0.
 and 0.11 ms on the GPU without the runs; the remarks of `SetSceneField`, the guide, RENDERING.md and
 TODO.md say a moving mesh is held as the boxes of its joints or its parts; on lavapipe under
 validation 157 passed and 1 skipped (`11fbae8e`). The suite: 1,545 passed.
-
-Before them, the light-bounce entry's gap of the screen probes not blended over time came to be
-closed: after the 5 by 5 filter each screen probe blends a fifth of this frame's light with four
-fifths of the frame before's, its point from the window's depth reprojected through the camera of
-the frame before, which the view buffer carries, blending the four probes there that stood on a like
-surface from images copied after the filter, a disoccluded probe, the first frame and the first
-after a relayout taking this frame's light alone, `ScreenView` moved into `gi.slang` and the model
-pass byte for byte the same in both builds; with the camera sliding a hundredth of a unit a frame at
-`Low` the bounce adds 0.27 levels a frame of change against 1.34 with the history off and 0.48 with
-no bounce, which a test holds under 0.5 on lavapipe too, at about 0.03 ms and two probe-sized images
-`gi.state` counts, the guide's table at 0.27, 0.31 and 0.44 ms and 0.73, 2.80 and 6.81 MB, and near
-light following a changing light about five frames late, which the docs say; on lavapipe under
-validation 139 passed and 1 skipped (`8ca965bc`). The entry has left the reflections lit with
-unshadowed lamps, which waits on lavapipe's second fault, and the entries after it describe limits
-rather than gaps, the older scene files to consider by the owner's decision. The suite: 1,541
-passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -322,35 +319,40 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the light-bounce entry, its last gap of moving meshes bounced gray:
+TODO.md's order, Prose, STYLE.md's checks read hit by hit, words alone:
 
-- **A moving mesh in its color.** The resolve writes the still meshes' colors into a copy of their
-  own beside the image the passes read, and the stamp starts each cell of its bricks from that copy
-  and paints it the color of the nearer of the still surface and the boxes that come within the
-  band, a box its mesh's color as the splat reckons it, the material's times its texture's average
-  in linear light. A cell a box painted takes the still color again once the box has left, as its
-  distance does. The light a moving mesh gives off is not stamped, which would take a copy of the
-  still light too, 2 MB a cascade, and the guide, RENDERING.md, TODO.md and `SetSceneField`'s
-  remarks say so.
-- **Tested.** The red wall test's scene again with the wall swaying a fiftieth of a unit each
-  frame, held as a box and never built: the white block's side facing it reads (58, 34, 34) with
-  the bounce at `Low`, red as with the still wall, and (57.4, 57.4, 57.4) with the painting taken
-  out, which fails the test.
-- **Cost.** Three dancing robots in `shaders_cornell_box`, 147 boxes in 540 bricks, are stamped and
-  painted in 0.062 to 0.067 ms of the GPU where HEAD stamped them in 0.048 to 0.052, a cascade's
-  build in `shaders_scene_field` reads 0.45 to 0.47 ms in both, and the field takes 1 MB a cascade
-  more, 5 MB, all in the Release build beside the numbers the guide holds. The model pass's SPIR-V
-  is byte for byte the same in both builds.
-- **Checked.** lavapipe under the validation layer passed the bounce, reference, render, field,
-  probe and particle tests, 160 and 1 skipped.
-- **Item 3.** spirv-reduce, Ubuntu's 2025.1 and the Vulkan SDK's 2026.4 alike, dies by SIGSEGV in
-  its own pass that merges blocks at 27 KB of the signature-held reduction, so it now runs in a loop
-  that merges the last candidate taken with spirv-opt and starts again. Fault 2 is being set up
-  beside it from the split it was found with, `directLight` calling a `lampLight` that holds the
-  lamp loop, in the model pass built without ray queries.
-- **Next.** The light-bounce entry has left the reflections lit by unshadowed lamps, which waits on
-  fault 2's report, and the screen's probes following a changing light five frames late, which the
-  blend over time costs. TODO.md's order then goes past the entries that record limits, to Prose,
-  where the checks at the end of STYLE.md report what the code carried over still breaks, which I
-  take next unless you name another.
+- **Dashes, spaced hyphens, wants and clefts, earlier revisions, `.ref/`.** Each of these checks'
+  hits outside STYLE.md and COMMITS.md, which name what they forbid, is arithmetic, a raylib
+  example's text on its screen, a license, or a person who wants something, so none changed, and
+  N 4.1 still leaves out those two files alone.
+- **Colons.** The 485 hits that are not a channel's label (`xyz:` and the like) were read one by
+  one, and the eleven that joined two clauses are rewritten as two sentences, a comma or `so`, in
+  `RuntimeBehaviorCompiler`, `ReloadedScripts`, `ConsoleCommands`, `App.AddPlugins` and `IPlugin`,
+  `gi.slang` and `gi_screen_filter.slang`, two tests and two examples. The check reports 568, every
+  one a list or a label.
+- **Spelling.** STYLE.md asks for American spelling and no check searches for it. About forty
+  British spellings were in comments, XML documentation and log messages of the carried-over code
+  (behaviour, initialise, honoured, normalised, centre, recognises, neighbouring, millimetre,
+  cancelled), with a private method, `BuildLabelledPath`, and a local, `normalised`, and they are
+  American now, the workflow's comments among them and its `cancelled()` kept. raylib's own words
+  in the examples (`Centre`, `ANALOGUE CLOCK`, `maskColour`, `towards target`) stay as raylib wrote
+  them. A search for them could join STYLE.md's checks, which I leave to you.
+- **An editor.** `ScenePurposeMask.Editor`'s summary described an editor's viewport, and it now
+  says what the mask includes, the member's name kept since it is public.
+- **Checked.** The model pass's SPIR-V is byte for byte the same, the strict build is clean, and
+  TODO.md's Prose entry names the spellings among what is gone. Some comments of the carried-over
+  code still restate the line below them, which stays as the entry has it, each file brought under
+  the guide when it is next changed.
+- **Item 3.** Fault 2 reproduces on today's code in a harness of its own, a lamp over a glossy floor
+  with light bouncing, built without ray queries, where it dies by SIGSEGV reading a pointer and the
+  word after it from address 0, as fault 1 does. It is not the model pass alone. With the lamp loop split
+  into `lampLight`, each of `gi_trace.slang`, `gi_screen.slang` and the model pass crashes lavapipe
+  with the others built unsplit, and all three unsplit draw. The model pass's reduction went to an
+  empty shader that still crashed, since the compute passes carried the split too, which is how
+  this came out, and it now reduces `gi_trace`'s 50 KB compute shader, the easiest to put in a C
+  harness, at 44 KB so far. spirv-reduce's crash is its own: `MergeWithSuccessor` looks for the
+  successor after the block in the function's layout and runs off the end where an unreachable
+  block branches back, so a local build of SPIRV-Tools refuses that merge, and fault 1's reduction
+  goes on with it at 22 KB. TODO.md's fault 2 sentence is corrected once the reduction says where
+  the fault is.
 - The suite: 1,548 passed.

@@ -139,11 +139,11 @@ internal static class SceneSpawner
         private static string? ResolveSceneDirectory(string? sceneSourcePath)
         {
             if (string.IsNullOrEmpty(sceneSourcePath)) return null;
-            // SceneAsset.SourcePath is normalised to "/"; pull the directory portion
-            // (forward-slash). System.IO.Path's behaviour matches both separators.
-            var normalised = sceneSourcePath.Replace('\\', '/');
-            int slash = normalised.LastIndexOf('/');
-            return slash <= 0 ? string.Empty : normalised[..slash];
+            // SceneAsset.SourcePath is normalized to "/"; pull the directory portion
+            // (forward-slash). System.IO.Path's behavior matches both separators.
+            var normalized = sceneSourcePath.Replace('\\', '/');
+            int slash = normalized.LastIndexOf('/');
+            return slash <= 0 ? string.Empty : normalized[..slash];
         }
     }
 

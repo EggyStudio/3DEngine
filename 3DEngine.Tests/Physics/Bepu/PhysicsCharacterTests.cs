@@ -113,7 +113,7 @@ public class PhysicsCharacterTests
         world.MoveCharacter(body, new Vector3(3, 0, 0));
         Run(world, 1.5f);
 
-        Feet(world, body).Y.Should().BeApproximately(0.15f, 0.05f, "it stands on the step, 15 centimetres up");
+        Feet(world, body).Y.Should().BeApproximately(0.15f, 0.05f, "it stands on the step, 15 centimeters up");
         world.GetPosition(body).X.Should().BeGreaterThan(3);
     }
 
