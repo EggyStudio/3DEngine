@@ -218,6 +218,62 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
+    public void A_Compute_Shader_Writes_A_Render_Texture_Through_A_Stand_In_As_It_Writes_One_Directly()
+    {
+        // The same render texture painted twice, written directly and then through the stand-in a
+        // device that cannot store to its format writes, the shader reading the red the frame drew
+        // into it and writing green and blue by the place.
+        Image Paint(bool standIn)
+        {
+            Open(32, 32);
+            var renderer = GetApp().World.Resource<Engine.Renderer>();
+            if (standIn) ((GraphicsDevice)renderer.Context.Graphics!).WriteTargetsThroughStandIns();
+            var target = LoadRenderTexture(4, 4);
+            SetTextureFilter(target.Texture, TextureFilter.Point);
+            Capture(() =>
+            {
+                BeginTextureMode(target);
+                ClearBackground(new Color(200, 0, 0, 255));
+                EndTextureMode();
+                ClearBackground(Color.Black);
+            }, "made");
+            var stored = renderer.RenderWorld.TryGet<GpuTextures>()!.TargetFor(target.Texture.Id)!.ColorView.Image.Description.Usage.HasFlag(ImageUsage.Storage);
+            if (standIn) stored.Should().BeFalse("the target is written through a stand-in, as on a device that cannot store to its format");
+
+            var paint = LoadComputeShaderFromMemory("""
+                RWTexture2D<float4> image;
+
+                [shader("compute")]
+                [numthreads(4, 4, 1)]
+                void computeMain(uint3 id : SV_DispatchThreadID)
+                {
+                    image[id.xy] = float4(image[id.xy].r, id.x / 3.0, id.y / 3.0, 1);
+                }
+                """, "stand-in.slang");
+            SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), target.Texture);
+            ComputeShaderDispatch(paint, 1, 1, 1);
+            var image = Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                DrawTextureEx(target.Texture, Vector2.Zero, 0, 8, Color.White);
+            }, standIn ? "through" : "direct");
+            GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+            UnloadShader(paint);
+            UnloadRenderTexture(target);
+            CloseWindow();
+            UseApp(null);
+            return image;
+        }
+
+        var direct = Paint(false);
+        var through = Paint(true);
+        GetImageColor(through, 28, 28).Should().Be(new Color(200, 255, 255, 255), "the red the target held, read through the stand-in, kept beside the green and blue written");
+        for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 32; x++)
+                GetImageColor(through, x, y).Should().Be(GetImageColor(direct, x, y), $"the stand-in's picture is the direct one's at {x}, {y}");
+    }
+
+    [NeedsVulkanFact]
     public void A_Compute_Shader_Writes_A_Texture_That_Is_Then_Drawn_And_Samples_One()
     {
         Open(32, 32);

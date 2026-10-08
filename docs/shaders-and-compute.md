@@ -310,9 +310,11 @@ SetShaderValue(plasma, timeAt, (float)GetTime());
 ComputeShaderDispatch(plasma, 256 / 8, 256 / 8, 1);
 ```
 
-A render texture's color is written the same way, on a GPU that can store to the window's format,
-as most desktop GPUs can. The shader writes a mipmapped texture's first level, and the dispatch
-makes the smaller levels again from it.
+A render texture's colors are written the same way. Where the GPU cannot store to a color's format,
+as some cannot store the window's eight bits a channel in BGRA order, the shader writes a stand-in of
+a format it does store, which the dispatch fills from the render texture first and copies into it
+after, each channel into its own, two copies of the image a dispatch. The shader writes a mipmapped
+texture's first level, and the dispatch makes the smaller levels again from it.
 
 ## See also
 

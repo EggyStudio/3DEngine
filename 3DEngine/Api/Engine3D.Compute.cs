@@ -179,7 +179,7 @@ public static partial class Engine3D
 
         // The textures it writes and samples, as the renderer holds them.
         var gpuTextures = Res<Renderer>().RenderWorld.TryGet<GpuTextures>();
-        var images = new List<(int, IImage, IImageView)>(program.Images.Count);
+        var images = new List<(int, IImage, IImageView, IImage?)>(program.Images.Count);
         if (program.Images.Count > 0)
         {
             if (!device.CanWriteImages)
@@ -200,10 +200,10 @@ public static partial class Engine3D
                 if (gpuTextures.StorageFor(device, imageIds[i]) is not { } storage)
                 {
                     ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' has no texture on the GPU for '{program.Images[i].Name}'. "
-                                   + "A texture reaches the GPU in the frame after it is loaded, and a render texture is written only where the GPU can store to the window's format.");
+                                   + "A texture reaches the GPU in the frame after it is loaded.");
                     return;
                 }
-                images.Add((program.Images[i].Binding, storage.Image, storage.View));
+                images.Add((program.Images[i].Binding, storage.Image, storage.View, storage.Into));
             }
         }
         var textures = new List<(int, IImageView, ISampler)>(program.Textures.Count);

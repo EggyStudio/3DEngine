@@ -97,8 +97,15 @@ Textures are made with storage usage, and their sRGB views for sampling only, si
 cannot be storage. The image a dispatch writes is moved to the general layout in its command buffer
 and back to the one textures are sampled in after it, and the shader's image carries no format,
 which the device's `shaderStorageImageWriteWithoutFormat` feature, enabled where it is supported,
-allows. A texture reaches the GPU in the frame after it is loaded, so a dispatch before then is
-skipped with the reason in the log.
+allows. A render target's colors are made with storage usage where the device stores their
+formats, asked once a format (`StoresTargets`), and as a transfer's destination. Where it does not,
+as some devices do not store the window's eight-bit BGRA, the shader writes a stand-in of eight
+bits a channel in RGBA order or of the target's floats, which every device stores
+(`GraphicsDevice.CreateStandIn`), kept with the target's texture. The dispatch blits the target into
+it before the shader and blits it back after, a blit taking each channel into its own where a copy
+would move the bytes as they lie, and a test writes one target both ways on a device that stores
+it and compares the pictures. A texture reaches the GPU in the frame after it is loaded, so a
+dispatch before then is skipped with the reason in the log.
 
 A shader that draws reads storage buffers too, declared as `StructuredBuffer`, at the bindings
 Slang gives them in its first set. The buffers set on it travel with each draw after the

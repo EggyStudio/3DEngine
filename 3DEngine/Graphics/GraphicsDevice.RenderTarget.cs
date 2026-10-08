@@ -107,10 +107,12 @@ internal sealed unsafe partial class GraphicsDevice
         var samples = multisampled ? _samples : VkSampleCountFlags.Count1;
 
         // Storage too where the device can store to the format, so a compute shader writes the
-        // target as it writes a texture.
-        var storage = window && TargetsAreStorage();
+        // target as it writes a texture, and a transfer's destination where it cannot, so the
+        // shader writes a stand-in copied into it (CreateStandIn).
+        var storage = StoresTargets(vkFormat);
         var (color, colorMemory) = TargetImage(vkFormat, width, height,
-            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | (storage ? VkImageUsageFlags.Storage : 0),
+            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst
+            | (storage ? VkImageUsageFlags.Storage : 0),
             window ? VkImageCreateFlags.MutableFormat : 0);
         var colorView = TargetView(color, vkFormat, VkImageAspectFlags.Color);
         var srgbView = window ? TargetView(color, SrgbOf(vkFormat), VkImageAspectFlags.Color, samplingOnly: storage) : colorView;
@@ -139,11 +141,13 @@ internal sealed unsafe partial class GraphicsDevice
         for (int i = 0; i < more.Length; i++)
         {
             var moreFormat = formats[i + 1] == ImageFormat.Undefined ? _swapchainFormat : ToVkFormat(formats[i + 1]);
+            var moreStorage = StoresTargets(moreFormat);
             var (image, memory) = TargetImage(moreFormat, width, height,
-                VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc);
+                VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst
+                | (moreStorage ? VkImageUsageFlags.Storage : 0));
             var owner = new VulkanImage(this, image, memory,
                 new ImageDesc(new Extent2D(width, height), formats[i + 1] == ImageFormat.Undefined ? ImageFormat.B8G8R8A8_UNorm : formats[i + 1],
-                    ImageUsage.ColorAttachment | ImageUsage.Sampled));
+                    ImageUsage.ColorAttachment | ImageUsage.Sampled | ImageUsage.TransferSrc | ImageUsage.TransferDst | (moreStorage ? ImageUsage.Storage : 0)));
             TransitionImageLayout(owner, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal, VkImageAspectFlags.Color);
             var (msaaImage, msaaImageMemory) = msaa ? TargetImage(moreFormat, width, height, VkImageUsageFlags.ColorAttachment, samples: samples) : default;
             more[i] = (moreFormat, image, owner, TargetView(image, moreFormat, VkImageAspectFlags.Color), msaaImage, msaaImageMemory,
@@ -169,7 +173,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         var colorImage = new VulkanImage(this, color, colorMemory,
             new ImageDesc(new Extent2D(width, height), window ? ImageFormat.B8G8R8A8_UNorm : format,
-                ImageUsage.ColorAttachment | ImageUsage.Sampled | (storage ? ImageUsage.Storage : 0)));
+                ImageUsage.ColorAttachment | ImageUsage.Sampled | ImageUsage.TransferSrc | ImageUsage.TransferDst | (storage ? ImageUsage.Storage : 0)));
         // Ready to sample, and to write with a dispatch, before its first pass, which leaves it so too.
         TransitionImageLayout(colorImage, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal, VkImageAspectFlags.Color);
         // The image the depth is sampled from, which owns its memory, and the one drawn into when
@@ -234,15 +238,47 @@ internal sealed unsafe partial class GraphicsDevice
         _ => format,
     };
 
-    // Whether the window's format can be a storage image on this device, which most desktop GPUs
-    // allow for eight-bit BGRA and some do not, asked once.
-    private bool? _targetsAreStorage;
+    // Whether a target's format can be a storage image on this device, asked once a format: most
+    // desktop GPUs store eight-bit BGRA, the window's, and some do not, and every device stores
+    // eight-bit RGBA and the float formats.
+    private readonly Dictionary<VkFormat, bool> _storesTargets = [];
 
-    private bool TargetsAreStorage()
+    // Set by a test, so every target is written through a stand-in on a device that stores them.
+    private bool _standInsAlone;
+
+    private bool StoresTargets(VkFormat format)
     {
-        if (_targetsAreStorage is { } known) return known;
-        _instanceApi.vkGetPhysicalDeviceFormatProperties(_physicalDevice, _swapchainFormat, out var properties);
-        return (_targetsAreStorage = CanWriteImages && (properties.optimalTilingFeatures & VkFormatFeatureFlags.StorageImage) != 0).Value;
+        if (_standInsAlone) return false;
+        if (_storesTargets.TryGetValue(format, out var known)) return known;
+        _instanceApi.vkGetPhysicalDeviceFormatProperties(_physicalDevice, format, out var properties);
+        return _storesTargets[format] = CanWriteImages && (properties.optimalTilingFeatures & VkFormatFeatureFlags.StorageImage) != 0;
+    }
+
+    /// <summary>
+    /// Makes every render target made after it unwritable by a compute shader, so a dispatch writes
+    /// each through a stand-in (<see cref="CreateStandIn"/>), as on a device that stores none of
+    /// their formats, for a test to compare the two paths on one device.
+    /// </summary>
+    internal void WriteTargetsThroughStandIns() => _standInsAlone = true;
+
+    /// <summary>
+    /// Makes the image a compute shader writes in place of a render target's image the device
+    /// cannot store to: the same size, of eight bits a channel in RGBA order, or of half or full
+    /// floats as the target is, formats every device stores. <see cref="Dispatch"/> fills it from
+    /// the target before the shader runs, so a shader that reads the target reads what it holds,
+    /// and copies it into the target after, each channel into its own, whatever order the target
+    /// keeps them in.
+    /// </summary>
+    internal (IImage Image, IImageView View) CreateStandIn(IImage target)
+    {
+        var format = target.Description.Format switch
+        {
+            ImageFormat.R16G16B16A16_Float => ImageFormat.R16G16B16A16_Float,
+            ImageFormat.R32G32B32A32_Float => ImageFormat.R32G32B32A32_Float,
+            _ => ImageFormat.R8G8B8A8_UNorm,
+        };
+        var image = CreateImage(new ImageDesc(target.Description.Extent, format, ImageUsage.Storage | ImageUsage.TransferSrc | ImageUsage.TransferDst));
+        return (image, CreateImageView(image));
     }
 
     private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage,

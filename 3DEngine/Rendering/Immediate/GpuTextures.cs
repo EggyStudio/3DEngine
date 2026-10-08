@@ -31,8 +31,15 @@ internal sealed class GpuTextures : IDisposable
         // when one first does. A copy made for a new sampler shares it, since the image is the same.
         public IImageView? FirstLevel { get; set; }
 
-        public IDisposable[] Owned => Target is not null ? [Set, Sampler, Target]
-            : Of != 0 ? [Set, Sampler]
+        // The image a compute shader writes in place of a render target's that the device cannot
+        // store to, copied into it after each dispatch, made when one first does. A copy made for
+        // a new sampler shares it, as it shares the first level.
+        public (IImage Image, IImageView View)? StandIn { get; set; }
+
+        private IDisposable[] StandInParts => StandIn is { } standIn ? [standIn.View, standIn.Image] : [];
+
+        public IDisposable[] Owned => Target is not null ? [Set, Sampler, Target, .. StandInParts]
+            : Of != 0 ? [Set, Sampler, .. StandInParts]
             : FirstLevel is not null ? [Set, Sampler, FirstLevel, SrgbView, View, Image!]
             : [Set, Sampler, SrgbView, View, Image!];
     }
@@ -72,20 +79,26 @@ internal sealed class GpuTextures : IDisposable
 
     /// <summary>
     /// The image of texture <paramref name="id"/> and its view as stored, for a compute shader to
-    /// write, a render target's color among them, or null for one not on the GPU yet, or a render
-    /// target on a device that cannot store to the window's format.
+    /// write, any color of a render target among them, with the image a stand-in is copied into
+    /// after the shader runs, or null for one not on the GPU yet.
     /// </summary>
     /// <remarks>
     /// A mipmapped texture is written through a view of its first level, which the dispatch then
-    /// makes the other levels from.
+    /// makes the other levels from. A render target's color the device cannot store to is written
+    /// through a stand-in of a format it does store (<see cref="GraphicsDevice.CreateStandIn"/>),
+    /// which the dispatch fills from the target first and copies into it after.
     /// </remarks>
-    internal (IImage Image, IImageView View)? StorageFor(GraphicsDevice device, int id)
+    internal (IImage Image, IImageView View, IImage? Into)? StorageFor(GraphicsDevice device, int id)
     {
-        if (id == 0 || !_entries.TryGetValue(id, out var entry)) return null;
-        var image = entry.Image ?? entry.Target?.ColorView.Image;
-        if (image is null || !image.Description.Usage.HasFlag(ImageUsage.Storage)) return null;
-        if (image.Description.MipLevels <= 1) return (image, entry.View);
-        return (image, entry.FirstLevel ??= device.CreateFirstLevelView(image));
+        if (id == 0 || !_entries.TryGetValue(id, out var entry) || entry.Cube) return null;
+        var image = entry.Image ?? entry.Target?.ColorView.Image
+            ?? (entry.Of != 0 && entry.View.Image.Description.Format != ImageFormat.D32_Float ? entry.View.Image : null);
+        if (image is null) return null;
+        if (image.Description.Usage.HasFlag(ImageUsage.Storage))
+            return image.Description.MipLevels <= 1 ? (image, entry.View, null) : (image, entry.FirstLevel ??= device.CreateFirstLevelView(image), null);
+        if (entry.Target is null && entry.Of == 0) return null;
+        var (standIn, standInView) = entry.StandIn ??= device.CreateStandIn(image);
+        return (standIn, standInView, image);
     }
 
     /// <summary>The image of texture <paramref name="id"/>, a render target's colors among them and not its depth, or null for one not on the GPU yet.</summary>

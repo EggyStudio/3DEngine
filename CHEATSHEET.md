@@ -604,7 +604,7 @@ A dispatch runs on the GPU before the frame being drawn, while the program goes 
 `ReadShaderBuffer` waits for it. A compute shader writes a texture it declares as
 `RWTexture2D<float4> image;` and samples a `Sampler2D`, each set with `SetShaderValueTexture`, once
 the texture has reached the GPU, which it does in the frame after it is loaded, and a render
-texture's color as well where the GPU can store to the window's format. A shader that draws reads
+texture's colors as well, through a stand-in copied into it where the GPU cannot store to its format. A shader that draws reads
 the same buffer as a `StructuredBuffer`, set with `SetShaderValueBuffer`, so what a dispatch wrote
 is drawn with no copy through the CPU. An immediate shader reads it in `BeginShaderMode`, and a
 model shader drawn with `DrawMeshInstanced` picks each copy's values from it by `SV_InstanceID`.

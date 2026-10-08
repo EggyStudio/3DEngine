@@ -123,9 +123,10 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### Meshes, materials and light
 
-- **A compute shader writes a render texture only where the GPU stores the window's format.** A
-  dispatch runs a compute shader over storage buffers, which the CPU reads back and drawing shaders
-  read, and textures it writes and samples, every pass's descriptor set layouts are read from its
+- **A compute shader writes buffers, textures and render textures on every device.** A dispatch
+  runs a compute shader over storage buffers, which the CPU reads back and drawing shaders read, and
+  textures it writes and samples, a render texture's colors through a stand-in copied into them
+  where the GPU cannot store to their format, every pass's descriptor set layouts are read from its
   shaders' reflection, and a vertex stage of a program's own is fed each input by its semantic, in
   whatever order it declares them (RENDERING.md §1).
 - **One directional, ten spot and twelve point lights cast shadows.** The first directional light
@@ -287,7 +288,7 @@ through SDL, which has been checked against the state it fills and not with a pa
 
 ### Testing
 
-- **Twenty scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
+- **Twenty-nine scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
   text, render targets, immediate and model shaders, lit models and ImGui) and reads chosen pixels
   back, and `ReferenceFrameTests` compares whole frames with the references beside it, allowing 2
   percent of the pixels to differ, which a missing shadow exceeds at 4. They are 2D shapes and
@@ -296,8 +297,11 @@ through SDL, which has been checked against the state it fills and not with a pa
   its sky, bloom, ambient occlusion, motion blur, the other effects over the frame together,
   particles, a reflection probe, a dozen shadowed lights, a morph target beside a clip on part of a
   skeleton, text in a font from a file, color emoji text from paints, from bitmaps joined into one
-  glyph and from layers, a texture a compute shader wrote and a frame of Summit's level. Audio and
-  input have no frame to compare and are tested by their values.
+  glyph and from layers, text read right to left, Arabic joined and with its marks on its letters,
+  a texture a compute shader wrote, the scene's distance field over a scene and lighting it, the
+  Cornell box, Manor's library and the hall of reflections lit by light that bounces, a frame of
+  Summit's level and a room of Wick's house. Audio and input have no frame to compare and are
+  tested by their values.
 
 ### Prose
 

@@ -338,3 +338,26 @@ Item 2, every example captured on macOS:
   example, every one drawn. So the macOS job comes to some 50 of its 120 minutes, which stays its
   limit, and the step is given 50. The first run shows what Apple's GPU takes.
 - BUILDING.md describes the script.
+
+Item 3, a compute shader writes a render texture on every device:
+
+- **Storage where the device stores the format, a stand-in where it does not.** A target's colors
+  are made with storage usage wherever the device stores their format, asked once a format, so a
+  target of eight-bit RGBA or of floats is written directly as the window's is on most GPUs, and
+  each is a transfer's destination as well. Where the device does not store the format, the shader
+  writes a stand-in, eight bits a channel in RGBA order or the target's floats, formats every device
+  stores (`GraphicsDevice.CreateStandIn`), kept with the target's texture and let go with it. The
+  dispatch blits the target into the stand-in before the shader, so a shader that reads the target
+  reads what it held, and blits it back after, a blit putting each channel into its own where a copy
+  would move the bytes as they lie.
+- **Proved.** A test paints one render texture twice on a device that stores it, directly and
+  through stand-ins forced (`WriteTargetsThroughStandIns`), its shader reading the red the frame drew
+  into the target and writing green and blue by the place. The two pictures match pixel for pixel,
+  the target in the forced run has no storage, and the test fails with the blit into the stand-in
+  taken out, which loses the red. lavapipe under the validation layer passed the render, reference
+  and compute tests, 130.
+- **The condition dropped.** The guide, the cheatsheet, RENDERING.md, TODO.md's entry and
+  `ComputeShaderDispatch`'s warning no longer say a render texture is written only where the GPU
+  stores the window's format. TODO.md's testing entry counts the 29 frames compared whole, Wick's
+  room and the light that bounces among them, where it said twenty.
+- The suite: 1,554 passed.

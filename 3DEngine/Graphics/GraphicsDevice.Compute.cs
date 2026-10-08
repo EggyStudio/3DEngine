@@ -151,7 +151,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </para>
     /// </remarks>
     public void Dispatch(ComputePipeline pipeline, ReadOnlySpan<byte> uniforms, IReadOnlyList<(int Binding, IBuffer Buffer)> buffers,
-        uint groupsX, uint groupsY, uint groupsZ, IReadOnlyList<(int Binding, IImage Image, IImageView View)>? images = null,
+        uint groupsX, uint groupsY, uint groupsZ, IReadOnlyList<(int Binding, IImage Image, IImageView View, IImage? Into)>? images = null,
         IReadOnlyList<(int Binding, IImageView View, ISampler Sampler)>? textures = null)
     {
         images ??= [];
@@ -204,7 +204,7 @@ internal sealed unsafe partial class GraphicsDevice
                 writes[w] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.StorageBuffer, pBufferInfo = &infos[w] };
                 w++;
             }
-            foreach (var (binding, _, view) in images)
+            foreach (var (binding, _, view, _) in images)
             {
                 imageInfos[wi] = new VkDescriptorImageInfo { imageView = ((VulkanImageView)view).View, imageLayout = VkImageLayout.General };
                 writes[w++] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.StorageImage, pImageInfo = &imageInfos[wi++] };
@@ -234,12 +234,32 @@ internal sealed unsafe partial class GraphicsDevice
                 dstStageMask = VkPipelineStageFlags2.ComputeShader,
                 dstAccessMask = VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
             };
-            var toGeneral = new VkImageMemoryBarrier2[images.Count];
-            for (int i = 0; i < images.Count; i++)
-                toGeneral[i] = ImageLayoutBarrier(images[i].Image, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
-                    VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead,
-                    VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
-            PipelineBarrier(cmd, toGeneral, before);
+            // A stand-in a render target is written through takes what the target holds first, so a
+            // shader that reads it reads that (CreateStandIn).
+            var toGeneral = new List<VkImageMemoryBarrier2>(images.Count * 2);
+            foreach (var (_, image, _, into) in images)
+                if (into is null)
+                    toGeneral.Add(ImageLayoutBarrier(image, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
+                        VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead,
+                        VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite));
+                else
+                {
+                    toGeneral.Add(ImageLayoutBarrier(into, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+                        VkPipelineStageFlags2.AllCommands, VkAccessFlags2.MemoryWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
+                    toGeneral.Add(ImageLayoutBarrier(image, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
+                        VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
+                }
+            PipelineBarrier(cmd, [.. toGeneral], before);
+            var filled = new List<VkImageMemoryBarrier2>();
+            foreach (var (_, image, _, into) in images)
+                if (into is not null)
+                {
+                    BlitWhole(cmd, into, image);
+                    filled.Add(ImageLayoutBarrier(image, VkImageLayout.TransferDstOptimal, VkImageLayout.General,
+                        VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+                        VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite));
+                }
+            if (filled.Count > 0) PipelineBarrier(cmd, [.. filled]);
 
             _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline.Pipeline);
             _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, pipeline.Layout, 0, 1, &set, 0, null);
@@ -256,18 +276,37 @@ internal sealed unsafe partial class GraphicsDevice
             };
             // A mipmapped image goes to the transfer layout instead, since its other levels are
             // made again from the first one the shader wrote.
-            var toSampled = new VkImageMemoryBarrier2[images.Count];
-            for (int i = 0; i < images.Count; i++)
-                toSampled[i] = images[i].Image.Description.MipLevels > 1
-                    ? ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
+            // A stand-in is copied into its target, which then waits to be sampled as one written
+            // directly does.
+            var toSampled = new List<VkImageMemoryBarrier2>(images.Count * 2);
+            foreach (var (_, image, _, into) in images)
+                if (into is not null)
+                {
+                    toSampled.Add(ImageLayoutBarrier(image, VkImageLayout.General, VkImageLayout.TransferSrcOptimal,
+                        VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
+                    toSampled.Add(ImageLayoutBarrier(into, VkImageLayout.TransferSrcOptimal, VkImageLayout.TransferDstOptimal,
+                        VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
+                }
+                else if (image.Description.MipLevels > 1)
+                    toSampled.Add(ImageLayoutBarrier(image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
                         VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
-                        later, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite)
-                    : ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+                        later, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite));
+                else
+                    toSampled.Add(ImageLayoutBarrier(image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
                         VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
-                        later, VkAccessFlags2.ShaderRead | VkAccessFlags2.MemoryRead);
-            PipelineBarrier(cmd, toSampled, after);
-            foreach (var (_, image, _) in images)
-                if (image.Description.MipLevels > 1)
+                        later, VkAccessFlags2.ShaderRead | VkAccessFlags2.MemoryRead));
+            PipelineBarrier(cmd, [.. toSampled], after);
+            var copied = new List<VkImageMemoryBarrier2>();
+            foreach (var (_, image, _, into) in images)
+                if (into is not null)
+                {
+                    BlitWhole(cmd, image, into);
+                    copied.Add(ImageLayoutBarrier(into, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                        VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, later, VkAccessFlags2.ShaderRead | VkAccessFlags2.MemoryRead));
+                }
+            if (copied.Count > 0) PipelineBarrier(cmd, [.. copied]);
+            foreach (var (_, image, _, into) in images)
+                if (into is null && image.Description.MipLevels > 1)
                     RecordMipChain(cmd, (VulkanImage)image);
             _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
@@ -278,6 +317,23 @@ internal sealed unsafe partial class GraphicsDevice
             _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submit, fence).CheckResult();
             _computeInFlight.Add((fence, cmd, pool, uniformBuffer));
         }
+    }
+
+    // Copies the first level of one color image over another of its size, each channel into its own
+    // whatever order the two formats keep them in, as a blit converts them, where a copy would move
+    // the bytes as they lie.
+    private void BlitWhole(VkCommandBuffer cmd, IImage from, IImage to)
+    {
+        var (width, height) = ((int)from.Description.Extent.Width, (int)from.Description.Extent.Height);
+        var region = new VkImageBlit
+        {
+            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+        };
+        region.srcOffsets[1] = new VkOffset3D(width, height, 1);
+        region.dstOffsets[1] = new VkOffset3D(width, height, 1);
+        _deviceApi.vkCmdBlitImage(cmd, ((VulkanImage)from).Image, VkImageLayout.TransferSrcOptimal, ((VulkanImage)to).Image,
+            VkImageLayout.TransferDstOptimal, 1, &region, VkFilter.Nearest);
     }
 
     // A barrier moving every level of a color image from one layout to another.
