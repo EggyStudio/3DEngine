@@ -79,33 +79,10 @@ jobs:
 
       # Each example opened with no window, driven where it waits for input, run until its scene
       # has settled and its frame rate is measured, captured and closed (build/capture-example.sh),
-      # then its session log checked for validation errors, which counts the teardown too. Every
-      # example is captured before the step fails. A capture that fails says why in its error, as
-      # the test page names its causes (N 6.7): the script's exit code and its own last line, and
-      # the last lines the example logged at a warning or worse, since an annotation is all a
-      # reader not signed in sees.
+      # then its session log checked for validation errors, every example captured before the step
+      # fails and a capture that fails saying why in its error (build/capture-examples.sh).
       - name: Capture every example offscreen
-        run: |
-          mkdir -p captures
-          failed=0
-          for example in $(grep -oP '^\s*\["\K[a-z0-9_]+' 3DEngine.Examples/Program.cs); do
-            code=0
-            said=$(build/capture-example.sh "$example" "captures/$example.webp" 2>&1) || code=$?
-            echo "$said"
-            if [ "$code" -ne 0 ]; then
-              logged=$(grep -a -E '\[(WARN |ERROR|FATAL)\]' "build/sessions/$example.log" 2>/dev/null | tail -n 3 | sed 's/^\[[^]]*\] //' | cut -c1-300)
-              why="exit code $code: $(printf '%s' "$said" | tail -n 1 | cut -c1-300)"
-              [ -n "$logged" ] && why="$why%0AIts last lines at a warning or worse:%0A${logged//$'\n'/%0A}"
-              echo "::error::$example: the capture failed, $why"
-              failed=1
-              ./e3d stop --quiet || true
-            fi
-            if grep -F '[Vulkan.Validation]' "build/sessions/$example.log" | grep -F 'Validation Error'; then
-              echo "::error::$example: the validation layer reported an error"
-              failed=1
-            fi
-          done
-          exit $failed
+        run: build/capture-examples.sh captures webp
 
       # Every written example measured against raylib's own program of its name, raylib built as
       # build/raylib-bench/run.sh builds it and its programs drawn by Mesa's OpenGL through SDL's

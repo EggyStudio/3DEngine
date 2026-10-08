@@ -10,21 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `14ad7786`. Item 3's first fault reproduces outside the engine: a debug lavapipe from
-Mesa's main showed it taking a pointer from an eight-entry array on the stack indexed by lane and
-reading through a null entry, the NIR for the reduced module the same line for line in the engine
-and in the C harness, and what the engine's frame added was a triangle whose edges cross the groups
-of pixels lavapipe shades together, where the harness had covered every lane;
-`build/mesa/ray-query-fragment` holds a 25-line GLSL shader, a ray query and in its hit branch a
-loop over a uniform buffer with a read of it after, the reduced module cleaned of anything
-undefined, `repro.c`, a vertex stage drawing a triangle over the middle of the view and `run.sh` for
-an Ubuntu 24.04 container, both shaders crashing on Mesa 25.2.8, 26.2.2 and main at `5a273016` and
-drawing with whole-view coverage, a branch on a varying in place of the query, the loop or the read
-after it taken out or the loop's body empty; the README has the issue's text, which names no one,
-and TODO.md points at it and names fault 2 by the lamps' loop ahead of the sun's branch, reproducing
-inside the engine alone so far (`14ad7786`). Fault 2's reduction of `gi_trace`'s compute shader
-stands at 3.8 KB, a compute harness to follow its end and its folder to go beside fault 1's either
-way, the coder starting item 2's captures on macOS while it runs. The suite: 1,553 passed.
+Reviewed up to `1461a781`. Item 3 is settled: fault 2's reduction of `gi_trace` came to fault 1's
+shape, every other invocation by its index running a loop whose condition and body read the lights'
+buffer and reading it again after, and a compute harness, `comp.c` with a 20-line GLSL compute
+shader of that shape and nothing undefined in it, crashes the same way, a pointer and the word after
+it read from address 0, and runs with the branch, the loop or its body taken out, on Mesa 25.2.8,
+26.2.2 and main at `5a273016`; with no ray query and no partly covered pixel in a compute stage, a
+branch some invocations skip is enough, so fault 1 is very likely the same fault reached from a
+fragment stage, `build/mesa/uniform-loop-compute`'s issue text leads with the compute shader and
+names the fragment folder as a second reproduction, fault 1's README says to file the two as one
+issue, and TODO.md points at both; the reductions are stopped (`1461a781`). Its number goes to a
+compute shader writing a render texture on a device that stores no image in the window's format, the
+next of the described limits, after item 2, whose script `build/capture-examples.sh` is written for
+both jobs and being timed over the 253 examples.
+
+Before them, item 3's first fault came to reproduce outside the engine: a debug lavapipe from Mesa's
+main showed it taking a pointer from an eight-entry array on the stack indexed by lane and reading
+through a null entry, the NIR for the reduced module the same line for line in the engine and in the
+C harness, and what the engine's frame added was a triangle whose edges cross the groups of pixels
+lavapipe shades together, where the harness had covered every lane; `build/mesa/ray-query-fragment`
+holds a 25-line GLSL shader, a ray query and in its hit branch a loop over a uniform buffer with a
+read of it after, the reduced module cleaned of anything undefined, `repro.c`, a vertex stage
+drawing a triangle over the middle of the view and `run.sh` for an Ubuntu 24.04 container, both
+shaders crashing on Mesa 25.2.8, 26.2.2 and main at `5a273016` and drawing with whole-view coverage,
+a branch on a varying in place of the query, the loop or the read after it taken out or the loop's
+body empty; the README has the issue's text, which names no one, and TODO.md points at it and names
+fault 2 by the lamps' loop ahead of the sun's branch, reproducing inside the engine alone so far
+(`14ad7786`). The suite: 1,553 passed.
 
 Before them, item 2 came to be settled, taken ahead of item 3 while its reductions ran: a bisect of
 `gi.slang` on lavapipe put fault 2 in where the lamps' loop stands, the loop ahead of the sun's
@@ -42,22 +54,6 @@ since `1be7c8ee`, are mended in the remarks, the summaries and the shaders' head
 light-bounce entry drops the limit (`95077ce3`). Its number went to every example captured on macOS
 too, the fallback until the owner names the next large item. Fault 1's reduction had ended at 1.9
 KB, crashing only inside the engine's frame. The suite: 1,553 passed.
-
-Before them, item 5 came to be settled, Wick, the thirteenth game, a puzzle in a dark house of five
-rooms whose one light is the lamp the player carries, which casts shadows, so its light stops at a
-wall and reaches round a corner or through a doorway only as light that bounces through the field,
-on polished floors that reflect it and hide their pits until light falls near them, each wick walked
-up to lit as a shadowed light of its own and the last opening the door, a fall sending the player
-back to the last wick, starting at `Low` with G stepping through the qualities;
-`games/Wick/House.cs` reads the map, draws the house and makes its lights, and the test project
-compiles the same file, so the reference frame of the lamp in the first doorway with the next room's
-wick burning draws what the game draws; `build/drive-game.sh Wick` asserts a walk from the keys and
-then the autopilot's way to every wick and out by the door with no fall, 44 seconds under the
-validation layer on the coder's GPU and 132 on four cores of lavapipe, within the games' twelve
-minutes; it is in the Windows and macOS loops, the examples job with its capture, the soak, the
-resize storm, the README's gallery and games' paragraph, BUILDING.md's count, the light guide's See
-also and N 4.5's list, whose row counts 16 left out (`11368439`). The coder went on to item 3's
-reports and item 2. The suite: 1,551 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -86,17 +82,13 @@ for a reply. In this order.
    apart from lavapipe within the references' allowance, so an example that draws wrongly on Metal
    alone is found by a push and not by a reader; within the job's time, which stands at 25 minutes
    of 120. The fallback until the owner names the next large item, after item 3.
-3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
-   the lamps' loop ahead of the sun's branch in `directLight` brings on, and the crash at the first
-   ray query in a fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under
-   lavapipe of Mesa 25.2 and the report's text written beside each in the repository and TODO.md
-   pointing at them, the filing on Mesa's tracker the owner's since it is done under their account,
-   and SPIRV-Tools' own fault beside them, the block merge in `spirv-reduce` that runs off the end
-   of the layout, with its reproduction and the patch that refuses the merge, for the owner to file
-   there, so the model pass is held in a shape around a driver's fault only as long as it must be,
-   and the ray-query path is drawn on CPU devices once the fault is mended upstream. Fault 1's
-   folder is in at `14ad7786`, so what is left is fault 2's, its reduction and a compute harness
-   tried once, and its text written beside it either way.
+3. **A compute shader writes a render texture on every device.** The limit in TODO.md's meshes
+   section: a dispatch writes a render texture only where the device stores an image in the window's
+   format (`TargetsAreStorage`), as most desktop GPUs do. Where it does not, the dispatch writes an
+   image of a format the device does store and the engine copies it into the target after, the
+   channels in the target's order, so `ComputeShaderDispatch` writes a render texture everywhere and
+   the guide's sentence drops its condition; the fallback proved by a test that forces it on a
+   device that has the direct path and compares the two pictures. After item 2.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -332,19 +324,17 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 3, fault 2 reproduced outside the engine, which settles the item:
+Item 2, every example captured on macOS:
 
-- **The reduction's shape in C.** Fault 2's reduction of `gi_trace` came to the same shape as fault
-  1's. Every other invocation, by its index, runs a loop whose condition and body read the lights'
-  buffer, then reads the buffer after the loop. A compute harness (`comp.c`) runs it, and a 20-line
-  GLSL compute shader of that shape with nothing undefined in it crashes the same way, reading a
-  pointer and the word after it from address 0. It does not crash with the branch, the loop or the
-  loop's body taken out. It crashes on Mesa 25.2.8, 26.2.2 and main at `5a273016`.
-- **One fault, very likely.** No ray query, no partly covered pixels: in a compute stage, a branch
-  some invocations skip is enough. So fault 1's fragment shader is very likely the same fault,
-  reached where its ray query's branch and the triangle's coverage leave lanes out. The issue's
-  text in `build/mesa/uniform-loop-compute` leads with the compute shader and names the fragment
-  reproduction as a second one, and fault 1's README says to file the two as one issue. TODO.md
-  points at both folders.
-- **The reductions** are stopped. Next is item 2's examples captured on macOS, whose script is
-  written and whose run over every example here gives the step its time.
+- **One script for both.** The Linux job's loop is now `build/capture-examples.sh <folder>
+  <webp|png> [example...]`, which both jobs run. It lists the examples with `sed` where the loop used
+  `grep -P`, which macOS's grep lacks. It checks each capture wrote a picture and its session logged
+  no validation error, and names each failure in an annotation with the example, the system, the
+  exit code and the log's last warnings. `ScriptTests` holds it to what macOS's tools and bash 3.2
+  read. The macOS job fetches raylib's files before its build, since the examples copy them in, and
+  captures every example as PNGs after its tests, kept as the artifact `examples-macos` and compared
+  with nothing.
+- **Its cost.** All 253 took 1,481 seconds here, 25 minutes on the RTX 4070, about six seconds an
+  example, every one drawn. So the macOS job comes to some 50 of its 120 minutes, which stays its
+  limit, and the step is given 50. The first run shows what Apple's GPU takes.
+- BUILDING.md describes the script.

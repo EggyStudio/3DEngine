@@ -225,7 +225,8 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # Room for thirteen games after the suite, each a few minutes on the GPU.
+    # Room for thirteen games after the suite, each a few minutes on the GPU, and every example's
+    # capture, which took 25 minutes on a laptop's GPU, the job having taken 25 of its 120 before.
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
@@ -263,6 +264,10 @@ jobs:
           dotnet tool install dotnet-gcdump --version 10.0.745401 --tool-path "$RUNNER_TEMP/gcdump"
           echo "E3D_GCDUMP=$RUNNER_TEMP/gcdump/dotnet-gcdump" >> "$GITHUB_ENV"
 
+      # The files of raylib's own that its examples load, which a build of the examples copies
+      # beside the program, for the captures below.
+      - run: build/fetch-raylib-resources.sh
+
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       # The suite through build/test.py, as on Linux.
@@ -270,6 +275,22 @@ jobs:
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
+
+      # Every example captured offscreen, as the build workflow's Linux job captures them, each
+      # checked to draw and its session checked for validation errors, a capture that fails
+      # naming the example and why (build/capture-examples.sh). The pictures are kept as the job's
+      # artifact and compared with nothing, since the README's gallery and the measures against
+      # raylib are Linux's. The 253 took 1,481 seconds on a laptop's RTX 4070 (build/capture-examples.sh).
+      - name: Capture every example offscreen
+        timeout-minutes: 50
+        run: build/capture-examples.sh captures/examples png
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: examples-macos
+          path: captures/examples/
+          if-no-files-found: ignore
 
 
       - name: Build a game from the package and draw it under the validation layer
