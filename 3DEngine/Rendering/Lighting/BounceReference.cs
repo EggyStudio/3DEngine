@@ -32,30 +32,24 @@ internal static class BounceReference
 {
     private static readonly string[] Axes = ["+x", "-x", "+y", "-y", "+z", "-z"];
 
-    /// <summary>Traces the window's picture with <paramref name="samples"/> paths a pixel and writes it to <paramref name="path"/> and its files beside it.</summary>
+    /// <summary>
+    /// Traces the window's picture with <paramref name="samples"/> paths a pixel, each bouncing
+    /// <paramref name="bounces"/> times at most or until Russian roulette ends it where that is
+    /// negative, and writes it to <paramref name="path"/> and its files beside it.
+    /// </summary>
     /// <returns>What was written, or why nothing was.</returns>
-    public static string Trace(World world, string path, int samples)
+    public static string Trace(World world, string path, int samples, int bounces = -1)
     {
-        if (!world.TryGetResource<Renderer>(out var renderer) || renderer.Context.Graphics is not GraphicsDevice device)
-            return "there is no renderer";
-        var render = renderer.RenderWorld;
-        if (!device.CanQueryRays)
-            return "the device traces no rays, which the reference is traced through";
-        if (render.TryGet<GlobalIlluminationRenderer>()?.Rays is not { } scene)
-            return "the window's meshes are not held for the device's rays, which light bouncing at High on a GPU that traces rays holds them for";
+        if (Prepare(world, out var why) is not { } tracer) return why;
+        var render = tracer.Render;
         if (render.TryGet<WindowView>() is not { } view || !Matrix4x4.Invert(view.ViewProjection, out var inverse)
             || render.TryGet<SwapchainTarget>() is not { } window)
             return "the window draws no meshes through a camera";
-        if (!world.TryGetResource<AssetServer>(out var assets)) return "there is no asset server to compile gi_reference.slang";
 
-        var program = assets.LoadSync<ShaderProgram>("shaders/gi_reference.slang");
-        var environment = render.TryGet<EnvironmentMap>() is not null ? render.TryGet<ModelRenderer>()?.Environment : null;
-        using var black = environment is null ? device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
-        var (cubeView, cubeSampler) = environment is not null ? (environment.View, environment.Sampler) : (black!.View, black.Sampler);
         var clock = System.Diagnostics.Stopwatch.StartNew();
-        var traced = device.TraceReference(program.Compute, scene, inverse, (int)window.Extent.Width, (int)window.Extent.Height,
-            Math.Max(1, samples), Lights(render, environment is not null), cubeView, cubeSampler);
+        var traced = tracer.Trace(inverse, (int)window.Extent.Width, (int)window.Extent.Height, samples, bounces, null);
         var seconds = clock.Elapsed.TotalSeconds;
+        var scene = tracer.Scene;
 
         var full = Path.GetFullPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
@@ -64,8 +58,172 @@ internal static class BounceReference
         WriteRegions(full + ".regions", traced);
         var names = Names(scene.Copies, traced.Regions);
         File.WriteAllLines(full + ".regions.txt", names.OrderBy(n => n.Key).Select(n => $"{n.Key}\t{n.Value}"));
-        return $"traced {traced.Width} by {traced.Height} at {samples} paths a pixel in {seconds:0.0} s, {scene.Count} copies, " +
+        var bounced = bounces < 0 ? "" : bounces == 1 ? ", light bouncing once" : $", light bouncing {bounces} times";
+        return $"traced {traced.Width} by {traced.Height} at {samples} paths a pixel{bounced} in {seconds:0.0} s, {scene.Count} copies, " +
                $"{names.Count} regions, into {full} with its .pfm, .regions and .regions.txt";
+    }
+
+    // What a reference is traced with: the device, the render world, the window's meshes for the
+    // device's rays and the compiled tracer.
+    private sealed record Tracer(GraphicsDevice Device, RenderWorld Render, GpuRayScene Scene, ShaderProgram Program)
+    {
+        // Traces the picture through the camera inverse gives, or with probe the light arriving at
+        // that point from each way through a probe's octahedron of width by height texels.
+        public TracedReference Trace(Matrix4x4 inverse, int width, int height, int samples, int bounces, Vector3? probe)
+        {
+            var environment = Render.TryGet<EnvironmentMap>() is not null ? Render.TryGet<ModelRenderer>()?.Environment : null;
+            using var black = environment is null ? Device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
+            var (cubeView, cubeSampler) = environment is not null ? (environment.View, environment.Sampler) : (black!.View, black.Sampler);
+            // A bounce is a face after the first, so the faces a path meets are one more, 32 at most
+            // where Russian roulette ends the path.
+            return Device.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
+                cubeView, cubeSampler, bounces < 0 ? 32 : bounces + 1, probe: probe);
+        }
+    }
+
+    private static Tracer? Prepare(World world, out string why)
+    {
+        why = "";
+        if (!world.TryGetResource<Renderer>(out var renderer) || renderer.Context.Graphics is not GraphicsDevice device)
+            why = "there is no renderer";
+        else if (!device.CanQueryRays)
+            why = "the device traces no rays, which the reference is traced through";
+        else if (renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Rays is not { } scene)
+            why = "the window's meshes are not held for the device's rays, which light bouncing at High on a GPU that traces rays holds them for";
+        else if (!world.TryGetResource<AssetServer>(out var assets))
+            why = "there is no asset server to compile gi_reference.slang";
+        else
+            return new Tracer(device, renderer.RenderWorld, scene, assets.LoadSync<ShaderProgram>("shaders/gi_reference.slang"));
+        return null;
+    }
+
+    /// <summary>
+    /// The light arriving at a probe as the probe holds it and as a reference has it: where the probe
+    /// sits and how many ways it has; where its own rays met a surface, how many ways and the mean
+    /// light they brought against the reference's along the same ways; over every way, the mean
+    /// light merged with the cascades above against the reference's; and for each face, +x, -x, +y,
+    /// -y, +z and -z, the light the model pass reads, that gathered from the merge, and the reference's.
+    /// </summary>
+    internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, Vector3 HitRays, Vector3 HitReference,
+        Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference);
+
+    /// <summary>
+    /// The light arriving at the probe of <paramref name="cascade"/> nearest <paramref name="point"/>
+    /// against a reference of it, <paramref name="samples"/> paths a way bouncing
+    /// <paramref name="bounces"/> times at most, or until Russian roulette ends them where that is
+    /// negative: where the probe's own rays met a surface, the light they brought against the
+    /// reference's along the same ways, which holds the trace to it; over every way, the light merged
+    /// with the cascades above against the reference's, which holds the merge; and each face's light
+    /// gathered from the merge against the reference's, which holds the gather.
+    /// </summary>
+    public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
+    {
+        if (MeasureProbe(world, point, samples, bounces, cascade, out var why) is not { } probe) return why;
+        static string Rgb(Vector3 v) => string.Create(CultureInfo.InvariantCulture, $"{v.X:0.000} {v.Y:0.000} {v.Z:0.000}");
+        static string Share(Vector3 held, Vector3 reference) =>
+            string.Create(CultureInfo.InvariantCulture, $"{(Luminance(held) / Math.Max(Luminance(reference), 1e-6f) - 1) * 100:+0;-0;0}%");
+        var m = probe.Middle;
+        var lines = new List<string>
+        {
+            string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {probe.Cascade} at {m.X:0.##},{m.Y:0.##},{m.Z:0.##}, {probe.Ways} ways, the reference {samples} paths a way") +
+            (bounces < 0 ? "" : bounces == 1 ? ", light bouncing once" : $", light bouncing {bounces} times"),
+            probe.Hits == 0 ? "none of its own rays met a surface"
+                : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}",
+            $"every way, merged with the cascades above: {Rgb(probe.Merged)}, the reference {Rgb(probe.Reference)}, {Share(probe.Merged, probe.Reference)}",
+            "each face's light: its face as the model pass reads it, gathered from the merge, the reference's, and the face's share",
+        };
+        string[] names = ["+x", "-x", "+y", "-y", "+z", "-z"];
+        for (int f = 0; f < 6; f++)
+            lines.Add($"{names[f]}: {Rgb(probe.Faces[f])}, {Rgb(probe.FacesMerged[f])}, {Rgb(probe.FacesReference[f])}, {Share(probe.Faces[f], probe.FacesReference[f])}");
+        return string.Join("\n", lines);
+    }
+
+    /// <summary>What <see cref="Probe"/> reports, or null and why where it cannot be measured, the probe inside a mesh among those.</summary>
+    internal static ProbeLight? MeasureProbe(World world, Vector3 point, int samples, int bounces, int cascade, out string why)
+    {
+        if (Prepare(world, out why) is not { } tracer) return null;
+        if (tracer.Render.TryGet<GlobalIlluminationRenderer>()?.Probes is not { } gi || tracer.Render.TryGet<SceneFieldRenderer>()?.Plan is not { } plan)
+        {
+            why = "no light bounces";
+            return null;
+        }
+        var c = Math.Clamp(cascade, 0, gi.Cascades - 1);
+        if (plan.BuiltOrigin(c) is not { } origin)
+        {
+            why = $"cascade {c} of the field is not built";
+            return null;
+        }
+
+        var (p, n) = (gi.Probes, gi.Texels[c]);
+        var spacing = plan.CellOf(c) * GlobalIlluminationRenderer.ProbeSpacing;
+        var at = Vector3.Clamp(new Vector3(MathF.Floor((point.X - origin.X) / spacing), MathF.Floor((point.Y - origin.Y) / spacing),
+            MathF.Floor((point.Z - origin.Z) / spacing)), Vector3.Zero, new Vector3(p - 1));
+        var middle = origin + (at + new Vector3(0.5f)) * spacing;
+        var (x, y, z) = ((int)at.X, (int)at.Y, (int)at.Z);
+
+        var device = tracer.Device;
+        var rays = device.ReadProbeVolume(gi, c, merged: false);
+        var merged = device.ReadProbeVolume(gi, c, merged: true);
+        var cubes = device.ReadIlluminationCubes(gi);
+        var side = p * n;
+        Vector4 Texel(float[] volume, int u, int v)
+        {
+            var i = ((z * side + y * n + v) * side + x * n + u) * 4;
+            return new Vector4(volume[i], volume[i + 1], volume[i + 2], volume[i + 3]);
+        }
+        // A probe inside a mesh holds nothing, its alpha 0.
+        if (Texel(merged, 0, 0).W < 0.5f)
+        {
+            why = string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {c} at {middle.X:0.##},{middle.Y:0.##},{middle.Z:0.##} lies inside a mesh and holds nothing");
+            return null;
+        }
+        var reference = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle).Light;
+
+        var (hitRays, hitReference, mergedAll, referenceAll, hits) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
+        var (faces, facesMerged, facesReference) = (new Vector3[6], new Vector3[6], new Vector3[6]);
+        Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
+        var solidAngle = 4 * MathF.PI / (n * n);
+        for (int v = 0; v < n; v++)
+            for (int u = 0; u < n; u++)
+            {
+                var r = new Vector3(reference[(v * n + u) * 3], reference[(v * n + u) * 3 + 1], reference[(v * n + u) * 3 + 2]);
+                var ray = Texel(rays, u, v);
+                var light = Texel(merged, u, v);
+                var mergedLight = new Vector3(light.X, light.Y, light.Z);
+                // A ray that met a surface within its interval holds its alpha at 0.
+                if (ray.W < 0.5f)
+                {
+                    hitRays += new Vector3(ray.X, ray.Y, ray.Z);
+                    hitReference += r;
+                    hits++;
+                }
+                mergedAll += mergedLight;
+                referenceAll += r;
+                var way = Octahedron((u + 0.5f) / n, (v + 0.5f) / n);
+                for (int f = 0; f < 6; f++)
+                {
+                    var weight = Math.Max(Vector3.Dot(way, axes[f]), 0) * solidAngle;
+                    facesMerged[f] += mergedLight * weight;
+                    facesReference[f] += r * weight;
+                }
+            }
+        for (int f = 0; f < 6; f++)
+        {
+            var i = (((c * p + z) * p + y) * 6 * p + f * p + x) * 4;
+            faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
+        }
+        return new ProbeLight(c, middle, n * n, hits, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
+            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference);
+    }
+
+    // The way through a point of an octahedron, as gi.slang's fromOctahedron gives it.
+    private static Vector3 Octahedron(float u, float v)
+    {
+        var (x, y) = (u * 2 - 1, v * 2 - 1);
+        var d = new Vector3(x, y, 1 - MathF.Abs(x) - MathF.Abs(y));
+        if (d.Z < 0)
+            (d.X, d.Y) = ((1 - MathF.Abs(y)) * (x >= 0 ? 1 : -1), (1 - MathF.Abs(x)) * (y >= 0 ? 1 : -1));
+        return Vector3.Normalize(d);
     }
 
     /// <summary>One region of the view as <see cref="Measure"/> reads it: its name, its pixels, and the mean light the reference and the frame give it, linear, with the mean of each pixel's difference.</summary>
@@ -87,7 +245,7 @@ internal static class BounceReference
         var lines = new List<string> { "region, pixels, reference, frame, frame less reference, its share, mean of each pixel's difference" };
         lines.AddRange(regions.Select(r =>
             string.Create(CultureInfo.InvariantCulture, $"{r.Name}, {r.Pixels}, {Rgb(r.Reference)}, {Rgb(r.Frame)}, {Signed(r.Frame - r.Reference)}, {r.Share * 100:+0;-0;0}%, {Rgb(r.Absolute)}")));
-        lines.Add($"the difference, red where the frame is brighter and blue where it is darker, in {differencePath}");
+        lines.Add($"the difference, red where the frame is brighter and blue where it is darker, in {differencePath}, and the frame's linear light beside it");
         return string.Join("\n", lines);
     }
 
@@ -95,8 +253,9 @@ internal static class BounceReference
     /// The regions of at least 50 pixels the reference at <paramref name="path"/> names, most pixels
     /// first, with the window's linear light against it, then every region at once as
     /// <c>every region</c>, and the picture of the difference written at
-    /// <paramref name="differencePath"/>; or null and <paramref name="why"/> where there is no
-    /// reference or no frame to compare.
+    /// <paramref name="differencePath"/>, with the frame's linear light beside the reference as
+    /// <c>-frame.pfm</c>; or null and <paramref name="why"/> where there is no reference or no frame
+    /// to compare.
     /// </summary>
     internal static IReadOnlyList<RegionLight>? Measure(World world, string path, out string? why, out string differencePath)
     {
@@ -150,6 +309,11 @@ internal static class BounceReference
             difference[i * 4 + 3] = 255;
         }
         PngWriter.Write(differencePath, difference, width, height);
+        // The frame's own linear light beside it, so a stretch of it can be read against the reference's.
+        var light = new float[width * height * 3];
+        for (int i = 0; i < width * height; i++)
+            (light[i * 3], light[i * 3 + 1], light[i * 3 + 2]) = (frame[i * 4], frame[i * 4 + 1], frame[i * 4 + 2]);
+        WritePfm(Path.Combine(Path.GetDirectoryName(full)!, Path.GetFileNameWithoutExtension(full) + "-frame.pfm"), new TracedReference(width, height, light, []));
 
         var measured = sums.Where(s => s.Value.Count >= 50).OrderByDescending(s => s.Value.Count)
             .Select(s => new RegionLight(names.GetValueOrDefault(s.Key, $"region {s.Key}"), s.Value.Count,

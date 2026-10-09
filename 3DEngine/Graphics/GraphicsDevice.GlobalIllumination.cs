@@ -557,6 +557,40 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
+    /// <summary>
+    /// A cascade's rays' light or its merge, four floats a texel, its probes' octahedrons side by side
+    /// and a layer of probes a slice, read back with the frames in flight finished.
+    /// </summary>
+    internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged)
+    {
+        var side = (uint)(gi.Probes * gi.Texels[cascade]);
+        var depth = (uint)gi.Probes;
+        FlushUploads();
+        _deviceApi.vkDeviceWaitIdle().CheckResult();
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(side * side * depth * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
+        try
+        {
+            // The volumes stay in the general layout, which a copy reads.
+            var cmd = BeginSingleTimeCommands();
+            MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead);
+            var region = new VkBufferImageCopy
+            {
+                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+                imageExtent = new VkExtent3D(side, side, depth),
+            };
+            _deviceApi.vkCmdCopyImageToBuffer(cmd, (merged ? gi.Merged : gi.Radiance)[cascade].Image, VkImageLayout.General, buffer.Buffer, 1, &region);
+            EndSingleTimeCommands(cmd);
+            var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
+            var values = new float[halves.Length];
+            for (int i = 0; i < halves.Length; i++) values[i] = (float)halves[i];
+            return values;
+        }
+        finally
+        {
+            buffer.Dispose();
+        }
+    }
+
     // One frame's recording of the probes' work: the descriptor pool its sets come from, freed once
     // no frame in flight reads them.
     private sealed class ProbeRun : IDisposable

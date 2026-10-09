@@ -21,7 +21,8 @@ internal sealed unsafe partial class GraphicsDevice
     {
         public Matrix4x4 InverseViewProjection;
         public uint Width, Height, Samples, Bounces;
-        public uint First, Unused0, Unused1, Unused2;
+        public uint First, FromProbe, Unused0, Unused1;
+        public Vector4 Probe;
     }
 
     /// <summary>The bytes of gi_reference.slang's lights: four rows, then sixteen lamps of four rows each.</summary>
@@ -36,11 +37,16 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <remarks>
     /// The frames in flight are waited for first, and the samples are added a few a submission, each
-    /// waited for, so no submission runs long enough for a driver to take the device for lost.
+    /// waited for, so no submission runs long enough for a driver to take the device for lost. With
+    /// <paramref name="probe"/> the paths start at that point instead, a texel of the
+    /// <paramref name="width"/> by <paramref name="height"/> image a texel of a probe's octahedron,
+    /// and every face they meet is lit as the light that bounces lights one, which gives the light
+    /// arriving at a probe from each way.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The device traces no rays.</exception>
     public TracedReference TraceReference(ReadOnlySpan<byte> spirv, GpuRayScene scene, Matrix4x4 inverseViewProjection, int width, int height,
-        int samples, ReadOnlySpan<byte> lights, IImageView environment, ISampler environmentSampler, int bounces = 32, int perSubmission = 4)
+        int samples, ReadOnlySpan<byte> lights, IImageView environment, ISampler environmentSampler, int bounces = 32, int perSubmission = 4,
+        Vector3? probe = null)
     {
         if (!CanQueryRays) throw new InvalidOperationException("The device traces no rays.");
         if (_referenceStage.Pipeline.Handle == 0)
@@ -107,6 +113,8 @@ internal sealed unsafe partial class GraphicsDevice
                     Samples = (uint)Math.Min(perSubmission, samples - first),
                     Bounces = (uint)Math.Max(1, bounces),
                     First = (uint)first,
+                    FromProbe = probe is null ? 0u : 1u,
+                    Probe = new Vector4(probe ?? Vector3.Zero, 0),
                 };
                 _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);
                 _deviceApi.vkCmdDispatch(cmd, (w + 7) / 8, (h + 7) / 8, 1);

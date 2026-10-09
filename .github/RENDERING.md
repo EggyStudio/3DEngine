@@ -713,6 +713,102 @@ probes (the lighting buffer's `Screen.y`), the merge, or every cascade but one, 
 it giving nothing and those below passing its light on where their rays meet nothing (the push of
 `gi_merge.slang`). `BounceViewTests` draws each view at `Low` and leaves each part out.
 
+**The light that bounces, measured before its fixes.** Each room of `shaders_bounce_rooms` at 800 by
+450 on the RTX 4070, as `build/bounce-rooms.sh <folder> 1024 "Low Medium High" "1 2 all"` measures
+it: each quality's frame over every region against a reference of every bounce, and High's against
+references of light bouncing once and twice (`gi.reference <png> <samples> <bounces>`).
+
+| Room | `Low` | `Medium` | `High` | `High` against one bounce | against two |
+|---|---|---|---|---|---|
+| The Cornell box | −30% | −30% | −33% | −17% | −27% |
+| Thin walls, a lamp outside | −54% | −54% | −58% | −15% | −35% |
+| A corridor lit from its end | −22% | −21% | −21% | −3% | −8% |
+| The sun through a window | −75% | −75% | −73% | −50% | −63% |
+| Red walls beside white blocks, outdoors | −1% | −1% | −1% | −1% | −1% |
+| A small bright strip | −87% | −87% | −87% | −67% | −77% |
+| A floor at a grazing angle | −67% | −67% | −66% | −27% | −45% |
+| A lamp carried, a wall moved | −60% | −60% | −60% | −31% | −45% |
+
+The quality moves the error by a few points, and the error grows with the share of the light past
+the first bounce, so rays are not what is short. `gi.probe <x> <y> <z> <samples> <bounces>` places
+the loss: it reads the probe of the first cascade nearest a point, its own rays' light, its light
+merged with the cascades above and its six faces, and traces the light arriving at its middle from
+each of its directions as a reference. A probe in each room's middle at High, with the light in the
+frame bouncing once (`gi.toggle again off`) against its hits lit directly (`gi.probe x y z 256 0`),
+and with every bounce against every bounce, as the hit shading is and with the lamps' and the sun's
+light at a hit times pi:
+
+| Room | Its rays' hits, once | times pi | Merged, every bounce | times pi |
+|---|---|---|---|---|
+| The Cornell box | −49% | −2% | −60% | −21% |
+| Thin walls, a lamp outside | −48% | +62% | −76% | −26% |
+| A corridor lit from its end | no light within reach | | −100% | −100% |
+| The sun through a window | no light within reach | | −90% | −70% |
+| Red walls beside white blocks | −67% | +5% | −74% | −19% |
+| A small bright strip | no light within reach | | −100% | −100% |
+| A floor at a grazing angle | −72% | −11% | −81% | −40% |
+| A lamp carried, a wall moved | −75% | −22% | −88% | −61% |
+
+So the loss lies in the trace first. `shadeHit` and `shadeProbeHit` in `gi.slang` light a hit as
+`color / Pi * arrived`, where `directLight` gives the lamps' and the sun's light as the model pass
+has a light, the light a white surface facing it returns, so a lit surface sends on a pi-th of its
+light and only the light that bounced to it, which the probes hold as irradiance, is right over pi.
+The reflections' hits through the GPU's rays in `lights.slang` light the same way. With the lamps'
+light times pi the probes' hits come within 2 to 22% of the reference, the thin room's apart, where
+they were 48 to 75% under, and each room's frame at High against every bounce gains from 4 to 31 points: −22% in the
+Cornell box, −27% with thin walls, −17% in the corridor, −57% through the window, −57% at the
+grazing floor and −51% with the lamp carried, the strip and the outdoor blocks unchanged. The merge
+and the gather lose little beside it: each face the model pass reads equals the one gathered from
+the merge to the third digit, and the merge trails the rays' own hits by 1 to 7 points. The gather
+does take each texel of a probe's octahedron as an equal share of the sphere, which reads a uniform
+sky's ±z faces at 0.82 of its light at 4 texels a side, `Low`'s and `Medium`'s first cascade, and
+0.93 at 8, and its ±x and ±y faces at 1.04 and 0.98. What remains after pi is the light that bounces
+again, read at a hit from the frame before's probes: in the Cornell box, with pi, the probe's merged
+light is 0.973 bouncing once against the reference's 1.010, and 1.111 with every bounce against
+1.431, so it holds a third of the 0.421 past the first bounce. The thin room's walls, under the
+field's cell, let the outside lamp's light through, which pi makes 62% too much at the probe and
+82% at `Low`'s frame against one bounce. The corridor's and the window's probes hold almost nothing
+of the sunlit floor's light, a limit of their own to be read, and the strip, 0.06 thick under cells
+of 0.15, is in no cascade of the field, so its room stays 87% under whatever the trace does.
+
+The four artifacts the Cornell box shows, each picture the frame at High above the reference with
+every bounce, both linear light drawn through the same curve, measured from the frame's light that
+`gi.compare` writes beside its difference (`-frame.pfm`):
+
+- **Bands across the floor.** Each row of the floor left of the tall block lies −12.6% to +15.5%
+  about a smooth fit at High, where the reference's rows lie within ±2.3% and `Low`'s and
+  `Medium`'s within ±4.7%. The screen's probes draw them: with them off the rows lie within ±6.5%,
+  with their filter off within ±34% and with their history off within ±28%. The filter weighs a
+  neighbor by how near its distance from the eye is, within 2%, and on a floor seen at a slant the
+  probes in rows 8 pixels apart lie farther apart than that, so it blends nothing along the slope
+  and each row keeps its own noise.
+  ![The Cornell box's floor, the frame at High above the reference](assets/bounce/cornell-floor-bands.webp)
+- **The floor at the red wall's foot.** The floor beside the wall reads 0.94 of the floor 40 pixels
+  on in the frame at High and 0.89 in the reference, so the corner darkens by 6% where it should by
+  11%, and it lacks the red the reference spreads onto it.
+  ![The floor at the red wall's foot](assets/bounce/cornell-red-wall-foot.webp)
+- **The halo under the glowing panel.** In linear light the ceiling falls away from the panel
+  faster in the frame than in the reference, to 0.28 of its light at 60 pixels from the middle
+  where the reference keeps 0.33, and to 0.15 at 120 against 0.21. The halo reads broad because the
+  rest of the ceiling is 31% short of its light.
+  ![The ceiling around the glowing panel](assets/bounce/cornell-ceiling.webp)
+- **The small block's side facing the green wall.** It is 82% under the reference at High, 76% at
+  `Low`, with its green at 0.041 against 0.242, yet its green over its red is 2.6 where the
+  reference's is 3.2, so the tint is there and the light a fifth of it, the trace's loss above.
+  ![The small block's side facing the green wall](assets/bounce/cornell-small-block.webp)
+
+A fifth shows at the grazing floor's ceiling: a step where the screen's probes end, at the edge of
+the field's first cascade, past which the model pass reads the world's probes, which `gi.toggle
+screen off` takes away with the probes (above, the frame; below, the frame with them off).
+![The grazing room's ceiling with and without the screen's probes](assets/bounce/grazing-screen-step.webp)
+
+On the Cornell box's view the bounce costs 0.36 ms of the GPU at `Low`, 0.44 at `Medium` and 0.53
+at `High`, as `./e3d command profile` names it `global_illumination`, with the frame rate unlimited
+(`./e3d eval "SetTargetFPS(0)"`). The fixes go by the gain measured: the lamps' light at a hit
+times pi, here and in the reflections, with the thin room's leak it raises; the light that bounces
+again; the screen's filter along a slanted surface; the gather's shares of the sphere; the step
+where the screen's probes end; and the sun's light into the corridor and the window's room.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to

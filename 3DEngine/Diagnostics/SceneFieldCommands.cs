@@ -71,8 +71,12 @@ internal static class SceneFieldCommands
             : "the device traces no rays, so High traces through the field alone";
     }
 
-    [Command("gi.reference", "Path traces the window's picture through the device's rays, which light bouncing at High holds the meshes for, as the reference the light that bounces is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it: gi.reference <png> <samples>")]
-    internal static string Reference(string path, int samples) => BounceReference.Trace(ConsoleHost.World!, path, samples);
+    [Command("gi.reference", "Path traces the window's picture through the device's rays, which light bouncing at High holds the meshes for, as the reference the light that bounces is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it, its light bouncing as many times as given or until each path ends: gi.reference <png> <samples> [bounces]")]
+    internal static string Reference(string path, int samples, int bounces = -1) => BounceReference.Trace(ConsoleHost.World!, path, samples, bounces);
+
+    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
+    internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
+        BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
     [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]
     internal static string Compare(string path) => BounceReference.Compare(ConsoleHost.World!, path);
@@ -125,7 +129,7 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, or every cascade but one: gi.toggle <history|filter|screen|merge|cascade> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light that bounces again from the frame before's probes, or every cascade but one: gi.toggle <history|filter|screen|merge|again|cascade> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
@@ -137,10 +141,11 @@ internal static class SceneFieldCommands
             case "filter": settings.FilterOff = !on; break;
             case "screen": settings.ScreenOff = !on; break;
             case "merge": settings.MergeOff = !on; break;
+            case "again": settings.AgainOff = !on; break;
             case "cascade":
                 settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
                 break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge and cascade";
+            default: return $"no part {part}, which is one of history, filter, screen, merge, again and cascade";
         }
         return Switches(settings);
     }
@@ -153,6 +158,7 @@ internal static class SceneFieldCommands
         if (settings.FilterOff) off.Add("the screen's filter");
         if (settings.ScreenOff) off.Add("the screen's probes");
         if (settings.MergeOff) off.Add("the merge");
+        if (settings.AgainOff) off.Add("the light that bounces again");
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         return off.Count == 0 ? "every part of the light that bounces is on" : $"left out: {string.Join(", ", off)}";
     }

@@ -448,8 +448,8 @@ before's light gave, red for none and green for the most; a cascade's rays' ligh
 each layer of its probes a square of their directions; the cascade's probes as small cubes in the
 scene, each face the light the probe gathers from that side; and the frame against a reference, red
 where it is brighter and blue where it is darker. Its boxes leave a part out, the frame before's
-light, the screen's filter, the screen's probes, the merge of the cascades or every cascade but the
-one chosen, so what each part gives can be seen, and on a GPU that traces rays its buttons path
+light, the screen's filter, the screen's probes, the merge of the cascades, the light that bounces
+again or every cascade but the one chosen, so what each part gives can be seen, and on a GPU that traces rays its buttons path
 trace the view as a reference and give each region's error against it. `shaders_bounce_rooms`
 shows it on Tab, and `./e3d command gi.show` and `gi.toggle` set the same in a running program, as
 [Driving a program with e3d](driving-with-e3d.md) says.

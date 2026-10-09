@@ -41,6 +41,9 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as <c>gi.toggle merge off</c> sets it.</summary>
     public bool MergeOff { get; set; }
 
+    /// <summary>Whether the surfaces the rays meet take none of the light that bounced to them the frame before, so light bounces once, as <c>gi.toggle again off</c> sets it.</summary>
+    public bool AgainOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 
@@ -411,7 +414,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 Cone = new Vector4(light.CosInner, light.CosOuter, 0, 0),
             };
         }
-        (floats[12], floats[13], floats[14]) = (count, _frame, 1);
+        (floats[12], floats[13], floats[14]) = (count, _frame, renderWorld.TryGet<GlobalIlluminationSettings>() is { AgainOff: true } ? 0 : 1);
         return bytes;
     }
 

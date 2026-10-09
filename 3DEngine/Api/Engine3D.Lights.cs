@@ -224,6 +224,8 @@ public static partial class Engine3D
         if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenOff = !screen;
         var merge = !settings.MergeOff;
         if (ImGuiNET.ImGui.Checkbox("The merge of the cascades", ref merge)) settings.MergeOff = !merge;
+        var again = !settings.AgainOff;
+        if (ImGuiNET.ImGui.Checkbox("The light that bounces again", ref again)) settings.AgainOff = !again;
         var alone = settings.Alone >= 0;
         ImGuiNET.ImGui.Checkbox("The cascade chosen alone", ref alone);
         settings.Alone = alone ? settings.ShownCascade : -1;

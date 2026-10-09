@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `575f5f66`. Item 2's A2, the level: `shaders_bounce_rooms` holds eight rooms forty
+Reviewed up to `a9f9c56d`. Item 2's A3, the window and views: `DrawBounceWindow()` beside
+`SetGlobalIllumination`, with `gi.state`'s lines, a view, the cascade, a box for each part, and a
+reference's path with Trace, Compare and the difference and the regions' table, which the level
+shows on Tab; `gi.show <view> [cascade or png]` and `gi.toggle <part> <on|off|cascade>` for `./e3d`;
+the views the screen's probes as tiles with their light, the light as the rays brought it and
+filtered, the history's share red to green, a cascade's rays and its merge as squares of
+octahedrons, the probes in the scene, and the frame against a reference colored as `gi.compare`'s
+picture; the parts each left out by flags, the merge changing the Cornell frame by 14.5 levels, the
+last cascade alone by 2.2, the screen's probes by 0.58 and their filter by 0.11, which
+`BounceViewTests` holds with each view different from the frame and from every other. Two
+departures, both right: the probes are cubes, one face for each of the six irradiances the model
+pass reads, where a sphere would blend them into a gradient nothing reads, and they are drawn in the
+HDR scene's pass after the meshes, since a batch with depth after the program's own would move the
+split between the scene and the interface and tonemap the program's text. The first look places one
+thing for B: the Cornell box's back wall's screen probes hold nothing, the wall lying past the first
+field cascade, 9.6 units around the camera at the example's 0.15 cells, so its bounce comes from the
+world probes alone, the owner's dim distance in one sentence. And the reply reads the shading
+itself: `shadeHit` and `shadeProbeHit` in `gi.slang`, and the ray-query reflections, send on `color
+/ Pi * arrived` where `arrived` is in the model pass's units, the light a white surface returns with
+no pi, so a lamp-lit surface sends on a pi-th of its light and bounce-only rooms would read about
+68% under, near the 54 to 75% measured; right to measure it first with the one- and two-bounce
+references before anything changes, since a frame at a pi-th of one bounce proves it and a frame
+nearer than that says something else is lost too. The `Shared:` line is taken, the instruments a row
+under tests. `GraphicsDevice.GlobalIllumination.cs` passed 800 lines and the reflections' history
+moved out as it was, a commit's worth of moving in this one, which N 1.3's own words ask to be
+apart; said once, not held against a batch that found the file over the line as it worked. The
+suite: 1,582 passed; on lavapipe 312 passed and 4 skipped. B is next.
+
+Before it, item 2's A2 came to be read, the level: `shaders_bounce_rooms` holds eight rooms forty
 units apart, each with a camera a key picks, the Cornell box, a closed room of walls a tenth of a
 unit thick with a lamp inside and a bright one outside, a corridor sixteen units long lit through
 its open end, a room the sun lights through a window, blocks with a red wall at one, three and six
@@ -61,23 +89,6 @@ gives all back, and audio is no step, since it starts only when a sound plays, s
 page names the step that keeps the five. The suite: 1,581 passed; on lavapipe 311 passed and 4
 skipped. A2, the level, is next.
 
-Before them, Decision 23 came to be carried out, prose alone, and an eighth place with the seven:
-DESIGN.md's NLayer row gives its reason alone, that raylib reads MP3; TODO.md's cost entry keeps the
-smaller package for its reason and its scenes entry leaves SHARED.md to consider with no one named;
-the version's commit in `NormTests` is called what it is; `build/test.py` runs on a contributor's
-machine; and the three issue READMEs say each text is ready to be filed, the third, under
-`build/mesa/ray-query-fragment`, found only because the matcher reads each run of lines together,
-where a name broken across two lines had passed a line-by-line check. `N_4_7` reads every Markdown
-file but the sessions' five, REVIEW.md still sought in the pages a game's author reads, and the
-comments of every C# and Slang file, script, workflow and manifest, a web address's slashes passed
-over, and reports the line a name begins on; put back as it was, that README fails at line 4. Right,
-and the line-run reading is the better of the two checks, which BevyCSharp's flattens whole and so
-shares. `build/pack.sh:29` holds the words in code and stays. The suite: 1,579 passed. On to item
-2's A1, the reference. The runs since the push of 22:00 were read after: `a9380d7b` is green on
-Linux, macOS and the macOS captures and red on Windows alone, the leak test failing on its handles
-at app 42 as the test was built to, which rewrote Verdict 40 and settled 41, and `d7e764cd`'s macOS
-job failed the random seed's test by a race, Verdict 42; `52c74240` and `7b983bd8` are running.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -96,6 +107,15 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    random seed's test by a race (Verdict 42). `52c74240` and `7b983bd8` are running. When every job
    is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
    reviewing session, and a failure it names comes first here.
+
+   After the batch in flight, the owner's order of 2026-10-10 (Decision 25): a run that shows no
+   window, hidden, offscreen or headless, as `./e3d open --hidden`, the suite, the soak and the
+   autopilot run one, makes no sound. The backend opens SDL's dummy driver first for such a run, as
+   it already does where no device opens (`SdlAudioBackend`, the hint set with override priority),
+   so nothing reaches the speakers while every sound takes its samples at the rate it plays and ends
+   on time; a config field lets a windowless run have real audio where one is wanted, as a capture
+   with sound might; a test holds a hidden app to the dummy driver and a sound ending on time.
+   Small, a commit of its own.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -385,43 +405,42 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     to WGSL, threads behind cross-origin isolation, and a one-week feasibility spike before any
     commitment.
 
+25. **A run that shows no window makes no sound.** The owner ordered it on 2026-10-10, since a
+    hidden or offscreen run, a test or a soak, played through the machine's speakers; its audio goes
+    to SDL's dummy driver, sounds still run their course, and a config field turns real audio on for
+    such a run.
+
 ## Replies
 
 
-**Item 2's A3, the window and views.** `DrawBounceWindow()` stands beside `SetGlobalIllumination`,
-an ImGui window with `gi.state`'s lines, a view to choose, the cascade, a box for each part, and a
-reference's path with Trace, Compare and Show the difference, the regions' table under them, which
-`shaders_bounce_rooms` shows on Tab. `gi.show <view> [cascade or png]` and `gi.toggle <part>
-<on|off|cascade>` set the same for `./e3d`. The views are the screen's probes as tiles, each a dot of
-its light over the picture; their light as the rays brought it and filtered; the history, the share
-of each probe's light the frame before's gave, red for none to green for four fifths, which the
-filter writes into the blended light's alpha as one more than it; a cascade's rays and its merge,
-each layer of probes a square of their octahedrons, upright and laid out to fill the window; the
-cascade's probes in the scene; and the frame against a reference uploaded as half floats, colored
-as `gi.compare`'s picture. Two departures from the item. The probes are cubes, since each face then
-shows the one light the probe holds for that side, where a sphere would blend the six into a
-gradient the model pass never reads. And they are drawn in the HDR scene's pass after the meshes,
-not through the immediate pass, because a batch with depth after the program's own moves the split
-between the scene and the interface (`HdrSceneNode.Split`), which would tonemap the program's text.
-The views over the window are drawn in a `bounce_view` node after `scene_field_view`, as
-`field.show`'s is, the cascade volumes bound as sampled images in the general layout their compute
-work leaves them in, with a barrier from the merge to the fragment stage and one back to the next
-frame's rays only while a cascade is shown. The parts: the history and the neighbors' light in the
-screen's filter by flags in `ScreenView.grid.w`, the screen's probes by the lighting buffer's
-`Screen.y`, and the merge and one cascade alone by the merge's push, the cascades above the one
-chosen giving nothing and those below passing its light on where their rays meet nothing. The first
-look at the Cornell box at High places one thing. The back wall's screen probes hold
-nothing, the wall lying past the first field cascade, 9.6 units around the camera at the example's
-0.15 cells, so its bounce comes from the world probes alone, which B measures first.
-`BounceViewTests` draws each view at Low against a reference of no light, each different from the
-frame and from every other view and the difference red on the lit floor, and leaves each part out,
-the merge changing the frame by 14.5 levels of 255 on the RTX 4070, the last cascade alone by 2.2,
-the screen's probes by 0.58 and their filter by 0.11; the history is not held there, since a still
-camera gives it nothing to do. `GraphicsDevice.GlobalIllumination.cs` passed 800 lines, so the
-reflections' frame before went into `GraphicsDevice.ReflectionHistory.cs` as it was. The suite:
-1,582 passed; on lavapipe 312 passed and 4 skipped. B is next.
-
-Shared: the bounce's instruments, a path-traced reference over the ray scene with regions named by
-what each pixel's first ray met (`gi.reference`, `gi.compare`), and the views of its probes and the
-parts each left out (`gi.show`, `gi.toggle`, `DrawBounceWindow`), which BevyCSharp's Radiance
-Cascades can take to be measured the same way, the shaders plain Slang.
+**Item 2's B, the measurement.** It is in RENDERING.md §4 as the state before the fixes, with five
+pictures under `.github/assets/bounce`. Every room's frame against references of light bouncing
+once and twice and every bounce, by quality: the quality moves the error by a few points, and the
+error grows with the share past the first bounce. `gi.reference` takes the bounces, and `gi.probe <x>
+<y> <z> [samples] [bounces] [cascade]` reads the first cascade's probe nearest a point, its own
+rays' light, its merge and its six faces, against the light arriving at its middle from each of
+its directions, which the reference traces from a probe as well as from the camera.
+`gi.toggle again off` sets the share of the frame before's bounced light at a hit to 0, so the
+frame's light bounces once and a probe's hits stand against a reference of hits lit directly. The
+loss is placed. First the trace, the pi A3's message named: `shadeHit` and `shadeProbeHit` light a hit
+as `color / Pi * arrived` with the lamps and the sun in the model pass's units, so a lit surface
+sends on a pi-th of its light. A probe's hits read 48 to 75% under the direct-only reference in
+every lit closed room and 2 to 22% under with that light times pi, and each room's frame at High
+gains 4 to 31 points, the Cornell box from −33% to −22%. The reflections' hits through the ray
+query light the same way. The merge and the gather lose little: the faces equal the merge's gather
+to the third digit and the merge trails the rays' hits by 1 to 7 points. The gather's equal shares
+of the sphere read a uniform sky's ±z faces at 0.82 at 4 texels and 0.93 at 8. Second, the light
+that bounces again carries a third of the light past one bounce, the Cornell probe at 1.111 against
+1.431 with pi. Third, pi raises the thin room's leak to +62% at the probe. The window's and the
+corridor's probes hold almost none of the sunlit floor's light, and the strip is in no cascade. Of
+the four artifacts: the floor's bands are the screen filter's distance weight, 2% of the distance,
+which on a slanted floor blends no row with the next. The rows swing ±14% at High against ±2.3%
+in the reference, ±6.5% with the screen's probes off and ±34% with their filter off. The red wall's
+foot darkens 6% where the reference's darkens 11%. The halo is the ceiling 31% short away from the
+panel, its falloff steeper than the reference's. And the small block's side holds its green over
+red, 2.6 against 3.2, at a fifth of the light. A fifth artifact is a step on the grazing room's
+ceiling where the screen's probes end at the field's first cascade. The bounce costs 0.36, 0.44 and
+0.53 ms by tier on the Cornell view. Tests: the glowing box's reference bouncing never reads its
+walls' 1 and bouncing once 1 plus their share, and a probe inside it reads 1 over one less the share
+from every way. The suite: 1,584 passed; on lavapipe 312 passed and 6 skipped. C next, pi first, after Decision 25's
+commit.

@@ -83,14 +83,18 @@ so `profile` gives what a build costs. Where light bounces, `gi.state` says the 
 of probes and their rays, the screen's probes, the reflections, and the GPU memory each takes,
 `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses through
 ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces rays
-`gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel, and
-`gi.compare ref.png` gives the light of each wall, floor and block in the frame against it, with a
-picture of the difference beside it. `gi.show` draws what the light holds over the window: `tiles`,
+`gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel, `gi.reference
+once.png 1024 1` one of light bouncing once, and `gi.compare ref.png` gives the light of each wall,
+floor and block in the frame against it, with a picture of the difference and the frame's own light
+beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point against a reference of the light
+arriving at it from each way: where its rays met a surface, merged with the cascades above, and on
+each of its six faces. `gi.show` draws what the light holds over the window: `tiles`,
 `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and `probes 1` the
 second cascade's, `difference ref.png` the frame against a reference, and `none` the window again.
 `gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and `screen` do
-their parts, `gi.toggle cascade 2` keeps the third cascade's light alone, and `on` or `-1` puts each
-back.
+their parts and `again` the light that bounces again from the frame before's probes, so light
+bounces once, `gi.toggle cascade 2` keeps the third cascade's light alone, and `on` or `-1` puts
+each back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

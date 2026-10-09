@@ -12,6 +12,10 @@
 // no pi. Each pass adds its samples to an image of sums, the count in alpha, and its first sample
 // of each pixel, through the pixel's middle, writes what it met into the image of regions: the
 // copy's index times eight and the axis its face turns toward most, plus one, or 0 for nothing.
+// Started at a probe instead, a texel of the image is a texel of the probe's octahedron, its paths
+// leaving the probe's middle through it and every face they meet lit as the light that bounces
+// lights one, so the image is the light arriving at the probe from each way, as its rays and the
+// merge of the cascades above should bring it.
 
 [[vk::binding(0, 0)]]
 RaytracingAccelerationStructure scene;
@@ -76,8 +80,11 @@ struct ReferencePush
     float4x4 inverseViewProjection;
     // x, y: the image's size. z: the samples a pixel this pass adds. w: the most bounces a path takes.
     uint4 sizeAndCounts;
-    // x: the first sample this pass adds, which seeds its random numbers. yzw: unused.
+    // x: the first sample this pass adds, which seeds its random numbers. y: 1 where the paths
+    // start at a probe. zw: unused.
     uint4 first;
+    // xyz: the probe's middle, where the paths start at one.
+    float4 probe;
 };
 
 [[vk::push_constant]]
@@ -200,13 +207,20 @@ float3 cosineAbout(float3 n, inout uint state)
     return normalize(side * (r * cos(phi)) + up * (r * sin(phi)) + n * sqrt(max(0.0, 1.0 - u)));
 }
 
-// The light one path brings back through the pixel at uv, and what its first ray met.
-float3 trace(float2 uv, inout uint state, out uint region)
+// The way through a texel of a probe's octahedron at uv, as gi.slang's fromOctahedron gives it.
+float3 fromOctahedron(float2 uv)
 {
-    float4 near = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 0.0, 1.0));
-    float4 far = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 1.0, 1.0));
-    float3 origin = near.xyz / near.w;
-    float3 way = normalize(far.xyz / far.w - origin);
+    float2 p = uv * 2.0 - 1.0;
+    float3 d = float3(p, 1.0 - abs(p.x) - abs(p.y));
+    if (d.z < 0.0)
+        d.xy = (1.0 - abs(d.yx)) * float2(d.x >= 0.0 ? 1.0 : -1.0, d.y >= 0.0 ? 1.0 : -1.0);
+    return normalize(d);
+}
+
+// The light one path brings back from origin along way, and what its first ray met. From the
+// camera the first face is lit as the model pass lights one, and from a probe as the bounce does.
+float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out uint region)
+{
     float3 throughput = float3(1.0);
     float3 light = float3(0.0);
     region = 0u;
@@ -242,7 +256,7 @@ float3 trace(float2 uv, inout uint state, out uint region)
             region = instance * 8u + axis + 1u;
         }
 
-        bool first = bounce == 0u;
+        bool first = bounce == 0u && !fromProbe;
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
         float3 color = surface.color.rgb;
@@ -282,8 +296,17 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         random(state);
         // The first sample of all through the pixel's middle, which names what the pixel shows.
         float2 jitter = index == 0u ? float2(0.5) : float2(random(state), random(state));
+        float2 uv = (float2(id.xy) + jitter) / float2(size);
         uint region;
-        sum += trace((float2(id.xy) + jitter) / float2(size), state, region);
+        if (push.first.y == 1u)
+        {
+            sum += trace(push.probe.xyz, fromOctahedron(uv), true, state, region);
+            continue;
+        }
+        float4 near = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 0.0, 1.0));
+        float4 far = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 1.0, 1.0));
+        float3 origin = near.xyz / near.w;
+        sum += trace(origin, normalize(far.xyz / far.w - origin), false, state, region);
         if (index == 0u)
             regions[id.xy] = region;
     }
