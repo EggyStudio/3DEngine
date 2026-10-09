@@ -32,6 +32,40 @@ public class ImGuiHolderTests
     }
 
     [Fact]
+    public void A_Window_Made_In_First_Is_Drawn_In_The_Frame_A_System_In_Update_Draws_In()
+    {
+        // ImGui's frame begins in First, after the frame's time and the commands served there and
+        // before a program's own systems in it, so a window one of them makes is drawn.
+        var app = Build();
+        try
+        {
+            int? first = null, update = null;
+            var size = System.Numerics.Vector2.Zero;
+            app.AddSystem(Stage.First, new SystemDescriptor(_ =>
+            {
+                ImGuiNET.ImGui.Begin("made in First");
+                ImGuiNET.ImGui.Text("drawn from First");
+                size = ImGuiNET.ImGui.GetWindowSize();
+                first = ImGuiNET.ImGui.GetFrameCount();
+                ImGuiNET.ImGui.End();
+            }, "Test.First").MainThreadOnly());
+            app.AddSystem(Stage.Update, new SystemDescriptor(_ => update = ImGuiNET.ImGui.GetFrameCount(), "Test.Update").MainThreadOnly());
+
+            for (int frame = 0; frame < 3; frame++)
+            {
+                app.BeginFrame();
+                app.EndFrame();
+            }
+            first.Should().NotBeNull().And.Be(update, "the system in First draws in the frame the one in Update draws in");
+            size.X.Should().BePositive("its window was made and sized");
+        }
+        finally
+        {
+            app.Shutdown();
+        }
+    }
+
+    [Fact]
     public void An_App_Built_After_The_First_Shut_Down_Uses_ImGui()
     {
         Build().Shutdown();

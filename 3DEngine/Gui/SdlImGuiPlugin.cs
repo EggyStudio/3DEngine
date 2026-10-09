@@ -10,7 +10,7 @@ namespace Engine;
 /// Creates the ImGui context, configures dark style and keyboard/gamepad navigation, then
 /// registers three per-frame systems:
 /// <list type="number">
-///   <item><description><see cref="Stage.PreUpdate"/>: sets display size, delta time, framebuffer scale, and calls <c>ImGui.NewFrame()</c>.</description></item>
+///   <item><description><see cref="Stage.First"/>: sets display size, delta time, framebuffer scale, and calls <c>ImGui.NewFrame()</c>.</description></item>
 ///   <item><description><see cref="Stage.Render"/>: calls <c>ImGui.Render()</c> and (in SDL renderer mode) clears and presents via SDL.</description></item>
 ///   <item><description><see cref="Stage.Cleanup"/>: tears down the ImGui context and disposes the SDL renderer backend.</description></item>
 /// </list>
@@ -32,6 +32,14 @@ namespace Engine;
 /// <seealso cref="SdlImGuiInput"/>
 internal sealed class SdlImGuiPlugin : IPlugin
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Late, and after the command line's plugin among the late ones, so ImGui's frame begins in
+    /// <see cref="Stage.First"/> after the frame's time is taken and the commands served there have
+    /// handed ImGui their input, and before a program's own systems in it, which draw into it.
+    /// </remarks>
+    public int Order => PluginOrder.Late;
+
     // The app whose context ImGui holds, or null.
     private static App? _holder;
     private static readonly Lock HolderGate = new();
@@ -98,7 +106,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
         SdlImGuiIme.Install(sdlWindow.Window);
         if (isVulkan) SdlImGuiViewports.Install(sdlWindow.Window, cfg.Hidden);
 
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
+        app.AddSystem(Stage.First, new SystemDescriptor(world =>
             {
                 var appWindow = world.Resource<AppWindow>();
                 var io = ImGui.GetIO();
@@ -125,7 +133,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
                 {
                     imguiRenderer.NewFrame(appWindow.Sdl.Window);
                 }
-            }, "SdlImGuiPlugin.PreUpdate")
+            }, "SdlImGuiPlugin.NewFrame")
             .MainThreadOnly()
             .Read<AppWindow>()
             .Read<Time>()
@@ -201,7 +209,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
         io.Fonts.GetTexDataAsRGBA32(out IntPtr _, out int _, out int _, out _);
         logger.Info($"ImGui initialized without a window, display size {io.DisplaySize.X}x{io.DisplaySize.Y}");
 
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
+        app.AddSystem(Stage.First, new SystemDescriptor(world =>
             {
                 var time = world.Resource<Time>();
                 ImGui.GetIO().DeltaTime = time.DeltaSeconds > 0 ? (float)time.DeltaSeconds : 1f / 60f;
@@ -210,7 +218,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
                     ImGui.GetIO().DisplaySize = new Vector2(surface.Size.Width, surface.Size.Height);
                 SdlImGuiInput.FeedGamepad(world.TryGetResource<Input>(out var input) ? input.Gamepad(0) : null);
                 SdlImGuiViewports.NewFrame();
-            }, "SdlImGuiPlugin.PreUpdate")
+            }, "SdlImGuiPlugin.NewFrame")
             .MainThreadOnly()
             .Read<Time>()
             .Read<Input>());

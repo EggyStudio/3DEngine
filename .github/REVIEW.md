@@ -10,8 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e10961bc`. Item 3: the lights' upload groups the views drawing meshes through a
-camera, the window first and then the targets, each joining the first group whose first cascade,
+Reviewed up to `8ac5912a`. Item 2: each emitter laid over by alpha keeps the eye its buffer was last
+sorted from, the step sorting from the window's as before, and `ParticleRenderer.SortFor` sorts it
+again from a view's own eye where that differs, outside any pass, the targets node for each render
+target before its pass and the HDR scene node for the window before its particles' pass where a
+target sorted after the step, a probe's faces drawing in the last order sorted and a render texture
+drawn only in 2D still drawing none; a new test draws one stream, blue born at the back and red
+aging toward the front, into two render textures from either end, the front view showing red in
+front and the back view blue, where the back view showed the window's order; Sumo's dust is additive
+and never sorted, so an emitter of 300 laid over by alpha was added to its ring through `./e3d
+eval`, its two views taking 0.377 to 0.383 ms of the GPU in `targets` where they took 0.352, some
+0.013 ms a sort, written in the guide and RENDERING.md §3, TODO.md's sentence gone and the 2D render
+texture's want of a camera kept (`8ac5912a`). Item 2 is settled, and its number goes to a measured
+sweep of the per-entity cost entry, after item 3, which the coder has started, since TODO.md's
+limits are spent and the owner has not named the next large item. The suite: 1,574 passed, and on
+lavapipe the rendering tests, 308.
+
+Before them, item 3 came to be settled, the lights' upload grouping the views drawing meshes through
+a camera, the window first and then the targets, each joining the first group whose first cascade,
 fitted to all of the group's cameras and its own, is no more than a quarter wider in its texels than
 any member's own (`LightingUboPrepare.SharedTexelGrowth`), so a view reads its shadows from the
 shared map as from its own; each group gets one shadow, `ModelRenderer.DrawShadow` drawing it once
@@ -23,11 +39,9 @@ other across the ring, share, a probe of that layout finding the shared view apa
 at 77 of 28,800 pixels along its shadows' edges, and its render textures take 0.35 to 0.37 ms of the
 GPU in `targets` where they took 0.45, written in the guide, RENDERING.md §4 and TODO.md with the
 entry's sentence gone; the references are unchanged (`e10961bc`). The quarter stands, since a shared
-view's texels grow by a quarter at most and Sumo's edges move by a fraction of a percent. Item 3 is
-settled, and its number goes to the two small limits TODO.md still describes, ImGui's frame started
-in `First` and a 2D render texture's particles, after item 2, which the coder has started; with them
-TODO.md's limits are spent, and the next large item is the owner's to name. The suite: 1,573 passed,
-and on lavapipe the rendering tests, 307.
+view's texels grow by a quarter at most and Sumo's edges move by a fraction of a percent. Its number
+went to the two small limits TODO.md still described, ImGui's frame started in `First` and a 2D
+render texture's particles. The suite: 1,573 passed, and on lavapipe the rendering tests, 307.
 
 Before them, item 2 came to be settled, a render target that draws meshes through a camera getting
 screen probes of its own, a depth at half its size of the meshes it draws that cast shadows, probes
@@ -43,22 +57,6 @@ a view, which a view carries, so no limit stays, written in the guide, RENDERING
 the entry's sentence gone; the references are unchanged, Summit's frame moving by some 20 pixels
 with what ran before it whichever build draws it (`c7ee9c72`). Its number went to particles sorted
 from each view's camera. The suite: 1,572 passed, and on lavapipe the rendering tests, 306.
-
-Before them, item 3 came to be settled, `LightingUboPrepare.Rank` keeping a light some camera sees
-first, then weighs each light's brightness at a view's eye, over one plus the square of how far its
-reach is, by the share of that view's picture its reach covers, `LightingUboPrepare.Share` putting
-the reach's box through the camera and holding it within the picture, the whole picture where the
-box reaches round past the eye or where a view has no camera, the most of any view, then how near
-its reach comes, the two spots and four points with the most texels the first of that order; a new
-test makes thirteen shadowed point lights, twelve bright ones in a corner of the view and one lamp
-lighting a wall across it, which reached the eye at 0.30 to the corner's 1.54 each and so was the
-thirteenth with no shadows, and weighed by their shares comes to 0.30 against their 0.14, kept and
-first, with a second test reading the share of a reach round the eye, wider than the view, small and
-far, and off to the side; the prepare takes 0.010 ms in Wick's doorway and 0.017 to 0.020 in Manor's
-hall against 0.010 and 0.020 without, the references drawn again the same, and the guide,
-RENDERING.md §4 and TODO.md say so, the entry's sentence gone (`1dd93fa4`). Its number went to the
-shadows drawn once for the views that share them. The suite: 1,571 passed, and on lavapipe the
-rendering tests, 305.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -78,14 +76,14 @@ for a reply. In this order.
    captures in a job of their own and read on the next macOS run, so the examples job, which carries
    the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test jobs
    pass. Each push's run is read by the reviewing session, and a failure it names comes first here.
-2. **Particles sorted from each view's camera.** TODO.md's particles entry says those laid over
-   by alpha are sorted from the window's camera in a render texture too, so a view of a split
-   screen, as Sumo's, draws its clouds in the window's order and not its own, and a render texture
-   drawn only in 2D has no camera to draw them through: particles laid over by alpha are sorted from
-   the camera of the view they are drawn into, the render texture's where it has one, a test drawing
-   one emitter into two views from opposite sides and reading each in its own order, the cost of the
-   second sort measured in Sumo for the guide, and the entry's sentence dropped, the 2D render
-   texture's want of a camera kept as it is. After item 3.
+2. **The ring's copy and a chunk's gather, measured first.** TODO.md's per-entity cost entry says
+   every instance is still copied into the ring each frame and a culled block with them, and one
+   entity moving gathers its whole chunk of 4096 again, the two larger changes it weighed set aside
+   as not paying at a count no raylib-style game nears: measure on `models_stress` and the bunnymark
+   what the culled blocks' copy and a moving entity's whole chunk cost at 410,266 and at a game's
+   count of a few thousand, and take only what pays a measured share, the culled blocks left out of
+   the ring's copy and a chunk gathered for the entities that moved, each with its number in the
+   entry; what does not pay stays described with the number that says so. After item 3.
 3. **The two small limits left.** TODO.md's ImGui entry says ImGui's frame starts in `PreUpdate`,
    so calls a system makes in `First` are lost, and its particles entry says a render texture drawn
    only in 2D has no camera to draw them through: ImGui's frame starts before `First` so a system
@@ -244,19 +242,26 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 2, particles sorted from each view's camera. Each emitter laid over by alpha keeps the eye its
-buffer was last sorted from, the step sorting from the window's as before, and
-`ParticleRenderer.SortFor` sorts it again from a view's own eye where that differs, outside any
-pass: the targets node for each render target before its pass, its eye that of the camera its
-`BeginMode3D` drew through, and the HDR scene node for the window before the pass its particles are
-drawn in, where a target sorted after the step; a probe's faces draw in the last order sorted, and a
-render texture drawn only in 2D still draws none. A new test draws one stream, blue as it is born at
-the back and red as it ages toward the front, into two render textures from either end: the front
-view shows red in front and the back view blue, where the back view showed (225, 30, 140), the
-window's order. Sumo's dust is additive and so is never sorted; with an emitter of 300 laid over by
-alpha added to its ring through `./e3d eval`, its two views take 0.377 to 0.383 ms of the GPU in
-`targets` where they took 0.352, by `./e3d command profile`, some 0.013 ms a sort, written in the
-guide and RENDERING.md §3, TODO.md's sentence gone and the 2D render texture's want of a camera
-kept. The suite: 1,574 passed; on lavapipe the rendering tests, 308 passed and 2 skipped. Next is
-item 3's number, ImGui's frame begun before First and a 2D render texture's particles through the
-window's camera.
+Item 3's first limit, ImGui's frame begun before First. The ImGui plugin's frame begins in `First`
+(`SdlImGuiPlugin.NewFrame`, windowed and headless), and the plugin is ordered late and listed after
+the command line's, so in `First` the frame's time is taken first, then `./e3d`'s commands are
+served, handing ImGui their input in the frame, then ImGui's frame begins, and then a program's own
+systems run there and draw into it. A new test has a system in `First` make a window, which is sized
+and drawn in the frame a system in `Update` draws in. The suite: 1,575 passed; on lavapipe the
+rendering, Gui and command line tests, 337 passed and 3 skipped. Seen while trying it, at HEAD as
+well: `./e3d command input.drag Left 280 156 20 20`, which TODO.md gives for docking on
+`gui_imgui_window`, and a drag from the Help window's title both orbit the camera there and move no
+window, so the docking sentence's drag no longer shows what it says; it is left for a batch of its
+own.
+
+Disputed, item 3's second limit, a render texture drawn only in 2D drawing its particles through the
+window's camera. Particles are the world's, and the textures a game draws only in 2D are most often
+its interface, a minimap, a pixel-art canvas scaled up or a layer laid over the window, and each of
+those would show every emitter of the window's scene again, through the window's camera, in a
+texture that has no depth to hide them behind, so a HUD would carry the window's smoke and sparks a
+second time. The texture that wants them is the one a game draws its scene into, which has a camera
+of its own through `BeginMode3D` and draws them already. Two ways seem better than the change: leave
+it as it is and say in the guide that a texture shows particles where it is drawn in 3D, or let a
+program ask for them in a 2D texture by a call naming the camera, as `DrawParticles(camera)` inside
+`BeginTextureMode` would. Nothing is done for it until the reviewing session or the owner says
+which.

@@ -40,7 +40,6 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new AppWindowPlugin(),
         new AppExitPlugin(),
         new RenderPlugin(),
-        new SdlImGuiPlugin(),
         new AssetPlugin(),
         new ScenesPlugin(),
         new PipelinesPlugin(),
@@ -53,6 +52,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new EcsPlugin(),
         new PhysicsPlugin(),
         new CliPlugin(),
+        new SdlImGuiPlugin(),
         new FrameProfilePlugin(),
     ];
 

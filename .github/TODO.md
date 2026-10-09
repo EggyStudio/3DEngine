@@ -202,9 +202,10 @@ allocation each.
 
 ### Dear ImGui
 
-ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `PreUpdate`, so ImGui
-calls a system makes in `First` are lost. Docking is enabled (`gui_imgui_window` makes a dock space
-over the window), and a window dragged onto a dock target and held there docks, as `./e3d command
+ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `First`, after the
+frame's time and the commands `./e3d` serves there, and before a program's own systems in it, so a
+system in any stage draws into it. Docking is enabled (`gui_imgui_window` makes a dock space over
+the window), and a window dragged onto a dock target and held there docks, as `./e3d command
 input.drag Left 280 156 20 20` shows on that example. Viewports, which take an ImGui window dragged
 outside the game's window into a window of its own (`SdlImGuiViewports`), are offered on X11,
 Windows, macOS and SDL's offscreen driver, and stay off until a program sets
