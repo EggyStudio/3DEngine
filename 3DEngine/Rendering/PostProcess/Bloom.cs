@@ -297,6 +297,8 @@ internal sealed class BloomRenderer : IDisposable
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         renderWorld.TryGet<ModelRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, held: true);
+        // A cascade of the light that bounces' probes, where a command asks, hidden by the meshes as one is.
+        renderWorld.TryGet<BounceViewRenderer>()?.DrawProbes(pass, target.RenderPass, renderContext, renderWorld);
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, end: split, held: true);
         return true;
     }

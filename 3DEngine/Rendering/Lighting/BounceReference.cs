@@ -297,7 +297,8 @@ internal static class BounceReference
             file.Write(MemoryMarshal.AsBytes(traced.Light.AsSpan(y * traced.Width * 3, traced.Width * 3)));
     }
 
-    private static (int Width, int Height, float[] Light) ReadPfm(string path)
+    /// <summary>A PFM file's linear light, three floats a pixel with rows from the top, and its size.</summary>
+    internal static (int Width, int Height, float[] Light) ReadPfm(string path)
     {
         var bytes = File.ReadAllBytes(path);
         var lines = 0;

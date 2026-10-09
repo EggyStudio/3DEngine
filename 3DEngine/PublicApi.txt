@@ -1142,6 +1142,7 @@ static class Engine.Engine3D
   static void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint)
   static void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint)
   static void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector2 size, Color tint)
+  static void DrawBounceWindow()
   static void DrawBoundingBox(BoundingBox box, Color color)
   static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
   static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)

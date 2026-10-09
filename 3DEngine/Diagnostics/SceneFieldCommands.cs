@@ -26,9 +26,12 @@ internal static class SceneFieldCommands
     }
 
     [Command("gi.state", "How much light bounces: the quality, the cascades of world probes and their rays, the screen's probes, the reflections, and the GPU memory each takes")]
-    internal static string IlluminationState()
+    internal static string IlluminationState() => IlluminationState(ConsoleHost.World!);
+
+    // What gi.state says, which the bounce window shows too.
+    internal static string IlluminationState(World from)
     {
-        if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
+        if (!from.TryGetResource<Renderer>(out var renderer)
             || renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>() is not { Probes: { } probes } gi)
             return "no light bounces";
         var quality = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>()?.Quality ?? GlobalIllumination.Off;
@@ -73,6 +76,86 @@ internal static class SceneFieldCommands
 
     [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]
     internal static string Compare(string path) => BounceReference.Compare(ConsoleHost.World!, path);
+
+    [Command("gi.show", "Draws what the light that bounces holds over the window: the screen's probes as tiles, their light, filtered, or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes in the scene, the frame against a reference gi.reference wrote, or nothing: gi.show <none|tiles|light|filtered|history|rays|merged|probes|difference> [cascade or png]")]
+    internal static string ShowBounce(string view, string with = "")
+    {
+        if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings) || settings.Quality == GlobalIllumination.Off)
+            return "no light bounces, which SetGlobalIllumination turns on";
+        if (!Enum.TryParse<BounceView>(view, ignoreCase: true, out var shown) || !Enum.IsDefined(shown))
+            return $"no view {view}, which is one of {string.Join(", ", Enum.GetNames<BounceView>().Select(n => n.ToLowerInvariant()))}";
+        if (shown is BounceView.Rays or BounceView.Merged or BounceView.Probes && with.Length > 0)
+        {
+            if (!int.TryParse(with, System.Globalization.CultureInfo.InvariantCulture, out var cascade))
+                return $"{with} is not a cascade";
+            settings.ShownCascade = Math.Max(cascade, 0);
+        }
+        if (shown == BounceView.Difference)
+        {
+            if (with.Length == 0) return "the difference is drawn against a reference, gi.show difference <png>";
+            if (GiveReference(settings, with) is { } why) return why;
+        }
+        settings.Shown = shown;
+        return Shown(settings);
+    }
+
+    // Reads the reference at path for the difference to be drawn against, or says why it cannot.
+    internal static string? GiveReference(GlobalIlluminationSettings settings, string path)
+    {
+        var full = Path.GetFullPath(path);
+        if (!File.Exists(full + ".pfm")) return $"no reference at {full}, which gi.reference writes";
+        var (width, height, light) = BounceReference.ReadPfm(full + ".pfm");
+        settings.Reference = (light, width, height, (settings.Reference?.Version ?? 0) + 1);
+        return null;
+    }
+
+    // What gi.show and the bounce window say is shown.
+    internal static string Shown(GlobalIlluminationSettings settings) => settings.Shown switch
+    {
+        BounceView.None => "showing the window as it is",
+        BounceView.Tiles => "showing the screen's probes as tiles, each a dot of its light",
+        BounceView.Light => "showing the light each screen probe's rays brought",
+        BounceView.Filtered => "showing each screen probe's light filtered, as the model pass reads it",
+        BounceView.History => "showing how much of each screen probe's light the frame before's gave, red for none and green for four fifths",
+        BounceView.Rays => $"showing cascade {settings.ShownCascade}'s rays' light",
+        BounceView.Merged => $"showing cascade {settings.ShownCascade} merged with those above",
+        BounceView.Probes => $"showing cascade {settings.ShownCascade}'s probes as cubes",
+        _ => settings.Reference is { } given
+            ? $"showing the frame against the reference of {given.Width} by {given.Height}, red where it is brighter and blue where it is darker"
+            : "showing nothing until a reference is given",
+    };
+
+    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, or every cascade but one: gi.toggle <history|filter|screen|merge|cascade> <on|off|cascade>")]
+    internal static string ToggleBounce(string part, string state)
+    {
+        if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            return "no light bounces, which SetGlobalIllumination turns on";
+        var on = state is not ("off" or "0" or "false");
+        switch (part)
+        {
+            case "history": settings.HistoryOff = !on; break;
+            case "filter": settings.FilterOff = !on; break;
+            case "screen": settings.ScreenOff = !on; break;
+            case "merge": settings.MergeOff = !on; break;
+            case "cascade":
+                settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
+                break;
+            default: return $"no part {part}, which is one of history, filter, screen, merge and cascade";
+        }
+        return Switches(settings);
+    }
+
+    // The parts of the light that bounces left out, as gi.toggle and the bounce window say them.
+    internal static string Switches(GlobalIlluminationSettings settings)
+    {
+        var off = new List<string>();
+        if (settings.HistoryOff) off.Add("the frame before's light");
+        if (settings.FilterOff) off.Add("the screen's filter");
+        if (settings.ScreenOff) off.Add("the screen's probes");
+        if (settings.MergeOff) off.Add("the merge");
+        if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
+        return off.Count == 0 ? "every part of the light that bounces is on" : $"left out: {string.Join(", ", off)}";
+    }
 
     [Command("field.state", "Where each cascade of the scene's distance field lies, how many meshes are still in it, and what this frame stamped")]
     internal static string State()

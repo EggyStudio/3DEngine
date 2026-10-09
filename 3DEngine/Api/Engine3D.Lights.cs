@@ -183,6 +183,100 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Draws what the light that bounces holds in an ImGui window of its own, which a program shows
+    /// while its light is worked on: how much it traces and the memory that takes, a view of its
+    /// probes drawn over the window, its parts each to be left out, and a path-traced reference of
+    /// the view with the frame's error over each region against it.
+    /// </summary>
+    /// <remarks>
+    /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is. The views
+    /// and parts are those <c>gi.show</c> and <c>gi.toggle</c> set, and the reference is traced as
+    /// <c>gi.reference</c> traces it, through the device's rays, which light bouncing at
+    /// <see cref="GlobalIllumination.High"/> holds the meshes for.
+    /// </remarks>
+    public static void DrawBounceWindow()
+    {
+        if (!TryRes<GlobalIlluminationSettings>(out var settings)) return;
+        ImGuiNET.ImGui.SetNextWindowSize(new Vector2(480, 560), ImGuiNET.ImGuiCond.FirstUseEver);
+        if (!ImGuiNET.ImGui.Begin("Light that bounces"))
+        {
+            ImGuiNET.ImGui.End();
+            return;
+        }
+        ImGuiNET.ImGui.PushTextWrapPos(0);
+        ImGuiNET.ImGui.TextUnformatted(SceneFieldCommands.IlluminationState(World));
+        ImGuiNET.ImGui.Separator();
+
+        var names = Enum.GetNames<BounceView>();
+        var view = (int)settings.Shown;
+        if (ImGuiNET.ImGui.Combo("View", ref view, names, names.Length)) settings.Shown = (BounceView)view;
+        var cascades = TryRes<Renderer>(out var renderer) && renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Probes is { } probes ? probes.Cascades : 0;
+        var cascade = Math.Min(settings.ShownCascade, Math.Max(cascades - 1, 0));
+        if (cascades > 1 && ImGuiNET.ImGui.SliderInt("Cascade", ref cascade, 0, cascades - 1)) settings.ShownCascade = cascade;
+        ImGuiNET.ImGui.TextUnformatted(SceneFieldCommands.Shown(settings));
+
+        // Each part on while it is ticked, and the cascade chosen alone while that is.
+        var history = !settings.HistoryOff;
+        if (ImGuiNET.ImGui.Checkbox("The frame before's light", ref history)) settings.HistoryOff = !history;
+        var filter = !settings.FilterOff;
+        if (ImGuiNET.ImGui.Checkbox("The screen's filter", ref filter)) settings.FilterOff = !filter;
+        var screen = !settings.ScreenOff;
+        if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenOff = !screen;
+        var merge = !settings.MergeOff;
+        if (ImGuiNET.ImGui.Checkbox("The merge of the cascades", ref merge)) settings.MergeOff = !merge;
+        var alone = settings.Alone >= 0;
+        ImGuiNET.ImGui.Checkbox("The cascade chosen alone", ref alone);
+        settings.Alone = alone ? settings.ShownCascade : -1;
+        ImGuiNET.ImGui.Separator();
+
+        ImGuiNET.ImGui.InputText("Reference", ref _bouncePath, 1024);
+        ImGuiNET.ImGui.InputInt("Paths a pixel", ref _bounceSamples);
+        _bounceSamples = Math.Clamp(_bounceSamples, 1, 65536);
+        if (ImGuiNET.ImGui.Button("Trace")) _bounceSaid = BounceReference.Trace(World, _bouncePath, _bounceSamples);
+        ImGuiNET.ImGui.SameLine();
+        if (ImGuiNET.ImGui.Button("Compare"))
+        {
+            _bounceRegions = BounceReference.Measure(World, _bouncePath, out var why, out var difference);
+            _bounceSaid = why ?? $"the difference drawn in {difference}";
+        }
+        ImGuiNET.ImGui.SameLine();
+        if (ImGuiNET.ImGui.Button("Show the difference"))
+        {
+            _bounceSaid = SceneFieldCommands.GiveReference(settings, _bouncePath);
+            if (_bounceSaid is null) settings.Shown = BounceView.Difference;
+        }
+        if (_bounceSaid is not null) ImGuiNET.ImGui.TextUnformatted(_bounceSaid);
+        ImGuiNET.ImGui.PopTextWrapPos();
+
+        // Each region's light by luminance, the reference's and the frame's, and the frame's error as a share.
+        if (_bounceRegions is { Count: > 0 } regions
+            && ImGuiNET.ImGui.BeginTable("regions", 5, ImGuiNET.ImGuiTableFlags.Borders | ImGuiNET.ImGuiTableFlags.RowBg))
+        {
+            foreach (var heading in new[] { "Region", "Pixels", "Reference", "Frame", "Error" }) ImGuiNET.ImGui.TableSetupColumn(heading);
+            ImGuiNET.ImGui.TableHeadersRow();
+            static float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
+            foreach (var region in regions)
+            {
+                ImGuiNET.ImGui.TableNextRow();
+                string[] cells = [region.Name, $"{region.Pixels}", $"{Luminance(region.Reference):0.000}", $"{Luminance(region.Frame):0.000}", $"{region.Share * 100:+0;-0;0}%"];
+                foreach (var cell in cells)
+                {
+                    ImGuiNET.ImGui.TableNextColumn();
+                    ImGuiNET.ImGui.TextUnformatted(cell);
+                }
+            }
+            ImGuiNET.ImGui.EndTable();
+        }
+        ImGuiNET.ImGui.End();
+    }
+
+    // The bounce window's reference, its paths a pixel, what its last button said and its last comparison.
+    private static string _bouncePath = "bounce-reference.png";
+    private static int _bounceSamples = 256;
+    private static string? _bounceSaid;
+    private static IReadOnlyList<BounceReference.RegionLight>? _bounceRegions;
+
+    /// <summary>
     /// Sets the light from all around that keeps the side of a model away from every other light
     /// from going black, replacing the one set before, or removes it with an intensity of 0.
     /// </summary>

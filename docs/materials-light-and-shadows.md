@@ -440,6 +440,20 @@ game that draws its scene into a texture at a low size and shows the texture, th
 first texture's camera and holds its models. `Config.GlobalIllumination` sets the same for an app
 made from a `Config`.
 
+`DrawBounceWindow()`, called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows
+what the light that bounces holds while a scene's light is worked on. It gives what `gi.state`
+gives, and draws the view chosen from its list over the window: the screen's probes as tiles, each a
+dot of its light, their light as their rays brought it and filtered, and how much of each the frame
+before's light gave, red for none and green for the most; a cascade's rays' light and its merge,
+each layer of its probes a square of their directions; the cascade's probes as small cubes in the
+scene, each face the light the probe gathers from that side; and the frame against a reference, red
+where it is brighter and blue where it is darker. Its boxes leave a part out, the frame before's
+light, the screen's filter, the screen's probes, the merge of the cascades or every cascade but the
+one chosen, so what each part gives can be seen, and on a GPU that traces rays its buttons path
+trace the view as a reference and give each region's error against it. `shaders_bounce_rooms`
+shows it on Tab, and `./e3d command gi.show` and `gi.toggle` set the same in a running program, as
+[Driving a program with e3d](driving-with-e3d.md) says.
+
 ## Rooms that reflect themselves
 
 Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces

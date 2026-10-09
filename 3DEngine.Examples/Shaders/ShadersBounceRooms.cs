@@ -31,8 +31,10 @@ public static class ShadersBounceRooms
         // Cornell box, a room of thin walls with a lamp outside it, a corridor lit from its open
         // end, a room the sun lights through a window, white blocks beside red walls one, three and
         // six units off, a small bright strip in a dark room, a floor seen at a grazing angle, and
-        // a room whose lamp L carries and whose wall M moves. G steps through the qualities, and
-        // `./e3d command gi.reference` traces each view's reference, which `gi.compare` reads it by.
+        // a room whose lamp L carries and whose wall M moves. G steps through the qualities, Tab
+        // shows the window of what the bounce holds, its views, its parts and a reference to
+        // measure it by, and `./e3d command gi.reference` traces each view's reference, which
+        // `gi.compare` reads it by.
         SetSceneField(3, 0.15f, 2);
         var quality = GlobalIllumination.High;
         SetGlobalIllumination(quality);
@@ -72,6 +74,7 @@ public static class ShadersBounceRooms
             ("a lamp carried, a wall moved", new Camera3D(new Vector3(282.6f, 1.7f, 2.6f), new Vector3(278.5f, 1, -1.5f), Vector3.UnitY, 65)),
         ];
         var view = 0;
+        var window = false;
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
@@ -89,6 +92,7 @@ public static class ShadersBounceRooms
                 SetLightPosition(carried, spots[spot]);
             }
             if (IsKeyPressed(Key.M)) moved = !moved;
+            if (IsKeyPressed(Key.Tab)) window = !window;
 
             BeginDrawing();
             ClearBackground(Color.Black);
@@ -149,8 +153,9 @@ public static class ShadersBounceRooms
             EndMode3D();
 
             DrawText($"{view + 1}: {views[view].Name}. Light that bounces: {quality}.", 10, 10, 20, Color.RayWhite);
-            DrawText("1 to 8 change the view, G the quality, L carries the lamp and M moves the wall.", 10, 36, 10, Color.LightGray);
+            DrawText("1 to 8 change the view, G the quality, L carries the lamp, M moves the wall and Tab shows the bounce's window.", 10, 36, 10, Color.LightGray);
             DrawFPS(10, 420);
+            if (window) DrawBounceWindow();
             EndDrawing();
         }
 

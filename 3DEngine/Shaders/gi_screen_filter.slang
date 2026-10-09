@@ -122,11 +122,18 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
     float3 spread;
+    uint off = uint(view.grid.w + 0.5);
+    // With the neighbors' light left out the probe keeps its own, the frame before's still held
+    // within the spread of its neighbors'.
     float4 now = spatial(id.xy, across, down, own, surface, spread);
+    if ((off & 2u) != 0u)
+        now = float4(own.rgb, 1.0);
     // Where the frame before's probes cover the place in part, as at the edge of what it showed,
     // this frame's light counts for the rest.
-    float4 before = earlier(id.xy, across, down, surface);
+    float4 before = (off & 1u) != 0u ? float4(0.0) : earlier(id.xy, across, down, surface);
     float3 held = clamp(before.rgb, now.rgb - Spread * spread, now.rgb + Spread * spread);
     float fresh = lerp(1.0, Fresh, saturate(before.a));
-    blended[id.xy] = float4(lerp(held, now.rgb, fresh), 1.0);
+    // Its alpha one more than the share of its light the frame before's gave, which a view of the
+    // history shows.
+    blended[id.xy] = float4(lerp(held, now.rgb, fresh), 2.0 - fresh);
 }

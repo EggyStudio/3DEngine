@@ -113,7 +113,7 @@ internal sealed class GpuScreenProbes : IDisposable
 
     internal IImage Blended { get; }
 
-    /// <summary>The light arriving at each probe's surface blended with its neighbors' on like surfaces, which the model pass reads.</summary>
+    /// <summary>The light arriving at each probe's surface blended with its neighbors' on like surfaces, which the model pass reads, its alpha one more than the share of it the frame before's light gave.</summary>
     public IImageView BlendedView { get; }
 
     internal IImage History { get; }
@@ -134,51 +134,6 @@ internal sealed class GpuScreenProbes : IDisposable
 
     /// <summary>The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes' layout, and the frame before's camera and eye.</summary>
     public const int ViewBytes = 3 * 64 + 5 * 16;
-
-    /// <inheritdoc />
-    public void Dispose() => _dispose();
-}
-
-/// <summary>
-/// The window's scene as a frame drew it, in linear light at half the window's size with its mips,
-/// which a glossy surface's reflection reads the light of a surface it met on the screen from in
-/// the frame after.
-/// </summary>
-internal sealed class GpuReflectionHistory : IDisposable
-{
-    private readonly Action _dispose;
-
-    internal GpuReflectionHistory(Extent2D window, IImage image, IImageView view, ISampler sampler, VkImage depth, IImageView depthView,
-        ISampler depthSampler, Action dispose)
-    {
-        Window = window;
-        Image = image;
-        View = view;
-        Sampler = sampler;
-        Depth = depth;
-        DepthView = depthView;
-        DepthSampler = depthSampler;
-        _dispose = dispose;
-    }
-
-    internal VkImage Depth { get; }
-
-    /// <summary>The window's depth at half its size the same frame, which tells a reflection whether the picture showed the surface it met or something in front of it.</summary>
-    public IImageView DepthView { get; }
-
-    /// <summary>A sampler that reads a depth as it is.</summary>
-    public ISampler DepthSampler { get; }
-
-    /// <summary>The size of the window it was made for, twice its own.</summary>
-    public Extent2D Window { get; }
-
-    internal IImage Image { get; }
-
-    /// <summary>Every level of the picture, to sample a blurred level of for a rough surface.</summary>
-    public IImageView View { get; }
-
-    /// <summary>A sampler that blends between texels and between levels.</summary>
-    public ISampler Sampler { get; }
 
     /// <inheritdoc />
     public void Dispose() => _dispose();
@@ -353,9 +308,13 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="lights">The lights, <see cref="GpuIllumination.LightsBytes"/> of them.</param>
     /// <param name="intervals">Where each cascade's rays start and end.</param>
     /// <param name="spacing">The probes' spacing in cells of their field cascade.</param>
+    /// <param name="mergeOff">Whether each cascade keeps its own rays' light, taking nothing from the cascade above.</param>
+    /// <param name="alone">The one cascade whose rays' light alone reaches the first, or -1 for every cascade.</param>
+    /// <param name="viewed">Whether a view of the rays' light or the merges reads them in the window's pass (<see cref="BindProbeVolume"/>).</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
-        ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing)
+        ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
+        bool mergeOff = false, int alone = -1, bool viewed = false)
     {
         var run = new ProbeRun(this, commandBuffer, gi.Cascades);
         var cmd = run.Commands;
@@ -364,8 +323,10 @@ internal sealed unsafe partial class GraphicsDevice
         var bytes = lights[..(Math.Min(lights.Length, GpuIllumination.LightsBytes) & ~3)];
         fixed (byte* data = bytes)
             _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)gi.Lights).Buffer, 0, (ulong)bytes.Length, data);
-        // The lights are written, and the merges and faces of the frame before are read, before the rays.
-        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.TransferWrite | VkAccessFlags2.ShaderRead,
+        // The lights are written, and the merges and faces of the frame before are read, before the
+        // rays, a view's reads of them in the frame before's window pass too while one is shown.
+        var before = VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader | (viewed ? VkPipelineStageFlags2.FragmentShader : 0);
+        MemoryBarrier(cmd, before, VkAccessFlags2.TransferWrite | VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead | VkAccessFlags2.ShaderWrite);
 
         var p = (uint)gi.Probes;
@@ -399,7 +360,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 2, VkDescriptorType.StorageImage, gi.Merged[c].View, null, VkImageLayout.General);
             run.Buffer(set, 3, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 4, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
-            ReadOnlySpan<uint> push = [(uint)c, p, n, c == gi.Cascades - 1 ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing), 0, 0, 0];
+            ReadOnlySpan<uint> push = [(uint)c, p, n, c == gi.Cascades - 1 ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
+                BitConverter.SingleToUInt32Bits(mergeOff ? 1 : 0), BitConverter.SingleToUInt32Bits(alone + 1), 0];
             run.Dispatch(MergeStage, set, MemoryMarshal.AsBytes(push), (p * p * p * n * n + 63) / 64);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }
@@ -417,130 +379,24 @@ internal sealed unsafe partial class GraphicsDevice
         }
         PipelineBarrier(cmd, ImageBarrier(gi.Cubes, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead));
+        if (viewed)
+            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead);
         return run;
     }
 
     /// <summary>
-    /// Makes the picture a reflection reads the frame before from, for a window of
-    /// <paramref name="width"/> by <paramref name="height"/> pixels, black until the first frame is
-    /// kept in it.
+    /// Binds the rays' light of <paramref name="cascade"/>, or its merge, at
+    /// <paramref name="binding"/> of <paramref name="set"/> as a sampled image in the general layout
+    /// it stays in, for a view of it drawn after a recording that was told it is viewed.
     /// </summary>
-    public GpuReflectionHistory CreateReflectionHistory(uint width, uint height)
+    public void BindProbeVolume(IDescriptorSet set, uint binding, GpuIllumination gi, int cascade, bool merged)
     {
-        var half = new Extent2D(Math.Max(1, width / 2), Math.Max(1, height / 2));
-        var image = CreateImage(new ImageDesc(half, ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.TransferSrc | ImageUsage.TransferDst,
-            ImageDesc.FullMipChain(half.Width, half.Height)));
-        Name(image, "Reflections' frame before");
-        var view = CreateImageView(image);
-        var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
-            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, MipFilter: SamplerFilter.Linear));
-
-        // The depth beside it, at the size of the window's depth, which is copied into it.
-        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, half.Width, half.Height, VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferDst);
-        var depthImage = new VulkanImage(this, depth, depthMemory, new ImageDesc(half, ImageFormat.D32_Float, ImageUsage.Sampled | ImageUsage.TransferDst));
-        var depthView = new VulkanImageView(this, depthImage, TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth));
-        var depthSampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
-            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
-
-        var vkImage = (VulkanImage)image;
-        var levels = ColorLevels(0, LevelsOf(vkImage));
-        var depthRange = new VkImageSubresourceRange(VkImageAspectFlags.Depth, 0, 1, 0, 1);
-        var cmd = BeginSingleTimeCommands();
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(vkImage.Image, levels, VkImageLayout.Undefined, VkImageLayout.General,
-                VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-            ImageBarrier(depth, depthRange, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
-                VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-        ]);
-        var none = new VkClearColorValue(0f, 0f, 0f, 0f);
-        _deviceApi.vkCmdClearColorImage(cmd, vkImage.Image, VkImageLayout.General, &none, 1, &levels);
-        var far = new VkClearDepthStencilValue(1f, 0);
-        _deviceApi.vkCmdClearDepthStencilImage(cmd, depth, VkImageLayout.TransferDstOptimal, &far, 1, &depthRange);
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(vkImage.Image, levels, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead),
-            ImageBarrier(depth, depthRange, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead),
-        ]);
-        EndSingleTimeCommands(cmd);
-        vkImage.Layout = VkImageLayout.ShaderReadOnlyOptimal;
-        return new GpuReflectionHistory(new Extent2D(width, height), image, view, sampler, depth, depthView, depthSampler, () =>
+        var image = new VkDescriptorImageInfo { imageView = (merged ? gi.Merged : gi.Radiance)[cascade].View, imageLayout = VkImageLayout.General };
+        var write = new VkWriteDescriptorSet
         {
-            depthSampler.Dispose();
-            depthView.Dispose();
-            depthImage.Dispose();
-            sampler.Dispose();
-            view.Dispose();
-            image.Dispose();
-        });
-    }
-
-    /// <summary>
-    /// Records <paramref name="scene"/>, the window's scene the HDR frame drew this frame, copied
-    /// into <paramref name="history"/> at half its size and filtered down its mips, and
-    /// <paramref name="depth"/>, the window's depth at that size, copied beside it, after the model
-    /// pass has read the frame before from them.
-    /// </summary>
-    public void RecordKeepFrame(ICommandBuffer commandBuffer, IImageView scene, IImageView depth, GpuReflectionHistory history)
-    {
-        if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
-        var cmd = vkCmd.Handle;
-        var source = (VulkanImage)scene.Image;
-        var target = (VulkanImage)history.Image;
-        var sourceExtent = source.Description.Extent;
-        var targetExtent = target.Description.Extent;
-        var readers = VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
-
-        // The scene from the layout its pass left it in to be copied from, and every level of the
-        // picture, read by the model pass a moment ago, to be written.
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(source.Image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
-                VkPipelineStageFlags2.ColorAttachmentOutput | readers, VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.ShaderRead,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead),
-            ImageBarrier(target.Image, ColorLevels(0, LevelsOf(target)), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferDstOptimal,
-                readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-        ]);
-        VkImageBlit blit = new()
-        {
-            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            dstSet = ((VulkanDescriptorSet)set).Handle, dstBinding = binding, descriptorCount = 1, descriptorType = VkDescriptorType.SampledImage, pImageInfo = &image,
         };
-        blit.srcOffsets[1] = new VkOffset3D((int)sourceExtent.Width, (int)sourceExtent.Height, 1);
-        blit.dstOffsets[1] = new VkOffset3D((int)targetExtent.Width, (int)targetExtent.Height, 1);
-        _deviceApi.vkCmdBlitImage(cmd, source.Image, VkImageLayout.TransferSrcOptimal, target.Image, VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Linear);
-        PipelineBarrier(cmd, ImageBarrier(source.Image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, readers, VkAccessFlags2.ShaderRead));
-        RecordMipChain(cmd, target);
-
-        // The depth, from the layout it is sampled in to be copied from, into the one beside the
-        // picture, which the model pass read a moment ago.
-        var depthImage = ((VulkanImage)depth.Image).Image;
-        var depthRange = new VkImageSubresourceRange(VkImageAspectFlags.Depth, 0, 1, 0, 1);
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(depthImage, depthRange, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
-                readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead),
-            ImageBarrier(history.Depth, depthRange, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferDstOptimal,
-                readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-        ]);
-        var depthExtent = depth.Image.Description.Extent;
-        VkImageCopy copy = new()
-        {
-            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Depth, 0, 0, 1),
-            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Depth, 0, 0, 1),
-            extent = new VkExtent3D(Math.Min(depthExtent.Width, targetExtent.Width), Math.Min(depthExtent.Height, targetExtent.Height), 1),
-        };
-        _deviceApi.vkCmdCopyImage(cmd, depthImage, VkImageLayout.TransferSrcOptimal, history.Depth, VkImageLayout.TransferDstOptimal, 1, &copy);
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(depthImage, depthRange, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, readers, VkAccessFlags2.ShaderRead),
-            ImageBarrier(history.Depth, depthRange, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, readers, VkAccessFlags2.ShaderRead),
-        ]);
+        _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
     }
 
     /// <summary>Makes the screen probes of a window <paramref name="width"/> by <paramref name="height"/> pixels, a probe every <paramref name="tile"/> pixels a side.</summary>

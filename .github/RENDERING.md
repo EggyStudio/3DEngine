@@ -696,6 +696,23 @@ walls one, three and six units off, a small bright strip in a dark room, a floor
 angle, and a room whose lamp a key carries and whose wall another moves. `build/bounce-rooms.sh`
 captures each view, traces its reference at `High` and compares each quality's frame with it.
 
+What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
+`DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
+ImGui, in the `bounce_view` node after `scene_field_view`: the screen's probes as tiles over the
+picture, their light as their rays brought it, filtered, or the share the frame before's gave, which
+the filter writes into the blended light's alpha as one more than it; a cascade's rays or merge,
+read through a sampled image in the general layout their compute work leaves them in
+(`GraphicsDevice.BindProbeVolume`), the recording then adding a barrier from those writes to the
+fragment stage and one from that stage to the next frame's rays; and the decoded frame against a
+reference uploaded as half floats. `gi_probes.slang` draws a cascade's probes as cubes, an instance
+a probe, in the HDR scene's pass after its meshes, so the scene hides them as it hides a mesh.
+Through the immediate pass they would be a batch with depth after the program's own, which would
+move the line between the scene and the interface drawn over it. `gi.toggle` leaves out the frame
+before's light or the neighbors' in the screen's filter (flags in `ScreenView.grid.w`), the screen's
+probes (the lighting buffer's `Screen.y`), the merge, or every cascade but one, the cascades above
+it giving nothing and those below passing its light on where their rays meet nothing (the push of
+`gi_merge.slang`). `BounceViewTests` draws each view at `Low` and leaves each part out.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to

@@ -155,7 +155,8 @@ guide that shows it.
   baked, so every light and mesh may move, and `GlobalIllumination.Off`, the default, leaves it
   out. `Config.GlobalIllumination` sets it for an app made from a `Config`, as
   [Light that bounces](materials-light-and-shadows.md#light-that-bounces) shows with each quality's
-  cost.
+  cost. `DrawBounceWindow` shows its probes, leaves its parts out one at a time and measures the
+  frame against a path-traced reference, in an ImGui window of its own.
 - **Glossy surfaces reflect.** Where light bounces, a surface with a roughness under 0.5 traces its
   reflection through the window's depth and on through the field, and at `High` on a GPU that
   traces rays itself, where the field misses, against the meshes' own triangles. Render textures

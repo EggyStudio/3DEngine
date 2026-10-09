@@ -94,7 +94,9 @@ public struct ScreenView
     public float4x4 inverseViewProjection;
     // xyz: the eye.
     public float4 eye;
-    // x: a tile's pixels along each side. y: the probes across. z: the probes down. w: unused.
+    // x: a tile's pixels along each side. y: the probes across. z: the probes down. w: 1 where the
+    // frame before's light is left out, plus 2 where each probe keeps its own light, its neighbors'
+    // left out.
     public float4 grid;
     // x: where the first interval ends. y: the world's probes along each side. z: their spacing in
     // cells. w: how many cascades the world's probes have.

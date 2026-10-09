@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `45a1250c`. Three commits. Item 2's A1 (`0a43cf1a`): `gi.reference <png> <samples>`
+Reviewed up to `575f5f66`. Item 2's A2, the level: `shaders_bounce_rooms` holds eight rooms forty
+units apart, each with a camera a key picks, the Cornell box, a closed room of walls a tenth of a
+unit thick with a lamp inside and a bright one outside, a corridor sixteen units long lit through
+its open end, a room the sun lights through a window, blocks with a red wall at one, three and six
+units, a strip 0.06 thick giving off thirty times white in a dark room, a twelve-unit room seen from
+a third of a unit above its floor, and a room whose lamp carries and whose wall moves, with
+`build/bounce-rooms.sh` capturing each view, tracing its reference and comparing each quality.
+Right, the rooms are the hard cases asked for. Its first run is the item's finding: over every
+region the frame is 1% under the reference on the outdoor blocks the sun lights, 21% in the
+corridor, 30 to 33% in the Cornell box, 54 to 58% in the thin room, 60% in the carried lamp's room,
+66 to 67% in the twelve-unit room, 73 to 75% in the window's room and 87% in the strip's room, whose
+walls read 0 in the frame, the strip under the field's cell, and the qualities differ by a few
+points at most. The shortfall grows with the share of the light that bounced more than once, from
+none where the sun lights a surface to most where a room is lit by nothing else, and the quality
+changes it little, so it is one loss in the bounce's recursion or its gather, not a want of rays,
+which B places: the reference's bounce count is a push constant already, so `gi.reference` takes it
+as an argument, and the frame is compared with a one-bounce reference and a two-bounce one as well
+as the whole, so that a frame matching one bounce and falling behind from two names the feedback,
+the light that bounced to a hit read from the frame before's probes, and a frame under one bounce by
+a third names the first trace, the merge or the gather, which the probe's own light against the
+reference's radiance at it then places. The strip's room is a limit of its own, an emitter under the
+field's cell that no ray through the field meets, to be said and answered apart, by the ray scene at
+High or by the strip's light splatted into the field. The suite: 1,581 passed. A3 is next.
+
+Before it, three commits came to be read. Item 2's A1 (`0a43cf1a`): `gi.reference <png> <samples>`
 path traces the window's view through the ray scene High builds, the first hit lit as the model pass
 lights one with its specular share, every hit after as the bounce lights one, shadows by rays toward
 the lights, the light given off at every hit, Russian roulette from the third bounce and the sky
@@ -53,25 +77,6 @@ shares. `build/pack.sh:29` holds the words in code and stays. The suite: 1,579 p
 Linux, macOS and the macOS captures and red on Windows alone, the leak test failing on its handles
 at app 42 as the test was built to, which rewrote Verdict 40 and settled 41, and `d7e764cd`'s macOS
 job failed the random seed's test by a race, Verdict 42; `52c74240` and `7b983bd8` are running.
-
-Before it, subsurface scattering's first batch came to be read, the diffusion, committed as far as
-it stands alone as Decision 22 asks. A `ModelMaterial` and a mesh entity's `Material` take
-`SubsurfaceRadius` in world units and `SubsurfaceColor` as each channel's share of it, a draw's
-profile keying its batch; the batches that scatter are drawn again by `subsurface.slang` into two
-half-float images, their diffuse light, which `litLight` works out apart from the specular with
-`lit` adding the two as before, and their profile, kept where the scene's depth shows the surface;
-`subsurface_blur.slang` spreads that light across and down onto the decoded frame, seventeen taps
-each way, each color by a Gaussian a third of its share of the radius wide, a tap unmarked or
-farther from the eye than the radius left out, and adds the spread light less the pixel's own, so an
-unmarked pixel is never touched, the particles drawn after in a pass that keeps the frame and its
-depth. The test draws two white spheres lit from the side, the left one's material scattering red
-farthest, and holds the terminator's softening, red traveling farthest, the lit side held and the
-unmarked sphere the same to the bit; the references are unchanged. Manor's 139 materials scattering
-over 5 cm take `hdr_scene` 0.95 to 1.02 ms where it takes 0.42 to 0.46, one of them 0.65 to 0.70,
-which the third batch's tiers answer; the guide, the upgrading page, the comparison page, the
-cheatsheet, RENDERING.md §5 and TODO.md say what the second and third batches bring. Right. The
-suite: 1,579 passed; on lavapipe 311 passed and 2 skipped. Before item 2's A1 comes the owner's
-order of 2026-10-09 in item 1, seven places and N 4.7's matcher in one commit of prose.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -368,22 +373,55 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     of every source, script, manifest and workflow, in both repositories, and who chose what stays
     in these Decisions.
 
+24. **Content streamed on the go stays in the ledger, and the browser waits for a game that asks.** The owner chose
+    on 2026-10-09, after reading a browser port of a large game that downloads its world as it is
+    played, that the idea is recorded in SHARED.md as the file layer that port has (packs on a
+    static host, reads by byte range into a block cache, a recorded first-run set, prefetch by the
+    game's own streaming), to consider until a game here ships a world too large to download first,
+    over a streaming file layer and over an HTTP source alone, since Manor's cells from disk are all
+    a game here needs; and that the browser waits for a game that asks, its shape recorded for that day:
+    .NET's browser runtime, SDL3 built with Emscripten and linked into it, a WebGPU
+    `IGraphicsDevice` beside the Vulkan one without ray queries, bindless or 64-bit atomics, Slang
+    to WGSL, threads behind cross-origin isolation, and a one-week feasibility spike before any
+    commitment.
+
 ## Replies
 
-Item 2's A2, the level. `shaders_bounce_rooms` holds eight rooms forty units apart, so no room's
-lamps or field reach another, each with a camera that 1 to 8 pick: the Cornell box, a closed room of
-walls a tenth of a unit thick, under the field's cell, with a dim lamp inside and a bright one that
-casts shadows outside its wall, a corridor sixteen units long lit by the sun through its open end,
-a room the sun lights through a window four units wide, white blocks with a red wall on their side
-one, three and six units off, the sun on each wall's face toward its block and none on the block's
-face toward it, a strip 0.06 thick giving off thirty times white in a closed dark room, a room
-twelve units across whose floor is seen from a third of a unit above it, and a room whose lamp L
-carries between three places and whose inner wall M moves. `build/bounce-rooms.sh <folder>
-[samples] [qualities]` captures each view, traces its reference at `High` and compares each
-quality's frame with it. Its first run, 1,024 paths a pixel, under a second a view: over every
-region the frame is 1% under on the outdoor blocks, which the sun lights, 21% in the corridor, 30%
-to 33% in the Cornell box, 54% to 58% in the thin room, 60% in the carried lamp's room, 66% to 67%
-in the twelve-unit room, whose floor the ceiling's hot spot above the lamp lights by its bounce in
-the reference, 73% to 75% in the window's room, and 87% in the strip's room, whose walls read 0 in
-the frame, the strip under the field's cell; the qualities differ by a few points at most. B
-places the loss. The README's gallery and the guide have the level. The suite: 1,581 passed.
+
+**Item 2's A3, the window and views.** `DrawBounceWindow()` stands beside `SetGlobalIllumination`,
+an ImGui window with `gi.state`'s lines, a view to choose, the cascade, a box for each part, and a
+reference's path with Trace, Compare and Show the difference, the regions' table under them, which
+`shaders_bounce_rooms` shows on Tab. `gi.show <view> [cascade or png]` and `gi.toggle <part>
+<on|off|cascade>` set the same for `./e3d`. The views are the screen's probes as tiles, each a dot of
+its light over the picture; their light as the rays brought it and filtered; the history, the share
+of each probe's light the frame before's gave, red for none to green for four fifths, which the
+filter writes into the blended light's alpha as one more than it; a cascade's rays and its merge,
+each layer of probes a square of their octahedrons, upright and laid out to fill the window; the
+cascade's probes in the scene; and the frame against a reference uploaded as half floats, colored
+as `gi.compare`'s picture. Two departures from the item. The probes are cubes, since each face then
+shows the one light the probe holds for that side, where a sphere would blend the six into a
+gradient the model pass never reads. And they are drawn in the HDR scene's pass after the meshes,
+not through the immediate pass, because a batch with depth after the program's own moves the split
+between the scene and the interface (`HdrSceneNode.Split`), which would tonemap the program's text.
+The views over the window are drawn in a `bounce_view` node after `scene_field_view`, as
+`field.show`'s is, the cascade volumes bound as sampled images in the general layout their compute
+work leaves them in, with a barrier from the merge to the fragment stage and one back to the next
+frame's rays only while a cascade is shown. The parts: the history and the neighbors' light in the
+screen's filter by flags in `ScreenView.grid.w`, the screen's probes by the lighting buffer's
+`Screen.y`, and the merge and one cascade alone by the merge's push, the cascades above the one
+chosen giving nothing and those below passing its light on where their rays meet nothing. The first
+look at the Cornell box at High places one thing. The back wall's screen probes hold
+nothing, the wall lying past the first field cascade, 9.6 units around the camera at the example's
+0.15 cells, so its bounce comes from the world probes alone, which B measures first.
+`BounceViewTests` draws each view at Low against a reference of no light, each different from the
+frame and from every other view and the difference red on the lit floor, and leaves each part out,
+the merge changing the frame by 14.5 levels of 255 on the RTX 4070, the last cascade alone by 2.2,
+the screen's probes by 0.58 and their filter by 0.11; the history is not held there, since a still
+camera gives it nothing to do. `GraphicsDevice.GlobalIllumination.cs` passed 800 lines, so the
+reflections' frame before went into `GraphicsDevice.ReflectionHistory.cs` as it was. The suite:
+1,582 passed; on lavapipe 312 passed and 4 skipped. B is next.
+
+Shared: the bounce's instruments, a path-traced reference over the ray scene with regions named by
+what each pixel's first ray met (`gi.reference`, `gi.compare`), and the views of its probes and the
+parts each left out (`gi.show`, `gi.toggle`, `DrawBounceWindow`), which BevyCSharp's Radiance
+Cascades can take to be measured the same way, the shaders plain Slang.

@@ -28,6 +28,33 @@ internal sealed class GlobalIlluminationSettings
 
     /// <summary>Whether High leaves the device's ray tracing alone, as <c>gi.rays off</c> sets it, so what it costs can be measured.</summary>
     public bool RaysOff { get; set; }
+
+    /// <summary>Whether the screen's probes take nothing of the frame before's, as <c>gi.toggle history off</c> sets it.</summary>
+    public bool HistoryOff { get; set; }
+
+    /// <summary>Whether each screen probe keeps its own light, blended with none of its neighbors', as <c>gi.toggle filter off</c> sets it.</summary>
+    public bool FilterOff { get; set; }
+
+    /// <summary>Whether the model pass reads the world's probes alone, the screen's left unread, as <c>gi.toggle screen off</c> sets it.</summary>
+    public bool ScreenOff { get; set; }
+
+    /// <summary>Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as <c>gi.toggle merge off</c> sets it.</summary>
+    public bool MergeOff { get; set; }
+
+    /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
+    public int Alone { get; set; } = -1;
+
+    /// <summary>What <see cref="BounceViewRenderer"/> draws over the window, as <c>gi.show</c> sets it.</summary>
+    public BounceView Shown { get; set; }
+
+    /// <summary>The cascade a view of one shows.</summary>
+    public int ShownCascade { get; set; }
+
+    /// <summary>
+    /// A reference's linear light, red, green and blue a pixel with rows from the top, its width and
+    /// height, and how many times one has been given, which the difference view is drawn against.
+    /// </summary>
+    public (float[] Light, int Width, int Height, int Version)? Reference { get; set; }
 }
 
 /// <summary>
@@ -93,6 +120,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
     // The end of the first cascade's interval, which the screen's probes trace to, this frame.
     private float _firstInterval;
+    // The frame's settings, whose switches the screen's blend reads.
+    private GlobalIlluminationSettings? _switches;
 
     // A render target's screen probes, its camera the frame before and the frame it was last drawn in.
     private sealed class TargetScreen(GpuScreenProbes screen) : IDisposable
@@ -176,6 +205,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 _retired.RemoveAt(i);
             }
         renderWorld.TryGet<TargetIllumination>()?.ByTarget.Clear();
+        _switches = renderWorld.TryGet<GlobalIlluminationSettings>();
         // A target's probes not drawn the frame before are let go, its history no longer the frame before's.
         foreach (var (id, state) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
         {
@@ -212,7 +242,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _black ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
         var (view, sampler) = environment is not null ? (environment.View, environment.Sampler) : (_black.View, _black.Sampler);
         var lights = Lights(renderWorld, environment is not null);
-        _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing)));
+        var switches = renderWorld.TryGet<GlobalIlluminationSettings>()!;
+        _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
+            switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval theirs.
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
@@ -307,6 +339,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
         (floats[32], floats[33], floats[34]) = (eye.X, eye.Y, eye.Z);
         (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
+        // What of the screen's blend is left out, the frame before's light and the neighbors'.
+        floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
         (floats[40], floats[41], floats[42], floats[43]) = (_firstInterval / 2, _gi!.Probes, ProbeSpacing, _made.Cascades);
         (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
         if (last is { } then)

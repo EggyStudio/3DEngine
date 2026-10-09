@@ -110,6 +110,8 @@ internal sealed class Renderer : IDisposable
         RenderWorld.Set(new SceneFieldRenderer());
         RenderWorld.Set(new GlobalIlluminationRenderer());
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
+        RenderWorld.Set(new BounceViewRenderer(server.LoadSync<ShaderProgram>("shaders/gi_view.slang"),
+            server.LoadSync<ShaderProgram>("shaders/gi_probes.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then the scene's field, the window's
@@ -156,6 +158,9 @@ internal sealed class Renderer : IDisposable
         // A cascade of the scene's distance field drawn over the window, where a command asks.
         Graph.AddNode("scene_field_view", new SceneFieldViewNode());
         Graph.AddNodeEdge("immediate", "scene_field_view");
+        // And what the light that bounces holds, where a command or its window asks.
+        Graph.AddNode("bounce_view", new BounceViewNode());
+        Graph.AddNodeEdge("scene_field_view", "bounce_view");
         Logger.Debug("Default MainPassNode added to render graph.");
 
         // Pipeline cache deduplicates compiled pipelines across nodes.
@@ -362,6 +367,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
         RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();
+        RenderWorld.TryGet<BounceViewRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

@@ -119,6 +119,7 @@ table also answers whether the two agree.
 | A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`), a file read over its default since `0f0f461` so a field a later version adds keeps its default | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
 | A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to consider, with saves |
+| Content streamed on the go, so a game ships small and plays while its world downloads: a manifest and packs on any static host, reads by byte range into a block cache on disk keyed by the manifest's version, a recorded first-run set fetched ahead in order of first use, and prefetch driven by the game's own streaming, as the file layer of a browser port of a large game does it (`.ref/playgta5`, its `io_worker.js`) | to consider, taken when a game ships a world too large to download first; has scene packs fetched whole on demand and cached | to consider, taken when a game ships a world too large to download first; has Manor's cells streamed from disk around the player |
 
 ### Input and the command line
 

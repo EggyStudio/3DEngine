@@ -85,7 +85,12 @@ of probes and their rays, the screen's probes, the reflections, and the GPU memo
 ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces rays
 `gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel, and
 `gi.compare ref.png` gives the light of each wall, floor and block in the frame against it, with a
-picture of the difference beside it.
+picture of the difference beside it. `gi.show` draws what the light holds over the window: `tiles`,
+`light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and `probes 1` the
+second cascade's, `difference ref.png` the frame against a reference, and `none` the window again.
+`gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and `screen` do
+their parts, `gi.toggle cascade 2` keeps the third cascade's light alone, and `on` or `-1` puts each
+back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

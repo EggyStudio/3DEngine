@@ -30,7 +30,10 @@ struct MergePush
     // x: the cascade. y: the probes along each side. z: this cascade's octahedron's texels along
     // each side. w: the cascade above's, or 0 for the last cascade.
     uint4 cascade;
-    // x: the probes' spacing in cells.
+    // x: the probes' spacing in cells. y: 1 where each cascade keeps its own rays' light alone, taking
+    // nothing from the cascade above. z: the one cascade whose rays' light alone reaches the first,
+    // plus one, or 0 for every cascade, the cascades above it giving nothing and those below it
+    // passing on its light where their rays meet nothing and nothing where they meet a surface.
     float4 spacing;
 };
 
@@ -86,7 +89,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         return;
     }
     float4 own = radiance[written];
-    if (upper == 0u || own.a < 0.5)
+    uint alone = uint(push.spacing.z + 0.5);
+    if (alone > 0u && c >= alone)
+    {
+        merged[written] = float4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+    if (alone > 0u && c + 1u < alone)
+        own.rgb = float3(0.0);
+    if (upper == 0u || own.a < 0.5 || push.spacing.y > 0.5 || alone == c + 1u)
     {
         merged[written] = float4(own.rgb, 1.0);
         return;
