@@ -208,7 +208,8 @@ public struct RaySurface
     public float4 color;
     // rgb: the light it gives off, linear.
     public float4 emission;
-    // x: its mesh's first corner in rayCorners. yzw: unused.
+    // x: its mesh's first corner in rayCorners. y, z: its roughness's and metallic's bits, which
+    // gi_reference.slang reads. w: unused.
     public uint4 corners;
 };
 

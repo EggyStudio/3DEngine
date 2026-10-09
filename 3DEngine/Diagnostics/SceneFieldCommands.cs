@@ -68,6 +68,12 @@ internal static class SceneFieldCommands
             : "the device traces no rays, so High traces through the field alone";
     }
 
+    [Command("gi.reference", "Path traces the window's picture through the device's rays, which light bouncing at High holds the meshes for, as the reference the light that bounces is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it: gi.reference <png> <samples>")]
+    internal static string Reference(string path, int samples) => BounceReference.Trace(ConsoleHost.World!, path, samples);
+
+    [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]
+    internal static string Compare(string path) => BounceReference.Compare(ConsoleHost.World!, path);
+
     [Command("field.state", "Where each cascade of the scene's distance field lies, how many meshes are still in it, and what this frame stamped")]
     internal static string State()
     {

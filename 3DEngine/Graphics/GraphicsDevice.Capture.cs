@@ -176,6 +176,36 @@ internal sealed unsafe partial class GraphicsDevice
     internal byte[] ReadPixels(IImage image)
     {
         var vkImage = (VulkanImage)image;
+        var (pixels, bytesPerPixel) = ReadRaw(vkImage);
+        if (bytesPerPixel != 4) return ToBytes(pixels, bytesPerPixel);
+        // A render target's color is the window's format, which may hold blue first.
+        if (vkImage.Description.Format == ImageFormat.B8G8R8A8_UNorm && _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb)
+            for (int i = 0; i < pixels.Length; i += 4)
+                (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
+        return pixels;
+    }
+
+    /// <summary>
+    /// The first level of an image of half floats or floats a pass samples, as four floats a pixel
+    /// (red, green, blue, alpha), rows from the top, read as <see cref="ReadPixels"/> reads one.
+    /// </summary>
+    /// <exception cref="ArgumentException">The image holds bytes, not floats.</exception>
+    internal float[] ReadFloats(IImage image)
+    {
+        var (raw, bytesPerPixel) = ReadRaw((VulkanImage)image);
+        if (bytesPerPixel == 4) throw new ArgumentException("The image holds bytes, not floats.", nameof(image));
+        var floats = new float[raw.Length / (bytesPerPixel / 4)];
+        for (int c = 0; c < floats.Length; c++)
+            floats[c] = bytesPerPixel == 8
+                ? (float)System.Buffers.Binary.BinaryPrimitives.ReadHalfLittleEndian(raw.AsSpan(c * 2))
+                : System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(raw.AsSpan(c * 4));
+        return floats;
+    }
+
+    // An image's first level as it holds it, and the bytes a pixel takes, copied once every frame
+    // in flight has finished with it.
+    private (byte[] Pixels, int BytesPerPixel) ReadRaw(VulkanImage vkImage)
+    {
         var extent = vkImage.Description.Extent;
         var bytesPerPixel = vkImage.Description.Format switch
         {
@@ -200,14 +230,7 @@ internal sealed unsafe partial class GraphicsDevice
             Barrier(cmd, vkImage, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkAccessFlags2.TransferRead, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.AllCommands);
             EndSingleTimeCommands(cmd);
-
-            var pixels = Map(buffer).ToArray();
-            if (bytesPerPixel != 4) return ToBytes(pixels, bytesPerPixel);
-            // A render target's color is the window's format, which may hold blue first.
-            if (vkImage.Description.Format == ImageFormat.B8G8R8A8_UNorm && _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb)
-                for (int i = 0; i < pixels.Length; i += 4)
-                    (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
-            return pixels;
+            return (Map(buffer).ToArray(), bytesPerPixel);
         }
         finally
         {

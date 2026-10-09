@@ -247,7 +247,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _rays ??= device.CreateRayScene();
             var copies = new List<RayInstance>(fields.Drawn.Count);
             foreach (var (instance, skinned) in fields.Drawn)
-                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission));
+                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic));
             _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh))));
         }
         else if (_rays is not null)

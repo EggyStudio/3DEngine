@@ -55,11 +55,12 @@ internal sealed class SceneFieldPlan
 
     /// <summary>
     /// A mesh drawn this frame: its id, the vertices it has, where it is drawn, whether it has an
-    /// inside, and its surface's color and the light it gives off, linear, which the field paints
-    /// its cells with.
+    /// inside, its surface's color and the light it gives off, linear, which the field paints its
+    /// cells with, and its material's roughness and metallic, which a path traced reference lights
+    /// it by.
     /// </summary>
     internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided,
-        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null);
+        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0);
 
     /// <summary>
     /// A part of a mesh stamped as a box of its own: the box around the part's vertices at rest in

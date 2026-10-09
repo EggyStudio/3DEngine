@@ -229,6 +229,12 @@ internal sealed class BloomRenderer : IDisposable
     }
 
     /// <summary>
+    /// The window's scene decoded to linear light by the last frame that read its light, or null
+    /// where none has, which a measure of the light that bounces reads back.
+    /// </summary>
+    internal RenderTarget? Decoded => _sized?.Linear;
+
+    /// <summary>
     /// Whether the window shows a scene this frame, a mesh, a particle or a shape drawn with depth
     /// inside <c>BeginMode3D</c>, which is drawn into the HDR target and tonemapped into the window.
     /// A frame of 2D alone is drawn straight into the window, as it looks the same either way.

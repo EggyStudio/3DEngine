@@ -40,7 +40,9 @@ internal sealed unsafe class AddressedBuffer : IDisposable
 /// <param name="World">Its mesh's space to the world.</param>
 /// <param name="Color">Its color, linear.</param>
 /// <param name="Emission">The light it gives off, linear.</param>
-internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission);
+/// <param name="Roughness">Its material's roughness, which a path traced reference lights its face by.</param>
+/// <param name="Metallic">Its material's metallic.</param>
+internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0);
 
 /// <summary>
 /// The window's meshes as the device's ray tracing sees them: a bottom-level acceleration structure
@@ -72,6 +74,9 @@ internal sealed class GpuRayScene : IDisposable
     /// <summary>How many copies the frame's top-level structure holds.</summary>
     public int Count { get; internal set; }
 
+    /// <summary>The frame's copies in the order the top-level structure holds them, a copy's index there its place here.</summary>
+    public IReadOnlyList<RayInstance> Copies { get; internal set; } = [];
+
     /// <summary>The bytes the scene holds on the device: the meshes' structures and corners, the top-level structure and its scratch, and the ring of copies.</summary>
     public long Bytes =>
         Meshes.Values.Sum(mesh => (long)mesh.Storage.Size) + (long)(Corners?.Size ?? 0) + (long)(TopStorage?.Size ?? 0) + (long)(TopScratch?.Size ?? 0)
@@ -94,12 +99,15 @@ internal sealed unsafe partial class GraphicsDevice
         public ulong Structure;
     }
 
-    // A copy as rayScene's RaySurface holds it.
+    // A copy as rayScene's RaySurface holds it, its roughness and metallic as gi_reference.slang
+    // reads them.
     [StructLayout(LayoutKind.Sequential)]
     private struct SurfaceRecord
     {
         public Vector4 Color, Emission;
-        public uint FirstCorner, Unused0, Unused1, Unused2;
+        public uint FirstCorner;
+        public float Roughness, Metallic;
+        public uint Unused;
     }
 
     private const uint CullDisableAndOpaque = 0x1 | 0x4;
@@ -283,6 +291,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         var written = new Span<InstanceRecord>(records.Mapped, count);
         var shaded = new Span<SurfaceRecord>(surfaces.Mapped, count);
+        var copies = new List<RayInstance>(count);
         var i = 0;
         foreach (var instance in instances)
         {
@@ -304,10 +313,14 @@ internal sealed unsafe partial class GraphicsDevice
                 Color = new Vector4(instance.Color, 1),
                 Emission = new Vector4(instance.Emission, 0),
                 FirstCorner = (uint)mesh.FirstCorner,
+                Roughness = instance.Roughness,
+                Metallic = instance.Metallic,
             };
+            copies.Add(instance);
             i++;
         }
         scene.Count = count;
+        scene.Copies = copies;
 
         // A structure too small for the copies is made again, the old one let go once no frame
         // reads it.

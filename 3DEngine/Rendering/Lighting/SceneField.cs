@@ -176,7 +176,7 @@ internal sealed class SceneFieldRenderer : IDisposable
             var skinned = store.IsSkinned(draw.Mesh);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
                 Textured(new Vector3(one.Color.X, one.Color.Y, one.Color.Z), draw.Texture), draw.Emission,
-                skinned ? Limbs(store, draw.Mesh, vertices) : null), skinned));
+                skinned ? Limbs(store, draw.Mesh, vertices) : null, draw.Roughness, draw.Metallic), skinned));
         }
         foreach (var group in draws.Groups)
         {
@@ -195,7 +195,7 @@ internal sealed class SceneFieldRenderer : IDisposable
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
                     Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
-                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs), skinned));
+                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, instance.Factors.Y, instance.Factors.X), skinned));
             }
         }
     }
