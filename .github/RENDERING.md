@@ -864,6 +864,27 @@ of `./e3d command profile` with the frame rate unlimited, and 1.15 where they ta
 bouncing at `Low`, whose screen probes stand on the same depth. A probe's faces are drawn without
 it.
 
+A material's `SubsurfaceRadius` scatters its diffuse light under its surface over the window's
+frame, as Jimenez's separable screen-space scattering does (`SubsurfaceRenderer`). The material's
+profile, the share of the radius each color travels and the radius, keys its batches, so a batch
+holds one, and once the scene is decoded the window's batches that scatter, opaque or masked and
+drawn with the model pass's own shader, are drawn again by `subsurface.slang`
+(`ModelRenderer.DrawSubsurface`) into two half-float images of the window's size at one sample,
+their diffuse light, which `litLight` in `modelpass.slang` works out apart from the specular, and
+their profile, which a vertex buffer of one element a batch gives the call, stepped per instance
+with a stride of 0. A fragment is kept only where the scene's depth, its first sample's, lies
+within two pixels' change of its own, so a marked surface hidden by another leaves its pixels
+unmarked. `subsurface_blur.slang` then spreads that light across into an image of its own and down
+onto the decoded frame, seventeen taps each way out to the radius, each color by a Gaussian a third
+of its share of the radius wide, the radius turned into pixels at the pixel's distance from the eye,
+a tap left out where it is unmarked or lies farther from the eye than the radius from the pixel,
+and the pass down adds the spread light less the pixel's own, so an unmarked pixel is never
+touched. The window's particles are drawn over the frame after, in a pass that keeps its color and
+depth. In `games/Manor` at 1280 by 720, every one of its 139 materials scattering over 5 cm takes
+`hdr_scene` 0.95 to 1.02 ms of the GPU where it takes 0.42 to 0.46, and one of them 0.65 to 0.70,
+the medians of seven readings of `./e3d command profile` with the frame rate unlimited, the
+materials marked through `./e3d eval`.
+
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it
 reads the same in the window and in a render texture, with every effect on or off, but for light

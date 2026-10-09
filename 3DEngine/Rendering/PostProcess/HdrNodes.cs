@@ -22,6 +22,7 @@ internal sealed class HdrSceneNode : INode
         if (!BloomRenderer.ShowsScene(renderWorld) || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain)
         {
             bloom.Release();
+            renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();
             return;
         }
 
@@ -34,6 +35,7 @@ internal sealed class HdrSceneNode : INode
         // The scene's light, kept for the reflections of the frame after where light bounces.
         if (BloomRenderer.ReadsLight(renderWorld) && bloom.Decode(renderContext, renderWorld) is { } light)
             renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
+        else renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();
     }
 
     // The batch after the window's last one drawn with depth, or the first when it has none.

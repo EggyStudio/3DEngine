@@ -162,7 +162,8 @@ error on the day the rule is taken.
 **N 4.1 Prose follows STYLE.md, in comments, messages, documentation and Markdown.** Many
 sessions write these files, and they read as one. A test counts the dashes STYLE.md forbids, which
 is the part a machine can count, and the rest is by review with STYLE.md's own searches. A file
-that names those dashes, or carries the followed engine's own words, is left out.
+that names those dashes, or carries the followed engine's own words or another's code kept whole in
+the tree, a vendored crate the annex names, is left out.
 
 **N 4.2 A document is in the place of its reader.** The README is for somebody deciding and has at
 most 320 lines of prose, the rows of its gallery of pictures not counted, since a picture a row is
@@ -363,7 +364,9 @@ Its namespaces are `Bevy`, for what a game calls, `Bevy.Reflected`, for the wrap
 writes over Bevy's own components, `Bevy.Interop`, for the bridge's entry points and what crosses
 it, and `Bevy.Physics`, for the physics, which is this library's own and not Bevy's. Its list of
 packages is to be written, in BUILDING.md, with the library's packages and the bridge's crates and
-what each is used for.
+what each is used for. Another's code kept whole in the tree, which N 4.1 and the layout rules leave
+out, the layout rules reading the bridge's own sources: `native/bevy_weather`, bevy_weather 0.2.0
+under its MIT or Apache-2.0 license, a member of the bridge's workspace ported with the bridge.
 
 **B 1 The managed half and the bridge carry the same ABI number, and a bridge with another is
 refused at load with a message that says so.** A structure read with the wrong layout is memory

@@ -320,19 +320,26 @@ public float3 unlit(float3 albedo)
     return lighting.output.y > 0.0 ? linearToSrgbPastWhite(albedo) : linearToSrgb(albedo);
 }
 
-// A linear color lit at this point, given sRGB-encoded for the frame. With light entities it is
-// each light reflected by the material's metallic-roughness model, the shadowed light cut by its
-// shadow map and the light from all around darkened by its occlusion map, adding the light the
-// material gives off, through the tonemap and the encoding. With no light and no environment it
-// is the color unlit, as raylib draws a model before a program makes a light, with the light the
-// material gives off added.
-public float3 lit(float3 albedo, ModelVertexOutput input)
+// The light a surface sends toward the eye at a point, linear, in two shares: what it scatters
+// diffusely, which subsurface scattering spreads under a surface, and what it reflects, which
+// stays where it is. Neither holds the light the material gives off.
+public struct LitLight
 {
+    public float3 diffuse;
+    public float3 specular;
+}
+
+// A linear color lit at this point by each light reflected by the material's metallic-roughness
+// model, the shadowed light cut by its shadow map and the light from all around darkened by its
+// occlusion map, with the light that bounced where light bounces, in its two shares.
+public LitLight litLight(float3 albedo, ModelVertexOutput input)
+{
+    LitLight light;
+    light.diffuse = float3(0.0);
+    light.specular = float3(0.0);
     float3 n = surfaceNormal(input);
     int probe = probeAt(input.world);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;
-    if (lighting.count == 0 && !environment && lighting.indirect.x <= 0.0)
-        return unlit(albedo + emitted(input));
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
     float metallic = saturate(materialMetallic(input) * packed.b);
@@ -346,7 +353,6 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
 
     float3 v = normalize(input.toEye);
     float nv = max(dot(n, v), 1e-4);
-    float3 color = float3(0.0);
 
     // The light that bounced, where light bounces and a cascade of probes holds the point, which
     // stands in for the diffuse share of the light from all around, the environment's, a probe's
@@ -361,7 +367,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     }
     bool bounces = bouncedHere.x >= 0.0;
     if (bounces)
-        color += occlusion * diffuseColor * bouncedHere;
+        light.diffuse += occlusion * diffuseColor * bouncedHere;
 
     // A glossy surface's reflection traced through the scene where light bounces, which takes the
     // place of the probe's and the environment's as far as it met a surface and fades back to
@@ -369,7 +375,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     float4 traced = tracedReflection(input.world, n, reflect(-v, n), roughness, input.world + input.toEye);
     float gloss = traced.a * (1.0 - smoothstep(lighting.reflection.y * 0.5, lighting.reflection.y, roughness));
     float3 specularShare = ambientReflected(f0, roughness, nv);
-    color += occlusion * traced.rgb * gloss * specularShare;
+    light.specular += occlusion * traced.rgb * gloss * specularShare;
 
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
@@ -380,37 +386,62 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
         float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
         float3 around = bounces ? float3(0.0) : probeIrradiance(probe, n);
-        color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * specularShare * (1.0 - gloss));
+        float strength = lighting.probes[probe].centerAndIntensity.w * occlusion;
+        light.diffuse += strength * diffuseColor * around;
+        light.specular += strength * reflected * specularShare * (1.0 - gloss);
     }
     else if (environment)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
-        color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * specularShare * (1.0 - gloss));
+        float strength = lighting.environment.x * occlusion;
+        light.diffuse += strength * diffuseColor * around;
+        light.specular += strength * reflected * specularShare * (1.0 - gloss);
     }
 
     for (int i = 0; i < min(lighting.count, 16); i++)
     {
-        Light light = lighting.lights[i];
-        float3 arrived = arriving(light, input.world, n);
-        if (int(light.positionAndKind.w) == Ambient)
+        Light lamp = lighting.lights[i];
+        float3 arrived = arriving(lamp, input.world, n);
+        if (int(lamp.positionAndKind.w) == Ambient)
         {
-            color += arrived * occlusion * ((bounces ? float3(0.0) : diffuseColor) + specularShare * (1.0 - gloss));
+            light.diffuse += arrived * occlusion * (bounces ? float3(0.0) : diffuseColor);
+            light.specular += arrived * occlusion * specularShare * (1.0 - gloss);
             continue;
         }
 
         if (i == lighting.shadowLight)
             arrived *= lightReaching(input.world, normalize(input.normal)) * sunContact(input);
-        else if (light.cone.z > 0.0 && int(light.positionAndKind.w) == Spot)
-            arrived *= spotLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz, int(light.cone.z) - 1);
-        else if (light.cone.z > 0.0)
-            arrived *= pointLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz, int(light.cone.z) - 1);
-        float3 l = -fromLight(light, input.world);
+        else if (lamp.cone.z > 0.0 && int(lamp.positionAndKind.w) == Spot)
+            arrived *= spotLightReaching(input.world, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
+        else if (lamp.cone.z > 0.0)
+            arrived *= pointLightReaching(input.world, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
+        float3 l = -fromLight(lamp, input.world);
         float3 fresnel;
         float3 specular = specularReflected(n, v, l, f0, alpha, fresnel);
         // What the surface reflects at its face is not there to scatter diffusely.
-        color += arrived * (diffuseColor * (1.0 - fresnel) + specular);
+        light.diffuse += arrived * diffuseColor * (1.0 - fresnel);
+        light.specular += arrived * specular;
     }
-    return toDisplay(color + emitted(input));
+    return light;
+}
+
+// Whether a point is drawn unlit, as raylib draws a model before a program makes a light: with no
+// light, no environment, no probe and no light that bounces.
+public bool drawnUnlit(ModelVertexOutput input)
+{
+    return lighting.count == 0 && lighting.environment.z <= 0.0 && lighting.indirect.x <= 0.0 && probeAt(input.world) < 0;
+}
+
+// A linear color lit at this point, given sRGB-encoded for the frame, its two shares of light
+// with the light the material gives off, through the tonemap and the encoding. With no light and
+// no environment it is the color unlit, as raylib draws a model before a program makes a light,
+// with the light the material gives off added.
+public float3 lit(float3 albedo, ModelVertexOutput input)
+{
+    if (drawnUnlit(input))
+        return unlit(albedo + emitted(input));
+    LitLight light = litLight(albedo, input);
+    return toDisplay(light.diffuse + light.specular + emitted(input));
 }

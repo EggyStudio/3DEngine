@@ -10,7 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6cf632e9`. Three commits. Verdict 41's reading (`3d8cf673`) found a fault beside it:
+Reviewed up to `a9380d7b`. Verdict 41's second thing, as asked: `build/test.py` reads each minidump
+a lost test host leaves with dotnet-dump, named by `E3D_DOTNET_DUMP` or found on the path, asking
+`threads`, `clrthreads`, `pe`, `clrstack -f` and `clrstack -all -f`, writes the whole account beside
+the dump as `<dump>.txt`, and puts on the page and in the lost process's annotation the thread the
+dump was written for, whether the runtime runs it, its managed exception and its first eight frames
+with their modules, or, for a thread of no managed code, as a driver's, what up to four managed
+threads were in, three frames each; the macOS job installs dotnet-dump 10.0.750501 beside
+dotnet-gcdump, and the script's tests get a stand-in that answers as dotnet-dump does for a fault on
+a driver's thread while the main thread closes the device, the page's lines held exactly. Right, and
+the five separate loads of one dump are the plain way to ask five questions of a tool that answers
+one command a run. The device objects count the instance and the device themselves, and the whole
+local run begins the leak test with none alive, so on Linux the earlier tests leave no device
+behind, which the macOS page's own line will say for that runner. On Windows, the tests do not
+serve, so the command line's socket is not opened per app, and the reply names SDL's audio
+subsystem, started and quit by count with no `SDL_Quit`, as the first to read when the handle series
+comes with flat threads; agreed, the ImGui context made and destroyed per app the second. The suite:
+1,578 passed. Item 1's two verdicts wait on a push, 6cf632e9 and a9380d7b being unpushed, and the
+coder has started item 2, subsurface scattering, with its first batch. At 21:55 the owner put the
+bounce's quality before subsurface scattering goes on (Decision 22), item 2, and the list is
+renumbered to seven.
+
+Before it, three commits came to be read. Verdict 41's reading (`3d8cf673`) found a fault beside it:
 the particle pass looked its texture's material up in a cache the model pass clears once a frame, so
 a frame drawing particles and no model kept binding the set naming a freed view once the texture was
 unloaded, a read of a destroyed image; the pass begins the frame's sets itself, and a new test draws
@@ -65,28 +86,6 @@ Windows and on macOS again, which rewrote Verdicts 40 and 41: the Windows hang i
 hang limit met by a hundred apps at four seconds each, and the macOS crash moves between tests. At
 21:05 the owner named subsurface scattering the next large item (Decision 18), item 3.
 
-Before it, three commits came to be read. ImGui's frame begins in `First` (`096797bc`), the plugin
-ordered late and after the command line's, so the frame's time comes first, then the served
-commands, then ImGui's new frame, then a program's own systems, with a test of a window made in
-`First` drawn in the frame `Update` draws in; right, and the order is the plugin's `Order` and not
-its place in the list, the sturdier of the two. Item 2's sweep measured and took nothing
-(`27c60b1b`): `models.blocks` counts the instances copied into the ring and those in blocks some
-pass drew, `models_stress` holds a count and turns a few, and neither change pays, no block undrawn
-at 410,266 or 3,000 with the camera over its grid nor in Manor, Summit or Pusher, and a chunk
-gathered for its moved entities alone within the readings' noise, 1.850 ms against 1.852 at 410,266,
-so both stay described with their numbers; they were measured where the camera sees every block,
-which is where a culled copy can gain nothing, so the entry says so and the question is asked again
-when a game has a level larger than its view. A run that shows no window neither reads nor writes
-`imgui.ini` (`12b1f0c3`), so a capture is the same whatever was dragged before, with the docking
-drag's numbers given again and a test finding no file; right. The disputed second limit of item 3 is
-decided the coder's first way, particles staying where a texture is drawn in 3D, since a texture
-drawn only in 2D is an interface, a minimap or a canvas and would show the window's smoke a second
-time, and the guide says so (item 2). The suite: 1,576 passed. The runs: Verdict 39 settles, the
-captures passing in a job of their own at `8ac5912a` in 52 minutes of the runner's; `8ac5912a` is
-red on Windows and `096797bc` on macOS, Verdicts 40 and 41, and `12b1f0c3`'s run is under way, Linux
-green. TODO.md's limits are spent, as the last pass said, and no large item is queued, so the next
-is the owner's to name and has been asked for.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -95,8 +94,8 @@ and 9 by review.
 
 The owner asked on 2026-10-04 that the work here does not stop, there being much left to do. This
 list is long on purpose, and a batch that ends is followed by the next item with no wait for a
-reply. In this order, which the owner set on 2026-10-09: the runs first, then the large item, then
-what follows it, and item 6 for a wait.
+reply. In this order, which the owner set on 2026-10-09: the runs first, then the bounce's quality,
+then subsurface scattering and what follows it, and item 7 for a wait.
 
 1. **What the next page says.** Verdict 39 is settled: the macOS captures ran in a job of their own
    at `8ac5912a` and passed, 52 minutes of the runner's for the coder's 25, the test job beside them
@@ -109,8 +108,63 @@ what follows it, and item 6 for a wait.
    job is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
    reviewing session, and a failure it names comes first here.
 
-2. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
-   batches, each measured.** A material gains what skin, wax, marble and a leaf have, a subsurface
+2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
+   the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
+   blotches on floors and walls, light crossing edges and corners, a bounce too soft and wide with
+   no detail, and one too dim or flat at a distance; the Cornell capture shows each, the floor's
+   bands at a grazing angle, the bright band along the floor at the red wall's foot, the broad halo
+   under the glowing panel, and the green wall's tint missing from the small cube's side. What each
+   is must be measured and seen before it is changed, so the instruments come first, each a commit
+   of its own.
+
+   **A1, the reference.** A Slang path tracer over the ray scene at High, `gi_reference.slang`,
+   shading a hit as the model pass shades one, the sun with its shadow, the point and spot lights,
+   the emissive and the environment where a path escapes, bouncing until Russian roulette ends it
+   and accumulating hundreds of samples a pixel into an HDR image offline, run by `./e3d command
+   gi.reference <png> <samples>` on the RTX 4070, since CI has no ray queries; and `gi.compare
+   <png>` printing the mean error per channel in linear light over named regions of the view, the
+   floor, each wall, the ceiling and each box's sides for the Cornell box, and writing a difference
+   image. The reference is the number every fix is measured by.
+
+   **A2, the level.** An example `shaders_bounce_rooms` with the hard cases in one scene and a fixed
+   camera for each: the Cornell box, a thin-walled room with a lamp outside it, a corridor lit from
+   one end, a sunlit room with a window, colored walls at one, three and six units from a white
+   block, a small bright strip, a floor seen at a grazing angle, and a lamp carried and a wall moved
+   by a key, each view captured and its reference made. Wick and Manor stay as the games that show
+   it.
+
+   **A3, the debug window and views.** `DrawBounceWindow()` in the flat API, as `DrawProfileWindow`
+   is, and `gi.show <view>` for `./e3d`: the screen probe tiles drawn over the picture with each
+   probe's light; a cascade's world probes as gizmo spheres through the immediate pass, colored by
+   their six faces; the cascade textures and the screen cascade's light, filtered light and history
+   shown as images; the difference to the reference as a heat map; toggles for the history, the
+   filter, the screen probes, one cascade alone and the merge; and `gi.state`'s numbers. With them
+   the four artifacts are seen for what they are before anything is changed.
+
+   **B, the measurement, one commit.** Every tier's error per region against the reference for the
+   Cornell box and the level's views, the four artifacts named with their numbers and pictures, and
+   the ms by tier, written into RENDERING.md §4 as the state before the fixes.
+
+   **C, the fixes, chosen by the measured gain, each a commit with its numbers.** Candidates, taken
+   or left by what B says: the gather's weights at edges, a probe across a corner or behind a plane
+   weighed to nothing and a probe placed off an edge; the merge's bilinear fix, tracing from the
+   probe toward each parent's interval rather than one line a parent, with the intervals overlapped
+   and blended at a cascade's boundary against rings; probe visibility from the traced distances, as
+   DDGI weighs them, in the world probes' blend against light through walls; more directions and
+   rays where the error says, the first cascade at 64 directions and the screen probes at 32 rays at
+   High, and tiles of 4 pixels at a tier above if it pays; the field's first cascade at 128 cells at
+   High for the near interval; and the filter and history tuned by the spread, the stability test
+   already there holding the crawl. What does not pay a measured share stays described with its
+   number.
+
+   **D, the end.** Tiers re-measured and the guide's table rewritten, RENDERING.md §4 and TODO.md's
+   entry, and a test holding the Cornell box and the level's views at each tier to their references
+   within a tolerance, the references checked in as small pictures made on the RTX 4070 and compared
+   as the 29 scenes are, a share of pixels allowed to differ between devices, skipped with its
+   reason where there are no ray queries.
+
+3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
+   batches, each measured, what of its first batch stands alone committed before item 2 begins.** A material gains what skin, wax, marble and a leaf have, a subsurface
    color and a radius in world units with a thickness scale for its thin parts, set in the flat API
    as the material's other fields are and read from a glTF file's `KHR_materials_volume` thickness
    where it has one. First, the diffusion: light that enters leaves nearby, so the lit light of the
@@ -129,7 +183,7 @@ what follows it, and item 6 for a wait.
    entry. Each batch a commit of its own with its numbers, and what does not pay a measured share
    stays described.
 
-3. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
+4. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
    TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
    out of the world, so it is given a capsule or a box and a mesh or hull collider on it is refused
    with a warning. The copy's meshes become the entity's meshes in the world, posed from the same
@@ -137,17 +191,17 @@ what follows it, and item 6 for a wait.
    take them as they take any mesh, with a test of an animated entity whose hull follows its pose,
    the guide's section on animated models and the entry updated with what it then says.
 
-4. **The first shares recorded from the workflow's own device.** The examples job's first green
+5. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
 
-5. **Three packages bumped, after 5.2 is packed (Decision 20).** Vortice.Vulkan 3.2.1 to 3.3.0,
+6. **Three packages bumped, after 5.2 is packed (Decision 20).** Vortice.Vulkan 3.2.1 to 3.3.0,
    AssimpNetter 6.0.4 to 6.0.5 and StbImageSharp 2.30.15 to 2.30.16, in one commit with the suite
    run and the notices written again, on the owner's word typed into this session once the package
    is out, as AGENTS.md has it for a version; SDL3-CS stays on its preview and NVorbis on 0.10.5.
 
-6. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
+7. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
    being the point of each.
 
@@ -342,23 +396,36 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
     2026-10-09 over another game and over leaving the list open, TODO.md's "Models are partial"
     being the one gap a game is likely to meet.
 
+22. **The bounce's quality comes before subsurface scattering goes on.** The owner chose it on
+    2026-10-09, judging the light that bounces on the Cornell box and on Wick as not yet the best
+    and naming banding, light across edges, a bounce too soft and wide, and one too dim at a
+    distance; a path-traced reference the engine draws itself is the measure, over Bevy's Solari in
+    BevyCSharp and over the eye alone, a level of the hard cases is made since no project checks the
+    bounce, and a debug window with gizmos and texture views shows it; subsurface scattering's first
+    batch is committed as far as it stands alone and goes on after.
+
 ## Replies
 
-Verdict 41, as rewritten. `build/test.py` reads each minidump a lost test host leaves, where
-`E3D_DOTNET_DUMP` names dotnet-dump or it is on the path, with `threads`, `clrthreads`, `pe`,
-`clrstack -f` and `clrstack -all -f`, all of it written beside the dump as `<dump>.txt`. The page
-and the lost process's annotation carry the thread the dump was written for, whether the runtime
-runs it, its managed exception, and its first eight frames with their modules, or, where it holds no
-managed frames, as a driver's thread, the top three frames of up to four managed threads, what each
-was in. The macOS job installs dotnet-dump 10.0.750501 beside dotnet-gcdump. Read against a crash
-made here for it, a managed fault reads as `System.AccessViolationException` with its frames and
-their lines, and the script's tests give a stand-in for dotnet-dump the case of a fault on a
-driver's thread while the main thread closes the device. What the two tests share is an offscreen
-app made and closed. The device objects are now counted with the instance and the device
-themselves, and in the whole run here the leak test begins with none of either alive, so the
-earlier tests leave no device behind on Linux, which the macOS page's leak test line will say there;
-on lavapipe the threads hold at 31 to 36 over its apps. Beside its device, each app starts and quits
-SDL's audio subsystem by count, with no `SDL_Quit`, and makes and destroys an ImGui context; the
-command line's socket is not opened, since the tests do not serve, so on Windows the audio
-subsystem is the first to read when the handle series comes with flat threads. The suite: 1,578
-passed.
+Subsurface scattering's first batch, the diffusion, committed as far as it stands alone, as
+Decision 22 asks. A `ModelMaterial` has `SubsurfaceRadius`, in world units, 0 for none, and
+`SubsurfaceColor`, each channel's share of it, and a mesh entity's `Material` the same; a draw's
+profile keys its batch and its mesh entities' group, so a batch holds one. Once the window's scene
+is decoded, its batches that scatter, opaque or masked and of the model pass's own shader, are drawn
+again by `subsurface.slang` into two half-float images at one sample: their diffuse light, which
+`litLight` in `modelpass.slang` now works out apart from the specular, `lit` adding the two as
+before, and their profile, given by a vertex buffer of one element a batch, stepped per instance
+with a stride of 0. A fragment is kept only where the scene's depth shows its surface.
+`subsurface_blur.slang` spreads that light across, then down onto the decoded frame, seventeen
+taps each way, each color by a Gaussian a third of its share of the radius wide, leaving out a tap
+that is unmarked or lies farther from the eye than the radius, and adds the spread light less the
+pixel's own, so an unmarked pixel is never touched; the particles are drawn after it in a pass that
+keeps the frame and its depth. A new test draws two white spheres lit from the side, the left one's
+material scattering red farthest over a radius of its own. A tenth of the radius past its
+terminator it reads (85, 65, 64) where it reads 64 in each channel without, its lit side holds, and
+the unmarked sphere's pixels are the same to the bit. The references are unchanged. In Manor at
+1280 by 720, every one of its 139 materials scattering over 5 cm takes `hdr_scene` 0.95 to 1.02 ms
+of the GPU where it takes 0.42 to 0.46, and one of them 0.65 to 0.70. The guide has a section, and
+the upgrading page, the comparison page, the cheatsheet, RENDERING.md §5 and a TODO.md entry say
+what is missing: the light through a thin part, the tiers, a glTF file's thickness and render
+textures, which the second and third batches take after item 2. The suite: 1,579 passed; on
+lavapipe the rendering, compute and particle tests, 311 passed and 2 skipped. Item 2's A1 is next.

@@ -198,6 +198,15 @@ physics, text and fonts, audio, audio streams and waves, and files
   view's size and from the scene's distance field where it is built, so a mesh that casts none
   closes nothing off, and probe captures are drawn without it.
 
+- **Light scatters under a surface in the window, and none comes through a thin part.** A
+  material's `SubsurfaceRadius` and `SubsurfaceColor` spread the diffuse light of the window's
+  opaque and masked surfaces drawn with the model pass's own shader across and then down the
+  decoded frame, seventeen taps each way, a pixel of another surface never touched and the spread
+  stopped at a depth edge (RENDERING.md §5). What is missing is the light that comes through a thin
+  part lit from behind, an ear or a leaf, which needs the part's thickness toward the light; tiers
+  of the taps and a half-size pass for a slow GPU; a glTF file's thickness, read where it has
+  `KHR_materials_volume`; and the spread in render textures and probe captures.
+
 ### The device
 
 Passes are drawn by dynamic rendering and barriers are synchronization2's, on Vulkan 1.3. Buffers and

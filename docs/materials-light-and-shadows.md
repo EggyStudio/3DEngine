@@ -86,6 +86,31 @@ A material's `AlphaMode` says what the alpha of its color and texture does:
 `DoubleSided` is false unless set, as raylib draws only a face's front, so a leaf or a flag that
 shows from behind sets it, and a glTF file says for each of its materials.
 
+## Light under the surface
+
+Skin, wax, marble, milk and a leaf let light in, and it leaves them a little way from where it
+entered, so the line between their lit and shadowed sides is soft and takes the color that travels
+farthest under them, red in skin. `SubsurfaceRadius` is how far that light travels, in world units,
+0 for none by default, and `SubsurfaceColor` how far each of red, green and blue goes, as a share
+of the radius, white for all alike:
+
+<!-- compiled with:
+Model head = default;
+-->
+```csharp
+head.Materials[0] = head.Materials[0] with { SubsurfaceRadius = 0.01f, SubsurfaceColor = new Color(255, 90, 60) };  // skin, a centimeter
+```
+
+The light such a surface scatters diffusely is spread over the window's frame, across and then
+down, as far as each color travels at the surface's distance from the eye, and the light it
+reflects stays sharp. A pixel of any other surface is left as it was, and the light does not cross
+from a near surface to one behind it. A render texture and a reflection probe's faces draw the
+surface without it, and so does a material with a shader of its own or one laid over by alpha. In
+`games/Manor` at 1280 by 720, every one of its 139 materials scattering over 5 cm takes the HDR
+frame's pass about 1.0 ms of the GPU where it takes 0.45, and one of them 0.65 to 0.70, as `./e3d
+command profile` gives `hdr_scene`. A mesh entity's `Material` has the same `SubsurfaceRadius` and
+`SubsurfaceColor`, the color's shares from 0 to 1.
+
 ## Effects over the frame
 
 Besides bloom, eight effects change how the scene is shown, each set by one call and each off until

@@ -124,6 +124,9 @@ internal sealed partial class ModelRenderer : IDisposable
         public ScissorRect? Scissor;
         // What the shadow pass draws it with: nothing, a solid shadow, or one its material cuts out.
         public ShadowKind Shadow;
+        // The shares of the radius each color travels under the surface and the radius, where its
+        // draws scatter light under it (ModelDraw.Subsurface), or zero, a batch holding one alone.
+        public Vector4 Subsurface;
         public uint First;
         public uint Count;
         // A group's blocks in the call's block list, or none for draws.
@@ -255,7 +258,7 @@ internal sealed partial class ModelRenderer : IDisposable
     // Past this many instances the segments are copied on several threads, since one thread
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
     // instances are and the blocks they are culled by, made once a frame by whichever of its
@@ -366,8 +369,11 @@ internal sealed partial class ModelRenderer : IDisposable
     /// <param name="model">The compiled <c>model.slang</c>.</param>
     /// <param name="shadow">The compiled <c>shadow.slang</c>.</param>
     /// <param name="streams">The compiled <c>model_streams.slang</c>, for a mesh with a color or a second texture coordinate at each vertex, or none where every mesh is drawn with <c>model.slang</c>.</param>
-    public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null)
+    /// <param name="subsurface">The compiled <c>subsurface.slang</c>, which draws the window's meshes that scatter light under their surface again for <see cref="SubsurfaceRenderer"/>, or none where no light scatters.</param>
+    public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null, ShaderProgram? subsurface = null)
     {
+        if (subsurface is not null)
+            (_subsurfaceVertexSpv, _subsurfaceFragmentSpv, _subsurfaceDepthBindings) = (subsurface.Vertex, subsurface.Fragment, subsurface.LayoutOf(2));
         _vertexSpv = model.Vertex;
         _streamsVertexSpv = streams?.Vertex ?? model.Vertex;
         _streamsFragmentSpv = streams?.Fragment ?? model.Fragment;
@@ -547,7 +553,7 @@ internal sealed partial class ModelRenderer : IDisposable
             }
             _drawBatch.Add(kind == Kind.Alone
                 ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor)
-                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor)));
+                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor, draw.Subsurface)));
         }
 
         for (int g = 0; g < groups.Count; g++)
@@ -556,7 +562,8 @@ internal sealed partial class ModelRenderer : IDisposable
             if (group.Count == 0) continue;
             var (kind, set) = classify(in group.Template);
             if (kind != Kind.Batched || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
-            var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor);
+            var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor,
+                group.Template.Subsurface);
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
@@ -611,21 +618,21 @@ internal sealed partial class ModelRenderer : IDisposable
     private const int Translucent = -2;
 
     private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
-        ScissorRect? scissor)
+        ScissorRect? scissor, Vector4 subsurface = default)
     {
         _batches.Add(new Batch
         {
             Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Shadow = shadow, ViewProjection = viewProjection,
-            Scissor = scissor,
+            Scissor = scissor, Subsurface = subsurface,
             Count = custom >= 0 ? 1u : 0u,
         });
         return _batches.Count - 1;
     }
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor) key)
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
-            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor);
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface);
         Grow(index);
         return index;
     }
@@ -759,6 +766,7 @@ internal sealed partial class ModelRenderer : IDisposable
             foreach (var face in _probeFaces) face.Dispose();
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         foreach (var (_, retired) in _retiredShaderSets) retired.Dispose();
+        DisposeSubsurface();
         _shadowMaskShader?.Dispose();
         _shadowVertexShader?.Dispose();
         _noLightsBuffer?.Dispose();

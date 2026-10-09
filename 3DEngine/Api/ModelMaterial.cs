@@ -70,6 +70,25 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     public float OcclusionStrength { get; set; } = 1;
 
     /// <summary>
+    /// How far, in world units, light that enters the surface travels under it before it leaves,
+    /// as it does in skin, wax, marble or a leaf, 0 for none, which is the default.
+    /// </summary>
+    /// <remarks>
+    /// Light scattered under the surface softens the line between lit and shadowed and takes the
+    /// colors that travel farthest past it, as red does in skin. It is worked out over the
+    /// window's frame for an opaque or masked surface drawn with the model pass's own shader, so a
+    /// render texture and a reflection probe's faces draw the surface without it.
+    /// </remarks>
+    public float SubsurfaceRadius { get; set; }
+
+    /// <summary>
+    /// How far each of red, green and blue travels under the surface, each a share of
+    /// <see cref="SubsurfaceRadius"/> from 0 to 255 of it, white for all alike, as (255, 90, 60)
+    /// for skin, whose red goes farthest.
+    /// </summary>
+    public Color SubsurfaceColor { get; set; } = Color.White;
+
+    /// <summary>
     /// A shader that draws the mesh in place of the model pass's own, which imports
     /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
     /// </summary>

@@ -110,7 +110,7 @@ internal sealed class MeshEntityDraws
     private readonly List<List<InstanceGroup>> _cameraGroups = [];
 
     private readonly record struct GroupKey(int Mesh, int Texture, int NormalMap, int MetallicRoughnessMap, int EmissiveMap,
-        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode);
+        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode, Vector4 Subsurface);
 
     // Entities are recorded in chunks of this many, a thread each, once there is more than one.
     private const int ChunkSize = 4096;
@@ -552,7 +552,9 @@ internal sealed class MeshEntityDraws
             AlphaMode: material.AlphaMode,
             AlphaCutoff: material.AlphaCutoff,
             TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
-            DoubleSided: material.DoubleSided);
+            DoubleSided: material.DoubleSided,
+            SubsurfaceShares: material.SubsurfaceColor,
+            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius));
         return new Look
         {
             Material = material,
@@ -564,11 +566,12 @@ internal sealed class MeshEntityDraws
         };
     }
 
-    // The group of an opaque draw's mesh, maps, sides and alpha mode, made the first time one is drawn.
+    // The group of an opaque draw's mesh, maps, sides, alpha mode and the light it scatters under
+    // its surface, made the first time one is drawn.
     private int GroupOf(in ModelDraw draw)
     {
         var key = new GroupKey(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
-            draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode);
+            draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface);
         if (_groupOf.TryGetValue(key, out var index)) return index;
         _groups.Add(draw);
         return _groupOf[key] = _groups.Count - 1;

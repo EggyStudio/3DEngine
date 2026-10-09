@@ -246,12 +246,13 @@ internal sealed class BloomRenderer : IDisposable
     /// Whether a pass besides the composite reads the scene's light this frame, bloom, an exposure
     /// that follows the scene, the depth of field or motion blur, or light bouncing, whose
     /// reflections read the scene of the frame before, or the window draws particles, which are
-    /// drawn over it, so the scene is decoded for them once.
+    /// drawn over it, or a mesh that scatters light under its surface, which is spread in it, so
+    /// the scene is decoded for them once.
     /// </summary>
     public static bool ReadsLight(RenderWorld renderWorld) =>
         renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
         || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { FocusBlur: > 0 } or { MotionBlur: > 0 }
-        || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
+        || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0 || ModelRenderer.ScattersInWindow(renderWorld);
 
     /// <summary>
     /// Whether the engine's curve bends the scene's light past its knee this frame, as it does
@@ -296,9 +297,10 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Decodes the scene this frame drew into an image of linear light with the scene's depth,
-    /// made the first time, and draws the window's particles over it, so they add and lay their
-    /// light over the scene's in linear light. The bloom chain, the exposure, the lens passes and
-    /// the composite then read it in the scene's place.
+    /// made the first time, spreads the light of the meshes that scatter it under their surface
+    /// (<see cref="SubsurfaceRenderer"/>), and draws the window's particles over it, so they add
+    /// and lay their light over the scene's in linear light. The bloom chain, the exposure, the
+    /// lens passes and the composite then read it in the scene's place.
     /// </summary>
     /// <returns>The decoded image, or null before the scene is drawn.</returns>
     public IImageView? Decode(RenderContext renderContext, RenderWorld renderWorld)
@@ -312,14 +314,28 @@ internal sealed class BloomRenderer : IDisposable
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.Always));
-        using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+        var subsurface = renderWorld.TryGet<SubsurfaceRenderer>();
+        var scatters = subsurface is not null && ModelRenderer.ScattersInWindow(renderWorld);
+        var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             linear.RenderPass, linear.Framebuffer, linear.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
         pass.SetViewport(0, 0, linear.Extent.Width, linear.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, linear.Extent.Width, linear.Extent.Height);
         pass.SetPipeline(_decode);
         pass.SetBindGroup(_decode, sized.Decode!);
         pass.Draw(3);
+        // The light scattered under a surface is spread in passes of their own, the particles then
+        // drawn over the frame in one that keeps what it holds, its depth too.
+        if (scatters)
+        {
+            pass.Dispose();
+            subsurface!.Draw(renderContext, renderWorld, sized.Scene.DepthView!, linear);
+            pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(linear.RenderPass, linear.Framebuffer, linear.Extent, LoadOp.Load));
+            pass.SetViewport(0, 0, linear.Extent.Width, linear.Extent.Height, 0, 1);
+            pass.SetScissor(0, 0, linear.Extent.Width, linear.Extent.Height);
+        }
+        else subsurface?.Skip();
         renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, linear.RenderPass, renderContext, renderWorld);
+        pass.Dispose();
         (_shown, _shownLinear) = (linear.ColorView, true);
         return linear.ColorView;
     }

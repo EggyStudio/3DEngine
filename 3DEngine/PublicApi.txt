@@ -2098,6 +2098,7 @@ struct Engine.Material : IEquatable<Material>
   MaterialAlphaMode AlphaMode
   MaterialHandle Handle
   Vector3 EmissiveFactor
+  Vector3 SubsurfaceColor
   Vector4 Albedo
   bool DoubleSided
   bool Equals(Material other)
@@ -2106,6 +2107,7 @@ struct Engine.Material : IEquatable<Material>
   float NormalScale
   float OcclusionStrength
   float RoughnessFactor
+  float SubsurfaceRadius
   override bool Equals(object? obj)
   override int GetHashCode()
   static Material Default { get; }
@@ -2166,6 +2168,7 @@ sealed class Engine.ModelAnimation
 struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   Color Color { get; set; }
   Color Emissive { get; set; }
+  Color SubsurfaceColor { get; set; }
   MaterialAlphaMode AlphaMode { get; set; }
   ModelMaterial(Color Color, Texture2D Texture = default)
   Shader Shader { get; set; }
@@ -2183,6 +2186,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   float NormalScale { get; set; }
   float OcclusionStrength { get; set; }
   float Roughness { get; set; }
+  float SubsurfaceRadius { get; set; }
   override bool Equals(object obj)
   override int GetHashCode()
   override string ToString()

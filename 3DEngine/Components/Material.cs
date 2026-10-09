@@ -95,6 +95,18 @@ public struct Material : IEquatable<Material>
     public bool DoubleSided;
 
     /// <summary>
+    /// How far each of red, green and blue travels under the surface, as a share of
+    /// <see cref="SubsurfaceRadius"/> from 0 to 1, one for all alike as the constructors set.
+    /// </summary>
+    public Vector3 SubsurfaceColor;
+
+    /// <summary>
+    /// How far, in world units, light that enters the surface travels under it before it leaves,
+    /// as it does in skin, wax, marble or a leaf, 0 for none, which the constructors set.
+    /// </summary>
+    public float SubsurfaceRadius;
+
+    /// <summary>
     /// White and opaque. A default <see cref="Material"/> has an albedo of zero, which is
     /// transparent black and draws nothing.
     /// </summary>
@@ -132,6 +144,8 @@ public struct Material : IEquatable<Material>
         AlphaMode = MaterialAlphaMode.Blend;
         AlphaCutoff = 0.5f;
         DoubleSided = true;
+        SubsurfaceColor = Vector3.One;
+        SubsurfaceRadius = 0f;
     }
 
     /// <summary>Whether every field is the same, compared field by field rather than through reflection.</summary>
@@ -145,7 +159,8 @@ public struct Material : IEquatable<Material>
         && BaseColorTexture.Equals(other.BaseColorTexture) && MetallicRoughnessTexture.Equals(other.MetallicRoughnessTexture)
         && NormalTexture.Equals(other.NormalTexture) && EmissiveTexture.Equals(other.EmissiveTexture)
         && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
-        && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided;
+        && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided
+        && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius;
 
     /// <inheritdoc />
     public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);

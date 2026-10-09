@@ -196,6 +196,10 @@ guide that shows it.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
   meshes through, so a render texture shadows the lights it sees, as
   [Shadows](materials-light-and-shadows.md#shadows) shows.
+- **Light under the surface.** `ModelMaterial.SubsurfaceRadius` and `ModelMaterial.SubsurfaceColor`,
+  and a mesh entity's `Material.SubsurfaceRadius` and `Material.SubsurfaceColor`, spread the light a
+  surface scatters under it, as skin, wax and marble do, over the window's frame, as
+  [Light under the surface](materials-light-and-shadows.md#light-under-the-surface) shows.
 - **Bevy's tonemappers.** `SetTonemap` takes the eight Bevy offers, `Tonemap.None`,
   `Tonemap.Reinhard`, `Tonemap.ReinhardLuminance`, `Tonemap.AcesFitted`, `Tonemap.AgX`,
   `Tonemap.SomewhatBoring`, `Tonemap.TonyMcMapface` and `Tonemap.BlenderFilmic`, drawn as Bevy

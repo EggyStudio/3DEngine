@@ -679,7 +679,9 @@ mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `Meta
 as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
 `OcclusionMap` with its `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below
 its `AlphaCutoff`, or `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets,
-and `CastsShadows` (true by default), false for a glow that leaves no shadow. Models are drawn
+`CastsShadows` (true by default), false for a glow that leaves no shadow, and a `SubsurfaceRadius`
+in world units with its `SubsurfaceColor`, how far each color travels under skin, wax or marble
+before it leaves, which the window's frame spreads. Models are drawn
 unlit, as raylib draws them, until the ECS holds `Light` entities, and draw through the camera
 `BeginMode3D` set.
 

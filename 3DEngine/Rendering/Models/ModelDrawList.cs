@@ -32,18 +32,29 @@ namespace Engine;
 /// <param name="ColorBlend">Whether the draw is blended with what is behind it by its alpha, which rlgl's rlDisableColorBlend turns off, so it is written as it is.</param>
 /// <param name="DepthWrite">Whether the draw writes its depth, which rlgl's rlDisableDepthMask turns off, so what is drawn after it shows over it, as a sky drawn around the camera does.</param>
 /// <param name="Scissor">The pixels of the target the draw is kept to, as <c>BeginScissorMode</c> and an eye of a stereo frame keep it, or null for all of them.</param>
+/// <param name="SubsurfaceShares">How far each of red, green and blue travels under the surface, as a share of <paramref name="SubsurfaceRadius"/>.</param>
+/// <param name="SubsurfaceRadius">How far, in world units, light that enters the surface travels under it before it leaves, or 0 for none.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
     bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true,
-    bool DepthWrite = true, ScissorRect? Scissor = null)
+    bool DepthWrite = true, ScissorRect? Scissor = null, Vector3 SubsurfaceShares = default, float SubsurfaceRadius = 0)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:
     /// a blended material whose color or base color texture has alpha below one.
     /// </summary>
     public bool IsTranslucent => AlphaMode == MaterialAlphaMode.Blend && (Color.A < 255 || TextureTranslucent);
+
+    /// <summary>
+    /// The shares of the radius each color travels under the surface in xyz and the radius in w,
+    /// where light scatters under it: an opaque or masked surface of the model pass's own shader
+    /// with a radius above 0. Zero otherwise.
+    /// </summary>
+    public Vector4 Subsurface => SubsurfaceRadius > 0 && !IsTranslucent && Shader == 0
+        ? new Vector4(Vector3.Clamp(SubsurfaceShares, Vector3.Zero, Vector3.One), SubsurfaceRadius)
+        : Vector4.Zero;
 }
 
 /// <summary>

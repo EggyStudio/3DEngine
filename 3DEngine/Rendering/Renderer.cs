@@ -95,7 +95,9 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/env_gather.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
-        RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang")));
+        RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),
+            server.LoadSync<ShaderProgram>("shaders/subsurface.slang")));
+        RenderWorld.Set(new SubsurfaceRenderer(server.LoadSync<ShaderProgram>("shaders/subsurface_blur.slang")));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
         var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");
@@ -356,6 +358,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
+        RenderWorld.TryGet<SubsurfaceRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
         RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();

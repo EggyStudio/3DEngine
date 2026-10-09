@@ -232,9 +232,12 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         Pass(renderContext, sized.Occlusion, sized.BlurDown, push);
     }
 
-    // The share of the picture's height a unit spans a unit from the eye, from the middle of the
-    // picture and the middle of its top edge at the same depth, half a height apart.
-    private static float HeightPerUnit(Matrix4x4 inverse)
+    /// <summary>
+    /// The share of the picture's height a unit spans a unit from the eye, through
+    /// <paramref name="inverse"/>, the camera's inverse view-projection, from the middle of the
+    /// picture and the middle of its top edge at the same depth, half a height apart.
+    /// </summary>
+    internal static float HeightPerUnit(Matrix4x4 inverse)
     {
         Vector3 At(float x, float y)
         {
