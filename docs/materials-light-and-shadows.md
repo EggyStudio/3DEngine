@@ -426,8 +426,9 @@ field holds it as and none of the light it gives off, and the light near the cam
 the frame before's so it holds still as the camera moves, the frame before's held within the spread
 of this frame's light around each point, so where a light changed the bounce follows it at once. A
 block's side lit only by a red wall's bounce comes within a tenth of its new light in the frame a
-lamp is brought in, where it took seven frames, and with the camera sliding the bounce adds 0.40
-levels a frame to the picture's change where it added 0.27, as `GlobalIlluminationTests` reads them.
+lamp is brought in, where it took seven frames, and with the camera sliding the bounce adds 0.97
+levels a frame to the picture's change where it adds 2.91 without the frame before's light, as
+`GlobalIlluminationTests` reads them.
 In Wick's first doorway the hold costs nothing that can be read, the bounce taking 0.229 ms at `Low`
 and 0.359 at `High` with it and without, as `./e3d command profile` gives `global_illumination` with
 the frame rate unlimited. A render texture that draws models through a camera, as each half of a

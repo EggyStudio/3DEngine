@@ -584,12 +584,13 @@ octahedron of directions, a texel each, across an interval: the first cascade's 
 twice the spacing, each after's from its spacing to twice that, so a cascade picks up where the one
 below stops (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two cascades, `Medium`
 adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four, no more cascades than the
-field has. A ray that meets a surface brings back its painted color over pi times the light that
-reaches it, the sun's where a trace toward the sun through the field gets through, the point and
-spot lights', each that casts shadows only where a trace toward it gets through too
-(`hiddenLampLight`), and the light that bounced to it the frame before, blended from the probes
-around it that it sees, a trace through the field to each in front of it (`bouncedSeenAt`), with
-the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced from its probe, and one
+field has. A ray that meets a surface brings back its painted color times the sun's light where a
+trace toward the sun through the field gets through and the point and spot lights', each that casts
+shadows only where a trace toward it gets through too (`hiddenLampLight`), given as the model pass
+has a light, what a white surface facing it returns, and its color over pi times the light that
+bounced to it the frame before, which the probes hold as the light reaching a face, blended from
+the probes around it that it sees, a trace through the field to each in front of it
+(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced from its probe, and one
 that meets a surface before its interval begins is blocked, dark, so a probe a little above a floor
 does not bring back the light under it for the cascade below to take. A ray of the last cascade
 that meets nothing brings back the environment map, or the ambient lights' color, and one of any
@@ -627,9 +628,9 @@ probes around, each channel's standard deviation by the filter's own weights, so
 changed the history is pulled to it, and where it holds still the history lies inside and keeps its
 calm. A block's side lit only by a wall's bounce comes within a tenth of its new light in the frame
 a lamp is brought in, where it took seven frames without the hold. With the camera sliding a
-hundredth of a unit a frame through a Cornell box, the bounce adds 0.40 levels a frame to the
-picture's change, where it added 0.27 without the hold and 1.34 without the history, at `Low` and
-0.48 levels with no bounce (`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
+hundredth of a unit a frame through a Cornell box, the bounce adds 0.97 levels a frame to the
+picture's change, where it adds 2.91 without the history, at `Low` and 0.48 levels with no bounce
+(`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
 that can be read in Wick's first doorway. The model pass blends the
 four probes around a pixel the same way, falls back to the world's probes where none is like it, and
 puts the result in place of the diffuse light from all around, the environment map's, the ambient
@@ -749,11 +750,11 @@ light at a hit times pi:
 | A floor at a grazing angle | −72% | −11% | −81% | −40% |
 | A lamp carried, a wall moved | −75% | −22% | −88% | −61% |
 
-So the loss lies in the trace first. `shadeHit` and `shadeProbeHit` in `gi.slang` light a hit as
+So the loss lay in the trace first. `shadeHit` and `shadeProbeHit` in `gi.slang` lit a hit as
 `color / Pi * arrived`, where `directLight` gives the lamps' and the sun's light as the model pass
-has a light, the light a white surface facing it returns, so a lit surface sends on a pi-th of its
-light and only the light that bounced to it, which the probes hold as irradiance, is right over pi.
-The reflections' hits through the GPU's rays in `lights.slang` light the same way. With the lamps'
+has a light, the light a white surface facing it returns, so a lit surface sent on a pi-th of its
+light and only the light that bounced to it, which the probes hold as irradiance, was right over pi.
+The reflections' hits through the GPU's rays in `lights.slang` lit the same way. With the lamps'
 light times pi the probes' hits come within 2 to 22% of the reference, the thin room's apart, where
 they were 48 to 75% under, and each room's frame at High against every bounce gains from 4 to 31 points: −22% in the
 Cornell box, −27% with thin walls, −17% in the corridor, −57% through the window, −57% at the
@@ -808,6 +809,27 @@ at `High`, as `./e3d command profile` names it `global_illumination`, with the f
 times pi, here and in the reflections, with the thin room's leak it raises; the light that bounces
 again; the screen's filter along a slanted surface; the gather's shares of the sphere; the step
 where the screen's probes end; and the sun's light into the corridor and the window's room.
+
+**The fixes, each measured.** The first takes the lamps' and the sun's light at a hit times pi
+beside the bounced light, in `shadeHit`, `shadeProbeHit` and the reflections' hits, so a lit surface
+sends on the whole of its light. Every room's frame over every region against every bounce, by
+`build/bounce-rooms.sh`, before and after:
+
+| Room | `Low` | `Medium` | `High` | `High` against one bounce |
+|---|---|---|---|---|
+| The Cornell box | −30% to −16% | −30% to −15% | −33% to −22% | −17% to −4% |
+| Thin walls, a lamp outside | −54% to −12% | −54% to −13% | −58% to −27% | −15% to +51% |
+| A corridor lit from its end | −22% to −18% | −21% to −17% | −21% to −17% | −3% to +3% |
+| The sun through a window | −75% to −64% | −75% to −64% | −73% to −57% | −50% to −23% |
+| Red walls beside white blocks | −1% | −1% | −1% | −1% |
+| A small bright strip | −87% | −87% | −87% | −67% |
+| A floor at a grazing angle | −67% to −62% | −67% to −61% | −66% to −57% | −27% to −9% |
+| A lamp carried, a wall moved | −60% to −52% | −60% to −52% | −60% to −51% | −31% to −15% |
+
+The bounce costs what it did, 0.36, 0.44 and 0.53 ms by quality on the Cornell box's view. The thin
+room's frame passing the one-bounce reference by 51% is its walls' leak, now a share of the whole
+light, and a closed room with a lamp under its floor holds 14.6 levels where it held under 8, both
+the probes' visibility's to mend.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

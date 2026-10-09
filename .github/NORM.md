@@ -362,7 +362,7 @@ internal and compiles behaviors while a program runs. Its list of packages is th
 
 ## Annex B, BevyCSharp
 
-The followed engine is Bevy 0.19.1, whose window is 1280 by 720.
+The followed engine is Bevy 0.20.0, whose window is 1280 by 720.
 
 Its namespaces are `Bevy`, for what a game calls, `Bevy.Reflected`, for the wrappers the generator
 writes over Bevy's own components, `Bevy.Interop`, for the bridge's entry points and what crosses

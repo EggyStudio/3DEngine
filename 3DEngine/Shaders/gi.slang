@@ -431,14 +431,18 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo,
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, info, p, n, probes, spacing, cascades);
-    float3 arrived = directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + bounced * lights.counts.z;
+    float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi + bounced * lights.counts.z;
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
 
 // The light a surface the field holds at p sends back along a ray that met it: its color over pi
 // times the light that reaches it, the sun's and the lights', the lamps that cast shadows hidden
 // where the field stands between as the probes have them, and, at the share given, the light that
-// bounced to it the frame before, with the light it gives off. hiddenLampLight's loop after
+// bounced to it the frame before, with the light it gives off. The sun and the lights are given as
+// the model pass has them, the light a white surface facing one returns, which is the light
+// reaching it over pi, so they are taken times pi beside the bounced light, which the probes hold
+// as the light reaching a face; read as they are, a lit surface sent on a pi-th of its light,
+// which left the probes' hits 48 to 75% under a path-traced reference. hiddenLampLight's loop after
 // directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'
 // loop moved ahead of the sun's in directLight is not (build/mesa).
 public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
@@ -446,7 +450,7 @@ public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V gl
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
-    float3 arrived = directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)
+    float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
         + bouncedAt(cubes, info, p, n, probes, spacing, cascades) * lights.counts.z;
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }

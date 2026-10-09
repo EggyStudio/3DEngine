@@ -433,6 +433,9 @@ float4 rayReflection(float3 p, float3 way)
     float3 l = reflectLights.sunDirection.xyz;
     if (reflectLights.sunDirection.w > 0.5 && dot(n, l) > 0.0 && !rayBlocked(hit + n * 0.01, l))
         arrived += reflectLights.sunColor.rgb * dot(n, l);
+    // The lamps and the sun as the light reaching the face, beside the bounced light and the sky,
+    // as shadeHit takes them.
+    arrived *= Pi;
     if (fieldCascade(bouncedField, hit, 1.0) >= 0 && fieldCascade(bouncedField, hit, 1.0) < int(lighting.indirect.w))
         arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
     else

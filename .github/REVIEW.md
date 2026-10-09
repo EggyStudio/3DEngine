@@ -10,7 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0499c115`. Item 2's B, the measurement, in RENDERING.md §4 as the state before the
+Reviewed up to `46732863`. Decision 25 is carried out: `SdlAudioPlugin.Silent` holds a run that is
+hidden, offscreen or headless to SDL's dummy driver unless `Config.AudibleWithoutWindow` asks for
+the device, the backend opening the dummy driver first with the hint at override priority as the
+fallback has it, and where another backend of the process already started SDL's audio through a
+device's driver, which no hint can change, the device it would open is closed again and the backend
+disabled with the reason, so nothing reaches the speakers either way; `./e3d open --hidden` logs
+`dummy`; two tests hold which configs are silent and a headless app's sound of three tenths of a
+second ending within 0.25 to 1.5 s of the clock, that clock listed under N 3.3 with its reason; the
+audio guide and the upgrading page say it. Right, the closing of a device another backend opened
+being the part a lesser mend would have missed. The suite: 1,586 passed. C begins with the pi.
+
+Before it, item 2's B came to be read, the measurement, in RENDERING.md §4 as the state before the
 fixes with five pictures under `.github/assets/bounce`, every room's frame against references of
 one, two and every bounce by quality, `gi.reference` taking its bounces, `gi.probe <x> <y> <z>`
 reading the nearest first-cascade probe's own rays, merge and faces against the light the reference
@@ -65,30 +76,6 @@ moved out as it was, a commit's worth of moving in this one, which N 1.3's own w
 apart; said once, not held against a batch that found the file over the line as it worked. The
 suite: 1,582 passed; on lavapipe 312 passed and 4 skipped. B is next.
 
-Before it, item 2's A2 came to be read, the level: `shaders_bounce_rooms` holds eight rooms forty
-units apart, each with a camera a key picks, the Cornell box, a closed room of walls a tenth of a
-unit thick with a lamp inside and a bright one outside, a corridor sixteen units long lit through
-its open end, a room the sun lights through a window, blocks with a red wall at one, three and six
-units, a strip 0.06 thick giving off thirty times white in a dark room, a twelve-unit room seen from
-a third of a unit above its floor, and a room whose lamp carries and whose wall moves, with
-`build/bounce-rooms.sh` capturing each view, tracing its reference and comparing each quality.
-Right, the rooms are the hard cases asked for. Its first run is the item's finding: over every
-region the frame is 1% under the reference on the outdoor blocks the sun lights, 21% in the
-corridor, 30 to 33% in the Cornell box, 54 to 58% in the thin room, 60% in the carried lamp's room,
-66 to 67% in the twelve-unit room, 73 to 75% in the window's room and 87% in the strip's room, whose
-walls read 0 in the frame, the strip under the field's cell, and the qualities differ by a few
-points at most. The shortfall grows with the share of the light that bounced more than once, from
-none where the sun lights a surface to most where a room is lit by nothing else, and the quality
-changes it little, so it is one loss in the bounce's recursion or its gather, not a want of rays,
-which B places: the reference's bounce count is a push constant already, so `gi.reference` takes it
-as an argument, and the frame is compared with a one-bounce reference and a two-bounce one as well
-as the whole, so that a frame matching one bounce and falling behind from two names the feedback,
-the light that bounced to a hit read from the frame before's probes, and a frame under one bounce by
-a third names the first trace, the merge or the gather, which the probe's own light against the
-reference's radiance at it then places. The strip's room is a limit of its own, an emitter under the
-field's cell that no ray through the field meets, to be said and answered apart, by the ray scene at
-High or by the strip's light splatted into the field. The suite: 1,581 passed. A3 is next.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -107,15 +94,6 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    random seed's test by a race (Verdict 42). `52c74240` and `7b983bd8` are running. When every job
    is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
    reviewing session, and a failure it names comes first here.
-
-   After the batch in flight, the owner's order of 2026-10-10 (Decision 25): a run that shows no
-   window, hidden, offscreen or headless, as `./e3d open --hidden`, the suite, the soak and the
-   autopilot run one, makes no sound. The backend opens SDL's dummy driver first for such a run, as
-   it already does where no device opens (`SdlAudioBackend`, the hint set with override priority),
-   so nothing reaches the speakers while every sound takes its samples at the rate it plays and ends
-   on time; a config field lets a windowless run have real audio where one is wanted, as a capture
-   with sound might; a test holds a hidden app to the dummy driver and a sound ending on time.
-   Small, a commit of its own.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -433,13 +411,19 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Decision 25, a run that shows no window makes no sound.** `SdlAudioPlugin.Silent` holds a run
-hidden, offscreen or headless to SDL's dummy driver unless its new `Config.AudibleWithoutWindow` is
-set, and the backend then opens the dummy driver first, with the hint at override priority as the
-fallback has it. Where another backend of the process started SDL's audio through a device's
-driver, which a hint cannot change, the device it would open is closed again and the backend is
-disabled with the reason, so nothing reaches the speakers that way either. `./e3d open
-audio_sound_loading --hidden` logs the device opened through `dummy`. Two tests: which configs are
-silent, and a headless app whose backend opens `dummy` and whose sound of three tenths of a second
-ends within 0.25 to 1.5 s by the clock, listed under N 3.3. The audio guide and the upgrading page
-say it. The suite: 1,586 passed. C next, the pi first.
+**Item 2's C, the first fix, the pi.** `shadeHit`, `shadeProbeHit` and the reflections' hits
+through the ray query take the lamps' and the sun's light times pi beside the bounced light, so a
+lit surface sends on the whole of its light. Over every region against every bounce, at Low,
+Medium and High: the Cornell box −30, −30, −33% to −16, −15, −22%; thin walls −54, −54, −58% to
+−12, −13, −27%; the corridor −22, −21, −21% to −18, −17, −17%; the window −75, −75, −73% to −64,
+−64, −57%; the grazing floor −67, −67, −66% to −62, −61, −57%; the carried lamp −60% to −52, −52,
+−51%; the outdoor blocks at −1% and the strip at −87% unchanged. The bounce costs 0.36, 0.44 and 0.53
+ms as before. RENDERING.md §4 has the table. Two tests moved with the light. The Cornell box's and
+Wick's reference frames are drawn again, brighter, the small block's side tinted green, and hold on
+lavapipe. The camera slide's test held the bounce's added change under 0.5 levels a frame, which a
+bounce pi times brighter passes at 0.97. It holds instead that the frame before's light takes at
+least half of the crawl away, 0.97 against 2.91 unheld, a share no brightness moves. The closed
+room with a lamp under its floor shows the probes beneath the floor lending their light at 14.6
+levels. Its bound is 16 until the fifth fix's visibility, which brings it back under 8, said in
+the test. The thin room passing one bounce by 51% at High is the same leak. NORM.md's line is in.
+The suite: 1,586 passed; on lavapipe 312 passed and 6 skipped. The gather's weights next.
