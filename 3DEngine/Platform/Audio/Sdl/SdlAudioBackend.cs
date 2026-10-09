@@ -41,6 +41,12 @@ namespace Engine;
 /// <see cref="Initialize"/> logs and leaves <see cref="IsInitialized"/> <c>false</c>, and every
 /// call after is a no-op, as <see cref="NullAudioBackend"/>'s are.
 /// </para>
+/// <para>
+/// <b>No window:</b> a run that shows no window, hidden, offscreen or headless, as a test, a soak
+/// or <c>./e3d open --hidden</c> runs, opens the dummy driver first (<see cref="Silent"/>), so
+/// nothing it plays reaches the machine's speakers while every sound still runs its course, unless
+/// its <see cref="Config.AudibleWithoutWindow"/> asks for the device.
+/// </para>
 /// </remarks>
 /// <seealso cref="SdlAudioPlugin"/>
 /// <seealso cref="IAudioBackend"/>
@@ -162,6 +168,9 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     /// <summary>The audio driver SDL opened the device through, <c>dummy</c> where no device opened, or null before one has.</summary>
     internal string? Driver { get; private set; }
 
+    /// <summary>Whether sound goes to SDL's dummy driver whatever devices the machine has, as for a run that shows no window.</summary>
+    internal bool Silent { get; init; }
+
     /// <inheritdoc />
     public void Initialize()
     {
@@ -171,6 +180,14 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             if (_initialized) return;
             try
             {
+                if (Silent)
+                {
+                    if (TryOpenDummy(out var why))
+                        Logger.Info("SdlAudioBackend: the run shows no window, so sound goes to SDL's dummy driver, which takes it at the rate it plays and plays none.");
+                    else
+                        WarnOnce($"SdlAudioBackend: the run shows no window, and with SDL's dummy driver {why}, so the backend is disabled.");
+                    return;
+                }
                 if (TryOpen(out var failure)) return;
                 if (!FallBackToDummy)
                 {
@@ -178,20 +195,12 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                     return;
                 }
 
-                // No audio device opens, so sound goes to SDL's dummy driver, chosen over what the
-                // environment names, as raylib's goes to miniaudio's null device.
-                SDL.SetHintWithPriority(SDL.Hints.AudioDriver, "dummy", SDL.HintPriority.Override);
-                try
-                {
-                    if (TryOpen(out var dummyFailure))
-                        WarnOnce($"SdlAudioBackend: {failure}, so sound goes to SDL's dummy driver, which takes it at the rate it plays and plays none.");
-                    else
-                        WarnOnce($"SdlAudioBackend: {failure}, and with SDL's dummy driver {dummyFailure}, so the backend is disabled.");
-                }
-                finally
-                {
-                    SDL.ResetHint(SDL.Hints.AudioDriver);
-                }
+                // No audio device opens, so sound goes to SDL's dummy driver, as raylib's goes to
+                // miniaudio's null device.
+                if (TryOpenDummy(out var dummyFailure))
+                    WarnOnce($"SdlAudioBackend: {failure}, so sound goes to SDL's dummy driver, which takes it at the rate it plays and plays none.");
+                else
+                    WarnOnce($"SdlAudioBackend: {failure}, and with SDL's dummy driver {dummyFailure}, so the backend is disabled.");
             }
             catch (DllNotFoundException ex)
             {
@@ -201,6 +210,29 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             {
                 Logger.Warn($"SdlAudioBackend: initialization failed ({ex.GetType().Name}: {ex.Message}). Backend disabled.");
             }
+        }
+    }
+
+    // Opens SDL's dummy driver, chosen over what the environment names. Where another backend of
+    // the process started SDL's audio through a device's driver, the device it opens is that
+    // driver's, which is closed again and said, as nothing here may play through it.
+    private bool TryOpenDummy(out string failure)
+    {
+        SDL.SetHintWithPriority(SDL.Hints.AudioDriver, "dummy", SDL.HintPriority.Override);
+        try
+        {
+            if (!TryOpen(out failure)) return false;
+            if (Driver == "dummy") return true;
+            failure = $"SDL's audio was started through '{Driver}' already";
+            SDL.CloseAudioDevice(_device);
+            _device = 0;
+            _initialized = false;
+            if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
+            return false;
+        }
+        finally
+        {
+            SDL.ResetHint(SDL.Hints.AudioDriver);
         }
     }
 

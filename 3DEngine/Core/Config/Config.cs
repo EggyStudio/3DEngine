@@ -65,6 +65,15 @@ public sealed record Config
     public bool Hidden { get; init; }
 
     /// <summary>
+    /// Whether a run that shows no window, hidden, offscreen or headless, plays its sound through
+    /// the machine's audio device. Off, as it is by default, such a run plays to SDL's dummy driver,
+    /// which takes each sound's samples at the rate it plays and plays none, so a test, a soak or a
+    /// hidden session makes no sound while every sound still ends when it would. A capture with its
+    /// sound turns it on.
+    /// </summary>
+    public bool AudibleWithoutWindow { get; init; }
+
+    /// <summary>
     /// How many frames to run before closing, or 0 to run until asked to close. Also set by
     /// <c>--frames N</c> or <c>E3D_FRAMES=N</c>.
     /// </summary>

@@ -94,6 +94,33 @@ public class SdlAudioBackendTests
     }
 
     [Fact]
+    public void A_Run_That_Shows_No_Window_Plays_To_The_Dummy_Driver_Unless_It_Asks_For_The_Device()
+    {
+        SdlAudioPlugin.Silent(Config.Default).Should().BeFalse("a window shown plays through the machine's device");
+        SdlAudioPlugin.Silent(Config.Default with { Hidden = true }).Should().BeTrue();
+        SdlAudioPlugin.Silent(Config.Default with { Offscreen = true }).Should().BeTrue();
+        SdlAudioPlugin.Silent(Config.Default with { Headless = true }).Should().BeTrue();
+        SdlAudioPlugin.Silent(Config.Default with { Hidden = true, AudibleWithoutWindow = true }).Should().BeFalse("the run asks for the device");
+    }
+
+    [NeedsAudioDeviceFact]
+    public void A_Headless_App_Plays_To_The_Dummy_Driver_Where_A_Sound_Ends_When_It_Would()
+    {
+        using var app = new App(Config.Default with { Headless = true }).AddPlugin(new SoundsPlugin());
+        var server = app.World.Resource<AudioServer>();
+        var backend = server.Backend.Should().BeOfType<SdlAudioBackend>().Subject;
+        backend.Driver.Should().Be("dummy", "a run that shows no window makes no sound, whatever devices the machine has");
+
+        // Three tenths of a second of silence, which the dummy driver takes at the rate it plays.
+        var sound = new Sound { Samples = new float[48000 * 3 / 10], SampleRate = 48000, Channels = 1 };
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var source = server.Play(sound);
+        source.IsPlaying.Should().BeTrue();
+        while (source.IsPlaying && clock.Elapsed < TimeSpan.FromSeconds(5)) Thread.Sleep(5);
+        clock.Elapsed.TotalSeconds.Should().BeInRange(0.25, 1.5, "the sound ends about when it would through a device");
+    }
+
+    [Fact]
     public void Method_Calls_Are_Safe_When_Backend_Failed_To_Initialise()
     {
         var backend = WithNoDevice(fallBackToDummy: false);

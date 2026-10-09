@@ -186,7 +186,8 @@ guide that shows it.
   rule of its transitions holds, as [States](states.md) shows.
 - **Sound.** `Sound.FrameCount` and `Music.FrameCount`, how many frames of samples each holds, and
   `BehaviorSounds.PlaySpatialSound`, a sound placed in the world from a behavior's context, as
-  [Audio](audio.md) shows.
+  [Audio](audio.md) shows. A run that shows no window plays to SDL's dummy driver and makes no
+  sound, which `Config.AudibleWithoutWindow` turns off.
 - **Textures and the window.** `TextureWrap.MirrorClamp`, and the window flags
   `ConfigFlags.InterlacedHint` and `ConfigFlags.WindowMousePassthrough`.
 - **Models.** A vertex stage of a program's own is fed each input by its semantic, so it takes them

@@ -408,6 +408,7 @@ sealed class Engine.Config : IEquatable<Config>
   GlobalIllumination GlobalIllumination { get; init; }
   GraphicsBackend Graphics { get; init; }
   SceneFieldConfig SceneField { get; init; }
+  bool AudibleWithoutWindow { get; init; }
   bool Equals(Config? other)
   bool Fullscreen { get; init; }
   bool Headless { get; init; }

@@ -20,7 +20,11 @@ CloseWindow();
 `IsAudioDeviceReady` says whether the device opened with a backend that makes sound. On a machine
 with no audio device, as a build server, sound goes to SDL's dummy driver, which takes it at the
 rate it would play and plays none, as raylib's goes to miniaudio's null device, so sounds end,
-music moves on and streams ask for more as they do with a device, and a game need not check.
+music moves on and streams ask for more as they do with a device, and a game need not check. A
+run that shows no window, hidden, offscreen or headless, as a test, a soak or `./e3d open --hidden`
+runs, plays to the dummy driver too, whatever devices the machine has, so it makes no sound while
+every sound still ends when it would, unless its `Config.AudibleWithoutWindow` is set, as for a
+capture with its sound.
 `SetMasterVolume` sets a volume from 0 to 1 that every sound and piece of
 music is multiplied by, which a game's settings screen changes.
 
