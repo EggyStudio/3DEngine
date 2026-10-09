@@ -282,7 +282,7 @@ internal sealed class ParticleRenderer : IDisposable
             }
             pass.SetPipeline(pipeline);
             // The emitter's texture as the material's base color, which the shader samples in place of the dot.
-            pass.SetBindGroup(pipeline, models.TexturedMaterial(gfx, textures, state.Emitter.Texture.Id), 0);
+            pass.SetBindGroup(pipeline, models.TexturedMaterial(renderContext, textures, state.Emitter.Texture.Id), 0);
             pass.SetBindGroup(pipeline, lights, 1);
             pass.SetBindGroup(pipeline, state.DrawSet, 2);
             pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));

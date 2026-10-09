@@ -243,11 +243,17 @@ internal sealed partial class ModelRenderer
 
     // What the particle pass borrows of this one, whose lighting it shares: the two layouts, a
     // material whose base color is a texture, white for none, and the lights of the window or of a
-    // render target.
+    // render target. A material is found by its texture's id within a frame, so the frame's sets
+    // are begun here as the model pass begins them, since in a frame that draws particles and no
+    // model a texture unloaded under a living emitter was still bound through the set naming its
+    // view after the view was destroyed.
     internal IDescriptorSetLayout MaterialSetLayout(IGraphicsDevice gfx) => MaterialLayout(gfx);
     internal IDescriptorSetLayout LightsSetLayout(IGraphicsDevice gfx) => LightsLayout(gfx);
-    internal IDescriptorSet TexturedMaterial(IGraphicsDevice gfx, GpuTextures textures, int texture) =>
-        MaterialSet(gfx, textures, new ModelDraw(0, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, texture));
+    internal IDescriptorSet TexturedMaterial(RenderContext renderContext, GpuTextures textures, int texture)
+    {
+        BeginFrameOfSets(renderContext);
+        return MaterialSet(renderContext.Device, textures, new ModelDraw(0, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, texture));
+    }
     internal IDescriptorSet LightsFor(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target) => LightsSet(gfx, renderWorld, textures, target);
 
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(_lightsBindings);

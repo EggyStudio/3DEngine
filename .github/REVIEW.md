@@ -10,7 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `12b1f0c3`. Three commits. ImGui's frame begins in `First` (`096797bc`), the plugin
+Reviewed up to `971dcd7c`. A batch started before the last pass arrived, taking the effects entry's
+limit that render textures were drawn without ambient occlusion: a render texture that draws meshes
+through a camera draws the depth of its shadow casters at half its size in the targets node before
+its pass, works out its occlusion and the sun's contact shadows from it as the window's are
+(`AmbientOcclusionRenderer.DrawTarget`), binds them for its model pass through `TargetOcclusion`
+with its buffer saying to read them, and lets them go the frame after one it is not drawn in; its
+screen probes stand on that same depth in place of the one drawn for them alone, so a target with
+both draws its depth once, and the window drawn in 2D lets its own images go while the targets keep
+theirs. Right, and the images' making is one `Ensure` for the window and the targets, named for the
+view. A new test draws the cube in its corner into a render texture of the window's size and holds
+the floor beside the cube and in the corner within 9 levels of the window's over three channels, the
+open floor unchanged; Sumo's two views at 640 by 720 take 0.775 ms of the GPU in `targets` where
+they took 0.678, and 1.15 where they took 1.05 with the bounce at Low, in RENDERING.md with the
+method. Found on the way and mended, the bounce test of `c7ee9c72` drew its texture upside down with
+a negative height and passed because the rows it averages are their own mirror, and RENDERING.md
+placed the occlusion's node after `shadows` where it has run after `particles` since `c7ee9c72`;
+both right to say. The suite: 1,577 passed; on lavapipe 309 passed and 2 skipped. The coder goes to
+Verdicts 40 and 41 and then item 2, as the list has it. The run of `12b1f0c3` was read after, red on
+Windows and on macOS again, which rewrote Verdicts 40 and 41: the Windows hang is the five-minute
+hang limit met by a hundred apps at four seconds each, and the macOS crash moves between tests.
+
+Before it, three commits came to be read. ImGui's frame begins in `First` (`096797bc`), the plugin
 ordered late and after the command line's, so the frame's time comes first, then the served
 commands, then ImGui's new frame, then a program's own systems, with a test of a window made in
 `First` drawn in the frame `Update` draws in; right, and the order is the plugin's `Order` and not
@@ -48,23 +69,6 @@ its number goes to a measured sweep of the per-entity cost entry, after item 3, 
 started, since TODO.md's limits are spent and the owner has not named the next large item. The
 suite: 1,574 passed, and on lavapipe the rendering tests, 308.
 
-Before them, item 3 came to be settled, the lights' upload grouping the views drawing meshes through
-a camera, the window first and then the targets, each joining the first group whose first cascade,
-fitted to all of the group's cameras and its own, is no more than a quarter wider in its texels than
-any member's own (`LightingUboPrepare.SharedTexelGrowth`), so a view reads its shadows from the
-shared map as from its own; each group gets one shadow, `ModelRenderer.DrawShadow` drawing it once
-by the first of the views sharing it, as the point lights' faces are drawn once by the first view,
-and with no sun every view shares one map; a new test draws one scene into two render textures, two
-cameras a third of a unit apart drawing the map once and each reading within 0.01 percent of its
-pixels of itself drawn alone, two thirty units apart drawing it twice; Sumo's two views, facing each
-other across the ring, share, a probe of that layout finding the shared view apart from itself alone
-at 77 of 28,800 pixels along its shadows' edges, and its render textures take 0.35 to 0.37 ms of the
-GPU in `targets` where they took 0.45, written in the guide, RENDERING.md §4 and TODO.md with the
-entry's sentence gone; the references are unchanged (`e10961bc`). The quarter stands, since a shared
-view's texels grow by a quarter at most and Sumo's edges move by a fraction of a percent. Its number
-went to the two small limits TODO.md still described, ImGui's frame started in `First` and a 2D
-render texture's particles. The suite: 1,573 passed, and on lavapipe the rendering tests, 307.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -78,12 +82,12 @@ queued; the owner has been asked for the next, and item 4 fills the wait.
 
 1. **What the next page says.** Verdict 39 is settled: the macOS captures ran in a job of their own
    at `8ac5912a` and passed, 52 minutes of the runner's for the coder's 25, the test job beside them
-   green in 30. `8ac5912a` is red on Windows, the leak test hung at app 79 of 100 and the hot reload
-   test's texture never came (Verdict 40); `096797bc` is red on macOS, the suite lost to a crash in
-   a particle test and whole in its parts (Verdict 41); `12b1f0c3`'s run is under way, Linux green
-   at 17:59 UTC. The examples job, which carries the guides' blocks and Verdicts 30 and 31, runs
-   once a run's three test jobs pass, so Verdicts 40 and 41 come first. Each push's run is read by
-   the reviewing session, and a failure it names comes first here.
+   green in 30. `8ac5912a` and `12b1f0c3` are red on Windows, the hundred-app leak test reaching the
+   five-minute hang limit at app 72 to 79 (Verdict 40), and `096797bc` and `12b1f0c3` are red on
+   macOS, the whole suite lost to a crash in a different test each time and passing in its parts
+   (Verdict 41); `971dcd7c` has no run yet. The examples job, which carries the guides' blocks and
+   Verdicts 30 and 31, runs once a run's three test jobs pass, so Verdicts 40 and 41 come first.
+   Each push's run is read by the reviewing session, and a failure it names comes first here.
 
 2. **A render texture drawn only in 2D keeps drawing no particles, and the guide says so.** The
    coder's first way, chosen over a call naming a camera: particles are the world's, and a texture
@@ -130,34 +134,46 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-40. **The Windows job of `8ac5912a` loses the suite to a hang in
+40. **The Windows jobs of `8ac5912a` and `12b1f0c3` lose the suite to
     `AppLeakTests.An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`,
-    at app 79 of 100 whole and at app 78 in the Core part, and fails
+    reported as hung, at app 79 and 74 of 100 whole and at 78 and 72 in the Core part, and
+    `8ac5912a` fails
     `AssetReleaseTests.A_Model_Spawned_Again_By_Hot_Reload_Lets_Its_Texture_Go_With_It`.** Read from
-    the page. Both hangs are in a new app's Startup stage after `ImGuiRenderNode registered in
-    render graph`, five minutes without a line, and the handles the test prints climb through the
-    run, 1704 at one app and 2527 at the 79th whole, 1113 at the 78th in the part, where the Vulkan
-    objects stay at none; `b526089c` passed the test on Windows in 29 minutes and `096797bc` passed
-    it after, so it hangs on some runs and not others and nothing yet says why. Three things. The
-    test holds the process's handles as it holds the Vulkan objects, to the twentieth app's count
-    and a small allowance, so a handle kept per app on Windows fails with a number before it can
-    hang. The Startup stage's systems each log a line at debug, so the next hang names the system it
-    stopped in, where the page names the stage alone. And the hot reload test waits up to 300 frames
-    for a texture a loader thread brings, a wait in frames on another thread's work, which a runner
-    busy with the leak test's hundred apps beside it can miss, so it waits on the load itself with a
-    bound in seconds, as a loader's own tests do, and does not retry. Settled when a Windows run
-    passes whole.
+    the pages and modeled. `build/test.py` gives vstest a hang limit of five minutes a test, and the
+    Core part, 49 fast tests and then this one, is lost at 5 m 8 s and 5 m 9 s, so the test ran to
+    the limit and was killed there, at app 72 to 79, which is 3.8 to 4.2 seconds an app on that
+    runner where Linux runs the whole suite in four minutes; no deadlock, a test of a hundred apps
+    outrunning a limit set for one, and the two Windows jobs that passed, `b526089c` in 29 minutes
+    and `096797bc` in 36, had the faster runners against 38 for each lost. Three things. The cost of
+    an app on Windows is read first, since four seconds to make, draw once and close an offscreen
+    app is also what a game's start costs there: the test prints each app's time, and what stands
+    out, a pipeline cache not shared across the apps of a process or the device's making, is mended
+    with the number. Then the limit: the test does not stand or fall with the runner's speed, so it
+    either counts its apps against a clock, a hundred or what four minutes allow with at least fifty
+    for the comparison and the page saying how many, or the Core part is given its own
+    `--hang-minutes` with the reason, whichever the measured cost leaves standing. And the handles
+    the test prints climb through the run on Windows, 1694 and 2527 at the apps the pages name,
+    where the Vulkan objects stay at none, so the test holds the process's handles as it holds the
+    objects, to the twentieth app's count and a small allowance. The hot reload test waits up to 300
+    frames for a texture a loader thread brings, a wait in frames on another thread's work, which a
+    runner slowed by the leak test beside it can miss, so it waits on the load itself with a bound
+    in seconds and does not retry. Settled when a Windows run passes whole.
 
-41. **The macOS job of `096797bc` loses the suite to a crash in
+41. **The macOS jobs of `096797bc` and `12b1f0c3` lose the whole suite to a crash, in
     `ParticleTests.A_Textured_Particle_Is_Drawn_As_Its_Image_The_Right_Way_Up_And_Square` after 2 m
-    22 s, the runtime writing a dump, and passes whole in its parts, 1,538.** The test's app is its
-    own, opened by `Open()` and closed in `Dispose`, and the test ends with `UnloadTexture` while
-    the emitter drawn with that texture lives until the close, so whether the particle pass or the
-    close touches the freed texture's view on MoltenVK is read first, the test's last frame and the
-    shutdown's work; the test passed on macOS at `8ac5912a` and `b526089c` and in this run's parts,
-    so the crash is one of timing or of a freed thing and not of the drawing itself. The dump is in
-    the run's macOS artifact behind a sign-in, which the owner downloads and names a path to if the
-    reading finds nothing. Settled when a macOS run passes whole.
+    22 s and in the hundred-app leak test after 6 m 45 s, the runtime writing a minidump each time,
+    and pass whole in their parts, 1,538 and 1,539.** Two runs, two tests, so the crash is the
+    process's and not a test's own drawing: a thread of the runtime's or of MoltenVK's dying under
+    the suite's load, or the memory, the jobs at 1,186 and 1,017 MB when lost. The minidumps,
+    `dotnet-4219.dmp` and `dotnet-10229.dmp`, are in the runs' `test-results-macos` artifacts under
+    `dumps`, behind a sign-in, and no machine here reads a macOS dump. Two things. The macOS job
+    reads its own dump where it was made, `dotnet-dump analyze` with `clrthreads` and `clrstack
+    -all` and the faulting thread's native frames where it gives them, and the page carries that
+    stack, as a run that fails says what failed (N 6.7), which `build/test.py` can do since it
+    already lists the dumps. Meanwhile what the two tests share is read, an offscreen app opened and
+    closed with its device made and destroyed, and whether the whole run's earlier tests leave a
+    thread or a device behind that the next app's making trips over, which the parts, each a fresh
+    process, would never see. Settled when a macOS run passes whole.
 
 ## Decisions
 
@@ -262,24 +278,22 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
 
 ## Replies
 
-Taken while the list waited, before this pass arrived, the effects entry's limit that render
-textures were drawn without ambient occlusion. A render texture that draws meshes through a camera
-now draws a depth of its meshes that cast shadows at half its size, works out its occlusion and the
-sun's contact shadows from it as the window's are, in the targets node before its pass
-(`AmbientOcclusionRenderer.DrawTarget`), and binds them for its model pass through
-`TargetOcclusion`, its buffer saying to read them, all let go the frame after one it is not drawn
-in. Its screen probes, where light bounces, stand on that same depth in place of one drawn for them
-alone, so a target with both draws its depth once, and a program drawing its scene into render
-textures alone keeps the targets' images while the window, drawn in 2D, lets its own go. A new test
-draws the cube in its corner into a render texture of the window's size, the floor beside the cube
-and in the corner darkening within 9 levels of the window's, summed over the three channels, and
-the open floor not at all; before the change the texture's floor read as it does with the
-occlusion off. Sumo's two views at 640 by 720 take 0.775 ms of the GPU in `targets` with it on
-where they take 0.678, the medians of three runs of seven profile readings each, and 1.15 where
-they take 1.05 with the bounce at `Low`. The guide, the API's remarks, RENDERING.md §4 and §5 and
-TODO.md say so, and RENDERING.md's sentence placing the occlusion's node after `shadows` now places
-it after `particles`, where it has run since `c7ee9c72`. Seen while writing the test, a render
-texture is upright here, so the bounce test of `c7ee9c72` drew its texture upside down with a
-negative height and passed because the rows it averages are their own mirror. It draws it upright
-now. The suite: 1,577 passed; on lavapipe the rendering, compute and particle tests, 309 passed
-and 2 skipped. Verdicts 40 and 41 are next.
+Verdict 41, read before its rewrite arrived. The close touches no freed view: `UnloadTexture` queues
+a removal that only a frame applies, and the test draws none after it, and the renderer's close
+waits for the device, then destroys the textures before `ModelRenderer` frees the material sets
+naming them, which Vulkan allows and MoltenVK takes in both its descriptor designs, the older
+counting each view a set names and the newer keeping Metal's texture alone. The reading found a
+fault beside it. The particle pass found its texture's material by id in a cache the model pass
+clears once a frame, and a frame that draws particles and no model never cleared it, so an emitter
+whose texture was unloaded went on binding the set naming the freed view after its four frames, a
+read of a destroyed image. The particle pass now begins the frame's sets itself. A new test draws a
+textured emitter alone, unloads its texture and draws eight frames more, the particle drawn white,
+as with no texture, where it showed the freed image's red. Since the crash moved to the leak test
+at `12b1f0c3`, this is not its cause; the rewritten verdict's dump on the page and the reading of
+what the two tests share come next, after Verdict 40.
+
+Item 2, the guide's sentence. The drawing guide's section on drawing into a texture says a texture
+shows particles where a `BeginMode3D` inside it draws the scene, through that camera, and none where
+it is drawn in 2D alone, with the reason, and TODO.md's particles entry says the same in place of
+the limit. The suite: 1,578 passed; on lavapipe the rendering, compute, particle and leak tests,
+313 passed and 2 skipped.

@@ -213,6 +213,30 @@ public sealed class ParticleTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void An_Emitter_Whose_Texture_Is_Unloaded_Draws_On_Without_It()
+    {
+        // The emitter drawn alone, with no model, whose pass is the one that clears the sets the
+        // model pass keeps for a frame by texture.
+        Open();
+        var image = GenImageColor(8, 8, Color.Blue);
+        ImageDrawRectangle(ref image, 0, 0, 8, 4, Color.Red);
+        var texture = LoadTextureFromImage(image);
+        var emitter = CreateParticleEmitter(Vector3.Zero, Cloud(Color.White) with { MaxParticles = 1, Radius = 0, StartSize = 2, EndSize = 2, Texture = texture });
+        EmitParticles(emitter, 1);
+        var before = GetImageColor(Capture(3), 80, 45);
+        UnloadTexture(texture);
+        // Past the frames the texture's view is kept for after it goes, the emitter drawing on.
+        var after = Capture(GpuTextures.RetireFrames + 4);
+
+        ((int)before.R).Should().BeGreaterThan(before.B + 100, $"the image's top row is drawn while it is loaded, not {before}");
+        foreach (var (x, y) in new[] { (80, 45), (80, 75) })
+        {
+            var color = GetImageColor(after, x, y);
+            Math.Min(Math.Min(color.R, color.G), color.B).Should().BeGreaterThan(200, $"once it is unloaded the particle is drawn white, as with no texture, not {color} at ({x}, {y})");
+        }
+    }
+
+    [NeedsVulkanFact]
     public void A_Particle_Plays_Through_The_Frames_Of_A_Sheet_Over_Its_Life()
     {
         Open();
