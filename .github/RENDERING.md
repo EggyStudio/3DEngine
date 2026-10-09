@@ -689,6 +689,12 @@ where it is darker. `BounceReferenceTests` holds the reference to a closed box w
 off the same light, which it shows as that light over one less the walls' color, 2.01 within 2%,
 and to a lone slab under a lamp, which the frame and the reference read alike to a hundredth of a
 percent. The Cornell box at 800 by 450 takes 1.0 s on the RTX 4070 for 1,024 paths a pixel.
+`shaders_bounce_rooms` holds the cases the bounce finds hardest, a room each forty units apart with
+a camera fixed on it: the Cornell box, a room of walls thinner than the field's cell with a lamp
+outside it, a corridor lit from its open end, the sun through a window, white blocks beside red
+walls one, three and six units off, a small bright strip in a dark room, a floor seen at a grazing
+angle, and a room whose lamp a key carries and whose wall another moves. `build/bounce-rooms.sh`
+captures each view, traces its reference at `High` and compares each quality's frame with it.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

@@ -115,6 +115,10 @@ case "$driven" in
     # Grayscale picked, as raylib's screenshot has it.
     ./e3d command input.key Down 2 --quiet
     ;;
+  shaders_bounce_rooms)
+    # The room whose lamp is carried, the colors of its walls on the floor and the moved wall.
+    ./e3d command input.key Eight 2 --quiet
+    ;;
   shaders_rlgl_compute)
     # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
     ./e3d command input.wheel 16 --quiet

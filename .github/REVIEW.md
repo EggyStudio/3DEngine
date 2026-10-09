@@ -10,19 +10,46 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7b983bd8`. Decision 23 is carried out, prose alone, and an eighth place with the
-seven: DESIGN.md's NLayer row gives its reason alone, that raylib reads MP3; TODO.md's cost entry
-keeps the smaller package for its reason and its scenes entry leaves SHARED.md to consider with no
-one named; the version's commit in `NormTests` is called what it is; `build/test.py` runs on a
-contributor's machine; and the three issue READMEs say each text is ready to be filed, the third,
-under `build/mesa/ray-query-fragment`, found only because the matcher reads each run of lines
-together, where a name broken across two lines had passed a line-by-line check. `N_4_7` reads every
-Markdown file but the sessions' five, REVIEW.md still sought in the pages a game's author reads, and
-the comments of every C# and Slang file, script, workflow and manifest, a web address's slashes
-passed over, and reports the line a name begins on; put back as it was, that README fails at line 4.
-Right, and the line-run reading is the better of the two checks, which BevyCSharp's flattens whole
-and so shares. `build/pack.sh:29` holds the words in code and stays. The suite: 1,579 passed. On to
-item 2's A1, the reference. The runs since the push of 22:00 were read after: `a9380d7b` is green on
+Reviewed up to `45a1250c`. Three commits. Item 2's A1 (`0a43cf1a`): `gi.reference <png> <samples>`
+path traces the window's view through the ray scene High builds, the first hit lit as the model pass
+lights one with its specular share, every hit after as the bounce lights one, shadows by rays toward
+the lights, the light given off at every hit, Russian roulette from the third bounce and the sky
+where a path meets nothing, writing the PNG, the light as a PFM and an image of regions named by
+what each pixel's first ray met, a floor, a ceiling, a wall by its color, a block's side or top, and
+`gi.compare <png>` giving each region's mean light per channel against the reference's with a
+picture of the difference; two tests hold the reference where the light is known, a closed glowing
+box at 2.01 within 2%, which is the light given off over one less what is reflected, and a lone slab
+under a lamp reading in the frame as in the reference to a hundredth of a percent. Right, and those
+two tests are what make the reference a measure and not another picture. Its first reading of the
+Cornell box, 1,024 paths a pixel in a second on the RTX 4070, has the frame 33% under the reference
+over every region, the walls 47 to 50% under, the small block's side by the green wall 82% under
+with its green at 0.041 against 0.242, and the glowing panel's underside 4% under. A third missing
+everywhere and half on the walls reads as a factor or a loss in one place before it reads as an
+artifact, so B compares a probe's merged light against the reference's radiance at the probe as well
+as pixels against pixels, which A3's texture views make possible, and places the loss in the trace,
+the merge or the gather before anything is tuned; the block's side by the green wall is the owner's
+dim distance, to be read apart. Verdict 42 is settled (`d92c64dc`), the random values' tests in the
+`Engine3D` collection, where the flat API's tests run one at a time. Verdict 40's steps are in
+(`45a1250c`): for the twenty-first app the handles are read where the log marks each step of its
+life, through a hook the logger tells of every line, and the steps go into the handle check's
+failure; here an offscreen app takes 18 for its instance, 17 for its device and 1 for ImGui and
+gives all back, and audio is no step, since it starts only when a sound plays, so the next Windows
+page names the step that keeps the five. The suite: 1,581 passed; on lavapipe 311 passed and 4
+skipped. A2, the level, is next.
+
+Before them, Decision 23 came to be carried out, prose alone, and an eighth place with the seven:
+DESIGN.md's NLayer row gives its reason alone, that raylib reads MP3; TODO.md's cost entry keeps the
+smaller package for its reason and its scenes entry leaves SHARED.md to consider with no one named;
+the version's commit in `NormTests` is called what it is; `build/test.py` runs on a contributor's
+machine; and the three issue READMEs say each text is ready to be filed, the third, under
+`build/mesa/ray-query-fragment`, found only because the matcher reads each run of lines together,
+where a name broken across two lines had passed a line-by-line check. `N_4_7` reads every Markdown
+file but the sessions' five, REVIEW.md still sought in the pages a game's author reads, and the
+comments of every C# and Slang file, script, workflow and manifest, a web address's slashes passed
+over, and reports the line a name begins on; put back as it was, that README fails at line 4. Right,
+and the line-run reading is the better of the two checks, which BevyCSharp's flattens whole and so
+shares. `build/pack.sh:29` holds the words in code and stays. The suite: 1,579 passed. On to item
+2's A1, the reference. The runs since the push of 22:00 were read after: `a9380d7b` is green on
 Linux, macOS and the macOS captures and red on Windows alone, the leak test failing on its handles
 at app 42 as the test was built to, which rewrote Verdict 40 and settled 41, and `d7e764cd`'s macOS
 job failed the random seed's test by a race, Verdict 42; `52c74240` and `7b983bd8` are running.
@@ -45,27 +72,6 @@ which the third batch's tiers answer; the guide, the upgrading page, the compari
 cheatsheet, RENDERING.md §5 and TODO.md say what the second and third batches bring. Right. The
 suite: 1,579 passed; on lavapipe 311 passed and 2 skipped. Before item 2's A1 comes the owner's
 order of 2026-10-09 in item 1, seven places and N 4.7's matcher in one commit of prose.
-
-Before it, Verdict 41's second thing came to be read, as asked: `build/test.py` reads each minidump
-a lost test host leaves with dotnet-dump, named by `E3D_DOTNET_DUMP` or found on the path, asking
-`threads`, `clrthreads`, `pe`, `clrstack -f` and `clrstack -all -f`, writes the whole account beside
-the dump as `<dump>.txt`, and puts on the page and in the lost process's annotation the thread the
-dump was written for, whether the runtime runs it, its managed exception and its first eight frames
-with their modules, or, for a thread of no managed code, as a driver's, what up to four managed
-threads were in, three frames each; the macOS job installs dotnet-dump 10.0.750501 beside
-dotnet-gcdump, and the script's tests get a stand-in that answers as dotnet-dump does for a fault on
-a driver's thread while the main thread closes the device, the page's lines held exactly. Right, and
-the five separate loads of one dump are the plain way to ask five questions of a tool that answers
-one command a run. The device objects count the instance and the device themselves, and the whole
-local run begins the leak test with none alive, so on Linux the earlier tests leave no device
-behind, which the macOS page's own line will say for that runner. On Windows, the tests do not
-serve, so the command line's socket is not opened per app, and the reply names SDL's audio
-subsystem, started and quit by count with no `SDL_Quit`, as the first to read when the handle series
-comes with flat threads; agreed, the ImGui context made and destroyed per app the second. The suite:
-1,578 passed. Item 1's two verdicts wait on a push, 6cf632e9 and a9380d7b being unpushed, and the
-coder has started item 2, subsurface scattering, with its first batch. At 21:55 the owner put the
-bounce's quality before subsurface scattering goes on (Decision 22), item 2, and the list is
-renumbered to seven.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -185,7 +191,7 @@ then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 1 to 29 and 32 to 39 and 41 are settled, and their numbers are not given again.
+Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -226,18 +232,6 @@ Verdicts 1 to 29 and 32 to 39 and 41 are settled, and their numbers are not give
     ImGui context made, the frame drawn, and each undone in the shutdown, so the next page says
     between which two steps the five stay, and the leak is then read in that step's code and mended.
     The hot reload test's wait in seconds is in and held. Settled when a Windows run passes whole.
-
-42. **The macOS job of `d7e764cd` fails
-    `ColorRandomTests.A_Seed_Gives_The_Values_Raylib_Gives_For_It`, five values after
-    `SetRandomSeed(42)` not raylib's.** Read from the page and modeled: the flat API's generator is
-    one static, `Engine3D.Random.cs`, and the test's class is in no collection, so it runs beside
-    every test that runs a program drawing random values through the same generator, the examples
-    and the games among them, and the one that drew between the seed and the five reads moved the
-    sequence; `a9380d7b`'s macOS job passed it, as a race does. The test goes into the `Engine3D`
-    collection, where the flat API's tests already run one at a time, or seeds and reads under the
-    same lock the generator takes, whichever the generator's own design has; no retry and no looser
-    values. Settled when the test is where it cannot race.
-
 
 ## Decisions
 
@@ -376,27 +370,20 @@ Verdicts 1 to 29 and 32 to 39 and 41 are settled, and their numbers are not give
 
 ## Replies
 
-Item 2's A1, the reference. `gi.reference <png> <samples>` path traces the window's view through
-the ray scene High builds (`gi_reference.slang`, `BounceReference`, `GraphicsDevice.TraceReference`),
-each copy's surface record now holding its material's roughness and metallic: the first face lit
-as the model pass lights one, specular and the share its face reflects included, every face after
-as the light that bounces lights one, the sun and the lamps that cast shadows reaching a face where
-a ray toward them gets through, the light given off at every face, the way on drawn by the cosine,
-Russian roulette from the third bounce, and the environment map or the ambient lights where a path
-meets nothing, a few samples a submission, each waited for. It writes the PNG, the light as a PFM,
-what each pixel's first ray met as its copy and the axis its face turns toward, and those regions'
-names, a flat slab's top a floor and its underside a ceiling, a standing slab a wall by its color
-and way, its edges named as edges, and the rest blocks by order, so the Cornell box reads as its
-floor, ceiling, three walls, two blocks' sides and tops and the glowing panel. `gi.compare <png>`
-reads the window's decoded light back (`GraphicsDevice.ReadFloats`) and gives each region's mean
-light per channel against the reference's, the difference and its share, and writes a picture of
-the difference, red where the frame is brighter and blue where darker. Two tests hold it where the
-light is known, skipped where there are no ray queries: inside a closed box whose walls all give off
-1 and reflect 0.503, it reads 1 over one less 0.503, 2.01, within 2%; and a lone slab under a lamp
-reads in the frame and the reference alike, 0.2334 against 0.2335 in red. The Cornell box at 800 by
-450 takes 1.0 s for 1,024 paths a pixel on the RTX 4070, and a first reading, which B measures
-whole, has the frame's light 33% under the reference's over every region, the walls 47 to 50%, the
-small block's side by the green wall 82% with its green 0.041 against 0.242, and the panel's
-underside, its own light and the lamp's, 4%. The guide to `./e3d` and RENDERING.md §4 say so. The
-suite: 1,581 passed; on lavapipe the rendering, compute and particle tests, 311 passed and 4
-skipped. Verdict 40's per-step counts and Verdict 42 are next, then A2.
+Item 2's A2, the level. `shaders_bounce_rooms` holds eight rooms forty units apart, so no room's
+lamps or field reach another, each with a camera that 1 to 8 pick: the Cornell box, a closed room of
+walls a tenth of a unit thick, under the field's cell, with a dim lamp inside and a bright one that
+casts shadows outside its wall, a corridor sixteen units long lit by the sun through its open end,
+a room the sun lights through a window four units wide, white blocks with a red wall on their side
+one, three and six units off, the sun on each wall's face toward its block and none on the block's
+face toward it, a strip 0.06 thick giving off thirty times white in a closed dark room, a room
+twelve units across whose floor is seen from a third of a unit above it, and a room whose lamp L
+carries between three places and whose inner wall M moves. `build/bounce-rooms.sh <folder>
+[samples] [qualities]` captures each view, traces its reference at `High` and compares each
+quality's frame with it. Its first run, 1,024 paths a pixel, under a second a view: over every
+region the frame is 1% under on the outdoor blocks, which the sun lights, 21% in the corridor, 30%
+to 33% in the Cornell box, 54% to 58% in the thin room, 60% in the carried lamp's room, 66% to 67%
+in the twelve-unit room, whose floor the ceiling's hot spot above the lamp lights by its bounce in
+the reference, 73% to 75% in the window's room, and 87% in the strip's room, whose walls read 0 in
+the frame, the strip under the field's cell; the qualities differ by a few points at most. B
+places the loss. The README's gallery and the guide have the level. The suite: 1,581 passed.

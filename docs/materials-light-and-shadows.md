@@ -378,7 +378,9 @@ meets nothing brings back, so a room is lit by the sky through its windows and d
 gets in.
 
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
-a glowing panel, and G steps through the qualities. On a laptop's RTX 4070 at 800 by 450, with the
+a glowing panel, and G steps through the qualities. `shaders_bounce_rooms` gathers the rooms the
+bounce finds hardest, one to each of the keys 1 to 8, from a room of thin walls with a lamp outside
+to a small bright strip in the dark. On a laptop's RTX 4070 at 800 by 450, with the
 frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU holds its clocks, they cost this
 on the GPU, as `./e3d command profile` names it `global_illumination`, and `./e3d command gi.state`
 gives the rest, `High` measured with the example's field at four cascades
@@ -487,6 +489,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`shaders_scene_field`](../3DEngine.Examples/Shaders/ShadersSceneField.cs),
   [`shaders_cornell_box`](../3DEngine.Examples/Shaders/ShadersCornellBox.cs),
   [`shaders_reflections`](../3DEngine.Examples/Shaders/ShadersReflections.cs),
+  [`shaders_bounce_rooms`](../3DEngine.Examples/Shaders/ShadersBounceRooms.cs),
   [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
   [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
