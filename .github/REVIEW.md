@@ -10,7 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `971dcd7c`. A batch started before the last pass arrived, taking the effects entry's
+Reviewed up to `6cf632e9`. Three commits. Verdict 41's reading (`3d8cf673`) found a fault beside it:
+the particle pass looked its texture's material up in a cache the model pass clears once a frame, so
+a frame drawing particles and no model kept binding the set naming a freed view once the texture was
+unloaded, a read of a destroyed image; the pass begins the frame's sets itself, and a new test draws
+a textured emitter alone, unloads its texture and draws eight frames more, white where it showed the
+freed image's red. Right, and the reply is right that this is not the macOS crash's cause, since the
+crash moved to the leak test at `12b1f0c3`; the rewritten verdict stands. The guide's sentence
+(`d7e764cd`) says a texture shows particles where a `BeginMode3D` inside it draws the scene and none
+drawn in 2D alone, with the reason, and TODO.md's entry says the same, so item 2 is settled and
+goes. Verdict 40 (`6cf632e9`), measured as asked: an offscreen app takes 0.55 s on the RTX 4070 and
+0.5 s on lavapipe in the workflow's image, 2.5 s with Mesa's disk cache off, two of them the frames
+where lavapipe compiles each shader as it first draws, and Mesa's Windows build has that cache off
+by its own `meson.build`, which with a slower runner is the four seconds; a pipeline cache shared
+across a process's devices was written, measured and taken out, lavapipe's being a stub and NVIDIA's
+disk cache holding the pipelines already, 544 ms against 546. So the test counts its apps against
+four minutes, a hundred where they fit and fifty at least, the heap's floor compared between the
+halves and the failure's first line saying how many apps in how many seconds, some sixty on the
+Windows runner; the handles are held to the twentieth app's count and 200, at 192 here and 210 on
+lavapipe, where Windows climbed some ten an app and will fail near the fortieth with the handles and
+the threads after every ten apps, which is the measurement the next page carries; the asset release
+tests wait on their loads for up to thirty seconds of the clock, saying how long over how many
+frames. Right, all of it. The two clocks join `build/norm/3.3.txt` with their reasons, each about
+something outside the frame as N 3.3 allows, and on the reviewing session's own ask, so the list
+grows by two by its word. When that page comes, threads climbing with the handles name a thread
+leak, Windows alone, SDL's or lavapipe's at a device's end, and threads flat name kernel objects,
+the command line plugin's socket an app opens the first to read. The suite: 1,578 passed; on
+lavapipe the leak and asset release tests passed. The owner asked at 21:10 whether anything outranks
+subsurface scattering and the whole was surveyed: CI red does, as item 1 already says, and 5.2 is
+due once every job is green (Decision 19), 107 commits since 5.1; raylib is current, the commit
+pinned being of 2026-10-04 and after 6.0; three packages are a step behind and are bumped after 5.2
+(Decision 20); and the animated model's meshes in the world follow subsurface scattering (Decision
+21). The list is in that order.
+
+Before them, a batch started before that pass arrived came to be read, taking the effects entry's
 limit that render textures were drawn without ambient occlusion: a render texture that draws meshes
 through a camera draws the depth of its shadow casters at half its size in the targets node before
 its pass, works out its occlusion and the sun's contact shadows from it as the window's are
@@ -54,22 +87,6 @@ red on Windows and `096797bc` on macOS, Verdicts 40 and 41, and `12b1f0c3`'s run
 green. TODO.md's limits are spent, as the last pass said, and no large item is queued, so the next
 is the owner's to name and has been asked for.
 
-Before them, item 2 came to be settled, where each emitter laid over by alpha keeps the eye its
-buffer was last sorted from, the step sorting from the window's as before, and
-`ParticleRenderer.SortFor` sorts it again from a view's own eye where that differs, outside any
-pass, the targets node for each render target before its pass and the HDR scene node for the window
-before its particles' pass where a target sorted after the step, a probe's faces drawing in the last
-order sorted and a render texture drawn only in 2D still drawing none; a new test draws one stream,
-blue born at the back and red aging toward the front, into two render textures from either end, the
-front view showing red in front and the back view blue, where the back view showed the window's
-order; Sumo's dust is additive and never sorted, so an emitter of 300 laid over by alpha was added
-to its ring through `./e3d eval`, its two views taking 0.377 to 0.383 ms of the GPU in `targets`
-where they took 0.352, some 0.013 ms a sort, written in the guide and RENDERING.md §3, TODO.md's
-sentence gone and the 2D render texture's want of a camera kept (`8ac5912a`). Item 2 is settled, and
-its number goes to a measured sweep of the per-entity cost entry, after item 3, which the coder has
-started, since TODO.md's limits are spent and the owner has not named the next large item. The
-suite: 1,574 passed, and on lavapipe the rendering tests, 308.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -78,26 +95,21 @@ and 9 by review.
 
 The owner asked on 2026-10-04 that the work here does not stop, there being much left to do. This
 list is long on purpose, and a batch that ends is followed by the next item with no wait for a
-reply. In this order. Item 3 is the next large item, the owner's choice of 2026-10-09, and item 5
-fills a wait.
+reply. In this order, which the owner set on 2026-10-09: the runs first, then the large item, then
+what follows it, and item 6 for a wait.
 
 1. **What the next page says.** Verdict 39 is settled: the macOS captures ran in a job of their own
    at `8ac5912a` and passed, 52 minutes of the runner's for the coder's 25, the test job beside them
    green in 30. `8ac5912a` and `12b1f0c3` are red on Windows, the hundred-app leak test reaching the
    five-minute hang limit at app 72 to 79 (Verdict 40), and `096797bc` and `12b1f0c3` are red on
    macOS, the whole suite lost to a crash in a different test each time and passing in its parts
-   (Verdict 41); `971dcd7c` has no run yet. The examples job, which carries the guides' blocks and
-   Verdicts 30 and 31, runs once a run's three test jobs pass, so Verdicts 40 and 41 come first.
-   Each push's run is read by the reviewing session, and a failure it names comes first here.
+   (Verdict 41); `d7e764c`'s run is under way, `6cf632e9` is not pushed, and `971dcd7c` was never
+   run alone. The examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a
+   run's three test jobs pass, so Verdicts 40 and 41 come first and 30 and 31 after them. When every
+   job is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
+   reviewing session, and a failure it names comes first here.
 
-2. **A render texture drawn only in 2D keeps drawing no particles, and the guide says so.** The
-   coder's first way, chosen over a call naming a camera: particles are the world's, and a texture
-   drawn only in 2D is an interface, a minimap or a canvas, which would show the window's smoke a
-   second time with no depth to hide it; a program that wants them in a texture draws that texture
-   in 3D through `BeginMode3D`, which draws them already. One sentence in the drawing guide beside
-   the render textures, and TODO.md's particles entry closed with the reason.
-
-3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
+2. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
    batches, each measured.** A material gains what skin, wax, marble and a leaf have, a subsurface
    color and a radius in world units with a thickness scale for its thin parts, set in the flat API
    as the material's other fields are and read from a glTF file's `KHR_materials_volume` thickness
@@ -117,12 +129,25 @@ fills a wait.
    entry. Each batch a commit of its own with its numbers, and what does not pay a measured share
    stays described.
 
+3. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
+   TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
+   out of the world, so it is given a capsule or a box and a mesh or hull collider on it is refused
+   with a warning. The copy's meshes become the entity's meshes in the world, posed from the same
+   joints as its wires and a body made from it are, so `CreatePhysicsConvexHull` and a mesh collider
+   take them as they take any mesh, with a test of an animated entity whose hull follows its pose,
+   the guide's section on animated models and the entry updated with what it then says.
+
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
 
-5. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
+5. **Three packages bumped, after 5.2 is packed (Decision 20).** Vortice.Vulkan 3.2.1 to 3.3.0,
+   AssimpNetter 6.0.4 to 6.0.5 and StbImageSharp 2.30.15 to 2.30.16, in one commit with the suite
+   run and the notices written again, on the owner's word typed into this session once the package
+   is out, as AGENTS.md has it for a version; SDL3-CS stays on its preview and NVorbis on 0.10.5.
+
+6. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
    being the point of each.
 
@@ -303,50 +328,37 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
     measured and tiered as the phases were, its kernels in Slang so the bridge runs them in
     BevyCSharp once proven here.
 
+19. **5.2 is packed when every job is green, before subsurface scattering lands.** The owner chose
+    it on 2026-10-09 over one release after subsurface scattering and over none for now, 107 commits
+    having landed since 5.1 was packed on 2026-10-06; the owner sets `build/version.txt` to 5.2 and
+    runs the pack workflow when the reviewing session says every job is green.
+
+20. **Three packages are bumped after 5.2.** The owner allowed on 2026-10-09 Vortice.Vulkan 3.3.0,
+    AssimpNetter 6.0.5 and StbImageSharp 2.30.16 in one commit after the package, with the word
+    typed into the working session; SDL3-CS stays on its 3.5 preview, whose stable line is 3.4, and
+    NVorbis on 0.10.5, its newer release a prerelease.
+
+21. **The animated model's meshes in the world follow subsurface scattering.** The owner chose it on
+    2026-10-09 over another game and over leaving the list open, TODO.md's "Models are partial"
+    being the one gap a game is likely to meet.
+
 ## Replies
 
-Verdict 41, read before its rewrite arrived. The close touches no freed view: `UnloadTexture` queues
-a removal that only a frame applies, and the test draws none after it, and the renderer's close
-waits for the device, then destroys the textures before `ModelRenderer` frees the material sets
-naming them, which Vulkan allows and MoltenVK takes in both its descriptor designs, the older
-counting each view a set names and the newer keeping Metal's texture alone. The reading found a
-fault beside it. The particle pass found its texture's material by id in a cache the model pass
-clears once a frame, and a frame that draws particles and no model never cleared it, so an emitter
-whose texture was unloaded went on binding the set naming the freed view after its four frames, a
-read of a destroyed image. The particle pass now begins the frame's sets itself. A new test draws a
-textured emitter alone, unloads its texture and draws eight frames more, the particle drawn white,
-as with no texture, where it showed the freed image's red. Since the crash moved to the leak test
-at `12b1f0c3`, this is not its cause; the rewritten verdict's dump on the page and the reading of
-what the two tests share come next, after Verdict 40.
-
-Item 2, the guide's sentence. The drawing guide's section on drawing into a texture says a texture
-shows particles where a `BeginMode3D` inside it draws the scene, through that camera, and none where
-it is drawn in 2D alone, with the reason, and TODO.md's particles entry says the same in place of
-the limit. The suite: 1,578 passed; on lavapipe the rendering, compute, particle and leak tests,
-313 passed and 2 skipped.
-
-Verdict 40, as rewritten. Each app's time is printed as it goes, to make with what the test draws,
-for a frame and to close. Here an offscreen app takes 0.55 s on the RTX 4070, the median of the
-last 80, and 0.5 s on lavapipe in the workflow's image, its first 24 s compiling. With Mesa's disk
-cache off it takes 2.5 s, 2 of them in the frames where lavapipe compiles each shader as it first
-draws, and Mesa's build for Windows has that cache off, since Mesa's own `meson.build` refuses it
-there ("Shader Cache does not currently work on Windows"), which with a slower runner is the four
-seconds the pages show. A pipeline cache shared across a process's devices was written and
-measured, and it spares nothing. lavapipe's pipeline cache is a stub that keeps only its 32-byte
-header (`lvp_pipeline_cache.c`), and on the RTX 4070 the cache kept 460 KB and the median app took
-544 ms against 546, the driver's own disk cache holding the pipelines already, so it was taken out.
-The device's making takes 32 ms on lavapipe and 142 on the NVIDIA driver, not where the time
-goes. So the test counts its apps against four minutes, a hundred where they fit and fifty at
-least, the heap's floor compared between the first and second halves of its readings, and its
-failure's first line says how many apps in how many seconds; a budget cut to one second for a run
-stopped both leak tests at fifty, and both passed. On the Windows runner that is some sixty apps in
-four minutes, under `build/test.py`'s five. The handles are held to the twentieth app's count and
-200: here they hold at 192 to the hundredth app, and at 210 on lavapipe, and on Windows, where they
-climbed some ten an app, the test now fails near the fortieth with the count and the handles and
-threads after every ten apps, whose cause no machine here can find. The hot reload test and the
-three beside it wait on the torus and its texture for up to 30 seconds of the clock, in place of
-300 frames whose sleep is some 15 ms on Windows, its failure saying how long it waited over how many
-frames, and `build/norm/3.3.txt` lists both clocks with their reasons. On lavapipe in the
-container the hundred-app test's resident memory rose 160 MB without `MALLOC_ARENA_MAX=2`, at HEAD
-as with this change, and holds with it, as the Linux job sets it. The suite: 1,578 passed; on
-lavapipe the leak and asset release tests passed.
+Verdict 41, as rewritten. `build/test.py` reads each minidump a lost test host leaves, where
+`E3D_DOTNET_DUMP` names dotnet-dump or it is on the path, with `threads`, `clrthreads`, `pe`,
+`clrstack -f` and `clrstack -all -f`, all of it written beside the dump as `<dump>.txt`. The page
+and the lost process's annotation carry the thread the dump was written for, whether the runtime
+runs it, its managed exception, and its first eight frames with their modules, or, where it holds no
+managed frames, as a driver's thread, the top three frames of up to four managed threads, what each
+was in. The macOS job installs dotnet-dump 10.0.750501 beside dotnet-gcdump. Read against a crash
+made here for it, a managed fault reads as `System.AccessViolationException` with its frames and
+their lines, and the script's tests give a stand-in for dotnet-dump the case of a fault on a
+driver's thread while the main thread closes the device. What the two tests share is an offscreen
+app made and closed. The device objects are now counted with the instance and the device
+themselves, and in the whole run here the leak test begins with none of either alive, so the
+earlier tests leave no device behind on Linux, which the macOS page's leak test line will say there;
+on lavapipe the threads hold at 31 to 36 over its apps. Beside its device, each app starts and quits
+SDL's audio subsystem by count, with no `SDL_Quit`, and makes and destroys an ImGui context; the
+command line's socket is not opened, since the tests do not serve, so on Windows the audio
+subsystem is the first to read when the handle series comes with flat threads. The suite: 1,578
+passed.

@@ -85,6 +85,7 @@ internal sealed unsafe partial class GraphicsDevice
             vkCreateInstance(&createInfo, null, out _instance).CheckResult();
         }
 
+        DeviceObjects.Made(DeviceObjects.Kind.Instance);
         Logger.Debug($"VkInstance created (handle=0x{_instance.Handle:X}).");
         // Made directly rather than through GetApi, which caches tables by handle forever. A later
         // instance can be given a destroyed one's handle, and would get its table, whose pointers
@@ -111,6 +112,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             Logger.Debug("Destroying VkInstance...");
             _instanceApi.vkDestroyInstance();
+            DeviceObjects.Gone(DeviceObjects.Kind.Instance);
             _instance = default;
             Logger.Debug("VkInstance destroyed.");
         }

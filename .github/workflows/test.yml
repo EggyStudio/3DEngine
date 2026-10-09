@@ -271,6 +271,14 @@ jobs:
           dotnet tool install dotnet-gcdump --version 10.0.745401 --tool-path "$RUNNER_TEMP/gcdump"
           echo "E3D_GCDUMP=$RUNNER_TEMP/gcdump/dotnet-gcdump" >> "$GITHUB_ENV"
 
+      # dotnet-dump, at the version tried, with which build/test.py reads the minidump a test host
+      # that died left, here where it was made, since no other system reads a macOS dump, and puts
+      # the faulting thread's stack on the page, where the dump itself is behind a sign-in.
+      - name: Install dotnet-dump to read a test host's minidump
+        run: |
+          dotnet tool install dotnet-dump --version 10.0.750501 --tool-path "$RUNNER_TEMP/dotnet-dump"
+          echo "E3D_DOTNET_DUMP=$RUNNER_TEMP/dotnet-dump/dotnet-dump" >> "$GITHUB_ENV"
+
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       # The suite through build/test.py, as on Linux.

@@ -9,7 +9,8 @@ The suite runs whole, as one process, held to a time and a memory. A process tha
 passing or failing, is read from its results file. One that is lost, by a crash, a hang, its time
 or its memory, is said first on the page, with how far a test that prints its progress, as
 `[leak test] app 37 of 100`, had got, and the minidump a test host that died left in
-TestResults/dumps, and the suite runs again in parts, each a process of its own under the same
+TestResults/dumps, with the stack of the thread it was written for where dotnet-dump, named by
+E3D_DOTNET_DUMP or on the path, reads it, and the suite runs again in parts, each a process of its own under the same
 limits, so a part that is lost costs only its own tests. A part is a name after
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
 whose filter is the negation of the others, so no test falls between two parts.
@@ -28,6 +29,7 @@ import os
 import platform
 import re
 import shlex
+import shutil
 import signal
 import subprocess
 import sys
@@ -45,6 +47,8 @@ PREFIX = "Engine.Tests."
 
 CAUSES_SHOWN = 10
 FRAMES_SHOWN = 6
+DUMP_FRAMES_SHOWN = 8
+DUMP_THREADS_SHOWN = 4
 MESSAGE_LINES = 5
 TESTS_SHOWN = 4
 REPEATED_SHOWN = 3
@@ -71,6 +75,7 @@ class Process:
         self.last_lines = []
         self.progress = None      # the last line a test printed of how far it had got, as "[leak test] app 37 of 100"
         self.dumps = []           # the minidumps a lost test host left
+        self.dump_lines = []      # what dotnet-dump read in the ones it left, a line each
         self.counts = Counter()
 
     def summary(self):
@@ -102,6 +107,7 @@ def run(dotnet, process, args, results):
         # with them, so a crash in native code, a driver's, can be read where the page cannot say it.
         dumps = os.path.join(results, "dumps")
         os.makedirs(dumps, exist_ok=True)
+        before = set(os.listdir(dumps))
         environment = dict(os.environ, DOTNET_DbgEnableMiniDump="1", DOTNET_DbgMiniDumpType="1",
                            DOTNET_DbgMiniDumpName=os.path.join(dumps, "%e-%p.dmp"))
         child = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT, cwd=ROOT, env=environment, **options)
@@ -135,7 +141,84 @@ def run(dotnet, process, args, results):
         progress = re.findall(r"^\[[a-z][^\]]*\] .+$", text, re.M)
         process.progress = progress[-1].strip()[:LINE_WIDTH] if progress else None
         process.dumps = sorted(os.listdir(dumps))
+        tool = dump_tool()
+        for name in sorted(set(process.dumps) - before):
+            if tool and name.endswith(".dmp"):
+                process.dump_lines += read_dump(tool, os.path.join(dumps, name))
     return process
+
+
+# -- A minidump, read where it was made
+
+def dump_tool():
+    """The command that reads a minidump, E3D_DOTNET_DUMP's or dotnet-dump on the path, or None."""
+    named = os.environ.get("E3D_DOTNET_DUMP")
+    if named:
+        return shlex.split(named, posix=os.name != "nt")
+    found = shutil.which("dotnet-dump")
+    return [found] if found else None
+
+
+def read_dump(tool, path):
+    """
+    What dotnet-dump reads in a minidump, written whole beside it as <dump>.txt, and the lines the
+    page shows: the thread it was written for, the thread that faulted, its managed exception where
+    it has one, and its frames with their modules, or where it runs no managed code, as a driver's
+    thread, what each managed thread was in, a few frames each. A dump can only be read on the
+    system that made it, which a macOS dump is not anywhere else, so the job reads its own.
+    """
+    accounts = {}
+    for command in ("threads", "clrthreads", "pe", "clrstack -f", "clrstack -all -f"):
+        try:
+            accounts[command] = subprocess.run(tool + ["analyze", path, "-c", command, "-c", "exit"], capture_output=True, text=True,
+                                               errors="replace", timeout=300, cwd=ROOT).stdout
+        except (OSError, subprocess.TimeoutExpired) as error:
+            return [f"dotnet-dump could not read `{os.path.basename(path)}`: {error}"[:LINE_WIDTH]]
+    with open(path + ".txt", "w", encoding="utf-8") as f:
+        for command, text in accounts.items():
+            f.write(f"> {command}\n{text}\n")
+    return [line[:LINE_WIDTH] for line in faulting(os.path.basename(path), accounts)]
+
+
+def faulting(name, accounts):
+    """The page's account of a dump from dotnet-dump's answers to the commands read_dump asks."""
+    current = re.search(r"^\s*\*\s*(\d+)\s+0x([0-9A-Fa-f]+)", accounts["threads"], re.M)
+    if not current:
+        return [f"dotnet-dump read `{name}` and named no thread it was written for"]
+    os_id = int(current.group(2), 16)
+    managed = {int(m, 16) for m in re.findall(r"^\s*\d+\s+\d+\s+([0-9a-fA-F]+)\s+[0-9A-Fa-f]{8,}\s", accounts["clrthreads"], re.M)}
+    runs = os_id in managed
+    lines = [f"dotnet-dump read `{name}`, written for thread {current.group(1)}, OS id {os_id:#x}, "
+             + ("a thread the runtime runs" if runs else "a thread the runtime does not run, as a driver's or a native library's")]
+    kind = re.search(r"^Exception type:\s*(.+)$", accounts["pe"], re.M)
+    if kind:
+        message = re.search(r"^Message:\s*(.+)$", accounts["pe"], re.M)
+        lines.append(kind.group(1).strip() + (f": {message.group(1).strip()}" if message else ""))
+    frames = stack_frames(accounts["clrstack -f"])
+    if frames:
+        lines += ["at " + frame for frame in frames[:DUMP_FRAMES_SHOWN]]
+        return lines
+    lines.append("It holds no managed frames, and the threads that do were in")
+    shown = 0
+    for thread, block in re.findall(r"^OS Thread Id:\s*(0x[0-9A-Fa-f]+)[^\n]*\n(.*?)(?=^OS Thread Id:|\Z)", accounts["clrstack -all -f"], re.M | re.S):
+        top = stack_frames(block)[:3]
+        if not top or shown == DUMP_THREADS_SHOWN:
+            continue
+        shown += 1
+        lines.append(f"  {thread}: " + " < ".join(top))
+    return lines
+
+
+def stack_frames(text):
+    """The call sites of a stack dotnet-dump printed, its explicit frames left out and a source path cut to its file."""
+    frames = []
+    for line in text.splitlines():
+        match = re.match(r"^[0-9A-Fa-f]{16}\s+(?:[0-9A-Fa-f]{16}\s+)?(.+?)\s*$", line)
+        if not match or match.group(1).startswith("["):
+            continue
+        site = re.sub(r"\s*\[([^\]@]+) @ (\d+)\]$", lambda m: f" in {os.path.basename(m.group(1).replace(chr(92), '/'))}:{m.group(2)}", match.group(1))
+        frames.append(re.sub(r" \+ \d+(?= in |$)", "", site))
+    return frames
 
 
 def last_lines(text):
@@ -412,7 +495,7 @@ def digest(results_dir, processes, listed, seconds):
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
         "processes": [{"label": p.label, "lost": p.lost, "seconds": round(p.seconds), "peak_mb": p.peak_mb, "exit_code": p.exit_code,
                        "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(),
-                       "progress": p.progress, "dumps": p.dumps} for p in processes],
+                       "progress": p.progress, "dumps": p.dumps, "dump_lines": p.dump_lines} for p in processes],
         "causes": sorted(causes.values(), key=lambda c: (-c["count"], c["key"])),
         "repeated": repeated_lines(read_text(path) for path in outputs),
     }
@@ -446,7 +529,7 @@ def lost_entry(p):
         lines.append(f"The test had got as far as `{p['progress']}`")
     if p.get("dumps"):
         lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
-    return lines + p["last_lines"]
+    return lines + p.get("dump_lines", []) + p["last_lines"]
 
 
 def page(d):
@@ -464,6 +547,8 @@ def page(d):
             lines.append(f"The test had got as far as `{p['progress']}`")
         if p.get("dumps"):
             lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
+        if p.get("dump_lines"):
+            lines += ["    " + line for line in p["dump_lines"]]
         lines.append("Its last lines:")
         lines += ["    " + line for line in p["last_lines"]]
         lines.append("")

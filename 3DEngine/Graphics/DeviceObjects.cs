@@ -7,9 +7,14 @@ namespace Engine;
 /// </summary>
 internal static class DeviceObjects
 {
-    /// <summary>The kinds counted, those an app's passes make many of.</summary>
+    /// <summary>
+    /// The kinds counted, those an app's passes make many of, and the instance and the device
+    /// themselves, so an app an earlier test left open shows in a later test's reading.
+    /// </summary>
     internal enum Kind
     {
+        Instance,
+        Device,
         Image,
         Buffer,
         Memory,

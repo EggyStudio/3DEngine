@@ -114,7 +114,9 @@ public sealed class TestScriptTests : IDisposable
     [InlineData("die", "lost to a crash")]
     public void A_Lost_Process_Is_Said_First_And_The_Suite_Runs_Again_In_Parts(string mode, string said)
     {
-        var (exit, log) = Script(mode, "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
+        // dotnet-dump's stand-in reads the minidump a death leaves.
+        var (exit, log) = Script(new Dictionary<string, string> { ["E3D_DOTNET_DUMP"] = $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_dump_standin.py" },
+            mode, "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
             "--results", _folder.Path, "--timeout-minutes", "0.1", "--memory-mb", "200");
 
         exit.Should().Be(1, "a process was lost");
@@ -126,8 +128,19 @@ public sealed class TestScriptTests : IDisposable
             .And.Contain(line => line.StartsWith("- everything else: 5 passed", StringComparison.Ordinal));
         log.TrimEnd().Should().EndWith("end of the page " + new string('=', 30), "the page ends the log");
         if (mode == "die")
+        {
             page.Should().Contain("The test had got as far as `[leak test] app 37 of 100`", "a test's own progress says where a crash came")
                 .And.Contain("It left the minidump `testhost-4242.dmp` among the results, under `dumps`");
+            page.Should().Contain("    dotnet-dump read `testhost-4242.dmp`, written for thread 1, OS id 0x1a2c, a thread the runtime does not run, as a driver's or a native library's",
+                    "the dump is read where it was made, naming the thread that faulted")
+                .And.Contain("    It holds no managed frames, and the threads that do were in")
+                .And.Contain("      0x1a2b: 3DEngine.dll!Engine.GraphicsDevice.DestroyLogicalDevice() in GraphicsDevice.Device.cs:204"
+                    + " < 3DEngine.dll!Engine.GraphicsDevice.Dispose() in GraphicsDevice.cs:202 < 3DEngine.dll!Engine.Renderer.Dispose()",
+                    "a fault on a thread of no managed code says what each managed thread was in");
+            page.Should().NotContain(line => line.Contains("0x1a2d:"), "a thread with no frames of its own is left out");
+            File.ReadAllText(Path.Combine(_folder.Path, "dumps", "testhost-4242.dmp.txt")).Should().Contain("> clrstack -all -f",
+                "and the whole of what it read is kept beside the dump");
+        }
     }
 
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it

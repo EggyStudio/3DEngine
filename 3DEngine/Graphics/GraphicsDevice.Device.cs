@@ -182,6 +182,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         Logger.Debug("Calling vkCreateDevice...");
         _instanceApi.vkCreateDevice(_physicalDevice, &createInfo, null, out _device).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Device);
         Logger.Debug($"VkDevice created (handle=0x{_device.Handle:X}).");
 
         // Made directly for the same reason as the instance's table: GetApi's cache outlives the device.
@@ -202,6 +203,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             Logger.Debug("Destroying VkDevice...");
             _deviceApi.vkDestroyDevice();
+            DeviceObjects.Gone(DeviceObjects.Kind.Device);
             _device = default;
             Logger.Debug("VkDevice destroyed.");
         }
