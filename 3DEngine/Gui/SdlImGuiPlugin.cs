@@ -68,10 +68,16 @@ internal sealed class SdlImGuiPlugin : IPlugin
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad | ImGuiConfigFlags.DockingEnable;
         ImGui.StyleColorsDark();
 
+        // A window never shown, as a run ./e3d or a test drives, neither reads nor writes
+        // imgui.ini, so each starts from the program's own layout whatever an earlier run left
+        // there, and a shown window keeps ImGui's own, which brings a player's layout back.
+        var cfg = app.World.Resource<Config>();
+        if (cfg.Hidden || cfg.Offscreen || cfg.Headless)
+            unsafe { io.NativePtr->IniFilename = null; }
+
         // ImGui's Vulkan adapter. No-op when the graphics backend isn't Vulkan.
         app.AddPlugin(new VulkanImGuiPlugin());
 
-        var cfg = app.World.Resource<Config>();
         bool isVulkan = cfg.Graphics == GraphicsBackend.Vulkan;
 
         if (!app.World.TryGetResource<AppWindow>(out var existingWindow))

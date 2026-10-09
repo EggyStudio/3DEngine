@@ -66,6 +66,25 @@ public class ImGuiHolderTests
     }
 
     [Fact]
+    public void A_Run_No_One_Sees_Leaves_No_Layout_Behind()
+    {
+        // ImGui writes its windows' places to imgui.ini in the working directory as it shuts down,
+        // which a run that shows no window, as ./e3d's and the tests', neither reads nor writes, so
+        // the next starts from the program's own layout.
+        var ini = Path.Combine(Environment.CurrentDirectory, "imgui.ini");
+        File.Delete(ini);
+        var app = Build();
+        app.BeginFrame();
+        ImGuiNET.ImGui.SetNextWindowPos(new System.Numerics.Vector2(120, 80));
+        ImGuiNET.ImGui.Begin("placed");
+        ImGuiNET.ImGui.End();
+        app.EndFrame();
+        app.Shutdown();
+
+        File.Exists(ini).Should().BeFalse("a run no one sees keeps no layout for the next");
+    }
+
+    [Fact]
     public void An_App_Built_After_The_First_Shut_Down_Uses_ImGui()
     {
         Build().Shutdown();

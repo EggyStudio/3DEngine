@@ -156,6 +156,11 @@ ImGui.End();
 
 `DrawProfileWindow()` draws where each frame's time goes in a window of its own.
 
+ImGui keeps where its windows were moved, docked and sized in `imgui.ini` beside the program, so a
+player finds a layout as they left it. A run that shows no window, hidden, offscreen or headless, as
+`./e3d` and a test open one, neither reads nor writes the file, and starts from the program's own
+layout each time.
+
 An ImGui window dragged outside the game's window is given a window of its own on the desktop,
 with ImGui's viewports turned on, which they are not until the program sets ImGui's flag:
 

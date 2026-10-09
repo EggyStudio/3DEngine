@@ -282,3 +282,17 @@ Both stay described in the entry with these numbers, Release offscreen with no a
 seven profile readings. The bunnymark draws sprites through the immediate pass and no instance ring,
 so neither reaches it. The suite: 1,575 passed; on lavapipe the rendering tests, 308 passed and 2
 skipped.
+
+After the list, the stale docking drag on `gui_imgui_window`. `input.drag` moves from where the
+pointer is, so TODO.md's `input.drag Left 280 156 20 20` docked only from a pointer left on the Cube
+window's title, which the sentence never placed, and ImGui kept its windows' places in `imgui.ini`
+in the program's folder, so a hidden run opened with the layout an earlier run had left, and the
+drag's numbers held only for that layout. A window no one sees, hidden, offscreen or headless, as
+`./e3d` and the tests open one, now neither reads nor writes `imgui.ini`, so each such run starts
+from the program's own layout, which keeps a capture of a gui example the same whatever was dragged
+before; a shown window keeps ImGui's file, which brings a player's layout back. From that layout,
+`./e3d command input.move 100 67` and `input.drag Left 300 158 20 20` dock the Cube window into the
+window's middle, tried here against three other ends that only moved it, and the Help window moves
+by its title as dragged; TODO.md and the window guide say so. A new test runs a headless app that
+places a window and finds no `imgui.ini` after it, which fails without the change. The suite: 1,576
+passed.
