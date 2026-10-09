@@ -761,9 +761,9 @@ Cornell box, −27% with thin walls, −17% in the corridor, −57% through the 
 grazing floor and −51% with the lamp carried, the strip and the outdoor blocks unchanged. The merge
 and the gather lose little beside it: each face the model pass reads equals the one gathered from
 the merge to the third digit, and the merge trails the rays' own hits by 1 to 7 points. The gather
-does take each texel of a probe's octahedron as an equal share of the sphere, which reads a uniform
-sky's ±z faces at 0.82 of its light at 4 texels a side, `Low`'s and `Medium`'s first cascade, and
-0.93 at 8, and its ±x and ±y faces at 1.04 and 0.98. What remains after pi is the light that bounces
+took each texel of a probe's octahedron as an equal share of the sphere, which read a uniform sky's
+±z faces at 0.82 of its light at 4 texels a side, `Low`'s and `Medium`'s first cascade, and 0.93 at
+8, and its ±x and ±y faces at 1.04 and 0.98. What remains after pi is the light that bounces
 again, read at a hit from the frame before's probes: in the Cornell box, with pi, the probe's merged
 light is 0.973 bouncing once against the reference's 1.010, and 1.111 with every bounce against
 1.431, so it holds a third of the 0.421 past the first bounce. The thin room's walls, under the
@@ -830,6 +830,29 @@ The bounce costs what it did, 0.36, 0.44 and 0.53 ms by quality on the Cornell b
 room's frame passing the one-bounce reference by 51% is its walls' leak, now a share of the whole
 light, and a closed room with a lamp under its floor holds 14.6 levels where it held under 8, both
 the probes' visibility's to mend.
+
+The second weighs each direction a probe gathers by its texel's share of the sphere, one over the
+cube of its octahedron point's distance from the middle, beside its cosine, with the weights scaled
+to sum to pi (`octahedronShare` in `gi.slang`, `gi_ambient.slang`), and the screen's probes' rays
+the same over their hemisphere, where an equal share read a uniform sky at 1.04 of its light. Every
+face of a probe under a uniform sky reads pi to 2% at `Low` and `High` (`GlobalIlluminationTests`).
+Before and after, over every region against every bounce and, in the last column, `Low` against one
+bounce:
+
+| Room | `Low` | `Medium` | `High` | `Low` against one bounce |
+|---|---|---|---|---|
+| The Cornell box | −16% to −21% | −15% to −20% | −22% | +4% to −2% |
+| Thin walls, a lamp outside | −12% to −8% | −13% to −9% | −27% to −23% | +82% to +89% |
+| A corridor lit from its end | −18% to −15% | −17% to −15% | −17% to −15% | +1% to +4% |
+| The sun through a window | −64% to −63% | −64% to −62% | −57% to −56% | −35% to −33% |
+| A floor at a grazing angle | −62% | −61% | −57% | −18% to −19% |
+| A lamp carried, a wall moved | −52% to −50% | −52% to −50% | −51% to −49% | −18% to −14% |
+
+The Cornell box against one bounce comes within 3% at every quality, −2, −1 and −3%, where the
+faces along x and y read 4% over and hid part of what the light that bounces again lacks, which
+shows as 5 points more under every bounce at `Low` and `Medium`. The outdoor blocks and the strip
+are unchanged, the closed room with a lamp under its floor holds 17.3 levels where it held 14.6, and
+the bounce costs what it did, 0.36, 0.44 and 0.53 ms.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

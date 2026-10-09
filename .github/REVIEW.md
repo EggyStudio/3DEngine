@@ -10,9 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `46732863`. Decision 25 is carried out: `SdlAudioPlugin.Silent` holds a run that is
-hidden, offscreen or headless to SDL's dummy driver unless `Config.AudibleWithoutWindow` asks for
-the device, the backend opening the dummy driver first with the hint at override priority as the
+Reviewed up to `a3dd7a8d`. C's first fix, the pi: `shadeHit`, `shadeProbeHit` and the reflections'
+hits through the ray query take the lamps' and the sun's light times pi beside the bounced light,
+one factor in three places, and every lit room moves toward its reference as B foretold, at High the
+Cornell box from 33% under to 22, the thin walls from 58 to 27, the window from 73 to 57, the
+grazing floor from 66 to 57, the carried lamp from 60 to 51 and the corridor from 21 to 17, the
+outdoor blocks and the strip unchanged, the cost unchanged at 0.36, 0.44 and 0.53 ms, the table in
+RENDERING.md §4. Two tests moved with the light and both moves are right: the Cornell box's and
+Wick's references are drawn again, brighter and the small block's side tinted green, holding on
+lavapipe; and the camera slide's test holds a share, the frame before's light taking at least half
+the crawl away, 0.97 against 2.91 unheld, where a level that a brighter bounce passes said less. The
+third is a widened bound and is said as one: the closed room with a lamp under its floor reads 14.6
+levels where it read under 8, the probes beneath the floor lending their light, which the pi made
+plain, and its bound is 16 until the fifth fix's visibility brings it back under 8, the test saying
+so; that fix closes the bound with it, and the thin room passing one bounce by 51% is the same leak.
+The screen probes' hemisphere has the gather's fault too, a uniform sky at 1.04, so the second fix
+weighs both. The suite: 1,586 passed; on lavapipe 312 passed and 6 skipped.
+
+Before it, Decision 25 came to be carried out: `SdlAudioPlugin.Silent` holds a run that is hidden,
+offscreen or headless to SDL's dummy driver unless `Config.AudibleWithoutWindow` asks for the
+device, the backend opening the dummy driver first with the hint at override priority as the
 fallback has it, and where another backend of the process already started SDL's audio through a
 device's driver, which no hint can change, the device it would open is closed again and the backend
 disabled with the reason, so nothing reaches the speakers either way; `./e3d open --hidden` logs
@@ -47,34 +64,6 @@ bouncing never, once and always. Right, every number the item asked for and the 
 them; C is rewritten below in that order, with what HTrace WSGI 2.0 Alpha 4 beside its Alpha 2 in
 `.ref` suggests folded in where B's numbers call for it. The suite: 1,584 passed; on lavapipe 312
 passed and 6 skipped. Decision 25's commit, then C.
-
-Before it, item 2's A3 came to be read, the window and views: `DrawBounceWindow()` beside
-`SetGlobalIllumination`, with `gi.state`'s lines, a view, the cascade, a box for each part, and a
-reference's path with Trace, Compare and the difference and the regions' table, which the level
-shows on Tab; `gi.show <view> [cascade or png]` and `gi.toggle <part> <on|off|cascade>` for `./e3d`;
-the views the screen's probes as tiles with their light, the light as the rays brought it and
-filtered, the history's share red to green, a cascade's rays and its merge as squares of
-octahedrons, the probes in the scene, and the frame against a reference colored as `gi.compare`'s
-picture; the parts each left out by flags, the merge changing the Cornell frame by 14.5 levels, the
-last cascade alone by 2.2, the screen's probes by 0.58 and their filter by 0.11, which
-`BounceViewTests` holds with each view different from the frame and from every other. Two
-departures, both right: the probes are cubes, one face for each of the six irradiances the model
-pass reads, where a sphere would blend them into a gradient nothing reads, and they are drawn in the
-HDR scene's pass after the meshes, since a batch with depth after the program's own would move the
-split between the scene and the interface and tonemap the program's text. The first look places one
-thing for B: the Cornell box's back wall's screen probes hold nothing, the wall lying past the first
-field cascade, 9.6 units around the camera at the example's 0.15 cells, so its bounce comes from the
-world probes alone, the owner's dim distance in one sentence. And the reply reads the shading
-itself: `shadeHit` and `shadeProbeHit` in `gi.slang`, and the ray-query reflections, send on `color
-/ Pi * arrived` where `arrived` is in the model pass's units, the light a white surface returns with
-no pi, so a lamp-lit surface sends on a pi-th of its light and bounce-only rooms would read about
-68% under, near the 54 to 75% measured; right to measure it first with the one- and two-bounce
-references before anything changes, since a frame at a pi-th of one bounce proves it and a frame
-nearer than that says something else is lost too. The `Shared:` line is taken, the instruments a row
-under tests. `GraphicsDevice.GlobalIllumination.cs` passed 800 lines and the reflections' history
-moved out as it was, a commit's worth of moving in this one, which N 1.3's own words ask to be
-apart; said once, not held against a batch that found the file over the line as it worked. The
-suite: 1,582 passed; on lavapipe 312 passed and 4 skipped. B is next.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -411,19 +400,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the first fix, the pi.** `shadeHit`, `shadeProbeHit` and the reflections' hits
-through the ray query take the lamps' and the sun's light times pi beside the bounced light, so a
-lit surface sends on the whole of its light. Over every region against every bounce, at Low,
-Medium and High: the Cornell box −30, −30, −33% to −16, −15, −22%; thin walls −54, −54, −58% to
-−12, −13, −27%; the corridor −22, −21, −21% to −18, −17, −17%; the window −75, −75, −73% to −64,
-−64, −57%; the grazing floor −67, −67, −66% to −62, −61, −57%; the carried lamp −60% to −52, −52,
-−51%; the outdoor blocks at −1% and the strip at −87% unchanged. The bounce costs 0.36, 0.44 and 0.53
-ms as before. RENDERING.md §4 has the table. Two tests moved with the light. The Cornell box's and
-Wick's reference frames are drawn again, brighter, the small block's side tinted green, and hold on
-lavapipe. The camera slide's test held the bounce's added change under 0.5 levels a frame, which a
-bounce pi times brighter passes at 0.97. It holds instead that the frame before's light takes at
-least half of the crawl away, 0.97 against 2.91 unheld, a share no brightness moves. The closed
-room with a lamp under its floor shows the probes beneath the floor lending their light at 14.6
-levels. Its bound is 16 until the fifth fix's visibility, which brings it back under 8, said in
-the test. The thin room passing one bounce by 51% at High is the same leak. NORM.md's line is in.
-The suite: 1,586 passed; on lavapipe 312 passed and 6 skipped. The gather's weights next.
+**Item 2's C, the second fix, the gathers' weights.** Each direction a world probe gathers is
+weighed by its texel's share of the sphere, one over the cube of its octahedron point's distance
+from the middle, beside its cosine, the weights scaled to sum to pi (`octahedronShare`), and the
+screen's probes' sixteen rays the same over their hemisphere, whose equal shares read a uniform
+sky at 1.04. A new test holds every face of a probe under a uniform sky to pi within 2% at Low and
+High. The old gather fails it at 1.04 on ±x and ±y and 0.82 on ±z at Low, as predicted. The probe
+check's faces are weighed the same way. Before and after over every region against every bounce:
+the Cornell box −16% to −21% at Low and −15% to −20% at Medium, −22% at High; thin walls −12% to −8%,
+−13% to −9%, −27% to −23%; the corridor −18 to −15%; the window and the grazing floor within a
+point; the carried lamp −52% to −50%. The Cornell box's 5 points more under at Low and Medium is
+the over-read along x and y going. Against one bounce the Cornell box comes within 3% at every
+quality, −2, −1 and −3%, where it read +4, +5 and −4%, so the first bounce is right there and what
+it lacks is the light that bounces again, C3. The closed room's leak grew from 14.6 to 17.3 levels,
+so its bound is 20 until C5, said in the test. The cost is unchanged, 0.36, 0.44 and 0.53 ms. The
+suite: 1,587 passed; on lavapipe 313 passed and 6 skipped. C3 next.

@@ -95,6 +95,33 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void Under_A_Uniform_Sky_Every_Face_Of_A_Probe_Reads_The_Same_Light_At_Each_Quality()
+    {
+        // A sky of 1 and nothing near the probes in the middle of the first cascade, a block drawn
+        // far below them so the window shows a scene, so every face of such a probe gathers pi.
+        // Each texel of the probes' octahedrons taken as an equal share of the sphere read the
+        // faces along z at 0.82 of that at Low, its first cascade's 4 texels a side, and 0.93 at High.
+        foreach (var quality in new[] { GlobalIllumination.Low, GlobalIllumination.High })
+        {
+            Open();
+            SetAmbientLight(Color.White, 1);
+            SetGlobalIllumination(quality);
+            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            Capture(() => DrawModelEx(slab, new Vector3(0, -30, 0), Vector3.UnitY, 0, Vector3.One, Color.White));
+            var renderer = GetApp().World.Resource<Engine.Renderer>();
+            var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
+            var cubes = ((GraphicsDevice)renderer.Context.Graphics).ReadIlluminationCubes(probes);
+            var (p, middle) = (probes.Probes, probes.Probes / 2);
+            var faces = Enumerable.Range(0, 6).Select(f => cubes[((middle * p + middle) * 6 * p + f * p + middle) * 4]).ToArray();
+            faces.Should().AllSatisfy(face => face.Should().BeApproximately(MathF.PI, MathF.PI * 0.02f, $"each face at {quality} reads the sky alike, {string.Join(", ", faces)}"));
+            UnloadModel(slab);
+            CloseWindow();
+            UseApp(null);
+        }
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Red_Wall_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
         Open();
@@ -494,9 +521,10 @@ public sealed class GlobalIlluminationTests : IDisposable
             var room = Mean(Capture(Draw, new Camera3D(new Vector3(0, 1.5f, 1.5f), new Vector3(0, 1.5f, -2), Vector3.UnitY, 70)), 20, 16, 120, 64);
 
             // Under the floor the lamp still lends the room the light of the world's probes beneath
-            // it, 14.6 here since a hit sends on the whole of the lamp's light rather than a pi-th,
-            // which the probes' visibility is to take away.
-            room.Length().Should().BeLessThan(16, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
+            // it, 17.3 here since a hit sends on the whole of the lamp's light rather than a pi-th
+            // and each probe's faces weigh their directions by their shares of the sphere, which the
+            // probes' visibility is to take away.
+            room.Length().Should().BeLessThan(20, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
             UnloadModel(slab);
             CloseWindow();
             UseApp(null);

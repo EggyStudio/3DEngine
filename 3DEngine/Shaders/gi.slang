@@ -20,14 +20,30 @@ public float2 octahedron(float3 d)
     return p * 0.5 + 0.5;
 }
 
-// The direction a point of the square stands for.
-public float3 fromOctahedron(float2 uv)
+// The point of the octahedron a point of the square stands for, not yet a direction.
+public float3 octahedronPoint(float2 uv)
 {
     float2 p = uv * 2.0 - 1.0;
     float3 d = float3(p, 1.0 - abs(p.x) - abs(p.y));
     if (d.z < 0.0)
         d.xy = (1.0 - abs(d.yx)) * float2(d.x >= 0.0 ? 1.0 : -1.0, d.y >= 0.0 ? 1.0 : -1.0);
-    return normalize(d);
+    return d;
+}
+
+// The direction a point of the square stands for.
+public float3 fromOctahedron(float2 uv)
+{
+    return normalize(octahedronPoint(uv));
+}
+
+// How much of the sphere a texel of the square spans at uv, against the others: one over the cube
+// of its octahedron point's distance from the middle, as a patch of the octahedron there covers its
+// area over that cube. The texels near the octahedron's corners span the least, those at the
+// middles of its faces the most, near three times as much.
+public float octahedronShare(float2 uv)
+{
+    float l = length(octahedronPoint(uv));
+    return 1.0 / (l * l * l);
 }
 
 // The lights the bounced light is lit by, as the renderer writes them each frame, each laid out

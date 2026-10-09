@@ -75,12 +75,13 @@ float3 worldAt(float2 uv, float d)
 }
 
 // A direction of the hemisphere around +z for a point of the square, the octahedron's upper half
-// unfolded onto it.
-float3 hemisphere(float2 uv)
+// unfolded onto it, its length before it was made one in w.
+float4 hemisphere(float2 uv)
 {
     float2 a = uv * 2.0 - 1.0;
     float x = (a.x + a.y) * 0.5, y = (a.x - a.y) * 0.5;
-    return normalize(float3(x, y, 1.0 - abs(x) - abs(y)));
+    float3 d = float3(x, y, 1.0 - abs(x) - abs(y));
+    return float4(normalize(d), length(d));
 }
 
 // The world's first cascade's eight probes around p, the one nearest the field's origin first,
@@ -194,11 +195,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 start = p + n * (cell * 0.5);
     float length = view.trace.x;
     float3 sum = float3(0.0);
+    float weights = 0.0;
     for (uint v = 0u; v < Rays; v++)
         for (uint u = 0u; u < Rays; u++)
         {
-            float3 local = hemisphere((float2(u, v) + 0.5) / float(Rays));
+            float4 local = hemisphere((float2(u, v) + 0.5) / float(Rays));
             float3 way = normalize(side * local.x + along * local.y + n * local.z);
+            // How squarely the ray falls on the surface times the share of the hemisphere its
+            // texel spans, one over the cube of its octahedron point's distance, as the gather of
+            // the world's probes weighs its texels.
+            float weight = local.z / (local.w * local.w * local.w);
             float3 light;
             float3 hit;
             float leftAt;
@@ -211,8 +217,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, start + way * t, view.trace.y, view.trace.z, view.trace.w, false)
                     : beyond(p, n, way, seen).rgb;
             }
-            sum += light * max(dot(way, n), 0.0);
+            sum += light * weight;
+            weights += weight;
         }
-    // Each of the hemisphere's texels spans about an equal share of its 2 pi steradians.
-    irradiance[id.xy] = float4(sum * (2.0 * Pi / float(Rays * Rays)), 1.0);
+    // The weights scaled to sum to pi, the light reaching the surface under a sky of 1, where an
+    // equal share for every texel read it at 1.04 of that.
+    irradiance[id.xy] = float4(sum * (Pi / max(weights, 1e-6)), 1.0);
 }

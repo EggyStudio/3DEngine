@@ -180,9 +180,8 @@ internal static class BounceReference
         var reference = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle).Light;
 
         var (hitRays, hitReference, mergedAll, referenceAll, hits) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
-        var (faces, facesMerged, facesReference) = (new Vector3[6], new Vector3[6], new Vector3[6]);
+        var (faces, facesMerged, facesReference, weights) = (new Vector3[6], new Vector3[6], new Vector3[6], new float[6]);
         Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
-        var solidAngle = 4 * MathF.PI / (n * n);
         for (int v = 0; v < n; v++)
             for (int u = 0; u < n; u++)
             {
@@ -199,16 +198,23 @@ internal static class BounceReference
                 }
                 mergedAll += mergedLight;
                 referenceAll += r;
-                var way = Octahedron((u + 0.5f) / n, (v + 0.5f) / n);
+                // Each way weighed as gi_ambient.slang weighs it, by its cosine and its texel's share
+                // of the sphere, the weights scaled to sum to pi.
+                var onOctahedron = Octahedron((u + 0.5f) / n, (v + 0.5f) / n);
+                var way = Vector3.Normalize(onOctahedron);
+                var share = 1 / MathF.Pow(onOctahedron.Length(), 3);
                 for (int f = 0; f < 6; f++)
                 {
-                    var weight = Math.Max(Vector3.Dot(way, axes[f]), 0) * solidAngle;
+                    var weight = Math.Max(Vector3.Dot(way, axes[f]), 0) * share;
                     facesMerged[f] += mergedLight * weight;
                     facesReference[f] += r * weight;
+                    weights[f] += weight;
                 }
             }
         for (int f = 0; f < 6; f++)
         {
+            facesMerged[f] *= MathF.PI / weights[f];
+            facesReference[f] *= MathF.PI / weights[f];
             var i = (((c * p + z) * p + y) * 6 * p + f * p + x) * 4;
             faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
         }
@@ -216,14 +222,14 @@ internal static class BounceReference
             mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference);
     }
 
-    // The way through a point of an octahedron, as gi.slang's fromOctahedron gives it.
+    // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.
     private static Vector3 Octahedron(float u, float v)
     {
         var (x, y) = (u * 2 - 1, v * 2 - 1);
         var d = new Vector3(x, y, 1 - MathF.Abs(x) - MathF.Abs(y));
         if (d.Z < 0)
             (d.X, d.Y) = ((1 - MathF.Abs(y)) * (x >= 0 ? 1 : -1), (1 - MathF.Abs(x)) * (y >= 0 ? 1 : -1));
-        return Vector3.Normalize(d);
+        return d;
     }
 
     /// <summary>One region of the view as <see cref="Measure"/> reads it: its name, its pixels, and the mean light the reference and the frame give it, linear, with the mean of each pixel's difference.</summary>
