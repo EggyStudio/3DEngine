@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f6246ed0`. C's third fix, the light that bounces again, read at the probes as B
+Reviewed up to `c2043cb2`. C's fourth fix, the screen's probes by their plane: the filter reads each
+neighbor's point from the depth under its tile's middle and weighs it by its distance from the plane
+of the probe's surface, and the model pass carries the pixel's own plane to each of its four probes'
+tile middles by `ddx` and `ddy` of its position and weighs a probe by how near its distance from the
+eye is to that plane's there, in place of a weight on the distance alone, which on a slanted floor
+blended no row with the next. The Cornell floor's rows about a smooth fit go from ±4.5% to between
+−1.1 and +2.3% at Low, from ±4.3% to ±1.5% at Medium and from −12.9 and +15.3% to −4.0 and +5.9% at
+High, against the reference's ±2.3%, High's remainder the world probes' blend between probes 1.2
+apart, ±8% with the screen's probes off, which the later fixes reach. A new test draws a floor lit
+by a glowing wall at its far end at High and holds the fall within four rows to 30%, where the
+distance weight found no probe near the wall, took the world's and ended the light in a line falling
+51%, and the plane weight falls 18%. Right, and the test is the banding held where a reference
+picture would have held it to a tolerance. The error over every room moves a point at most and the
+cost is within the noise. The suite: 1,588 passed; on lavapipe 314 passed and 6 skipped. Verdicts 40
+and 43 next, then C5.
+
+Before it, C's third fix came to be read, the light that bounces again, read at the probes as B
 asked and found elsewhere than the blend or the plane test: a cascade past the first blocked dark
 every ray that met a surface before its interval began, so its own faces lacked every surface nearer
 its probes than that start, the second cascade's probe in the Cornell box reading 63% under its
@@ -45,23 +61,6 @@ of the gap. Right, the test and the number before and after each. The closed roo
 one named cause is still one cause, and it widens no third time, the fifth fix bringing it under 8
 or the leak getting a verdict of its own. The cost is unchanged. The suite: 1,587 passed; on
 lavapipe 313 passed and 6 skipped.
-
-Before it, C's first fix came to be read, the pi: `shadeHit`, `shadeProbeHit` and the reflections'
-hits through the ray query take the lamps' and the sun's light times pi beside the bounced light,
-one factor in three places, and every lit room moves toward its reference as B foretold, at High the
-Cornell box from 33% under to 22, the thin walls from 58 to 27, the window from 73 to 57, the
-grazing floor from 66 to 57, the carried lamp from 60 to 51 and the corridor from 21 to 17, the
-outdoor blocks and the strip unchanged, the cost unchanged at 0.36, 0.44 and 0.53 ms, the table in
-RENDERING.md §4. Two tests moved with the light and both moves are right: the Cornell box's and
-Wick's references are drawn again, brighter and the small block's side tinted green, holding on
-lavapipe; and the camera slide's test holds a share, the frame before's light taking at least half
-the crawl away, 0.97 against 2.91 unheld, where a level that a brighter bounce passes said less. The
-third is a widened bound and is said as one: the closed room with a lamp under its floor reads 14.6
-levels where it read under 8, the probes beneath the floor lending their light, which the pi made
-plain, and its bound is 16 until the fifth fix's visibility brings it back under 8, the test saying
-so; that fix closes the bound with it, and the thin room passing one bounce by 51% is the same leak.
-The screen probes' hemisphere has the gather's fault too, a uniform sky at 1.04, so the second fix
-weighs both. The suite: 1,586 passed; on lavapipe 312 passed and 6 skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -415,16 +414,9 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the fourth fix, the screen's probes by their plane.** The filter reads each
-neighbor's point from the depth under its tile's middle and weighs it by its distance from the
-plane of the probe's surface. The model pass carries the pixel's own plane to each of its four
-probes' tile middles by `ddx` and `ddy` of its position and weighs a probe by how near its distance
-from the eye is to that plane's there. The rows of the Cornell box's floor about a smooth fit: Low
-±4.5% to −1.1/+2.3%, Medium ±4.3% to ±1.5%, High −12.9/+15.3% to −4.0/+5.9%, against the reference's
-±2.3%. High's remainder is the world probes' blend between probes 1.2 apart, ±8% with the screen's
-probes off; the history changes it little. A new test draws a floor lit by a glowing wall at its
-far end at High. With the distance weight the model pass found no probe near enough beside the wall,
-took the world's, and the wall's light ended in a line, falling 51% within four rows. With the
-plane it falls 18% at most, the test's bound 30%. The error over every region moves a point at most
-and the cost is within the noise, the bounce 0.37, 0.45 and 0.54 ms and the scene's pass 0.16. The
-suite: 1,588 passed; on lavapipe 314 passed and 6 skipped. Verdicts 40 and 43 next, then C5.
+**Verdict 40, the step line read after the finalizers.** The leak test's twenty-first app reads
+its handles once as it shuts down and again after a full collection that has run the finalizers,
+`shut down` and then `ended`, so what safe handles still held when the app closed shows between
+the two and `kept` counts what stays after them. Here an offscreen app reads 0 then 0, so the next
+Windows page is the one to say where the five go. The other apps keep their readings as they were,
+uncollected, which the resident memory's reading relies on. The suite: 1,589 passed.

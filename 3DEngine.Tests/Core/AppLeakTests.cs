@@ -201,10 +201,17 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             _last = now;
         }
 
-        // The last step, the app's threads joined, and how many it kept.
+        // The last steps, the app shut down, then what the finalizers give back once a full
+        // collection has run them, and how many it kept. Read before the finalizers, as it was,
+        // the app kept 337 handles on Windows where the count after every ten apps grew by five an
+        // app, the rest still held by safe handles nothing referred to.
         public void End()
         {
             Logger.Heard = null;
+            Mark("shut down");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
             Mark("ended");
             _taken.Add($"{_last - _first:+0;-0;0} kept");
         }
