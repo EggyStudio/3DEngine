@@ -29,7 +29,8 @@ placed the occlusion's node after `shadows` where it has run after `particles` s
 both right to say. The suite: 1,577 passed; on lavapipe 309 passed and 2 skipped. The coder goes to
 Verdicts 40 and 41 and then item 2, as the list has it. The run of `12b1f0c3` was read after, red on
 Windows and on macOS again, which rewrote Verdicts 40 and 41: the Windows hang is the five-minute
-hang limit met by a hundred apps at four seconds each, and the macOS crash moves between tests.
+hang limit met by a hundred apps at four seconds each, and the macOS crash moves between tests. At
+21:05 the owner named subsurface scattering the next large item (Decision 18), item 3.
 
 Before it, three commits came to be read. ImGui's frame begins in `First` (`096797bc`), the plugin
 ordered late and after the command line's, so the frame's time comes first, then the served
@@ -77,8 +78,8 @@ and 9 by review.
 
 The owner asked on 2026-10-04 that the work here does not stop, there being much left to do. This
 list is long on purpose, and a batch that ends is followed by the next item with no wait for a
-reply. In this order. It is short today because TODO.md's limits are spent and no large item is
-queued; the owner has been asked for the next, and item 4 fills the wait.
+reply. In this order. Item 3 is the next large item, the owner's choice of 2026-10-09, and item 5
+fills a wait.
 
 1. **What the next page says.** Verdict 39 is settled: the macOS captures ran in a job of their own
    at `8ac5912a` and passed, 52 minutes of the runner's for the coder's 25, the test job beside them
@@ -96,12 +97,32 @@ queued; the owner has been asked for the next, and item 4 fills the wait.
    in 3D through `BeginMode3D`, which draws them already. One sentence in the drawing guide beside
    the render textures, and TODO.md's particles entry closed with the reason.
 
-3. **The first shares recorded from the workflow's own device.** The examples job's first green
+3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
+   batches, each measured.** A material gains what skin, wax, marble and a leaf have, a subsurface
+   color and a radius in world units with a thickness scale for its thin parts, set in the flat API
+   as the material's other fields are and read from a glTF file's `KHR_materials_volume` thickness
+   where it has one. First, the diffusion: light that enters leaves nearby, so the lit light of the
+   marked pixels is spread along a profile of the material's color and radius in a separable
+   screen-space pass over the HDR frame, the specular kept out of it where the frame has it apart,
+   masked so an unmarked pixel is never touched and the spread never crosses a depth edge, with a
+   test of a lit sphere whose terminator softens and bleeds the color where the unmarked sphere
+   beside it does not, read at pixels as the occlusion tests read theirs. Second, the light that
+   comes through: a thin part lit from behind shows the light on its front, the thickness toward the
+   light read from the scene's distance field, which has it for nothing where the field is fine, and
+   from the sun's shadow depth where it is coarse, with a test of a thin sheet lit from behind
+   brighter on its front where it is thin than where it is thick. Third, the tiers: sample counts
+   and a half-size pass at Low and the full at High, as the bounce is tiered, the kernels in Slang
+   so the bridge runs them in BevyCSharp once proven here, the GPU cost of each batch on Manor and
+   on the test scene in RENDERING.md and the comparison page, the guide's section and TODO.md's
+   entry. Each batch a commit of its own with its numbers, and what does not pay a measured share
+   stays described.
+
+4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
 
-4. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
+5. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
    being the point of each.
 
@@ -276,6 +297,12 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
     side. Chosen over tables made here for every one, since Bevy's data gives the same picture, and
     over porting alone, since Tony McMapface and Blender's filmic exist as tables alone.
 
+18. **Subsurface scattering is the next large item, the first of Decision 16's spectral
+    experiments.** The owner chose it on 2026-10-09, the three phases having shipped with their
+    numbers, over the other four extensions and over another game, as an experiment of its own,
+    measured and tiered as the phases were, its kernels in Slang so the bridge runs them in
+    BevyCSharp once proven here.
+
 ## Replies
 
 Verdict 41, read before its rewrite arrived. The close touches no freed view: `UnloadTexture` queues
@@ -297,3 +324,29 @@ shows particles where a `BeginMode3D` inside it draws the scene, through that ca
 it is drawn in 2D alone, with the reason, and TODO.md's particles entry says the same in place of
 the limit. The suite: 1,578 passed; on lavapipe the rendering, compute, particle and leak tests,
 313 passed and 2 skipped.
+
+Verdict 40, as rewritten. Each app's time is printed as it goes, to make with what the test draws,
+for a frame and to close. Here an offscreen app takes 0.55 s on the RTX 4070, the median of the
+last 80, and 0.5 s on lavapipe in the workflow's image, its first 24 s compiling. With Mesa's disk
+cache off it takes 2.5 s, 2 of them in the frames where lavapipe compiles each shader as it first
+draws, and Mesa's build for Windows has that cache off, since Mesa's own `meson.build` refuses it
+there ("Shader Cache does not currently work on Windows"), which with a slower runner is the four
+seconds the pages show. A pipeline cache shared across a process's devices was written and
+measured, and it spares nothing. lavapipe's pipeline cache is a stub that keeps only its 32-byte
+header (`lvp_pipeline_cache.c`), and on the RTX 4070 the cache kept 460 KB and the median app took
+544 ms against 546, the driver's own disk cache holding the pipelines already, so it was taken out.
+The device's making takes 32 ms on lavapipe and 142 on the NVIDIA driver, not where the time
+goes. So the test counts its apps against four minutes, a hundred where they fit and fifty at
+least, the heap's floor compared between the first and second halves of its readings, and its
+failure's first line says how many apps in how many seconds; a budget cut to one second for a run
+stopped both leak tests at fifty, and both passed. On the Windows runner that is some sixty apps in
+four minutes, under `build/test.py`'s five. The handles are held to the twentieth app's count and
+200: here they hold at 192 to the hundredth app, and at 210 on lavapipe, and on Windows, where they
+climbed some ten an app, the test now fails near the fortieth with the count and the handles and
+threads after every ten apps, whose cause no machine here can find. The hot reload test and the
+three beside it wait on the torus and its texture for up to 30 seconds of the clock, in place of
+300 frames whose sleep is some 15 ms on Windows, its failure saying how long it waited over how many
+frames, and `build/norm/3.3.txt` lists both clocks with their reasons. On lavapipe in the
+container the hundred-app test's resident memory rose 160 MB without `MALLOC_ARENA_MAX=2`, at HEAD
+as with this change, and holds with it, as the Linux job sets it. The suite: 1,578 passed; on
+lavapipe the leak and asset release tests passed.

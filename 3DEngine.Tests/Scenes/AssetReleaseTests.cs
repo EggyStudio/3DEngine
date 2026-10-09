@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using FluentAssertions;
 
@@ -65,6 +66,23 @@ public sealed class AssetReleaseTests : IDisposable
         return false;
     }
 
+    // How long the torus and its texture are waited on. They are read on the asset server's worker,
+    // outside the frame loop, so the wait is bound by the machine's clock and not by a count of
+    // frames, whose sleep is some fifteen milliseconds on Windows and longer on a runner busy with
+    // other tests.
+    private static readonly TimeSpan LoadBound = TimeSpan.FromSeconds(30);
+
+    // Runs frames until the spawned materials' texture has loaded, and says so, with how long it
+    // waited where it did not.
+    private AssetId LoadTextured(string because)
+    {
+        var clock = Stopwatch.StartNew();
+        var frames = 0;
+        for (; !Textured(out _) && clock.Elapsed < LoadBound; frames++) Frames(1);
+        Textured(out var texture).Should().BeTrue($"{because}, waited on for {clock.Elapsed.TotalSeconds:0.0} seconds over {frames} frames");
+        return texture;
+    }
+
     private bool Loaded<T>(AssetId id) => _app.World.TryGetResource<Assets<T>>(out var assets) && assets.Contains(id);
 
     [Fact]
@@ -72,8 +90,7 @@ public sealed class AssetReleaseTests : IDisposable
     {
         var first = Place();
         var second = Place();
-        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
-        Textured(out var texture).Should().BeTrue("the torus loads with its checker texture");
+        var texture = LoadTextured("the torus loads with its checker texture");
         var model = _app.World.Resource<Assets<SceneAsset>>().Ids.Single();
         var release = _app.World.Resource<AssetRelease>();
 
@@ -93,8 +110,7 @@ public sealed class AssetReleaseTests : IDisposable
 
         // Placed again, it is read again and drawn with its texture.
         Place();
-        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
-        Textured(out var again).Should().BeTrue();
+        var again = LoadTextured("the torus placed again is read again with its texture");
         again.Should().NotBe(texture, "the texture was read again under a new id");
     }
 
@@ -102,8 +118,7 @@ public sealed class AssetReleaseTests : IDisposable
     public void A_Model_Spawned_Again_By_Hot_Reload_Lets_Its_Texture_Go_With_It()
     {
         var entity = Place();
-        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
-        Textured(out var texture).Should().BeTrue();
+        var texture = LoadTextured("the torus loads with its checker texture");
         var materials = Ecs.Query<Material>().Count();
 
         // The model reported written while it runs, as the server's watcher reports a file, which
@@ -127,8 +142,7 @@ public sealed class AssetReleaseTests : IDisposable
     public void A_Texture_The_Program_Loaded_Itself_Stays_When_The_Level_Lets_It_Go()
     {
         var entity = Place();
-        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
-        Textured(out var texture).Should().BeTrue();
+        var texture = LoadTextured("the torus loads with its checker texture");
 
         // The program asks for the same texture the level's material did, and keeps it.
         var server = _app.World.Resource<AssetServer>();
@@ -183,8 +197,7 @@ public sealed class AssetReleaseTests : IDisposable
         // Another model elsewhere, whose arrival is no reason for this probe to capture again.
         Place();
 
-        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
-        Textured(out _).Should().BeTrue("the models spawned");
+        LoadTextured("the models spawned");
         Frames(2);
         Ecs.GetReadOnly<ReflectionProbe>(probe).Capture.Should().Be(1, "the probe captures again once, now its room is there");
     }
