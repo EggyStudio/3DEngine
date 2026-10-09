@@ -72,9 +72,9 @@ removed from this file, and an item that is partly done is rewritten around what
   player's build does not have. Packing the engine compiled ahead (ReadyToRun) for each of its six
   systems was measured on 2026-10-06: the package 14.9 MB where it is 1.3 MB, and Manor run from
   its project on Linux ending its startup stage at 0.44 s where it does at 0.58 and its slowest of
-  the first sixty frames 140 ms where it is 205. The owner chose the smaller package, since a
-  game's author compiles the engine ahead with their own game by publishing it with
-  `PublishReadyToRun` or NativeAOT, which gains the same however the package is made.
+  the first sixty frames 140 ms where it is 205. The package stays the smaller, since a game's
+  author compiles the engine ahead with their own game by publishing it with `PublishReadyToRun`
+  or NativeAOT, which gains the same however the package is made.
 
 ### The flat API
 
@@ -290,7 +290,7 @@ and the model pass reads every field of `SceneMaterialPayload`. What is missing:
 
 - **An older file is read by keeping the fields it has, with no migration.** A field renamed or a
   component split leaves the old file's value behind. BevyCSharp has files that outlive a renamed
-  type, which SHARED.md keeps to consider, as the owner decided.
+  type, which SHARED.md keeps to consider.
 
 ## Platform
 

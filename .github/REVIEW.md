@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a9380d7b`. Verdict 41's second thing, as asked: `build/test.py` reads each minidump
+Reviewed up to `52c74240`. Subsurface scattering's first batch, the diffusion, committed as far as
+it stands alone as Decision 22 asks. A `ModelMaterial` and a mesh entity's `Material` take
+`SubsurfaceRadius` in world units and `SubsurfaceColor` as each channel's share of it, a draw's
+profile keying its batch; the batches that scatter are drawn again by `subsurface.slang` into two
+half-float images, their diffuse light, which `litLight` works out apart from the specular with
+`lit` adding the two as before, and their profile, kept where the scene's depth shows the surface;
+`subsurface_blur.slang` spreads that light across and down onto the decoded frame, seventeen taps
+each way, each color by a Gaussian a third of its share of the radius wide, a tap unmarked or
+farther from the eye than the radius left out, and adds the spread light less the pixel's own, so an
+unmarked pixel is never touched, the particles drawn after in a pass that keeps the frame and its
+depth. The test draws two white spheres lit from the side, the left one's material scattering red
+farthest, and holds the terminator's softening, red traveling farthest, the lit side held and the
+unmarked sphere the same to the bit; the references are unchanged. Manor's 139 materials scattering
+over 5 cm take `hdr_scene` 0.95 to 1.02 ms where it takes 0.42 to 0.46, one of them 0.65 to 0.70,
+which the third batch's tiers answer; the guide, the upgrading page, the comparison page, the
+cheatsheet, RENDERING.md §5 and TODO.md say what the second and third batches bring. Right. The
+suite: 1,579 passed; on lavapipe 311 passed and 2 skipped. Before item 2's A1 comes the owner's
+order of 2026-10-09 in item 1, seven places and N 4.7's matcher in one commit of prose.
+
+Before it, Verdict 41's second thing came to be read, as asked: `build/test.py` reads each minidump
 a lost test host leaves with dotnet-dump, named by `E3D_DOTNET_DUMP` or found on the path, asking
 `threads`, `clrthreads`, `pe`, `clrstack -f` and `clrstack -all -f`, writes the whole account beside
 the dump as `<dump>.txt`, and puts on the page and in the lost process's annotation the thread the
@@ -64,28 +83,6 @@ pinned being of 2026-10-04 and after 6.0; three packages are a step behind and a
 (Decision 20); and the animated model's meshes in the world follow subsurface scattering (Decision
 21). The list is in that order.
 
-Before them, a batch started before that pass arrived came to be read, taking the effects entry's
-limit that render textures were drawn without ambient occlusion: a render texture that draws meshes
-through a camera draws the depth of its shadow casters at half its size in the targets node before
-its pass, works out its occlusion and the sun's contact shadows from it as the window's are
-(`AmbientOcclusionRenderer.DrawTarget`), binds them for its model pass through `TargetOcclusion`
-with its buffer saying to read them, and lets them go the frame after one it is not drawn in; its
-screen probes stand on that same depth in place of the one drawn for them alone, so a target with
-both draws its depth once, and the window drawn in 2D lets its own images go while the targets keep
-theirs. Right, and the images' making is one `Ensure` for the window and the targets, named for the
-view. A new test draws the cube in its corner into a render texture of the window's size and holds
-the floor beside the cube and in the corner within 9 levels of the window's over three channels, the
-open floor unchanged; Sumo's two views at 640 by 720 take 0.775 ms of the GPU in `targets` where
-they took 0.678, and 1.15 where they took 1.05 with the bounce at Low, in RENDERING.md with the
-method. Found on the way and mended, the bounce test of `c7ee9c72` drew its texture upside down with
-a negative height and passed because the rows it averages are their own mirror, and RENDERING.md
-placed the occlusion's node after `shadows` where it has run after `particles` since `c7ee9c72`;
-both right to say. The suite: 1,577 passed; on lavapipe 309 passed and 2 skipped. The coder goes to
-Verdicts 40 and 41 and then item 2, as the list has it. The run of `12b1f0c3` was read after, red on
-Windows and on macOS again, which rewrote Verdicts 40 and 41: the Windows hang is the five-minute
-hang limit met by a hundred apps at four seconds each, and the macOS crash moves between tests. At
-21:05 the owner named subsurface scattering the next large item (Decision 18), item 3.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -107,6 +104,17 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    run's three test jobs pass, so Verdicts 40 and 41 come first and 30 and 31 after them. When every
    job is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
    reviewing session, and a failure it names comes first here.
+
+   Before any other commit, the owner's order of 2026-10-09 (Decision 23): no document or comment a
+   reader sees names the owner or a session as the one who decided, and N 4.7 says so from today for every
+   Markdown file but the sessions' five and for the comments of every source, script, manifest and
+   workflow. Seven places are mended in one commit of prose alone, with `N_4_7`'s matcher widened to
+   the rule's new reach in the same commit so the list stays empty: `.github/DESIGN.md:225`, whose
+   NLayer row gives the reason alone, that raylib reads MP3, and leaves who admitted it and when to the
+   Decisions here; `.github/TODO.md:75` and `:293`; `3DEngine.Tests/NormTests.cs:240`;
+   `3DEngine.Tests/Scripts/TestScriptTests.cs:8`; and the two issue READMEs under `build/mesa/` and
+   `build/spirv-tools/`, which say the project files the issue. `build/pack.sh:29` is the check and
+   stays.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -404,28 +412,21 @@ Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again
     bounce, and a debug window with gizmos and texture views shows it; subsurface scattering's first
     batch is committed as far as it stands alone and goes on after.
 
+23. **No document or comment a reader sees names the owner or a session.** The owner ordered it on
+    2026-10-09 after DESIGN.md's NLayer row said who admitted the crate and when; N 4.7 reaches
+    every Markdown file but REVIEW.md, SHARED.md, NORM.md, AGENTS.md and COMMITS.md and the comments
+    of every source, script, manifest and workflow, in both repositories, and who chose what stays
+    in these Decisions.
+
 ## Replies
 
-Subsurface scattering's first batch, the diffusion, committed as far as it stands alone, as
-Decision 22 asks. A `ModelMaterial` has `SubsurfaceRadius`, in world units, 0 for none, and
-`SubsurfaceColor`, each channel's share of it, and a mesh entity's `Material` the same; a draw's
-profile keys its batch and its mesh entities' group, so a batch holds one. Once the window's scene
-is decoded, its batches that scatter, opaque or masked and of the model pass's own shader, are drawn
-again by `subsurface.slang` into two half-float images at one sample: their diffuse light, which
-`litLight` in `modelpass.slang` now works out apart from the specular, `lit` adding the two as
-before, and their profile, given by a vertex buffer of one element a batch, stepped per instance
-with a stride of 0. A fragment is kept only where the scene's depth shows its surface.
-`subsurface_blur.slang` spreads that light across, then down onto the decoded frame, seventeen
-taps each way, each color by a Gaussian a third of its share of the radius wide, leaving out a tap
-that is unmarked or lies farther from the eye than the radius, and adds the spread light less the
-pixel's own, so an unmarked pixel is never touched; the particles are drawn after it in a pass that
-keeps the frame and its depth. A new test draws two white spheres lit from the side, the left one's
-material scattering red farthest over a radius of its own. A tenth of the radius past its
-terminator it reads (85, 65, 64) where it reads 64 in each channel without, its lit side holds, and
-the unmarked sphere's pixels are the same to the bit. The references are unchanged. In Manor at
-1280 by 720, every one of its 139 materials scattering over 5 cm takes `hdr_scene` 0.95 to 1.02 ms
-of the GPU where it takes 0.42 to 0.46, and one of them 0.65 to 0.70. The guide has a section, and
-the upgrading page, the comparison page, the cheatsheet, RENDERING.md §5 and a TODO.md entry say
-what is missing: the light through a thin part, the tiers, a glTF file's thickness and render
-textures, which the second and third batches take after item 2. The suite: 1,579 passed; on
-lavapipe the rendering, compute and particle tests, 311 passed and 2 skipped. Item 2's A1 is next.
+Decision 23, in one commit of prose. DESIGN.md's NLayer row gives its reason alone, that raylib
+reads MP3; TODO.md's cost entry keeps the smaller package for its reason, and its scenes entry
+leaves SHARED.md to consider with no one named; the comment in `NormTests` calls the version's
+commit what it is; `build/test.py` runs on a contributor's machine; and the issue READMEs say each
+text is ready to be filed, the third of them, `build/mesa/ray-query-fragment`, among them, its name
+broken across two lines. `N_4_7` reads every Markdown file but the five, with REVIEW.md still
+sought in the pages a game's author reads, and the comments of every C# and Slang file, script,
+workflow and manifest, each run of lines read together so a name broken across two is found, by
+the line it begins on; put back as it was, that README fails it at line 4. `build/pack.sh:29` holds
+its words in code and stays. The suite: 1,579 passed.

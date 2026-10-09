@@ -181,13 +181,71 @@ public sealed partial class NormTests
     [Fact]
     public void N_4_7()
     {
-        // Each line of the documents a game's author reads that names who decided, by file and line.
-        var found = Files("docs/", ".md").Prepend("CHEATSHEET.md").Prepend("README.md")
-            .SelectMany(file => Read(file).Split('\n').Select((line, index) => (Place: $"{file}:{index + 1}", Line: line)))
-            .Where(line => NamesWhoDecided().IsMatch(line.Line))
-            .Select(line => line.Place);
+        // Each place a document or a comment names who decided, by file and the line its words
+        // begin on: every Markdown file but the sessions' own, the pages a game's author reads for
+        // a pointer to REVIEW.md as well, and the comments of every source, shader, script,
+        // manifest and workflow.
+        var authors = Files("docs/", ".md").Prepend("CHEATSHEET.md").Prepend("README.md").ToHashSet(StringComparer.Ordinal);
+        var found = new List<string>();
+        foreach (var file in RepositoryFiles.Value)
+        {
+            if (file.EndsWith(".md", StringComparison.Ordinal))
+            {
+                if (!SessionDocuments.Contains(file))
+                    found.AddRange(Named(file, Read(file).Split('\n'), authors.Contains(file) ? NamesWhoDecided() : NamesADecider()));
+            }
+            else if (CommentOf(file) is { } comment)
+                found.AddRange(Named(file, [.. Read(file).Split('\n').Select(comment)], NamesADecider()));
+        }
 
-        Hold("4.7", found, "a line of a document a game's author reads that names who decided");
+        Hold("4.7", found, "a document or a comment that names who decided");
+    }
+
+    // The documents of the sessions that write and keep the repository, which name them.
+    private static readonly HashSet<string> SessionDocuments =
+        [".github/REVIEW.md", ".github/SHARED.md", ".github/NORM.md", ".github/COMMITS.md", "AGENTS.md"];
+
+    // The comment a line of a file holds, empty where it holds none, or null for a file whose
+    // comments the rule does not read. A comment of C# or Slang runs from its slashes, those of a
+    // web address's scheme passed over, and a script's, a workflow's or a manifest's is a line of
+    // its own.
+    private static Func<string, string>? CommentOf(string file) => Path.GetExtension(file) switch
+    {
+        ".cs" or ".slang" => static line =>
+        {
+            var trimmed = line.TrimStart();
+            if (trimmed.StartsWith('*') || trimmed.StartsWith("/*", StringComparison.Ordinal)) return trimmed;
+            var at = line.IndexOf("//", StringComparison.Ordinal);
+            while (at > 0 && line[at - 1] == ':') at = line.IndexOf("//", at + 2, StringComparison.Ordinal);
+            return at >= 0 ? line[at..] : "";
+        },
+        ".py" or ".sh" or ".ps1" or ".yml" or ".yaml" or ".toml" => static line => line.TrimStart().StartsWith('#') ? line : "",
+        ".csproj" or ".props" or ".targets" => static line => line.Contains("<!--", StringComparison.Ordinal) || line.TrimStart().StartsWith("-->", StringComparison.Ordinal) ? line : "",
+        _ => null,
+    };
+
+    // The places pattern matches in lines, by file and the line a match begins on, each run of
+    // lines with text read as one, so a name broken across two lines is found.
+    private static IEnumerable<string> Named(string file, string[] lines, Regex pattern)
+    {
+        for (int i = 0; i < lines.Length;)
+        {
+            if (string.IsNullOrWhiteSpace(lines[i]))
+            {
+                i++;
+                continue;
+            }
+            var starts = new List<int>();
+            var run = new System.Text.StringBuilder();
+            var first = i;
+            for (; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
+            {
+                starts.Add(run.Length);
+                run.Append(lines[i].TrimEnd('\r')).Append(' ');
+            }
+            foreach (Match match in pattern.Matches(run.ToString()))
+                yield return $"{file}:{first + starts.FindLastIndex(start => start <= match.Index) + 1}";
+        }
     }
 
     [Fact]
@@ -237,7 +295,7 @@ public sealed partial class NormTests
             var parts = entry.Split('\u001f');
             if (parts.Length < 4) continue;
             var (hash, subject, body) = (parts[0][..8], parts[1], parts[2].Trim());
-            // The owner's setting of the version, whatever its message.
+            // A commit setting the version alone, whatever its message.
             if (parts[3].Split('\n', StringSplitOptions.RemoveEmptyEntries) is ["build/version.txt"]) continue;
             var sentence = body.Length > 0 && !body.Contains('\n') && body.EndsWith('.') && !Regex.IsMatch(body[..^1], @"[.!?] [A-Z]");
             if (subject != "\u200e \u200e \u200e" || !sentence) found.Add(hash);
@@ -542,9 +600,15 @@ public sealed partial class NormTests
         return output;
     }
 
-    // The words N 4.7 looks for, which build/pack.sh leaves out of the release notes as well.
-    [GeneratedRegex(@"(?i:\bthe owner\b|\bthe reviewing session\b)|\bREVIEW\.md\b")]
+    // The words N 4.7 looks for in a page a game's author reads, which build/pack.sh leaves out of
+    // the release notes as well.
+    [GeneratedRegex(@"(?i:\bthe\s+owner\b|\bthe\s+reviewing\s+session\b)|\bREVIEW\.md\b")]
     internal static partial Regex NamesWhoDecided();
+
+    // The words N 4.7 looks for in every other document and comment, where a pointer to REVIEW.md
+    // names no one.
+    [GeneratedRegex(@"(?i:\bthe\s+owner\b|\bthe\s+reviewing\s+session\b|\b(?:a|the)\s+working\s+session\b)")]
+    private static partial Regex NamesADecider();
 
     [GeneratedRegex(@"`(?<name>[^`]+)`")]
     private static partial Regex Ticked();

@@ -190,13 +190,17 @@ A test reads each capture's size and each picture's link.
 **N 4.6 A rule is stated once, here, and a document that needs it cites its number.** A rule
 written in two places comes to say two things. By review.
 
-**N 4.7 A document a game's author reads, the release notes among them, gives a rule with its reason
-and names no one who decided it.** A reader of the package has no owner, reviewer or session to
-follow, and a reason stands on its own where a name does not. Who chose what, and when, belongs to
-REVIEW.md's Decisions, and a commit's message, from which release notes are made, says what changed
-and why without it. `NormTests` over `README.md`, `CHEATSHEET.md` and `docs/`, and the pack
-workflow's step that writes the release notes, for the words `the owner`, `the reviewing session`
-and `REVIEW.md`.
+**N 4.7 A document or a comment a game's author or a contributor reads, the release notes among
+them, gives a rule with its reason and names no one who decided it.** A reader of the package or of
+the source has no owner, reviewer or session to follow, and a reason stands on its own where a name
+does not. Who chose what, and when, belongs to REVIEW.md's Decisions, and a commit's message, from
+which release notes are made, says what changed and why without it. The sessions' own documents,
+REVIEW.md, SHARED.md, NORM.md, AGENTS.md and COMMITS.md, name them, and nothing else does.
+`NormTests` over every Markdown file but those five, over the comments of every source, shader,
+script, manifest and workflow, and the pack workflow's step that writes the release notes, for the
+owner or a session named as the one who chose, decided, asked, allowed, admitted, wants, sets, files
+or publishes, and for `REVIEW.md` in a page a game's author reads; a word that means a thing's owner
+in the code, a widget's or a handle's, is not a name.
 
 ## 5 Examples and games
 

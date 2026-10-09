@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace Engine.Tests.Scripts;
 
 /// <summary>
-/// <c>build/test.py</c>, which runs the suite in the workflow and for a working session, writes a
+/// <c>build/test.py</c>, which runs the suite in the workflow and on a contributor's machine, writes a
 /// page within its limits whatever the run held, and says a process that is lost and runs the suite
 /// again in parts after it.
 /// </summary>

@@ -2,7 +2,7 @@
 
 A reproduction of lavapipe's crash in 3DEngine's light-bounce passes and model pass when their loop
 over the lamps stands ahead of the sun's branch in `directLight`, with the text of an issue for
-[Mesa's tracker](https://gitlab.freedesktop.org/mesa/mesa/-/issues), which the owner files. The
+[Mesa's tracker](https://gitlab.freedesktop.org/mesa/mesa/-/issues), ready to be filed there. The
 engine keeps that loop after the sun's branch, the shape lavapipe draws, because of it.
 
 `build/mesa/ray-query-fragment` crashes the same way, reading a null pointer and the word after

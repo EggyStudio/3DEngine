@@ -1,8 +1,8 @@
 # lavapipe's crash in a fragment shader after a ray query
 
 A reproduction of lavapipe's crash in 3DEngine's model pass built with ray queries, with the text
-of an issue for [Mesa's tracker](https://gitlab.freedesktop.org/mesa/mesa/-/issues), which the
-owner files. Because of this crash the engine leaves ray queries off on a device that draws on its
+of an issue for [Mesa's tracker](https://gitlab.freedesktop.org/mesa/mesa/-/issues), ready to be
+filed there. Because of this crash the engine leaves ray queries off on a device that draws on its
 CPU (`GraphicsDevice.CanQueryRays`).
 
 `build/mesa/uniform-loop-compute` crashes the same way from a compute shader with no ray query, a

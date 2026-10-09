@@ -222,7 +222,7 @@ that is added. The set is:
 | StbImageSharp | decoding images |
 | AssimpNetter | reading models (glTF, FBX, OBJ and the rest) with their materials and textures |
 | NVorbis | decoding Ogg Vorbis, in managed code |
-| NLayer | decoding MP3, in managed code, which raylib reads and the owner admitted on 2026-10-04 |
+| NLayer | decoding MP3, in managed code, which raylib reads |
 | BepuPhysics | rigid bodies |
 | BepuUtilities | BepuPhysics' own companion, the memory pools and the callbacks' types its simulation takes |
 | Microsoft.CodeAnalysis.CSharp | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |

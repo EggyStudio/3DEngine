@@ -2,8 +2,8 @@
 
 A reproduction and a patch for SPIRV-Tools, found while reducing a lavapipe crash of the engine's
 model pass (`build/mesa/`), with the text of an issue for
-[KhronosGroup/SPIRV-Tools](https://github.com/KhronosGroup/SPIRV-Tools/issues), which the owner
-files. `run.sh` assembles `crash.spvasm`, validates it and reduces it with the `spirv-reduce` given,
+[KhronosGroup/SPIRV-Tools](https://github.com/KhronosGroup/SPIRV-Tools/issues), ready to be filed
+there. `run.sh` assembles `crash.spvasm`, validates it and reduces it with the `spirv-reduce` given,
 and `merge-blocks.patch` applies to SPIRV-Tools' main at `db9f967` (2026-10-07).
 
 ```
