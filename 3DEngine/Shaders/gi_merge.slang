@@ -5,7 +5,12 @@
 // averaged, so the first cascade holds the light from every distance. A probe inside a mesh, or
 // one a surface hides from this probe, as a probe above a ceiling is hidden from one under it, is
 // passed over in the blend, and a probe inside a mesh holds nothing itself, its alpha 0 where every
-// other's is 1.
+// other's is 1. A ray of the cascade above that met a surface before its interval began keeps that
+// surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark: the
+// surface lies nearer that probe than this one's ray reaches, so the light it sees there is not the
+// light along this ray, and taken it read a ceiling beside a lamp for one two units off, up to 26
+// times too bright in a Cornell box. The bilinear fix, tracing from this probe toward each probe
+// above, would take its place.
 import gi;
 import scenefield;
 
@@ -97,9 +102,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     }
     if (alone > 0u && c + 1u < alone)
         own.rgb = float3(0.0);
-    if (upper == 0u || own.a < 0.5 || push.spacing.y > 0.5 || alone == c + 1u)
+    // A ray that met a surface keeps its light, marked a half where it met it before its interval.
+    float kept = own.a > 0.25 && own.a < 0.75 ? 0.5 : 1.0;
+    if (upper == 0u || own.a < 0.75 || push.spacing.y > 0.5 || alone == c + 1u)
     {
-        merged[written] = float4(own.rgb, 1.0);
+        merged[written] = float4(own.rgb, own.a < 0.75 ? kept : 1.0);
         return;
     }
 
@@ -114,21 +121,21 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        float weight = lerps.x * lerps.y * lerps.z * float(seen[slot * 8u + uint(corner)]);
-        // The texels of the cascade above that lie inside this one's, one or four of them.
-        float3 light = float3(0.0);
-        float valid = 0.0;
+        float weight = lerps.x * lerps.y * lerps.z * float(seen[slot * 8u + uint(corner)]) / float(factor * factor);
+        // The texels of the cascade above that lie inside this one's, one or four of them, those
+        // that met a surface before their interval dark, and those inside a mesh passed over.
         for (uint v = 0u; v < factor; v++)
             for (uint u = 0u; u < factor; u++)
             {
                 float4 child = above.Load(int4(int2(uint2(neighbor.xy) * upper + texel * factor + uint2(u, v)), neighbor.z, 0));
-                light += child.rgb;
-                valid += child.a;
+                if (child.a > 0.75)
+                {
+                    sum += child.rgb * weight;
+                    weights += weight;
+                }
+                else if (child.a > 0.25)
+                    weights += weight;
             }
-        valid /= float(factor * factor);
-        weight *= valid;
-        sum += light / float(factor * factor) * weight;
-        weights += weight;
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
     merged[written] = float4(own.rgb + beyond, 1.0);

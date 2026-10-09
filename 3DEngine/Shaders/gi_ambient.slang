@@ -48,7 +48,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float weight = max(dot(fromOctahedron(uv), axis), 0.0) * octahedronShare(uv);
             sum += light.rgb * weight;
             weights += weight;
-            valid = max(valid, light.a);
+            // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
+            valid = max(valid, light.a > 0.25 ? 1.0 : 0.0);
         }
     cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(sum * (Pi / max(weights, 1e-6)), valid);
 }

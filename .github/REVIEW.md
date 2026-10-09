@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a3dd7a8d`. C's first fix, the pi: `shadeHit`, `shadeProbeHit` and the reflections'
+Reviewed up to `52ffd114`. C's second fix, the gathers' weights: each direction a world probe
+gathers is weighed by its texel's share of the sphere, one over the cube of its octahedron point's
+distance from the middle beside its cosine, the weights scaled to sum to pi (`octahedronShare`), and
+the screen probes' sixteen rays the same over their hemisphere, which read a uniform sky at 1.04; a
+new test holds every face of a probe under a uniform sky to pi within 2% at Low and High, which the
+old gather fails at 1.04 on ±x and ±y and 0.82 on ±z. Against one bounce the Cornell box comes
+within 3% at every quality, −2, −1 and −3% where it read +4, +5 and −4%, so the first bounce is
+right and what the rooms lack from here is the light that bounces again, C3; over every bounce the
+thin walls, the corridor and the carried lamp gain 2 to 4 points, and the Cornell box reads 5 points
+more under at Low and Medium, honestly so, the old over-read along x and y having hidden that much
+of the gap. Right, the test and the number before and after each. The closed room's leak grew from
+14.6 to 17.3 levels, its bound 20 until the fifth fix, said in the test; a bound widened twice for
+one named cause is still one cause, and it widens no third time, the fifth fix bringing it under 8
+or the leak getting a verdict of its own. The cost is unchanged. The suite: 1,587 passed; on
+lavapipe 313 passed and 6 skipped.
+
+Before it, C's first fix came to be read, the pi: `shadeHit`, `shadeProbeHit` and the reflections'
 hits through the ray query take the lamps' and the sun's light times pi beside the bounced light,
 one factor in three places, and every lit room moves toward its reference as B foretold, at High the
 Cornell box from 33% under to 22, the thin walls from 58 to 27, the window from 73 to 57, the
@@ -37,33 +53,6 @@ disabled with the reason, so nothing reaches the speakers either way; `./e3d ope
 second ending within 0.25 to 1.5 s of the clock, that clock listed under N 3.3 with its reason; the
 audio guide and the upgrading page say it. Right, the closing of a device another backend opened
 being the part a lesser mend would have missed. The suite: 1,586 passed. C begins with the pi.
-
-Before it, item 2's B came to be read, the measurement, in RENDERING.md §4 as the state before the
-fixes with five pictures under `.github/assets/bounce`, every room's frame against references of
-one, two and every bounce by quality, `gi.reference` taking its bounces, `gi.probe <x> <y> <z>`
-reading the nearest first-cascade probe's own rays, merge and faces against the light the reference
-traces from the probe itself, and `gi.toggle again off` holding the frame to one bounce. The loss is
-placed, and the pi is confirmed: a probe's hits read 48 to 75% under a direct-only reference in
-every lit closed room and 2 to 22% under with the lamps' and the sun's light times pi, each room's
-frame at High gaining 4 to 31 points, the Cornell box from 33% under to 22%; the reflections' hits
-through the ray query light the same way. The merge and the gather lose little, the faces equal to
-the merge's gather to the third digit and the merge 1 to 7 points behind the rays, but the gather's
-equal shares of the sphere read a uniform sky's ±z faces at 0.82 with 4 texels a side and 0.93 with
-8, an octahedron's texels not being equal in solid angle. The light that bounces again carries a
-third of what lies past one bounce, 1.111 against 1.431 with pi at the Cornell probe, and pi raises
-the thin room's leak to 62% over at its probe; the window's and the corridor's probes hold almost
-none of the sunlit floor's light, and the strip is in no cascade. The four artifacts have their
-causes: the floor's bands are the screen filter's distance weight, 2% of the distance, which on a
-slanted floor blends no row with the next, the rows swinging 14% at High against 2.3% in the
-reference and 34% with the filter off; the red wall's foot darkens 6% where the reference darkens
-11%; the halo is the ceiling 31% short away from the panel, its falloff steeper than the
-reference's; the small block's side keeps its green over red at a fifth of the light. A fifth is a
-step on the grazing room's ceiling where the screen's probes end at the field's first cascade. The
-bounce costs 0.36, 0.44 and 0.53 ms by tier on the Cornell view, and two tests hold the glowing box
-bouncing never, once and always. Right, every number the item asked for and the order of C with
-them; C is rewritten below in that order, with what HTrace WSGI 2.0 Alpha 4 beside its Alpha 2 in
-`.ref` suggests folded in where B's numbers call for it. The suite: 1,584 passed; on lavapipe 312
-passed and 6 skipped. Decision 25's commit, then C.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -400,18 +389,21 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the second fix, the gathers' weights.** Each direction a world probe gathers is
-weighed by its texel's share of the sphere, one over the cube of its octahedron point's distance
-from the middle, beside its cosine, the weights scaled to sum to pi (`octahedronShare`), and the
-screen's probes' sixteen rays the same over their hemisphere, whose equal shares read a uniform
-sky at 1.04. A new test holds every face of a probe under a uniform sky to pi within 2% at Low and
-High. The old gather fails it at 1.04 on ±x and ±y and 0.82 on ±z at Low, as predicted. The probe
-check's faces are weighed the same way. Before and after over every region against every bounce:
-the Cornell box −16% to −21% at Low and −15% to −20% at Medium, −22% at High; thin walls −12% to −8%,
-−13% to −9%, −27% to −23%; the corridor −18 to −15%; the window and the grazing floor within a
-point; the carried lamp −52% to −50%. The Cornell box's 5 points more under at Low and Medium is
-the over-read along x and y going. Against one bounce the Cornell box comes within 3% at every
-quality, −2, −1 and −3%, where it read +4, +5 and −4%, so the first bounce is right there and what
-it lacks is the light that bounces again, C3. The closed room's leak grew from 14.6 to 17.3 levels,
-so its bound is 20 until C5, said in the test. The cost is unchanged, 0.36, 0.44 and 0.53 ms. The
-suite: 1,587 passed; on lavapipe 313 passed and 6 skipped. C3 next.
+**Item 2's C, the third fix, the light that bounces again.** Read at the probes, the third was not
+in the hits' blend nor the plane test. A cascade past the first blocked dark every ray that met a
+surface before its interval began, so its own faces lacked every surface nearer its probes than
+that start. With light bouncing once, the second cascade's probe in the Cornell box read 63% under
+its reference. Most of that box lies past the first cascade's reach from the view's camera, so its
+pixels and the hits that read those faces took the shortfall. Such a ray now shades its surface for
+its own probe's faces, alpha a half, and that probe reads −5%. Two other ways were tried and
+measured first. Each interval's end doubled took the Cornell box to −11% at High but its frames
+past one bounce, the thin room's leak to +40%, and 0.07 ms. The early hits taken in the merge as
+well read the ceiling beside the lamp for one two units off, up to 26 times too bright along those
+ways (dumped per texel), the Cornell box +11% and the thin room +92%. So the merge into the cascade
+below still reads them as dark, which C5's bilinear fix is to replace. Over every region against
+every bounce: the Cornell box −21% to +2% at Low and Medium, −22% to −10% at High; the corridor −15%
+to −9%; the grazing floor −62% to −53% at Low, −57% to −46% at High; the other rooms within a point.
+The closed room's leak is unchanged at its bound. The probe check counts early hits as hits, said
+apart. The Cornell reference frame is drawn again and holds on lavapipe. Cost: +0.006 to 0.008 ms,
+0.36, 0.45 and 0.54. The suite: 1,587 passed; on lavapipe 313 passed and 6 skipped. C4 next, the
+screen filter's distance weight.

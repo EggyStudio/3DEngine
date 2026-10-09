@@ -99,12 +99,13 @@ internal static class BounceReference
 
     /// <summary>
     /// The light arriving at a probe as the probe holds it and as a reference has it: where the probe
-    /// sits and how many ways it has; where its own rays met a surface, how many ways and the mean
-    /// light they brought against the reference's along the same ways; over every way, the mean
-    /// light merged with the cascades above against the reference's; and for each face, +x, -x, +y,
-    /// -y, +z and -z, the light the model pass reads, that gathered from the merge, and the reference's.
+    /// sits and how many ways it has; where its own rays met a surface, how many ways, how many of
+    /// them before their interval began, and the mean light they brought against the reference's
+    /// along the same ways; over every way, the mean light merged with the cascades above against
+    /// the reference's; and for each face, +x, -x, +y, -y, +z and -z, the light the model pass reads,
+    /// that gathered from the merge, and the reference's.
     /// </summary>
-    internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, Vector3 HitRays, Vector3 HitReference,
+    internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, int Early, Vector3 HitRays, Vector3 HitReference,
         Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference);
 
     /// <summary>
@@ -127,8 +128,9 @@ internal static class BounceReference
         {
             string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {probe.Cascade} at {m.X:0.##},{m.Y:0.##},{m.Z:0.##}, {probe.Ways} ways, the reference {samples} paths a way") +
             (bounces < 0 ? "" : bounces == 1 ? ", light bouncing once" : $", light bouncing {bounces} times"),
-            probe.Hits == 0 ? "none of its own rays met a surface"
-                : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}",
+            (probe.Hits == 0 ? "none of its own rays met a surface"
+                : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}")
+            + (probe.Early > 0 ? $", {probe.Early} of them before their interval began" : ""),
             $"every way, merged with the cascades above: {Rgb(probe.Merged)}, the reference {Rgb(probe.Reference)}, {Share(probe.Merged, probe.Reference)}",
             "each face's light: its face as the model pass reads it, gathered from the merge, the reference's, and the face's share",
         };
@@ -172,14 +174,14 @@ internal static class BounceReference
             return new Vector4(volume[i], volume[i + 1], volume[i + 2], volume[i + 3]);
         }
         // A probe inside a mesh holds nothing, its alpha 0.
-        if (Texel(merged, 0, 0).W < 0.5f)
+        if (Texel(merged, 0, 0).W < 0.25f)
         {
             why = string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {c} at {middle.X:0.##},{middle.Y:0.##},{middle.Z:0.##} lies inside a mesh and holds nothing");
             return null;
         }
         var reference = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle).Light;
 
-        var (hitRays, hitReference, mergedAll, referenceAll, hits) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
+        var (hitRays, hitReference, mergedAll, referenceAll, hits, early) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0, 0);
         var (faces, facesMerged, facesReference, weights) = (new Vector3[6], new Vector3[6], new Vector3[6], new float[6]);
         Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
         for (int v = 0; v < n; v++)
@@ -189,8 +191,11 @@ internal static class BounceReference
                 var ray = Texel(rays, u, v);
                 var light = Texel(merged, u, v);
                 var mergedLight = new Vector3(light.X, light.Y, light.Z);
-                // A ray that met a surface within its interval holds its alpha at 0.
-                if (ray.W < 0.5f)
+                // A ray that met a surface holds its alpha at 0, or a half where it met it before its
+                // interval began, as a cascade past the first's may, and brings that surface's light.
+                if (ray.W > 0.25f && ray.W < 0.75f)
+                    early++;
+                if (ray.W < 0.75f)
                 {
                     hitRays += new Vector3(ray.X, ray.Y, ray.Z);
                     hitReference += r;
@@ -218,7 +223,7 @@ internal static class BounceReference
             var i = (((c * p + z) * p + y) * 6 * p + f * p + x) * 4;
             faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
         }
-        return new ProbeLight(c, middle, n * n, hits, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
+        return new ProbeLight(c, middle, n * n, hits, early, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
             mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference);
     }
 

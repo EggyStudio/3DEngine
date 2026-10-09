@@ -590,9 +590,11 @@ shadows only where a trace toward it gets through too (`hiddenLampLight`), given
 has a light, what a white surface facing it returns, and its color over pi times the light that
 bounced to it the frame before, which the probes hold as the light reaching a face, blended from
 the probes around it that it sees, a trace through the field to each in front of it
-(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced from its probe, and one
-that meets a surface before its interval begins is blocked, dark, so a probe a little above a floor
-does not bring back the light under it for the cascade below to take. A ray of the last cascade
+(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced
+from its probe, so a probe a little above a floor does not bring back the light under it for the
+cascade below to take, and one that meets a surface before its interval begins brings back that
+surface's light for its own probe's faces, marked so the merge of the cascade below reads it as
+dark, as that surface lies nearer the probe than the ray below reaches. A ray of the last cascade
 that meets nothing brings back the environment map, or the ambient lights' color, and one of any
 other cascade lets the light from beyond through. The three closed a room to a lamp over its roof
 or under its floor, which lit it before nearly as brightly as the lamp unshadowed, at a cost within
@@ -853,6 +855,30 @@ faces along x and y read 4% over and hid part of what the light that bounces aga
 shows as 5 points more under every bounce at `Low` and `Medium`. The outdoor blocks and the strip
 are unchanged, the closed room with a lamp under its floor holds 17.3 levels where it held 14.6, and
 the bounce costs what it did, 0.36, 0.44 and 0.53 ms.
+
+The third finds the light that bounces again short in a cascade's own faces. A ray of a cascade
+past the first that met a surface before its interval began was blocked dark, so those cascades'
+faces lacked every surface nearer their probes than the interval's start: with light bouncing once
+a probe of the second cascade in the Cornell box read 63% under a reference of the light arriving
+at it (`gi.probe 0 2.5 0 512 0 1`). Most of that box lies past the first cascade's reach from the
+view's camera, so its surfaces, and the hits that read them for the light bounced to a surface,
+took those faces. Such a ray now brings back the surface's light for its own probe's faces, alpha a
+half, and the probe reads 5% under. The merge into the cascade below still reads it as dark, since
+the surface lies nearer that probe than the ray below reaches: taken as light, it read the ceiling
+beside the lamp for one two units off, up to 26 times too bright along those ways, and blocked dark
+in the merge the first cascade stays where it was, 2% under with light bouncing once. Before and
+after, over every region against every bounce:
+
+| Room | `Low` | `Medium` | `High` | `High` against one bounce |
+|---|---|---|---|---|
+| The Cornell box | −21% to +2% | −20% to +2% | −22% to −10% | −3% to +11% |
+| A corridor lit from its end | −15% to −9% | −15% to −9% | −15% to −8% | +5% to +13% |
+| A floor at a grazing angle | −62% to −53% | −61% to −50% | −57% to −46% | −8% to +15% |
+
+The thin room, the window's room, the carried lamp, the outdoor blocks and the strip read within a
+point of what they did, and the probe in the Cornell box's middle reads 15% under with every bounce
+where it read 20%. Shading those rays costs 0.006 to 0.008 ms: 0.36, 0.45 and 0.54 ms by quality.
+The Cornell box's reference frame is drawn again, its back wall and blocks brighter.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
