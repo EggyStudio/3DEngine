@@ -61,13 +61,14 @@ public struct Lighting
     // when it encodes it on past 1 with no tonemap, the window's frame, which a pass after the
     // scene bends. Neither for a render texture, whose light toDisplay bends and encodes.
     public float4 output;
-    // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's alone,
-    // and 1 in y when the shadowed directional light is darkened by its green channel, the sun's
-    // contact shadows through the scene's distance field.
+    // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's or a
+    // render texture's drawn through a camera, never a probe's faces, and 1 in y when the shadowed
+    // directional light is darkened by its green channel, the sun's contact shadows through the
+    // scene's distance field.
     public float4 ambientOcclusion;
     // 1 in x when the view's light from all around is the light that bounced, read from
-    // bouncedLight, the window's alone. y: the probes' spacing in cells of the field. z: the probes
-    // along each side of a cascade. w: how many cascades.
+    // bouncedLight, in every view where light bounces. y: the probes' spacing in cells of the
+    // field. z: the probes along each side of a cascade. w: how many cascades.
     public float4 indirect;
     // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
     // screenLight and screenSurfaces, are read before the world's.
@@ -118,8 +119,8 @@ public TextureCube probeMap2;
 [[vk::binding(8, 1)]]
 public TextureCube probeMap3;
 
-// How much of the light from all around reaches each pixel of the window, at half its size, from
-// ao.slang, or a white texture where no occlusion is worked out.
+// How much of the light from all around reaches each pixel of the view, the window or a render
+// texture, at half its size, from ao.slang, or a white texture where no occlusion is worked out.
 [[vk::binding(9, 1)]]
 public Texture2D ambientOcclusionMap;
 

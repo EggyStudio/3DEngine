@@ -71,8 +71,10 @@ internal sealed partial class ModelRenderer
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
             ? Lit(map.DepthView, map.Sampler, 1)
             : Lit(white, whiteSampler, 1));
-        // The window's occlusion for the window's view, which alone has its buffer say to read it.
-        gfx.UpdateDescriptorSet(set, null, target == 0 && renderWorld.TryGet<AmbientOcclusionImage>() is { } occlusion
+        // The view's occlusion, the window's or a render target's own where it draws meshes through
+        // a camera, which its buffer says to read, and white for a probe's faces.
+        gfx.UpdateDescriptorSet(set, null, (target == 0 ? renderWorld.TryGet<AmbientOcclusionImage>()
+                : renderWorld.TryGet<TargetOcclusion>()?.Images.GetValueOrDefault(target)) is { } occlusion
             ? Lit(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : Lit(white, whiteSampler, AmbientOcclusionBinding));
         // And the light that bounced: the window's with its screen's probes and what its glossy

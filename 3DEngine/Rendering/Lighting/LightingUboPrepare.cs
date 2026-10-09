@@ -59,7 +59,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // the pass after the scene to bend.
         var windowUbo = ubo;
         windowUbo.Output.Y = 1;
-        // Only the window's view has an occlusion of its own, which it is darkened by.
+        // The window's view is darkened by its occlusion, as a render target drawing meshes through
+        // a camera is by its own.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null) windowUbo.AmbientOcclusion.Y = 1;
@@ -121,6 +122,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 targetUbo.Indirect = windowUbo.Indirect;
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
                     targetUbo.Screen = windowUbo.Screen with { Y = 1 };
+                // And its occlusion and the sun's contact shadows, worked out from its own depth.
+                if (draws.ViewProjectionOf(target) is not null) targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion;
                 targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));
             }
 

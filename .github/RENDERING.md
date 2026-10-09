@@ -568,8 +568,9 @@ share in the occlusion image's green channel, which the model pass multiplies th
 directional light by, so the pass runs for the contact shadows alone where the occlusion is off.
 `particle_step.slang` steps a colliding particle's move through the field where the field holds the
 place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
-the window as the field holds the scene, where `field.show` asks. The field is the window's alone,
-so render textures and probe captures are drawn without what it gives.
+the window as the field holds the scene, where `field.show` asks. A render texture drawn through a
+camera of its own reads the field as the window does, for its occlusion, the sun's contact shadows
+and the light that bounces, and a probe's faces read only the light that bounced through it.
 
 ### Light that bounces
 
@@ -675,9 +676,9 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
 0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the
 boxes of its joints or its parts the field holds it as, in its color but giving off none of its
-light. A render target that draws meshes through a camera has screen probes of its own, a depth at
-half its size of the meshes it draws that cast shadows (`ModelRenderer.DrawDepth` for its id),
-probes traced, blended and held as the window's on that depth with a history of their own, let go
+light. A render target that draws meshes through a camera has screen probes of its own, on the
+depth at half its size of the meshes it draws that cast shadows that its occlusion pass draws
+(`AmbientOcclusionRenderer.DrawTarget`, `ModelRenderer.DrawDepth` for its id), probes traced, blended and held as the window's on that depth with a history of their own, let go
 the frame after one the target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, before the
 target's pass), and its buffer says to read them first (`TargetIllumination`). The `targets` node
 runs after `global_illumination` for that, before the window's `shadows`, so a target reads this
@@ -842,9 +843,9 @@ skinned mesh's limbs blur by the camera alone, and a frame after others drawn wi
 blurs nothing. In `models_stress`, where every entity turns each frame, the frame held about 425,000
 entities at sixty frames a second with it on and about 700,000 with the camera's alone.
 
-`SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `shadows` and before every
-pass that lights the window's meshes (`AmbientOcclusionRenderer`). It draws the depth of the window's batches that cast a shadow into a
-depth target half the window's size, through the shadow pass's pipelines, whose depth-only pass is
+`SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `particles` and before every
+pass that lights the window's meshes (`AmbientOcclusionRenderer`). It draws the depth of the
+window's batches that cast a shadow into a depth target half the window's size, through the shadow pass's pipelines, whose depth-only pass is
 the same at any size, pushing each batch's own camera. `ao.slang` then puts each texel back in the
 world through the inverse view-projection, takes its normal from the nearer neighbor along each
 axis, and sums Alchemy's term over twelve taps on a spiral turned by interleaved gradient noise,
@@ -853,7 +854,15 @@ passes blur it across and down, nine taps each, weighed by how near each tap's d
 eye is to the pixel's. The lights' set binds the result at binding 9 for the window's view, and the
 window's lighting buffer says to read it, so `lit` multiplies its material occlusion, which scales
 the ambient, environment and probe light alone, by the occlusion at half the fragment's position.
-In Manor's rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU.
+In Manor's rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws
+meshes through a camera of its own has the same worked out at half its size in the `targets` node
+before its pass (`AmbientOcclusionRenderer.DrawTarget`), the sun's contact shadows with it, bound at
+binding 9 for its view, whose buffer says to read it as the window's does, and let go the frame
+after one the target is not drawn in. The two views of `games/Sumo` at 640 by 720 take 0.775 ms of
+the GPU in `targets` with it on where they take 0.678, the medians of three runs of seven readings
+of `./e3d command profile` with the frame rate unlimited, and 1.15 where they take 1.05 with light
+bouncing at `Low`, whose screen probes stand on the same depth. A probe's faces are drawn without
+it.
 
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it

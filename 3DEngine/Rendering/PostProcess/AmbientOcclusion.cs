@@ -30,6 +30,20 @@ internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D Extent);
 
 /// <summary>
+/// Each render target's depth and occlusion this frame, by the target's texture id, as
+/// <see cref="WindowDepth"/> and <see cref="AmbientOcclusionImage"/> are the window's, where it draws
+/// meshes through a camera of its own.
+/// </summary>
+internal sealed class TargetOcclusion
+{
+    /// <summary>Each target's depth of its meshes that cast shadows, at half its size, which its screen's probes stand on.</summary>
+    public Dictionary<int, WindowDepth> Depths { get; } = [];
+
+    /// <summary>Each target's occlusion and the sun's contact shadows, which its model pass binds.</summary>
+    public Dictionary<int, AmbientOcclusionImage> Images { get; } = [];
+}
+
+/// <summary>
 /// The window's ambient occlusion: the depth of its meshes drawn at half the window's size ahead of
 /// its pass, the occlusion worked out from it, and two passes that blur it along each axis without
 /// crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment and
@@ -40,9 +54,16 @@ internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D E
 /// sun's contact shadows alone where the occlusion is off.
 /// </summary>
 /// <remarks>
+/// <para>
 /// The images are made at half the window's size the first frame it is on and again when the
 /// window's size changes, and those they replace are destroyed <see cref="GpuTextures.RetireFrames"/>
 /// frames later, as are all of them the first frame it is off.
+/// </para>
+/// <para>
+/// A render target that draws meshes through a camera of its own has images of its own, worked out
+/// the same way from its depth ahead of its pass (<see cref="DrawTarget"/>), and let go the frame
+/// after one it is not drawn in. A reflection probe's faces are drawn without it.
+/// </para>
 /// </remarks>
 internal sealed class AmbientOcclusionRenderer : IDisposable
 {
@@ -66,6 +87,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     private ISampler? _sampler;
     private IPipeline? _pipeline;
     private Sized? _sized;
+    // Each render target's images and the frame it was last drawn in.
+    private readonly Dictionary<int, (Sized Sized, long Drawn)> _targets = [];
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
@@ -120,22 +143,34 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
     {
         Retire();
+        renderWorld.TryGet<TargetOcclusion>()?.Depths.Clear();
+        renderWorld.TryGet<TargetOcclusion>()?.Images.Clear();
+        // A target's images not drawn the frame before are let go.
+        foreach (var (id, (stale, _)) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
+        {
+            _retired.Add((_frame, stale));
+            _targets.Remove(id);
+        }
         var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
         var sun = ContactShadows(renderWorld);
         var bounces = GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
-        if (settings is not { On: true } && sun is null && !bounces || renderWorld.TryGet<WindowView>() is not { } view
+        // A render target's images are let go only where all of it is off, since a program may draw
+        // its scene into render textures alone and the window in 2D.
+        var wanted = settings is { On: true } || sun is not null || bounces;
+        if (!wanted) Release();
+        if (!wanted || renderWorld.TryGet<WindowView>() is not { } view
             || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
             || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
         {
-            Release();
+            ReleaseWindow();
             renderWorld.Remove<AmbientOcclusionImage>();
             renderWorld.Remove<WindowDepth>();
             return;
         }
 
         var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
-        var sized = Ensure(device, extent, field.Field);
+        var sized = _sized = Ensure(device, extent, field.Field, _sized, "the window");
         models.DrawDepth(renderContext, renderWorld, sized.Depth);
         renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
         // The light that bounces alone needs the depth and no occlusion pass.
@@ -144,14 +179,50 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             renderWorld.Remove<AmbientOcclusionImage>();
             return;
         }
+        Occlude(renderContext, sized, inverse, view.Eye, swapchain.Extent, settings, sun);
+        renderWorld.Set(new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!));
+    }
 
+    /// <summary>
+    /// Draws the depth of the meshes render target <paramref name="id"/>, of <paramref name="size"/>,
+    /// draws through <paramref name="camera"/> and works out its occlusion and the sun's contact
+    /// shadows from it, as the window's are, ahead of its pass, setting both in
+    /// <see cref="TargetOcclusion"/> for its model pass and its screen's probes.
+    /// </summary>
+    public void DrawTarget(RenderContext renderContext, RenderWorld renderWorld, int id, Extent2D size, Matrix4x4 camera)
+    {
+        var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
+        var sun = ContactShadows(renderWorld);
+        var bounces = GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
+        if (settings is not { On: true } && sun is null && !bounces || renderContext.Device is not GraphicsDevice device
+            || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
+            || !Matrix4x4.Invert(camera, out var inverse) || LightingUboPrepare.EyeOf(camera) is not { } eye)
+            return;
+
+        var extent = new Extent2D(Math.Max(1, size.Width / 2), Math.Max(1, size.Height / 2));
+        var sized = Ensure(device, extent, field.Field, _targets.TryGetValue(id, out var made) ? made.Sized : null, $"render texture {id}");
+        _targets[id] = (sized, _frame);
+        models.DrawDepth(renderContext, renderWorld, sized.Depth, id);
+        var targets = renderWorld.TryGet<TargetOcclusion>();
+        if (targets is null) renderWorld.Set(targets = new TargetOcclusion());
+        targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent);
+        if (settings is not { On: true } && sun is null) return;
+        Occlude(renderContext, sized, inverse, eye, size, settings, sun);
+        targets.Images[id] = new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!);
+    }
+
+    // The occlusion of a view of size, through the inverse of its camera from its eye, worked out
+    // into its images from the depth drawn into them, and blurred across and down.
+    private void Occlude(RenderContext renderContext, Sized sized, Matrix4x4 inverse, Vector3 eye, Extent2D size,
+        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun)
+    {
         var on = settings is { On: true };
         var push = new Push
         {
             InverseViewProjection = inverse,
-            EyeAndRadius = new Vector4(view.Eye, on ? settings!.Radius : 1),
-            TexelAndStrength = new Vector4(1f / extent.Width, 1f / extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
-            Mode = new Vector4(0, (float)swapchain.Extent.Width / Math.Max(1, swapchain.Extent.Height), on ? 1 : 0, 0),
+            EyeAndRadius = new Vector4(eye, on ? settings!.Radius : 1),
+            TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
+            Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? 1 : 0, 0),
             SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,
         };
         Pass(renderContext, sized.Occlusion, sized.Occlude, push);
@@ -159,7 +230,6 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         Pass(renderContext, sized.Across, sized.BlurAcross, push);
         push.Mode.X = 2;
         Pass(renderContext, sized.Occlusion, sized.BlurDown, push);
-        renderWorld.Set(new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!));
     }
 
     // The share of the picture's height a unit spans a unit from the eye, from the middle of the
@@ -190,10 +260,12 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         pass.Draw(3);
     }
 
-    private Sized Ensure(GraphicsDevice device, Extent2D extent, GpuSceneField field)
+    // A view's images at extent over field, those it has where they match, or new ones in place of
+    // them, named for the view.
+    private Sized Ensure(GraphicsDevice device, Extent2D extent, GpuSceneField field, Sized? made, string view)
     {
-        if (_sized is { } made && made.Extent == extent && ReferenceEquals(made.Field, field)) return made;
-        if (_sized is { } old) _retired.Add((_frame, old));
+        if (made is not null && made.Extent == extent && ReferenceEquals(made.Field, field)) return made;
+        if (made is not null) _retired.Add((_frame, made));
 
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
@@ -205,10 +277,10 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
         var depth = device.CreateDepthTarget(extent.Width, extent.Height);
-        device.Name(depth.DepthView.Image, "Ambient occlusion depth");
+        device.Name(depth.DepthView.Image, $"Ambient occlusion depth of {view}");
         var occlusion = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
         var across = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
-        device.Name(occlusion.ColorView.Image, "Ambient occlusion");
+        device.Name(occlusion.ColorView.Image, $"Ambient occlusion of {view}");
         _pipeline ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             occlusion.RenderPass, _vertex, _fragment,
             BlendEnabled: false,
@@ -225,14 +297,21 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, 3, 0, GpuSceneField.InfoBytes), null);
             return set;
         }
-        return _sized = new Sized(extent, field, depth, occlusion, across, Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView));
+        return new Sized(extent, field, depth, occlusion, across, Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView));
     }
 
-    // Lets the images go, once no frame in flight reads them, on a frame it is off.
+    // Lets every view's images go, once no frame in flight reads them, on a frame it is off.
     private void Release()
     {
-        if (_sized is null) return;
-        _retired.Add((_frame, _sized));
+        ReleaseWindow();
+        foreach (var (sized, _) in _targets.Values) _retired.Add((_frame, sized));
+        _targets.Clear();
+    }
+
+    // Lets the window's images go, on a frame it is off or the window draws no meshes.
+    private void ReleaseWindow()
+    {
+        if (_sized is not null) _retired.Add((_frame, _sized));
         _sized = null;
     }
 
@@ -254,6 +333,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         foreach (var (_, disposable) in _retired) disposable.Dispose();
         _retired.Clear();
         _sized?.Dispose();
+        foreach (var (sized, _) in _targets.Values) sized.Dispose();
+        _targets.Clear();
         _pipeline?.Dispose();
         _layout?.Dispose();
         _sampler?.Dispose();

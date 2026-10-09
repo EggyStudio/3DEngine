@@ -12,10 +12,12 @@ namespace Engine;
 /// models, the particles through the camera its models were drawn with, and its immediate shapes
 /// are drawn, in that order, as the window's are. A target that
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
-/// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Where light
-/// bounces, such a target's screen probes are traced before it too, as the window's are, after the
-/// frame's world probes (<see cref="GlobalIlluminationRenderer.DrawTarget"/>), and its particles laid
-/// over by alpha are sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).
+/// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Its depth at half
+/// its size and its ambient occlusion are worked out before it as the window's are
+/// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where light bounces its screen probes
+/// are traced on that depth, after the frame's world probes
+/// (<see cref="GlobalIlluminationRenderer.DrawTarget"/>), and its particles laid over by alpha are
+/// sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).
 /// </remarks>
 internal sealed class TargetsNode : INode
 {
@@ -36,7 +38,10 @@ internal sealed class TargetsNode : INode
                 && shadows.ByTarget.TryGetValue(id, out var own) && own.Shadow is { } shadow)
                 models.DrawShadow(renderContext, renderWorld, shadow, id);
             if (models is not null && renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(id) is { } camera)
+            {
+                renderWorld.TryGet<AmbientOcclusionRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
                 renderWorld.TryGet<GlobalIlluminationRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
+            }
             renderWorld.TryGet<ParticleRenderer>()?.SortFor(renderContext, renderWorld, id);
 
             var keep = clear is null && target.Drawn;

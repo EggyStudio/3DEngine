@@ -281,7 +281,10 @@ The radius is how far, in world units, the surfaces that close a point off are l
 the size of what stands close together, and the intensity how dark it goes, 1 suiting most
 scenes. It is worked out for the window from a depth of its models drawn at half size each frame,
 about a tenth of a millisecond on a desktop GPU, so a model that casts no shadow darkens nothing
-around it, and a render texture is drawn without it. `games/Manor` turns it on for its rooms.
+around it. A render texture that draws models through a camera, as each half of a split screen,
+works out its own the same way before it is drawn, and the two halves of `games/Sumo` at 640 by 720
+take about 0.1 ms more of the GPU with it on, as `./e3d command profile` gives `targets`.
+`games/Manor` turns it on for its rooms.
 
 ## The scene as a distance field
 

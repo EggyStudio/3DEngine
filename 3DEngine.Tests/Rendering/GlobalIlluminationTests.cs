@@ -315,7 +315,7 @@ public sealed class GlobalIlluminationTests : IDisposable
             EndTextureMode();
             BeginDrawing();
             ClearBackground(Color.Black);
-            DrawTextureRec(texture.Texture, new Rectangle(0, 0, texture.Texture.Width, -texture.Texture.Height), Vector2.Zero, Color.White);
+            DrawTexture(texture.Texture, 0, 0, Color.White);
             if (frame == SceneFieldPlan.SettleFrames + 10) TakeScreenshot(path);
             EndDrawing();
         }

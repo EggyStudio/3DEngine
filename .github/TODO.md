@@ -192,10 +192,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   of the model pass. The frame's target takes 44 bytes a pixel at four samples, 91 MB at 1920 by
   1080, drawing into the window's own multisampled depth. Motion blur blurs a mesh entity by its own
   movement where asked, a model drawn with `DrawModel` and a skinned mesh's limbs by the camera's
-  alone. Ambient occlusion darkens the window's light from all around, from a depth of the meshes
-  that cast shadows drawn at half size and from the scene's distance field where it is built, so a
-  mesh that casts none closes nothing off, and render textures and probe captures are drawn without
-  it.
+  alone. Ambient occlusion darkens the light from all around of the window and of each render
+  texture drawn through a camera, from a depth of the meshes that cast shadows drawn at half the
+  view's size and from the scene's distance field where it is built, so a mesh that casts none
+  closes nothing off, and probe captures are drawn without it.
 
 ### The device
 

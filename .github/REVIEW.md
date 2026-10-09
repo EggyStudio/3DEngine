@@ -10,21 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8ac5912a`. Item 2: each emitter laid over by alpha keeps the eye its buffer was last
-sorted from, the step sorting from the window's as before, and `ParticleRenderer.SortFor` sorts it
-again from a view's own eye where that differs, outside any pass, the targets node for each render
-target before its pass and the HDR scene node for the window before its particles' pass where a
-target sorted after the step, a probe's faces drawing in the last order sorted and a render texture
-drawn only in 2D still drawing none; a new test draws one stream, blue born at the back and red
-aging toward the front, into two render textures from either end, the front view showing red in
-front and the back view blue, where the back view showed the window's order; Sumo's dust is additive
-and never sorted, so an emitter of 300 laid over by alpha was added to its ring through `./e3d
-eval`, its two views taking 0.377 to 0.383 ms of the GPU in `targets` where they took 0.352, some
-0.013 ms a sort, written in the guide and RENDERING.md §3, TODO.md's sentence gone and the 2D render
-texture's want of a camera kept (`8ac5912a`). Item 2 is settled, and its number goes to a measured
-sweep of the per-entity cost entry, after item 3, which the coder has started, since TODO.md's
-limits are spent and the owner has not named the next large item. The suite: 1,574 passed, and on
-lavapipe the rendering tests, 308.
+Reviewed up to `12b1f0c3`. Three commits. ImGui's frame begins in `First` (`096797bc`), the plugin
+ordered late and after the command line's, so the frame's time comes first, then the served
+commands, then ImGui's new frame, then a program's own systems, with a test of a window made in
+`First` drawn in the frame `Update` draws in; right, and the order is the plugin's `Order` and not
+its place in the list, the sturdier of the two. Item 2's sweep measured and took nothing
+(`27c60b1b`): `models.blocks` counts the instances copied into the ring and those in blocks some
+pass drew, `models_stress` holds a count and turns a few, and neither change pays, no block undrawn
+at 410,266 or 3,000 with the camera over its grid nor in Manor, Summit or Pusher, and a chunk
+gathered for its moved entities alone within the readings' noise, 1.850 ms against 1.852 at 410,266,
+so both stay described with their numbers; they were measured where the camera sees every block,
+which is where a culled copy can gain nothing, so the entry says so and the question is asked again
+when a game has a level larger than its view. A run that shows no window neither reads nor writes
+`imgui.ini` (`12b1f0c3`), so a capture is the same whatever was dragged before, with the docking
+drag's numbers given again and a test finding no file; right. The disputed second limit of item 3 is
+decided the coder's first way, particles staying where a texture is drawn in 3D, since a texture
+drawn only in 2D is an interface, a minimap or a canvas and would show the window's smoke a second
+time, and the guide says so (item 2). The suite: 1,576 passed. The runs: Verdict 39 settles, the
+captures passing in a job of their own at `8ac5912a` in 52 minutes of the runner's; `8ac5912a` is
+red on Windows and `096797bc` on macOS, Verdicts 40 and 41, and `12b1f0c3`'s run is under way, Linux
+green. TODO.md's limits are spent, as the last pass said, and no large item is queued, so the next
+is the owner's to name and has been asked for.
+
+Before them, item 2 came to be settled, where each emitter laid over by alpha keeps the eye its
+buffer was last sorted from, the step sorting from the window's as before, and
+`ParticleRenderer.SortFor` sorts it again from a view's own eye where that differs, outside any
+pass, the targets node for each render target before its pass and the HDR scene node for the window
+before its particles' pass where a target sorted after the step, a probe's faces drawing in the last
+order sorted and a render texture drawn only in 2D still drawing none; a new test draws one stream,
+blue born at the back and red aging toward the front, into two render textures from either end, the
+front view showing red in front and the back view blue, where the back view showed the window's
+order; Sumo's dust is additive and never sorted, so an emitter of 300 laid over by alpha was added
+to its ring through `./e3d eval`, its two views taking 0.377 to 0.383 ms of the GPU in `targets`
+where they took 0.352, some 0.013 ms a sort, written in the guide and RENDERING.md §3, TODO.md's
+sentence gone and the 2D render texture's want of a camera kept (`8ac5912a`). Item 2 is settled, and
+its number goes to a measured sweep of the per-entity cost entry, after item 3, which the coder has
+started, since TODO.md's limits are spent and the owner has not named the next large item. The
+suite: 1,574 passed, and on lavapipe the rendering tests, 308.
 
 Before them, item 3 came to be settled, the lights' upload grouping the views drawing meshes through
 a camera, the window first and then the targets, each joining the first group whose first cascade,
@@ -43,62 +65,45 @@ view's texels grow by a quarter at most and Sumo's edges move by a fraction of a
 went to the two small limits TODO.md still described, ImGui's frame started in `First` and a 2D
 render texture's particles. The suite: 1,573 passed, and on lavapipe the rendering tests, 307.
 
-Before them, item 2 came to be settled, a render target that draws meshes through a camera getting
-screen probes of its own, a depth at half its size of the meshes it draws that cast shadows, probes
-traced, blended and held on it as the window's are, their history let go the frame after one the
-target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, called by the targets node before
-the target's pass), bound for its model pass through `TargetIllumination`, a probe capture keeping
-the world's probes alone; the targets node runs after `global_illumination` to read this frame's
-world probes, the window's shadows still after every target; a new test draws the red wall's room
-into the window and into a render texture of its size, the block's side reading (111, 45, 45) in
-both where the texture read (52, 37, 37) with the world's probes alone; Sumo's two views at 640 by
-720 with the bounce at `Low` take 1.14 ms of the GPU in `targets` where they took 0.62, some 0.26 ms
-a view, which a view carries, so no limit stays, written in the guide, RENDERING.md and TODO.md with
-the entry's sentence gone; the references are unchanged, Summit's frame moving by some 20 pixels
-with what ran before it whichever build draws it (`c7ee9c72`). Its number went to particles sorted
-from each view's camera. The suite: 1,572 passed, and on lavapipe the rendering tests, 306.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
 
 ## Now
 
-The owner asked on 2026-10-04 that the work here does not stop, there being much left to do.
-This list is long on purpose, and a batch that ends is followed by the next item with no wait
-for a reply. In this order.
+The owner asked on 2026-10-04 that the work here does not stop, there being much left to do. This
+list is long on purpose, and a batch that ends is followed by the next item with no wait for a
+reply. In this order. It is short today because TODO.md's limits are spent and no large item is
+queued; the owner has been asked for the next, and item 4 fills the wait.
 
-1. **Verdict 39 first, then the examples job.** The run of `b526089c`, the first pushed since
-   `06b702a1`: Linux green in 3 minutes; Windows green in 29, its suite of 1,535 with the leak
-   test's hundred apps, Pusher published native in 48 seconds, the thirteen games in 14 minutes and
-   Pusher in a window in 12 seconds, which settles Verdicts 33 and 37; macOS green through its suite
-   of 1,518 and then timed out capturing the examples, Verdict 39, mended at `ca4d474a` with the
-   captures in a job of their own and read on the next macOS run, so the examples job, which carries
-   the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test jobs
-   pass. Each push's run is read by the reviewing session, and a failure it names comes first here.
-2. **The ring's copy and a chunk's gather, measured first.** TODO.md's per-entity cost entry says
-   every instance is still copied into the ring each frame and a culled block with them, and one
-   entity moving gathers its whole chunk of 4096 again, the two larger changes it weighed set aside
-   as not paying at a count no raylib-style game nears: measure on `models_stress` and the bunnymark
-   what the culled blocks' copy and a moving entity's whole chunk cost at 410,266 and at a game's
-   count of a few thousand, and take only what pays a measured share, the culled blocks left out of
-   the ring's copy and a chunk gathered for the entities that moved, each with its number in the
-   entry; what does not pay stays described with the number that says so. After item 3.
-3. **The two small limits left.** TODO.md's ImGui entry says ImGui's frame starts in `PreUpdate`,
-   so calls a system makes in `First` are lost, and its particles entry says a render texture drawn
-   only in 2D has no camera to draw them through: ImGui's frame starts before `First` so a system
-   there draws into it, with a test of a window made in `First`; and a render texture drawn only in
-   2D draws its particles through the window's camera, the one its 2D is laid over, with a test
-   reading an emitter in such a texture; the guide's sentences and the two entries' updated. After
-   item 2.
-4. **The first shares recorded from the workflow's own device.** The examples job's first green
+1. **What the next page says.** Verdict 39 is settled: the macOS captures ran in a job of their own
+   at `8ac5912a` and passed, 52 minutes of the runner's for the coder's 25, the test job beside them
+   green in 30. `8ac5912a` is red on Windows, the leak test hung at app 79 of 100 and the hot reload
+   test's texture never came (Verdict 40); `096797bc` is red on macOS, the suite lost to a crash in
+   a particle test and whole in its parts (Verdict 41); `12b1f0c3`'s run is under way, Linux green
+   at 17:59 UTC. The examples job, which carries the guides' blocks and Verdicts 30 and 31, runs
+   once a run's three test jobs pass, so Verdicts 40 and 41 come first. Each push's run is read by
+   the reviewing session, and a failure it names comes first here.
+
+2. **A render texture drawn only in 2D keeps drawing no particles, and the guide says so.** The
+   coder's first way, chosen over a call naming a camera: particles are the world's, and a texture
+   drawn only in 2D is an interface, a minimap or a canvas, which would show the window's smoke a
+   second time with no depth to hide it; a program that wants them in a texture draws that texture
+   in 3D through `BeginMode3D`, which draws them already. One sentence in the drawing guide beside
+   the render textures, and TODO.md's particles entry closed with the reason.
+
+3. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
 
+4. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
+   game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
+   being the point of each.
+
 ## Verdicts
 
-Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again.
+Verdicts 1 to 29 and 32 to 39 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -125,19 +130,34 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-39. **The macOS job of `b526089c` times out capturing every example, and the games, the window,
-    the native publish and the walk behind it are skipped.** The step, added at `0dae7bc6` with 50
-    minutes from the coder's GPU's 25 for the 253, ran from 04:23 to 05:13 UTC on the runner's
-    paravirtual GPU through MoltenVK and was killed by its limit, the artifact `examples-macos`
-    holding 22.6 MB of what it drew and the page saying no more than the timeout, where a run that
-    fails says what failed (N 6.7); the steps after it never ran, so the run proved nothing of the
-    thirteen games, Pusher in a window, the native publish or the README walk on macOS, which the
-    Windows job proved whole. The capture goes into a job of its own on macOS beside the test job,
-    never inside it, with its own limit, a budget an example that fails the one and goes on, the
-    script saying at its end how many drew and how long each took and the page naming the last
-    example reached when the budget ends; the job's own time read from this run's log first, since
-    the runner's rate sets what fits. Settled when a macOS run passes its tests, games, window,
-    native publish and walk again and the captures' job ends within its limit saying what it drew.
+40. **The Windows job of `8ac5912a` loses the suite to a hang in
+    `AppLeakTests.An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`,
+    at app 79 of 100 whole and at app 78 in the Core part, and fails
+    `AssetReleaseTests.A_Model_Spawned_Again_By_Hot_Reload_Lets_Its_Texture_Go_With_It`.** Read from
+    the page. Both hangs are in a new app's Startup stage after `ImGuiRenderNode registered in
+    render graph`, five minutes without a line, and the handles the test prints climb through the
+    run, 1704 at one app and 2527 at the 79th whole, 1113 at the 78th in the part, where the Vulkan
+    objects stay at none; `b526089c` passed the test on Windows in 29 minutes and `096797bc` passed
+    it after, so it hangs on some runs and not others and nothing yet says why. Three things. The
+    test holds the process's handles as it holds the Vulkan objects, to the twentieth app's count
+    and a small allowance, so a handle kept per app on Windows fails with a number before it can
+    hang. The Startup stage's systems each log a line at debug, so the next hang names the system it
+    stopped in, where the page names the stage alone. And the hot reload test waits up to 300 frames
+    for a texture a loader thread brings, a wait in frames on another thread's work, which a runner
+    busy with the leak test's hundred apps beside it can miss, so it waits on the load itself with a
+    bound in seconds, as a loader's own tests do, and does not retry. Settled when a Windows run
+    passes whole.
+
+41. **The macOS job of `096797bc` loses the suite to a crash in
+    `ParticleTests.A_Textured_Particle_Is_Drawn_As_Its_Image_The_Right_Way_Up_And_Square` after 2 m
+    22 s, the runtime writing a dump, and passes whole in its parts, 1,538.** The test's app is its
+    own, opened by `Open()` and closed in `Dispose`, and the test ends with `UnloadTexture` while
+    the emitter drawn with that texture lives until the close, so whether the particle pass or the
+    close touches the freed texture's view on MoltenVK is read first, the test's last frame and the
+    shutdown's work; the test passed on macOS at `8ac5912a` and `b526089c` and in this run's parts,
+    so the crash is one of timing or of a freed thing and not of the drawing itself. The dump is in
+    the run's macOS artifact behind a sign-in, which the owner downloads and names a path to if the
+    reading finds nothing. Settled when a macOS run passes whole.
 
 ## Decisions
 
@@ -242,57 +262,24 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 3's first limit, ImGui's frame begun before First. The ImGui plugin's frame begins in `First`
-(`SdlImGuiPlugin.NewFrame`, windowed and headless), and the plugin is ordered late and listed after
-the command line's, so in `First` the frame's time is taken first, then `./e3d`'s commands are
-served, handing ImGui their input in the frame, then ImGui's frame begins, and then a program's own
-systems run there and draw into it. A new test has a system in `First` make a window, which is sized
-and drawn in the frame a system in `Update` draws in. The suite: 1,575 passed; on lavapipe the
-rendering, Gui and command line tests, 337 passed and 3 skipped. Seen while trying it, at HEAD as
-well: `./e3d command input.drag Left 280 156 20 20`, which TODO.md gives for docking on
-`gui_imgui_window`, and a drag from the Help window's title both orbit the camera there and move no
-window, so the docking sentence's drag no longer shows what it says; it is left for a batch of its
-own.
-
-Disputed, item 3's second limit, a render texture drawn only in 2D drawing its particles through the
-window's camera. Particles are the world's, and the textures a game draws only in 2D are most often
-its interface, a minimap, a pixel-art canvas scaled up or a layer laid over the window, and each of
-those would show every emitter of the window's scene again, through the window's camera, in a
-texture that has no depth to hide them behind, so a HUD would carry the window's smoke and sparks a
-second time. The texture they belong in is the one a game draws its scene into, which has a camera
-of its own through `BeginMode3D` and draws them already. Two ways seem better than the change: leave
-it as it is and say in the guide that a texture shows particles where it is drawn in 3D, or let a
-program ask for them in a 2D texture by a call naming the camera, as `DrawParticles(camera)` inside
-`BeginTextureMode` would. Nothing is done for it until the reviewing session or the owner says
-which.
-
-Item 2, the measured sweep of the per-entity cost entry. `./e3d command models.blocks` now says how
-many instances the last frame copied into the ring and how many were in blocks some pass drew, the
-camera's, a cascade's or a light's, each block marked as a pass draws it; and `models_stress` takes
-`E3D_STRESS_COUNT` to hold a count in place of its search and `E3D_STRESS_MOVING` to turn that many
-in place of all. The culled blocks' copy does not pay: no block went undrawn in `models_stress` at
-410,266 or at 3,000, whose camera keeps its grid in view, nor in Manor's hall or grounds, which put
-172 instances in groups, nor in Summit's 11 or Pusher's none, a copy of a few microseconds at a
-game's count; the first pass, which copies and boxes, takes 3.0 to 3.1 ms at 410,266 and 0.10 to
-0.23 ms at 3,000. Nor does a chunk gathered for its moved entities alone: with one entity turning,
-`MeshEntityDraws` takes 1.850 ms at 410,266 against 1.852 with none and 5.87 with all, and at 3,000
-it takes 0.15 to 0.18 ms whichever turn, so a chunk's regather is under the readings' noise; the
-1.85 ms left with every chunk kept is the change checks and the groups made over a hundred chunks.
-Both stay described in the entry with these numbers, Release offscreen with no arms, the median of
-seven profile readings. The bunnymark draws sprites through the immediate pass and no instance ring,
-so neither reaches it. The suite: 1,575 passed; on lavapipe the rendering tests, 308 passed and 2
-skipped.
-
-After the list, the stale docking drag on `gui_imgui_window`. `input.drag` moves from where the
-pointer is, so TODO.md's `input.drag Left 280 156 20 20` docked only from a pointer left on the Cube
-window's title, which the sentence never placed, and ImGui kept its windows' places in `imgui.ini`
-in the program's folder, so a hidden run opened with the layout an earlier run had left, and the
-drag's numbers held only for that layout. A window no one sees, hidden, offscreen or headless, as
-`./e3d` and the tests open one, now neither reads nor writes `imgui.ini`, so each such run starts
-from the program's own layout, which keeps a capture of a gui example the same whatever was dragged
-before; a shown window keeps ImGui's file, which brings a player's layout back. From that layout,
-`./e3d command input.move 100 67` and `input.drag Left 300 158 20 20` dock the Cube window into the
-window's middle, tried here against three other ends that only moved it, and the Help window moves
-by its title as dragged; TODO.md and the window guide say so. A new test runs a headless app that
-places a window and finds no `imgui.ini` after it, which fails without the change. The suite: 1,576
-passed.
+Taken while the list waited, before this pass arrived, the effects entry's limit that render
+textures were drawn without ambient occlusion. A render texture that draws meshes through a camera
+now draws a depth of its meshes that cast shadows at half its size, works out its occlusion and the
+sun's contact shadows from it as the window's are, in the targets node before its pass
+(`AmbientOcclusionRenderer.DrawTarget`), and binds them for its model pass through
+`TargetOcclusion`, its buffer saying to read them, all let go the frame after one it is not drawn
+in. Its screen probes, where light bounces, stand on that same depth in place of one drawn for them
+alone, so a target with both draws its depth once, and a program drawing its scene into render
+textures alone keeps the targets' images while the window, drawn in 2D, lets its own go. A new test
+draws the cube in its corner into a render texture of the window's size, the floor beside the cube
+and in the corner darkening within 9 levels of the window's, summed over the three channels, and
+the open floor not at all; before the change the texture's floor read as it does with the
+occlusion off. Sumo's two views at 640 by 720 take 0.775 ms of the GPU in `targets` with it on
+where they take 0.678, the medians of three runs of seven profile readings each, and 1.15 where
+they take 1.05 with the bounce at `Low`. The guide, the API's remarks, RENDERING.md §4 and §5 and
+TODO.md say so, and RENDERING.md's sentence placing the occlusion's node after `shadows` now places
+it after `particles`, where it has run since `c7ee9c72`. Seen while writing the test, a render
+texture is upright here, so the bounce test of `c7ee9c72` drew its texture upside down with a
+negative height and passed because the rows it averages are their own mirror. It draws it upright
+now. The suite: 1,577 passed; on lavapipe the rendering, compute and particle tests, 309 passed
+and 2 skipped. Verdicts 40 and 41 are next.

@@ -104,8 +104,9 @@ public static partial class Engine3D
     /// <para>
     /// It is worked out for the window's view each frame, from the depth of its models drawn at
     /// half the window's size ahead of its pass, so a frame costs one more pass over the models
-    /// that cast a shadow, and a model that casts none darkens nothing around it. Render textures
-    /// and probe captures are drawn without it.
+    /// that cast a shadow, and a model that casts none darkens nothing around it. A render texture
+    /// that draws models through a camera works out its own the same way ahead of its pass, and
+    /// probe captures are drawn without it.
     /// </para>
     /// </remarks>
     public static void SetAmbientOcclusion(float intensity, float radius = 1)

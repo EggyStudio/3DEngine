@@ -94,20 +94,14 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The end of the first cascade's interval, which the screen's probes trace to, this frame.
     private float _firstInterval;
 
-    // A render target's screen probes, the depth at half its size they stand on, its camera the
-    // frame before and the frame it was last drawn in.
-    private sealed class TargetScreen(GpuScreenProbes screen, ShadowMap depth) : IDisposable
+    // A render target's screen probes, its camera the frame before and the frame it was last drawn in.
+    private sealed class TargetScreen(GpuScreenProbes screen) : IDisposable
     {
         public GpuScreenProbes Screen { get; } = screen;
-        public ShadowMap Depth { get; } = depth;
         public (Matrix4x4 ViewProjection, Vector3 Eye)? Last { get; set; }
         public long Drawn { get; set; }
 
-        public void Dispose()
-        {
-            Screen.Dispose();
-            Depth.Dispose();
-        }
+        public void Dispose() => Screen.Dispose();
     }
 
     private readonly Dictionary<int, TargetScreen> _targets = [];
@@ -266,39 +260,37 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
     /// <summary>
     /// Traces, blends and holds the screen's probes of render target <paramref name="id"/>, of
-    /// <paramref name="size"/>, as the window's are, stood on a depth at half its size of the meshes
-    /// it draws through <paramref name="camera"/>, after this frame's world probes and ahead of its
-    /// pass, which reads them first as the window's model pass reads its own.
+    /// <paramref name="size"/>, as the window's are, stood on the depth at half its size of the
+    /// meshes it draws through <paramref name="camera"/> that its occlusion was worked out from
+    /// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), after this frame's world probes and
+    /// ahead of its pass, which reads them first as the window's model pass reads its own.
     /// </summary>
     /// <remarks>
-    /// Each target has probes, a depth and a history of its own, let go the frame after one it is
-    /// not drawn in. A reflection probe's faces read the world's probes alone.
+    /// Each target has probes and a history of its own, let go the frame after one it is not drawn
+    /// in. A reflection probe's faces read the world's probes alone.
     /// </remarks>
     public void DrawTarget(RenderContext renderContext, RenderWorld renderWorld, int id, Extent2D size, Matrix4x4 camera)
     {
         if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<SceneFieldBinding>() is not { On: true } field
-            || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GlobalIlluminationSettings>() is not { } settings
+            || renderWorld.TryGet<GlobalIlluminationSettings>() is not { } settings
+            || renderWorld.TryGet<TargetOcclusion>()?.Depths.GetValueOrDefault(id) is not { } depth
             || !Matrix4x4.Invert(camera, out var inverse)) return;
         var tile = TileAt(settings.Quality);
-        var half = new Extent2D(Math.Max(1, size.Width / 2), Math.Max(1, size.Height / 2));
-        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.Depth.Extent != half
+        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile), device.CreateDepthTarget(half.Width, half.Height));
-            device.Name(state.Depth.DepthView.Image, $"Render texture {id}'s depth for its screen's probes");
+            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile));
         }
         state.Drawn = _frame;
-        models.DrawDepth(renderContext, renderWorld, state.Depth, id);
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
         var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
-        var bytes = ViewBytes(camera, inverse, at, state.Screen, half, size, state.Last);
-        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, state.Depth.DepthView,
-            state.Depth.Sampler, bytes)));
+        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, state.Last);
+        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes)));
         state.Last = (camera, at);
         var targets = renderWorld.TryGet<TargetIllumination>();
         if (targets is null) renderWorld.Set(targets = new TargetIllumination());
-        targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, new WindowDepth(state.Depth.DepthView, state.Depth.Sampler, half));
+        targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth);
     }
 
     // A view's buffer for the screen's probes, as gi_screen.slang reads it: its camera both ways

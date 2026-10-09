@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 /// <summary>
 /// Ambient occlusion, read from chosen pixels of frames drawn offscreen: a cube on a floor lit by
 /// ambient light and a weak sun, in the corner of two walls, whose floor darkens beside the cube's
-/// foot and in the corner and nowhere far from them.
+/// foot and in the corner and nowhere far from them, in the window and in a render texture alike.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -31,20 +31,27 @@ public sealed class AmbientOcclusionTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
-    // Draws frames of the cube on its floor, the last of them captured.
-    private Image Capture(Model floor, Model cube, int frames = 4)
+    // Draws frames of the cube on its floor, into the window or into a render texture of the
+    // window's size shown over it, the last of them captured.
+    private Image Capture(Model floor, Model cube, int frames = 4, RenderTexture2D? into = null)
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < frames + 10 && !File.Exists(path); frame++)
         {
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(_camera);
-            DrawModel(floor, Vector3.Zero, 1, Color.White);
-            DrawModel(cube, new Vector3(0, 0.5f, 0), 1, Color.White);
-            DrawModelEx(cube, new Vector3(-1.5f, 1, -1.5f), Vector3.UnitY, 0, new Vector3(5, 2, 0.2f), Color.White);
-            DrawModelEx(cube, new Vector3(-3.9f, 1, 0.9f), Vector3.UnitY, 0, new Vector3(0.2f, 2, 5), Color.White);
-            EndMode3D();
+            if (into is { } texture)
+            {
+                BeginTextureMode(texture);
+                Scene(floor, cube);
+                EndTextureMode();
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                DrawTexture(texture.Texture, 0, 0, Color.White);
+            }
+            else
+            {
+                BeginDrawing();
+                Scene(floor, cube);
+            }
             if (frame == frames - 1) TakeScreenshot(path);
             EndDrawing();
         }
@@ -53,7 +60,28 @@ public sealed class AmbientOcclusionTests : IDisposable
         return LoadImage(path);
     }
 
+    private void Scene(Model floor, Model cube)
+    {
+        ClearBackground(Color.Black);
+        BeginMode3D(_camera);
+        DrawModel(floor, Vector3.Zero, 1, Color.White);
+        DrawModel(cube, new Vector3(0, 0.5f, 0), 1, Color.White);
+        DrawModelEx(cube, new Vector3(-1.5f, 1, -1.5f), Vector3.UnitY, 0, new Vector3(5, 2, 0.2f), Color.White);
+        DrawModelEx(cube, new Vector3(-3.9f, 1, 0.9f), Vector3.UnitY, 0, new Vector3(0.2f, 2, 5), Color.White);
+        EndMode3D();
+    }
+
     private static int Sum(Color c) => c.R + c.G + c.B;
+
+    private Color At(Image image, Vector3 world)
+    {
+        var p = GetWorldToScreen(world, _camera);
+        return GetImageColor(image, (int)p.X, (int)p.Y);
+    }
+
+    // The floor a tenth of a unit in front of the cube, the floor in the walls' corner, and the
+    // floor a unit and a half from anything.
+    private static readonly Vector3 Beside = new(0, 0, 0.6f), Corner = new(-3.7f, 0, -1.3f), Far = new(2.2f, 0, 0.3f);
 
     [NeedsVulkanFact]
     public void The_Floor_Darkens_Beside_A_Cube_And_In_A_Corner_And_Not_Far_From_Them()
@@ -67,26 +95,42 @@ public sealed class AmbientOcclusionTests : IDisposable
         SetAmbientOcclusion(1);
         var with = Capture(floor, cube);
 
-        Color At(Image image, Vector3 world)
-        {
-            var p = GetWorldToScreen(world, _camera);
-            return GetImageColor(image, (int)p.X, (int)p.Y);
-        }
-        // The floor a tenth of a unit in front of the cube, the floor in the walls' corner, and the
-        // floor a unit and a half from anything.
-        var beside = new Vector3(0, 0, 0.6f);
-        var corner = new Vector3(-3.7f, 0, -1.3f);
-        var far = new Vector3(2.2f, 0, 0.3f);
-        Sum(At(with, beside)).Should().BeLessThan(Sum(At(without, beside)) - 30, "the cube closes off the floor at its foot");
-        Sum(At(with, corner)).Should().BeLessThan(Sum(At(without, corner)) - 30, "and the walls the floor in their corner");
-        Sum(At(with, far)).Should().BeInRange(Sum(At(without, far)) - 6, Sum(At(without, far)) + 6, "nothing is near the floor out in the open");
+        Sum(At(with, Beside)).Should().BeLessThan(Sum(At(without, Beside)) - 30, "the cube closes off the floor at its foot");
+        Sum(At(with, Corner)).Should().BeLessThan(Sum(At(without, Corner)) - 30, "and the walls the floor in their corner");
+        Sum(At(with, Far)).Should().BeInRange(Sum(At(without, Far)) - 6, Sum(At(without, Far)) + 6, "nothing is near the floor out in the open");
 
         // Drawn through the HDR frame, which the model pass leaves its light linear for, it darkens alike.
         SetBloom(0.3f);
         var hdrWith = Capture(floor, cube);
         SetAmbientOcclusion(0);
         var hdrWithout = Capture(floor, cube);
-        Sum(At(hdrWith, beside)).Should().BeLessThan(Sum(At(hdrWithout, beside)) - 30, "the HDR frame is darkened beside the cube too");
+        Sum(At(hdrWith, Beside)).Should().BeLessThan(Sum(At(hdrWithout, Beside)) - 30, "the HDR frame is darkened beside the cube too");
+        UnloadModel(floor);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Render_Texture_Drawn_Through_A_Camera_Darkens_As_The_Window_Does()
+    {
+        Open();
+        SetAmbientLight(Color.White, 0.6f);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.5f, -1, -0.3f)), Color.White, 0.6f);
+        var floor = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var texture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        var without = Capture(floor, cube, into: texture);
+        SetAmbientOcclusion(1);
+        var window = Capture(floor, cube);
+        var drawn = Capture(floor, cube, into: texture);
+
+        foreach (var (place, name) in new[] { (Beside, "beside the cube"), (Corner, "in the walls' corner") })
+        {
+            Sum(At(drawn, place)).Should().BeLessThan(Sum(At(without, place)) - 30, $"the render texture's floor {name} is closed off");
+            Sum(At(drawn, place)).Should().BeInRange(Sum(At(window, place)) - 9, Sum(At(window, place)) + 9,
+                $"and darkens {name} as the window's does, {At(drawn, place)} against {At(window, place)}");
+        }
+        Sum(At(drawn, Far)).Should().BeInRange(Sum(At(without, Far)) - 6, Sum(At(without, Far)) + 6, "and not out in the open");
+        UnloadRenderTexture(texture);
         UnloadModel(floor);
         UnloadModel(cube);
     }
