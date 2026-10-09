@@ -32,10 +32,16 @@ removed from this file, and an item that is partly done is rewritten around what
   factors, would halve what the gather writes and the copy moves, about 2.5 to 3 ms, and changes the
   model pass's instance layout and every vertex stage of a program's own that reads an instance's
   color. A chunk of 4096 entities none of which changed keeps the instances it gathered the frame
-  before, so 400,000 standing still take 2.4 ms in place of 6.0, but every instance is still copied
-  into the ring each frame and a culled block with them, and one entity moving gathers its whole
-  chunk again. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
-  example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the three.
+  before, so 400,000 standing still take 2.4 ms in place of 6.0. Every instance is still copied into
+  the ring each frame, a block no pass draws with them, and one entity moving gathers its whole
+  chunk again, and neither pays to change: `./e3d command models.blocks` finds no block left undrawn
+  in `models_stress`, whose camera keeps the grid in view, in Manor's hall and grounds or in Summit,
+  which put 172 and 11 instances in groups, a copy of a few microseconds; and with one entity moving
+  (`E3D_STRESS_MOVING=1`, `E3D_STRESS_COUNT` holding the count, on 2026-10-09), `MeshEntityDraws`
+  takes 1.850 ms at 410,266 against 1.852 with none moving and 5.87 with all, and 0.15 to 0.18 ms at
+  a game's 3,000 whichever move. A frame holds about 243,000 sprites, each `DrawTexture` about 48
+  nanoseconds with the example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is
+  shared between the three.
 
 - **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
   500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the

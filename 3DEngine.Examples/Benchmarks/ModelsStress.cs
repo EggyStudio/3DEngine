@@ -12,6 +12,9 @@ namespace Engine.Examples;
 /// <remarks>
 /// <c>E3D_STRESS_ARMS</c> sets how many arms there are, so the entities' own cost can be measured
 /// apart from the arms', as <c>E3D_STRESS_ARMS=0 ./e3d open ... models_stress</c>.
+/// <c>E3D_STRESS_COUNT</c> holds that many entities in place of the search, as a game holds a few
+/// thousand, and <c>E3D_STRESS_MOVING</c> turns that many of them each frame in place of all, so a
+/// level standing still with a few things moving can be measured too.
 /// </remarks>
 public static class ModelsStress
 {
@@ -52,11 +55,14 @@ public static class ModelsStress
 
         var entities = new List<int>();
         var ramp = new StressRamp(500);
+        int? held = int.TryParse(Environment.GetEnvironmentVariable("E3D_STRESS_COUNT"), out var heldCount) ? heldCount : null;
+        int? moving = int.TryParse(Environment.GetEnvironmentVariable("E3D_STRESS_MOVING"), out var movingCount) ? movingCount : null;
         var frame = 0;
 
         while (!WindowShouldClose())
         {
-            while (entities.Count < ramp.Count)
+            var wanted = held ?? ramp.Count;
+            while (entities.Count < wanted)
             {
                 var entity = ecs.Spawn();
                 var index = entities.Count;
@@ -65,17 +71,18 @@ public static class ModelsStress
                 ecs.Add(entity, new Transform(Spot(index)));
                 entities.Add(entity);
             }
-            while (entities.Count > ramp.Count)
+            while (entities.Count > wanted)
             {
                 ecs.Despawn(entities[^1]);
                 entities.RemoveAt(entities.Count - 1);
             }
 
-            // Every entity turns, so every transform changes each frame, as moving things would.
+            // Every entity turns, or as many as E3D_STRESS_MOVING says, so every transform changes
+            // each frame, as moving things would.
             var turn = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetFrameTime());
-            foreach (var entity in entities)
+            for (int i = 0; i < Math.Min(entities.Count, moving ?? entities.Count); i++)
             {
-                ref var transform = ref ecs.GetRef<Transform>(entity);
+                ref var transform = ref ecs.GetRef<Transform>(entities[i]);
                 transform.Rotation = Quaternion.Normalize(transform.Rotation * turn);
             }
 
@@ -109,7 +116,7 @@ public static class ModelsStress
                 10, 10, 20, Color.Green);
             DrawFPS(GetScreenWidth() - 110, 10);
             EndDrawing();
-            ramp.Measure();
+            if (held is null) ramp.Measure();
         }
 
         UnloadModelAnimations(animations);

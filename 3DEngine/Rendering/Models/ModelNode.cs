@@ -226,6 +226,26 @@ internal sealed partial class ModelRenderer : IDisposable
         public uint Count;
         public Vector3 Min;
         public Vector3 Max;
+        // Whether a pass of the frame drew the block, the camera's, a cascade's or a light's.
+        public bool Drawn;
+    }
+
+    /// <summary>
+    /// The instances the last frame copied into the ring for its groups and those of them in blocks
+    /// some pass drew, the camera's, a shadow cascade's or a light's, over every view, read between
+    /// frames, so what copying the blocks no pass drew costs can be weighed.
+    /// </summary>
+    internal (long Copied, long Drawn) BlocksLastFrame()
+    {
+        long copied = 0, drawn = 0;
+        foreach (var view in _views.Values)
+            foreach (var batch in view.Batches)
+                for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
+                {
+                    copied += view.Blocks[i].Count;
+                    if (view.Blocks[i].Drawn) drawn += view.Blocks[i].Count;
+                }
+        return (copied, drawn);
     }
 
     // The blocks of the last gathered view's groups, which the view keeps a copy of.

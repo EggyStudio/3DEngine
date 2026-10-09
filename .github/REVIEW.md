@@ -259,9 +259,26 @@ window's camera. Particles are the world's, and the textures a game draws only i
 its interface, a minimap, a pixel-art canvas scaled up or a layer laid over the window, and each of
 those would show every emitter of the window's scene again, through the window's camera, in a
 texture that has no depth to hide them behind, so a HUD would carry the window's smoke and sparks a
-second time. The texture that wants them is the one a game draws its scene into, which has a camera
+second time. The texture they belong in is the one a game draws its scene into, which has a camera
 of its own through `BeginMode3D` and draws them already. Two ways seem better than the change: leave
 it as it is and say in the guide that a texture shows particles where it is drawn in 3D, or let a
 program ask for them in a 2D texture by a call naming the camera, as `DrawParticles(camera)` inside
 `BeginTextureMode` would. Nothing is done for it until the reviewing session or the owner says
 which.
+
+Item 2, the measured sweep of the per-entity cost entry. `./e3d command models.blocks` now says how
+many instances the last frame copied into the ring and how many were in blocks some pass drew, the
+camera's, a cascade's or a light's, each block marked as a pass draws it; and `models_stress` takes
+`E3D_STRESS_COUNT` to hold a count in place of its search and `E3D_STRESS_MOVING` to turn that many
+in place of all. The culled blocks' copy does not pay: no block went undrawn in `models_stress` at
+410,266 or at 3,000, whose camera keeps its grid in view, nor in Manor's hall or grounds, which put
+172 instances in groups, nor in Summit's 11 or Pusher's none, a copy of a few microseconds at a
+game's count; the first pass, which copies and boxes, takes 3.0 to 3.1 ms at 410,266 and 0.10 to
+0.23 ms at 3,000. Nor does a chunk gathered for its moved entities alone: with one entity turning,
+`MeshEntityDraws` takes 1.850 ms at 410,266 against 1.852 with none and 5.87 with all, and at 3,000
+it takes 0.15 to 0.18 ms whichever turn, so a chunk's regather is under the readings' noise; the
+1.85 ms left with every chunk kept is the change checks and the groups made over a hundred chunks.
+Both stay described in the entry with these numbers, Release offscreen with no arms, the median of
+seven profile readings. The bunnymark draws sprites through the immediate pass and no instance ring,
+so neither reaches it. The suite: 1,575 passed; on lavapipe the rendering tests, 308 passed and 2
+skipped.

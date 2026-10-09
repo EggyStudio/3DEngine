@@ -76,9 +76,10 @@ internal sealed partial class ModelRenderer
         uint runFirst = 0, runCount = 0;
         for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
         {
-            ref readonly var block = ref blocks[i];
+            ref var block = ref blocks[i];
             var seen = !(Outside(left, block.Min, block.Max) || Outside(right, block.Min, block.Max)
                 || Outside(bottom, block.Min, block.Max) || Outside(top, block.Min, block.Max));
+            block.Drawn |= seen;
             if (seen && runCount > 0 && runFirst + runCount == block.First)
             {
                 runCount += block.Count;
