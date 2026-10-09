@@ -81,6 +81,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var handlesEveryTen = new List<string>();
         // How long the app before took, which says on a runner where a hundred apps' time goes.
         var took = "";
+        // The twenty-first app's handles at each step of its life, which a failure names, so a
+        // handle kept for each app is placed between two steps of its making or its closing.
+        var steps = new Steps();
         HeapCensus? censusAt20 = null;
         IReadOnlyDictionary<DeviceObjects.Kind, long>? objectsAt20 = null;
         string? grown = null;
@@ -96,13 +99,16 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // toward a limit showing before the death.
             Console.WriteLine($"[leak test] app {i} of at most 100, after the last {Held()}{took}");
             var clock = Stopwatch.StartNew();
+            if (i == 21) steps.Follow();
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
             var made = clock.Elapsed;
             app.BeginFrame();
             app.EndFrame();
+            if (i == 21) steps.Mark("drawn");
             var drawn = clock.Elapsed;
             app.Shutdown();
+            if (i == 21) steps.End();
             took = $", which took {clock.Elapsed.TotalMilliseconds:0} ms, {made.TotalMilliseconds:0} to make, with what the test draws, " +
                 $"{(drawn - made).TotalMilliseconds:0} for a frame and {(clock.Elapsed - drawn).TotalMilliseconds:0} to close";
             // The handles are held from the twentieth app on, so a handle kept for each app fails
@@ -113,6 +119,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (i > 20)
                 handles.Should().BeLessThanOrEqualTo(handlesAt20 + HandleAllowance,
                     $"a closed app gives back the handles it took, {i} apps leaving {handles} where 20 left {handlesAt20}{Environment.NewLine}" +
+                    $"the 21st app's handles by step, {steps}{Environment.NewLine}" +
                     $"the handles after every ten apps, {string.Join(", ", handlesEveryTen)}{Environment.NewLine}" +
                     $"the threads after every ten apps, {string.Join(", ", threads)}{Environment.NewLine}");
             if (i % 10 != 0) continue;
@@ -158,6 +165,51 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             }
         }
         throw new InvalidOperationException("unreachable");
+    }
+
+    // An app's handles at each step of its life, read where its log says the step was taken, each
+    // step's change from the one before written as it comes and kept for a failure's message.
+    private sealed class Steps
+    {
+        // The lines that mark a step, by how each begins, and the step's name.
+        private static readonly (string Line, string Step)[] Marks =
+        [
+            ("Config {", "begun"), ("Step 1/6: Vulkan instance created", "instance made"), ("Step 4/6: Logical device created", "device made"),
+            ("Graphics device initialized", "device ready"), ("ImGui initialized", "ImGui made"), ("Startup stage complete", "started"),
+            ("Running the Cleanup stage", "closing"), ("Graphics device disposed", "device gone"), ("Cleanup stage complete", "closed"),
+        ];
+
+        private readonly List<string> _taken = [];
+        private int _first, _last;
+
+        public void Follow()
+        {
+            _first = _last = Handles();
+            Logger.Heard = (_, _, message) =>
+            {
+                foreach (var (line, step) in Marks)
+                    if (message.StartsWith(line, StringComparison.Ordinal)) Mark(step);
+            };
+        }
+
+        public void Mark(string step)
+        {
+            var now = Handles();
+            var taken = $"{step} {now - _last:+0;-0;0}";
+            _taken.Add(taken);
+            Console.WriteLine($"[leak test] the 21st app's handles, {taken} to {now}");
+            _last = now;
+        }
+
+        // The last step, the app's threads joined, and how many it kept.
+        public void End()
+        {
+            Logger.Heard = null;
+            Mark("ended");
+            _taken.Add($"{_last - _first:+0;-0;0} kept");
+        }
+
+        public override string ToString() => _taken.Count == 0 ? "not read" : string.Join(", ", _taken);
     }
 
     private static int Handles()

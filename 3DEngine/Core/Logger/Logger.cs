@@ -44,9 +44,17 @@ public sealed class Logger : ILogger
         return this;
     }
 
+    /// <summary>
+    /// Told every line logged, at any level, with its category, as it is logged, for a test that
+    /// follows an app's life by what it logs, or null for nothing to tell.
+    /// </summary>
+    internal static Action<LogLevel, string, string>? Heard { get; set; }
+
     /// <inheritdoc />
     public void Log(LogLevel level, string message, Exception? exception = null)
     {
+        Heard?.Invoke(level, _category, message);
+
         // Console: respects ConsoleMinimumLevel (Info by default, so no startup traces reach it).
         if (level >= LogConfig.ConsoleMinimumLevel)
         {
