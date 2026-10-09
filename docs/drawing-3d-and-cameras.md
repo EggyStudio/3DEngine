@@ -174,7 +174,10 @@ Inside texture mode `ClearBackground` clears the texture, and 2D drawing is in i
 texture that nothing clears in a frame keeps what it held, as raylib's does, so a trail or a
 painting drawn into it a stroke a frame builds up, as `shapes_double_pendulum`'s trail does, and a
 new one starts transparent black. A camera entity in the ECS draws the scene's mesh entities into a
-texture the same way when its `Target` is set.
+texture the same way when its `Target` is set. Particles are the world's, so a texture shows them
+where a `BeginMode3D` inside it draws the scene, through that camera, and none where it is drawn in
+2D alone, since such a texture is most often an interface, a minimap or a canvas, which would show
+the window's smoke and sparks a second time with no depth to hide them behind.
 
 A render texture is drawn at the window's samples and resolved, so its edges are smoothed as the
 window's are, where raylib's has one sample and hard edges. `LoadRenderTextureEx(width, height,

@@ -178,8 +178,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   velocity in a cone, gravity, drag, a size and color that change over each life, a sheet's frames
   played through, cut or blended, and bouncing off or ending at the scene's distance field where it
   is built and holds the particle, and at the window's depth of the meshes that cast shadows
-  elsewhere (RENDERING.md §3 and §4). A render texture drawn only in 2D has no camera to draw them
-  through, without the field a particle passes through what the window does not show, off screen or
+  elsewhere (RENDERING.md §3 and §4). A render texture drawn only in 2D draws none, since it is most
+  often an interface that would show the window's particles a second time with no depth to hide
+  them. Without the field a particle passes through what the window does not show, off screen or
   behind something, and it passes through shapes drawn without a model. Colliding with the physics
   world stays a limit, since raylib has no particles and a game that needs that much has bodies.
 
