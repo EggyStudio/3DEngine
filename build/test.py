@@ -142,9 +142,13 @@ def run(dotnet, process, args, results):
         process.progress = progress[-1].strip()[:LINE_WIDTH] if progress else None
         process.dumps = sorted(os.listdir(dumps))
         tool = dump_tool()
+        # The thread the crash came on and its signal, as createdump says them while it writes the
+        # dump, where dotnet-dump marks current only the thread the dump was written from.
+        crash = re.search(r"Crashing thread\s+([0-9A-Fa-f]+)\s+signal\s+(\d+)", text)
         for name in sorted(set(process.dumps) - before):
             if tool and name.endswith(".dmp"):
-                process.dump_lines += read_dump(tool, os.path.join(dumps, name))
+                process.dump_lines += read_dump(tool, os.path.join(dumps, name),
+                                                (int(crash.group(1), 16), int(crash.group(2))) if crash else None)
     return process
 
 
@@ -159,42 +163,70 @@ def dump_tool():
     return [found] if found else None
 
 
-def read_dump(tool, path):
+def read_dump(tool, path, crash=None):
     """
     What dotnet-dump reads in a minidump, written whole beside it as <dump>.txt, and the lines the
-    page shows: the thread it was written for, the thread that faulted, its managed exception where
-    it has one, and its frames with their modules, or where it runs no managed code, as a driver's
-    thread, what each managed thread was in, a few frames each. A dump can only be read on the
-    system that made it, which a macOS dump is not anywhere else, so the job reads its own.
+    page shows: the thread that crashed, its managed exception where it has one, and its frames with
+    their modules, or where it runs no managed code, as a driver's thread, what each managed thread
+    was in, a few frames each. The thread is the one createdump names with its signal, crash, an OS
+    id and a number, where the output has it, and else the thread the dump was written for, which on
+    macOS was the test host's main thread waiting on the run. A dump can only be read on the system
+    that made it, which a macOS dump is not anywhere else, so the job reads its own.
     """
+    commands = [("threads",), ("clrthreads",), ("pe",), ("clrstack -f",), ("clrstack -all -f",)]
+    if crash:
+        # The OS id given as a number, which setthread's option reads.
+        commands.append((f"setthread --tid {crash[0]}", "clrstack -f"))
     accounts = {}
-    for command in ("threads", "clrthreads", "pe", "clrstack -f", "clrstack -all -f"):
+    for asked in commands:
         try:
-            accounts[command] = subprocess.run(tool + ["analyze", path, "-c", command, "-c", "exit"], capture_output=True, text=True,
-                                               errors="replace", timeout=300, cwd=ROOT).stdout
+            accounts[" ; ".join(asked)] = subprocess.run(
+                tool + ["analyze", path] + [part for command in asked for part in ("-c", command)] + ["-c", "exit"],
+                capture_output=True, text=True, errors="replace", timeout=300, cwd=ROOT).stdout
         except (OSError, subprocess.TimeoutExpired) as error:
             return [f"dotnet-dump could not read `{os.path.basename(path)}`: {error}"[:LINE_WIDTH]]
     with open(path + ".txt", "w", encoding="utf-8") as f:
         for command, text in accounts.items():
             f.write(f"> {command}\n{text}\n")
-    return [line[:LINE_WIDTH] for line in faulting(os.path.basename(path), accounts)]
+    return [line[:LINE_WIDTH] for line in faulting(os.path.basename(path), accounts, crash)]
 
 
-def faulting(name, accounts):
+# What a signal is on the system it came on, by its number there, where macOS and Linux differ.
+SIGNALS = {
+    "darwin": {4: "SIGILL, an illegal instruction", 5: "SIGTRAP, a trap", 6: "SIGABRT, an abort", 8: "SIGFPE, an arithmetic fault",
+               10: "SIGBUS, a bus error, as a write to memory mapped and since unmapped", 11: "SIGSEGV, a read or write of memory not mapped"},
+    "linux": {4: "SIGILL, an illegal instruction", 5: "SIGTRAP, a trap", 6: "SIGABRT, an abort", 7: "SIGBUS, a bus error, as a write to memory mapped and since unmapped",
+              8: "SIGFPE, an arithmetic fault", 11: "SIGSEGV, a read or write of memory not mapped"},
+}
+
+
+def signal_name(number):
+    return SIGNALS.get("darwin" if sys.platform == "darwin" else "linux", {}).get(number, "a signal this page does not name")
+
+
+def faulting(name, accounts, crash=None):
     """The page's account of a dump from dotnet-dump's answers to the commands read_dump asks."""
-    current = re.search(r"^\s*\*\s*(\d+)\s+0x([0-9A-Fa-f]+)", accounts["threads"], re.M)
-    if not current:
-        return [f"dotnet-dump read `{name}` and named no thread it was written for"]
-    os_id = int(current.group(2), 16)
     managed = {int(m, 16) for m in re.findall(r"^\s*\d+\s+\d+\s+([0-9a-fA-F]+)\s+[0-9A-Fa-f]{8,}\s", accounts["clrthreads"], re.M)}
-    runs = os_id in managed
-    lines = [f"dotnet-dump read `{name}`, written for thread {current.group(1)}, OS id {os_id:#x}, "
-             + ("a thread the runtime runs" if runs else "a thread the runtime does not run, as a driver's or a native library's")]
+
+    def kind_of(os_id):
+        return "a thread the runtime runs" if os_id in managed else "a thread the runtime does not run, as a driver's or a native library's"
+
+    if crash:
+        os_id = crash[0]
+        lines = [f"dotnet-dump read `{name}`, its crash on thread OS id {os_id:#x} on signal {crash[1]}, {signal_name(crash[1])}, "
+                 + f"as createdump said, {kind_of(os_id)}"]
+        frames = stack_frames(accounts[f"setthread --tid {os_id} ; clrstack -f"])
+    else:
+        current = re.search(r"^\s*\*\s*(\d+)\s+0x([0-9A-Fa-f]+)", accounts["threads"], re.M)
+        if not current:
+            return [f"dotnet-dump read `{name}` and named no thread it was written for"]
+        os_id = int(current.group(2), 16)
+        lines = [f"dotnet-dump read `{name}`, written for thread {current.group(1)}, OS id {os_id:#x}, {kind_of(os_id)}"]
+        frames = stack_frames(accounts["clrstack -f"])
     kind = re.search(r"^Exception type:\s*(.+)$", accounts["pe"], re.M)
-    if kind:
+    if kind and not crash:
         message = re.search(r"^Message:\s*(.+)$", accounts["pe"], re.M)
         lines.append(kind.group(1).strip() + (f": {message.group(1).strip()}" if message else ""))
-    frames = stack_frames(accounts["clrstack -f"])
     if frames:
         lines += ["at " + frame for frame in frames[:DUMP_FRAMES_SHOWN]]
         return lines

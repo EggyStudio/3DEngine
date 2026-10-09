@@ -420,3 +420,19 @@ its handles once as it shuts down and again after a full collection that has run
 the two and `kept` counts what stays after them. Here an offscreen app reads 0 then 0, so the next
 Windows page is the one to say where the five go. The other apps keep their readings as they were,
 uncollected, which the resident memory's reading relies on. The suite: 1,589 passed.
+
+**Verdict 43, the crashing thread read.** `build/test.py` takes the thread and the signal from
+createdump's `Crashing thread <id> signal <n>` line in the run's output. It reads that thread with
+`setthread --tid` given the OS id as a number, which the option reads, and `clrstack -f`, and names
+the signal as the system it ran on numbers it: 10 is a bus error on macOS and SIGUSR1 on Linux, 11
+a segmentation fault on both. The page then says the crash came on that thread, whether the runtime
+runs it, and its frames with their modules. With no such line it reads the thread the dump was
+written for, as before. The stand-ins say both, the test host dying with createdump's line and
+without, and the dump read answers `setthread` with a native thread's frames. The close, read
+meanwhile, holds no engine thread that writes mapped device memory after the device goes. The
+renderer waits for the device to idle before it frees a buffer, and the device waits again before
+its own. The app joins the threads its parts start. The asset server's workers decode on the CPU
+and map nothing, the parallel loops that fill mapped instance buffers are joined within the frame,
+and SDL copies a sound's samples rather than reading them in place. The thread that dies runs no
+managed code, so the driver's own threads are what the next page's frames should name, MoltenVK's
+completion handlers first. The suite: 1,589 passed.

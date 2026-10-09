@@ -112,6 +112,7 @@ public sealed class TestScriptTests : IDisposable
     [InlineData("hang", "ended at its time limit")]
     [InlineData("grow", "ended at its memory limit")]
     [InlineData("die", "lost to a crash")]
+    [InlineData("die-unsaid", "lost to a crash")]
     public void A_Lost_Process_Is_Said_First_And_The_Suite_Runs_Again_In_Parts(string mode, string said)
     {
         // dotnet-dump's stand-in reads the minidump a death leaves.
@@ -129,10 +130,20 @@ public sealed class TestScriptTests : IDisposable
         log.TrimEnd().Should().EndWith("end of the page " + new string('=', 30), "the page ends the log");
         if (mode == "die")
         {
+            // createdump says the thread the crash came on and its signal, which the dump is read at.
+            page.Should().Contain("    dotnet-dump read `testhost-4242.dmp`, its crash on thread OS id 0x1a2e on signal 11, SIGSEGV, a read or write of memory not mapped, "
+                    + "as createdump said, a thread the runtime does not run, as a driver's or a native library's",
+                    "the thread createdump names is read, not the one dotnet-dump marks current")
+                .And.Contain("    at libMoltenVK.dylib!MVKBuffer::flushToDevice")
+                .And.Contain("    at libMoltenVK.dylib!MVKQueueSubmission::execute", "with its native frames and their modules");
+            File.ReadAllText(Path.Combine(_folder.Path, "dumps", "testhost-4242.dmp.txt")).Should().Contain("> setthread --tid 6702 ; clrstack -f");
+        }
+        if (mode == "die-unsaid")
+        {
             page.Should().Contain("The test had got as far as `[leak test] app 37 of 100`", "a test's own progress says where a crash came")
                 .And.Contain("It left the minidump `testhost-4242.dmp` among the results, under `dumps`");
             page.Should().Contain("    dotnet-dump read `testhost-4242.dmp`, written for thread 1, OS id 0x1a2c, a thread the runtime does not run, as a driver's or a native library's",
-                    "the dump is read where it was made, naming the thread that faulted")
+                    "with no word from createdump the dump is read at the thread it was written for")
                 .And.Contain("    It holds no managed frames, and the threads that do were in")
                 .And.Contain("      0x1a2b: 3DEngine.dll!Engine.GraphicsDevice.DestroyLogicalDevice() in GraphicsDevice.Device.cs:204"
                     + " < 3DEngine.dll!Engine.GraphicsDevice.Dispose() in GraphicsDevice.cs:202 < 3DEngine.dll!Engine.Renderer.Dispose()",

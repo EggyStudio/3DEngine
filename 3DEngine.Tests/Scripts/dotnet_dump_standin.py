@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Stands for dotnet-dump in the tests of build/test.py, so they need no dump and no tool.
 
-Asked to analyze a dump with -c COMMAND, it answers as dotnet-dump answers for a test host that
-died on a thread the runtime does not run, as a driver's, while its main thread was closing the
-device: the thread list with that thread marked, the runtime's threads, no managed exception, no
-managed frames on that thread, and the main thread's frames among all of them.
+Asked to analyze a dump with -c COMMAND, or with several in turn, it answers as dotnet-dump answers
+for a test host that died on a thread the runtime does not run, as a driver's, while its main
+thread was closing the device: the thread list with the thread the dump was written for marked, the
+runtime's threads, no managed exception, no managed frames on the marked thread, the main thread's
+frames among all of them, and set to the thread createdump named, OS id 0x1a2e, its native frames.
 """
 
 import sys
@@ -12,7 +13,7 @@ import sys
 LOADING = "Loading core dump: testhost-4242.dmp ...\n"
 
 ANSWERS = {
-    "threads": LOADING + " 0 0x1A2B (6699)\n*1 0x1A2C (6700)\n 2 0x1A2D (6701)\n",
+    "threads": LOADING + " 0 0x1A2B (6699)\n*1 0x1A2C (6700)\n 2 0x1A2D (6701)\n 3 0x1A2E (6702)\n",
     "clrthreads": LOADING + """ThreadCount:      2
 UnstartedThread:  0
 BackgroundThread: 1
@@ -40,12 +41,18 @@ OS Thread Id: 0x1a2d
         Child SP               IP Call Site
 00007F9ECAFFCD30 00007f9f50cdc312 [DebuggerU2MCatchHandlerFrame: 00007f9ecaffcd30]
 """,
+    "setthread --tid 6702 ; clrstack -f": LOADING + """OS Thread Id: 0x1a2e (3)
+        Child SP               IP Call Site
+00007F9ECAFFB000 00007F9F50CDD100 libMoltenVK.dylib!MVKBuffer::flushToDevice + 32
+00007F9ECAFFB100 00007F9F50CDD200 libMoltenVK.dylib!MVKQueueSubmission::execute + 64
+""",
 }
 
 
 def main():
     args = sys.argv[1:]
-    command = args[args.index("-c") + 1] if "-c" in args else ""
+    asked = [args[i + 1] for i, arg in enumerate(args[:-1]) if arg == "-c" and args[i + 1] != "exit"]
+    command = " ; ".join(asked)
     sys.stdout.write(ANSWERS.get(command, LOADING + f"Unrecognized command '{command}'\n"))
     return 0
 
