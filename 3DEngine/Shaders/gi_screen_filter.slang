@@ -43,13 +43,27 @@ static const float Fresh = 0.2;
 // from their mean.
 static const float Spread = 2.0;
 
+// The point a probe stands on, from the depth's texel under its tile's middle, as gi_screen.slang
+// placed it.
+float3 standsOn(int2 id)
+{
+    float2 pixel = min((float2(id) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
+    float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
+    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
+    return world.xyz / world.w;
+}
+
 // The spatial blend of a probe's light with its like neighbors', or its own where it holds none,
 // and in spread how far the light of those neighbors lies from that blend, each channel's standard
-// deviation by the same weights.
+// deviation by the same weights. A neighbor counts by how near the plane of the probe's surface its
+// own point lies, so a floor seen at a slant blends along its slope; weighed by how alike their
+// distances from the eye were, as they had been, the probes in rows 8 pixels apart on such a floor
+// lay further apart than the 2% allowed, each row kept its own noise, and the floor showed bands.
 float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out float3 spread)
 {
     float4 sum = float4(0.0);
     float3 squares = float3(0.0);
+    float3 here = standsOn(int2(id));
     for (int y = -2; y <= 2; y++)
         for (int x = -2; x <= 2; x++)
         {
@@ -58,8 +72,9 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
             float4 other = geometry.Load(int3(at, 0));
             if (light.a < 0.5 || other.w < 0.0)
                 continue;
+            float off = abs(dot(standsOn(at) - here, surface.xyz));
             float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
-                         * exp(-abs(other.w - surface.w) / (0.02 * surface.w + 0.05));
+                         * exp(-off / (0.02 * surface.w + 0.05));
             sum += float4(light.rgb, 1.0) * weight;
             squares += light.rgb * light.rgb * weight;
         }
@@ -74,12 +89,7 @@ float4 earlier(uint2 id, uint across, uint down, float4 surface)
 {
     if (view.last.w < 0.5)
         return float4(0.0);
-    // The point the probe stands on, from the depth's texel under its tile's middle, as
-    // gi_screen.slang placed it.
-    float2 pixel = min((float2(id) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
-    float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
-    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
-    float3 p = world.xyz / world.w;
+    float3 p = standsOn(int2(id));
 
     float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
     if (clip.w <= 1e-5)

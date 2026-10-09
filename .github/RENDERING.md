@@ -619,7 +619,8 @@ are off. It sends 16 rays over the hemisphere around the surface's normal, stepp
 while on the screen and through the field from where they leave it, and a ray that meets nothing in
 the interval takes the world's first cascade, blended between the eight probes around the surface
 that a trace from a cell in front of it reaches. A 5 by 5 filter blends each probe with those around
-it on a surface alike in normal and distance (`gi_screen_filter.slang`), then with the frame
+it on a surface alike in normal, each point read from the depth and weighed by how near it lies to
+the plane of the probe's surface (`gi_screen_filter.slang`), then with the frame
 before's, a fifth of this frame's light to four fifths of theirs: the probe's point is read from the
 depth, found in the frame before through that frame's camera, which the view carries, and the four
 probes then around it blended where each stood on a like surface, kept in two images the frame's
@@ -879,6 +880,30 @@ The thin room, the window's room, the carried lamp, the outdoor blocks and the s
 point of what they did, and the probe in the Cornell box's middle reads 15% under with every bounce
 where it read 20%. Shading those rays costs 0.006 to 0.008 ms: 0.36, 0.45 and 0.54 ms by quality.
 The Cornell box's reference frame is drawn again, its back wall and blocks brighter.
+
+The fourth weighs the screen's probes by the plane of the surface rather than by their distance
+from the eye. The filter reads each neighbor's point from the depth under its tile's middle and
+weighs it by how far that point lies from the plane of the probe's surface, and the model pass
+carries the pixel's own plane to each of the four probes' tile middles by how its point moves from
+pixel to pixel (`ddx` and `ddy` of its position) and weighs each by how near its distance from the
+eye is to that plane's there. Weighed by distance alone, rows of probes 8 pixels apart on a floor
+seen at a slant lay further apart than the 2% allowed, so the filter blended no row with the next,
+and beside a glowing wall at the floor's far end the model pass found no probe near enough, took
+the world's probes, and the wall's light ended in a line, falling by half within four rows where it
+falls by 18% at most (`GlobalIlluminationTests`). The rows of the Cornell box's floor lie about a
+smooth fit by:
+
+| Quality | Before | After | The reference |
+|---|---|---|---|
+| `Low` | −4.1% to +4.8% | −1.1% to +2.3% | ±2.3% |
+| `Medium` | −3.0% to +4.3% | −1.3% to +1.6% | ±2.3% |
+| `High` | −12.9% to +15.3% | −4.0% to +5.9% | ±2.3% |
+
+What is left at `High` is the world's probes, whose blend between probes 1.2 units apart shows on
+the floor by itself at ±8% with the screen's probes off, the history changing it little, −3.3% to
++5.2% with it off. The
+error over every region moves a point at most in any room, and the cost is within the noise, the
+bounce 0.37, 0.45 and 0.54 ms by quality and the scene's pass 0.16 ms.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

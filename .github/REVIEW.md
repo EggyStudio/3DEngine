@@ -10,7 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `52ffd114`. C's second fix, the gathers' weights: each direction a world probe
+Reviewed up to `f6246ed0`. C's third fix, the light that bounces again, read at the probes as B
+asked and found elsewhere than the blend or the plane test: a cascade past the first blocked dark
+every ray that met a surface before its interval began, so its own faces lacked every surface nearer
+its probes than that start, the second cascade's probe in the Cornell box reading 63% under its
+one-bounce reference, and most of that box lies past the first cascade's reach from the camera. Such
+a ray shades its surface for its own probe's faces instead, marked apart with alpha a half, and that
+probe reads 5% under; the merge into the cascade below still reads them as dark, which the fifth
+fix's bilinear fix is to replace. Two other ways were tried and measured first, right to: each
+interval doubled took the thin room's leak to 40% over and cost 0.07 ms, and early hits taken in the
+merge as well read the ceiling beside the lamp up to 26 times too bright by parallax. Over every
+bounce the Cornell box goes from 21% under to 2% over at Low and Medium and from 22% to 10% under at
+High, the corridor from 15% to 9% under, the grazing floor from 57% to 46% under at High, the others
+within a point and the leak unchanged at its bound; the Cornell reference drawn again and holding on
+lavapipe; the cost up 0.006 to 0.008 ms, 0.36, 0.45 and 0.54. The suite: 1,587 passed; on lavapipe
+313 passed and 6 skipped. C4 next, the screen filter's distance weight. The runs of `a9f9c56d`,
+`0499c115` and `46732863` were read after: Windows fails the leak test's handle hold on each as
+built, with the step line on the last two, Verdict 40 rewritten on it; macOS crashed again at
+`0499c115` in a third test, Verdict 43, and was green at `46732863`; the captures' job is green on
+each; `a3dd7a8d` and `52ffd114` are running.
+
+Before it, C's second fix came to be read, the gathers' weights: each direction a world probe
 gathers is weighed by its texel's share of the sphere, one over the cube of its octahedron point's
 distance from the middle beside its cosine, the weights scaled to sum to pi (`octahedronShare`), and
 the screen probes' sixteen rays the same over their hemisphere, which read a uniform sky at 1.04; a
@@ -43,17 +63,6 @@ so; that fix closes the bound with it, and the thin room passing one bounce by 5
 The screen probes' hemisphere has the gather's fault too, a uniform sky at 1.04, so the second fix
 weighs both. The suite: 1,586 passed; on lavapipe 312 passed and 6 skipped.
 
-Before it, Decision 25 came to be carried out: `SdlAudioPlugin.Silent` holds a run that is hidden,
-offscreen or headless to SDL's dummy driver unless `Config.AudibleWithoutWindow` asks for the
-device, the backend opening the dummy driver first with the hint at override priority as the
-fallback has it, and where another backend of the process already started SDL's audio through a
-device's driver, which no hint can change, the device it would open is closed again and the backend
-disabled with the reason, so nothing reaches the speakers either way; `./e3d open --hidden` logs
-`dummy`; two tests hold which configs are silent and a headless app's sound of three tenths of a
-second ending within 0.25 to 1.5 s of the clock, that clock listed under N 3.3 with its reason; the
-audio guide and the upgrading page say it. Right, the closing of a device another backend opened
-being the part a lesser mend would have missed. The suite: 1,586 passed. C begins with the pi.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -65,13 +74,14 @@ list is long on purpose, and a batch that ends is followed by the next item with
 reply. In this order, which the owner set on 2026-10-09: the runs first, then the bounce's quality,
 then subsurface scattering and what follows it, and item 7 for a wait.
 
-1. **What the next page says.** The run of `a9380d7b`, pushed at 22:00, is green on Linux, on macOS
-   whole and on the macOS captures, and red on Windows alone, where the leak test fails on its
-   handles at app 42 as it was built to (Verdict 40), so the examples job, which carries the guides'
-   blocks and Verdicts 30 and 31, waits on Windows alone. `d7e764cd` before it lost macOS to the
-   random seed's test by a race (Verdict 42). `52c74240` and `7b983bd8` are running. When every job
-   is green the owner is told, since 5.2 is due (Decision 19). Each push's run is read by the
-   reviewing session, and a failure it names comes first here.
+1. **What the next page says.** The runs of `a9f9c56d`, `0499c115` and `46732863` are green on Linux
+   and on the macOS captures, red on Windows on each where the leak test fails its handle hold as it
+   was built to, at app 42, 27 and 27 (Verdict 40), and red on macOS at `0499c115`, where the whole
+   suite was lost to a crash in a third test and the dump reader read the wrong thread (Verdict 43);
+   macOS passed whole at `46732863`. The examples job waits on Windows and macOS both green in one
+   run. `a3dd7a8d` and `52ffd114` are running. When every job is green the owner is told, since 5.2
+   is due (Decision 19). Each push's run is read by the reviewing session, and a failure it names
+   comes first here.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -219,20 +229,36 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-40. **The Windows job of `a9380d7b` fails the hundred-app leak test on its handles at app 42, as the
-    test was built to, 2454 where the twentieth app left 2242 and the allowance is 200, and the hang
-    of `8ac5912a`, `12b1f0c3` and `d7e764cd` is gone with the budget.** Read from the page. The
-    series is the measurement asked for: handles 2204, 2242, 2289 and 2341 after ten, twenty, thirty
-    and forty apps, some five an app, while the threads hold at 24 and 23 and the Vulkan objects,
-    the instance and the device among them, stay at none, so what is kept is a kernel object and no
-    thread, Windows alone, where Linux and macOS hold at the second app's count. The reply named
-    SDL's audio subsystem, started and quit by count with no final quit, as the first to read, and
-    the ImGui context the second; with no Windows machine here, the page is the laboratory. One
-    thing: for one app after the warm-up, the test prints the handle count after each step of the
-    app's life, SDL's video and audio subsystems started, the instance made, the device made, the
-    ImGui context made, the frame drawn, and each undone in the shutdown, so the next page says
-    between which two steps the five stay, and the leak is then read in that step's code and mended.
-    The hot reload test's wait in seconds is in and held. Settled when a Windows run passes whole.
+40. **The Windows jobs of `a9380d7b`, `0499c115` and `46732863` fail the hundred-app leak test's
+    handle hold, at app 42, 27 and 27, as the test was built to.** The step line is on the last two
+    pages and says where to look: the twenty-first app takes 1 handle for its instance, 9 for its
+    device, 329 or 330 for ImGui's making, 9 for its start, and gives back 6 as the device goes and
+    3 as it closes, 337 and 341 kept at `ended`, while the series says five an app, 2037 to 2090
+    over apps ten to twenty and the threads flat at 24. The two numbers disagree because `ended` is
+    read before the finalizers close what the app's safe handles still hold, so the step line counts
+    what is not yet given back as kept; the test collects and waits for the finalizers before
+    `ended` and before the next app, and the five that stay then show against the steps. The 329
+    handles ImGui's making takes on Windows and nowhere else are the place to read whatever the
+    count then says, a kernel object made per app in the ImGui context's or the Vulkan ImGui
+    plugin's making on that system, with the Windows audio subsystem no longer a suspect. Settled
+    when a Windows run passes whole.
+
+43. **The macOS job of `0499c115` loses the whole suite to a crash in
+    `GlobalIlluminationTests.A_Glowing_Panel_Lights_Its_Room_With_No_Light_In_It` after 3 m 7 s, and
+    passes whole in its parts.** The third test to die this way after a particle test and the leak
+    test, all three opening and closing an offscreen app on MoltenVK. The dump reader worked and
+    read the wrong thread: it took the thread dotnet-dump marks current, the host's main thread
+    waiting on the test run, where createdump's own line in the output says `Crashing thread 2781
+    signal 10`, a bus error on macOS, which the page carries unread. Two things. `build/test.py`
+    takes the thread and the signal from createdump's line and reads that thread, `setthread` by its
+    OS id and `clrstack -f`, its native frames with their modules where it runs no managed code, so
+    the next page names the frame that died. And the model to read against meanwhile: a bus error on
+    a thread the runtime does not run, in three tests that close an app, is a write into device
+    memory mapped by the engine after the app's close unmapped it, an upload or a readback still in
+    flight on a worker when the device goes, which Linux and Windows survive and macOS does not; the
+    app's close waits for every worker and every mapped range before the device is destroyed, and
+    the leak test, which closes a hundred, is where it shows first. Settled when a macOS run passes
+    whole twice.
 
 ## Decisions
 
@@ -389,21 +415,16 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the third fix, the light that bounces again.** Read at the probes, the third was not
-in the hits' blend nor the plane test. A cascade past the first blocked dark every ray that met a
-surface before its interval began, so its own faces lacked every surface nearer its probes than
-that start. With light bouncing once, the second cascade's probe in the Cornell box read 63% under
-its reference. Most of that box lies past the first cascade's reach from the view's camera, so its
-pixels and the hits that read those faces took the shortfall. Such a ray now shades its surface for
-its own probe's faces, alpha a half, and that probe reads −5%. Two other ways were tried and
-measured first. Each interval's end doubled took the Cornell box to −11% at High but its frames
-past one bounce, the thin room's leak to +40%, and 0.07 ms. The early hits taken in the merge as
-well read the ceiling beside the lamp for one two units off, up to 26 times too bright along those
-ways (dumped per texel), the Cornell box +11% and the thin room +92%. So the merge into the cascade
-below still reads them as dark, which C5's bilinear fix is to replace. Over every region against
-every bounce: the Cornell box −21% to +2% at Low and Medium, −22% to −10% at High; the corridor −15%
-to −9%; the grazing floor −62% to −53% at Low, −57% to −46% at High; the other rooms within a point.
-The closed room's leak is unchanged at its bound. The probe check counts early hits as hits, said
-apart. The Cornell reference frame is drawn again and holds on lavapipe. Cost: +0.006 to 0.008 ms,
-0.36, 0.45 and 0.54. The suite: 1,587 passed; on lavapipe 313 passed and 6 skipped. C4 next, the
-screen filter's distance weight.
+**Item 2's C, the fourth fix, the screen's probes by their plane.** The filter reads each
+neighbor's point from the depth under its tile's middle and weighs it by its distance from the
+plane of the probe's surface. The model pass carries the pixel's own plane to each of its four
+probes' tile middles by `ddx` and `ddy` of its position and weighs a probe by how near its distance
+from the eye is to that plane's there. The rows of the Cornell box's floor about a smooth fit: Low
+±4.5% to −1.1/+2.3%, Medium ±4.3% to ±1.5%, High −12.9/+15.3% to −4.0/+5.9%, against the reference's
+±2.3%. High's remainder is the world probes' blend between probes 1.2 apart, ±8% with the screen's
+probes off; the history changes it little. A new test draws a floor lit by a glowing wall at its
+far end at High. With the distance weight the model pass found no probe near enough beside the wall,
+took the world's, and the wall's light ended in a line, falling 51% within four rows. With the
+plane it falls 18% at most, the test's bound 30%. The error over every region moves a point at most
+and the cost is within the noise, the bounce 0.37, 0.45 and 0.54 ms and the scene's pass 0.16. The
+suite: 1,588 passed; on lavapipe 314 passed and 6 skipped. Verdicts 40 and 43 next, then C5.

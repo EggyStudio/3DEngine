@@ -122,6 +122,41 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Floor_Seen_At_A_Slant_Takes_The_Light_Of_The_Screens_Probes_Along_Its_Slope()
+    {
+        // A wide floor lit only by the light that bounces, from a dim sky and a glowing wall at its
+        // far end, the camera low over it, so each row of the screen's probes stands further off
+        // than the one below. Weighed by how alike their distances from the eye were, the probes
+        // around a pixel of the floor by the wall lay too far apart for any to count, the pixel took
+        // the world's probes instead, and the wall's light on the floor ended in a hard line, the
+        // light falling by half within four rows, where weighed by how near each lies to the
+        // pixel's plane it falls by 18% at most, as this test measured on an RTX 4070.
+        var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(new Color(160, 190, 255), 0.2f);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        glow.Materials[0].Emissive = Color.White;
+        glow.Materials[0].EmissiveIntensity = 6;
+        var picture = Capture(() =>
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, -2), Vector3.UnitY, 0, new Vector3(10, 0.3f, 10), Color.White);
+            DrawModelEx(glow, new Vector3(0, 1.5f, -6.15f), Vector3.UnitY, 0, new Vector3(10, 3, 0.3f), Color.White);
+        }, new Camera3D(new Vector3(0, 0.6f, 2.5f), new Vector3(0, 0.2f, -6), Vector3.UnitY, 60));
+
+        // Each row's mean over the floor's middle, from the wall's foot toward the camera, and the
+        // steepest fall between rows four apart.
+        var rows = Enumerable.Range(140, 70).Select(y => (double)Mean(picture, 140, y, 200, 1).Y).ToArray();
+        var steepest = Enumerable.Range(10, 50).Max(i => (rows[i] - rows[i + 4]) / rows[i]) * 100;
+        steepest.Should().BeLessThan(30, $"the wall's light on the floor falls smoothly toward the camera, {steepest:0}% at most within four rows");
+        UnloadModel(slab);
+        UnloadModel(glow);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Red_Wall_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
         Open();

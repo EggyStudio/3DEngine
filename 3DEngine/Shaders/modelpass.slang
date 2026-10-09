@@ -115,8 +115,11 @@ public float materialOcclusionStrength(ModelVertexOutput input) { return input.f
 public float3 materialEmission(ModelVertexOutput input) { return input.emission.xyz; }
 
 // The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
-// four screen probes around it that stand on a surface like its own, each by how near it is and
-// how alike its normal and its distance from the eye are to the fragment's, or -1 where none does.
+// four screen probes around it that stand on a surface like its own, each by how near it is, how
+// alike its normal is to the fragment's, and how near its distance from the eye is to the distance
+// the fragment's own plane lies at under the probe's tile middle, found from how the fragment's
+// point moves from pixel to pixel, so a floor seen at a slant takes the probes up and down its slope
+// as well as those beside it. Or -1 where none does.
 public float3 screenBounced(ModelVertexOutput input, float3 n)
 {
     uint across, down;
@@ -125,6 +128,7 @@ public float3 screenBounced(ModelVertexOutput input, float3 n)
     int2 base = int2(floor(g));
     float2 f = g - float2(base);
     float distance = length(input.toEye);
+    float3 acrossOne = ddx(input.world), downOne = ddy(input.world);
     float4 sum = float4(0.0);
     for (int corner = 0; corner < 4; corner++)
     {
@@ -134,9 +138,11 @@ public float3 screenBounced(ModelVertexOutput input, float3 n)
         float4 surface = screenSurfaces.Load(int3(at, 0));
         if (light.a < 0.5 || surface.w < 0.0)
             continue;
+        float2 toProbe = (float2(at) + 0.5) * lighting.screen.x - input.position.xy;
+        float expected = length(input.toEye - acrossOne * toProbe.x - downOne * toProbe.y);
         float2 lerps = lerp(1.0 - f, f, float2(offset));
         float weight = lerps.x * lerps.y * pow(saturate(dot(n, surface.xyz)), 8.0)
-                     * exp(-abs(surface.w - distance) / (0.02 * distance + 0.05));
+                     * exp(-abs(surface.w - expected) / (0.02 * distance + 0.05));
         sum += float4(light.rgb, 1.0) * weight;
     }
     return sum.w > 1e-3 ? sum.rgb / sum.w / 3.14159265 : float3(-1.0);
