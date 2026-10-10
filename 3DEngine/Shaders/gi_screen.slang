@@ -139,12 +139,36 @@ uint probesSeen(float3 p, uint c, float3 normal, float cell)
     return seen;
 }
 
+// The texel of a cascade's octahedron of `texels` along each side at t, which may lie a texel past
+// the square's edge: across an edge the octahedron folds onto the same edge mirrored, and past a
+// corner onto the corner across from it, so a ray near the edge is blended with the texels beside it
+// on the sphere.
+int2 folded(int2 t, int texels)
+{
+    if (t.x < 0)
+        t = int2(0, texels - 1 - t.y);
+    else if (t.x >= texels)
+        t = int2(texels - 1, texels - 1 - t.y);
+    if (t.y < 0)
+        t = int2(texels - 1 - t.x, 0);
+    else if (t.y >= texels)
+        t = int2(texels - 1 - t.x, texels - 1);
+    return t;
+}
+
 // The light from beyond the first interval along way, the world's cascade c's merged light blended
 // between its eight probes around p on a surface facing normal, each weighed by how near it is and
 // how squarely it stands in front of the surface, each probe inside a mesh or not among those seen
 // passed over, or -1 in a where p lies outside that cascade. A texel of the second cascade whose ray
 // met a surface before its interval began holds that surface's light, alpha a half, which here is
-// the light along way from that probe, taken as any other.
+// the light along way from that probe, taken as any other. Each probe's light along way is blended
+// between the four texels of its octahedron around it, as near as way lies to each. Read from the
+// texel way falls in, a ray on the border between two flipped from one to the other as the normal
+// rebuilt from the window's depth wavered by a degree or two, and on a wall square to the world's
+// axes half the sixteen rays lie on such borders, so a probe's light changed as the camera moved,
+// which the frame before's light averaged while it moved and drifted from for a dozen frames after
+// it stopped, 0.19 levels on the fifth frame after a walk where it reads 0.07
+// (GlobalIlluminationTests).
 float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
 {
     int3 base;
@@ -153,7 +177,18 @@ float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
         return float4(0.0, 0.0, 0.0, -1.0);
     float probes = view.trace.y;
     uint texels = c == 0u ? push.texels.x : push.texels.y;
-    uint2 texel = min(uint2(octahedron(way) * float(texels)), uint2(texels - 1u));
+    float2 o = octahedron(way) * float(texels) - 0.5;
+    int2 first = int2(floor(o));
+    float2 between = o - float2(first);
+    int2 texel[4];
+    float share[4];
+    for (int k = 0; k < 4; k++)
+    {
+        int2 side = int2(k & 1, k >> 1);
+        texel[k] = folded(first + side, int(texels));
+        float2 lerps = lerp(1.0 - between, between, float2(side));
+        share[k] = lerps.x * lerps.y;
+    }
     float3 sum = float3(0.0);
     float weights = 0.0;
     for (int corner = 0; corner < 8; corner++)
@@ -161,12 +196,18 @@ float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        int4 at = int4(int2(uint2(neighbor.xy) * texels + texel), neighbor.z, 0);
-        float4 light = c == 0u ? merged.Load(at) : mergedSecond.Load(at);
         float seenHere = float((seen >> uint(corner)) & 1u);
-        float weight = lerps.x * lerps.y * lerps.z * (light.a > 0.25 ? 1.0 : 0.0) * seenHere * probeFacing(p, normal, probeAt(neighbor, c));
-        sum += light.rgb * weight;
-        weights += weight;
+        float weight = lerps.x * lerps.y * lerps.z * seenHere * probeFacing(p, normal, probeAt(neighbor, c));
+        if (weight <= 0.0)
+            continue;
+        for (int k = 0; k < 4; k++)
+        {
+            int4 at = int4(neighbor.xy * int(texels) + texel[k], neighbor.z, 0);
+            float4 light = c == 0u ? merged.Load(at) : mergedSecond.Load(at);
+            float held = weight * share[k] * (light.a > 0.25 ? 1.0 : 0.0);
+            sum += light.rgb * held;
+            weights += held;
+        }
     }
     return float4(weights > 1e-4 ? sum / weights : float3(0.0), 1.0);
 }
@@ -241,12 +282,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // keep no account of.
             float3 own;
             if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
-                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
+                light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
             else
             {
                 float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
                 light = t >= 0.0
-                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
+                    ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(p, around, n, way, seen).rgb;
             }
             sum += light * weight;

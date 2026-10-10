@@ -97,6 +97,19 @@ ConstantBuffer<TracePush> push;
 
 groupshared float4 place;
 
+// The field's layout with each cascade at the corner it lay at the frame before, where the faces of
+// the light that bounced, which the rays read, were gathered. Read at this frame's corners, a
+// cascade that moved with the eye read each probe's faces from the probe a step or more beside it,
+// and the light bouncing again, fed from those faces each frame, took ten frames and more to find
+// itself again after a turn moved every cascade.
+SceneFieldInfo gatheredAt()
+{
+    SceneFieldInfo then = fieldInfo;
+    for (int c = 0; c < 4; c++)
+        then.cascades[c].originAndCell.xyz = lights.before[c].xyz;
+    return then;
+}
+
 // Where the probe whose spot in the grid is at stands: moved off a surface nearer than Clearance of
 // the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
 // its move in its spacing, with w 1 where it then stands outside every mesh.
@@ -216,7 +229,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         if (t >= 0.0)
             // The light that bounced to the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
-            light = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, bounced, origin + way * t,
+            light = float4(shadeProbeHit(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bounced, origin + way * t,
                 float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
         else if (push.cascade.w != 0u)
         {

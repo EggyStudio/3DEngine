@@ -32,35 +32,35 @@ public sealed class BounceRoomsTests : IDisposable
     private const int Width = 160, Height = 90, Down = 2;
 
     // Each view at each quality, bound 15% over what it read on an RTX 4070, where the views
-    // read 0.15 to 0.17 of their light apart from their references in the Cornell box, 0.08 to
-    // 0.09 in the thin room, 0.26 in the corridor, 0.27 to 0.30 in the window's, 0.02 among the red
-    // walls, 0.48 to 0.51 in the strip's, 0.10 to 0.12 on the grazing floor and 0.12 in the carried
-    // lamp's.
+    // read 0.18 to 0.20 of their light apart from their references in the Cornell box, 0.08 to
+    // 0.10 in the thin room, 0.26 in the corridor, 0.27 to 0.29 in the window's, 0.02 among the red
+    // walls, 0.45 to 0.47 in the strip's, 0.11 to 0.13 on the grazing floor and 0.10 to 0.12 in the
+    // carried lamp's, since the screen's probes read the world's probes between their texels.
     [NeedsRayQueryTheory]
-    [InlineData(1, GlobalIllumination.Low, 0.20)]
-    [InlineData(1, GlobalIllumination.Medium, 0.18)]
-    [InlineData(1, GlobalIllumination.High, 0.20)]
+    [InlineData(1, GlobalIllumination.Low, 0.24)]
+    [InlineData(1, GlobalIllumination.Medium, 0.21)]
+    [InlineData(1, GlobalIllumination.High, 0.22)]
     [InlineData(2, GlobalIllumination.Low, 0.11)]
     [InlineData(2, GlobalIllumination.Medium, 0.10)]
-    [InlineData(2, GlobalIllumination.High, 0.11)]
+    [InlineData(2, GlobalIllumination.High, 0.10)]
     [InlineData(3, GlobalIllumination.Low, 0.30)]
     [InlineData(3, GlobalIllumination.Medium, 0.30)]
     [InlineData(3, GlobalIllumination.High, 0.30)]
-    [InlineData(4, GlobalIllumination.Low, 0.35)]
+    [InlineData(4, GlobalIllumination.Low, 0.34)]
     [InlineData(4, GlobalIllumination.Medium, 0.32)]
-    [InlineData(4, GlobalIllumination.High, 0.33)]
+    [InlineData(4, GlobalIllumination.High, 0.34)]
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.59)]
-    [InlineData(6, GlobalIllumination.Medium, 0.57)]
-    [InlineData(6, GlobalIllumination.High, 0.56)]
-    [InlineData(7, GlobalIllumination.Low, 0.12)]
+    [InlineData(6, GlobalIllumination.Low, 0.54)]
+    [InlineData(6, GlobalIllumination.Medium, 0.55)]
+    [InlineData(6, GlobalIllumination.High, 0.52)]
+    [InlineData(7, GlobalIllumination.Low, 0.13)]
     [InlineData(7, GlobalIllumination.Medium, 0.13)]
     [InlineData(7, GlobalIllumination.High, 0.15)]
-    [InlineData(8, GlobalIllumination.Low, 0.15)]
-    [InlineData(8, GlobalIllumination.Medium, 0.14)]
-    [InlineData(8, GlobalIllumination.High, 0.15)]
+    [InlineData(8, GlobalIllumination.Low, 0.14)]
+    [InlineData(8, GlobalIllumination.Medium, 0.12)]
+    [InlineData(8, GlobalIllumination.High, 0.13)]
     public void Each_Room_Reads_Within_Its_Measured_Difference_From_Its_Reference(int view, GlobalIllumination quality, double bound)
     {
         var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };

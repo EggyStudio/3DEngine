@@ -61,8 +61,8 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>The lights, as <c>gi.slang</c>'s <c>GiLights</c>.</summary>
     public IBuffer Lights { get; }
 
-    /// <summary>The bytes of <see cref="Lights"/>.</summary>
-    public const int LightsBytes = 64 + 16 * 64;
+    /// <summary>The bytes of <see cref="Lights"/>: the sun, the sky and the counts, sixteen lights, and four cascades' corners of the frame before.</summary>
+    public const int LightsBytes = 64 + 16 * 64 + 4 * 16;
 
     /// <summary>
     /// How far each probe's rays reached along eight by eight directions, every cascade, before a

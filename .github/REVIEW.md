@@ -10,43 +10,66 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9064685a`. Item 2's part a, the terminator, is done, measured first on a sphere lit
-from its side, the meridian read every two degrees with the scattering off and on: no dark ring of
-its own, but a bright line six degrees past the terminator on every scattering sphere, as bright as
-the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator read dark
-between them, and wax's far side through the field lit again, 70 at 120 degrees and 88 at 148. The
-spread alone falls smoothly past the terminator, 83, 65, 51, 43, 40 from 88 degrees, so the suspect
-named first is cleared; the light through made both. Three causes: a few degrees past the terminator
-the point lies at the sphere's edge as the light sees it, where the map's mean of nine depths took
-in the empty map beyond the edge and the field's march along the surface found no mesh within a cell
-and took the part for a sheet, so the sphere read no thicker than nothing and the light came through
-whole; a march still in the mesh at the reach returned the reach, a twentieth of the light kept on
-the far side however thick; and the falloff as e to the minus the thickness over the travel still
-rose to a hump ten degrees out from the true chord. Four mends: the map's mean takes only the depths
-in front of the point, or the point's own where none is; a light that casts shadows measures through
-its map wherever it has one and the field is kept for a lamp with none, since the field giving way
-to the map past its sheet's cell dashed a line across the example's marble; the light fades out
-between half the reach and the reach; and it falls as the Gaussian the spread uses for each color, a
-third of its travel wide, as Jimenez derives the light through from the profile. Wax falls 84, 69,
-60, 54, 50, 47, 43 from 88 degrees to 100, half its light by 93 and a tenth by 100, and skin's edge
-lies at the terminator 0.04 of a degree from its neighbors' mean where it ran 0.41 in the map's
-texels; two theories hold them, the fall without a dip for wax with and without the field, marble
-and skin, and the edge under 0.3 of a degree, each failing on the shader before; the slabs' and the
-sheet's numbers moved with the falloff and say so; the example's capture is drawn again; §5 and the
-guide say it, §5's long line gone. Right, measured first and the three causes mended where they
-arise, and the maps given the thickness whole rather than a seam between two measures. One thing to
-know, asked of nothing: at half the reach the Gaussian has fallen to e to the minus ten, so the fade
-between half the reach and the reach changes nothing the eye or a test reads and stands as a guard
-for a march that returns the reach; and the gap the reply keeps stands, a Burley tail longer than
-one Gaussian's, which a sum of Gaussians in the spread would follow. The owner's eye judges the look
-(Decision 27). The suite: 1,652 passed; on lavapipe 371 passed and 7 skipped with no validation
-error. Item 2's work runs b, then d, then c. Verdict 40's two mends are in the tree with their reply
-drafted, read on their commit. The game's `77e020dc`, `e69543b0`, `d3394780` and `a5534f03` are the
-game's own, structures across its columns' edges, see-through glass, ice and water kept out of the
-field, a terrain shader fading the world into the sky, and a test project of its light, meshes,
-body, saves and generation that joins the solution and AGENTS.md's table, so it builds on every run
-under `-warnaserror` and runs nowhere there, `build/test.py` running `3DEngine.Tests` alone. The run
-of `187de604` has its captures green, so the Linux examples job waits on Windows alone.
+Reviewed up to `3a83cec6`. Verdict 40's two mends, as the verdict asked them. On Windows each count
+the hold reads, the twentieth app's and every later one, comes after a full collection and the
+finalizers, which the census's `ended` step waits on, so the app's threads have ended and what they
+held is given back before the count, where the race read the baseline 44 apps' kept handles above a
+settled count and a check 338 above; Linux and macOS, whose counts hold from the second app, wait
+for nothing, so their resident memory read every ten apps still sees what only a finalizer gives
+back pile up between collections. The engine's own code at the instance, the device and the first
+draw starts no thread, its one parallel work `Parallel.For` over the pool, whose threads stay for
+the process, so the kept Thread handles are the loader's and lavapipe's, and the hold allows, for
+each app past the twentieth, the most Thread handles a followed app's census counts those three
+steps opening net of what the device's going gives back, five on the pages read, no other kind nor
+any other step's, and the failure line names the allowance; the bound on everything else stays.
+Right, the allowance read from the census of the run itself rather than a number, so a thread the
+engine kept at any other step still fails the hold, and the count read at the one moment the
+census's last step already defined. It cannot run here, so the next Windows page judges it, and
+green, 5.2 is due (Decision 19). The suite: 1,652 passed; the leak test's three cases pass on Linux.
+ASKS.md went in with it, the game's fourth entry answered in item 1. Item 2's part b is next, the
+screen probes' history after a move, measured in the game's room as ASKS.md lays it out. The owner
+looked again at 17:20: the bounce stable in motion on the tree, the lamp's eight lobes gone at a
+field cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
+written into item 2's parts b and d and its new part e.
+
+Before it, item 2's part a, the terminator, came to be read and is done, measured first on a sphere
+lit from its side, the meridian read every two degrees with the scattering off and on: no dark ring
+of its own, but a bright line six degrees past the terminator on every scattering sphere, as bright
+as the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator read
+dark between them, and wax's far side through the field lit again, 70 at 120 degrees and 88 at 148.
+The spread alone falls smoothly past the terminator, 83, 65, 51, 43, 40 from 88 degrees, so the
+suspect named first is cleared; the light through made both. Three causes: a few degrees past the
+terminator the point lies at the sphere's edge as the light sees it, where the map's mean of nine
+depths took in the empty map beyond the edge and the field's march along the surface found no mesh
+within a cell and took the part for a sheet, so the sphere read no thicker than nothing and the
+light came through whole; a march still in the mesh at the reach returned the reach, a twentieth of
+the light kept on the far side however thick; and the falloff as e to the minus the thickness over
+the travel still rose to a hump ten degrees out from the true chord. Four mends: the map's mean
+takes only the depths in front of the point, or the point's own where none is; a light that casts
+shadows measures through its map wherever it has one and the field is kept for a lamp with none,
+since the field giving way to the map past its sheet's cell dashed a line across the example's
+marble; the light fades out between half the reach and the reach; and it falls as the Gaussian the
+spread uses for each color, a third of its travel wide, as Jimenez derives the light through from
+the profile. Wax falls 84, 69, 60, 54, 50, 47, 43 from 88 degrees to 100, half its light by 93 and a
+tenth by 100, and skin's edge lies at the terminator 0.04 of a degree from its neighbors' mean where
+it ran 0.41 in the map's texels; two theories hold them, the fall without a dip for wax with and
+without the field, marble and skin, and the edge under 0.3 of a degree, each failing on the shader
+before; the slabs' and the sheet's numbers moved with the falloff and say so; the example's capture
+is drawn again; §5 and the guide say it, §5's long line gone. Right, measured first and the three
+causes mended where they arise, and the maps given the thickness whole rather than a seam between
+two measures. One thing to know, asked of nothing: at half the reach the Gaussian has fallen to e to
+the minus ten, so the fade between half the reach and the reach changes nothing the eye or a test
+reads and stands as a guard for a march that returns the reach; and the gap the reply keeps stands,
+a Burley tail longer than one Gaussian's, which a sum of Gaussians in the spread would follow. The
+owner's eye judges the look (Decision 27). The suite: 1,652 passed; on lavapipe 371 passed and 7
+skipped with no validation error. Item 2's work runs b, then d, then c. Verdict 40's two mends are
+in the tree with their reply drafted, read on their commit. The game's `77e020dc`, `e69543b0`,
+`d3394780` and `a5534f03` are the game's own, structures across its columns' edges, see-through
+glass, ice and water kept out of the field, a terrain shader fading the world into the sky, and a
+test project of its light, meshes, body, saves and generation that joins the solution and
+AGENTS.md's table, so it builds on every run under `-warnaserror` and runs nowhere there,
+`build/test.py` running `3DEngine.Tests` alone. The run of `187de604` has its captures green, so the
+Linux examples job waits on Windows alone.
 
 Before it, item 3's first two of its three remaining came in one commit, since both change one
 thickness function and its slabs' test. A material's own thickness, `SubsurfaceThickness` on
@@ -81,28 +104,6 @@ calling the part thinner than a cell; the next pass reads it. The game's `354a70
 temperature and humidity, is the game's own. Verdict 40 is rewritten on the census pages of
 `0ccf8f9a` and the game's `187de604`: the kept thread handles are opened at the device's steps, and
 the hold's count is read before or after the app's threads end.
-
-Before it, item 2's part g came to be read, the last of the game's seven asks, and the item is done.
-Measured first: a box sealed on every side read 37.5 in blue on its rough inside walls under a blue
-sky and an open floor beside it 62.7, the game's carved chamber with its own dimming off (6.6, 13.3,
-24.4). The probes say how much sky they see: a ray of the last cascade that meets nothing brings the
-sky's light marked a quarter in its alpha, which the merge reads as it reads a hit so nothing else
-moves, each merged texel carrying its share of the sky in an image of its own, carried down as the
-light from beyond is, the gather weighing it into a sixth image of faces, and the model pass
-weighing the environment map's reflection by the share the surface's probes see along the mirror
-direction, read from the eight probes around it with the light's own weights and visibility. After:
-the sealed box 0.13, the open floor 61.8, and the game's chamber (0.1, 0.1, 0.1), as with no map at
-all, so the game's dimming of the whole map goes; the sealed box is a test. The cost 0.01 ms of the
-bounce at Medium and High and 0.14 to 0.84 MB, the guide's table measured again; the game's scene
-pass 1.55 to 1.65 ms in Release, reading eight probes more where a map is set; Wick without a map
-unchanged. The glossy reflections' reference is drawn again, the floor under the shelf and the
-chrome sphere's underside reflecting less sky as their probes see the floor, looked at, 1.37% from
-the old on the RTX 4070. Two gaps noted and not asked: the screen's probes carry no share of sky,
-the world's standing in, and a reflection probe's capture stands in for the map unweighed. Right,
-the probes asked what they already knew, measured on the game's chamber and the box both ways, and
-the merge's and gather's hand-listed bindings found as the first try's fault and said. The suite:
-1,642 passed; on lavapipe 362 passed and 7 skipped with no validation error. Item 2 is closed in the
-Now list; by it, item 3's remainder next, unless a page or a verdict comes first.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -151,7 +152,12 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    measure, the voxel game's read through the testbed at eight columns, and the game's session asked
    to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
    and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
-   The order of work: b, then d, then c, a being done.
+   The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's lobes gone
+   at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
+   so b closes with its commit, d gains its lever and e is added. The order of work: b's commit,
+   then d and e together, since one emitter is measured for both and one remedy may answer both,
+   then c; the game's session is asked to measure d at both cells and e along the distance, in
+   ASKS.md as before.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -183,7 +189,15 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    tightened or shortened where the frame's light moves coherently, or the history let go where a
    cascade moved, each by the summed drift after the walk and the turn, and the slide test, which
    must not grow. The test holds the drift after a walk under a bound by the fifth frame in the room
-   above.
+   above. Two causes are found and mended in the tree of 17:20, as RENDERING.md's draft has them: a
+   screen probe's ray read a world probe's light from the one texel of its octahedron it fell in,
+   and a ray near a texel's border flipped to the next as the camera moved, half the 16 rays on a
+   wall square to the axes lying on such borders, so the filter and the history made blotches that
+   drifted to rest, read between the four texels around the ray since; and the world probes read the
+   frame before's bounced light at a cascade's old corner once it moved with the eye, read at the
+   corner gathered at since; the fifth frame after the walk from 0.19 levels to 0.07 and after the
+   turn from 0.84 to 0.06. The owner's eye finds the bounce stable in motion on that tree (Decision
+   27); the commit with its two tests closes the part.
 
    **c. The border between near and far is the field's last cascade's end.** Measured by the game's
    session on the hills at sunset with the sun under the horizon, the bounce at High over the light
@@ -204,16 +218,51 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    points around a circle with the moonlit floor's own taken off and the lobes read as the harmonics
    of the ring: at High eight lobes at 0.15 of the lamp's light at two blocks and 0.39 at two and a
    half, at Medium eight at 0.03 and 0.11, at Low four at 0.11 and 0.16, under 0.07 within a block
-   and a half, and the lamp's light down to the floor's own by three blocks. The cause is the
-   probes' octahedron, the few of its directions that meet a small emitter a probe or two away, and
-   the first cascade's 64 directions at High where the cascades above have 256, so the ring of eight
-   texels shows as eight lobes. Measured against each other, cheapest first: the first cascade given
-   256 directions at High, a quarter more rays, read for the lobes' depth and the cost; the rays'
-   directions jittered each frame within their texels and the faces averaged over frames, which the
-   hold's follow must not read as a light changing, read for the lobes, the fade and the crawl; and
-   a small emitter near a probe taken by its rays' hits as a light with a position, as the lamps
-   are, read for the lobes and the cost in the game's room of many lamps. The test holds the lobes'
-   depth at two and a half blocks under a bound at each quality.
+   and a half, and the lamp's light down to the floor's own by three blocks. The owner finds the
+   lobes gone with the field's cell at 0.125 and the probes as they were, and says, rightly, that
+   finer cells everywhere are not the remedy, eight times the field for one lamp; so the field's
+   hold of the one-block cube is read first and the probes' octahedron second. A cube has eight ways
+   about it, four faces and four edges, and its edge cells hold a nearest surface where two faces
+   meet, whose glow the resolve blends with the floor's beside it and a ray from a diagonal meets
+   where one square to a face does not (`surfaceGlow` at the hit, `fieldNormal` from the gradient),
+   so the lobes may be the cube's edges as the field holds them, sharpened away at half the cell;
+   the first cascade's 64 directions at High against 256 above stand as the second cause, and Low's
+   four lobes against High's eight say the probes take part. Measured so the two part: the lobes at
+   0.25 and 0.125 cells at High, and at High, Medium and Low at each cell, the game's `voxel.ring`
+   as before, and a probe beside the lamp looked at in `gi.view`, its octahedron's lit texels eight
+   around the ring or a smear. Remedies by what the measure names, cheapest first: the glow at a hit
+   read a step back along the ray by the field's distance there, so a diagonal ray reads a face and
+   not an edge, and an edge cell painted whole where it holds an emitter at all; the first cascade
+   given 256 directions at High, a quarter more rays, read for the lobes' depth and the cost; the
+   rays' directions jittered each frame within their texels and the faces averaged over frames,
+   which the hold's follow must not read as a light changing; and a small emitter near a probe taken
+   by its rays' hits as a light with a position, as the lamps are, which answers e as well and is
+   read for the lobes and the cost in the game's room of many lamps. The test holds the lobes' depth
+   at two and a half blocks under a bound at each quality at the game's cell of 0.25.
+
+   **e. A lamp's light at a distance has an aliased border, and farther off it is gone from the
+   bounce.** The owner, walking away from a glowstone, sees the edge of its pool of light on the
+   floor break into steps and, farther, the pool go out. Read from the engine as it stands: a screen
+   probe traces the first cascade's spacing, two blocks at the game's cell, in world units whatever
+   the depth, so a floor pixel more than two blocks from the lamp takes the lamp's light from the
+   world's probes alone, whose cascades stand 2, 4, 8 and 16 blocks apart with rays reaching four
+   times that, so a pool three blocks wide is the mean of a cell of 8 or 16 blocks where the far
+   cascades hold it, and past the field's last cascade at 96 blocks (part c) the cube is in the
+   field nowhere and its light is nowhere; and where a surface passes from one cascade's probes to
+   the next's, or from the screen's reach to the world's, nothing blends, which is the border's
+   steps. Measured by the game's session: the pool's peak and its width on the floor, and the step
+   at its edge, with the lamp 5, 10, 20, 40 and 80 blocks from the eye, the cascades' spacings and
+   edges from `gi.state` and `field.state` beside each; and at the engine, the same in a test scene
+   of one emitter on a plane. Remedies in order, each read against the pool at 20 and 40 blocks and
+   the frame's cost: the screen probes' reach scaled with the depth, a probe far off tracing as many
+   world units as its pixels span, so a far pixel reaches a lamp a few blocks from it as a near one
+   does and the hand-over to the world's probes moves out with the distance; the light blended
+   across each cascade's edge as part c blends the last into the map, one rule for all; and the
+   small emitter as a light with a position inside the bounce, d's last remedy, which lights a far
+   floor from the lamp whatever the probes' spacing, at a cost read in the room of many lamps. The
+   game's own light levels, which it turned off to measure, light the far pool meanwhile, as they
+   are made to. The test holds the pool's peak at 20 and 40 blocks within a share of its peak at 5,
+   and the step across each cascade's edge under a bound.
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -319,14 +368,16 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     65 reads 2,754 against 2,415 after app 64, and its baseline at app 20, 2,524, stands above that
     settled count 44 apps later, so the baseline was read with an app's handles still out as well.
     The hold's flat allowance of 200 over the baseline is spent by that race at once or by the kept
-    handles at about app 60. Two mends: the hold reads its counts, the baseline and each check, once
-    the app's threads have ended, which the census's `ended` step already waits for, so every count
-    is read at the same moment; and the engine's own code at `instance made`, `device made` and
-    `drawn` is read for a thread of its own, none expected, and the kept handles said to be the
-    driver's with this census as the evidence, the hold then allowing the Thread handles the
-    device's three steps net open, read from the followed apps' census in that run, and no other
-    kind nor any other step's. The bound on everything else stays. Settled when a Windows run passes
-    whole.
+    handles at about app 60. The two mends are in at `3a83cec6`: on Windows each count, the
+    twentieth's and every later one, is read after a full collection and the finalizers, which the
+    census's `ended` step waits on, so the app's threads have ended; and the hold allows for each
+    app past the twentieth the most Thread handles a followed app's census counts the instance's,
+    the device's and the first draw's steps opening net of what the device's going gives back, the
+    engine's own code at those steps starting no thread, its one parallel work `Parallel.For` over
+    the pool whose threads stay for the process, and the failure line names the allowance; the bound
+    on everything else stays. Right, the allowance read from the census of the same run rather than
+    a number, so a thread the engine kept at any other step still fails the hold. It cannot run
+    here; settled when a Windows run passes whole.
 
 ## Decisions
 
@@ -505,17 +556,49 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 40, the two mends. The hold reads its counts, the twentieth app's and each later one, once
-the app's threads have ended and what they held is given back, by the same full collection and
-finalizers awaited that the census's `ended` step waits on, on Windows, where the race read the
-baseline 44 apps' kept handles above a settled count and a check 338 above; on Linux and macOS,
-whose counts hold from the second app, nothing waits, so the resident memory they read every ten
-apps still lets memory only a finalizer gives back pile up between collections for its bound to
-see. The engine's own code at the instance, the device and the first draw starts no thread: its
-only parallel work is `Parallel.For` over the thread pool, whose threads stay for the process. So
-the kept Thread handles are the loader's and lavapipe's, and the hold allows, for each app past the
-twentieth, the most Thread handles a followed app's census counts the instance's, the device's and
-the first draw's steps opening net of what the device's going gives back, five on the pages read,
-and no other kind nor any other step's; the line names that allowance. The bound on everything else
-stays. It cannot be run here, so it waits on the next Windows page; the leak test's three cases pass
-on Linux as before. The suite: 1,652 passed.
+Item 2's part b. Measured first in the voxel game's room drawn by the engine alone, by a scratch
+test not kept that drew it at 640 by 360 at `High` through the game's field and read each frame's
+change: after the walk 0.51 levels on the first frame and 2.25 summed over the 13 frames before it
+held still, after a quarter turn in one frame 2.95 and 10.48 over 19, near the game's 0.57 and 2.63
+for the walk. The cause, read before the remedy, is not a coherent change where a cascade moved. A
+nudge of the camera by a fiftieth of a block drifts the same, 0.67 levels then 0.44 and 0.33,
+whether or not it carries a cascade across its snap, and with it each screen probe's raw light,
+which holds to the bit while the camera stands, changes by 18% of the mean. The normal a probe
+rebuilds from the depth lies 1.6 degrees off its wall's axis on average; snapped to the axis, the
+nudge's raw change falls to 3.4% and its drift from 1.79 to 0.30, and with every ray taking the
+world's probes the raw change rises to 32%, so the flips lie in that read. A ray took each world
+probe's light from the one texel of its octahedron it fell in, and on a wall square to the axes half
+the 16 rays lie on texel borders, the hemisphere's 4 by 4 falling on the edges of the octahedron's 8
+by 8. So the hold within twice the spread never bites, the spread being the flips' own, the drift a
+fifth of it at the median and two thirds at the ninetieth percentile; the 5 by 5 filter makes the
+flips the blotches the walls show, the history averages them while the camera moves, and the drift
+is the way from that average to the pattern that stands. Neither remedy named would mend it: the
+history let go where a cascade moved leaves the nudge short of the snap as it was, and a blend
+tightened or shortened shortens the drift without lessening its sum, the distance from the average
+to that pattern. Read between the four texels around the ray, across the square's edges as the
+octahedron folds (`folded`), the nudge's raw change is 4.1% and the walk's drift sums 0.85. The turn
+had a cause of its own, which the history off left, 6.47, 2.40 and 1.35 levels the frames after, and
+light bouncing again off took away, 0.51 summed: the trace read the frame before's faces at this
+frame's corners, so each probe of a moved cascade took the faces of one a step or more beside it,
+and the cascades lie a third of their width ahead of the eye, so a turn moves all four. The lights'
+buffer carries each cascade's corner of the frame before, 64 bytes more, and the trace reads the
+faces through them (`gatheredAt`), which alone takes the turn to 1.37. With both, the walk sums 0.66
+over 8 frames, the turn 0.68 over 9, a turn over 30 frames 1.04 where 3.53 and a step 1.55 where
+2.98. The test draws the room at 320 by 180 and holds the fifth frame after each motion under 0.12
+levels, the walk 0.19 to 0.07 and the turn 0.84 to 0.06, lavapipe reading the same, each failing
+without its own mend, the walk at 0.19 with the corners alone and the turn at 0.69 with the texels
+alone. The slide test's crawl went with the flips, 0.33 levels a frame to −0.03 and unheld 1.61 to
+0.03, lavapipe −0.03 and 0.02, so its share of the unheld reads nothing and it holds 0.15 levels a
+frame, which fails before. The four reads cost the bounce 0.405, 0.534 and 0.735 ms in
+`shaders_cornell_box` where it took 0.367, 0.494 and 0.696, the guide's table moved with them. They
+move the path-traced rooms both ways: the Cornell box 0.170, 0.153 and 0.166 of its light to 0.203,
+0.180 and 0.183, past its bounds at `Low` and `Medium`, the strip's 0.511, 0.492 and 0.479 to 0.466,
+0.473 and 0.448, the carried lamp's down a point or two, the others within a hundredth, the eight
+views summing 4.59 where 4.62; each bound of `BounceRoomsTests` is moved to 15% over its view's new
+reading, the rule it was set by, so five rise, the Cornell box's three, the window's at `High` and
+the grazing floor's at `Low`, and eight tighten. What drift is left lies on the floor before the
+glowing block, patches a tile wide where some of a probe's 16 rays meet the small block and the rest
+miss it, which is part d's ground. §4 and the guide say it. The suite: 1,652 passed and the Cornell
+box's two failed on their old bounds, which pass moved with the other 22 rooms and the new tests; on
+lavapipe 373 passed and 7 skipped with no validation error. SHARED.md's two rows go in with it.
+Parts d and e next, together.

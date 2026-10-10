@@ -416,9 +416,9 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 1.59 MB | 0.37 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.27 MB | 0.50 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.90 MB | 0.70 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 1.59 MB | 0.41 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.27 MB | 0.53 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.90 MB | 0.74 ms |
 
 A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, 5 MB more
 that a cascade is built in, and 6 MB more once a mesh that gives off light is thinner than a cell.
@@ -458,9 +458,13 @@ field holds it as and none of the light it gives off, and the light near the cam
 the frame before's so it holds still as the camera moves, the frame before's held within the spread
 of this frame's light around each point, so where a light changed the bounce follows it at once. A
 block's side lit only by a red wall's bounce comes within a tenth of its new light in the frame a
-lamp is brought in, where it took seven frames, and with the camera sliding the bounce adds 1.23
-levels a frame to the picture's change where it adds 4.76 without the frame before's light, as
-`GlobalIlluminationTests` reads them on an RTX 4070.
+lamp is brought in, where it took seven frames. With the camera sliding the bounce adds nothing
+that can be read to the picture's change, −0.03 levels a frame and 0.03 without the frame before's
+light, where it added 0.33 and 1.61 while a ray of the screen's probes read the world's probes from
+the one texel it fell in; and after a walk or a turn the light has settled by the fifth frame, which
+changes 0.07 levels after a walk of four blocks in a white room lit by a glowing block, and 0.06
+after a quarter turn, where it changed 0.19 and 0.84, as `GlobalIlluminationTests` reads them on an
+RTX 4070.
 In Wick's first doorway the hold costs nothing that can be read, the bounce taking 0.229 ms at `Low`
 and 0.359 at `High` with it and without, as `./e3d command profile` gives `global_illumination` with
 the frame rate unlimited. A render texture that draws models through a camera, as each half of a

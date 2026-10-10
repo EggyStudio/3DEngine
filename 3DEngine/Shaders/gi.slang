@@ -73,6 +73,9 @@ public struct GiLights
     // before is added. w: unused.
     public float4 counts;
     public GiLight lights[16];
+    // xyz: the corner each cascade of probes lay at the frame before, where the faces the probes'
+    // rays read were gathered, its own corner where it lay nowhere. w: unused.
+    public float4 before[4];
 };
 
 // A 2D image a ray is traced through as a depth, as IVolume is for the field's images.
@@ -493,13 +496,15 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
 // side. A probe behind the plane is passed over with no march, since the surface itself stands
 // between, where bouncedAt lends it a little, which the blend raised to all of it wherever every
 // probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
-// bouncedAt.
-public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, V cubes, float3 p, float3 n, float probes, float spacing, float cascades)
+// bouncedAt. The faces are read where the probes stood as gathered says, the frame before's corners
+// for the world's probes' rays, and the field marched as info has it.
+public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
+    float cascades)
 {
-    int c = fieldCascade(info, p, 1.0);
+    int c = fieldCascade(gathered, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = gathered.cascades[c].originAndCell;
     float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
@@ -576,15 +581,16 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let 42.9 levels of a lamp
 // under a closed room's floor into it where the marches hold it to 2.5. The model pass's
 // reflections call shadeHit, which hides the lamps as this does and marches to no probe. The light that bounced is
-// taken at kept's share of it, and own holds the light the surface sends on of what reaches it
+// taken at kept's share of it, from the faces where gathered says the probes stood, and own holds the light the surface sends on of what reaches it
 // straight from the sun and the lights, with the light it gives off, which a world probe weighs
 // the frame before's light by (gi_ambient.slang).
-public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
+public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
-    float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades);
+    float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
+                          : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
     own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) + surfaceGlow(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }

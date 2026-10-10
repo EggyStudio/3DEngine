@@ -268,10 +268,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
         var origins = new Vector3?[cascades];
         var lying = new bool[cascades];
+        // And where each lay the frame before, which the rays read the faces of the light that
+        // bounced at, since they were gathered there.
+        var corners = MemoryMarshal.Cast<byte, Vector4>(lights.AsSpan(64 + 16 * 64, 4 * 16));
         for (int c = 0; c < cascades; c++)
         {
             origins[c] = plan?.BuiltOrigin(c);
             lying[c] = origins[c] is not null && c < _origins.Length && _origins[c] == origins[c];
+            if (c < corners.Length && ((c < _origins.Length ? _origins[c] : null) ?? origins[c]) is { } then)
+                corners[c] = new Vector4(then, 0);
         }
         _origins = origins;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,

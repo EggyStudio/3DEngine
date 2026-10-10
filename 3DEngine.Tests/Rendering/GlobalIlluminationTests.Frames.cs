@@ -289,10 +289,11 @@ public sealed partial class GlobalIlluminationTests
             return changes.Average();
         }
 
-        // What the bounce adds to the change, held by the frame before's light and not, as a share,
-        // since a bounce twice as bright moves twice as many levels: 0.86 levels a frame of 3.10 on
-        // an RTX 4070, 0.51 to 1.28 and 1.39 to 3.91 by slide, as this test measures them, where a
-        // history that held nothing would leave the whole.
+        // What the bounce adds to the change, held by the frame before's light and not: 0.33 levels
+        // a frame of 1.61 on an RTX 4070, as this test measured them, while each ray of a screen
+        // probe took the world's probes' light from the one texel of their octahedron it fell in,
+        // so a ray near a texel's border flipped to the next as its probe slid; read between the
+        // four texels around it, -0.03 of 0.03, the slide's own change and the bounce's alike.
         var (adds, unhelds) = (new List<double>(), new List<double>());
         foreach (var way in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ, new Vector3(0.7f, 0.3f, -0.6f) })
         {
@@ -301,8 +302,82 @@ public sealed partial class GlobalIlluminationTests
             adds.Add(Change(GlobalIllumination.Low) - still);
             unhelds.Add(Change(GlobalIllumination.Low, held: false) - still);
         }
-        adds.Average().Should().BeLessThan(unhelds.Average() * 0.6,
-            $"the frame before's light takes most of the bounce's crawl away, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) where unheld it adds {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
+        adds.Average().Should().BeLessThan(0.15,
+            $"the bounce's light does not crawl as the camera slides, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) and unheld {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
+    }
+
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void The_Light_That_Bounces_Settles_By_The_Fifth_Frame_After_A_Walk_Or_A_Turn(bool turn)
+    {
+        // The voxel game's room at night, 11 blocks by 6 by 11 inside, white with a red wall and a
+        // green one, lit by one glowing block on its floor, the bounce at High through the game's
+        // field of four cascades of a quarter block, the camera walking four blocks ahead over 20
+        // frames or turning a quarter in one, and the picture's change from each frame to the next
+        // read after. The screen's probes' rays read the world's probes' light from the texel each
+        // fell in, which flipped for a ray near a texel's border as the camera moved and the frame
+        // before's light averaged, so it drifted for a dozen frames after; and the world's probes'
+        // rays read the light that bounced the frame before at their cascade's new corner once it
+        // moved with the eye, as every cascade does in a turn, each probe taking the faces of a
+        // probe a step or more beside it, so the light bouncing again found itself over ten frames
+        // and more. The fifth frame after the walk changed 0.19 levels and after the turn 0.84, as
+        // this test measured on an RTX 4070, and read between the texels and at the corners
+        // gathered at, 0.07 and 0.06; the texels alone leave the turn at 0.69, and the corners
+        // alone the walk at 0.19.
+        var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        lamp.Materials[0].Emissive = new Color(255, 200, 120);
+        lamp.Materials[0].EmissiveIntensity = 4;
+        void Box(Vector3 min, Vector3 max, Color color) => DrawModelEx(block, (min + max) / 2, Vector3.UnitY, 0, max - min, color);
+        var (white, over, pitch) = (new Color(212, 216, 217), turn ? 1 : 20, -10 * MathF.PI / 180);
+        var (eye, yaw) = (new Vector3(16.5f, 6.62f, -11.8f), 0f);
+        var shots = new List<string>();
+        for (int frame = 0; frame < 40 + over + 6; frame++)
+        {
+            if (frame >= 40 && frame < 40 + over && turn) yaw += MathF.PI / 2;
+            else if (frame >= 40 && frame < 40 + over) eye.Z -= 4f / over;
+            var look = new Vector3(-MathF.Sin(yaw) * MathF.Cos(pitch), MathF.Sin(pitch), -MathF.Cos(yaw) * MathF.Cos(pitch));
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(eye, eye + look, Vector3.UnitY, 70));
+            Box(new Vector3(10, 4, -22), new Vector3(23, 5, -9), white);
+            Box(new Vector3(10, 11, -22), new Vector3(23, 12, -9), white);
+            Box(new Vector3(10, 5, -22), new Vector3(23, 11, -21), white);
+            Box(new Vector3(10, 5, -10), new Vector3(23, 11, -9), white);
+            Box(new Vector3(10, 5, -21), new Vector3(11, 11, -10), new Color(170, 35, 35));
+            Box(new Vector3(22, 5, -21), new Vector3(23, 11, -10), new Color(75, 140, 40));
+            DrawModelEx(lamp, new Vector3(16.5f, 5.5f, -15.5f), Vector3.UnitY, 0, Vector3.One, new Color(230, 190, 110));
+            EndMode3D();
+            if (frame >= 40 + over - 1)
+            {
+                shots.Add(Path.Combine(_folder.Path, $"{_captures++}.png"));
+                TakeScreenshot(shots[^1]);
+            }
+            EndDrawing();
+        }
+        UnloadModel(block);
+        UnloadModel(lamp);
+        CloseWindow();
+        UseApp(null);
+
+        // Each frame's mean change from the one before, in sRGB levels over every pixel's channels.
+        var changes = shots.Zip(shots.Skip(1), (a, b) =>
+        {
+            var (before, after) = (LoadImage(a), LoadImage(b));
+            double sum = 0;
+            for (int i = 0; i < before.Data.Length; i += 4)
+                sum += Math.Abs(before.Data[i] - after.Data[i]) + Math.Abs(before.Data[i + 1] - after.Data[i + 1]) + Math.Abs(before.Data[i + 2] - after.Data[i + 2]);
+            return sum / (before.Data.Length / 4 * 3);
+        }).ToList();
+        changes[4].Should().BeLessThan(0.12,
+            $"the light settles by the fifth frame after the {(turn ? "turn" : "walk")}, changing {string.Join(", ", changes.Select(c => $"{c:0.00}"))} levels from the first");
     }
 
     [NeedsVulkanFact]

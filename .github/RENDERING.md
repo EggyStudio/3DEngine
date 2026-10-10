@@ -617,7 +617,9 @@ shadows only where a trace toward it gets through too (`hiddenLampLight`), given
 has a light, what a white surface facing it returns, and its color over pi times the light that
 bounced to it the frame before, which the probes hold as the light reaching a face, blended from
 the probes around it that it sees, a trace through the field to each in front of it
-(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). That light that
+(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). The faces are read
+where each cascade lay the frame before, its corner then carried in the lights' buffer, since they
+were gathered there (`gatheredAt` in `gi_trace.slang`). That light that
 bounced is taken at a share each probe keeps, its whole but the frame after the probe's own light,
 what its rays brought straight from the sun, the lights and what gives off light, fell by a fifth
 or rose by a quarter, when it is the share its own light kept, channel by channel, at most four
@@ -675,9 +677,11 @@ occlusion pass draws, which it draws for the probes alone where the occlusion an
 are off. It sends 16 rays over the hemisphere around the surface's normal, stepped through the depth
 while on the screen and through the field from where they leave it, and a ray that meets nothing in
 the interval takes the world's first cascade, or past it the second, blended between the eight
-probes around the surface that a trace from a cell in front of it reaches. A 5 by 5 filter blends each probe with those around
-it on a surface alike in normal, each point read from the depth and weighed by how near it lies to
-the plane of the probe's surface (`gi_screen_filter.slang`), then with the frame
+probes around the surface that a trace from a cell in front of it reaches, each probe's light along
+the ray blended between the four texels of its octahedron around the ray's way, across the square's
+edges as the octahedron folds (`folded` in `gi_screen.slang`). A 5 by 5 filter blends each probe
+with those around it on a surface alike in normal, each point read from the depth and weighed by how
+near it lies to the plane of the probe's surface (`gi_screen_filter.slang`), then with the frame
 before's, a fifth of this frame's light to four fifths of theirs: the probe's point is read from the
 depth, found in the frame before through that frame's camera, which the view carries, and the four
 probes then around it blended where each stood on a like surface, kept in two images the frame's
@@ -688,13 +692,13 @@ probes around, each channel's standard deviation by the filter's own weights, so
 changed the history is pulled to it, and where it holds still the history lies inside and keeps its
 calm. A block's side lit only by a wall's bounce comes within a tenth of its new light in the frame
 a lamp is brought in, where it took seven frames without the hold. With the camera sliding a
-hundredth of a unit a frame through a Cornell box, the bounce adds 1.23 levels a frame to the
-picture's change, where it adds 4.76 without the history, at `Low` on the RTX 4070 and 0.48 levels
-with no bounce, and on lavapipe 0.42 where it adds 0.83 (`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
-that can be read in Wick's first doorway. The model pass blends the
-four probes around a pixel the same way, falls back to the world's probes where none is like it, and
-puts the result in place of the diffuse light from all around, the environment map's, the ambient
-lights' and the reflection probes', which reaches a surface only through the rays that meet nothing.
+hundredth of a unit a frame through a Cornell box, the bounce adds −0.03 levels a frame to the
+picture's change and 0.03 without the history, at `Low` on the RTX 4070, where the slide alone
+changes 0.48, and on lavapipe −0.03 and 0.02 (`GlobalIlluminationTests`), the hold costing nothing
+that can be read in Wick's first doorway. The model pass blends the four probes around a pixel the
+same way, falls back to the world's probes where none is like it, and puts the result in place of
+the diffuse light from all around, the environment map's, the ambient lights' and the reflection
+probes', which reaches a surface only through the rays that meet nothing.
 
 A glossy surface traces its reflection in the model pass (`tracedReflection` in
 `lights.slang`), where it has its own normal, its normal map's included, and its roughness, so
@@ -1302,6 +1306,41 @@ probe capture reads the world's probes alone, its buffer given the window's prob
 with the screen's probes and reflections off, and a target's glossy surfaces reflect the probes and
 the environment alone. Where the window draws no mesh the field is placed around the first target's
 camera and holds the targets' meshes (`SceneField.Gather`).
+
+The light went on settling for a dozen frames and more after the camera moved, as the voxel game
+found in a closed white room at night lit by one glowing block on its floor: still, the picture
+changes nothing, and drawn at 320 by 180 at `High` through the game's field, the frames after a walk
+of four blocks over 20 frames changed 0.72, 0.50, 0.36, 0.26 and 0.19 levels, and after a quarter
+turn in one frame 3.48, 2.07, 1.55, 1.09 and 0.84 (`GlobalIlluminationTests`). Two causes, each of
+which the other's mend leaves standing. A screen probe's ray that met nothing took each world
+probe's light from the one texel of its octahedron the ray fell in, and the normal a probe rebuilds
+from the depth wavers a degree or two off its surface's, so a ray near a texel's border flipped to
+the next as the camera moved; on a wall square to the world's axes half the 16 rays lie on such
+borders, the hemisphere's 4 by 4 falling on the edges of the octahedron's 8 by 8. The 5 by 5 filter
+made the flips the blotches the walls showed, the frame before's light averaged them while the
+camera moved, and once it stopped the light drifted from that average to the one pattern that stood,
+a fifth of the way each frame. The hold within twice the spread of the light around never caught it,
+since that spread is the flips' own. Read between the four texels around each ray, the light changes
+smoothly with the ray's way. And the world's probes' rays read the light that bounced the frame
+before at their cascades' corners of this frame, where the faces had been gathered at the frame
+before's, so once a cascade moved with the eye, by a probe's spacing as its middle passes each
+spacing, each probe took the faces of a probe a step or more beside it, and the light bouncing
+again, fed from those faces each frame, took ten frames and more to find itself; the cascades lie a
+third of their width ahead of the eye, so a turn moves every one. Read at the corners they were
+gathered at, the walk's frames after change 0.24, 0.17, 0.13, 0.09 and 0.07, and the turn's 0.18,
+0.13, 0.10, 0.08 and 0.06; with the texels alone the turn's fifth reads 0.69, and with the corners
+alone the walk's reads 0.19. A test holds each fifth frame under 0.12. The slide through the Cornell
+box loses its crawl with the flips, as above, 0.33 levels a frame to −0.03 and unheld 1.61 to 0.03.
+The four texels cost the bounce some 0.04 ms in `shaders_cornell_box` at 800 by 450, 0.405, 0.534
+and 0.735 ms at `Low`, `Medium` and `High` where it took 0.367, 0.494 and 0.696, measured as the
+guide measures it, by `./e3d command profile`'s `global_illumination`. Against the path-traced rooms
+the Cornell box reads 0.203, 0.180 and 0.183 of its light where it read 0.170, 0.153 and 0.166, the
+strip's 0.466, 0.473 and 0.448 where 0.511, 0.492 and 0.479, and the carried lamp's 0.119, 0.103 and
+0.109 where 0.123, 0.118 and 0.122, the others within a hundredth, the eight views summing 4.59
+where they summed 4.62 (`BounceRoomsTests`, each bound moved to 15% over its view's reading). The
+corners change no room's reading. What drift is left lies on the floor before the glowing block in
+patches a tile wide, where some of a probe's 16 rays meet the small bright block and the rest miss
+it, as the world's probes show lobes around a small emitter.
 
 ## 5. Render targets and post processing
 
