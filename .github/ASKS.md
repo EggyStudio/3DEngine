@@ -58,30 +58,14 @@ hand before each of its commits.
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights can lose the GPU device
-
-On `98a1edca`, the game built from that tree, a hidden window of 1280 by 720 and an RTX 4070 Laptop
-GPU, High, render distance 8: `./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden
---transient --flat`, then `voxel.room 10 4 -22 22 11 -10 white_concrete`, a closed room 11 by 6 by
-11 inside, `frames.wait 120` and `voxel.set 13 5 -19 glowstone`, the eye left at the spawn 20 blocks
-off outside the room at hour 10. Within a few frames of the lamp, `RenderPlugin.Render` throws
-`ErrorDeviceLost` at the frame's submission and every frame after it does too, in 3 of 5 runs with
-the glow lights on and in none of 5 with `gi.toggle glow off` first. The kernel's log gives NVRM Xid
-31 for each, a fault of the memory unit reading through the constant cache, a uniform read out of
-range. A glowstone in the open or sealed in a box of 3 blocks, and the same room with the eye inside
-it before the lamp is placed, lost nothing in the runs tried. The game does nothing about it, and
-its readings of the glow lights are taken with the eye inside the room first.
-
-Review: Verdict 47 of REVIEW.md, 2026-10-10, before everything else; a uniform read out of its
-range, the case built as the engine's own under the validation layer's GPU-assisted checks.
-
 ### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights cost 0.67 ms of the model pass
 
-On `98a1edca`, the room above with the red and green walls of the earlier measures and sixteen
-glowstones on its floor in a grid of 4 by 4, the eye inside it 10 degrees down across them, hour 23,
-High, render distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop
-GPU. Each figure is `./e3d command profile` read three times after 600 frames with `gi.toggle glow`
-off and on, in two passes that agreed, and the averages from `GetProfileAverage` beside them.
+On `98a1edca`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
+white_concrete` on a flat world), its west wall red and its east wall green, and sixteen glowstones
+on its floor in a grid of 4 by 4, the eye inside it 10 degrees down across them, hour 23, High,
+render distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop GPU.
+Each figure is `./e3d command profile` read three times after 600 frames with `gi.toggle glow` off
+and on, in two passes that agreed, and the averages from `GetProfileAverage` beside them.
 
 | Glow lights | `gpu.hdr_scene` | `gpu.global_illumination` | Frame |
 |---|---|---|---|
@@ -97,3 +81,54 @@ that by 1.5, so those two entries are taken off.
 
 Review: item 2 of REVIEW.md, its part d and e, 2026-10-10; the model pass's share read for where it
 goes and brought down, your room the measure, after Verdicts 47 and 30.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: a long, thin emitter's light steps on the floor
+
+On `1fa88e8b`, the game's end rod, a glowing box 2/16 by 15/16 by 2/16 of a block drawn as one
+scaled lamp cube over a base of its section's mesh 4/16 wide and 1/16 high, stands on the floor of
+the closed room of white concrete of the entry above at 16, 5, -16 (`voxel.set 16 5 -16 end_rod`),
+the eye at 16.5, 5, -11.8 facing north and 25 degrees down, hour 23, High, render distance 8; a
+hidden window of 1280 by 720 and an RTX 4070 Laptop GPU. The floor's linear light is read along rows
+of the frame that `gi.compare` writes beside a reference (its `-frame.pfm`), and the point under
+each pixel is worked out from the camera.
+
+Toward the rod the light rises smoothly and then drops from one pixel to the next, by 8.4 to 8.8%
+along rows 380 to 450 with the game's light levels and corners on and the rod's glow at 17, as the
+game ships it, and by 7.3 to 7.8% with them off and its glow at 28. The drops lie on a closed curve
+2.3 to 2.7 blocks from the rod's axis, nearest along the diagonals, 2 to 3 levels of about 75 on the
+screen (`voxel-end-rod-step.webp`, its levels stretched). The path-traced reference shows no step
+there. The step stands at the same pixels at Low, Medium and High, and with the screen's probes,
+their filter and the frame before's light each left out by `gi.toggle`, and with `gi.toggle glow
+off` the floor is black, so it is in the carried light. A scan of each capture's rows for a drop of
+2 levels within 6 pixels finds none in the same room lit by glowstone, a torch's flame of 2/16 by
+3/16 by 2/16, a lantern's glass of 6/16 by 7/16 by 6/16 or their blue soul fire, so it comes with an
+emitter long against its width.
+
+The engine lacks a carried light that is smooth across that curve for such a box. The game draws the
+end rod as it is meanwhile.
+
+Review: item 2 of REVIEW.md, its part d and e, 2026-10-11; the lamps' switch from the faces' closed
+form to their point form at four half diagonals, which a box long against its width crosses too
+near, moved or blended, with a test.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: the path-traced reference ignores vertex colors
+
+On `1fa88e8b`, the same room lit by one glowstone at 16, 5, -16, the same eye, hour and window,
+`gi.reference <png> 1024 2` and then `gi.compare <png>`. The reference's floor reads 0.155, 0.090
+and 0.029 with the game's light levels and corners on and the same with them off, while the frame's
+goes from 0.084, 0.051 and 0.017 to 0.099, 0.060 and 0.020, so the reference does not read the
+sections' vertex colors. `BounceReference` traces each copy's flat color times its texture's
+average, and the game draws its sections in one white material with each block's color in their
+vertices, white concrete's 212, 216 and 217, which the field and the model pass read. With its
+shading off the frame reads 34% under the reference on the floor and 52% on the walls for glowstone,
+12% and 56% for a torch, and 30% and 55% for an end rod, and a floor of white traced where the frame
+lights one of two thirds of white accounts for a third on its own, so the comparison cannot tell the
+bounce's error from the color's.
+
+The engine lacks a reference that takes a mesh's vertex colors as the field does, so the game's
+light cannot be measured against the path tracer. The game reads its light by `voxel.ring` and the
+frame's rows meanwhile, and lights its rooms of white concrete for the comparisons it makes between
+its own lamps.
+
+Review: item 2 of REVIEW.md, its apparatus, 2026-10-11; the reference takes a hit's vertex colors as
+the field's splat blends them, before part f's measures in your room.

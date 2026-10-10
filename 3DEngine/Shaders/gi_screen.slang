@@ -254,13 +254,19 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
     // How much of each glow light in reach the surface sees, a word of eight lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashed on the one the words were gathered in. A light that gives the surface a
-    // sixteenth of the glow lights' light or more is marched to by the halves of its faces, and its
+    // of its own and crashed on the one the words were gathered in. A light that gives the surface an
+    // eighth of the glow lights' light or more is marched to by the halves of its faces, and its
     // bits say how much of it the surface sees. A fainter one is marched to at its middle alone, as
     // a ray's hit is, its light added to the fainter ones' at the probe and its bits left none, so
-    // the model pass reads the light of at most sixteen at a pixel. Every light marched to
-    // by its faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the
-    // bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.7 and 0.4.
+    // the model pass reads the light of at most eight at a probe. Every light marched to by its
+    // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the bounce
+    // 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and 0.3. Past a sixteenth
+    // the bounce cost a room of sixteen lamps as the voxel game's 0.89 ms, where past an eighth 0.68.
+    // A light falls to the probes' sum at one probe and not the next where it is far from being the
+    // brightest, where its light changes little from probe to probe; split by the light's distance
+    // from the probe instead, two of a block's half diagonals, the floor beside a lamp read 0.80 of
+    // the path-traced reference where the split fell, a probe's own light standing in for the
+    // pixel's on the far side alone.
     float glowCell = fieldCell(fieldInfo, p);
     float glowMargin = glowCell * 0.5;
     float glowTotal = 0.0;
@@ -282,7 +288,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             if (faded <= 0.0)
                 continue;
             float3 arrived = glowLightIrradiance(light, p, n, glowMargin) * faded;
-            if (luminance(arrived) * 16.0 >= glowTotal)
+            if (luminance(arrived) * 8.0 >= glowTotal)
                 levels |= uint(glowLightShown(sceneField, fieldInfo, light, p, n, glowCell) * 15.0 + 0.5) << uint(j * 4);
             else
                 faint += arrived * glowLightSeen(sceneField, fieldInfo, light, p, n, glowCell);

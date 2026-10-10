@@ -1370,23 +1370,26 @@ the way's clearance from the nearest surface against the cone the light spans th
 edge is as soft as the light is wide, as a distance field gives a penumbra, a surface counted only
 where it lies nearer than the point's own plane and the light's own box, and inside a surface the
 share read by stepping out of it along the point's normal, once after the march at the step that lay
-deepest inside: read at each step, a loop inside the march's own, it lost the RTX 4070's device in a
-closed room with a lamp inside seen from outside, an MMU fault through the constant cache (Xid 31)
-for which the validation layer's GPU-assisted checks found no read out of range, and a test holds
-the room (`GlowLightsTests`). The screen's probes march to the halves of each face of each light in
-reach that gives the probe's surface a sixteenth of the lights' light or more, halved across the
-axis that rises most from the surface, and keep sixteen levels of each such light, and march to the
-middle of each fainter one and keep the fainter ones' light summed, which the model pass weighs each
-pixel's light by as it weighs the probes' light; a pixel at an edge, no probe around it on a surface
-like its own, takes those around it on any surface by how near each is. A view with no screen probes
-marches from each pixel to the middles of the four brightest, and a probe's ray's hit marches to
-those of the two brightest, so the walls a lamp lights bounce it on. A light gives nothing to a
-point within half a cell of its box whose normal leads out of it, the light's own surface, since a
-hit lies anywhere within a fraction of a cell of a face and the field's normal tilts near its edges,
-so part of the face rose above the hit's plane and lit it: on lavapipe the block's faces lit
-themselves and added 0.018 to the floor two blocks off, 0.044. The field marks the cells such an
-emitter paints, so a ray that meets it leaves its light out (`surfaceGlowUncarried`), and a
-reflection keeps it.
+deepest inside, and at each step bounded by the way to the nearest face, which the way out is no
+shorter than, the march ending by its own condition where the bound leaves nothing. Read at each
+step by a loop inside the march's own, or the march left by a break inside a wall, it lost the RTX
+4070's device in a closed room with a lamp inside seen from outside, an MMU fault through the
+constant cache (Xid 31) for which the validation layer's GPU-assisted checks found no read out of
+range, and a test holds the room (`GlowLightsTests`). The screen's probes march to the halves of
+each face of each light in reach that gives the probe's surface an eighth of the lights' light or
+more, halved across the axis that rises most from the surface, and keep sixteen levels of each such
+light, and march to the middle of each fainter one and keep the fainter ones' light summed, which
+the model pass weighs each pixel's light by as it weighs the probes' light, reading the lights its
+probes mark alone, by their bits, with the probes' weights found once for the light that bounced and
+the glow lights; a pixel at an edge, no probe around it on a surface like its own, takes those
+around it on any surface by how near each is. A view with no screen probes marches from each pixel
+to the middles of the four brightest, and a probe's ray's hit marches to those of the two brightest,
+so the walls a lamp lights bounce it on. A light gives nothing to a point within half a cell of its
+box whose normal leads out of it, the light's own surface, since a hit lies anywhere within a
+fraction of a cell of a face and the field's normal tilts near its edges, so part of the face rose
+above the hit's plane and lit it: on lavapipe the block's faces lit themselves and added 0.018 to
+the floor two blocks off, 0.044. The field marks the cells such an emitter paints, so a ray that
+meets it leaves its light out (`surfaceGlowUncarried`), and a reflection keeps it.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the
@@ -1404,11 +1407,13 @@ path-traced rooms the Cornell box's panel and the strip are such emitters: the C
 and 0.270 where 0.466, 0.473 and 0.448, the others as they were, and a ninth room, a glowing block
 on a white floor in a dark room with a low wall beside it and four more stacked, 0.052, 0.048 and
 0.045 where it read 0.200, 0.193 and 0.171 (`BounceRoomsTests`). On an RTX 4070 the Cornell box's
-panel costs the bounce 0.17 to 0.22 ms and the model pass 0.05 to 0.07 at 800 by 450, and a dark
-room of glowing blocks at 1280 by 720 at `High` costs them 0.30 and 0.05 ms for one block, 0.80 and
-0.21 for sixteen and 1.74 and 0.43 for sixty-four, where marching to each face of every light, and
-from each pixel at an edge, cost sixty-four 5.3 and 2.3 (`./e3d command profile`'s
-`global_illumination` and `hdr_scene`, against `gi.toggle glow off`).
+panel costs the bounce 0.21 to 0.26 ms and the model pass 0.04 to 0.05 at 800 by 450, and a dark
+room of glowing blocks at 1280 by 720 at `High` costs them 0.26 and 0.03 ms for one block, 0.70 and
+0.14 for sixteen and 1.78 and 0.30 for sixty-four, where marching to each face of every light, and
+from each pixel at an edge, cost sixty-four 5.3 and 2.3, and a room of sixteen as the voxel game's,
+eleven blocks square, 0.68 and 0.25, where the lights of a sixteenth of the light read at each pixel
+cost them 0.89 and 0.47 (`./e3d command profile`'s `global_illumination` and `hdr_scene`, against
+`gi.toggle glow off`).
 
 ## 5. Render targets and post processing
 

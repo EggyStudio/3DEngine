@@ -114,30 +114,37 @@ public float materialNormalScale(ModelVertexOutput input) { return input.factors
 public float materialOcclusionStrength(ModelVertexOutput input) { return input.factors.w; }
 public float3 materialEmission(ModelVertexOutput input) { return input.emission.xyz; }
 
-// The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
-// four screen probes around it that stand on a surface like its own, each by how near it is, how
-// alike its normal is to the fragment's, and how near its distance from the eye is to the distance
-// the fragment's own plane lies at under the probe's tile middle, found from how the fragment's
-// point moves from pixel to pixel, so a floor seen at a slant takes the probes up and down its slope
-// as well as those beside it. Or -1 where none does.
-public float3 screenBounced(ModelVertexOutput input, float3 n)
+// The four screen probes around the pixel a fragment is at, as screenProbesHere finds them: where
+// each is, how much each counts for the light that bounced, 0 for one that holds no light or stands
+// on no surface like the pixel's; how much for the glow lights, the same but for the light, since
+// every probe on a surface holds them; and how much by how near it is alone, 0 for one on no surface.
+public struct ScreenProbesHere
 {
-    int2 at[4];
-    float weight[4], near[4];
-    screenProbeWeights(input, n, true, at, weight, near);
-    float4 sum = float4(0.0);
-    [unroll]
-    for (int corner = 0; corner < 4; corner++)
-        if (weight[corner] > 0.0)
-            sum += float4(screenLight.Load(int3(at[corner], 0)).rgb, 1.0) * weight[corner];
-    return sum.w > 1e-3 ? sum.rgb / sum.w / 3.14159265 : float3(-1.0);
-}
+    public int2 at[4];
+    public float bounced[4];
+    public float glow[4];
+    public float near[4];
+};
 
-// The four screen probes around a pixel and how much each counts, as screenBounced weighs them, 0
-// for one that stands on no surface like the pixel's or, where `lit` is set, holds no light; and in
-// `near` how much each counts by how near it is alone, 0 for one on no surface.
-void screenProbeWeights(ModelVertexOutput input, float3 n, bool lit, out int2 at[4], out float weight[4], out float near[4])
+// Each probe weighed by how near it is, how alike its normal is to the fragment's, and how near its
+// distance from the eye is to the distance the fragment's own plane lies at under the probe's tile
+// middle, found from how the fragment's point moves from pixel to pixel, so a floor seen at a slant
+// takes the probes up and down its slope as well as those beside it. Found once for the light that
+// bounced and the glow lights, which found them apart.
+public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
 {
+    ScreenProbesHere probes;
+    [unroll]
+    for (int none = 0; none < 4; none++)
+    {
+        probes.at[none] = int2(0);
+        probes.bounced[none] = 0.0;
+        probes.glow[none] = 0.0;
+        probes.near[none] = 0.0;
+    }
+    // A view with no screen probes, whose tile is no size, has none around any pixel.
+    if (lighting.screen.y <= 0.0)
+        return probes;
     uint across, down;
     screenLight.GetDimensions(across, down);
     float2 g = input.position.xy / lighting.screen.x - 0.5;
@@ -149,83 +156,98 @@ void screenProbeWeights(ModelVertexOutput input, float3 n, bool lit, out int2 at
     for (int corner = 0; corner < 4; corner++)
     {
         int2 offset = int2(corner & 1, corner >> 1);
-        at[corner] = clamp(base + offset, int2(0), int2(int(across) - 1, int(down) - 1));
-        weight[corner] = 0.0;
-        near[corner] = 0.0;
-        float4 surface = screenSurfaces.Load(int3(at[corner], 0));
+        probes.at[corner] = clamp(base + offset, int2(0), int2(int(across) - 1, int(down) - 1));
+        float4 surface = screenSurfaces.Load(int3(probes.at[corner], 0));
         if (surface.w < 0.0)
             continue;
         float2 lerps = lerp(1.0 - f, f, float2(offset));
-        near[corner] = lerps.x * lerps.y;
-        if (lit && screenLight.Load(int3(at[corner], 0)).a < 0.5)
-            continue;
-        float2 toProbe = (float2(at[corner]) + 0.5) * lighting.screen.x - input.position.xy;
+        probes.near[corner] = lerps.x * lerps.y;
+        float2 toProbe = (float2(probes.at[corner]) + 0.5) * lighting.screen.x - input.position.xy;
         float expected = length(input.toEye - acrossOne * toProbe.x - downOne * toProbe.y);
-        weight[corner] = near[corner] * pow(saturate(dot(n, surface.xyz)), 8.0)
-                       * exp(-abs(surface.w - expected) / (0.02 * distance + 0.05));
+        probes.glow[corner] = probes.near[corner] * pow(saturate(dot(n, surface.xyz)), 8.0)
+                            * exp(-abs(surface.w - expected) / (0.02 * distance + 0.05));
+        probes.bounced[corner] = screenLight.Load(int3(probes.at[corner], 0)).a < 0.5 ? 0.0 : probes.glow[corner];
     }
+    return probes;
+}
+
+// The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
+// four screen probes around it that stand on a surface like its own. Or -1 where none does.
+public float3 screenBounced(ScreenProbesHere probes)
+{
+    float4 sum = float4(0.0);
+    [unroll]
+    for (int corner = 0; corner < 4; corner++)
+        if (probes.bounced[corner] > 0.0)
+            sum += float4(screenLight.Load(int3(probes.at[corner], 0)).rgb, 1.0) * probes.bounced[corner];
+    return sum.w > 1e-3 ? sum.rgb / sum.w / 3.14159265 : float3(-1.0);
 }
 
 // The light the glow lights send a pixel straight, irradiance over pi: each light's from the faces
 // of its box at the pixel, as much of it as the screen's probes around the pixel saw it, weighed as
-// screenBounced weighs their light, so a shadow's edge is as soft as a probe's tile is wide, and
-// the fainter lights' as the probes summed it. Every probe on a surface holds them, the light that
+// the light that bounced is, so a shadow's edge is as soft as a probe's tile is wide, and the
+// fainter lights' as the probes summed it. Every probe on a surface holds them, the light that
 // bounced to it or not, and a pixel at an edge, no probe around it on a surface like its own, takes
 // those around it on any surface by how near each is: marching from the pixel itself, as a view
 // with no screen probes does, those few pixels cost the model pass 1.1 ms in a room of 64 lamps at
 // 1280 by 720 on an RTX 4070, since each group of pixels the GPU runs together waits on its
 // slowest. Marched from every pixel, the glow lights cost it 3.3 ms in a room of sixteen lamps,
-// where taken from the probes they cost 0.2.
-public float3 glowLightsHere(ModelVertexOutput input, float3 n)
+// where taken from the probes they cost 0.14, and 0.25 in a room of sixteen as the voxel game's,
+// closer together, where every light's bits read, those of a sixteenth of the light, and the probes
+// weighed again apart from the light that bounced cost it 0.47.
+public float3 glowLightsHere(ModelVertexOutput input, float3 n, ScreenProbesHere probes, bool screen)
 {
     int count = min(int(reflectLights.glowCounts.x), MostGlowLights);
     if (count == 0)
         return float3(0.0);
-    int2 at[4] = { int2(0), int2(0), int2(0), int2(0) };
-    float weight[4] = { 0.0, 0.0, 0.0, 0.0 };
+    float4 weight = float4(0.0);
     float total = 0.0;
     uint across = 1u, down = 1u;
-    if (lighting.screen.y > 0.0)
+    if (screen)
     {
-        float near[4];
-        screenProbeWeights(input, n, false, at, weight, near);
-        screenLight.GetDimensions(across, down);
-        total = weight[0] + weight[1] + weight[2] + weight[3];
+        weight = float4(probes.glow[0], probes.glow[1], probes.glow[2], probes.glow[3]);
+        total = weight.x + weight.y + weight.z + weight.w;
         if (total <= 1e-3)
         {
-            weight = near;
-            total = near[0] + near[1] + near[2] + near[3];
+            weight = float4(probes.near[0], probes.near[1], probes.near[2], probes.near[3]);
+            total = weight.x + weight.y + weight.z + weight.w;
         }
+        screenLight.GetDimensions(across, down);
     }
     if (total <= 1e-3)
         return glowLights(input.world, n);
     // Each probe's word of eight lights is read from the buffer once for its eight, rather than kept
     // in an array indexed by the light, which lavapipe keeps in memory of its own and crashed on in
     // the probes' pass.
-    int4 probes = (int4(at[0].y, at[1].y, at[2].y, at[3].y) * int(across) + int4(at[0].x, at[1].x, at[2].x, at[3].x)) * GlowSeenWords;
+    int4 at = int4(probes.at[0].y, probes.at[1].y, probes.at[2].y, probes.at[3].y) * int(across)
+            + int4(probes.at[0].x, probes.at[1].x, probes.at[2].x, probes.at[3].x);
+    int4 first = at * GlowSeenWords;
     float margin = max(fieldCell(bouncedField, input.world), 0.0) * 0.5;
     float3 sum = float3(0.0);
     [unroll]
     for (int corner = 0; corner < 4; corner++)
         if (weight[corner] > 0.0)
         {
-            int first = probes[corner] + 8;
-            sum += float3(asfloat(screenGlowSeen[first]), asfloat(screenGlowSeen[first + 1]), asfloat(screenGlowSeen[first + 2]))
+            int faint = first[corner] + 8;
+            sum += float3(asfloat(screenGlowSeen[faint]), asfloat(screenGlowSeen[faint + 1]), asfloat(screenGlowSeen[faint + 2]))
                  * (weight[corner] / total);
         }
     for (int word = 0; word * 8 < count; word++)
     {
-        uint4 levels = uint4(screenGlowSeen[probes.x + word], screenGlowSeen[probes.y + word],
-                             screenGlowSeen[probes.z + word], screenGlowSeen[probes.w + word]);
-        if (all(levels == uint4(0u)))
-            continue;
-        for (int j = 0; j < 8 && word * 8 + j < count; j++)
+        uint4 levels = uint4(screenGlowSeen[first.x + word], screenGlowSeen[first.y + word],
+                             screenGlowSeen[first.z + word], screenGlowSeen[first.w + word]);
+        // The lowest bit of each light's four that some probe saw some of, so the pixel reads the
+        // lights its probes mark and passes the rest by.
+        uint seen = levels.x | levels.y | levels.z | levels.w;
+        uint marked = (seen | (seen >> 1) | (seen >> 2) | (seen >> 3)) & 0x11111111u;
+        while (marked != 0u)
         {
-            uint4 level = (levels >> uint(j * 4)) & 15u;
-            float shown = dot(float4(weight[0], weight[1], weight[2], weight[3]), float4(level));
+            uint bit = firstbitlow(marked);
+            marked &= marked - 1u;
+            float shown = dot(weight, float4((levels >> bit) & 15u));
             if (shown <= 0.0)
                 continue;
-            GlowLight light = reflectLights.glows[word * 8 + j];
+            GlowLight light = reflectLights.glows[min(word * 8 + int(bit >> 2), count - 1)];
             float faded = glowLightFade(light, input.world, n);
             if (faded > 0.0)
                 sum += glowLightIrradiance(light, input.world, n, margin) * (faded * shown / (15.0 * total));
@@ -450,10 +472,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     // stands in for the diffuse share of the light from all around, the environment's, a probe's
     // and the ambient lights', its rays having met that light where they met nothing.
     float3 bouncedHere = float3(-1.0);
+    bool screen = lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
+    ScreenProbesHere probes = screenProbesHere(input, normalize(input.normal));
     if (lighting.indirect.x > 0.0)
     {
-        if (lighting.screen.y > 0.0)
-            bouncedHere = screenBounced(input, normalize(input.normal));
+        if (screen)
+            bouncedHere = screenBounced(probes);
         if (bouncedHere.x < 0.0)
             bouncedHere = bounced(input.world, n);
     }
@@ -464,7 +488,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     // screen's probes, whose filter spread a small bright strip's light near it over five tiles
     // and doubled its room's difference from a path-traced reference at Low (glowLightsAt).
     if (lighting.indirect.x > 0.0)
-        light.diffuse += diffuseColor * glowLightsHere(input, n);
+        light.diffuse += diffuseColor * glowLightsHere(input, n, probes, screen);
 
     // A glossy surface's reflection traced through the scene where light bounces, which takes the
     // place of the probe's and the environment's as far as it met a surface and fades back to

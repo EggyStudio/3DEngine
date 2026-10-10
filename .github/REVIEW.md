@@ -10,9 +10,53 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `98a1edca`. Item 2's parts d and e, the lamps: a small emitter is carried through the
-bounce as a light of its own, as the part named and the measure chose. Each emissive instance whose
-box is no longer than twice the first cascade's probe spacing is a box light, its glow and its
+Reviewed up to `1fa88e8b`. Three commits. Verdict 47 at `34f39fcb`: the device loss is bisected on a
+copy of the game's build to the world probes' hits, within them the lamps' march, and within it the
+loop nested inside the march's own that read how far under a wall's edge the way passed at each step
+inside one; with no loop nested none of three runs lost the device, and with the nested loop held to
+two steps or kept from unrolling it was still lost, while the validation layer's GPU-assisted checks
+found no read of a uniform out of its range and kept the device, so the fault is the driver's on
+that shape of shader and not a read of the engine's. The depth is read once after the march at the
+step that lay deepest inside: no loss in twenty runs of the engine's new case, the room, the lamp
+and the eye twenty blocks off, and twenty of the game's, the test holding it, the rooms within 0.002
+of their light. Held besides as the verdict asked: a kept light's index clamped, the counts written
+from zeroed bytes for every view, the stand-in lights' buffer written as no lights where it held
+what its memory held before, the probes' words read for the probes a pixel clamps into the grid; and
+two things found on the way, `field_stamp` reading a brick's shape 12 bytes past its buffer's end,
+which the GPU-assisted checks named and whole elements mend, and the shader cache's key not
+following `__exported import`, so an edit to `glow.slang` alone left every importer of `gi` on its
+old SPIR-V, which the bisect's first edits met, mended with a test. Verdict 47 is settled; the two
+lessons are rows of SHARED.md. Verdict 30 at `5e240044`: `memory.buffers` names the device's buffers
+alive by the file and line that made each, and over Manor's walk the ones that moved were
+`MeshStore`'s, a vertex and an index buffer a mesh, 176 meshes at sixteen cells, let go as cells go,
+the world's and no leak; they were many because the spawner de-indexed a model again at every spawn,
+so each cell uploaded its own copy, and a scene's mesh is de-indexed once and shared since, Manor's
+buffers over a walk 96 to 158 where 385 to 668, with a test; in the workflow's image the least still
+climbed as the walk entered the house, 133 to 149, so `soak-check.py` bounds a game that streams its
+level by the most a whole walk holds, 162 for Manor, with tests that the same climb fails a game
+that streams nothing. Right, the census before the mend, the mend a sharing that pays by itself, and
+the bound the world's. Item 5 at `1fa88e8b`: the 212 shares from job 114279020552 are the measured
+file, `audio_sound_multi` as none. The suite: 1,668 passed; on lavapipe 463 passed and 7 skipped
+with no validation error, the scene tests among them since. Next the model pass's cost at sixteen
+lamps, then part f, then part c; the run of `98a1edca` is in flight, and Verdict 30 settles when an
+examples job with `5e240044` passes the soak, which makes 5.2 due (Decision 19). The game's session
+holds Verdict 47 on its own binary built at `1fa88e8b` with the shader cache cleared, the closed
+room's lamp with the eye outside losing the device in none of ten runs where three of five before,
+its entry taken off ASKS.md. Two entries more from the game on 2026-10-11, after its `9e9074dc`,
+torches, lanterns and end rods as small glowing boxes, the game's own: a long thin emitter's light
+steps on the floor by 8% along a curve 2.3 to 2.7 blocks out, in the carried light alone and for the
+rod alone, which is the lamps' switch from the faces' closed form to their point form, written into
+part d and e; and the path-traced reference reads a mesh's flat color and not its vertex colors,
+which the game's sections carry, so the game's rooms cannot be measured against it, written into
+item 2 as its apparatus and before part f's measures. The game's `ea336919`, villages and clouds, is
+the game's own, and it says a thing every measure made through the game minds since: a game built on
+the engine's project stages the engine's working tree's shaders, so a reading on the game's binary
+carries uncommitted shader work unless `HEAD`'s shaders are copied into its output first, which the
+game's captures do, and an entry's commit names what its shaders were.
+
+Before it, `98a1edca` came, item 2's parts d and e, the lamps: a small emitter is carried through
+the bounce as a light of its own, as the part named and the measure chose. Each emissive instance
+whose box is no longer than twice the first cascade's probe spacing is a box light, its glow and its
 surface's share of its box's, the 64 nearest the field's eye, each reaching where it lights a
 surface by a fiftieth; emitters square to the axes that touch and glow alike are one light of the
 box around them, the pressed faces left out of its surface, so the stack of four throws no ring; the
@@ -61,37 +105,6 @@ in their word, and with the screen's probes off it is wholly steady and hard, wh
 is smooth but changes as the camera turns, the penumbras' steps and the borders moving with the
 view, noise for a second after a move, and light leaking where none should be; written as item 2's
 part f, after Verdicts 47 and 30 and before c.
-
-Before it, `71050c8f` came, Verdict 46's three things. The table of raylib's examples is written
-again from `HEAD` in a worktree of its own, so nothing of the tree's work in progress reaches it,
-and gains the five programs of this engine's own that were opened by name with no row,
-`shaders_bounce_rooms`, `shaders_cornell_box`, `shaders_reflections`, `shaders_scene_field` and
-`shaders_subsurface`, the script's check passing on it; `NormTests.N_5_2` holds what of the rule the
-suite can without raylib's list, every program `Program.cs` opens by name having its row, naming the
-one without, which on the table before named those five, so a batch that adds an example and not its
-row fails before it is committed, the script's own check staying the workflow's; and in the examples
-job the two table checks, raylib's examples and raylib.h's functions, run last and under
-`!cancelled()`, so a stale table no longer ends the job before the captures, the soak and the
-measure, and a failing check still leaves the job red. Right, the table from `HEAD` and not the
-tree, the part of the rule a test can hold held, and the checks last. NORM.md's cell for N 5.2 names
-the test beside the workflow's check since. The suite on `HEAD` with the three files: 1,649 passed
-and 6 skipped, the package's five and the docs script's, which want a packed package a new worktree
-lacks. The next examples job judges Verdicts 30, 31 and 46 by its own lines, and a run green whole
-makes 5.2 due (Decision 19). The box lights are light-right, the lamp's ring within 2% of the
-path-traced reference and the ninth room from 0.347, 0.305 and 0.271 of its light to 0.061, 0.060
-and 0.056; render-texture scenes, whose lights were ranked from a window's eye they lack, and the
-cost are what remains before their commit. The owner looked at the tree at 19:30: the bounce works
-very well, and the box lights' shadows have no penumbra and run in jagged steps, and a stack of
-glowstones two by two throws a jagged ring of light, written into parts d and e with their reading.
-At 19:45 the owner looked again: the shadows and the stack look better, and the light's falloff is
-banded all over with dark jagged rings, the one thing left, written into the part. The run of
-`e50fd247` is green on every test job, Windows a third time, and red in its examples job by the same
-table; the run of `71050c8f` is in progress. Its examples job came, 66 minutes: the table check
-passes, the captures draw 255 of 255 on Linux, the measure records a share for every pair but one
-for the first time, so Verdicts 31 and 46 are settled, and the soak fails on Manor alone, naming it
-and the measure as Verdict 30 asked, its buffers climbing from 499 to 573 in two minutes past a
-bound of 527 with its memory flat, which Verdict 30 carries since as the cause to find; 5.2 waits on
-that soak (Decision 19), and the shares go into the measured file (item 5).
 
 Before it, item 2's part b came, the bounce's drift after a move, done, measured first in the game's
 room drawn by the engine alone and the cause read before the remedy: not a coherent change where a
@@ -203,8 +216,15 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
    so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
    `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
-   part f. The order of work: f, then c, the others being done; the game's session is asked to
-   measure d at both cells and e along the distance, in ASKS.md as before.
+   part f. The apparatus first: `BounceReference` traces a mesh's flat color times its texture's
+   average and not the vertex colors the field and the model pass read, so the game's rooms of white
+   concrete, one white material with each block's color in its vertices, read a third brighter in
+   the reference than in the frame and the comparison cannot tell the bounce's error from the
+   color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors blended as the field's
+   splat blends them, with a test of a colored floor, with the batch before part f's measures, which
+   are made in that room. The order of work: the lamps' step for a long thin box (d and e), the
+   reference's colors, then f, then c, the others being done; the game's session is asked to measure
+   d at both cells and e along the distance, in ASKS.md as before.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -263,7 +283,18 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    over every light in reach at every pixel where the probes' bits already say which lights a
    pixel's probes see, or the marches of the pixels no probe holds, and brought down by what the
    reading names, the pixel reading the lights its probes mark alone first, the game's room the
-   measure, with the next batch after Verdicts 47 and 30.
+   measure, with the next batch after Verdicts 47 and 30. And one more from the game on 2026-10-11:
+   an end rod, a glowing box 2 by 15 by 2 sixteenths of a block, lights the floor with a drop of 7
+   to 9% from one pixel to the next along a closed curve 2.3 to 2.7 blocks from its axis, nearest
+   along the diagonals, at every quality and with the screen's probes, their filter and the history
+   each off, black with the glow off, and for no glowstone, torch or lantern, where the path-traced
+   reference shows no step. Read from `glowLightIrradiance`: a light's faces are summed in closed
+   form within four half diagonals of its middle and as points past them, within 3% of the closed
+   form for a block, where a face fifteen sixteenths long and two wide seen from the side at that
+   distance is no point, so the two forms meet in a step; the switch goes by the longest half side,
+   or the long face is cut into squares each a point, or the two forms are blended over a band,
+   whichever the rod's floor against the reference names, with a test of a long thin box's floor
+   smooth across the curve.
 
    **f. The screen's probes make the light depend on the view: as the camera turns, the penumbras'
    steps and the lit borders move on the screen, the light is noisy for a second after a move and
@@ -347,7 +378,8 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    so the run after holds every pair to them and a share can only fall. They came with the examples
    job of `71050c8f`, job 114279020552, every pair but `audio_sound_multi`, whose raylib program
    drew no frame there, from 0.0 for `models_tesseract_view` to 14.4% for `audio_amp_envelope`, and
-   go into the file with the next batch, the one `none` recorded as the page has it.
+   go into the file with the next batch, the one `none` recorded as the page has it. Done at
+   `1fa88e8b`, 212 shares in `3DEngine.Examples/measured-ci.tsv`.
 
 6. **Three packages bumped, after 5.2 is packed (Decision 20).** Vortice.Vulkan 3.2.1 to 3.3.0,
    AssimpNetter 6.0.4 to 6.0.5 and StbImageSharp 2.30.15 to 2.30.16, in one commit with the suite
@@ -365,33 +397,15 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 30. **The soak fails on Manor, whose buffers climb from 499 to 573 in two minutes past a bound of
     527 while its memory holds at 523 to 532 MB.** The soak's error names the game and the measure
     since the examples job of `71050c8f`, as this verdict first asked when `22bbf15a`'s named no
-    game, and the other seven games pass it. Read first what grows: the device's census by kind over
-    Manor's two-minute walk here, the soak's CSV beside it, so the buffers are named as the cells
-    the walk opens, streamed from disk as the house is entered, which would make the growth the
-    world's and the bound the plan's count of cells, or as buffers made each frame or each cell and
-    never given back, a leak, which is mended where it is made; then the soak run in the workflow's
-    image on four cores, where the runner draws under five frames a second, if the count here
-    differs. The bound stays as it is until the cause says otherwise. Settled when an examples job
-    passes the soak, and 5.2 is due with it (Decision 19).
-
-47. **The glow lights lose the GPU device: a glowstone placed in a closed room seen from twenty
-    blocks off outside it throws `ErrorDeviceLost` at the frame's submission within a few frames,
-    three runs of five, none with the glow lights off, the kernel logging NVRM Xid 31, a fault of
-    the memory unit reading through the constant cache.** Measured by the game's session on
-    `98a1edca`, the room of white concrete 11 by 6 by 11 with the eye at the spawn at hour 10; a
-    glowstone in the open, one sealed in a box of three blocks, and the same room with the eye
-    inside it before the lamp lost nothing in the runs tried. A fault through the constant cache is
-    a uniform read out of its range: the lights' uniform of 64 indexed past its count or below zero,
-    the count read where the buffer was not written for that view, or a probe's words of the glow
-    read for a pixel whose probe lies past the grid, which the eye outside the room, every pixel of
-    it on a surface the lamp lights through no probe that sees the lamp, or past the screen's
-    probes, would reach where the eye inside does not. Before everything else: the case built as the
-    engine's own in `GlowLightsTests`, the room, the lamp and the eye twenty blocks off, run under
-    the validation layer with its GPU-assisted checks on, which name an out-of-range read and the
-    shader's line, and until it does, every dynamic index into the lights' uniform and the probes'
-    words clamped to what was written and the count written for every view that reads it; the cause
-    named in the reply with the line. Settled when the case runs twenty times in the engine and in
-    the game with no loss and no validation error, and the test holds it.
+    game, and the other seven games pass it. Read at `5e240044` by `memory.buffers`, the device's
+    census by the file and line that made each buffer: the buffers that move are `MeshStore`'s, a
+    vertex and an index buffer a mesh of the models the cells show, let go as cells go, the world's
+    and no leak, and many because the spawner de-indexed a model again at every spawn, so each cell
+    uploaded its own copy; a scene's mesh is shared by every entity spawned from it since, Manor's
+    walk at 96 to 158 buffers where 385 to 668, and the soak bounds a game that streams its level by
+    the most a whole walk holds, 162 for Manor, since on the runner the walk enters rooms the first
+    half never reached. Settled when an examples job passes the soak, and 5.2 is due with it
+    (Decision 19).
 
 ## Decisions
 
@@ -570,45 +584,30 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 47. The cause is the loop nested in the glow lights' march, `glowMarch` in `glow.slang` at
-line 221 of `98a1edca`, which read how far under a wall's edge the way passed at each step inside
-one; inlined into the world probes' trace, `gi_trace`, it lost the RTX 4070's device where their
-rays met the room's walls and marched through them to the lamp. Reproduced on the game's binary in
-three runs of three, and as the engine's own case in `GlowLightsTests`, the room of blocks, the lamp
-and the eye twenty blocks off outside, in two of three, the kernel logging Xid 31 through the
-constant cache at 0x20_00000000 for each. Bisected on a copy of the game's build: the glow light at
-the screen probes' hits and in the model pass are not it, the world probes' hits are, and within
-them the march; with no loop nested, with a hard share, or with the march held to eight steps none
-of three lost it, and with the nested loop held to two steps, or kept from unrolling, the device was
-still lost. The validation layer's GPU-assisted checks found no read of a uniform out of its range
-there and kept the device, and named an older fault besides: `field_stamp` read the last run of a
-brick's shape places as a whole `uint4` up to 12 bytes past its buffer's end, which is sized to
-whole elements since. The depth is read once after the march, at the step that lay deepest inside:
-no loss in twenty runs of the engine's case and twenty of the game's, the test holding it, and the
-rooms read as they did within 0.002 of their light, the Cornell box 0.139 at Low where 0.141. Held
-as the verdict asks besides: a kept glow light's index is clamped; the counts are written from
-zeroed bytes for every view each frame, and the lights' buffer bound where no light bounces, never
-written and so holding what its memory held before, is written as no lights; the probes' words are
-read for the probes a pixel clamps into the grid, as their light is. Found on the way, and the
-reason the bisect's first edits to `glow.slang` changed nothing: the shader cache's key did not
-follow `__exported import`, so an edit to `glow.slang` alone, which `gi.slang` exports, left every
-shader importing `gi` on its old SPIR-V; the key follows it, with a test. The suite: 1,668 passed;
-on lavapipe 463 passed and 7 skipped with no validation error, the scene tests among them.
-
-Verdict 30. The census first: `memory.buffers` gives the device's buffers alive by the file and line
-of the engine that made each and what it is for, the compiler filling in the maker through
-`CreateBuffer`. Over Manor's two-minute walk here, beside the soak's CSV, the buffers that moved
-were `MeshStore`'s, a vertex and an index buffer for each mesh, 176 meshes at sixteen cells and 259
-at twenty-three, falling again as cells were let go: the cells the walk opens, the world's, and no
-leak. What made them many was the spawner, which de-indexed a model's meshes again at every spawn
-into arrays of their own, where the renderer keeps a mesh's buffers by its positions array, so every
-cell that placed a model uploaded a copy of it. A scene's mesh is de-indexed once and shared by
-every entity spawned from it, with a test, and Manor's buffers over a walk went from 385 to 668 to
-96 to 158, 29 meshes at sixteen cells. The soak in the workflow's image, lavapipe on one core with
-the package packed there, played two turns in two minutes as the runner does, and its least still
-climbed, 133 to 149 against a bound of 143, as the walk entered the house and its models loaded.
-That is the world's growth the verdict names, so the bound for a game that streams its level is the
-most a whole walk through it holds, 158 over every point of the route on the RTX 4070 and 162 on
-lavapipe, which `soak-check.py` holds Manor's buffers to with the same slack in place of the first
-half's least, with tests that the same climb fails a game that streams nothing and that Manor's past
-its walk fails. Settled when an examples job passes the soak.
+Item 2, the model pass's cost for the glow lights, read in a room built as the voxel game's, eleven
+blocks square inside with sixteen lamps four by four on its floor, at 1280 by 720 at High, where the
+model pass took 0.47 ms more with them and the bounce 0.89: of the model pass's share 0.29 the
+closed form at each light the probes mark, 0.13 the loop over every light's bits, 0.11 the probes'
+weights and the fainter lights' sum, and the march where no probe stands none. The pixel reads the
+lights its probes mark alone, found by their bits; the probes are weighed once for the light that
+bounced and the glow lights, which found them apart; and a probe marks the lights that give it an
+eighth of the glow lights' light rather than a sixteenth, at most eight, the rest summed at the
+probe. The model pass's share is 0.25 ms and the bounce's 0.68. Two cheaper splits did not hold: the
+pixel reading only the lights within two of a block's half diagonals of each probe cost 0.12 and
+read the floor beside a lamp 0.80 to 0.88 of the reference where the split fell, a probe's own light
+standing in for the pixel's on the far side alone, and the faces as points past two half diagonals
+read 1.14 at 1.8 blocks; a quarter in place of an eighth took the ninth room at Low from 0.052 to
+0.062 of its light. The rooms read as they did, the ninth 0.053 at Low, the ring within 2%, the
+captures within a level. The dark rooms cost 0.29 ms for one block, 0.84 for sixteen and 2.1 for
+sixty-four, bounce and model pass together, and the Cornell box's table reads 0.59, 0.74 and 1.00.
+Found on the way: `34f39fcb`'s march, its depth read after the loop alone, ran on through every wall
+to the light and cost the Cornell box's bounce 0.13 ms more at Low; bounded at each step by the way
+to the nearest face, which the way out is no shorter than, it ends inside a wall thicker than its
+cone. Left by a break there it lost the device again in five runs of five of the game's case, on a
+copy of the game's build carrying HEAD's shaders with that `glow.slang` alone, and ended by its own
+condition, `t` set to its end, in none of eight, nor of eight with the tree's shaders, nor of ten of
+the engine's case: on this driver the loss follows the march leaving from inside a wall, by a nested
+loop or a break, and not what it reads. Each run is counted by the kernel's Xids for its own process
+since, where the game's log named a loss only when it came before the run ended. The suite: 1,669
+passed; on lavapipe 382 passed and 7 skipped with no validation error. The end rod's step and the
+reference's vertex colors come next, then part f.

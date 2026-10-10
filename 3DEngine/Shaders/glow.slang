@@ -219,17 +219,25 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
             float cone = max(min(radius * max(t - y, 0.0) / total, height), step * 0.25);
             // Outside a surface, the share is half and more by how far the way passes from it.
             if (d > 0.0)
-            {
                 seen = min(seen, saturate(0.5 + 0.5 * sqrt(max(d * d - y * y, 0.0)) / cone));
-                if (seen <= 0.0)
-                    break;
-            }
-            else if (d < deepest)
+            else
             {
-                deepest = d;
-                deepAt = q;
-                deepIn = c;
-                deepCone = cone;
+                // Inside one, the way out along p's normal is no shorter than the way to the
+                // nearest face, so the share is at most what that gives, and a march into a wall
+                // thicker than the cone ends there, where with the depth read after the march alone
+                // it ran on to the light and cost the Cornell box's bounce 0.13 ms more at Low. It
+                // ends by its own condition, `t` set to its end: left by a break there, the march
+                // lost the RTX 4070's device in five runs of five as the loop nested in it had.
+                seen = min(seen, saturate(0.5 + 0.5 * d / cone));
+                if (seen <= 0.0)
+                    t = end;
+                else if (d < deepest)
+                {
+                    deepest = d;
+                    deepAt = q;
+                    deepIn = c;
+                    deepCone = cone;
+                }
             }
         }
         before = max(d, 1e-4);

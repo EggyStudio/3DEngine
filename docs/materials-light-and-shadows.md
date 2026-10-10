@@ -416,9 +416,9 @@ they cost this on the GPU, as `./e3d command profile` names it `global_illuminat
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 1.65 MB | 0.58 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.38 MB | 0.76 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 9.16 MB | 0.99 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 1.65 MB | 0.59 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.38 MB | 0.74 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 9.16 MB | 1.00 ms |
 
 A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, 5 MB more
 that a cascade is built in, and 6 MB more once a mesh that gives off light is thinner than a cell.
@@ -440,10 +440,10 @@ lights nearest the eye light so, each as far as it lights a surface by a fiftiet
 glowing block of the voxel game's; one past them lights nothing a floor takes from it, so a level of
 more glowing blocks than that has the nearest lit. A larger surface, as a panel across a ceiling, is
 left to the rays, which meet it often enough. The glowing panel of `shaders_cornell_box`, small
-enough to be one, takes 0.17 to 0.22 ms of the times in the table, and in a dark room of glowing
-blocks at 1280 by 720 at `High` one block costs 0.35 ms, sixteen 1.0 and sixty-four 2.2, as
-`./e3d command profile` gives `global_illumination` and `hdr_scene` together, against
-`./e3d command gi.toggle glow off`.
+enough to be one, takes 0.26 to 0.31 ms of the times in the table and the model pass's, and in a
+dark room of glowing blocks at 1280 by 720 at `High` one block costs 0.29 ms, sixteen 0.84 and
+sixty-four 2.1, as `./e3d command profile` gives `global_illumination` and `hdr_scene` together,
+against `./e3d command gi.toggle glow off`.
 
 Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
 The ray is stepped through the window's depth first, and a surface it meets there reflects the
