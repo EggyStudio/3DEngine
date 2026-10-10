@@ -11,8 +11,6 @@ public sealed class Overworld : IWorldGenerator
     // Ground this high is mountains, bare stone, whatever the climate.
     private const int MountainsFrom = 82;
     private const int SandBelow = 50;
-    // Features keep this far from a column's edge, the reach of the widest, so each stays in its column.
-    private const int Edge = 2;
 
     private readonly Noise _hills, _mountains, _sand, _gravel, _tunnelA, _tunnelB, _caverns;
     private readonly Climate _climate;
@@ -67,27 +65,32 @@ public sealed class Overworld : IWorldGenerator
         column.FoliageTint[at] = Climate.Foliage(temperature, humidity);
     }
 
+    /// <summary>
+    /// The ground at a world column: its height, biome and climate, and its top block and the three
+    /// under it. Low ground in a temperate biome lies in patches of sand, and mountains in patches of
+    /// gravel. A feature or a structure starting in a column not generated reads its ground here.
+    /// </summary>
+    public (int Height, Biome Biome, BlockId Top, BlockId Under, float Temperature, float Humidity) Ground(int x, int z)
+    {
+        var (height, temperature, humidity, biome) = At(x, z);
+        var temperate = biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest;
+        var sandy = temperate && height < SandBelow && _sand.At(x / 48f, z / 48f) > 0.05f;
+        var top = height >= SnowLine ? BlockId.Snow
+            : sandy ? BlockId.Sand
+            : biome == Biomes.Mountains && _gravel.At(x / 24f, z / 24f) > 0.3f ? BlockId.Gravel
+            : biome.Top;
+        return (height, biome, top, sandy ? BlockId.Sand : biome.Under, temperature, humidity);
+    }
+
     public ChunkColumn Generate(int columnX, int columnZ)
     {
         var column = new ChunkColumn(columnX, columnZ);
-        var heights = new int[Section.Size * Section.Size];
         for (int z = 0; z < Section.Size; z++)
             for (int x = 0; x < Section.Size; x++)
             {
                 int wx = columnX * Section.Size + x, wz = columnZ * Section.Size + z;
-                var (height, temperature, humidity, biome) = At(wx, wz);
-                heights[z * Section.Size + x] = height;
+                var (height, biome, top, under, temperature, humidity) = Ground(wx, wz);
                 Paint(column, x, z, temperature, humidity, biome);
-
-                // Low ground in a temperate biome lies in patches of sand, and mountains in patches of gravel.
-                var temperate = biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest;
-                var sandy = temperate && height < SandBelow && _sand.At(wx / 48f, wz / 48f) > 0.05f;
-                var top = height >= SnowLine ? BlockId.Snow
-                    : sandy ? BlockId.Sand
-                    : biome == Biomes.Mountains && _gravel.At(wx / 24f, wz / 24f) > 0.3f ? BlockId.Gravel
-                    : biome.Top;
-                var under = sandy ? BlockId.Sand : biome.Under;
-
                 column.Set(x, 0, z, BlockId.Bedrock);
                 for (int y = 1; y <= height; y++)
                 {
@@ -102,28 +105,45 @@ public sealed class Overworld : IWorldGenerator
                 }
             }
 
-        for (int z = Edge; z < Section.Size - Edge; z++)
-            for (int x = Edge; x < Section.Size - Edge; x++)
-            {
-                int wx = columnX * Section.Size + x, wz = columnZ * Section.Size + z;
-                var height = heights[z * Section.Size + x];
-                var ground = column.Get(x, height, z);
-                var hash = PlaceHash.Of(wx, wz, Seed);
-                var roll = hash % 1000;
-                foreach (var (feature, perThousand) in Biomes.All[column.Biome[z * Section.Size + x]].Trees)
-                {
-                    if (roll >= perThousand)
-                    {
-                        roll -= (uint)perThousand;
-                        continue;
-                    }
-                    // Trees stand on grass or snow, and a cactus looks for its own sand.
-                    if (feature is CactusFeature || ground is BlockId.Grass or BlockId.Snow) feature.Place(column, x, height, z, hash / 1000);
-                    break;
-                }
-            }
+        var clip = new ColumnClip(column);
+        PlaceFeatures(clip, columnX, columnZ);
+        foreach (var structure in Structures.All) structure.BuildIn(clip, this);
         return column;
     }
+
+    // The features that start in this column and in the eight around it within reach of it, in one
+    // order every column keeps, so two that overlap overlap the same way wherever they are placed.
+    private void PlaceFeatures(ColumnClip clip, int columnX, int columnZ)
+    {
+        for (int cz = columnZ - 1; cz <= columnZ + 1; cz++)
+            for (int cx = columnX - 1; cx <= columnX + 1; cx++)
+                for (int z = 0; z < Section.Size; z++)
+                    for (int x = 0; x < Section.Size; x++)
+                    {
+                        int wx = cx * Section.Size + x, wz = cz * Section.Size + z;
+                        var hash = PlaceHash.Of(wx, wz, Seed);
+                        var roll = hash % 1000;
+                        if (roll >= MostFeatures) continue;
+                        if (wx < clip.MinX - MostReach || wx > clip.MinX + Section.Mask + MostReach
+                            || wz < clip.MinZ - MostReach || wz > clip.MinZ + Section.Mask + MostReach) continue;
+                        var (height, biome, top, _, _, _) = Ground(wx, wz);
+                        foreach (var (feature, perThousand) in biome.Trees)
+                        {
+                            if (roll >= perThousand)
+                            {
+                                roll -= (uint)perThousand;
+                                continue;
+                            }
+                            if (feature.GrowsOn(top)) feature.Place(clip, wx, height, wz, hash / 1000);
+                            break;
+                        }
+                    }
+    }
+
+    // The most features any biome places in a thousand places, and the farthest any reaches, so a
+    // place that cannot hold one or cannot reach the column is passed over without reading its ground.
+    private static readonly int MostFeatures = Biomes.All.Max(b => b.Trees.Sum(t => t.PerThousand));
+    private static readonly int MostReach = Biomes.All.SelectMany(b => b.Trees).Max(t => t.Feature.Reach);
 
     // Tunnels where two noises are both near zero, and wide caverns where a third is high.
     private bool IsCave(int x, int y, int z)

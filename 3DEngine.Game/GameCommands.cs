@@ -237,6 +237,31 @@ public static class GameCommands
         return $"{Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Key} at {hit.X}, {hit.Y}, {hit.Z}, {hit.Distance:0.0} blocks along the ray and {flat:0.0} along the ground";
     }
 
+    [Command("voxel.find", "The nearest start of a structure from the player, by the corner it is built from: voxel.find <house|igloo|pyramid|dungeon>")]
+    internal static string Find(string name)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (Structures.Find(name) is not { } structure) return $"no structure is called {name}, which is {string.Join(", ", Structures.All.Select(s => s.Name))}";
+        if (game.World.Generator is not Overworld land) return "only the overworld holds structures";
+        var at = game.Player.Body.Position;
+        int cx = (int)MathF.Floor(at.X / Structure.Cell), cz = (int)MathF.Floor(at.Z / Structure.Cell);
+        // Ring by ring of cells outward, the nearest start in the first ring that holds one.
+        for (int ring = 0; ring <= 40; ring++)
+        {
+            StructureStart? best = null;
+            var bestDistance = float.MaxValue;
+            for (int z = cz - ring; z <= cz + ring; z++)
+                for (int x = cx - ring; x <= cx + ring; x++)
+                {
+                    if (Math.Max(Math.Abs(x - cx), Math.Abs(z - cz)) != ring || structure.StartIn(x, z, land) is not { } start) continue;
+                    var distance = new System.Numerics.Vector2(start.X - at.X, start.Z - at.Z).Length();
+                    if (distance < bestDistance) (best, bestDistance) = (start, distance);
+                }
+            if (best is { } found) return $"the nearest {structure.Name} is built from {found.X}, {found.Y}, {found.Z}, {bestDistance:0} blocks away";
+        }
+        return $"no {structure.Name} within {40 * Structure.Cell} blocks";
+    }
+
     [Command("voxel.blocks", "Every block's number and name, which voxel.set, voxel.fill and voxel.select take")]
     internal static string List() => string.Join(", ", Blocks.All.Select(b => $"{(int)b.Id} {b.Key}{(b.Emits ? " (gives off light)" : "")}"));
 }

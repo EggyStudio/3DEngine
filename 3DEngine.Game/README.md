@@ -84,6 +84,22 @@ edge, yellowing near a desert and cooling toward the snow, while the biome itsel
 Birch and spruce leaves keep a color of their own. A hot, dry climate also flattens the land, so a
 desert lies flat and the hills sink as they near it.
 
+## Trees and structures
+
+Each column places the trees and the structures that start in it and those that start in the
+columns around it and reach into it, keeping the blocks that fall inside itself. Where one starts
+depends on the seed and the ground at its start alone, which the generator can tell for a column
+not generated, so a tree or a building crosses a column's edge whole although every column is
+generated alone on a worker, as Minecraft places a structure's pieces chunk by chunk.
+
+A structure has at most one start in each cell of 64 by 64 blocks, where its chance falls and the
+biome at its start suits it. A small village house of planks with log corners on a cobblestone floor
+stands in the plains, forests and taiga, a glowstone in its ceiling for its torch; an igloo of snow
+with a shroomlight inside on the snowy plains; a stepped sandstone pyramid in the desert, a dark
+chamber at its heart with a floor of blue and red; and a cobblestone dungeon deep under any ground,
+a magma block at its middle where Minecraft's has its spawner. `voxel.find
+<house|igloo|pyramid|dungeon>` gives the nearest one's place.
+
 ## How the world is drawn
 
 A section of 16 blocks a side is one mesh in one white material, each block's color in its
@@ -127,10 +143,9 @@ the light that bounces alone.
 ## What is not here yet
 
 Textures, water and anything seen through, leaves included, which are solid. Greedy meshing. Light
-that passes through leaves at a cost, as Minecraft's does. Features and structures that cross from
-one column into the next, so a tree is placed only two blocks or more from its column's edge, and
-villages and the like have nowhere to go yet. Caves open to the sky. Mobs, items, an inventory and
-survival.
+that passes through leaves at a cost, as Minecraft's does. Villages of several houses and paths, and
+structures read from files rather than built in code. Caves open to the sky. Mobs, items, an
+inventory and survival.
 
 ## What it costs
 
