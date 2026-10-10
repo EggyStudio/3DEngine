@@ -139,7 +139,14 @@ public static class Measurements
         for (int i = 0; i < samples; i++)
         {
             var angle = 2 * MathF.PI * i / samples;
-            var at = GetWorldToScreen(middle + new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle)) * radius, camera);
+            var point = middle + new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle)) * radius;
+            // A point behind the eye projects onto the picture mirrored, so it is read as off it.
+            if (!IsPointInFrontOfCamera(point, camera))
+            {
+                values[i] = double.NaN;
+                continue;
+            }
+            var at = GetWorldToScreen(point, camera);
             values[i] = Luminance(image, (int)MathF.Round(at.X), (int)MathF.Round(at.Y), 2);
         }
         var seen = values.Where(v => !double.IsNaN(v)).ToArray();
