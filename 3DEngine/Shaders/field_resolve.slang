@@ -36,10 +36,17 @@ StructuredBuffer<uint> behind;
 [[vk::binding(8, 0)]] [format("rgba8")]
 RWTexture3D<float4> stillPaint;
 
+// The light emitters thinner than a cell lend each cell, red, green and blue in 256ths, as
+// field_splat.slang left it, which a cell gives off where its nearest surface gives off less.
+[[vk::binding(9, 0)]]
+StructuredBuffer<uint> emitted;
+
 struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
     float4 cascade;
+    // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read.
+    float4 lent;
 };
 
 [[vk::push_constant]]
@@ -95,6 +102,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
     stillPaint[at] = paint;
     albedoField[at] = paint;
-    uint2 light = glow[(id.z * size + id.y) * size + id.x];
-    glowField[at] = float4(unpackHalves(light.x), unpackHalves(light.y).x, 0.0);
+    uint index = (id.z * size + id.y) * size + id.x;
+    uint2 light = glow[index];
+    float3 lent = push.lent.x > 0.5
+        ? float3(float(emitted[index * 3u]), float(emitted[index * 3u + 1u]), float(emitted[index * 3u + 2u])) / 256.0
+        : float3(0.0);
+    // The larger of the two, since an emitter that painted the cell its own already gives it its
+    // whole light, as a glowing panel under a ceiling does.
+    glowField[at] = float4(max(float3(unpackHalves(light.x), unpackHalves(light.y).x), lent), 0.0);
 }

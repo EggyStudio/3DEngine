@@ -136,10 +136,10 @@ internal sealed class SceneFieldRenderer : IDisposable
             var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances));
             foreach (var build in plan.Builds)
             {
-                var (instances, count, triangles) = Instances(device, build.Instances);
+                var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell);
                 Hold(instances);
                 Hold(device.RecordSceneFieldBuild(commands, _field, corners, instances, count, triangles,
-                    build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band));
+                    build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow));
             }
         }
         if (plan.Bricks.Count > 0)
@@ -385,9 +385,11 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
 
     // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, with how
-    // many there are and how many triangles they have in all.
-    private (IBuffer Buffer, int Count, int Triangles) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances)
+    // many there are, how many triangles they have in all, and whether one gives off light and is
+    // thinner than a cell of the build, which field_splat.slang lends the light of.
+    private (IBuffer Buffer, int Count, int Triangles, bool ThinGlow) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances, float cell)
     {
+        var thinGlow = false;
         var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, instances.Length) * 96, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
         int written = 0, triangles = 0;
@@ -399,13 +401,30 @@ internal sealed class SceneFieldRenderer : IDisposable
             ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count, instance.DoubleSided ? 1u : 0u, (uint)triangles);
-            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, 1, e.X, e.Y, e.Z, 0];
+            var thinnest = Thinnest(instance);
+            thinGlow |= thinnest > 0 && thinnest < cell;
+            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, 1, e.X, e.Y, e.Z, thinnest];
             MemoryMarshal.Cast<float, uint>(colors).CopyTo(record[16..]);
             triangles += pooled.Count;
             written++;
         }
         device.Unmap(buffer);
-        return (buffer, written, triangles);
+        return (buffer, written, triangles, thinGlow);
+    }
+
+    // How thin an instance that gives off light is, its mesh's bounds along each of its own axes
+    // scaled by its world matrix, the least of them, which field_splat.slang lends the light of
+    // where it is under a cell, or 0 for one that gives off none.
+    private float Thinnest(SceneFieldPlan.Instance instance)
+    {
+        if (instance.Emission is { X: <= 0, Y: <= 0, Z: <= 0 }) return 0;
+        if (!_bounds.TryGetValue(instance.Vertices, out var box)) _bounds[instance.Vertices] = box = SceneFieldPlan.Box.Of(instance.Vertices);
+        var w = instance.World;
+        var size = box.Max - box.Min;
+        var x = size.X * new Vector3(w.M11, w.M12, w.M13).Length();
+        var y = size.Y * new Vector3(w.M21, w.M22, w.M23).Length();
+        var z = size.Z * new Vector3(w.M31, w.M32, w.M33).Length();
+        return Math.Max(Math.Min(x, Math.Min(y, z)), 1e-4f);
     }
 
     // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least.

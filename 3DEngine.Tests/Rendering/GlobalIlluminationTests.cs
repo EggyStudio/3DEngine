@@ -186,6 +186,34 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Glowing_Strip_Thinner_Than_A_Cell_Lights_Its_Room()
+    {
+        // A closed room lit by nothing but a strip on its back wall 0.06 thick, under the field's
+        // cells of 0.15, which painted no cell its own, the wall nearer every cell's middle, so its
+        // light was nowhere in the field and the room stayed dark.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var strip = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        strip.Materials[0].Emissive = new Color(255, 230, 190);
+        strip.Materials[0].EmissiveIntensity = 30;
+        var room = Mean(Capture(() =>
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(5.6f, 0.3f, 5.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(5.6f, 0.3f, 5.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 1.5f, -2.65f), Vector3.UnitY, 0, new Vector3(5.6f, 3, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(-2.65f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 5.6f), Color.White);
+            DrawModelEx(slab, new Vector3(2.65f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 5.6f), Color.White);
+            DrawModelEx(strip, new Vector3(0, 1.5f, -2.45f), Vector3.UnitY, 0, new Vector3(2, 0.06f, 0.06f), Color.White);
+        }, new Camera3D(new Vector3(0, 1.4f, 2.3f), new Vector3(0, 1.2f, -2.5f), Vector3.UnitY, 65)), 0, 60, 160, 36);
+        // The floor reads 131 levels where it read none, as this test measured on an RTX 4070.
+        room.X.Should().BeGreaterThan(40, $"the strip's light, lent to the cells near it, reaches the floor by bouncing, {room}");
+        UnloadModel(slab);
+        UnloadModel(strip);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Red_Wall_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
         Open();

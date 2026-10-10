@@ -542,7 +542,10 @@ meet square, are not taken for a wall. It took a cascade's build in `shaders_sce
 dispatch of the splat paints each cell the color and the light given off of the triangle whose word
 it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
-bounces.
+bounces. An emitter thinner than a cell, as a strip on a wall, may be no cell's nearest surface, so
+where an instance's thinnest extent is under a cell a third dispatch lends the cells within half a
+cell of its triangles its light times its thickness over the cell, and the resolve gives a cell the
+larger of that and its nearest surface's light.
 A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
 again are stamped each frame as boxes, the nearest the eye first to 256 boxes, into the
 bricks of four cells they come within the band of, each cell the least of the still image's
@@ -993,8 +996,8 @@ every region against every bounce, `Low` and `Medium`:
 The rooms that fall a few points were read brighter by the same coarse rays, a lit patch standing for
 a sixteenth of the sphere, and the summed error holds, 245 → 247 at `Low`. The bounce costs 0.003 ms
 more at `Low` and 0.007 at `Medium`, 0.42 and 0.56 ms. The look, as `GlobalIlluminationTests` reads it
-on the RTX 4070 at `Low`: with the camera sliding the bounce adds 1.43 levels a frame to the picture's
-change, where it added 1.71 after the sixth, and 3.96 without the history, and a glowing panel's room
+on the RTX 4070 at `Low`: with the camera sliding the bounce adds 0.95 levels a frame to the picture's
+change, where it added 1.23 after the sixth, and 3.48 without the history, and a glowing panel's room
 falls from 211 levels to 24.3 18 frames after the panel goes dark, 5.3 at 24 and 0.9 at 30.
 
 The eighth takes away the step where the screen's probes ended, at the edge of the field's first
@@ -1015,8 +1018,32 @@ that jump most, fall from 93.8% of the light to 41.8%. The error over every regi
 
 and the other rooms by a point at most. The probes past the first cascade trace their rays where
 they held nothing, which costs 0.028 ms at `Low`, 0.013 at `Medium` and 0.017 at `High`, the bounce
-0.45, 0.57 and 0.66 ms. The look: the crawl 1.48 levels a frame where it was 1.43, and 4.16 without the
-history, and the panel's room fading as it did, to 24.3 levels 18 frames on and 0.9 at 30.
+0.45, 0.57 and 0.66 ms. The look: the bounce adds 1.00 levels a frame to the sliding picture's change
+where it added 0.95, and 3.68 without the history, and the panel's room fades as it did, to 24.3
+levels 18 frames on and 0.9 at 30.
+
+The ninth gives the field the light of an emitter thinner than a cell. A strip 0.06 thick on a wall,
+under cells of 0.15, painted no cell its own, the wall nearer every cell's middle, so its light was
+nowhere in the field and lit nothing that bounces: a probe beside it read none of the 4.1 its face
+toward the strip should have. Each instance that gives off light carries its thinnest extent, its
+mesh's bounds along its own axes scaled into the world, and where that is under a cell a third
+splat lends the cells within half a cell of its triangles its light times its thickness over the
+cell, the share of a cell's face it covers, the most any of its triangles gives, in a buffer of
+256ths a channel (`field_splat.slang`). The resolve gives a cell the larger of that and its nearest
+surface's light, so a glowing panel under a ceiling, which paints its own cells, is not counted
+twice. The probe beside the strip reads 12% under a reference of hits lit directly, the one in the
+room's middle 78%, the band the strip's light lies in seen there across some seven degrees, and the
+strip's room reads 45, 44 and 41% under every bounce by quality, where it read 87%. A closed room lit
+by such a strip alone reads 131 levels on its floor where it read none (`GlobalIlluminationTests`).
+The Cornell box's panel, 0.06 thick too, lends its edge's cells its light, the box 1 to 2 points
+brighter, +7, +6 and +8%, and every other room moves a point at most. The splat runs in a loop of
+its own, after a branch every thread takes alike, where in the loop of the distances and the paint
+it cost a cascade's build 0.027 ms with no emitter at all; a build with no such emitter clears and
+reads none of the buffer, and a cascade's build in `shaders_scene_field` takes 0.459 ms where it
+took 0.455 (`field.rebuild 4000`). The bounce costs 0.44, 0.57 and 0.66 ms. The look, from here read
+over five slides of the camera, along x either way, up, ahead and askew: the bounce adds 0.87 levels
+a frame to the picture's change, 0.51 to 1.28 by slide, where it adds 3.10 without the history,
+1.39 to 3.92, and the panel's room fades as it did.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

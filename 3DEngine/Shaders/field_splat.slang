@@ -32,7 +32,8 @@ struct FieldInstance
     uint4 triangles;
     // rgb: the surface's color, linear, its material's times its texture's average.
     float4 color;
-    // rgb: the light the surface gives off, linear.
+    // rgb: the light the surface gives off, linear. w: where it gives off light, its thinnest
+    // extent in world units, its mesh's bounds along each of its own axes scaled into the world.
     float4 emission;
 };
 
@@ -60,6 +61,11 @@ RWStructuredBuffer<uint2> glow;
 [[vk::binding(5, 0)]]
 RWStructuredBuffer<uint> behind;
 
+// The light of each emitter thinner than a cell that a cell lies near, red, green and blue in
+// 256ths, three words a cell, as field_resolve.slang adds them to the cell's nearest surface's.
+[[vk::binding(6, 0)]]
+RWStructuredBuffer<uint> emitted;
+
 struct SplatPush
 {
     // xyz: the cascade's corner. w: the width of a cell.
@@ -67,7 +73,8 @@ struct SplatPush
     // x: the cells along each side. y: how many instances. z: how many triangles in all. w: the band in cells.
     uint4 counts;
     // x: how many workgroups the dispatch has along x, which the triangle's number is read across.
-    // y: 1 for the dispatch that paints, 0 for the one that finds the distances.
+    // y: 1 for the dispatch that paints, 0 for the one that finds the distances, 2 for the one
+    // that lends an emitter thinner than a cell's light to the cells near it.
     uint4 groups;
 };
 
@@ -160,6 +167,14 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     }
     GroupMemoryBarrierWithGroupSync();
     FieldInstance instance = instances[triangleInstance];
+    // An emitter thinner than a cell paints no cell its own where a surface behind it is nearer
+    // the cells' middles, as a bright strip on a wall, so its light was in the field nowhere and lit
+    // nothing that bounces. It lends the cells within half a cell of it its light times its
+    // thickness over the cell, the share of a cell's face it covers, the most any of its triangles
+    // gives, which the resolve gives the cell where its nearest surface gives off less.
+    float thickness = instance.emission.w;
+    if (push.groups.y == 2u && !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0)))
+        return;
     uint corner = (instance.triangles.x + t - instance.triangles.w) * 3;
     float3 a = place(instance, corners[corner].xyz);
     float3 b = place(instance, corners[corner + 1].xyz);
@@ -182,6 +197,24 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         return;
     int3 span = last - first + 1;
     uint count = uint(span.x * span.y * span.z);
+
+    if (push.groups.y == 2u)
+    {
+        uint3 lent = uint3(max(instance.emission.rgb, 0.0) * (thickness / cell) * 256.0);
+        for (uint k = lane; k < count; k += 64u)
+        {
+            int3 at = first + int3(int(k % uint(span.x)), int((k / uint(span.x)) % uint(span.y)), int(k / uint(span.x * span.y)));
+            float3 p = push.originAndCell.xyz + (float3(at) + 0.5) * cell;
+            bool open;
+            if (length(p - nearest(p, a, b, c, edges, open)) >= cell * 0.5)
+                continue;
+            uint index = (at.z * size + at.y) * size + at.x;
+            InterlockedMax(emitted[index * 3u], lent.r);
+            InterlockedMax(emitted[index * 3u + 1u], lent.g);
+            InterlockedMax(emitted[index * 3u + 2u], lent.b);
+        }
+        return;
+    }
 
     for (uint k = lane; k < count; k += 64u)
     {
