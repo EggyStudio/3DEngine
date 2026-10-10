@@ -83,7 +83,7 @@ internal sealed class GpuSceneField : IDisposable
     internal IBuffer Cells { get; }
 
     // The nearest face each cell lies straight behind, in 1024ths of a cell, which tells a wall
-    // thinner than half a cell, a cell lying in front of one of its faces and close behind the other.
+    // thinner than a cell, a cell lying in front of one of its faces and close behind the other.
     internal IBuffer Behind { get; }
     internal VkImage Still { get; }
     internal VkImageView StillView { get; }

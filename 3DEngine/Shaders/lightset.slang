@@ -148,6 +148,12 @@ public Texture3D bouncedLight;
 [[vk::binding(16, 1)]]
 public ConstantBuffer<SceneFieldInfo> bouncedField;
 
+// How far each probe's rays reached along each of eight by eight directions, as gi_ambient.slang
+// lays it out, which weighs how much of a probe a surface takes, or the field's image where light
+// does not bounce.
+[[vk::binding(31, 1)]]
+public Texture3D bouncedReach;
+
 // The light arriving at each of the screen's probes, irradiance, its alpha 1 where the probe holds
 // it, and each probe's surface's normal and distance from the eye, a texel a probe of the tiles
 // the window is cut into, as gi_screen.slang leaves them, or zeros where light does not bounce.

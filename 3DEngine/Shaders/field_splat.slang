@@ -15,7 +15,7 @@
 // the way runs along does not put the cell inside, and a cell whose nearest point lies on an edge
 // no other triangle shares, as a ground plane's rim, is in front, so an open mesh puts no wedge
 // below its rim inside. The nearest face a cell lies straight behind is kept apart, for a wall
-// thinner than half a cell, which no cell lies inside. A cell no triangle comes within the band of
+// thinner than a cell, which may have no cell's middle inside it. A cell no triangle comes within the band of
 // keeps the word it was cleared to, the band's distance in front. A second dispatch over the same triangles
 // paints each cell the color and the light given off of a triangle whose word is the one the cell
 // kept, its nearest surface, which light that bounces is read from.
@@ -56,7 +56,7 @@ RWStructuredBuffer<uint> albedo;
 RWStructuredBuffer<uint2> glow;
 
 // The nearest face each cell lies behind, in 1024ths of a cell, which field_resolve.slang reads for
-// a wall thinner than half a cell.
+// a wall thinner than a cell.
 [[vk::binding(5, 0)]]
 RWStructuredBuffer<uint> behind;
 

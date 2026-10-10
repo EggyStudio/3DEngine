@@ -24,6 +24,8 @@ internal enum ImageFormat
     R16G16B16A16_Float,
     /// <summary>32-bit floating-point RGBA, for a target that holds positions to a float's precision.</summary>
     R32G32B32A32_Float,
+    /// <summary>One 16-bit floating-point channel, for a distance a texel.</summary>
+    R16_Float,
 }
 
 /// <summary>Flags describing how a GPU image will be used.</summary>

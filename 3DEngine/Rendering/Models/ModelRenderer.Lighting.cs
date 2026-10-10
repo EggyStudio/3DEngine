@@ -159,9 +159,10 @@ internal sealed partial class ModelRenderer
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
 
-    // Where modelpass.slang binds the probes' bounced light and the field they lie in, and the
-    // screen's probes' light and surfaces.
-    private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18;
+    // Where modelpass.slang binds the probes' bounced light and the field they lie in, the
+    // screen's probes' light and surfaces, and the probes' reach.
+    private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18,
+        BouncedReachBinding = 31;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from: the
     // field, its colors and light, the lights, the window's depth, and its scene and depth the
@@ -194,6 +195,7 @@ internal sealed partial class ModelRenderer
         {
             field = bounced.Field;
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.ReachView, bounced.Probes.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Probes.Lights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         else
@@ -201,6 +203,7 @@ internal sealed partial class ModelRenderer
             field = _noBounce ??= device.CreateSceneField(1, 1);
             _noGiLights ??= device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
             device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);

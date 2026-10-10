@@ -211,6 +211,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             ImageFormat.R16G16B16A16_Float => 8,
             ImageFormat.R32G32B32A32_Float => 16,
+            ImageFormat.R16_Float => 2,
             _ => 4,
         };
         FlushUploads();

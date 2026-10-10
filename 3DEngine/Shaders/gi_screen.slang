@@ -48,6 +48,11 @@ RWTexture2D<float4> geometry;
 [[vk::binding(10, 0)]]
 ConstantBuffer<ScreenView> view;
 
+// Each world probe's reach, as gi_ambient.slang left it, which weighs the light a surface a ray
+// meets takes from the probes around it.
+[[vk::binding(11, 0)]]
+Sampler3D reach;
+
 struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. yzw: unused.
@@ -209,12 +214,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 hit;
             float leftAt;
             if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
-                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, hit, view.trace.y, view.trace.z, view.trace.w, false);
+                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false);
             else
             {
                 float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
                 light = t >= 0.0
-                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, start + way * t, view.trace.y, view.trace.z, view.trace.w, false)
+                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false)
                     : beyond(p, n, way, seen).rgb;
             }
             sum += light * weight;

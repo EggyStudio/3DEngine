@@ -534,9 +534,9 @@ passes read (`field_resolve.slang`), half a cell less where the nearest triangle
 double-sided mesh has no inside, and a sheet of one between two rows of cells would leave half a
 cell in each, which a trace steps over, so held half a cell thick on either side it crosses zero
 wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need. A closed
-wall thinner than half a cell has no cell inside it either, and a cell in front of one face and
-less than half a cell before another straight behind it that looks the other way takes the middle
-of the two, less half a cell, so the wall is held as the sheet is. The faces of a box's edge, which
+wall thinner than a cell may have no cell's middle inside it either, and a cell in front of one face
+and less than a cell before another straight behind it that looks the other way takes the middle of
+the two, less half a cell, so the wall is held as the sheet is. The faces of a box's edge, which
 meet square, are not taken for a wall. It took a cascade's build in `shaders_scene_field` from
 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
 dispatch of the splat paints each cell the color and the light given off of the triangle whose word
@@ -904,6 +904,43 @@ the floor by itself at ±8% with the screen's probes off, the history changing i
 +5.2% with it off. The
 error over every region moves a point at most in any room, and the cost is within the noise, the
 bounce 0.37, 0.45 and 0.54 ms by quality and the scene's pass 0.16 ms.
+
+The fifth takes on the leaks. Each probe keeps how far its rays went along eight by eight
+directions before a surface stopped them, the trace writing each ray's distance and the gather
+laying them out as the probes' reach, and `bouncedAt` weighs a probe by whether a surface, taken
+three tenths of the probes' spacing off along its normal, lies within that reach, its weight falling
+to a twentieth over half the spacing past it (`probeSees` in `gi.slang`), as DDGI weighs its probes
+by the distances they traced. Cut to nothing over a quarter of the spacing, the weight left a pixel
+with one or two of its probes seen to their light alone, which drew a notch beside the Cornell box's
+tall block and a smear by its green wall. A closed room with a lamp under its floor took 15.3 levels
+of the lamp's light, lent by the probes beneath the floor to the walls by it through the light that
+bounces again, which `gi.toggle again off` took to nothing. It takes 1.6, and its test's bound is 8
+again, the lamp over its roof giving 6.1. The thin room's leak was the field's: its walls, 0.1 thick in
+cells of 0.15, lay between two cells' middles, each 0.025 outside the wall, so a march toward the
+lamp outside stepped over them and the lamp lit the floor inside, which the room's probe read on
+its face toward the floor at 255% over a reference of hits lit directly. The field holds a wall
+thinner than a cell, where it held one thinner than half a cell, as a sheet half a cell thick about
+its middle, and that probe's hits read 6% over where they read 63%. Before and after, over every
+region against every bounce:
+
+| Room | `Low` | `Medium` | `High` | `High` against one bounce |
+|---|---|---|---|---|
+| The Cornell box | +1% to +7% | +2% to +8% | −10% to −6% | +11% to +17% |
+| Thin walls, a lamp outside | −8% to −32% | −9% to −32% | −23% to −43% | +58% to +18% |
+| A corridor lit from its end | −11% to −19% | −10% to −18% | −9% to −16% | +12% to +3% |
+
+The thin room reads under every bounce as the other rooms do, its leak having covered the
+shortfall, and the Cornell box passing its reference by 7 and 8% at `Low` and `Medium` and the
+corridor falling 8 points are the light the probes weighed out had lent them; the window's room,
+the grazing floor, the carried lamp, the outdoor blocks and the strip move a point at most. The
+Cornell box's small block reads its side facing the green wall 26% under at `Low` and 44% at `High`,
+where it read 76 and 82% under before the first fix. The floor at the red wall's foot still darkens
+by 3 to 6% where the reference darkens by 11%. The merge's bilinear fix, which the corner was to
+have, is not tried: it needs each parent's light from its interval's start kept apart from the early
+hit the third fix keeps for the parent's faces, and a march from this probe's interval end to each
+of eight parents' interval starts for every direction of every merge. The reach costs some 0.05 ms
+at each quality, the bounce 0.42, 0.51 and 0.59 ms, the scene's pass 0.012 ms more at 0.173, and
+0.75 MB at `High`, where the world's probes take 5.32 MB.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

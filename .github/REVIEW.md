@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c2043cb2`. C's fourth fix, the screen's probes by their plane: the filter reads each
+Reviewed up to `b1e7c0ba`. Two verdicts carried out. Verdict 40 (`85be41a7`): the leak test's
+twenty-first app reads its handles as it shuts down and again after a full collection that has run
+the finalizers, `shut down` and `ended`, so what safe handles still held at the close shows between
+the two and `kept` counts what stays, an offscreen app here reading 0 and 0, the other apps left
+uncollected as the resident reading needs; the next Windows page says where the five go. Verdict 43
+(`b1e7c0ba`): `build/test.py` takes the crashing thread and its signal from createdump's own line,
+reads that thread with `setthread --tid` and `clrstack -f`, names the signal as the system numbers
+it, 10 a bus error on macOS and SIGUSR1 on Linux, and falls back to the thread the dump was written
+for, the stand-ins saying both; and the close was read against the model given, with no engine
+thread found that writes mapped device memory after the device goes, the renderer and the device
+each waiting idle before freeing, the app's threads joined, the asset workers mapping nothing, the
+instance fills joined within the frame and SDL copying a sound's samples, so the next page's frames
+should name a driver thread, MoltenVK's completion handlers first. Right, both, and the second
+reading honest about what it did not find. Both verdicts stand until a run proves them. The suite:
+1,589 passed. C5 next. The runs of `575f5f66`, `a3dd7a8d` and `52ffd114` were read after: Windows
+fails the handle hold on each as built, macOS is whole with no crash on all three, and the Cornell
+reference frame fails on Windows at the first two fixes and on macOS at the second by a point over
+its allowance, Verdict 44.
+
+Before it, C's fourth fix came to be read, the screen's probes by their plane: the filter reads each
 neighbor's point from the depth under its tile's middle and weighs it by its distance from the plane
 of the probe's surface, and the model pass carries the pixel's own plane to each of its four probes'
 tile middles by `ddx` and `ddy` of its position and weighs a probe by how near its distance from the
@@ -46,22 +65,6 @@ built, with the step line on the last two, Verdict 40 rewritten on it; macOS cra
 `0499c115` in a third test, Verdict 43, and was green at `46732863`; the captures' job is green on
 each; `a3dd7a8d` and `52ffd114` are running.
 
-Before it, C's second fix came to be read, the gathers' weights: each direction a world probe
-gathers is weighed by its texel's share of the sphere, one over the cube of its octahedron point's
-distance from the middle beside its cosine, the weights scaled to sum to pi (`octahedronShare`), and
-the screen probes' sixteen rays the same over their hemisphere, which read a uniform sky at 1.04; a
-new test holds every face of a probe under a uniform sky to pi within 2% at Low and High, which the
-old gather fails at 1.04 on ±x and ±y and 0.82 on ±z. Against one bounce the Cornell box comes
-within 3% at every quality, −2, −1 and −3% where it read +4, +5 and −4%, so the first bounce is
-right and what the rooms lack from here is the light that bounces again, C3; over every bounce the
-thin walls, the corridor and the carried lamp gain 2 to 4 points, and the Cornell box reads 5 points
-more under at Low and Medium, honestly so, the old over-read along x and y having hidden that much
-of the gap. Right, the test and the number before and after each. The closed room's leak grew from
-14.6 to 17.3 levels, its bound 20 until the fifth fix, said in the test; a bound widened twice for
-one named cause is still one cause, and it widens no third time, the fifth fix bringing it under 8
-or the leak getting a verdict of its own. The cost is unchanged. The suite: 1,587 passed; on
-lavapipe 313 passed and 6 skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -73,14 +76,15 @@ list is long on purpose, and a batch that ends is followed by the next item with
 reply. In this order, which the owner set on 2026-10-09: the runs first, then the bounce's quality,
 then subsurface scattering and what follows it, and item 7 for a wait.
 
-1. **What the next page says.** The runs of `a9f9c56d`, `0499c115` and `46732863` are green on Linux
-   and on the macOS captures, red on Windows on each where the leak test fails its handle hold as it
-   was built to, at app 42, 27 and 27 (Verdict 40), and red on macOS at `0499c115`, where the whole
-   suite was lost to a crash in a third test and the dump reader read the wrong thread (Verdict 43);
-   macOS passed whole at `46732863`. The examples job waits on Windows and macOS both green in one
-   run. `a3dd7a8d` and `52ffd114` are running. When every job is green the owner is told, since 5.2
-   is due (Decision 19). Each push's run is read by the reviewing session, and a failure it names
-   comes first here.
+1. **What the next page says.** The runs of `575f5f66`, `a3dd7a8d` and `52ffd114` are green on
+   Linux, on the macOS captures and on macOS whole, with no crash, and red on Windows on each, where
+   the leak test fails its handle hold as it was built to with the step line (Verdict 40), and red
+   on Windows at `a3dd7a8d` and `52ffd114` and on macOS at `52ffd114` on the Cornell reference
+   frame, 5.1 to 6.0% of pixels against 5% allowed in the floor's rows (Verdict 44). The runs of
+   `c2043cb2` onward are to be read, the plane weight among them. The examples job waits on Windows
+   and macOS both green in one run. When every job is green the owner is told, since 5.2 is due
+   (Decision 19). Each push's run is read by the reviewing session, and a failure it names comes
+   first here.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -259,6 +263,19 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     the leak test, which closes a hundred, is where it shows first. Settled when a macOS run passes
     whole twice.
 
+44. **The Windows jobs of `a3dd7a8d` and `52ffd114` and the macOS job of `52ffd114` fail
+    `ReferenceFrameTests.A_Cornell_Box_Lit_By_Light_That_Bounces_Matches_Its_Reference`, 6.0, 5.1
+    and 5.7% of the pixels differing from `cornell_box.png` where 5% is allowed.** Read from the
+    pages: the difference is densest in rows 140 to 159 and columns 64 to 127, the floor nearest the
+    camera, and came with the references drawn again on the RTX 4070 at the first and second fixes,
+    which hold on the container's lavapipe and not, by a point, on the runners' lavapipe and
+    MoltenVK; the floor's rows are the bands the fourth fix took from ±14% to ±6% at High, so the
+    run of `c2043cb2` is the judge before anything moves. If it still fails there, the test says why
+    a point: the reference is drawn where the bounce differs least between devices, the Cornell view
+    at the quality the test draws, or the allowance for this picture alone is raised with the
+    measured spread between the three devices named beside it, and not by a point with no reason.
+    Settled when a run passes it on Windows and macOS.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -414,25 +431,27 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Verdict 40, the step line read after the finalizers.** The leak test's twenty-first app reads
-its handles once as it shuts down and again after a full collection that has run the finalizers,
-`shut down` and then `ended`, so what safe handles still held when the app closed shows between
-the two and `kept` counts what stays after them. Here an offscreen app reads 0 then 0, so the next
-Windows page is the one to say where the five go. The other apps keep their readings as they were,
-uncollected, which the resident memory's reading relies on. The suite: 1,589 passed.
-
-**Verdict 43, the crashing thread read.** `build/test.py` takes the thread and the signal from
-createdump's `Crashing thread <id> signal <n>` line in the run's output. It reads that thread with
-`setthread --tid` given the OS id as a number, which the option reads, and `clrstack -f`, and names
-the signal as the system it ran on numbers it: 10 is a bus error on macOS and SIGUSR1 on Linux, 11
-a segmentation fault on both. The page then says the crash came on that thread, whether the runtime
-runs it, and its frames with their modules. With no such line it reads the thread the dump was
-written for, as before. The stand-ins say both, the test host dying with createdump's line and
-without, and the dump read answers `setthread` with a native thread's frames. The close, read
-meanwhile, holds no engine thread that writes mapped device memory after the device goes. The
-renderer waits for the device to idle before it frees a buffer, and the device waits again before
-its own. The app joins the threads its parts start. The asset server's workers decode on the CPU
-and map nothing, the parallel loops that fill mapped instance buffers are joined within the frame,
-and SDL copies a sound's samples rather than reading them in place. The thread that dies runs no
-managed code, so the driver's own threads are what the next page's frames should name, MoltenVK's
-completion handlers first. The suite: 1,589 passed.
+**Item 2's C, the fifth fix, the leaks.** Two causes, two changes. First the probes' visibility as
+DDGI weighs it. The trace writes each ray's distance, the gather lays them out as each probe's reach
+along eight by eight directions in one volume for every cascade, and `bouncedAt` weighs a probe by
+whether a surface, taken three tenths of the spacing off along its normal, lies within that reach,
+falling to a twentieth over half the spacing past it. The model pass binds the reach at 31, and the
+trace and the screen's probes bind it too. The closed room with the lamp under its floor took 15.3
+levels from the probes beneath it, all through the light that bounces again; it takes 1.6, and the
+bound is 8 again, the roof's lamp 6.1. Cut to nothing over a quarter of the spacing, the weight drew
+a notch beside the Cornell box's tall block and a smear by its green wall, which the twentieth
+takes away. Second, the thin room's leak was the field's, not the blend's. Its walls, 0.1 thick in
+cells of 0.15, lay between two cells' middles, each 0.025 outside, so a march toward the lamp
+outside stepped over them, and the room's probe read its face toward the floor 255% over. The field
+holds a wall thinner than a cell as a sheet, where it held one thinner than half a cell, and that
+probe's hits read +6% where they read +63%. Over every region against every bounce: the thin room
+−8% to −32% at Low and −23% to −43% at High, now under as the other rooms are, its leak having
+covered the shortfall; the Cornell box +1% to +7% at Low and −10% to −6% at High; the corridor −11%
+to −19%. Both are the light the weighed-out probes had lent. The small block's side reads −26% at
+Low and −44% at High against B's −76% and −82%. The red wall's foot still darkens 3 to 6% against
+11%. The merge's bilinear fix is not tried: it needs each parent's light from its interval start
+kept apart from the early hit C3 keeps, and eight marches a direction of every merge. Cost: 0.05
+ms of the bounce at each quality, 0.42, 0.51 and 0.59, 0.012 ms of the scene's pass, and 0.75 MB at
+High. The Cornell and Wick reference frames are drawn again; against the C5 frames lavapipe passes
+all 29, where the C3 reference failed there by 6.2% of pixels in floor rows 140 to 159, the place
+Verdict 44 names. The suite: 1,589 passed; on lavapipe 334 passed and 6 skipped. C6 next.

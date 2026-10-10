@@ -127,9 +127,9 @@ public static partial class Engine3D
     /// The field holds how far each cell of a cascade is from the nearest surface of the meshes
     /// drawn into the window that cast shadows. Each cascade is 64 cells a side, twice as coarse
     /// and as wide as the one before, so the default of 0.25 reaches 16 units across in the first
-    /// and 128 in the fourth. A closed wall thinner than half a cell is held half a cell thick on
-    /// either side of its middle, as a double-sided mesh is, so a ray between the cells on either
-    /// side of it still meets it.
+    /// and 128 in the fourth. A closed wall thinner than a cell is held half a cell thick on either
+    /// side of its middle, as a double-sided mesh is, so a ray between the cells on either side of
+    /// it still meets it.
     /// </para>
     /// <para>
     /// A mesh drawn in the same place for eight frames is built into the cascades around it from

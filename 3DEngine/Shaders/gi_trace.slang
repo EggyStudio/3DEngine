@@ -48,6 +48,16 @@ Sampler3D bounced;
 [[vk::binding(7, 0)]]
 SamplerCube environment;
 
+// How far each ray went before it met a surface, or its interval's end where it met none, which
+// gi_ambient.slang lays out as each probe's reach.
+[[vk::binding(8, 0)]] [format("r16f")]
+RWTexture3D<float> distances;
+
+// Each probe's reach the frame before, as gi_ambient.slang left it, which weighs the light a surface
+// a ray meets takes from the probes around it.
+[[vk::binding(9, 0)]]
+Sampler3D reach;
+
 struct TracePush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -79,20 +89,23 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (oc.w <= 0.0)
     {
         radiance[written] = float4(0.0, 0.0, 0.0, 1.0);
+        distances[written] = 0.0;
         return;
     }
     float3 origin = oc.xyz + (float3(at) + 0.5) * (oc.w * push.interval.z);
     if (fieldDistance(sceneField, fieldInfo, origin) < 0.0)
     {
         radiance[written] = float4(0.0);
+        distances[written] = 0.0;
         return;
     }
 
     float3 way = fromOctahedron((float2(texel) + 0.5) / float(texels));
     float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
+    distances[written] = t >= 0.0 ? t : push.interval.y;
     if (t >= 0.0)
     {
-        radiance[written] = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, origin + way * t,
+        radiance[written] = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, origin + way * t,
             float(probes), push.interval.z, push.interval.w, true), t < push.interval.x ? 0.5 : 0.0);
         return;
     }

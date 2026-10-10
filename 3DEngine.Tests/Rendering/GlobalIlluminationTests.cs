@@ -537,6 +537,8 @@ public sealed class GlobalIlluminationTests : IDisposable
         // probes' rays lit the room's walls with it as if the roof were not there, a ray of a probe
         // above the floor that started past it brought back the light under it, and probes beyond
         // the walls lent theirs, which lit the room nearly as brightly as the lamp would unshadowed.
+        // Weighed by how far their rays reached, the probes under the floor lend the walls by it
+        // 1.6 levels, where they lent 15.3.
         foreach (var lampY in new[] { 5f, -2f })
         {
             Open();
@@ -555,11 +557,7 @@ public sealed class GlobalIlluminationTests : IDisposable
             SetGlobalIllumination(GlobalIllumination.Medium);
             var room = Mean(Capture(Draw, new Camera3D(new Vector3(0, 1.5f, 1.5f), new Vector3(0, 1.5f, -2), Vector3.UnitY, 70)), 20, 16, 120, 64);
 
-            // Under the floor the lamp still lends the room the light of the world's probes beneath
-            // it, 17.3 here since a hit sends on the whole of the lamp's light rather than a pi-th
-            // and each probe's faces weigh their directions by their shares of the sphere, which the
-            // probes' visibility is to take away.
-            room.Length().Should().BeLessThan(20, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
+            room.Length().Should().BeLessThan(8, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
             UnloadModel(slab);
             CloseWindow();
             UseApp(null);

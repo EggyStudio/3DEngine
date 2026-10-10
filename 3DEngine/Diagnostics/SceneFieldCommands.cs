@@ -37,8 +37,9 @@ internal static class SceneFieldCommands
         var quality = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>()?.Quality ?? GlobalIllumination.Off;
         var p = probes.Probes;
         var rays = probes.Texels.Sum(n => p * p * p * n * n);
-        // Each cascade's rays and merges, eight bytes a texel each, and every cascade's faces.
-        var world = probes.Texels.Sum(n => 2L * (p * n) * (p * n) * p * 8) + 6L * p * p * p * probes.Cascades * 8;
+        // Each cascade's rays and merges, eight bytes a texel each, every cascade's faces, and the
+        // distances and reach each probe is weighed by.
+        var world = probes.Texels.Sum(n => 2L * (p * n) * (p * n) * p * 8) + 6L * p * p * p * probes.Cascades * 8 + probes.ReachBytes;
         var lines = new List<string>
         {
             $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select(n => n * n))} rays each, {rays} rays a frame",

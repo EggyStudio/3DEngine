@@ -333,8 +333,8 @@ screen, and the window's depth elsewhere.
 The field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so
 four cascades of 0.25 reach 16 units across in the first and 128 in the last. A double-sided mesh,
 as a model from an OBJ file is, has no inside and is held half a cell thick on either side, and a
-closed wall thinner than half a cell, which no cell lies inside, is held the same about its middle,
-so a wall or a floor thinner than a cell still stops what is traced through the field. An open mesh,
+closed wall thinner than a cell, which may have no cell's middle inside it, is held the same about
+its middle, so a wall or a floor thinner than a cell still stops what is traced through the field. An open mesh,
 as a ground plane, is inside only below its faces and not past its rim. A mesh drawn in the same place for eight frames is built into the
 cascades around it from its triangles, and one that moves is stamped each frame as boxes rather than
 its triangles, painted its color, so a red figure bounces red light, though the light it gives off

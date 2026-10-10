@@ -307,7 +307,7 @@ public float3 bounced(float3 p, float3 n)
     int c = fieldCascade(bouncedField, p, 1.0);
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
-    return bouncedAt(SplitVolume(bouncedLight, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+    return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
 // The light a glossy surface at p facing n reflects along r, traced through the window's depth and
@@ -332,7 +332,7 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
     float left;
     if (traceScreen(SplitPicture(reflectDepth, lightNearest), camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left))
     {
-        float3 shaded = shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), hit, probes, spacing, cascades);
+        float3 shaded = shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
         float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));
         float2 uv = last.xy / max(last.w, 1e-4) * 0.5 + 0.5;
         if (lighting.reflection.w <= 0.0 || last.w <= 1e-4 || any(uv < 0.0) || any(uv > 1.0))
@@ -354,7 +354,7 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
     }
     float t = traceField(SplitVolume(reflectField, lightLinear), bouncedField, start, r, left, 1e5);
     if (t >= 0.0)
-        return float4(shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), start + r * t, probes, spacing, cascades), 1.0);
+        return float4(shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), start + r * t, probes, spacing, cascades), 1.0);
 #if defined(RAY_QUERY)
     // What the field misses, past its cascades or too thin for its cells, the GPU's own rays find.
     if (lighting.reflectionReach.y > 0.0)
@@ -437,7 +437,7 @@ float4 rayReflection(float3 p, float3 way)
     // as shadeHit takes them.
     arrived *= Pi;
     if (fieldCascade(bouncedField, hit, 1.0) >= 0 && fieldCascade(bouncedField, hit, 1.0) < int(lighting.indirect.w))
-        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
+        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
     else
         arrived += lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi;
     return float4(surface.color.rgb / Pi * arrived + surface.emission.rgb, 1.0);

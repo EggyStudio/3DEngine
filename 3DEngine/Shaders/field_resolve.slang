@@ -1,6 +1,6 @@
 // Turns the codes field_splat.slang left in one cascade's cells into distances in world units,
-// below zero behind a face and within half a cell of a double-sided one or a wall thinner than
-// half a cell, and writes them into the cascade's place in the field the meshes alone
+// below zero behind a face and within half a cell of a double-sided one or a wall thinner than a
+// cell, and writes them into the cascade's place in the field the meshes alone
 // make and in the field the passes read, with the color and the light given off it painted, a
 // thread a cell.
 
@@ -72,13 +72,15 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     uint code = cells[(id.z * size + id.y) * size + id.x];
     float d = min(float(code >> 10) / 1024.0, push.cascade.w) * push.cascade.z;
     // A cell in front of one face and straight behind another that looks the other way, less than
-    // half a cell beyond it, lies against a wall thinner than half a cell, which is held as a
-    // double-sided sheet is, half a cell thick on either side of the wall's middle, so a ray
-    // between the cells on either side still meets it, where the faces of a box's edge, which meet
-    // square, do not make one.
+    // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
+    // sheet is, half a cell thick on either side of the wall's middle, so a ray between the cells
+    // on either side still meets it, where the faces of a box's edge, which meet square, do not make
+    // one. Held so only below half a cell, a wall of two thirds of a cell lay between two cells'
+    // middles, each a sixth of a cell outside it, which a trace stepped over, and the lamp outside
+    // a room of such walls lit its floor through them.
     uint hidden = behind[(id.z * size + id.y) * size + id.x];
     float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
-    bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z * 0.5
+    bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
     if ((code & 0x200u) != 0u)
         d -= push.cascade.z * 0.5;

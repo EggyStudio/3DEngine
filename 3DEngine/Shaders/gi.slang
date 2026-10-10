@@ -318,11 +318,39 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
     return length <= clearance * 2.0 || traceField(field, info, a, toward / length, clearance, length - clearance) < 0.0;
 }
 
+// The directions each probe's reach is kept along, eight by eight of its octahedron, as
+// gi_ambient.slang lays them out.
+public static const int ReachTexels = 8;
+
+// How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n: 1
+// where p, taken three tenths of the probes' spacing off the surface along n, lies nearer the probe
+// than its rays reached that way the frame before, falling to 0 over half the spacing past it, as
+// DDGI weighs its probes by the distances they traced. Taken off the surface, the point comes
+// nearer a probe on its own side and goes further from one past it, so a probe under a floor or
+// beyond a wall, whose rays stop at the floor's or the wall's far face, lends a surface on this side
+// none of the light it sees there.
+public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, int3 at, int c, float probes, float apart)
+{
+    float3 toward = p + n * (0.3 * apart) - probe;
+    float d = length(toward);
+    if (d < 1e-4)
+        return 1.0;
+    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(ReachTexels - 1));
+    float reached = reach.loadAt(int3(at.xy * ReachTexels + texel, c * int(probes) + at.z)).r;
+    float slack = 0.5 * apart;
+    return saturate((reached + slack - d) / slack);
+}
+
 // The light that bounced to a surface at p facing n, irradiance, from the faces of the eight probes
-// of the finest cascade around it that the probes reach, each weighed by how near it is and how
-// squarely it stands in front of the surface, a probe inside a mesh passed over, the three faces n
-// looks toward weighed by the square of n along each, or none where no cascade of probes holds p.
-public float3 bouncedAt<V : IVolume>(V cubes, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+// of the finest cascade around it that the probes reach, each weighed by how near it is, how
+// squarely it stands in front of the surface and how much of it it sees (probeSees), a probe inside
+// a mesh passed over, the three faces n looks toward weighed by the square of n along each, or none
+// where no cascade of probes holds p. A probe it does not see keeps a twentieth of its weight, as
+// one behind its plane keeps a little, since cut to nothing a pixel left with one or two probes
+// around it seen took their light alone and a Cornell box showed a notch beside its tall block, and
+// where it sees none of them, as a surface wedged between two meshes may, the probes are blended as
+// they stand, so it is not left dark.
+public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
@@ -332,8 +360,8 @@ public float3 bouncedAt<V : IVolume>(V cubes, SceneFieldInfo info, float3 p, flo
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
-    float3 sum = float3(0.0);
-    float weights = 0.0;
+    float3 sum = float3(0.0), sumBlind = float3(0.0);
+    float weights = 0.0, weightsBlind = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
@@ -350,10 +378,13 @@ public float3 bouncedAt<V : IVolume>(V cubes, SceneFieldInfo info, float3 p, flo
             valid = max(valid, texel.a);
         }
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
+        sumBlind += light * weight;
+        weightsBlind += weight;
+        weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
         sum += light * weight;
         weights += weight;
     }
-    return weights > 1e-5 ? sum / weights : float3(0.0);
+    return weights > 1e-5 ? sum / weights : weightsBlind > 1e-5 ? sumBlind / weightsBlind : float3(0.0);
 }
 
 // The light that bounced to a surface at p facing n, as bouncedAt gives it, from those of the eight
@@ -441,12 +472,12 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // bounce's 0.3 to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held
 // 3 levels of its light without it, where it held 247 before either. The model pass's reflections call
 // shadeHit, which hides the lamps as this does and marches to no probe.
-public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
+public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades, bool seen)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
-    float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, info, p, n, probes, spacing, cascades);
+    float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi + bounced * lights.counts.z;
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
@@ -461,13 +492,13 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo,
 // which left the probes' hits 48 to 75% under a path-traced reference. hiddenLampLight's loop after
 // directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'
 // loop moved ahead of the sun's in directLight is not (build/mesa).
-public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
+public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
-        + bouncedAt(cubes, info, p, n, probes, spacing, cascades) * lights.counts.z;
+        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
 
