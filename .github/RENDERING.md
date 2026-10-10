@@ -582,9 +582,9 @@ A cascade of world probes lies every eight cells of the field's cascade of the s
 side, so each cascade's probes are twice as far apart as the one before's. Each probe traces an
 octahedron of directions, a texel each, across an interval: the first cascade's from the probe to
 four times the spacing, each after's from its spacing to four times that, so a cascade's interval
-begins half way along the one below's (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two cascades, `Medium`
-adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four, no more cascades than the
-field has. A ray that meets a surface brings back its painted color times the sun's light where a
+begins half way along the one below's (`gi_trace.slang`). `Low` traces 8 by 8 directions in each
+of two cascades, `Medium` adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four,
+no more cascades than the field has. A ray that meets a surface brings back its painted color times the sun's light where a
 trace toward the sun through the field gets through and the point and spot lights', each that casts
 shadows only where a trace toward it gets through too (`hiddenLampLight`), given as the model pass
 has a light, what a white surface facing it returns, and its color over pi times the light that
@@ -971,6 +971,31 @@ with a lamp under its floor holds 1.6 levels as it did, and the sun's visibility
 cascades is not tried, the hits reading the sun right. The longer rays cost 0.003 ms at `Low`,
 0.05 at `Medium` and 0.07 at `High`, the bounce 0.42, 0.55 and 0.66 ms. The Cornell box's, Wick's
 and Manor's library's reference frames are drawn again.
+
+The seventh was for the halo under the Cornell box's panel, its ceiling 31% short away from the
+panel in B. The fixes before it took it away: the ceiling reads 8% over at `Low` and 3% at `High`,
+falling from the panel to 0.36 of the middle's light 60 pixels off at `High` where the reference
+keeps 0.33. Of the two things the seventh was to measure, the first interval's length is the sixth
+fix's, and `High` traces 64 directions in its first cascade already. `Low` and `Medium` traced 16,
+and their Cornell box passed its reference by 17%: a ray of 16 over the bright patch beside the lamp
+stood for a sixteenth of the sphere. They trace 64 in their first cascade, as `High` does. Over
+every region against every bounce, `Low` and `Medium`:
+
+| Room | `Low` | `Medium` |
+|---|---|---|
+| The Cornell box | +17% → +6% | +17% → +8% |
+| Thin walls, a lamp outside | −10% → −15% | −9% → −14% |
+| A corridor lit from its end | −18% → −18% | −17% → −17% |
+| The sun through a window | −50% → −53% | −50% → −53% |
+| A floor at a grazing angle | −35% → −35% | −33% → −34% |
+| A lamp carried, a wall moved | −27% → −32% | −27% → −32% |
+
+The rooms that fall a few points were read brighter by the same coarse rays, a lit patch standing for
+a sixteenth of the sphere, and the summed error holds, 245 → 247 at `Low`. The bounce costs 0.003 ms
+more at `Low` and 0.007 at `Medium`, 0.42 and 0.56 ms. The look, as `GlobalIlluminationTests` reads it
+on the RTX 4070 at `Low`: with the camera sliding the bounce adds 1.43 levels a frame to the picture's
+change, where it added 1.71 after the sixth, and 3.96 without the history, and a glowing panel's room
+falls from 211 levels to 24.3 18 frames after the panel goes dark, 5.3 at 24 and 0.9 at 30.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

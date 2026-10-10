@@ -27,8 +27,8 @@ public sealed class GlobalIlluminationTests : IDisposable
     public void Each_Quality_Traces_More_Cascades_And_Directions_Than_The_One_Below_As_The_Field_Allows()
     {
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Off).Should().BeEmpty();
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(4, 8);
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(4, 8, 16);
+        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8);
+        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 16, 16, 16);
         GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
 

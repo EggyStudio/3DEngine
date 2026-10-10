@@ -388,8 +388,8 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 16, 64 | every 16 pixels | 0.73 MB | 0.27 ms |
-| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.80 MB | 0.31 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 0.73 MB | 0.27 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 2.80 MB | 0.31 ms |
 | `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.81 MB | 0.44 ms |
 
 A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, and 5 MB

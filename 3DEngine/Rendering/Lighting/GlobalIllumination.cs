@@ -10,10 +10,10 @@ public enum GlobalIllumination
     /// <summary>No light bounces, as raylib draws a scene.</summary>
     Off,
 
-    /// <summary>Two cascades of probes, 16 and 64 directions each, for a slow GPU.</summary>
+    /// <summary>Two cascades of probes, 64 directions each, for a slow GPU.</summary>
     Low,
 
-    /// <summary>Three cascades, 16, 64 and 256 directions.</summary>
+    /// <summary>Three cascades, 64, 64 and 256 directions.</summary>
     Medium,
 
     /// <summary>Four cascades, 64 directions in the first and 256 in each after.</summary>
@@ -166,8 +166,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
     {
-        GlobalIllumination.Low => [4, 8],
-        GlobalIllumination.Medium => [4, 8, 16],
+        GlobalIllumination.Low => [8, 8],
+        GlobalIllumination.Medium => [8, 8, 16],
         GlobalIllumination.High => [8, 16, 16, 16],
         _ => [],
     };
