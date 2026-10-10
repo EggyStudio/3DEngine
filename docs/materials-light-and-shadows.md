@@ -103,12 +103,16 @@ head.Materials[0] = head.Materials[0] with { SubsurfaceRadius = 0.01f, Subsurfac
 
 The light such a surface scatters diffusely is spread over the window's frame, across and then
 down, as far as each color travels at the surface's distance from the eye, and the light it
-reflects stays sharp. A pixel of any other surface is left as it was, and the light does not cross
+reflects stays sharp. A thin part lit from behind, an ear, a leaf, a candle's rim, shows on its
+front the light that comes through it, less the thicker the part and the farther each color must
+travel, red farthest. The thickness toward a lamp is read from the scene's distance field, so a
+lamp's light comes through where `SetSceneField` builds one, and toward the sun from the field or,
+past it, from the sun's shadow map where the sun casts shadows. A pixel of any other surface is left as it was, and the light does not cross
 from a near surface to one behind it. A render texture and a reflection probe's faces draw the
 surface without it, and so does a material with a shader of its own or one laid over by alpha. In
-`games/Manor` at 1280 by 720, every one of its 139 materials scattering over 5 cm takes the HDR
-frame's pass about 1.0 ms of the GPU where it takes 0.45, and one of them 0.65 to 0.70, as `./e3d
-command profile` gives `hdr_scene`. A mesh entity's `Material` has the same `SubsurfaceRadius` and
+`games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5 cm takes the HDR
+frame's pass about 1.3 ms of the GPU where it takes 0.47, 0.11 ms of it the light that comes
+through, as `./e3d command profile` gives `hdr_scene`. A mesh entity's `Material` has the same `SubsurfaceRadius` and
 `SubsurfaceColor`, the color's shares from 0 to 1.
 
 ## Effects over the frame

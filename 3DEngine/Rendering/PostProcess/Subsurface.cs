@@ -44,7 +44,8 @@ internal sealed class SubsurfaceRenderer : IDisposable
     private long _frame;
 
     // What is made for one size of the window and one depth of the scene: the marked meshes'
-    // diffuse light and profile, the light spread across, and the sets the two spreads read through.
+    // diffuse light, profile and light that comes through, the light spread across, and the sets
+    // the two spreads read through.
     private sealed class Sized(Extent2D extent, IImageView depth, RenderTarget marked, RenderTarget across, IDescriptorSet acrossSet,
         IDescriptorSet downSet) : IDisposable
     {
@@ -134,8 +135,8 @@ internal sealed class SubsurfaceRenderer : IDisposable
         _sampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
-        var marked = device.CreateRenderTarget(extent.Width, extent.Height, [ImageFormat.R16G16B16A16_Float, ImageFormat.R16G16B16A16_Float],
-            depth: false, multisampled: false);
+        var marked = device.CreateRenderTarget(extent.Width, extent.Height,
+            [ImageFormat.R16G16B16A16_Float, ImageFormat.R16G16B16A16_Float, ImageFormat.R16G16B16A16_Float], depth: false, multisampled: false);
         var across = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
         device.Name(marked.ColorView.Image, "Subsurface diffuse light");
         device.Name(across.ColorView.Image, "Subsurface light spread across");
@@ -149,6 +150,7 @@ internal sealed class SubsurfaceRenderer : IDisposable
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(marked.MoreColorViews[0], _sampler, 1));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sceneDepth, _sampler, 2));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(source, _sampler, 3));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(marked.MoreColorViews[1], _sampler, 4));
             return set;
         }
         return _sized = new Sized(extent, sceneDepth, marked, across, Set(marked.ColorView), Set(across.ColorView));

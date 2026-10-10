@@ -8,7 +8,8 @@ namespace Engine.Tests.Rendering;
 /// Subsurface scattering, read from chosen pixels of frames drawn offscreen: two white spheres lit
 /// from the side, the left one's material scattering light under its surface, red farthest,
 /// whose line between lit and shadowed softens and reddens where the right one's, unmarked, is
-/// left as it was.
+/// left as it was; and slabs lit from behind, a thin one that scatters showing the light on its
+/// front where a thick one barely does and an unmarked one does not.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -89,5 +90,58 @@ public sealed class SubsurfaceTests : IDisposable
         var (litWith, litWithout) = (At(with, Left, 0.5f), At(without, Left, 0.5f));
         Sum(litWith).Should().BeInRange(Sum(litWithout) - 30, Sum(litWithout) + 30, $"the lit side away from the terminator holds its light, {litWith} against {litWithout}");
         UnloadModel(sphere);
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void A_Thin_Slab_Lit_From_Behind_Shows_The_Light_On_Its_Front_Where_A_Thick_One_Barely_Does(bool lamp)
+    {
+        // Three white slabs a unit square facing the camera, lit only from behind: a thin one and a
+        // thick one whose material scatters over 0.3, and a thin one that does not. Behind them a lamp
+        // whose light's way through each is measured in the scene's distance field, or the sun with
+        // no field, whose shadow map measures it. The thin one's front read (136, 102, 83) by the
+        // lamp and (180, 162, 150) by the sun, and the thick one's and the unmarked one's 39 in every
+        // channel, the ambient light alone, as this test measured on an RTX 4070.
+        Open();
+        if (lamp)
+        {
+            SetSceneField(1, 0.15f);
+            CreatePointLight(new Vector3(0, 0, -2.5f), Color.White, 3, range: 10);
+        }
+        else
+            CreateDirectionalLight(Vector3.UnitZ, Color.White, 0.5f, castsShadows: true);
+        SetAmbientLight(Color.White, 0.02f);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var scattering = slab.Materials[0] with { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60) };
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var (thin, thick, plain) = (new Vector3(-1.3f, 0, 0), new Vector3(0, 0, -0.6f), new Vector3(1.3f, 0, 0));
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 12 && !File.Exists(path); frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawMesh(slab.Meshes[0], scattering, Matrix4x4.CreateScale(1, 1, 0.04f) * Matrix4x4.CreateTranslation(thin));
+            DrawMesh(slab.Meshes[0], scattering, Matrix4x4.CreateScale(1, 1, 1.2f) * Matrix4x4.CreateTranslation(thick));
+            DrawMesh(slab.Meshes[0], slab.Materials[0], Matrix4x4.CreateScale(1, 1, 0.04f) * Matrix4x4.CreateTranslation(plain));
+            EndMode3D();
+            if (frame == SceneFieldPlan.SettleFrames + 6) TakeScreenshot(path);
+            EndDrawing();
+        }
+        File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong");
+        var image = LoadImage(path);
+        Color Front(Vector3 middle, float depth)
+        {
+            var p = GetWorldToScreen(middle + new Vector3(0, 0, depth / 2), camera);
+            return GetImageColor(image, (int)p.X, (int)p.Y);
+        }
+
+        var (thinFront, thickFront, plainFront) = (Front(thin, 0.04f), Front(thick, 1.2f), Front(plain, 0.04f));
+        Sum(thinFront).Should().BeGreaterThan(Sum(plainFront) + 60, $"light comes through the thin slab to its front, {thinFront} against the unmarked {plainFront}");
+        (thinFront.R - thinFront.B).Should().BeGreaterThan(20, $"red, which travels farthest, most, {thinFront}");
+        Sum(thickFront).Should().BeLessThan(Sum(plainFront) + (Sum(thinFront) - Sum(plainFront)) / 4, $"and barely through the thick one, {thickFront} against {thinFront}");
+        UnloadModel(slab);
     }
 }

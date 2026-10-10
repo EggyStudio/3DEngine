@@ -205,14 +205,16 @@ physics, text and fonts, audio, audio streams and waves, and files
   view's size and from the scene's distance field where it is built, so a mesh that casts none
   closes nothing off, and probe captures are drawn without it.
 
-- **Light scatters under a surface in the window, and none comes through a thin part.** A
+- **Light scatters under a surface in the window and comes through its thin parts.** A
   material's `SubsurfaceRadius` and `SubsurfaceColor` spread the diffuse light of the window's
   opaque and masked surfaces drawn with the model pass's own shader across and then down the
   decoded frame, seventeen taps each way, a pixel of another surface never touched and the spread
-  stopped at a depth edge (RENDERING.md §5). What is missing is the light that comes through a thin
-  part lit from behind, an ear or a leaf, which needs the part's thickness toward the light; tiers
-  of the taps and a half-size pass for a slow GPU; a glTF file's thickness, read where it has
-  `KHR_materials_volume`; and the spread in render textures and probe captures.
+  stopped at a depth edge, and a thin part lit from behind shows the light that comes through it,
+  its thickness toward a lamp read from the scene's distance field and toward the sun from the
+  field or its shadow map (RENDERING.md §5). What is missing is tiers of the taps and a half-size
+  pass for a slow GPU; a material's own thickness for a part the field cannot measure, as a leaf
+  drawn as one sheet, read from a glTF file where it has `KHR_materials_volume`; the light through
+  a lamp's shadow where there is no field; and the spread in render textures and probe captures.
 
 ### The device
 

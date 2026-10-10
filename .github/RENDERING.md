@@ -1450,21 +1450,33 @@ frame, as Jimenez's separable screen-space scattering does (`SubsurfaceRenderer`
 profile, the share of the radius each color travels and the radius, keys its batches, so a batch
 holds one, and once the scene is decoded the window's batches that scatter, opaque or masked and
 drawn with the model pass's own shader, are drawn again by `subsurface.slang`
-(`ModelRenderer.DrawSubsurface`) into two half-float images of the window's size at one sample,
-their diffuse light, which `litLight` in `modelpass.slang` works out apart from the specular, and
-their profile, which a vertex buffer of one element a batch gives the call, stepped per instance
-with a stride of 0. A fragment is kept only where the scene's depth, its first sample's, lies
+(`ModelRenderer.DrawSubsurface`) into three half-float images of the window's size at one sample,
+their diffuse light, which `litLight` in `modelpass.slang` works out apart from the specular, their
+profile, which a vertex buffer of one element a batch gives the call, stepped per instance with a
+stride of 0, and the light that comes through them from a light behind, an ear's or a leaf's: the
+light reaching the far side, facing away along the normal, falls with the thickness it crosses,
+each of red, green and blue by e to the minus the thickness over its share of the radius, times the
+surface's color, nothing past three of the widest share. The thickness toward the light is marched
+through the scene's distance field from a little under the surface until the march leaves the mesh,
+where the field's finest cascade holds the point, and past that cascade the sun's shadow map gives
+it, the depth from the face the map holds nearest the sun to the point; the field is bound to the
+model pass where it is built though light does not bounce, the probes' images left empty there. A fragment is kept only where the scene's depth, its first sample's, lies
 within two pixels' change of its own, so a marked surface hidden by another leaves its pixels
-unmarked. `subsurface_blur.slang` then spreads that light across into an image of its own and down
-onto the decoded frame, seventeen taps each way out to the radius, each color by a Gaussian a third
+unmarked. `subsurface_blur.slang` then spreads that light, with the light that came through,
+across into an image of its own and down onto the decoded frame, seventeen taps each way out to the radius, each color by a Gaussian a third
 of its share of the radius wide, the radius turned into pixels at the pixel's distance from the eye,
 a tap left out where it is unmarked or lies farther from the eye than the radius from the pixel,
-and the pass down adds the spread light less the pixel's own, so an unmarked pixel is never
-touched. The window's particles are drawn over the frame after, in a pass that keeps its color and
+and the pass down adds the spread light less the pixel's own diffuse light, which the frame held
+where it held none of what came through, so an unmarked pixel is never touched. The window's particles are drawn over the frame after, in a pass that keeps its color and
 depth. In `games/Manor` at 1280 by 720, every one of its 139 materials scattering over 5 cm takes
 `hdr_scene` 0.95 to 1.02 ms of the GPU where it takes 0.42 to 0.46, and one of them 0.65 to 0.70,
 the medians of seven readings of `./e3d command profile` with the frame rate unlimited, the
-materials marked through `./e3d eval`.
+materials marked through `./e3d eval`. With the light that comes through, its 172 materials now
+scattering over 5 cm take `hdr_scene` 1.294 ms where they took 1.185 without it and none 0.47, the
+medians of seven readings again, the engine packed with each (`build/pack.sh`). A thin slab lit
+from behind reads on its front (136, 102, 83) by a lamp measured through the field and
+(180, 162, 150) by the sun measured through its shadow map, where a slab 1.2 thick and an unmarked
+one read the ambient light's 39 (`SubsurfaceTests`).
 
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it

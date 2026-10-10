@@ -41,6 +41,11 @@ Sampler2D depth;
 [[vk::binding(3, 0)]]
 Sampler2D source;
 
+// The light that comes through the marked surfaces from behind, which the pass across spreads with
+// the diffuse light, so the frame, which holds the diffuse light alone, gains it spread.
+[[vk::binding(4, 0)]]
+Sampler2D through;
+
 // Taps along the way, the middle one the pixel's own, out to three widths of the widest channel.
 static const int Taps = 17;
 
@@ -89,12 +94,16 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
                 continue;
         }
         float3 weight = exp(-x * x / (2.0 * widths * widths));
-        sum += weight * source.SampleLevel(at, 0).rgb;
+        float3 tap = source.SampleLevel(at, 0).rgb;
+        if (push.mode.x < 0.5)
+            tap += through.SampleLevel(at, 0).rgb;
+        sum += weight * tap;
         weights += weight;
     }
     float3 spread = sum / max(weights, float3(1e-6));
     if (push.mode.x < 0.5)
         return float4(spread, 1.0);
-    // Added to the frame, which held the pixel's own diffuse light, so it holds the spread light.
+    // Added to the frame, which held the pixel's own diffuse light and none of what comes through,
+    // so it holds the spread light.
     return float4(spread - here.rgb, 0.0);
 }

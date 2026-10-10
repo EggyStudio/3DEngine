@@ -41,7 +41,7 @@ internal sealed partial class ModelRenderer
                 {
                     var none = NoPointShadowMap(stub);
                     gfx.UpdateDescriptorSet(_noLights, null, Lit(none.DepthView, none.Sampler, 4));
-                    BindBounced(stub, _noLights, null);
+                    BindBounced(stub, _noLights, null, null);
                 }
                 BindSamplers(gfx, _noLights, white);
             }
@@ -86,7 +86,7 @@ internal sealed partial class ModelRenderer
                 ? target == 0 ? bounced
                 : renderWorld.TryGet<TargetIllumination>()?.ByTarget.GetValueOrDefault(target)
                   ?? bounced with { Screen = null, Depth = null, History = null, Rays = null }
-                : null);
+                : null, renderWorld.TryGet<SceneFieldBinding>() is { On: true } built ? built.Field : null);
         BindSamplers(gfx, set, white);
         // The environment as the frame's filter left it, or black and no light where it has none.
         var environment = frame.HasEnvironment && _environmentSource is not null
@@ -176,9 +176,10 @@ internal sealed partial class ModelRenderer
     private GpuScreenProbes? _noScreen;
     private IBuffer? _noGiLights;
 
-    // Binds the probes' faces and their field, and what a reflection is traced through, or the
-    // field of nothing where light does not bounce.
-    private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced)
+    // Binds the probes' faces and their field, and what a reflection is traced through, or where
+    // light does not bounce the scene's field where it is built, which subsurface.slang measures
+    // the light that comes through a mesh by, or else the field of nothing.
+    private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced, GpuSceneField? built)
     {
         var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
         device.UpdateDescriptorSet(set, null, Lit(screen.BlendedView, screen.Sampler, ScreenLightBinding));
@@ -200,10 +201,11 @@ internal sealed partial class ModelRenderer
         }
         else
         {
-            field = _noBounce ??= device.CreateSceneField(1, 1);
+            var none = _noBounce ??= device.CreateSceneField(1, 1);
+            field = built ?? none;
             _noGiLights ??= device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
-            device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, BouncedLightBinding));
-            device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, BouncedReachBinding));
+            device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
