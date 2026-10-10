@@ -17,6 +17,11 @@
 // read 63% short of a path-traced reference, and every surface past the first cascade's reach
 // that read those faces for the light bounced to it.
 //
+// A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved off it along the
+// field's normal before its rays leave, as DDGI moves its probes, so the probes in the plane of a
+// wall or a ceiling stand in the room before it, and where it stands is left for the merge and the
+// gather, which writes it into the probe's faces for every pass that reads them.
+//
 // A probe takes the light that bounced to the surfaces its rays meet at the share the gather left
 // it, other than the whole the frame after the light its rays bring straight from the sun, the
 // lights and what gives off light fell by a fifth or rose by a quarter, so the light that bounced
@@ -65,7 +70,9 @@ RWTexture3D<float> distances;
 Sampler3D reach;
 
 // Each probe's own light as gi_ambient.slang left it, the frame before's and the one before that
-// side by side, and the share of the light that bounced each probe takes, every cascade.
+// side by side, the share of the light that bounced each probe takes, and where this trace moved
+// each probe to, its move in its spacing with w 1 where it stands outside every mesh, every
+// cascade.
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
@@ -90,6 +97,28 @@ struct TracePush
 
 [[vk::push_constant]]
 ConstantBuffer<TracePush> push;
+
+groupshared float4 place;
+
+// Where the probe whose spot in the grid is at stands: moved off a surface nearer than Clearance of
+// the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
+// its move in its spacing, with w 1 where it then stands outside every mesh.
+float4 placed(float3 at, float apart)
+{
+    float3 p = at;
+    for (int step = 0; step < 4; step++)
+    {
+        float d = fieldDistance(sceneField, fieldInfo, p);
+        if (d >= Clearance * apart)
+            break;
+        p += fieldNormal(sceneField, fieldInfo, p) * (Clearance * apart - d);
+        float3 move = p - at;
+        float length = length(move);
+        if (length > MostMoved * apart)
+            p = at + move * (MostMoved * apart / length);
+    }
+    return float4((p - at) / apart, fieldDistance(sceneField, fieldInfo, p) >= 0.0 ? 1.0 : 0.0);
+}
 
 groupshared float3 nearNow[32];
 groupshared float3 nearBefore[32];
@@ -164,14 +193,23 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float3 share = kept(at, int(push.cascade.x), int(probes), lane);
 
     float4 oc = fieldInfo.cascades[push.cascade.x].originAndCell;
-    float3 origin = oc.xyz + (float3(at) + 0.5) * (oc.w * push.interval.z);
+    float apart = oc.w * push.interval.z;
+    float3 spot = oc.xyz + (float3(at) + 0.5) * apart;
+    // The probe moved into the open by the group's first ray, for every ray of it.
+    if (lane == 0u)
+    {
+        place = oc.w > 0.0 ? placed(spot, apart) : float4(0.0);
+        held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = place;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    float3 origin = spot + place.xyz * apart;
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
     float reached = 0.0;
     if (oc.w <= 0.0)
     {
     }
-    else if (fieldDistance(sceneField, fieldInfo, origin) < 0.0)
+    else if (place.w < 0.5)
         light = float4(0.0);
     else
     {

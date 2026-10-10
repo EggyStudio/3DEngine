@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2c3e9cf8`. C's eleventh, the first of its two causes, found at the probes as asked:
+Reviewed up to `3ab4f7a5`. The tenth made whole, and the gain read. A probe lit mostly by light that
+bounced is judged by the own light of the 27 probes of its cascade within one of it, this frame's
+against the frame before's, 27 rays of its workgroup each reading one into shared memory before any
+ray traces, the sum reduced for the group, and the level's word of sums, its clears and its barriers
+gone; the returns before the barriers are uniform over the group, the share and the switch being the
+probe's, so no lane waits alone. A new test puts a lit room with a corridor around a corner beside a
+closed room apart whose lamp holds half the level's own light and puts that lamp out: judged by the
+level the corridor dimmed 3.3 and 3.7% three frames on, judged by its neighbors it holds to a tenth
+of a level, bound 1.5%; the panel's room still goes in 2 frames, a corridor of 0.72 walls within a
+frame of its own lamp; the rise counts for these probes too, the light not yet come to a carried
+lamp's new side arriving in 11 and 10 frames where 18, the light left behind lingering at half a
+level to frame 12 where 0.12, both numbers written and the trade taken for the arrival and a
+flickering light; the cost within the noise. Right, and the test is the case the review named. The
+gain, read before anything moved as asked: a closed box of one color lit by a panel, the hold off,
+loses 0.515 of its first cascade's light a frame at walls of 0.503 and 0.26 to 0.27 at walls of
+0.25, so the light that bounces again keeps its walls' share and no more, the slow fades being the
+test rooms' walls of 1 and the bounce rooms' 0.72 with every wall taking part since the lean. So the
+loop's gain is right and the review's suspect was wrong; the overshoot in the closed rooms lies
+elsewhere, and the window probe's sun 20% short against its whole 22% over points at the probes a
+spacing in front of a surface bringing more than reaches the surface itself, which moving the probes
+against the lean measures next, right. The lean, read again, took the five slides' crawl from 0.86
+levels a frame to 0.36 and the unheld from 3.10 to 1.63, which §4 says. The suite: 1,600 passed; on
+lavapipe 345 passed and 6 skipped with no validation error. The probes moved against the lean next,
+then the trace's hits through the reach, then D.
+
+Before it, C's eleventh came to be read, the first of its two causes, found at the probes as asked:
 the window's room is six units across and three high, a whole number of the first cascade's spacing,
 so its walls and ceiling lie in planes of probes that stand inside them and hold nothing, and a
 surface weighed its eight probes at its own point, the trilinear weight all on those in its plane,
@@ -167,20 +192,22 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    tenth is whole when a probe judged by the sum is judged by the own light of the probes around it,
    its cascade's neighbors or its parent's probe, and not every probe's in the level, since a lamp
    switched or flickering in a far room would dip or flash every passage lit by bounce alone, with a
-   test of two lit rooms apart (`2588735f`'s review). Eleventh the three rooms still far under after
-   the eight, the window's at −53%, the grazing floor at −37% and the corridor at −21%, the ones
-   seen as too dim at a distance: read at the probes with `gi.probe` against the one-bounce and
-   two-bounce references, as the third and sixth were found, the cause named and fixed where it is a
-   fault, and written with its number where it is the method's limit. The eleventh's second half
-   reads the loop's gain, the ratio of each frame's light that bounces again to the frame before's
-   after a panel goes dark with the hold off, against the share the walls' color gives, since the
-   overshoot in every closed room after the lean, the fade from 30 to 45 frames and a carried lamp's
-   light arriving in 18 frames where 12 all say that gain runs over its share; what makes it so is
-   mended before the probes are moved (`2c3e9cf8`'s review). Three more from the same drop are read
-   only if an artifact outlives the nine: a directional signal per screen probe resolved against the
-   pixel's shading normal where a scalar gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`);
-   the history rejected under what moved by the velocity image the motion blur draws, and one fresh
-   ray validating a reprojected probe (`HTemporalStablizationWSGI.compute`); and the lamps at a hit
+   test of two lit rooms apart (`2588735f`'s review, done at `3ab4f7a5`). Eleventh the three rooms
+   still far under after the eight, the window's at −53%, the grazing floor at −37% and the corridor
+   at −21%, the ones seen as too dim at a distance: read at the probes with `gi.probe` against the
+   one-bounce and two-bounce references, as the third and sixth were found, the cause named and
+   fixed where it is a fault, and written with its number where it is the method's limit. The
+   eleventh's second half reads the loop's gain, the ratio of each frame's light that bounces again
+   to the frame before's after a panel goes dark with the hold off, against the share the walls'
+   color gives, since the overshoot in every closed room after the lean, the fade from 30 to 45
+   frames and a carried lamp's light arriving in 18 frames where 12 all say that gain runs over its
+   share; read at `3ab4f7a5`, the gain is the walls' share, 0.515 at 0.503 and 0.26 at 0.25, so the
+   overshoot lies elsewhere, the probes a spacing in front of a surface the next suspect, measured
+   by moving them against the lean. Three more from the same drop are read only if an artifact
+   outlives the nine: a directional signal per screen probe resolved against the pixel's shading
+   normal where a scalar gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`); the history
+   rejected under what moved by the velocity image the motion blur draws, and one fresh ray
+   validating a reprojected probe (`HTemporalStablizationWSGI.compute`); and the lamps at a hit
    sampled from a cluster of the nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`),
    where every lamp is evaluated today. The probes placed and filtered by a smooth geometric normal
    with the shading normal used at the resolve alone is that product's rule, worth one look at the
@@ -473,27 +500,24 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-The tenth's marked probes, from `2588735f`'s review, and the loop's gain, from `2c3e9cf8`'s. A probe
-lit mostly by light that bounced is judged by the own light of the 27 probes of its cascade within
-one of it, this frame's sum against the frame before's, read by 27 rays of its workgroup before the
-rest trace; the level's word of sums and its barriers are gone. A new test lights a corridor around
-a corner from its room and puts out the lamp of a room apart that holds some half of every probe's
-own light: judged by the level's sum the corridor dimmed 3.3 and 3.7% 3 frames on, judged by its
-neighbors it holds to the tenth of a level, bound 1.5%. The panel's room still goes in 2 frames, and
-a corridor of walls of 0.72 falls to nothing within a frame of its own lamp. The rise counts for
-these probes too, and the carried lamp shows both sides of it: the light not yet come to its new
-side goes in 11 and 10 frames where 18, 1.9 and 1.1 levels short 6 frames on where 5.2 and 4.6, and
-the light left behind lingers near half a level to frame 12 at High where it was 0.12, the bounce
-raised near the new place holding the new light's first bounce; falls alone read as the level's sum
-did, 18 and 17 frames. I kept the rise for the arrival and for a flickering light; the costs are
-within the noise. The gain, read as you asked before anything moves: a closed box of one color lit
-by a glowing panel, the hold off, the first cascade's light falls each frame by 0.515 at walls of
-0.503 once the field settles, the white panel some 4% of the surface, and by 0.26 to 0.27 at walls
-of 0.25, so the light that bounces again keeps its walls' share. The slow fades are the test rooms'
-walls of albedo 1, which a closed room never loses light to, and of the bounce rooms' 0.72, now that
-the lean lets every wall take part; the overshoot in the closed rooms is then not the loop's gain,
-and the window room's probe, its light straight from the sun 20% short and its total 22% over, says
-the light arriving at a surface from the probes a spacing in front of it runs over what reaches the
-surface itself, which moving the probes against the lean measures next. The lean, read after its
-commit, also took the crawl from 0.86 levels a frame to 0.36 (0.26 to 0.47), unheld 3.10 to 1.63,
-which §4 now says.
+C11, the probes moved against the lean. A probe nearer a surface than a tenth of its spacing, or
+inside a mesh, is moved along the field's normal to stand that far off, half its spacing at most;
+the trace moves it before its rays leave and leaves the place in the probes' state, the merge reads
+it from there, and the gather writes it into the faces' alpha, 0 for a probe that holds nothing and
+two more than its move along each face's axis in its spacing, so the model pass, the screen's
+probes, the rays' hits, the gizmos and `gi.probe` take each probe's place from the faces they
+already read and no pass gains a binding but the merge. Measured first, a room's signed error lets
+one region hide another: the strip's room read −15% with its ceiling 39% over and its back wall 56%
+under, so each room is read by its pixels' mean difference as a share of the reference too. With
+the move those sum to 131, 129 and 137 at Low, Medium and High where they summed to 149, 148 and
+158; the window room +8/+10/+17% → −8/−6/+3% (pixels 32/33/39 → 24/24/28), its ceiling's and walls'
+overshoot coming down; the strip's room −15/−24/−15% → −26/−30/−23% as its ceiling comes down to +9%,
+its pixels 46/46/44 → 42/43/42; the thin room +6% → +9%, 6 → 8; the rest within two points, the
+corridor its limit. Moved to a quarter of the spacing they summed to 135 and 145 at Low and High;
+moving only probes inside or touching a mesh reads as moving every probe nearer than a tenth; with
+the move a lean of a quarter sums to 391 over the three, half to 397 with the smaller signed errors,
+three quarters to 284 at Low and High alone, so it stays half. A new test: the probes in a closed
+room's ceiling plane hold light a tenth of their spacing below it, a probe in the open at its spot.
+The bounce costs 0.012 to 0.015 ms more, timed twice against the commit before. The suite 1,601
+passed; lavapipe 346 passed, 6 skipped, no validation error. Next the trace's hits through the
+reach against the marches, then D.

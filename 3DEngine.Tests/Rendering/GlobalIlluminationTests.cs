@@ -345,6 +345,56 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Probe_In_The_Plane_Of_A_Ceiling_Stands_Below_It_And_Holds_Light()
+    {
+        // The closed room above, its ceiling in a plane of the first cascade's probes. A probe in
+        // that plane stood inside the ceiling and held nothing; it is moved into the room to stand a
+        // tenth of its spacing below it, its faces holding light and saying how far it moved, and
+        // a probe in the open stays at its spot.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        panel.Materials[0].Emissive = Color.White;
+        panel.Materials[0].EmissiveIntensity = 1;
+        Capture(() =>
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6.6f, 0.3f, 6.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(6.6f, 0.3f, 6.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 1.5f, -3.15f), Vector3.UnitY, 0, new Vector3(6.6f, 3, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 1.5f, 3.15f), Vector3.UnitY, 0, new Vector3(6.6f, 3, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(-3.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), Color.White);
+            DrawModelEx(slab, new Vector3(3.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), Color.White);
+            DrawModelEx(panel, new Vector3(0, 0.03f, 0), Vector3.UnitY, 0, new Vector3(1.6f, 0.06f, 1.6f), Color.White);
+        }, new Camera3D(new Vector3(0, 0.5f, 2.6f), new Vector3(0, 3, -0.5f), Vector3.UnitY, 70));
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
+        var cubes = ((GraphicsDevice)renderer.Context.Graphics!).ReadIlluminationCubes(gi);
+        var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(0)!.Value;
+        var p = gi.Probes;
+        const float spacing = 0.15f * GlobalIlluminationRenderer.ProbeSpacing;
+        // A face's alpha, 0 where the probe holds no light and two more than its move along the
+        // face's axis in its spacing where it does.
+        float Alpha(int x, int y, int z, int face) => cubes[(((z * p + y) * 6 * p) + face * p + x) * 4 + 3];
+        int Index(float world, float corner) => (int)MathF.Round((world - corner) / spacing - 0.5f);
+        var (top, middle) = (Index(3.0f, origin.Y), Index(1.8f, origin.Y));
+        var under = 0;
+        for (int z = Index(-1.8f, origin.Z); z <= Index(1.8f, origin.Z); z++)
+            for (int x = Index(-1.8f, origin.X); x <= Index(1.8f, origin.X); x++)
+            {
+                var (ceiling, room) = (Alpha(x, top, z, 2), Alpha(x, middle, z, 2));
+                ceiling.Should().BeGreaterThan(0.5f, "a probe in the ceiling's plane holds light");
+                (ceiling - 2).Should().BeApproximately(-0.1f, 0.03f, "and stands a tenth of its spacing below it");
+                room.Should().BeApproximately(2, 0.01f, "a probe in the open stays at its spot");
+                under++;
+            }
+        under.Should().BeGreaterThan(8);
+        UnloadModel(slab);
+        UnloadModel(panel);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Glowing_Panel_Lights_Its_Room_In_A_Render_Texture_Too()
     {
         // The room the panel lights by bouncing alone, drawn into a render texture, which drew it

@@ -108,10 +108,15 @@ bool probesAround(float3 p, uint c, float3 normal, out int3 base, out float3 f)
     return oc.w > 0.0 && all(q >= -0.5) && all(q <= probes - 0.5);
 }
 
+// Where the probe of cascade c at `at` stands, its spot in the grid moved as its faces say.
 float3 probeAt(int3 at, uint c)
 {
     float4 oc = fieldInfo.cascades[c].originAndCell;
-    return oc.xyz + (float3(at) + 0.5) * (oc.w * view.trace.z);
+    int probes = int(view.trace.y);
+    float3 moved = float3(0.0);
+    for (int axis = 0; axis < 3; axis++)
+        moved[axis] = faceMove(bounced.loadAt(int3(axis * 2 * probes + at.x, at.y, int(c) * probes + at.z)).a);
+    return oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * view.trace.z);
 }
 
 // Which of the eight probes of cascade c around p a surface there sees, a bit a probe, each traced

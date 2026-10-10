@@ -628,8 +628,14 @@ ray's hit reads the frame after for the light that bounced to it, and the model 
 screen probe holds a pixel. Between the eight probes around a point, a probe is weighed by how near
 it is and, as DDGI weighs them, how squarely it stands in front of the surface, and one behind the
 surface's plane next to nothing, how near taken from a point half the probes' spacing off the
-surface along its normal (`Lean` in `gi.slang`), so a wall lying in a plane of probes, which stand
-inside it and hold nothing, takes the light of the row in front of it.
+surface along its normal (`Lean` in `gi.slang`), so a wall lying in a plane of probes takes the
+light of the row in front of it as well as theirs. A probe nearer a surface than a tenth of its
+spacing, or inside a mesh, is moved along the field's normal to stand that far off it, half its
+spacing at most, as DDGI moves its probes (`placed` in `gi_trace.slang`), so the probes in a wall's
+or a ceiling's plane stand in the room before it; the trace moves each probe before its rays leave,
+the merge reads where it moved them, and the gather writes each probe's move into its faces'
+alpha, two more than its move along each face's axis in its spacing and 0 for a probe that holds
+nothing, which every pass that reads the faces takes its place from.
 
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
@@ -1190,6 +1196,35 @@ the field settles, the white panel some 4% of the surface at 1, and by 0.26 to 0
 0.25, so the light that bounces again keeps its walls' share and no more. The rooms the tests and
 the bounce rooms light are white, the tests' of 1, whose light a closed room never loses, so they
 fade over more frames now that the lean lets their walls take part.
+
+The probes of a wall's or a ceiling's plane, which the lean passes over since they stand inside it,
+are moved into the room. A room's signed error over every region lets one region's excess hide
+another's shortfall, as the strip's room's ceiling read 39% over while its back wall read 56% and
+its floor 35% under, so each room is read here by the mean of each pixel's difference from the
+reference as well, as a share of the reference's light, and the move is judged by it. Each room,
+its signed error and its pixels' mean difference, before → after (`build/bounce-rooms.sh`'s
+references, `gi.compare`):
+
+| Room | `Low` | `Medium` | `High` |
+|---|---|---|---|
+| Cornell box | +10%, 18 → +9%, 16 | +8%, 15 → +7%, 14 | +11%, 15 → +9%, 14 |
+| Thin walls | +6%, 6 → +9%, 8 | +6%, 7 → +9%, 9 | +6%, 7 → +9%, 9 |
+| Corridor | −21%, 21 → −21%, 21 | −21%, 21 → −21%, 21 | −21%, 21 → −21%, 21 |
+| Window | +8%, 32 → −8%, 24 | +10%, 33 → −6%, 24 | +17%, 39 → +3%, 28 |
+| Red walls | −1%, 1 → −1%, 1 | −1%, 1 → −1%, 1 | −1%, 1 → −1%, 1 |
+| Strip | −15%, 46 → −26%, 42 | −24%, 46 → −30%, 43 | −15%, 44 → −23%, 42 |
+| Grazing floor | −8%, 13 → −8%, 10 | −5%, 13 → −4%, 8 | +13%, 19 → +10%, 13 |
+| Carried lamp | −5%, 12 → −4%, 9 | −4%, 12 → −4%, 9 | −4%, 12 → −3%, 9 |
+
+The pixels' differences sum from 149, 148 and 158 to 131, 129 and 137; the strip's room reads 11
+points further under, its ceiling come down to +9%, and the thin room 3 over. Moved to a quarter of
+the spacing they sum to 135 and 145 at `Low` and `High`, and moving only probes inside a mesh or
+touching one reads the same as moving every probe nearer than a tenth; with the move, a lean of a
+quarter sums to 134, 129 and 128 and of three quarters to 136 and 148 at `Low` and `High`, and the
+lean stays half, its signed errors the smaller. A closed room whose ceiling lies in a plane of
+probes has those probes holding light a tenth of their spacing below it and a probe in the open at
+its spot (`GlobalIlluminationTests`). The bounce costs 0.481 to 0.484, 0.633 and 0.738 ms where it
+cost 0.469 to 0.472, 0.620 and 0.722, timed one after the other twice.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

@@ -81,7 +81,8 @@ internal sealed class GpuIllumination : IDisposable
     internal VkImageView Partial { get; }
 
     // Each probe's own light and the luminance of all its rays brought, two frames side by side,
-    // and the share of the light that bounced each probe's next rays take, every cascade.
+    // the share of the light that bounced each probe's next rays take, and where the trace moved
+    // each probe to, every cascade.
     internal VkImageView Held { get; }
 
     internal VkImage Cubes { get; }
@@ -208,7 +209,7 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage], (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 32);
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], 32);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
             return _giStages;
@@ -244,7 +245,7 @@ internal sealed unsafe partial class GraphicsDevice
             merged[c] = ProbeImage(p * n, p * n, p);
             distances[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
         }
-        var (held, heldMemory, heldView) = ProbeImage(3 * p, p, p * (uint)texels.Length);
+        var (held, heldMemory, heldView) = ProbeImage(4 * p, p, p * (uint)texels.Length);
         var (partial, partialMemory, partialView) = ProbeImage(4 * p, p, p * (uint)texels.Length, VkFormat.R32G32B32A32Sfloat);
         var (cubes, cubesMemory, cubesView) = ProbeImage(6 * p, p, p * (uint)texels.Length);
         var (reach, reachMemory, reachView) = ProbeImage(8 * p, 8 * p, p * (uint)texels.Length, VkFormat.R16Sfloat);
@@ -424,6 +425,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 2, VkDescriptorType.StorageImage, gi.Merged[c].View, null, VkImageLayout.General);
             run.Buffer(set, 3, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 4, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Image(set, 5, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
             ReadOnlySpan<uint> push = [(uint)c, p, n, c == gi.Cascades - 1 ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
                 BitConverter.SingleToUInt32Bits(mergeOff ? 1 : 0), BitConverter.SingleToUInt32Bits(alone + 1), 0];
             run.Dispatch(MergeStage, set, MemoryMarshal.AsBytes(push), (p * p * p * n * n + 63) / 64);

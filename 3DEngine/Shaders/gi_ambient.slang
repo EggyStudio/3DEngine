@@ -40,8 +40,9 @@ RWTexture3D<float> reach;
 Texture3D<float4> partial;
 
 // Each probe's own light and the luminance of all its rays brought, the frames of each parity side
-// by side, and after them the share of the light that bounced each probe's next rays take, a
-// negative one where the probe is judged by the probes around it, every cascade.
+// by side, after them the share of the light that bounced each probe's next rays take, a negative
+// one where the probe is judged by the probes around it, and after that where the trace moved each
+// probe to, every cascade.
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
@@ -118,7 +119,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
             valid = max(valid, light.a > 0.25 ? 1.0 : 0.0);
         }
-    cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(sum * (Pi / max(weights, 1e-6)), valid);
+    // Its alpha 0 where the probe holds no light, and two more than its move along the face's axis
+    // where it does (faceHolds and faceMove in gi.slang).
+    float4 place = held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x * probes + at.z))];
+    float holds = valid > 0.5 && place.w > 0.5 ? 1.0 : 0.0;
+    cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(sum * (Pi / max(weights, 1e-6)), holds * (2.0 + place[face / 2u]));
     if (face == 0u)
         follow(at, probes, texels, shares);
 

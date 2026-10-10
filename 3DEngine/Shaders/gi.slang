@@ -322,6 +322,26 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
 // gi_ambient.slang lays them out.
 public static const int ReachTexels = 8;
 
+// How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
+// so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling
+// stands in the room before it rather than inside it, as DDGI moves its probes. A probe moved stays
+// within half the spacing of its spot, so the probes keep their order.
+public static const float Clearance = 0.1;
+public static const float MostMoved = 0.45;
+
+// What a probe's faces carry in alpha, read as a face of each axis: whether the probe holds light,
+// 0 where it stands inside a mesh, and where it does, two more than its move along the axis in its
+// spacing, which gi_ambient.slang writes from the place gi_trace.slang moved it to.
+public float faceHolds(float alpha)
+{
+    return alpha > 0.5 ? 1.0 : 0.0;
+}
+
+public float faceMove(float alpha)
+{
+    return alpha > 0.5 ? alpha - 2.0 : 0.0;
+}
+
 // How far off a surface along its normal the probes around it are weighed from, in their spacing.
 // A room whose walls lie in planes of probes, as one whose size is a whole number of the spacing
 // may, weighed at the surface itself took its walls' and ceiling's light from the probes in their
@@ -405,16 +425,18 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 at = min(base + offset, int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        float3 probe = oc.xyz + (float3(at) + 0.5) * (oc.w * spacing);
         float3 light = float3(0.0);
-        float valid = 0.0;
+        float valid = 1.0;
+        float3 moved = float3(0.0);
         for (int axis = 0; axis < 3; axis++)
         {
             int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
             float4 texel = cubes.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z));
             light += texel.rgb * n2[axis];
-            valid = max(valid, texel.a);
+            valid = min(valid, faceHolds(texel.a));
+            moved[axis] = faceMove(texel.a);
         }
+        float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
         sum += light * weight;
@@ -448,19 +470,21 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, V cubes, 
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 at = min(base + offset, int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        float3 probe = oc.xyz + (float3(at) + 0.5) * (oc.w * spacing);
-        if (dot(probe - p, n) <= 0.0 || !seesThrough(field, info, from, probe, oc.w * 0.5))
-            continue;
         float3 light = float3(0.0);
-        float valid = 0.0;
+        float valid = 1.0;
+        float3 moved = float3(0.0);
         for (int axis = 0; axis < 3; axis++)
         {
             int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
             float4 texel = cubes.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z));
             light += texel.rgb * n2[axis];
-            valid = max(valid, texel.a);
+            valid = min(valid, faceHolds(texel.a));
+            moved[axis] = faceMove(texel.a);
         }
-        float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
+        float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
+        if (valid < 0.5 || dot(probe - p, n) <= 0.0 || !seesThrough(field, info, from, probe, oc.w * 0.5))
+            continue;
+        float weight = lerps.x * lerps.y * lerps.z * probeFacing(p, n, probe);
         sum += light * weight;
         weights += weight;
     }

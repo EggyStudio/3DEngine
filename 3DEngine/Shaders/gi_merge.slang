@@ -30,6 +30,16 @@ ConstantBuffer<SceneFieldInfo> fieldInfo;
 [[vk::binding(4, 0)]]
 Sampler3D sceneField;
 
+// Where the trace moved each probe to this frame, after each probe's own light, its share and the
+// frame before's, its move in its spacing with w 1 where it stands outside every mesh.
+[[vk::binding(5, 0)]] [format("rgba16f")]
+RWTexture3D<float4> held;
+
+float4 placeOf(int3 at, uint c, uint probes)
+{
+    return held[int3(3 * int(probes) + at.x, at.y, int(c * probes) + at.z)];
+}
+
 struct MergePush
 {
     // x: the cascade. y: the probes along each side. z: this cascade's octahedron's texels along
@@ -66,9 +76,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     uint c = push.cascade.x;
     uint upper = push.cascade.w;
     float4 oc = fieldInfo.cascades[c].originAndCell;
-    float3 origin = oc.xyz + (float3(at) + 0.5) * (oc.w * push.spacing.x);
+    float3 spot = oc.xyz + (float3(at) + 0.5) * (oc.w * push.spacing.x);
+    float4 here = probe < probes * probes * probes ? placeOf(int3(at), c, probes) : float4(0.0);
+    float3 origin = spot + here.xyz * (oc.w * push.spacing.x);
     float4 ac = fieldInfo.cascades[min(c + 1u, 7u)].originAndCell;
-    float3 q = (origin - ac.xyz) / (ac.w * push.spacing.x) - 0.5;
+    float3 q = (spot - ac.xyz) / (ac.w * push.spacing.x) - 0.5;
     int3 base = int3(floor(q));
 
     // The first eight threads of each probe in the group trace whether it sees each of the probes
@@ -80,7 +92,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     {
         int3 offset = int3(traced & 1u, (traced >> 1) & 1u, traced >> 2);
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
-        float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5) * (ac.w * push.spacing.x);
+        float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, min(c + 1u, 7u), probes).xyz) * (ac.w * push.spacing.x);
         seen[slot * 8u + traced] = upper > 0u && probe < probes * probes * probes && oc.w > 0.0
             && seesThrough(sceneField, fieldInfo, origin, upperProbe, oc.w * 0.5) ? 1u : 0u;
     }
@@ -88,7 +100,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
 
     if (probe >= probes * probes * probes)
         return;
-    if (oc.w <= 0.0 || fieldDistance(sceneField, fieldInfo, origin) < 0.0)
+    if (oc.w <= 0.0 || here.w < 0.5)
     {
         merged[written] = float4(0.0);
         return;

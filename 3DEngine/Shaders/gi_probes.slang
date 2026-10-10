@@ -47,7 +47,15 @@ ProbeVertex vertexMain(uint id : SV_VertexID, uint instance : SV_InstanceID)
     uint3 at = uint3(instance % probes, (instance / probes) % probes, instance / (probes * probes));
     float4 oc = fieldInfo.cascades[c].originAndCell;
     float spacing = oc.w * push.size.x;
-    float3 middle = oc.xyz + (float3(at) + 0.5) * spacing;
+    // Moved as its faces' alpha says, two more than its move along each axis in its spacing, 0 for
+    // a probe inside a mesh (faceMove in gi.slang).
+    float3 moved = float3(0.0);
+    for (int axis = 0; axis < 3; axis++)
+    {
+        float alpha = cubes.Load(int4(int(axis * 2 * probes + at.x), int(at.y), int(c * probes + at.z), 0)).a;
+        moved[axis] = alpha > 0.5 ? alpha - 2.0 : 0.0;
+    }
+    float3 middle = oc.xyz + (float3(at) + 0.5 + moved) * spacing;
 
     uint face = id / 6u;
     float3 n = Axes[face];

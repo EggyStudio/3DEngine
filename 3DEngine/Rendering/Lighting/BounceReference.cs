@@ -173,6 +173,14 @@ internal static class BounceReference
             var i = ((z * side + y * n + v) * side + x * n + u) * 4;
             return new Vector4(volume[i], volume[i + 1], volume[i + 2], volume[i + 3]);
         }
+        // The probe stands where the trace moved it, as its faces' alpha says, two more than its
+        // move along each axis in its spacing (faceMove in gi.slang).
+        float Moved(int axis)
+        {
+            var alpha = cubes[(((c * p + z) * p + y) * 6 * p + axis * 2 * p + x) * 4 + 3];
+            return alpha > 0.5f ? alpha - 2 : 0;
+        }
+        middle += new Vector3(Moved(0), Moved(1), Moved(2)) * spacing;
         // A probe inside a mesh holds nothing, its alpha 0.
         if (Texel(merged, 0, 0).W < 0.25f)
         {
