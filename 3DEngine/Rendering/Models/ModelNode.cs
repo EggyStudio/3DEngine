@@ -70,7 +70,7 @@ internal sealed partial class ModelRenderer : IDisposable
         public Vector4 Factors;
 
         // Each sRGB byte's linear value, since three powers a draw cost more than the rest of it.
-        private static readonly float[] Linear = Enumerable.Range(0, 256).Select(value =>
+        internal static readonly float[] Linear = Enumerable.Range(0, 256).Select(value =>
         {
             var c = value / 255f;
             return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);

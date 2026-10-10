@@ -349,6 +349,79 @@ public sealed class SceneFieldTests : IDisposable
         UnloadModel(cube);
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Field_Paints_A_Mesh_In_Its_Vertices_Colors_As_The_Model_Pass_Draws_Them()
+    {
+        // One white mesh of two boxes a unit wide, the left one's vertices red and the right one's
+        // green, as a game meshes blocks of many colors into one draw.
+        var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.25f);
+        var cube = GenMeshCube(1, 1, 1);
+        GetApp().World.Resource<MeshStore>().TryGetData(cube.Id, out var vertices, out var indices).Should().BeTrue();
+        ModelVertex[] both = [.. vertices.Select(v => v with { Position = v.Position - new Vector3(1.5f, 0, 0) }),
+            .. vertices.Select(v => v with { Position = v.Position + new Vector3(1.5f, 0, 0) })];
+        uint[] joined = [.. indices, .. indices.Select(i => i + (uint)vertices.Length)];
+        Color[] colors = [.. vertices.Select(_ => Color.Red), .. vertices.Select(_ => Color.Green)];
+        var mesh = UploadMesh(both, joined, colors, null);
+        var camera = new Camera3D(new Vector3(0, 2, 6), Vector3.Zero, Vector3.UnitY, 45, CameraProjection.Perspective);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.RayWhite);
+            BeginMode3D(camera);
+            DrawMesh(mesh, new ModelMaterial(Color.White), Matrix4x4.Identity);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        fields.Plan!.StillCount.Should().Be(1);
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var distances = device.ReadSceneField(fields.Field!);
+        var (albedo, _) = device.ReadSceneFieldColors(fields.Field!);
+
+        // Each cell near the surface by its side: red by the left box, green by the right.
+        var origin = fields.Plan.BuiltOrigin(0)!.Value;
+        const int size = SceneFieldPlan.Resolution;
+        int reds = 0, greens = 0;
+        for (int z = 0; z < size; z++)
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    var i = (z * size + y) * size + x;
+                    if (MathF.Abs(distances[i]) >= 0.3f || albedo[i * 4 + 3] == 0) continue;
+                    var (r, g) = (albedo[i * 4], albedo[i * 4 + 1]);
+                    if (origin.X + (x + 0.5f) * 0.25f < 0)
+                    {
+                        r.Should().BeApproximately(0.79f, 0.02f, "the left box's vertices are Color.Red, whose 230 is 0.79 in linear light");
+                        g.Should().BeLessThan(0.05f);
+                        reds++;
+                    }
+                    else
+                    {
+                        g.Should().BeApproximately(0.77f, 0.02f, "the right box's vertices are Color.Green, whose 228 is 0.77 in linear light");
+                        r.Should().BeLessThan(0.05f);
+                        greens++;
+                    }
+                }
+        reds.Should().BeGreaterThan(100);
+        greens.Should().BeGreaterThan(100);
+        UnloadMesh(mesh);
+        UnloadMesh(cube);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Moving_Mesh_Is_Stamped_In_Its_Color_Times_Its_Vertices_Mean_Color()
+    {
+        var plan = new SceneFieldPlan(1, 0.25f, 1, tint: _ => new Vector3(0.5f, 0.25f, 1));
+        plan.Update(Vector3.Zero, []);
+        plan.Update(Vector3.Zero, [(new SceneFieldPlan.Instance(1, Cube, Matrix4x4.Identity, false, Color: new Vector3(0.8f)), false)]);
+        plan.Shapes.Should().ContainSingle().Which.Color.Should().Be(new Vector3(0.4f, 0.2f, 0.8f));
+    }
+
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
     [InlineData(16)]

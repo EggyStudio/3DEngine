@@ -18,7 +18,10 @@
 // thinner than a cell, which may have no cell's middle inside it. A cell no triangle comes within the band of
 // keeps the word it was cleared to, the band's distance in front. A second dispatch over the same triangles
 // paints each cell the color and the light given off of a triangle whose word is the one the cell
-// kept, its nearest surface, which light that bounces is read from.
+// kept, its nearest surface, which light that bounces is read from, its instance's color times its
+// vertices' colors blended at the cell's nearest point, as the model pass blends them across a face.
+
+import color;
 
 struct FieldInstance
 {
@@ -37,9 +40,11 @@ struct FieldInstance
     float4 emission;
 };
 
-// Each triangle of every mesh the field is built from, three corners in the mesh's own space.
+// Each triangle of every mesh the field is built from, three corners in the mesh's own space, each
+// its place's bits and in w its vertex's color, three sRGB bytes, white where the mesh has none,
+// with the bit above them set where the edge from it to the triangle's next corner is open.
 [[vk::binding(0, 0)]]
-StructuredBuffer<float4> corners;
+StructuredBuffer<uint4> corners;
 
 [[vk::binding(1, 0)]]
 StructuredBuffer<FieldInstance> instances;
@@ -123,6 +128,26 @@ float3 place(FieldInstance instance, float3 p)
 {
     float4 h = float4(p, 1.0);
     return float3(dot(instance.row0, h), dot(instance.row1, h), dot(instance.row2, h));
+}
+
+// A corner's color in linear light, from the sRGB bytes its word holds below its open edge's bit.
+float3 cornerColor(uint word)
+{
+    return srgbToLinear(float3(float(word & 255u), float((word >> 8) & 255u), float((word >> 16) & 255u)) / 255.0);
+}
+
+// How much of each of a triangle's corners a point on it is made of.
+float3 barycentric(float3 p, float3 a, float3 b, float3 c)
+{
+    float3 ab = b - a, ac = c - a, ap = p - a;
+    float d00 = dot(ab, ab), d01 = dot(ab, ac), d11 = dot(ac, ac), d20 = dot(ap, ab), d21 = dot(ap, ac);
+    float denominator = d00 * d11 - d01 * d01;
+    if (denominator <= 1e-20)
+        return float3(1.0, 0.0, 0.0);
+    float v = saturate((d11 * d20 - d01 * d21) / denominator);
+    float w = saturate((d00 * d21 - d01 * d20) / denominator);
+    float3 weights = float3(max(1.0 - v - w, 0.0), v, w);
+    return weights / max(weights.x + weights.y + weights.z, 1e-6);
 }
 
 groupshared uint triangleInstance;
@@ -223,10 +248,11 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     if (push.groups.y == 2u && !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0)))
         return;
     uint corner = (instance.triangles.x + t - instance.triangles.w) * 3;
-    float3 a = place(instance, corners[corner].xyz);
-    float3 b = place(instance, corners[corner + 1].xyz);
-    float3 c = place(instance, corners[corner + 2].xyz);
-    bool3 edges = bool3(corners[corner].w > 0.5, corners[corner + 1].w > 0.5, corners[corner + 2].w > 0.5);
+    uint4 ca = corners[corner], cb = corners[corner + 1], cc = corners[corner + 2];
+    float3 a = place(instance, asfloat(ca.xyz));
+    float3 b = place(instance, asfloat(cb.xyz));
+    float3 c = place(instance, asfloat(cc.xyz));
+    bool3 edges = bool3(((ca.w >> 24) & 1u) != 0u, ((cb.w >> 24) & 1u) != 0u, ((cc.w >> 24) & 1u) != 0u);
     float3 face = cross(b - a, c - a);
     // A triangle of next to no area beside its longest side, as a sphere's last row has at a pole
     // whose corners the rounding of sin(pi) leaves a hair apart, has a face turned whichever way
@@ -327,7 +353,9 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         }
         else if (cells[index] == code)
         {
-            uint3 c = uint3(saturate(instance.color.rgb) * 255.0 + 0.5);
+            float3 weights = barycentric(q, a, b, c);
+            float3 painted = instance.color.rgb * (weights.x * cornerColor(ca.w) + weights.y * cornerColor(cb.w) + weights.z * cornerColor(cc.w));
+            uint3 c = uint3(saturate(painted) * 255.0 + 0.5);
             albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (255u << 24);
             float3 e = max(instance.emission.rgb, 0.0);
             glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, 0.0)));

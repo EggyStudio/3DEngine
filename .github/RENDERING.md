@@ -549,29 +549,34 @@ The faces of a box's edge, which meet square, are not taken for a wall. It took 
 in `shaders_scene_field` from 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
 dispatch of the splat paints each cell the color and the light given off of the triangle whose word
 it kept, the material's color times its texture's average in linear light
-(`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
-bounces. An emitter thinner than a cell, as a strip on a wall, may be no cell's nearest surface, so
-where an instance's thinnest extent is under a cell a third dispatch lends the cells within a cell
-of its triangles its light and the area of its faces near each, those a closed mesh turns toward
-the cell, within a square a cell wide about the cell's middle laid on the face, seen along each
-axis, and the resolve gives a cell the larger of its nearest surface's light and the lent light
-times the share of a cell's face those faces cover along the axis they cover most of, a whole face
-at most. The lend's buffer, six words a cell, 6 MB, is made the first time a build has such an
-emitter. A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet
-built again are stamped each frame as boxes, the nearest the eye first to 256 boxes, into the
-bricks of four cells they come within the band of, each cell the least of the still image's
-distance and those of the boxes that come within its brick, which the plan lists brick by brick
-(`field_stamp.slang`), and the bricks stamped the frame before are stamped again so a box that left
-one is gone. A cell is painted the color of the nearer of the still meshes and the boxes, a box its
-mesh's color as the splat reckons it, from a copy of the still meshes' colors the resolve writes
-beside the image the passes read, so a cell a box painted takes the still color again once the box
-has left. The light a mesh gives off is not stamped, which would take a copy of the still light as
-well, 2 MB a cascade. A skinned mesh is a box for each joint around the vertices at rest it holds
-most, posed by the joint's latest matrix, and one that does not bend a box for each of up to eight
-parts its triangles are cut into where each cut takes a third of the volume away
-(`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what the room left for a box
-each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures near
-the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
+(`TextureStore.AverageColor`), times its vertices' colors where its mesh has them, each corner's
+sRGB bytes pooled in the bits of its place's fourth word and blended at the cell's nearest point as
+the model pass blends them across the face, into an image of each beside the distances, for the
+light that bounces, so a mesh of many colors, as a voxel game's section, bounces each of them; a
+mesh still settling is stamped in its color times its vertices' mean. Built every frame in the
+voxel game at eight columns, the field's node took 0.46 to 0.48 ms of the GPU where it took 0.41 to
+0.45 (`field.rebuild 4000`, Release). An emitter thinner than a cell, as a strip on a wall, may be
+no cell's nearest surface, so where an instance's thinnest extent is under a cell a third dispatch
+lends the cells within a cell of its triangles its light and the area of its faces near each, those
+a closed mesh turns toward the cell, within a square a cell wide about the cell's middle laid on
+the face, seen along each axis, and the resolve gives a cell the larger of its nearest surface's
+light and the lent light times the share of a cell's face those faces cover along the axis they
+cover most of, a whole face at most. The lend's buffer, six words a cell, 6 MB, is made the first
+time a build has such an emitter. A mesh that moved more recently, a skinned one, and a still one
+whose cascades are not yet built again are stamped each frame as boxes, the nearest the eye first
+to 256 boxes, into the bricks of four cells they come within the band of, each cell the least of
+the still image's distance and those of the boxes that come within its brick, which the plan lists
+brick by brick (`field_stamp.slang`), and the bricks stamped the frame before are stamped again so
+a box that left one is gone. A cell is painted the color of the nearer of the still meshes and the
+boxes, a box its mesh's color as the splat reckons it, from a copy of the still meshes' colors the
+resolve writes beside the image the passes read, so a cell a box painted takes the still color
+again once the box has left. The light a mesh gives off is not stamped, which would take a copy of
+the still light as well, 2 MB a cascade. A skinned mesh is a box for each joint around the vertices
+at rest it holds most, posed by the joint's latest matrix, and one that does not bend a box for
+each of up to eight parts its triangles are cut into where each cut takes a third of the volume
+away (`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what the room left for a
+box each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures
+near the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
 bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of
 the CPU in the Release build, as their meshes' 57 boxes were.
 

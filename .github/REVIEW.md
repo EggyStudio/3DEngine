@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0e982877`. Part a's remainder measured and left out, part c found to rest on a wrong
+Reviewed up to `2dd527f1`. Item 2's part d, the field's plan on a still scene, measured first inside
+the field's node in Release at eight columns over 1,836 meshes: the gather that turns the frame's
+draws into the plan's instances took 325 µs and the plan 1,600, since each frame built a new
+dictionary of every mesh's instance and asked it and the still meshes' of each mesh, some four
+hashes a mesh. A frame that draws the meshes the frame before did, in the same order, is read by
+place, one comparison a mesh by its instance, a skinned one by its mesh since its parts are posed
+afresh and it is never still, the frames each has been drawn the same counted in place and one that
+comes to eight settled as before; any other frame, a mesh added, moved, gone or drawn twice, is
+worked out whole as before and its order kept for the next. The plan took 92 µs where 1,600 and the
+field's node 0.39 ms of the CPU where 1.8 to 2.0; Wick's field 0.05 to 0.14 ms where 0.19 to 0.32,
+Manor's off, the GPU of both unchanged. A test draws meshes that settle, move, leave and a skinned
+figure to one plan in the same order every frame and to another turned a place each frame, which
+never reads by place, and holds the two to the same still meshes, builds, shapes and bricks frame by
+frame, failing with the settling left out of the fast path. Right, the fast path held to the slow
+one frame by frame rather than to a picture, and the whole path kept for every frame that is not the
+same. What is left of the CPU a draw costs in the field is the gather, 330 µs, and the bounce's node
+holds 0.77 ms outside part d, both noted with their numbers. The suite: 1,636 passed; on lavapipe
+356 passed and 7 skipped with no validation error. Part e next, written and in testing.
+
+Before it, part a's remainder came to be measured and left out, part c found to rest on a wrong
 premise and answered the right way, and Verdict 40 read. The batched draws: in Release at eight
 columns, timed inside the shadow pass, binding a batch's two buffers took 0.16 µs and its draw 0.09
 µs and the pass's planes 13 µs a cascade, so a cascade's draws issued as one would save a quarter of
@@ -74,34 +93,6 @@ in Release first to see whether they pay, right, and the far cascades' setting; 
 NormTests names ASKS.md, which is in, and `e57f3fc1` is on `build/norm/7.2.txt`. The suite: 1,633
 passed; on lavapipe 354 passed and 7 skipped with no validation error.
 
-Before it, item 1 came with Verdicts 40 and 44, and one correction of this file's own. The leak test
-follows the 21st, 31st, 41st and 51st apps, since what one app kept swung between runs, and splits
-what the step line called ImGui's making: the 328 handles between the device and ImGui were every
-plugin built after the device, the renderer's 35 shaders, the physics' workers and the behaviors'
-compiler among them, ImGui's context last, so every plugin built is a step by the line that says so,
-with the renderer's shaders, ImGui's context, its atlas and its pipeline where a frame draws them;
-on Linux each followed app reads +1 at the behaviors' plugin and −1 as it closes, none kept, and the
-step that keeps two on Windows is the next page's to name. The reference frame test writes a failing
-frame, its difference and its reference under the project's `TestResults`, which a failing job
-uploads, and its message gives each kind of surface's means, red, green and blue by their dominance
-and gray by the third of the picture, with how many of its pixels differ. Drawn again on the RTX
-4070, four references had drifted since `e5cef045` through the fixes after it, the Cornell box's by
-2.16% of its pixels, densest in rows 100 to 119 and columns 64 to 95, the very region Windows
-differed in and one of macOS's two, so part of what the two devices differed by was this machine's
-own drift under the 5% that let it pass; the four are drawn again. The page shows each repeated line
-as the last of its kind, so the leak test's progress line, which named its app all along, says how
-far the test got where the page showed the second app 198 times, and item 1 had that wrong, calling
-it the test's; and the page counts a theory's cases cut to one name apart, as BevyCSharp's does,
-with a test each, which SHARED.md says. Right, all of it, and the drift is the finding: a reference
-drawn on one device and left while the engine moves fails elsewhere first, so a reference is drawn
-again whenever what draws it changes, which the verdict keeps. The next pushed run judges Verdicts
-40 and 44 on the fresh references and the split line. Of the uncommitted files the reply names:
-`3DEngine.Game` and the solution's line are the game's session's, and ASKS.md with AGENTS.md's
-bullet and row on it are this file's kin, written by the reviewing session and committed with
-whichever batch comes next, as REVIEW.md is, which Decision 26 says. The suite: 1,632 passed; on
-lavapipe 352 passed and 7 skipped with no validation error. Item 2 next, the game's shadows,
-measured first.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -117,20 +108,23 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    and 44's fixes and the redrawn references, are green on Linux, on macOS whole and on the macOS
    captures, 254 of 254 drawn, and red on Windows by the leak test alone, so the Cornell reference
    frame passes on both devices and Verdict 44 is settled; the Linux examples job with its soak and
-   measure (Verdicts 30 and 31) still waits on a run with Windows green. The run of `4f03a8cb` is in
-   progress. The page showed the leak test's progress line as its first of 198, `app 2`, where the
-   line named its app all along; the page shows the last of a repeated line since `88673244`.
-   Verdicts 40 and 44 are carried out there, the leak test following four apps through every
-   plugin's making, a failing frame written where the job uploads it with each surface's means, and
-   four references drawn again after a drift of up to 2.16% on the RTX 4070 itself; the next pushed
-   run judges both. The examples job waits on Windows and macOS both green in one run. When every
-   job is green the owner is told, since 5.2 is due (Decision 19). With the batch that next touches
-   `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a theory whose names are
-   cut to the same as one counted apart, which its page reads as one today (SHARED.md). The engine's
-   own despawn of what a state scopes is read against a soak of the world's entity indices across
-   many transitions, which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way
-   (SHARED.md), with the batch that next touches states. Each push's run is read by the reviewing
-   session, and a failure it names comes first here.
+   measure (Verdicts 30 and 31) still waits on a run with Windows green. The run of `4f03a8cb` reads
+   the same, its captures green. The run of `0e982877`, the first with the handle census, is green
+   on Linux and red on Windows by the leak test alone, whose step line names the kept handles for
+   the first time, threads' (Verdict 40); its macOS jobs run, and `2dd527f1`'s run has begun. The
+   page showed the leak test's progress line as its first of 198, `app 2`, where the line named its
+   app all along; the page shows the last of a repeated line since `88673244`. Verdicts 40 and 44
+   are carried out there, the leak test following four apps through every plugin's making, a failing
+   frame written where the job uploads it with each surface's means, and four references drawn again
+   after a drift of up to 2.16% on the RTX 4070 itself; the next pushed run judges both. The
+   examples job waits on Windows and macOS both green in one run. When every job is green the owner
+   is told, since 5.2 is due (Decision 19). With the batch that next touches `build/test.py`, it
+   takes from BevyCSharp's `1f68fde8` the two cases of a theory whose names are cut to the same as
+   one counted apart, which its page reads as one today (SHARED.md). The engine's own despawn of
+   what a state scopes is read against a soak of the world's entity indices across many transitions,
+   which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with
+   the batch that next touches states. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 
 2. **What the voxel game asks (ASKS.md, Decision 26), after Verdicts 40 and 44 and before item 3's
    remainder.** The game in `3DEngine.Game`, a testbed built on the engine's project (NORM.md's
@@ -176,6 +170,9 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    at eight with nothing changed, about two microseconds a draw a frame, since `SceneFieldPlan`
    compares every draw's instance with the frame before's. A draw that did not change costs the plan
    nothing, by a key the game's draw carries or a hash the plan keeps, measured on the still scene.
+   Done at `2dd527f1`: a frame drawing the frame before's meshes in the same order is read by place,
+   the plan 1,600 to 92 µs and the field's node 1.8 to 0.39 ms of the CPU; the gather's 330 µs and
+   the bounce's node's 0.77 ms remain, noted.
 
    **e. The field's colors from the vertices.** `SceneFieldRenderer.Gather` gives the field each
    draw's material color times its texture's average and the model pass alone multiplies in the
@@ -286,22 +283,23 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-40. **The Windows job of `88673244` fails the hundred-app leak test's handle hold at app 65, 2,708
-    handles against 2,672 allowed, where 20 apps left 2,472, after the jobs before it failed at apps
-    27 to 55.** Read from its page, the step line split over four apps and every plugin
-    (`88673244`): every plugin's making takes no handle but the physics', 13, and the instance's 1
-    and the device's 9; the renderer's shaders loaded take 315, 318, 320 and 315 at apps 21, 31, 41
-    and 51, a count that moves from app to app; `started` takes 9, the frame 1, the device gives
-    back 6, the close 3 and `ended` 334 to 337, and 5 are kept at each app read. So the handles are
-    the renderer's shaders' loading, some nine a shader and not the same number twice, which says
-    they are threads, processes or pipes of the compile and not objects of a fixed count, and five
-    of them stay on Windows alone. The compiler is ruled out at `0e982877`: its process is disposed
-    and the leak test never runs it, every app's shaders coming from the cache, so the 315 are
-    lavapipe's own objects on Windows, made with the device and its pipelines, and the five kept are
-    among them or beside them. The followed apps count their handles by kind there from the system's
-    handle table, and the step line ends with the kinds kept, so the next Windows page names the
-    five; once named, the object is closed where the app ends, or said to be the driver's with the
-    evidence. The bound stays. Settled when a Windows run passes whole.
+40. **The Windows job of `0e982877` fails the hundred-app leak test's handle hold at app 65, 2,728
+    handles against 2,698 allowed, and its step line names the kept handles for the first time:
+    threads'.** Read from the page: the four followed apps keep, by kind, −3 Event and +3 Thread, +6
+    Thread and +2 Event, +5 Thread, and +5 Thread, while the process's threads stay at 24 to 26
+    throughout, so the handles kept are handles to threads that have ended, left open by whatever
+    started them, five an app or so, on Windows alone, where a thread's handle outlives the thread
+    until it is closed and no finalizer closes a native one. The compiler is ruled out (`0e982877`),
+    the 315 the renderer's step takes and gives back being lavapipe's own. Two things. The census
+    runs at each step of the followed apps and not at their end alone, so the step line says at
+    which step the thread handles are taken and that `ended` gives them back or not, naming the
+    starter: SDL's threads, the audio device's under the dummy driver (Decision 25) and its timer,
+    the CLI's listener, the asset workers, the physics' workers and the behaviors' compiler are the
+    engine's own starters, and lavapipe's rasterizer threads the device's. And the starter named is
+    read for a thread started and never waited on or detached, an `SDL_CreateThread` without its
+    `SDL_WaitThread` or `SDL_DetachThread`, a handle kept after a join, and closed where the app
+    ends, or said to be the driver's with the evidence. The bound stays. Settled when a Windows run
+    passes whole.
 
 ## Decisions
 
@@ -469,21 +467,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's part d. Measured first on the game's still scene, a Release build at eight columns, timed
-inside the field's node over 1,836 meshes: the gather that turns the frame's draws into the plan's
-instances took 325 µs a frame and the plan 1,600, since each frame built a new dictionary of every
-mesh's instance, its matrix, colors and parts, and asked it and the still meshes' of each mesh,
-some four hashes a mesh. Now a frame that draws the meshes the frame before did, in the same order,
-is read by place: each mesh compared with the one at its place, its frames drawn the same counted
-there, one that comes to eight settled as before, a skinned one compared by its mesh, since its
-parts are posed afresh each frame and it is never still; any other frame, a mesh added, moved,
-gone or drawn twice, is worked out whole and its order kept for the next. The plan took 92 µs in
-place of 1,600 and the field's node 0.39 ms of the CPU in place of 1.8 to 2.0; Wick's field 0.05 to
-0.14 ms in place of 0.19 to 0.32, Manor's field off and both games' GPU times unchanged. A new test
-draws three meshes that settle, one moved and one left out partway, and a skinned figure, to one
-plan in the same order every frame and to another turned a place each frame, which never reads by
-place, and holds the two to the same still meshes, builds, shapes and bricks frame by frame; it
-fails with the settling left out of the frame read by place. RENDERING.md §4's paragraph on the
-plan says it with its numbers. What is left of the CPU a draw takes in the field is the gather,
-330 µs, and the bounce's node holds 0.77 ms, which part d does not cover. The suite 1,636 passed;
-on lavapipe 356 passed and 7 skipped with no validation error.
+Item 2's part e. The splat paints each cell its nearest triangle's instance color times its
+vertices' colors, as the model pass multiplies them into the base color: each pooled corner's
+fourth word carries its vertex's sRGB bytes, white for a mesh with none, beside the open edge's bit
+it already held, the splat reading the corners as words and blending the three colors in linear
+light at the cell's nearest point; a mesh still settling is stamped in its color times its
+vertices' mean, so a section's boxes are not white for its first frames. A new test draws one white
+mesh of two boxes, the left one's vertices red and the right one's green, and reads the field's
+cells by each in their decoded colors, 0.79 and 0.77, where before both read white; a unit test
+holds the stamp's tint. Built every frame in the voxel game at eight columns the field's node took
+0.46 to 0.48 ms of the GPU where it took 0.41 to 0.45, and nothing else changes where nothing is
+built; Manor and Wick, whose meshes have no vertices' colors, hold their times to the hundredth. The game's vertex colors today hold its shade, light level times corner occlusion, which the
+model pass already multiplies into its albedo, so the field now agrees with the frame drawn; the
+game's session was told so, and that a shade meant as light belongs in a stream of its own its
+shader applies. The reflections the GPU's rays trace still color a copy by its instance alone.
+The suite 1,638 passed; on lavapipe 358 passed and 7 skipped with no validation error.

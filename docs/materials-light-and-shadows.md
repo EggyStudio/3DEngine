@@ -382,19 +382,19 @@ SetGlobalIllumination(GlobalIllumination.Medium);
 ```
 
 It is traced through the scene's distance field, which it turns on at four cascades where
-`SetSceneField` has not, as cascades of light probes, each cascade's probes twice as far apart as the
-one before's and tracing the light from twice as far (Radiance Cascades), and a probe for every few
-pixels of the window that traces the near light through the window's depth first. Nothing is baked,
-so every light and every mesh may move. The light a surface sends on is its material's color, its
-texture's average, times the sun's light where the field lets it through, the point and spot
-lights', each that casts shadows only where the field lets it through too, and what bounced to it
-the frame before, so light bounces again each frame, with the light it gives off, so an emissive
-mesh lights its room. A light switched off or carried away takes the light it bounced with it the
-frame after, since each probe takes the light that bounced at the share its own light kept where
-that fell or rose by much. The light from all around, the environment
-map's, the ambient lights' and a reflection probe's, reaches a surface only through what a ray that
-meets nothing brings back, so a room is lit by the sky through its windows and dark where no light
-gets in.
+`SetSceneField` has not, as cascades of light probes, each cascade's probes twice as far apart as
+the one before's and tracing the light from twice as far (Radiance Cascades), and a probe for every
+few pixels of the window that traces the near light through the window's depth first. Nothing is
+baked, so every light and every mesh may move. The light a surface sends on is its material's color,
+its texture's average and its vertices' colors where its mesh has them, as the model pass multiplies
+them in, times the sun's light where the field lets it through, the point and spot lights', each
+that casts shadows only where the field lets it through too, and what bounced to it the frame
+before, so light bounces again each frame, with the light it gives off, so an emissive mesh lights
+its room. A light switched off or carried away takes the light it bounced with it the frame after,
+since each probe takes the light that bounced at the share its own light kept where that fell or
+rose by much. The light from all around, the environment map's, the ambient lights' and a reflection
+probe's, reaches a surface only through what a ray that meets nothing brings back, so a room is lit
+by the sky through its windows and dark where no light gets in.
 
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
 a glowing panel, and G steps through the qualities. `shaders_bounce_rooms` gathers the rooms the

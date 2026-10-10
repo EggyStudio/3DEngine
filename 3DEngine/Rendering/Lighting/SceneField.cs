@@ -55,6 +55,9 @@ internal sealed class SceneFieldRenderer : IDisposable
     private int _cornerCapacity, _cornerCount;
     private readonly Dictionary<ModelVertex[], (int First, int Count)> _pooled = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], uint[]> _indices = new(ReferenceEqualityComparer.Instance);
+    // The frame's meshes, whose vertices' colors a mesh is pooled with.
+    private MeshStore? _store;
+    private readonly Dictionary<ModelVertex[], Vector3> _tints = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box> _bounds = new(ReferenceEqualityComparer.Instance);
     private readonly List<(SceneFieldPlan.Instance, bool)> _drawn = [];
 
@@ -109,7 +112,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         {
             Release();
             _made = wanted;
-            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf);
+            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf);
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
@@ -162,6 +165,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
         if (_bounds.Count > 4096) _bounds.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
+        _store = store;
         var textures = renderWorld.TryGet<TextureStore>();
         // The joints of the skinned meshes posed this frame, kept for the frames after.
         foreach (var (id, joints, _) in renderWorld.TryGet<GpuMeshes>()?.Poses ?? []) _joints[id] = joints;
@@ -247,6 +251,23 @@ internal sealed class SceneFieldRenderer : IDisposable
         return parts.Count > 0 ? [.. parts] : null;
     }
 
+    // The mean of a mesh's vertices' colors in linear light, which its boxes are stamped in until it
+    // settles and the build blends its colors across each face, kept for its vertices.
+    private Vector3 TintOf(SceneFieldPlan.Instance instance)
+    {
+        if (_tints.TryGetValue(instance.Vertices, out var tint)) return tint;
+        if (_tints.Count > 4096) _tints.Clear();
+        tint = Vector3.One;
+        if (_store?.StreamsOf(instance.Mesh)?.Colors is { Length: > 0 } colors && colors.Length == instance.Vertices.Length)
+        {
+            var sum = Vector3.Zero;
+            var linear = ModelRenderer.Instance.Linear;
+            foreach (var c in colors) sum += new Vector3(linear[c.R], linear[c.G], linear[c.B]);
+            tint = sum / colors.Length;
+        }
+        return _tints[instance.Vertices] = tint;
+    }
+
     // The parts a mesh that does not bend is stamped as, kept for its vertices.
     private SceneFieldPlan.Part[]? PartsOf(ModelVertex[] vertices)
     {
@@ -330,29 +351,41 @@ internal sealed class SceneFieldRenderer : IDisposable
     // those meshes where they do not fit.
     private IBuffer Pool(GraphicsDevice device, IEnumerable<SceneFieldPlan.Instance> needed)
     {
-        var meshes = needed.Select(instance => instance.Vertices).Distinct(ReferenceEqualityComparer.Instance).Cast<ModelVertex[]>().ToList();
-        var adding = meshes.Where(vertices => !_pooled.ContainsKey(vertices)).ToList();
-        var more = adding.Sum(vertices => _indices.GetValueOrDefault(vertices)?.Length / 3 ?? 0);
+        // A mesh by its vertices, with the id of one draw of it, whose vertices' colors it is pooled with.
+        var meshes = needed.DistinctBy(instance => instance.Vertices, ReferenceEqualityComparer.Instance)
+            .Select(instance => (instance.Vertices, instance.Mesh)).ToList();
+        var adding = meshes.Where(mesh => !_pooled.ContainsKey(mesh.Vertices)).ToList();
+        var more = adding.Sum(mesh => _indices.GetValueOrDefault(mesh.Vertices)?.Length / 3 ?? 0);
         if (_corners is null || _cornerCount + more > _cornerCapacity)
         {
             // Made again with the meshes this frame needs, which drops the ones no longer built from.
             if (_corners is not null) Hold(_corners);
             _pooled.Clear();
             _cornerCount = 0;
-            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(v => _indices.GetValueOrDefault(v)?.Length / 3 ?? 0) * 2)));
+            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(m => _indices.GetValueOrDefault(m.Vertices)?.Length / 3 ?? 0) * 2)));
             _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage, CpuAccessMode.Write));
             adding = meshes;
         }
-        var mapped = MemoryMarshal.Cast<byte, Vector4>(device.Map(_corners));
-        foreach (var vertices in adding)
+        var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(_corners));
+        foreach (var (vertices, mesh) in adding)
         {
             if (!_indices.TryGetValue(vertices, out var indices)) continue;
             var count = indices.Length / 3;
-            // Each corner's w 1 where the edge from it to the triangle's next corner is open, no
-            // other triangle's, which field_splat.slang reads to keep a cell beyond the edge in front.
+            // Each corner's place, and in w its vertex's color, three sRGB bytes, white for a mesh
+            // with none, as the model pass reads it, and above them a bit set where the edge from
+            // it to the triangle's next corner is open, no other triangle's, which
+            // field_splat.slang reads to keep a cell beyond the edge in front.
             var open = OpenEdges(vertices, indices);
+            var colors = _store?.StreamsOf(mesh)?.Colors is { } given && given.Length == vertices.Length ? given : null;
             for (int i = 0; i < count * 3; i++)
-                mapped[_cornerCount * 3 + i] = new Vector4(vertices[indices[i]].Position, open[i] ? 1 : 0);
+            {
+                var at = (_cornerCount * 3 + i) * 4;
+                var position = vertices[indices[i]].Position;
+                (mapped[at], mapped[at + 1], mapped[at + 2]) =
+                    (BitConverter.SingleToUInt32Bits(position.X), BitConverter.SingleToUInt32Bits(position.Y), BitConverter.SingleToUInt32Bits(position.Z));
+                var color = colors?[indices[i]] ?? Color.White;
+                mapped[at + 3] = color.R | (uint)color.G << 8 | (uint)color.B << 16 | (open[i] ? 1u << 24 : 0);
+            }
             _pooled[vertices] = (_cornerCount, count);
             _cornerCount += count;
         }

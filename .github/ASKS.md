@@ -16,7 +16,7 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the field's gather costs 2.3 ms on a still scene
+### 2026-10-10, the voxel game in `3DEngine.Game`: the field ignores the vertices' colors
 
 The scene for each entry of the voxel game: seed 1's hills, the player at the spawn (0.5, 89, 0.5)
 facing north and level, a hidden window of 1280 by 720, an RTX 4070 Laptop GPU, the light that
@@ -26,25 +26,7 @@ to 96 units, ambient occlusion at 0 and bloom at 0.5. Each pass's time is its av
 agreed, with nothing else drawing on the GPU, and the draws are the game's own count from
 `./e3d command voxel.state`.
 
-On that scene, `cpu.scene_field` reads 2.3 ms at 6 columns and 3.9 ms at 8, with no block
-edited and every mesh drawn unchanged in its place for hundreds of frames, about 2 microseconds a
-draw a frame. `SceneFieldPlan` compares each draw's instance, its mesh, vertex array, transform,
-color and emission, with the frame before's each frame, so a still scene pays for every draw as a
-changing one does. The game has nothing to do about it but draw less.
-
-With every pass culled to its view at `d1031bc3`, this is most of what still grows with the draws.
-On the same scene in a Debug build, `cpu.scene_field` reads 1.9 ms at 6 columns and 1,133 draws,
-3.0 to 3.3 ms at 8 and 1,836, and 4.8 ms at 10 and 2,891, beside 2.3 ms of the GPU's shadows at 8,
-and a Release build reads 1.7 to 2.0 ms at 8 in a frame of 7 to 8 ms that waits on the CPU. The
-game draws 8 columns by default and does not ask for its far shadow cascades drawn less often or
-smaller, nor for a cascade's draws issued as one, which would save the GPU time the frame does not
-wait on and a quarter of a millisecond of the CPU's.
-
-Review: item 2 of REVIEW.md, its part d, 2026-10-10.
-
-### 2026-10-10, the voxel game in `3DEngine.Game`: the field ignores the vertices' colors
-
-At 8 columns on the scene above, 1,127 sections are drawn as 1,971 meshes, 1.75 a section, because
+At 8 columns on that scene, 1,127 sections are drawn as 1,971 meshes, 1.75 a section, because
 `SceneFieldRenderer.Gather` gives the field each draw's material color times its texture's average
 color and the model pass alone multiplies in the vertices' colors. A section meshed as one mesh
 colored at its vertices would bounce one color for every block in it. With the field taking the

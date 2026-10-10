@@ -110,6 +110,7 @@ internal sealed class SceneFieldPlan
 
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], Part[]?> _parts;
+    private readonly Func<Instance, Vector3> _tint;
     private Dictionary<Instance, int> _seen = [];
     private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = [];
     private readonly HashSet<Instance> _pending = [];
@@ -138,9 +139,15 @@ internal sealed class SceneFieldPlan
     /// <param name="budget">How many cascades are built a frame at most.</param>
     /// <param name="bounds">The box around a mesh's vertices in its own space, which the caller may keep.</param>
     /// <param name="parts">The parts a mesh that does not bend is stamped as, or null for its one box, which the caller may keep.</param>
-    public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null)
+    /// <param name="tint">
+    /// What a mesh's boxes' color is multiplied by, its vertices' colors' mean in linear light, which
+    /// the build blends across each face, or white for none.
+    /// </param>
+    public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null,
+        Func<Instance, Vector3>? tint = null)
     {
         _parts = parts ?? (_ => null);
+        _tint = tint ?? (_ => Vector3.One);
         Cascades = Math.Clamp(cascades, 1, 8);
         CellSize = cellSize;
         Budget = Math.Max(1, budget);
@@ -319,7 +326,7 @@ internal sealed class SceneFieldPlan
             var w = pose * instance.World;
             if (!Matrix4x4.Invert(w, out var toOwn)) continue;
             var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-            Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, instance.Color));
+            Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, instance.Color * _tint(instance)));
             var bounds = own.Transformed(w);
             for (int c = 0; c < Cascades; c++)
             {
