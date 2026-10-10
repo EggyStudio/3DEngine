@@ -228,6 +228,14 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     float3 c = place(instance, corners[corner + 2].xyz);
     bool3 edges = bool3(corners[corner].w > 0.5, corners[corner + 1].w > 0.5, corners[corner + 2].w > 0.5);
     float3 face = cross(b - a, c - a);
+    // A triangle of next to no area beside its longest side, as a sphere's last row has at a pole
+    // whose corners the rounding of sin(pi) leaves a hair apart, has a face turned whichever way
+    // that rounding took it, which, at a distance the triangles around it share, said cells
+    // outside lay behind it and turned them inside. It holds no surface its neighbors do not, and
+    // is passed over.
+    float longest = max(dot(b - a, b - a), max(dot(c - b, c - b), dot(a - c, a - c)));
+    if (dot(face, face) <= 1e-8 * longest * longest)
+        return;
     bool sided = instance.triangles.z == 0u && dot(face, face) > 1e-20;
     uint way = dot(face, face) > 1e-20 ? way8(face) : 0u;
     float faceLength = length(face);

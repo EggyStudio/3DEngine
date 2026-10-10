@@ -527,7 +527,11 @@ behind wins, the cell being inside some mesh, and a cell is behind a face only w
 straight back from it, so where an edge or a corner is nearest, as above a pillar's rim, a face the
 way runs along does not put the cell inside. A cell whose nearest point is on an edge no other
 triangle shares by the places of its ends (`SceneFieldRenderer.OpenEdges`, the corner's w in the
-pooled triangles) is in front, so a ground plane puts no wedge below its rim inside. The face a cell
+pooled triangles) is in front, so a ground plane puts no wedge below its rim inside. A triangle of
+next to no area beside its longest side is passed over, since its face turns whichever way rounding
+took it: `GenMeshSphere`'s last row meets its pole at corners sin(pi) leaves a hair apart, and taken
+as faces they turned 97 to 143 of the 1662 cells within half a unit of a sphere inside, beyond the
+pole, where none is now (`SceneFieldTests`). The face a cell
 lies within 25 degrees of straight behind is kept apart as well, in a word a cell. A
 second pass turns the words into distances in both the image the meshes alone make and the one the
 passes read (`field_resolve.slang`), half a cell less where the nearest triangle is double-sided. A

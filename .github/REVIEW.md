@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `acb56863`. D, and item 2 is done. `BounceRoomsTests` draws the bounce rooms' eight
+Reviewed up to `d885c89e`, and the run of `acb56863` read first, as the owner has it. The run: Linux
+green, 1,584 passed and 14 skipped; macOS red by one test and whole, no crash in it or in the three
+runs before, so Verdict 43 is settled and goes; the Cornell reference frame on macOS 7.6% of its
+pixels off against 5%, the most in rows 40 to 79 and columns 192 to 223 and in rows 100 to 119 and
+columns 64 to 95, Verdict 44 rewritten on it, the judge having spoken past a point; Windows and the
+macOS examples job still running when read. The page's repeated lines carry the leak test's progress
+line 198 times on both systems, `app 2 of at most 100` every time, so the line does not say the app
+it is at, in item 1. Then subsurface scattering's second batch, the light that comes through: the
+scatter pass draws a third image, each light behind a marked surface reaching its far side along the
+normal turned away, times e to the minus the thickness over each color's share of the radius, times
+the surface's color, nothing past three of the widest share; the spread across takes it with the
+diffuse light and the spread down still takes away the diffuse light alone, so the frame gains it
+spread and an unmarked pixel stays; the thickness is marched through the field from a quarter cell
+under the surface until the march leaves the mesh where the finest cascade holds the point, and past
+it the sun's shadow map gives it as the depth from the face it holds nearest the sun over the map's
+depth a unit along the sun; the model pass binds the built field where light does not bounce, the
+probes' images left empty, so a lamp has a field to measure through. A new test lights three slabs
+from behind, by a lamp through the field and by the sun through its map, the thin scattering one
+reading its light through and the thick one and the unmarked one the ambient alone; Manor with all
+172 materials scattering over 5 cm, 1.294 ms where 1.185 without, medians of seven. Right, the
+measure of thickness two ways each said with its reach, and the two things left for the third batch,
+a material's own thickness from `KHR_materials_volume` for a sheet the field cannot measure and a
+lamp's light through where there is no field from its shadow map, belong there as the reply has
+them. The third batch's tiers: a setting of their own, `SetSubsurfaceQuality` with Low, Medium and
+High and High the default as today, since tying them to the bounce's quality couples two unrelated
+things, each tier timed on Manor and on a new `shaders_subsurface` example of wax spheres and
+backlit slabs with its capture and README row, and Low's half-size spread laid onto the frame only
+where the pixel's depth matches, so it does not bleed across an edge; item 3 says so. The suite:
+1,627 passed; on lavapipe 348 passed and 7 skipped with no validation error.
+
+Before it, D came, and item 2 came to be done. `BounceRoomsTests` draws the bounce rooms' eight
 views at 160 by 90 at each quality and holds each to a reference path traced in the test through the
 GPU's rays with 4096 paths a pixel, the two averaged to 80 by 45 in linear light and their pixels'
 differences summed over the reference's light, the bound 15% over what each read here; the
@@ -45,29 +75,6 @@ the tiers measured again, the guide's table written again with the lend's 6 MB i
 checked-in references on the pixels' mean difference, skipped with its reason where there are no ray
 queries.
 
-Before it, the probes came to be moved against the lean, and the overshoot's cause found with them.
-A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved along the field's
-normal to stand that far off, 0.45 of its spacing at most so the probes keep their order, four steps
-of the field's distance; the trace's first lane moves it and leaves the place in the probes' state
-for the group and the merge, which marches from the moved places; the gather writes it into each
-face's alpha, 0 for a probe that holds nothing and two more than its move along the face's axis
-otherwise, so the model pass, the screen's probes, the rays' hits, the gizmos and `gi.probe` take
-every probe's place from faces they already read, the trilinear weights staying the grid's, as DDGI
-keeps them, and only the merge gains a binding; a new test reads the ceiling plane's probes a tenth
-below it and a probe in the open at its spot. Right, and the encoding is the sort that saves a
-binding without hiding anything, said in `faceHolds` and `faceMove`. The measure was found wanting
-first and mended: a room's signed error lets one region hide another, the strip's room reading −15%
-with its ceiling 39% over and its back wall 56% under, so each room is read by its pixels' mean
-difference as a share of the reference as well, and D's tolerance is on that measure. By it the
-rooms sum to 131, 129 and 137 at Low, Medium and High where they summed to 149, 148 and 158; the
-window's room goes from +8, +10 and +17% to −8, −6 and +3%, its pixels 32 to 24; the strip's room's
-pixels 46 to 42 as its ceiling comes down to +9%; the thin room +6 to +9%; the rest within two
-points, the corridor its limit. A clearance of a quarter summed to 135 and 145, and the lean read
-again with the move stays half, a quarter 391 against 397 but with the larger signed errors, three
-quarters 284 at two qualities alone, for 0.012 to 0.015 ms. Right, every setting measured with its
-alternative and the one kept said why. The suite: 1,601 passed; on lavapipe 346 passed and 6 skipped
-with no validation error. The trace's hits through the reach against the marches next, then D.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -79,21 +86,23 @@ list is long on purpose, and a batch that ends is followed by the next item with
 reply. In this order, which the owner set on 2026-10-09: the runs first, then the bounce's quality,
 then subsurface scattering and what follows it, and item 7 for a wait.
 
-1. **What the next page says.** The runs of `575f5f66`, `a3dd7a8d` and `52ffd114` are green on
-   Linux, on the macOS captures and on macOS whole, with no crash, and red on Windows on each, where
-   the leak test fails its handle hold as it was built to with the step line (Verdict 40), and red
-   on Windows at `a3dd7a8d` and `52ffd114` and on macOS at `52ffd114` on the Cornell reference
-   frame, 5.1 to 6.0% of pixels against 5% allowed in the floor's rows (Verdict 44). The runs of
-   `c2043cb2` onward are to be read, the plane weight among them, and the newest run pushed judges
-   Verdict 44 on the references drawn again at the fifth and sixth fixes. The examples job waits on
-   Windows and macOS both green in one run. When every job is green the owner is told, since 5.2 is
-   due (Decision 19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's
-   `1f68fde8` the two cases of a theory whose names are cut to the same as one counted apart, which
-   its page reads as one today (SHARED.md). The engine's own despawn of what a state scopes is read
-   against a soak of the world's entity indices across many transitions, which in BevyCSharp found
-   Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch that next
-   touches states. Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+1. **What the next page says.** The run of `acb56863`, the first since `52ffd114`, is green on
+   Linux, 1,584 passed and 14 skipped; red on macOS by the Cornell reference frame alone, 7.6% of
+   its pixels against 5%, and whole with no crash, so Verdict 43 is settled; and red on Windows by
+   two, the same frame at 5.6% and the hundred-app leak test's handle hold at app 55 (Verdicts 44
+   and 40). The run of `d885c89e` reads the same so far, Linux green and macOS whole with the one
+   frame, its Windows job to be read, and the macOS examples job of each has run past two and a half
+   hours, which its end or its timeout tells. The page's repeated lines on Linux and macOS carry the
+   leak test's progress line 198 times as `app 2 of at most 100`, so the line names no app but the
+   second; it says the app it is at, with the next commit that touches the test. The examples job
+   waits on Windows and macOS both green in one run. When every job is green the owner is told,
+   since 5.2 is due (Decision 19). With the batch that next touches `build/test.py`, it takes from
+   BevyCSharp's `1f68fde8` the two cases of a theory whose names are cut to the same as one counted
+   apart, which its page reads as one today (SHARED.md). The engine's own despawn of what a state
+   scopes is read against a soak of the world's entity indices across many transitions, which in
+   BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch
+   that next touches states. Each push's run is read by the reviewing session, and a failure it
+   names comes first here.
 
 2. **The bounce's quality (Decision 22) is done at `acb56863`.** The instruments A1 to A3, the
    measurement B, C's eleven fixes and D are in, each measured in RENDERING.md §4 with its error
@@ -107,24 +116,30 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    with its picture.
 
 3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
-   batches, each measured, what of its first batch stands alone committed before item 2 begins.** A material gains what skin, wax, marble and a leaf have, a subsurface
-   color and a radius in world units with a thickness scale for its thin parts, set in the flat API
-   as the material's other fields are and read from a glTF file's `KHR_materials_volume` thickness
-   where it has one. First, the diffusion: light that enters leaves nearby, so the lit light of the
-   marked pixels is spread along a profile of the material's color and radius in a separable
-   screen-space pass over the HDR frame, the specular kept out of it where the frame has it apart,
-   masked so an unmarked pixel is never touched and the spread never crosses a depth edge, with a
-   test of a lit sphere whose terminator softens and bleeds the color where the unmarked sphere
-   beside it does not, read at pixels as the occlusion tests read theirs. Second, the light that
-   comes through: a thin part lit from behind shows the light on its front, the thickness toward the
-   light read from the scene's distance field, which has it for nothing where the field is fine, and
-   from the sun's shadow depth where it is coarse, with a test of a thin sheet lit from behind
-   brighter on its front where it is thin than where it is thick. Third, the tiers: sample counts
-   and a half-size pass at Low and the full at High, as the bounce is tiered, the kernels in Slang
-   so the bridge runs them in BevyCSharp once proven here, the GPU cost of each batch on Manor and
-   on the test scene in RENDERING.md and the comparison page, the guide's section and TODO.md's
-   entry. Each batch a commit of its own with its numbers, and what does not pay a measured share
-   stays described.
+   batches, each measured, what of its first batch stands alone committed before item 2 begins.** A
+   material gains what skin, wax, marble and a leaf have, a subsurface color and a radius in world
+   units with a thickness scale for its thin parts, set in the flat API as the material's other
+   fields are and read from a glTF file's `KHR_materials_volume` thickness where it has one. First,
+   the diffusion: light that enters leaves nearby, so the lit light of the marked pixels is spread
+   along a profile of the material's color and radius in a separable screen-space pass over the HDR
+   frame, the specular kept out of it where the frame has it apart, masked so an unmarked pixel is
+   never touched and the spread never crosses a depth edge, with a test of a lit sphere whose
+   terminator softens and bleeds the color where the unmarked sphere beside it does not, read at
+   pixels as the occlusion tests read theirs. Second, the light that comes through: a thin part lit
+   from behind shows the light on its front, the thickness toward the light read from the scene's
+   distance field, which has it for nothing where the field is fine, and from the sun's shadow depth
+   where it is coarse, with a test of a thin sheet lit from behind brighter on its front where it is
+   thin than where it is thick. Third, the tiers: sample counts and a half-size pass at Low and the
+   full at High, as the bounce is tiered, the kernels in Slang so the bridge runs them in BevyCSharp
+   once proven here, the GPU cost of each batch on Manor and on the test scene in RENDERING.md and
+   the comparison page, the guide's section and TODO.md's entry. Each batch a commit of its own with
+   its numbers, and what does not pay a measured share stays described. The second batch is in at
+   `d885c89e`, the light that comes through. The third brings the tiers as a setting of their own,
+   `SetSubsurfaceQuality` with Low, Medium and High and High the default, each timed on Manor and on
+   a new `shaders_subsurface` example with its capture and README row, Low's half-size spread laid
+   onto the frame where the pixel's depth matches, and the two things the reply of `d885c89e` left
+   for it, a material's own thickness from `KHR_materials_volume` and a lamp's light through from
+   its shadow map where there is no field.
 
 4. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
    TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
@@ -177,52 +192,41 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-40. **The Windows jobs of `a9380d7b`, `0499c115` and `46732863` fail the hundred-app leak test's
-    handle hold, at app 42, 27 and 27, as the test was built to.** The step line is on the last two
-    pages and says where to look: the twenty-first app takes 1 handle for its instance, 9 for its
-    device, 329 or 330 for ImGui's making, 9 for its start, and gives back 6 as the device goes and
-    3 as it closes, 337 and 341 kept at `ended`, while the series says five an app, 2037 to 2090
-    over apps ten to twenty and the threads flat at 24. The two numbers disagree because `ended` is
-    read before the finalizers close what the app's safe handles still hold, so the step line counts
-    what is not yet given back as kept; the test collects and waits for the finalizers before
-    `ended` and before the next app, and the five that stay then show against the steps. The 329
-    handles ImGui's making takes on Windows and nowhere else are the place to read whatever the
-    count then says, a kernel object made per app in the ImGui context's or the Vulkan ImGui
-    plugin's making on that system, with the Windows audio subsystem no longer a suspect. Settled
-    when a Windows run passes whole.
+40. **The Windows job of `acb56863` fails the hundred-app leak test's handle hold at app 55, 2,638
+    handles against 2,595 allowed, where 20 apps left 2,395, after the jobs of `a9380d7b`,
+    `0499c115` and `46732863` failed it at apps 42, 27 and 27.** Read from the page, the finalizers
+    awaited before `ended` since `85be41a7`: the twenty-first app's step line reads +1 for its
+    instance, +9 for its device, +328 for ImGui's making, +9 started, −2 drawn, −6 as the device
+    goes, −3 closed and −334 ended, 2 kept; the handles after every ten apps 2,346, 2,395, 2,103,
+    2,490 and 2,538, the threads flat at 23 to 25, and the GDI and USER objects 0 and 3 throughout.
+    So the model holds and narrows: two kernel handles an app stay on Windows and nowhere else, not
+    GDI or USER objects, in the 328 ImGui's making takes, and the count between tens swings by
+    hundreds, so the bound is met by the leak and the swing together. Two things. The step line
+    splits ImGui's making into its steps, the context, the fonts' atlas and its upload with its
+    fence and staging buffer, the plugin's descriptor pool and pipeline, and the first frame's
+    command buffers, each with its handles, so the next page names the step that keeps two; and once
+    named, the object is closed where the app ends, or said to be the driver's with the evidence.
+    The bound stays. Settled when a Windows run passes whole.
 
-43. **The macOS job of `0499c115` loses the whole suite to a crash in
-    `GlobalIlluminationTests.A_Glowing_Panel_Lights_Its_Room_With_No_Light_In_It` after 3 m 7 s, and
-    passes whole in its parts.** The third test to die this way after a particle test and the leak
-    test, all three opening and closing an offscreen app on MoltenVK. The dump reader worked and
-    read the wrong thread: it took the thread dotnet-dump marks current, the host's main thread
-    waiting on the test run, where createdump's own line in the output says `Crashing thread 2781
-    signal 10`, a bus error on macOS, which the page carries unread. Two things. `build/test.py`
-    takes the thread and the signal from createdump's line and reads that thread, `setthread` by its
-    OS id and `clrstack -f`, its native frames with their modules where it runs no managed code, so
-    the next page names the frame that died. And the model to read against meanwhile: a bus error on
-    a thread the runtime does not run, in three tests that close an app, is a write into device
-    memory mapped by the engine after the app's close unmapped it, an upload or a readback still in
-    flight on a worker when the device goes, which Linux and Windows survive and macOS does not; the
-    app's close waits for every worker and every mapped range before the device is destroyed, and
-    the leak test, which closes a hundred, is where it shows first. Settled when a macOS run passes
-    whole twice.
-
-44. **The Windows jobs of `a3dd7a8d` and `52ffd114` and the macOS job of `52ffd114` fail
-    `ReferenceFrameTests.A_Cornell_Box_Lit_By_Light_That_Bounces_Matches_Its_Reference`, 6.0, 5.1
-    and 5.7% of the pixels differing from `cornell_box.png` where 5% is allowed.** Read from the
-    pages: the difference is densest in rows 140 to 159 and columns 64 to 127, the floor nearest the
-    camera, and came with the references drawn again on the RTX 4070 at the first and second fixes,
-    which hold on the container's lavapipe and not, by a point, on the runners' lavapipe and
-    MoltenVK; the floor's rows are the bands the fourth fix took from ±14% to ±6% at High. The fifth
-    and sixth fixes (`ebdd4fcb`, `e5cef045`) draw the references again with their causes named and
-    the allowance left at 5%, and against the fifth's the container's lavapipe passed all 29 where
-    it failed the third fix's Cornell reference by 6.2% in the same rows, so the newest run pushed
-    is the judge before anything moves. If it still fails there, the test says why a point: the
-    reference is drawn where the bounce differs least between devices, the Cornell view at the
-    quality the test draws, or the allowance for this picture alone is raised with the measured
-    spread between the three devices named beside it, and not by a point with no reason. Settled
-    when a run passes it on Windows and macOS.
+44. **The macOS job of `acb56863`, after the Windows jobs of `a3dd7a8d` and `52ffd114` and the macOS
+    job of `52ffd114`, fails
+    `ReferenceFrameTests.A_Cornell_Box_Lit_By_Light_That_Bounces_Matches_Its_Reference`, 7.6% of the
+    pixels differing from `cornell_box.png` where 5% is allowed, after 5.1 to 6.0%.** The references
+    are drawn on the RTX 4070 and hold on the container's lavapipe; on MoltenVK the difference is
+    densest in rows 40 to 79 and columns 192 to 223 and in rows 100 to 119 and columns 64 to 95, and
+    the same job on Windows at `acb56863` fails by 5.6% with its difference in rows 100 to 159 and
+    columns 64 to 95 alone, so the two devices differ from the RTX 4070 in different places; the
+    difference grew through item 2's fixes as the bounce came to carry more of the picture, and
+    `d885c89e`'s macOS job reads 7.6% in the same rows. Past a point, a device's bounce differs from
+    another's by more than this test allows, and the cause is to be read, not allowed. Three things.
+    The test writes the frame and its difference under `TestResults`, which the failing job uploads,
+    where it writes them under the build's folder today, which no artifact carries, so the owner can
+    hand the pictures over. Its message gives the regions' means as `gi.compare` gives them, so the
+    page itself says which surface differs and which way. And the cause is read from them: whether
+    MoltenVK's field, marches or probes differ, the picture's settling after the frames the test
+    waits, or the capture's tonemapping, with the measured spread between the three devices written
+    beside whatever allowance follows, and none widened without it. Settled when a run passes it on
+    Windows and macOS.
 
 ## Decisions
 
@@ -379,24 +383,14 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-Subsurface, the second batch, the light that comes through. The scatter pass draws a third image,
-the light from each light behind a marked surface reaching its far side, facing away along the
-normal, times e to the minus the thickness over each color's share of the radius, times the
-surface's color, nothing past three of the widest share; the spread across reads it with the
-diffuse light, and the spread down still takes away only the diffuse light the frame held, so the
-frame gains it spread and an unmarked pixel is untouched. The thickness toward the light is marched
-through the field from a little under the surface until it leaves the mesh where the finest cascade
-holds the point, and past that cascade the sun's shadow map gives it, the depth from the face it
-holds nearest the sun. The model pass bound an empty field where light does not bounce, so a lamp
-found nothing to measure; it binds the built field there now, the probes' images left empty, and
-no other part of the pass reads the field without the bounce. A new test, three slabs lit only
-from behind, a thin and a thick one scattering over 0.3 and a thin unmarked one, by a lamp through
-the field and by the sun through its shadow map with no field: the thin one's front reads
-(136, 102, 83) and (180, 162, 150), the thick one's and the unmarked one's the ambient 39. Manor at
-1280 by 720 with its 172 materials scattering over 5 cm: `hdr_scene` 1.294 ms with the light
-through and 1.185 without, none 0.47, medians of seven, each engine packed. Two things the item
-names stay for the third batch unless you would have them here: a material's own thickness for a
-part the field cannot measure, a leaf drawn as one sheet, read from `KHR_materials_volume`, and a
-lamp's light through a part where there is no field, which its shadow map could give as the sun's
-does. The suite 1,627 passed; lavapipe 348 passed and 7 skipped with no validation error, the new
-test among those passing.
+A fault in the field, found drawing subsurface's example: spheres were held as spiky blobs.
+`GenMeshSphere`'s last row meets its pole at corners the rounding of sin(pi) leaves a hair apart,
+so some triangles there have next to no area and a face turned any way, and at a distance the
+triangles around shared, one said the cells outside lay behind it: 97 to 143 of the 1662 cells
+within half a unit of a sphere were held inside beyond its −z pole, 0.86 to 0.90 off, at 16, 32 and
+48 rings, where cylinders, with no poles, held right. The splat passes over a triangle whose area
+is next to nothing beside its longest side, a face under a ten-thousandth of its longest side
+squared; a new test holds a sphere at 16 and 48 rings to no cell on the wrong side and its
+distances within 0.03, 0.014 at 16 rings. The sun's contact shadows through the field drew those
+blobs onto every sphere and floor near one, which now shade smoothly. The suite 1,629 passed;
+lavapipe 350 passed and 7 skipped with no validation error.

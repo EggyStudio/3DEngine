@@ -315,6 +315,58 @@ public sealed class SceneFieldTests : IDisposable
         UnloadModel(cube);
     }
 
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(16)]
+    [InlineData(48)]
+    public void A_Sphere_Holds_Its_Distances_On_Every_Side_Its_Poles_Too(int rings)
+    {
+        // GenMeshSphere's last row of triangles meets its pole at corners the rounding of sin(pi)
+        // leaves a hair apart, so some there have next to no area and a face turned any way; taken
+        // as faces, they turned the cells outside the pole inside, 143 of the 1662 within half a
+        // unit of the sphere at 16 rings and 97 at 48, their distances 0.86 to 0.90 off, as this
+        // test measured on an RTX 4070.
+        var config = Config.Default.WithWindow("sphere field", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.15f);
+        var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, rings, rings));
+        var camera = new Camera3D(new Vector3(0, 1, 4), Vector3.Zero, Vector3.UnitY, 45);
+        var center = new Vector3(0.1f, 0.6f, 0.05f);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(sphere, center, 1, Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+        const int size = SceneFieldPlan.Resolution;
+        const float cell = 0.15f;
+        int near = 0, turned = 0;
+        float worst = 0;
+        for (int z = 0; z < size; z++)
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    var p = origin + (new Vector3(x, y, z) + new Vector3(0.5f)) * cell;
+                    var expected = Vector3.Distance(p, center) - 0.6f;
+                    if (MathF.Abs(expected) > 0.5f) continue;
+                    var found = distances[(z * size + y) * size + x];
+                    near++;
+                    if (MathF.Sign(found) != MathF.Sign(expected) && MathF.Abs(expected) > 0.1f) turned++;
+                    worst = MathF.Max(worst, MathF.Abs(found - expected));
+                }
+        near.Should().BeGreaterThan(1000);
+        turned.Should().Be(0, "no cell more than a tenth of a unit from the sphere is held on the wrong side of it");
+        worst.Should().BeLessThan(0.03f, "and each holds its distance within the sphere's facets, 0.014 at 16 rings");
+        UnloadModel(sphere);
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void A_Glowing_Sheet_Thinner_Than_A_Cell_On_A_Wall_Gives_Off_Its_Whole_Light_Where_It_Lies()
