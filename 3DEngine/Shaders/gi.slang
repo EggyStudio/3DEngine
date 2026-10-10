@@ -348,8 +348,8 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 // where no cascade of probes holds p. A probe it does not see keeps a twentieth of its weight, as
 // one behind its plane keeps a little, since cut to nothing a pixel left with one or two probes
 // around it seen took their light alone and a Cornell box showed a notch beside its tall block, and
-// where it sees none of them, as a surface wedged between two meshes may, the probes are blended as
-// they stand, so it is not left dark.
+// a surface that sees none of them, as one wedged between two meshes may, blends them by that
+// twentieth, so it is not left dark.
 public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0);
@@ -360,8 +360,8 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
-    float3 sum = float3(0.0), sumBlind = float3(0.0);
-    float weights = 0.0, weightsBlind = 0.0;
+    float3 sum = float3(0.0);
+    float weights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
@@ -378,13 +378,11 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
             valid = max(valid, texel.a);
         }
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
-        sumBlind += light * weight;
-        weightsBlind += weight;
         weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
         sum += light * weight;
         weights += weight;
     }
-    return weights > 1e-5 ? sum / weights : weightsBlind > 1e-5 ? sumBlind / weightsBlind : float3(0.0);
+    return weights > 1e-5 ? sum / weights : float3(0.0);
 }
 
 // The light that bounced to a surface at p facing n, as bouncedAt gives it, from those of the eight

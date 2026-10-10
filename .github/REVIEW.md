@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b1e7c0ba`. Two verdicts carried out. Verdict 40 (`85be41a7`): the leak test's
+Reviewed up to `ebdd4fcb`. C's fifth fix, the leaks, two causes. The trace writes each ray's
+distance, the gather lays them out as each probe's reach along eight by eight directions, one
+half-float volume for every cascade cleared far so each probe sees every way before its first rays,
+and `bouncedAt` weighs a probe by whether the surface, taken three tenths of the spacing off along
+its normal, lies within that reach, falling to a twentieth over half the spacing past it
+(`probeSees`), the model pass binding it at 31 past the device's rays with the layout test holding
+the set; the closed room with a lamp under its floor goes from 15.3 levels to 1.6, its bound back at
+8 with the roof's lamp at 6.1, and the notch and the smear a hard cut drew are what the twentieth is
+for. The thin room's leak was the field's, found there where the plan had put it in the blend: walls
+of two thirds of a cell lay between two cells' middles, so a march stepped over them, and the
+resolve holds a wall thinner than a cell as the sheet where it held one thinner than half, the
+comment, the guide and §4 saying why. Right, both, and the measurement honest where the weighed-out
+probes' light had covered a shortfall, the thin room under by 8 to 43% as the other rooms are. Three
+things for the fixes that follow, none holding this one. The trace binds the reach at 9 and reads it
+nowhere, since its hits are shaded through `bouncedSeenAt`, which marches to each of the eight
+probes; the reach is what those marches find at a fraction of their cost, so the trace's hits
+through `bouncedAt` with the reach are measured against the marches over the rooms before D, and the
+cheaper kept where the rooms read alike. The blind sums in `bouncedAt` run only where the weights
+lie between 1e-5 and 2e-4, since the twentieth keeps every weight, so the floor does what the
+comment gives the second sum, and the sum goes or the comment says what it is for. And §4's table
+writes a range from one region to the next, +58% to +18%, where a reader takes low to high; written
+low to high when §4 is next touched. The references are drawn again with the cause named and the
+allowance as it was, so Verdict 44's judge is the run of `ebdd4fcb`. The suite: 1,589 passed; on
+lavapipe 334 passed and 6 skipped. C6 next, the sun's visibility at a hit from the shadow cascades,
+measured against the field's trace.
+
+Before it, two verdicts came to be carried out. Verdict 40 (`85be41a7`): the leak test's
 twenty-first app reads its handles as it shuts down and again after a full collection that has run
 the finalizers, `shut down` and `ended`, so what safe handles still held at the close shows between
 the two and `kept` counts what stays, an offscreen app here reading 0 and 0, the other apps left
@@ -45,26 +71,6 @@ picture would have held it to a tolerance. The error over every room moves a poi
 cost is within the noise. The suite: 1,588 passed; on lavapipe 314 passed and 6 skipped. Verdicts 40
 and 43 next, then C5.
 
-Before it, C's third fix came to be read, the light that bounces again, read at the probes as B
-asked and found elsewhere than the blend or the plane test: a cascade past the first blocked dark
-every ray that met a surface before its interval began, so its own faces lacked every surface nearer
-its probes than that start, the second cascade's probe in the Cornell box reading 63% under its
-one-bounce reference, and most of that box lies past the first cascade's reach from the camera. Such
-a ray shades its surface for its own probe's faces instead, marked apart with alpha a half, and that
-probe reads 5% under; the merge into the cascade below still reads them as dark, which the fifth
-fix's bilinear fix is to replace. Two other ways were tried and measured first, right to: each
-interval doubled took the thin room's leak to 40% over and cost 0.07 ms, and early hits taken in the
-merge as well read the ceiling beside the lamp up to 26 times too bright by parallax. Over every
-bounce the Cornell box goes from 21% under to 2% over at Low and Medium and from 22% to 10% under at
-High, the corridor from 15% to 9% under, the grazing floor from 57% to 46% under at High, the others
-within a point and the leak unchanged at its bound; the Cornell reference drawn again and holding on
-lavapipe; the cost up 0.006 to 0.008 ms, 0.36, 0.45 and 0.54. The suite: 1,587 passed; on lavapipe
-313 passed and 6 skipped. C4 next, the screen filter's distance weight. The runs of `a9f9c56d`,
-`0499c115` and `46732863` were read after: Windows fails the leak test's handle hold on each as
-built, with the step line on the last two, Verdict 40 rewritten on it; macOS crashed again at
-`0499c115` in a third test, Verdict 43, and was green at `46732863`; the captures' job is green on
-each; `a3dd7a8d` and `52ffd114` are running.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -81,10 +87,13 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    the leak test fails its handle hold as it was built to with the step line (Verdict 40), and red
    on Windows at `a3dd7a8d` and `52ffd114` and on macOS at `52ffd114` on the Cornell reference
    frame, 5.1 to 6.0% of pixels against 5% allowed in the floor's rows (Verdict 44). The runs of
-   `c2043cb2` onward are to be read, the plane weight among them. The examples job waits on Windows
-   and macOS both green in one run. When every job is green the owner is told, since 5.2 is due
-   (Decision 19). Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+   `c2043cb2` onward are to be read, the plane weight among them, and the run of `ebdd4fcb` judges
+   Verdict 44 on the references drawn again at the fifth fix. The examples job waits on Windows and
+   macOS both green in one run. When every job is green the owner is told, since 5.2 is due
+   (Decision 19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's
+   `1f68fde8` the two cases of a theory whose names are cut to the same as one counted apart, which
+   its page reads as one today (SHARED.md). Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 
 2. **The bounce's quality (Decision 22), before subsurface scattering goes on.** The owner judges
    the light that bounces on the Cornell box and on Wick as not yet the best, and sees banding or
@@ -269,12 +278,14 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     pages: the difference is densest in rows 140 to 159 and columns 64 to 127, the floor nearest the
     camera, and came with the references drawn again on the RTX 4070 at the first and second fixes,
     which hold on the container's lavapipe and not, by a point, on the runners' lavapipe and
-    MoltenVK; the floor's rows are the bands the fourth fix took from ±14% to ±6% at High, so the
-    run of `c2043cb2` is the judge before anything moves. If it still fails there, the test says why
-    a point: the reference is drawn where the bounce differs least between devices, the Cornell view
-    at the quality the test draws, or the allowance for this picture alone is raised with the
-    measured spread between the three devices named beside it, and not by a point with no reason.
-    Settled when a run passes it on Windows and macOS.
+    MoltenVK; the floor's rows are the bands the fourth fix took from ±14% to ±6% at High. The fifth
+    fix (`ebdd4fcb`) draws both references again with its cause named and the allowance left at 5%,
+    and against them the container's lavapipe passes all 29 where it failed the third fix's Cornell
+    reference by 6.2% in the same rows, so the run of `ebdd4fcb` is the judge before anything moves.
+    If it still fails there, the test says why a point: the reference is drawn where the bounce
+    differs least between devices, the Cornell view at the quality the test draws, or the allowance
+    for this picture alone is raised with the measured spread between the three devices named beside
+    it, and not by a point with no reason. Settled when a run passes it on Windows and macOS.
 
 ## Decisions
 
@@ -431,27 +442,26 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the fifth fix, the leaks.** Two causes, two changes. First the probes' visibility as
-DDGI weighs it. The trace writes each ray's distance, the gather lays them out as each probe's reach
-along eight by eight directions in one volume for every cascade, and `bouncedAt` weighs a probe by
-whether a surface, taken three tenths of the spacing off along its normal, lies within that reach,
-falling to a twentieth over half the spacing past it. The model pass binds the reach at 31, and the
-trace and the screen's probes bind it too. The closed room with the lamp under its floor took 15.3
-levels from the probes beneath it, all through the light that bounces again; it takes 1.6, and the
-bound is 8 again, the roof's lamp 6.1. Cut to nothing over a quarter of the spacing, the weight drew
-a notch beside the Cornell box's tall block and a smear by its green wall, which the twentieth
-takes away. Second, the thin room's leak was the field's, not the blend's. Its walls, 0.1 thick in
-cells of 0.15, lay between two cells' middles, each 0.025 outside, so a march toward the lamp
-outside stepped over them, and the room's probe read its face toward the floor 255% over. The field
-holds a wall thinner than a cell as a sheet, where it held one thinner than half a cell, and that
-probe's hits read +6% where they read +63%. Over every region against every bounce: the thin room
-−8% to −32% at Low and −23% to −43% at High, now under as the other rooms are, its leak having
-covered the shortfall; the Cornell box +1% to +7% at Low and −10% to −6% at High; the corridor −11%
-to −19%. Both are the light the weighed-out probes had lent. The small block's side reads −26% at
-Low and −44% at High against B's −76% and −82%. The red wall's foot still darkens 3 to 6% against
-11%. The merge's bilinear fix is not tried: it needs each parent's light from its interval start
-kept apart from the early hit C3 keeps, and eight marches a direction of every merge. Cost: 0.05
-ms of the bounce at each quality, 0.42, 0.51 and 0.59, 0.012 ms of the scene's pass, and 0.75 MB at
-High. The Cornell and Wick reference frames are drawn again; against the C5 frames lavapipe passes
-all 29, where the C3 reference failed there by 6.2% of pixels in floor rows 140 to 159, the place
-Verdict 44 names. The suite: 1,589 passed; on lavapipe 334 passed and 6 skipped. C6 next.
+**Item 2's C, the sixth fix, the sunlit floors.** Measured first, the sun's visibility at a hit was
+right: the probes beside the window room's patch read their rays' light 0% and +20% from a reference
+of hits lit directly. So the shadow cascades were not tried. The loss was the merge's. The probe in
+the room's middle read its face toward the floor 78% short with light bouncing once. The patch lay
+past its rays' reach, and every parent that could see it met the floor before its own interval
+began, which the merge reads as dark since C3. Each cascade's rays reach four times its spacing,
+where they reached twice, as far again as the next cascade's interval begins, so a surface the
+parents meet early this probe meets itself; the middle probe reads −15% where it read −50%. Over
+every region against every bounce at Low and High: the window −62% → −50% and −56% → −50% (−10%
+against one bounce); the grazing floor −53% → −35% and −45% → −27%; the carried lamp −49% → −27% and
+−48% → −32%; the thin room −32% → −10% and −43% → −14%; the corridor within two points. The summed
+errors fall from 310 to 245 at Low and from 302 to 232 at High. The Cornell box passes its reference,
++7% → +17% at Low and Medium and −6% → +5% at High. The probe in its middle reads within 5% at High,
+the only quality the probe check reads, so Low's overshoot is left to D's tiers. Two tests moved. A
+glowing panel's room, read 18 frames after the panel goes dark, held 22.5 levels of light still
+fading, none 48 frames on, so it is read at 48. The slide's share left by the history is a quarter on
+the RTX 4070 and half on lavapipe (0.42 of 0.83 levels a frame), so its bound is six tenths of the
+unheld crawl, both named beside it. Both are §4's and the guide's numbers now. Of your three notes:
+the blind sums go, the twentieth keeping every weight; §4's fix tables write before → after; and the
+trace's reach against the marches is measured before D. The Cornell box's, Wick's and Manor's
+library's reference frames are drawn again. Cost: 0.003, 0.05 and 0.07 ms by quality, 0.42, 0.55
+and 0.66. The leak holds at 1.6. The suite: 1,589 passed; on lavapipe the light-bouncing tests pass,
+16 and 2 skipped, after a full run of 333 passed whose only failure was that slide bound. C7 next.

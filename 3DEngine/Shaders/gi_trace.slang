@@ -1,8 +1,9 @@
 // Traces the rays of one cascade of light probes through the scene's distance field, a thread a
 // ray. A cascade's probes lie every eight cells of the field's cascade of the same number, and each
 // sends a ray along each texel of an octahedron of directions across its interval, from as far as
-// the probes are apart to twice that, so the next cascade, twice as coarse, carries on where this
-// one stops. A ray that meets a surface brings back the light the surface sends along it and
+// the probes are apart to four times that, so the next cascade, twice as coarse, carries on from
+// half way along it, and a surface nearer a probe of the next cascade than its interval begins, which
+// that probe meets early, is met by this probe's own ray. A ray that meets a surface brings back the light the surface sends along it and
 // stops there. One that meets nothing brings back nothing and lets what lies beyond through, but
 // in the last cascade, where it brings back the light from all around. A probe inside a mesh sends
 // nothing, which the merge reads as a probe to pass over.

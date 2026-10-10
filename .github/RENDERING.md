@@ -581,8 +581,8 @@ as Radiance Cascades (`GlobalIlluminationRenderer`, `GraphicsDevice.GlobalIllumi
 A cascade of world probes lies every eight cells of the field's cascade of the same number, eight a
 side, so each cascade's probes are twice as far apart as the one before's. Each probe traces an
 octahedron of directions, a texel each, across an interval: the first cascade's from the probe to
-twice the spacing, each after's from its spacing to twice that, so a cascade picks up where the one
-below stops (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two cascades, `Medium`
+four times the spacing, each after's from its spacing to four times that, so a cascade's interval
+begins half way along the one below's (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two cascades, `Medium`
 adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four, no more cascades than the
 field has. A ray that meets a surface brings back its painted color times the sun's light where a
 trace toward the sun through the field gets through and the point and spot lights', each that casts
@@ -631,9 +631,9 @@ probes around, each channel's standard deviation by the filter's own weights, so
 changed the history is pulled to it, and where it holds still the history lies inside and keeps its
 calm. A block's side lit only by a wall's bounce comes within a tenth of its new light in the frame
 a lamp is brought in, where it took seven frames without the hold. With the camera sliding a
-hundredth of a unit a frame through a Cornell box, the bounce adds 0.97 levels a frame to the
-picture's change, where it adds 2.91 without the history, at `Low` and 0.48 levels with no bounce
-(`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
+hundredth of a unit a frame through a Cornell box, the bounce adds 1.23 levels a frame to the
+picture's change, where it adds 4.76 without the history, at `Low` on the RTX 4070 and 0.48 levels
+with no bounce, and on lavapipe 0.42 where it adds 0.83 (`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
 that can be read in Wick's first doorway. The model pass blends the
 four probes around a pixel the same way, falls back to the world's probes where none is like it, and
 puts the result in place of the diffuse light from all around, the environment map's, the ambient
@@ -816,18 +816,18 @@ where the screen's probes end; and the sun's light into the corridor and the win
 **The fixes, each measured.** The first takes the lamps' and the sun's light at a hit times pi
 beside the bounced light, in `shadeHit`, `shadeProbeHit` and the reflections' hits, so a lit surface
 sends on the whole of its light. Every room's frame over every region against every bounce, by
-`build/bounce-rooms.sh`, before and after:
+`build/bounce-rooms.sh`, each cell the error before the fix → after it, as in the tables after:
 
 | Room | `Low` | `Medium` | `High` | `High` against one bounce |
 |---|---|---|---|---|
-| The Cornell box | −30% to −16% | −30% to −15% | −33% to −22% | −17% to −4% |
-| Thin walls, a lamp outside | −54% to −12% | −54% to −13% | −58% to −27% | −15% to +51% |
-| A corridor lit from its end | −22% to −18% | −21% to −17% | −21% to −17% | −3% to +3% |
-| The sun through a window | −75% to −64% | −75% to −64% | −73% to −57% | −50% to −23% |
+| The Cornell box | −30% → −16% | −30% → −15% | −33% → −22% | −17% → −4% |
+| Thin walls, a lamp outside | −54% → −12% | −54% → −13% | −58% → −27% | −15% → +51% |
+| A corridor lit from its end | −22% → −18% | −21% → −17% | −21% → −17% | −3% → +3% |
+| The sun through a window | −75% → −64% | −75% → −64% | −73% → −57% | −50% → −23% |
 | Red walls beside white blocks | −1% | −1% | −1% | −1% |
 | A small bright strip | −87% | −87% | −87% | −67% |
-| A floor at a grazing angle | −67% to −62% | −67% to −61% | −66% to −57% | −27% to −9% |
-| A lamp carried, a wall moved | −60% to −52% | −60% to −52% | −60% to −51% | −31% to −15% |
+| A floor at a grazing angle | −67% → −62% | −67% → −61% | −66% → −57% | −27% → −9% |
+| A lamp carried, a wall moved | −60% → −52% | −60% → −52% | −60% → −51% | −31% → −15% |
 
 The bounce costs what it did, 0.36, 0.44 and 0.53 ms by quality on the Cornell box's view. The thin
 room's frame passing the one-bounce reference by 51% is its walls' leak, now a share of the whole
@@ -844,12 +844,12 @@ bounce:
 
 | Room | `Low` | `Medium` | `High` | `Low` against one bounce |
 |---|---|---|---|---|
-| The Cornell box | −16% to −21% | −15% to −20% | −22% | +4% to −2% |
-| Thin walls, a lamp outside | −12% to −8% | −13% to −9% | −27% to −23% | +82% to +89% |
-| A corridor lit from its end | −18% to −15% | −17% to −15% | −17% to −15% | +1% to +4% |
-| The sun through a window | −64% to −63% | −64% to −62% | −57% to −56% | −35% to −33% |
-| A floor at a grazing angle | −62% | −61% | −57% | −18% to −19% |
-| A lamp carried, a wall moved | −52% to −50% | −52% to −50% | −51% to −49% | −18% to −14% |
+| The Cornell box | −16% → −21% | −15% → −20% | −22% | +4% → −2% |
+| Thin walls, a lamp outside | −12% → −8% | −13% → −9% | −27% → −23% | +82% → +89% |
+| A corridor lit from its end | −18% → −15% | −17% → −15% | −17% → −15% | +1% → +4% |
+| The sun through a window | −64% → −63% | −64% → −62% | −57% → −56% | −35% → −33% |
+| A floor at a grazing angle | −62% | −61% | −57% | −18% → −19% |
+| A lamp carried, a wall moved | −52% → −50% | −52% → −50% | −51% → −49% | −18% → −14% |
 
 The Cornell box against one bounce comes within 3% at every quality, −2, −1 and −3%, where the
 faces along x and y read 4% over and hid part of what the light that bounces again lacks, which
@@ -872,9 +872,9 @@ after, over every region against every bounce:
 
 | Room | `Low` | `Medium` | `High` | `High` against one bounce |
 |---|---|---|---|---|
-| The Cornell box | −21% to +2% | −20% to +2% | −22% to −10% | −3% to +11% |
-| A corridor lit from its end | −15% to −9% | −15% to −9% | −15% to −8% | +5% to +13% |
-| A floor at a grazing angle | −62% to −53% | −61% to −50% | −57% to −46% | −8% to +15% |
+| The Cornell box | −21% → +2% | −20% → +2% | −22% → −10% | −3% → +11% |
+| A corridor lit from its end | −15% → −9% | −15% → −9% | −15% → −8% | +5% → +13% |
+| A floor at a grazing angle | −62% → −53% | −61% → −50% | −57% → −46% | −8% → +15% |
 
 The thin room, the window's room, the carried lamp, the outdoor blocks and the strip read within a
 point of what they did, and the probe in the Cornell box's middle reads 15% under with every bounce
@@ -925,9 +925,9 @@ region against every bounce:
 
 | Room | `Low` | `Medium` | `High` | `High` against one bounce |
 |---|---|---|---|---|
-| The Cornell box | +1% to +7% | +2% to +8% | −10% to −6% | +11% to +17% |
-| Thin walls, a lamp outside | −8% to −32% | −9% to −32% | −23% to −43% | +58% to +18% |
-| A corridor lit from its end | −11% to −19% | −10% to −18% | −9% to −16% | +12% to +3% |
+| The Cornell box | +1% → +7% | +2% → +8% | −10% → −6% | +11% → +17% |
+| Thin walls, a lamp outside | −8% → −32% | −9% → −32% | −23% → −43% | +58% → +18% |
+| A corridor lit from its end | −11% → −19% | −10% → −18% | −9% → −16% | +12% → +3% |
 
 The thin room reads under every bounce as the other rooms do, its leak having covered the
 shortfall, and the Cornell box passing its reference by 7 and 8% at `Low` and `Medium` and the
@@ -941,6 +941,36 @@ hit the third fix keeps for the parent's faces, and a march from this probe's in
 of eight parents' interval starts for every direction of every merge. The reach costs some 0.05 ms
 at each quality, the bounce 0.42, 0.51 and 0.59 ms, the scene's pass 0.012 ms more at 0.173, and
 0.75 MB at `High`, where the world's probes take 5.32 MB.
+
+The sixth was to read the sun's visibility at a hit from the shadow cascades rather than trace it
+through the field's cells, for the sunlit floors the window's and the corridor's rooms hold little
+of. Measured first, the hits were right: the probes beside the window room's patch of sun read their
+rays' light 0% and 20% from a reference of hits lit directly. The loss was the merge's. The probe in
+the room's middle read its face toward the floor 78% short with light bouncing once, the patch lying
+past its rays' reach, and every probe of the cascade above that could see it met the floor before
+its own interval began, which the merge reads as dark (the third fix). Each cascade's rays reach
+four times its probes' spacing, where they reached twice, as far again as the next cascade's
+interval begins, so a surface its probes meet early this probe's ray meets itself; the middle probe
+reads 15% short where it read 50%. Over every region against every bounce:
+
+| Room | `Low` | `Medium` | `High` | `High` against one bounce |
+|---|---|---|---|---|
+| The Cornell box | +7% → +17% | +8% → +17% | −6% → +5% | +17% → +30% |
+| Thin walls, a lamp outside | −32% → −10% | −32% → −9% | −43% → −14% | +18% → +76% |
+| A corridor lit from its end | −19% → −18% | −18% → −17% | −16% → −16% | +3% → +4% |
+| The sun through a window | −62% → −50% | −62% → −50% | −56% → −50% | −20% → −10% |
+| A floor at a grazing angle | −53% → −35% | −50% → −33% | −45% → −27% | +17% → +56% |
+| A lamp carried, a wall moved | −49% → −27% | −49% → −27% | −48% → −32% | −10% → +18% |
+
+The rooms' errors summed fall from 310 points to 245 at `Low` and from 302 to 232 at `High`. The
+Cornell box passes its reference by 17% at `Low` and `Medium`, where the probe in its middle, read
+at `High`, holds within 5% of hits lit directly, so the coarser qualities' overshoot is left to be
+read with their tiers. A room's light fades over more frames once what lights it goes out, a glowing
+panel's 22.5 levels left 18 frames on and none 48 on (`GlobalIlluminationTests`). The closed room
+with a lamp under its floor holds 1.6 levels as it did, and the sun's visibility from the shadow
+cascades is not tried, the hits reading the sun right. The longer rays cost 0.003 ms at `Low`,
+0.05 at `Medium` and 0.07 at `High`, the bounce 0.42, 0.55 and 0.66 ms. The Cornell box's, Wick's
+and Manor's library's reference frames are drawn again.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

@@ -91,7 +91,8 @@ internal sealed class TargetIllumination
 /// A cascade's probes lie every <see cref="ProbeSpacing"/> cells of the field's cascade of the same
 /// number, eight along each side, so each cascade's probes are twice as far apart as the one
 /// before's and cover eight times the room. Each probe's rays cover an interval from as far as the
-/// probes are apart to twice that, the first cascade's from the probe itself, and each cascade has
+/// probes are apart to four times that, the first cascade's from the probe itself, so it reaches as
+/// far again as the next cascade's interval begins, and each cascade has
 /// four times the directions of the one before up to 256, so the far light, which changes slowly
 /// across space and quickly across directions, is sampled as it changes.
 /// </para>
@@ -121,8 +122,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The window's camera the screen's probes were last placed through, which their blend finds a
     // probe's place in the frame before by, or null where the probes were laid out again since.
     private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
-    // The end of the first cascade's interval, which the screen's probes trace to, this frame.
-    private float _firstInterval;
+    // How far the screen's probes trace, the first cascade's probes' spacing, this frame.
+    private float _screenReach;
     // The frame's settings, whose switches the screen's blend reads.
     private GlobalIlluminationSettings? _switches;
 
@@ -232,14 +233,19 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _made = (field.Field, wanted, cascades);
         }
 
-        // Each cascade's interval, from its probes' spacing to twice that, the first's from the probe.
+        // Each cascade's interval, from its probes' spacing to four times that, the first's from the
+        // probe, so a ray reaches as far again as the next cascade's begin. Ending at twice the
+        // spacing, where the next cascade's begin, a ray met nothing short of a surface that the
+        // probes of the next cascade nearer it met before their own interval began, which the merge
+        // takes as dark, and the sun's patch on a room's floor lit the room 62% under a path-traced
+        // reference at Low, where it reads 50% under.
         var intervals = new (float Start, float End)[cascades];
         for (int c = 0; c < cascades; c++)
         {
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
-            intervals[c] = (c == 0 ? 0 : spacing, 2 * spacing);
+            intervals[c] = (c == 0 ? 0 : spacing, 4 * spacing);
         }
-        _firstInterval = intervals[0].End;
+        _screenReach = ProbeSpacing * fieldSettings.CellSize;
 
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;
         _black ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
@@ -344,7 +350,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
         // What of the screen's blend is left out, the frame before's light and the neighbors'.
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
-        (floats[40], floats[41], floats[42], floats[43]) = (_firstInterval / 2, _gi!.Probes, ProbeSpacing, _made.Cascades);
+        (floats[40], floats[41], floats[42], floats[43]) = (_screenReach, _gi!.Probes, ProbeSpacing, _made.Cascades);
         (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
         if (last is { } then)
         {
