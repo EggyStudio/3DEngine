@@ -105,19 +105,19 @@ The light such a surface scatters diffusely is spread over the window's frame, a
 as far as each color travels at the surface's distance from the eye, and the light it reflects stays
 sharp. A thin part lit from behind, an ear, a leaf, a candle's rim, shows on its front the light
 that comes through it, less the thicker the part and the farther each color must travel, red
-farthest. The thickness toward a light is read from the scene's distance field where `SetSceneField`
-builds one with cells half the material's reach, three times its radius, or finer, and elsewhere
-from the light's own shadow map, the sun's, a spot light's or a point light's, where the light casts
-shadows. `SubsurfaceThickness` says how thick the material's parts are at most, in world units,
-which caps what the field or the map measured and stands in where neither can say: a leaf drawn as
-one sheet, which the field holds a cell thick, and a lamp that casts no shadow where the field is
-coarse. A glTF file's `KHR_materials_volume` thickness sets it. A pixel of any other surface is left
-as it was, and the light does not cross from a near surface to one behind it. A render texture and a
-reflection probe's faces draw the surface without it, and so does a material with a shader of its
-own or one laid over by alpha. `SetSubsurfaceQuality` sets how finely it is spread, and
-`shaders_subsurface` shows wax, skin, marble and a leaf, S turning it off and Q stepping through the
-qualities. On a laptop's RTX 4070, with the frame rate unlimited, the HDR frame's pass in
-`games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5 cm, takes this, as
+farthest. The thickness toward a light is read from the light's own shadow map where it casts
+shadows, the sun's, a spot light's or a point light's, and toward a lamp with none from the scene's
+distance field where `SetSceneField` builds one with cells half the material's reach, three times
+its radius, or finer. `SubsurfaceThickness` says how thick the material's parts are at most, in
+world units, which caps what the field or the map measured and stands in where neither can say: a
+leaf drawn as one sheet, which the field holds a cell thick, and a lamp that casts no shadow where
+the field is coarse. A glTF file's `KHR_materials_volume` thickness sets it. A pixel of any other
+surface is left as it was, and the light does not cross from a near surface to one behind it. A
+render texture and a reflection probe's faces draw the surface without it, and so does a material
+with a shader of its own or one laid over by alpha. `SetSubsurfaceQuality` sets how finely it is
+spread, and `shaders_subsurface` shows wax, skin, marble and a leaf, S turning it off and Q stepping
+through the qualities. On a laptop's RTX 4070, with the frame rate unlimited, the HDR frame's pass
+in `games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5 cm, takes this, as
 `./e3d command profile` gives `hdr_scene`, and `shaders_subsurface` some 0.1 ms more than with none
 at each:
 

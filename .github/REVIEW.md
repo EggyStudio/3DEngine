@@ -10,7 +10,41 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0f39daf5`. Item 2's part g, the last of the game's seven asks, and the item is done.
+Reviewed up to `63961dbb`. Item 3's first two of its three remaining, in one commit since both
+change one thickness function and its slabs' test. A material's own thickness, `SubsurfaceThickness`
+on `ModelMaterial` and on a mesh entity's `Material`, which a glTF file's `KHR_materials_volume`
+sets through Assimp's `$mat.volume.thicknessFactor` and the scene payload on both loading paths,
+rides beside the batch's profile as a second attribute of the scatter pass's fifth binding, 32 bytes
+a batch at locations 11 and 12, keys the batch where the draw scatters and as zero where it does
+not, so draws that differ only where nothing scatters share a batch, and caps the thickness measured
+or stands in where nothing measured, one line of the shader. And a spot or point light that casts
+shadows measures the thickness from its own map where the field is coarse, the mean of nine depths
+in its tile or its face through the lookups its shadow shares, `spotTile` and `pointFace` drawn out
+of the two reaching functions, and the distance at which the way met the face in one division from
+the light's clip coordinates, whose algebra checks and holds for any near and far planes. Three
+tests: a sheet with a lamp behind it and no field, dark at 39 and lit at (136, 120, 109) with five
+centimeters given; a glTF leaf's 4 mm read into its material beside a plain one's nothing; and the
+slabs' theory at four cases, the thin one (149, 133, 122) through a point light's map and a spot
+light's alike. The example's leaf is one sheet two millimeters thick by its material and its capture
+is drawn again; the guide, which loses a stray word and the sentence run into its table's last row,
+the CHEATSHEET, the upgrading page, PublicApi.txt, §5 and TODO.md say it. Right, the cap and the
+stand-in as one rule, the batch key spared where nothing scatters, and the two maps read through the
+shadow's own tiling rather than a second one. Two small things, neither a verdict: §5's new
+paragraph has a line of 117 columns, and the cap itself, the lesser of the measured and the given,
+is shown by the example's leaf and held by no test, which item 3 keeps with its remainder;
+`Engine3D.Models.cs` stands at 769 lines of N 1.3's 800. The suite: 1,646 passed; on lavapipe 365
+passed and 7 skipped with no validation error. With this commit the game's three entries and their
+captures under `.github/assets/asks` are in, the two entries whose items were done removed by the
+game as ASKS.md has it. Item 2's part a is measured and mended in the tree, as the engine's session
+reports, its reply drafted and its commit next: the dark ring is the terminator itself against a
+bright line about six degrees past it, where the thickness read as zero at the sphere's silhouette
+as the light sees it, the map's mean taking in the empty map beyond the edge and the field's march
+calling the part thinner than a cell; the next pass reads it. The game's `354a701d`, biomes by
+temperature and humidity, is the game's own. Verdict 40 is rewritten on the census pages of
+`0ccf8f9a` and the game's `187de604`: the kept thread handles are opened at the device's steps, and
+the hold's count is read before or after the app's threads end.
+
+Before it, item 2's part g came to be read, the last of the game's seven asks, and the item is done.
 Measured first: a box sealed on every side read 37.5 in blue on its rough inside walls under a blue
 sky and an open floor beside it 62.7, the game's carved chamber with its own dimming off (6.6, 13.3,
 24.4). The probes say how much sky they see: a ray of the last cascade that meets nothing brings the
@@ -39,21 +73,6 @@ the apps keep and whether `ended` gives them back; elsewhere it reads nothing. R
 change that makes the next page say the thing. The suite: 1,641 passed. Part g next, the last of the
 game's asks.
 
-Before it, item 2's part f came to be read, a changed mesh's light, the fix the measurement chose: a
-still mesh replaced in place, by a mesh of other vertices drawn through the same matrix whose bounds
-overlap it, stays in the field as it was until the replacement is still, the replacement not stamped
-meanwhile, so one build takes the one out and puts the other in and an emitter inside a replaced
-mesh stays lit; a mesh that moves keeps its vertices and is stamped as before, and one kept for a
-replacement that never settles leaves after sixteen frames. The probe is a GPU test, three walls in
-one mesh around a lamp drawn apart and replaced at a frame by a mesh of four, which without the
-change reads the wall at 107, 98, 91 and down to 69 after 116 and with it holds 114 to 116, the
-floor rising from 85 until the replacement settles; two unit tests hold the plan to keeping the
-replaced mesh, building the swap once and letting go after sixteen frames; §4 says it with its
-numbers; Manor and Wick hold their times. Right, measured first, the fix the measure chose rather
-than the one the item named first, and the probe kept as the test. The suite: 1,641 passed; on
-lavapipe 361 passed and 7 skipped with no validation error. Verdict 40's census at each step next,
-then part g, the last of the game's asks.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -73,21 +92,24 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    the same, its captures green. The run of `0e982877`, the first with the handle census, is green
    on Linux and red on Windows by the leak test alone, whose step line names the kept handles for
    the first time, threads' (Verdict 40); its macOS job and captures green after; `2dd527f1`'s run
-   reads the same, and the run of the game's `0ccf8f9a` has begun, the first with the census at each
-   step (`a063a336`), whose Windows page names the step that opens the kept thread handles. The page
-   showed the leak test's progress line as its first of 198, `app 2`, where the line named its app
-   all along; the page shows the last of a repeated line since `88673244`. Verdicts 40 and 44 are
-   carried out there, the leak test following four apps through every plugin's making, a failing
-   frame written where the job uploads it with each surface's means, and four references drawn again
-   after a drift of up to 2.16% on the RTX 4070 itself; the next pushed run judges both. The
-   examples job waits on Windows and macOS both green in one run. When every job is green the owner
-   is told, since 5.2 is due (Decision 19). With the batch that next touches `build/test.py`, it
-   takes from BevyCSharp's `1f68fde8` the two cases of a theory whose names are cut to the same as
-   one counted apart, which its page reads as one today (SHARED.md). The engine's own despawn of
-   what a state scopes is read against a soak of the world's entity indices across many transitions,
-   which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with
-   the batch that next touches states. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
+   reads the same, the run of the game's `0ccf8f9a`, the first with the census at each step
+   (`a063a336`), is green on Linux, on macOS and on the captures and red on Windows by the leak test
+   alone, whose page names the steps that open the kept thread handles, the device's (Verdict 40),
+   and the run of the game's `187de604` reads the same on Linux and on Windows, its macOS job green
+   and its captures still drawing. The page showed the leak test's progress line as its first of
+   198, `app 2`, where the line named its app all along; the page shows the last of a repeated line
+   since `88673244`. Verdicts 40 and 44 are carried out there, the leak test following four apps
+   through every plugin's making, a failing frame written where the job uploads it with each
+   surface's means, and four references drawn again after a drift of up to 2.16% on the RTX 4070
+   itself; the runs since read the references green and the leak test red. The examples job waits on
+   Windows and macOS both green in one run. When every job is green the owner is told, since 5.2 is
+   due (Decision 19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's
+   `1f68fde8` the two cases of a theory whose names are cut to the same as one counted apart, which
+   its page reads as one today (SHARED.md). The engine's own despawn of what a state scopes is read
+   against a soak of the world's entity indices across many transitions, which in BevyCSharp found
+   Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch that next
+   touches states. Each push's run is read by the reviewing session, and a failure it names comes
+   first here.
 
 2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
@@ -196,12 +218,13 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    onto the frame where the pixel's depth matches, and the two things the reply of `d885c89e` left
    for it, a material's own thickness from `KHR_materials_volume` and a lamp's light through from
    its shadow map where there is no field. The third batch is in at `94c4bf3b` with the tiers and
-   four mends of the light through, and what remains of the item comes after Verdicts 40 and 44 and
-   before item 4: the thickness read from `KHR_materials_volume` into the material for a part the
-   field holds thicker than it is or not at all, a leaf drawn as one sheet, which the example's leaf
-   shows; a lamp's light through a part where the field is coarser than half the reach, from the
-   lamp's shadow map as the sun's gives it; and the spread in render textures and probe captures, or
-   the reason it stays out written with its number.
+   four mends of the light through, and the first two of what remained at `63961dbb`, the material's
+   own thickness from `KHR_materials_volume`, which caps the thickness measured and stands in where
+   nothing measured, and a shadowed lamp's light through from its own map where the field is coarse.
+   What remains of the item comes after item 2: the spread in render textures and probe captures, or
+   the reason it stays out written with its number; and a test of the cap itself, the lesser of the
+   measured and the given, which the example's leaf shows and no test holds, a sheet in a field of
+   0.15 cells with two millimeters given read brighter on its front than with none.
 
 4. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
    TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
@@ -254,22 +277,30 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-40. **The Windows job of `0e982877` fails the hundred-app leak test's handle hold at app 65, 2,728
-    handles against 2,698 allowed, and its step line names the kept handles for the first time:
-    threads'.** Read from the page: the four followed apps keep, by kind, −3 Event and +3 Thread, +6
-    Thread and +2 Event, +5 Thread, and +5 Thread, while the process's threads stay at 24 to 26
-    throughout, so the handles kept are handles to threads that have ended, left open by whatever
-    started them, five an app or so, on Windows alone, where a thread's handle outlives the thread
-    until it is closed and no finalizer closes a native one. The compiler is ruled out (`0e982877`),
-    the 315 the renderer's step takes and gives back being lavapipe's own. The census runs at each
-    step of the followed apps since `a063a336`, so the next Windows page says at which step the
-    thread handles are taken and whether `ended` gives them back, naming the starter: SDL's threads,
-    the audio device's under the dummy driver (Decision 25) and its timer, the CLI's listener, the
-    asset workers, the physics' workers and the behaviors' compiler are the engine's own starters,
-    and lavapipe's rasterizer threads the device's. And the starter named is read for a thread
-    started and never waited on or detached, an `SDL_CreateThread` without its `SDL_WaitThread` or
-    `SDL_DetachThread`, a handle kept after a join, and closed where the app ends, or said to be the
-    driver's with the evidence. The bound stays. Settled when a Windows run passes whole.
+40. **The Windows jobs of `0ccf8f9a` and the game's `187de604` fail the leak test's handle hold at
+    apps 65 and 24, and the census at each step says where the kept thread handles are opened: at
+    the device's steps, none of the engine's own starters'.** Read from the pages, a followed app
+    opens Thread handles at `instance made` (+1, or none), `device made` (+9), `renderer's shaders
+    loaded` (+105, with 211 Events), `PhysicsPlugin built` (+3), `started` (+3) and `drawn` (+1);
+    `device gone` gives back six of the device's nine, `ended` gives back 111, the shaders', the
+    physics' and the start's to the handle, and the four or five kept are the instance's one, three
+    of the device's and the drawn's one, Thread handles all, in every followed app of both runs. So
+    every thread the engine's own code starts is given back, and what is kept is opened where the
+    loader and lavapipe run, at the instance, the device and the first draw. And the hold's count is
+    read before or after the app's threads end: `187de604`'s page reads 2,357 handles after app 23
+    and 2,695 at app 24's check, the 338 the app's steps open and `ended` gives back still out,
+    where apps 10 and 20 read 2,232 and 2,285, settled, five an app apart; `0ccf8f9a`'s check at app
+    65 reads 2,754 against 2,415 after app 64, and its baseline at app 20, 2,524, stands above that
+    settled count 44 apps later, so the baseline was read with an app's handles still out as well.
+    The hold's flat allowance of 200 over the baseline is spent by that race at once or by the kept
+    handles at about app 60. Two mends: the hold reads its counts, the baseline and each check, once
+    the app's threads have ended, which the census's `ended` step already waits for, so every count
+    is read at the same moment; and the engine's own code at `instance made`, `device made` and
+    `drawn` is read for a thread of its own, none expected, and the kept handles said to be the
+    driver's with this census as the evidence, the hold then allowing the Thread handles the
+    device's three steps net open, read from the followed apps' census in that run, and no other
+    kind nor any other step's. The bound on everything else stays. Settled when a Windows run passes
+    whole.
 
 ## Decisions
 
@@ -406,17 +437,17 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     of every source, script, manifest and workflow, in both repositories, and who chose what stays
     in these Decisions.
 
-24. **Content streamed on the go stays in the ledger, and the browser waits for a game that asks.** The owner chose
-    on 2026-10-09, after reading a browser port of a large game that downloads its world as it is
-    played, that the idea is recorded in SHARED.md as the file layer that port has (packs on a
-    static host, reads by byte range into a block cache, a recorded first-run set, prefetch by the
-    game's own streaming), to consider until a game here ships a world too large to download first,
-    over a streaming file layer and over an HTTP source alone, since Manor's cells from disk are all
-    a game here needs; and that the browser waits for a game that asks, its shape recorded for that day:
-    .NET's browser runtime, SDL3 built with Emscripten and linked into it, a WebGPU
-    `IGraphicsDevice` beside the Vulkan one without ray queries, bindless or 64-bit atomics, Slang
-    to WGSL, threads behind cross-origin isolation, and a one-week feasibility spike before any
-    commitment.
+24. **Content streamed on the go stays in the ledger, and the browser waits for a game that asks.**
+    The owner chose on 2026-10-09, after reading a browser port of a large game that downloads its
+    world as it is played, that the idea is recorded in SHARED.md as the file layer that port has
+    (packs on a static host, reads by byte range into a block cache, a recorded first-run set,
+    prefetch by the game's own streaming), to consider until a game here ships a world too large to
+    download first, over a streaming file layer and over an HTTP source alone, since Manor's cells
+    from disk are all a game here needs; and that the browser waits for a game that asks, its shape
+    recorded for that day: .NET's browser runtime, SDL3 built with Emscripten and linked into it, a
+    WebGPU `IGraphicsDevice` beside the Vulkan one without ray queries, bindless or 64-bit atomics,
+    Slang to WGSL, threads behind cross-origin isolation, and a one-week feasibility spike before
+    any commitment.
 
 25. **A run that shows no window makes no sound.** The owner ordered it on 2026-10-10, since a
     hidden or offscreen run, a test or a soak, played through the machine's speakers; its audio goes
@@ -448,30 +479,33 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 3's remainder, the first of its three: a material's own thickness. `ModelMaterial` and a mesh
-entity's `Material` gain `SubsurfaceThickness`, how thick the material's parts are at most in world
-units, which a glTF file's `KHR_materials_volume` thickness sets through Assimp's
-`$mat.volume.thicknessFactor`; it rides beside the batch's profile as a second attribute of the
-scatter pass's fifth binding, the batch keyed by it, and the scatter pass takes the lesser of it
-and the thickness measured, or it alone where neither the field nor the sun's map measures. Two
-cases it answers, each now a test: a sheet with a lamp behind it and no field to measure toward the
-lamp read (39, 39, 39), the ambient alone, and (136, 120, 109) with five centimeters given; and a
-glTF file's leaf material reads its 4 mm. `shaders_subsurface` draws its leaf as one sheet two
-millimeters thick by its material, where it was a box two centimeters thick, and its capture is
-drawn again; the guide, which had a stray word and a sentence run into its table's last row, the
-CHEATSHEET's line, the upgrading page, PublicApi.txt, RENDERING.md §5 and TODO.md say it. Nothing
-draws more: the profile buffer is 32 bytes a scattering batch in place of 16.
-
-And the second, in the same commit, since it changes the same thickness function and its slabs'
-test: a spot or point light that casts shadows measures the thickness from its own map where the
-field is coarse, as the sun does, the mean of nine depths a texel apart in its square or face, read
-through the lookups its shadow shares, now `spotTile` and `pointFace` in `lights.slang`. From the
-light a point's clip coordinates are the light's plus its distance times the way's, so the depth
-read gives the distance to the face nearest the light in one division, whatever the face's near
-and far planes. The slabs lit from behind, a case each now, read the thin one (149, 133, 122)
-through a point light's map and a spot light's alike, the field's lamp (143, 118, 102), and the
-thick one (48, 39, 39) where the field gives (59, 39, 39); before, nothing measured toward a lamp
-with no field and the thin slab read the ambient 39. Part (a) alone passed lavapipe, 363 and 7
-skipped with no validation error, before (b) was written; the two together, 365 and 7 skipped with
-no validation error, and the suite 1,646 passed. What remains of item 3 is the spread in render
-textures and probe captures.
+Item 2's part a, the terminator. Measured first on a sphere of a unit lit from its side at 640 by
+480, the meridian the camera sees read every two degrees with the scattering off and on: no dark
+ring of its own, but a bright line six degrees past the terminator on every scattering sphere, as
+bright as the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator
+read dark between them; and wax through the field lit again on its far side, 70 at 120 degrees and
+88 at 148. The suspects read in order: the spread alone falls smoothly past the terminator, 83, 65,
+51, 43, 40 from 88 degrees, so it takes nothing away; the light through made both. A few degrees
+past the terminator the point lies at the sphere's edge as the light sees it, where the map's mean
+of nine depths took in the empty map beyond the edge and the field's march along the surface found
+no mesh within a cell and took it for a sheet, so the sphere read no thicker than nothing and the
+light came through whole; and a march still in the mesh at the reach returned the reach, a
+twentieth of the light kept on the far side however thick. Mended four ways: the map's mean takes
+only the depths in front of the point; a light that casts shadows measures through its own map
+wherever it has one, the field kept for a lamp with none, since a field that gave way to the map
+past its sheet's cell dashed a line across the example's marble; the light fades out between half
+the reach and the reach; and it falls as the Gaussian the spread uses for each color, as Jimenez
+derives the light through from the profile, since from the true chord e's falloff still rose to a
+hump ten degrees out. Wax falls 84, 69, 60, 54, 50, 47, 43 from 88 degrees to 100, half its light
+at the terminator by 93 degrees and a tenth by 100; a Burley profile of a third of wax's reach over
+the same sphere, worked out on a grid of a degree, falls to half by 98 and a tenth by 118, its tail
+longer than one Gaussian's, which a sum of Gaussians in the spread would follow and which stays a
+gap. The jagged edge: great circles through the light's pole turned by 5 degrees read where the
+light falls to the ambient's, skin's edge 0.41 of a degree from its neighbors' mean on average
+where its light through was read from the map texel by texel, 0.04 afterward, at the terminator.
+Two tests hold them, the profile falling across the terminator for wax with and without the field,
+marble and skin, and the edge under 0.3 of a degree from its neighbors, each failing on the shader
+before; the slab and sheet tests' numbers moved with the falloff and say so; `shaders_subsurface`'s
+capture is drawn again; RENDERING.md §5 says it with its numbers. Manor and Wick scatter nothing
+and are not measured. The suite 1,652 passed; on lavapipe 371 passed and 7 skipped with no
+validation error.

@@ -35,21 +35,30 @@ struct Marked
     float4 through : SV_Target2;
 };
 
-// The depth a shadow map holds about uv, the mean of nine samples a texel apart each blended
-// between the four texels about it, kept within the square from low to high, since one texel's
-// face lies a little off the point's: read texel by texel, it speckled a sphere's shadowed side with
-// the light through and drew the edge of its band along the terminator in the texels' steps.
-float nearestDepth(float2 uv, float2 texel, float2 low, float2 high, int layer)
+// The depth a shadow map holds in front of a point at depth about uv, the mean of those of nine
+// samples a texel apart that lie in front of it, each blended between the four texels about it,
+// kept within the square from low to high, or the point's own where none does. One texel's face
+// lies a little off the point's, and read texel by texel it speckled a sphere's shadowed side with
+// the light through and drew the edge of its band along the terminator in the texels' steps. A few degrees
+// past the terminator the point lies at the sphere's edge as the light sees it, and a mean of every
+// sample there took in the empty map beyond the edge, so the sphere read no thicker than nothing
+// there and let the light through whole, a bright line six degrees past a dark terminator.
+float nearestDepth(float2 uv, float2 texel, float2 low, float2 high, int layer, float depth)
 {
-    float nearest = 0.0;
+    float nearest = 0.0, count = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
         {
             float2 at = clamp(uv + float2(x, y) * texel, low, high);
-            nearest += layer < 0 ? shadowMap.SampleLevel(lightLinear, at, 0.0).r
+            float sample = layer < 0 ? shadowMap.SampleLevel(lightLinear, at, 0.0).r
                 : pointShadowMap.SampleLevel(lightLinear, float3(at, float(layer)), 0.0).r;
+            if (sample < depth - 1e-5)
+            {
+                nearest += sample;
+                count += 1.0;
+            }
         }
-    return nearest / 9.0;
+    return count > 0.0 ? nearest / count : depth;
 }
 
 // How far a lamp's light crosses a mesh to reach world from behind, from the depth of the face its
@@ -67,17 +76,21 @@ float lampThickness(float4x4 viewProjection, float3 lamp, float3 world, float de
 }
 
 // How thick the mesh is from a point on its surface facing n toward a light along l, the way the
-// light crosses it to reach the point from behind, or -1 where nothing here can say. The scene's
-// distance field says it where its finest cascade holds the point and its cells are half the
-// reach or less, fine enough to tell the thicknesses the light comes through; where they are
-// coarser, a march through cells as wide as skin's reach drew the light in scallops along a
-// sphere's terminator, and the light's shadow map says it instead where it casts shadows: the
-// sun's the depth from the face the map holds nearest the sun to the point, and a spot or point
-// light's the distance from the face its map holds nearest the lamp, its spot slot or point slot
-// given, -1 for none.
+// light crosses it to reach the point from behind, or -1 where nothing here can say. A light that
+// casts shadows says it from its own shadow map: the sun's the depth from the face the map holds
+// nearest the sun to the point, and a spot or point light's the distance from the face its map
+// holds nearest the lamp, its spot slot or point slot given, -1 for none. For a lamp with no map
+// the scene's distance field says it, where its finest cascade holds the point and its cells are
+// half the reach or less, fine enough to tell the thicknesses the light comes through; a march
+// through cells as wide as skin's reach drew the light in scallops along a sphere's terminator.
 float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, float3 lamp = float3(0.0), int spot = -1, int point = -1)
 {
-    if (fieldCascade(bouncedField, world, 1.0) == 0 && fieldCell(bouncedField, world) * 2.0 <= reach)
+    // A light with a shadow map measures through it, which holds the surface nearest the light in
+    // its own texels, where the field's march decided by a cell whether a part was a sheet, and
+    // pixels either side of that decision, one measured by the march and the next by the map,
+    // dashed a line of light across a marble sphere's shadowed side.
+    bool mapped = sun || spot >= 0 || point >= 0;
+    if (!mapped && fieldCascade(bouncedField, world, 1.0) == 0 && fieldCell(bouncedField, world) * 2.0 <= reach)
     {
         // The march finds first where it enters the mesh as the field holds it, within a cell of
         // the surface drawn, whose faces the field's cells lie a little off, then where it leaves.
@@ -88,6 +101,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
         float cell = fieldCell(bouncedField, world);
         float t = 0.0, entered = -1.0;
         float last = 0.0, inside = 0.0;
+        bool thinner = false;
         for (int step = 0; step < 40 && t - max(entered, 0.0) < reach; step++)
         {
             float d = fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, world + l * t);
@@ -96,7 +110,10 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
                 if (d < 0.0)
                     entered = t;
                 else if (t >= cell)
-                    return 0.0;
+                {
+                    thinner = true;
+                    break;
+                }
             }
             // Where the march leaves the mesh, between its last step inside and this one, as the
             // distance runs between them, so the thickness changes smoothly across the surface
@@ -112,7 +129,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
             else
                 t += cell * 0.25;
         }
-        return reach;
+        return thinner ? 0.0 : reach;
     }
     if (spot >= 0 || point >= 0)
     {
@@ -140,7 +157,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
         if (any(abs(p.xy) > 0.995) || p.z > 1.0 || p.z < 0.0)
             return -1.0;
         float2 texel = 1.0 / float2(width, height);
-        float depth = nearestDepth(origin + (p.xy * 0.5 + 0.5) * size, texel, origin + texel, origin + size - texel, layer);
+        float depth = nearestDepth(origin + (p.xy * 0.5 + 0.5) * size, texel, origin + texel, origin + size - texel, layer, p.z);
         return lampThickness(viewProjection, lamp, world, depth);
     }
     if (!sun)
@@ -155,7 +172,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
             continue;
         float2 uv = (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
         float2 texel = 1.0 / float2(width, height);
-        float nearest = nearestDepth(uv, texel, (float2(c % 2, c / 2) + texel) * 0.5, (float2(c % 2, c / 2) + 1.0 - texel) * 0.5, -1);
+        float nearest = nearestDepth(uv, texel, (float2(c % 2, c / 2) + texel) * 0.5, (float2(c % 2, c / 2) + 1.0 - texel) * 0.5, -1, p.z);
         // The depth the map's projection gives a unit along the sun's way.
         float perUnit = abs(dot(lighting.shadowCascades[c][2].xyz, l));
         return max(p.z - nearest, 0.0) / max(perUnit, 1e-6);
@@ -166,14 +183,15 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
 // The light that comes through the surface at this point from each light behind it, as the light
 // reaching its far side, facing away along -n, falls with the thickness it crosses, each of red,
 // green and blue by e to the minus the thickness over its share of the radius, times the surface's
-// color. The thickness is measured out to three of the widest share, past which the light is a
-// twentieth of what it was and fades on as e has it; cut to nothing there, it ended in a ragged
-// edge where the thickness the field or the map gave wavered across that line.
+// color. The thickness is measured out to three of the widest share, the light faded out between
+// half of that and that.
 float3 lightThrough(ModelVertexOutput base, float3 albedo, float4 profile, float most)
 {
     float3 n = normalize(base.normal);
     float3 travel = max(profile.a * saturate(profile.rgb), float3(1e-4));
     float reach = 3.0 * max(travel.r, max(travel.g, travel.b));
+    // The widths subsurface_blur.slang spreads each color by, a third of its travel.
+    float3 widths = travel / 3.0;
     float3 sum = float3(0.0);
     for (int i = 0; i < min(lighting.count, 16); i++)
     {
@@ -195,7 +213,12 @@ float3 lightThrough(ModelVertexOutput base, float3 albedo, float4 profile, float
             thickness = thickness < 0.0 ? most : min(thickness, most);
         if (thickness < 0.0)
             continue;
-        sum += arrived * exp(-thickness / travel);
+        // Faded out between half the reach and the reach, where the march stops and the light is a
+        // twentieth of what it was, smoothly in the thickness so a thickness that wavers about the
+        // reach draws no ragged edge; held at the reach's twentieth past it, the far side of a
+        // sphere a unit through took the light through brighter the farther from the light it
+        // faced, a dark band between.
+        sum += arrived * exp(-thickness * thickness / (2.0 * widths * widths)) * (1.0 - smoothstep(0.5 * reach, reach, thickness));
     }
     return sum * albedo;
 }

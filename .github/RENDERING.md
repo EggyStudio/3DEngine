@@ -1545,10 +1545,10 @@ batch's profile as a second attribute of the scatter pass's fifth binding, and t
 takes the lesser of it and the thickness measured, or it alone where neither the field nor the
 sun's map can measure. The field holds a sheet drawn as one a cell thick, half a cell either side,
 so a leaf of one sheet let the light through as a slab of 0.15 would; and toward a lamp that casts
-no shadow where the field is coarse nothing measures it at all. `shaders_subsurface` draws its leaf as one sheet two
-millimeters thick by its material, and `SubsurfaceTests` holds a sheet with a lamp behind it and no
-field dark without a thickness, (39, 39, 39), and lit through with five centimeters of it, (136,
-120, 109).
+no shadow where the field is coarse nothing measures it at all. `shaders_subsurface` draws its leaf
+as one sheet two millimeters thick by its material, and `SubsurfaceTests` holds a sheet with a lamp
+behind it and no field dark without a thickness, (39, 39, 39), and lit through with five
+centimeters of it, (138, 96, 62).
 
 Where the field is coarse, a spot or point light that casts shadows measures the thickness from its
 own map as the sun does, the mean of nine depths a texel apart about the point in its square of
@@ -1558,8 +1558,31 @@ view-projection are the light's plus its distance times the way's, so the depth 
 distance at which the way met the face nearest the light in one division, whatever the near and
 far planes the face was drawn with, and the thickness is the rest of the way to the point
 (`lampThickness` in `subsurface.slang`). `SubsurfaceTests`' slabs lit from behind read the thin one
-(149, 133, 122) through a point light's map and a spot light's alike, against (143, 118, 102)
-through the field, and the thick one (48, 39, 39) against (59, 39, 39).
+(152, 113, 76) through a point light's map and a spot light's alike, (141, 65, 41) through the field
+and (184, 145, 104) by the sun, and the thick one the ambient alone.
+
+A sphere lit from its side showed a dark line along its terminator with a bright one six degrees
+past it, skin's 117 against the shadow's 39 and as bright as the lit side six degrees before, and
+the far side of wax through the field lit again, 70 at 120 degrees and 88 at 148. A few degrees
+past the terminator the point lies at the sphere's edge as the light sees it: the map's mean of
+nine depths took in the empty map beyond the edge, and the field's march along the surface found no
+mesh within a cell and took it for a sheet, so either read the sphere no thicker than nothing and
+the light came through whole. The map's mean takes only the depths in front of the point, and a
+light that casts shadows measures through its map wherever it has one, the field kept for a lamp
+with none: a field that stood as a sheet where its march found nothing within a cell, and gave way
+to the map past it, left the pixels either side of that decision measured two ways and dashed a
+line of light across the example's marble sphere. A march still in the mesh at the reach returned
+the reach, so the far side kept a twentieth of the light through however thick, which fades out
+between half the reach and the reach, smoothly in the thickness. And the light through fell as e to
+the minus the thickness over the travel, which from the true chord across the sliver past the
+terminator still rose to a hump ten degrees out above the lit side's light before it; it falls as
+the Gaussian the spread uses for each color, a third of its travel wide, as Jimenez derives the
+light through a part from its profile, so wax's light falls 84, 69, 60, 54, 50, 47, 43 from 88
+degrees to 100, half its light at the terminator by some 93 degrees and a tenth by 100, and skin's
+edge runs at the terminator 0.04 of a degree from its neighbors' mean around it where its light
+through's ran 0.41 off in the map's texels (`SubsurfaceTests`). A Burley profile of a third of
+wax's reach over the same sphere falls to half by 98 degrees and a tenth by 118, its tail longer
+than one Gaussian's, which a sum of Gaussians in the spread would follow.
 
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it
