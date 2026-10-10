@@ -54,9 +54,10 @@ looked at from the terminal. A closed room lit by one lamp, at night:
 light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `voxel.look` and
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
 `voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
-reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or
-off, `voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name.
-The engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
+reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or off,
+`voxel.skydim` the sky's dimming underground, `voxel.world` begins a new world, and `voxel.blocks`
+lists the blocks by number and name. The engine's own `gi.*` and `field.*` commands show and measure
+the light that bounces.
 
 ## How the world is drawn
 

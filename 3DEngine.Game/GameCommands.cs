@@ -109,6 +109,14 @@ public static class GameCommands
         return $"light levels {(levels ? "on" : "off")}, corners shaded {(corners ? "on" : "off")}, every section shaded again over the next frames";
     }
 
+    [Command("voxel.skydim", "Whether the sky's light dims while the player is where the sky does not reach, which hides its reflection in a sealed cave: voxel.skydim <on>")]
+    internal static string SkyDim(bool on)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.SkyDims = on;
+        return on ? "the sky dims where it does not reach" : "the sky keeps its light everywhere";
+    }
+
     [Command("voxel.time", "Sets the hour of the day from 0 to 24, the sun up from 6 to 18: voxel.time <hour>")]
     internal static string Time(float hour)
     {
