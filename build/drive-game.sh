@@ -60,15 +60,71 @@ trap cleanup EXIT
 # Where a game that dies in native code leaves its dump, Windows' own in the job, which names
 # each dump after the program's file.
 dumps="${E3D_DUMPS:-3DEngine.Tests/TestResults/dumps}"
+
+# The game's process, read from the open's answer, and on Windows a watcher that holds it and writes
+# its exit code once it ends, since e3d started it through cmd.exe and nothing else waits on it.
+# Where a command then finds no session, the error says whether the process still runs, so it
+# stopped serving, or how it ended, which its log's tail does not say of a crash in native code.
+pid=""
+exited="captures/$name-exit.txt"
+watch() {
+  pid=$(perl -MJSON::PP -0777 -ne 'my $answer = eval { decode_json($_) } or exit; print $answer->{data}{pid} // ""' "$opened")
+  rm -f "$exited"
+  if [ "$system" = Windows ] && [ -n "$pid" ]; then
+    powershell.exe -NoProfile -NonInteractive -Command \
+      "\$p = Get-Process -Id $pid -ErrorAction Stop; \$null = \$p.Handle; \$p.WaitForExit(); '0x{0:X8}' -f \$p.ExitCode" \
+      < /dev/null > "$exited" 2> /dev/null &
+  fi
+}
+# What an exit code on Windows means, as e3d names it where a game ends before it serves.
+meaning() {
+  case "$1" in
+    0x00000000) echo ", of its own" ;;
+    0xC0000005) echo ", an access violation" ;;
+    0xC00000FD) echo ", a stack overflow" ;;
+    0xC0000409) echo ", a fail-fast, as .NET's on a fatal error" ;;
+    0xC0000374) echo ", a corrupted heap" ;;
+    0xE0434352) echo ", a .NET exception no one caught" ;;
+  esac
+}
+# Where the session went: whether the game's process still runs, and, ended, its exit code and the
+# description of the last crash of it Windows logged, the faulting module and the exception's code
+# for a native one and the exception for a managed one. Git's bash would turn the Windows tools'
+# arguments that begin with a slash into paths, which MSYS2_ARG_CONV_EXCL stops.
+whereabouts() {
+  [ -n "$pid" ] || { echo "its process not known"; return; }
+  local alive=no code="" logged=""
+  if [ "$system" = Windows ]; then
+    MSYS2_ARG_CONV_EXCL='*' tasklist.exe /FI "PID eq $pid" /NH 2> /dev/null | grep -q " $pid " && alive=yes
+  else
+    # A process killed and not yet reaped is a zombie, which ps marks Z and kill -0 still finds.
+    case "$(ps -o stat= -p "$pid" 2> /dev/null)" in Z*|"") ;; *) alive=yes ;; esac
+  fi
+  if [ "$alive" = yes ]; then echo "its process $pid still runs, so it stopped serving"; return; fi
+  if [ "$system" = Windows ]; then
+    # The watcher writes its line a moment after the process ends.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do [ -s "$exited" ] && break; sleep 0.5; done
+    [ -s "$exited" ] && code=$(tr -d '\r\n' < "$exited")
+    logged=$(MSYS2_ARG_CONV_EXCL='*' wevtutil.exe qe Application "/q:*[System[(EventID=1000 or EventID=1026)]]" /c:5 /rd:true /f:text 2> /dev/null \
+      | tr -d '\r' | awk -v exe="$(printf '%s' "$game" | tr '[:upper:]' '[:lower:]').exe" '
+          /^Event\[/ { if (found) exit; text = ""; inside = 0; next }
+          /^ *Description:/ { inside = 1; next }
+          inside { line = $0; gsub(/^ +| +$/, "", line); if (line != "") text = text (text == "" ? "" : " ") line; if (index(tolower(line), exe)) found = 1 }
+          END { if (found) print substr(text, 1, 400) }' || true)
+  fi
+  echo "its process $pid ended${code:+ with exit code $code$(meaning "$code")}${logged:+, and Windows logged: $logged}"
+}
+
 fail() {
   # The budget's error has been said, and the command its stop ended says nothing more.
   [ -e "$expired" ] && exit 1
   # The log's last lines whatever their level, since a game that died in native code logged no
-  # warning, and the dumps it left.
-  local ending="" left=""
+  # warning, and the dumps it left. The game's output and its errors both go to its log.
+  local ending="" left="" gone=""
   [ -f "$log" ] && ending=$(tail -n 3 "$log" | tr -s '\r\n' '  ' | sed 's/ *$//; s/\.$//')
   [ -d "$dumps" ] && left=$(ls "$dumps" 2> /dev/null | grep -i "^$game" | tr '\n' ' ' | sed 's/ *$//' || true)
-  echo "::error title=$heading::$game: $1.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
+  grep -qE 'NO_SESSION|SESSION_UNREACHABLE' "$said" 2> /dev/null && gone=$(whereabouts)
+  echo "::error title=$heading::$game: $1${gone:+, and $gone}.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
   exit 1
 }
 # A command e3d refuses fails with its code and sentence, which it writes to standard error, kept in
@@ -129,6 +185,7 @@ if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
+watch
 cmd window.size 480 270
 cmd frames.wait 30
 
@@ -354,7 +411,8 @@ case "$game" in
     echo "$ran / $watched"
     [ "${watched% watched *}" = "$ending" ] || fail "the run watched again ended elsewhere, $ending then $watched"
     ./e3d stop --quiet
-    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --quiet || fail "did not open again"
+    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --json > "$opened" || fail "did not open again"
+    watch
     cmd window.size 480 270
     cmd frames.wait 10
     cmd input.key B 2
