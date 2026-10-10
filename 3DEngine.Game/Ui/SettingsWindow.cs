@@ -95,9 +95,6 @@ public sealed class SettingsWindow
             game.World.ReshadeAll();
         }
 
-        var dims = game.SkyDims;
-        if (ImGui.Checkbox("The sky dims where it does not reach", ref dims)) game.SkyDims = dims;
-
         var glow = game.Renderer.GlowScale;
         if (ImGui.SliderFloat("Glow", ref glow, 0, 4)) game.Renderer.GlowScale = glow;
         if (ImGui.SliderFloat("Bloom", ref light.Bloom, 0, 2)) SetBloom(light.Bloom);

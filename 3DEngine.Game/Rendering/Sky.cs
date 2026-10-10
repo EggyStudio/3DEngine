@@ -8,18 +8,12 @@ namespace Engine.Game;
 /// that lights the world from all around and is drawn behind it.
 /// </summary>
 /// <remarks>
-/// <para>
 /// The sky is an equirectangular image painted here, a gradient from the horizon to the zenith
 /// with the sun's disc and its glow, given to <c>SetEnvironmentMap</c>, which filters it on the GPU.
 /// The light that bounces brings the sky's light back where a ray of its last cascade meets nothing,
-/// so a cave lit by no lamp takes none of its diffuse light. The image is painted again only when the time has moved by
+/// and weighs the sky's reflection by how much of the sky a surface's probes found, so a cave lit by
+/// no lamp is dark. The image is painted again only when the time has moved by
 /// <see cref="RepaintHours"/>, since each painting is a new map to filter.
-/// </para>
-/// <para>
-/// The sky is also reflected by every surface, rough ones included, and the engine does not occlude
-/// that reflection, so a cave sealed from the sky still shows it. <see cref="Shelter"/> dims the
-/// whole map while the player is where the sky does not reach, as Minecraft's caves darken.
-/// </para>
 /// </remarks>
 public sealed class Sky
 {
@@ -33,7 +27,7 @@ public sealed class Sky
 
     private readonly LightHandle _light;
     private readonly byte[] _pixels = new byte[Width * Height * 4];
-    private float _litHour = float.NaN, _paintedHour = float.NaN, _setShelter = 1;
+    private float _litHour = float.NaN, _paintedHour = float.NaN;
 
     public Sky(float hour)
     {
@@ -50,9 +44,6 @@ public sealed class Sky
 
     /// <summary>How many minutes a whole day takes while <see cref="Cycle"/> is set.</summary>
     public float DayMinutes { get; set; } = 20;
-
-    /// <summary>How much of the sky's light the environment map gives, 1 under the open sky and less where the sky does not reach the player.</summary>
-    public float Shelter { get; set; } = 1;
 
     /// <summary>The color of the sky at the horizon, which the frame is cleared to behind the sky.</summary>
     public Color Horizon { get; private set; }
@@ -73,12 +64,6 @@ public sealed class Sky
 
     private void Apply()
     {
-        // The map is set again for a change in shelter only past a step, since each setting is filtered again.
-        if (MathF.Abs(Shelter - _setShelter) > 0.02f && !float.IsNaN(_paintedHour))
-        {
-            _setShelter = Shelter;
-            SetEnvironmentMap(new Image(_pixels, Width, Height), _setShelter);
-        }
         if (Hour == _litHour) return;
         _litHour = Hour;
         var toSun = SunToward(Hour);
@@ -100,8 +85,7 @@ public sealed class Sky
         if (!float.IsNaN(_paintedHour) && HoursApart(Hour, _paintedHour) < RepaintHours) return;
         _paintedHour = Hour;
         Paint(toSun);
-        _setShelter = Shelter;
-        SetEnvironmentMap(new Image(_pixels, Width, Height), _setShelter);
+        SetEnvironmentMap(new Image(_pixels, Width, Height));
     }
 
     private void Paint(Vector3 toSun)

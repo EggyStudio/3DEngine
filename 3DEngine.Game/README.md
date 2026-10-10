@@ -55,9 +55,8 @@ light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `vo
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
 `voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
 reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or off,
-`voxel.skydim` the sky's dimming underground, `voxel.world` begins a new world, and `voxel.blocks`
-lists the blocks by number and name. The engine's own `gi.*` and `field.*` commands show and measure
-the light that bounces.
+`voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name. The
+engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
 
 ## How the world is drawn
 
@@ -96,10 +95,8 @@ light gives a mesh new colors and keeps its vertices, which the field knows it b
 leaves the meshes settled in the field. Each quad is
 split along the diagonal its occlusion favors, so a shaded corner darkens one triangle softly.
 
-Every surface also reflects the sky, and the engine does not occlude that reflection, so a cave
-sealed in stone shows a blue sheen at noon. The game dims the whole sky while the player stands
-where the sky's level is low, eased over about half a second, as Minecraft's caves darken. The
-settings window turns each of these off, to see the light that bounces alone.
+The settings window turns the light levels and the shaded corners off, each on its own, to see
+the light that bounces alone.
 
 ## What is not here yet
 

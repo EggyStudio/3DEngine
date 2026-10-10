@@ -13,7 +13,6 @@ public sealed class VoxelGame : IDisposable
     private const double MeshBudgetMs = 4;
 
     private float _breakWait, _placeWait;
-    private float _eyeSky = Lighting.Max;
     private bool _captured, _swallowClick;
 
     public VoxelGame(IWorldGenerator generator)
@@ -55,9 +54,6 @@ public sealed class VoxelGame : IDisposable
     public BlockHit? Target { get; private set; }
 
     public bool HudHidden { get; set; }
-
-    /// <summary>Whether the sky's light dims while the player is where the sky does not reach.</summary>
-    public bool SkyDims { get; set; } = true;
 
     public bool PickerOpen { get; private set; }
 
@@ -108,12 +104,6 @@ public sealed class VoxelGame : IDisposable
         Target = VoxelRay.Cast(World, Player.Eye, Player.Look, Reach);
         if (_captured && !_swallowClick) Interact(seconds);
 
-        // The sky's level where the eyes are, eased over half a second or so, sets how much of the
-        // sky's light the environment map gives.
-        var eye = Player.Eye;
-        var (sky, _) = World.GetLight((int)MathF.Floor(eye.X), (int)MathF.Floor(eye.Y), (int)MathF.Floor(eye.Z));
-        _eyeSky += (sky - _eyeSky) * (1 - MathF.Exp(-4 * seconds));
-        Sky.Shelter = SkyDims ? SectionMesher.Lit(_eyeSky) : 1;
         Sky.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
