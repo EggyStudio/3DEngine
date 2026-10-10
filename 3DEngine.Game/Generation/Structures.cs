@@ -46,14 +46,17 @@ public abstract class Structure
         return Suits(biome, ground, hash, out var y) ? new StructureStart(x, y, z, hash) : null;
     }
 
-    /// <summary>Builds every start of it whose ground reaches into a column.</summary>
+    /// <summary>How far past its size it builds on each side, as a roof's eaves or the space a pyramid clears around it.</summary>
+    protected const int Margin = 2;
+
+    /// <summary>Builds every start of it that reaches into a column, its margin included.</summary>
     public void BuildIn(ColumnClip clip, Overworld land)
     {
-        int cx0 = FloorDiv(clip.MinX - Size, Cell), cx1 = FloorDiv(clip.MinX + Section.Size, Cell);
-        int cz0 = FloorDiv(clip.MinZ - Size, Cell), cz1 = FloorDiv(clip.MinZ + Section.Size, Cell);
+        int cx0 = FloorDiv(clip.MinX - Size - Margin, Cell), cx1 = FloorDiv(clip.MinX + Section.Size + Margin, Cell);
+        int cz0 = FloorDiv(clip.MinZ - Size - Margin, Cell), cz1 = FloorDiv(clip.MinZ + Section.Size + Margin, Cell);
         for (int cz = cz0; cz <= cz1; cz++)
             for (int cx = cx0; cx <= cx1; cx++)
-                if (StartIn(cx, cz, land) is { } start && clip.Touches(start.X, start.Z, start.X + Size - 1, start.Z + Size - 1))
+                if (StartIn(cx, cz, land) is { } start && clip.Touches(start.X - Margin, start.Z - Margin, start.X + Size - 1 + Margin, start.Z + Size - 1 + Margin))
                     Build(clip, start);
     }
 
@@ -68,7 +71,7 @@ public static class Structures
     public static Structure? Find(string name) => All.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }
 
-/// <summary>A small house of planks with log corners on a cobblestone floor, a door, windows, and a glowstone in its ceiling for its torch.</summary>
+/// <summary>A small house of planks with log corners on a cobblestone floor, a door with a torch over it, windows, and a lantern hanging from its ceiling.</summary>
 public sealed class VillageHouse : Structure
 {
     public override string Name => "house";
@@ -100,16 +103,26 @@ public sealed class VillageHouse : Structure
         // A roof of planks a block wider than the walls, and a smaller one above it.
         clip.Fill(x0 - 1, y + 5, z0 - 1, x1 + 1, y + 5, z1 + 1, BlockId.OakPlanks);
         clip.Fill(x0 + 1, y + 6, z0 + 1, x1 - 1, y + 6, z1 - 1, BlockId.OakPlanks);
-        clip.Set(x0 + 3, y + 5, z0 + 3, BlockId.Glowstone);
+        clip.Set(x0 + 3, y + 4, z0 + 3, BlockId.HangingLantern);
 
-        // The door in a wall the hash picks, and a window in the middle of each other wall.
+        // The door in a wall the hash picks, a torch on the wall over it outside, and a window in the
+        // middle of each other wall.
         var door = (int)(start.Hash >> 20 & 3);
-        (int X, int Z)[] middles = [(x0 + 3, z0), (x1, z0 + 3), (x0 + 3, z1), (x0, z0 + 3)];
+        (int X, int Z, int Dx, int Dz, BlockId Torch)[] middles =
+        [
+            (x0 + 3, z0, 0, -1, BlockId.WallTorchNorth), (x1, z0 + 3, 1, 0, BlockId.WallTorchEast),
+            (x0 + 3, z1, 0, 1, BlockId.WallTorchSouth), (x0, z0 + 3, -1, 0, BlockId.WallTorchWest),
+        ];
         for (int side = 0; side < 4; side++)
         {
-            var (mx, mz) = middles[side];
-            if (side == door) clip.Fill(mx, y + 1, mz, mx, y + 2, mz, BlockId.Air);
-            else clip.Set(mx, y + 2, mz, BlockId.Air);
+            var (mx, mz, dx, dz, torch) = middles[side];
+            if (side != door)
+            {
+                clip.Set(mx, y + 2, mz, BlockId.Air);
+                continue;
+            }
+            clip.Fill(mx, y + 1, mz, mx, y + 2, mz, BlockId.Air);
+            clip.Set(mx + dx, y + 3, mz + dz, torch);
         }
     }
 }

@@ -119,7 +119,6 @@ public sealed class SectionMesher
             }
         }
 
-        static float Component(Vector3 v, int axis) => axis == 0 ? v.X : axis == 1 ? v.Y : v.Z;
     }
 
     private static int Pad(int x, int y, int z) => ((y + 1) * P + z + 1) * P + x + 1;
@@ -166,11 +165,13 @@ public sealed class SectionMesher
                     var block = (BlockId)_blocks[at];
                     if (block == BlockId.Air) continue;
                     var info = Blocks.Get(block);
-                    if (info.Emits)
+                    if (info.Glows.Length > 0) Emitters.Add((Section.Index(x, y, z), block));
+                    if (info.Shape is { } shape)
                     {
-                        Emitters.Add((Section.Index(x, y, z), block));
+                        AddShape(shape, at, new Vector3(x, y, z));
                         continue;
                     }
+                    if (info.Emits) continue;
                     // Water whose top is open stands a block's eighth low, as Minecraft's does.
                     var low = block == BlockId.Water && _blocks[at + Steps[2]] != (ushort)BlockId.Water;
                     for (int face = 0; face < 6; face++)
@@ -246,6 +247,52 @@ public sealed class SectionMesher
             indices.Add(first + 3);
         }
     }
+
+    // The pieces of a block smaller than its cell that give off no light, each a box of six faces,
+    // its top's corners moved by its lean. A face on the cell's side against an opaque block is left
+    // out, as a torch's foot on the ground is. Every corner takes the light of the block's own cell,
+    // since the pieces stand inside it, and none is shaded by the blocks around.
+    private void AddShape(BlockShape shape, int at, Vector3 block)
+    {
+        int sky = _light[at] >> 4, lit = _light[at] & 15;
+        var kept = LightLevels ? MathF.Pow(Lit(Math.Max(sky, lit)), 1 / 2.2f) : 1;
+        Span<Vector3> corners = stackalloc Vector3[4];
+        foreach (var piece in shape.Pieces)
+        {
+            if (piece.Glows) continue;
+            var color = Surfaces.All[piece.Surface].Color;
+            var shaded = new Color((byte)MathF.Round(color.R * kept), (byte)MathF.Round(color.G * kept), (byte)MathF.Round(color.B * kept));
+            var size = piece.To - piece.From;
+            for (int face = 0; face < 6; face++)
+            {
+                var axis = face / 2;
+                var onSide = face % 2 == 0 ? Component(piece.To, axis) >= 1 : Component(piece.From, axis) <= 0;
+                if (onSide && (axis == 1 || piece.Lean == Vector3.Zero) && Blocks.IsOpaque((BlockId)_blocks[at + Steps[face]])) continue;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    var corner = Corners[face][i];
+                    corners[i] = block + piece.From + corner * size + corner.Y * piece.Lean;
+                }
+                // A leaning face is no longer square to its axis, so its normal is found from its edges.
+                var normal = Vector3.Normalize(Vector3.Cross(corners[1] - corners[0], corners[2] - corners[0]));
+                var first = (uint)Solid.Vertices.Count;
+                for (int i = 0; i < 4; i++)
+                {
+                    Solid.Vertices.Add(new ModelVertex(corners[i], normal, Uvs[face][i]));
+                    Solid.Colors.Add(shaded);
+                }
+                Solid.Indices.Add(first);
+                Solid.Indices.Add(first + 1);
+                Solid.Indices.Add(first + 2);
+                Solid.Indices.Add(first);
+                Solid.Indices.Add(first + 2);
+                Solid.Indices.Add(first + 3);
+            }
+        }
+    }
+
+    private static float Component(Vector3 v, int axis) => axis == 0 ? v.X : axis == 1 ? v.Y : v.Z;
 
     private void Gather(int cell, ref int sky, ref int lit, ref int open)
     {

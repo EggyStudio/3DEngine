@@ -224,13 +224,15 @@ public sealed class LightEngine(VoxelWorld world)
                 if (!TryCell(x, y, z, out var section, out var index)) continue;
                 var level = section.Level(index, sky);
                 if (level == 0) continue;
-                // A light-giving block keeps its own level, which nothing else writes into it.
-                var keeps = Blocks.IsOpaque((BlockId)section.Blocks[index]);
+                // A light-giving block keeps its own level. One that lets light through, as a torch
+                // does, may hold more from a brighter light beside it, which is taken back to its own.
+                var own = sky ? 0 : Blocks.Get((BlockId)section.Blocks[index]).Light;
                 var came = level < cell.Level || sky && d == Lighting.Down && cell.Level == Lighting.Max && level == Lighting.Max;
-                if (came && !keeps)
+                if (came && level > own)
                 {
-                    Set(x, y, z, section, index, sky, 0);
+                    Set(x, y, z, section, index, sky, own);
                     _taken.Enqueue((x, y, z, level));
+                    if (own > 0) spread.Enqueue((x, y, z));
                 }
                 else spread.Enqueue((x, y, z));
             }

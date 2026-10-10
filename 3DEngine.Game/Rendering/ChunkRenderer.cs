@@ -19,7 +19,8 @@ namespace Engine.Game;
 /// </para>
 /// <para>
 /// A material's light is one for its whole draw, so a block that gives off light is a cube drawn
-/// on its own, copies of one mesh in one instanced draw for each kind. Sections are drawn by
+/// on its own, and the flame of a torch or the glass of a lantern a cube scaled to it, copies of one
+/// mesh in one instanced draw for each surface. Sections are drawn by
 /// distance alone and not culled to the view, since a mesh left out of a frame leaves the field
 /// and the light it gave or blocked goes with it until it settles again. Every section within the
 /// render distance is drawn each frame, through the field's gather and each pass's culling, so the
@@ -68,7 +69,7 @@ public sealed class ChunkRenderer : IDisposable
         public readonly Matrix4x4 Transform = transform;
         public readonly Vector3 Middle = middle;
         public readonly Part Solid = new(), SeeThrough = new();
-        public readonly List<(BlockId Block, Matrix4x4 At)> Emitters = [];
+        public readonly List<(int Surface, Matrix4x4 At)> Emitters = [];
     }
 
     // Every section's opaque faces are drawn with the first, their colors in their vertices, and its
@@ -84,7 +85,7 @@ public sealed class ChunkRenderer : IDisposable
     private readonly Dictionary<SectionKey, SectionMeshes> _sections = [];
     private readonly SectionMesher _mesher = new();
     private readonly ModelMesh _cube = GenMeshCube(1, 1, 1);
-    private readonly List<Matrix4x4>[] _emitterDraws = [.. Blocks.All.Select(_ => new List<Matrix4x4>())];
+    private readonly List<Matrix4x4>[] _emitterDraws = [.. Surfaces.All.Select(_ => new List<Matrix4x4>())];
     private readonly List<SectionKey> _queue = [];
     private readonly List<(float Distance, SectionMeshes Entry)> _seeThrough = [];
     private ModelMaterial[] _lamps = [];
@@ -199,8 +200,8 @@ public sealed class ChunkRenderer : IDisposable
         entry.Emitters.Clear();
         foreach (var (index, block) in _mesher.Emitters)
         {
-            var local = new Vector3(index & Section.Mask, index >> 8, (index >> 4) & Section.Mask);
-            entry.Emitters.Add((block, Matrix4x4.CreateTranslation(key.Origin + local + new Vector3(0.5f))));
+            var cell = Matrix4x4.CreateTranslation(key.Origin + new Vector3(index & Section.Mask, index >> 8, (index >> 4) & Section.Mask));
+            foreach (var (local, surface) in Blocks.Get(block).Glows) entry.Emitters.Add((surface, local * cell));
         }
         return true;
     }
@@ -244,7 +245,7 @@ public sealed class ChunkRenderer : IDisposable
                 triangles += entry.Solid.Mesh.TriangleCount;
             }
             if (entry.SeeThrough.Mesh.IsValid) _seeThrough.Add((Vector3.DistanceSquared(entry.Middle, eye), entry));
-            foreach (var (block, at) in entry.Emitters) _emitterDraws[(int)block].Add(at);
+            foreach (var (surface, at) in entry.Emitters) _emitterDraws[surface].Add(at);
         }
 
         // See-through sections farthest first, so each blends over what lies behind it. The faces
@@ -257,11 +258,11 @@ public sealed class ChunkRenderer : IDisposable
             triangles += entry.SeeThrough.Mesh.TriangleCount;
         }
 
-        for (int block = 0; block < _emitterDraws.Length; block++)
+        for (int surface = 0; surface < _emitterDraws.Length; surface++)
         {
-            var list = _emitterDraws[block];
+            var list = _emitterDraws[surface];
             if (list.Count == 0) continue;
-            DrawMeshInstanced(_cube, _lamps[Blocks.All[block].Top], CollectionsMarshal.AsSpan(list));
+            DrawMeshInstanced(_cube, _lamps[surface], CollectionsMarshal.AsSpan(list));
             draws++;
             triangles += _cube.TriangleCount * list.Count;
             lamps += list.Count;

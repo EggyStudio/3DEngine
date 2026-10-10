@@ -203,7 +203,7 @@ public sealed class VoxelGame : IDisposable
             Place(Hotbar.Current);
         }
         if (IsMouseButtonPressed(MouseButton.Middle) && Target is { } hit)
-            Hotbar.Pick(World.GetBlock(hit.X, hit.Y, hit.Z));
+            Hotbar.Pick(Blocks.Get(World.GetBlock(hit.X, hit.Y, hit.Z)).Item);
     }
 
     /// <summary>Breaks the block the crosshair rests on, unless it cannot be broken.</summary>
@@ -213,14 +213,20 @@ public sealed class VoxelGame : IDisposable
         return World.SetBlock(hit.X, hit.Y, hit.Z, BlockId.Air);
     }
 
-    /// <summary>Places a block against the face the crosshair rests on, unless it would take up some of the player.</summary>
+    /// <summary>
+    /// Places a block against the face the crosshair rests on, unless it would take up some of the
+    /// player, a torch or a lantern the way of it that has a block to hold to.
+    /// </summary>
     public bool Place(BlockId block)
     {
         if (Target is not { Inside: false } hit) return false;
         var (x, y, z) = hit.Beside;
-        // A block goes into air or water, the water giving way to it.
-        if (Player.Body.Overlaps(x, y, z) || World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water)) return false;
-        return World.SetBlock(x, y, z, block);
+        // A whole block goes into air or water, the water giving way to it, and a smaller one into air.
+        var shaped = Blocks.Get(block).Shape is not null;
+        if (World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water) || shaped && World.GetBlock(x, y, z) != BlockId.Air) return false;
+        var placed = World.Fit(block, x, y, z, hit.NormalX, hit.NormalY, hit.NormalZ);
+        if (placed == BlockId.Air || Blocks.Collides(placed) && Player.Body.Overlaps(x, y, z)) return false;
+        return World.SetBlock(x, y, z, placed);
     }
 
     public void Draw()
@@ -237,7 +243,7 @@ public sealed class VoxelGame : IDisposable
         BeginMode3D(Player.Camera);
         DrawSkybox();
         Renderer.Draw(Player.Eye, RenderDistance);
-        if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit);
+        if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.GetBlock(hit.X, hit.Y, hit.Z));
         EndMode3D();
 
         // Under water the view is tinted blue, as Minecraft's is.
@@ -264,7 +270,8 @@ public sealed class VoxelGame : IDisposable
             var column = 0;
             foreach (var block in Blocks.All)
             {
-                if (block.Id == BlockId.Air) continue;
+                // A block placed in more than one way is shown once, as the block held to place it.
+                if (block.Id == BlockId.Air || block.Item != block.Id) continue;
                 var swatch = block.Swatch;
                 if (ImGui.ColorButton(block.Name, new Vector4(swatch.R, swatch.G, swatch.B, 255) / 255, ImGuiColorEditFlags.NoTooltip, new Vector2(40, 40)))
                     Hotbar.Slots[Hotbar.Selected] = block.Id;

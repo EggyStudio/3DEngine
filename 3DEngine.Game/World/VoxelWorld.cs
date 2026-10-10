@@ -110,7 +110,38 @@ public sealed class VoxelWorld
         if (ly == Section.Mask && key.Y < ChunkColumn.SectionCount - 1) Edited.Add(key with { Y = key.Y + 1 });
         // A block shades the corners of faces in the sections across its edges and corners as well.
         Reshade(x, y, z);
+
+        // A block smaller than its cell that held to this one falls with it, as a torch does when the
+        // wall behind it is broken.
+        if (!Blocks.IsSturdy(block))
+            for (int d = 0; d < 6; d++)
+            {
+                int nx = x + Lighting.Dx[d], ny = y + Lighting.Dy[d], nz = z + Lighting.Dz[d];
+                if (Blocks.Get(GetBlock(nx, ny, nz)).Shape is { Support: var (sx, sy, sz) } && (nx + sx, ny + sy, nz + sz) == (x, y, z))
+                    SetBlock(nx, ny, nz, BlockId.Air);
+            }
         return true;
+    }
+
+    /// <summary>
+    /// The block an item makes placed at a world position against a face whose outward normal is
+    /// given: the item itself for a whole block, and for one smaller than its cell the way of it that
+    /// faces away from that face, or else the first way of it with a whole block to hold to, standing
+    /// before hanging before a wall, or air where none has one, as a lantern placed on a wall stands
+    /// on the floor below or hangs from the ceiling.
+    /// </summary>
+    public BlockId Fit(BlockId item, int x, int y, int z, int normalX, int normalY, int normalZ)
+    {
+        if (Blocks.Get(item).Shape is null) return item;
+        ReadOnlySpan<Facing> ways = [BlockShape.Away(normalX, normalY, normalZ), Facing.Up, Facing.Down, Facing.North, Facing.South, Facing.West, Facing.East];
+        foreach (var way in ways)
+        {
+            var variant = Blocks.Variant(item, way);
+            if (variant == BlockId.Air) continue;
+            var (sx, sy, sz) = Blocks.Get(variant).Shape!.Support;
+            if (Blocks.IsSturdy(GetBlock(x + sx, y + sy, z + sz))) return variant;
+        }
+        return BlockId.Air;
     }
 
     /// <summary>Marks the sections whose faces a block's light or presence shades: its own, and those across each edge of it on a section's side.</summary>

@@ -159,8 +159,8 @@ public static class GameCommands
     {
         if (Game is not { } game) return "no world is loaded";
         if (!Blocks.TryFind(block, out var id) || id == BlockId.Air) return $"no block is called {block}, and voxel.blocks lists them";
-        game.Hotbar.Slots[game.Hotbar.Selected] = id;
-        return $"slot {game.Hotbar.Selected + 1} holds {Blocks.Get(id).Key}";
+        game.Hotbar.Slots[game.Hotbar.Selected] = Blocks.Get(id).Item;
+        return $"slot {game.Hotbar.Selected + 1} holds {Blocks.Get(Blocks.Get(id).Item).Key}";
     }
 
     [Command("voxel.break", "Breaks the block the crosshair rests on, as a left click does")]

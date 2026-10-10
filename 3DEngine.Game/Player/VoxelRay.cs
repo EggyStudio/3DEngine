@@ -28,7 +28,15 @@ public static class VoxelRay
 
         while (travelled <= reach)
         {
-            if (Blocks.IsTarget(world.GetBlock(x, y, z))) return new BlockHit(x, y, z, nx, ny, nz, travelled);
+            var block = world.GetBlock(x, y, z);
+            if (Blocks.IsTarget(block))
+            {
+                if (Blocks.Get(block).Shape is not { } shape) return new BlockHit(x, y, z, nx, ny, nz, travelled);
+                // A block smaller than its cell is met only where the ray crosses the box around its pieces.
+                var cell = new Vector3(x, y, z);
+                if (Enters(origin, direction, cell + shape.Min, cell + shape.Max, out var at, out var normal) && at <= reach)
+                    return new BlockHit(x, y, z, normal.X, normal.Y, normal.Z, at);
+            }
             if (nextX < nextY && nextX < nextZ)
             {
                 x += stepX;
@@ -52,6 +60,39 @@ public static class VoxelRay
             }
         }
         return null;
+    }
+
+    // Where a ray enters a box and the outward normal of the face it enters through, by the slabs
+    // between the box's faces on each axis. A ray that starts inside enters at once through no face.
+    private static bool Enters(Vector3 origin, Vector3 direction, Vector3 min, Vector3 max, out float at, out (int X, int Y, int Z) normal)
+    {
+        float near = 0, far = float.PositiveInfinity;
+        (at, normal) = (0, (0, 0, 0));
+        for (int axis = 0; axis < 3; axis++)
+        {
+            float o = origin[axis], d = direction[axis], lo = min[axis], hi = max[axis];
+            if (d == 0)
+            {
+                if (o < lo || o > hi) return false;
+                continue;
+            }
+            float t0 = (lo - o) / d, t1 = (hi - o) / d;
+            var sign = -1;
+            if (t0 > t1)
+            {
+                (t0, t1) = (t1, t0);
+                sign = 1;
+            }
+            if (t0 > near)
+            {
+                near = t0;
+                normal = axis == 0 ? (sign, 0, 0) : axis == 1 ? (0, sign, 0) : (0, 0, sign);
+            }
+            far = MathF.Min(far, t1);
+            if (near > far) return false;
+        }
+        at = near;
+        return true;
     }
 
     // How far along the ray it takes to cross one block on an axis.

@@ -99,6 +99,22 @@ as through an opening: a room lit through a skylight reads the same with glass i
 Glass lets the light levels through, and water takes a level more for each block of it, so the sky
 fades with depth and a lake's floor darkens as it deepens.
 
+## Torches, lanterns and end rods
+
+A torch, a lantern, an end rod, and the soul torch and soul lantern of blue fire are smaller than a
+block, each a few boxes as Minecraft's models are. A torch placed on a wall's side leans out from
+it, a lantern placed under a block hangs from it, and an end rod points away from the face it is
+placed on, and each falls when the block it holds to is broken. Light and the player pass through
+them, and the crosshair meets the box around their pieces. The piece that gives off light, a torch's
+flame, a lantern's glass or the rod, is a lamp's cube scaled to it, so the light that bounces
+carries it as a small light by its box, and the other pieces are faces of the section's mesh.
+
+A small light's glow is its light over its surface, so a torch's flame, a 48th of a block's surface,
+glows far brighter than glowstone. Each is set so a closed room's floor takes about three quarters
+of glowstone's light from a torch or an end rod, nine tenths from a lantern and two fifths from the
+soul fire. A flame a quarter of a block from a wall lights a bright round pool on it, as a light
+that near a wall does.
+
 ## Trees and structures
 
 Each column places the trees and the structures that start in it and those that start in the
@@ -109,10 +125,10 @@ generated alone on a worker, as Minecraft places a structure's pieces chunk by c
 
 A structure has at most one start in each cell of 64 by 64 blocks, where its chance falls and the
 biome at its start suits it. A small village house of planks with log corners on a cobblestone floor
-stands in the plains, forests and taiga, a glowstone in its ceiling for its torch; an igloo of snow
-with a shroomlight inside on the snowy plains; a stepped sandstone pyramid in the desert, a dark
-chamber at its heart with a floor of blue and red; and a cobblestone dungeon deep under any ground,
-a magma block at its middle where Minecraft's has its spawner. `voxel.find
+stands in the plains, forests and taiga, a torch over its door and a lantern hanging from its
+ceiling; an igloo of snow with a shroomlight inside on the snowy plains; a stepped sandstone pyramid
+in the desert, a dark chamber at its heart with a floor of blue and red; and a cobblestone dungeon
+deep under any ground, a magma block at its middle where Minecraft's has its spawner. `voxel.find
 <house|igloo|pyramid|dungeon>` gives the nearest one's place.
 
 ## How the world is drawn
@@ -125,8 +141,9 @@ meshing is not written yet. A section meshed again with the same faces keeps its
 only new colors.
 
 A block that gives off light (glowstone, a sea lantern, shroomlight, magma) is drawn as a cube of
-its own, every cube of one kind in one instanced draw, because a material's light is one for its
-whole draw and a section's one material gives off none.
+its own, and the glowing piece of a torch, a lantern or an end rod as that cube scaled to it, every
+cube of one surface in one instanced draw, because a material's light is one for its whole draw and
+a section's one material gives off none.
 
 Sections are drawn by their distance from the player and are not culled to the view, because a
 mesh left out of a frame leaves the field, and the light it gave or the shadow it cast in the
@@ -135,11 +152,11 @@ bounce goes with it until it settles again.
 ## Light levels and corners
 
 Each block holds Minecraft's two light levels from 0 to 15. The sky's is 15 under the open sky,
-falls straight down without losing any and loses one for each block it goes sideways or up, and
-a light-giving block's loses one for each block from it, glowstone, sea lanterns and shroomlight
-giving 15 and magma 3. A new column's light is worked out on the worker that generates it, joined
-to its neighbors' as it arrives, and taken back and spread again around each block placed or
-broken.
+falls straight down without losing any and loses one for each block it goes sideways or up, and a
+light-giving block's loses one for each block from it, glowstone, sea lanterns, shroomlight and
+lanterns giving 15, torches and end rods 14, the soul torch and soul lantern 10 and magma 3. A new
+column's light is worked out on the worker that generates it, joined to its neighbors' as it
+arrives, and taken back and spread again around each block placed or broken.
 
 Each corner of a face is shaded from the four cells in front of the face that meet at it, as
 Minecraft's smooth lighting is. Its light is the average of the open ones, its occlusion counts
@@ -168,10 +185,11 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 
 ## What is not here yet
 
-Textures, and leaves seen through, which are solid. Water that flows. Greedy meshing. Light that
-passes through leaves at a cost, as Minecraft's does. Villages of several houses and paths, and
-structures read from files rather than built in code. Caves open to the sky. Mobs, items, an
-inventory and survival.
+Textures, and leaves seen through, which are solid. Slabs, stairs, fences and doors, and the
+player's collisions with blocks smaller than a cell, so a lantern is walked through. Water that
+flows. Greedy meshing. Light that passes through leaves at a cost, as Minecraft's does. Villages of
+several houses and paths, and structures read from files rather than built in code. Caves open to
+the sky. Mobs, items, an inventory and survival.
 
 ## What it costs
 

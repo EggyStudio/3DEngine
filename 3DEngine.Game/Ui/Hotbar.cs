@@ -7,11 +7,12 @@ public sealed class Hotbar
 {
     public const int Size = 9;
 
-    // Stone, planks and glass to build with, each light, and the concrete walls whose colors show bouncing.
+    // Stone, planks and glass to build with, a torch, a lantern and two blocks that give off light,
+    // and the concrete walls whose colors show bouncing.
     public readonly BlockId[] Slots =
     [
-        BlockId.Stone, BlockId.OakPlanks, BlockId.Glass, BlockId.Glowstone, BlockId.SeaLantern, BlockId.Shroomlight,
-        BlockId.WhiteConcrete, BlockId.RedConcrete, BlockId.GreenConcrete,
+        BlockId.Stone, BlockId.OakPlanks, BlockId.Glass, BlockId.Torch, BlockId.Lantern, BlockId.Glowstone, BlockId.SeaLantern,
+        BlockId.WhiteConcrete, BlockId.RedConcrete,
     ];
 
     public int Selected { get; set; }

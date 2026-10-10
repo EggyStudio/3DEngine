@@ -9,11 +9,15 @@ public static class Hud
     private const int Slot = 44;
     private const int Gap = 4;
 
-    /// <summary>Outlines a block a hair larger than it, so its edges are not lost in its faces' depth. Called inside <c>BeginMode3D</c>.</summary>
-    public static void DrawOutline(BlockHit hit)
+    /// <summary>
+    /// Outlines a block a hair larger than it, so its edges are not lost in its faces' depth, a block
+    /// smaller than its cell by the box around its pieces. Called inside <c>BeginMode3D</c>.
+    /// </summary>
+    public static void DrawOutline(BlockHit hit, BlockId block)
     {
-        var middle = new Vector3(hit.X + 0.5f, hit.Y + 0.5f, hit.Z + 0.5f);
-        DrawCubeWires(middle, 1.004f, 1.004f, 1.004f, new Color(0, 0, 0, 220));
+        var (min, max) = Blocks.Get(block).Shape is { } shape ? (shape.Min, shape.Max) : (Vector3.Zero, Vector3.One);
+        var size = max - min + new Vector3(0.004f);
+        DrawCubeWires(new Vector3(hit.X, hit.Y, hit.Z) + (min + max) / 2, size.X, size.Y, size.Z, new Color(0, 0, 0, 220));
     }
 
     public static void DrawCrosshair()

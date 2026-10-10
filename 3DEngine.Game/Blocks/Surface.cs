@@ -92,6 +92,19 @@ public static class Surfaces
     public static readonly int Glass = Add("glass", new Color(214, 232, 236, 64), roughness: 0.05f);
     public static readonly int Water = Add("water", new Color(44, 92, 196, 168), roughness: 0.05f);
     public static readonly int Ice = Add("ice", new Color(164, 200, 242, 190), roughness: 0.1f);
+    public static readonly int TorchStick = Add("torch stick", new Color(104, 78, 46));
+    public static readonly int Iron = Add("dark iron", new Color(52, 54, 62), 0.5f);
+    public static readonly int EndRodBase = Add("end rod base", new Color(150, 132, 160));
+    // A small light's glow is its light over its surface, so a torch's flame, a 48th of a block's
+    // surface, glows far brighter than glowstone to light a room nearly as well, as a torch's level of
+    // 14 nearly matches glowstone's 15. Each is set so a closed room's floor takes about three
+    // quarters of glowstone's light from a torch or an end rod, nine tenths from a lantern, and two
+    // fifths from the soul fire's blue, whose level is 10.
+    public static readonly int Flame = Add("flame", new Color(255, 214, 130), emissive: new Color(255, 180, 90), glow: 140);
+    public static readonly int SoulFlame = Add("soul flame", new Color(140, 236, 245), emissive: new Color(80, 220, 255), glow: 70);
+    public static readonly int LanternGlass = Add("lantern glass", new Color(250, 205, 125), emissive: new Color(255, 175, 85), glow: 25);
+    public static readonly int SoulLanternGlass = Add("soul lantern glass", new Color(130, 225, 235), emissive: new Color(70, 210, 255), glow: 12);
+    public static readonly int EndRod = Add("end rod", new Color(245, 242, 235), emissive: new Color(255, 248, 240), glow: 17);
 
     /// <summary>Every surface, its index its id.</summary>
     public static IReadOnlyList<Surface> All => _all;
