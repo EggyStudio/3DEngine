@@ -15,9 +15,10 @@ public sealed partial class GlobalIlluminationTests
         // The room a glowing panel lights by bouncing alone, drawn into a render texture read each
         // frame after the panel goes dark. Each frame the probes' rays take the light that bounced
         // to what they meet the frame before, so it went on bouncing after the panel, its room
-        // under a level 30 frames on at Low and 28 at High, as this test measured on an RTX 4070,
-        // where it goes the frame after every probe's own light summed falls, under a level 2
-        // frames on, the room's probes lit more by the panel's light bounced than by the panel.
+        // under a level 30 frames on at Low and 28 at High, and 45 at Low once surfaces weighed
+        // their probes off themselves, as this test measured on an RTX 4070, where it goes the
+        // frame after the own light of the probes around each falls, under a level 2 frames on,
+        // the room's probes lit more by the panel's light bounced than by the panel.
         Open();
         SetGlobalIllumination(quality);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -61,6 +62,71 @@ public sealed partial class GlobalIlluminationTests
         UnloadRenderTexture(target);
         UnloadModel(slab);
         UnloadModel(panel);
+    }
+
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.High)]
+    public void A_Lamp_Put_Out_In_A_Room_Apart_Leaves_A_Corridor_Lit_By_Bounce_Alone_As_It_Was(GlobalIllumination quality)
+    {
+        // A lit room with a corridor out of it that turns a corner, the camera down the turned leg,
+        // which only light that bounced around the corner reaches, and a second lit room apart,
+        // whose lamp, bright enough to hold some half of every probe's own light, goes out at frame
+        // 0. A probe lit mostly by light that bounced is judged by the probes around it, so the
+        // corridor keeps its light to the tenth of a level; judged by every probe's own light, it
+        // dimmed with the far room's lamp by 3.3 and 3.7% 3 frames on, as this test measured on an
+        // RTX 4070.
+        Open();
+        SetGlobalIllumination(quality);
+        CreatePointLight(new Vector3(0, 2.4f, 0), new Color(255, 236, 210), 14, range: 14, castsShadows: true);
+        var apart = CreatePointLight(new Vector3(1, 2.4f, -8.5f), new Color(255, 236, 210), 80, range: 14, castsShadows: true);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var wall = new Color(220, 220, 215);
+        var shots = new List<string>();
+        for (int frame = -SceneFieldPlan.SettleFrames - 40; frame <= 6; frame++)
+        {
+            if (frame == 0) SetLightColor(apart, Color.Black);
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(4.5f, 1.4f, 3.5f), new Vector3(4.5f, 1.0f, -3f), Vector3.UnitY, 60));
+            // The room, 4 by 4, its wall at +x open from z -0.6 to 0.6, and the floor and ceiling over all.
+            DrawModelEx(slab, new Vector3(-1, -0.15f, 0), Vector3.UnitY, 0, new Vector3(15, 0.3f, 9), wall);
+            DrawModelEx(slab, new Vector3(-1, 3.15f, 0), Vector3.UnitY, 0, new Vector3(15, 0.3f, 9), wall);
+            DrawModelEx(slab, new Vector3(-2.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 4.6f), wall);
+            DrawModelEx(slab, new Vector3(0, 1.5f, -2.15f), Vector3.UnitY, 0, new Vector3(4.6f, 3, 0.3f), wall);
+            DrawModelEx(slab, new Vector3(0, 1.5f, 2.15f), Vector3.UnitY, 0, new Vector3(4.6f, 3, 0.3f), wall);
+            DrawModelEx(slab, new Vector3(2.15f, 1.5f, -1.4f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 1.6f), wall);
+            DrawModelEx(slab, new Vector3(2.15f, 1.5f, 1.4f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 1.6f), wall);
+            // The corridor, 1.2 wide, along x from the opening to x 5, then along +z to z 4.
+            DrawModelEx(slab, new Vector3(3.6f, 1.5f, -0.75f), Vector3.UnitY, 0, new Vector3(2.9f, 3, 0.3f), wall);
+            DrawModelEx(slab, new Vector3(5.45f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 1.8f), wall);
+            DrawModelEx(slab, new Vector3(3.15f, 1.5f, 2.4f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 3.3f), wall);
+            DrawModelEx(slab, new Vector3(5.45f, 1.5f, 2.6f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 3.4f), wall);
+            DrawModelEx(slab, new Vector3(4.3f, 1.5f, 4.45f), Vector3.UnitY, 0, new Vector3(2.6f, 3, 0.3f), wall);
+            // The room apart, closed, 4 by 3, behind the first room's back wall.
+            DrawModelEx(slab, new Vector3(1, -0.15f, -8.5f), Vector3.UnitY, 0, new Vector3(4.6f, 0.3f, 3.6f), wall);
+            DrawModelEx(slab, new Vector3(1, 3.15f, -8.5f), Vector3.UnitY, 0, new Vector3(4.6f, 0.3f, 3.6f), wall);
+            DrawModelEx(slab, new Vector3(-1.15f, 1.5f, -8.5f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 3.6f), wall);
+            DrawModelEx(slab, new Vector3(3.15f, 1.5f, -8.5f), Vector3.UnitY, 0, new Vector3(0.3f, 3, 3.6f), wall);
+            DrawModelEx(slab, new Vector3(1, 1.5f, -10.15f), Vector3.UnitY, 0, new Vector3(4, 3, 0.3f), wall);
+            DrawModelEx(slab, new Vector3(1, 1.5f, -6.85f), Vector3.UnitY, 0, new Vector3(4, 3, 0.3f), wall);
+            EndMode3D();
+            if (frame >= -1)
+            {
+                shots.Add(Path.Combine(_folder.Path, $"{_captures++}.png"));
+                TakeScreenshot(shots[^1]);
+            }
+            EndDrawing();
+        }
+        UnloadModel(slab);
+        CloseWindow();
+        UseApp(null);
+
+        var reads = shots.Select(path => Mean(LoadImage(path), 0, 0, 160, 96).X).ToList();
+        reads[0].Should().BeGreaterThan(40, "the corridor is lit by the light that bounced around its corner");
+        reads.Skip(1).Min().Should().BeGreaterThan(reads[0] * 0.985f,
+            $"and keeps it as the far room goes dark, reading {string.Join(", ", reads.Select(level => $"{level:0.0}"))} from the frame before");
     }
 
     [NeedsVulkanTheory]

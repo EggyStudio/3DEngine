@@ -355,8 +355,9 @@ public float3 followed(float3 now, float3 before)
 
 // How much of the light a probe's rays bring back must come straight from the sun, the lights and
 // what gives off light for the probe to be judged by its own light, a quarter, where a probe lit
-// mostly by light that bounced, as one down a corridor from a lit room, is judged by every probe's
-// own light summed, since its own light is too little of its light to say what went out.
+// mostly by light that bounced, as one down a corridor from a lit room, is judged by the own light
+// of the probes around it summed, since its own light is too little of its light to say what went
+// out.
 public static const float OwnShare = 0.25;
 
 // How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n: 1

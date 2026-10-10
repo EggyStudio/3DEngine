@@ -604,8 +604,9 @@ or rose by a quarter, when it is the share its own light kept, channel by channe
 times; the trace sums each workgroup of a probe's rays' own light and all they brought back, and
 the gather adds the sums up and sets the share (`gi_ambient.slang`). A probe whose own light is
 under a quarter of all its rays bring, lit by light that bounced around a corner, is judged by
-every probe's own light summed instead, and a cascade that moved since the frame before keeps the
-whole. So the light that bounced on from a light that went out goes with it the frame after,
+the own light of the 27 probes of its cascade within one of it summed instead, which 27 of its
+workgroup's rays read before the rest trace, and a cascade that moved since the frame before keeps
+the whole. So the light that bounced on from a light that went out goes with it the frame after,
 where it bounced on over the frames each bounce takes (`gi.toggle follow off`). A ray is traced
 from its probe, so a probe a little above a floor does not bring back the light under it for the
 cascade below to take, and one that meets a surface before its interval begins brings back that
@@ -1162,6 +1163,33 @@ cascade's reach. That is the method's limit: a corridor narrower than the second
 holds none of its probes where their rows fall in its walls, and moving such a probe into the
 open, as DDGI does, takes it to the nearer free side, here outside the corridor, 0.1 past the
 walls' outer faces against 0.2 to their inner.
+
+The lean, read after it was committed, also takes the five slides' crawl from 0.86 levels a frame
+to 0.36 (0.26 to 0.47), and unheld from 3.10 to 1.63 (1.40 to 1.80), as `GlobalIlluminationTests`
+reads them.
+
+The tenth's probes judged by every probe's own light summed tied each passage lit by bounce alone
+to every lamp in the level: in a corridor around a corner from its lit room, with a second room
+apart whose lamp holds some half of every probe's own light, that lamp going out dimmed the
+corridor by 3.3 and 3.7% 3 frames on at the two qualities, and a lamp that flickered there would
+flicker it. Such a probe is judged by the own light of the 27 probes of its cascade within one of
+it summed, this frame's against the frame before's, and the corridor keeps its light to the tenth
+of a level (`GlobalIlluminationTests`). The panel's room still goes under a level 2 frames after
+the panel, and a corridor around a corner of walls of 0.72 falls to nothing within a frame of its
+own room's lamp going out where taken whole it fades in 22 frames. The rise counts for these
+probes too: the light not yet come to the carried lamp's new side goes in 11 and 10 frames where
+it went in 18, 1.9 and 1.1 levels short 6 frames on where 5.2 and 4.6, and the light left
+on the old side lingers, 0.47 levels at `High` 12 frames on where 0.12, as the probes near the new
+place take their bounce raised by what their own light rose, the new light's first bounce in it;
+judged by falls alone they read as the level's sum read them, 18 and 17 frames for the light not
+yet come. The bounce costs 0.468, 0.621 and 0.722 ms against 0.474, 0.621 and 0.719, within the
+noise. The slower fade taken whole was read for the loop's gain before it was judged a fault: in a
+closed box whose walls are all of one color, lit by a glowing panel, the hold off, the first
+cascade's probes' light falls each frame after the panel goes dark by 0.515 at walls of 0.503 once
+the field settles, the white panel some 4% of the surface at 1, and by 0.26 to 0.27 at walls of
+0.25, so the light that bounces again keeps its walls' share and no more. The rooms the tests and
+the bounce rooms light are white, the tests' of 1, whose light a closed room never loses, so they
+fade over more frames now that the lean lets their walls take part.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

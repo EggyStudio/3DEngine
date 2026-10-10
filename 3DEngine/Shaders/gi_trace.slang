@@ -18,9 +18,9 @@
 // that read those faces for the light bounced to it.
 //
 // A probe takes the light that bounced to the surfaces its rays meet at the share the gather left
-// it, less than the whole the frame after the light its rays bring straight from the sun, the
-// lights and what gives off light fell by a fifth or more, so the light that bounced on from light
-// that went out goes with it rather than over the frames each bounce takes to fade.
+// it, other than the whole the frame after the light its rays bring straight from the sun, the
+// lights and what gives off light fell by a fifth or rose by a quarter, so the light that bounced
+// on from light that went out goes with it rather than over the frames each bounce takes to fade.
 import gi;
 import scenefield;
 
@@ -69,16 +69,11 @@ Sampler3D reach;
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
-// Every probe's own light summed, in 1024ths, the frame before's and the one before that, by the
-// frame's parity, as gi_ambient.slang adds it.
-[[vk::binding(11, 0)]]
-RWStructuredBuffer<uint> summed;
-
 // What each workgroup of a probe's rays, 64 of them, brought back straight from the sun, the lights
 // and what gives off light, summed, with in a the luminance of all they brought back, each ray
 // weighed by the share of the sphere its texel spans, four workgroups a probe at most, which
 // gi_ambient.slang sums a probe at a time.
-[[vk::binding(12, 0)]] [format("rgba32f")]
+[[vk::binding(11, 0)]] [format("rgba32f")]
 RWTexture3D<float4> partial;
 
 struct TracePush
@@ -89,18 +84,24 @@ struct TracePush
     // x: where the interval starts. y: where it ends. z: the probes' spacing in cells. w: how many cascades.
     float4 interval;
     // x: 1 where each probe's share holds for the probe, its cascade lying where it lay the frame
-    // before. y: 1 where the sums of the two frames before cover the same probes, no cascade
-    // having moved between them. z: the frame's parity.
+    // before. y: unused. z: the frame's parity.
     uint4 follow;
 };
 
 [[vk::push_constant]]
 ConstantBuffer<TracePush> push;
 
+groupshared float3 nearNow[32];
+groupshared float3 nearBefore[32];
+
 // The share of the light that bounced the probe at `at` of cascade c takes: the one the gather
-// left it, or for a probe its own light lights too little of to judge by, the share every probe's
-// own light summed kept of the frame before's where that fell by a fifth or more.
-float3 kept(uint3 at, int c, int probes)
+// left it, or for a probe its own light lights too little of to judge by, the share the own light
+// of the 27 probes of its cascade within one of it kept of the frame before's, so a room that goes
+// dark takes the light its walls bounced with it, and a lamp in a room far off, judged by every
+// probe's own light, does not dim or brighten the passages lit by bounce alone with it. Each of the
+// first 27 rays of the probe's workgroup reads one probe, and every ray of the group reaches the
+// sum, the share being the probe's.
+float3 kept(uint3 at, int c, int probes, uint lane)
 {
     if (push.follow.x == 0u)
         return float3(1.0);
@@ -108,8 +109,36 @@ float3 kept(uint3 at, int c, int probes)
     if (share.r >= 0.0)
         return share.rgb;
     uint parity = push.follow.z & 1u;
-    float now = float(summed[parity ^ 1u]), before = float(summed[parity]);
-    return push.follow.y != 0u && before > 0.0 ? followed(float3(now), float3(before)) : float3(1.0);
+    if (lane < 32u)
+    {
+        float3 now = float3(0.0), before = float3(0.0);
+        int3 near = int3(at) + int3(int(lane % 3u) - 1, int((lane / 3u) % 3u) - 1, int(lane / 9u) - 1);
+        if (lane < 27u && all(near >= int3(0)) && all(near < int3(probes)))
+        {
+            float4 last = held[int3(int(parity ^ 1u) * probes + near.x, near.y, c * probes + near.z)];
+            float4 earlier = held[int3(int(parity) * probes + near.x, near.y, c * probes + near.z)];
+            if (last.a >= 0.0 && earlier.a >= 0.0)
+            {
+                now = last.rgb;
+                before = earlier.rgb;
+            }
+        }
+        nearNow[lane] = now;
+        nearBefore[lane] = before;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    for (uint half = 16u; half > 0u; half >>= 1)
+    {
+        if (lane < half)
+        {
+            nearNow[lane] += nearNow[lane + half];
+            nearBefore[lane] += nearBefore[lane + half];
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
+    float3 now = nearNow[0], before = nearBefore[0];
+    float was = luminance(before);
+    return was > 1e-4 ? select(before > was * 1e-3, followed(now, before), float3(1.0)) : float3(1.0);
 }
 
 groupshared float4 brought[64];
@@ -131,6 +160,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     uint2 texel = uint2(ray % texels, ray / texels);
     uint3 written = uint3(at.xy * texels + texel, at.z);
 
+    // The probe's share, before any ray of the group leaves the rest.
+    float3 share = kept(at, int(push.cascade.x), int(probes), lane);
+
     float4 oc = fieldInfo.cascades[push.cascade.x].originAndCell;
     float3 origin = oc.xyz + (float3(at) + 0.5) * (oc.w * push.interval.z);
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
@@ -148,7 +180,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         reached = t >= 0.0 ? t : push.interval.y;
         if (t >= 0.0)
             light = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, origin + way * t,
-                float(probes), push.interval.z, push.interval.w, true, kept(at, int(push.cascade.x), int(probes)), own), t < push.interval.x ? 0.5 : 0.0);
+                float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
         else if (push.cascade.w != 0u)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;

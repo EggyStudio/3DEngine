@@ -383,8 +383,8 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
         SetGlobalIllumination(GlobalIllumination.Low);
         var glowing = Mean(Drawn(8, SceneFieldPlan.SettleFrames + 10), 0, 0, 160, 96);
-        // The light that bounced from the panel goes with it the frame after every probe's own light
-        // summed falls (The_Light_That_Bounced_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out).
+        // The light that bounced from the panel goes with it the frame after the own light of the
+        // probes around each falls (The_Light_That_Bounced_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out).
         var dark = Mean(Drawn(0, 4), 0, 0, 160, 96);
 
         glowing.X.Should().BeGreaterThan(dark.X + 20, $"the panel's light reaches the room in the texture by bouncing, {glowing} against {dark}");

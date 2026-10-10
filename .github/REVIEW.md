@@ -10,7 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2588735f`. C's tenth fix, the fade's hold. Each probe sums its own light, what its
+Reviewed up to `2c3e9cf8`. C's eleventh, the first of its two causes, found at the probes as asked:
+the window's room is six units across and three high, a whole number of the first cascade's spacing,
+so its walls and ceiling lie in planes of probes that stand inside them and hold nothing, and a
+surface weighed its eight probes at its own point, the trilinear weight all on those in its plane,
+the ceiling reading 0.003 of 0.086 at one bounce already. `bouncedAt`, `bouncedSeenAt` and the
+screen probes' `probesAround` weigh from a point half the spacing off the surface along its normal
+(`Lean`), the bias DDGI puts on a surface for the same reason, 0.3 reading within two points and
+0.75 worse; the window −53 → +8, +10 and +17, the thin room −15 → +6, the strip −46 → −15, the
+grazing floor −37 → −8, −5 and +13, the carried lamp −32 → −5, the Cornell box a point up, the
+corridor as it was, the sums 214 → 74 at Low and 198 → 88 at High, for 0.027 to 0.042 ms of marches
+to the row in front; a new test puts a ceiling in a plane of probes and reads 191 and 195 levels
+where 9.8 and 13.3. The second cause, the corridor's, is the method's limit written with its number:
+two units wide, its second cascade's probes 2.4 apart stand at ±1.2 inside walls of 1.0 to 1.3, and
+a probe moved as DDGI moves one goes to the nearer free side, outside. Right, both, the first a
+cause and not a tier, the second a limit told by its geometry. One thing before the probes are moved
+against the lean. Three numbers moved together with the lean: every closed room reads over, the
+window's walls +32 to +48% at High with its middle probe's sun still 20% short and its whole +22%;
+the panel's room with the hold off fades in 45 frames where it faded in 30; and the light not yet
+come to a carried lamp's new side arrives in 18 frames where 12. All three are the loop's gain, what
+one frame's light that bounces again keeps of the last, and the fade is its direct reading, the
+ratio of each frame's light to the one before after the panel goes dark; read against the share the
+walls' color gives, a gain above that share is the overshoot and the slowness both, and whatever
+makes it so, the lean reading a bright row, the faces' pi, the lend's edge, is mended before
+anything else moves. The carried lamp's test reads the share left four frames on, since lavapipe
+took the last quarter of a level to frames 11 and 12, with its reason written; the arrival in 18
+frames is the look, measured on. The suite: 1,598 passed; on lavapipe 343 passed and 6 skipped with
+no validation error. The gain next, then the probes moved against the lean, then the marked probes
+judged by their neighbors, then the trace's hits through the reach, then D.
+
+Before it, C's tenth fix came to be read, the fade's hold. Each probe sums its own light, what its
 rays bring straight from the sun, the lights and what gives off light, with all they bring, the
 trace summing each workgroup of 64 rays in shared memory weighed by the sphere's shares, the gather
 adding the groups and setting the share, channel by channel, the frames of each parity side by side;
@@ -39,38 +68,6 @@ a corridor, one lamp switched and the other's corridor holding within a level. T
 passed; on lavapipe 341 passed and 6 skipped with no validation error. C11 is under way, the window
 first, its probes beyond the sunlit patch reading the sun +25% to +250% over and those a probe from
 it 30 to 70% under, the field's sun march to read.
-
-Before it, a correction came (`149cfc8d`), the right kind: the rooms' numbers and the build's given
-with `55e8b865` were a build of `c9da36e9`'s, the examples not built again after an A/B put the
-files back, and the fresh build says the two builds a frame take 0.350 ms where the first share took
-0.343, a panel 0.06 thick under a ceiling gives off its whole 2 at its face where it gave 1.8, and
-the ceiling a tenth past the panel's edge gives off a fifth of it where it gave none, from the cells
-whose squares take in part of the face, so the Cornell box reads +9, +7 and +10% where it read +7,
-+6 and +8% and the strip's room −46, −44 and −42%; the test, the suite and lavapipe ran on the right
-build, since `dotnet test` builds. Right to say so unasked, and §4 carries the fresh numbers. The
-ceiling's fifth past the edge is the field's cell speaking, a tenth of a unit under a cell of 0.15,
-the price of the sheet's whole light, and D's tiers read the Cornell box with it. One thing, so that
-it does not happen again: `build/bounce-rooms.sh` builds the examples before it measures, or refuses
-a build older than the tree's newest source and says so, so a number in §4 is never a stale build's;
-in item 2. The tenth next.
-
-Before it, C's ninth fix came to be whole (`55e8b865`). The lend reads the area of the emitter's
-faces near each cell, those a closed mesh turns toward the cell and every face of a mesh with no
-inside, each triangle cut to a square a cell wide laid on its plane about the cell's middle
-(Sutherland and Hodgman, seven corners at most) and its area projected along each axis, summed over
-the faces in 1024ths of a cell's face beside the most light any gives off, and the resolve takes the
-share along the axis the faces cover most of, a whole face at most, so a strip's front and top faces
-lend a cell beside it once and not twice; the reach is a cell where it was half, every cell a point
-on the emitter is blended from, which is where the sheet's loss lay once measured, the cells inside
-the wall behind it exactly half a cell off. The buffer is six words a cell, 6 MB, made the first
-time a build has such an emitter and another bound in its place until then, and disposed with the
-field. A sheet 0.02 thick on a wall gives off its 2 where it lies, read across its face from the
-field's blended glow by a new test with a bound of 1.8, where it gave off 1.27; the strip keeps its
-0.4; every room reads as it did to the point; the two builds a frame take 0.346 ms where they took
-0.344. Right, measured first and the second cause found by it, the share what was asked and the clip
-exact rather than a guess at it. The guide's memory line takes the 6 MB at D, as the reply says. The
-suite: 1,592 passed; on lavapipe 337 passed and 6 skipped with no validation error. The tenth next,
-the fade's hold, then the eleventh, then D.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -174,24 +171,28 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    the eight, the window's at −53%, the grazing floor at −37% and the corridor at −21%, the ones
    seen as too dim at a distance: read at the probes with `gi.probe` against the one-bounce and
    two-bounce references, as the third and sixth were found, the cause named and fixed where it is a
-   fault, and written with its number where it is the method's limit. Three more from the same drop
-   are read only if an artifact outlives the nine: a directional signal per screen probe resolved
-   against the pixel's shading normal where a scalar gives a wash (its ZH3 fit in
-   `HInterpolationWSGI.compute`); the history rejected under what moved by the velocity image the
-   motion blur draws, and one fresh ray validating a reprojected probe
-   (`HTemporalStablizationWSGI.compute`); and the lamps at a hit sampled from a cluster of the
-   nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`), where every lamp is evaluated
-   today. The probes placed and filtered by a smooth geometric normal with the shading normal used
-   at the resolve alone is that product's rule, worth one look at the fourth. What does not pay a
-   measured share stays described with its number. From the sixth, each fix's numbers also carry the
-   frames a glowing panel's room takes to go dark once the panel does, 18 before it and 48 after,
-   and the levels a frame a sliding camera's picture crawls with the bounce, held and unheld, 0.97
-   and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070, since both moved there and both
-   are the look the owner judges, and a fix that lengthens the fade or the crawl says why, the crawl
-   read as the mean of several slides with its spread beside it, since the sixth's was given as 1.23
-   and as 1.71. `build/bounce-rooms.sh` builds the examples before it measures, or refuses a build
-   older than the tree's newest source and says so, since `55e8b865`'s numbers were a stale build's
-   and a correction followed.
+   fault, and written with its number where it is the method's limit. The eleventh's second half
+   reads the loop's gain, the ratio of each frame's light that bounces again to the frame before's
+   after a panel goes dark with the hold off, against the share the walls' color gives, since the
+   overshoot in every closed room after the lean, the fade from 30 to 45 frames and a carried lamp's
+   light arriving in 18 frames where 12 all say that gain runs over its share; what makes it so is
+   mended before the probes are moved (`2c3e9cf8`'s review). Three more from the same drop are read
+   only if an artifact outlives the nine: a directional signal per screen probe resolved against the
+   pixel's shading normal where a scalar gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`);
+   the history rejected under what moved by the velocity image the motion blur draws, and one fresh
+   ray validating a reprojected probe (`HTemporalStablizationWSGI.compute`); and the lamps at a hit
+   sampled from a cluster of the nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`),
+   where every lamp is evaluated today. The probes placed and filtered by a smooth geometric normal
+   with the shading normal used at the resolve alone is that product's rule, worth one look at the
+   fourth. What does not pay a measured share stays described with its number. From the sixth, each
+   fix's numbers also carry the frames a glowing panel's room takes to go dark once the panel does,
+   18 before it and 48 after, and the levels a frame a sliding camera's picture crawls with the
+   bounce, held and unheld, 0.97 and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070,
+   since both moved there and both are the look the owner judges, and a fix that lengthens the fade
+   or the crawl says why, the crawl read as the mean of several slides with its spread beside it,
+   since the sixth's was given as 1.23 and as 1.71. `build/bounce-rooms.sh` builds the examples
+   before it measures, or refuses a build older than the tree's newest source and says so, since
+   `55e8b865`'s numbers were a stale build's and a correction followed.
 
    **D, the end.** Tiers re-measured and the guide's table rewritten, RENDERING.md §4 and TODO.md's
    entry, and a test holding the Cornell box and the level's views at each tier to their references
@@ -472,37 +473,27 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-C11, the three rooms at their probes, the first of its two causes. The reference counts bounces
-after the first surface a path meets, so `gi.toggle again off` is read against its reference of no
-bounce. The window's room is six units across and three high, a whole number of the first
-cascade's spacing of 1.2, so its walls and ceiling lie in planes of probes that stand inside them
-and hold nothing, and a surface weighed its eight probes at its own point, the trilinear weight all
-on those in its plane: its ceiling and side walls read 0.003 of 0.086 and 0.07, 91 to 97% short at
-one bounce already. `bouncedAt`, `bouncedSeenAt` and the screen probes' `probesAround` weigh from a
-point half the spacing off the surface along its normal (`Lean`). Every region against the
-references, Low, Medium and High: Cornell +9/+7/+10 → +10/+8/+11, thin −15/−14/−14 → +6/+6/+6,
-corridor −21 unchanged, window −53/−53/−50 → +8/+10/+17, red −1, strip −46/−44/−42 → −15/−24/−15,
-grazing −37/−36/−28 → −8/−5/+13, carried −32 → −5/−4/−4; summed 214 → 74 at Low and 198 → 88 at
-High. A lean of 0.3 reads within two points everywhere and 0.75 sums to 76 and 99. A new test,
-a closed room whose ceiling and walls lie in planes of probes lit by a glowing panel on its floor:
-the ceiling 9.8 and 13.3 levels → 191 and 195, bound 60. Two costs. Surfaces in probe planes march
-to the row in front where they marched to none, 0.446/0.588/0.678 → 0.473/0.621/0.720 ms, twice
-each. And more light bounces again: the window room's middle probe goes from −46% to +22%, its
-light straight from the sun still 20% short, so the bounce on top runs over, as the Cornell box
-does, its walls and ceiling +32 to +48% at High; the panel's room taken whole fades in 45 frames
-where 30, the hold still 2; the lamp's light left behind starts at 3.2 levels where 8.5 and its
-last part lingers near a quarter of a level, which lavapipe took to frames 11 and 12 against the
-test's 10, so the test reads the share left 4 frames on, 0.17 and 0.22 with the hold against nine
-tenths whole, bound a half; the light not yet come to the lamp's new side goes in 18 frames where
-12. The second cause is the corridor's, two units wide: its walls read 0.000 of 0.004 and every
-first-cascade probe in it brings nothing, its rays meeting only walls no light reaches straight,
-since the second cascade's probes, 2.4 apart, stand at z ±1.2, inside its walls of 1.0 to 1.3, so
-no probe carries the sunlit end's light into the first cascade's reach. That is the method's
-limit, written with its number: DDGI moves a probe inside or against a mesh into the open by up to
-half its spacing, toward the nearer free side, which for these two lies outside the corridor, 0.1
-past the walls' outer faces against 0.2 to their inner, so it would not bring them in. Moving
-probes would still bring a ceiling's own row of probes into the room, where the lean reads the row
-a whole spacing below it, which sees a bright floor nearer than the ceiling does and is part of the
-walls' and ceiling's overshoot; that is measured against the lean next, then the marked probes
-judged by the probes around them, as `2588735f`'s review asks, then the trace's hits through the
-reach, then D. The suite 1,598 passed; lavapipe 343 passed, 6 skipped, no validation error.
+The tenth's marked probes, from `2588735f`'s review, and the loop's gain, from `2c3e9cf8`'s. A probe
+lit mostly by light that bounced is judged by the own light of the 27 probes of its cascade within
+one of it, this frame's sum against the frame before's, read by 27 rays of its workgroup before the
+rest trace; the level's word of sums and its barriers are gone. A new test lights a corridor around
+a corner from its room and puts out the lamp of a room apart that holds some half of every probe's
+own light: judged by the level's sum the corridor dimmed 3.3 and 3.7% 3 frames on, judged by its
+neighbors it holds to the tenth of a level, bound 1.5%. The panel's room still goes in 2 frames, and
+a corridor of walls of 0.72 falls to nothing within a frame of its own lamp. The rise counts for
+these probes too, and the carried lamp shows both sides of it: the light not yet come to its new
+side goes in 11 and 10 frames where 18, 1.9 and 1.1 levels short 6 frames on where 5.2 and 4.6, and
+the light left behind lingers near half a level to frame 12 at High where it was 0.12, the bounce
+raised near the new place holding the new light's first bounce; falls alone read as the level's sum
+did, 18 and 17 frames. I kept the rise for the arrival and for a flickering light; the costs are
+within the noise. The gain, read as you asked before anything moves: a closed box of one color lit
+by a glowing panel, the hold off, the first cascade's light falls each frame by 0.515 at walls of
+0.503 once the field settles, the white panel some 4% of the surface, and by 0.26 to 0.27 at walls
+of 0.25, so the light that bounces again keeps its walls' share. The slow fades are the test rooms'
+walls of albedo 1, which a closed room never loses light to, and of the bounce rooms' 0.72, now that
+the lean lets every wall take part; the overshoot in the closed rooms is then not the loop's gain,
+and the window room's probe, its light straight from the sun 20% short and its total 22% over, says
+the light arriving at a surface from the probes a spacing in front of it runs over what reaches the
+surface itself, which moving the probes against the lean measures next. The lean, read after its
+commit, also took the crawl from 0.86 levels a frame to 0.36 (0.26 to 0.47), unheld 3.10 to 1.63,
+which §4 now says.

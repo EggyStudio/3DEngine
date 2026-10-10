@@ -16,7 +16,7 @@
 // of all it brings or more and fell by a fifth or more against the frame before's, the share it
 // kept, channel by channel, so the light that bounced on from light that went out goes with it
 // rather than fading over the frames each bounce takes; where its own light is less, a mark that
-// the probe is judged by every probe's own light summed, which it adds its own to.
+// the probe is judged by the probes around it (gi_trace.slang).
 import gi;
 
 [[vk::binding(0, 0)]]
@@ -41,13 +41,9 @@ Texture3D<float4> partial;
 
 // Each probe's own light and the luminance of all its rays brought, the frames of each parity side
 // by side, and after them the share of the light that bounced each probe's next rays take, a
-// negative one where the probe is judged by every probe's own light summed, every cascade.
+// negative one where the probe is judged by the probes around it, every cascade.
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
-
-// Every probe's own light summed, in 1024ths, a word for each parity of the frame.
-[[vk::binding(6, 0)]]
-RWStructuredBuffer<uint> summed;
 
 struct AmbientPush
 {
@@ -91,7 +87,6 @@ void follow(uint3 at, uint probes, uint texels, float shares)
     }
     held[int3(int(parity) * p + int(at.x), int(at.y), z)] = float4(own, all);
     held[int3(2 * p + int(at.x), int(at.y), z)] = float4(kept, 0.0);
-    InterlockedAdd(summed[parity], uint(min(luminance(own), 4000.0) * 1024.0));
 }
 
 [shader("compute")]
