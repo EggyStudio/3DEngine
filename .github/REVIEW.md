@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c9da36e9`. C's ninth fix, the strip no cell held: each instance that gives off light
+Reviewed up to `55e8b865`. C's ninth fix is whole. The lend reads the area of the emitter's faces
+near each cell, those a closed mesh turns toward the cell and every face of a mesh with no inside,
+each triangle cut to a square a cell wide laid on its plane about the cell's middle (Sutherland and
+Hodgman, seven corners at most) and its area projected along each axis, summed over the faces in
+1024ths of a cell's face beside the most light any gives off, and the resolve takes the share along
+the axis the faces cover most of, a whole face at most, so a strip's front and top faces lend a cell
+beside it once and not twice; the reach is a cell where it was half, every cell a point on the
+emitter is blended from, which is where the sheet's loss lay once measured, the cells inside the
+wall behind it exactly half a cell off. The buffer is six words a cell, 6 MB, made the first time a
+build has such an emitter and another bound in its place until then, and disposed with the field. A
+sheet 0.02 thick on a wall gives off its 2 where it lies, read across its face from the field's
+blended glow by a new test with a bound of 1.8, where it gave off 1.27; the strip keeps its 0.4;
+every room reads as it did to the point; the two builds a frame take 0.346 ms where they took 0.344.
+Right, measured first and the second cause found by it, the share what was asked and the clip exact
+rather than a guess at it. The guide's memory line takes the 6 MB at D, as the reply says. The
+suite: 1,592 passed; on lavapipe 337 passed and 6 skipped with no validation error. The tenth next,
+the fade's hold, then the eleventh, then D.
+
+Before it, C's ninth fix came to be read, the strip no cell held: each instance that gives off light
 carries its thinnest extent, its mesh's bounds along its own axes scaled into the world, and where
 that is under a cell a third splat dispatch, after a branch every thread of a group takes alike,
 lends the cells within half a cell of its triangles its light times its thickness over the cell, the
@@ -55,29 +73,6 @@ reads them at the probes with `gi.probe` against the one-bounce and two-bounce r
 third and sixth were found, names the cause, and fixes it where it is a fault and not the method's
 limit, which is written with its number. The suite: 1,590 passed; on lavapipe 335 passed and 6
 skipped. C9 next, the strip, then the tenth and the eleventh, then D.
-
-Before it, C's seventh fix came to be read, the halo, and it was gone before the fix came to it: the
-ceiling reads +8% at Low and +3% at High against B's −31%, its falloff at High 0.36 of the middle's
-light 60 pixels off against the reference's 0.33, so of the two things the seventh was to measure
-the interval was the sixth's and High's first cascade traces 64 already. Low and Medium traced 16, a
-ray over the bright patch beside the lamp standing for a sixteenth of the sphere, which is where
-their 17% came from; they trace 64 as High does, the Cornell box +17% → +6% and +8%, the thin room,
-the window and the carried lamp down 3 to 5 points the same coarse rays had over-read, the summed
-error 245 → 247, for 0.003 and 0.007 ms. Right, the first note taken by a cause and not by a tier's
-allowance, and the look's numbers carried as asked, the crawl 1.43 held and 3.96 unheld, the panel's
-room 211 → 24.3 levels 18 frames after it goes dark, 5.3 at 24 and 0.9 at 30. The fade's model is
-right: the light past one bounce comes from the frame before's probes, one bounce a frame, so when a
-light goes what bounced keeps bouncing by the share the room sends back, which the third and sixth
-fixes raised from about a third to near the walls' color, a few frames to some 25. Of the three ways
-to hold it, the first is taken, as the reply would, with one change: the cut is keyed on each
-probe's own one-bounce light falling against the frame before's, not on the frame's lights summed,
-since the level carries a lamp and moves a wall for this, and a lamp carried changes no sum while
-the light it left trails it by those 25 frames; the frame's sum stays as the fallback for a probe
-lit by nothing of its own, a dark room lit through a door. It is C's tenth fix, before D, measured
-by the frames the panel's room and the carried lamp's trail take to go at Low and High and by the
-crawl, since a cut that fires on noise would flicker; the second way, the passes twice a frame, is
-the number to beat if the first fails the carried lamp. The suite: 1,589 passed; on lavapipe 334
-passed and 6 skipped. C8 next, the step.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -470,18 +465,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-C9's share, from `c9da36e9`'s review. The lend reads the area of the emitter's faces near each cell,
-those a closed mesh turns toward the cell, within a square a cell wide about the cell's middle laid
-on each face, seen along x, y and z and taken along the axis they cover most of, clamped to one,
-with the most light any of them gives off beside, six words a cell. Measured first, the sheet's loss
-lay elsewhere as well: a sheet 0.02 thick flat on a wall paints the cells in front of it itself, and
-the cells inside the wall behind it, which the field blends with those in front where it is read at
-the sheet, lie exactly half a cell from it, where the lend's half-cell reach left them out, so its
-face gave off 1.27 of its 2. The lend reaches the cells within a cell, every cell a point on the
-emitter is blended from, and the face gives off its 2; a new test in `SceneFieldTests` reads it
-across the sheet's face, bound 1.8. The strip keeps its 0.4 and every room of the eight reads as it
-did to the point at each quality (the strip −45, −44 and −41%, the Cornell box +7, +6 and +8%), a
-floor lit by such a sheet 0.02 thick reads 140 levels where it read 130, and the bounce rooms' two
-builds a frame take 0.346 ms where they took 0.344. The buffer is made the first time a build has an
-emitter thinner than a cell, 6 MB at 64 cells a side, so a scene with none holds none of it; that
-line joins the guide's memory at D. The suite 1,592 passed.
+C9's share, corrected. The numbers given with `55e8b865` for the rooms and the build were taken
+from a build of `c9da36e9`, since the examples were not built again after its files were put back.
+Built again, the area share takes the bounce rooms' two builds a frame 0.350 ms where the first
+share took 0.343, twice each; a panel 0.06 thick under a ceiling, as the Cornell box's, gives off
+its whole 2 at its face where it gave off 1.8, and the ceiling a tenth past its edge a fifth of it
+where it gave off none, from the cells whose squares take in part of its face, so the Cornell box
+reads +9, +7 and +10% where it read +7, +6 and +8%, the strip's room −46, −44 and −42%, the rest as
+they were. RENDERING.md §4 says so. The test, the suite and lavapipe ran on the right build, as
+`dotnet test` builds.

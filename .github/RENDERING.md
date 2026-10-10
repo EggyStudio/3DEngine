@@ -1053,11 +1053,15 @@ its own, after a branch every thread takes alike, where in the loop of the dista
 it cost a cascade's build 0.027 ms with no emitter at all; a build with no such emitter clears and
 reads none of the buffer, and a cascade's build in `shaders_scene_field` takes 0.459 ms where it
 took 0.455 (`field.rebuild 4000`). Read from the faces' area, the lend costs the bounce rooms' two
-builds a frame 0.346 ms where its first share cost 0.344, and every room reads as it did to the
-point (`build/bounce-rooms.sh` against the same references). The bounce costs 0.44, 0.57 and 0.66 ms. The look, from here read
-over five slides of the camera, along x either way, up, ahead and askew: the bounce adds 0.87 levels
-a frame to the picture's change, 0.51 to 1.28 by slide, where it adds 3.10 without the history,
-1.39 to 3.92, and the panel's room fades as it did.
+builds a frame 0.350 ms where its first share cost 0.343 (`field.rebuild 4000`, twice each). A
+panel 0.06 thick under a ceiling, as the Cornell box's, gives off its whole 2 at its face where it
+gave off 1.8, and the ceiling a tenth past its edge gives off a fifth of it where it gave off none,
+from the cells whose squares take in part of its face, so the Cornell box reads +9, +7 and +10% by
+quality where it read +7, +6 and +8%, and the strip's room −46, −44 and −42%, the rest as they were
+(the references `build/bounce-rooms.sh` made, compared with `gi.compare`). The bounce costs 0.44,
+0.57 and 0.66 ms. The look, from here read over five slides of the camera, along x either way, up,
+ahead and askew: the bounce adds 0.87 levels a frame to the picture's change, 0.51 to 1.28 by
+slide, where it adds 3.10 without the history, 1.39 to 3.92, and the panel's room fades as it did.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
