@@ -1226,6 +1226,17 @@ probes has those probes holding light a tenth of their spacing below it and a pr
 its spot (`GlobalIlluminationTests`). The bounce costs 0.481 to 0.484, 0.633 and 0.738 ms where it
 cost 0.469 to 0.472, 0.620 and 0.722, timed one after the other twice.
 
+The world's probes take the light that bounced to their rays' hits from the probes around each hit
+that a march through the field reaches (`bouncedSeenAt`), where the screen's probes and the model
+pass weigh the probes by how far each one's rays reached (`bouncedAt`), which the trace binds and
+did not read. Read through the reach, the trace's hits cost the bounce 0.455, 0.595 and 0.686 ms
+where the marches cost 0.482, 0.631 and 0.736, and the rooms read within a point or two but the thin
+room, +15% and its pixels 14 where +9% and 8, and the corridor, −11% where −21%, which the twentieth
+of a probe's weight the reach keeps for one it does not see lends it from the probes in its walls;
+and a closed room with a lamp that casts shadows under its floor takes 42.9 levels of the lamp's
+light in a channel, where the marches hold it to 2.5 under its bound of 8
+(`GlobalIlluminationTests`). The marches stay.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
