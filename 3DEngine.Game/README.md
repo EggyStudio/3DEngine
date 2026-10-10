@@ -15,6 +15,7 @@ dotnet run --project 3DEngine.Game                      # the hills of seed 1
 dotnet run --project 3DEngine.Game -- --flat --seed 7   # a flat world to build a test on
 dotnet run --project 3DEngine.Game -- --world house     # a save of its own name
 ./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden --transient
+dotnet test 3DEngine.Game.Tests                         # its light, meshes, body, saves and land
 ```
 
 A world is saved under `~/.local/share/3DEngine.Game/saves` on Linux, and the matching local

@@ -10,6 +10,7 @@
   <Project Path="3DEngine.CodeFixes/3DEngine.CodeFixes.csproj" />
   <Project Path="3DEngine.Examples/3DEngine.Examples.csproj" />
   <Project Path="3DEngine.Game/3DEngine.Game.csproj" />
+  <Project Path="3DEngine.Game.Tests/3DEngine.Game.Tests.csproj" />
   <Project Path="3DEngine.Generator/3DEngine.Generator.csproj" />
   <Project Path="3DEngine.Tests/3DEngine.Tests.csproj" />
 </Solution>
