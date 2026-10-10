@@ -35,6 +35,7 @@ before driving a session.
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
 | [.github/NORM.md](.github/NORM.md) | The numbered rules this engine and BevyCSharp keep, each with what checks it |
+| [.github/ASKS.md](.github/ASKS.md) | What the games built on the engine ask of it, written by the sessions making them and turned into Now items by the reviewing session |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
 | [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
 
@@ -133,5 +134,11 @@ pushed.
   REVIEW.md beginning `Rule:`. A row that the table under Where things are lacks is added here
   when N 1.5 asks for it, which the owner allowed on 2026-10-05, and nothing else in this file
   changes without the owner's word.
+- `.github/ASKS.md` holds what the games ask of the engine. A session making a game, in `games` or
+  beside it, writes an entry there where the engine falls short, a cost it cannot afford or a thing
+  it cannot do, with what it measured and how (`./e3d command profile`), and the session that writes
+  REVIEW.md turns the entry into an item of the Now list by its weight and writes the item's number
+  under it, which the owner allowed on 2026-10-10. This session reads REVIEW.md as before and writes
+  nothing in ASKS.md.
 - The code before the redesign is on the local `legacy-modules` branch, as git submodules under
   `Modules/`. It is read for reference and not merged back.
