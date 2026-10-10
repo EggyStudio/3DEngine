@@ -9,6 +9,11 @@
         <RootNamespace>Engine.Game</RootNamespace>
     </PropertyGroup>
 
+    <!-- The game's own shaders, found beside the program as resources/shaders. -->
+    <ItemGroup>
+        <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
         <!-- The engine keeps its generator to itself, so the game's [Command]s are registered by

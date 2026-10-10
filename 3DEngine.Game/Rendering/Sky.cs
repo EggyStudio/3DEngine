@@ -94,7 +94,7 @@ public sealed class Sky
         var dusk = SmoothStep(-0.2f, 0.0f, toSun.Y) * (1 - SmoothStep(0.0f, 0.3f, toSun.Y));
         var zenith = Vector3.Lerp(NightZenith, DayZenith, day);
         var horizon = Vector3.Lerp(Vector3.Lerp(NightHorizon, DayHorizon, day), DuskHorizon, dusk * 0.8f);
-        var ground = horizon * 0.35f;
+        var ground = horizon * 0.5f;
         Horizon = ColorOf(horizon);
 
         for (int py = 0; py < Height; py++)
@@ -108,7 +108,9 @@ public sealed class Sky
 
                 var color = d.Y >= 0
                     ? Vector3.Lerp(zenith, horizon, MathF.Pow(1 - d.Y, 4))
-                    : Vector3.Lerp(horizon, ground, SmoothStep(0, 0.12f, -d.Y));
+                    // Below the horizon the sky keeps the horizon's color a while before darkening,
+                    // so the haze at the world's edge meets a sky of its own color.
+                    : Vector3.Lerp(horizon, ground, SmoothStep(0.1f, 0.6f, -d.Y));
                 var facing = Vector3.Dot(d, toSun);
                 if (facing > 0) color += Vector3.Lerp(Noon, DuskHorizon, dusk) * (MathF.Pow(facing, 12) * (0.25f + 0.5f * dusk) * SmoothStep(-0.2f, 0, toSun.Y));
                 if (facing > 0.9993f && toSun.Y > -0.05f) color = new Vector3(255, 250, 235);

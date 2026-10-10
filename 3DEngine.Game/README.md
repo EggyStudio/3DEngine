@@ -155,6 +155,17 @@ split along the diagonal its occlusion favors, so a shaded corner darkens one tr
 The settings window turns the light levels and the shaded corners off, each on its own, to see
 the light that bounces alone.
 
+## Fog
+
+The sections are drawn through a shader of the game's own, `resources/shaders/terrain.slang`,
+which takes the model pass's light, the sun, the shadows, the light that bounces and the sky, over
+each vertex's color as the engine's shader for colored meshes does, and fades the result into the
+sky's color at the horizon from two thirds of the render distance to the render distance, as
+Minecraft's fog hides where the world ends. Under water the haze is the water's blue and covers
+the view within 16 blocks. The sky below the horizon keeps the horizon's color a while, so the
+haze at the world's edge meets a sky of its own color. The settings window turns the fog off. The
+lamps' cubes are drawn with the engine's own shader and take no haze.
+
 ## What is not here yet
 
 Textures, and leaves seen through, which are solid. Water that flows. Greedy meshing. Light that

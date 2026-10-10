@@ -71,14 +71,15 @@ public sealed class ChunkRenderer : IDisposable
         public readonly List<(BlockId Block, Matrix4x4 At)> Emitters = [];
     }
 
-    // Every section's opaque faces are drawn with this, their colors in their vertices.
-    private static readonly ModelMaterial Terrain = new(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, Roughness = 0.9f };
-
-    // And its see-through faces with this, each vertex's alpha its surface's. An alpha under 255 makes
-    // the draw blend, which the vertices' alpha alone does not. They cast no shadow, which keeps them
-    // out of the scene's distance field too, since the field holds a see-through mesh as solid and
-    // a window of glass would then shut out the light that bounces in through it.
-    private static readonly ModelMaterial SeeThrough = new(new Color(255, 255, 255, 254)) { AlphaMode = MaterialAlphaMode.Blend, Roughness = 0.08f, CastsShadows = false };
+    // Every section's opaque faces are drawn with the first, their colors in their vertices, and its
+    // see-through faces with the second, each vertex's alpha its surface's. An alpha under 255 makes
+    // the draw blend, which the vertices' alpha alone does not. The see-through faces cast no
+    // shadow, which keeps them out of the scene's distance field too, since the field holds a
+    // see-through mesh as solid and a window of glass would then shut out the light that bounces in
+    // through it. Both are drawn through the game's terrain shader, the engine's light with a haze.
+    private readonly ModelMaterial _terrain, _clear;
+    private readonly Shader _shader;
+    private readonly int _fogColor, _fogStart, _fogEnd;
 
     private readonly Dictionary<SectionKey, SectionMeshes> _sections = [];
     private readonly SectionMesher _mesher = new();
@@ -89,7 +90,23 @@ public sealed class ChunkRenderer : IDisposable
     private ModelMaterial[] _lamps = [];
     private float _glowScale = 1;
 
-    public ChunkRenderer() => BuildLamps();
+    public ChunkRenderer()
+    {
+        BuildLamps();
+        _shader = LoadShader("resources/shaders/terrain.slang");
+        (_fogColor, _fogStart, _fogEnd) = (GetShaderLocation(_shader, "fogColor"), GetShaderLocation(_shader, "fogStart"), GetShaderLocation(_shader, "fogEnd"));
+        _terrain = new ModelMaterial(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, Roughness = 0.9f, Shader = _shader };
+        _clear = new ModelMaterial(new Color(255, 255, 255, 254)) { AlphaMode = MaterialAlphaMode.Blend, Roughness = 0.08f, CastsShadows = false, Shader = _shader };
+        Fog(Color.White, float.MaxValue, float.MaxValue);
+    }
+
+    /// <summary>Sets the haze the sections fade into, its color and the distances in blocks it starts at and covers by.</summary>
+    public void Fog(Color color, float start, float end)
+    {
+        SetShaderValue(_shader, _fogColor, new Vector4(color.R, color.G, color.B, 255) / 255);
+        SetShaderValue(_shader, _fogStart, start);
+        SetShaderValue(_shader, _fogEnd, end);
+    }
 
     /// <summary>What the light of every emissive surface is multiplied by.</summary>
     public float GlowScale
@@ -222,7 +239,7 @@ public sealed class ChunkRenderer : IDisposable
             if (dx * dx + dz * dz > reach) continue;
             if (entry.Solid.Mesh.IsValid)
             {
-                DrawMesh(entry.Solid.Mesh, Terrain, entry.Transform);
+                DrawMesh(entry.Solid.Mesh, _terrain, entry.Transform);
                 draws++;
                 triangles += entry.Solid.Mesh.TriangleCount;
             }
@@ -235,7 +252,7 @@ public sealed class ChunkRenderer : IDisposable
         _seeThrough.Sort((a, b) => b.Distance.CompareTo(a.Distance));
         foreach (var (_, entry) in _seeThrough)
         {
-            DrawMesh(entry.SeeThrough.Mesh, SeeThrough, entry.Transform);
+            DrawMesh(entry.SeeThrough.Mesh, _clear, entry.Transform);
             draws++;
             triangles += entry.SeeThrough.Mesh.TriangleCount;
         }
@@ -256,5 +273,6 @@ public sealed class ChunkRenderer : IDisposable
     {
         Clear();
         UnloadMesh(_cube);
+        UnloadShader(_shader);
     }
 }

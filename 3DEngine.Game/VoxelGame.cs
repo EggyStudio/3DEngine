@@ -67,6 +67,9 @@ public sealed class VoxelGame : IDisposable
 
     public bool HudHidden { get; set; }
 
+    /// <summary>Whether the world fades into the sky's color toward the render distance, as Minecraft's fog hides where the world ends.</summary>
+    public bool Fog { get; set; } = true;
+
     public bool PickerOpen { get; private set; }
 
     /// <summary>A recording of the picture's change around a motion, which <c>voxel.flicker</c> starts, read a frame at a time.</summary>
@@ -222,6 +225,13 @@ public sealed class VoxelGame : IDisposable
 
     public void Draw()
     {
+        // The haze begins two thirds of the way to the render distance and covers the world at it,
+        // and under water it is the water's blue and covers it within 16 blocks.
+        var reach = RenderDistance * Section.Size;
+        if (Player.EyeInWater) Renderer.Fog(new Color(24, 52, 120), 2, 16);
+        else if (Fog) Renderer.Fog(Sky.Horizon, reach * 0.65f, reach * 0.95f);
+        else Renderer.Fog(Sky.Horizon, float.MaxValue, float.MaxValue);
+
         BeginDrawing();
         ClearBackground(Sky.Horizon);
         BeginMode3D(Player.Camera);
