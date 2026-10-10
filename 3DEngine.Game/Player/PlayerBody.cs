@@ -4,7 +4,8 @@ namespace Engine.Game;
 
 /// <summary>
 /// The player's box, 0.6 blocks wide and 1.8 tall as Minecraft's is, moved through the blocks
-/// one axis at a time and stopped by the first solid block on each.
+/// one axis at a time and stopped by the first solid box on each, climbing onto a slab or a stair
+/// in its way.
 /// </summary>
 /// <remarks>
 /// The box moves up or down first, then along x, then along z, as Minecraft moves an entity, so
@@ -16,6 +17,8 @@ public sealed class PlayerBody
     public const float HalfWidth = 0.3f;
     public const float Height = 1.8f;
     private const float Skin = 1e-4f;
+    // How high the box climbs onto what it walks into, as onto a slab or a stair.
+    private const float StepHeight = 0.6f;
 
     /// <summary>The middle of the box's bottom face.</summary>
     public Vector3 Position;
@@ -29,11 +32,12 @@ public sealed class PlayerBody
 
     public Vector3 Max => Position + new Vector3(HalfWidth, Height, HalfWidth);
 
-    /// <summary>Whether the box takes up any of the block at a place, which a block is not placed into.</summary>
-    public bool Overlaps(int x, int y, int z)
+    /// <summary>Whether the box takes up any of the boxes a block would stand in at a place, which the block is not placed into.</summary>
+    public bool Overlaps(int x, int y, int z, IReadOnlyList<Box> boxes)
     {
-        Vector3 min = Min, max = Max;
-        return min.X < x + 1 && max.X > x && min.Y < y + 1 && max.Y > y && min.Z < z + 1 && max.Z > z;
+        foreach (var box in boxes)
+            if (Overlap(new Vector3(x, y, z) + box.Min, new Vector3(x, y, z) + box.Max, Min, Max)) return true;
+        return false;
     }
 
     /// <summary>
@@ -56,12 +60,13 @@ public sealed class PlayerBody
                 Velocity.Y = 0;
                 step.Y = 0;
             }
-            if (step.X != 0 && (keepToEdges && !Supported(world, Position + new Vector3(step.X, 0, 0)) || Blocked(world, 0, step.X)))
+            var grounded = landed || OnGround;
+            if (step.X != 0 && (keepToEdges && !Supported(world, Position + new Vector3(step.X, 0, 0)) || !StepUp(world, grounded, new Vector3(step.X, 0, 0)) && Blocked(world, 0, step.X)))
             {
                 Velocity.X = 0;
                 step.X = 0;
             }
-            if (step.Z != 0 && (keepToEdges && !Supported(world, Position + new Vector3(0, 0, step.Z)) || Blocked(world, 2, step.Z)))
+            if (step.Z != 0 && (keepToEdges && !Supported(world, Position + new Vector3(0, 0, step.Z)) || !StepUp(world, grounded, new Vector3(0, 0, step.Z)) && Blocked(world, 2, step.Z)))
             {
                 Velocity.Z = 0;
                 step.Z = 0;
@@ -70,44 +75,83 @@ public sealed class PlayerBody
         OnGround = landed || Velocity.Y <= 0 && Supported(world, Position);
     }
 
-    // Moves the box along one axis, or as far as the nearest solid block in the way and no further.
+    // Climbs a box on the ground onto what stops a step, a slab or a stair, up to StepHeight, where
+    // the box fits there, as Minecraft lets an entity step up half a block and a little more, and
+    // settles it on top. Whether it did, so the step is not taken a second time.
+    private bool StepUp(VoxelWorld world, bool grounded, Vector3 step)
+    {
+        if (!grounded || Fits(world, Position + step)) return false;
+        var raised = Position + new Vector3(0, StepHeight, 0);
+        if (!Fits(world, raised) || !Fits(world, raised + step)) return false;
+        Position = raised + step;
+        Blocked(world, 1, -StepHeight);
+        return true;
+    }
+
+    // Moves the box along one axis, or as far as the nearest solid box in the way and no further.
     private bool Blocked(VoxelWorld world, int axis, float distance)
     {
         var moved = Position;
         Add(ref moved, axis, distance);
         Vector3 min = moved - new Vector3(HalfWidth, 0, HalfWidth), max = moved + new Vector3(HalfWidth, Height, HalfWidth);
-        // The box's leading side before the move. A block it already overlaps, as after a teleport
+        // The box's leading side before the move. A box it already overlaps, as after a teleport
         // into the ground, is behind that side and does not stop it, so the player can walk out.
         var near = axis == 1 ? (distance > 0 ? Position.Y + Height : Position.Y) : (axis == 0 ? Position.X : Position.Z) + (distance > 0 ? HalfWidth : -HalfWidth);
         var stop = distance > 0 ? float.MaxValue : float.MinValue;
         var hit = false;
-        for (int y = Floor(min.Y + Skin); y <= Floor(max.Y - Skin); y++)
+        // From a block under the box too, since a fence's box stands half a block above its cell.
+        for (int y = Floor(min.Y + Skin) - 1; y <= Floor(max.Y - Skin); y++)
             for (int z = Floor(min.Z + Skin); z <= Floor(max.Z - Skin); z++)
                 for (int x = Floor(min.X + Skin); x <= Floor(max.X - Skin); x++)
-                {
-                    var face = axis == 0 ? x : axis == 1 ? y : z;
-                    if (distance > 0 ? face < near - Skin : face + 1 > near + Skin) continue;
-                    if (!world.Collides(x, y, z)) continue;
-                    hit = true;
-                    // Where the box's middle stands when its side touches the block's near face.
-                    if (distance > 0) stop = MathF.Min(stop, face - (axis == 1 ? Height : HalfWidth));
-                    else stop = MathF.Max(stop, face + 1 + (axis == 1 ? 0 : HalfWidth));
-                }
+                    foreach (var box in world.BoxesAt(x, y, z))
+                    {
+                        Vector3 low = new Vector3(x, y, z) + box.Min, high = new Vector3(x, y, z) + box.Max;
+                        if (!Overlap(low, high, min, max)) continue;
+                        float lo = Component(low, axis), hi = Component(high, axis);
+                        if (distance > 0 ? lo < near - Skin : hi > near + Skin) continue;
+                        hit = true;
+                        // Where the box's middle stands when its side touches the near face of what stops it.
+                        if (distance > 0) stop = MathF.Min(stop, lo - (axis == 1 ? Height : HalfWidth));
+                        else stop = MathF.Max(stop, hi + (axis == 1 ? 0 : HalfWidth));
+                    }
         if (hit) Set(ref moved, axis, stop);
         Position = moved;
         return hit;
     }
 
-    // Whether a block lies under the box's footprint at a position, within a hair of its feet.
+    // Whether two boxes overlap by more than a hair on every axis.
+    private static bool Overlap(Vector3 aMin, Vector3 aMax, Vector3 bMin, Vector3 bMax) =>
+        aMin.X < bMax.X - Skin && aMax.X > bMin.X + Skin && aMin.Y < bMax.Y - Skin && aMax.Y > bMin.Y + Skin && aMin.Z < bMax.Z - Skin && aMax.Z > bMin.Z + Skin;
+
+    /// <summary>Whether the box at a position overlaps nothing solid.</summary>
+    public static bool Fits(VoxelWorld world, Vector3 at)
+    {
+        Vector3 min = at - new Vector3(HalfWidth, 0, HalfWidth), max = at + new Vector3(HalfWidth, Height, HalfWidth);
+        for (int y = Floor(min.Y + Skin) - 1; y <= Floor(max.Y - Skin); y++)
+            for (int z = Floor(min.Z + Skin); z <= Floor(max.Z - Skin); z++)
+                for (int x = Floor(min.X + Skin); x <= Floor(max.X - Skin); x++)
+                    foreach (var box in world.BoxesAt(x, y, z))
+                        if (Overlap(new Vector3(x, y, z) + box.Min, new Vector3(x, y, z) + box.Max, min, max)) return false;
+        return true;
+    }
+
+    // Whether a solid box's top lies under the box's footprint at a position, within a hair of its feet.
     private static bool Supported(VoxelWorld world, Vector3 at)
     {
-        var y = Floor(at.Y - 0.01f);
-        if (at.Y - (y + 1) > 0.01f) return false;
-        for (int z = Floor(at.Z - HalfWidth + Skin); z <= Floor(at.Z + HalfWidth - Skin); z++)
-            for (int x = Floor(at.X - HalfWidth + Skin); x <= Floor(at.X + HalfWidth - Skin); x++)
-                if (world.Collides(x, y, z)) return true;
+        for (int y = Floor(at.Y - 0.01f) - 1; y <= Floor(at.Y - 0.01f); y++)
+            for (int z = Floor(at.Z - HalfWidth + Skin); z <= Floor(at.Z + HalfWidth - Skin); z++)
+                for (int x = Floor(at.X - HalfWidth + Skin); x <= Floor(at.X + HalfWidth - Skin); x++)
+                    foreach (var box in world.BoxesAt(x, y, z))
+                    {
+                        var top = y + box.Max.Y;
+                        if (MathF.Abs(at.Y - top) > 0.01f) continue;
+                        if (x + box.Min.X < at.X + HalfWidth - Skin && x + box.Max.X > at.X - HalfWidth + Skin
+                            && z + box.Min.Z < at.Z + HalfWidth - Skin && z + box.Max.Z > at.Z - HalfWidth + Skin) return true;
+                    }
         return false;
     }
+
+    private static float Component(Vector3 v, int axis) => axis == 0 ? v.X : axis == 1 ? v.Y : v.Z;
 
     private static int Floor(float value) => (int)MathF.Floor(value);
 

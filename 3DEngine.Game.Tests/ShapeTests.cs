@@ -94,11 +94,11 @@ public class ShapeTests
     }
 
     [Fact]
-    public void Each_Way_Of_A_Small_Block_Touches_The_Face_Of_Its_Cell_Toward_What_It_Holds_To_And_Glows_Inside_Its_Cell()
+    public void Each_Way_Of_A_Block_That_Holds_To_Another_Touches_The_Face_Of_Its_Cell_Toward_It_And_Glows_Inside_Its_Cell()
     {
         foreach (var block in Blocks.All)
         {
-            if (block.Shape is not { } shape) continue;
+            if (block.Shape is not { Falls: true } shape) continue;
             var (sx, sy, sz) = shape.Support;
             var toward = new Vector3(sx, sy, sz);
             // The box reaches the face of the cell toward its support, 0 or 1 along that axis.
@@ -128,5 +128,32 @@ public class ShapeTests
         Assert.Equal((8, 20, 8), (met?.X, met?.Y, met?.Z) is (int x, int y, int z) ? (x, y, z) : default);
         Assert.Equal(-1, met?.NormalZ);
         Assert.Equal(2 + 7 / 16f, met?.Distance ?? 0, 4);
+    }
+
+    [Fact]
+    public void Stairs_Climb_The_Way_The_Player_Looks_And_A_Slab_Against_A_Ceiling_Takes_The_Upper_Half()
+    {
+        var world = Floor();
+
+        Assert.Equal(BlockId.OakStairsEast, world.Fit(BlockId.OakStairs, 8, 20, 8, 0, 1, 0, Facing.East));
+        Assert.Equal(BlockId.OakStairsWestTop, world.Fit(BlockId.OakStairs, 8, 20, 8, 1, 0, 0, Facing.West, 0.7f));
+        Assert.Equal(BlockId.StoneSlabTop, world.Fit(BlockId.StoneSlab, 8, 20, 8, 0, -1, 0, Facing.North));
+        Assert.Equal(BlockId.StoneSlab, world.Fit(BlockId.StoneSlab, 8, 20, 8, -1, 0, 0, Facing.North, 0.3f));
+    }
+
+    [Fact]
+    public void A_Fence_Joins_The_Fence_And_The_Block_Beside_It_And_Not_The_Air()
+    {
+        var world = Floor();
+        world.SetBlock(8, 20, 8, BlockId.OakFence);
+        world.SetBlock(8, 20, 7, BlockId.OakFence);
+        world.SetBlock(9, 20, 8, BlockId.Stone);
+
+        // North 1 and east 2, and the post's two rails each way.
+        var shape = world.ShapeAt(8, 20, 8)!;
+        Assert.Same(Blocks.Fence(1 | 2), shape);
+        Assert.Equal(1 + 2 * 2, shape.Pieces.Count);
+        Assert.Equal(0, shape.Min.Z, 4);
+        Assert.Equal(1, shape.Max.X, 4);
     }
 }

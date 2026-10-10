@@ -219,18 +219,35 @@ public sealed class VoxelGame : IDisposable
 
     /// <summary>
     /// Places a block against the face the crosshair rests on, unless it would take up some of the
-    /// player, a torch or a lantern the way of it that has a block to hold to.
+    /// player: a torch or a lantern the way of it that has a block to hold to, stairs climbing the
+    /// way the player looks, and a slab on the open half of a slab of its kind joined to it as the
+    /// whole block.
     /// </summary>
     /// <returns>The block placed, which for a torch on a wall is the wall torch, or air where none was.</returns>
     public BlockId Place(BlockId block)
     {
         if (Target is not { Inside: false } hit) return BlockId.Air;
+        var met = Player.Eye + Vector3.Normalize(Player.Look) * hit.Distance;
+        var height = met.Y - MathF.Floor(met.Y);
+        var look = MathF.Abs(Player.Look.X) > MathF.Abs(Player.Look.Z)
+            ? Player.Look.X > 0 ? Facing.East : Facing.West
+            : Player.Look.Z > 0 ? Facing.South : Facing.North;
+
+        // A slab met on its open half, its top for the lower one and its underside for the upper.
+        var under = World.GetBlock(hit.X, hit.Y, hit.Z);
+        if (Blocks.Get(under) is { Item: var item, Doubled: { } whole, Shape: { } slab } && item == block && hit.NormalY == (slab.Upper ? -1 : 1))
+            return World.SetBlock(hit.X, hit.Y, hit.Z, whole) ? whole : BlockId.Air;
+
         var (x, y, z) = hit.Beside;
+        var there = World.GetBlock(x, y, z);
+        var placed = World.Fit(block, x, y, z, hit.NormalX, hit.NormalY, hit.NormalZ, look, height);
+        if (placed == BlockId.Air) return BlockId.Air;
+        // A slab placed into the other half of a slab of its kind beside the face met fills the block.
+        if (Blocks.Get(there) is { Item: var beside, Doubled: { } joined, Shape: { } half } && beside == block && Blocks.Get(placed).Shape?.Upper != half.Upper)
+            placed = joined;
         // A whole block goes into air or water, the water giving way to it, and a smaller one into air.
-        var shaped = Blocks.Get(block).Shape is not null;
-        if (World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water) || shaped && World.GetBlock(x, y, z) != BlockId.Air) return BlockId.Air;
-        var placed = World.Fit(block, x, y, z, hit.NormalX, hit.NormalY, hit.NormalZ);
-        if (placed == BlockId.Air || Blocks.Collides(placed) && Player.Body.Overlaps(x, y, z)) return BlockId.Air;
+        else if (there is not (BlockId.Air or BlockId.Water) || Blocks.Get(placed).Shape is not null && there != BlockId.Air) return BlockId.Air;
+        if (Player.Body.Overlaps(x, y, z, Blocks.Get(placed).Boxes)) return BlockId.Air;
         return World.SetBlock(x, y, z, placed) ? placed : BlockId.Air;
     }
 
@@ -249,7 +266,7 @@ public sealed class VoxelGame : IDisposable
         DrawSkybox();
         Renderer.Draw(Player.Eye, RenderDistance);
         Clouds.Draw(Player.Eye, RenderDistance, Sky.Horizon);
-        if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.GetBlock(hit.X, hit.Y, hit.Z));
+        if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.ShapeAt(hit.X, hit.Y, hit.Z));
         EndMode3D();
 
         // Under water the view is tinted blue, as Minecraft's is.

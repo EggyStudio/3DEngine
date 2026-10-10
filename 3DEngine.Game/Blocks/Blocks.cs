@@ -61,6 +61,57 @@ public enum BlockId : ushort
     HayBale,
     OakFence,
     Wheat,
+    StoneBricks,
+    StoneSlab,
+    StoneSlabTop,
+    CobblestoneSlab,
+    CobblestoneSlabTop,
+    OakSlab,
+    OakSlabTop,
+    SpruceSlab,
+    SpruceSlabTop,
+    SandstoneSlab,
+    SandstoneSlabTop,
+    CobblestoneStairs,
+    CobblestoneStairsEast,
+    CobblestoneStairsSouth,
+    CobblestoneStairsWest,
+    CobblestoneStairsTop,
+    CobblestoneStairsEastTop,
+    CobblestoneStairsSouthTop,
+    CobblestoneStairsWestTop,
+    OakStairs,
+    OakStairsEast,
+    OakStairsSouth,
+    OakStairsWest,
+    OakStairsTop,
+    OakStairsEastTop,
+    OakStairsSouthTop,
+    OakStairsWestTop,
+    SpruceStairs,
+    SpruceStairsEast,
+    SpruceStairsSouth,
+    SpruceStairsWest,
+    SpruceStairsTop,
+    SpruceStairsEastTop,
+    SpruceStairsSouthTop,
+    SpruceStairsWestTop,
+    SandstoneStairs,
+    SandstoneStairsEast,
+    SandstoneStairsSouth,
+    SandstoneStairsWest,
+    SandstoneStairsTop,
+    SandstoneStairsEastTop,
+    SandstoneStairsSouthTop,
+    SandstoneStairsWestTop,
+    StoneBrickStairs,
+    StoneBrickStairsEast,
+    StoneBrickStairsSouth,
+    StoneBrickStairsWest,
+    StoneBrickStairsTop,
+    StoneBrickStairsEastTop,
+    StoneBrickStairsSouthTop,
+    StoneBrickStairsWestTop,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -86,12 +137,15 @@ public enum BlockKind
 /// What a kind of block is: its key, the name commands take in lower case with underscores, the
 /// name shown, the surface of each face, whether it can be broken, the light level from 0 to 15
 /// it fills the blocks around it with, as Minecraft's light-giving blocks do, its kind, the boxes
-/// of a block smaller than its cell, and the block a player holds to place it where that is
-/// another, as a torch is held to place a torch on a wall.
+/// of a block smaller than its cell, the block a player holds to place it where that is another,
+/// as a torch is held to place a torch on a wall, and the whole block two of a slab make.
 /// </summary>
 public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true, int Light = 0,
-    BlockKind Kind = BlockKind.Opaque, BlockShape? Shape = null, BlockId? HeldAs = null)
+    BlockKind Kind = BlockKind.Opaque, BlockShape? Shape = null, BlockId? HeldAs = null, BlockId? Doubled = null)
 {
+    /// <summary>The boxes that stop the player: the whole cell for a solid block, a solid shape's own, and none for air, water and the rest.</summary>
+    public IReadOnlyList<Box> Boxes { get; } = Kind is BlockKind.Opaque or BlockKind.Glass ? [Box.Cell] : Shape?.Collision ?? [];
+
     /// <summary>Whether it gives off light, its top's surface glowing, which a block smaller than its cell takes from its glowing piece.</summary>
     public bool Emits => Surfaces.All[Top].Emits;
 
@@ -122,10 +176,10 @@ public static class Blocks
             new(id, key, name, surface, surface, surface, breakable, light, kind);
 
         // A block smaller than its cell shows the surface of the piece that glows on its hotbar slot.
-        BlockInfo Shaped(BlockId id, string key, string name, BlockShape shape, int light, BlockId? heldAs = null)
+        BlockInfo Shaped(BlockId id, string key, string name, BlockShape shape, int light, BlockId? heldAs = null, BlockId? doubled = null)
         {
             var look = shape.Pieces.FirstOrDefault(p => p.Glows, shape.Pieces[0]).Surface;
-            return new(id, key, name, look, look, look, Light: light, Kind: BlockKind.Shaped, Shape: shape, HeldAs: heldAs);
+            return new(id, key, name, look, look, look, Light: light, Kind: BlockKind.Shaped, Shape: shape, HeldAs: heldAs, Doubled: doubled);
         }
 
         BlockInfo[] all =
@@ -183,8 +237,59 @@ public static class Blocks
             new(BlockId.Farmland, "farmland", "Farmland", Surfaces.Farmland, Surfaces.Dirt, Surfaces.Dirt),
             Same(BlockId.SprucePlanks, "spruce_planks", "Spruce Planks", Surfaces.SprucePlanks),
             new(BlockId.HayBale, "hay_block", "Hay Bale", Surfaces.HayTop, Surfaces.Hay, Surfaces.HayTop),
-            Shaped(BlockId.OakFence, "oak_fence", "Oak Fence", BlockShape.Fence(Surfaces.Planks), 0),
+            Shaped(BlockId.OakFence, "oak_fence", "Oak Fence", BlockShape.Fence(Surfaces.Planks, 0), 0),
             Shaped(BlockId.Wheat, "wheat", "Wheat", BlockShape.Wheat(Surfaces.Wheat), 0),
+            Same(BlockId.StoneBricks, "stone_bricks", "Stone Bricks", Surfaces.StoneBricks),
+            Shaped(BlockId.StoneSlab, "stone_slab", "Stone Slab", BlockShape.Slab(Surfaces.Stone, false), 0, doubled: BlockId.Stone),
+            Shaped(BlockId.StoneSlabTop, "stone_slab_top", "Stone Slab", BlockShape.Slab(Surfaces.Stone, true), 0, BlockId.StoneSlab, BlockId.Stone),
+            Shaped(BlockId.CobblestoneSlab, "cobblestone_slab", "Cobblestone Slab", BlockShape.Slab(Surfaces.Cobblestone, false), 0, doubled: BlockId.Cobblestone),
+            Shaped(BlockId.CobblestoneSlabTop, "cobblestone_slab_top", "Cobblestone Slab", BlockShape.Slab(Surfaces.Cobblestone, true), 0, BlockId.CobblestoneSlab, BlockId.Cobblestone),
+            Shaped(BlockId.OakSlab, "oak_slab", "Oak Slab", BlockShape.Slab(Surfaces.Planks, false), 0, doubled: BlockId.OakPlanks),
+            Shaped(BlockId.OakSlabTop, "oak_slab_top", "Oak Slab", BlockShape.Slab(Surfaces.Planks, true), 0, BlockId.OakSlab, BlockId.OakPlanks),
+            Shaped(BlockId.SpruceSlab, "spruce_slab", "Spruce Slab", BlockShape.Slab(Surfaces.SprucePlanks, false), 0, doubled: BlockId.SprucePlanks),
+            Shaped(BlockId.SpruceSlabTop, "spruce_slab_top", "Spruce Slab", BlockShape.Slab(Surfaces.SprucePlanks, true), 0, BlockId.SpruceSlab, BlockId.SprucePlanks),
+            Shaped(BlockId.SandstoneSlab, "sandstone_slab", "Sandstone Slab", BlockShape.Slab(Surfaces.Sandstone, false), 0, doubled: BlockId.Sandstone),
+            Shaped(BlockId.SandstoneSlabTop, "sandstone_slab_top", "Sandstone Slab", BlockShape.Slab(Surfaces.Sandstone, true), 0, BlockId.SandstoneSlab, BlockId.Sandstone),
+            Shaped(BlockId.CobblestoneStairs, "cobblestone_stairs", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.North, false), 0),
+            Shaped(BlockId.CobblestoneStairsEast, "cobblestone_stairs_east", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.East, false), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsSouth, "cobblestone_stairs_south", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.South, false), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsWest, "cobblestone_stairs_west", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.West, false), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsTop, "cobblestone_stairs_north_top", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.North, true), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsEastTop, "cobblestone_stairs_east_top", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.East, true), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsSouthTop, "cobblestone_stairs_south_top", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.South, true), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.CobblestoneStairsWestTop, "cobblestone_stairs_west_top", "Cobblestone Stairs", BlockShape.Stairs(Surfaces.Cobblestone, Facing.West, true), 0, BlockId.CobblestoneStairs),
+            Shaped(BlockId.OakStairs, "oak_stairs", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.North, false), 0),
+            Shaped(BlockId.OakStairsEast, "oak_stairs_east", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.East, false), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsSouth, "oak_stairs_south", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.South, false), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsWest, "oak_stairs_west", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.West, false), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsTop, "oak_stairs_north_top", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.North, true), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsEastTop, "oak_stairs_east_top", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.East, true), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsSouthTop, "oak_stairs_south_top", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.South, true), 0, BlockId.OakStairs),
+            Shaped(BlockId.OakStairsWestTop, "oak_stairs_west_top", "Oak Stairs", BlockShape.Stairs(Surfaces.Planks, Facing.West, true), 0, BlockId.OakStairs),
+            Shaped(BlockId.SpruceStairs, "spruce_stairs", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.North, false), 0),
+            Shaped(BlockId.SpruceStairsEast, "spruce_stairs_east", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.East, false), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsSouth, "spruce_stairs_south", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.South, false), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsWest, "spruce_stairs_west", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.West, false), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsTop, "spruce_stairs_north_top", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.North, true), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsEastTop, "spruce_stairs_east_top", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.East, true), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsSouthTop, "spruce_stairs_south_top", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.South, true), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SpruceStairsWestTop, "spruce_stairs_west_top", "Spruce Stairs", BlockShape.Stairs(Surfaces.SprucePlanks, Facing.West, true), 0, BlockId.SpruceStairs),
+            Shaped(BlockId.SandstoneStairs, "sandstone_stairs", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.North, false), 0),
+            Shaped(BlockId.SandstoneStairsEast, "sandstone_stairs_east", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.East, false), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsSouth, "sandstone_stairs_south", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.South, false), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsWest, "sandstone_stairs_west", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.West, false), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsTop, "sandstone_stairs_north_top", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.North, true), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsEastTop, "sandstone_stairs_east_top", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.East, true), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsSouthTop, "sandstone_stairs_south_top", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.South, true), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.SandstoneStairsWestTop, "sandstone_stairs_west_top", "Sandstone Stairs", BlockShape.Stairs(Surfaces.Sandstone, Facing.West, true), 0, BlockId.SandstoneStairs),
+            Shaped(BlockId.StoneBrickStairs, "stone_brick_stairs", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.North, false), 0),
+            Shaped(BlockId.StoneBrickStairsEast, "stone_brick_stairs_east", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.East, false), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsSouth, "stone_brick_stairs_south", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.South, false), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsWest, "stone_brick_stairs_west", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.West, false), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsTop, "stone_brick_stairs_north_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.North, true), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsEastTop, "stone_brick_stairs_east_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.East, true), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsSouthTop, "stone_brick_stairs_south_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.South, true), 0, BlockId.StoneBrickStairs),
+            Shaped(BlockId.StoneBrickStairsWestTop, "stone_brick_stairs_west_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.West, true), 0, BlockId.StoneBrickStairs),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");
@@ -203,16 +308,25 @@ public static class Blocks
     private static readonly bool[] _collides = [.. _all.Select(b => b.Kind is BlockKind.Opaque or BlockKind.Glass)];
     private static readonly bool[] _seeThrough = [.. _all.Select(b => b.Kind is BlockKind.Glass or BlockKind.Water)];
 
-    // The block each item places facing each way, or air where it has no such block.
-    private static readonly BlockId[,] _variants = Variants();
+    // The block each item places facing each way in each half, or air where it has no such block.
+    private static readonly BlockId[,,] _variants = Variants();
 
-    private static BlockId[,] Variants()
+    private static BlockId[,,] Variants()
     {
-        var variants = new BlockId[_all.Length, 6];
+        var variants = new BlockId[_all.Length, 6, 2];
         foreach (var block in _all)
-            if (block.Shape is { } shape) variants[(int)block.Item, (int)shape.Facing] = block.Id;
+            if (block.Shape is { } shape) variants[(int)block.Item, (int)shape.Facing, shape.Upper ? 1 : 0] = block.Id;
         return variants;
     }
+
+    // A fence's shape for each set of the sides it joins, north 1, east 2, south 4 and west 8.
+    private static readonly BlockShape[] _fences = [.. Enumerable.Range(0, 16).Select(arms => BlockShape.Fence(Surfaces.Planks, arms))];
+
+    /// <summary>The shape of a fence joined to the sides whose bits are set, north 1, east 2, south 4 and west 8.</summary>
+    public static BlockShape Fence(int arms) => _fences[arms];
+
+    /// <summary>Whether a fence beside a block joins it, as it joins a fence or a whole block.</summary>
+    public static bool JoinsFence(BlockId neighbor) => neighbor == BlockId.OakFence || IsSturdy(neighbor);
 
     /// <summary>Whether a block hides the faces beside it, stops light and darkens the corners around it.</summary>
     public static bool IsOpaque(BlockId id) => _opaque[(int)id];
@@ -229,8 +343,8 @@ public static class Blocks
     /// <summary>Whether a block smaller than its cell facing a way holds to a block, a whole one or the top of a fence, as a lantern stands on a lamp post.</summary>
     public static bool Holds(BlockId support, Facing facing) => IsSturdy(support) || facing == Facing.Up && support == BlockId.OakFence;
 
-    /// <summary>The block an item places facing a way, or air where it is not placed that way.</summary>
-    public static BlockId Variant(BlockId item, Facing facing) => _variants[(int)item, (int)facing];
+    /// <summary>The block an item places facing a way, in the upper half where asked, or air where it is not placed that way.</summary>
+    public static BlockId Variant(BlockId item, Facing facing, bool upper = false) => _variants[(int)item, (int)facing, upper ? 1 : 0];
 
     /// <summary>Whether the crosshair rests on a block, which it does on all but air and water, as Minecraft's does.</summary>
     public static bool IsTarget(BlockId id) => id != BlockId.Air && id != BlockId.Water;

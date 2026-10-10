@@ -31,7 +31,7 @@ public static class VoxelRay
             var block = world.GetBlock(x, y, z);
             if (Blocks.IsTarget(block))
             {
-                if (Blocks.Get(block).Shape is not { } shape) return new BlockHit(x, y, z, nx, ny, nz, travelled);
+                if (world.ShapeAt(x, y, z) is not { } shape) return new BlockHit(x, y, z, nx, ny, nz, travelled);
                 // A block smaller than its cell is met only where the ray crosses the box around its pieces.
                 var cell = new Vector3(x, y, z);
                 if (Enters(origin, direction, cell + shape.Min, cell + shape.Max, out var at, out var normal) && at <= reach)

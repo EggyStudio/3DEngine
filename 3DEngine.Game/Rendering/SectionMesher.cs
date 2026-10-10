@@ -168,6 +168,10 @@ public sealed class SectionMesher
                     if (info.Glows.Length > 0) Emitters.Add((Section.Index(x, y, z), block));
                     if (info.Shape is { } shape)
                     {
+                        // A fence joins the fences and whole blocks on its four sides.
+                        if (block == BlockId.OakFence)
+                            shape = Blocks.Fence((Blocks.JoinsFence((BlockId)_blocks[at + Steps[5]]) ? 1 : 0) | (Blocks.JoinsFence((BlockId)_blocks[at + Steps[0]]) ? 2 : 0)
+                                | (Blocks.JoinsFence((BlockId)_blocks[at + Steps[4]]) ? 4 : 0) | (Blocks.JoinsFence((BlockId)_blocks[at + Steps[1]]) ? 8 : 0));
                         AddShape(shape, at, new Vector3(x, y, z));
                         continue;
                     }

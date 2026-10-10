@@ -80,4 +80,57 @@ public class BodyTests
         Assert.Equal((4, 10, 4), (hit.Value.X, hit.Value.Y, hit.Value.Z));
         Assert.Equal(1, hit.Value.NormalY);
     }
+
+    [Fact]
+    public void A_Body_Walking_Into_A_Slab_Climbs_Onto_It_And_Into_A_Block_Does_Not()
+    {
+        var world = Floor();
+        world.SetBlock(6, 11, 4, BlockId.StoneSlab);
+        world.SetBlock(6, 11, 8, BlockId.Stone);
+        var onSlab = new PlayerBody { Position = new Vector3(4.5f, 11, 4.5f) };
+        var atBlock = new PlayerBody { Position = new Vector3(4.5f, 11, 8.5f) };
+        onSlab.Move(world, new Vector3(0, -0.01f, 0), keepToEdges: false);
+        atBlock.Move(world, new Vector3(0, -0.01f, 0), keepToEdges: false);
+
+        for (int i = 0; i < 10; i++)
+        {
+            onSlab.Move(world, new Vector3(0.2f, -0.01f, 0), keepToEdges: false);
+            atBlock.Move(world, new Vector3(0.2f, -0.01f, 0), keepToEdges: false);
+        }
+
+        Assert.Equal(11.5f, onSlab.Position.Y, 4);
+        Assert.Equal(6.5f, onSlab.Position.X, 4);
+        Assert.Equal(11, atBlock.Position.Y, 4);
+        Assert.Equal(6 - PlayerBody.HalfWidth, atBlock.Position.X, 4);
+    }
+
+    [Fact]
+    public void A_Lantern_Stops_A_Body_And_A_Torch_Does_Not()
+    {
+        var world = Floor();
+        world.SetBlock(6, 11, 4, BlockId.Lantern);
+        world.SetBlock(6, 11, 8, BlockId.Torch);
+        var atLantern = new PlayerBody { Position = new Vector3(4.5f, 11, 4.5f) };
+        var atTorch = new PlayerBody { Position = new Vector3(4.5f, 11, 8.5f) };
+
+        atLantern.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
+        atTorch.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
+
+        // The lantern's glass begins 5/16 into its cell, and the body climbs no lantern of half a block.
+        Assert.Equal(6 + 5 / 16f - PlayerBody.HalfWidth, atLantern.Position.X, 4);
+        Assert.Equal(7.5f, atTorch.Position.X, 4);
+    }
+
+    [Fact]
+    public void A_Fence_Stands_Half_A_Block_Above_Its_Post_So_A_Jump_Does_Not_Clear_It()
+    {
+        var world = Floor();
+        for (int z = 0; z < 16; z++) world.SetBlock(6, 11, z, BlockId.OakFence);
+        // Rising by a block and a quarter, more than the fence's post and less than its box.
+        var body = new PlayerBody { Position = new Vector3(4.5f, 12.25f, 4.5f) };
+
+        body.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
+
+        Assert.True(body.Position.X < 6 + PlayerBody.HalfWidth);
+    }
 }

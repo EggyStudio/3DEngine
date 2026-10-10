@@ -35,14 +35,14 @@ public sealed class Village : Structure
     // North, east, south and west, each road's way out from the well.
     private static readonly (int X, int Z)[] Ways = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-    /// <summary>What a village of a biome is built from.</summary>
-    private sealed record Palette(BlockId Wall, BlockId Corner, BlockId Floor, BlockId Roof, BlockId Post);
+    /// <summary>What a village of a biome is built from, its houses' roofs of stairs where it has them and flat where not.</summary>
+    private sealed record Palette(BlockId Wall, BlockId Corner, BlockId Floor, BlockId Roof, BlockId Post, BlockId? Stairs);
 
     private static Palette? For(Biome biome) =>
-        biome == Biomes.Plains ? new(BlockId.OakPlanks, BlockId.OakLog, BlockId.Cobblestone, BlockId.OakPlanks, BlockId.Lantern)
-        : biome == Biomes.Taiga ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.SprucePlanks, BlockId.Lantern)
-        : biome == Biomes.SnowyPlains ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.Snow, BlockId.Lantern)
-        : biome == Biomes.Desert ? new(BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Torch)
+        biome == Biomes.Plains ? new(BlockId.OakPlanks, BlockId.OakLog, BlockId.Cobblestone, BlockId.OakPlanks, BlockId.Lantern, BlockId.OakStairs)
+        : biome == Biomes.Taiga ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.SprucePlanks, BlockId.Lantern, BlockId.SpruceStairs)
+        : biome == Biomes.SnowyPlains ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.Snow, BlockId.Lantern, BlockId.SpruceStairs)
+        : biome == Biomes.Desert ? new(BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Torch, null)
         : null;
 
     protected override bool Suits(Biome biome, int ground, uint hash, out int y)
@@ -190,13 +190,13 @@ public sealed class Village : Structure
                         Set(x, y, z, block);
         }
 
-        // A block fixed to a side is turned with the plot, so a torch given facing north faces its front.
+        // A block facing a side is turned with the plot, so a torch or stairs given facing north face its front.
         private BlockId Turned(BlockId block)
         {
             var info = Blocks.Get(block);
             if (info.Shape is not { Facing: not (Facing.Up or Facing.Down) } shape) return block;
             Facing[] round = [Facing.North, Facing.East, Facing.South, Facing.West];
-            return Blocks.Variant(info.Item, round[(Array.IndexOf(round, shape.Facing) + Turn) % 4]);
+            return Blocks.Variant(info.Item, round[(Array.IndexOf(round, shape.Facing) + Turn) % 4], shape.Upper);
         }
 
         // Stone under each place of a footprint down to the ground, so a building on a slope stands
@@ -226,26 +226,49 @@ public sealed class Village : Structure
     }
 
     // A small house of seven by seven, a window of glass in each other wall and a lantern hanging
-    // from its ceiling.
+    // from its roof.
     private static void SmallHouse(Frame f, Palette p)
     {
         Shell(f, p, 3, 7);
-        f.Fill(-4, 5, -1, 4, 5, 7, p.Roof);
-        f.Fill(-2, 6, 1, 2, 6, 5, p.Roof);
+        var hang = Roof(f, p, 3);
         foreach (var (x, z) in (ReadOnlySpan<(int, int)>)[(-3, 3), (3, 3), (0, 6)]) f.Set(x, 2, z, BlockId.Glass);
-        f.Set(0, 4, 3, BlockId.HangingLantern);
+        f.Set(0, hang, 3, BlockId.HangingLantern);
     }
 
-    // A long house of nine by seven under a stepped roof, two windows a wall and two lanterns.
+    // A long house of nine by seven, two windows a wall and two lanterns.
     private static void LongHouse(Frame f, Palette p)
     {
         Shell(f, p, 4, 7);
-        f.Fill(-5, 5, -1, 5, 5, 7, p.Roof);
-        f.Fill(-4, 6, 0, 4, 6, 6, p.Roof);
-        f.Fill(-3, 7, 1, 3, 7, 5, p.Roof);
+        var hang = Roof(f, p, 4);
         foreach (var (x, z) in (ReadOnlySpan<(int, int)>)[(-2, 0), (2, 0), (-2, 6), (2, 6), (-4, 3), (4, 3)]) f.Set(x, 2, z, BlockId.Glass);
-        f.Set(-2, 4, 3, BlockId.HangingLantern);
-        f.Set(2, 4, 3, BlockId.HangingLantern);
+        f.Set(-2, hang, 3, BlockId.HangingLantern);
+        f.Set(2, hang, 3, BlockId.HangingLantern);
+    }
+
+    // The roof over walls seven deep and a half width across: of stairs climbing from the front and
+    // the back to a ridge along the width, the gable ends filled with the wall's block, or flat of
+    // the roof's block in two layers where the village has no stairs. Gives the height a lantern
+    // hangs at under its middle.
+    private static int Roof(Frame f, Palette p, int half)
+    {
+        if (p.Stairs is not { } stairs)
+        {
+            f.Fill(-half - 1, 5, -1, half + 1, 5, 7, p.Roof);
+            f.Fill(-half + 1, 6, 1, half - 1, 6, 5, p.Roof);
+            return 4;
+        }
+        var back = Blocks.Variant(stairs, Facing.North);
+        var front = Blocks.Variant(stairs, Facing.South);
+        for (int k = 0; k <= 3; k++)
+        {
+            f.Fill(-half - 1, 4 + k, -1 + k, half + 1, 4 + k, -1 + k, front);
+            f.Fill(-half - 1, 4 + k, 7 - k, half + 1, 4 + k, 7 - k, back);
+            if (k == 0) continue;
+            f.Fill(-half, 4 + k, k, -half, 4 + k, 6 - k, p.Wall);
+            f.Fill(half, 4 + k, k, half, 4 + k, 6 - k, p.Wall);
+        }
+        f.Fill(-half - 1, 8, 3, half + 1, 8, 3, p.Roof);
+        return 7;
     }
 
     // A forge open at its front, a hearth of magma in its back corner under a chimney, and a torch on

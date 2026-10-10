@@ -13,9 +13,9 @@ public static class Hud
     /// Outlines a block a hair larger than it, so its edges are not lost in its faces' depth, a block
     /// smaller than its cell by the box around its pieces. Called inside <c>BeginMode3D</c>.
     /// </summary>
-    public static void DrawOutline(BlockHit hit, BlockId block)
+    public static void DrawOutline(BlockHit hit, BlockShape? shape)
     {
-        var (min, max) = Blocks.Get(block).Shape is { } shape ? (shape.Min, shape.Max) : (Vector3.Zero, Vector3.One);
+        var (min, max) = shape is not null ? (shape.Min, shape.Max) : (Vector3.Zero, Vector3.One);
         var size = max - min + new Vector3(0.004f);
         DrawCubeWires(new Vector3(hit.X, hit.Y, hit.Z) + (min + max) / 2, size.X, size.Y, size.Z, new Color(0, 0, 0, 220));
     }

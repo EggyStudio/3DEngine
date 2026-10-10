@@ -28,37 +28,54 @@ public readonly record struct Piece(Vector3 From, Vector3 To, int Surface, Vecto
     public bool Glows => Surfaces.All[Surface].Emits;
 }
 
+/// <summary>A box in a cell's own space from 0 to 1, between its lowest and highest corners.</summary>
+public readonly record struct Box(Vector3 Min, Vector3 Max)
+{
+    /// <summary>The whole cell.</summary>
+    public static readonly Box Cell = new(Vector3.Zero, Vector3.One);
+}
+
 /// <summary>
-/// The boxes a block smaller than its cell is made of, as a torch, a lantern or an end rod is, the
-/// way it faces and the box around them all, which the crosshair meets and the outline is drawn on.
+/// The boxes a block smaller than its cell is made of, as a torch, a lantern, a fence, a slab or
+/// stairs are, the way it faces and the box around them all, which the crosshair meets and the
+/// outline is drawn on.
 /// </summary>
 /// <remarks>
+/// <para>
 /// A box that gives off light is drawn as a lamp's cube of its own scaled to it, square to the axes,
 /// so the light that bounces carries it as a small light by its box, and the other boxes are faces
-/// of its section's mesh. Light and the player pass through such a block, it hides none of the faces
-/// beside it, and it falls when the block it holds to is broken.
+/// of its section's mesh. Light passes through such a block and it hides none of the faces beside
+/// it. A torch, a lantern or an end rod falls when the block it holds to is broken; a fence, a slab
+/// or stairs stand where they are put.
+/// </para>
+/// <para>
+/// A solid one stops the player at its boxes, a fence at a box half a block taller than its post,
+/// as Minecraft's is, so it cannot be jumped over.
+/// </para>
 /// </remarks>
 public sealed class BlockShape
 {
-    public BlockShape(Facing facing, params Piece[] pieces) : this(facing, true, pieces)
-    {
-    }
-
-    public BlockShape(Facing facing, bool falls, params Piece[] pieces)
+    public BlockShape(Facing facing, Piece[] pieces, bool falls = true, bool solid = false, bool upper = false, Box[]? collision = null)
     {
         Facing = facing;
         Falls = falls;
+        Upper = upper;
         Pieces = pieces;
         (Min, Max) = (Vector3.One, Vector3.Zero);
+        var boxes = new List<Box>();
         foreach (var piece in pieces)
         {
             if (piece.Glows && piece.Lean != Vector3.Zero) throw new ArgumentException("A box that gives off light is drawn as a cube square to the axes, so it cannot lean.");
+            var (low, high) = (Vector3.One, Vector3.Zero);
             foreach (var corner in Corners(piece))
             {
-                Min = Vector3.Min(Min, corner);
-                Max = Vector3.Max(Max, corner);
+                low = Vector3.Min(low, corner);
+                high = Vector3.Max(high, corner);
             }
+            (Min, Max) = (Vector3.Min(Min, low), Vector3.Max(Max, high));
+            boxes.Add(new Box(low, high));
         }
+        Collision = !solid ? [] : collision ?? [.. boxes];
     }
 
     public Facing Facing { get; }
@@ -66,7 +83,13 @@ public sealed class BlockShape
     /// <summary>Whether it falls when the block it holds to is broken, as a torch does and a fence does not.</summary>
     public bool Falls { get; }
 
+    /// <summary>Whether it is the upper of the two ways a slab or stairs are placed, as one placed against a ceiling is.</summary>
+    public bool Upper { get; }
+
     public IReadOnlyList<Piece> Pieces { get; }
+
+    /// <summary>The boxes that stop the player, none for one the player walks through.</summary>
+    public IReadOnlyList<Box> Collision { get; }
 
     /// <summary>The corner of the box around every piece nearest the cell's origin.</summary>
     public Vector3 Min { get; }
@@ -115,8 +138,10 @@ public sealed class BlockShape
 
     /// <summary>A torch standing on the block below, a stick with a flame at its top.</summary>
     public static BlockShape Torch(int flame) => new(Facing.Up,
+    [
         Px(7, 0, 7, 9, 7, 9, Surfaces.TorchStick),
-        Px(7, 7, 7, 9, 10, 9, flame));
+        Px(7, 7, 7, 9, 10, 9, flame),
+    ]);
 
     /// <summary>
     /// A torch fixed to the wall behind it, its stick leaning out from the wall's face by about 23
@@ -128,33 +153,69 @@ public sealed class BlockShape
 
     /// <summary>A lantern standing on the block below, its glass lit and its cap and handle of dark iron.</summary>
     public static BlockShape Lantern(int glass) => new(Facing.Up,
+    [
         Px(5, 0, 5, 11, 7, 11, glass),
         Px(6, 7, 6, 10, 9, 10, Surfaces.Iron),
-        Px(7, 9, 7.5f, 9, 11, 8.5f, Surfaces.Iron));
+        Px(7, 9, 7.5f, 9, 11, 8.5f, Surfaces.Iron),
+    ], solid: true);
 
     /// <summary>A lantern hanging from the block above by a short chain.</summary>
     public static BlockShape HangingLantern(int glass) => new(Facing.Down,
+    [
         Px(5, 1, 5, 11, 8, 11, glass),
         Px(6, 8, 6, 10, 10, 10, Surfaces.Iron),
-        Px(7.5f, 10, 7.5f, 8.5f, 16, 8.5f, Surfaces.Iron));
+        Px(7.5f, 10, 7.5f, 8.5f, 16, 8.5f, Surfaces.Iron),
+    ], solid: true);
 
     /// <summary>An end rod, a white rod that gives off light on a small base, its base on the block it is fixed to.</summary>
     public static BlockShape EndRod(Facing facing) => new(facing, Turned(facing,
         Px(6, 0, 6, 10, 1, 10, Surfaces.EndRodBase),
-        Px(7, 1, 7, 9, 16, 9, Surfaces.EndRod)));
+        Px(7, 1, 7, 9, 16, 9, Surfaces.EndRod)), solid: true);
 
-    /// <summary>A fence's post standing alone, its arms to the posts beside it not drawn, which stands where the block under it is broken.</summary>
-    public static BlockShape Fence(int wood) => new(Facing.Up, false, Px(6, 0, 6, 10, 16, 10, wood));
+    /// <summary>
+    /// A fence's post and two rails toward each side whose bit is set in <paramref name="arms"/>,
+    /// north 1, east 2, south 4 and west 8, as the fences and whole blocks beside it join it.
+    /// </summary>
+    public static BlockShape Fence(int wood, int arms)
+    {
+        List<Piece> pieces = [Px(6, 0, 6, 10, 16, 10, wood)];
+        List<Box> collision = [Tall(6, 6, 10, 10)];
+        Facing[] sides = [Facing.North, Facing.East, Facing.South, Facing.West];
+        for (int side = 0; side < 4; side++)
+        {
+            if ((arms & 1 << side) == 0) continue;
+            pieces.AddRange(Yawed(sides[side], Px(7, 12, 0, 9, 15, 6, wood), Px(7, 6, 0, 9, 9, 6, wood)));
+            var arm = Yawed(sides[side], Px(6, 0, 0, 10, 24, 6, wood))[0];
+            collision.Add(new Box(arm.From, arm.To));
+        }
+        return new BlockShape(Facing.Up, [.. pieces], falls: false, solid: true, collision: [.. collision]);
+
+        static Box Tall(float x0, float z0, float x1, float z1) => new(new Vector3(x0, 0, z0) / 16, new Vector3(x1, 24, z1) / 16);
+    }
 
     /// <summary>Ripe wheat, four thin stalks' walls crossed as Minecraft's crops are, which falls when its farmland is broken.</summary>
     public static BlockShape Wheat(int stalks) => new(Facing.Up,
+    [
         Px(0, 0, 3.5f, 16, 14, 4.5f, stalks),
         Px(0, 0, 11.5f, 16, 14, 12.5f, stalks),
         Px(3.5f, 0, 0, 4.5f, 14, 16, stalks),
-        Px(11.5f, 0, 0, 12.5f, 14, 16, stalks));
+        Px(11.5f, 0, 0, 12.5f, 14, 16, stalks),
+    ]);
 
-    // Pieces given facing north, a wall behind them at +z, turned about the cell's upright middle line
-    // to face another side.
+    /// <summary>A slab, half a block high, in the lower half of its cell or the <paramref name="upper"/> one.</summary>
+    public static BlockShape Slab(int surface, bool upper) => new(Facing.Up,
+        [upper ? Px(0, 8, 0, 16, 16, 16, surface) : Px(0, 0, 0, 16, 8, 16, surface)], falls: false, solid: true, upper: upper);
+
+    /// <summary>
+    /// Stairs climbing toward <paramref name="facing"/>, a slab with a step on its half that way, or
+    /// turned over against a ceiling where <paramref name="upper"/>.
+    /// </summary>
+    public static BlockShape Stairs(int surface, Facing facing, bool upper) => new(facing, Yawed(facing,
+        upper ? Px(0, 8, 0, 16, 16, 16, surface) : Px(0, 0, 0, 16, 8, 16, surface),
+        upper ? Px(0, 0, 0, 16, 8, 8, surface) : Px(0, 8, 0, 16, 16, 8, surface)), falls: false, solid: true, upper: upper);
+
+    // Pieces given facing north, a wall behind them at +z or a step on their north half, turned about
+    // the cell's upright middle line to face another side.
     private static Piece[] Yawed(Facing facing, params Piece[] pieces) => [.. pieces.Select(p => Moved(p, c => facing switch
     {
         Facing.South => new Vector3(-c.X, c.Y, -c.Z),

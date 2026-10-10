@@ -104,16 +104,30 @@ fades with depth and a lake's floor darkens as it deepens.
 A torch, a lantern, an end rod, and the soul torch and soul lantern of blue fire are smaller than a
 block, each a few boxes as Minecraft's models are. A torch placed on a wall's side leans out from
 it, a lantern placed under a block hangs from it, and an end rod points away from the face it is
-placed on, and each falls when the block it holds to is broken. Light and the player pass through
-them, and the crosshair meets the box around their pieces. The piece that gives off light, a torch's
-flame, a lantern's glass or the rod, is a lamp's cube scaled to it, so the light that bounces
-carries it as a small light by its box, and the other pieces are faces of the section's mesh.
+placed on, and each falls when the block it holds to is broken. Light passes through them, the
+player through a torch, and the crosshair meets the box around their pieces. The piece that gives
+off light, a torch's flame, a lantern's glass or the rod, is a lamp's cube scaled to it, so the
+light that bounces carries it as a small light by its box, and the other pieces are faces of the
+section's mesh.
 
 A small light's glow is its light over its surface, so a torch's flame, a 48th of a block's surface,
 glows far brighter than glowstone. Each is set so a closed room's floor takes about three quarters
 of glowstone's light from a torch or an end rod, nine tenths from a lantern and two fifths from the
 soul fire. A flame a quarter of a block from a wall lights a bright round pool on it, as a light
 that near a wall does.
+
+## Slabs, stairs and fences
+
+Slabs of stone, cobblestone, oak, spruce and sandstone fill the lower half of a block, or the upper
+half where placed against a ceiling or on the upper half of a side, and a slab placed on the open
+half of one of its kind joins it into the whole block. Stairs of cobblestone, oak, spruce, sandstone
+and stone brick climb the way the player looks, turned over in the upper half. A fence joins the
+fences and the whole blocks on its four sides with two rails each.
+
+The player climbs half a block and a little more without jumping, onto a slab or a stair, as
+Minecraft's does. A slab, stairs, a lantern, an end rod and a fence stop the player at their own
+boxes, a fence's standing half a block above its post so it cannot be jumped, and a torch and wheat
+are walked through. Light passes through them all, so a roof of slabs lets the sky's level down.
 
 ## Trees and structures
 
@@ -134,9 +148,10 @@ A village stands where the plains, the taiga, the snowy plains or the desert lie
 its roof, four roads of dirt path lead out from it, and beside each road stand two plots, each a
 small house, a long house, a farm of wheat with a row of water through it, a forge with a hearth of
 magma or a pile of hay, its front toward the road, with lamp posts along the roads, a lantern on a
-fence, or a torch in the desert. A house has a torch over its door and lanterns hanging inside. Each
-road follows the ground block by block and crosses water on planks, each building stands at its own
-ground's height on a footing of stone, and no tree grows within the village.
+fence, or a torch in the desert. A house has a torch over its door, lanterns hanging inside and a
+roof of stairs climbing to a ridge, flat in the desert. Each road follows the ground block by block
+and crosses water on planks, each building stands at its own ground's height on a footing of stone,
+and no tree grows within the village.
 
 ## How the world is drawn
 
@@ -203,11 +218,10 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 
 ## What is not here yet
 
-Textures, and leaves seen through, which are solid. Slabs, stairs and doors, a fence's arms to the
-posts beside it, and the player's collisions with blocks smaller than a cell, so a lantern or a
-fence is walked through. Water that flows. Greedy meshing. Light that passes through leaves at a
-cost, as Minecraft's does. Villagers. Structures read from files rather than built in code. Caves
-open to the sky. Mobs, items, an inventory and survival.
+Textures, and leaves seen through, which are solid. Doors, the corners stairs make where two meet,
+and slabs and stairs that keep light out, as Minecraft's do. Water that flows. Greedy meshing. Light
+that passes through leaves at a cost, as Minecraft's does. Villagers. Structures read from files
+rather than built in code. Caves open to the sky. Mobs, items, an inventory and survival.
 
 ## What it costs
 

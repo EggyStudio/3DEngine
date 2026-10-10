@@ -73,17 +73,29 @@ public sealed class VoxelWorld
     }
 
     /// <summary>
-    /// Whether a body collides with the block at a world position. Below the world and in a column
-    /// not yet loaded it does, so the player cannot fall out of the world or walk into a column
-    /// that has not arrived.
+    /// The boxes in a block's cell that stop a body, the whole cell for a solid block. Below the
+    /// world and in a column not yet loaded the cell is solid, so the player cannot fall out of the
+    /// world or walk into a column that has not arrived.
     /// </summary>
-    public bool Collides(int x, int y, int z)
+    public IReadOnlyList<Box> BoxesAt(int x, int y, int z)
     {
-        if (y < 0) return true;
-        if (y >= ChunkColumn.Height) return false;
-        if (!_columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column)) return true;
-        return Blocks.Collides(column.Get(x & Section.Mask, y, z & Section.Mask));
+        if (y < 0) return [Box.Cell];
+        if (y >= ChunkColumn.Height) return [];
+        if (!_columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column)) return [Box.Cell];
+        var block = column.Get(x & Section.Mask, y, z & Section.Mask);
+        return block == BlockId.OakFence ? FenceAt(x, y, z).Collision : Blocks.Get(block).Boxes;
     }
+
+    /// <summary>The shape of the block at a world position, a fence's joined to the fences and whole blocks beside it, or null for a whole block.</summary>
+    public BlockShape? ShapeAt(int x, int y, int z)
+    {
+        var block = GetBlock(x, y, z);
+        return block == BlockId.OakFence ? FenceAt(x, y, z) : Blocks.Get(block).Shape;
+    }
+
+    private BlockShape FenceAt(int x, int y, int z) => Blocks.Fence(
+        (Blocks.JoinsFence(GetBlock(x, y, z - 1)) ? 1 : 0) | (Blocks.JoinsFence(GetBlock(x + 1, y, z)) ? 2 : 0)
+        | (Blocks.JoinsFence(GetBlock(x, y, z + 1)) ? 4 : 0) | (Blocks.JoinsFence(GetBlock(x - 1, y, z)) ? 8 : 0));
 
     /// <summary>
     /// Places a block, spreads the light around it again, and marks the section it is in to mesh
@@ -125,14 +137,25 @@ public sealed class VoxelWorld
 
     /// <summary>
     /// The block an item makes placed at a world position against a face whose outward normal is
-    /// given: the item itself for a whole block, and for one smaller than its cell the way of it that
-    /// faces away from that face, or else the first way of it with a whole block to hold to, standing
-    /// before hanging before a wall, or air where none has one, as a lantern placed on a wall stands
-    /// on the floor below or hangs from the ceiling.
+    /// given: the item itself for a whole block; for a slab, stairs or a fence the way of it that
+    /// faces <paramref name="look"/>, the way the player looks along the ground, in the upper half
+    /// where it is placed against a ceiling or on the upper half of a side, <paramref name="height"/>
+    /// being how far up its cell the side was met; and for a block that holds to another the way of
+    /// it that faces away from that face, or else the first way of it with a block to hold to,
+    /// standing before hanging before a wall, or air where none has one, as a lantern placed on a
+    /// wall stands on the floor below or hangs from the ceiling.
     /// </summary>
-    public BlockId Fit(BlockId item, int x, int y, int z, int normalX, int normalY, int normalZ)
+    public BlockId Fit(BlockId item, int x, int y, int z, int normalX, int normalY, int normalZ, Facing look = Facing.North, float height = 0)
     {
-        if (Blocks.Get(item).Shape is null) return item;
+        if (Blocks.Get(item).Shape is not { } shape) return item;
+        if (!shape.Falls)
+        {
+            var upper = normalY < 0 || normalY == 0 && height > 0.5f;
+            foreach (var way in (ReadOnlySpan<Facing>)[look, Facing.Up])
+                foreach (var half in (ReadOnlySpan<bool>)[upper, false])
+                    if (Blocks.Variant(item, way, half) is not BlockId.Air and var variant) return variant;
+            return item;
+        }
         ReadOnlySpan<Facing> ways = [BlockShape.Away(normalX, normalY, normalZ), Facing.Up, Facing.Down, Facing.North, Facing.South, Facing.West, Facing.East];
         foreach (var way in ways)
         {
