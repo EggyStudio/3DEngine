@@ -84,6 +84,12 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
     private ModelRenderer.Instance[] _groupInstances = [];
 
+    /// <summary>
+    /// The eye the field was placed around this frame, the window's, or where the window draws no
+    /// mesh the first render target's camera's, which the glow lights nearest are taken by.
+    /// </summary>
+    internal Vector3? Eye { get; private set; }
+
     /// <summary>The plan of the field being built, or null where none is.</summary>
     internal SceneFieldPlan? Plan => _plan;
 
@@ -124,6 +130,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         var view = windowDraws || draws?.Targets() is not [var first, ..] ? renderWorld.TryGet<WindowView>()
             : draws.ViewProjectionOf(first) is { } camera && LightingUboPrepare.EyeOf(camera) is { } eye ? new WindowView(camera, eye) : null;
         if (view is null) return;
+        Eye = view.Eye;
 
         Gather(renderWorld, windowDraws);
         var plan = _plan!;
@@ -164,6 +171,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         _indices.Clear();
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
         if (_bounds.Count > 4096) _bounds.Clear();
+        if (_shares.Count > 4096) _shares.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
         _store = store;
         var textures = renderWorld.TryGet<TextureStore>();
@@ -214,11 +222,21 @@ internal sealed class SceneFieldRenderer : IDisposable
         return way.LengthSquared() > 1e-12f ? Vector3.Normalize(way) : Vector3.Zero;
     }
 
-    private SceneFieldPlan.Box BoundsOf(ModelVertex[] vertices)
+    /// <summary>The box around a mesh's vertices in its own space, kept while the mesh is drawn.</summary>
+    internal SceneFieldPlan.Box BoundsOf(ModelVertex[] vertices)
     {
         if (!_bounds.TryGetValue(vertices, out var box)) _bounds[vertices] = box = SceneFieldPlan.Box.Of(vertices);
         return box;
     }
+
+    /// <summary>A mesh's surface over its box's, kept for its vertices, which a glow light's faces are scaled by.</summary>
+    internal float ShareOf(ModelVertex[] vertices)
+    {
+        if (!_shares.TryGetValue(vertices, out var share)) _shares[vertices] = share = GlowLights.ShareOf(CornersOf(vertices), BoundsOf(vertices));
+        return share;
+    }
+
+    private readonly Dictionary<ModelVertex[], float> _shares = new(ReferenceEqualityComparer.Instance);
 
     // A skinned mesh's limbs as it was last posed, each joint's box at rest moved by the joint's
     // matrix, or null where its skin is not known, which stamps the box around all of it.
@@ -435,8 +453,10 @@ internal sealed class SceneFieldRenderer : IDisposable
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count, instance.DoubleSided ? 1u : 0u, (uint)triangles);
             var thinnest = Thinnest(instance);
-            thinGlow |= thinnest > 0 && thinnest < cell;
-            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, 1, e.X, e.Y, e.Z, thinnest];
+            // An emitter the bounce carries as a glow light marks its cells and lends none.
+            var carried = GlowLights.Carries(e, BoundsOf(instance.Vertices), w, _plan!.CellSize);
+            thinGlow |= !carried && thinnest > 0 && thinnest < cell;
+            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, carried ? 2 : 1, e.X, e.Y, e.Z, thinnest];
             MemoryMarshal.Cast<float, uint>(colors).CopyTo(record[16..]);
             triangles += pooled.Count;
             written++;

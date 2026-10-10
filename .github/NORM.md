@@ -322,7 +322,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
-| N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
+| N 5.2 | checked, `NormTests.N_5_2` before a commit and `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
 | N 6.2 | checked, `test.yml` | checked, `test.yml`, the macOS job green at `156d2ce` |

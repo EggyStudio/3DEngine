@@ -53,6 +53,13 @@ RWTexture2D<float4> geometry;
 [[vk::binding(10, 0)]]
 ConstantBuffer<ScreenView> view;
 
+// How much of each glow light each probe's surface sees, four bits a light from none to all of it,
+// eight lights a word, and the light of those too faint to be marched to by their faces, in the
+// probe's twelve words (GlowSeenWords), which the model pass takes each pixel's from the probes
+// around it, so it marches to no light itself where a probe stands.
+[[vk::binding(13, 0)]]
+RWStructuredBuffer<uint> glowSeen;
+
 // Each world probe's reach, as gi_ambient.slang left it, which weighs the light a surface a ray
 // meets takes from the probes around it.
 [[vk::binding(11, 0)]]
@@ -223,8 +230,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float2 pixel = min((float2(id.xy) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
     float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
     float d = depth.SampleLevel(uv, 0).r;
+    uint probe = id.y * uint(view.grid.y) + id.x;
+    int glows = min(int(lights.glowCounts.x), MostGlowLights);
     if (d >= 1.0)
     {
+        for (int word = 0; word < GlowSeenWords; word++)
+            glowSeen[probe * uint(GlowSeenWords) + uint(word)] = 0u;
         irradiance[id.xy] = float4(0.0);
         geometry[id.xy] = float4(0.0, 0.0, 0.0, -1.0);
         return;
@@ -241,6 +252,46 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (dot(n, view.eye.xyz - p) < 0.0)
         n = -n;
     geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
+    // How much of each glow light in reach the surface sees, a word of eight lights at a time, each
+    // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
+    // of its own and crashed on the one the words were gathered in. A light that gives the surface a
+    // sixteenth of the glow lights' light or more is marched to by the halves of its faces, and its
+    // bits say how much of it the surface sees. A fainter one is marched to at its middle alone, as
+    // a ray's hit is, its light added to the fainter ones' at the probe and its bits left none, so
+    // the model pass reads the light of at most sixteen at a pixel. Every light marched to
+    // by its faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the
+    // bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.7 and 0.4.
+    float glowCell = fieldCell(fieldInfo, p);
+    float glowMargin = glowCell * 0.5;
+    float glowTotal = 0.0;
+    for (int i = 0; i < glows; i++)
+    {
+        float faded = glowLightFade(lights.glows[i], p, n);
+        if (faded > 0.0)
+            glowTotal += luminance(glowLightIrradiance(lights.glows[i], p, n, glowMargin)) * faded;
+    }
+    float3 faint = float3(0.0);
+    uint first = probe * uint(GlowSeenWords);
+    for (int word = 0; word * 8 < glows; word++)
+    {
+        uint levels = 0u;
+        for (int j = 0; j < 8 && word * 8 + j < glows; j++)
+        {
+            GlowLight light = lights.glows[word * 8 + j];
+            float faded = glowLightFade(light, p, n);
+            if (faded <= 0.0)
+                continue;
+            float3 arrived = glowLightIrradiance(light, p, n, glowMargin) * faded;
+            if (luminance(arrived) * 16.0 >= glowTotal)
+                levels |= uint(glowLightShown(sceneField, fieldInfo, light, p, n, glowCell) * 15.0 + 0.5) << uint(j * 4);
+            else
+                faint += arrived * glowLightSeen(sceneField, fieldInfo, light, p, n, glowCell);
+        }
+        glowSeen[first + uint(word)] = levels;
+    }
+    glowSeen[first + 8u] = asuint(faint.r);
+    glowSeen[first + 9u] = asuint(faint.g);
+    glowSeen[first + 10u] = asuint(faint.b);
     // The world's first cascade's probes give the light from beyond the rays, or past it its second's,
     // so the screen's probes reach as far as the second cascade does. Ending at the first, a surface
     // past it took the world's probes alone, and a step showed along that edge, as a slanted ceiling
@@ -294,6 +345,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             weights += weight;
         }
     // The weights scaled to sum to pi, the light reaching the surface under a sky of 1, where an
-    // equal share for every texel read it at 1.04 of that.
+    // equal share for every texel read it at 1.04 of that. The glow lights' light straight to the
+    // surface, which the rays that meet one leave out, the model pass takes at each pixel.
     irradiance[id.xy] = float4(sum * (Pi / max(weights, 1e-6)), 1.0);
 }

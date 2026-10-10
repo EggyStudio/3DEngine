@@ -33,7 +33,8 @@ struct FieldInstance
     // inside, as a double-sided one, whose cells are all in front. w: the first of its triangles
     // counted over every instance before it.
     uint4 triangles;
-    // rgb: the surface's color, linear, its material's times its texture's average.
+    // rgb: the surface's color, linear, its material's times its texture's average. w: 2 where the
+    // bounce carries the light it gives off as a glow light, 1 elsewhere.
     float4 color;
     // rgb: the light the surface gives off, linear. w: where it gives off light, its thinnest
     // extent in world units, its mesh's bounds along each of its own axes scaled into the world.
@@ -244,8 +245,11 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     // its faces near each, which the resolve turns into the share of a cell's face it covers, so a
     // strip 0.06 wide lends cells of 0.15 two fifths of its light and a sheet as thin lends its
     // whole light, where a share of its thickness over the cell lent a sheet 0.02 thick a seventh.
+    // An emitter the bounce carries as a glow light lends nothing, its light reaching the cells'
+    // surfaces as a light's does.
     float thickness = instance.emission.w;
-    if (push.groups.y == 2u && !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0)))
+    bool carried = instance.color.w > 1.5;
+    if (push.groups.y == 2u && (carried || !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0))))
         return;
     uint corner = (instance.triangles.x + t - instance.triangles.w) * 3;
     uint4 ca = corners[corner], cb = corners[corner + 1], cc = corners[corner + 2];
@@ -358,7 +362,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             uint3 c = uint3(saturate(painted) * 255.0 + 0.5);
             albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (255u << 24);
             float3 e = max(instance.emission.rgb, 0.0);
-            glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, 0.0)));
+            glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, carried && any(e > 0.0) ? 1.0 : 0.0)));
         }
     }
 }

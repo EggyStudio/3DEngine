@@ -51,6 +51,13 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool FollowOff { get; set; }
 
+    /// <summary>
+    /// Whether the small surfaces that give off light the bounce carries as lights give none, their
+    /// light lost to the rays all the same, as <c>gi.toggle glow off</c> sets it, so what the glow
+    /// lights give and cost can be read (<see cref="GlowLights"/>).
+    /// </summary>
+    public bool GlowOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 
@@ -448,6 +455,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             };
         }
         (floats[12], floats[13], floats[14]) = (count, _frame, renderWorld.TryGet<GlobalIlluminationSettings>() is { AgainOff: true } ? 0 : 1);
+        // The small emitters carried as lights, the nearest the eye the field lies around, which
+        // where the window draws no mesh is the first render target's camera's.
+        if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { GlowOff: true }
+            && renderWorld.TryGet<SceneFieldRenderer>() is { Plan: { } plan, Eye: { } eye } field)
+            GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf);
         return bytes;
     }
 

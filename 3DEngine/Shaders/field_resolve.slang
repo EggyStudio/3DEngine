@@ -116,6 +116,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         lent = light * min(max(seen.x, max(seen.y, seen.z)), 1.0);
     }
     // The larger of the two, since an emitter that painted the cell its own already gives it its
-    // whole light, as a glowing panel under a ceiling does.
-    glowField[at] = float4(max(float3(unpackHalves(light.x), unpackHalves(light.y).x), lent), 0.0);
+    // whole light, as a glowing panel under a ceiling does. Alpha is 1 where the light is an
+    // emitter's the bounce carries as a glow light, which a probe's ray leaves out.
+    float3 painted = float3(unpackHalves(light.x), unpackHalves(light.y).x);
+    glowField[at] = float4(max(painted, lent), any(lent > painted) ? 0.0 : unpackHalves(light.y).y);
 }

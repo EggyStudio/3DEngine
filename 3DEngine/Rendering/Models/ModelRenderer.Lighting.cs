@@ -162,7 +162,7 @@ internal sealed partial class ModelRenderer
     // Where modelpass.slang binds the probes' bounced light and the field they lie in, the
     // screen's probes' light and surfaces, and the probes' reach.
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18,
-        BouncedReachBinding = 31, BouncedSkyBinding = 32;
+        BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowSeenBinding = 33;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from: the
     // field, its colors and light, the lights, the window's depth, and its scene and depth the
@@ -184,6 +184,7 @@ internal sealed partial class ModelRenderer
         var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
         device.UpdateDescriptorSet(set, null, Lit(screen.BlendedView, screen.Sampler, ScreenLightBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
+        device.UpdateDescriptorSet(set, new StorageBufferBinding(screen.GlowSeen, ScreenGlowSeenBinding));
         _noScreen ??= device.CreateScreenProbes(1, 1, 1);
         var (depthView, depthSampler) = bounced?.Depth is { } depth ? (depth.View, depth.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);

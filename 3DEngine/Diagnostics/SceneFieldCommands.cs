@@ -48,9 +48,11 @@ internal static class SceneFieldCommands
             $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select(n => n * n))} rays each, {rays} rays a frame",
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
+        // A screen probe's five texels of eight bytes, its light, surface, blend and the frame
+        // before's two, and its words of the glow lights.
         if (gi.Screen is { } screen)
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
-                      + $"{5.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
+                      + $"{(5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down / 1024 / 1024:0.00} MB");
         var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
         // The frame before at half the window's size in half floats, its mips a third more, and its
         // depth beside it in floats.
@@ -133,7 +135,7 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light that bounces again from the frame before's probes, the bounce following a light that goes out, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|cascade> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light that bounces again from the frame before's probes, the bounce following a light that goes out, the small surfaces that give off light carried as lights, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|glow|cascade> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
@@ -147,10 +149,11 @@ internal static class SceneFieldCommands
             case "merge": settings.MergeOff = !on; break;
             case "again": settings.AgainOff = !on; break;
             case "follow": settings.FollowOff = !on; break;
+            case "glow": settings.GlowOff = !on; break;
             case "cascade":
                 settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
                 break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow and cascade";
+            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow and cascade";
         }
         return Switches(settings);
     }
@@ -165,6 +168,7 @@ internal static class SceneFieldCommands
         if (settings.MergeOff) off.Add("the merge");
         if (settings.AgainOff) off.Add("the light that bounces again");
         if (settings.FollowOff) off.Add("the bounce following a light out");
+        if (settings.GlowOff) off.Add("the glow lights");
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         return off.Count == 0 ? "every part of the light that bounces is on" : $"left out: {string.Join(", ", off)}";
     }

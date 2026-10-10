@@ -1293,7 +1293,8 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
 0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the
 boxes of its joints or its parts the field holds it as, in its color but giving off none of its
-light. A render target that draws meshes through a camera has screen probes of its own, on the
+light unless it is small enough to be a glow light, which any mesh drawn is, still or moving. A
+render target that draws meshes through a camera has screen probes of its own, on the
 depth at half its size of the meshes it draws that cast shadows that its occlusion pass draws
 (`AmbientOcclusionRenderer.DrawTarget`, `ModelRenderer.DrawDepth` for its id), probes traced, blended and held as the window's on that depth with a history of their own, let go
 the frame after one the target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, before the
@@ -1341,6 +1342,69 @@ where they summed 4.62 (`BounceRoomsTests`, each bound moved to 15% over its vie
 corners change no room's reading. What drift is left lies on the floor before the glowing block in
 patches a tile wide, where some of a probe's 16 rays meet the small bright block and the rest miss
 it, as the world's probes show lobes around a small emitter.
+
+The small surfaces that give off light are lights inside the bounce (`GlowLights`, `glow.slang`).
+The voxel game found a glowstone on its floor drawing eight lobes on the floor around it at `High`,
+its pool ending two blocks out, and seen from forty blocks no pool at all. Measured on the engine
+first, the cause was the probes' horizon and not the field's hold of the block or the first
+cascade's directions: the world's probes stand at odd block coordinates, so the lowest layer above a
+floor lies level with the block's top, whose upward faces the floor reads through the lean, and the
+layer under them lies inside the floor; with the screen's probes off the floor beside the block read
+nothing at either cell, and the block lifted a block off the floor lit it with no lobes. So the
+floor took the block's light from the screen probes' sixteen rays alone, twelve of them 18 degrees
+above the horizon at fixed azimuths, whose gaps of 26.6 and 36.9 degrees met the block's 28 at two
+blocks at some angles and not others, and their reach of two blocks was the pool's edge. Sixty-four
+rays took the pool at a block and a half from 0.119 to 0.048, the sixteen having taken the block for
+a whole texel each where they met it, a set turned 22.5 degrees left the lobes, and the first
+cascade at 256 directions changed nothing.
+
+An emitter whose box is no longer than twice the first cascade's spacing is carried as a light, its
+box in the world, its glow and its mesh's surface over its box's, the 64 nearest the eye, each
+reaching as far as it lights a surface by a fiftieth; emitters square to the axes that touch and
+give off the same light are one light of the box around them, the faces they press together left out
+of its surface. Its light at a point is that of the faces of its box the point lies before, in
+closed form within four of its half diagonals, Lambert's sum over each face's edges clipped to the
+point's horizon by Heitz's fit of the arc, and past them each face as a point at its middle, within
+3% of the closed form there. How much of it a point sees is marched through the field, at each step
+the way's clearance from the nearest surface against the cone the light spans there, so a shadow's
+edge is as soft as the light is wide, as a distance field gives a penumbra, a surface counted only
+where it lies nearer than the point's own plane and the light's own box, and inside a surface the
+share read by stepping out of it along the point's normal. The screen's probes march to the halves
+of each face of each light in reach that gives the probe's surface a sixteenth of the lights' light
+or more, halved across the axis that rises most from the surface, and keep sixteen levels of each
+such light, and march to the middle of each fainter one and keep the fainter ones' light summed,
+which the model pass weighs each pixel's light by as it weighs the probes' light; a pixel at an
+edge, no probe around it on a surface like its own, takes those around it on any surface by how near
+each is. A view with no screen probes marches from each pixel to the middles of the four brightest,
+and a probe's ray's hit marches to those of the two brightest, so the walls a lamp lights bounce it
+on. A light gives nothing to a point within half a cell of its box whose normal leads out of it, the
+light's own surface, since a hit lies anywhere within a fraction of a cell of a face and the field's
+normal tilts near its edges, so part of the face rose above the hit's plane and lit it: on lavapipe
+the block's faces lit themselves and added 0.018 to the floor two blocks off, 0.044. The field marks
+the cells such an emitter paints, so a ray that meets it leaves its light out
+(`surfaceGlowUncarried`), and a reflection keeps it.
+
+Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
+0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the
+engine read 0.126, 0.101, 0.068, 0.034, 0.012 and nothing, its eighth harmonic 0.17 and 0.35 of the
+light two and two and a half blocks out at `High`; carried, every ring from 0.8 to 4.2 blocks reads
+0.96 to 1.05 of the reference at every quality and both cells, the eighth harmonic 0.005, and the
+same from five to eighty blocks up (`GlowLightsTests`). Hit or miss, a shadow had no edge and ran in
+the field's cells, and a stack of four blocks threw a ring; counted, the floor and the block's own
+faces darkened the falloff in rings, 0.83 to 1.02 of the reference with dips of a tenth. Past a wall
+half as high as the block, a block and a quarter off, the floor reads the reference's light to
+within a tenth of it, where one march to the block's middle read it dark to five blocks, and four
+blocks stacked two by two light the floor around them within 2% of the reference. Against the
+path-traced rooms the Cornell box's panel and the strip are such emitters: the Cornell box reads
+0.141, 0.129 and 0.117 of its light where it read 0.203, 0.180 and 0.183, the strip's 0.256, 0.248
+and 0.270 where 0.466, 0.473 and 0.448, the others as they were, and a ninth room, a glowing block
+on a white floor in a dark room with a low wall beside it and four more stacked, 0.052, 0.048 and
+0.045 where it read 0.200, 0.193 and 0.171 (`BounceRoomsTests`). On an RTX 4070 the Cornell box's
+panel costs the bounce 0.17 to 0.22 ms and the model pass 0.05 to 0.07 at 800 by 450, and a dark
+room of glowing blocks at 1280 by 720 at `High` costs them 0.30 and 0.05 ms for one block, 0.80 and
+0.21 for sixteen and 1.74 and 0.43 for sixty-four, where marching to each face of every light, and
+from each pixel at an edge, cost sixty-four 5.3 and 2.3 (`./e3d command profile`'s
+`global_illumination` and `hdr_scene`, against `gi.toggle glow off`).
 
 ## 5. Render targets and post processing
 

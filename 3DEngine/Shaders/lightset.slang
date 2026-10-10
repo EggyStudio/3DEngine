@@ -168,6 +168,12 @@ public Texture2D screenLight;
 [[vk::binding(18, 1)]]
 public Texture2D screenSurfaces;
 
+// How much of each glow light each of the screen's probes sees, four bits a light, and the light of
+// the fainter ones, GlowSeenWords a probe, as gi_screen.slang leaves them, which a pixel takes from
+// the probes around it.
+[[vk::binding(33, 1)]]
+public StructuredBuffer<uint> screenGlowSeen;
+
 // The scene's distance field, its surfaces' colors and the light they give off, and the lights
 // that light them, which a reflection is traced through past the window's depth and shaded from,
 // or a field of nothing where light does not bounce.

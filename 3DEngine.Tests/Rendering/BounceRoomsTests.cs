@@ -32,14 +32,15 @@ public sealed class BounceRoomsTests : IDisposable
     private const int Width = 160, Height = 90, Down = 2;
 
     // Each view at each quality, bound 15% over what it read on an RTX 4070, where the views
-    // read 0.18 to 0.20 of their light apart from their references in the Cornell box, 0.08 to
+    // read 0.12 to 0.14 of their light apart from their references in the Cornell box, 0.08 to
     // 0.10 in the thin room, 0.26 in the corridor, 0.27 to 0.29 in the window's, 0.02 among the red
-    // walls, 0.45 to 0.47 in the strip's, 0.11 to 0.13 on the grazing floor and 0.10 to 0.12 in the
-    // carried lamp's, since the screen's probes read the world's probes between their texels.
+    // walls, 0.25 to 0.27 in the strip's, 0.11 to 0.13 on the grazing floor, 0.10 to 0.12 in the
+    // carried lamp's and 0.05 around the glowing blocks, since the small emitters are lights of
+    // their own (GlowLights), where the strip's read 0.45 to 0.47.
     [NeedsRayQueryTheory]
-    [InlineData(1, GlobalIllumination.Low, 0.24)]
-    [InlineData(1, GlobalIllumination.Medium, 0.21)]
-    [InlineData(1, GlobalIllumination.High, 0.22)]
+    [InlineData(1, GlobalIllumination.Low, 0.17)]
+    [InlineData(1, GlobalIllumination.Medium, 0.15)]
+    [InlineData(1, GlobalIllumination.High, 0.14)]
     [InlineData(2, GlobalIllumination.Low, 0.11)]
     [InlineData(2, GlobalIllumination.Medium, 0.10)]
     [InlineData(2, GlobalIllumination.High, 0.10)]
@@ -52,15 +53,18 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.54)]
-    [InlineData(6, GlobalIllumination.Medium, 0.55)]
-    [InlineData(6, GlobalIllumination.High, 0.52)]
+    [InlineData(6, GlobalIllumination.Low, 0.30)]
+    [InlineData(6, GlobalIllumination.Medium, 0.29)]
+    [InlineData(6, GlobalIllumination.High, 0.32)]
     [InlineData(7, GlobalIllumination.Low, 0.13)]
     [InlineData(7, GlobalIllumination.Medium, 0.13)]
     [InlineData(7, GlobalIllumination.High, 0.15)]
     [InlineData(8, GlobalIllumination.Low, 0.14)]
     [InlineData(8, GlobalIllumination.Medium, 0.12)]
     [InlineData(8, GlobalIllumination.High, 0.13)]
+    [InlineData(9, GlobalIllumination.Low, 0.06)]
+    [InlineData(9, GlobalIllumination.Medium, 0.06)]
+    [InlineData(9, GlobalIllumination.High, 0.06)]
     public void Each_Room_Reads_Within_Its_Measured_Difference_From_Its_Reference(int view, GlobalIllumination quality, double bound)
     {
         var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -151,7 +155,7 @@ public sealed class BounceRoomsTests : IDisposable
     // The rooms, their lights and their views as shaders_bounce_rooms has them.
     private sealed class Rooms : IDisposable
     {
-        private readonly Model _slab, _glow, _strip;
+        private readonly Model _slab, _glow, _strip, _lamp;
 
         public static readonly Camera3D[] Views =
         [
@@ -163,6 +167,7 @@ public sealed class BounceRoomsTests : IDisposable
             new(new Vector3(200, 1.4f, 2.3f), new Vector3(200, 1.3f, -2.5f), Vector3.UnitY, 65),
             new(new Vector3(234.5f, 0.35f, 5.5f), new Vector3(245, 0.15f, -5), Vector3.UnitY, 60),
             new(new Vector3(282.6f, 1.7f, 2.6f), new Vector3(278.5f, 1, -1.5f), Vector3.UnitY, 65),
+            new(new Vector3(320, 2.6f, 3.2f), new Vector3(320, 0, -0.3f), Vector3.UnitY, 60),
         ];
 
         public Rooms()
@@ -180,6 +185,9 @@ public sealed class BounceRoomsTests : IDisposable
             _strip = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _strip.Materials[0].Emissive = new Color(255, 230, 190);
             _strip.Materials[0].EmissiveIntensity = 30;
+            _lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            _lamp.Materials[0].Emissive = new Color(255, 200, 120);
+            _lamp.Materials[0].EmissiveIntensity = 4;
         }
 
         public void Draw()
@@ -229,6 +237,18 @@ public sealed class BounceRoomsTests : IDisposable
             Box(_slab, new Vector3(277.15f, 1.5f, 0), new Vector3(0.3f, 3, 6), red);
             Box(_slab, new Vector3(280, 1.25f, -1), new Vector3(0.2f, 2.5f, 2.5f), green);
             DrawSphere(new Vector3(278, 2, -1.5f), 0.08f, new Color(255, 230, 200));
+
+            var dim = new Color(60, 60, 58);
+            Box(_slab, new Vector3(320, -0.15f, 0), new Vector3(8.6f, 0.3f, 8.6f), white);
+            Box(_slab, new Vector3(320, 3.15f, 0), new Vector3(8.6f, 0.3f, 8.6f), dim);
+            Box(_slab, new Vector3(320, 1.5f, -4.15f), new Vector3(8.6f, 3, 0.3f), dim);
+            Box(_slab, new Vector3(320, 1.5f, 4.15f), new Vector3(8.6f, 3, 0.3f), dim);
+            Box(_slab, new Vector3(315.85f, 1.5f, 0), new Vector3(0.3f, 3, 8), dim);
+            Box(_slab, new Vector3(324.15f, 1.5f, 0), new Vector3(0.3f, 3, 8), dim);
+            Box(_lamp, new Vector3(320, 0.3f, 0), new Vector3(0.6f, 0.6f, 0.6f), new Color(230, 190, 110));
+            Box(_slab, new Vector3(321.2f, 0.45f, 0), new Vector3(0.15f, 0.9f, 1.2f), dim);
+            for (int i = 0; i < 4; i++)
+                Box(_lamp, new Vector3(317.7f + (i & 1) * 0.6f, 0.3f, -2.1f + (i >> 1) * 0.6f), new Vector3(0.6f, 0.6f, 0.6f), new Color(230, 190, 110));
         }
 
         private void Room(Vector3 floor, Vector3 size, float thick, Color color, bool openToward = false)
@@ -251,6 +271,7 @@ public sealed class BounceRoomsTests : IDisposable
             UnloadModel(_slab);
             UnloadModel(_glow);
             UnloadModel(_strip);
+            UnloadModel(_lamp);
         }
     }
 }

@@ -228,6 +228,8 @@ public static partial class Engine3D
         if (ImGuiNET.ImGui.Checkbox("The light that bounces again", ref again)) settings.AgainOff = !again;
         var follow = !settings.FollowOff;
         if (ImGuiNET.ImGui.Checkbox("The bounce following a light out", ref follow)) settings.FollowOff = !follow;
+        var glow = !settings.GlowOff;
+        if (ImGuiNET.ImGui.Checkbox("The glow lights", ref glow)) settings.GlowOff = !glow;
         var alone = settings.Alone >= 0;
         ImGuiNET.ImGui.Checkbox("The cascade chosen alone", ref alone);
         settings.Alone = alone ? settings.ShownCascade : -1;

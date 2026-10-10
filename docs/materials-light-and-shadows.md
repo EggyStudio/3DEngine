@@ -407,25 +407,43 @@ sheen of the sky's color, brightest at a grazing angle.
 
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
 a glowing panel, and G steps through the qualities. `shaders_bounce_rooms` gathers the rooms the
-bounce finds hardest, one to each of the keys 1 to 8, from a room of thin walls with a lamp outside
-to a small bright strip in the dark. On a laptop's RTX 4070 at 800 by 450, with the
-frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU holds its clocks, they cost this
-on the GPU, as `./e3d command profile` names it `global_illumination`, and `./e3d command gi.state`
-gives the rest, `High` measured with the example's field at four cascades
+bounce finds hardest, one to each of the keys 1 to 9, from a room of thin walls with a lamp outside
+to a small bright strip in the dark and a glowing block on a floor. On a laptop's RTX 4070 at 800 by
+450, with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU holds its clocks,
+they cost this on the GPU, as `./e3d command profile` names it `global_illumination`, and
+`./e3d command gi.state` gives the rest, `High` measured with the example's field at four cascades
 (`./e3d eval "SetSceneField(4, 0.15f, 2)"`), where it traces three:
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 1.59 MB | 0.41 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.27 MB | 0.53 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.90 MB | 0.74 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 1.65 MB | 0.58 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.38 MB | 0.76 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 9.16 MB | 0.99 ms |
 
 A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, 5 MB more
 that a cascade is built in, and 6 MB more once a mesh that gives off light is thinner than a cell.
-Against path-traced references of `shaders_bounce_rooms`' eight views, drawn at 160 by 90, each
+Against path-traced references of `shaders_bounce_rooms`' nine views, drawn at 160 by 90, each
 view's light differs from its reference's by between 0.02 of it, white blocks beside red walls in
-the sun, and 0.5 of it, the small bright strip's room, summed pixel by pixel, at every quality alike
-within a few hundredths.
+the sun, and 0.29 of it, the room the sun lights through a window, summed pixel by pixel, at every
+quality alike within a few hundredths.
+
+A small surface that gives off light, one whose box is no longer than twice the spacing of the first
+cascade's probes, 4 units at the field's cell of a quarter, lights what is around it as a lamp
+would, with no light made for it: its light reaches each surface from the faces of its box, so a
+glowing block lights the floor it lies on as a path-traced reference does, within 5% from a block
+out to four, at every quality and seen from far off as from near, and throws soft shadows behind
+what stands between, read from the field (`GlowLightsTests`). Left to the probes' rays, which met so
+small a surface at some angles and not others, it drew eight lobes around itself on the floor, a
+pool that ended two blocks out, and from forty blocks off no pool at all. Glowing blocks that touch,
+as a stack of them, are one light, the faces they press together giving off nothing. The 64 such
+lights nearest the eye light so, each as far as it lights a surface by a fiftieth, 17 units for a
+glowing block of the voxel game's; one past them lights nothing a floor takes from it, so a level of
+more glowing blocks than that has the nearest lit. A larger surface, as a panel across a ceiling, is
+left to the rays, which meet it often enough. The glowing panel of `shaders_cornell_box`, small
+enough to be one, takes 0.17 to 0.22 ms of the times in the table, and in a dark room of glowing
+blocks at 1280 by 720 at `High` one block costs 0.35 ms, sixteen 1.0 and sixty-four 2.2, as
+`./e3d command profile` gives `global_illumination` and `hdr_scene` together, against
+`./e3d command gi.toggle glow off`.
 
 Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
 The ray is stepped through the window's depth first, and a surface it meets there reflects the
@@ -454,28 +472,28 @@ where the field, or at `High` the GPU's ray, lets it through, as it lights the l
 which in Wick's first doorway, its lamp and a wick casting shadows, costs the scene's pass some 0.02
 ms of the GPU at `Medium` and `High`, the noise between two runs, and in `shaders_reflections`,
 whose lights cast none, nothing that can be read. A mesh that moves bounces light as the boxes the
-field holds it as and none of the light it gives off, and the light near the camera is blended with
-the frame before's so it holds still as the camera moves, the frame before's held within the spread
-of this frame's light around each point, so where a light changed the bounce follows it at once. A
-block's side lit only by a red wall's bounce comes within a tenth of its new light in the frame a
-lamp is brought in, where it took seven frames. With the camera sliding the bounce adds nothing
-that can be read to the picture's change, −0.03 levels a frame and 0.03 without the frame before's
-light, where it added 0.33 and 1.61 while a ray of the screen's probes read the world's probes from
-the one texel it fell in; and after a walk or a turn the light has settled by the fifth frame, which
-changes 0.07 levels after a walk of four blocks in a white room lit by a glowing block, and 0.06
-after a quarter turn, where it changed 0.19 and 0.84, as `GlobalIlluminationTests` reads them on an
-RTX 4070.
-In Wick's first doorway the hold costs nothing that can be read, the bounce taking 0.229 ms at `Low`
-and 0.359 at `High` with it and without, as `./e3d command profile` gives `global_illumination` with
-the frame rate unlimited. A render texture that draws models through a camera, as each half of a
-split screen, has screen probes of its own, traced, blended and held as the window's are in the same
-frame, so it shows the light that bounced as the window would: two views of `games/Sumo` at 640 by
-720 take 1.14 ms of the GPU at `Low` between them, as `./e3d command profile` gives `targets`, where
-they took 0.62 reading the world's probes alone, some 0.26 ms a view. A reflection probe's faces
-take the light that bounced from the world's probes alone, and where the window draws no model, as a
-game that draws its scene into a texture at a low size and shows the texture, the field follows the
-first texture's camera and holds its models. `Config.GlobalIllumination` sets the same for an app
-made from a `Config`.
+field holds it as and none of the light it gives off, unless it is small enough to light what is
+around it as a glowing block does, which a moving one does too, and the light near the camera is
+blended with the frame before's so it holds still as the camera moves, the frame before's held
+within the spread of this frame's light around each point, so where a light changed the bounce
+follows it at once. A block's side lit only by a red wall's bounce comes within a tenth of its new
+light in the frame a lamp is brought in, where it took seven frames. With the camera sliding the
+bounce adds nothing that can be read to the picture's change, −0.03 levels a frame and 0.03 without
+the frame before's light, where it added 0.33 and 1.61 while a ray of the screen's probes read the
+world's probes from the one texel it fell in; and after a walk or a turn the light has settled by
+the fifth frame, which changes 0.07 levels after a walk of four blocks in a white room lit by a
+glowing block, and 0.06 after a quarter turn, where it changed 0.19 and 0.84, as
+`GlobalIlluminationTests` reads them on an RTX 4070. In Wick's first doorway the hold costs nothing
+that can be read, the bounce taking 0.229 ms at `Low` and 0.359 at `High` with it and without, as
+`./e3d command profile` gives `global_illumination` with the frame rate unlimited. A render texture
+that draws models through a camera, as each half of a split screen, has screen probes of its own,
+traced, blended and held as the window's are in the same frame, so it shows the light that bounced
+as the window would: two views of `games/Sumo` at 640 by 720 take 1.14 ms of the GPU at `Low`
+between them, as `./e3d command profile` gives `targets`, where they took 0.62 reading the world's
+probes alone, some 0.26 ms a view. A reflection probe's faces take the light that bounced from the
+world's probes alone, and where the window draws no model, as a game that draws its scene into a
+texture at a low size and shows the texture, the field follows the first texture's camera and holds
+its models. `Config.GlobalIllumination` sets the same for an app made from a `Config`.
 
 `DrawBounceWindow()`, called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows
 what the light that bounces holds while a scene's light is worked on. It gives what `gi.state`

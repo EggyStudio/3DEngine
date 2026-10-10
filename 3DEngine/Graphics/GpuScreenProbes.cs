@@ -11,8 +11,9 @@ internal sealed class GpuScreenProbes : IDisposable
 
     internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
         ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
-        IImage lastGeometry, IImageView lastGeometryView)
+        IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen)
     {
+        GlowSeen = glowSeen;
         History = history;
         HistoryView = historyView;
         LastGeometry = lastGeometry;
@@ -65,6 +66,14 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>The probes' surfaces of the frame before, copied from <see cref="GeometryView"/>, which tell where its light may be taken.</summary>
     public IImageView LastGeometryView { get; }
 
+    /// <summary>
+    /// How much of each glow light each probe's surface sees past what the field holds between,
+    /// four bits a light in the order of the bounce's lights, eight words of them, and three of the
+    /// light of those too faint to be marched to by their faces, which the model pass takes each
+    /// pixel's from the probes around it rather than marching from every pixel to every light.
+    /// </summary>
+    public IBuffer GlowSeen { get; }
+
     /// <summary>A sampler that reads a texel as it is.</summary>
     public ISampler Sampler { get; }
 
@@ -73,6 +82,9 @@ internal sealed class GpuScreenProbes : IDisposable
 
     /// <summary>The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes' layout, and the frame before's camera and eye.</summary>
     public const int ViewBytes = 3 * 64 + 5 * 16;
+
+    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twelve words (GlowSeenWords in glow.slang).</summary>
+    public const int GlowSeenBytes = 12 * 4;
 
     /// <inheritdoc />
     public void Dispose() => _dispose();

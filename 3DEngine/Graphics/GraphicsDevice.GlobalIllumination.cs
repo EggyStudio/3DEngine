@@ -61,8 +61,11 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>The lights, as <c>gi.slang</c>'s <c>GiLights</c>.</summary>
     public IBuffer Lights { get; }
 
-    /// <summary>The bytes of <see cref="Lights"/>: the sun, the sky and the counts, sixteen lights, and four cascades' corners of the frame before.</summary>
-    public const int LightsBytes = 64 + 16 * 64 + 4 * 16;
+    /// <summary>
+    /// The bytes of <see cref="Lights"/>: the sun, the sky and the counts, sixteen lights, four
+    /// cascades' corners of the frame before, and the glow lights (<see cref="GlowLights"/>).
+    /// </summary>
+    public const int LightsBytes = GlowLights.Offset + GlowLights.Size;
 
     /// <summary>
     /// How far each probe's rays reached along eight by eight directions, every cascade, before a
@@ -143,7 +146,7 @@ internal sealed unsafe partial class GraphicsDevice
             _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage], 16);
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer], 16);
             _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
@@ -454,6 +457,7 @@ internal sealed unsafe partial class GraphicsDevice
         Name(history, "Screen probes' light, the frame before");
         Name(lastGeometry, "Screen probes' surfaces, the frame before");
         var view = CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
+        var glowSeen = CreateBuffer(new BufferDesc((ulong)(across * down) * GpuScreenProbes.GlowSeenBytes, BufferUsage.Storage | BufferUsage.TransferDst));
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
@@ -465,6 +469,7 @@ internal sealed unsafe partial class GraphicsDevice
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
         foreach (var image in images) _deviceApi.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
+        _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)glowSeen).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead))]);
         EndSingleTimeCommands(cmd);
@@ -474,10 +479,11 @@ internal sealed unsafe partial class GraphicsDevice
         {
             sampler.Dispose();
             view.Dispose();
+            glowSeen.Dispose();
             foreach (var made in new IDisposable[] { irradianceView, geometryView, blendedView, historyView, lastGeometryView,
                          irradiance, geometry, blended, history, lastGeometry })
                 made.Dispose();
-        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView);
+        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen);
     }
 
     /// <summary>
@@ -517,6 +523,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(set, 9, VkDescriptorType.StorageImage, ((VulkanImageView)screen.GeometryView).View, null, VkImageLayout.General);
         run.Image(set, 11, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)gi.ReachView).View, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
         run.Buffer(set, 10, VkDescriptorType.UniformBuffer, screen.View);
+        run.Buffer(set, 13, VkDescriptorType.StorageBuffer, screen.GlowSeen);
         ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, 0, 0];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
@@ -555,6 +562,8 @@ internal sealed unsafe partial class GraphicsDevice
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             readers, VkAccessFlags2.ShaderRead))]);
+        // Which glow lights each probe sees, which the model pass reads.
+        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead);
         return run;
     }
 

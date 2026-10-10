@@ -529,12 +529,14 @@ public sealed class SceneFieldTests : IDisposable
         // behind it, which the field blends with those in front where it is read at the sheet,
         // are painted by the wall, nearer them, and give off what the sheet lends them. Lent to the
         // cells within half a cell at a share of its thickness over the cell, the face read 1.27
-        // of the sheet's 2, as this test measured on an RTX 4070.
+        // of the sheet's 2, as this test measured on an RTX 4070. The sheet is wider than twice
+        // the probes' spacing, so the bounce leaves it to the rays and does not carry it as a glow
+        // light, whose cells lend nothing.
         var config = Config.Default.WithWindow("scene field sheet", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f);
         var wall = LoadModelFromMesh(GenMeshCube(4, 3, 0.3f));
-        var sheet = LoadModelFromMesh(GenMeshCube(1.2f, 1.2f, 0.02f));
+        var sheet = LoadModelFromMesh(GenMeshCube(2.6f, 2.6f, 0.02f));
         sheet.Materials[0].Emissive = Color.White;
         sheet.Materials[0].EmissiveIntensity = 2;
         var camera = new Camera3D(new Vector3(0, 1.5f, 4), new Vector3(0, 1.5f, 0), Vector3.UnitY, 45);
