@@ -130,7 +130,7 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light that bounces again from the frame before's probes, or every cascade but one: gi.toggle <history|filter|screen|merge|again|cascade> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of the light that bounces out, to see what it gives: the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light that bounces again from the frame before's probes, the bounce following a light that goes out, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|cascade> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
@@ -143,10 +143,11 @@ internal static class SceneFieldCommands
             case "screen": settings.ScreenOff = !on; break;
             case "merge": settings.MergeOff = !on; break;
             case "again": settings.AgainOff = !on; break;
+            case "follow": settings.FollowOff = !on; break;
             case "cascade":
                 settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
                 break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge, again and cascade";
+            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow and cascade";
         }
         return Switches(settings);
     }
@@ -160,6 +161,7 @@ internal static class SceneFieldCommands
         if (settings.ScreenOff) off.Add("the screen's probes");
         if (settings.MergeOff) off.Add("the merge");
         if (settings.AgainOff) off.Add("the light that bounces again");
+        if (settings.FollowOff) off.Add("the bounce following a light out");
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         return off.Count == 0 ? "every part of the light that bounces is on" : $"left out: {string.Join(", ", off)}";
     }

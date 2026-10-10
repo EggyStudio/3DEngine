@@ -44,6 +44,13 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether the surfaces the rays meet take none of the light that bounced to them the frame before, so light bounces once, as <c>gi.toggle again off</c> sets it.</summary>
     public bool AgainOff { get; set; }
 
+    /// <summary>
+    /// Whether the world's probes take the whole of the light that bounced the frame before however
+    /// their own light falls, so the light that bounced on from a light that went out fades over
+    /// the frames each bounce takes, as <c>gi.toggle follow off</c> sets it.
+    /// </summary>
+    public bool FollowOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 
@@ -143,6 +150,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
     private CubeMap? _black;
     private long _frame;
+    // Where each cascade of the field lay the frame before, and whether every one lay where it lay
+    // the frame before that, which say whether the probes' own light of the frame before is the
+    // same probes'.
+    private Vector3?[] _origins = [];
+    private bool _stillBefore;
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
 
     /// <summary>The probes being traced, or null where light does not bounce.</summary>
@@ -252,8 +264,22 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var (view, sampler) = environment is not null ? (environment.View, environment.Sampler) : (_black.View, _black.Sampler);
         var lights = Lights(renderWorld, environment is not null);
         var switches = renderWorld.TryGet<GlobalIlluminationSettings>()!;
+
+        // Each cascade lying where it lay the frame before, its probes the same, so a probe's own
+        // light of the frame before is its own, and every probe's own light summed the two frames
+        // before covering the same probes where none moved between them.
+        var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
+        var origins = new Vector3?[cascades];
+        var lying = new bool[cascades];
+        for (int c = 0; c < cascades; c++)
+        {
+            origins[c] = plan?.BuiltOrigin(c);
+            lying[c] = origins[c] is not null && c < _origins.Length && _origins[c] == origins[c];
+        }
+        var alike = _stillBefore;
+        (_origins, _stillBefore) = (origins, lying.All(still => still));
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
-            switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged)));
+            switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying, alike)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval theirs.
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
@@ -434,6 +460,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         foreach (var state in _targets.Values) _retired.Add((_frame, state));
         _targets.Clear();
         (_gi, _screen, _history, _rays, _lastScreen) = (null, null, null, null, null);
+        (_origins, _stillBefore) = ([], false);
         HistoryViewProjection = null;
     }
 

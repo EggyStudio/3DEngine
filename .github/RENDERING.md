@@ -597,7 +597,16 @@ shadows only where a trace toward it gets through too (`hiddenLampLight`), given
 has a light, what a white surface facing it returns, and its color over pi times the light that
 bounced to it the frame before, which the probes hold as the light reaching a face, blended from
 the probes around it that it sees, a trace through the field to each in front of it
-(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced
+(`bouncedSeenAt`), with the light it gives off (`shadeProbeHit` in `gi.slang`). That light that
+bounced is taken at a share each probe keeps, its whole but the frame after the probe's own light,
+what its rays brought straight from the sun, the lights and what gives off light, fell by a fifth
+or rose by a quarter, when it is the share its own light kept, channel by channel, at most four
+times; the trace sums each workgroup of a probe's rays' own light and all they brought back, and
+the gather adds the sums up and sets the share (`gi_ambient.slang`). A probe whose own light is
+under a quarter of all its rays bring, lit by light that bounced around a corner, is judged by
+every probe's own light summed instead, and a cascade that moved since the frame before keeps the
+whole. So the light that bounced on from a light that went out goes with it the frame after,
+where it bounced on over the frames each bounce takes (`gi.toggle follow off`). A ray is traced
 from its probe, so a probe a little above a floor does not bring back the light under it for the
 cascade below to take, and one that meets a surface before its interval begins brings back that
 surface's light for its own probe's faces, marked so the merge of the cascade below reads it as
@@ -1062,6 +1071,41 @@ quality where it read +7, +6 and +8%, and the strip's room −46, −44 and −4
 0.57 and 0.66 ms. The look, from here read over five slides of the camera, along x either way, up,
 ahead and askew: the bounce adds 0.87 levels a frame to the picture's change, 0.51 to 1.28 by
 slide, where it adds 3.10 without the history, 1.39 to 3.92, and the panel's room fades as it did.
+
+The tenth holds the fade. Each frame a probe's rays take the light that bounced to what they meet
+from the probes of the frame before, so once a light goes out what it bounced goes on bouncing,
+less each frame by what the walls send on: a glowing panel's room in a render texture fell under a
+level of light 30 frames after the panel went dark at `Low` and 28 at `High`, and a lamp carried
+across a room split by a wall left light behind it for 14 and 13 frames, a quarter of a level a
+channel over where the picture settles. A probe now sums its own light, what its rays bring
+straight from the sun, the lights and what gives off light, with all they bring, a workgroup of 64
+rays at a time in the trace, added up in the gather, and where its own light fell by a fifth or
+more against the frame before's, the next frame's rays take the light that bounced at the share its
+own light kept, channel by channel. A probe whose own light is under a quarter of all its rays
+bring is judged by every probe's own light summed instead, since its own light is too little of
+its light to say what went out. The two do different work. Judged by its own light alone, the
+light the lamp leaves behind goes in 8 and 7 frames, and the panel's room in 29 and 26, since most
+of the room's probes are lit more by the panel's light bounced than by the panel, under the
+quarter; judged by the sum alone, the room goes in 2 frames at both qualities and the lamp's trail
+stays at 14 and 13, since a lamp carried keeps the sum. Together the room goes under a level 2
+frames after the panel and the lamp's trail in 8 and 7 (`GlobalIlluminationTests`, the room read
+each frame and the lamp's picture against where it settles 90 frames on), and a corridor around a
+corner from a lit room, whose probes see none of its lamp, falls to nothing within a frame of the
+lamp going out, where taken whole it kept 156 of its 241 levels 24 frames on. A share for a fall
+alone made the light the lamp has not yet brought to its new side worse, 10.3 levels short the
+frame after where 8.4 were taken whole, the bounce left on the old side gone before the new side's
+came, and a light that flickers would have its bounce cut at each fall and kept at each rise, so a
+rise by a quarter or more is taken at its share as well, four times the bounce at most, and the
+light not yet come is 8.1 levels short the frame after and goes in 12 and 11 frames where it went
+in 15 and 13. Where nothing changes the shares are whole and every room reads as it did, the hold on
+or off (`gi.toggle follow off`); the sums of a cascade that moved since the frame before are not
+set against each other, and the five slides' crawl holds to the hundredth, 0.86 levels a frame
+(0.51 to 1.28) against 3.10 unheld (1.39 to 3.91), which `GlobalIlluminationTests` now reads
+over the five. Blocks circling a lit room with the camera still change the picture 1.08 levels a
+frame at `Low` with the hold and 1.06 without, and 0.97 at `High` either way, so the field's stamps
+of moving meshes do not set it off. The bounce costs 0.444, 0.585 and 0.676 ms where it cost 0.438,
+0.576 and 0.661, timed one after the other on the bounce rooms' Cornell view; summed by one thread a
+probe in the gather, the 256 rays of the finer cascades cost `High` 0.022 ms.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

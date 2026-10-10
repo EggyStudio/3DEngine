@@ -12,7 +12,9 @@
 # view-<n>.png, its references view-<n>-reference-<bounces>.png with the files gi.reference writes
 # beside each, view-<n>-<quality>-<bounces>.txt, what gi.compare said, with each reference's
 # difference picture the last quality's, and view-<n>-High-probe.txt, what gi.probe said with every
-# bounce. A GPU that traces rays is needed, as the references are traced through them.
+# bounce. A GPU that traces rays is needed, as the references are traced through them. The
+# examples are built first, since ./e3d runs whatever build of them is there, and a build older than
+# the files measured them as they were.
 set -euo pipefail
 
 folder="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
@@ -21,6 +23,7 @@ qualities="${3:-Low Medium High}"
 bounces="${4:-all}"
 cd "$(dirname "$0")/.."
 mkdir -p "$folder"
+dotnet build 3DEngine.Examples --nologo -v q > /dev/null || { echo "the examples did not build, so nothing was measured" >&2; exit 1; }
 
 ./e3d open shaders_bounce_rooms --hidden --quiet
 trap './e3d stop --quiet || true' EXIT

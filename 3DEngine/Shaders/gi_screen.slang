@@ -231,13 +231,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 light;
             float3 hit;
             float leftAt;
+            // What the surface sends on without the light that bounced, which the screen's probes
+            // keep no account of.
+            float3 own;
             if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
-                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false);
+                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
             else
             {
                 float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
                 light = t >= 0.0
-                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false)
+                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(p, around, n, way, seen).rgb;
             }
             sum += light * weight;

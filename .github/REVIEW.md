@@ -10,21 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `55e8b865`. C's ninth fix is whole. The lend reads the area of the emitter's faces
-near each cell, those a closed mesh turns toward the cell and every face of a mesh with no inside,
-each triangle cut to a square a cell wide laid on its plane about the cell's middle (Sutherland and
-Hodgman, seven corners at most) and its area projected along each axis, summed over the faces in
-1024ths of a cell's face beside the most light any gives off, and the resolve takes the share along
-the axis the faces cover most of, a whole face at most, so a strip's front and top faces lend a cell
-beside it once and not twice; the reach is a cell where it was half, every cell a point on the
-emitter is blended from, which is where the sheet's loss lay once measured, the cells inside the
-wall behind it exactly half a cell off. The buffer is six words a cell, 6 MB, made the first time a
-build has such an emitter and another bound in its place until then, and disposed with the field. A
-sheet 0.02 thick on a wall gives off its 2 where it lies, read across its face from the field's
-blended glow by a new test with a bound of 1.8, where it gave off 1.27; the strip keeps its 0.4;
-every room reads as it did to the point; the two builds a frame take 0.346 ms where they took 0.344.
-Right, measured first and the second cause found by it, the share what was asked and the clip exact
-rather than a guess at it. The guide's memory line takes the 6 MB at D, as the reply says. The
+Reviewed up to `149cfc8d`. A correction, and the right kind: the rooms' numbers and the build's
+given with `55e8b865` were a build of `c9da36e9`'s, the examples not built again after an A/B put
+the files back, and the fresh build says the two builds a frame take 0.350 ms where the first share
+took 0.343, a panel 0.06 thick under a ceiling gives off its whole 2 at its face where it gave 1.8,
+and the ceiling a tenth past the panel's edge gives off a fifth of it where it gave none, from the
+cells whose squares take in part of the face, so the Cornell box reads +9, +7 and +10% where it read
++7, +6 and +8% and the strip's room −46, −44 and −42%; the test, the suite and lavapipe ran on the
+right build, since `dotnet test` builds. Right to say so unasked, and §4 carries the fresh numbers.
+The ceiling's fifth past the edge is the field's cell speaking, a tenth of a unit under a cell of
+0.15, the price of the sheet's whole light, and D's tiers read the Cornell box with it. One thing,
+so that it does not happen again: `build/bounce-rooms.sh` builds the examples before it measures, or
+refuses a build older than the tree's newest source and says so, so a number in §4 is never a stale
+build's; in item 2. The tenth next.
+
+Before it, C's ninth fix came to be whole (`55e8b865`). The lend reads the area of the emitter's
+faces near each cell, those a closed mesh turns toward the cell and every face of a mesh with no
+inside, each triangle cut to a square a cell wide laid on its plane about the cell's middle
+(Sutherland and Hodgman, seven corners at most) and its area projected along each axis, summed over
+the faces in 1024ths of a cell's face beside the most light any gives off, and the resolve takes the
+share along the axis the faces cover most of, a whole face at most, so a strip's front and top faces
+lend a cell beside it once and not twice; the reach is a cell where it was half, every cell a point
+on the emitter is blended from, which is where the sheet's loss lay once measured, the cells inside
+the wall behind it exactly half a cell off. The buffer is six words a cell, 6 MB, made the first
+time a build has such an emitter and another bound in its place until then, and disposed with the
+field. A sheet 0.02 thick on a wall gives off its 2 where it lies, read across its face from the
+field's blended glow by a new test with a bound of 1.8, where it gave off 1.27; the strip keeps its
+0.4; every room reads as it did to the point; the two builds a frame take 0.346 ms where they took
+0.344. Right, measured first and the second cause found by it, the share what was asked and the clip
+exact rather than a guess at it. The guide's memory line takes the 6 MB at D, as the reply says. The
 suite: 1,592 passed; on lavapipe 337 passed and 6 skipped with no validation error. The tenth next,
 the fade's hold, then the eleventh, then D.
 
@@ -49,30 +63,6 @@ sheet its 1, with such a sheet in the test. And the lend's buffer is 3 MB a fiel
 cell, which the guide's line on the field's memory gains at D. The suite: 1,591 passed; on lavapipe
 336 passed and 6 skipped with no validation error. The sheet next, then the tenth, the fade's hold,
 then the eleventh, then D.
-
-Before it, C's eighth fix came to be read, the step where the screen's probes ended: a screen probe
-on a surface past the field's first cascade takes the light from beyond its rays from the second
-cascade's merge, the probes around it, those it sees and the texel it reads taken in that cascade,
-its directions in the push and its image bound beside the first's, the first again where there is
-one cascade; a texel of the second whose ray met a surface before its interval holds that surface's
-light, alpha a half since the third fix, and counts as light here, the way along it from that probe,
-which also fills the way between the screen's rays' end at the first spacing and the second's
-interval's start at twice it. A new test draws a floor fifty units long at Low and reads the
-screen's own images: 161 of 182 probes on it hold light where 106 did, bound 80%; the grazing
-ceiling's largest row-to-row jumps fall from 93.8% of the light to 41.8% and the stairs are gone;
-the Cornell box +8% → +5% at Medium, the corridor 3 to 5 points further under at −21%, the rest a
-point or two; 0.028, 0.013 and 0.017 ms. Right, and the test reads the probes' own images rather
-than a picture, the measurement B asked for. Two things. The crawl's numbers do not agree with
-themselves: §4's general paragraph gives 1.23 levels a frame after the sixth and the seventh's
-paragraph 1.71 after the same sixth, a third apart with nothing changed between, so the hundredths
-between 1.43 and 1.48 say nothing; the crawl is read as the mean of several slides with its spread
-beside it, in the test as in §4, before the tenth is measured by it, and §4 says which of the two
-the sixth left. And the window's room at −53%, the grazing floor at −37% and the corridor at −21%
-stand after eight fixes, the three the owner saw as too dim at a distance, so an eleventh, before D,
-reads them at the probes with `gi.probe` against the one-bounce and two-bounce references, as the
-third and sixth were found, names the cause, and fixes it where it is a fault and not the method's
-limit, which is written with its number. The suite: 1,590 passed; on lavapipe 335 passed and 6
-skipped. C9 next, the strip, then the tenth and the eleventh, then D.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -184,7 +174,9 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070, since both moved there and both
    are the look the owner judges, and a fix that lengthens the fade or the crawl says why, the crawl
    read as the mean of several slides with its spread beside it, since the sixth's was given as 1.23
-   and as 1.71.
+   and as 1.71. `build/bounce-rooms.sh` builds the examples before it measures, or refuses a build
+   older than the tree's newest source and says so, since `55e8b865`'s numbers were a stale build's
+   and a correction followed.
 
    **D, the end.** Tiers re-measured and the guide's table rewritten, RENDERING.md §4 and TODO.md's
    entry, and a test holding the Cornell box and the level's views at each tier to their references
@@ -465,12 +457,35 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-C9's share, corrected. The numbers given with `55e8b865` for the rooms and the build were taken
-from a build of `c9da36e9`, since the examples were not built again after its files were put back.
-Built again, the area share takes the bounce rooms' two builds a frame 0.350 ms where the first
-share took 0.343, twice each; a panel 0.06 thick under a ceiling, as the Cornell box's, gives off
-its whole 2 at its face where it gave off 1.8, and the ceiling a tenth past its edge a fifth of it
-where it gave off none, from the cells whose squares take in part of its face, so the Cornell box
-reads +9, +7 and +10% where it read +7, +6 and +8%, the strip's room −46, −44 and −42%, the rest as
-they were. RENDERING.md §4 says so. The test, the suite and lavapipe ran on the right build, as
-`dotnet test` builds.
+C10, the fade's hold. Each world probe sums its own light, what its rays bring straight from the
+sun, the lights and what gives off light, with all they bring, each workgroup of 64 rays in shared
+memory in the trace and the sums added in the gather over the shares of the sphere, and where its
+own light fell by a fifth or rose by a quarter against the frame before's, the next frame's rays
+take the light that bounced at the share its own light kept, channel by channel, at most four
+times. A probe whose own light is under a quarter of all it brings is judged by every probe's own
+light summed instead, a word a frame's parity added to by the gather; a cascade that moved since
+the frame before keeps the whole, and so do the sums of two frames a cascade moved between. The
+frame's lights and glow summed on the CPU, as the plan had it, would set a sun's watts against a
+panel's radiance, so the probes' own light stands in for them in one unit. Measured, each half does
+its own work. Judged by its own light alone the lamp carried across a split room leaves light behind
+it for 8 and 7 frames at Low and High where it left it for 14 and 13, and the panel's room fades in
+29 and 26 frames where it faded in 30 and 28, its probes lit more by the panel's light bounced than
+by the panel; judged by the sum alone the room goes in 2 frames at both and the lamp's trail stays
+at 14 and 13; together the room goes in 2 and the trail in 8 and 7, and a corridor around a corner
+from a lit room falls to nothing within a frame of its lamp going out, where it kept 156 of its 241
+levels 24 frames on. A share for a fall alone left the light not yet come to the lamp's new side
+10.3 levels short the frame after where 8.4 were taken whole, and would cut a flickering light's
+bounce at each fall and keep it at each rise, so a rise counts too, and that light is 8.1 short and
+goes in 12 and 11 frames where it went in 15 and 13. Where nothing changes the shares are whole: the
+rooms read as they did with the hold on or off, the five slides' crawl is 0.86 levels a frame (0.51
+to 1.28) against 3.10 unheld (1.39 to 3.91) to the hundredth, and blocks circling a lit room change
+the picture 1.08 levels a frame with the hold and 1.06 without at Low, 0.97 either way at High. The
+bounce costs 0.444, 0.585 and 0.676 ms where it cost 0.438, 0.576 and 0.661; the first version
+summed 256 rays a probe on one gather thread and cost High 0.022 ms. Tests: the panel's room goes
+under a level within 2 frames at Low and High and lingers with `gi.toggle follow off`, the carried
+lamp's trail goes by frame 10 at both, and the slide test reads the crawl over the five slides, its
+mean held under six tenths of the unheld; the render-texture panel test reads the room 4 frames
+after the panel where it waited 48. GlobalIlluminationTests passed 800 lines and its tests over
+frames went to `GlobalIlluminationTests.Frames.cs`. `build/bounce-rooms.sh` builds the examples
+before it measures and stops where they do not build. The suite 1,596 passed. C11 next, the window,
+the grazing floor and the corridor at the probes.

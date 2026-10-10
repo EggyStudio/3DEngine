@@ -93,8 +93,9 @@ each of its six faces. `gi.show` draws what the light holds over the window: `ti
 second cascade's, `difference ref.png` the frame against a reference, and `none` the window again.
 `gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and `screen` do
 their parts and `again` the light that bounces again from the frame before's probes, so light
-bounces once, `gi.toggle cascade 2` keeps the third cascade's light alone, and `on` or `-1` puts
-each back.
+bounces once, `follow` the probes taking the light that bounced at the share their own light kept,
+so what a light switched off bounced fades over the frames each bounce takes, `gi.toggle cascade 2`
+keeps the third cascade's light alone, and `on` or `-1` puts each back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

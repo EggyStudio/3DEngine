@@ -322,6 +322,37 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
 // gi_ambient.slang lays them out.
 public static const int ReachTexels = 8;
 
+// How much of the frame before's own light a probe's may keep before the light that bounced is
+// taken at the share it kept: a fall by a fifth or more, which a light switched off or carried
+// away gives and the field's cells settling after a camera moves do not, and a rise by a quarter
+// or more, its inverse, so a light that flickers moves the light it bounces down and up alike.
+public static const float Falls = 0.8;
+
+// The most a probe's light that bounced is raised by in a frame its own light rose by much, so a
+// probe its own light barely lit before gains no more than four times its bounce at once.
+public static const float Rises = 4.0;
+
+// The light a color gives the eye, by Rec. 709's weights.
+public float luminance(float3 c)
+{
+    return dot(c, float3(0.2126, 0.7152, 0.0722));
+}
+
+// The share of the light that bounced a probe takes the frame after its own light went from
+// before to now, the same share as its own light kept where that fell or rose by much, and the
+// whole of it otherwise.
+public float3 followed(float3 now, float3 before)
+{
+    float3 fell = now / max(before, 1e-6);
+    return select(fell < Falls || fell > 1.0 / Falls, clamp(fell, 0.0, Rises), float3(1.0));
+}
+
+// How much of the light a probe's rays bring back must come straight from the sun, the lights and
+// what gives off light for the probe to be judged by its own light, a quarter, where a probe lit
+// mostly by light that bounced, as one down a corridor from a lit room, is judged by every probe's
+// own light summed, since its own light is too little of its light to say what went out.
+public static const float OwnShare = 0.25;
+
 // How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n: 1
 // where p, taken three tenths of the probes' spacing off the surface along n, lies nearer the probe
 // than its rays reached that way the frame before, falling to 0 over half the spacing past it, as
@@ -469,15 +500,18 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // do not, because marching to the probes at each of their hits cost 0.10 to 0.15 ms of the
 // bounce's 0.3 to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held
 // 3 levels of its light without it, where it held 247 before either. The model pass's reflections call
-// shadeHit, which hides the lamps as this does and marches to no probe.
+// shadeHit, which hides the lamps as this does and marches to no probe. The light that bounced is
+// taken at kept's share of it, and own holds the light the surface sends on of what reaches it
+// straight from the sun and the lights, with the light it gives off, which a world probe weighs
+// the frame before's light by (gi_ambient.slang).
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
-    float3 p, float probes, float spacing, float cascades, bool seen)
+    float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades);
-    float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi + bounced * lights.counts.z;
-    return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
+    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) + surfaceGlow(glow, albedo, info, p);
+    return own + color / Pi * bounced * (lights.counts.z * kept);
 }
 
 // The light a surface the field holds at p sends back along a ray that met it: its color over pi

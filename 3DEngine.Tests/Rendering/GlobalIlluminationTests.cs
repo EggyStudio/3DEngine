@@ -7,10 +7,11 @@ namespace Engine.Tests.Rendering;
 /// <summary>
 /// The light that bounces: how many cascades and directions each quality traces, and frames drawn
 /// offscreen in which a red wall tints the block beside it, a glowing panel lights its room, and
-/// glossy surfaces reflect what is on the screen and what is behind the camera.
+/// glossy surfaces reflect what is on the screen and what is behind the camera, with in
+/// <c>GlobalIlluminationTests.Frames.cs</c> how the light holds still and follows its lights over frames.
 /// </summary>
 [Collection("Engine3D")]
-public sealed class GlobalIlluminationTests : IDisposable
+public sealed partial class GlobalIlluminationTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-gi-");
     private int _captures;
@@ -348,60 +349,15 @@ public sealed class GlobalIlluminationTests : IDisposable
 
         SetGlobalIllumination(GlobalIllumination.Low);
         var glowing = Mean(Drawn(8, SceneFieldPlan.SettleFrames + 10), 0, 0, 160, 96);
-        // The panel's light bounces on from the frame before's probes after it goes dark, fading
-        // over frames, 22.5 levels of it left 18 frames on and none 48 frames on, as this test
-        // measured it on an RTX 4070, so the room is read once it has faded.
-        var dark = Mean(Drawn(0, 48), 0, 0, 160, 96);
+        // The light that bounced from the panel goes with it the frame after every probe's own light
+        // summed falls (The_Light_That_Bounced_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out).
+        var dark = Mean(Drawn(0, 4), 0, 0, 160, 96);
 
         glowing.X.Should().BeGreaterThan(dark.X + 20, $"the panel's light reaches the room in the texture by bouncing, {glowing} against {dark}");
         dark.X.Should().BeLessThan(20, $"and with the panel dark nothing lights it, {dark}");
         UnloadRenderTexture(target);
         UnloadModel(slab);
         UnloadModel(panel);
-    }
-
-    [NeedsVulkanFact]
-    [Trait("Category", "Render")]
-    public void The_Light_That_Bounces_Follows_A_Lamp_Brought_Into_The_Room_Within_Two_Frames()
-    {
-        // The red wall and the block of the test above, the lamp held out of its reach and brought
-        // in at frame 30, the camera between the two looking at the block's side facing the wall,
-        // which only the wall's light reaches, so the screen's probes stand on it. The side is read
-        // each frame from frame 28, and the frames after 30 it takes to come and stay within a
-        // tenth of the way from its light before to its light at frame 59 are how far the bounce
-        // lags the lamp, seven where each frame blended a fifth of its light.
-        Open();
-        SetGlobalIllumination(GlobalIllumination.Low);
-        var lamp = CreatePointLight(new Vector3(0.5f, 60, 0.8f), Color.White, 6, range: 10);
-        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        var reads = new List<(int Frame, string Path)>();
-        for (int frame = 0; frame < 60; frame++)
-        {
-            if (frame == 30) SetLightPosition(lamp, new Vector3(0.5f, 2.6f, 0.8f));
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(new Camera3D(new Vector3(-1.3f, 0.8f, 0.9f), new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 50));
-            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
-            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
-            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
-            EndMode3D();
-            if (frame >= 28)
-            {
-                reads.Add((frame, Path.Combine(_folder.Path, $"{_captures++}.png")));
-                TakeScreenshot(reads[^1].Path);
-            }
-            EndDrawing();
-        }
-        UnloadModel(slab);
-        CloseWindow();
-        UseApp(null);
-
-        var side = reads.Select(read => (read.Frame, Red: Mean(LoadImage(read.Path), 60, 30, 40, 36).X)).ToList();
-        var (before, after) = (side[0].Red, side[^1].Red);
-        (after - before).Should().BeGreaterThan(20, $"the lamp brought in lights the wall, whose light reaches the side, {before:0} to {after:0}");
-        var lag = side.First(read => read.Frame >= 30 && side.Where(later => later.Frame >= read.Frame)
-            .All(later => Math.Abs(later.Red - after) <= 0.1 * (after - before))).Frame - 30;
-        lag.Should().BeLessThanOrEqualTo(2, $"the bounce follows the lamp, the side reading {string.Join(", ", side.Select(read => $"{read.Red:0}"))} from frame 28");
     }
 
     [NeedsVulkanFact]
@@ -448,71 +404,6 @@ public sealed class GlobalIlluminationTests : IDisposable
         Vector3.Distance(inWindow, inTexture).Should().BeLessThan(6, $"and reaches it alike in the render texture, {inTexture} against {inWindow}");
         UnloadRenderTexture(texture);
         UnloadModel(slab);
-    }
-
-    [NeedsVulkanFact]
-    [Trait("Category", "Render")]
-    public void The_Light_That_Bounces_Holds_Still_As_The_Camera_Slides()
-    {
-        // A Cornell box the camera slides across a hundredth of a unit a frame, the picture's change
-        // from frame to frame with light bouncing set against its change with none. The screen's
-        // probes stand on whatever surface each tile's middle shows, so as the camera slides they
-        // slide over the surfaces and their light changes with them, which blending each with the
-        // frame before's where its surface was holds still.
-        double Change(GlobalIllumination quality, bool held = true)
-        {
-            Open();
-            SetGlobalIllumination(quality);
-            GetApp().World.Resource<GlobalIlluminationSettings>().HistoryOff = !held;
-            CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
-            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-            var shots = new List<string>();
-            for (int frame = 0; frame < 50; frame++)
-            {
-                var x = frame < 30 ? 0 : (frame - 30) * 0.01f;
-                BeginDrawing();
-                ClearBackground(Color.Black);
-                BeginMode3D(new Camera3D(new Vector3(x, 2.5f, 8), new Vector3(x, 2.4f, 0), Vector3.UnitY, 45));
-                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
-                DrawModelEx(slab, new Vector3(0, 5.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
-                DrawModelEx(slab, new Vector3(0, 2.5f, -3.15f), Vector3.UnitY, 0, new Vector3(6, 5, 0.3f), Color.White);
-                DrawModelEx(slab, new Vector3(-3.15f, 2.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 5, 6), new Color(200, 30, 30));
-                DrawModelEx(slab, new Vector3(3.15f, 2.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 5, 6), new Color(30, 200, 30));
-                DrawModelEx(slab, new Vector3(-1, 1, -0.5f), Vector3.UnitY, 20, new Vector3(1.5f, 2, 1.5f), Color.White);
-                EndMode3D();
-                if (frame >= 36) shots.Add(Path.Combine(_folder.Path, $"{_captures++}.png"));
-                if (frame >= 36) TakeScreenshot(shots[^1]);
-                EndDrawing();
-            }
-            UnloadModel(slab);
-            CloseWindow();
-            UseApp(null);
-            var changes = new List<double>();
-            for (int i = 1; i < shots.Count - 2; i++)
-            {
-                var (a, b) = (LoadImage(shots[i - 1]), LoadImage(shots[i]));
-                double sum = 0;
-                int n = 0;
-                for (int y = 8; y < 88; y++)
-                    for (int x = 16; x < 144; x++, n += 3)
-                    {
-                        var (p, q) = (GetImageColor(a, x, y), GetImageColor(b, x, y));
-                        sum += Math.Abs(p.R - q.R) + Math.Abs(p.G - q.G) + Math.Abs(p.B - q.B);
-                    }
-                changes.Add(sum / n);
-            }
-            return changes.Average();
-        }
-
-        // What the bounce adds to the change, held by the frame before's light and not, as a share,
-        // since a bounce twice as bright moves twice as many levels: 1.23 of 4.76 levels a frame on
-        // an RTX 4070 and 0.42 of 0.83 on lavapipe, as this test measures them, a quarter and a
-        // half, where a history that held nothing would leave the whole.
-        var still = Change(GlobalIllumination.Off);
-        var bouncing = Change(GlobalIllumination.Low);
-        var unheld = Change(GlobalIllumination.Low, held: false);
-        (bouncing - still).Should().BeLessThan((unheld - still) * 0.6,
-            $"the frame before's light takes most of the bounce's crawl away, {bouncing:0.00} levels a frame where {unheld:0.00} unheld and {still:0.00} with no bounce");
     }
 
     [NeedsVulkanFact]

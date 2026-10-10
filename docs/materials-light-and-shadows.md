@@ -374,8 +374,10 @@ pixels of the window that traces the near light through the window's depth first
 so every light and every mesh may move. The light a surface sends on is its material's color, its
 texture's average, times the sun's light where the field lets it through, the point and spot
 lights', each that casts shadows only where the field lets it through too, and what bounced to it
-the frame before, so light bounces again each frame, with the
-light it gives off, so an emissive mesh lights its room. The light from all around, the environment
+the frame before, so light bounces again each frame, with the light it gives off, so an emissive
+mesh lights its room. A light switched off or carried away takes the light it bounced with it the
+frame after, since each probe takes the light that bounced at the share its own light kept where
+that fell or rose by much. The light from all around, the environment
 map's, the ambient lights' and a reflection probe's, reaches a surface only through what a ray that
 meets nothing brings back, so a room is lit by the sky through its windows and dark where no light
 gets in.
@@ -453,7 +455,8 @@ each layer of its probes a square of their directions; the cascade's probes as s
 scene, each face the light the probe gathers from that side; and the frame against a reference, red
 where it is brighter and blue where it is darker. Its boxes leave a part out, the frame before's
 light, the screen's filter, the screen's probes, the merge of the cascades, the light that bounces
-again or every cascade but the one chosen, so what each part gives can be seen, and on a GPU that traces rays its buttons path
+again, the bounce following a light out or every cascade but the one chosen, so what each part
+gives can be seen, and on a GPU that traces rays its buttons path
 trace the view as a reference and give each region's error against it. `shaders_bounce_rooms`
 shows it on Tab, and `./e3d command gi.show` and `gi.toggle` set the same in a running program, as
 [Driving a program with e3d](driving-with-e3d.md) says.
