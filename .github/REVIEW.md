@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2dd527f1`. Item 2's part d, the field's plan on a still scene, measured first inside
+Reviewed up to `b5805aa5`. Item 2's part e, the field's colors from the vertices: each pooled
+corner's fourth word carries its vertex's sRGB bytes, white for a mesh with none, beside the open
+edge's bit it held, the splat reading the corners as words and blending the three colors in linear
+light at the cell's nearest point by their barycentric shares, times the instance's color, as the
+model pass multiplies them into the base color; a mesh still settling is stamped in its color times
+its vertices' mean, kept per mesh, so a section's boxes are not white for its first frames. A test
+draws one white mesh of two boxes with red and green vertices and reads the field's cells by each at
+0.79 and 0.77 where both read white, and a unit test holds the stamp's tint; built every frame in
+the game at eight columns the field's node takes 0.46 to 0.48 ms of the GPU where 0.41 to 0.45, and
+Manor and Wick, with no vertices' colors, hold their times. Right, the field made to agree with the
+frame drawn, which is the whole of the ask. Two things noted and not asked: the reflections the
+GPU's rays trace still color a copy by its instance alone, a gap of its own if a game asks; and the
+game's vertex colors hold its shade, light times corner occlusion, which the model pass multiplies
+into the albedo already, so the field agrees with the picture and a shade meant as light belongs in
+a stream of its own the game's shader applies, which the game's session was told. Part f is
+measured, as its text asked, with a frame-exact probe: a lamp cube drawn apart from a walls mesh,
+lit by the bounce alone, and the walls replaced by a mesh with one more block dropped the floor's
+light from 85 to 60 and a wall's from 116 to 69 for six frames, recovering by the tenth, the lamp
+never changing, since the old walls left the field at once and the new stood in as boxes for eight
+frames; so the stamp carrying emission would not touch it and the other fix is written, a still mesh
+replaced in place, the same world matrix with other vertices, staying in the field until its
+replacement settles, sixteen frames at most, the replacement unstamped meanwhile, the probe then
+rising without a dip; its tests come with its commit. The suite: 1,638 passed; on lavapipe 358
+passed and 7 skipped with no validation error.
+
+Before it, item 2's part d came to be read, the field's plan on a still scene, measured first inside
 the field's node in Release at eight columns over 1,836 meshes: the gather that turns the frame's
 draws into the plan's instances took 325 µs and the plan 1,600, since each frame built a new
 dictionary of every mesh's instance and asked it and the still meshes' of each mesh, some four
@@ -28,42 +53,6 @@ one frame by frame rather than to a picture, and the whole path kept for every f
 same. What is left of the CPU a draw costs in the field is the gather, 330 µs, and the bounce's node
 holds 0.77 ms outside part d, both noted with their numbers. The suite: 1,636 passed; on lavapipe
 356 passed and 7 skipped with no validation error. Part e next, written and in testing.
-
-Before it, part a's remainder came to be measured and left out, part c found to rest on a wrong
-premise and answered the right way, and Verdict 40 read. The batched draws: in Release at eight
-columns, timed inside the shadow pass, binding a batch's two buffers took 0.16 µs and its draw 0.09
-µs and the pass's planes 13 µs a cascade, so a cascade's draws issued as one would save a quarter of
-a millisecond at most, and the game withdrew them with the far cascades' setting; the timing found
-instead that each pass's loop copied every batch, some 150 bytes, for each cascade, and the loops
-read their batches by reference, the shadows' gathering of casters from 154 to 96 µs a frame. Part
-c: with the occlusion at 0 and the bounce off the pass still works, since a field with a sun that
-casts shadows gives the sun's contact shadows, which the model pass reads, and the bounce's screen
-probes stand on the same depth, so what the profile called the occlusion was three things, each a
-node of its own with its number: `model_batches` gathers the window's batches and writes their
-instances once a frame for every pass, 1.3 to 1.5 ms of the CPU in Release, which the first pass to
-draw had paid; `window_depth` draws the half-size depth, 1.16 ms of the GPU and 0.35 of the CPU; and
-`ambient_occlusion` the occlusion with the contact shadows, 0.08 ms of the GPU, the same with the
-bounce off; where nothing reads the depth it was left out already, which a test reads with the
-nodes' order. Gathering ahead of the shadows found a fault: a batch's masked shadow was decided by
-whether the masked pipeline existed yet, which on the first frame it did not, so a cut-out cast a
-solid shadow for that frame; it is decided by the shader, and the masked shadow test caught it. One
-reading kept and not acted on, rightly: the GPU in each pass that draws the game's sections runs at
-2.3 to 3.2 µs a draw, the half-size depth costing per draw near what the full scene does and culling
-its back faces moving nothing, so those passes are bound by their draws or vertices and the frame
-waits on the CPU. Right, the premise measured before it was built on, the nodes named so the profile
-cannot mislead again, and the fault the measuring found mended. Verdict 40: `SlangCompiler.Run`
-disposes its process and is not run in the leak test, since with `ENGINE_SLANGC` naming a compiler
-that writes a line and fails the three cases passed and every app's 35 shaders came from the cache,
-whose key asks the compiler nothing, so the five handles are not slangc's and the review's suspect
-was wrong; the 315 the renderer's step takes and gives back fit lavapipe's own objects on Windows.
-The followed apps count their handles by kind on 64-bit Windows from the system's extended handle
-table, each kind named by `NtQueryObject` asked of one of the process's own handles for its type
-alone, which does not wait as a pipe's name can, reading only within the buffer it was given and
-naming a kind by its number where its name cannot be had, the entry's 40 bytes and its fields'
-offsets as the system lays them out; the step line ends with the kinds kept, so the next page says
-what the five are. Right, and the verdict is rewritten on it. The suite: 1,635 passed; on lavapipe
-355 passed and 7 skipped with no validation error. The game's own edits to ASKS.md went in with the
-batch, as the file's rule has it. Part d next, in its own commit, as the tree holds it.
 
 Before it, item 2's parts a and b came to be read, the culling, in one commit since one change culls
 for every pass, measured first as the item asks: on the game's scene at eight columns the frame took
@@ -179,7 +168,11 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    vertices' colors, so a section meshed as one mesh would bounce one color for every block, and the
    game draws 1,127 sections as 1,971 meshes, one a surface. The splat takes the vertices' colors as
    the model pass does, so a section is one mesh and one draw, some 43% fewer on this scene before
-   any culling.
+   any culling. Done at `b5805aa5`: the splat blends the vertices' colors at the cell's nearest
+   point and the stamp takes their mean, for 0.03 ms of the GPU where the field is built every
+   frame; the traced reflections still color a copy by its instance alone, noted. The game draws
+   each section as one mesh with its blocks' colors in its vertices at `4d54769d`, 1,056 draws at
+   eight columns where 1,836, its settled frame 8.9 ms in Debug.
 
    **f. A changed mesh's light.** Read in `SceneFieldPlan.cs` and §4 and not yet measured: the field
    keys a mesh by its vertex array, so a mesh uploaded again is a new one, stamped for eight frames
@@ -467,18 +460,20 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's part e. The splat paints each cell its nearest triangle's instance color times its
-vertices' colors, as the model pass multiplies them into the base color: each pooled corner's
-fourth word carries its vertex's sRGB bytes, white for a mesh with none, beside the open edge's bit
-it already held, the splat reading the corners as words and blending the three colors in linear
-light at the cell's nearest point; a mesh still settling is stamped in its color times its
-vertices' mean, so a section's boxes are not white for its first frames. A new test draws one white
-mesh of two boxes, the left one's vertices red and the right one's green, and reads the field's
-cells by each in their decoded colors, 0.79 and 0.77, where before both read white; a unit test
-holds the stamp's tint. Built every frame in the voxel game at eight columns the field's node took
-0.46 to 0.48 ms of the GPU where it took 0.41 to 0.45, and nothing else changes where nothing is
-built; Manor and Wick, whose meshes have no vertices' colors, hold their times to the hundredth. The game's vertex colors today hold its shade, light level times corner occlusion, which the
-model pass already multiplies into its albedo, so the field now agrees with the frame drawn; the
-game's session was told so, and that a shade meant as light belongs in a stream of its own its
-shader applies. The reflections the GPU's rays trace still color a copy by its instance alone.
-The suite 1,638 passed; on lavapipe 358 passed and 7 skipped with no validation error.
+Item 2's part f. Measured first in a scene drawn offscreen frame by frame, as the game's edit is:
+three walls in one mesh around a lamp drawn apart, which lights them by bouncing alone, the walls
+replaced at a frame by a mesh of four, the fourth a block beside the lamp. The wall read 116 before
+and fell to 69 six frames after, the floor 85 to 60, back by the tenth frame and on to 136 and 112
+with the block's own bounce; the lamp never changed, since the game draws it apart, and the dip was
+the walls leaving the field at once while their replacement stood in as a few boxes for its eight
+frames. So the stamp carrying a mesh's light would not have touched it, and the measurement chose
+the other: a still mesh replaced in place, by a mesh of other vertices drawn through the same matrix
+where it was, stays in the field as it was until the replacement is still, the replacement not
+stamped meanwhile, so one build takes the one out and puts the other in, which keeps an emitter
+inside a replaced mesh lit as well. A mesh that moves keeps its vertices and is stamped as before,
+and one kept for a replacement that never settles leaves after sixteen frames. The same scene
+afterward held the wall at 114 to 116 and the floor rising from 85 until the replacement settled.
+The scene is a test now, failing without the change with the wall's 107, 98, 91 down to 69, and two
+unit tests hold the plan to keeping the replaced mesh, building the swap once, and letting go after
+sixteen frames; RENDERING.md §4 says it with its numbers. Manor and Wick hold their times. The
+suite 1,641 passed; on lavapipe 361 passed and 7 skipped with no validation error.

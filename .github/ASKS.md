@@ -16,7 +16,7 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the field ignores the vertices' colors
+### 2026-10-10, the voxel game in `3DEngine.Game`: a changed mesh gives off no light for 8 frames
 
 The scene for each entry of the voxel game: seed 1's hills, the player at the spawn (0.5, 89, 0.5)
 facing north and level, a hidden window of 1280 by 720, an RTX 4070 Laptop GPU, the light that
@@ -25,18 +25,6 @@ to 96 units, ambient occlusion at 0 and bloom at 0.5. Each pass's time is its av
 `GetProfileAverage`, read through `./e3d eval` after 600 frames at each setting, in two passes that
 agreed, with nothing else drawing on the GPU, and the draws are the game's own count from
 `./e3d command voxel.state`.
-
-At 8 columns on that scene, 1,127 sections are drawn as 1,971 meshes, 1.75 a section, because
-`SceneFieldRenderer.Gather` gives the field each draw's material color times its texture's average
-color and the model pass alone multiplies in the vertices' colors. A section meshed as one mesh
-colored at its vertices would bounce one color for every block in it. With the field taking the
-vertices' colors into its splat, as the model pass does, a section would be one mesh and one draw,
-some 43% fewer draws on this scene before any culling. The game meshes a section into one mesh for
-each surface it shows, a grass top, a dirt side, red concrete, drawn with that surface's material.
-
-Review: item 2 of REVIEW.md, its part e, 2026-10-10.
-
-### 2026-10-10, the voxel game in `3DEngine.Game`: a changed mesh gives off no light for 8 frames
 
 Read in `SceneFieldPlan.cs` and RENDERING.md section 4 and not measured, since the game is built
 around it. The field keys a mesh by its vertex array, so a mesh uploaded again is a new mesh,

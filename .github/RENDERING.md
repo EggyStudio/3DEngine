@@ -520,16 +520,24 @@ and sides, for eight frames running. A frame that draws the meshes the frame bef
 same order, is read by place, each mesh compared with the one at its place, where working each
 frame out whole hashed every mesh's instance several times: in a Release build of the voxel game at
 eight columns, 1,836 meshes, the plan took 92 µs a frame in place of 1,600 and the field's node
-0.39 ms of the CPU in place of 1.8 to 2.0, by `./e3d command profile`. Its triangles go into one
-buffer in its mesh's own space the first time a build needs them, so a build hands the GPU each
-instance's matrix and where its mesh's triangles start. A build clears a word a cell to the band,
-then a workgroup a triangle puts the triangle in the world and takes, for each cell within the band
-of its bounds, the distance to it in 1024ths of a cell above a bit set where the triangle is
-double-sided, a bit set where the cell is in front of the face and the way the face looks in eight
-bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near, as a
-crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a cell
-is behind a face only within 60 degrees of straight back from it, so where an edge or a corner is
-nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
+0.39 ms of the CPU in place of 1.8 to 2.0, by `./e3d command profile`. A still mesh replaced in
+place, by a mesh of other vertices drawn through the same matrix where it was, as a game's section
+meshed again when a block is placed, stays in the field as it was until its replacement is still,
+and the replacement is not stamped meanwhile, so one build takes the one out and puts the other in;
+a mesh that moves keeps its vertices and is stamped as before, and one kept for a replacement that
+never settles leaves after sixteen frames. Three walls around a lamp that lights them by bouncing
+alone, replaced with a block beside the lamp, read 116 on the wall before and 69 six frames after,
+the walls gone from the field at once and their replacement standing in as a few boxes; kept, the
+wall held 114 to 116 until the replacement settled (`GlobalIlluminationTests`). Its triangles go
+into one buffer in its mesh's own space the first time a build needs them, so a build hands the GPU
+each instance's matrix and where its mesh's triangles start. A build clears a word a cell to the
+band, then a workgroup a triangle puts the triangle in the world and takes, for each cell within
+the band of its bounds, the distance to it in 1024ths of a cell above a bit set where the triangle
+is double-sided, a bit set where the cell is in front of the face and the way the face looks in
+eight bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near,
+as a crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a
+cell is behind a face only within 60 degrees of straight back from it, so where an edge or a corner
+is nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
 whose nearest point is on an edge no other triangle shares by the places of its ends
 (`SceneFieldRenderer.OpenEdges`, the corner's w in the pooled triangles) is in front, so a ground
 plane puts no wedge below its rim inside. A triangle of next to no area beside its longest side is

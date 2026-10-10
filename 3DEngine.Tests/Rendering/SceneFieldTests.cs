@@ -73,6 +73,53 @@ public sealed class SceneFieldTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void A_Still_Mesh_Replaced_In_Place_Stays_In_The_Field_Until_The_One_Replacing_It_Settles()
+    {
+        // A cube settled and built, then another mesh drawn through the same matrix where it was,
+        // as an edited section of a game's world is, which the boxes it would be stamped as stood
+        // in for badly while it settled.
+        var plan = new SceneFieldPlan(1, 0.25f, 1);
+        var eye = new Vector3(0.1f, 0.1f, 0.1f);
+        var replacement = GenMeshCubeVertices(2.5f);
+        for (int frame = 0; frame <= SceneFieldPlan.SettleFrames; frame++) plan.Update(eye, [At(Vector3.Zero)]);
+        plan.StillCount.Should().Be(1);
+
+        for (int frame = 1; frame < SceneFieldPlan.SettleFrames; frame++)
+        {
+            plan.Update(eye, [At(Vector3.Zero, replacement)]);
+            plan.StillCount.Should().Be(1, $"the cube stays in the field at frame {frame}");
+            plan.Builds.Should().BeEmpty("nothing the field holds changed");
+            plan.Shapes.Should().BeEmpty("the mesh replacing it is not stamped while it stands in");
+        }
+        plan.Update(eye, [At(Vector3.Zero, replacement)]);
+        plan.StillCount.Should().Be(1, "the replacement is still and the cube gone");
+        plan.Builds.Should().ContainSingle().Which.Instances.Should().ContainSingle()
+            .Which.Vertices.Should().BeSameAs(replacement, "one build takes the cube out and puts its replacement in");
+        plan.Shapes.Should().BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Mesh_Kept_For_A_Replacement_That_Never_Settles_Leaves_After_Twice_The_Frames_To_Settle()
+    {
+        var plan = new SceneFieldPlan(1, 0.25f, 1);
+        var eye = new Vector3(0.1f, 0.1f, 0.1f);
+        for (int frame = 0; frame <= SceneFieldPlan.SettleFrames; frame++) plan.Update(eye, [At(Vector3.Zero)]);
+        int frames = 0;
+        do
+        {
+            // Vertices of their own each frame, as a mesh uploaded again each frame has.
+            plan.Update(eye, [At(Vector3.Zero, GenMeshCubeVertices(2.5f))]);
+            frames++;
+        }
+        while (plan.StillCount == 1 && frames < 100);
+        frames.Should().Be(2 * SceneFieldPlan.SettleFrames + 2, "the cube is kept for twice the frames a mesh takes to settle, and then leaves");
+        plan.Builds.Should().ContainSingle().Which.Instances.Should().BeEmpty();
+        plan.Shapes.Should().ContainSingle("the mesh that never settles is stamped once nothing stands in for it");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void The_Budget_Builds_The_Finest_Dirty_Cascades_First()
     {
         var plan = new SceneFieldPlan(3, 0.25f, 1);

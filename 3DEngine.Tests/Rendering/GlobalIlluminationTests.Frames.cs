@@ -304,4 +304,66 @@ public sealed partial class GlobalIlluminationTests
         adds.Average().Should().BeLessThan(unhelds.Average() * 0.6,
             $"the frame before's light takes most of the bounce's crawl away, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) where unheld it adds {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Mesh_Replaced_Beside_A_Lamp_Keeps_The_Light_That_Bounces_While_Its_Replacement_Settles()
+    {
+        // Three walls around a lamp drawn apart, which lights them by bouncing alone, the walls one
+        // mesh replaced at frame 60 by one of four, the fourth a block beside the lamp, as a game's
+        // section is meshed again when a block is placed. The walls left the field at once and their
+        // replacement stood in as a few boxes until it settled, the wall reading 116 before and 69
+        // six frames after and the floor 85 and 60, as this test measured on an RTX 4070; kept in
+        // the field until the replacement settles, neither fell.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        SetAmbientLight(Color.Black, 0);
+        var cube = GenMeshCube(1, 1, 1);
+        GetApp().World.Resource<MeshStore>().TryGetData(cube.Id, out var unit, out var unitIndices).Should().BeTrue();
+        ModelMesh Boxes(params (Vector3 At, Vector3 Size)[] boxes) => UploadMesh(
+            [.. boxes.SelectMany(b => unit.Select(v => v with { Position = v.Position * b.Size + b.At }))],
+            [.. boxes.SelectMany((_, n) => unitIndices.Select(i => i + (uint)(n * unit.Length)))]);
+        (Vector3, Vector3)[] walls = [(new Vector3(0, 1.5f, -1.5f), new Vector3(4, 3, 0.5f)), (new Vector3(-2, 1.5f, 0), new Vector3(0.5f, 3, 3)),
+            (new Vector3(2, 1.5f, 0), new Vector3(0.5f, 3, 3))];
+        var (before, after) = (Boxes(walls), Boxes([.. walls, (new Vector3(-0.9f, 0.5f, -0.6f), Vector3.One)]));
+        var floor = GenMeshPlane(8, 8, 1, 1);
+        var lamp = GenMeshCube(0.4f, 0.4f, 0.4f);
+        var (white, glow) = (new ModelMaterial(Color.White), new ModelMaterial(Color.White) { Emissive = Color.White, EmissiveIntensity = 8 });
+        var camera = new Camera3D(new Vector3(0, 2.5f, 4), new Vector3(0, 0.5f, 0), Vector3.UnitY, 50);
+        var target = LoadRenderTexture(160, 96);
+        var (wallAt, floorAt) = (GetWorldToScreen(new Vector3(0.6f, 1.5f, -1.24f), camera), GetWorldToScreen(new Vector3(0.8f, 0, 0.6f), camera));
+        (float Wall, float Floor) Drawn(ModelMesh walls)
+        {
+            BeginDrawing();
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawMesh(floor, white, Matrix4x4.Identity);
+            DrawMesh(walls, white, Matrix4x4.Identity);
+            DrawMesh(lamp, glow, Matrix4x4.CreateTranslation(0, 1, -0.6f));
+            EndMode3D();
+            EndTextureMode();
+            ClearBackground(Color.Black);
+            DrawTexture(target.Texture, 0, 0, Color.White);
+            EndDrawing();
+            var image = LoadImageFromTexture(target.Texture);
+            return (Mean(image, (int)wallAt.X - 2, (int)wallAt.Y - 2, 5, 5).X, Mean(image, (int)floorAt.X - 2, (int)floorAt.Y - 2, 5, 5).X);
+        }
+
+        for (int frame = 0; frame < 59; frame++) Drawn(before);
+        var lit = Drawn(before);
+        lit.Wall.Should().BeGreaterThan(60, "the lamp lights the wall by bouncing");
+        var edited = Enumerable.Range(0, SceneFieldPlan.SettleFrames + 4).Select(_ => Drawn(after)).ToList();
+        foreach (var (wall, ground) in edited)
+        {
+            wall.Should().BeGreaterThan(lit.Wall * 0.95f, $"the wall keeps its light while the walls' replacement settles, {string.Join(", ", edited.Select(e => $"{e.Wall:0}"))} after {lit.Wall:0}");
+            ground.Should().BeGreaterThan(lit.Floor * 0.95f, $"and the floor its, {string.Join(", ", edited.Select(e => $"{e.Floor:0}"))} after {lit.Floor:0}");
+        }
+        UnloadRenderTexture(target);
+        UnloadMesh(before);
+        UnloadMesh(after);
+        UnloadMesh(floor);
+        UnloadMesh(lamp);
+        UnloadMesh(cube);
+    }
 }

@@ -114,6 +114,8 @@ internal sealed class SceneFieldPlan
     private Dictionary<Instance, int> _seen = [];
     private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = [];
     private readonly HashSet<Instance> _pending = [];
+    // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
+    private readonly Dictionary<Instance, long> _kept = [];
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
@@ -235,6 +237,9 @@ internal sealed class SceneFieldPlan
         _reaches.Clear();
 
         var moving = new List<Instance>();
+        // The meshes drawn this frame that have not settled and are not skinned, which a still
+        // mesh that left may be replaced by.
+        var unsettled = new List<Instance>();
         ReadByPlace = SameOrder(drawn);
         if (ReadByPlace)
         {
@@ -251,7 +256,11 @@ internal sealed class SceneFieldPlan
                 else
                 {
                     _seen[instance] = frames;
-                    if (frames < SettleFrames) moving.Add(instance);
+                    if (frames < SettleFrames)
+                    {
+                        moving.Add(instance);
+                        unsettled.Add(instance);
+                    }
                     else Settle(instance);
                 }
             }
@@ -265,21 +274,35 @@ internal sealed class SceneFieldPlan
                 if (seen.ContainsKey(instance)) continue;
                 var frames = skinned ? 0 : Math.Min(SettleFrames, _seen.GetValueOrDefault(instance) + 1);
                 seen[instance] = frames;
-                if (frames < SettleFrames) moving.Add(instance);
+                if (frames >= SettleFrames) continue;
+                moving.Add(instance);
+                if (!skinned) unsettled.Add(instance);
             }
             _seen = seen;
 
-            // Still meshes that came or went make the cascades around them dirty.
+            // Still meshes that came or went make the cascades around them dirty. One replaced in
+            // place, by a mesh of other vertices drawn through the same matrix where it was, as a
+            // section of a game's world edited, stays in the field as it was until the one replacing
+            // it is still, where the boxes that one would be stamped as stood in for it badly.
             foreach (var (instance, frames) in seen)
                 if (frames >= SettleFrames && !_still.ContainsKey(instance)) Settle(instance);
-            foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance)).ToArray())
+            foreach (var instance in _kept.Keys.Where(seen.ContainsKey).ToArray()) _kept.Remove(instance);
+            foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance) && !_kept.ContainsKey(instance)).ToArray())
             {
-                MarkAround(_still[instance].Bounds);
-                _still.Remove(instance);
-                _pending.Remove(instance);
+                if (ReplacedBy(instance, unsettled)) _kept[instance] = _frame;
+                else Leave(instance);
             }
             KeepOrder(drawn, seen);
         }
+
+        // A mesh kept for one replacing it leaves once nothing unsettled replaces it, the one that
+        // did having settled, or after twice the frames a mesh takes to settle.
+        foreach (var (instance, since) in _kept.ToArray())
+            if (!ReplacedBy(instance, unsettled) || _frame - since > 2 * SettleFrames)
+            {
+                _kept.Remove(instance);
+                Leave(instance);
+            }
 
         // Cascades the eye has moved past, then as many dirty ones as the budget allows, finest first.
         if (_rebuildFrames > 0)
@@ -318,7 +341,8 @@ internal sealed class SceneFieldPlan
         if (_stamped.Length != Cascades * side * side * side) (_stamped, _stampedBefore) = (new int[Cascades * side * side * side], new int[Cascades * side * side * side]);
         (_stamped, _stampedBefore) = (_stampedBefore, _stamped);
         Array.Clear(_stamped);
-        var nearest = moving.OrderBy(i => Vector3.DistanceSquared(i.World.Translation, eye)).ToArray();
+        // A mesh replacing one the field still holds is not stamped, the one it replaces standing in.
+        var nearest = moving.Where(i => _kept.Count == 0 || !Replaces(i)).OrderBy(i => Vector3.DistanceSquared(i.World.Translation, eye)).ToArray();
         for (int n = 0; n < nearest.Length && Shapes.Count < MaxShapes; n++)
         foreach (var (own, pose) in PartsWithin(nearest[n], MaxShapes - Shapes.Count - (nearest.Length - n - 1)))
         {
@@ -373,6 +397,35 @@ internal sealed class SceneFieldPlan
             var (c, x, y, z) = Bricks[b];
             _stamped[((c * side + z) * side + y) * side + x] = BrickRanges[b].Count;
         }
+    }
+
+    // A still mesh that left, its cascades made dirty to be built again without it.
+    private void Leave(Instance instance)
+    {
+        MarkAround(_still[instance].Bounds);
+        _still.Remove(instance);
+        _pending.Remove(instance);
+    }
+
+    // Whether a mesh of other vertices drawn through a still mesh's matrix, unsettled, lies where it was.
+    private bool ReplacedBy(Instance still, List<Instance> unsettled)
+    {
+        var bounds = _still[still].Bounds;
+        foreach (var instance in unsettled)
+            if (instance.World == still.World && !ReferenceEquals(instance.Vertices, still.Vertices)
+                && _bounds(instance.Vertices).Transformed(instance.World).Overlaps(bounds))
+                return true;
+        return false;
+    }
+
+    // Whether a mesh replaces one the field keeps for it.
+    private bool Replaces(Instance instance)
+    {
+        foreach (var still in _kept.Keys)
+            if (instance.World == still.World && !ReferenceEquals(instance.Vertices, still.Vertices)
+                && _bounds(instance.Vertices).Transformed(instance.World).Overlaps(_still[still].Bounds))
+                return true;
+        return false;
     }
 
     // A mesh drawn the same for SettleFrames frames running, which the cascades around it are built
