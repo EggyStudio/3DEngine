@@ -92,6 +92,23 @@ public static class GameCommands
         return $"{changed} of {volume} blocks changed";
     }
 
+    [Command("voxel.light", "The sky's and the light-giving blocks' light levels from 0 to 15 at a place: voxel.light <x> <y> <z>")]
+    internal static string Light(int x, int y, int z)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var (sky, block) = game.World.GetLight(x, y, z);
+        return $"{Blocks.Get(game.World.GetBlock(x, y, z)).Key} at {x}, {y}, {z}, sky {sky}, blocks {block}";
+    }
+
+    [Command("voxel.shade", "Whether faces are darkened by light levels and their corners where blocks meet: voxel.shade <levels> <corners>")]
+    internal static string Shade(bool levels, bool corners)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        (game.Renderer.LightLevels, game.Renderer.CornerShade) = (levels, corners);
+        game.World.ReshadeAll();
+        return $"light levels {(levels ? "on" : "off")}, corners shaded {(corners ? "on" : "off")}, every section shaded again over the next frames";
+    }
+
     [Command("voxel.time", "Sets the hour of the day from 0 to 24, the sun up from 6 to 18: voxel.time <hour>")]
     internal static string Time(float hour)
     {

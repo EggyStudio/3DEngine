@@ -26,9 +26,10 @@ public enum BlockId : ushort
 
 /// <summary>
 /// What a kind of block is: its key, the name commands take in lower case with underscores, the
-/// name shown, the surface of each face, and whether it can be broken.
+/// name shown, the surface of each face, whether it can be broken, and the light level from 0 to 15
+/// it fills the blocks around it with, as Minecraft's light-giving blocks do.
 /// </summary>
-public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true)
+public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true, int Light = 0)
 {
     /// <summary>Whether it gives off light, in which case it is drawn as a cube of its own rather than in its chunk's meshes.</summary>
     public bool Emits => Surfaces.All[Top].Emits;
@@ -44,8 +45,8 @@ public static class Blocks
 
     private static BlockInfo[] Build()
     {
-        BlockInfo Same(BlockId id, string key, string name, int surface, bool breakable = true) =>
-            new(id, key, name, surface, surface, surface, breakable);
+        BlockInfo Same(BlockId id, string key, string name, int surface, bool breakable = true, int light = 0) =>
+            new(id, key, name, surface, surface, surface, breakable, light);
 
         BlockInfo[] all =
         [
@@ -64,10 +65,10 @@ public static class Blocks
             Same(BlockId.RedConcrete, "red_concrete", "Red Concrete", Surfaces.RedConcrete),
             Same(BlockId.GreenConcrete, "green_concrete", "Green Concrete", Surfaces.GreenConcrete),
             Same(BlockId.BlueConcrete, "blue_concrete", "Blue Concrete", Surfaces.BlueConcrete),
-            Same(BlockId.Glowstone, "glowstone", "Glowstone", Surfaces.Glowstone),
-            Same(BlockId.SeaLantern, "sea_lantern", "Sea Lantern", Surfaces.SeaLantern),
-            Same(BlockId.Shroomlight, "shroomlight", "Shroomlight", Surfaces.Shroomlight),
-            Same(BlockId.Magma, "magma", "Magma Block", Surfaces.Magma),
+            Same(BlockId.Glowstone, "glowstone", "Glowstone", Surfaces.Glowstone, light: 15),
+            Same(BlockId.SeaLantern, "sea_lantern", "Sea Lantern", Surfaces.SeaLantern, light: 15),
+            Same(BlockId.Shroomlight, "shroomlight", "Shroomlight", Surfaces.Shroomlight, light: 15),
+            Same(BlockId.Magma, "magma", "Magma Block", Surfaces.Magma, light: 3),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");

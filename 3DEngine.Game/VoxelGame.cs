@@ -13,6 +13,7 @@ public sealed class VoxelGame : IDisposable
     private const double MeshBudgetMs = 4;
 
     private float _breakWait, _placeWait;
+    private float _eyeSky = Lighting.Max;
     private bool _captured, _swallowClick;
 
     public VoxelGame(IWorldGenerator generator)
@@ -42,12 +43,10 @@ public sealed class VoxelGame : IDisposable
 
     public SettingsWindow Settings { get; } = new();
 
-    /// <summary>How many columns around the player are drawn, and one more loaded.</summary>
+    /// <summary>How many columns around the player are drawn, and two more loaded.</summary>
     /// <remarks>
-    /// Six by default, about 1,100 draws on the hills of the first seed, since each is drawn again
-    /// into each of the sun's four shadow cascades. Eight draws some 1,800 and takes the frame from
-    /// about 16 ms to 27 at 1280 by 720 on a laptop's RTX 4070, its shadows from 8 ms to 15 of the
-    /// GPU's time.
+    /// Six by default. Every section within it is drawn each frame, since one left out leaves the
+    /// scene field, so it sets much of the frame's cost.
     /// </remarks>
     public int RenderDistance { get; set; } = 6;
 
@@ -55,6 +54,9 @@ public sealed class VoxelGame : IDisposable
     public BlockHit? Target { get; private set; }
 
     public bool HudHidden { get; set; }
+
+    /// <summary>Whether the sky's light dims while the player is where the sky does not reach.</summary>
+    public bool SkyDims { get; set; } = true;
 
     public bool PickerOpen { get; private set; }
 
@@ -105,6 +107,12 @@ public sealed class VoxelGame : IDisposable
         Target = VoxelRay.Cast(World, Player.Eye, Player.Look, Reach);
         if (_captured && !_swallowClick) Interact(seconds);
 
+        // The sky's level where the eyes are, eased over half a second or so, sets how much of the
+        // sky's light the environment map gives.
+        var eye = Player.Eye;
+        var (sky, _) = World.GetLight((int)MathF.Floor(eye.X), (int)MathF.Floor(eye.Y), (int)MathF.Floor(eye.Z));
+        _eyeSky += (sky - _eyeSky) * (1 - MathF.Exp(-4 * seconds));
+        Sky.Shelter = SkyDims ? SectionMesher.Brightness(_eyeSky) : 1;
         Sky.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);

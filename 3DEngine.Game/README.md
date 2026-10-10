@@ -4,7 +4,8 @@ A voxel game in the manner of Minecraft, and the ground floor of a larger one. I
 to test the light that bounces (Radiance Cascades over the scene's distance field) with blocks
 that give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128,
 a first-person player with Minecraft's sizes and speeds, building and breaking with an outline
-on the block looked at, a sky whose sun crosses it, and an ImGui window of the light's settings.
+on the block looked at, Minecraft's light levels with smooth lighting and shaded corners, a sky
+whose sun crosses it, and an ImGui window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -52,8 +53,9 @@ looked at from the terminal. A closed room lit by one lamp, at night:
 `voxel.state` says where the player stands and looks, what is loaded and drawn, the hour and the
 light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `voxel.look` and
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
-`voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.world`
-begins a new world, and `voxel.blocks` lists the blocks by number and name. The engine's own
+`voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
+reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or
+off, `voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name. The engine's own
 `gi.*` and `field.*` commands show and measure the light that bounces.
 
 ## How the world is drawn
@@ -74,18 +76,40 @@ Sections are drawn by their distance from the player and are not culled to the v
 mesh left out of a frame leaves the field, and the light it gave or the shadow it cast in the
 bounce goes with it until it settles again.
 
+## Light levels and corners
+
+Each block holds Minecraft's two light levels from 0 to 15. The sky's is 15 under the open sky,
+falls straight down without losing any and loses one for each block it goes sideways or up, and
+a light-giving block's loses one for each block from it, glowstone, sea lanterns and shroomlight
+giving 15 and magma 3. A new column's light is worked out on the worker that generates it, joined
+to its neighbors' as it arrives, and taken back and spread again around each block placed or
+broken.
+
+Each corner of a face is shaded from the four cells in front of the face that meet at it, as
+Minecraft's smooth lighting is. Its light is the average of the open ones, its occlusion counts
+the solid ones, and the shade is the vertex's color, which darkens the face where neither the
+sky nor a lamp reaches it and where blocks meet. The scene's distance field does not read vertex
+colors, so the light that bounces still takes each surface's own color, and the shade decides how
+much of that light a face shows. A change of light gives a mesh new colors and keeps its vertices,
+which the field knows it by, so relighting leaves the meshes settled in the field. Each quad is
+split along the diagonal its occlusion favors, so a shaded corner darkens one triangle softly.
+
+Every surface also reflects the sky, and the engine does not occlude that reflection, so a cave
+sealed in stone shows a blue sheen at noon. The game dims the whole sky while the player stands
+where the sky's level is low, eased over about half a second, as Minecraft's caves darken. The
+settings window turns each of these off, to see the light that bounces alone.
+
 ## What is not here yet
 
 Textures, water and anything seen through, leaves included, which are solid. Greedy meshing.
-Light levels of Minecraft's kind, which the light that bounces stands in for. Saving a world.
+Light that passes through leaves at a cost, as Minecraft's does. Saving a world.
 Features and structures that cross from one column into the next, so a tree is placed only two
 blocks or more from its column's edge, and villages and the like have nowhere to go yet. Caves
 open to the sky. Mobs, items, an inventory and survival.
 
 ## What it costs
 
-Every draw is drawn again into each of the sun's four shadow cascades, and the flat API culls
-none of them. On the hills of seed 1 at 1280 by 720 on a laptop's RTX 4070, render distance 6 is
-about 1,100 draws and 16 ms a frame, its shadows 8 ms of the GPU's time, and 8 is about 1,800
-draws and 27 ms, its shadows 15 ms. The render distance is 6 by default and up to 16 in the
-settings window.
+Every section within the render distance is drawn each frame, through the scene field's gather
+and the engine's culling of each pass, so the render distance sets much of the frame's cost. It is
+6 by default and up to 16 in the settings window, whose first lines give the frame's time, draws
+and triangles.

@@ -22,8 +22,9 @@ namespace Engine.Game;
 /// and the light it gave or blocked goes with it until it settles again.
 /// </para>
 /// <para>
-/// Every draw is drawn again into each of the sun's shadow cascades, and the flat API culls none of
-/// them, so the render distance sets the frame's cost, which <see cref="Draws"/> counts.
+/// Every section within the render distance is drawn each frame, through the scene field's gather
+/// and each pass's culling, so the render distance sets much of the frame's cost, which
+/// <see cref="Draws"/> counts.
 /// </para>
 /// </remarks>
 public sealed class ChunkRenderer : IDisposable
@@ -31,7 +32,7 @@ public sealed class ChunkRenderer : IDisposable
     private sealed class SectionMeshes(Matrix4x4 transform)
     {
         public readonly Matrix4x4 Transform = transform;
-        public readonly Dictionary<int, (ModelMesh Mesh, ModelVertex[] Vertices, uint[] Indices)> Surfaces = [];
+        public readonly Dictionary<int, (ModelMesh Mesh, ModelVertex[] Vertices, uint[] Indices, Color[] Colors)> Surfaces = [];
         public readonly List<(BlockId Block, Matrix4x4 At)> Emitters = [];
     }
 
@@ -69,21 +70,37 @@ public sealed class ChunkRenderer : IDisposable
 
     public int Meshes => _sections.Values.Sum(s => s.Surfaces.Count);
 
+    /// <summary>Whether faces are darkened by light levels, which takes effect as sections are shaded again.</summary>
+    public bool LightLevels
+    {
+        get => _mesher.LightLevels;
+        set => _mesher.LightLevels = value;
+    }
+
+    /// <summary>Whether corners are darkened where blocks meet, which takes effect as sections are shaded again.</summary>
+    public bool CornerShade
+    {
+        get => _mesher.CornerShade;
+        set => _mesher.CornerShade = value;
+    }
+
     private void BuildMaterials() => _materials = [.. Surfaces.All.Select(s => s.Material(_glowScale))];
 
     /// <summary>
-    /// Meshes every section an edit changed, then sections that loaded, nearest the eye first, until
-    /// <paramref name="budgetMs"/> of the frame is spent.
+    /// Meshes every section an edit changed, then those whose shading changed and those that loaded,
+    /// nearest the eye first, until <paramref name="budgetMs"/> of the frame is spent.
     /// </summary>
     public void Update(VoxelWorld world, Vector3 eye, double budgetMs)
     {
         foreach (var key in world.Edited)
             if (!Remesh(world, key)) world.Loaded.Add(key);
+        world.Reshaded.ExceptWith(world.Edited);
         world.Edited.Clear();
 
-        if (world.Loaded.Count == 0) return;
+        if (world.Loaded.Count == 0 && world.Reshaded.Count == 0) return;
         int ex = (int)MathF.Floor(eye.X) >> Section.Shift, ey = (int)MathF.Floor(eye.Y) >> Section.Shift, ez = (int)MathF.Floor(eye.Z) >> Section.Shift;
         _queue.Clear();
+        _queue.AddRange(world.Reshaded);
         _queue.AddRange(world.Loaded);
         _queue.Sort((a, b) => Distance(a).CompareTo(Distance(b)));
         int Distance(SectionKey k) => (k.X - ex) * (k.X - ex) + (k.Y - ey) * (k.Y - ey) + (k.Z - ez) * (k.Z - ez);
@@ -94,8 +111,8 @@ public sealed class ChunkRenderer : IDisposable
             if (watch.Elapsed.TotalMilliseconds > budgetMs) break;
             // A section whose neighbor column has not arrived is dropped rather than kept, since the
             // neighbor's arrival marks it again.
+            if (!world.Reshaded.Remove(key) & !world.Loaded.Remove(key)) continue;
             Remesh(world, key);
-            world.Loaded.Remove(key);
         }
     }
 
@@ -130,15 +147,24 @@ public sealed class ChunkRenderer : IDisposable
             var faces = _mesher.Of(surface);
             var vertices = CollectionsMarshal.AsSpan(faces.Vertices);
             var indices = CollectionsMarshal.AsSpan(faces.Indices);
+            var colors = CollectionsMarshal.AsSpan(faces.Colors);
             if (entry.Surfaces.TryGetValue(surface, out var old))
             {
-                if (vertices.SequenceEqual(old.Vertices) && indices.SequenceEqual(old.Indices)) continue;
+                if (vertices.SequenceEqual(old.Vertices) && indices.SequenceEqual(old.Indices))
+                {
+                    if (colors.SequenceEqual(old.Colors)) continue;
+                    // New colors alone keep the mesh's vertex array, which the scene's distance
+                    // field knows the mesh by, so a change of light leaves the mesh settled in it.
+                    UpdateMeshBuffer<Color>(old.Mesh, 3, colors, 0);
+                    entry.Surfaces[surface] = old with { Colors = colors.ToArray() };
+                    continue;
+                }
                 UnloadMesh(old.Mesh);
             }
             // The store keeps the arrays it is given until the frame uploads them, so each mesh has
             // arrays of its own that nothing changes afterward.
-            var (v, i) = (vertices.ToArray(), indices.ToArray());
-            entry.Surfaces[surface] = (UploadMesh(v, i), v, i);
+            var (v, i, c) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
+            entry.Surfaces[surface] = (UploadMesh(v, i, c, null), v, i, c);
         }
 
         entry.Emitters.Clear();
@@ -153,7 +179,7 @@ public sealed class ChunkRenderer : IDisposable
     private void Forget(SectionKey key)
     {
         if (!_sections.Remove(key, out var entry)) return;
-        foreach (var (mesh, _, _) in entry.Surfaces.Values) UnloadMesh(mesh);
+        foreach (var (mesh, _, _, _) in entry.Surfaces.Values) UnloadMesh(mesh);
     }
 
     /// <summary>Lets go of the meshes of a column's sections, as it unloads.</summary>
@@ -180,7 +206,7 @@ public sealed class ChunkRenderer : IDisposable
         {
             int dx = key.X - cx, dz = key.Z - cz;
             if (dx * dx + dz * dz > reach) continue;
-            foreach (var (surface, (mesh, _, _)) in entry.Surfaces)
+            foreach (var (surface, (mesh, _, _, _)) in entry.Surfaces)
             {
                 DrawMesh(mesh, _materials[surface], entry.Transform);
                 draws++;

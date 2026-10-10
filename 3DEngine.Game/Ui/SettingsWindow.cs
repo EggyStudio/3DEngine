@@ -49,12 +49,19 @@ public sealed class SettingsWindow
         ImGui.TextUnformatted($"{GetFPS()} fps, {GetFrameTime() * 1000:0.0} ms a frame");
         ImGui.TextUnformatted($"Feet at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}, facing {player.Heading:0} degrees{(player.Flying ? ", flying" : "")}");
         ImGui.TextUnformatted(game.Target is { } hit
-            ? $"Looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Name} at {hit.X}, {hit.Y}, {hit.Z}"
+            ? $"Looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Name} at {hit.X}, {hit.Y}, {hit.Z}, its face's light {LightBeside(game, hit)}"
             : "Looking at nothing within reach");
         var renderer = game.Renderer;
         ImGui.TextUnformatted($"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh");
         ImGui.TextUnformatted($"{renderer.Sections} sections in {renderer.Meshes} meshes, {renderer.Lamps} lamps");
         ImGui.TextUnformatted($"{renderer.Draws} draws of {renderer.Triangles:N0} triangles");
+    }
+
+    private static string LightBeside(VoxelGame game, BlockHit hit)
+    {
+        var (x, y, z) = hit.Beside;
+        var (sky, block) = game.World.GetLight(x, y, z);
+        return $"sky {sky}, blocks {block}";
     }
 
     private void Light(VoxelGame game)
@@ -72,6 +79,24 @@ public sealed class SettingsWindow
         field |= ImGui.SliderFloat("Field cell", ref light.CellSize, 0.125f, 1, "%.3f");
         field |= ImGui.SliderInt("Cascades built a frame", ref light.Budget, 1, 8);
         if (field) light.ApplyField();
+
+        // Each changes every section's colors, which are written again a few sections a frame.
+        var levels = game.Renderer.LightLevels;
+        if (ImGui.Checkbox("Light levels", ref levels))
+        {
+            game.Renderer.LightLevels = levels;
+            game.World.ReshadeAll();
+        }
+        ImGui.SameLine();
+        var corners = game.Renderer.CornerShade;
+        if (ImGui.Checkbox("Corners shaded", ref corners))
+        {
+            game.Renderer.CornerShade = corners;
+            game.World.ReshadeAll();
+        }
+
+        var dims = game.SkyDims;
+        if (ImGui.Checkbox("The sky dims where it does not reach", ref dims)) game.SkyDims = dims;
 
         var glow = game.Renderer.GlowScale;
         if (ImGui.SliderFloat("Glow", ref glow, 0, 4)) game.Renderer.GlowScale = glow;

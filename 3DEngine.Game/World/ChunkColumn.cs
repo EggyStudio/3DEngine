@@ -1,31 +1,32 @@
 namespace Engine.Game;
 
 /// <summary>A column of sections from the bottom of the world to its top, the unit the world is generated and loaded in.</summary>
-public sealed class ChunkColumn(int x, int z)
+/// <remarks>
+/// Every section is made with the column, air or not, since the light in the air above the ground
+/// and in a cave is kept as the blocks are.
+/// </remarks>
+public sealed class ChunkColumn
 {
     public const int SectionCount = 8;
     public const int Height = SectionCount * Section.Size;
 
-    public int X { get; } = x;
-    public int Z { get; } = z;
+    public ChunkColumn(int x, int z)
+    {
+        X = x;
+        Z = z;
+        for (int i = 0; i < SectionCount; i++) Sections[i] = new Section();
+    }
 
-    /// <summary>Its sections from the bottom, null where a section has held nothing but air.</summary>
-    public readonly Section?[] Sections = new Section?[SectionCount];
+    public int X { get; }
+    public int Z { get; }
+
+    /// <summary>Its sections from the bottom.</summary>
+    public readonly Section[] Sections = new Section[SectionCount];
 
     /// <summary>The block at a place inside the column, x and z from 0 to 15 and y from 0 to <see cref="Height"/> less one.</summary>
-    public BlockId Get(int x, int y, int z) =>
-        Sections[y >> Section.Shift] is { } section ? section.Get(x, y & Section.Mask, z) : BlockId.Air;
+    public BlockId Get(int x, int y, int z) => Sections[y >> Section.Shift].Get(x, y & Section.Mask, z);
 
-    public void Set(int x, int y, int z, BlockId block)
-    {
-        var section = Sections[y >> Section.Shift];
-        if (section is null)
-        {
-            if (block == BlockId.Air) return;
-            section = Sections[y >> Section.Shift] = new Section();
-        }
-        section.Set(x, y & Section.Mask, z, block);
-    }
+    public void Set(int x, int y, int z, BlockId block) => Sections[y >> Section.Shift].Set(x, y & Section.Mask, z, block);
 
     /// <summary>The height of the highest block that is not air, or -1 in a column of air.</summary>
     public int Top(int x, int z)
