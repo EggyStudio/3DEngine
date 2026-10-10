@@ -94,4 +94,48 @@ public class GenerationTests
         Assert.True(paths > 100, $"the village has {paths} blocks of road");
         Assert.True(lights >= 9, $"the village has {lights} torches and lanterns");
     }
+
+    [Fact]
+    public void A_Ravine_Cuts_The_Ground_Open_To_The_Sky_At_Its_Middle()
+    {
+        var land = new Overworld(1);
+        var ravine = Structures.Find("ravine")!;
+        var start = Enumerable.Range(-6, 13).SelectMany(cz => Enumerable.Range(-6, 13).Select(cx => ravine.StartIn(cx, cz, land)))
+            .First(s => s is not null)!.Value;
+        int x = start.X + ravine.Size / 2, z = start.Z + ravine.Size / 2;
+        var ground = land.At(x, z).Height;
+
+        var column = land.Generate(x >> Section.Shift, z >> Section.Shift);
+        Lighting.Compute(column);
+        for (int y = ground - 6; y <= ground + 2; y++)
+            Assert.Equal(BlockId.Air, column.Get(x & Section.Mask, y, z & Section.Mask));
+        var index = Section.Index(x & Section.Mask, (ground - 6) & Section.Mask, z & Section.Mask);
+        Assert.Equal(Lighting.Max, column.Sections[(ground - 6) >> Section.Shift].SkyLight(index));
+    }
+
+    [Fact]
+    public void Somewhere_Near_The_Origin_A_Tunnel_Breaks_Out_Under_The_Open_Sky()
+    {
+        // A cave's mouth is air under the ground's height that the open sky shines straight into,
+        // which no ravine near the origin makes.
+        var land = new Overworld(1);
+        var ravines = Structures.Find("ravine")!;
+        var mouths = 0;
+        for (int cz = -8; cz < 8 && mouths == 0; cz++)
+            for (int cx = -8; cx < 8 && mouths == 0; cx++)
+            {
+                if (ravines.StartsIn(cx * Section.Size, cz * Section.Size, cx * Section.Size + Section.Mask, cz * Section.Size + Section.Mask, land).Any()) continue;
+                var column = land.Generate(cx, cz);
+                Lighting.Compute(column);
+                for (int z = 0; z < Section.Size; z++)
+                    for (int x = 0; x < Section.Size; x++)
+                    {
+                        var ground = land.At(cx * Section.Size + x, cz * Section.Size + z).Height;
+                        var y = ground - 5;
+                        if (y <= Overworld.SeaLevel || column.Get(x, y, z) != BlockId.Air) continue;
+                        if (column.Sections[y >> Section.Shift].SkyLight(Section.Index(x, y & Section.Mask, z)) == Lighting.Max) mouths++;
+                    }
+            }
+        Assert.True(mouths > 0, "no tunnel near the origin opens to the sky");
+    }
 }

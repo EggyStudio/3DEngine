@@ -129,6 +129,17 @@ Minecraft's does. A slab, stairs, a lantern, an end rod and a fence stop the pla
 boxes, a fence's standing half a block above its post so it cannot be jumped, and a torch and wheat
 are walked through. Light passes through them all, so a roof of slabs lets the sky's level down.
 
+## Caves and ravines
+
+Tunnels wind under the ground where two noises are both near zero, and wide caverns open deep down
+where a third is high. They stay three blocks under the ground, so they are dark until dug into, but
+in patches of high ground away from the sea a tunnel that rises near the top breaks out, a mouth the
+sun shines into. A ravine cuts the ground open along a swaying line about 48 blocks long, up to
+seven wide at its middle and narrowing to its ends, its floor up to 30 blocks down with a few magma
+blocks glowing on it, so the sun's light falls down its walls and the magma's lights its depths at
+night. No ravine is cut beside the sea, so no water stands beside its air. `voxel.find ravine` gives
+the nearest.
+
 ## Trees and structures
 
 Each column places the trees and the structures that start in it and those that start in the
@@ -141,7 +152,7 @@ A structure has at most one start in each cell of 64 by 64 blocks, where its cha
 land at its start suits it. An igloo of snow with a shroomlight inside stands on the snowy plains, a
 stepped sandstone pyramid in the desert, a dark chamber at its heart with a floor of blue and red,
 and a cobblestone dungeon deep under any ground, a magma block at its middle where Minecraft's has
-its spawner. `voxel.find <village|igloo|pyramid|dungeon>` gives the nearest one's place.
+its spawner. `voxel.find <village|igloo|pyramid|dungeon|ravine>` gives the nearest one's place.
 
 A village stands where the plains, the taiga, the snowy plains or the desert lie nearly level across
 48 blocks, built of that biome's wood or sandstone. A well at its middle has a lantern hanging under
@@ -221,7 +232,7 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 Textures, and leaves seen through, which are solid. Doors, the corners stairs make where two meet,
 and slabs and stairs that keep light out, as Minecraft's do. Water that flows. Greedy meshing. Light
 that passes through leaves at a cost, as Minecraft's does. Villagers. Structures read from files
-rather than built in code. Caves open to the sky. Mobs, items, an inventory and survival.
+rather than built in code. Mobs, items, an inventory and survival.
 
 ## What it costs
 

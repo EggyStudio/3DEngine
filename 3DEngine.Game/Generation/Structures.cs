@@ -80,7 +80,7 @@ public abstract class Structure
 /// <summary>Every kind of structure, built in this order.</summary>
 public static class Structures
 {
-    public static readonly Structure[] All = [new Dungeon(), new Village(), new Igloo(), new DesertPyramid()];
+    public static readonly Structure[] All = [new Ravine(), new Dungeon(), new Village(), new Igloo(), new DesertPyramid()];
 
     public static Structure? Find(string name) => All.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }

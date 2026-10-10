@@ -4,7 +4,8 @@ namespace Engine.Game;
 /// Land of the biomes a climate chooses: rolling plains and forests of oak and birch, taiga and
 /// snowy plains of spruce where it is cold, flat desert of sand and cactus where it is hot and
 /// dry, mountains of stone with snowy tops, lakes and seas up to sea level over sand and gravel,
-/// frozen where it is cold, sandy shores, and caves under the ground.
+/// frozen where it is cold, sandy shores, and caves under the ground that open to the sky in places,
+/// and ravines.
 /// </summary>
 public sealed class Overworld : IWorldGenerator
 {
@@ -16,7 +17,7 @@ public sealed class Overworld : IWorldGenerator
     private const int MountainsFrom = 82;
     private const int SandBelow = 50;
 
-    private readonly Noise _hills, _mountains, _sand, _gravel, _tunnelA, _tunnelB, _caverns, _basins;
+    private readonly Noise _hills, _mountains, _sand, _gravel, _tunnelA, _tunnelB, _caverns, _basins, _mouths;
     private readonly Climate _climate;
 
     public Overworld(int seed)
@@ -30,6 +31,7 @@ public sealed class Overworld : IWorldGenerator
         _tunnelB = new Noise(seed + 5);
         _caverns = new Noise(seed + 6);
         _basins = new Noise(seed + 7);
+        _mouths = new Noise(seed + 8);
         _climate = new Climate(seed);
     }
 
@@ -104,6 +106,7 @@ public sealed class Overworld : IWorldGenerator
             {
                 int wx = columnX * Section.Size + x, wz = columnZ * Section.Size + z;
                 var (height, biome, top, under, temperature, humidity) = Ground(wx, wz);
+                var open = height > SeaLevel + 4 && _mouths.Fractal(wx / 90f, wz / 90f, 2) > 0.3f;
                 Paint(column, x, z, temperature, humidity, biome);
                 column.Set(x, 0, z, BlockId.Bedrock);
                 for (int y = 1; y <= height; y++)
@@ -113,8 +116,9 @@ public sealed class Overworld : IWorldGenerator
                         : biome.Deep != BlockId.Air && y > height - 8 ? biome.Deep
                         : BlockId.Stone;
                     // The caves stay three blocks under the ground, so they are dark until dug into,
-                    // where an emissive block is the only light.
-                    if (y < height - 3 && IsCave(wx, y, wz)) continue;
+                    // where an emissive block is the only light, but in patches of high ground a
+                    // tunnel that rises near the top breaks out, a mouth the sun shines into.
+                    if ((y < height - 3 || open) && IsCave(wx, y, wz)) continue;
                     column.Set(x, y, z, block);
                 }
                 // Water over lower ground, its top frozen where the climate is cold.
