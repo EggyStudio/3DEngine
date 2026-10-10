@@ -95,6 +95,51 @@ public float lightReaching(float3 world, float3 n)
     return 1.0;
 }
 
+// Where the shadowed spot light in slot (counted from 0) lies in the map: the last tile is the
+// map's lower right quarter, split by rank as ShadowFit.SpotTileArea splits it, whole for one light,
+// quarters for up to four, and past four quarters for the first two and sixteenths in its lower
+// half for the rest.
+public void spotTile(int slot, out float2 origin, out float size)
+{
+    int count = lighting.spotShadowCount;
+    size = 0.5;
+    origin = float2(0.5, 0.5);
+    if (count > 4 && slot >= 2)
+    {
+        size = 0.125;
+        origin = float2(0.5, 0.75) + float2((slot - 2) % 4, (slot - 2) / 4) * 0.125;
+    }
+    else if (count > 1)
+    {
+        size = 0.25;
+        origin = float2(0.5, 0.5) + float2(slot % 2, slot / 2) * 0.25;
+    }
+}
+
+// The face of the shadowed point light in slot (counted from 0) that a point the way away from the
+// light lies furthest along the axis of, and where it lies in the point map: the lights that matter
+// most have a layer to each face, and the rest a quarter of one at half the size, as
+// ShadowFit.PointFaceArea lays them out, with texels twice as wide.
+public int pointFace(float3 away, int slot, out int layer, out float2 origin, out float scale)
+{
+    float3 size = abs(away);
+    int face = size.x >= size.y && size.x >= size.z ? (away.x >= 0.0 ? 0 : 1)
+             : size.y >= size.z ? (away.y >= 0.0 ? 2 : 3)
+             : (away.z >= 0.0 ? 4 : 5);
+    int full = int(lighting.pointShadow.z);
+    layer = slot * 6 + face;
+    origin = float2(0.0, 0.0);
+    scale = 1.0;
+    if (slot >= full)
+    {
+        int index = (slot - full) * 6 + face;
+        layer = full * 6 + index / 4;
+        origin = float2(index % 4 % 2, index % 4 / 2) * 0.5;
+        scale = 0.5;
+    }
+    return face;
+}
+
 // How much of the shadowed spot light in slot (counted from 0) at lightPosition reaches this
 // point, from 0 to 1, from its square of the map's last tile, compared as the cascades are. Its
 // texels widen with distance from the light, so the offset along the normal does too.
@@ -111,22 +156,9 @@ public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
-    // The last tile is the map's lower right quarter, split by rank as ShadowFit.SpotTileArea
-    // splits it: whole for one light, quarters for up to four, and past four quarters for the
-    // first two and sixteenths in its lower half for the rest.
-    int count = lighting.spotShadowCount;
-    float size = 0.5;
-    float2 origin = float2(0.5, 0.5);
-    if (count > 4 && slot >= 2)
-    {
-        size = 0.125;
-        origin = float2(0.5, 0.75) + float2((slot - 2) % 4, (slot - 2) / 4) * 0.125;
-    }
-    else if (count > 1)
-    {
-        size = 0.25;
-        origin = float2(0.5, 0.5) + float2(slot % 2, slot / 2) * 0.25;
-    }
+    float2 origin;
+    float size;
+    spotTile(slot, origin, size);
     // Kept a texel inside the square, so the comparisons around an edge read no other light's.
     float2 uv = clamp(origin + (p.xy * 0.5 + 0.5) * size, origin + texel, origin + size - texel);
     float reached = 0.0;
@@ -142,23 +174,10 @@ public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int
 public float pointLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
 {
     float3 away = world - lightPosition;
-    float3 size = abs(away);
-    int face = size.x >= size.y && size.x >= size.z ? (away.x >= 0.0 ? 0 : 1)
-             : size.y >= size.z ? (away.y >= 0.0 ? 2 : 3)
-             : (away.z >= 0.0 ? 4 : 5);
-    // The lights that matter most have a layer to each face, and the rest a quarter of one at half
-    // the size, as ShadowFit.PointFaceArea lays them out, with texels twice as wide.
-    int full = int(lighting.pointShadow.z);
-    int layer = slot * 6 + face;
-    float2 origin = float2(0.0, 0.0);
-    float scale = 1.0;
-    if (slot >= full)
-    {
-        int index = (slot - full) * 6 + face;
-        layer = full * 6 + index / 4;
-        origin = float2(index % 4 % 2, index % 4 / 2) * 0.5;
-        scale = 0.5;
-    }
+    int layer;
+    float2 origin;
+    float scale;
+    int face = pointFace(away, slot, layer, origin, scale);
     float offset = lighting.pointShadow.x / scale * length(away) * 1.5;
     float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(world + n * offset, 1.0));
     if (clip.w <= 0.0)

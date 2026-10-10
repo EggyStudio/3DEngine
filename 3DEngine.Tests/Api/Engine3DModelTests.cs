@@ -276,6 +276,29 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
+    public void A_Gltf_Materials_Volume_Thickness_Is_The_Materials_Subsurface_Thickness()
+    {
+        // A leaf's triangle whose material says, by KHR_materials_volume, it is 4 mm thick, which
+        // its one sheet does not, and a second whose material says nothing.
+        var bytes = new List<byte>();
+        foreach (var f in new float[] { 0, 0, 0, 1, 0, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0,1]}],"extensionsUsed":["KHR_materials_volume"],
+             "nodes":[{"mesh":0},{"mesh":1}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0},"material":0}]},{"primitives":[{"attributes":{"POSITION":0},"material":1}]}],
+             "materials":[{"name":"leaf","extensions":{"KHR_materials_volume":{"thicknessFactor":0.004}}},{"name":"plain"}],
+             "buffers":[{"byteLength":36,"uri":"data:application/octet-stream;base64,{{{{Convert.ToBase64String(bytes.ToArray())}}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
+            """;
+        var path = Path.Combine(_folder.Path, "leaf.gltf");
+        File.WriteAllText(path, json);
+
+        var model = LoadModel(path);
+        model.Materials.Select(m => m.SubsurfaceThickness).Should().BeEquivalentTo([0.004f, 0f]);
+    }
+
+    [Fact]
     public void A_Node_That_Scales_One_Way_More_Keeps_Its_Normals_Across_Their_Surface()
     {
         // A triangle in the plane whose normal is halfway between X and Y, under a node four times

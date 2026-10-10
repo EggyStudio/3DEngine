@@ -270,6 +270,7 @@ public static partial class Engine3D
                 AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
                 AlphaCutoff = material.AlphaCutoff,
                 DoubleSided = material.DoubleSided,
+                SubsurfaceThickness = material.Thickness,
             });
             return materialIndex[material] = materials.Count - 1;
         }
@@ -705,7 +706,7 @@ public static partial class Engine3D
             material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided,
             shader == 0 ? null : TextureSnapshot(material.Shader), material.CastsShadows,
             SubsurfaceShares: new Vector3(material.SubsurfaceColor.R, material.SubsurfaceColor.G, material.SubsurfaceColor.B) / 255f,
-            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius));
+            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius), SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness));
     }
 
     /// <summary>Draws a box's edges.</summary>

@@ -107,6 +107,12 @@ public struct Material : IEquatable<Material>
     public float SubsurfaceRadius;
 
     /// <summary>
+    /// How thick the material's parts are, in world units, which the light from behind a part
+    /// crosses at most, or 0 to have the scene measure it alone, which the constructors set.
+    /// </summary>
+    public float SubsurfaceThickness;
+
+    /// <summary>
     /// White and opaque. A default <see cref="Material"/> has an albedo of zero, which is
     /// transparent black and draws nothing.
     /// </summary>
@@ -146,6 +152,7 @@ public struct Material : IEquatable<Material>
         DoubleSided = true;
         SubsurfaceColor = Vector3.One;
         SubsurfaceRadius = 0f;
+        SubsurfaceThickness = 0f;
     }
 
     /// <summary>Whether every field is the same, compared field by field rather than through reflection.</summary>
@@ -160,7 +167,8 @@ public struct Material : IEquatable<Material>
         && NormalTexture.Equals(other.NormalTexture) && EmissiveTexture.Equals(other.EmissiveTexture)
         && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
         && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided
-        && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius;
+        && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius
+        && SubsurfaceThickness == other.SubsurfaceThickness;
 
     /// <inheritdoc />
     public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);

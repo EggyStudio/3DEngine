@@ -89,6 +89,20 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     public Color SubsurfaceColor { get; set; } = Color.White;
 
     /// <summary>
+    /// How thick the material's parts are, in world units, which the light from behind a part
+    /// crosses at most, or 0 to have the scene measure it alone. A glTF file's
+    /// <c>KHR_materials_volume</c> thickness sets it.
+    /// </summary>
+    /// <remarks>
+    /// The light that comes through a part from behind falls with the thickness the scene's
+    /// distance field or the sun's shadow map measures toward its light, which holds a leaf drawn
+    /// as one sheet a cell thick, half a cell either side of it, and measures nothing at all toward
+    /// a lamp that casts no shadow where the field is coarse. A thickness set here caps what was
+    /// measured and stands in where nothing was.
+    /// </remarks>
+    public float SubsurfaceThickness { get; set; }
+
+    /// <summary>
     /// A shader that draws the mesh in place of the model pass's own, which imports
     /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
     /// </summary>

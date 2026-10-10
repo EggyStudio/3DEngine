@@ -83,6 +83,9 @@ internal sealed partial class AssimpModelReader
                 AlphaMode = alphaMode,
                 AlphaCutoff = alphaCutoff,
                 DoubleSided = doubleSided,
+                // glTF's KHR_materials_volume, which says how thick a part is where its mesh,
+                // drawn as one sheet, says nothing of it.
+                Thickness = Math.Max(0f, TryGetFloat(m, "$mat.volume.thicknessFactor", 0f)),
             };
         }
         return result;

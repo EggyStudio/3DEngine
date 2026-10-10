@@ -554,7 +554,8 @@ internal sealed class MeshEntityDraws
             TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
             DoubleSided: material.DoubleSided,
             SubsurfaceShares: material.SubsurfaceColor,
-            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius));
+            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius),
+            SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness));
         return new Look
         {
             Material = material,

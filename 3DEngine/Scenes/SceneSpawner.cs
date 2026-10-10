@@ -357,6 +357,7 @@ internal static class SceneSpawner
             AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
             AlphaCutoff = material.AlphaCutoff,
             DoubleSided = material.DoubleSided,
+            SubsurfaceThickness = material.Thickness,
         };
 
         // Register the payload with the central MaterialLibrary so the renderer

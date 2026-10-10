@@ -94,6 +94,12 @@ internal sealed class SceneMaterialPayload
     /// </summary>
     public bool DoubleSided { get; init; }
 
+    /// <summary>
+    /// How thick the material's parts are, in the file's units, glTF's <c>KHR_materials_volume</c>
+    /// thickness, or 0 where the file gives none.
+    /// </summary>
+    public float Thickness { get; init; }
+
 }
 
 /// <summary>Reference to a texture file that backs a <see cref="SceneMaterialPayload"/> input.</summary>

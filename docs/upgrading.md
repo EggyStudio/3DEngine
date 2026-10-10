@@ -204,6 +204,10 @@ guide that shows it.
   lit from behind shows the light that comes through it, at the `SubsurfaceQuality`, `Low`,
   `Medium` or `High`, that `SetSubsurfaceQuality` sets, as
   [Light under the surface](materials-light-and-shadows.md#light-under-the-surface) shows.
+- **A part's own thickness.** `ModelMaterial.SubsurfaceThickness` and a mesh entity's
+  `Material.SubsurfaceThickness` say how thick a scattering material's parts are at most, which a
+  glTF file's `KHR_materials_volume` thickness sets, so a leaf drawn as one sheet lets the light
+  from behind through, and a lamp the scene's field cannot measure toward does too.
 - **Bevy's tonemappers.** `SetTonemap` takes the eight Bevy offers, `Tonemap.None`,
   `Tonemap.Reinhard`, `Tonemap.ReinhardLuminance`, `Tonemap.AcesFitted`, `Tonemap.AgX`,
   `Tonemap.SomewhatBoring`, `Tonemap.TonyMcMapface` and `Tonemap.BlenderFilmic`, drawn as Bevy

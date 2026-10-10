@@ -1539,6 +1539,28 @@ three of the widest share, a twentieth of it, ended in a ragged edge where the m
 wavered across that line, so it fades as e has it. The scene's distance field had held the
 example's spheres as spiky blobs too, the fault `8524102e` mended.
 
+A material says how thick its parts are at most (`SubsurfaceThickness`, glTF's
+`KHR_materials_volume` thickness through Assimp's `$mat.volume.thicknessFactor`), carried with the
+batch's profile as a second attribute of the scatter pass's fifth binding, and the scatter pass
+takes the lesser of it and the thickness measured, or it alone where neither the field nor the
+sun's map can measure. The field holds a sheet drawn as one a cell thick, half a cell either side,
+so a leaf of one sheet let the light through as a slab of 0.15 would; and toward a lamp that casts
+no shadow where the field is coarse nothing measures it at all. `shaders_subsurface` draws its leaf as one sheet two
+millimeters thick by its material, and `SubsurfaceTests` holds a sheet with a lamp behind it and no
+field dark without a thickness, (39, 39, 39), and lit through with five centimeters of it, (136,
+120, 109).
+
+Where the field is coarse, a spot or point light that casts shadows measures the thickness from its
+own map as the sun does, the mean of nine depths a texel apart about the point in its square of
+the map or its face of the point map (`spotTile` and `pointFace` in `lights.slang`, which its
+shadow lookup shares). From the light, a point's clip coordinates through the face's
+view-projection are the light's plus its distance times the way's, so the depth read gives the
+distance at which the way met the face nearest the light in one division, whatever the near and
+far planes the face was drawn with, and the thickness is the rest of the way to the point
+(`lampThickness` in `subsurface.slang`). `SubsurfaceTests`' slabs lit from behind read the thin one
+(149, 133, 122) through a point light's map and a spot light's alike, against (143, 118, 102)
+through the field, and the thick one (48, 39, 39) against (59, 39, 39).
+
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it
 reads the same in the window and in a render texture, with every effect on or off, but for light

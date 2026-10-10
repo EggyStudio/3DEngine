@@ -672,19 +672,19 @@ void DrawMeshInstanced(ModelMesh mesh, ModelMaterial material, ReadOnlySpan<Matr
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
 ```
 
-A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`, and
-a model with a skeleton has its `Skeleton`, its `Bones` and `BindPose`, which a `ModelAnimation`
-of the same file poses keyframe by keyframe in its `KeyframePoses`. A
-`ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
-mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap`
-as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
-`OcclusionMap` with its `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below
-its `AlphaCutoff`, or `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets,
-`CastsShadows` (true by default), false for a glow that leaves no shadow, and a `SubsurfaceRadius`
-in world units with its `SubsurfaceColor`, how far each color travels under skin, wax or marble
-before it leaves, which the window's frame spreads. Models are drawn
-unlit, as raylib draws them, until the ECS holds `Light` entities, and draw through the camera
-`BeginMode3D` set.
+A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`, and a
+model with a skeleton has its `Skeleton`, its `Bones` and `BindPose`, which a `ModelAnimation` of
+the same file poses keyframe by keyframe in its `KeyframePoses`. A `ModelMaterial` is a `Color` and
+a `Texture`, so `model.Materials[0].Texture = texture;` textures a mesh, with `Metallic`,
+`Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap` as glTF packs one, an
+`Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an `OcclusionMap` with its
+`OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below its `AlphaCutoff`, or
+`Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets, `CastsShadows` (true
+by default), false for a glow that leaves no shadow, and a `SubsurfaceRadius` in world units with
+its `SubsurfaceColor`, how far each color travels under skin, wax or marble before it leaves, which
+the window's frame spreads, and a `SubsurfaceThickness`, how thick its parts are at most for the
+light from behind, as a glTF file's `KHR_materials_volume` says. Models are drawn unlit, as raylib
+draws them, until the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
 ## States
 

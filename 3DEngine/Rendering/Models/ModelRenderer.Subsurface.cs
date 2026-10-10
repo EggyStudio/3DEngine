@@ -59,11 +59,17 @@ internal sealed partial class ModelRenderer
             if (Scatters(batch)) marked++;
         if (marked == 0) return 0;
 
-        var profiles = allocator.Allocate((ulong)(marked * 16), BufferUsage.Vertex);
+        // Each batch's profile, then its parts' thickness, 32 bytes a batch.
+        var profiles = allocator.Allocate((ulong)(marked * 32), BufferUsage.Vertex);
         var written = MemoryMarshal.Cast<byte, Vector4>(allocator.Map(profiles));
         var index = 0;
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
-            if (Scatters(batch)) written[index++] = batch.Subsurface;
+            if (Scatters(batch))
+            {
+                written[index * 2] = batch.Subsurface;
+                written[index * 2 + 1] = new Vector4(batch.Thickness, 0, 0, 0);
+                index++;
+            }
         allocator.Unmap(profiles);
 
         var depth = SubsurfaceDepthSet(gfx, sceneDepth);
@@ -99,7 +105,7 @@ internal sealed partial class ModelRenderer
             pass.SetBindGroup(pipeline, batch.Set ?? MaterialSet(gfx, textures, default));
             var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, view.Ring!, colors, texcoords2, profiles.Buffer],
-                [0, view.Offset, 0, 0, profiles.Offset + (ulong)(index++ * 16)]);
+                [0, view.Offset, 0, 0, profiles.Offset + (ulong)(index++ * 32)]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count("subsurface", DrawSeen(pass, batch, view.Blocks, frustum));
         }
@@ -121,9 +127,9 @@ internal sealed partial class ModelRenderer
     }
 
     // subsurface.slang's pipeline, which reads the mesh's colors and second texture coordinates
-    // from the mesh or the one default, and the batch's profile from a fifth binding stepped per
-    // instance with a stride of 0, at location 11. It draws with no depth, the fragment stage
-    // comparing its own with the scene's, and blends nothing.
+    // from the mesh or the one default, and the batch's profile and its parts' thickness from a fifth
+    // binding stepped per instance with a stride of 0, at locations 11 and 12. It draws with no
+    // depth, the fragment stage comparing its own with the scene's, and blends nothing.
     private IPipeline SubsurfacePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull, Streams streams)
     {
         if (_subsurfacePipelines.TryGetValue((renderPass, cull, streams), out var made)) return made;
@@ -144,7 +150,8 @@ internal sealed partial class ModelRenderer
                 new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
                 new VertexInputBindingDesc(4, 0, PerInstance: true),
             ],
-            VertexAttributes: [.. Placed(6, streams, [], null, null), new VertexInputAttributeDesc(11, 4, VertexFormat.Float4, 0)],
+            VertexAttributes: [.. Placed(6, streams, [], null, null), new VertexInputAttributeDesc(11, 4, VertexFormat.Float4, 0),
+                new VertexInputAttributeDesc(12, 4, VertexFormat.Float4, 16)],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
             DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx), _subsurfaceDepthLayout],
             DepthTestEnabled: false,

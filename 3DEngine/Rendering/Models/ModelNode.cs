@@ -127,6 +127,8 @@ internal sealed partial class ModelRenderer : IDisposable
         // The shares of the radius each color travels under the surface and the radius, where its
         // draws scatter light under it (ModelDraw.Subsurface), or zero, a batch holding one alone.
         public Vector4 Subsurface;
+        // How thick its draws' parts are at most where they scatter (ModelDraw.SubsurfaceThickness), or 0.
+        public float Thickness;
         public uint First;
         public uint Count;
         // A group's blocks in the call's block list, or none for draws.
@@ -204,7 +206,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
 
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
     // instances are and the blocks they are culled by, made once a frame by whichever of its
@@ -516,7 +518,7 @@ internal sealed partial class ModelRenderer : IDisposable
             }
             _drawBatch.Add(kind == Kind.Alone
                 ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor)
-                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor, draw.Subsurface)));
+                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor, draw.Subsurface, ThicknessOf(in draw))));
         }
 
         for (int g = 0; g < groups.Count; g++)
@@ -526,7 +528,7 @@ internal sealed partial class ModelRenderer : IDisposable
             var (kind, set) = classify(in group.Template);
             if (kind != Kind.Batched || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
             var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor,
-                group.Template.Subsurface);
+                group.Template.Subsurface, ThicknessOf(in group.Template));
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
@@ -581,21 +583,24 @@ internal sealed partial class ModelRenderer : IDisposable
     private const int Translucent = -2;
 
     private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
-        ScissorRect? scissor, Vector4 subsurface = default)
+        ScissorRect? scissor, Vector4 subsurface = default, float thickness = 0)
     {
         _batches.Add(new Batch
         {
             Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Shadow = shadow, ViewProjection = viewProjection,
-            Scissor = scissor, Subsurface = subsurface,
+            Scissor = scissor, Subsurface = subsurface, Thickness = thickness,
             Count = custom >= 0 ? 1u : 0u,
         });
         return _batches.Count - 1;
     }
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface) key)
+    // A draw's parts' thickness where it scatters, so draws that differ only where nothing scatters share a batch.
+    private static float ThicknessOf(in ModelDraw draw) => draw.Subsurface.W > 0 ? draw.SubsurfaceThickness : 0;
+
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
-            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface);
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface, key.Thickness);
         Grow(index);
         return index;
     }

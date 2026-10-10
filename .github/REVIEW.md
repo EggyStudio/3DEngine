@@ -10,12 +10,34 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a063a336`. Verdict 40's census at each step: on Windows each step of the four
-followed apps ends with the kinds of handle it changed, as `SDL plugin built +4 (+3 Thread, +1
-Event)`, the kinds read against the step before, so the next Windows page names the step that opens
-the thread handles the apps keep and whether `ended` gives them back; elsewhere it reads nothing.
-Right, the smallest change that makes the next page say the thing. The suite: 1,641 passed. Part g
-next, the last of the game's asks.
+Reviewed up to `0f39daf5`. Item 2's part g, the last of the game's seven asks, and the item is done.
+Measured first: a box sealed on every side read 37.5 in blue on its rough inside walls under a blue
+sky and an open floor beside it 62.7, the game's carved chamber with its own dimming off (6.6, 13.3,
+24.4). The probes say how much sky they see: a ray of the last cascade that meets nothing brings the
+sky's light marked a quarter in its alpha, which the merge reads as it reads a hit so nothing else
+moves, each merged texel carrying its share of the sky in an image of its own, carried down as the
+light from beyond is, the gather weighing it into a sixth image of faces, and the model pass
+weighing the environment map's reflection by the share the surface's probes see along the mirror
+direction, read from the eight probes around it with the light's own weights and visibility. After:
+the sealed box 0.13, the open floor 61.8, and the game's chamber (0.1, 0.1, 0.1), as with no map at
+all, so the game's dimming of the whole map goes; the sealed box is a test. The cost 0.01 ms of the
+bounce at Medium and High and 0.14 to 0.84 MB, the guide's table measured again; the game's scene
+pass 1.55 to 1.65 ms in Release, reading eight probes more where a map is set; Wick without a map
+unchanged. The glossy reflections' reference is drawn again, the floor under the shelf and the
+chrome sphere's underside reflecting less sky as their probes see the floor, looked at, 1.37% from
+the old on the RTX 4070. Two gaps noted and not asked: the screen's probes carry no share of sky,
+the world's standing in, and a reflection probe's capture stands in for the map unweighed. Right,
+the probes asked what they already knew, measured on the game's chamber and the box both ways, and
+the merge's and gather's hand-listed bindings found as the first try's fault and said. The suite:
+1,642 passed; on lavapipe 362 passed and 7 skipped with no validation error. Item 2 is closed in the
+Now list; by it, item 3's remainder next, unless a page or a verdict comes first.
+
+Before it, Verdict 40's census at each step came: on Windows each step of the four followed apps
+ends with the kinds of handle it changed, as `SDL plugin built +4 (+3 Thread, +1 Event)`, the kinds
+read against the step before, so the next Windows page names the step that opens the thread handles
+the apps keep and whether `ended` gives them back; elsewhere it reads nothing. Right, the smallest
+change that makes the next page say the thing. The suite: 1,641 passed. Part g next, the last of the
+game's asks.
 
 Before it, item 2's part f came to be read, a changed mesh's light, the fix the measurement chose: a
 still mesh replaced in place, by a mesh of other vertices drawn through the same matrix whose bounds
@@ -31,31 +53,6 @@ numbers; Manor and Wick hold their times. Right, measured first, the fix the mea
 than the one the item named first, and the probe kept as the test. The suite: 1,641 passed; on
 lavapipe 361 passed and 7 skipped with no validation error. Verdict 40's census at each step next,
 then part g, the last of the game's asks.
-
-Before it, item 2's part e came to be read, the field's colors from the vertices: each pooled
-corner's fourth word carries its vertex's sRGB bytes, white for a mesh with none, beside the open
-edge's bit it held, the splat reading the corners as words and blending the three colors in linear
-light at the cell's nearest point by their barycentric shares, times the instance's color, as the
-model pass multiplies them into the base color; a mesh still settling is stamped in its color times
-its vertices' mean, kept per mesh, so a section's boxes are not white for its first frames. A test
-draws one white mesh of two boxes with red and green vertices and reads the field's cells by each at
-0.79 and 0.77 where both read white, and a unit test holds the stamp's tint; built every frame in
-the game at eight columns the field's node takes 0.46 to 0.48 ms of the GPU where 0.41 to 0.45, and
-Manor and Wick, with no vertices' colors, hold their times. Right, the field made to agree with the
-frame drawn, which is the whole of the ask. Two things noted and not asked: the reflections the
-GPU's rays trace still color a copy by its instance alone, a gap of its own if a game asks; and the
-game's vertex colors hold its shade, light times corner occlusion, which the model pass multiplies
-into the albedo already, so the field agrees with the picture and a shade meant as light belongs in
-a stream of its own the game's shader applies, which the game's session was told. Part f is
-measured, as its text asked, with a frame-exact probe: a lamp cube drawn apart from a walls mesh,
-lit by the bounce alone, and the walls replaced by a mesh with one more block dropped the floor's
-light from 85 to 60 and a wall's from 116 to 69 for six frames, recovering by the tenth, the lamp
-never changing, since the old walls left the field at once and the new stood in as boxes for eight
-frames; so the stamp carrying emission would not touch it and the other fix is written, a still mesh
-replaced in place, the same world matrix with other vertices, staying in the field until its
-replacement settles, sixteen frames at most, the replacement unstamped meanwhile, the probe then
-rising without a dip; its tests come with its commit. The suite: 1,638 passed; on lavapipe 358
-passed and 7 skipped with no validation error.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -92,86 +89,87 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    the batch that next touches states. Each push's run is read by the reviewing session, and a
    failure it names comes first here.
 
-2. **What the voxel game asks (ASKS.md, Decision 26), after Verdicts 40 and 44 and before item 3's
-   remainder.** The game in `3DEngine.Game`, a testbed built on the engine's project (NORM.md's
-   term), wrote seven entries on 2026-10-10 from one scene, seed 1's hills at 1280 by 720 on an RTX
-   4070 Laptop GPU with the bounce at High and the sun casting shadows to 96 units, each pass's time
-   the average over 600 frames read twice. Each part below is measured on that scene first, through
-   `./e3d command profile` and `GetProfileAverage` as the entries were, then mended in a commit of
-   its own with its numbers before and after, Wick and Manor measured beside so nothing they draw
-   grows, and the entry's `Review:` line says where it stands. In the order of their weight:
+2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
+   at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
+   changed, each a commit of its own with its numbers before and after and a test that holds the
+   measure, the voxel game's read through the testbed at eight columns, and the game's session asked
+   to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
+   and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
+   The order of work: a, then b, then d, then c.
 
-   **a. The sun's shadows.** 7.7 ms of the GPU over 1,133 draws at six columns of sections and 15.0
-   ms over 1,836 at eight, 1.4 and 2.3 ms of the CPU: the renderer culls instanced groups of mesh
-   entities in blocks of 64 but draws a plain `DrawMesh` whole into each of the four cascades,
-   behind the camera and outside every cascade included, so the shadows grow faster than the draws.
-   Each cascade draws what its frustum holds and what can cast a shadow into it, a caster behind its
-   far plane or outside its sides passed over; a cascade's draws of meshes sharing a material issued
-   as one where they can be; and, where a game asks, the far cascades drawn every other frame or at
-   a lower resolution, a setting with its cost. Done at `d1031bc3`, 14.2 to 2.3 ms of the GPU, and
-   closed: the game read the scene again at 6, 8 and 10 columns and withdrew the two asks left here,
-   since in Release the frame at 8 columns takes 7 to 8 ms waiting on the CPU, a call a cascade
-   would save a quarter of a millisecond at most, and the far cascades drawn less often or smaller
-   would save GPU time alone; what grows with the draws is the CPU's, 1.7 to 2.0 ms for the field's
-   plan at 8 columns in Release, which is part d, so c and d carry the weight and come next in that
-   order, then e to g.
+   **a. A dark ring at the terminator of every scattering sphere, and a jagged red line on the
+   skin's.** In `shaders_subsurface` all three spheres that scatter show a dark line along the ring
+   where the light's direction and the normal are square, the scattering beginning too far into the
+   shadow where it should wrap the terminator, and the skin sphere, whose radius is 0.06 under cells
+   of 0.15, ends its red light through on the dark side in a zig-zag edge, where the wax's and the
+   marble's end smooth. Measured first: the frame's light along a meridian of each sphere from the
+   lit pole through the terminator into the shadow, read every degree with the spread on and off and
+   against a Burley profile worked out for the sphere, which says where the dip lies and how deep;
+   and the angle of the light-through band's edge around the sphere, whose variance is the zig-zag.
+   The dip's suspects, in order: the spread down taking away the pixel's own diffuse where the
+   spread across under-fills near the terminator, so a pixel ends darker than it began; the model
+   pass's diffuse and the scatter pass's disagreeing at the terminator, one wrapped or softened and
+   the other cut at zero; and the light through at grazing angles, where the march runs along the
+   surface. The edge's suspect is the thickness read texel by texel from the sun's map where the
+   field's cells are too coarse for skin's reach, which the nine-sample mean softened and did not
+   smooth; the thickness is read with a wider filter or from the field at a finer reach, measured.
+   The tests hold the profile falling without a dip across the terminator and the band's edge within
+   a bound of its variance.
 
-   **b. Culling to the view without losing the field.** The camera's pass takes 3.2 and 5.3 ms and the
-   occlusion's half-size depth 3.0 and 5.0 drawing every section, those behind the camera too, and a
-   game cannot cull them itself, since the field gathers the frame's draws and a mesh left out of a
-   frame leaves it, built again without it, its light gone until drawn unchanged eight frames. The
-   window's passes cull to their own view inside the engine, and the field's gather keeps every draw
-   the game made, so a game draws its world and the engine draws of it what each pass sees. Done at
-   `d1031bc3`, each pass culling its own view and the field's gather untouched.
+   **b. The bounce drifts for 13 to 18 frames after the camera moves in the voxel game, then
+   holds.** Measured by the game's session in a closed room of white concrete at night with one
+   glowstone, the light levels and corners off: still, the picture changes nothing; after a turn of
+   ninety degrees in one frame it changes 1.02 sRGB levels on the first frame after and 5.41 summed
+   over 18 frames, after a walk of four blocks 0.57 and 2.63 over 15, under one pixel in ten
+   thousand past 8 levels, so a faint drift over the whole room; the difference between the first
+   frame after the walk and the settled one is a grid of patches on the walls and the floor at the
+   first cascade's probe spacing of two blocks, up to 12 levels, which the walk moves twice. With
+   the frame before's light left out, or the screen's probes, the drift after the walk is gone and
+   the turn settles in 5 or 6 frames, and the other parts change little; on the hills by day the
+   same motions settle within a frame. So the drift is the screen probes' history converging after a
+   motion, the world probes' light they take beyond their rays having changed as the cascades
+   shifted with the walk and the old history standing while it blends toward the new over the frames
+   of its weight, the patches being the world probes' cells as the screen probes read them. The
+   cause is read first: why the history's hold within this frame's spread lets the old value stand
+   where the change is coherent over a patch; then the remedy measured against it, the blend
+   tightened or shortened where the frame's light moves coherently, or the history let go where a
+   cascade moved, each by the summed drift after the walk and the turn, and the slide test, which
+   must not grow. The test holds the drift after a walk under a bound by the fifth frame in the room
+   above.
 
-   **c. The occlusion pass at nothing.** `ambient_occlusion` costs 3.2 ms of the GPU and 2.3 of the
-   CPU with its intensity at 0, drawing its half-size depth of every shadow caster for nothing where
-   no other pass reads it. The pass is left out where its intensity is 0 and nothing reads its
-   depth, and the profile says it was. Read at `0e982877` and answered otherwise: the pass draws the
-   sun's contact shadows, which the model pass reads, so it stays, and what the profile called it
-   was three things, the batches' gather at 1.3 to 1.5 ms of the CPU once a frame, the half-size
-   depth at 1.16 ms of the GPU and the occlusion itself at 0.08, each a node with its number; done.
+   **c. The border between near and far is the field's last cascade's end.** Measured by the game's
+   session on the hills at sunset with the sun under the horizon, the bounce at High over the light
+   with the bounce off, which takes the environment map's: 0.56 to 0.80 of it from 60 to 96 blocks
+   and 1.00 from 122 on, the step between 96 and 102 blocks where `field.state` ends the last
+   cascade; doubling the cell moves the step past the 148 blocks drawn, and the shadows taken to 200
+   leave it where it was, so the line is the field's and not the shadows'; by day the bounce and the
+   map differ under 8% and no step shows. Past the last cascade a surface takes the map's unoccluded
+   light, up to two thirds brighter than the bounce inside at a low sun, and nothing blends the one
+   into the other. The near is blended into the far across a band at the last cascade's edge, the
+   probes' light fading to the map's over the outer part of the cascade's reach as the light's
+   cascades are merged into one another, and the field's distances the same where a pass reads them
+   to the edge; measured by the luminance along the view's middle rows across the edge at sunset,
+   and a test holds the step across it under a bound.
 
-   **d. The field's plan for a still scene.** `cpu.scene_field` takes 2.3 ms at six columns and 3.9
-   at eight with nothing changed, about two microseconds a draw a frame, since `SceneFieldPlan`
-   compares every draw's instance with the frame before's. A draw that did not change costs the plan
-   nothing, by a key the game's draw carries or a hash the plan keeps, measured on the still scene.
-   Done at `2dd527f1`: a frame drawing the frame before's meshes in the same order is read by place,
-   the plan 1,600 to 92 µs and the field's node 1.8 to 0.39 ms of the CPU; the gather's 330 µs and
-   the bounce's node's 0.77 ms remain, noted.
+   **d. Eight lobes of light around a glowstone on a floor at High, four at Low.** Measured by the
+   game's session straight down over one glowstone on grass at night, the floor's light read at 72
+   points around a circle with the moonlit floor's own taken off and the lobes read as the harmonics
+   of the ring: at High eight lobes at 0.15 of the lamp's light at two blocks and 0.39 at two and a
+   half, at Medium eight at 0.03 and 0.11, at Low four at 0.11 and 0.16, under 0.07 within a block
+   and a half, and the lamp's light down to the floor's own by three blocks. The cause is the
+   probes' octahedron, the few of its directions that meet a small emitter a probe or two away, and
+   the first cascade's 64 directions at High where the cascades above have 256, so the ring of eight
+   texels shows as eight lobes. Measured against each other, cheapest first: the first cascade given
+   256 directions at High, a quarter more rays, read for the lobes' depth and the cost; the rays'
+   directions jittered each frame within their texels and the faces averaged over frames, which the
+   hold's follow must not read as a light changing, read for the lobes, the fade and the crawl; and
+   a small emitter near a probe taken by its rays' hits as a light with a position, as the lamps
+   are, read for the lobes and the cost in the game's room of many lamps. The test holds the lobes'
+   depth at two and a half blocks under a bound at each quality.
 
-   **e. The field's colors from the vertices.** `SceneFieldRenderer.Gather` gives the field each
-   draw's material color times its texture's average and the model pass alone multiplies in the
-   vertices' colors, so a section meshed as one mesh would bounce one color for every block, and the
-   game draws 1,127 sections as 1,971 meshes, one a surface. The splat takes the vertices' colors as
-   the model pass does, so a section is one mesh and one draw, some 43% fewer on this scene before
-   any culling. Done at `b5805aa5`: the splat blends the vertices' colors at the cell's nearest
-   point and the stamp takes their mean, for 0.03 ms of the GPU where the field is built every
-   frame; the traced reflections still color a copy by its instance alone, noted. The game draws
-   each section as one mesh with its blocks' colors in its vertices at `4d54769d`, 1,056 draws at
-   eight columns where 1,836, its settled frame 8.9 ms in Debug.
-
-   **f. A changed mesh's light.** Read in `SceneFieldPlan.cs` and §4 and not yet measured: the field
-   keys a mesh by its vertex array, so a mesh uploaded again is a new one, stamped for eight frames
-   as boxes in its color that give off none of its light, and a block placed beside a lamp inside a
-   section's mesh would put the lamp out for those frames and the cascades built after. Measured
-   first on the game's scene, a block placed beside a glowstone; then the stamp carries the mesh's
-   emission, or the mesh stays in the field as it was until the one replacing it is still, whichever
-   the measurement favor Measured at `aba10656` and done: the dip was the old mesh leaving at once
-   while the new stood in as boxes, so a still mesh replaced in place stays in the field until its
-   replacement settles, sixteen frames at most, and the wall holds at 114 to 116 where it fell to
-   69.
-
-   **g. The sky's reflection in a sealed room.** A chamber sealed in stone at noon reads (6.6, 13.3,
-   24.4) in sRGB with the sky's environment map and (0.1, 0.1, 0.1) without it, a blue sheen on
-   stone of roughness 0.9 brightest at a grazing angle: the model pass weighs the map's reflection
-   by the ambient occlusion alone, and reflections rougher than 0.5 are not traced, so nothing says
-   the sky is not there. The probes know, their rays that meet nothing bringing the sky and the rest
-   none of it, so the gather writes each probe's share of sky, the model pass blends it at the
-   surface as it blends the bounced light and weighs the map's specular and, where the bounce is
-   off, its diffuse by it, and the chamber reads dark while an open field reads as it did; measured
-   on the game's chamber and on Wick's doorway, and the game's dimming of the whole map by the light
-   at the player's eyes goes.s.
+   The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
+   history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
+   Debug and its sealed chamber from a blue sheen to dark.
 
 3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
    batches, each measured, what of its first batch stands alone committed before item 2 begins.** A
@@ -437,32 +435,43 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     REVIEW.md is; a game's own files, `3DEngine.Game` and the solution's line among them, are the
     game's session's to commit.
 
+27. **The owner's eye on 2026-10-10 opens item 2 again, four things seen.** The owner looked at
+    `shaders_subsurface` and the voxel game in the afternoon and said what they saw: a dark ring
+    along the terminator of every scattering sphere with the scattering beginning too late, and a
+    jagged red line where the skin sphere's light through ends; the voxel game's bounce changing and
+    looking bad while moving, flickering for a second after a move and then holding, which turning
+    one part of the bounce off takes away at the cost of a lacking picture; a border between near
+    and far too sharp in the distance; and some eight spokes of light around an emissive block seen
+    from above, where the Cornell box and the bounce rooms look smooth. The owner asked that these
+    be thought about and fixed; each is measured before it is changed and held by a test, as
+    Decision 22's were.
+
 ## Replies
 
-Item 2's part g. Measured first: a box sealed on every side and a floor in the open beside it,
-stone of roughness 0.9 under a blue sky, read 37.5 in blue on the box's inside walls at a grazing
-angle where the sky gave nothing else, and the open floor 62.7; the voxel game's carved chamber at
-noon with its own dimming off read (6.6, 13.3, 24.4) in sRGB, its session's number. The probes now
-say how much sky they see: a ray of the last cascade that meets nothing brings the sky's light
-marked a quarter in its alpha, which the merge reads as it reads a ray that met a surface, so
-nothing else moves, and each merged texel carries its share of the sky in an image of its own,
-1 for such a ray and the cascade above's blended as the light is where a ray met nothing; the
-gather weighs it as it weighs the light into a sixth image of faces, and the model pass weighs the
-environment map's reflection by the share its surface's probes see along the mirror direction where
-light bounces, read from the eight probes around it as their light is, the probe a wall hides
-weighed down as it is for the light. Afterward the sealed box read 0.13 and the open floor 61.8,
-and the game's chamber (0.1, 0.1, 0.1), as it reads with no environment map at all, so the game's
-dimming of the whole map by the light at the player's eyes can go, which its session was told. The
-merge's and the gather's compute stages list their bindings by hand, which the first try missed and
-read the faces' clear value everywhere. The cost: the Cornell box's bounce 0.69 to 0.70 ms at High,
-0.49 to 0.50 at Medium and 0.37 at Low, 0.14 to 0.84 MB more, the guide's table measured again; the
-game's scene pass 1.55 to 1.65 ms and its bounce 1.26 to 1.32 in Release, the scene pass reading
-eight probes more where an environment map is set; Wick, which sets none, unchanged, and Manor,
-whose bounce is off where it is read, within its noise. The sealed box is a test; the guide and
-RENDERING.md §4 say it with its numbers. The screen's probes' rays are not weighed, the share read
-from the world's probes alone, and a reflection probe's capture stands in for the map unweighed.
-The glossy reflections' reference is drawn again, since its floor under the shelf and the chrome
-sphere's underside reflect less of the sky now, as their probes see the floor: lavapipe read it
-2.4% apart against the 2% allowed, the old and the new 1.37% apart on the RTX 4070. The suite 1,642
-passed, the compiler's test of the lights set taking the sky's binding; on lavapipe 362 passed and 7
-skipped with no validation error.
+Item 3's remainder, the first of its three: a material's own thickness. `ModelMaterial` and a mesh
+entity's `Material` gain `SubsurfaceThickness`, how thick the material's parts are at most in world
+units, which a glTF file's `KHR_materials_volume` thickness sets through Assimp's
+`$mat.volume.thicknessFactor`; it rides beside the batch's profile as a second attribute of the
+scatter pass's fifth binding, the batch keyed by it, and the scatter pass takes the lesser of it
+and the thickness measured, or it alone where neither the field nor the sun's map measures. Two
+cases it answers, each now a test: a sheet with a lamp behind it and no field to measure toward the
+lamp read (39, 39, 39), the ambient alone, and (136, 120, 109) with five centimeters given; and a
+glTF file's leaf material reads its 4 mm. `shaders_subsurface` draws its leaf as one sheet two
+millimeters thick by its material, where it was a box two centimeters thick, and its capture is
+drawn again; the guide, which had a stray word and a sentence run into its table's last row, the
+CHEATSHEET's line, the upgrading page, PublicApi.txt, RENDERING.md §5 and TODO.md say it. Nothing
+draws more: the profile buffer is 32 bytes a scattering batch in place of 16.
+
+And the second, in the same commit, since it changes the same thickness function and its slabs'
+test: a spot or point light that casts shadows measures the thickness from its own map where the
+field is coarse, as the sun does, the mean of nine depths a texel apart in its square or face, read
+through the lookups its shadow shares, now `spotTile` and `pointFace` in `lights.slang`. From the
+light a point's clip coordinates are the light's plus its distance times the way's, so the depth
+read gives the distance to the face nearest the light in one division, whatever the face's near
+and far planes. The slabs lit from behind, a case each now, read the thin one (149, 133, 122)
+through a point light's map and a spot light's alike, the field's lamp (143, 118, 102), and the
+thick one (48, 39, 39) where the field gives (59, 39, 39); before, nothing measured toward a lamp
+with no field and the thin slab read the ambient 39. Part (a) alone passed lavapipe, 363 and 7
+skipped with no validation error, before (b) was written; the two together, 365 and 7 skipped with
+no validation error, and the suite 1,646 passed. What remains of item 3 is the spread in render
+textures and probe captures.

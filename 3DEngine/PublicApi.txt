@@ -2111,6 +2111,7 @@ struct Engine.Material : IEquatable<Material>
   float OcclusionStrength
   float RoughnessFactor
   float SubsurfaceRadius
+  float SubsurfaceThickness
   override bool Equals(object? obj)
   override int GetHashCode()
   static Material Default { get; }
@@ -2190,6 +2191,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   float OcclusionStrength { get; set; }
   float Roughness { get; set; }
   float SubsurfaceRadius { get; set; }
+  float SubsurfaceThickness { get; set; }
   override bool Equals(object obj)
   override int GetHashCode()
   override string ToString()

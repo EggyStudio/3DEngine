@@ -97,25 +97,39 @@ public sealed class SubsurfaceTests : IDisposable
     }
 
     [NeedsVulkanTheory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void A_Thin_Slab_Lit_From_Behind_Shows_The_Light_On_Its_Front_Where_A_Thick_One_Barely_Does(bool lamp)
+    [InlineData("lamp through the field")]
+    [InlineData("sun through its map")]
+    [InlineData("point light through its map")]
+    [InlineData("spot light through its map")]
+    public void A_Thin_Slab_Lit_From_Behind_Shows_The_Light_On_Its_Front_Where_A_Thick_One_Barely_Does(string light)
     {
         // Three white slabs a unit square facing the camera, lit only from behind: a thin one and a
         // thick one whose material scatters over 0.3, and a thin one that does not. Behind them a lamp
-        // whose light's way through each is measured in the scene's distance field, or the sun with
-        // no field, whose shadow map measures it. The thin one's front read (143, 118, 102) by the
-        // lamp and (180, 162, 150) by the sun, the thick one's (59, 39, 39) and (48, 39, 39), its
-        // light a unit through faded near to nothing, and the unmarked one's 39 in every channel, the
-        // ambient light alone, as this test measured on an RTX 4070.
+        // whose light's way through each is measured in the scene's distance field, or the sun, a
+        // point light or a spot light that casts shadows with no field, whose own shadow map
+        // measures it. The thin one's front read (143, 118, 102) by the lamp through the field,
+        // (180, 162, 150) by the sun and (149, 133, 122) by the point and the spot light through
+        // their maps, the thick one's (59, 39, 39) and (48, 39, 39), its light a unit through faded
+        // near to nothing, and the unmarked one's 39 in every channel, the ambient light alone, as
+        // this test measured on an RTX 4070.
+        // A point or a spot light that casts shadows and no field measures through its own map.
         Open();
-        if (lamp)
+        switch (light)
         {
-            SetSceneField(1, 0.15f);
-            CreatePointLight(new Vector3(0, 0, -2.5f), Color.White, 3, range: 10);
+            case "lamp through the field":
+                SetSceneField(1, 0.15f);
+                CreatePointLight(new Vector3(0, 0, -2.5f), Color.White, 3, range: 10);
+                break;
+            case "sun through its map":
+                CreateDirectionalLight(Vector3.UnitZ, Color.White, 0.5f, castsShadows: true);
+                break;
+            case "point light through its map":
+                CreatePointLight(new Vector3(0, 0, -2.5f), Color.White, 3, range: 10, castsShadows: true);
+                break;
+            default:
+                CreateSpotLight(new Vector3(0, 0, -2.5f), Vector3.UnitZ, Color.White, 3, 50, 60, range: 10, castsShadows: true);
+                break;
         }
-        else
-            CreateDirectionalLight(Vector3.UnitZ, Color.White, 0.5f, castsShadows: true);
         SetAmbientLight(Color.White, 0.02f);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var scattering = slab.Materials[0] with { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60) };
@@ -148,5 +162,44 @@ public sealed class SubsurfaceTests : IDisposable
         (thinFront.R - thinFront.B).Should().BeGreaterThan(20, $"red, which travels farthest, most, {thinFront}");
         Sum(thickFront).Should().BeLessThan(Sum(plainFront) + (Sum(thinFront) - Sum(plainFront)) / 4, $"and barely through the thick one, {thickFront} against {thinFront}");
         UnloadModel(slab);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Sheet_Lit_From_Behind_By_A_Lamp_No_Field_Measures_Lets_It_Through_By_Its_Materials_Thickness()
+    {
+        // A sheet facing the camera with a lamp behind it and no scene's field to measure how thick
+        // it is toward the lamp, so no light comes through it, until its material says it is five
+        // centimeters thick, as an ear is: its front read (39, 39, 39), the ambient light alone,
+        // and (136, 120, 109) with the thickness, as this test measured on an RTX 4070.
+        Open();
+        CreatePointLight(new Vector3(0, 0, -1.5f), Color.White, 0.6f, range: 10);
+        SetAmbientLight(Color.White, 0.02f);
+        var sheet = GenMeshPlane(1.5f, 1.5f, 1, 1);
+        var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
+        Color Front(float thickness)
+        {
+            var material = new ModelMaterial(Color.White) { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60), SubsurfaceThickness = thickness };
+            var path = Path.Combine(_folder.Path, $"{_captures++}.png");
+            for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawMesh(sheet, material, Matrix4x4.CreateRotationX(MathF.PI / 2));
+                EndMode3D();
+                if (frame == 3) TakeScreenshot(path);
+                EndDrawing();
+            }
+            File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+            var image = LoadImage(path);
+            var p = GetWorldToScreen(Vector3.Zero, camera);
+            return GetImageColor(image, (int)p.X, (int)p.Y);
+        }
+
+        var (measured, given) = (Front(0), Front(0.05f));
+        Sum(given).Should().BeGreaterThan(Sum(measured) + 120, $"the lamp's light comes through the five centimeters the material gives, {given} against {measured}");
+        (given.R - given.B).Should().BeGreaterThan(15, $"red, which travels farthest, most, {given}");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong");
+        UnloadMesh(sheet);
     }
 }
