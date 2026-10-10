@@ -194,13 +194,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 
         private readonly List<string> _taken = [];
         private int _first, _last;
-        // The handles by kind as the app began, on Windows, against which those it kept are named.
-        private Dictionary<string, int> _kindsFirst = [];
+        // The handles by kind as the app began and at its last step, on Windows, against which each
+        // step's and those the app kept are named.
+        private Dictionary<string, int> _kindsFirst = [], _kindsLast = [];
 
         public void Follow()
         {
             _first = _last = Handles();
-            _kindsFirst = HandleCensus.Now();
+            _kindsFirst = _kindsLast = HandleCensus.Now();
             Logger.Heard = (_, _, message) =>
             {
                 foreach (var (line, step) in Marks)
@@ -214,6 +215,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         {
             var now = Handles();
             var taken = $"{step} {now - _last:+0;-0;0}";
+            // On Windows, the kinds the step changed, so the step that opens a thread's handle and
+            // the one that closes it, or none, are named.
+            if (OperatingSystem.IsWindows())
+            {
+                var kinds = HandleCensus.Now();
+                if (HandleCensus.Change(_kindsLast, kinds) is { Length: > 0 } change) taken += $" ({change})";
+                _kindsLast = kinds;
+            }
             _taken.Add(taken);
             Console.WriteLine($"[leak test] app {app}'s handles, {taken} to {now}");
             _last = now;

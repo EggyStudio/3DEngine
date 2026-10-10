@@ -10,7 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b5805aa5`. Item 2's part e, the field's colors from the vertices: each pooled
+Reviewed up to `aba10656`. Item 2's part f, a changed mesh's light, the fix the measurement chose: a
+still mesh replaced in place, by a mesh of other vertices drawn through the same matrix whose bounds
+overlap it, stays in the field as it was until the replacement is still, the replacement not stamped
+meanwhile, so one build takes the one out and puts the other in and an emitter inside a replaced
+mesh stays lit; a mesh that moves keeps its vertices and is stamped as before, and one kept for a
+replacement that never settles leaves after sixteen frames. The probe is a GPU test, three walls in
+one mesh around a lamp drawn apart and replaced at a frame by a mesh of four, which without the
+change reads the wall at 107, 98, 91 and down to 69 after 116 and with it holds 114 to 116, the
+floor rising from 85 until the replacement settles; two unit tests hold the plan to keeping the
+replaced mesh, building the swap once and letting go after sixteen frames; §4 says it with its
+numbers; Manor and Wick hold their times. Right, measured first, the fix the measure chose rather
+than the one the item named first, and the probe kept as the test. The suite: 1,641 passed; on
+lavapipe 361 passed and 7 skipped with no validation error. Verdict 40's census at each step next,
+then part g, the last of the game's asks.
+
+Before it, item 2's part e came to be read, the field's colors from the vertices: each pooled
 corner's fourth word carries its vertex's sRGB bytes, white for a mesh with none, beside the open
 edge's bit it held, the splat reading the corners as words and blending the three colors in linear
 light at the cell's nearest point by their barycentric shares, times the instance's color, as the
@@ -53,34 +68,6 @@ one frame by frame rather than to a picture, and the whole path kept for every f
 same. What is left of the CPU a draw costs in the field is the gather, 330 µs, and the bounce's node
 holds 0.77 ms outside part d, both noted with their numbers. The suite: 1,636 passed; on lavapipe
 356 passed and 7 skipped with no validation error. Part e next, written and in testing.
-
-Before it, item 2's parts a and b came to be read, the culling, in one commit since one change culls
-for every pass, measured first as the item asks: on the game's scene at eight columns the frame took
-25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the occlusion's depth, over
-9,181 calls, 1,836 in each of the camera's pass, the depth and the three cascades the game's shadow
-distance gives, not four. `GpuMeshes` keeps the box around each mesh's positions, none for a skin
-the GPU poses; a batch of plain draws is in blocks of 64 as a group is, each block around its draws'
-boxes placed by their world matrices by Arvo's bound, a batch with a shader of the program's own
-keeping no blocks since its vertex stage may move what it draws; each pass makes its planes once for
-the matrix it draws through and passes over a batch it sees none of before binding its buffers, the
-first try having bound first and cost the CPU 0.4 ms; and a light's pass adds its near and far
-planes, exact since no pipeline clamps depth and the shadow shader writes the light's position as
-given, so a block past either is clipped whole whether drawn or not; the field's gather is
-untouched, so the game draws its world as before and the engine draws of it what each pass sees,
-which is part b. After: 11.9 ms a frame, the GPU 2.3 ms for the shadows, 1.4 for the scene and 1.2
-for the depth, over 1,825 calls, 424 the camera's, 423 the depth's and 17, 90 and 871 the cascades',
-the CPU for the shadows 1.29 ms where 1.78, no pixel moved by more than one level in 255, and six
-columns from 14.3 to 8.4 ms; Manor and Wick hold their GPU times to the hundredth against the
-package before, Manor's CPU for its shadows 0.19 to 0.24 ms where 0.29 to 0.32; `models.draws` gives
-the calls by pass; a test draws a caster outside a narrow view whose shadow falls on the floor the
-camera sees and counts the camera's one call and the cascade's two, a unit test holds the light's
-planes, and §6 says it as item 8. Right, measured before and after on the game's scene and the games
-beside it, the planes made once, and the field left whole. The game's two entries carry it under
-their `Review:` lines. What remains of a comes next in the item's order, the batched draws of meshes
-sharing a material, which need the meshes in shared buffers and so are measured for the CPU a call
-in Release first to see whether they pay, right, and the far cascades' setting; then c to g.
-NormTests names ASKS.md, which is in, and `e57f3fc1` is on `build/norm/7.2.txt`. The suite: 1,633
-passed; on lavapipe 354 passed and 7 skipped with no validation error.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -180,7 +167,10 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    section's mesh would put the lamp out for those frames and the cascades built after. Measured
    first on the game's scene, a block placed beside a glowstone; then the stamp carries the mesh's
    emission, or the mesh stays in the field as it was until the one replacing it is still, whichever
-   the measurement favor
+   the measurement favor Measured at `aba10656` and done: the dip was the old mesh leaving at once
+   while the new stood in as boxes, so a still mesh replaced in place stays in the field until its
+   replacement settles, sixteen frames at most, and the wall holds at 114 to 116 where it fell to
+   69.
 
    **g. The sky's reflection in a sealed room.** A chamber sealed in stone at noon reads (6.6, 13.3,
    24.4) in sRGB with the sky's environment map and (0.1, 0.1, 0.1) without it, a blue sheen on
@@ -460,20 +450,9 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's part f. Measured first in a scene drawn offscreen frame by frame, as the game's edit is:
-three walls in one mesh around a lamp drawn apart, which lights them by bouncing alone, the walls
-replaced at a frame by a mesh of four, the fourth a block beside the lamp. The wall read 116 before
-and fell to 69 six frames after, the floor 85 to 60, back by the tenth frame and on to 136 and 112
-with the block's own bounce; the lamp never changed, since the game draws it apart, and the dip was
-the walls leaving the field at once while their replacement stood in as a few boxes for its eight
-frames. So the stamp carrying a mesh's light would not have touched it, and the measurement chose
-the other: a still mesh replaced in place, by a mesh of other vertices drawn through the same matrix
-where it was, stays in the field as it was until the replacement is still, the replacement not
-stamped meanwhile, so one build takes the one out and puts the other in, which keeps an emitter
-inside a replaced mesh lit as well. A mesh that moves keeps its vertices and is stamped as before,
-and one kept for a replacement that never settles leaves after sixteen frames. The same scene
-afterward held the wall at 114 to 116 and the floor rising from 85 until the replacement settled.
-The scene is a test now, failing without the change with the wall's 107, 98, 91 down to 69, and two
-unit tests hold the plan to keeping the replaced mesh, building the swap once, and letting go after
-sixteen frames; RENDERING.md §4 says it with its numbers. Manor and Wick hold their times. The
-suite 1,641 passed; on lavapipe 361 passed and 7 skipped with no validation error.
+Verdict 40, the census at each step. On Windows each step of the four followed apps now ends with
+the kinds of handle it changed, in the form `<step> +4 (+3 Thread, +1 Event)`, so the next page
+names the step that opens the thread handles the apps keep, the five that `0e982877`'s page found
+as Thread with the process's threads flat, and whether `ended` gives them back; the step line already
+reads the steps in the order they run. Elsewhere it reads nothing, and the suite, 1,641 passed, is
+as before.

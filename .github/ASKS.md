@@ -36,7 +36,11 @@ that gives off light as a cube of its own, the cubes of one kind in one instance
 edit beside it leaves as it was, and a cobblestone placed beside a glowstone in a closed stone room
 left the room lit in the captures after it.
 
-Review: item 2 of REVIEW.md, its part f, measured first, 2026-10-10.
+Review: item 2 of REVIEW.md, its part f, measured first, 2026-10-10. Measured and done at
+`aba10656`: the dip was the old mesh leaving the field at once while the new stood in as boxes, so a
+still mesh replaced in place stays in the field until its replacement settles, sixteen frames at
+most; a wall lit by a lamp inside a mesh edited beside it holds its light where it fell by four
+tenths for six frames.
 
 ### 2026-10-10, the voxel game in `3DEngine.Game`: the sky's reflection lights a sealed cave
 
