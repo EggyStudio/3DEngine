@@ -5,7 +5,7 @@ to test the light that bounces (Radiance Cascades over the scene's distance fiel
 that give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128,
 a first-person player with Minecraft's sizes and speeds, building and breaking with an outline
 on the block looked at, Minecraft's light levels with smooth lighting and shaded corners, a sky
-whose sun crosses it, and an ImGui window of the light's settings.
+whose sun crosses it under drifting clouds, and an ImGui window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -61,17 +61,17 @@ looked at from the terminal. A closed room lit by one lamp, at night:
 `voxel.state` says where the player stands and looks, what is loaded and drawn, the hour and the
 light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `voxel.look` and
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
-`voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
-reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or off,
-`voxel.world` saves the world and opens or begins another of a kind and seed, `voxel.save` saves at
-once, and `voxel.blocks` lists the blocks by number and name. `voxel.gi`, `voxel.field` and
-`voxel.shadows` set the light that bounces, the scene's distance field and the sun's shadows, and
-`voxel.hud` hides what is drawn over the world for a capture. Three measure the light:
-`voxel.flicker` records each frame's change in the picture around a turn or a step into a file, with
-the first frame after it, the settled one and their difference beside it, `voxel.ring` reads the
-last frame's light around a circle on the ground by angle, and `voxel.depth` says how far the block
-under a pixel is. The engine's own `gi.*` and `field.*` commands show and measure the light that
-bounces.
+`voxel.time` and `voxel.cycle` set the sky, `voxel.clouds` shows or hides the clouds,
+`voxel.distance` the render distance, `voxel.light` reads a block's light levels, `voxel.shade`
+turns the light levels and the shaded corners on or off, `voxel.world` saves the world and opens or
+begins another of a kind and seed, `voxel.save` saves at once, and `voxel.blocks` lists the blocks
+by number and name. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the
+scene's distance field and the sun's shadows, and `voxel.hud` hides what is drawn over the world for
+a capture. Three measure the light: `voxel.flicker` records each frame's change in the picture
+around a turn or a step into a file, with the first frame after it, the settled one and their
+difference beside it, `voxel.ring` reads the last frame's light around a circle on the ground by
+angle, and `voxel.depth` says how far the block under a pixel is. The engine's own `gi.*` and
+`field.*` commands show and measure the light that bounces.
 
 ## Biomes
 
@@ -124,12 +124,19 @@ not generated, so a tree or a building crosses a column's edge whole although ev
 generated alone on a worker, as Minecraft places a structure's pieces chunk by chunk.
 
 A structure has at most one start in each cell of 64 by 64 blocks, where its chance falls and the
-biome at its start suits it. A small village house of planks with log corners on a cobblestone floor
-stands in the plains, forests and taiga, a torch over its door and a lantern hanging from its
-ceiling; an igloo of snow with a shroomlight inside on the snowy plains; a stepped sandstone pyramid
-in the desert, a dark chamber at its heart with a floor of blue and red; and a cobblestone dungeon
-deep under any ground, a magma block at its middle where Minecraft's has its spawner. `voxel.find
-<house|igloo|pyramid|dungeon>` gives the nearest one's place.
+land at its start suits it. An igloo of snow with a shroomlight inside stands on the snowy plains, a
+stepped sandstone pyramid in the desert, a dark chamber at its heart with a floor of blue and red,
+and a cobblestone dungeon deep under any ground, a magma block at its middle where Minecraft's has
+its spawner. `voxel.find <village|igloo|pyramid|dungeon>` gives the nearest one's place.
+
+A village stands where the plains, the taiga, the snowy plains or the desert lie nearly level across
+48 blocks, built of that biome's wood or sandstone. A well at its middle has a lantern hanging under
+its roof, four roads of dirt path lead out from it, and beside each road stand two plots, each a
+small house, a long house, a farm of wheat with a row of water through it, a forge with a hearth of
+magma or a pile of hay, its front toward the road, with lamp posts along the roads, a lantern on a
+fence, or a torch in the desert. A house has a torch over its door and lanterns hanging inside. Each
+road follows the ground block by block and crosses water on planks, each building stands at its own
+ground's height on a footing of stone, and no tree grows within the village.
 
 ## How the world is drawn
 
@@ -172,6 +179,17 @@ split along the diagonal its occlusion favors, so a shaded corner darkens one tr
 The settings window turns the light levels and the shaded corners off, each on its own, to see
 the light that bounces alone.
 
+## Clouds
+
+A layer of blocky clouds drifts east at 120 blocks up, as Minecraft's does, in cells of 12 by 12
+blocks and 4 high, which cells hold a cloud following a slow noise of the world's seed. Each cloud
+is a box whose faces against a cloud beside it are left out, its top brightest and its bottom
+darkest, see-through, lit by the sun and the moon, and fading into the sky at twice the render
+distance. The clouds cast no shadow, which keeps them out of the scene's distance field, so they
+shade neither the sun's light nor the light that bounces. The cells around the player are one mesh,
+made again only when the player moves a cell's width against them, and their drift is the mesh's
+place.
+
 ## Fog
 
 The sections are drawn through a shader of the game's own, `resources/shaders/terrain.slang`,
@@ -185,11 +203,11 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 
 ## What is not here yet
 
-Textures, and leaves seen through, which are solid. Slabs, stairs, fences and doors, and the
-player's collisions with blocks smaller than a cell, so a lantern is walked through. Water that
-flows. Greedy meshing. Light that passes through leaves at a cost, as Minecraft's does. Villages of
-several houses and paths, and structures read from files rather than built in code. Caves open to
-the sky. Mobs, items, an inventory and survival.
+Textures, and leaves seen through, which are solid. Slabs, stairs and doors, a fence's arms to the
+posts beside it, and the player's collisions with blocks smaller than a cell, so a lantern or a
+fence is walked through. Water that flows. Greedy meshing. Light that passes through leaves at a
+cost, as Minecraft's does. Villagers. Structures read from files rather than built in code. Caves
+open to the sky. Mobs, items, an inventory and survival.
 
 ## What it costs
 

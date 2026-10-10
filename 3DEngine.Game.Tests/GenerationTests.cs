@@ -61,4 +61,37 @@ public class GenerationTests
         Assert.True(top is BlockId.Water or BlockId.Ice);
         Assert.Equal(BlockId.Air, column.Get(x & 15, Overworld.SeaLevel + 1, z & 15));
     }
+
+    [Fact]
+    public void Every_Torch_And_Lantern_Of_A_Village_Holds_To_A_Block_And_No_Tree_Stands_In_It()
+    {
+        var land = new Overworld(1);
+        var village = Structures.Find("village")!;
+        var start = Enumerable.Range(-6, 13).SelectMany(cz => Enumerable.Range(-6, 13).Select(cx => village.StartIn(cx, cz, land)))
+            .First(s => s is not null)!.Value;
+
+        // Every column the village reaches, each generated alone, and the blocks read across them.
+        var columns = new Dictionary<(int, int), ChunkColumn>();
+        for (int cz = (start.Z - 4) >> Section.Shift; cz <= (start.Z + village.Size + 4) >> Section.Shift; cz++)
+            for (int cx = (start.X - 4) >> Section.Shift; cx <= (start.X + village.Size + 4) >> Section.Shift; cx++)
+                columns[(cx, cz)] = land.Generate(cx, cz);
+        BlockId At(int x, int y, int z) =>
+            columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var c) && (uint)y < ChunkColumn.Height ? c.Get(x & Section.Mask, y, z & Section.Mask) : BlockId.Air;
+
+        int lights = 0, paths = 0;
+        for (int z = start.Z; z < start.Z + village.Size; z++)
+            for (int x = start.X; x < start.X + village.Size; x++)
+                for (int y = 1; y < ChunkColumn.Height; y++)
+                {
+                    var block = At(x, y, z);
+                    if (block == BlockId.DirtPath) paths++;
+                    Assert.False(block is BlockId.OakLeaves or BlockId.SpruceLeaves or BlockId.BirchLeaves, $"leaves stand at {x}, {y}, {z} in the village");
+                    if (Game.Blocks.Get(block).Shape is not { Falls: true } shape || Game.Blocks.Get(block).Light == 0) continue;
+                    lights++;
+                    var (sx, sy, sz) = shape.Support;
+                    Assert.True(Game.Blocks.Holds(At(x + sx, y + sy, z + sz), shape.Facing), $"{Game.Blocks.Get(block).Key} at {x}, {y}, {z} holds to {Game.Blocks.Get(At(x + sx, y + sy, z + sz)).Key}");
+                }
+        Assert.True(paths > 100, $"the village has {paths} blocks of road");
+        Assert.True(lights >= 9, $"the village has {lights} torches and lanterns");
+    }
 }

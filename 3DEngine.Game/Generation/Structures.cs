@@ -32,8 +32,11 @@ public abstract class Structure
     /// <summary>Whether it is built where the land at its corner is of a biome and height, the height it is built from given back.</summary>
     protected abstract bool Suits(Biome biome, int ground, uint hash, out int y);
 
-    /// <summary>Builds the part of it that falls in a column.</summary>
-    public abstract void Build(ColumnClip clip, StructureStart start);
+    /// <summary>Whether the land around a start suits it beyond its corner's, as a village asks for ground that is nearly level.</summary>
+    protected virtual bool Fits(Overworld land, int x, int z) => true;
+
+    /// <summary>Builds the part of it that falls in a column, reading the ground of any place it stands on from <paramref name="land"/>.</summary>
+    public abstract void Build(ColumnClip clip, StructureStart start, Overworld land);
 
     /// <summary>Where it starts in a cell, or null where the cell holds none.</summary>
     public StructureStart? StartIn(int cellX, int cellZ, Overworld land)
@@ -43,21 +46,32 @@ public abstract class Structure
         var room = Cell - Size;
         int x = cellX * Cell + (int)(hash / 100 % (uint)room), z = cellZ * Cell + (int)(hash / 10000 % (uint)room);
         var (ground, _, _, biome) = land.At(x + Size / 2, z + Size / 2);
-        return Suits(biome, ground, hash, out var y) ? new StructureStart(x, y, z, hash) : null;
+        return Suits(biome, ground, hash, out var y) && Fits(land, x, z) ? new StructureStart(x, y, z, hash) : null;
     }
 
     /// <summary>How far past its size it builds on each side, as a roof's eaves or the space a pyramid clears around it.</summary>
     protected const int Margin = 2;
 
+    /// <summary>Whether no tree grows within its area and margin, as none stands on a village's roads.</summary>
+    public virtual bool ClearsTrees => false;
+
+    /// <summary>Every start of it whose area, its margin included, reaches into a box between two corners at the ground.</summary>
+    public IEnumerable<StructureStart> StartsIn(int minX, int minZ, int maxX, int maxZ, Overworld land)
+    {
+        int cx0 = FloorDiv(minX - Size - Margin, Cell), cx1 = FloorDiv(maxX + Margin, Cell);
+        int cz0 = FloorDiv(minZ - Size - Margin, Cell), cz1 = FloorDiv(maxZ + Margin, Cell);
+        for (int cz = cz0; cz <= cz1; cz++)
+            for (int cx = cx0; cx <= cx1; cx++)
+                if (StartIn(cx, cz, land) is { } start && start.X - Margin <= maxX && start.X + Size - 1 + Margin >= minX
+                    && start.Z - Margin <= maxZ && start.Z + Size - 1 + Margin >= minZ)
+                    yield return start;
+    }
+
     /// <summary>Builds every start of it that reaches into a column, its margin included.</summary>
     public void BuildIn(ColumnClip clip, Overworld land)
     {
-        int cx0 = FloorDiv(clip.MinX - Size - Margin, Cell), cx1 = FloorDiv(clip.MinX + Section.Size + Margin, Cell);
-        int cz0 = FloorDiv(clip.MinZ - Size - Margin, Cell), cz1 = FloorDiv(clip.MinZ + Section.Size + Margin, Cell);
-        for (int cz = cz0; cz <= cz1; cz++)
-            for (int cx = cx0; cx <= cx1; cx++)
-                if (StartIn(cx, cz, land) is { } start && clip.Touches(start.X - Margin, start.Z - Margin, start.X + Size - 1 + Margin, start.Z + Size - 1 + Margin))
-                    Build(clip, start);
+        foreach (var start in StartsIn(clip.MinX, clip.MinZ, clip.MinX + Section.Mask, clip.MinZ + Section.Mask, land))
+            Build(clip, start, land);
     }
 
     private static int FloorDiv(int a, int b) => (int)Math.Floor((double)a / b);
@@ -66,65 +80,9 @@ public abstract class Structure
 /// <summary>Every kind of structure, built in this order.</summary>
 public static class Structures
 {
-    public static readonly Structure[] All = [new Dungeon(), new VillageHouse(), new Igloo(), new DesertPyramid()];
+    public static readonly Structure[] All = [new Dungeon(), new Village(), new Igloo(), new DesertPyramid()];
 
     public static Structure? Find(string name) => All.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-}
-
-/// <summary>A small house of planks with log corners on a cobblestone floor, a door with a torch over it, windows, and a lantern hanging from its ceiling.</summary>
-public sealed class VillageHouse : Structure
-{
-    public override string Name => "house";
-    public override int Size => 7;
-    protected override int Chance => 35;
-    protected override int Salt => 0x5a17;
-
-    protected override bool Suits(Biome biome, int ground, uint hash, out int y)
-    {
-        y = ground;
-        return ground >= Overworld.SeaLevel && (biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest || biome == Biomes.Taiga);
-    }
-
-    public override void Build(ColumnClip clip, StructureStart start)
-    {
-        int x0 = start.X, z0 = start.Z, y = start.Y, x1 = x0 + 6, z1 = z0 + 6;
-        // A cobblestone footing down to the ground under each place of the floor, so a house on a
-        // slope stands on it rather than over a gap.
-        for (int z = z0; z <= z1; z++)
-            for (int x = x0; x <= x1; x++)
-                for (int d = 1; d <= 6 && clip.Get(x, y - d, z) is BlockId.Air or BlockId.OakLeaves or BlockId.BirchLeaves or BlockId.SpruceLeaves; d++)
-                    clip.Set(x, y - d, z, BlockId.Cobblestone);
-        clip.Fill(x0, y, z0, x1, y, z1, BlockId.Cobblestone);
-        clip.Fill(x0, y + 1, z0, x1, y + 8, z1, BlockId.Air);
-        clip.Fill(x0, y + 1, z0, x1, y + 4, z1, BlockId.OakPlanks);
-        clip.Fill(x0 + 1, y + 1, z0 + 1, x1 - 1, y + 4, z1 - 1, BlockId.Air);
-        foreach (var (cx, cz) in new[] { (x0, z0), (x1, z0), (x0, z1), (x1, z1) })
-            clip.Fill(cx, y + 1, cz, cx, y + 4, cz, BlockId.OakLog);
-        // A roof of planks a block wider than the walls, and a smaller one above it.
-        clip.Fill(x0 - 1, y + 5, z0 - 1, x1 + 1, y + 5, z1 + 1, BlockId.OakPlanks);
-        clip.Fill(x0 + 1, y + 6, z0 + 1, x1 - 1, y + 6, z1 - 1, BlockId.OakPlanks);
-        clip.Set(x0 + 3, y + 4, z0 + 3, BlockId.HangingLantern);
-
-        // The door in a wall the hash picks, a torch on the wall over it outside, and a window in the
-        // middle of each other wall.
-        var door = (int)(start.Hash >> 20 & 3);
-        (int X, int Z, int Dx, int Dz, BlockId Torch)[] middles =
-        [
-            (x0 + 3, z0, 0, -1, BlockId.WallTorchNorth), (x1, z0 + 3, 1, 0, BlockId.WallTorchEast),
-            (x0 + 3, z1, 0, 1, BlockId.WallTorchSouth), (x0, z0 + 3, -1, 0, BlockId.WallTorchWest),
-        ];
-        for (int side = 0; side < 4; side++)
-        {
-            var (mx, mz, dx, dz, torch) = middles[side];
-            if (side != door)
-            {
-                clip.Set(mx, y + 2, mz, BlockId.Air);
-                continue;
-            }
-            clip.Fill(mx, y + 1, mz, mx, y + 2, mz, BlockId.Air);
-            clip.Set(mx + dx, y + 3, mz + dz, torch);
-        }
-    }
 }
 
 /// <summary>A dome of snow on the snowy plains, entered through a low door on its west, a shroomlight on its floor.</summary>
@@ -142,7 +100,7 @@ public sealed class Igloo : Structure
         return ground >= Overworld.SeaLevel && biome == Biomes.SnowyPlains;
     }
 
-    public override void Build(ColumnClip clip, StructureStart start)
+    public override void Build(ColumnClip clip, StructureStart start, Overworld land)
     {
         int cx = start.X + 4, cz = start.Z + 4, y = start.Y;
         // A hemisphere of radius 4 a block thick, its floor of snow, standing on a footing of snow.
@@ -179,7 +137,7 @@ public sealed class DesertPyramid : Structure
         return ground >= Overworld.SeaLevel && biome == Biomes.Desert;
     }
 
-    public override void Build(ColumnClip clip, StructureStart start)
+    public override void Build(ColumnClip clip, StructureStart start, Overworld land)
     {
         int x0 = start.X, z0 = start.Z, y = start.Y;
         // Sandstone under the base down to the sand, then a layer for each step, two blocks narrower each.
@@ -214,7 +172,7 @@ public sealed class Dungeon : Structure
         return y < ground - 10;
     }
 
-    public override void Build(ColumnClip clip, StructureStart start)
+    public override void Build(ColumnClip clip, StructureStart start, Overworld land)
     {
         int x0 = start.X, z0 = start.Z, y = start.Y;
         clip.Fill(x0, y, z0, x0 + 6, y + 5, z0 + 6, BlockId.Cobblestone);

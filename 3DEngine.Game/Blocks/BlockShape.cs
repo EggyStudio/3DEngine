@@ -40,9 +40,14 @@ public readonly record struct Piece(Vector3 From, Vector3 To, int Surface, Vecto
 /// </remarks>
 public sealed class BlockShape
 {
-    public BlockShape(Facing facing, params Piece[] pieces)
+    public BlockShape(Facing facing, params Piece[] pieces) : this(facing, true, pieces)
+    {
+    }
+
+    public BlockShape(Facing facing, bool falls, params Piece[] pieces)
     {
         Facing = facing;
+        Falls = falls;
         Pieces = pieces;
         (Min, Max) = (Vector3.One, Vector3.Zero);
         foreach (var piece in pieces)
@@ -57,6 +62,9 @@ public sealed class BlockShape
     }
 
     public Facing Facing { get; }
+
+    /// <summary>Whether it falls when the block it holds to is broken, as a torch does and a fence does not.</summary>
+    public bool Falls { get; }
 
     public IReadOnlyList<Piece> Pieces { get; }
 
@@ -134,6 +142,16 @@ public sealed class BlockShape
     public static BlockShape EndRod(Facing facing) => new(facing, Turned(facing,
         Px(6, 0, 6, 10, 1, 10, Surfaces.EndRodBase),
         Px(7, 1, 7, 9, 16, 9, Surfaces.EndRod)));
+
+    /// <summary>A fence's post standing alone, its arms to the posts beside it not drawn, which stands where the block under it is broken.</summary>
+    public static BlockShape Fence(int wood) => new(Facing.Up, false, Px(6, 0, 6, 10, 16, 10, wood));
+
+    /// <summary>Ripe wheat, four thin stalks' walls crossed as Minecraft's crops are, which falls when its farmland is broken.</summary>
+    public static BlockShape Wheat(int stalks) => new(Facing.Up,
+        Px(0, 0, 3.5f, 16, 14, 4.5f, stalks),
+        Px(0, 0, 11.5f, 16, 14, 12.5f, stalks),
+        Px(3.5f, 0, 0, 4.5f, 14, 16, stalks),
+        Px(11.5f, 0, 0, 12.5f, 14, 16, stalks));
 
     // Pieces given facing north, a wall behind them at +z, turned about the cell's upright middle line
     // to face another side.

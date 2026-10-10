@@ -48,6 +48,8 @@ public sealed class VoxelGame : IDisposable
 
     public Sky Sky { get; }
 
+    public Clouds Clouds { get; } = new();
+
     public LightSettings Light { get; } = new();
 
     public Hotbar Hotbar { get; } = new();
@@ -94,6 +96,7 @@ public sealed class VoxelGame : IDisposable
         World = new VoxelWorld(generator);
         // The old streamer's workers finish into its own queue, which nothing reads again.
         Streamer = new ChunkStreamer(World, Renderer, Save);
+        Clouds.Follow(generator.Seed);
         _sinceSave = 0;
 
         if (info is null)
@@ -153,6 +156,7 @@ public sealed class VoxelGame : IDisposable
         if (_captured && !_swallowClick) Interact(seconds);
 
         Sky.Update(seconds);
+        Clouds.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
     }
@@ -217,16 +221,17 @@ public sealed class VoxelGame : IDisposable
     /// Places a block against the face the crosshair rests on, unless it would take up some of the
     /// player, a torch or a lantern the way of it that has a block to hold to.
     /// </summary>
-    public bool Place(BlockId block)
+    /// <returns>The block placed, which for a torch on a wall is the wall torch, or air where none was.</returns>
+    public BlockId Place(BlockId block)
     {
-        if (Target is not { Inside: false } hit) return false;
+        if (Target is not { Inside: false } hit) return BlockId.Air;
         var (x, y, z) = hit.Beside;
         // A whole block goes into air or water, the water giving way to it, and a smaller one into air.
         var shaped = Blocks.Get(block).Shape is not null;
-        if (World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water) || shaped && World.GetBlock(x, y, z) != BlockId.Air) return false;
+        if (World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water) || shaped && World.GetBlock(x, y, z) != BlockId.Air) return BlockId.Air;
         var placed = World.Fit(block, x, y, z, hit.NormalX, hit.NormalY, hit.NormalZ);
-        if (placed == BlockId.Air || Blocks.Collides(placed) && Player.Body.Overlaps(x, y, z)) return false;
-        return World.SetBlock(x, y, z, placed);
+        if (placed == BlockId.Air || Blocks.Collides(placed) && Player.Body.Overlaps(x, y, z)) return BlockId.Air;
+        return World.SetBlock(x, y, z, placed) ? placed : BlockId.Air;
     }
 
     public void Draw()
@@ -243,6 +248,7 @@ public sealed class VoxelGame : IDisposable
         BeginMode3D(Player.Camera);
         DrawSkybox();
         Renderer.Draw(Player.Eye, RenderDistance);
+        Clouds.Draw(Player.Eye, RenderDistance, Sky.Horizon);
         if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.GetBlock(hit.X, hit.Y, hit.Z));
         EndMode3D();
 
@@ -293,5 +299,6 @@ public sealed class VoxelGame : IDisposable
     {
         SaveWorld();
         Renderer.Dispose();
+        Clouds.Dispose();
     }
 }

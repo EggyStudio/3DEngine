@@ -55,6 +55,12 @@ public enum BlockId : ushort
     EndRodSouth,
     EndRodWest,
     EndRodEast,
+    DirtPath,
+    Farmland,
+    SprucePlanks,
+    HayBale,
+    OakFence,
+    Wheat,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -173,6 +179,12 @@ public static class Blocks
             Shaped(BlockId.EndRodSouth, "end_rod_south", "End Rod", BlockShape.EndRod(Facing.South), 14, BlockId.EndRod),
             Shaped(BlockId.EndRodWest, "end_rod_west", "End Rod", BlockShape.EndRod(Facing.West), 14, BlockId.EndRod),
             Shaped(BlockId.EndRodEast, "end_rod_east", "End Rod", BlockShape.EndRod(Facing.East), 14, BlockId.EndRod),
+            new(BlockId.DirtPath, "dirt_path", "Dirt Path", Surfaces.DirtPath, Surfaces.Dirt, Surfaces.Dirt),
+            new(BlockId.Farmland, "farmland", "Farmland", Surfaces.Farmland, Surfaces.Dirt, Surfaces.Dirt),
+            Same(BlockId.SprucePlanks, "spruce_planks", "Spruce Planks", Surfaces.SprucePlanks),
+            new(BlockId.HayBale, "hay_block", "Hay Bale", Surfaces.HayTop, Surfaces.Hay, Surfaces.HayTop),
+            Shaped(BlockId.OakFence, "oak_fence", "Oak Fence", BlockShape.Fence(Surfaces.Planks), 0),
+            Shaped(BlockId.Wheat, "wheat", "Wheat", BlockShape.Wheat(Surfaces.Wheat), 0),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");
@@ -213,6 +225,9 @@ public static class Blocks
 
     /// <summary>Whether a block smaller than its cell can stand on, hang from or be fixed to a block, which it can on any whole block but water.</summary>
     public static bool IsSturdy(BlockId id) => _collides[(int)id];
+
+    /// <summary>Whether a block smaller than its cell facing a way holds to a block, a whole one or the top of a fence, as a lantern stands on a lamp post.</summary>
+    public static bool Holds(BlockId support, Facing facing) => IsSturdy(support) || facing == Facing.Up && support == BlockId.OakFence;
 
     /// <summary>The block an item places facing a way, or air where it is not placed that way.</summary>
     public static BlockId Variant(BlockId item, Facing facing) => _variants[(int)item, (int)facing];

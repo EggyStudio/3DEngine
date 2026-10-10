@@ -163,13 +163,21 @@ public static class GameCommands
         return $"slot {game.Hotbar.Selected + 1} holds {Blocks.Get(Blocks.Get(id).Item).Key}";
     }
 
+    [Command("voxel.clouds", "Shows or hides the clouds: voxel.clouds <on|off>")]
+    internal static string ShowClouds(bool on)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.Clouds.Shown = on;
+        return on ? $"the clouds are drawn, {game.Clouds.Faces} faces" : "the clouds are hidden";
+    }
+
     [Command("voxel.break", "Breaks the block the crosshair rests on, as a left click does")]
     internal static string Break() =>
         Game is not { } game ? "no world is loaded" : game.Break() ? "the block is broken" : "no block within reach can be broken";
 
     [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, as a right click does")]
     internal static string Place() =>
-        Game is not { } game ? "no world is loaded" : game.Place(game.Hotbar.Current) ? $"{Blocks.Get(game.Hotbar.Current).Key} is placed" : "no block can be placed there";
+        Game is not { } game ? "no world is loaded" : game.Place(game.Hotbar.Current) is not BlockId.Air and var placed ? $"{Blocks.Get(placed).Key} is placed" : "no block can be placed there";
 
     [Command("voxel.gi", "Sets the light that bounces to a quality, off, low, medium or high: voxel.gi <quality>")]
     internal static string Gi(string quality)
@@ -237,7 +245,7 @@ public static class GameCommands
         return $"{Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Key} at {hit.X}, {hit.Y}, {hit.Z}, {hit.Distance:0.0} blocks along the ray and {flat:0.0} along the ground";
     }
 
-    [Command("voxel.find", "The nearest start of a structure from the player, by the corner it is built from: voxel.find <house|igloo|pyramid|dungeon>")]
+    [Command("voxel.find", "The nearest start of a structure from the player, by the corner it is built from: voxel.find <village|igloo|pyramid|dungeon>")]
     internal static string Find(string name)
     {
         if (Game is not { } game) return "no world is loaded";

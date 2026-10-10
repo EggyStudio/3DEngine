@@ -132,6 +132,13 @@ public sealed class Overworld : IWorldGenerator
     // order every column keeps, so two that overlap overlap the same way wherever they are placed.
     private void PlaceFeatures(ColumnClip clip, int columnX, int columnZ)
     {
+        // The areas where structures keep trees out, which a tree reaching into them is kept out of too.
+        var clearings = new List<(int X0, int Z0, int X1, int Z1)>();
+        foreach (var structure in Structures.All)
+            if (structure.ClearsTrees)
+                foreach (var start in structure.StartsIn(clip.MinX - MostReach, clip.MinZ - MostReach, clip.MinX + Section.Mask + MostReach, clip.MinZ + Section.Mask + MostReach, this))
+                    clearings.Add((start.X - MostReach, start.Z - MostReach, start.X + structure.Size - 1 + MostReach, start.Z + structure.Size - 1 + MostReach));
+
         for (int cz = columnZ - 1; cz <= columnZ + 1; cz++)
             for (int cx = columnX - 1; cx <= columnX + 1; cx++)
                 for (int z = 0; z < Section.Size; z++)
@@ -143,6 +150,7 @@ public sealed class Overworld : IWorldGenerator
                         if (roll >= MostFeatures) continue;
                         if (wx < clip.MinX - MostReach || wx > clip.MinX + Section.Mask + MostReach
                             || wz < clip.MinZ - MostReach || wz > clip.MinZ + Section.Mask + MostReach) continue;
+                        if (clearings.Exists(c => wx >= c.X0 && wx <= c.X1 && wz >= c.Z0 && wz <= c.Z1)) continue;
                         var (height, biome, top, _, _, _) = Ground(wx, wz);
                         foreach (var (feature, perThousand) in biome.Trees)
                         {

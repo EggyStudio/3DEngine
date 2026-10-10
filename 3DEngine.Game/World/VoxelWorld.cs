@@ -113,13 +113,13 @@ public sealed class VoxelWorld
 
         // A block smaller than its cell that held to this one falls with it, as a torch does when the
         // wall behind it is broken.
-        if (!Blocks.IsSturdy(block))
-            for (int d = 0; d < 6; d++)
-            {
-                int nx = x + Lighting.Dx[d], ny = y + Lighting.Dy[d], nz = z + Lighting.Dz[d];
-                if (Blocks.Get(GetBlock(nx, ny, nz)).Shape is { Support: var (sx, sy, sz) } && (nx + sx, ny + sy, nz + sz) == (x, y, z))
-                    SetBlock(nx, ny, nz, BlockId.Air);
-            }
+        for (int d = 0; d < 6; d++)
+        {
+            int nx = x + Lighting.Dx[d], ny = y + Lighting.Dy[d], nz = z + Lighting.Dz[d];
+            if (Blocks.Get(GetBlock(nx, ny, nz)).Shape is { Falls: true, Support: var (sx, sy, sz) } shape
+                && (nx + sx, ny + sy, nz + sz) == (x, y, z) && !Blocks.Holds(block, shape.Facing))
+                SetBlock(nx, ny, nz, BlockId.Air);
+        }
         return true;
     }
 
@@ -139,7 +139,7 @@ public sealed class VoxelWorld
             var variant = Blocks.Variant(item, way);
             if (variant == BlockId.Air) continue;
             var (sx, sy, sz) = Blocks.Get(variant).Shape!.Support;
-            if (Blocks.IsSturdy(GetBlock(x + sx, y + sy, z + sz))) return variant;
+            if (Blocks.Holds(GetBlock(x + sx, y + sy, z + sz), way)) return variant;
         }
         return BlockId.Air;
     }

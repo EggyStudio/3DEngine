@@ -92,6 +92,12 @@ public static class Surfaces
     public static readonly int Glass = Add("glass", new Color(214, 232, 236, 64), roughness: 0.05f);
     public static readonly int Water = Add("water", new Color(44, 92, 196, 168), roughness: 0.05f);
     public static readonly int Ice = Add("ice", new Color(164, 200, 242, 190), roughness: 0.1f);
+    public static readonly int DirtPath = Add("dirt path", new Color(148, 122, 65));
+    public static readonly int Farmland = Add("farmland", new Color(96, 62, 36));
+    public static readonly int SprucePlanks = Add("spruce planks", new Color(115, 85, 49));
+    public static readonly int Hay = Add("hay", new Color(186, 152, 32));
+    public static readonly int HayTop = Add("hay top", new Color(166, 136, 40));
+    public static readonly int Wheat = Add("wheat", new Color(196, 178, 82));
     public static readonly int TorchStick = Add("torch stick", new Color(104, 78, 46));
     public static readonly int Iron = Add("dark iron", new Color(52, 54, 62), 0.5f);
     public static readonly int EndRodBase = Add("end rod base", new Color(150, 132, 160));

@@ -124,6 +124,8 @@ public sealed class SettingsWindow
     {
         var fog = game.Fog;
         if (ImGui.Checkbox("Fog toward the render distance", ref fog)) game.Fog = fog;
+        var clouds = game.Clouds.Shown;
+        if (ImGui.Checkbox($"Clouds, {game.Clouds.Faces} faces###clouds", ref clouds)) game.Clouds.Shown = clouds;
         var distance = game.RenderDistance;
         if (ImGui.SliderInt("Render distance", ref distance, 2, 16)) game.RenderDistance = distance;
         ImGui.TextUnformatted(game.Save is { } save ? $"Saved in {save.Folder} every 30 seconds" : "Transient, not saved");
