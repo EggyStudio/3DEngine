@@ -59,6 +59,24 @@ public class SceneSpawnerTests
     }
 
     [Fact]
+    public void Spawns_Of_The_Same_Scene_Share_Each_Meshs_Arrays()
+    {
+        // The renderer keeps a mesh's buffers by its positions array, so each of Manor's cells that
+        // placed a model held buffers of its own, made again at every spawn, 176 meshes at sixteen
+        // cells; shared, a model's meshes are uploaded once however many entities show them.
+        var ecs = new EcsWorld();
+        var scene = new Scene { Name = "s" };
+        scene.Roots.Add(new SceneNode { Name = "Body", SourcePath = "/World/Body", Components = { MakeTriangle() } });
+
+        var first = SceneSpawner.Spawn(ecs, scene)[0];
+        var second = SceneSpawner.Spawn(ecs, scene)[0];
+
+        second.Should().NotBe(first);
+        ecs.GetRef<Mesh>(second).Positions.Should().BeSameAs(ecs.GetRef<Mesh>(first).Positions, "the same payload is de-indexed once");
+        ecs.GetRef<Mesh>(second).Normals.Should().BeSameAs(ecs.GetRef<Mesh>(first).Normals);
+    }
+
+    [Fact]
     public void Spawn_Mesh_Node_Creates_Entity_With_Transform_Mesh_Material_And_SceneInstance()
     {
         var ecs = new EcsWorld();

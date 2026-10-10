@@ -3,9 +3,10 @@
 # program loads and fills its caches, is left out, and the rest is cut in two halves: the least a
 # value fell to in the second half may pass the least it fell to in the first by a little, the slack
 # each kind of value is given, and no more. A leak raises a value's least as well as its most, where
-# a level streamed in and let go swings between them, as Manor's buffers go from 521 to 618 and
-# back as its walk passes rooms of more cells and fewer, so the least tells the one from the other
-# however much of the play a slow device gets through.
+# a level streamed in and let go swings between them, as Manor's buffers go from 96 to 158 and back
+# as its walk passes from the grounds into the house, so the least tells the one from the other
+# where both halves see the level. A game that streams its level gives the most a whole walk through
+# it holds of such a value, which bounds the value in place of the first half's least.
 #
 #   python3 build/soak-check.py build/soak/<name>.csv [...] [--sessions DIR]
 #
@@ -46,6 +47,19 @@ SLACK = {
     "entities": (0.10, 10),
     "entityIds": (0.10, 10),
     "assets": (0.10, 4),
+}
+
+
+# The most a game that streams its level holds of a value over a whole walk through it, which bounds
+# the second half's least with the same slack in place of the first half's. On a device that plays
+# two turns in the soak's two minutes, as the workflow's runner drawing every game at once on four
+# cores does, the walk enters rooms the first half never reached and the least climbs with the
+# world, as Manor's buffers did from 133 to 149 on lavapipe at a core with nothing leaking. Its
+# buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
+# grounds and at most 158 in the house over a whole walk on the RTX 4070 and 162 on lavapipe, which
+# the device's census named (`memory.buffers`).
+WHOLE = {
+    "manor": {"buffers": 162},
 }
 
 
@@ -104,6 +118,8 @@ for path in arguments:
             before = min(r[measure] for r in first)
             after = min(r[measure] for r in second)
             bound = before * (1 + share) + amount
+            if measure in WHOLE.get(name, {}):
+                bound = max(bound, WHOLE[name][measure] * (1 + share) + amount)
             climbs = after > bound
             print(f"{path}: {measure:15} least {before:>12} then {after:>12} (bound {int(bound)}) {'CLIMBS' if climbs else 'ok'}")
             if climbs:

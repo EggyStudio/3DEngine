@@ -594,3 +594,21 @@ reason the bisect's first edits to `glow.slang` changed nothing: the shader cach
 follow `__exported import`, so an edit to `glow.slang` alone, which `gi.slang` exports, left every
 shader importing `gi` on its old SPIR-V; the key follows it, with a test. The suite: 1,668 passed;
 on lavapipe 463 passed and 7 skipped with no validation error, the scene tests among them.
+
+Verdict 30. The census first: `memory.buffers` gives the device's buffers alive by the file and line
+of the engine that made each and what it is for, the compiler filling in the maker through
+`CreateBuffer`. Over Manor's two-minute walk here, beside the soak's CSV, the buffers that moved
+were `MeshStore`'s, a vertex and an index buffer for each mesh, 176 meshes at sixteen cells and 259
+at twenty-three, falling again as cells were let go: the cells the walk opens, the world's, and no
+leak. What made them many was the spawner, which de-indexed a model's meshes again at every spawn
+into arrays of their own, where the renderer keeps a mesh's buffers by its positions array, so every
+cell that placed a model uploaded a copy of it. A scene's mesh is de-indexed once and shared by
+every entity spawned from it, with a test, and Manor's buffers over a walk went from 385 to 668 to
+96 to 158, 29 meshes at sixteen cells. The soak in the workflow's image, lavapipe on one core with
+the package packed there, played two turns in two minutes as the runner does, and its least still
+climbed, 133 to 149 against a bound of 143, as the walk entered the house and its models loaded.
+That is the world's growth the verdict names, so the bound for a game that streams its level is the
+most a whole walk through it holds, 158 over every point of the route on the RTX 4070 and 162 on
+lavapipe, which `soak-check.py` holds Manor's buffers to with the same slack in place of the first
+half's least, with tests that the same climb fails a game that streams nothing and that Manor's past
+its walk fails. Settled when an examples job passes the soak.

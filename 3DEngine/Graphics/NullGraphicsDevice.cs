@@ -72,7 +72,7 @@ internal sealed class NullGraphicsDevice : IGraphicsDevice
     public IFramebuffer GetSwapchainFramebuffer(uint imageIndex) => new NullFramebuffer();
 
     /// <inheritdoc />
-    public IBuffer CreateBuffer(BufferDesc desc) => throw new NotSupportedException("NullGraphicsDevice does not support buffer creation.");
+    public IBuffer CreateBuffer(BufferDesc desc, string maker = "", int line = 0) => throw new NotSupportedException("NullGraphicsDevice does not support buffer creation.");
     /// <inheritdoc />
     public Span<byte> Map(IBuffer buffer) => throw new NotSupportedException("NullGraphicsDevice does not support buffer mapping.");
     /// <inheritdoc />

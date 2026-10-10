@@ -71,17 +71,21 @@ is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at q
 3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
 `webp` package. The render tests' references stay PNG, since they compare pixels.
 
-`build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left at
-it would, restarting its level and spawning and clearing what it spawns, and reads `memory.collect`
-every ten seconds into `build/soak/<game>.csv`, on a clock of its own beside the play, so a slow
-device whose turns take minutes still gives a reading every ten seconds, and draws the game at 320
-by 180, which lets a device drawing on its CPU play more of it. `build/soak-check.py` fails when
-anything it holds (the managed heap, the GPU's buffers, images, descriptor sets, pipelines and
-memory, the entities and their ids) rises at its least in the second half of the run past its least
-in the first by more than a little, as a leak does and a level streamed in and let go does not, or
-a game could not be played through, naming the game, what climbed with its numbers or the command
-that ended its soak, and the process's resident memory. CI plays every game for two minutes at once
-this way, and a ten-minute run of each holds level on the desktop.
+`build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left
+at it would, restarting its level and spawning and clearing what it spawns, and reads
+`memory.collect` every ten seconds into `build/soak/<game>.csv`, on a clock of its own beside the
+play, so a slow device whose turns take minutes still gives a reading every ten seconds, and draws
+the game at 320 by 180, which lets a device drawing on its CPU play more of it.
+`build/soak-check.py` fails when anything it holds (the managed heap, the GPU's buffers, images,
+descriptor sets, pipelines and memory, the entities and their ids) rises at its least in the second
+half of the run past its least in the first by more than a little, as a leak does and a level
+streamed in and let go does not, or a game could not be played through, naming the game, what
+climbed with its numbers or the command that ended its soak, and the process's resident memory. A
+game that streams its level is held instead to the most a whole walk through it holds, since a slow
+device's two minutes see part of the level in each half and its least climbs with the world: Manor's
+buffers, a vertex and an index buffer for each mesh its cells show, 158 at most on the RTX 4070 and
+162 on lavapipe. CI plays every game for two minutes at once this way, and a ten-minute run of each
+holds level on the desktop.
 
 `build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under

@@ -180,6 +180,18 @@ internal static class ConsoleBuiltins
         return line;
     }
 
+    [Command("memory.buffers", "The GPU's buffers alive by where the engine made each and what it is for, the most first, a line each with how many, their bytes, the file and line and the use: memory.buffers [lines]")]
+    internal static string MemoryBuffers(int lines = 40)
+    {
+        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) != true || renderer.Context.Graphics is not GraphicsDevice device)
+            return "no device";
+        var census = device.BufferCensus();
+        var text = new StringBuilder($"{census.Sum(entry => entry.Count)} buffers from {census.Count} places");
+        foreach (var entry in census.Take(lines))
+            text.Append($"\n{entry.Count} {entry.Bytes} {Path.GetFileName(entry.Maker.File.Replace('\\', '/'))}:{entry.Maker.Line} {entry.Maker.Usage}");
+        return text.ToString();
+    }
+
     [Command("memory.collect", "The same as memory, read after a full garbage collection, so what is held shows apart from what is waiting to be collected")]
     internal static string MemoryCollected()
     {

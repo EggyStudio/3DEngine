@@ -27,13 +27,17 @@ internal sealed unsafe partial class GraphicsDevice
         /// <summary>The buffer's first byte as the CPU sees it, mapped for good with its block, or <see cref="nint.Zero"/> for a buffer the CPU cannot see.</summary>
         internal nint MappedPtr;
 
+        /// <summary>Where it was made and what it is for, its line in the device's census.</summary>
+        private readonly BufferMaker _made;
+
         /// <summary>Creates a new Vulkan buffer wrapper.</summary>
         /// <param name="device">The owning graphics device.</param>
         /// <param name="buffer">The Vulkan buffer handle.</param>
         /// <param name="memory">The range of device memory it is bound to.</param>
         /// <param name="desc">The buffer creation descriptor.</param>
         /// <param name="hostVisible">Whether the buffer is host-visible.</param>
-        public VulkanBuffer(GraphicsDevice device, VkBuffer buffer, MemorySlice memory, BufferDesc desc, bool hostVisible)
+        /// <param name="made">Where it was made and what it is for.</param>
+        public VulkanBuffer(GraphicsDevice device, VkBuffer buffer, MemorySlice memory, BufferDesc desc, bool hostVisible, BufferMaker made)
         {
             _device = device;
             Buffer = buffer;
@@ -41,7 +45,9 @@ internal sealed unsafe partial class GraphicsDevice
             Description = desc;
             IsHostVisible = hostVisible;
             MappedPtr = hostVisible ? memory.Mapped : nint.Zero;
+            _made = made;
             Interlocked.Increment(ref device._liveBuffers);
+            device.Census(made, 1, (long)desc.Size);
         }
 
         /// <inheritdoc />
@@ -53,6 +59,7 @@ internal sealed unsafe partial class GraphicsDevice
                 _device._deviceApi.vkDestroyBuffer(Buffer);
                 Buffer = default;
                 Interlocked.Decrement(ref _device._liveBuffers);
+                _device.Census(_made, -1, -(long)Description.Size);
             }
 
             if (Memory is { } memory)
@@ -63,16 +70,18 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    IBuffer IGraphicsDevice.CreateBuffer(BufferDesc desc) => CreateBuffer(desc);
+    IBuffer IGraphicsDevice.CreateBuffer(BufferDesc desc, string maker, int line) => CreateBuffer(desc, maker, line);
     Span<byte> IGraphicsDevice.Map(IBuffer buffer) => Map(buffer);
     void IGraphicsDevice.Unmap(IBuffer buffer) => Unmap(buffer);
 
     /// <summary>Creates a GPU buffer backed by Vulkan device memory with the specified descriptor.</summary>
     /// <param name="desc">Buffer creation descriptor (size, usage, CPU access).</param>
+    /// <param name="maker">The file that asks for it, which the compiler fills in, for the census.</param>
+    /// <param name="line">The line of <paramref name="maker"/> that asks for it.</param>
     /// <returns>A new <see cref="IBuffer"/> handle.</returns>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="desc"/> specifies a zero-byte size.</exception>
-    public IBuffer CreateBuffer(BufferDesc desc)
+    public IBuffer CreateBuffer(BufferDesc desc, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
     {
         if (!IsInitialized)
             throw new InvalidOperationException("Graphics device not initialized");
@@ -106,7 +115,7 @@ internal sealed unsafe partial class GraphicsDevice
         var memory = AllocateMemory(requirements, properties, image: false);
         _deviceApi.vkBindBufferMemory(buffer, memory.Memory, memory.Offset).CheckResult();
 
-        return new VulkanBuffer(this, buffer, memory, desc, desc.CpuAccess != CpuAccessMode.None);
+        return new VulkanBuffer(this, buffer, memory, desc, desc.CpuAccess != CpuAccessMode.None, new BufferMaker(maker, line, desc.Usage));
     }
 
     /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>

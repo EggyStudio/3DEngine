@@ -84,6 +84,27 @@ public sealed class SoakCheckTests : IDisposable
         exit.Should().Be(0, log);
     }
 
+    [NeedsPythonFact]
+    public void A_Streaming_Games_Buffers_Are_Bounded_By_The_Most_Its_Whole_Walk_Holds()
+    {
+        // Manor on lavapipe at a core, two turns in two minutes, its walk entering the house in the
+        // second half with nothing leaking: its buffers' least climbs past the first half's bound
+        // and stays under the most a whole walk holds, 162. The same climb in a game that streams
+        // nothing fails, and so does Manor's past its whole walk.
+        string Buffers(string name, params int[] buffers)
+        {
+            var path = _folder.File(name + ".csv");
+            File.WriteAllLines(path, buffers.Select((count, i) =>
+                $"{10 * i} managed {50 << 20} heap {100 << 20} gen2 {i} resident {400L << 20} entities 400 entityIds 480 buffers {count}"));
+            return path;
+        }
+        int[] walk = [53, 100, 96, 111, 133, 155, 156, 160, 153, 153, 152, 149, 162];
+
+        Check(Buffers("manor", walk)).Exit.Should().Be(0, "the house's models are the world's");
+        Check(Buffers("pusher", walk)).Exit.Should().Be(1, "a game that streams nothing has no whole walk to grow into");
+        Check(Buffers("manor", [.. walk.Select((count, i) => i < 7 ? count : count + 40)])).Exit.Should().Be(1, "past the most its whole walk holds");
+    }
+
     private (int Exit, string Log) Check(params string[] readings)
     {
         var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = _folder.Path, RedirectStandardOutput = true, RedirectStandardError = true });

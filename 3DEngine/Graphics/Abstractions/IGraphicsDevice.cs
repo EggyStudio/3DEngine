@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Engine;
 
 /// <summary>
@@ -54,8 +56,10 @@ internal interface IGraphicsDevice : IDisposable
 
     /// <summary>Creates a GPU buffer with the specified descriptor.</summary>
     /// <param name="desc">Buffer creation descriptor (size, usage, CPU access).</param>
+    /// <param name="maker">The file that asks for it, which the compiler fills in, so the device's census says where each buffer alive was made.</param>
+    /// <param name="line">The line of <paramref name="maker"/> that asks for it, filled in the same.</param>
     /// <returns>A new <see cref="IBuffer"/> handle.</returns>
-    IBuffer CreateBuffer(BufferDesc desc);
+    IBuffer CreateBuffer(BufferDesc desc, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0);
 
     /// <summary>Maps a buffer's memory for CPU access and returns a writable span.</summary>
     /// <param name="buffer">The buffer to map.</param>

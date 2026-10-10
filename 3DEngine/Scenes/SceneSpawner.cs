@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Engine;
 
@@ -301,24 +302,26 @@ internal static class SceneSpawner
         }
     }
 
+    // Each mesh of a loaded scene de-indexed once, so every entity spawned from it shares its arrays
+    // and the renderer, which keeps a mesh's buffers by its positions array, uploads it once. Made
+    // again at each spawn, every cell of Manor that placed a model held buffers of its own, 176
+    // meshes at sixteen cells and 259 at twenty-three, which climbed past the soak's bound as its
+    // walk entered the house on a slow device. A scene loaded again is a new payload and is
+    // de-indexed again, and the arrays go with the payload.
+    private static readonly ConditionalWeakTable<SceneMeshPayload, Deindexed> s_deindexed = new();
+
+    private sealed class Deindexed(Mesh mesh)
+    {
+        public readonly Mesh Mesh = mesh;
+    }
+
     // A mesh and its material on an entity.
     private static void AttachMesh(EcsWorld ecs, int entity, SceneNode node, SceneMeshPayload mesh, SceneMaterialPayload? material,
         SceneSpawnSettings settings, SpawnContext ctx)
     {
-        // De-indexed into three vertices per triangle, as Mesh holds them, with the
-        // normals and first texture coordinates beside the positions when the file has them.
-        var count = mesh.Indices.Length;
-        var positions = new Vector3[count];
-        var normals = mesh.Normals is { } sourceNormals && sourceNormals.Length == mesh.Positions.Length ? new Vector3[count] : null;
-        var uvs = mesh.Uv0 is { } sourceUvs && sourceUvs.Length == mesh.Positions.Length ? new Vector2[count] : null;
-        for (int i = 0; i < count; i++)
-        {
-            var index = mesh.Indices[i];
-            positions[i] = mesh.Positions[index];
-            if (normals is not null) normals[i] = mesh.Normals![index];
-            if (uvs is not null) uvs[i] = mesh.Uv0![index];
-        }
-        ecs.Add(entity, new Mesh(positions, normals, uvs));
+        var shared = s_deindexed.GetValue(mesh, static mesh => new Deindexed(Deindex(mesh))).Mesh;
+        ecs.Add(entity, shared);
+        var positions = shared.Positions;
 
         // The material is the payload's when there is one and the configured default
         // otherwise, so the renderer sees a fully formed pair of mesh and material.
@@ -335,6 +338,24 @@ internal static class SceneSpawner
         // for every material.
         if (material is not null && ctx.Server is null)
             WarnIfTexturesIgnoredOnce(material);
+    }
+
+    // De-indexed into three vertices per triangle, as Mesh holds them, with the normals and first
+    // texture coordinates beside the positions when the file has them.
+    private static Mesh Deindex(SceneMeshPayload mesh)
+    {
+        var count = mesh.Indices.Length;
+        var positions = new Vector3[count];
+        var normals = mesh.Normals is { } sourceNormals && sourceNormals.Length == mesh.Positions.Length ? new Vector3[count] : null;
+        var uvs = mesh.Uv0 is { } sourceUvs && sourceUvs.Length == mesh.Positions.Length ? new Vector2[count] : null;
+        for (int i = 0; i < count; i++)
+        {
+            var index = mesh.Indices[i];
+            positions[i] = mesh.Positions[index];
+            if (normals is not null) normals[i] = mesh.Normals![index];
+            if (uvs is not null) uvs[i] = mesh.Uv0![index];
+        }
+        return new Mesh(positions, normals, uvs);
     }
 
     /// <summary>
