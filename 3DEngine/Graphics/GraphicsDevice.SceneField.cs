@@ -24,9 +24,8 @@ internal sealed class GpuSceneField : IDisposable
     internal GpuSceneField(int cascades, int resolution, IImageView view, ISampler sampler, IBuffer info, IBuffer cells,
         VkImage still, VkImageView stillView, VkImage field, VkImageView fieldView, Action dispose,
         IBuffer albedo, IBuffer glow, VkImage albedoImage, IImageView albedoView, VkImage glowImage, IImageView glowView, IBuffer behind,
-        VkImage stillPaint, VkImageView stillPaintView, IBuffer emitted)
+        VkImage stillPaint, VkImageView stillPaintView)
     {
-        Emitted = emitted;
         Behind = behind;
         StillPaint = stillPaint;
         StillPaintView = stillPaintView;
@@ -87,9 +86,9 @@ internal sealed class GpuSceneField : IDisposable
     // thinner than a cell, a cell lying in front of one of its faces and close behind the other.
     internal IBuffer Behind { get; }
 
-    // The light of the emitters thinner than a cell each cell lies near, red, green and blue in
-    // 256ths, which the resolve gives a cell whose nearest surface gives off less.
-    internal IBuffer Emitted { get; }
+    // What the emitters thinner than a cell lend the cells they lie near, six words a cell, made
+    // the first time a build has such an emitter, so a scene with none holds none of its 6 MB.
+    internal IBuffer? Emitted { get; set; }
     internal VkImage Still { get; }
     internal VkImageView StillView { get; }
 
@@ -101,7 +100,11 @@ internal sealed class GpuSceneField : IDisposable
     internal VkImageView FieldView { get; }
 
     /// <inheritdoc />
-    public void Dispose() => _dispose();
+    public void Dispose()
+    {
+        _dispose();
+        Emitted?.Dispose();
+    }
 }
 
 internal sealed unsafe partial class GraphicsDevice
@@ -175,7 +178,6 @@ internal sealed unsafe partial class GraphicsDevice
         var albedo = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
         var glow = CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
         var behind = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
-        var emitted = CreateBuffer(new BufferDesc((ulong)size * size * size * 12, BufferUsage.Storage | BufferUsage.TransferDst));
 
         // The distances cleared to far and the colors to none, the still images left in the general
         // layout and the ones the passes read ready to be sampled, and the info zeroed, which
@@ -231,7 +233,6 @@ internal sealed unsafe partial class GraphicsDevice
                 albedo.Dispose();
                 glow.Dispose();
                 behind.Dispose();
-                emitted.Dispose();
                 info.Dispose();
                 _deviceApi.vkDestroyImageView(fieldView);
                 owner.Dispose();
@@ -250,7 +251,7 @@ internal sealed unsafe partial class GraphicsDevice
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _deviceApi.vkFreeMemory(stillPaintMemory);
             }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView), behind,
-            stillPaint, stillPaintView, emitted);
+            stillPaint, stillPaintView);
     }
 
     // A 3D image a compute shader writes and a pass samples, of half floats unless another format
@@ -373,7 +374,11 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
         // The emitters' light cleared, and later read, where a build lends it alone, as clearing and
         // reading it cost a cascade's build some 0.03 ms.
-        if (thinGlow) _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Emitted).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        if (thinGlow)
+        {
+            field.Emitted ??= CreateBuffer(new BufferDesc((ulong)size * size * size * 24, BufferUsage.Storage | BufferUsage.TransferDst));
+            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Emitted).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        }
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
 
@@ -386,7 +391,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Buffer(splat, 3, VkDescriptorType.StorageBuffer, field.Albedo);
             run.Buffer(splat, 4, VkDescriptorType.StorageBuffer, field.Glow);
             run.Buffer(splat, 5, VkDescriptorType.StorageBuffer, field.Behind);
-            run.Buffer(splat, 6, VkDescriptorType.StorageBuffer, field.Emitted);
+            // A build with no such emitter reads none of it, and binds another buffer in its place.
+            run.Buffer(splat, 6, VkDescriptorType.StorageBuffer, field.Emitted ?? field.Behind);
             var groupsX = (uint)Math.Min(triangleCount, 65535);
             var push = new SplatPush
             {
@@ -424,7 +430,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(resolve, 6, ((VulkanImageView)field.GlowView).View);
         run.Buffer(resolve, 7, VkDescriptorType.StorageBuffer, field.Behind);
         run.Image(resolve, 8, field.StillPaintView);
-        run.Buffer(resolve, 9, VkDescriptorType.StorageBuffer, field.Emitted);
+        run.Buffer(resolve, 9, VkDescriptorType.StorageBuffer, field.Emitted ?? field.Behind);
         ReadOnlySpan<Vector4> cascadePush = [new Vector4(cascade, size, cell, band), new Vector4(thinGlow ? 1 : 0, 0, 0, 0)];
         var groups = (size + 3) / 4;
         run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(cascadePush), groups, groups, groups);

@@ -543,9 +543,13 @@ dispatch of the splat paints each cell the color and the light given off of the 
 it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
 bounces. An emitter thinner than a cell, as a strip on a wall, may be no cell's nearest surface, so
-where an instance's thinnest extent is under a cell a third dispatch lends the cells within half a
-cell of its triangles its light times its thickness over the cell, and the resolve gives a cell the
-larger of that and its nearest surface's light.
+where an instance's thinnest extent is under a cell a third dispatch lends the cells within a cell
+of its triangles its light and the area of its faces near each, those a closed mesh turns toward
+the cell, within a square a cell wide about the cell's middle laid on the face, seen along each
+axis, and the resolve gives a cell the larger of its nearest surface's light and the lent light
+times the share of a cell's face those faces cover along the axis they cover most of, a whole face
+at most. The lend's buffer, six words a cell, 6 MB, is made the first time a build has such an
+emitter.
 A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
 again are stamped each frame as boxes, the nearest the eye first to 256 boxes, into the
 bricks of four cells they come within the band of, each cell the least of the still image's
@@ -1031,7 +1035,15 @@ splat lends the cells within half a cell of its triangles its light times its th
 cell, the share of a cell's face it covers, the most any of its triangles gives, in a buffer of
 256ths a channel (`field_splat.slang`). The resolve gives a cell the larger of that and its nearest
 surface's light, so a glowing panel under a ceiling, which paints its own cells, is not counted
-twice. The probe beside the strip reads 12% under a reference of hits lit directly, the one in the
+twice. That share gave a strip its 0.4 and a glowing sheet as thin a seventh of its light where its
+face covers a cell's face whole, and half a cell left out the cells inside a wall a sheet lies flat
+on, exactly half a cell behind it, which the field blends with those in front where it is read at
+the sheet, so a sheet 0.02 thick on a wall gave off 1.27 of its 2 at its face. The share is read
+from the area of the emitter's faces near each cell, those a closed mesh turns toward the cell,
+within a square a cell wide about the cell's middle laid on each face, seen along each axis and
+taken along the axis they cover most of, a whole face at most, and lent to the cells within a cell,
+so the sheet gives off its 2 and the strip keeps its 0.4 (`SceneFieldTests`), where summed over
+the axes a strip's front and top faces would lend a cell beside it twice what it shows from either. The probe beside the strip reads 12% under a reference of hits lit directly, the one in the
 room's middle 78%, the band the strip's light lies in seen there across some seven degrees, and the
 strip's room reads 45, 44 and 41% under every bounce by quality, where it read 87%. A closed room lit
 by such a strip alone reads 131 levels on its floor where it read none (`GlobalIlluminationTests`).
@@ -1040,7 +1052,9 @@ brighter, +7, +6 and +8%, and every other room moves a point at most. The splat 
 its own, after a branch every thread takes alike, where in the loop of the distances and the paint
 it cost a cascade's build 0.027 ms with no emitter at all; a build with no such emitter clears and
 reads none of the buffer, and a cascade's build in `shaders_scene_field` takes 0.459 ms where it
-took 0.455 (`field.rebuild 4000`). The bounce costs 0.44, 0.57 and 0.66 ms. The look, from here read
+took 0.455 (`field.rebuild 4000`). Read from the faces' area, the lend costs the bounce rooms' two
+builds a frame 0.346 ms where its first share cost 0.344, and every room reads as it did to the
+point (`build/bounce-rooms.sh` against the same references). The bounce costs 0.44, 0.57 and 0.66 ms. The look, from here read
 over five slides of the camera, along x either way, up, ahead and askew: the bounce adds 0.87 levels
 a frame to the picture's change, 0.51 to 1.28 by slide, where it adds 3.10 without the history,
 1.39 to 3.92, and the panel's room fades as it did.

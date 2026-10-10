@@ -10,7 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d26c2b4a`. C's eighth fix, the step where the screen's probes ended: a screen probe
+Reviewed up to `c9da36e9`. C's ninth fix, the strip no cell held: each instance that gives off light
+carries its thinnest extent, its mesh's bounds along its own axes scaled into the world, and where
+that is under a cell a third splat dispatch, after a branch every thread of a group takes alike,
+lends the cells within half a cell of its triangles its light times its thickness over the cell, the
+most any triangle gives by an atomic maximum in a buffer of 256ths a channel, which the resolve
+takes the larger of against the cell's own light, so a panel that paints its cells is not counted
+twice; a build with no such emitter clears and reads none of it, and a cascade's build takes 0.459
+ms where it took 0.455. The probe beside the strip reads −12% where it read −100%, the strip's room
+−45, −44 and −41% where it read −87%, the Cornell box 1 to 2 points brighter by its panel's edges, a
+new test lighting a closed room by a strip alone. Right, the splat kept out of the distances' loop
+for the 0.027 ms it cost there, and §4's crawl one quantity throughout and a mean of five slides
+with its spread from here. One thing holds the ninth, before the tenth. The share is the instance's
+thinnest extent over the cell, which gives a strip its 0.4, since a strip's face covers that much of
+a cell's face, and gives a glowing sheet thinner than a cell with no cell's middle inside it, a
+panel of 0.02 under cells of 0.15, a seventh of its light, where its face covers a cell's face
+whole; the share is what of a cell's face the emitter's surface near the cell covers, read from the
+triangle's area and not the instance's extent, clamped to one, which gives the strip its 0.4 and the
+sheet its 1, with such a sheet in the test. And the lend's buffer is 3 MB a field, three words a
+cell, which the guide's line on the field's memory gains at D. The suite: 1,591 passed; on lavapipe
+336 passed and 6 skipped with no validation error. The sheet next, then the tenth, the fade's hold,
+then the eleventh, then D.
+
+Before it, C's eighth fix came to be read, the step where the screen's probes ended: a screen probe
 on a surface past the field's first cascade takes the light from beyond its rays from the second
 cascade's merge, the probes around it, those it sees and the texel it reads taken in that cascade,
 its directions in the push and its image bound beside the first's, the first again where there is
@@ -56,31 +78,6 @@ by the frames the panel's room and the carried lamp's trail take to go at Low an
 crawl, since a cut that fires on noise would flicker; the second way, the passes twice a frame, is
 the number to beat if the first fails the carried lamp. The suite: 1,589 passed; on lavapipe 334
 passed and 6 skipped. C8 next, the step.
-
-Before it, C's sixth fix came to be read, the sunlit floors, and the plan's cause was not the cause:
-the sun's visibility at a hit was measured first and read right, the probes beside the window room's
-patch at 0% and +20% from a reference of hits lit directly, so the shadow cascades were not tried,
-and the loss was the merge's early dark once more, the room's middle probe reading its face toward
-the floor 78% short, the patch past its own rays' reach and met before their interval by every
-parent that could see it. Each cascade's rays reach four times its spacing where they reached twice,
-as far again as the next cascade's interval begins, so what a parent meets early the probe meets
-itself; the intervals overlap by half their way, which doubles no light, since a ray that meets a
-surface stops with it and one that meets none takes the parent's whole; the screen's reach stays the
-first spacing under a name of its own; the middle probe reads 15% short where it read 50, and the
-rooms' errors summed fall from 310 to 245 at Low and from 302 to 232 at High for 0.003, 0.05 and
-0.07 ms. Right, measured before changed and found elsewhere than the plan said, the second time in
-C. Three things. The Cornell box passes its reference by 17% at Low and Medium where it passed by 7,
-and the owner judged that box at the qualities a game ships, so D's tiers take Low's and Medium's
-overshoot as a fix with its number before and after, not as a number alone. Two tests moved to fit
-the sixth, each with its reason written: a glowing panel's room read 18 frames after the panel goes
-dark holds 22.5 levels then and none at 48, so it is read at 48, and the slide's held share of the
-crawl is six tenths where it was half, lavapipe's 0.42 of 0.83. Both are the look, a lamp switched
-off leaving its light most of a second at 60 frames and a picture that crawls 1.23 levels a frame
-where it crawled 0.97, so from here each fix's numbers carry the fade in frames and the crawl in
-levels at Low and High, and the next reply says why the fade lengthened, the frame before's faces
-read at hits further off the first suspect, and what would hold it. The references are drawn again a
-third time, Manor's library's among them, and Verdict 44's judge is the newest run pushed. The
-suite: 1,589 passed; on lavapipe the light-bouncing tests pass. C7 next, the halo.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -165,31 +162,34 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    back wall past it: the screen cascade reaching to the second field cascade, or the world probes'
    blend carrying the picture smoothly past that edge. Ninth the strip no cascade holds: an emitter
    under the field's cell, by the ray scene at High or by its light splatted into the field, said as
-   a limit if neither pays. Tenth the fade, which the third and sixth fixes lengthened to some 25
-   frames: the feedback's share cut for a few frames where a probe's own one-bounce light falls by
-   much against the frame before's, the frame's lights and glow summed as the fallback for a probe
-   lit by nothing of its own, held by the frames the panel's room and the carried lamp's trail take
-   to go at Low and High and by the crawl, which a cut firing on noise would raise; the trace, merge
-   and gather run twice a frame is the second way, measured against the first if it fails the
-   carried lamp. Eleventh the three rooms still far under after the eight, the window's at −53%, the
-   grazing floor at −37% and the corridor at −21%, the ones seen as too dim at a distance: read at
-   the probes with `gi.probe` against the one-bounce and two-bounce references, as the third and
-   sixth were found, the cause named and fixed where it is a fault, and written with its number
-   where it is the method's limit. Three more from the same drop are read only if an artifact
-   outlives the nine: a directional signal per screen probe resolved against the pixel's shading
-   normal where a scalar gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`); the history
-   rejected under what moved by the velocity image the motion blur draws, and one fresh ray
-   validating a reprojected probe (`HTemporalStablizationWSGI.compute`); and the lamps at a hit
-   sampled from a cluster of the nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`),
-   where every lamp is evaluated today. The probes placed and filtered by a smooth geometric normal
-   with the shading normal used at the resolve alone is that product's rule, worth one look at the
-   fourth. What does not pay a measured share stays described with its number. From the sixth, each
-   fix's numbers also carry the frames a glowing panel's room takes to go dark once the panel does,
-   18 before it and 48 after, and the levels a frame a sliding camera's picture crawls with the
-   bounce, held and unheld, 0.97 and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070,
-   since both moved there and both are the look the owner judges, and a fix that lengthens the fade
-   or the crawl says why, the crawl read as the mean of several slides with its spread beside it,
-   since the sixth's was given as 1.23 and as 1.71.
+   a limit if neither pays, and whole when a glowing sheet thinner than a cell with no cell's middle
+   inside it reads as the strip does, the share read from the surface's area near the cell and not
+   the instance's thinnest extent, clamped to one, with such a sheet in the test (`c9da36e9`'s
+   review). Tenth the fade, which the third and sixth fixes lengthened to some 25 frames: the
+   feedback's share cut for a few frames where a probe's own one-bounce light falls by much against
+   the frame before's, the frame's lights and glow summed as the fallback for a probe lit by nothing
+   of its own, held by the frames the panel's room and the carried lamp's trail take to go at Low
+   and High and by the crawl, which a cut firing on noise would raise; the trace, merge and gather
+   run twice a frame is the second way, measured against the first if it fails the carried lamp.
+   Eleventh the three rooms still far under after the eight, the window's at −53%, the grazing floor
+   at −37% and the corridor at −21%, the ones seen as too dim at a distance: read at the probes with
+   `gi.probe` against the one-bounce and two-bounce references, as the third and sixth were found,
+   the cause named and fixed where it is a fault, and written with its number where it is the
+   method's limit. Three more from the same drop are read only if an artifact outlives the nine: a
+   directional signal per screen probe resolved against the pixel's shading normal where a scalar
+   gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`); the history rejected under what moved
+   by the velocity image the motion blur draws, and one fresh ray validating a reprojected probe
+   (`HTemporalStablizationWSGI.compute`); and the lamps at a hit sampled from a cluster of the
+   nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`), where every lamp is evaluated
+   today. The probes placed and filtered by a smooth geometric normal with the shading normal used
+   at the resolve alone is that product's rule, worth one look at the fourth. What does not pay a
+   measured share stays described with its number. From the sixth, each fix's numbers also carry the
+   frames a glowing panel's room takes to go dark once the panel does, 18 before it and 48 after,
+   and the levels a frame a sliding camera's picture crawls with the bounce, held and unheld, 0.97
+   and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070, since both moved there and both
+   are the look the owner judges, and a fix that lengthens the fade or the crawl says why, the crawl
+   read as the mean of several slides with its spread beside it, since the sixth's was given as 1.23
+   and as 1.71.
 
    **D, the end.** Tiers re-measured and the guide's table rewritten, RENDERING.md §4 and TODO.md's
    entry, and a test holding the Cornell box and the level's views at each tier to their references
@@ -470,19 +470,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-C9, the strip. A glowing strip 0.06 thick on a wall painted no field cell, the wall nearer every
-cell's middle, so its light reached nothing that bounces. Each emitting instance carries its thinnest
-extent, and where that is under a cell a third splat dispatch lends the cells within half a cell of
-its triangles its light times its thickness over the cell, the most of its triangles in a buffer of
-256ths a channel; the resolve takes the larger of that and the cell's own light, so the Cornell
-panel, which paints its cells, is not counted twice. The strip's room goes from −87% to −45, −44 and
-−41% by quality, the probe beside the strip from −100% to −12% once, the room's middle −78% once,
-where the band the strip's light lies in spans some seven degrees of the probe's directions. The
-Cornell box rises 1 to 2 points to +7, +6 and +8%, the rest a point at most. A new test lights a
-closed room by such a strip alone, 131 levels on its floor against none, bound 40. The splat's loop
-runs apart from the distances' loop, where inline it cost a build 0.027 ms with no emitter; a build
-takes 0.459 ms where it took 0.455, and builds without a thin emitter skip the dispatch and the
-buffer. §4 gives the crawl as the bounce's addition throughout, 1.23 after the sixth, 0.95 after the
-seventh, 1.00 after the eighth, and from the ninth as the mean of five slides with the spread, 0.87
-(0.51 to 1.28) against 3.10 unheld (1.39 to 3.92). The suite 1,591 passed. C10 next, the fade's
-hold.
+C9's share, from `c9da36e9`'s review. The lend reads the area of the emitter's faces near each cell,
+those a closed mesh turns toward the cell, within a square a cell wide about the cell's middle laid
+on each face, seen along x, y and z and taken along the axis they cover most of, clamped to one,
+with the most light any of them gives off beside, six words a cell. Measured first, the sheet's loss
+lay elsewhere as well: a sheet 0.02 thick flat on a wall paints the cells in front of it itself, and
+the cells inside the wall behind it, which the field blends with those in front where it is read at
+the sheet, lie exactly half a cell from it, where the lend's half-cell reach left them out, so its
+face gave off 1.27 of its 2. The lend reaches the cells within a cell, every cell a point on the
+emitter is blended from, and the face gives off its 2; a new test in `SceneFieldTests` reads it
+across the sheet's face, bound 1.8. The strip keeps its 0.4 and every room of the eight reads as it
+did to the point at each quality (the strip −45, −44 and −41%, the Cornell box +7, +6 and +8%), a
+floor lit by such a sheet 0.02 thick reads 140 levels where it read 130, and the bounce rooms' two
+builds a frame take 0.346 ms where they took 0.344. The buffer is made the first time a build has an
+emitter thinner than a cell, 6 MB at 64 cells a side, so a scene with none holds none of it; that
+line joins the guide's memory at D. The suite 1,592 passed.

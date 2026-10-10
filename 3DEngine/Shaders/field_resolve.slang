@@ -36,8 +36,9 @@ StructuredBuffer<uint> behind;
 [[vk::binding(8, 0)]] [format("rgba8")]
 RWTexture3D<float4> stillPaint;
 
-// The light emitters thinner than a cell lend each cell, red, green and blue in 256ths, as
-// field_splat.slang left it, which a cell gives off where its nearest surface gives off less.
+// What emitters thinner than a cell lend each cell, as field_splat.slang left it: the most light
+// any gives off, red, green and blue in 256ths, and the area of their faces near the cell seen
+// along x, y and z, in 1024ths of a cell's face.
 [[vk::binding(9, 0)]]
 StructuredBuffer<uint> emitted;
 
@@ -104,9 +105,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     albedoField[at] = paint;
     uint index = (id.z * size + id.y) * size + id.x;
     uint2 light = glow[index];
-    float3 lent = push.lent.x > 0.5
-        ? float3(float(emitted[index * 3u]), float(emitted[index * 3u + 1u]), float(emitted[index * 3u + 2u])) / 256.0
-        : float3(0.0);
+    // The lent light times the share of the cell's face the emitters cover along the axis they
+    // cover most of, a whole face at most, as the faces of a strip along a wall lend a cell beside
+    // it what it shows from the front and from above alike, where summed they would lend it twice that.
+    float3 lent = float3(0.0);
+    if (push.lent.x > 0.5)
+    {
+        float3 light = float3(float(emitted[index * 6u]), float(emitted[index * 6u + 1u]), float(emitted[index * 6u + 2u])) / 256.0;
+        float3 seen = float3(float(emitted[index * 6u + 3u]), float(emitted[index * 6u + 4u]), float(emitted[index * 6u + 5u])) / 1024.0;
+        lent = light * min(max(seen.x, max(seen.y, seen.z)), 1.0);
+    }
     // The larger of the two, since an emitter that painted the cell its own already gives it its
     // whole light, as a glowing panel under a ceiling does.
     glowField[at] = float4(max(float3(unpackHalves(light.x), unpackHalves(light.y).x), lent), 0.0);

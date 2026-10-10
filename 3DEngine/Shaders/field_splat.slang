@@ -61,8 +61,9 @@ RWStructuredBuffer<uint2> glow;
 [[vk::binding(5, 0)]]
 RWStructuredBuffer<uint> behind;
 
-// The light of each emitter thinner than a cell that a cell lies near, red, green and blue in
-// 256ths, three words a cell, as field_resolve.slang adds them to the cell's nearest surface's.
+// What the emitters thinner than a cell lend each cell they lie near, six words a cell: the most
+// light any of them gives off, red, green and blue in 256ths, and the area of their faces near the
+// cell seen along x, y and z, in 1024ths of a cell's face, which field_resolve.slang reads.
 [[vk::binding(6, 0)]]
 RWStructuredBuffer<uint> emitted;
 
@@ -126,6 +127,51 @@ float3 place(FieldInstance instance, float3 p)
 
 groupshared uint triangleInstance;
 
+// The area of the triangle a b c, given in coordinates of its own plane, within the square of half
+// side h about the plane's origin, the triangle cut by each of the square's sides in turn
+// (Sutherland and Hodgman), seven corners at most.
+float areaWithin(float2 a, float2 b, float2 c, float h)
+{
+    float2 lo = min(a, min(b, c)), hi = max(a, max(b, c));
+    if (all(lo >= -h) && all(hi <= h))
+        return abs(cross(float3(b - a, 0.0), float3(c - a, 0.0)).z) * 0.5;
+    if (any(lo > h) || any(hi < -h))
+        return 0.0;
+    float2 corners[8];
+    float2 cut[8];
+    corners[0] = a;
+    corners[1] = b;
+    corners[2] = c;
+    uint count = 3u;
+    for (uint side = 0u; side < 4u; side++)
+    {
+        float sign = (side & 1u) == 0u ? 1.0 : -1.0;
+        uint axis = side >> 1;
+        uint kept = 0u;
+        for (uint i = 0u; i < count; i++)
+        {
+            float2 p = corners[i], q = corners[(i + 1u) % count];
+            float dp = sign * p[axis] - h, dq = sign * q[axis] - h;
+            if (dp <= 0.0)
+                cut[kept++] = p;
+            if ((dp <= 0.0) != (dq <= 0.0) && kept < 8u)
+                cut[kept++] = lerp(p, q, dp / (dp - dq));
+        }
+        count = kept;
+        for (uint i = 0u; i < count; i++)
+            corners[i] = cut[i];
+        if (count < 3u)
+            return 0.0;
+    }
+    float twice = 0.0;
+    for (uint i = 0u; i < count; i++)
+    {
+        float2 p = corners[i], q = corners[(i + 1u) % count];
+        twice += p.x * q.y - q.x * p.y;
+    }
+    return abs(twice) * 0.5;
+}
+
 // A face's way in eight bits, four along each side of the octahedron the sphere is folded onto,
 // enough to tell faces that look apart from faces that meet square.
 uint way8(float3 n)
@@ -169,9 +215,10 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     FieldInstance instance = instances[triangleInstance];
     // An emitter thinner than a cell paints no cell its own where a surface behind it is nearer
     // the cells' middles, as a bright strip on a wall, so its light was in the field nowhere and lit
-    // nothing that bounces. It lends the cells within half a cell of it its light times its
-    // thickness over the cell, the share of a cell's face it covers, the most any of its triangles
-    // gives, which the resolve gives the cell where its nearest surface gives off less.
+    // nothing that bounces. It lends the cells within half a cell of it its light, with the area of
+    // its faces near each, which the resolve turns into the share of a cell's face it covers, so a
+    // strip 0.06 wide lends cells of 0.15 two fifths of its light and a sheet as thin lends its
+    // whole light, where a share of its thickness over the cell lent a sheet 0.02 thick a seventh.
     float thickness = instance.emission.w;
     if (push.groups.y == 2u && !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0)))
         return;
@@ -200,18 +247,52 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
 
     if (push.groups.y == 2u)
     {
-        uint3 lent = uint3(max(instance.emission.rgb, 0.0) * (thickness / cell) * 256.0);
+        if (faceLength <= 1e-10)
+            return;
+        // The cells within a cell of the triangle, which lie within its bounds grown by one, every
+        // cell a point on it is blended from where the field is read there.
+        first = max(int3(floor((min(a, min(b, c)) - push.originAndCell.xyz) / cell - 1.0)), int3(0));
+        last = min(int3(ceil((max(a, max(b, c)) - push.originAndCell.xyz) / cell + 1.0)), int3(size - 1));
+        if (any(last < first))
+            return;
+        span = last - first + 1;
+        count = uint(span.x * span.y * span.z);
+        uint3 light = uint3(max(instance.emission.rgb, 0.0) * 256.0);
+        // The face's way and two ways along it, square to the axes where the face is, so a cell's
+        // square lies along an upright wall's rows of cells.
+        float3 n = face / faceLength;
+        float3 across = abs(n.x) < abs(n.y) ? (abs(n.x) < abs(n.z) ? float3(1, 0, 0) : float3(0, 0, 1)) : (abs(n.y) < abs(n.z) ? float3(0, 1, 0) : float3(0, 0, 1));
+        float3 u = normalize(cross(n, across));
+        float3 v = cross(n, u);
+        // The share of a cell's face it covers seen along each axis, 1024 a whole face.
+        float3 seen = abs(n) * (1024.0 / (cell * cell));
         for (uint k = lane; k < count; k += 64u)
         {
             int3 at = first + int3(int(k % uint(span.x)), int((k / uint(span.x)) % uint(span.y)), int(k / uint(span.x * span.y)));
             float3 p = push.originAndCell.xyz + (float3(at) + 0.5) * cell;
             bool open;
-            if (length(p - nearest(p, a, b, c, edges, open)) >= cell * 0.5)
+            if (length(p - nearest(p, a, b, c, edges, open)) >= cell)
                 continue;
+            // A face of a closed mesh counts where the cell lies before it, as a sheet's top face
+            // for a cell above it and its bottom face for one below, so the two faces of a sheet
+            // are not counted twice; a mesh with no inside counts every face.
+            float off = dot(p - a, n);
+            if (sided && off <= 0.0)
+                continue;
+            // The face's area within a cell's square about the cell's middle laid on its plane.
+            float3 q = p - n * off;
+            float area = areaWithin(float2(dot(a - q, u), dot(a - q, v)), float2(dot(b - q, u), dot(b - q, v)),
+                float2(dot(c - q, u), dot(c - q, v)), cell * 0.5);
+            if (area <= 0.0)
+                continue;
+            uint3 share = uint3(area * seen + 0.5);
             uint index = (at.z * size + at.y) * size + at.x;
-            InterlockedMax(emitted[index * 3u], lent.r);
-            InterlockedMax(emitted[index * 3u + 1u], lent.g);
-            InterlockedMax(emitted[index * 3u + 2u], lent.b);
+            InterlockedMax(emitted[index * 6u], light.r);
+            InterlockedMax(emitted[index * 6u + 1u], light.g);
+            InterlockedMax(emitted[index * 6u + 2u], light.b);
+            InterlockedAdd(emitted[index * 6u + 3u], share.x);
+            InterlockedAdd(emitted[index * 6u + 4u], share.y);
+            InterlockedAdd(emitted[index * 6u + 5u], share.z);
         }
         return;
     }

@@ -317,6 +317,68 @@ public sealed class SceneFieldTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Glowing_Sheet_Thinner_Than_A_Cell_On_A_Wall_Gives_Off_Its_Whole_Light_Where_It_Lies()
+    {
+        // A sheet 0.02 thick flat on a wall, under cells of 0.15, so the cells inside the wall
+        // behind it, which the field blends with those in front where it is read at the sheet,
+        // are painted by the wall, nearer them, and give off what the sheet lends them. Lent to the
+        // cells within half a cell at a share of its thickness over the cell, the face read 1.27
+        // of the sheet's 2, as this test measured on an RTX 4070.
+        var config = Config.Default.WithWindow("scene field sheet", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.15f);
+        var wall = LoadModelFromMesh(GenMeshCube(4, 3, 0.3f));
+        var sheet = LoadModelFromMesh(GenMeshCube(1.2f, 1.2f, 0.02f));
+        sheet.Materials[0].Emissive = Color.White;
+        sheet.Materials[0].EmissiveIntensity = 2;
+        var camera = new Camera3D(new Vector3(0, 1.5f, 4), new Vector3(0, 1.5f, 0), Vector3.UnitY, 45);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(wall, new Vector3(0, 1.5f, -0.15f), 1, Color.White);
+            DrawModel(sheet, new Vector3(0, 1.5f, 0.01f), 1, Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var (_, glow) = device.ReadSceneFieldColors(fields.Field!);
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+        const int size = SceneFieldPlan.Resolution;
+        const float cell = 0.15f;
+
+        // The light the field gives off at a point, blended between the eight cells around it as
+        // the passes sample it.
+        float Red(Vector3 point)
+        {
+            var f = (point - origin) / cell - new Vector3(0.5f);
+            var (x, y, z) = ((int)MathF.Floor(f.X), (int)MathF.Floor(f.Y), (int)MathF.Floor(f.Z));
+            var t = f - new Vector3(x, y, z);
+            float sum = 0;
+            for (int corner = 0; corner < 8; corner++)
+            {
+                var (dx, dy, dz) = (corner & 1, (corner >> 1) & 1, corner >> 2);
+                var weight = (dx == 0 ? 1 - t.X : t.X) * (dy == 0 ? 1 - t.Y : t.Y) * (dz == 0 ? 1 - t.Z : t.Z);
+                sum += weight * glow[(((z + dz) * size + y + dy) * size + x + dx) * 4];
+            }
+            return sum;
+        }
+
+        // Across the sheet's face, a cell in from its edges.
+        var reads = new List<float>();
+        for (float y = 1.1f; y <= 1.9f; y += 0.05f)
+            for (float x = -0.4f; x <= 0.4f; x += 0.05f)
+                reads.Add(Red(new Vector3(x, y, 0.02f)));
+        reads.Average().Should().BeGreaterThan(1.8f, $"the field gives off the sheet's light of 2 where it lies, the least {reads.Min():0.00}");
+        UnloadModel(wall);
+        UnloadModel(sheet);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void No_Cell_Away_From_Every_Mesh_Reads_As_Near_A_Surface()
     {
         var config = Config.Default.WithWindow("scene field signs", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
