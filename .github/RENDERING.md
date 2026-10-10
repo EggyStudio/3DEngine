@@ -511,38 +511,42 @@ lies (`scenefield.slang`). A cell holds its distance to the nearest surface in w
 zero behind a face of a mesh that is not double-sided, exact within four cells and held at four
 beyond, so a trace through it steps at least that far through open space.
 
-A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
-far, and where it moves, or a still mesh came into it or left, it is built again, as many a frame as
-the budget allows, the finest first (`SceneFieldPlan`). Until then a cascade keeps the place and the
-meshes it was built with, which the uniform buffer says, so a pass never reads one cascade at
-another's place. A mesh is still when it has been drawn the same, mesh, vertices, matrix and sides,
-for eight frames running. Its triangles go into one buffer in its mesh's own space the first time a
-build needs them, so a build hands the GPU each instance's matrix and where its mesh's triangles
-start. A build clears a word a cell to the band, then a workgroup a triangle puts the triangle in
-the world and takes, for each cell within the band of its bounds, the distance to it in 1024ths of
-a cell above a bit set where the triangle is double-sided, a bit set where the cell is in front
-of the face and the way the face looks in eight bits, keeping the least by an atomic minimum
-(`field_splat.slang`). Of two triangles as near, as a crate on the ground, the one the cell lies
-behind wins, the cell being inside some mesh, and a cell is behind a face only within 60 degrees of
-straight back from it, so where an edge or a corner is nearest, as above a pillar's rim, a face the
-way runs along does not put the cell inside. A cell whose nearest point is on an edge no other
-triangle shares by the places of its ends (`SceneFieldRenderer.OpenEdges`, the corner's w in the
-pooled triangles) is in front, so a ground plane puts no wedge below its rim inside. A triangle of
-next to no area beside its longest side is passed over, since its face turns whichever way rounding
-took it: `GenMeshSphere`'s last row meets its pole at corners sin(pi) leaves a hair apart, and taken
-as faces they turned 97 to 143 of the 1662 cells within half a unit of a sphere inside, beyond the
-pole, where none is now (`SceneFieldTests`). The face a cell
-lies within 25 degrees of straight behind is kept apart as well, in a word a cell. A
-second pass turns the words into distances in both the image the meshes alone make and the one the
-passes read (`field_resolve.slang`), half a cell less where the nearest triangle is double-sided. A
-double-sided mesh has no inside, and a sheet of one between two rows of cells would leave half a
-cell in each, which a trace steps over, so held half a cell thick on either side it crosses zero
-wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need. A closed
-wall thinner than a cell may have no cell's middle inside it either, and a cell in front of one face
-and less than a cell before another straight behind it that looks the other way takes the middle of
-the two, less half a cell, so the wall is held as the sheet is. The faces of a box's edge, which
-meet square, are not taken for a wall. It took a cascade's build in `shaders_scene_field` from
-0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
+A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone
+that far, and where it moves, or a still mesh came into it or left, it is built again, as many a
+frame as the budget allows, the finest first (`SceneFieldPlan`). Until then a cascade keeps the
+place and the meshes it was built with, which the uniform buffer says, so a pass never reads one
+cascade at another's place. A mesh is still when it has been drawn the same, mesh, vertices, matrix
+and sides, for eight frames running. A frame that draws the meshes the frame before did, in the
+same order, is read by place, each mesh compared with the one at its place, where working each
+frame out whole hashed every mesh's instance several times: in a Release build of the voxel game at
+eight columns, 1,836 meshes, the plan took 92 µs a frame in place of 1,600 and the field's node
+0.39 ms of the CPU in place of 1.8 to 2.0, by `./e3d command profile`. Its triangles go into one
+buffer in its mesh's own space the first time a build needs them, so a build hands the GPU each
+instance's matrix and where its mesh's triangles start. A build clears a word a cell to the band,
+then a workgroup a triangle puts the triangle in the world and takes, for each cell within the band
+of its bounds, the distance to it in 1024ths of a cell above a bit set where the triangle is
+double-sided, a bit set where the cell is in front of the face and the way the face looks in eight
+bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near, as a
+crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a cell
+is behind a face only within 60 degrees of straight back from it, so where an edge or a corner is
+nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
+whose nearest point is on an edge no other triangle shares by the places of its ends
+(`SceneFieldRenderer.OpenEdges`, the corner's w in the pooled triangles) is in front, so a ground
+plane puts no wedge below its rim inside. A triangle of next to no area beside its longest side is
+passed over, since its face turns whichever way rounding took it: `GenMeshSphere`'s last row meets
+its pole at corners sin(pi) leaves a hair apart, and taken as faces they turned 97 to 143 of the
+1662 cells within half a unit of a sphere inside, beyond the pole, where none is now
+(`SceneFieldTests`). The face a cell lies within 25 degrees of straight behind is kept apart as
+well, in a word a cell. A second pass turns the words into distances in both the image the meshes
+alone make and the one the passes read (`field_resolve.slang`), half a cell less where the nearest
+triangle is double-sided. A double-sided mesh has no inside, and a sheet of one between two rows of
+cells would leave half a cell in each, which a trace steps over, so held half a cell thick on
+either side it crosses zero wherever it lies, as the walls and floors of Manor's rooms, imported
+from OBJ files, need. A closed wall thinner than a cell may have no cell's middle inside it either,
+and a cell in front of one face and less than a cell before another straight behind it that looks
+the other way takes the middle of the two, less half a cell, so the wall is held as the sheet is.
+The faces of a box's edge, which meet square, are not taken for a wall. It took a cascade's build
+in `shaders_scene_field` from 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
 dispatch of the splat paints each cell the color and the light given off of the triangle whose word
 it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
@@ -553,9 +557,8 @@ the cell, within a square a cell wide about the cell's middle laid on the face, 
 axis, and the resolve gives a cell the larger of its nearest surface's light and the lent light
 times the share of a cell's face those faces cover along the axis they cover most of, a whole face
 at most. The lend's buffer, six words a cell, 6 MB, is made the first time a build has such an
-emitter.
-A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
-again are stamped each frame as boxes, the nearest the eye first to 256 boxes, into the
+emitter. A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet
+built again are stamped each frame as boxes, the nearest the eye first to 256 boxes, into the
 bricks of four cells they come within the band of, each cell the least of the still image's
 distance and those of the boxes that come within its brick, which the plan lists brick by brick
 (`field_stamp.slang`), and the bricks stamped the frame before are stamped again so a box that left
@@ -563,14 +566,14 @@ one is gone. A cell is painted the color of the nearer of the still meshes and t
 mesh's color as the splat reckons it, from a copy of the still meshes' colors the resolve writes
 beside the image the passes read, so a cell a box painted takes the still color again once the box
 has left. The light a mesh gives off is not stamped, which would take a copy of the still light as
-well, 2 MB a cascade. A skinned mesh is a box for each joint around the vertices at rest it holds most,
-posed by the joint's latest matrix, and one that does not bend a box for each of up to eight parts
-its triangles are cut into where each cut takes a third of the volume away
+well, 2 MB a cascade. A skinned mesh is a box for each joint around the vertices at rest it holds
+most, posed by the joint's latest matrix, and one that does not bend a box for each of up to eight
+parts its triangles are cut into where each cut takes a third of the volume away
 (`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what the room left for a box
 each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures near
 the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
-bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of the
-CPU in the Release build, as their meshes' 57 boxes were.
+bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of
+the CPU in the Release build, as their meshes' 57 boxes were.
 
 Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
 it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a

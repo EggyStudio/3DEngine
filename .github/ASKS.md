@@ -16,7 +16,7 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the occlusion pass costs 3.2 ms at intensity 0
+### 2026-10-10, the voxel game in `3DEngine.Game`: the field's gather costs 2.3 ms on a still scene
 
 The scene for each entry of the voxel game: seed 1's hills, the player at the spawn (0.5, 89, 0.5)
 facing north and level, a hidden window of 1280 by 720, an RTX 4070 Laptop GPU, the light that
@@ -26,17 +26,7 @@ to 96 units, ambient occlusion at 0 and bloom at 0.5. Each pass's time is its av
 agreed, with nothing else drawing on the GPU, and the draws are the game's own count from
 `./e3d command voxel.state`.
 
-On that scene at 6 columns, with `SetAmbientOcclusion(0)` and the light that bounces Off,
-`gpu.ambient_occlusion` reads 3.2 ms and `cpu.ambient_occlusion` 2.3 ms, and with the bounce at High
-2.9 and 2.1. The pass draws its half-size depth of every mesh that casts a shadow whatever the
-intensity, which is work for nothing where no other pass reads that depth. The game sets the
-intensity to 0, the bounce standing in for occlusion, and pays the pass.
-
-Review: item 2 of REVIEW.md, its part c, 2026-10-10.
-
-### 2026-10-10, the voxel game in `3DEngine.Game`: the field's gather costs 2.3 ms on a still scene
-
-On the scene above, `cpu.scene_field` reads 2.3 ms at 6 columns and 3.9 ms at 8, with no block
+On that scene, `cpu.scene_field` reads 2.3 ms at 6 columns and 3.9 ms at 8, with no block
 edited and every mesh drawn unchanged in its place for hundreds of frames, about 2 microseconds a
 draw a frame. `SceneFieldPlan` compares each draw's instance, its mesh, vertex array, transform,
 color and emission, with the frame before's each frame, so a still scene pays for every draw as a

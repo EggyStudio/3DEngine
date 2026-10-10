@@ -121,6 +121,14 @@ internal sealed class SceneFieldPlan
     // counts at the cost of an add each, where a set of the bricks cost a hash each, and the bricks
     // each shape comes within in each cascade, its first and last along each axis.
     private int[] _stamped = [], _stampedBefore = [];
+
+    // The meshes drawn the frame before in the order drawn, with the frames each had been drawn the
+    // same and whether it is skinned, and whether that order held each mesh once.
+    private Instance[] _order = [];
+    private int[] _orderFrames = [];
+    private bool[] _orderSkinned = [];
+    private int _orderCount;
+    private bool _orderWhole;
     private readonly List<(int Shape, int Cascade, int X0, int Y0, int Z0, int X1, int Y1, int Z1)> _reaches = [];
     private long _frame;
 
@@ -172,6 +180,9 @@ internal sealed class SceneFieldPlan
     /// <summary>How many meshes are still.</summary>
     public int StillCount => _still.Count;
 
+    /// <summary>Whether the last frame drew the meshes the frame before did in the same order, and was read by place.</summary>
+    public bool ReadByPlace { get; private set; }
+
     /// <summary>The width of a cell of a cascade.</summary>
     public float CellOf(int cascade) => CellSize * (1 << cascade);
 
@@ -216,32 +227,51 @@ internal sealed class SceneFieldPlan
         BrickShapes.Clear();
         _reaches.Clear();
 
-        // Each mesh's frames drawn the same, a skinned one never still.
-        var seen = new Dictionary<Instance, int>(drawn.Count);
         var moving = new List<Instance>();
-        foreach (var (instance, skinned) in drawn)
+        ReadByPlace = SameOrder(drawn);
+        if (ReadByPlace)
         {
-            if (seen.ContainsKey(instance)) continue;
-            var frames = skinned ? 0 : Math.Min(SettleFrames, _seen.GetValueOrDefault(instance) + 1);
-            seen[instance] = frames;
-            if (frames < SettleFrames) moving.Add(instance);
-        }
-        _seen = seen;
-
-        // Still meshes that came or went make the cascades around them dirty.
-        foreach (var (instance, frames) in seen)
-            if (frames >= SettleFrames && !_still.ContainsKey(instance))
+            // The meshes drawn the frame before, in the same order, each one frame more the same,
+            // read by place, so a scene that did not change costs a comparison a mesh. None left.
+            for (int i = 0; i < _orderCount; i++)
             {
-                var bounds = _bounds(instance.Vertices).Transformed(instance.World);
-                _still[instance] = (bounds, _frame);
-                _pending.Add(instance);
-                MarkAround(bounds);
+                var (instance, skinned) = drawn[i];
+                var frames = _orderFrames[i];
+                if (frames >= SettleFrames) continue;
+                frames = skinned ? 0 : frames + 1;
+                _orderFrames[i] = frames;
+                if (skinned) moving.Add(instance);
+                else
+                {
+                    _seen[instance] = frames;
+                    if (frames < SettleFrames) moving.Add(instance);
+                    else Settle(instance);
+                }
             }
-        foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance)).ToArray())
+        }
+        else
         {
-            MarkAround(_still[instance].Bounds);
-            _still.Remove(instance);
-            _pending.Remove(instance);
+            // Each mesh's frames drawn the same, a skinned one never still.
+            var seen = new Dictionary<Instance, int>(drawn.Count);
+            foreach (var (instance, skinned) in drawn)
+            {
+                if (seen.ContainsKey(instance)) continue;
+                var frames = skinned ? 0 : Math.Min(SettleFrames, _seen.GetValueOrDefault(instance) + 1);
+                seen[instance] = frames;
+                if (frames < SettleFrames) moving.Add(instance);
+            }
+            _seen = seen;
+
+            // Still meshes that came or went make the cascades around them dirty.
+            foreach (var (instance, frames) in seen)
+                if (frames >= SettleFrames && !_still.ContainsKey(instance)) Settle(instance);
+            foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance)).ToArray())
+            {
+                MarkAround(_still[instance].Bounds);
+                _still.Remove(instance);
+                _pending.Remove(instance);
+            }
+            KeepOrder(drawn, seen);
         }
 
         // Cascades the eye has moved past, then as many dirty ones as the budget allows, finest first.
@@ -335,6 +365,48 @@ internal sealed class SceneFieldPlan
         {
             var (c, x, y, z) = Bricks[b];
             _stamped[((c * side + z) * side + y) * side + x] = BrickRanges[b].Count;
+        }
+    }
+
+    // A mesh drawn the same for SettleFrames frames running, which the cascades around it are built
+    // again with and which is stamped until they have been.
+    private void Settle(Instance instance)
+    {
+        var bounds = _bounds(instance.Vertices).Transformed(instance.World);
+        _still[instance] = (bounds, _frame);
+        _pending.Add(instance);
+        MarkAround(bounds);
+    }
+
+    // Whether this frame draws the meshes the frame before did, in the same order, each by its
+    // instance, a skinned one by its mesh, whose parts are posed afresh each frame and which is
+    // never still. A frame before that drew a mesh twice is not read by place.
+    private bool SameOrder(IReadOnlyList<(Instance Instance, bool Skinned)> drawn)
+    {
+        if (!_orderWhole || drawn.Count != _orderCount) return false;
+        for (int i = 0; i < _orderCount; i++)
+        {
+            var (instance, skinned) = drawn[i];
+            if (skinned != _orderSkinned[i] || (skinned ? instance.Mesh != _order[i].Mesh : !instance.Equals(_order[i]))) return false;
+        }
+        return true;
+    }
+
+    // This frame's meshes in the order drawn, with the frames each has been drawn the same, for
+    // the frame after to read by place.
+    private void KeepOrder(IReadOnlyList<(Instance Instance, bool Skinned)> drawn, Dictionary<Instance, int> seen)
+    {
+        if (_order.Length < drawn.Count)
+        {
+            var room = Math.Max(drawn.Count, _order.Length * 2);
+            (_order, _orderFrames, _orderSkinned) = (new Instance[room], new int[room], new bool[room]);
+        }
+        _orderCount = drawn.Count;
+        _orderWhole = seen.Count == drawn.Count;
+        for (int i = 0; i < drawn.Count; i++)
+        {
+            var (instance, skinned) = drawn[i];
+            (_order[i], _orderFrames[i], _orderSkinned[i]) = (instance, seen.GetValueOrDefault(instance), skinned);
         }
     }
 

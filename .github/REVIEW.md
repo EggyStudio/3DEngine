@@ -10,7 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d1031bc3`. Item 2's parts a and b, the culling, in one commit since one change culls
+Reviewed up to `0e982877`. Part a's remainder measured and left out, part c found to rest on a wrong
+premise and answered the right way, and Verdict 40 read. The batched draws: in Release at eight
+columns, timed inside the shadow pass, binding a batch's two buffers took 0.16 µs and its draw 0.09
+µs and the pass's planes 13 µs a cascade, so a cascade's draws issued as one would save a quarter of
+a millisecond at most, and the game withdrew them with the far cascades' setting; the timing found
+instead that each pass's loop copied every batch, some 150 bytes, for each cascade, and the loops
+read their batches by reference, the shadows' gathering of casters from 154 to 96 µs a frame. Part
+c: with the occlusion at 0 and the bounce off the pass still works, since a field with a sun that
+casts shadows gives the sun's contact shadows, which the model pass reads, and the bounce's screen
+probes stand on the same depth, so what the profile called the occlusion was three things, each a
+node of its own with its number: `model_batches` gathers the window's batches and writes their
+instances once a frame for every pass, 1.3 to 1.5 ms of the CPU in Release, which the first pass to
+draw had paid; `window_depth` draws the half-size depth, 1.16 ms of the GPU and 0.35 of the CPU; and
+`ambient_occlusion` the occlusion with the contact shadows, 0.08 ms of the GPU, the same with the
+bounce off; where nothing reads the depth it was left out already, which a test reads with the
+nodes' order. Gathering ahead of the shadows found a fault: a batch's masked shadow was decided by
+whether the masked pipeline existed yet, which on the first frame it did not, so a cut-out cast a
+solid shadow for that frame; it is decided by the shader, and the masked shadow test caught it. One
+reading kept and not acted on, rightly: the GPU in each pass that draws the game's sections runs at
+2.3 to 3.2 µs a draw, the half-size depth costing per draw near what the full scene does and culling
+its back faces moving nothing, so those passes are bound by their draws or vertices and the frame
+waits on the CPU. Right, the premise measured before it was built on, the nodes named so the profile
+cannot mislead again, and the fault the measuring found mended. Verdict 40: `SlangCompiler.Run`
+disposes its process and is not run in the leak test, since with `ENGINE_SLANGC` naming a compiler
+that writes a line and fails the three cases passed and every app's 35 shaders came from the cache,
+whose key asks the compiler nothing, so the five handles are not slangc's and the review's suspect
+was wrong; the 315 the renderer's step takes and gives back fit lavapipe's own objects on Windows.
+The followed apps count their handles by kind on 64-bit Windows from the system's extended handle
+table, each kind named by `NtQueryObject` asked of one of the process's own handles for its type
+alone, which does not wait as a pipe's name can, reading only within the buffer it was given and
+naming a kind by its number where its name cannot be had, the entry's 40 bytes and its fields'
+offsets as the system lays them out; the step line ends with the kinds kept, so the next page says
+what the five are. Right, and the verdict is rewritten on it. The suite: 1,635 passed; on lavapipe
+355 passed and 7 skipped with no validation error. The game's own edits to ASKS.md went in with the
+batch, as the file's rule has it. Part d next, in its own commit, as the tree holds it.
+
+Before it, item 2's parts a and b came to be read, the culling, in one commit since one change culls
 for every pass, measured first as the item asks: on the game's scene at eight columns the frame took
 25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the occlusion's depth, over
 9,181 calls, 1,836 in each of the camera's pass, the depth and the three cascades the game's shadow
@@ -65,32 +101,6 @@ bullet and row on it are this file's kin, written by the reviewing session and c
 whichever batch comes next, as REVIEW.md is, which Decision 26 says. The suite: 1,632 passed; on
 lavapipe 352 passed and 7 skipped with no validation error. Item 2 next, the game's shadows,
 measured first.
-
-Before it, subsurface scattering's third batch came to be read, the tiers, as agreed:
-`SetSubsurfaceQuality` with `Low`, the marked images and the spread across at half the window's size
-and nine taps a way, `Medium` at the window's size with nine, and `High`, the default, with
-seventeen, the scatter pass reading the scene's depth where its vertex falls in clip space so a
-half-size fragment reads its own place, the enum and the setting on the public surface with the
-CHEATSHEET's line, the upgrading page and the guide's table from Manor, 0.72, 1.14 and 1.24 ms
-against 0.47 with none, since the new `shaders_subsurface` example, wax, skin and marble spheres
-beside a plain one with a leaf and a slab lit from behind, is too light to hold the GPU's clocks,
-which the guide says. Four things in the light through found by drawing it and mended with their
-reasons: the march first finds where it enters the mesh the field holds, within a cell, since begun
-at the drawn surface it left at once where the field's surface lay inside and banded a sphere's
-shadowed side; the field measures only where its cells are half the reach or less, since cells of
-0.15 against skin's 0.18 drew scallops along a terminator; the sun's map gives the mean of nine
-depths a texel apart, each blended, since one texel speckled and stepped the band; and the light
-fades past three of the widest share as e has it rather than ending cut and ragged. The sphere test
-runs at each tier, the slab test's numbers moved with the fade and say so, and the comparison page's
-bounce costs, left stale at D, are the measured ones. Right, each tier and each mend with its
-number, and the honest word on an example too light to time. Item 3 is not whole: the two things the
-second batch left for the third went to TODO.md instead, a material's own thickness from
-`KHR_materials_volume` for a part the field holds thicker than it is or not at all, a leaf drawn as
-one sheet, and a lamp's light through a part where the field is coarser than half the reach, from
-the lamp's shadow map as the sun's gives it; they are work and not limits, so they come after
-Verdicts 40 and 44 and before item 4, in item 3, with the spread in render textures and probe
-captures listed beside them as TODO.md has it. The suite: 1,631 passed; on lavapipe 352 passed and 7
-skipped with no validation error.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -157,7 +167,10 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    **c. The occlusion pass at nothing.** `ambient_occlusion` costs 3.2 ms of the GPU and 2.3 of the
    CPU with its intensity at 0, drawing its half-size depth of every shadow caster for nothing where
    no other pass reads it. The pass is left out where its intensity is 0 and nothing reads its
-   depth, and the profile says it was.
+   depth, and the profile says it was. Read at `0e982877` and answered otherwise: the pass draws the
+   sun's contact shadows, which the model pass reads, so it stays, and what the profile called it
+   was three things, the batches' gather at 1.3 to 1.5 ms of the CPU once a frame, the half-size
+   depth at 1.16 ms of the GPU and the occlusion itself at 0.08, each a node with its number; done.
 
    **d. The field's plan for a still scene.** `cpu.scene_field` takes 2.3 ms at six columns and 3.9
    at eight with nothing changed, about two microseconds a draw a frame, since `SceneFieldPlan`
@@ -282,12 +295,13 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     back 6, the close 3 and `ended` 334 to 337, and 5 are kept at each app read. So the handles are
     the renderer's shaders' loading, some nine a shader and not the same number twice, which says
     they are threads, processes or pipes of the compile and not objects of a fixed count, and five
-    of them stay on Windows alone. Two things. The step line splits the shaders' loading by shader,
-    or by the loader's steps, the compile, its spawn or thread, and the pipeline's making, so the
-    next page names the shader or the step that keeps them; and the loader's Windows path is read
-    for what it opens and never closes, a `Process`, its pipes, a wait handle or a thread, which the
-    counts above fit, and closed where the compile ends. The bound stays. Settled when a Windows run
-    passes whole.
+    of them stay on Windows alone. The compiler is ruled out at `0e982877`: its process is disposed
+    and the leak test never runs it, every app's shaders coming from the cache, so the 315 are
+    lavapipe's own objects on Windows, made with the device and its pipelines, and the five kept are
+    among them or beside them. The followed apps count their handles by kind there from the system's
+    handle table, and the step line ends with the kinds kept, so the next Windows page names the
+    five; once named, the object is closed where the app ends, or said to be the driver's with the
+    evidence. The bound stays. Settled when a Windows run passes whole.
 
 ## Decisions
 
@@ -455,42 +469,21 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's part a's remainder and part c. The batched draws, measured for the CPU a call first: in a
-Release build of the voxel game at eight columns, timed inside the shadow pass, binding a batch's
-two buffers took 0.16 µs and its draw 0.09 µs, the pass's planes 13 µs a cascade, so a cascade's
-draws issued as one would save the CPU a quarter of a millisecond at most, and the game withdrew
-them with the far cascades' setting, its frame waiting on the CPU. What the timing found instead:
-each pass's loop copied every batch, some 150 bytes, for each cascade, and iterating them by
-reference took the shadows' gathering of casting batches from 154 to 96 µs a frame. Part c's
-reading does not hold for the game: with its occlusion at 0 and the bounce off the pass still
-works, since a field with a sun that casts shadows gives the sun's contact shadows, which the model
-pass reads, and the bounce's screen probes stand on the same depth. What the profile gave the pass
-was three things, now nodes of their own: `model_batches` gathers the window's batches and writes
-their instances, once a frame for every pass, 1.3 to 1.5 ms of the CPU, which the first pass to
-draw had paid; `window_depth` draws the half-size depth, 1.16 ms of the GPU and 0.35 of the CPU;
-and `ambient_occlusion` the occlusion with the contact shadows, 0.08 ms of the GPU and 0.03 of the
-CPU, the same with the bounce off. Where nothing reads the depth it was left out already, which a
-new test reads, with the order of the three nodes. Gathering ahead of the shadows and the depth
-found a batch's masked shadow decided by whether the masked pipeline had been made yet, which on
-the first frame it had not, so a cut-out cast a solid shadow for that frame; it is decided by
-the shader now, as the masked shadow test caught. One reading for the item, not a cause: the
-GPU's time in each of the passes that draw the game's sections runs at 2.3 to 3.2 µs a draw, the
-half-size depth costing per draw near what the full-size scene does, and culling the depth's back
-faces as the camera's pass does left it at 1.16 ms, so those passes are bound by their draws or
-their vertices and not their pixels; the frame waits on the CPU, so it is noted and not acted on.
-RENDERING.md's paragraph on the occlusion says the three nodes with their numbers. Next is part d.
-
-Verdict 40, read as asked. `SlangCompiler.Run` disposes its process (`using var process`) and is
-not run in the leak test: with `ENGINE_SLANGC` naming a compiler that writes a line and fails, the
-three cases passed and it was never called, every app's 35 shaders read from the cache, and the
-cache's key hashes the arguments and the sources without asking the compiler anything. So the five
-handles each app keeps on Windows are not slangc's. The 315 the renderer's step takes and gives back
-fit lavapipe's own objects on Windows better, made with the device and its pipelines, which the
-count alone cannot tell apart. The leak test now names them: on 64-bit Windows the followed apps
-count their handles by kind from the system's table of every handle, NtQuerySystemInformation's
-extended handle table read for the process's own entries and each kind named by NtQueryObject,
-and the step line ends with the kinds kept, as `+2 Event, +1 Thread`, so the next page says what
-the five are. Elsewhere it reads nothing, and it cannot be run here, so it reads only within the
-buffer it was given and names a kind by its number where its name cannot be had.
-The suite 1,635 passed; on lavapipe 355 passed and 7 skipped with no validation error, the tree
-holding part d's change to the field's plan as well, which comes in its own commit.
+Item 2's part d. Measured first on the game's still scene, a Release build at eight columns, timed
+inside the field's node over 1,836 meshes: the gather that turns the frame's draws into the plan's
+instances took 325 µs a frame and the plan 1,600, since each frame built a new dictionary of every
+mesh's instance, its matrix, colors and parts, and asked it and the still meshes' of each mesh,
+some four hashes a mesh. Now a frame that draws the meshes the frame before did, in the same order,
+is read by place: each mesh compared with the one at its place, its frames drawn the same counted
+there, one that comes to eight settled as before, a skinned one compared by its mesh, since its
+parts are posed afresh each frame and it is never still; any other frame, a mesh added, moved,
+gone or drawn twice, is worked out whole and its order kept for the next. The plan took 92 µs in
+place of 1,600 and the field's node 0.39 ms of the CPU in place of 1.8 to 2.0; Wick's field 0.05 to
+0.14 ms in place of 0.19 to 0.32, Manor's field off and both games' GPU times unchanged. A new test
+draws three meshes that settle, one moved and one left out partway, and a skinned figure, to one
+plan in the same order every frame and to another turned a place each frame, which never reads by
+place, and holds the two to the same still meshes, builds, shapes and bricks frame by frame; it
+fails with the settling left out of the frame read by place. RENDERING.md §4's paragraph on the
+plan says it with its numbers. What is left of the CPU a draw takes in the field is the gather,
+330 µs, and the bounce's node holds 0.77 ms, which part d does not cover. The suite 1,636 passed;
+on lavapipe 356 passed and 7 skipped with no validation error.

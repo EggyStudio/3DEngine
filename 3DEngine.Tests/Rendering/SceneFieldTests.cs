@@ -140,6 +140,40 @@ public sealed class SceneFieldTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void A_Scene_Drawn_In_The_Same_Order_Is_Read_By_Place_And_Planned_As_One_Drawn_In_Another_Order_Each_Frame()
+    {
+        // Three meshes that settle, one of which moves at frame 12 and settles again, another left
+        // out from frame 25, and a skinned figure whose limbs are posed afresh each frame, drawn
+        // to one plan in the same order every frame and to another turned a place each frame,
+        // which never reads by place, so its plans are those of working each frame out whole.
+        var (byPlace, whole) = (new SceneFieldPlan(2, 0.25f, 2), new SceneFieldPlan(2, 0.25f, 2));
+        var eye = new Vector3(0.3f, 0.2f, 0.1f);
+        for (int frame = 0; frame < 32; frame++)
+        {
+            var limbs = new[] { new SceneFieldPlan.Part(new SceneFieldPlan.Box(new Vector3(-0.2f), new Vector3(0.2f)), Matrix4x4.CreateTranslation(0, frame * 0.01f, 0)) };
+            List<(SceneFieldPlan.Instance, bool)> drawn =
+            [
+                At(new Vector3(1, 0, 0)),
+                .. frame < 25 ? [At(new Vector3(-2, 0, 1))] : Array.Empty<(SceneFieldPlan.Instance, bool)>(),
+                At(frame < 12 ? new Vector3(0, 1, -2) : new Vector3(0.5f, 1, -2)),
+                (new SceneFieldPlan.Instance(2, Cube, Matrix4x4.CreateTranslation(2, 0, 2), false, Parts: limbs), true),
+            ];
+            byPlace.Update(eye, drawn);
+            whole.Update(eye, [.. drawn.Skip(frame % drawn.Count), .. drawn.Take(frame % drawn.Count)]);
+
+            if (frame is > 0 and not 12 and not 25) byPlace.ReadByPlace.Should().BeTrue($"frame {frame} draws what the one before did, in its order");
+            whole.ReadByPlace.Should().Be(frame % drawn.Count == (frame - 1) % drawn.Count && frame is > 0 and not 12 and not 25, "the other is turned a place each frame");
+            byPlace.StillCount.Should().Be(whole.StillCount, $"frame {frame}");
+            byPlace.Builds.Select(b => (b.Cascade, string.Join(";", b.Instances.Select(i => i.World.Translation.ToString()).Order(StringComparer.Ordinal))))
+                .Should().Equal(whole.Builds.Select(b => (b.Cascade, string.Join(";", b.Instances.Select(i => i.World.Translation.ToString()).Order(StringComparer.Ordinal)))), $"frame {frame}");
+            byPlace.Shapes.Select(shape => shape.ToOwn.Translation).Should().BeEquivalentTo(whole.Shapes.Select(shape => shape.ToOwn.Translation), $"frame {frame}");
+            byPlace.Bricks.Should().BeEquivalentTo(whole.Bricks, $"frame {frame}");
+        }
+        byPlace.StillCount.Should().Be(2, "the mesh that moved has settled again and the one left out is gone");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void Figures_Past_What_A_Frame_Stamps_Are_Boxes_Beyond_The_Nearest_And_None_Is_Left_Out()
     {
         // Thirty skinned figures of twenty limbs each, one after another away from the eye, where
