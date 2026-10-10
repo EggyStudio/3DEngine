@@ -47,7 +47,7 @@ public sealed class SettingsWindow
         var player = game.Player;
         var at = player.Body.Position;
         ImGui.TextUnformatted($"{GetFPS()} fps, {GetFrameTime() * 1000:0.0} ms a frame");
-        ImGui.TextUnformatted($"Feet at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}, facing {player.Heading:0} degrees{(player.Flying ? ", flying" : "")}");
+        ImGui.TextUnformatted($"Feet at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}, facing {player.Heading:0} degrees{(player.Flying ? ", flying" : "")}, in {game.World.BiomeAt((int)MathF.Floor(at.X), (int)MathF.Floor(at.Z))?.Name ?? "nowhere loaded"}");
         ImGui.TextUnformatted(game.Target is { } hit
             ? $"Looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Name} at {hit.X}, {hit.Y}, {hit.Z}, its face's light {LightBeside(game, hit)}"
             : "Looking at nothing within reach");

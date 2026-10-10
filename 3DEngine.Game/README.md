@@ -72,6 +72,18 @@ last frame's light around a circle on the ground by angle, and `voxel.depth` say
 under a pixel is. The engine's own `gi.*` and `field.*` commands show and measure the light that
 bounces.
 
+## Biomes
+
+Two slow noises give each place a temperature and a humidity, as Minecraft's climate does, and
+they choose its biome: plains with a few oaks, forests of oak and birch, birch forests, taiga of
+spruce, snowy taiga and snowy plains where it is cold, flat desert of sand over sandstone with
+cacti where it is hot and dry, and bare stone mountains wherever the ground rises past 82 blocks,
+snow above 92. Grass and oak leaves are gray surfaces tinted by a color looked up from the two
+values at the corners of Minecraft's colormaps, so their green changes smoothly across a biome's
+edge, yellowing near a desert and cooling toward the snow, while the biome itself changes at once.
+Birch and spruce leaves keep a color of their own. A hot, dry climate also flattens the land, so a
+desert lies flat and the hills sink as they near it.
+
 ## How the world is drawn
 
 A section of 16 blocks a side is one mesh in one white material, each block's color in its

@@ -22,6 +22,14 @@ public enum BlockId : ushort
     SeaLantern,
     Shroomlight,
     Magma,
+    // New blocks go at the end, so a world saved before keeps its numbers without being renumbered.
+    BirchLog,
+    BirchLeaves,
+    SpruceLog,
+    SpruceLeaves,
+    Sandstone,
+    Cactus,
+    Gravel,
 }
 
 /// <summary>
@@ -34,8 +42,8 @@ public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int
     /// <summary>Whether it gives off light, in which case it is drawn as a cube of its own rather than in its chunk's meshes.</summary>
     public bool Emits => Surfaces.All[Top].Emits;
 
-    /// <summary>The color a hotbar slot shows for it, its top's.</summary>
-    public Color Swatch => Surfaces.All[Top].Color;
+    /// <summary>The color a hotbar slot shows for it, its top's as it looks in the plains.</summary>
+    public Color Swatch => Surfaces.All[Top].Plain;
 }
 
 /// <summary>Every kind of block, by its id.</summary>
@@ -69,6 +77,13 @@ public static class Blocks
             Same(BlockId.SeaLantern, "sea_lantern", "Sea Lantern", Surfaces.SeaLantern, light: 15),
             Same(BlockId.Shroomlight, "shroomlight", "Shroomlight", Surfaces.Shroomlight, light: 15),
             Same(BlockId.Magma, "magma", "Magma Block", Surfaces.Magma, light: 3),
+            new(BlockId.BirchLog, "birch_log", "Birch Log", Surfaces.BirchTop, Surfaces.BirchBark, Surfaces.BirchTop),
+            Same(BlockId.BirchLeaves, "birch_leaves", "Birch Leaves", Surfaces.BirchLeaves),
+            new(BlockId.SpruceLog, "spruce_log", "Spruce Log", Surfaces.SpruceTop, Surfaces.SpruceBark, Surfaces.SpruceTop),
+            Same(BlockId.SpruceLeaves, "spruce_leaves", "Spruce Leaves", Surfaces.SpruceLeaves),
+            Same(BlockId.Sandstone, "sandstone", "Sandstone", Surfaces.Sandstone),
+            new(BlockId.Cactus, "cactus", "Cactus", Surfaces.CactusTop, Surfaces.CactusSide, Surfaces.CactusTop),
+            Same(BlockId.Gravel, "gravel", "Gravel", Surfaces.Gravel),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");

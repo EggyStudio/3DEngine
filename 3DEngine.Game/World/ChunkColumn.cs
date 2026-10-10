@@ -26,6 +26,15 @@ public sealed class ChunkColumn
     /// <summary>Its sections from the bottom.</summary>
     public readonly Section[] Sections = new Section[SectionCount];
 
+    /// <summary>The color its grass is tinted at each place, x fastest, from the climate, which its generator paints.</summary>
+    public readonly Color[] GrassTint = new Color[Section.Size * Section.Size];
+
+    /// <summary>The color its oak leaves are tinted at each place, as <see cref="GrassTint"/> is.</summary>
+    public readonly Color[] FoliageTint = new Color[Section.Size * Section.Size];
+
+    /// <summary>The biome of each place, by its id in <see cref="Biomes.All"/>, as <see cref="GrassTint"/> is laid out.</summary>
+    public readonly byte[] Biome = new byte[Section.Size * Section.Size];
+
     /// <summary>The block at a place inside the column, x and z from 0 to 15 and y from 0 to <see cref="Height"/> less one.</summary>
     public BlockId Get(int x, int y, int z) => Sections[y >> Section.Shift].Get(x, y & Section.Mask, z);
 

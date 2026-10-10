@@ -38,6 +38,7 @@ public sealed class SectionMesher
     private readonly ushort[] _blocks = new ushort[P * P * P];
     private readonly byte[] _light = new byte[P * P * P];
     private readonly Section?[] _around = new Section?[27];
+    private ChunkColumn _column = null!;
 
     /// <summary>Whether a face's corners are darkened where neither the sky nor a block's light reaches them.</summary>
     public bool LightLevels { get; set; } = true;
@@ -138,6 +139,7 @@ public sealed class SectionMesher
             for (int dx = -1; dx <= 1; dx++)
             {
                 if (!world.TryGetColumn(key.X + dx, key.Z + dz, out var column)) return false;
+                if (dx == 0 && dz == 0) _column = column;
                 for (int dy = -1; dy <= 1; dy++)
                     _around[(dy + 1) * 9 + (dz + 1) * 3 + dx + 1] = (uint)(key.Y + dy) < ChunkColumn.SectionCount ? column.Sections[key.Y + dy] : null;
             }
@@ -169,7 +171,9 @@ public sealed class SectionMesher
 
     private void Add(int surface, int face, int at, Vector3 block)
     {
-        var color = Surfaces.All[surface].Color;
+        // A tinted surface takes its column's grass or foliage color at the block's place.
+        var place = (int)block.Z * Section.Size + (int)block.X;
+        var color = Surfaces.All[surface].Under(_column.GrassTint[place], _column.FoliageTint[place]);
         var first = (uint)Vertices.Count;
         var front = at + Steps[face];
         Span<int> occlusion = stackalloc int[4];

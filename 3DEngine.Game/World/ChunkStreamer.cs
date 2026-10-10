@@ -91,7 +91,13 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Worl
     // main thread only the light across its edges.
     private static ChunkColumn Make(IWorldGenerator generator, byte[]? kept, ushort[]? renumber, int x, int z)
     {
-        var column = kept is null ? generator.Generate(x, z) : WorldSave.Decode(x, z, kept, renumber);
+        ChunkColumn column;
+        if (kept is null) column = generator.Generate(x, z);
+        else
+        {
+            column = WorldSave.Decode(x, z, kept, renumber);
+            generator.Paint(column);
+        }
         Lighting.Compute(column);
         return column;
     }

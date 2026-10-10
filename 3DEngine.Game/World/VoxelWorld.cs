@@ -134,6 +134,12 @@ public sealed class VoxelWorld
             for (int y = 0; y < ChunkColumn.SectionCount; y++) Reshaded.Add(new SectionKey(column.X, y, column.Z));
     }
 
+    /// <summary>The biome at a world column, or null where it is not loaded.</summary>
+    public Biome? BiomeAt(int x, int z) =>
+        _columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column)
+            ? Biomes.All[column.Biome[(z & Section.Mask) * Section.Size + (x & Section.Mask)]]
+            : null;
+
     /// <summary>The height of the highest block that is not air at a world column, or -1 where it is all air or not loaded.</summary>
     public int Top(int x, int z) =>
         _columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column) ? column.Top(x & Section.Mask, z & Section.Mask) : -1;
