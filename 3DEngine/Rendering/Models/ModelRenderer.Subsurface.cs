@@ -55,14 +55,14 @@ internal sealed partial class ModelRenderer
         var view = ViewBatches(0, gfx, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
         static bool Scatters(in Batch batch) => batch.Subsurface.W > 0 && batch.Custom < 0 && !batch.Points;
         var marked = 0;
-        foreach (var batch in view.Batches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
             if (Scatters(batch)) marked++;
         if (marked == 0) return 0;
 
         var profiles = allocator.Allocate((ulong)(marked * 16), BufferUsage.Vertex);
         var written = MemoryMarshal.Cast<byte, Vector4>(allocator.Map(profiles));
         var index = 0;
-        foreach (var batch in view.Batches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
             if (Scatters(batch)) written[index++] = batch.Subsurface;
         allocator.Unmap(profiles);
 
@@ -71,7 +71,7 @@ internal sealed partial class ModelRenderer
         var pushed = default(Matrix4x4?);
         index = 0;
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
-        foreach (var batch in view.Batches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (!Scatters(batch)) continue;
             if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);

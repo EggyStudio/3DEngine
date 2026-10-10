@@ -134,14 +134,18 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         return (-lights.All[shadow.Light].Direction, ContactCells * field.CellSize);
     }
 
+    // What the window's depth was drawn with this frame, for its occlusion to be worked out from,
+    // or null where it was not drawn.
+    private (Sized Sized, Matrix4x4 Inverse, Vector3 Eye, Extent2D Window, AmbientOcclusionSettings? Settings, (Vector3 TowardSun, float Reach)? Sun)? _window;
+
     /// <summary>
-    /// Draws the window's depth and works out its occlusion as <see cref="AmbientOcclusionSettings"/> say,
-    /// and the sun's contact shadows where the scene's distance field is built, setting
-    /// <see cref="AmbientOcclusionImage"/> for the model pass, or lets the images go and removes it
-    /// when both are off or the window has no camera.
+    /// Draws the window's depth where its occlusion, the sun's contact shadows or the light that
+    /// bounces reads it, setting <see cref="WindowDepth"/>, or lets the images go and removes it
+    /// when none does or the window has no camera.
     /// </summary>
-    public void Draw(RenderContext renderContext, RenderWorld renderWorld)
+    public void DrawDepth(RenderContext renderContext, RenderWorld renderWorld)
     {
+        _window = null;
         Retire();
         renderWorld.TryGet<TargetOcclusion>()?.Depths.Clear();
         renderWorld.TryGet<TargetOcclusion>()?.Images.Clear();
@@ -173,14 +177,24 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         var sized = _sized = Ensure(device, extent, field.Field, _sized, "the window");
         models.DrawDepth(renderContext, renderWorld, sized.Depth);
         renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
-        // The light that bounces alone needs the depth and no occlusion pass.
-        if (settings is not { On: true } && sun is null)
+        _window = (sized, inverse, view.Eye, swapchain.Extent, settings, sun);
+    }
+
+    /// <summary>
+    /// Works out the window's occlusion as <see cref="AmbientOcclusionSettings"/> say, and the sun's
+    /// contact shadows where the scene's distance field is built, from the depth
+    /// <see cref="DrawDepth"/> drew, setting <see cref="AmbientOcclusionImage"/> for the model pass,
+    /// or removes it where both are off, as when the light that bounces alone reads the depth.
+    /// </summary>
+    public void Draw(RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (_window is not { } window || window.Settings is not { On: true } && window.Sun is null)
         {
             renderWorld.Remove<AmbientOcclusionImage>();
             return;
         }
-        Occlude(renderContext, sized, inverse, view.Eye, swapchain.Extent, settings, sun);
-        renderWorld.Set(new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!));
+        Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun);
+        renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
     /// <summary>
@@ -352,4 +366,15 @@ internal sealed class AmbientOcclusionNode : INode
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>
         renderWorld.TryGet<AmbientOcclusionRenderer>()?.Draw(renderContext, renderWorld);
+}
+
+/// <summary>
+/// Draws the window's half-size depth ahead of its occlusion, its contact shadows and the screen's
+/// probes, a node of its own so the profile says what the depth costs apart from what reads it.
+/// </summary>
+internal sealed class WindowDepthNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>
+        renderWorld.TryGet<AmbientOcclusionRenderer>()?.DrawDepth(renderContext, renderWorld);
 }

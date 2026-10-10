@@ -7,7 +7,8 @@ namespace Engine.Tests.Rendering;
 /// <summary>
 /// Ambient occlusion, read from chosen pixels of frames drawn offscreen: a cube on a floor lit by
 /// ambient light and a weak sun, in the corner of two walls, whose floor darkens beside the cube's
-/// foot and in the corner and nowhere far from them, in the window and in a render texture alike.
+/// foot and in the corner and nowhere far from them, in the window and in a render texture alike,
+/// and the frame's passes for it, which the profile names one by one.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -131,6 +132,35 @@ public sealed class AmbientOcclusionTests : IDisposable
         }
         Sum(At(drawn, Far)).Should().BeInRange(Sum(At(without, Far)) - 6, Sum(At(without, Far)) + 6, "and not out in the open");
         UnloadRenderTexture(texture);
+        UnloadModel(floor);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void The_Window_Gathers_Its_Batches_Draws_Its_Depth_And_Works_Out_Its_Occlusion_In_Nodes_Of_Their_Own()
+    {
+        Open();
+        SetAmbientLight(Color.White, 0.6f);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.5f, -1, -0.3f)), Color.White, 0.6f);
+        var floor = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        SetAmbientOcclusion(1);
+        Capture(floor, cube);
+
+        // The profile's cpu and gpu lines are the nodes', so the gather, the depth and the occlusion
+        // each read apart, in the order they run.
+        var nodes = renderer.Timings.NodeCpu.Select(n => n.Node).ToList();
+        nodes.Should().ContainInOrder("model_batches", "window_depth", "ambient_occlusion", "global_illumination");
+        renderer.RenderWorld.TryGet<WindowDepth>().Should().NotBeNull("the occlusion reads the depth");
+        renderer.RenderWorld.TryGet<AmbientOcclusionImage>().Should().NotBeNull();
+
+        // With nothing to read it, no field for the sun's contact shadows and no light bouncing,
+        // neither is drawn.
+        SetAmbientOcclusion(0);
+        Capture(floor, cube);
+        renderer.RenderWorld.TryGet<WindowDepth>().Should().BeNull("nothing reads the depth");
+        renderer.RenderWorld.TryGet<AmbientOcclusionImage>().Should().BeNull();
         UnloadModel(floor);
         UnloadModel(cube);
     }

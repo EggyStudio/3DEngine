@@ -109,7 +109,7 @@ internal sealed partial class ModelRenderer
         BeginFrameOfSets(renderContext);
         var view = ViewBatches(target, device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
         _shadowBatches.Clear();
-        foreach (var batch in view.Batches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (batch.Shadow == ShadowKind.None) continue;
             _shadowBatches.Add(batch.Shadow == ShadowKind.Masked && batch.Set is null
@@ -146,7 +146,7 @@ internal sealed partial class ModelRenderer
         IPipeline? bound = null;
         Matrix4x4? pushed = null;
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
-        foreach (var batch in _shadowBatches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(_shadowBatches))
         {
             if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
@@ -181,7 +181,7 @@ internal sealed partial class ModelRenderer
         pass.PushConstants(_shadowPipeline!, ShaderStageFlags.Vertex, 0, push);
         IPipeline bound = _shadowPipeline!;
         var frustum = new Frustum(lightViewProjection, depth: true);
-        foreach (var batch in _shadowBatches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(_shadowBatches))
         {
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;

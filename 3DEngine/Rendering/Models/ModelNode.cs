@@ -379,7 +379,7 @@ internal sealed partial class ModelRenderer : IDisposable
         // changes, and a face of a probe, drawn through a camera of its own, keeps.
         ScissorRect? scissored = null;
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
-        foreach (var batch in batches)
+        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(batches))
         {
             var through = viewProjection ?? batch.ViewProjection;
             if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
@@ -478,7 +478,9 @@ internal sealed partial class ModelRenderer : IDisposable
     private void Gather(ReadOnlySpan<ModelDraw> draws, IReadOnlyList<InstanceGroup> groups, GpuMeshes meshes, Classify classify,
         bool keepOrderOfTranslucent, bool cullBackFaces = false, bool shadowKinds = false)
     {
-        var masks = _shadowMaskPipeline is not null;
+        // By the shader and not its pipeline, which the first pass to draw a shadow or a depth makes,
+        // since the frame's batches are gathered before either.
+        var masks = !_shadowMaskSpv.IsEmpty;
         // A blended surface that is clear anywhere goes through the masked stage too, which drops
         // its shadow in a pattern as dense as it is opaque.
         ShadowKind ShadowOf(in ModelDraw draw) => !shadowKinds || !draw.CastsShadow ? ShadowKind.None
@@ -674,4 +676,15 @@ internal sealed class ModelNode : INode
         renderWorld.TryGet<ModelRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
         renderWorld.TryGet<ParticleRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld);
     }
+}
+
+/// <summary>
+/// Render graph node that gathers the window's batches and writes their instances, once a frame,
+/// ahead of the depth, the shadows and the model pass that draw them.
+/// </summary>
+internal sealed class ModelBatchesNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>
+        renderWorld.TryGet<ModelRenderer>()?.GatherWindow(renderContext, renderWorld);
 }

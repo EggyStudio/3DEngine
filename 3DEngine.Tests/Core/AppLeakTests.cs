@@ -194,10 +194,13 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 
         private readonly List<string> _taken = [];
         private int _first, _last;
+        // The handles by kind as the app began, on Windows, against which those it kept are named.
+        private Dictionary<string, int> _kindsFirst = [];
 
         public void Follow()
         {
             _first = _last = Handles();
+            _kindsFirst = HandleCensus.Now();
             Logger.Heard = (_, _, message) =>
             {
                 foreach (var (line, step) in Marks)
@@ -229,6 +232,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             GC.Collect();
             Mark("ended");
             _taken.Add($"{_last - _first:+0;-0;0} kept");
+            if (OperatingSystem.IsWindows())
+            {
+                var kinds = HandleCensus.Change(_kindsFirst, HandleCensus.Now());
+                _taken.Add($"by kind {(kinds.Length == 0 ? "none" : kinds)}");
+                Console.WriteLine($"[leak test] app {app}'s handles kept by kind, {(kinds.Length == 0 ? "none" : kinds)}");
+            }
         }
 
         public override string ToString() => $"app {app}: {(_taken.Count == 0 ? "not read" : string.Join(", ", _taken))}";

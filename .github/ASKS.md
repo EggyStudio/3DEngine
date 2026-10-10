@@ -16,7 +16,7 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: shadows cost 7.7 ms at 1,133 draws, 15 at 1,836
+### 2026-10-10, the voxel game in `3DEngine.Game`: the occlusion pass costs 3.2 ms at intensity 0
 
 The scene for each entry of the voxel game: seed 1's hills, the player at the spawn (0.5, 89, 0.5)
 facing north and level, a hidden window of 1280 by 720, an RTX 4070 Laptop GPU, the light that
@@ -26,37 +26,7 @@ to 96 units, ambient occlusion at 0 and bloom at 0.5. Each pass's time is its av
 agreed, with nothing else drawing on the GPU, and the draws are the game's own count from
 `./e3d command voxel.state`.
 
-| Render distance | Draws | Triangles | Frame | GPU shadows | GPU hdr_scene | CPU shadows |
-|---|---|---|---|---|---|---|
-| 6 columns | 1,133 | 359,114 | 15.9 ms | 7.7 ms | 3.2 ms | 1.4 ms |
-| 8 columns | 1,836 | 597,588 | 27.2 ms | 15.0 ms | 5.3 ms | 2.3 ms |
-
-`./e3d command profile`, which gives the slowest frame since it was last read, gave 14.8 ms of
-shadows at 8 columns and 13.5 ms of CPU across `scene_field`, `ambient_occlusion`, `shadows` and
-`hdr_scene`, the numbers first relayed here. The model renderer culls instanced groups of mesh
-entities in blocks of 64 and draws a plain `DrawMesh` whole, so each section's mesh is drawn into
-each of the sun's four cascades, behind the camera and outside every cascade included, and the
-shadows grow faster than the draws. The game draws 6 columns around the player by default where it
-would draw 8, and culls nothing itself, for the reason the next entry gives.
-
-Review: item 2 of REVIEW.md, its part a, 2026-10-10; the numbers here are the item's.
-
-### 2026-10-10, the voxel game in `3DEngine.Game`: a draw culled to the view leaves the field
-
-On the scene above, the camera's pass `hdr_scene` takes 3.2 ms of the GPU at 6 columns and 5.3 ms at
-8, and the half-size depth of `ambient_occlusion` 3.0 and 5.0, each drawing every section, those
-behind the camera too. The scene field gathers the frame's model draws, so a mesh a game leaves out
-of a frame leaves the field, its cascades are built again without it, and the light it gave or
-blocked is gone from the bounce until it has been drawn unchanged for eight frames after it returns.
-A game that culled its sections to the view would put out the light behind the player at each turn.
-The engine lacks culling of the window's passes to their own view that leaves every draw in the
-field's gather. The game draws its sections by their distance alone.
-
-Review: item 2 of REVIEW.md, its part b, 2026-10-10.
-
-### 2026-10-10, the voxel game in `3DEngine.Game`: the occlusion pass costs 3.2 ms at intensity 0
-
-On the scene above at 6 columns, with `SetAmbientOcclusion(0)` and the light that bounces Off,
+On that scene at 6 columns, with `SetAmbientOcclusion(0)` and the light that bounces Off,
 `gpu.ambient_occlusion` reads 3.2 ms and `cpu.ambient_occlusion` 2.3 ms, and with the bounce at High
 2.9 and 2.1. The pass draws its half-size depth of every mesh that casts a shadow whatever the
 intensity, which is work for nothing where no other pass reads that depth. The game sets the
@@ -71,6 +41,14 @@ edited and every mesh drawn unchanged in its place for hundreds of frames, about
 draw a frame. `SceneFieldPlan` compares each draw's instance, its mesh, vertex array, transform,
 color and emission, with the frame before's each frame, so a still scene pays for every draw as a
 changing one does. The game has nothing to do about it but draw less.
+
+With every pass culled to its view at `d1031bc3`, this is most of what still grows with the draws.
+On the same scene in a Debug build, `cpu.scene_field` reads 1.9 ms at 6 columns and 1,133 draws,
+3.0 to 3.3 ms at 8 and 1,836, and 4.8 ms at 10 and 2,891, beside 2.3 ms of the GPU's shadows at 8,
+and a Release build reads 1.7 to 2.0 ms at 8 in a frame of 7 to 8 ms that waits on the CPU. The
+game draws 8 columns by default and does not ask for its far shadow cascades drawn less often or
+smaller, nor for a cascade's draws issued as one, which would save the GPU time the frame does not
+wait on and a quarter of a millisecond of the CPU's.
 
 Review: item 2 of REVIEW.md, its part d, 2026-10-10.
 

@@ -1428,26 +1428,31 @@ skinned mesh's limbs blur by the camera alone, and a frame after others drawn wi
 blurs nothing. In `models_stress`, where every entity turns each frame, the frame held about 425,000
 entities at sixty frames a second with it on and about 700,000 with the camera's alone.
 
-`SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `particles` and before every
-pass that lights the window's meshes (`AmbientOcclusionRenderer`). It draws the depth of the
-window's batches that cast a shadow into a depth target half the window's size, through the shadow pass's pipelines, whose depth-only pass is
-the same at any size, pushing each batch's own camera. `ao.slang` then puts each texel back in the
-world through the inverse view-projection, takes its normal from the nearer neighbor along each
-axis, and sums Alchemy's term over twelve taps on a spiral turned by interleaved gradient noise,
-within the radius held to three tenths of the picture, each fading out toward the radius. Two
-passes blur it across and down, nine taps each, weighed by how near each tap's distance from the
-eye is to the pixel's. The lights' set binds the result at binding 9 for the window's view, and the
-window's lighting buffer says to read it, so `lit` multiplies its material occlusion, which scales
-the ambient, environment and probe light alone, by the occlusion at half the fragment's position.
-In Manor's rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws
-meshes through a camera of its own has the same worked out at half its size in the `targets` node
-before its pass (`AmbientOcclusionRenderer.DrawTarget`), the sun's contact shadows with it, bound at
-binding 9 for its view, whose buffer says to read it as the window's does, and let go the frame
-after one the target is not drawn in. The two views of `games/Sumo` at 640 by 720 take 0.775 ms of
-the GPU in `targets` with it on where they take 0.678, the medians of three runs of seven readings
-of `./e3d command profile` with the frame rate unlimited, and 1.15 where they take 1.05 with light
-bouncing at `Low`, whose screen probes stand on the same depth. A probe's faces are drawn without
-it.
+`SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `window_depth` and before every
+pass that lights the window's meshes (`AmbientOcclusionRenderer`). `window_depth` draws the depth
+of the window's batches that cast a shadow into a depth target half the window's size, wherever the
+occlusion, the sun's contact shadows or the screen's probes read it, through the shadow pass's
+pipelines, whose depth-only pass is the same at any size, pushing each batch's own camera; the
+batches are gathered and their instances written in `model_batches` before it, once a frame for
+every pass that draws them, so the profile gives the gather, the depth and the occlusion each
+apart. On the voxel game's hills at eight columns in a Release build the gather took 1.3 to 1.5 ms
+of the CPU, the depth 1.16 ms of the GPU, and the occlusion with the sun's contact shadows 0.08 ms
+of it, by `./e3d command profile`. `ao.slang` then puts each texel back in the world through the
+inverse view-projection, takes its normal from the nearer neighbor along each axis, and sums
+Alchemy's term over twelve taps on a spiral turned by interleaved gradient noise, within the radius
+held to three tenths of the picture, each fading out toward the radius. Two passes blur it across
+and down, nine taps each, weighed by how near each tap's distance from the eye is to the pixel's.
+The lights' set binds the result at binding 9 for the window's view, and the window's lighting
+buffer says to read it, so `lit` multiplies its material occlusion, which scales the ambient,
+environment and probe light alone, by the occlusion at half the fragment's position. In Manor's
+rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws meshes through
+a camera of its own has the same worked out at half its size in the `targets` node before its pass
+(`AmbientOcclusionRenderer.DrawTarget`), the sun's contact shadows with it, bound at binding 9 for
+its view, whose buffer says to read it as the window's does, and let go the frame after one the
+target is not drawn in. The two views of `games/Sumo` at 640 by 720 take 0.775 ms of the GPU in
+`targets` with it on where they take 0.678, the medians of three runs of seven readings of `./e3d
+command profile` with the frame rate unlimited, and 1.15 where they take 1.05 with light bouncing
+at `Low`, whose screen probes stand on the same depth. A probe's faces are drawn without it.
 
 A material's `SubsurfaceRadius` scatters its diffuse light under its surface over the window's
 frame, as Jimenez's separable screen-space scattering does (`SubsurfaceRenderer`). The material's

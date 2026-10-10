@@ -130,10 +130,17 @@ internal sealed class Renderer : IDisposable
         // Particles are stepped beside the skins, before every pass that might draw them.
         Graph.AddNode("particles", new ParticleNode());
         Graph.AddNodeEdge("scene_field", "particles");
-        // The window's ambient occlusion, from a depth of its own drawn ahead of every pass that
-        // lights the window's meshes.
+        // The window's batches, gathered and their instances written once a frame for every pass
+        // that draws them, in a node of their own so the profile gives that cost apart from the
+        // first pass to draw them.
+        Graph.AddNode("model_batches", new ModelBatchesNode());
+        Graph.AddNodeEdge("particles", "model_batches");
+        // The window's ambient occlusion and the sun's contact shadows, from a depth of its own drawn
+        // ahead of every pass that lights the window's meshes.
+        Graph.AddNode("window_depth", new WindowDepthNode());
+        Graph.AddNodeEdge("model_batches", "window_depth");
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
-        Graph.AddNodeEdge("particles", "ambient_occlusion");
+        Graph.AddNodeEdge("window_depth", "ambient_occlusion");
         // The light that bounces, traced through the field before every pass that lights a view, the
         // render targets' screen probes with each target after it.
         Graph.AddNode("global_illumination", new GlobalIlluminationNode());

@@ -68,6 +68,19 @@ internal sealed partial class ModelRenderer
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
 
+    /// <summary>
+    /// Gathers the window's batches and writes their instances for this frame, which every pass
+    /// drawing the window's meshes then reads, so the cost is the frame's once whichever draws first.
+    /// </summary>
+    internal void GatherWindow(RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } draws || renderWorld.TryGet<GpuMeshes>() is not { } meshes
+            || renderWorld.TryGet<GpuTextures>() is not { } textures)
+            return;
+        BeginFrameOfSets(renderContext);
+        ViewBatches(0, renderContext.Device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
+    }
+
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
     // instances together, and gives each batch the first of them, counted from the returned offset
     // in bytes. A group's batch is its instances, copied as they are. A batch of draws is in
