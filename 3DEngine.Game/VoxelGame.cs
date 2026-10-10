@@ -69,6 +69,9 @@ public sealed class VoxelGame : IDisposable
 
     public bool PickerOpen { get; private set; }
 
+    /// <summary>A recording of the picture's change around a motion, which <c>voxel.flicker</c> starts, read a frame at a time.</summary>
+    public FlickerRun? Flicker { get; set; }
+
     /// <summary>A world asked for by a command or the settings window by its kind and seed, opened at the start of the next frame.</summary>
     public (string Kind, int Seed)? NextWorld { get; set; }
 
@@ -124,6 +127,7 @@ public sealed class VoxelGame : IDisposable
             NextWorld = null;
             SwitchWorld(next.Kind, next.Seed);
         }
+        if (Flicker is { } run && !run.Step(this)) Flicker = null;
         // A long frame, as when the window is dragged, is taken as a short one, so the player does
         // not fall through the time it took.
         var seconds = MathF.Min(GetFrameTime(), 0.05f);

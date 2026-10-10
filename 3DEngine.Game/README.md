@@ -63,8 +63,14 @@ light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `vo
 `voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
 reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or off,
 `voxel.world` saves the world and opens or begins another of a kind and seed, `voxel.save` saves at
-once, and `voxel.blocks` lists the blocks by number and name. The engine's own `gi.*` and `field.*`
-commands show and measure the light that bounces.
+once, and `voxel.blocks` lists the blocks by number and name. `voxel.gi`, `voxel.field` and
+`voxel.shadows` set the light that bounces, the scene's distance field and the sun's shadows, and
+`voxel.hud` hides what is drawn over the world for a capture. Three measure the light:
+`voxel.flicker` records each frame's change in the picture around a turn or a step into a file, with
+the first frame after it, the settled one and their difference beside it, `voxel.ring` reads the
+last frame's light around a circle on the ground by angle, and `voxel.depth` says how far the block
+under a pixel is. The engine's own `gi.*` and `field.*` commands show and measure the light that
+bounces.
 
 ## How the world is drawn
 

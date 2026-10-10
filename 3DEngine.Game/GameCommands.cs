@@ -1,4 +1,5 @@
 using System.Numerics;
+using static Engine.Engine3D;
 
 namespace Engine.Game;
 
@@ -12,7 +13,8 @@ public static class GameCommands
     // The most blocks one fill changes, a cube of 64, so a mistyped corner does not stall the frame.
     private const long FillLimit = 64 * 64 * 64;
 
-    internal static VoxelGame? Game { get; set; }
+    /// <summary>The game being played, which <c>./e3d eval</c> reaches too.</summary>
+    public static VoxelGame? Game { get; internal set; }
 
     [Command("voxel.state", "Where the player stands and looks, the block looked at, the columns and sections loaded, the frame's draws, the hour and the light")]
     internal static string State()
@@ -168,6 +170,72 @@ public static class GameCommands
     [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, as a right click does")]
     internal static string Place() =>
         Game is not { } game ? "no world is loaded" : game.Place(game.Hotbar.Current) ? $"{Blocks.Get(game.Hotbar.Current).Key} is placed" : "no block can be placed there";
+
+    [Command("voxel.gi", "Sets the light that bounces to a quality, off, low, medium or high: voxel.gi <quality>")]
+    internal static string Gi(string quality)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (!Enum.TryParse<GlobalIllumination>(quality, ignoreCase: true, out var chosen)) return $"no quality is called {quality}, which is off, low, medium or high";
+        game.Light.Quality = chosen;
+        SetGlobalIllumination(chosen);
+        return $"the light that bounces is at {chosen}";
+    }
+
+    [Command("voxel.field", "Sets the scene's distance field's cascades from 1 to 8, the finest's cell in blocks and the cascades built again a frame: voxel.field <cascades> <cell> <budget>")]
+    internal static string Field(int cascades, float cell, int budget)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var light = game.Light;
+        (light.Cascades, light.CellSize, light.Budget) = (Math.Clamp(cascades, 1, 8), Math.Max(0.05f, cell), Math.Clamp(budget, 1, 8));
+        light.ApplyField();
+        return $"{light.Cascades} cascades, the finest's cell {light.CellSize} blocks, {light.Budget} built a frame";
+    }
+
+    [Command("voxel.shadows", "Sets how far from the eye the sun's shadows reach, in blocks: voxel.shadows <distance>")]
+    internal static string Shadows(float distance)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.Light.ShadowDistance = Math.Max(1, distance);
+        SetShadowDistance(game.Light.ShadowDistance);
+        return $"the sun's shadows reach {game.Light.ShadowDistance} blocks";
+    }
+
+    [Command("voxel.hud", "Shows or hides the crosshair, the hotbar, the outline and the line of help, as F1 does, for a capture: voxel.hud <on>")]
+    internal static string Hud(bool on)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.HudHidden = !on;
+        return on ? "the hud is shown" : "the hud is hidden";
+    }
+
+    [Command("voxel.flicker", "Records each frame's change in the picture from the one before for some frames, the player turning some degrees and stepping some blocks ahead in equal parts over some frames from the tenth, into a file: voxel.flicker <frames> <turn> <step> <over> <path>")]
+    internal static string Flicker(int frames, float turn, float step, int over, string path)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        over = Math.Max(1, over);
+        frames = Math.Max(frames, 12 + over);
+        game.Flicker = new FlickerRun(frames, 10, over, turn, step, Path.GetFullPath(path));
+        return $"recording {frames} frames into {Path.GetFullPath(path)}, the motion over frames 10 to {10 + over}";
+    }
+
+    [Command("voxel.ring", "The last frame's luminance around a circle on a level plane, by angle, its mean, its swing and its peaks: voxel.ring <x> <y> <z> <radius> <samples>")]
+    internal static string Ring(float x, float y, float z, float radius, int samples)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (!Measurements.Keeping()) return "the frames are kept from now on, so ask again after a frame";
+        return Measurements.Ring(LoadImageFromScreen(), game.Player.Camera, new System.Numerics.Vector3(x, y, z), radius, Math.Clamp(samples, 8, 720));
+    }
+
+    [Command("voxel.depth", "The block under a pixel of the window and how far it is from the eye, along the ray and along the ground: voxel.depth <x> <y>")]
+    internal static string Depth(int x, int y)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var ray = GetScreenToWorldRay(new System.Numerics.Vector2(x, y), game.Player.Camera);
+        if (VoxelRay.Cast(game.World, ray.Position, ray.Direction, 1000) is not { } hit) return "no block within 1000 blocks under that pixel";
+        var point = ray.Position + System.Numerics.Vector3.Normalize(ray.Direction) * hit.Distance;
+        var flat = new System.Numerics.Vector2(point.X - ray.Position.X, point.Z - ray.Position.Z).Length();
+        return $"{Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Key} at {hit.X}, {hit.Y}, {hit.Z}, {hit.Distance:0.0} blocks along the ray and {flat:0.0} along the ground";
+    }
 
     [Command("voxel.blocks", "Every block's number and name, which voxel.set, voxel.fill and voxel.select take")]
     internal static string List() => string.Join(", ", Blocks.All.Select(b => $"{(int)b.Id} {b.Key}{(b.Emits ? " (gives off light)" : "")}"));

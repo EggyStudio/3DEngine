@@ -17,6 +17,7 @@ public sealed class LightSettings
     // its meshes settling.
     public int Budget = 2;
 
+    public float ShadowDistance = 96;
     public float Bloom = 0.5f;
     public float Occlusion;
     public bool AutoExposure;
@@ -29,7 +30,7 @@ public sealed class LightSettings
         SetBloom(Bloom);
         SetAmbientOcclusion(Occlusion);
         ApplyExposure();
-        SetShadowDistance(96);
+        SetShadowDistance(ShadowDistance);
     }
 
     public void ApplyField() => SetSceneField(Cascades, CellSize, Budget);
