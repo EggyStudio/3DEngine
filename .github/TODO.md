@@ -169,7 +169,14 @@ physics, text and fonts, audio, audio streams and waves, and files
   changing light within the frame. A render texture that draws meshes through a camera has screen
   probes of its own, as the window's, in the same frame, probe captures take the bounce from the
   world's probes alone, and where the window draws no mesh the field follows the first render
-  texture's camera.
+  texture's camera. Against path-traced references of `shaders_bounce_rooms`' eight views, held by
+  `BounceRoomsTests` where the GPU traces rays, a view's pixels differ from its reference by 0.02
+  of its light among the red walls to 0.5 in the strip's room at each quality. What is left
+  (RENDERING.md §4): a corridor narrower than the second cascade's probe spacing, whose probes
+  stand in its walls, carries no light along it from past the first cascade's reach, 21% under;
+  a small bright strip's room reads a quarter under, its light within a few of a probe's
+  directions; the Cornell box reads 9% over, which the loop's gain, its walls' share, does not
+  account for; and light that newly comes takes some ten frames to build its bounces, one a frame.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

@@ -10,16 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e49fa364`. The probes moved against the lean, and the overshoot's cause found with
-them. A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved along the
-field's normal to stand that far off, 0.45 of its spacing at most so the probes keep their order,
-four steps of the field's distance; the trace's first lane moves it and leaves the place in the
-probes' state for the group and the merge, which marches from the moved places; the gather writes it
-into each face's alpha, 0 for a probe that holds nothing and two more than its move along the face's
-axis otherwise, so the model pass, the screen's probes, the rays' hits, the gizmos and `gi.probe`
-take every probe's place from faces they already read, the trilinear weights staying the grid's, as
-DDGI keeps them, and only the merge gains a binding; a new test reads the ceiling plane's probes a
-tenth below it and a probe in the open at its spot. Right, and the encoding is the sort that saves a
+Reviewed up to `444af8ad`. The reading asked at `ebdd4fcb`, the trace's hits through the reach
+against their marches, done and written in §4 and on `shadeProbeHit`: the reach saves 0.027, 0.036
+and 0.050 ms, and most rooms read within a point or two, but the thin room goes from +9 to +15% and
+its pixels from 8 to 14, the corridor from −21 to −11% on light the twentieth of a weight lends it
+from the probes in its walls, and the closed room with a lamp under its floor takes 42.9 levels of
+it where the marches hold it to 2.5 under a bound of 8, so the marches stay. Right, the cheaper
+measured and refused for a reason the test holds. One line for the commit that next touches the
+trace: it binds the reach at 9 and, with the marches kept, reads it nowhere, so the binding goes. D
+next, as the Now list has it: the tiers measured again, the guide's table written again with the
+lend's 6 MB in its memory line, §4 and TODO.md's entry, and the test holding the Cornell box and the
+level's views at each tier to checked-in references on the pixels' mean difference, skipped with its
+reason where there are no ray queries.
+
+Before it, the probes came to be moved against the lean, and the overshoot's cause found with them.
+A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved along the field's
+normal to stand that far off, 0.45 of its spacing at most so the probes keep their order, four steps
+of the field's distance; the trace's first lane moves it and leaves the place in the probes' state
+for the group and the merge, which marches from the moved places; the gather writes it into each
+face's alpha, 0 for a probe that holds nothing and two more than its move along the face's axis
+otherwise, so the model pass, the screen's probes, the rays' hits, the gizmos and `gi.probe` take
+every probe's place from faces they already read, the trilinear weights staying the grid's, as DDGI
+keeps them, and only the merge gains a binding; a new test reads the ceiling plane's probes a tenth
+below it and a probe in the open at its spot. Right, and the encoding is the sort that saves a
 binding without hiding anything, said in `faceHolds` and `faceMove`. The measure was found wanting
 first and mended: a room's signed error lets one region hide another, the strip's room reading −15%
 with its ceiling 39% over and its back wall 56% under, so each room is read by its pixels' mean
@@ -57,35 +70,6 @@ measures next, right. The lean, read again, took the five slides' crawl from 0.8
 0.36 and the unheld from 3.10 to 1.63, which §4 says. The suite: 1,600 passed; on lavapipe 345
 passed and 6 skipped with no validation error. The probes moved against the lean next, then the
 trace's hits through the reach, then D.
-
-Before it, C's eleventh came to be read, the first of its two causes, found at the probes as asked:
-the window's room is six units across and three high, a whole number of the first cascade's spacing,
-so its walls and ceiling lie in planes of probes that stand inside them and hold nothing, and a
-surface weighed its eight probes at its own point, the trilinear weight all on those in its plane,
-the ceiling reading 0.003 of 0.086 at one bounce already. `bouncedAt`, `bouncedSeenAt` and the
-screen probes' `probesAround` weigh from a point half the spacing off the surface along its normal
-(`Lean`), the bias DDGI puts on a surface for the same reason, 0.3 reading within two points and
-0.75 worse; the window −53 → +8, +10 and +17, the thin room −15 → +6, the strip −46 → −15, the
-grazing floor −37 → −8, −5 and +13, the carried lamp −32 → −5, the Cornell box a point up, the
-corridor as it was, the sums 214 → 74 at Low and 198 → 88 at High, for 0.027 to 0.042 ms of marches
-to the row in front; a new test puts a ceiling in a plane of probes and reads 191 and 195 levels
-where 9.8 and 13.3. The second cause, the corridor's, is the method's limit written with its number:
-two units wide, its second cascade's probes 2.4 apart stand at ±1.2 inside walls of 1.0 to 1.3, and
-a probe moved as DDGI moves one goes to the nearer free side, outside. Right, both, the first a
-cause and not a tier, the second a limit told by its geometry. One thing before the probes are moved
-against the lean. Three numbers moved together with the lean: every closed room reads over, the
-window's walls +32 to +48% at High with its middle probe's sun still 20% short and its whole +22%;
-the panel's room with the hold off fades in 45 frames where it faded in 30; and the light not yet
-come to a carried lamp's new side arrives in 18 frames where 12. All three are the loop's gain, what
-one frame's light that bounces again keeps of the last, and the fade is its direct reading, the
-ratio of each frame's light to the one before after the panel goes dark; read against the share the
-walls' color gives, a gain above that share is the overshoot and the slowness both, and whatever
-makes it so, the lean reading a bright row, the faces' pi, the lend's edge, is mended before
-anything else moves. The carried lamp's test reads the share left four frames on, since lavapipe
-took the last quarter of a level to frames 11 and 12, with its reason written; the arrival in 18
-frames is the look, measured on. The suite: 1,598 passed; on lavapipe 343 passed and 6 skipped with
-no validation error. The gain next, then the probes moved against the lean, then the marked probes
-judged by their neighbors, then the trace's hits through the reach, then D.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -496,11 +480,19 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-The trace's hits through the reach against the marches, from `ebdd4fcb`'s review. Read through
-`bouncedAt` and the reach, the world probes' hits save 0.027, 0.036 and 0.050 ms (0.455, 0.595 and
-0.686 against 0.482, 0.631 and 0.736), the rooms within a point or two but the thin room, +15%
-and its pixels 14 where +9% and 8, and the corridor, −11% where −21%, lent light by the twentieth
-of a weight the reach keeps for a probe it does not see, from the probes in its walls; and the
-closed room with a lamp under its floor takes 42.9 levels in a channel where the marches hold it to
-2.5, failing its bound of 8. The rooms do not read alike, so the marches stay, which §4 and the
-comment on `shadeProbeHit` say. D next.
+D. `BounceRoomsTests` draws `shaders_bounce_rooms`' eight views at 160 by 90 at Low, Medium and
+High and holds each to its reference by the pixels' mean difference, as `2c3e9cf8`'s review set it:
+the frame's linear light and the reference's, both averaged to 80 by 45, their pixels' differences
+summed over the reference's light, each bound 15% over what it read here. The references are
+traced in the test through the GPU's rays with 4096 paths a pixel and checked in as PFM files, 43 KB
+each, 352 KB in all, rather than PNGs, since the reference's PNG is its light clamped where the
+frame's is tonemapped; `E3D_WRITE_REFERENCES=1` traces them again, and the test is skipped with
+its reason where the GPU traces no rays (`NeedsRayQueryTheory`). The readings repeat to the
+thousandth: Cornell 0.170/0.153/0.166, thin 0.091/0.084/0.087, corridor 0.26, window
+0.299/0.271/0.286, red 0.019/0.024/0.019, strip 0.511/0.492/0.479, grazing 0.103/0.108/0.124,
+carried 0.12. The guide's table: 0.37/0.49/0.69 ms and 1.45/3.87/8.06 MB in `shaders_cornell_box`
+at 800 by 450, `gi.state` now counting each probe's state and its rays' sums, which it missed, and
+the field's line gains the lend's 6 MB; TODO.md's entry says what is left with its numbers. The
+trace's reach binding is gone, as `444af8ad`'s review asked. The suite 1,625 passed; lavapipe 346
+passed and 7 skipped, the new test among them, with no validation error. Next in the Now list:
+subsurface scattering's second and third batches, then the animated model's meshes.

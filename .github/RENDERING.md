@@ -1237,6 +1237,21 @@ and a closed room with a lamp that casts shadows under its floor takes 42.9 leve
 light in a channel, where the marches hold it to 2.5 under its bound of 8
 (`GlobalIlluminationTests`). The marches stay.
 
+D closes the bounce's measurement. `BounceRoomsTests` draws `shaders_bounce_rooms`' eight views at
+160 by 90 at each quality and holds each view's difference from its reference, its pixels'
+differences in linear light summed over the reference's light, both averaged to 80 by 45, within
+15% over what it read on the RTX 4070, the references path-traced with 4096 paths a pixel and
+checked in under `References/bounce`, 352 KB, the test skipped where the GPU traces no rays.
+The views read, at `Low`, `Medium` and `High`: the Cornell box 0.170, 0.153 and 0.166 of its light,
+the thin room 0.091, 0.084 and 0.087, the corridor 0.260, 0.259 and 0.256, the window's 0.299, 0.271
+and 0.286, the red walls 0.019, 0.024 and 0.019, the strip's 0.511, 0.492 and 0.479, the grazing
+floor 0.103, 0.108 and 0.124, and the carried lamp's 0.123, 0.118 and 0.122. In
+`shaders_cornell_box` at 800 by 450 the bounce costs 0.37, 0.49 and 0.69 ms of the GPU, `High`
+with the field at four cascades, and its world and screen probes take 1.45, 3.87 and 8.06 MB, with
+each probe's own light, share and place and its rays' sums now counted by `gi.state`
+(docs/materials-light-and-shadows.md). The trace's binding of the probes' reach, which it reads
+nowhere since its hits march, is gone.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to

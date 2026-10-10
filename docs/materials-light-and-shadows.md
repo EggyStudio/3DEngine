@@ -393,12 +393,16 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 0.73 MB | 0.27 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 2.80 MB | 0.31 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.81 MB | 0.44 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 1.45 MB | 0.37 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 3.87 MB | 0.49 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.06 MB | 0.69 ms |
 
-A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, and 5 MB
-more that a cascade is built in.
+A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, 5 MB more
+that a cascade is built in, and 6 MB more once a mesh that gives off light is thinner than a cell.
+Against path-traced references of `shaders_bounce_rooms`' eight views, drawn at 160 by 90, each
+view's light differs from its reference's by between 0.02 of it, white blocks beside red walls in
+the sun, and 0.5 of it, the small bright strip's room, summed pixel by pixel, at every quality alike
+within a few hundredths.
 
 Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
 The ray is stepped through the window's depth first, and a surface it meets there reflects the

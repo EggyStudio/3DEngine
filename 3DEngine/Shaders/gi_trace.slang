@@ -64,23 +64,18 @@ SamplerCube environment;
 [[vk::binding(8, 0)]] [format("r16f")]
 RWTexture3D<float> distances;
 
-// Each probe's reach the frame before, as gi_ambient.slang left it, which weighs the light a surface
-// a ray meets takes from the probes around it.
-[[vk::binding(9, 0)]]
-Sampler3D reach;
-
 // Each probe's own light as gi_ambient.slang left it, the frame before's and the one before that
 // side by side, the share of the light that bounced each probe takes, and where this trace moved
 // each probe to, its move in its spacing with w 1 where it stands outside every mesh, every
 // cascade.
-[[vk::binding(10, 0)]] [format("rgba16f")]
+[[vk::binding(9, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
 // What each workgroup of a probe's rays, 64 of them, brought back straight from the sun, the lights
 // and what gives off light, summed, with in a the luminance of all they brought back, each ray
 // weighed by the share of the sphere its texel spans, four workgroups a probe at most, which
 // gi_ambient.slang sums a probe at a time.
-[[vk::binding(11, 0)]] [format("rgba32f")]
+[[vk::binding(10, 0)]] [format("rgba32f")]
 RWTexture3D<float4> partial;
 
 struct TracePush
@@ -217,7 +212,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
         reached = t >= 0.0 ? t : push.interval.y;
         if (t >= 0.0)
-            light = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, origin + way * t,
+            // The light that bounced to the hit from the probes a march reaches, so the probes'
+            // reach goes unread and the faces stand in its place.
+            light = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, bounced, origin + way * t,
                 float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
         else if (push.cascade.w != 0u)
         {

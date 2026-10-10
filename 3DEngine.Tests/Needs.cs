@@ -72,6 +72,15 @@ public sealed class NeedsRayQueryFactAttribute : FactAttribute
     }
 }
 
+/// <summary>Skipped as <see cref="NeedsRayQueryFactAttribute"/> is, for a theory.</summary>
+public sealed class NeedsRayQueryTheoryAttribute : TheoryAttribute
+{
+    public NeedsRayQueryTheoryAttribute()
+    {
+        if (new NeedsRayQueryFactAttribute().Skip is { } reason) Skip = reason;
+    }
+}
+
 /// <summary>Skipped where SDL opens no audio device, not even its dummy driver's.</summary>
 public sealed class NeedsAudioDeviceFactAttribute : FactAttribute
 {

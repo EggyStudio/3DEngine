@@ -206,8 +206,7 @@ internal sealed unsafe partial class GraphicsDevice
             _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
-                VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage,
-                VkDescriptorType.StorageImage], (uint)sizeof(IlluminationTrace));
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], 32);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
@@ -403,9 +402,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 6, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)gi.CubesView).View, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 7, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)environment).View, environmentSampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 8, VkDescriptorType.StorageImage, gi.Distances[c].View, null, VkImageLayout.General);
-            run.Image(set, 9, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)gi.ReachView).View, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
-            run.Image(set, 10, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
-            run.Image(set, 11, VkDescriptorType.StorageImage, gi.Partial, null, VkImageLayout.General);
+            run.Image(set, 9, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
+            run.Image(set, 10, VkDescriptorType.StorageImage, gi.Partial, null, VkImageLayout.General);
             var push = new IlluminationTrace
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 ? 1u : 0u,
