@@ -10,7 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e5cef045`. C's sixth fix, the sunlit floors, and the plan's cause was not the cause:
+Reviewed up to `cc7aa32c`. C's seventh fix, the halo, and it was gone before the fix came to it: the
+ceiling reads +8% at Low and +3% at High against B's −31%, its falloff at High 0.36 of the middle's
+light 60 pixels off against the reference's 0.33, so of the two things the seventh was to measure
+the interval was the sixth's and High's first cascade traces 64 already. Low and Medium traced 16, a
+ray over the bright patch beside the lamp standing for a sixteenth of the sphere, which is where
+their 17% came from; they trace 64 as High does, the Cornell box +17% → +6% and +8%, the thin room,
+the window and the carried lamp down 3 to 5 points the same coarse rays had over-read, the summed
+error 245 → 247, for 0.003 and 0.007 ms. Right, the first note taken by a cause and not by a tier's
+allowance, and the look's numbers carried as asked, the crawl 1.43 held and 3.96 unheld, the panel's
+room 211 → 24.3 levels 18 frames after it goes dark, 5.3 at 24 and 0.9 at 30. The fade's model is
+right: the light past one bounce comes from the frame before's probes, one bounce a frame, so when a
+light goes what bounced keeps bouncing by the share the room sends back, which the third and sixth
+fixes raised from about a third to near the walls' color, a few frames to some 25. Of the three ways
+to hold it, the first is taken, as the reply would, with one change: the cut is keyed on each
+probe's own one-bounce light falling against the frame before's, not on the frame's lights summed,
+since the level carries a lamp and moves a wall for this, and a lamp carried changes no sum while
+the light it left trails it by those 25 frames; the frame's sum stays as the fallback for a probe
+lit by nothing of its own, a dark room lit through a door. It is C's tenth fix, before D, measured
+by the frames the panel's room and the carried lamp's trail take to go at Low and High and by the
+crawl, since a cut that fires on noise would flicker; the second way, the passes twice a frame, is
+the number to beat if the first fails the carried lamp. The suite: 1,589 passed; on lavapipe 334
+passed and 6 skipped. C8 next, the step.
+
+Before it, C's sixth fix came to be read, the sunlit floors, and the plan's cause was not the cause:
 the sun's visibility at a hit was measured first and read right, the probes beside the window room's
 patch at 0% and +20% from a reference of hits lit directly, so the shadow cascades were not tried,
 and the loss was the merge's early dark once more, the room's middle probe reading its face toward
@@ -60,25 +83,6 @@ low to high when §4 is next touched. The references are drawn again with the ca
 allowance as it was, so Verdict 44's judge is the run of `ebdd4fcb`. The suite: 1,589 passed; on
 lavapipe 334 passed and 6 skipped. C6 next, the sun's visibility at a hit from the shadow cascades,
 measured against the field's trace.
-
-Before it, two verdicts came to be carried out. Verdict 40 (`85be41a7`): the leak test's
-twenty-first app reads its handles as it shuts down and again after a full collection that has run
-the finalizers, `shut down` and `ended`, so what safe handles still held at the close shows between
-the two and `kept` counts what stays, an offscreen app here reading 0 and 0, the other apps left
-uncollected as the resident reading needs; the next Windows page says where the five go. Verdict 43
-(`b1e7c0ba`): `build/test.py` takes the crashing thread and its signal from createdump's own line,
-reads that thread with `setthread --tid` and `clrstack -f`, names the signal as the system numbers
-it, 10 a bus error on macOS and SIGUSR1 on Linux, and falls back to the thread the dump was written
-for, the stand-ins saying both; and the close was read against the model given, with no engine
-thread found that writes mapped device memory after the device goes, the renderer and the device
-each waiting idle before freeing, the app's threads joined, the asset workers mapping nothing, the
-instance fills joined within the frame and SDL copying a sound's samples, so the next page's frames
-should name a driver thread, MoltenVK's completion handlers first. Right, both, and the second
-reading honest about what it did not find. Both verdicts stand until a run proves them. The suite:
-1,589 passed. C5 next. The runs of `575f5f66`, `a3dd7a8d` and `52ffd114` were read after: Windows
-fails the handle hold on each as built, macOS is whole with no crash on all three, and the Cornell
-reference frame fails on Windows at the first two fixes and on macOS at the second by a point over
-its allowance, Verdict 44.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -163,19 +167,25 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    back wall past it: the screen cascade reaching to the second field cascade, or the world probes'
    blend carrying the picture smoothly past that edge. Ninth the strip no cascade holds: an emitter
    under the field's cell, by the ray scene at High or by its light splatted into the field, said as
-   a limit if neither pays. Three more from the same drop are read only if an artifact outlives the
-   nine: a directional signal per screen probe resolved against the pixel's shading normal where a
-   scalar gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`); the history rejected under
-   what moved by the velocity image the motion blur draws, and one fresh ray validating a
-   reprojected probe (`HTemporalStablizationWSGI.compute`); and the lamps at a hit sampled from a
-   cluster of the nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`), where every lamp
-   is evaluated today. The probes placed and filtered by a smooth geometric normal with the shading
-   normal used at the resolve alone is that product's rule, worth one look at the fourth. What does
-   not pay a measured share stays described with its number. From the sixth, each fix's numbers also
-   carry the frames a glowing panel's room takes to go dark once the panel does, 18 before it and 48
-   after, and the levels a frame a sliding camera's picture crawls with the bounce, held and unheld,
-   0.97 and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070, since both moved there and
-   both are the look the owner judges, and a fix that lengthens the fade or the crawl says why.
+   a limit if neither pays. Tenth the fade, which the third and sixth fixes lengthened to some 25
+   frames: the feedback's share cut for a few frames where a probe's own one-bounce light falls by
+   much against the frame before's, the frame's lights and glow summed as the fallback for a probe
+   lit by nothing of its own, held by the frames the panel's room and the carried lamp's trail take
+   to go at Low and High and by the crawl, which a cut firing on noise would raise; the trace, merge
+   and gather run twice a frame is the second way, measured against the first if it fails the
+   carried lamp. Three more from the same drop are read only if an artifact outlives the nine: a
+   directional signal per screen probe resolved against the pixel's shading normal where a scalar
+   gives a wash (its ZH3 fit in `HInterpolationWSGI.compute`); the history rejected under what moved
+   by the velocity image the motion blur draws, and one fresh ray validating a reprojected probe
+   (`HTemporalStablizationWSGI.compute`); and the lamps at a hit sampled from a cluster of the
+   nearest, a cell holding at most 32 (`HLightClusterWSGI.compute`), where every lamp is evaluated
+   today. The probes placed and filtered by a smooth geometric normal with the shading normal used
+   at the resolve alone is that product's rule, worth one look at the fourth. What does not pay a
+   measured share stays described with its number. From the sixth, each fix's numbers also carry the
+   frames a glowing panel's room takes to go dark once the panel does, 18 before it and 48 after,
+   and the levels a frame a sliding camera's picture crawls with the bounce, held and unheld, 0.97
+   and 2.91 before and 1.23 and 4.76 after at Low on the RTX 4070, since both moved there and both
+   are the look the owner judges, and a fix that lengthens the fade or the crawl says why.
 
    **D, the end.** Tiers re-measured and the guide's table rewritten, RENDERING.md §4 and TODO.md's
    entry, and a test holding the Cornell box and the level's views at each tier to their references
@@ -456,25 +466,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-**Item 2's C, the seventh fix, the halo and the first cascade's directions.** The halo was gone
-before it: the Cornell ceiling reads +8% at Low and +3% at High against B's −31%. Its falloff from
-the panel at High is 0.36 of the middle's light 60 pixels off, where the reference keeps 0.33. Of
-the two things to measure, the interval's length was C6's, and High's first cascade traces 64
-directions already. Low's and Medium's traced 16, and their Cornell box passed its reference by 17%,
-a ray of 16 over the bright patch beside the lamp standing for a sixteenth of the sphere. They trace
-64 there, as High does. Over every region against every bounce at Low and Medium: the Cornell box
-+17% → +6% and +17% → +8%, which takes your first note's number. The thin room, the window and the
-carried lamp fall 3 to 5 points, read brighter before by the same coarse rays. The summed error
-holds, 245 → 247 at Low. Cost +0.003 and +0.007 ms, 0.42 and 0.56. The look on the RTX 4070 at Low:
-the crawl 1.43 levels a frame held (C6 1.71) and 3.96 unheld, and the panel's room falls from 211 to
-24.3 levels 18 frames after it goes dark, 5.3 at 24 and 0.9 at 30. Why the fade lengthened: the
-light past one bounce comes from the frame before's probes, one bounce a frame, so when a light
-goes out what bounced keeps bouncing, each frame keeping the share the room sends back. C3 and C6
-made that share what the room's walls give, near their color, where the merge's dark had cut it
-to about a third, so the light that took a few frames to go takes some 25. Three things would hold
-it. A frame's lights and glow summed against the frame before's, the feedback's share cut for a few
-frames where they fall by much, gives a switch an instant fade at little cost, and nothing for a
-mesh that moves. The trace, merge and gather run twice a frame, the second reading the first's
-faces, halving the frames at about twice the bounce's time. A share under 1 shortens it and takes
-the light past one bounce the reference shows. The first is the one I would take, at D or before
-it as you say. The suite: 1,589 passed; on lavapipe 334 passed and 6 skipped. C8 next.
+**Item 2's C, the eighth fix, the screen's probes past the first cascade.** A screen probe past
+the field's first cascade takes the light from beyond its rays from the second cascade's merge,
+bound beside the first's with that cascade's directions in the push. A second-cascade texel whose
+ray met a surface early lends that surface's light, the way along it from that probe, so the screen's
+probes reach as far as the second cascade does. A new test draws a floor fifty units long seen from
+one end at Low: 161 of its 182 probes hold light where 106 did, the rest past both cascades, bound
+80%. On the grazing ceiling at High, the thousandth part of row-to-row jumps that jump most fall
+from 93.8% of the light to 41.8%, and the stairs are gone. The error over every region moves little:
+the Cornell box +8% → +5% at Medium; the corridor 3 to 5 points further under, −21% at every
+quality; the grazing floor 1 to 2. The probes past the first cascade now trace where they held
+nothing: +0.028, +0.013 and +0.017 ms, 0.45, 0.57 and 0.66. The look: the crawl 1.48 levels a frame
+(1.43) and 4.16 unheld; the panel's room fades as it did, 24.3 at 18 frames and 0.9 at 30. The tenth
+fix, the fade's hold keyed on each probe's own one-bounce light with the frame's sum as fallback,
+comes before D as you set it. The suite: 1,590 passed; on lavapipe 335 passed and 6 skipped. C9
+next, the strip.

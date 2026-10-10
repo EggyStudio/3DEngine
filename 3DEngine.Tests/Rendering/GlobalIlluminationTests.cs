@@ -157,6 +157,35 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void The_Screens_Probes_Hold_Light_On_A_Floor_Past_The_Fields_First_Cascade()
+    {
+        // A floor fifty units long seen from one end, its far part past the field's first cascade,
+        // 9.6 units across at cells of 0.15. The screen's probes there held nothing, the model pass
+        // took the world's probes' light alone where they stood, and a step showed along that edge;
+        // they take the light from beyond their rays from the second cascade, 19.2 units across. Of
+        // the 182 probes on the floor 106 held light, where 161 do, the rest past both cascades, as
+        // this test measured on an RTX 4070.
+        var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreatePointLight(new Vector3(0, 3, -15), Color.White, 40, range: 60);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        Capture(() => DrawModelEx(slab, new Vector3(0, -0.15f, -23), Vector3.UnitY, 0, new Vector3(10, 0.3f, 52), Color.White),
+            new Camera3D(new Vector3(0, 3, 2.5f), new Vector3(0, 0, -25), Vector3.UnitY, 50));
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var screen = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+        var device = (GraphicsDevice)renderer.Context.Graphics;
+        var (light, surfaces) = (device.ReadFloats(screen.Irradiance), device.ReadFloats(screen.Geometry));
+        var standing = Enumerable.Range(0, screen.Across * screen.Down).Where(i => surfaces[i * 4 + 3] >= 0).ToArray();
+        var held = standing.Count(i => light[i * 4 + 3] > 0.5);
+        standing.Should().NotBeEmpty("the floor fills the lower half of the view");
+        ((double)held / standing.Length).Should().BeGreaterThan(0.8, $"the probes on the floor within the field's second cascade hold light, {held} of {standing.Length}");
+        UnloadModel(slab);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Red_Wall_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
         Open();

@@ -617,8 +617,8 @@ at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the h
 occlusion pass draws, which it draws for the probes alone where the occlusion and contact shadows
 are off. It sends 16 rays over the hemisphere around the surface's normal, stepped through the depth
 while on the screen and through the field from where they leave it, and a ray that meets nothing in
-the interval takes the world's first cascade, blended between the eight probes around the surface
-that a trace from a cell in front of it reaches. A 5 by 5 filter blends each probe with those around
+the interval takes the world's first cascade, or past it the second, blended between the eight
+probes around the surface that a trace from a cell in front of it reaches. A 5 by 5 filter blends each probe with those around
 it on a surface alike in normal, each point read from the depth and weighed by how near it lies to
 the plane of the probe's surface (`gi_screen_filter.slang`), then with the frame
 before's, a fifth of this frame's light to four fifths of theirs: the probe's point is read from the
@@ -996,6 +996,27 @@ more at `Low` and 0.007 at `Medium`, 0.42 and 0.56 ms. The look, as `GlobalIllum
 on the RTX 4070 at `Low`: with the camera sliding the bounce adds 1.43 levels a frame to the picture's
 change, where it added 1.71 after the sixth, and 3.96 without the history, and a glowing panel's room
 falls from 211 levels to 24.3 18 frames after the panel goes dark, 5.3 at 24 and 0.9 at 30.
+
+The eighth takes away the step where the screen's probes ended, at the edge of the field's first
+cascade, past which a surface took the world's probes alone and a slanted ceiling drew the edge in
+stairs. A screen probe past the first cascade takes the light from beyond its rays from the second
+cascade's merge, so the screen's probes reach as far as the second cascade does, a probe of the
+second whose ray met a surface early lending that surface's light here, as the way along it from
+that probe. On a floor fifty units long seen from one end at `Low`, 161 of the 182 probes on it hold
+light where 106 did, the rest past both cascades (`GlobalIlluminationTests`). On the grazing room's
+ceiling at `High` the largest jumps from one row of pixels to the next, the thousandth part of them
+that jump most, fall from 93.8% of the light to 41.8%. The error over every region moves little:
+
+| Room | `Low` | `Medium` | `High` |
+|---|---|---|---|
+| The Cornell box | +6% → +6% | +8% → +5% | +5% → +6% |
+| A corridor lit from its end | −18% → −21% | −17% → −21% | −16% → −21% |
+| A floor at a grazing angle | −35% → −37% | −34% → −36% | −27% → −28% |
+
+and the other rooms by a point at most. The probes past the first cascade trace their rays where
+they held nothing, which costs 0.028 ms at `Low`, 0.013 at `Medium` and 0.017 at `High`, the bounce
+0.45, 0.57 and 0.66 ms. The look: the crawl 1.48 levels a frame where it was 1.43, and 4.16 without the
+history, and the panel's room fading as it did, to 24.3 levels 18 frames on and 0.9 at 30.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
