@@ -10,46 +10,68 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `817f7fd4`. Item 2's part b, the bounce's drift after a move, is done, measured first
-in the game's room drawn by the engine alone and the cause read before the remedy: not a coherent
-change where a cascade moved, since a nudge of a fiftieth of a block drifted the same with no snap
-crossed, and each screen probe's raw light changed by 18% of the mean with it. The normal a probe
-rebuilds from the depth lies 1.6 degrees off its wall's axis, and a ray took each world probe's
-light from the one texel of its octahedron it fell in, half the 16 rays on a wall square to the axes
-lying on texel borders, so the rays flipped texel by texel as the camera moved, the filter made the
-flips the blotches, the history averaged them, and the drift was the way back to the pattern that
-stands; neither remedy the item named would have mended it, which the measure shows. Read between
-the four texels around the ray, folded across the octahedron's edges as DDGI folds its border, the
-raw change is 4.1%. The turn had a cause of its own: the trace read the frame before's faces at this
-frame's corners, so each probe of a moved cascade took a neighbor's faces and the light bouncing
-again took ten frames to find itself, and a turn moves all four cascades since they lead the eye;
-the lights' buffer carries the frame before's corners, 64 bytes, and the trace reads the faces
-through them, the screen's probes keeping this frame's since they read after the gather. The fifth
-frame after a walk changes 0.07 levels where it changed 0.19, after a turn 0.06 where 0.84, a theory
-of the two at 320 by 180 holding each under 0.12 and failing without its own mend, lavapipe reading
-the same; the slide test's crawl went with the flips, 0.33 levels a frame to −0.03, so it holds 0.15
-absolute. The cost 0.04 ms, the guide's table 0.41, 0.53 and 0.74. The path-traced rooms move both
-ways, the Cornell box 0.170 to 0.203 of its light at Low and the strip 0.511 to 0.466, the eight
-views summing 4.59 where 4.62, and every bound of `BounceRoomsTests` is reset to 15% over its new
-reading by the rule it was set by, five up and eight tighter, looked at here: the rule holds, and
-the Cornell box's rise is the angular blur of reading between an 8 by 8 octahedron's texels, the
-thing part d's 256 directions would cut, so that remedy is read for the Cornell box's error as well
-as the lobes. Right, the suspects measured and two cleared before anything moved, the fold DDGI's,
-and the faces read where they were gathered. The owner's eye found this tree stable and good before
-the commit (Decision 27). The suite: 1,652 passed, the Cornell box's two moved with the others; on
-lavapipe 373 passed and 7 skipped with no validation error. NORM.md's counts and SHARED.md's two
-rows went in with it. Parts d and e next, together, the GPU with the game's session for their
-measures meanwhile. The game's session measured d and e on the tree with bloom off, which had stood
-in the earlier figures for a fifth, and parts d and e are rewritten on the measures: the finer cell
-did not mend the lobes but took the pool away, e's own mechanism, and the pool's sharp edge at two
-and a half blocks names the first cascade's directions; the game's `de36ead1`, its ring reading a
-point behind the eye as off the picture, is the game's own. The engine's session then measured both
-parts on the engine, GPU and lavapipe agreeing, and the cause is in neither the octahedron nor the
-field's hold of the cube but in the probes' horizon, so the two readings this paragraph gave stand
-corrected and parts d and e are one part with its measured cause and the remedy the measure names.
-The Windows page of `3a83cec6` came: its tests pass whole, the leak test's hold held to app 70, so
-Verdict 40 is settled after its two mends, and the job fails playing Slide, whose app stopped
-serving after its first tap, Verdict 45; 5.2 waits on that alone.
+Reviewed up to `e50fd247`. Verdict 45's script, before its cause: where a command meets NO_SESSION
+or SESSION_UNREACHABLE the drive script's error says whether the game's process still runs, by
+tasklist on Windows and ps elsewhere with a zombie counted as ended, and, ended, its exit code,
+known on Windows through a PowerShell watcher that holds the process from the open, named as e3d
+names a crash's, with the last crash of the game's exe in Windows' Application log, its faulting
+module and exception code or its .NET exception; the reopen Jelly makes gets a watcher too; tried on
+Linux by killing Slide after its open. Read: the watcher is the one thing on Windows that waits on a
+process e3d started through cmd.exe, the arguments beginning with a slash kept from Git's bash by
+MSYS2_ARG_CONV_EXCL, and the event read is the most recent that names the exe; right, and the cause
+waits on a page that fails again, as the reply says. The stop is not every run's: the engine's
+session read `de36ead1`'s Windows job playing every game through, Slide among them, and `817f7fd4`'s
+still playing, both pages in progress here. Slide's first tap does two things the other games' first
+input does not, its first sound through two streams split left and right and the play screen's first
+draw, which the next failing page's exit code and event sort. ASKS.md with the game's captures,
+NORM.md's counts and SHARED.md's row went in with it. The box lights go on, the lamp's light
+matching the path-traced ring within 3%, the cost next. The Windows pages of `817f7fd4` and the
+game's `de36ead1` came green whole, Slide played through on both, so Verdict 45 is settled, a stop
+once in three with the script naming a fault should it return; and with Windows and macOS green in
+one run the Linux examples job ran for the first time since `22bbf15a` and failed at its first step,
+the table check, EXAMPLES.md out of date, which ended the job before the soak and the measure
+(Verdict 46), so 5.2 waits on a table alone.
+
+Before it, item 2's part b came, the bounce's drift after a move, done, measured first in the game's
+room drawn by the engine alone and the cause read before the remedy: not a coherent change where a
+cascade moved, since a nudge of a fiftieth of a block drifted the same with no snap crossed, and
+each screen probe's raw light changed by 18% of the mean with it. The normal a probe rebuilds from
+the depth lies 1.6 degrees off its wall's axis, and a ray took each world probe's light from the one
+texel of its octahedron it fell in, half the 16 rays on a wall square to the axes lying on texel
+borders, so the rays flipped texel by texel as the camera moved, the filter made the flips the
+blotches, the history averaged them, and the drift was the way back to the pattern that stands;
+neither remedy the item named would have mended it, which the measure shows. Read between the four
+texels around the ray, folded across the octahedron's edges as DDGI folds its border, the raw change
+is 4.1%. The turn had a cause of its own: the trace read the frame before's faces at this frame's
+corners, so each probe of a moved cascade took a neighbor's faces and the light bouncing again took
+ten frames to find itself, and a turn moves all four cascades since they lead the eye; the lights'
+buffer carries the frame before's corners, 64 bytes, and the trace reads the faces through them, the
+screen's probes keeping this frame's since they read after the gather. The fifth frame after a walk
+changes 0.07 levels where it changed 0.19, after a turn 0.06 where 0.84, a theory of the two at 320
+by 180 holding each under 0.12 and failing without its own mend, lavapipe reading the same; the
+slide test's crawl went with the flips, 0.33 levels a frame to −0.03, so it holds 0.15 absolute. The
+cost 0.04 ms, the guide's table 0.41, 0.53 and 0.74. The path-traced rooms move both ways, the
+Cornell box 0.170 to 0.203 of its light at Low and the strip 0.511 to 0.466, the eight views summing
+4.59 where 4.62, and every bound of `BounceRoomsTests` is reset to 15% over its new reading by the
+rule it was set by, five up and eight tighter, looked at here: the rule holds, and the Cornell box's
+rise is the angular blur of reading between an 8 by 8 octahedron's texels, the thing part d's 256
+directions would cut, so that remedy is read for the Cornell box's error as well as the lobes.
+Right, the suspects measured and two cleared before anything moved, the fold DDGI's, and the faces
+read where they were gathered. The owner's eye found this tree stable and good before the commit
+(Decision 27). The suite: 1,652 passed, the Cornell box's two moved with the others; on lavapipe 373
+passed and 7 skipped with no validation error. NORM.md's counts and SHARED.md's two rows went in
+with it. Parts d and e next, together, the GPU with the game's session for their measures meanwhile.
+The game's session measured d and e on the tree with bloom off, which had stood in the earlier
+figures for a fifth, and parts d and e are rewritten on the measures: the finer cell did not mend
+the lobes but took the pool away, e's own mechanism, and the pool's sharp edge at two and a half
+blocks names the first cascade's directions; the game's `de36ead1`, its ring reading a point behind
+the eye as off the picture, is the game's own. The engine's session then measured both parts on the
+engine, GPU and lavapipe agreeing, and the cause is in neither the octahedron nor the field's hold
+of the cube but in the probes' horizon, so the two readings this paragraph gave stand corrected and
+parts d and e are one part with its measured cause and the remedy the measure names. The Windows
+page of `3a83cec6` came: its tests pass whole, the leak test's hold held to app 70, so Verdict 40 is
+settled after its two mends, and the job fails playing Slide, whose app stopped serving after its
+first tap, Verdict 45; 5.2 waits on that alone.
 
 Before it, Verdict 40's two mends came, as the verdict asked them. On Windows each count the hold
 reads, the twentieth app's and every later one, comes after a full collection and the finalizers,
@@ -72,45 +94,6 @@ history after a move, measured in the game's room as ASKS.md lays it out. The ow
 17:20: the bounce stable in motion on the tree, the lamp's eight lobes gone at a field cell of
 0.125, and a lamp's light at a distance aliased at its border and gone farther off, written into
 item 2's parts b and d and its new part e.
-
-Before it, item 2's part a, the terminator, came to be read and is done, measured first on a sphere
-lit from its side, the meridian read every two degrees with the scattering off and on: no dark ring
-of its own, but a bright line six degrees past the terminator on every scattering sphere, as bright
-as the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator read
-dark between them, and wax's far side through the field lit again, 70 at 120 degrees and 88 at 148.
-The spread alone falls smoothly past the terminator, 83, 65, 51, 43, 40 from 88 degrees, so the
-suspect named first is cleared; the light through made both. Three causes: a few degrees past the
-terminator the point lies at the sphere's edge as the light sees it, where the map's mean of nine
-depths took in the empty map beyond the edge and the field's march along the surface found no mesh
-within a cell and took the part for a sheet, so the sphere read no thicker than nothing and the
-light came through whole; a march still in the mesh at the reach returned the reach, a twentieth of
-the light kept on the far side however thick; and the falloff as e to the minus the thickness over
-the travel still rose to a hump ten degrees out from the true chord. Four mends: the map's mean
-takes only the depths in front of the point, or the point's own where none is; a light that casts
-shadows measures through its map wherever it has one and the field is kept for a lamp with none,
-since the field giving way to the map past its sheet's cell dashed a line across the example's
-marble; the light fades out between half the reach and the reach; and it falls as the Gaussian the
-spread uses for each color, a third of its travel wide, as Jimenez derives the light through from
-the profile. Wax falls 84, 69, 60, 54, 50, 47, 43 from 88 degrees to 100, half its light by 93 and a
-tenth by 100, and skin's edge lies at the terminator 0.04 of a degree from its neighbors' mean where
-it ran 0.41 in the map's texels; two theories hold them, the fall without a dip for wax with and
-without the field, marble and skin, and the edge under 0.3 of a degree, each failing on the shader
-before; the slabs' and the sheet's numbers moved with the falloff and say so; the example's capture
-is drawn again; §5 and the guide say it, §5's long line gone. Right, measured first and the three
-causes mended where they arise, and the maps given the thickness whole rather than a seam between
-two measures. One thing to know, asked of nothing: at half the reach the Gaussian has fallen to e to
-the minus ten, so the fade between half the reach and the reach changes nothing the eye or a test
-reads and stands as a guard for a march that returns the reach; and the gap the reply keeps stands,
-a Burley tail longer than one Gaussian's, which a sum of Gaussians in the spread would follow. The
-owner's eye judges the look (Decision 27). The suite: 1,652 passed; on lavapipe 371 passed and 7
-skipped with no validation error. Item 2's work runs b, then d, then c. Verdict 40's two mends are
-in the tree with their reply drafted, read on their commit. The game's `77e020dc`, `e69543b0`,
-`d3394780` and `a5534f03` are the game's own, structures across its columns' edges, see-through
-glass, ice and water kept out of the field, a terrain shader fading the world into the sky, and a
-test project of its light, meshes, body, saves and generation that joins the solution and
-AGENTS.md's table, so it builds on every run under `-warnaserror` and runs nowhere there,
-`build/test.py` running `3DEngine.Tests` alone. The run of `187de604` has its captures green, so the
-Linux examples job waits on Windows alone.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -140,23 +123,30 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    its budget, in 22 m 53 s where the tests took 10 to 14 minutes before, the collection before each
    count the difference, so Verdict 40 is settled; the job then fails playing Slide, `frames.wait`
    finding no serving app after the first tap (Verdict 45), and its macOS job and captures are
-   green. The runs of `817f7fd4` and the game's `de36ead1` are in progress, their Windows pages
-   saying whether Slide repeats. The page showed the leak test's progress line as its first of 198,
-   `app 2`, where the line named its app all along; the page shows the last of a repeated line since
-   `88673244`. Verdicts 40 and 44 are carried out there, the leak test following four apps through
-   every plugin's making, a failing frame written where the job uploads it with each surface's
-   means, and four references drawn again after a drift of up to 2.16% on the RTX 4070 itself; the
-   runs since read the references green and the leak test red. The examples job waits on Windows and
-   macOS both green in one run. When every job is green the owner is told, since 5.2 is due
-   (Decision 19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's
-   `1f68fde8` the two cases of a theory whose names are cut to the same as one counted apart, which
-   its page reads as one today (SHARED.md), and runs the game's `3DEngine.Game.Tests`, 22 tests of
-   its light, meshes, body, saves and generation that need no window, beside its own through its
-   `--project`, counted on the page apart from the engine's and reddening the run as the engine's do
-   (ASKS.md). The engine's own despawn of what a state scopes is read against a soak of the world's
-   entity indices across many transitions, which in BevyCSharp found Bevy 0.20.0 losing every index
-   it despawned that way (SHARED.md), with the batch that next touches states. Each push's run is
-   read by the reviewing session, and a failure it names comes first here.
+   green. The runs of `817f7fd4` and the game's `de36ead1` are green on Linux, on macOS, on the
+   captures and on Windows whole, the first Windows jobs green since the bump, Slide played through
+   on both, so Verdict 45 is settled, a stop once in three; their examples job, the first to run
+   since `22bbf15a`, fails at its first step, `build/examples-table.py --check` finding EXAMPLES.md
+   out of date, and ends there before the soak and the measure (Verdict 46), so Verdicts 30 and 31
+   are not yet judged; the run of `e50fd247` is in progress and reads the same table; the drive
+   script says since `e50fd247` whether a game's process lives when a command finds no session, and
+   its exit code and Windows' crash event when it ended. The page showed the leak test's progress
+   line as its first of 198, `app 2`, where the line named its app all along; the page shows the
+   last of a repeated line since `88673244`. Verdicts 40 and 44 are carried out there, the leak test
+   following four apps through every plugin's making, a failing frame written where the job uploads
+   it with each surface's means, and four references drawn again after a drift of up to 2.16% on the
+   RTX 4070 itself; the runs since read the references green and the leak test red. The examples job
+   runs when Windows and macOS are both green in one run, which they are since `817f7fd4`. When
+   every job is green the owner is told, since 5.2 is due (Decision 19). With the batch that next
+   touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a theory whose
+   names are cut to the same as one counted apart, which its page reads as one today (SHARED.md),
+   and runs the game's `3DEngine.Game.Tests`, 22 tests of its light, meshes, body, saves and
+   generation that need no window, beside its own through its `--project`, counted on the page apart
+   from the engine's and reddening the run as the engine's do (ASKS.md). The engine's own despawn of
+   what a state scopes is read against a soak of the world's entity indices across many transitions,
+   which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with
+   the batch that next touches states. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 
 2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
@@ -342,21 +332,19 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-45. **The Windows job of `3a83cec6` passes its tests whole and fails playing Slide: `frames.wait`
-    found no serving app after the first tap, the game's log ending at its swapchain's resize.** The
-    job plays its thirteen games through `./e3d` from the package by `build/drive-game.sh`; Slide
-    opened, took `window.size 480 270`, its log's last line the resize complete at 1.84 s, and the
-    tap at the window's middle that starts a game was followed by `frames.wait 10` answering 4,
-    NO_SESSION, no serving app matching, so between the resize and that command the app stopped
-    serving or ended, on Windows alone, where the other twelve played and Linux and macOS play Slide
-    through. Read first whether it repeats on the pages of `817f7fd4` and `de36ead1`, in progress;
-    then the cause: what Slide does at its first tap that the other games do not, run on Windows
-    with the validation layer on, a crash that leaves no managed line being native, the layer's own
-    message or SDL's, or the session's listener gone while the process lives, which `e3d status`
-    tells apart. The drive script's failure says more where a command meets NO_SESSION: whether the
-    game's process is still alive and, ended, its exit code and the last of its stderr, since the
-    log's tail says nothing of a crash; the step's twelve minutes and the rest of the games stay as
-    they are. Settled when a Windows run plays Slide through, and 5.2 is due with it (Decision 19).
+46. **The examples job of `817f7fd4` and `de36ead1`, the first to run since `22bbf15a`, fails at its
+    first step: `build/examples-table.py --check` finds EXAMPLES.md out of date, and the job ends
+    there, the soak and the measure unrun and no captures uploaded.** The table of raylib's examples
+    is generated, and the batches since the job last ran changed what it reads without running the
+    script, which the test job does not check. Two things. The engine's session runs
+    `build/examples-table.py` and commits the table with its next batch, and the check joins what a
+    batch runs before it commits, where the test script or the build's own check lives, so the
+    examples job never meets a stale table again. And the check's failure does not end the examples
+    job: it says its error and the soak and the measure run after it, the job red at the end with
+    each step's own line, as the games' step plays the rest when one fails, since a table a sentence
+    behind must not hide whether a game grows or what the measure reads (Verdicts 30 and 31).
+    Settled when an examples job passes the check and the two steps after it have run and said their
+    own.
 
 ## Decisions
 
@@ -535,21 +523,17 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 45, what the next page will say. The page of `de36ead1` plays every game on Windows, Slide
-among them, and that of `817f7fd4` was still playing them as this was written, so the stop is not
-every run's. Slide's first tap does two things the other games' first input does not: it plays its
-first sound, a copy of a wave of 22,050 frames a second on one channel cropped to its first fifth,
-through two streams split left and right, and it draws the play screen for the first time. SDL
-copies a sound's samples when they are queued, so the buffer the engine pins is never read after it
-is let go, and Slide plays through on Linux under the validation layer here, its swipe, double tap,
-held finger and autopilot to the end. The page named no dump, where Windows keeps one of any process
-that dies by a fault, so the game either ended with none or still ran without serving, which the
-page could not tell apart. The drive script tells them apart where a command meets NO_SESSION or
-SESSION_UNREACHABLE. It reads the game's process from the open's answer and says whether it still
-runs, by tasklist on Windows and by ps elsewhere, a process killed and not yet reaped counted as
-ended. On Windows it holds the process from the open through PowerShell, so an ended one's exit code
-is known, named as e3d names a crash's, with the description of the last crash of it in Windows'
-Application log, its faulting module and exception code or its .NET exception. The game's output and
-its errors both go to its log, whose last lines the error gives already. Tried on Linux by killing
-Slide after its open, the error read `... and its process 2611269 ended`; the Windows half is read
-on the next page, and the cause waits on a page that fails again.
+Verdict 46. The table written again from `HEAD` in a worktree of its own, so nothing of the tree's
+work in progress reaches it, adds the five programs of this engine's own that were opened by name
+and had no row, `shaders_bounce_rooms`, `shaders_cornell_box`, `shaders_reflections`,
+`shaders_scene_field` and `shaders_subsurface`, and the script's check passes on it. The suite holds
+what of N 5.2 it can without raylib's own list: `N_5_2` in NormTests finds every program
+`3DEngine.Examples/Program.cs` opens by name and fails for one with no row in the table, naming it,
+which on the table before named those five, so a batch that adds an example and not its row fails
+before it is committed; the script's own check, which needs raylib's checkout, stays the workflow's,
+and NORM.md's cell for N 5.2 may name the test beside it. In the examples job the two checks of the
+tables, raylib's examples and raylib.h's functions, run last and under `!cancelled()`, so they run
+whatever failed before them and a table out of date no longer ends the job before the captures, the
+soak and the measure, each of which says by its own line whether it passes, and the job is red at
+the end where a check fails. The suite on `HEAD` with the three files: 1,649 passed, and 6 skipped,
+the package's five and the docs script's, which need the package a new worktree has not packed.

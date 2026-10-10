@@ -64,19 +64,6 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx
 
-      # Every one of raylib's examples is a row of .github/EXAMPLES.md, which the script writes from
-      # raylib's own list at the commit build/raylib-bench/run.sh pins (NORM.md, N 5.2). A new
-      # example here, or a line of 3DEngine.Examples/triage.tsv changed, without the table written
-      # again fails here.
-      - name: Check the table of raylib's examples
-        run: build/examples-table.py --check
-
-      # Each of raylib.h's functions not carried is answered on docs/compared-with-raylib.md, by its
-      # C# or its reason, and the page's counts are coverage.py's. A function carried, or one more
-      # left out, without the page written again fails here.
-      - name: Check the comparison with raylib against its functions
-        run: build/raylib-bench/coverage.py --check
-
       # Each example opened with no window, driven where it waits for input, run until its scene
       # has settled and its frame rate is measured, captured and closed (build/capture-example.sh),
       # then its session log checked for validation errors, every example captured before the step
@@ -553,6 +540,23 @@ jobs:
       # package and run offscreen, so no step the page shows stops compiling.
       - name: Build and run every step of the first game
         run: build/first-game.sh
+
+      # Every one of raylib's examples is a row of .github/EXAMPLES.md, which the script writes from
+      # raylib's own list at the commit build/raylib-bench/run.sh pins (NORM.md, N 5.2). A new
+      # example here, or a line of 3DEngine.Examples/triage.tsv changed, without the table written
+      # again fails here. It runs last and whatever failed before it, since run first a table out of
+      # date ended the job before the captures, the soak and the measure, whose own lines say
+      # whether they pass.
+      - name: Check the table of raylib's examples
+        if: ${{ !cancelled() }}
+        run: build/examples-table.py --check
+
+      # Each of raylib.h's functions not carried is answered on docs/compared-with-raylib.md, by its
+      # C# or its reason, and the page's counts are coverage.py's. A function carried, or one more
+      # left out, without the page written again fails here, last for the same reason.
+      - name: Check the comparison with raylib against its functions
+        if: ${{ !cancelled() }}
+        run: build/raylib-bench/coverage.py --check
 
       - uses: actions/upload-artifact@v7
         if: always()

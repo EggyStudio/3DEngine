@@ -275,6 +275,23 @@ public sealed partial class NormTests
         Hold("4.5", found, "a capture not at raylib's window of 800 by 450, or a README picture that does not open its program");
     }
 
+    /// <summary>
+    /// Every program 3DEngine.Examples opens by name has its row in .github/EXAMPLES.md, the part
+    /// of the rule the suite can hold without raylib's own list, so a batch that adds an example and
+    /// not its row fails before it is committed, where the workflow's check of the table found five
+    /// such examples first and ended its job.
+    /// </summary>
+    [Fact]
+    public void N_5_2()
+    {
+        var table = Read(".github/EXAMPLES.md");
+        var found = Regex.Matches(Read("3DEngine.Examples/Program.cs"), @"\[""(?<name>[a-z0-9_]+)""\]\s*=\s*\w+\.Run")
+            .Select(m => m.Groups["name"].Value)
+            .Where(name => !table.Contains($"[`{name}`](", StringComparison.Ordinal))
+            .ToList();
+        Hold("5.2", found, "an example with no row in .github/EXAMPLES.md, which build/examples-table.py writes");
+    }
+
     // The width and height a WebP file's header gives, from whichever of its three kinds it is.
     private static (int Width, int Height) WebPSize(byte[] file) => System.Text.Encoding.ASCII.GetString(file, 12, 4) switch
     {
