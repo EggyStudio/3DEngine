@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- A voxel game beside the examples rather than under games/, built on the engine's project
+         instead of its package, so a change to the light that bounces is played on the next build
+         without packing the engine first. -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>Engine.Game</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
+        <!-- The engine keeps its generator to itself, so the game's [Command]s are registered by
+             referencing it here as the examples do. -->
+        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+</Project>

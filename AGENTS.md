@@ -88,6 +88,7 @@ pushed.
 | `3DEngine/Cli` | The server side of `./e3d`: socket, request queue, session files, `CliPlugin` |
 | `3DEngine.Cli` | The `e3d` client, which `./e3d` builds and runs |
 | `3DEngine.Examples` | raylib-style example programs, run by name |
+| `3DEngine.Game` | A voxel game in the manner of Minecraft, built on the engine's project, where emissive blocks test the light that bounces |
 | `docs` | The guides a program's author reads, one to an area of the flat API, and the comparison with raylib |
 | `games` | Games built on the engine's package as an outside project would be, and `FirstGame`, which `docs/first-game.md` builds in steps |
 | `templates` | The `dotnet new` templates, a game of plain calls and one of behaviors |
