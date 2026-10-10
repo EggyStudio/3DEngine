@@ -660,7 +660,7 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
     }
     for (int k = 0; k < 4; k++)
         if (which[k] >= 0)
-            sum += kept[k] * glowLightSeen(field, info, lights.glows[which[k]], p, n, cell);
+            sum += kept[k] * glowLightSeen(field, info, lights.glows[clamp(which[k], 0, MostGlowLights - 1)], p, n, cell);
     return sum;
 }
 

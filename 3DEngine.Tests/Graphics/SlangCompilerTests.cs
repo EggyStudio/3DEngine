@@ -436,6 +436,23 @@ public class SlangCompilerTests : IDisposable
         Waves().Should().NotEqual(before, "an edit to the included file changes what is hashed");
     }
 
+    [Fact]
+    public void A_Module_Exported_Again_By_Its_Importer_Is_Part_Of_What_Is_Hashed()
+    {
+        // gi.slang exports glow.slang to the shaders that import it, and an edit to glow.slang
+        // alone left them on their old SPIR-V, the line read as no import.
+        var folder = Directory.CreateDirectory(Path.Combine(_folder.Path, "exported")).FullName;
+        File.WriteAllText(Path.Combine(folder, "gi.slang"), "module gi;\n__exported import glow;\n");
+        File.WriteAllText(Path.Combine(folder, "glow.slang"), "module glow;");
+
+        byte[]? Glow() => SlangCompiler.ImportedFiles("import gi;", folder).Single(f => f.Path == "glow.slang").Bytes;
+
+        SlangCompiler.ImportedFiles("import gi;", folder).Select(f => f.Path).Should().Equal("gi.slang", "glow.slang");
+        var before = Glow();
+        File.WriteAllText(Path.Combine(folder, "glow.slang"), "module glow; // changed");
+        Glow().Should().NotEqual(before, "an edit to the module exported again changes what is hashed");
+    }
+
     [NeedsSlangFact]
     public void Uniform_Arrays_Are_Laid_Out_With_A_Stride_Of_Sixteen_Bytes()
     {

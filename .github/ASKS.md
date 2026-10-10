@@ -45,50 +45,6 @@ cells. Captures: `voxel-border-sunset.webp` and `voxel-border-sunset-cell05.webp
 Review: item 2 of REVIEW.md, its part c, 2026-10-10; the near blended into the far across a band at
 the last cascade's edge.
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: a lamp's light on a floor shows 8 lobes at High
-
-A flat world at hour 0, one glowstone on the grass at 0, 4, 0, the eye 11.6 blocks above the floor
-straight over it and pitched 89 degrees down, the light levels and corners off, the hud hidden; a
-hidden window of 1280 by 720 and an RTX 4070 Laptop GPU. The game's `voxel.ring 0.5 4 0.5 <radius>
-72` reads the luminance at 72 points around a circle on the floor's top through `GetWorldToScreen`.
-The moonlit floor's own 48.2 to 48.8, read at 6 blocks, is taken off, so each figure is the lamp's
-light, and the lobes are the harmonics of the 72 readings, each as a share of the lamp's mean light
-on the circle.
-
-| Quality | 2 blocks: light, swing, lobes | 2.5 blocks: light, swing, lobes |
-|---|---|---|
-| High | 29.0, 0.75 of it, 8 lobes at 0.15 | 9.2, 2.26 of it, 8 lobes at 0.39 |
-| Medium | 30.3, 0.44 of it, 8 lobes at 0.03 | 12.8, 1.19 of it, 8 lobes at 0.11 |
-| Low | 28.5, 0.46 of it, 4 lobes at 0.11 | 14.7, 0.95 of it, 4 lobes at 0.16 |
-
-The single lobe, 0.14 to 0.67, is the largest harmonic at each, which comes of the eye standing a
-degree off the vertical, and is left out. Within 1.5 blocks the lobes are under 0.07, and by 3
-blocks the lamp's light is down to the floor's own at each quality. The cause was not looked for,
-and the game does nothing about it. Captures: `voxel-spokes-high.webp`, `voxel-spokes-medium.webp`
-and `voxel-spokes-low.webp`.
-
-Read again on the engine's tree after `3a83cec6`, the same scene with bloom off through `./e3d
-eval`, since bloom's halo has a size on the screen and not in the world and stood in the figures
-above for about a fifth of the light at 2 blocks. The field's four cascades at a cell of 0.25 and of
-0.125, each at the three qualities, the lamp's light on the circle and its lobes as shares of it:
-
-| Cell | Quality | 2 blocks: light, 8 lobes, 4 lobes | 2.5 blocks: light, 8 lobes, 4 lobes |
-|---|---|---|---|
-| 0.25 | High | 22.5, 0.16, 0.02 | 7.2, 0.43, 0.09 |
-| 0.25 | Medium | 23.8, 0.04, 0.04 | 10.5, 0.12, 0.01 |
-| 0.25 | Low | 21.8, 0.01, 0.12 | 11.6, 0.02, 0.17 |
-| 0.125 | each | 0.0 | 0.0 |
-
-At a cell of 0.125 the lobes are gone because the pool is: the lamp gives the floor 5.8 at 1 block,
-where a cell of 0.25 gives it 33.3, 1.1 at 1.25 blocks and nothing from 1.5 out, at High. The finer
-cell shrinks the pool from about 2.3 blocks to about 1.3 and its light near the lamp to a sixth. The
-captures `voxel-lobes-cell025.webp` and `voxel-lobes-cell0125.webp` are the frame with the lamp less
-the frame without it, six times over, around the lamp at twice its size: an eight-lobed flower with
-a stepped edge at 0.25, and a pool hardly wider than the cube at 0.125.
-
-Review: item 2 of REVIEW.md, its part d, 2026-10-10; the probes' octahedron, the first cascade's 64
-directions the first thing measured.
-
 ### 2026-10-10, the voxel game in `3DEngine.Game`: its tests build on every run but run on none
 
 `3DEngine.Game.Tests` holds 22 tests of the game's light levels, its meshes' faces and corners, the
@@ -102,34 +58,42 @@ hand before each of its commits.
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: a lamp's pool is gone from 40 blocks away
+### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights can lose the GPU device
 
-A flat world at hour 0, one glowstone on the grass at 0, 4, 0, the eye straight over it 5, 10, 20,
-40 and 80 blocks above the floor and looking down at it, so the cascades lead toward the lamp as
-they do walking away from one while facing it; the light levels and corners off, bloom off, the hud
-hidden, the field's four cascades of 0.25 built two a frame, High, a hidden window of 1280 by 720
-and an RTX 4070 Laptop GPU, on the engine's tree after `3a83cec6`. The lamp's light is the floor's
-around it at 72 points a circle through the game's `voxel.ring`, the frame with the lamp less the
-frame without it, and the cascades that hold the lamp come from `field.state`, their probes 8 cells
-apart.
+On `98a1edca`, the game built from that tree, a hidden window of 1280 by 720 and an RTX 4070 Laptop
+GPU, High, render distance 8: `./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden
+--transient --flat`, then `voxel.room 10 4 -22 22 11 -10 white_concrete`, a closed room 11 by 6 by
+11 inside, `frames.wait 120` and `voxel.set 13 5 -19 glowstone`, the eye left at the spawn 20 blocks
+off outside the room at hour 10. Within a few frames of the lamp, `RenderPlugin.Render` throws
+`ErrorDeviceLost` at the frame's submission and every frame after it does too, in 3 of 5 runs with
+the glow lights on and in none of 5 with `gi.toggle glow off` first. The kernel's log gives NVRM Xid
+31 for each, a fault of the memory unit reading through the constant cache, a uniform read out of
+range. A glowstone in the open or sealed in a box of 3 blocks, and the same room with the eye inside
+it before the lamp is placed, lost nothing in the runs tried. The game does nothing about it, and
+its readings of the glow lights are taken with the eye inside the room first.
 
-| Eye above the floor | Lamp's light at 1, 1.5, 2, 2.5, 3 blocks | Cascades holding it, spacing |
-|---|---|---|
-| 5 blocks | 33.0, 33.7, 25.3, 4.0, 0.0 | 0 to 3, 2 to 16 blocks |
-| 10 blocks | 32.3, 31.6, 24.1, 6.7, 0.0 | 0 to 3, 2 to 16 blocks |
-| 20 blocks | 36.7, 30.0, 18.1, 6.8, 1.2 | 1 to 3, 4 to 16 blocks |
-| 40 blocks | 0.0 at each | 2 and 3, 8 and 16 blocks |
-| 80 blocks | 6.4, then 0.0 | 3, 16 blocks |
+Review: Verdict 47 of REVIEW.md, 2026-10-10, before everything else; a uniform read out of its
+range, the case built as the engine's own under the validation layer's GPU-assisted checks.
 
-Near, the pool keeps its light to about 2 blocks and ends between 2 and 2.5, 25 to 4, an edge rather
-than a falloff, its outline a ring of lobes in steps. From 20 blocks, out of the first cascade, it
-is smaller and round, and from 40, where only the cascades whose probes stand 8 and 16 blocks apart
-hold the lamp, it is gone from the bounce, the pool being narrower than their spacing. The game's
-light levels light the floor around the lamp as Minecraft's do whatever the distance, so with them
-on the far pool shows. Captures: `voxel-pool-5.webp`, `voxel-pool-10.webp`, `voxel-pool-20.webp` and
-`voxel-pool-40.webp`, each the frame with the lamp less the frame without it, six times over, around
-the lamp at twice its size.
+### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights cost 0.67 ms of the model pass
 
-Review: item 2 of REVIEW.md, its part e, 2026-10-10; at 40 blocks the field's cells of one and two
-blocks hold the cube's glow nowhere and the probes 8 apart average the rest, read there with the
-remedies in order.
+On `98a1edca`, the room above with the red and green walls of the earlier measures and sixteen
+glowstones on its floor in a grid of 4 by 4, the eye inside it 10 degrees down across them, hour 23,
+High, render distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop
+GPU. Each figure is `./e3d command profile` read three times after 600 frames with `gi.toggle glow`
+off and on, in two passes that agreed, and the averages from `GetProfileAverage` beside them.
+
+| Glow lights | `gpu.hdr_scene` | `gpu.global_illumination` | Frame |
+|---|---|---|---|
+| Off | 1.38 to 1.43 ms | 1.30 to 1.33 ms | 4.5 ms |
+| On | 2.05 to 2.14 ms | 2.15 to 2.22 ms | 6.1 to 6.2 ms |
+
+The bounce gains 0.85 ms, near the 0.8 expected of sixteen blocks, and the model pass 0.67 ms where
+0.2 was expected; before the commit's cost work it gained 1.56 ms of the model pass and 0.81 ms of
+the bounce. The same commit holds parts d and e of item 2 as measured before it: the lamp's light at
+2 and 2.5 blocks 13.6 and 7.3 at a cell of 0.25 and 13.3 and 7.2 at 0.125 at each quality, its eight
+lobes 0.01 of it or less, and its pool the same from 5 to 80 blocks up, 52 to 57 at a block and half
+that by 1.5, so those two entries are taken off.
+
+Review: item 2 of REVIEW.md, its part d and e, 2026-10-10; the model pass's share read for where it
+goes and brought down, your room the measure, after Verdicts 47 and 30.

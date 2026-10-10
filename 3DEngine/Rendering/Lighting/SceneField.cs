@@ -497,11 +497,13 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
 
     // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
-    // where its run of shapes begins and how long it is, then the runs, a shape's place each.
+    // where its run of shapes begins and how long it is, then the runs, a shape's place each, made
+    // up to a whole element of four, since the shader reads four places at a time and read the last
+    // of a run past the buffer's end, which the validation layer's GPU-assisted checks found.
     private static IBuffer Bricks(GraphicsDevice device, SceneFieldPlan plan)
     {
         var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + shapes.Count) * 4, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + (shapes.Count + 3) / 4 * 4) * 4, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
         for (int b = 0; b < bricks.Count; b++)
             (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =

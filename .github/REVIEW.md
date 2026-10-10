@@ -10,7 +10,59 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `71050c8f`. Verdict 46's three things. The table of raylib's examples is written
+Reviewed up to `98a1edca`. Item 2's parts d and e, the lamps: a small emitter is carried through the
+bounce as a light of its own, as the part named and the measure chose. Each emissive instance whose
+box is no longer than twice the first cascade's probe spacing is a box light, its glow and its
+surface's share of its box's, the 64 nearest the field's eye, each reaching where it lights a
+surface by a fiftieth; emitters square to the axes that touch and glow alike are one light of the
+box around them, the pressed faces left out of its surface, so the stack of four throws no ring; the
+field flags the cells a carried emitter paints, so a ray that meets it leaves its glow out and a
+reflection keeps it, the eight cells blended by hand near a flag. Its light at a point is Lambert's
+sum over the edges of each face the point lies before, clipped at the point's plane, by Heitz's fit,
+and past four half diagonals each face as a point, within 3% of the sum; how much of it a point sees
+is a march through the field as a distance field, the way's clearance against the cone the light
+spans, so a shadow's edge is as soft as the light is wide, the surface's own cells and the light's
+box never counted, the share taken between steps as a sphere tracer finds the nearest pass, read
+stepping out along the normal inside a thin wall, which took the 19:30 and 19:45 readings' steps and
+rings away. The screen's probes march to the halves of each face of a light that gives a sixteenth
+of the lights' light and keep sixteen levels of it, four bits a light in twelve words, the fainter
+ones marched to their middles once and summed, and the model pass takes a pixel's lights from the
+probes around it, marching itself only where no probe stands on a surface like the pixel's, a render
+texture's or past the screen's probes, to the four brightest; a probe's ray's hit takes the two
+brightest, so walls bounce a lamp on. Measured against the path-traced reference: the ring from 0.8
+to 4.2 blocks reads 0.96 to 1.05 at every quality, the eighth harmonic 0.005 where it was 0.17 and
+0.35, the pool the same from five to eighty blocks up; a ninth room, the block beside a wall half
+its height and a stack of four, 0.052, 0.048 and 0.045 of its light where 0.200, 0.193 and 0.171;
+the Cornell box 0.141, 0.129 and 0.117 where 0.203, 0.180 and 0.183 and the strip 0.256, 0.248 and
+0.270 where 0.466, 0.473 and 0.448, every bound set by its rule, five tightened by a third or more.
+Lavapipe crashed on an array indexed by the light, kept in its own memory since, and its hits let a
+lamp light its own faces, shut by a half-cell margin, the two devices reading alike. The cost on the
+RTX 4070: the Cornell box's panel 0.17 to 0.22 ms of the bounce and 0.05 to 0.07 of the model pass,
+the guide's table 0.58, 0.76 and 0.99; a dark room at 1280 by 720 at High 0.35 ms for one block, 1.0
+for sixteen and 2.2 for sixty-four, where 7.6 before the tiered marches, the faint lights summed and
+the edge pixels taking the probes. Right: the cause measured before the remedy, the remedy measured
+against a reference that was drawn for it, the rings and the stack mended at their causes and not
+softened, the limit said in the guide, and the cost brought down three ways with each named. One
+thing to know, the owner's eye to say: a probe keeps sixteen levels of how much of a light it sees,
+so a penumbra wide on the screen could show as steps where four probes' blend does not hide them.
+`SceneFieldTests.cs` stands at 791 lines of N 1.3's 800. The suite: 1,665 passed after `gi.slang`
+went past 800 and the package was packed before `glow.slang`, both mended; on lavapipe 380 passed
+and 7 skipped with no validation error. The game's session is asked to measure its room of
+glowstones on this commit, and its 19:16 figures, 1.56 ms of the HDR pass and 0.81 of the bounce in
+sixteen lamps' room, are read against the commit's 1.0. Item 2 has part c left; Verdict 30's census
+of Manor's buffers comes first, then item 5's shares, then c. The game's session read the commit at
+once: parts d and e hold in the game, the lobes 0.01 of the lamp's light or less at both cells and
+every quality and the pool the same from 5 to 80 blocks, its two entries taken off; and two new
+entries, the glow lights losing the GPU device in a closed room seen from twenty blocks off outside,
+three runs of five, Xid 31, a uniform read out of range, which is Verdict 47 and comes before
+everything, and the model pass's 0.67 ms for sixteen lamps where 0.2 was expected, which the part
+keeps as its cost to bring down. At 23:40 the owner looked at the commit: the bounce looks awesome,
+in their word, and with the screen's probes off it is wholly steady and hard, while with them on it
+is smooth but changes as the camera turns, the penumbras' steps and the borders moving with the
+view, noise for a second after a move, and light leaking where none should be; written as item 2's
+part f, after Verdicts 47 and 30 and before c.
+
+Before it, `71050c8f` came, Verdict 46's three things. The table of raylib's examples is written
 again from `HEAD` in a worktree of its own, so nothing of the tree's work in progress reaches it,
 and gains the five programs of this engine's own that were opened by name with no row,
 `shaders_bounce_rooms`, `shaders_cornell_box`, `shaders_reflections`, `shaders_scene_field` and
@@ -40,28 +92,6 @@ for the first time, so Verdicts 31 and 46 are settled, and the soak fails on Man
 and the measure as Verdict 30 asked, its buffers climbing from 499 to 573 in two minutes past a
 bound of 527 with its memory flat, which Verdict 30 carries since as the cause to find; 5.2 waits on
 that soak (Decision 19), and the shares go into the measured file (item 5).
-
-Before it, Verdict 45's script came, before its cause: where a command meets NO_SESSION or
-SESSION_UNREACHABLE the drive script's error says whether the game's process still runs, by tasklist
-on Windows and ps elsewhere with a zombie counted as ended, and, ended, its exit code, known on
-Windows through a PowerShell watcher that holds the process from the open, named as e3d names a
-crash's, with the last crash of the game's exe in Windows' Application log, its faulting module and
-exception code or its .NET exception; the reopen Jelly makes gets a watcher too; tried on Linux by
-killing Slide after its open. Read: the watcher is the one thing on Windows that waits on a process
-e3d started through cmd.exe, the arguments beginning with a slash kept from Git's bash by
-MSYS2_ARG_CONV_EXCL, and the event read is the most recent that names the exe; right, and the cause
-waits on a page that fails again, as the reply says. The stop is not every run's: the engine's
-session read `de36ead1`'s Windows job playing every game through, Slide among them, and `817f7fd4`'s
-still playing, both pages in progress here. Slide's first tap does two things the other games' first
-input does not, its first sound through two streams split left and right and the play screen's first
-draw, which the next failing page's exit code and event sort. ASKS.md with the game's captures,
-NORM.md's counts and SHARED.md's row went in with it. The box lights go on, the lamp's light
-matching the path-traced ring within 3%, the cost next. The Windows pages of `817f7fd4` and the
-game's `de36ead1` came green whole, Slide played through on both, so Verdict 45 is settled, a stop
-once in three with the script naming a fault should it return; and with Windows and macOS green in
-one run the Linux examples job ran for the first time since `22bbf15a` and failed at its first step,
-the table check, EXAMPLES.md out of date, which ended the job before the soak and the measure
-(Verdict 46), so 5.2 waits on a table alone.
 
 Before it, item 2's part b came, the bounce's drift after a move, done, measured first in the game's
 room drawn by the engine alone and the cause read before the remedy: not a coherent change where a
@@ -171,10 +201,10 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
    The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's lobes gone
    at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
-   so b closes with its commit, d gains its lever and e is added. The order of work: d and e
-   together, since one emitter is measured for both and one remedy may answer both, then c, a and b
-   being done; the game's session is asked to measure d at both cells and e along the distance, in
-   ASKS.md as before.
+   so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
+   `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
+   part f. The order of work: f, then c, the others being done; the game's session is asked to
+   measure d at both cells and e along the distance, in ASKS.md as before.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -214,75 +244,57 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    to the edge; measured by the luminance along the view's middle rows across the edge at sunset,
    and a test holds the step across it under a bound.
 
-   **d and e. The lamp's eight lobes, its pool's sharp edge and the pool's loss at a distance have
-   one measured cause: the world's probes carry none of a floor-level emitter's light to the floor
-   beside it, and the screen's probes' sixteen rays carry all of it.** Measured by the game's
-   session with bloom off, the eye straight over one glowstone on grass: at the game's cell of 0.25
-   eight lobes at 0.16 of the lamp's light at two blocks and 0.43 at two and a half at High, Medium
-   0.04 and 0.12, Low four at 0.12 and 0.17, the pool full to two blocks and over by two and a half,
-   25 levels to 4; at a cell of 0.125 the pool itself shrinks to a block and a third and a sixth of
-   its light; from 20 blocks up the pool is round and a little smaller, from 40 it is gone, within a
-   block as well. Then by the engine's session on the engine, the game's ring read at 72 points:
-   with the screen's probes off the floor reads 0.0000 at every radius and either cell, since the
-   probes stand at odd block coordinates and the lowest layer above the floor lies at y 1, level
-   with the block's top, whose +y faces the floor reads through the lean, so the block lies below
-   their horizon, and the layer under them sits inside the floor and holds nothing; the block lifted
-   a block or two off the floor, the world's probes alone carry it, 0.061 at two blocks, 0.020 at
-   three, 0.010 at four, with no eight lobes. So the floor beside a lamp takes its light from the
-   screen probes' sixteen rays alone, twelve of them 18 degrees above the horizon at fixed world
-   azimuths with gaps of 26.6 and 36.9 degrees against the block's 28 at two blocks, so a point
-   catches two, one or none, which is the eight lobes, 0.17 at two blocks and 0.35 at two and a half
-   on the engine against the game's 0.16 and 0.43; the rays reach two blocks, which is the pool's
-   edge; at a cell of 0.125 the reach halves to one block, which is the pool the owner saw shrink,
-   not the lobes mended; and far off no screen probe's ray reaches the lamp, which is the pool gone,
-   from a player's height 114, 54, 15 and 7 thousandths at one to two and a half blocks from 5
-   blocks away and about nothing from 20. More rays or a turned set do not mend it: 64 screen rays
-   take the pool at a block and a half from 0.119 to 0.048, the sixteen having over-counted the
-   block where they hit, and a set turned 22.5 degrees leaves the lobes at 0.16 and 0.29, against a
-   hand estimate of the floor's true light two blocks out of about 0.028. The measure names the
-   remedy this part had last and the cheaper ones moot, since they act on an octahedron that never
-   sees the block: a small emitter as a light inside the bounce. Each emissive instance up to twice
-   the first cascade's probe spacing becomes a box light, its world box, its glow and its mesh's
-   area, flagged in the field's glow cells so a probe's ray that meets it does not take its glow
-   twice, the reflections keeping the glow; its irradiance at a point in closed form from its
-   visible faces' form factors with a field march for visibility, taken at the screen's probes, at
-   the world probes' ray hits so the walls it lights bounce it on, and in the model pass where no
-   screen probe holds a pixel, which is the far pool; the 64 nearest the eye, each with a range from
-   its brightness. Read by review and held to: the flag read at both the screen's and the world's
-   hits, so a lamp's light is counted once at every path; what the 65th lamp does said where the
-   limit is, the probes carrying none of its light to a floor; the model pass's cost bounded by the
-   range and measured on far pixels; the lean's lookup left as it is, the horizon being the grid's
-   and not the lean's; and the truth of it held by a path-traced room as the other eight are held, a
-   lamp on a floor drawn by `gi.reference` and read at the ring, the hand estimate of 0.028 at two
-   blocks its first check, which also tells whether the Cornell box's lamp and the strip, emitters
-   of that size, improve as this expects. Measured against the lobes, the pool from 5 to 80 blocks,
-   the cost in the game's room of many lamps and the eight rooms. The game's light levels carry a
-   far lamp meanwhile, and the owner's eye judges the look (Decision 27). The owner's eye on the
-   tree at 19:30 (Decision 27): the bounce works very well; the box lights' shadows have no penumbra
-   and their edges run in jagged steps, squares of the field's cells; and a stack of glowstones two
-   by two and one high throws a jagged ring of light. Read from the plan, to measure: the lights'
-   visibility is a march through the field that answers hit or miss, so a shadow's edge is the
-   cells' steps and a box with a size throws a shadow with no size, where the field is a distance
-   field and gives the penumbra as one does, the least of the distance over the way along the march
-   against the light's half-size, the cone's share, which the ninth room measures with an occluder
-   set between its lamp and the floor against the reference; and the stack's four emitters stand as
-   four lights that occlude one another at the cell and each count faces the others hide, so
-   emitters whose instances touch are merged into one box light, or a light's march passes the cells
-   its own box holds and the shared faces are left out, which the ninth room measures with a stack
-   of four against the reference. Both are read before the commit, with the cost. At 19:45 the
-   owner's eye again: the shadows and the stack look better, and the light's falloff is banded all
-   over with dark jagged rings, the one thing left before it is done. Read, to measure: rings around
-   a lamp that follow the falloff are the visibility's doing and not the form factor's, which is
-   smooth in the distance; a ray from a floor point to a lamp half a block up runs near the floor
-   for most of its way the farther the point lies, so a penumbra taken as the least distance over
-   the march against the way run reads the floor's own cells as the occluder near its start and
-   darkens by the cells' steps, more the farther out, which is rings in steps; and a share taken at
-   the march's few steps rather than smoothly between them bands the same way. Remedies in order:
-   the march begun a cell off the surface along its normal, as the probes lean, and the surface's
-   own cells never counted; the share from the distance between steps and not at them; and the share
-   held at one where nothing stands nearer than the lamp. Measured in the ninth room along a line
-   from the lamp outward against the reference, the floor's light falling smoothly and within the
-   reference's share at every step, which the test holds.
+   **d and e. The lamp's lobes, its pool's edge and its loss at a distance, done at `98a1edca`.**
+   The measured cause: the world's probes stand above a floor at their spacing and their faces see
+   none of a lamp lying on it, so the floor took the lamp from the screen probes' sixteen rays
+   alone, which made the lobes, the edge at their reach and the loss where no ray reached. The
+   remedy the measure named: a small emitter carried through the bounce as a box light, lit in
+   closed form, seen through the field as a distance field for a soft shadow, touching emitters one
+   light, the cells it paints flagged so no ray counts it twice, the 64 nearest the eye. The ring
+   reads 0.96 to 1.05 of the path-traced reference at every quality with no lobes, the pool the same
+   from five to eighty blocks, the ninth room and the Cornell box and the strip nearer their
+   references by a third and more, 0.35 to 2.2 ms for one to sixty-four lamps. The owner's three
+   looks at the tree, the shadows' steps, the stack's ring and the falloff's bands, were each
+   measured and mended at the cause before the commit; the owner's eye on the commit judges the look
+   (Decision 27). The game's session holds the part in the game, lobes 0.01 or less and the pool the
+   same from 5 to 80 blocks, and measures the cost in its room of sixteen glowstones at 1280 by 720:
+   the bounce 0.85 ms, near the 0.8 expected, and the model pass 0.67 ms where 0.2 was, three times
+   it. What remains of the part is that cost: read where the model pass spends it, the closed form
+   over every light in reach at every pixel where the probes' bits already say which lights a
+   pixel's probes see, or the marches of the pixels no probe holds, and brought down by what the
+   reading names, the pixel reading the lights its probes mark alone first, the game's room the
+   measure, with the next batch after Verdicts 47 and 30.
+
+   **f. The screen's probes make the light depend on the view: as the camera turns, the penumbras'
+   steps and the lit borders move on the screen, the light is noisy for a second after a move and
+   then holds with some noise left, and light leaks where none should reach.** The owner's eye at
+   23:40 on `98a1edca` (Decision 27): with the screen's probes off the bounce is wholly steady under
+   any motion and hard, with no penumbra; with them on it is smooth but the smoothness is the view's
+   and not the world's. Read from the engine as it stands: a screen probe stands on a pixel of a
+   grid fixed to the screen and traces from the surface under it, so as the camera turns the probes
+   sweep across the world's surfaces and sample them in new places, the light blended between four
+   probes eight pixels apart changes with where they fall, the lamps' penumbra a probe keeps in
+   sixteen levels is read between probes that lie on either side of a shadow's edge, which is the
+   steps, and the frame before's light carries the old places' light into the new until it has been
+   averaged out, which is the second of noise; a leak is a probe that sees a lamp or a lit surface
+   from where it stands while the pixel reading it, a step away across a depth edge or a corner,
+   does not. Measured first, in the game's room of lamps and the Cornell box: the camera turned by a
+   quarter of the probes' spacing, by half and by a whole, nothing else moving, and the picture's
+   change read at each, with the screen's probes on and off, so the view's share of the change is a
+   number; the penumbra's edge read along a line across it at each turn, its steps' height and how
+   far they move; the frames after a turn read as part b's test reads them; and the leak read where
+   a lamp stands behind a wall's corner, the lit pixels on the dark side counted. Then the remedies,
+   in the order the measure names, each read against those numbers and the frame's cost: the probes'
+   places kept with the world and not the screen, the grid jittered a share of its spacing each
+   frame and the frame before's light brought forward by where each pixel's surface was, so what a
+   probe samples averages over frames in one place in the world and a turn moves nothing but the
+   picture; the penumbra read from the probes with the pixel's depth and normal weighing each, as
+   the probes' light is weighed, and in more than sixteen levels, or the one or two brightest lamps'
+   penumbra marched at the pixel itself near the eye, where the steps show, which the cost work of d
+   and e left; and a probe's light kept from a pixel across a depth edge or a corner it does not
+   share, which is the leak. The tests hold the picture's change under a quarter turn of the spacing
+   to a bound with the probes on, the penumbra's edge within a pixel of where it stands with them
+   off, and the leak's pixels under a count.
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -361,6 +373,25 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     image on four cores, where the runner draws under five frames a second, if the count here
     differs. The bound stays as it is until the cause says otherwise. Settled when an examples job
     passes the soak, and 5.2 is due with it (Decision 19).
+
+47. **The glow lights lose the GPU device: a glowstone placed in a closed room seen from twenty
+    blocks off outside it throws `ErrorDeviceLost` at the frame's submission within a few frames,
+    three runs of five, none with the glow lights off, the kernel logging NVRM Xid 31, a fault of
+    the memory unit reading through the constant cache.** Measured by the game's session on
+    `98a1edca`, the room of white concrete 11 by 6 by 11 with the eye at the spawn at hour 10; a
+    glowstone in the open, one sealed in a box of three blocks, and the same room with the eye
+    inside it before the lamp lost nothing in the runs tried. A fault through the constant cache is
+    a uniform read out of its range: the lights' uniform of 64 indexed past its count or below zero,
+    the count read where the buffer was not written for that view, or a probe's words of the glow
+    read for a pixel whose probe lies past the grid, which the eye outside the room, every pixel of
+    it on a surface the lamp lights through no probe that sees the lamp, or past the screen's
+    probes, would reach where the eye inside does not. Before everything else: the case built as the
+    engine's own in `GlowLightsTests`, the room, the lamp and the eye twenty blocks off, run under
+    the validation layer with its GPU-assisted checks on, which name an out-of-range read and the
+    shader's line, and until it does, every dynamic index into the lights' uniform and the probes'
+    words clamped to what was written and the count written for every view that reads it; the cause
+    named in the reply with the line. Settled when the case runs twenty times in the engine and in
+    the game with no loss and no validation error, and the test holds it.
 
 ## Decisions
 
@@ -539,45 +570,27 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, parts d and e. A small emitter is carried as a light of its own inside the bounce, as the
-part names: each emissive instance whose world box is no longer than twice the first cascade's probe
-spacing becomes a box light, its box, its glow and its mesh's surface over its box's, the 64 nearest
-the field's eye, each reaching as far as it lights a surface by a fiftieth (`GlowLights`,
-`glow.slang`). The field flags the cells it paints, so a ray of the world's probes or the screen's
-that meets it leaves its glow out, and a reflection keeps it. Its light at a point is the closed
-form over the faces the point lies before, Lambert's sum over their edges by Heitz's fit, within
-four of its half diagonals, and the faces as points past them, within 3% of the closed form there.
-How much of it a point sees is a march through the field taken as a distance field gives a penumbra,
-the way's clearance against the cone the light spans, so the shadows of the 19:30 reading have an
-edge as soft as the light is wide; emitters square to the axes that touch and give off the same
-light are one light of the box around them, the faces they press together left out of its surface,
-so the stack of four throws no ring. The rings of the 19:45 reading were the march's doing as the
-part read them, the floor and the block's own faces counted as what hid it and a share taken at the
-steps: a surface counts only where it lies nearer than the point's plane and the light's own box,
-the share is taken between steps, inside a surface it is read stepping out along the normal, and the
-screen's probes march to the halves of each face from a tenth of a cell off. Measured: every ring
-from 0.8 to 4.2 blocks reads 0.96 to 1.05 of the path-traced reference at every quality, the eighth
-harmonic 0.005 where it was 0.17 and 0.35, and the pool reads the same from five to eighty blocks up
-(`GlowLightsTests`). The ninth room, the block beside a wall half its height and a stack of four,
-reads 0.052, 0.048 and 0.045 of its light where it read 0.200, 0.193 and 0.171, past the wall within
-a tenth of the reference and around the stack within 2%; the Cornell box reads 0.141, 0.129 and
-0.117 where 0.203, 0.180 and 0.183, and the strip 0.256, 0.248 and 0.270 where 0.466, 0.473 and
-0.448, so emitters of that size improve as the part expected, and the other rooms read as they did,
-every bound of `BounceRoomsTests` set by its rule. Render-texture scenes rank the lights from the
-field's eye, which every view has. Lavapipe crashed in the probes' pass on an array indexed by the
-light, which it keeps in memory of its own, and its hits, falling a little outside a lamp's faces
-where the RTX 4070's fell inside, let a lamp light its own faces, 0.018 on a floor that reads 0.044;
-a light gives nothing within half a cell of its box where the point's normal leads out of it, and
-the two devices read alike since. The cost on the RTX 4070, `./e3d command profile` against
-`gi.toggle glow off`: the Cornell box's panel 0.17 to 0.22 ms of the bounce and 0.05 to 0.07 of the
-model pass at 800 by 450, the guide's table 0.58, 0.76 and 0.99 ms with it; a dark room at 1280 by
-720 at High 0.35 ms for one block, 1.0 for sixteen and 2.2 for sixty-four, where marching to every
-light's faces, and from each pixel at an edge, cost sixty-four 7.6. A probe marches to the faces of
-a light only where it gives a sixteenth of the lights' light, to the middles of the fainter ones and
-keeps their light summed, and a pixel at an edge takes the probes around it on any surface, so the
-model pass marches only in a view with no screen probes, a render texture's, its cost bounded there
-by the range. The 65th lamp lights nothing a floor takes from it, which the guide says where it
-gives the limit. The suite: 1,663 passed and two failed, `gi.slang` past 800 lines and the package
-packed before `glow.slang` was, both passing after the marches moved into `glow.slang` and a pack;
-on lavapipe 380 passed and 7 skipped with no validation error. Verdict 30 comes next, before part c,
-and the game's session is asked to measure its room of glowstones on this commit.
+Verdict 47. The cause is the loop nested in the glow lights' march, `glowMarch` in `glow.slang` at
+line 221 of `98a1edca`, which read how far under a wall's edge the way passed at each step inside
+one; inlined into the world probes' trace, `gi_trace`, it lost the RTX 4070's device where their
+rays met the room's walls and marched through them to the lamp. Reproduced on the game's binary in
+three runs of three, and as the engine's own case in `GlowLightsTests`, the room of blocks, the lamp
+and the eye twenty blocks off outside, in two of three, the kernel logging Xid 31 through the
+constant cache at 0x20_00000000 for each. Bisected on a copy of the game's build: the glow light at
+the screen probes' hits and in the model pass are not it, the world probes' hits are, and within
+them the march; with no loop nested, with a hard share, or with the march held to eight steps none
+of three lost it, and with the nested loop held to two steps, or kept from unrolling, the device was
+still lost. The validation layer's GPU-assisted checks found no read of a uniform out of its range
+there and kept the device, and named an older fault besides: `field_stamp` read the last run of a
+brick's shape places as a whole `uint4` up to 12 bytes past its buffer's end, which is sized to
+whole elements since. The depth is read once after the march, at the step that lay deepest inside:
+no loss in twenty runs of the engine's case and twenty of the game's, the test holding it, and the
+rooms read as they did within 0.002 of their light, the Cornell box 0.139 at Low where 0.141. Held
+as the verdict asks besides: a kept glow light's index is clamped; the counts are written from
+zeroed bytes for every view each frame, and the lights' buffer bound where no light bounces, never
+written and so holding what its memory held before, is written as no lights; the probes' words are
+read for the probes a pixel clamps into the grid, as their light is. Found on the way, and the
+reason the bisect's first edits to `glow.slang` changed nothing: the shader cache's key did not
+follow `__exported import`, so an edit to `glow.slang` alone, which `gi.slang` exports, left every
+shader importing `gi` on its old SPIR-V; the key follows it, with a test. The suite: 1,668 passed;
+on lavapipe 463 passed and 7 skipped with no validation error, the scene tests among them.

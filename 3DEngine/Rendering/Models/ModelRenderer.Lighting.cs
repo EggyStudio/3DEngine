@@ -205,7 +205,14 @@ internal sealed partial class ModelRenderer
         {
             var none = _noBounce ??= device.CreateSceneField(1, 1);
             field = built ?? none;
-            _noGiLights ??= device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
+            if (_noGiLights is null)
+            {
+                // Written as no lights at all, the glow lights' count among them, since memory a
+                // buffer is made in holds what was there before.
+                _noGiLights = device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
+                device.Map(_noGiLights).Clear();
+                device.Unmap(_noGiLights);
+            }
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedLightBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedSkyBinding));

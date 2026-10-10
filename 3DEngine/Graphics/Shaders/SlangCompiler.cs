@@ -547,8 +547,10 @@ internal static partial class SlangCompiler
         }
     }
 
-    // The names in `import module.name;`, `import "file.slang";` and `#include "file.slang"`, the
-    // module names as the relative paths Slang looks for them at.
+    // The names in `import module.name;`, `__exported import module.name;`, `import "file.slang";`
+    // and `#include "file.slang"`, the module names as the relative paths Slang looks for them at.
+    // A module imported again for the importer's importers was left out of the key, so a change to
+    // glow.slang alone, which gi.slang exports, left every shader importing gi on its old SPIR-V.
     private static IEnumerable<string> ImportedNames(string source)
     {
         foreach (Match match in ImportPattern().Matches(source))
@@ -570,7 +572,7 @@ internal static partial class SlangCompiler
         return null;
     }
 
-    [GeneratedRegex("""^\s*(?:import\s+(?:(?<module>[\w.]+)|"(?<file>[^"]+)")\s*;|#include\s+"(?<file>[^"]+)")""", RegexOptions.Multiline)]
+    [GeneratedRegex("""^\s*(?:(?:__exported\s+)?import\s+(?:(?<module>[\w.]+)|"(?<file>[^"]+)")\s*;|#include\s+"(?<file>[^"]+)")""", RegexOptions.Multiline)]
     private static partial Regex ImportPattern();
 
     private static string StageName(ShaderStage stage) => stage switch

@@ -134,6 +134,56 @@ public sealed class GlowLightsTests : IDisposable
             far[radius].Mean.Should().BeApproximately(near[radius].Mean, near[radius].Mean * 0.1, $"the floor {radius} blocks out reads alike from forty blocks and from five");
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Glowing_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
+    {
+        // The voxel game's case: a glowstone set in a closed room of white blocks, eleven by six by
+        // eleven inside, the eye twenty blocks off outside, lost the RTX 4070's device within a few
+        // frames in three runs of five, an MMU fault through the constant cache (Xid 31), while the
+        // world probes' rays met the walls and marched through them to the lamp with a loop nested
+        // in the march's own; read once after the march, the device holds.
+        var config = Config.Default.WithWindow("glow room", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 4);
+        SetGlobalIllumination(GlobalIllumination.High);
+        CreateDirectionalLight(new Vector3(-0.4f, -0.8f, -0.3f), Color.White, 3, castsShadows: true);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        lamp.Materials[0].Emissive = new Color(255, 200, 120);
+        lamp.Materials[0].EmissiveIntensity = 4;
+        var camera = new Camera3D(new Vector3(0.5f, 5.6f, 0.5f), new Vector3(16.5f, 7.5f, -15.5f), Vector3.UnitY, 70);
+        var white = new Color(220, 220, 220);
+        void Frames(int count, bool lit)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.SkyBlue);
+                BeginMode3D(camera);
+                DrawModelEx(block, new Vector3(10, 3.5f, -10), Vector3.UnitY, 0, new Vector3(120, 1, 120), new Color(110, 150, 90));
+                // The room's floor and roof, and its four walls around eleven by six by eleven.
+                DrawModelEx(block, new Vector3(16.5f, 4.5f, -15.5f), Vector3.UnitY, 0, new Vector3(13, 1, 13), white);
+                DrawModelEx(block, new Vector3(16.5f, 11.5f, -15.5f), Vector3.UnitY, 0, new Vector3(13, 1, 13), white);
+                DrawModelEx(block, new Vector3(10.5f, 8, -15.5f), Vector3.UnitY, 0, new Vector3(1, 6, 11), white);
+                DrawModelEx(block, new Vector3(22.5f, 8, -15.5f), Vector3.UnitY, 0, new Vector3(1, 6, 11), white);
+                DrawModelEx(block, new Vector3(16.5f, 8, -21.5f), Vector3.UnitY, 0, new Vector3(13, 6, 1), white);
+                DrawModelEx(block, new Vector3(16.5f, 8, -9.5f), Vector3.UnitY, 0, new Vector3(13, 6, 1), white);
+                if (lit)
+                    DrawModelEx(lamp, new Vector3(13.5f, 5.5f, -18.5f), Vector3.UnitY, 0, Vector3.One, new Color(230, 190, 110));
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        Frames(120, false);
+        Frames(240, true);
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        linear.Should().Contain(value => value > 0.1f, "the frame was drawn, which reading it back from a lost device would not give");
+        UnloadModel(block);
+        UnloadModel(lamp);
+    }
+
     // The floor's light, linear, around the block seen straight down from `height` blocks above,
     // the mean of 72 points on each ring and the eighth harmonic of them as a share of the mean.
     private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height)

@@ -182,7 +182,11 @@ public float glowLightDistance(GlowLight light, float3 q)
 // as a sphere tracer's is, from the two distances, so the share does not step with them. Inside a
 // surface the share is half and less by how far under its edge the way passes, read by stepping out
 // along p's normal, since the distance to its nearest face reads no deeper than half a thin wall
-// and let a fifteenth of the light through one. The cone is kept within the step's height over p's
+// and let a fifteenth of the light through one. That is read once, after the march, at the step
+// that lay deepest inside: read at each step, a loop inside the march's own, it lost the RTX 4070's
+// device where the world probes' rays met a closed room's walls with a lamp inside, an MMU fault
+// through the constant cache (Xid 31) that the validation layer's GPU-assisted checks found no
+// read out of range for and lavapipe never met. The cone is kept within the step's height over p's
 // plane, below which glowLightIrradiance has already cut the box's light. Where nothing stands
 // nearer, or the field does not hold p, all of it.
 float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell, float3 target, float radius, float lift)
@@ -195,6 +199,11 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     float seen = 1.0;
     float before = 1e20;
     float t = cell * 0.5;
+    // The step that lay deepest inside a surface, its point, cascade and cone.
+    float deepest = 0.0;
+    float3 deepAt = float3(0.0);
+    int deepIn = 0;
+    float deepCone = 1.0;
     for (int i = 0; i < 64 && t < end; i++)
     {
         float3 q = from + way * t;
@@ -208,31 +217,37 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
         {
             float y = d > 0.0 ? d * d / (2.0 * before) : 0.0;
             float cone = max(min(radius * max(t - y, 0.0) / total, height), step * 0.25);
-            // Outside a surface, the share is half and more by how far the way passes from it;
-            // inside one, half and less by how far under its edge the way passes, read by stepping
-            // out of it along p's normal, since the distance to its nearest face reads no deeper
-            // than half a thin wall and let the light through it.
-            float past;
+            // Outside a surface, the share is half and more by how far the way passes from it.
             if (d > 0.0)
-                past = sqrt(max(d * d - y * y, 0.0));
-            else
             {
-                float under = 0.0;
-                for (int out = 0; out < 8 && under < cone; out++)
-                {
-                    float inside = fieldDistanceIn(field, info, c, q + n * under);
-                    if (inside >= 0.0)
-                        break;
-                    under += max(-inside, step * 0.5);
-                }
-                past = -under;
+                seen = min(seen, saturate(0.5 + 0.5 * sqrt(max(d * d - y * y, 0.0)) / cone));
+                if (seen <= 0.0)
+                    break;
             }
-            seen = min(seen, saturate(0.5 + 0.5 * past / cone));
-            if (seen <= 0.0)
-                break;
+            else if (d < deepest)
+            {
+                deepest = d;
+                deepAt = q;
+                deepIn = c;
+                deepCone = cone;
+            }
         }
         before = max(d, 1e-4);
         t += max(d, step * 0.5);
+    }
+    // Inside one, half and less by how far under its edge the way passes, stepped out along p's normal.
+    if (deepest < 0.0 && seen > 0.0)
+    {
+        float step = info.cascades[deepIn].originAndCell.w;
+        float under = 0.0;
+        for (int out = 0; out < 8 && under < deepCone; out++)
+        {
+            float inside = fieldDistanceIn(field, info, deepIn, deepAt + n * under);
+            if (inside >= 0.0)
+                break;
+            under += max(-inside, step * 0.5);
+        }
+        seen = min(seen, saturate(0.5 - 0.5 * under / deepCone));
     }
     return seen;
 }
