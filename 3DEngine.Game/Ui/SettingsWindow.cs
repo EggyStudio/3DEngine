@@ -53,7 +53,7 @@ public sealed class SettingsWindow
             : "Looking at nothing within reach");
         var renderer = game.Renderer;
         ImGui.TextUnformatted($"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh");
-        ImGui.TextUnformatted($"{renderer.Sections} sections in {renderer.Meshes} meshes, {renderer.Lamps} lamps");
+        ImGui.TextUnformatted($"{renderer.Sections} sections drawn as a mesh each, {renderer.Lamps} lamps");
         ImGui.TextUnformatted($"{renderer.Draws} draws of {renderer.Triangles:N0} triangles");
     }
 

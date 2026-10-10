@@ -27,7 +27,7 @@ public static class GameCommands
         return $"feet at {at.X:0.00}, {at.Y:0.00}, {at.Z:0.00}, facing {player.Heading:0} and pitched {player.Pitch * 180 / MathF.PI:0}, "
             + $"{(player.Flying ? "flying" : player.Body.OnGround ? "on the ground" : "in the air")}, {target}; "
             + $"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh; "
-            + $"{renderer.Sections} sections in {renderer.Meshes} meshes, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
+            + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
             + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, holding {Blocks.Get(game.Hotbar.Current).Key}";
     }
 

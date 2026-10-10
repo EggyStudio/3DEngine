@@ -6,25 +6,24 @@ using static Engine.Engine3D;
 namespace Engine.Game;
 
 /// <summary>
-/// Keeps a mesh for each surface each section shows, meshes sections again as the world changes,
-/// and draws those within the render distance with the blocks that give off light.
+/// Keeps a mesh for each section, meshes sections again as the world changes, and draws those
+/// within the render distance with the blocks that give off light.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The scene's distance field, which the light that bounces is traced through, takes a mesh in
-/// once it has been drawn unchanged in one place for eight frames, and a mesh with new vertices is
-/// a new mesh to it. Until then it stands in the field as a few boxes in its color and gives off
-/// no light. Three things here follow from that. A surface whose faces come out of meshing the
-/// same as before keeps its mesh, so an edit leaves the section's other surfaces settled. A block
-/// that gives off light is a cube drawn on its own, copies of one mesh in one instanced draw, so
-/// building beside a lamp does not put the lamp out for those frames. And sections are drawn by
-/// distance alone and not culled to the view, since a mesh left out of a frame leaves the field
-/// and the light it gave or blocked goes with it until it settles again.
+/// A section is one mesh in one white material, each block's color in its vertices, which the
+/// scene's distance field reads as the model pass does, so the light that bounces takes each
+/// block's color from the mesh it shares with its neighbors. A section meshed again with the same
+/// faces keeps its mesh and takes only new colors, which keep its vertex array, the field knowing a
+/// mesh by that, so a change of light leaves the section settled in the field.
 /// </para>
 /// <para>
-/// Every section within the render distance is drawn each frame, through the scene field's gather
-/// and each pass's culling, so the render distance sets much of the frame's cost, which
-/// <see cref="Draws"/> counts.
+/// A material's light is one for its whole draw, so a block that gives off light is a cube drawn
+/// on its own, copies of one mesh in one instanced draw for each kind. Sections are drawn by
+/// distance alone and not culled to the view, since a mesh left out of a frame leaves the field
+/// and the light it gave or blocked goes with it until it settles again. Every section within the
+/// render distance is drawn each frame, through the field's gather and each pass's culling, so the
+/// render distance sets much of the frame's cost, which <see cref="Draws"/> counts.
 /// </para>
 /// </remarks>
 public sealed class ChunkRenderer : IDisposable
@@ -32,20 +31,25 @@ public sealed class ChunkRenderer : IDisposable
     private sealed class SectionMeshes(Matrix4x4 transform)
     {
         public readonly Matrix4x4 Transform = transform;
-        public readonly Dictionary<int, (ModelMesh Mesh, ModelVertex[] Vertices, uint[] Indices, Color[] Colors)> Surfaces = [];
+        public ModelMesh Mesh;
+        public ModelVertex[] Vertices = [];
+        public uint[] Indices = [];
+        public Color[] Colors = [];
         public readonly List<(BlockId Block, Matrix4x4 At)> Emitters = [];
     }
+
+    // Every section's faces are drawn with this, their colors in their vertices.
+    private static readonly ModelMaterial Terrain = new(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, Roughness = 0.9f };
 
     private readonly Dictionary<SectionKey, SectionMeshes> _sections = [];
     private readonly SectionMesher _mesher = new();
     private readonly ModelMesh _cube = GenMeshCube(1, 1, 1);
     private readonly List<Matrix4x4>[] _emitterDraws = [.. Blocks.All.Select(_ => new List<Matrix4x4>())];
     private readonly List<SectionKey> _queue = [];
-    private readonly List<int> _gone = [];
-    private ModelMaterial[] _materials = [];
+    private ModelMaterial[] _lamps = [];
     private float _glowScale = 1;
 
-    public ChunkRenderer() => BuildMaterials();
+    public ChunkRenderer() => BuildLamps();
 
     /// <summary>What the light of every emissive surface is multiplied by.</summary>
     public float GlowScale
@@ -55,7 +59,7 @@ public sealed class ChunkRenderer : IDisposable
         {
             if (value == _glowScale) return;
             _glowScale = value;
-            BuildMaterials();
+            BuildLamps();
         }
     }
 
@@ -66,9 +70,8 @@ public sealed class ChunkRenderer : IDisposable
 
     public int Lamps { get; private set; }
 
+    /// <summary>Sections holding faces or lamps.</summary>
     public int Sections => _sections.Count;
-
-    public int Meshes => _sections.Values.Sum(s => s.Surfaces.Count);
 
     /// <summary>Whether faces are darkened by light levels, which takes effect as sections are shaded again.</summary>
     public bool LightLevels
@@ -84,7 +87,7 @@ public sealed class ChunkRenderer : IDisposable
         set => _mesher.CornerShade = value;
     }
 
-    private void BuildMaterials() => _materials = [.. Surfaces.All.Select(s => s.Material(_glowScale))];
+    private void BuildLamps() => _lamps = [.. Surfaces.All.Select(s => s.Material(_glowScale))];
 
     /// <summary>
     /// Meshes every section an edit changed, then those whose shading changed and those that loaded,
@@ -125,7 +128,7 @@ public sealed class ChunkRenderer : IDisposable
         }
         if (!_mesher.Mesh(world, key)) return false;
 
-        if (_mesher.Shown.Count == 0 && _mesher.Emitters.Count == 0)
+        if (_mesher.Vertices.Count == 0 && _mesher.Emitters.Count == 0)
         {
             Forget(key);
             return true;
@@ -133,38 +136,24 @@ public sealed class ChunkRenderer : IDisposable
         if (!_sections.TryGetValue(key, out var entry))
             _sections[key] = entry = new SectionMeshes(Matrix4x4.CreateTranslation(key.Origin));
 
-        _gone.Clear();
-        foreach (var surface in entry.Surfaces.Keys)
-            if (!_mesher.Shown.Contains(surface)) _gone.Add(surface);
-        foreach (var surface in _gone)
+        var vertices = CollectionsMarshal.AsSpan(_mesher.Vertices);
+        var indices = CollectionsMarshal.AsSpan(_mesher.Indices);
+        var colors = CollectionsMarshal.AsSpan(_mesher.Colors);
+        if (vertices.SequenceEqual(entry.Vertices) && indices.SequenceEqual(entry.Indices))
         {
-            UnloadMesh(entry.Surfaces[surface].Mesh);
-            entry.Surfaces.Remove(surface);
-        }
-
-        foreach (var surface in _mesher.Shown)
-        {
-            var faces = _mesher.Of(surface);
-            var vertices = CollectionsMarshal.AsSpan(faces.Vertices);
-            var indices = CollectionsMarshal.AsSpan(faces.Indices);
-            var colors = CollectionsMarshal.AsSpan(faces.Colors);
-            if (entry.Surfaces.TryGetValue(surface, out var old))
+            if (!colors.SequenceEqual(entry.Colors))
             {
-                if (vertices.SequenceEqual(old.Vertices) && indices.SequenceEqual(old.Indices))
-                {
-                    if (colors.SequenceEqual(old.Colors)) continue;
-                    // New colors alone keep the mesh's vertex array, which the scene's distance
-                    // field knows the mesh by, so a change of light leaves the mesh settled in it.
-                    UpdateMeshBuffer<Color>(old.Mesh, 3, colors, 0);
-                    entry.Surfaces[surface] = old with { Colors = colors.ToArray() };
-                    continue;
-                }
-                UnloadMesh(old.Mesh);
+                UpdateMeshBuffer<Color>(entry.Mesh, 3, colors, 0);
+                entry.Colors = colors.ToArray();
             }
+        }
+        else
+        {
+            if (entry.Mesh.IsValid) UnloadMesh(entry.Mesh);
             // The store keeps the arrays it is given until the frame uploads them, so each mesh has
             // arrays of its own that nothing changes afterward.
-            var (v, i, c) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
-            entry.Surfaces[surface] = (UploadMesh(v, i, c, null), v, i, c);
+            (entry.Vertices, entry.Indices, entry.Colors) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
+            entry.Mesh = entry.Vertices.Length > 0 ? UploadMesh(entry.Vertices, entry.Indices, entry.Colors, null) : default;
         }
 
         entry.Emitters.Clear();
@@ -178,8 +167,7 @@ public sealed class ChunkRenderer : IDisposable
 
     private void Forget(SectionKey key)
     {
-        if (!_sections.Remove(key, out var entry)) return;
-        foreach (var (mesh, _, _, _) in entry.Surfaces.Values) UnloadMesh(mesh);
+        if (_sections.Remove(key, out var entry) && entry.Mesh.IsValid) UnloadMesh(entry.Mesh);
     }
 
     /// <summary>Lets go of the meshes of a column's sections, as it unloads.</summary>
@@ -206,11 +194,11 @@ public sealed class ChunkRenderer : IDisposable
         {
             int dx = key.X - cx, dz = key.Z - cz;
             if (dx * dx + dz * dz > reach) continue;
-            foreach (var (surface, (mesh, _, _, _)) in entry.Surfaces)
+            if (entry.Mesh.IsValid)
             {
-                DrawMesh(mesh, _materials[surface], entry.Transform);
+                DrawMesh(entry.Mesh, Terrain, entry.Transform);
                 draws++;
-                triangles += mesh.TriangleCount;
+                triangles += entry.Mesh.TriangleCount;
             }
             foreach (var (block, at) in entry.Emitters) _emitterDraws[(int)block].Add(at);
         }
@@ -219,7 +207,7 @@ public sealed class ChunkRenderer : IDisposable
         {
             var list = _emitterDraws[block];
             if (list.Count == 0) continue;
-            DrawMeshInstanced(_cube, _materials[Blocks.All[block].Top], CollectionsMarshal.AsSpan(list));
+            DrawMeshInstanced(_cube, _lamps[Blocks.All[block].Top], CollectionsMarshal.AsSpan(list));
             draws++;
             triangles += _cube.TriangleCount * list.Count;
             lamps += list.Count;

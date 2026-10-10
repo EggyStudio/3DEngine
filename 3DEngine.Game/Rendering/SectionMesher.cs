@@ -3,24 +3,26 @@ using System.Numerics;
 namespace Engine.Game;
 
 /// <summary>
-/// Turns a section into the faces of its blocks that touch air, one list of faces for each surface,
-/// each corner shaded by the light and the blocks around it, and the places of the blocks that give
-/// off light, which are drawn apart.
+/// Turns a section into the faces of its blocks that touch air, each corner colored by its surface
+/// and shaded by the light and the blocks around it, and the places of the blocks that give off
+/// light, which are drawn apart.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Each face is two triangles of its own, so a flat floor of 256 blocks is 512 triangles, where
 /// greedy meshing would join it into a few. The faces are kept apart so a texture can be laid on
-/// each later, and so each corner keeps a shade of its own.
+/// each later, and so each corner keeps a color of its own. The whole section is one mesh, its
+/// surfaces told apart by their vertices' colors, which the scene's distance field reads as each
+/// block's color as the model pass does.
 /// </para>
 /// <para>
 /// A corner is shaded as Minecraft's smooth lighting shades it, from the four cells in front of the
 /// face that meet at the corner: the one the face looks into, the two beside it and the one across
 /// the corner. Its light is the average of those that are open, and its occlusion counts those that
 /// are solid, so a corner where two blocks meet is darker, and both come out of the same four reads.
-/// The shade is the vertex's color, which multiplies the surface's color in the model pass. The
-/// scene's distance field does not read it, so the light that bounces takes the surface's own color
-/// and the shade decides how much of that light a face shows.
+/// The shade multiplies the surface's color into the vertex's, so a face where neither the sky nor
+/// a lamp reaches is drawn nearly black and sends nearly none of the light that bounces on, as an
+/// unlit cave in Minecraft shows nothing.
 /// </para>
 /// <para>
 /// The mesher reads the section and the blocks and light of the 26 sections around it into one
@@ -33,18 +35,9 @@ public sealed class SectionMesher
 {
     private const int P = Section.Size + 2;
 
-    /// <summary>The faces of one surface, as the vertices, colors and triangle indices of a mesh.</summary>
-    public sealed class Faces
-    {
-        public readonly List<ModelVertex> Vertices = [];
-        public readonly List<Color> Colors = [];
-        public readonly List<uint> Indices = [];
-    }
-
     private readonly ushort[] _blocks = new ushort[P * P * P];
     private readonly byte[] _light = new byte[P * P * P];
     private readonly Section?[] _around = new Section?[27];
-    private readonly Faces[] _faces = [.. Surfaces.All.Select(_ => new Faces())];
 
     /// <summary>Whether a face's corners are darkened where neither the sky nor a block's light reaches them.</summary>
     public bool LightLevels { get; set; } = true;
@@ -52,13 +45,17 @@ public sealed class SectionMesher
     /// <summary>Whether a face's corners are darkened where blocks meet around them.</summary>
     public bool CornerShade { get; set; } = true;
 
-    /// <summary>The surfaces the last section showed a face of.</summary>
-    public List<int> Shown { get; } = [];
+    /// <summary>The last section's faces, as the vertices of a mesh.</summary>
+    public List<ModelVertex> Vertices { get; } = [];
+
+    /// <summary>The color of each of <see cref="Vertices"/>, its surface's darkened by its shade.</summary>
+    public List<Color> Colors { get; } = [];
+
+    /// <summary>The triangles of <see cref="Vertices"/>.</summary>
+    public List<uint> Indices { get; } = [];
 
     /// <summary>The blocks of the last section that give off light, by their index in it.</summary>
     public List<(int Index, BlockId Block)> Emitters { get; } = [];
-
-    public Faces Of(int surface) => _faces[surface];
 
     // The six directions in the order +x, -x, +y, -y, +z, -z, each face's corners counterclockwise
     // seen from outside the block, which is the side the model pass draws, with their texture
@@ -88,8 +85,8 @@ public sealed class SectionMesher
     // two cells beside it toward the corner and to the cell across the corner.
     private static readonly int[,] Side1 = new int[6, 4], Side2 = new int[6, 4], Across = new int[6, 4];
 
-    // How much of its light a corner keeps for each count of the three cells around it left open,
-    // as Minecraft's corners darken.
+    // How much of its color a corner keeps on the screen for each count of the three cells around it
+    // left open, as Minecraft's corners darken.
     private static readonly float[] Occlusion = [0.45f, 0.62f, 0.8f, 1];
 
     static SectionMesher()
@@ -113,20 +110,28 @@ public sealed class SectionMesher
 
     private static int Pad(int x, int y, int z) => ((y + 1) * P + z + 1) * P + x + 1;
 
-    /// <summary>The share of its light a corner keeps at a light level from 0 to 15, Minecraft's curve, with a little kept in the dark.</summary>
-    public static float Brightness(float level) => 0.05f + 0.95f * MathF.Pow(0.8f, Lighting.Max - level);
+    /// <summary>
+    /// The share of the light reaching it that a face keeps at a light level from 0 to 15, in linear
+    /// light, nearly all of it down to a few levels from dark and next to none at 0.
+    /// </summary>
+    /// <remarks>
+    /// The light that bounces brings a lamp's falloff itself, so the level marks where no light
+    /// reaches rather than dimming the light by distance a second time, as Minecraft's own curve
+    /// would, which keeps a quarter at level 9 on the screen and a twentieth of the light.
+    /// </remarks>
+    public static float Lit(float level)
+    {
+        var dark = 1 - level / Lighting.Max;
+        return 1 - 0.98f * dark * dark * dark * dark;
+    }
 
-    /// <summary>Meshes a section into <see cref="Shown"/>, <see cref="Of"/> and <see cref="Emitters"/>.</summary>
+    /// <summary>Meshes a section into <see cref="Vertices"/>, <see cref="Colors"/>, <see cref="Indices"/> and <see cref="Emitters"/>.</summary>
     /// <returns>False when one of the eight columns around it is not loaded, so its edges cannot be told yet, and nothing is meshed.</returns>
     public bool Mesh(VoxelWorld world, SectionKey key)
     {
-        foreach (var surface in Shown)
-        {
-            _faces[surface].Vertices.Clear();
-            _faces[surface].Colors.Clear();
-            _faces[surface].Indices.Clear();
-        }
-        Shown.Clear();
+        Vertices.Clear();
+        Colors.Clear();
+        Indices.Clear();
         Emitters.Clear();
 
         for (int dz = -1; dz <= 1; dz++)
@@ -164,9 +169,8 @@ public sealed class SectionMesher
 
     private void Add(int surface, int face, int at, Vector3 block)
     {
-        var faces = _faces[surface];
-        if (faces.Vertices.Count == 0) Shown.Add(surface);
-        var first = (uint)faces.Vertices.Count;
+        var color = Surfaces.All[surface].Color;
+        var first = (uint)Vertices.Count;
         var front = at + Steps[face];
         Span<int> occlusion = stackalloc int[4];
 
@@ -182,16 +186,17 @@ public sealed class SectionMesher
             if (!closed2) Gather(side2, ref sky, ref lit, ref open);
             if (!closed3 && !(closed1 && closed2)) Gather(across, ref sky, ref lit, ref open);
 
-            var shade = (LightLevels ? Brightness((float)Math.Max(sky, lit) / open) : 1) * (CornerShade ? Occlusion[occlusion[i]] : 1);
-            var value = (byte)MathF.Round(255 * shade);
-            faces.Vertices.Add(new ModelVertex(block + Corners[face][i], Normals[face], Uvs[face][i]));
-            faces.Colors.Add(new Color(value, value, value));
+            // The light kept is linear and the vertex's color sRGB, so it is encoded as the color is.
+            var kept = LightLevels ? MathF.Pow(Lit((float)Math.Max(sky, lit) / open), 1 / 2.2f) : 1;
+            var shade = kept * (CornerShade ? Occlusion[occlusion[i]] : 1);
+            Vertices.Add(new ModelVertex(block + Corners[face][i], Normals[face], Uvs[face][i]));
+            Colors.Add(new Color((byte)MathF.Round(color.R * shade), (byte)MathF.Round(color.G * shade), (byte)MathF.Round(color.B * shade)));
         }
 
         // The quad is split along the diagonal whose corners are less closed, so a closed corner
         // darkens one triangle softly rather than both along a line. The choice follows the blocks
         // alone, so a change of light keeps the triangles and changes only the colors.
-        var indices = faces.Indices;
+        var indices = Indices;
         if (occlusion[0] + occlusion[2] < occlusion[1] + occlusion[3])
         {
             indices.Add(first + 1);

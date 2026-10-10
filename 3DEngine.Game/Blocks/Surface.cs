@@ -1,21 +1,19 @@
 namespace Engine.Game;
 
 /// <summary>
-/// The look of a block's face, which is drawn as a material of its own, so the light that bounces
-/// takes its color and its glow from it.
+/// The look of a block's face: its color, which a section's mesh carries in the face's vertices,
+/// and for a block that gives off light, the light, which its cube is drawn with as a material.
 /// </summary>
 /// <remarks>
-/// The scene's distance field reads a draw's material color and emission and not its vertices'
-/// colors, so a chunk is drawn as one mesh for each surface it shows rather than one mesh colored
-/// at its vertices. A texture added to a surface later keeps that, its average color being what
-/// the field reads.
+/// A material's light is one for its whole draw, so a surface that gives off light is drawn as
+/// cubes of its own rather than as faces of a section, whose one material lights nothing.
 /// </remarks>
 public sealed record Surface(int Id, string Name, Color Color, float Roughness, Color Emissive, float Glow)
 {
     /// <summary>Whether the surface gives off light of its own.</summary>
     public bool Emits => Glow > 0;
 
-    /// <summary>The material a face of this surface is drawn with, its glow scaled by <paramref name="glowScale"/>.</summary>
+    /// <summary>The material a lamp's cube of this surface is drawn with, its glow scaled by <paramref name="glowScale"/>.</summary>
     public ModelMaterial Material(float glowScale) => new(Color)
     {
         AlphaMode = MaterialAlphaMode.Opaque,

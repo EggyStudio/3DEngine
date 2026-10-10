@@ -113,7 +113,7 @@ public sealed class VoxelGame : IDisposable
         var eye = Player.Eye;
         var (sky, _) = World.GetLight((int)MathF.Floor(eye.X), (int)MathF.Floor(eye.Y), (int)MathF.Floor(eye.Z));
         _eyeSky += (sky - _eyeSky) * (1 - MathF.Exp(-4 * seconds));
-        Sky.Shelter = SkyDims ? SectionMesher.Brightness(_eyeSky) : 1;
+        Sky.Shelter = SkyDims ? SectionMesher.Lit(_eyeSky) : 1;
         Sky.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);

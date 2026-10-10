@@ -55,22 +55,21 @@ light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `vo
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
 `voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
 reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or
-off, `voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name. The engine's own
-`gi.*` and `field.*` commands show and measure the light that bounces.
+off, `voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name.
+The engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
 
 ## How the world is drawn
 
-The scene's distance field, which the light is traced through, takes a draw's material color and
-emission as the color and glow of what it holds, and not its vertices' colors. So a section of
-16 blocks a side is meshed into one mesh for each surface it shows, a grass top, a dirt side, red
-concrete, each drawn with that surface's material, and a surface whose faces are unchanged by an
-edit keeps its mesh. Faces between two blocks are left out, and each face that remains is two
-triangles of its own, since greedy meshing is not written yet.
+A section of 16 blocks a side is one mesh in one white material, each block's color in its
+faces' vertices. The scene's distance field, which the light is traced through, reads those
+colors as the model pass does, so the light that bounces takes each block's color. Faces between
+two blocks are left out, and each face that remains is two triangles of its own, since greedy
+meshing is not written yet. A section meshed again with the same faces keeps its mesh and takes
+only new colors.
 
 A block that gives off light (glowstone, a sea lantern, shroomlight, magma) is drawn as a cube of
-its own, every cube of one kind in one instanced draw. The field holds a mesh with new vertices
-as a few boxes that give off no light for its first eight frames, so a lamp inside a section's
-mesh would go out each time a block beside it changed. Drawn apart, it stays lit.
+its own, every cube of one kind in one instanced draw, because a material's light is one for its
+whole draw and a section's one material gives off none.
 
 Sections are drawn by their distance from the player and are not culled to the view, because a
 mesh left out of a frame leaves the field, and the light it gave or the shadow it cast in the
@@ -87,11 +86,13 @@ broken.
 
 Each corner of a face is shaded from the four cells in front of the face that meet at it, as
 Minecraft's smooth lighting is. Its light is the average of the open ones, its occlusion counts
-the solid ones, and the shade is the vertex's color, which darkens the face where neither the
-sky nor a lamp reaches it and where blocks meet. The scene's distance field does not read vertex
-colors, so the light that bounces still takes each surface's own color, and the shade decides how
-much of that light a face shows. A change of light gives a mesh new colors and keeps its vertices,
-which the field knows it by, so relighting leaves the meshes settled in the field. Each quad is
+the solid ones, and the shade darkens the block's color in the vertex, where neither the sky nor
+a lamp reaches it and where blocks meet. A level keeps nearly all of the color down to a few
+levels from dark and next to none at 0, because the light that bounces brings a lamp's falloff
+itself, where Minecraft's own curve, which is its only light, dims by distance. The field reads
+the darkened color too, so an unlit cave sends on nearly none of the light that bounces. A change of
+light gives a mesh new colors and keeps its vertices, which the field knows it by, so relighting
+leaves the meshes settled in the field. Each quad is
 split along the diagonal its occlusion favors, so a shaded corner darkens one triangle softly.
 
 Every surface also reflects the sky, and the engine does not occlude that reflection, so a cave
