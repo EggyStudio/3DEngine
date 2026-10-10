@@ -81,9 +81,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var handlesEveryTen = new List<string>();
         // How long the app before took, which says on a runner where a hundred apps' time goes.
         var took = "";
-        // The twenty-first app's handles at each step of its life, which a failure names, so a
-        // handle kept for each app is placed between two steps of its making or its closing.
-        var steps = new Steps();
+        // The handles of the 21st, 31st, 41st and 51st apps at each step of their lives, which a
+        // failure names, so a handle kept for each app is placed between two steps of its making or
+        // its closing, read over several apps since what one app kept swung from 2 to 5 between
+        // runs on Windows.
+        var steps = new Dictionary<int, Steps>();
         HeapCensus? censusAt20 = null;
         IReadOnlyDictionary<DeviceObjects.Kind, long>? objectsAt20 = null;
         string? grown = null;
@@ -99,16 +101,17 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // toward a limit showing before the death.
             Console.WriteLine($"[leak test] app {i} of at most 100, after the last {Held()}{took}");
             var clock = Stopwatch.StartNew();
-            if (i == 21) steps.Follow();
+            var followed = i is 21 or 31 or 41 or 51 ? steps[i] = new Steps(i) : null;
+            followed?.Follow();
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
             var made = clock.Elapsed;
             app.BeginFrame();
             app.EndFrame();
-            if (i == 21) steps.Mark("drawn");
+            followed?.Mark("drawn");
             var drawn = clock.Elapsed;
             app.Shutdown();
-            if (i == 21) steps.End();
+            followed?.End();
             took = $", which took {clock.Elapsed.TotalMilliseconds:0} ms, {made.TotalMilliseconds:0} to make, with what the test draws, " +
                 $"{(drawn - made).TotalMilliseconds:0} for a frame and {(clock.Elapsed - drawn).TotalMilliseconds:0} to close";
             // The handles are held from the twentieth app on, so a handle kept for each app fails
@@ -119,7 +122,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (i > 20)
                 handles.Should().BeLessThanOrEqualTo(handlesAt20 + HandleAllowance,
                     $"a closed app gives back the handles it took, {i} apps leaving {handles} where 20 left {handlesAt20}{Environment.NewLine}" +
-                    $"the 21st app's handles by step, {steps}{Environment.NewLine}" +
+                    $"the handles by step, {string.Join("; ", steps.Values)}{Environment.NewLine}" +
                     $"the handles after every ten apps, {string.Join(", ", handlesEveryTen)}{Environment.NewLine}" +
                     $"the threads after every ten apps, {string.Join(", ", threads)}{Environment.NewLine}");
             if (i % 10 != 0) continue;
@@ -169,15 +172,25 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 
     // An app's handles at each step of its life, read where its log says the step was taken, each
     // step's change from the one before written as it comes and kept for a failure's message.
-    private sealed class Steps
+    private sealed class Steps(int app)
     {
-        // The lines that mark a step, by how each begins, and the step's name.
+        // The lines that mark a step, by how each begins, and the step's name. Between the device's
+        // making and ImGui's every plugin the app builds is a step of its own, by the line that says
+        // it was built, since what was read as ImGui's making, 328 handles on Windows, was every
+        // plugin built after the device, the renderer's 35 shaders, the physics' workers and the
+        // behaviors' compiler among them, ImGui's own context last. ImGui's font atlas, with its
+        // upload's staging buffer and fence, and its pipeline are made in the first frame that
+        // draws it, so they split the frame's step where the app draws a window.
         private static readonly (string Line, string Step)[] Marks =
         [
             ("Config {", "begun"), ("Step 1/6: Vulkan instance created", "instance made"), ("Step 4/6: Logical device created", "device made"),
-            ("Graphics device initialized", "device ready"), ("ImGui initialized", "ImGui made"), ("Startup stage complete", "started"),
+            ("Graphics device initialized", "device ready"), ("Renderer initialized", "renderer's shaders loaded"),
+            ("SdlImGuiPlugin: Creating ImGui context", "before ImGui"), ("ImGui initialized", "ImGui made"), ("Startup stage complete", "started"),
+            ("ImGui font atlas uploaded", "ImGui's atlas uploaded"), ("ImGui pipeline created", "ImGui's pipeline made"),
             ("Running the Cleanup stage", "closing"), ("Graphics device disposed", "device gone"), ("Cleanup stage complete", "closed"),
         ];
+
+        private const string Built = "Plugin built: ";
 
         private readonly List<string> _taken = [];
         private int _first, _last;
@@ -189,6 +202,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             {
                 foreach (var (line, step) in Marks)
                     if (message.StartsWith(line, StringComparison.Ordinal)) Mark(step);
+                if (message.StartsWith(Built, StringComparison.Ordinal))
+                    Mark($"{message[Built.Length..].Split(' ')[0]} built");
             };
         }
 
@@ -197,7 +212,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             var now = Handles();
             var taken = $"{step} {now - _last:+0;-0;0}";
             _taken.Add(taken);
-            Console.WriteLine($"[leak test] the 21st app's handles, {taken} to {now}");
+            Console.WriteLine($"[leak test] app {app}'s handles, {taken} to {now}");
             _last = now;
         }
 
@@ -216,7 +231,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             _taken.Add($"{_last - _first:+0;-0;0} kept");
         }
 
-        public override string ToString() => _taken.Count == 0 ? "not read" : string.Join(", ", _taken);
+        public override string ToString() => $"app {app}: {(_taken.Count == 0 ? "not read" : string.Join(", ", _taken))}";
     }
 
     private static int Handles()

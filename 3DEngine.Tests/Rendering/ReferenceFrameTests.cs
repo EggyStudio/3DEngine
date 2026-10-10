@@ -20,7 +20,7 @@ namespace Engine.Tests.Rendering;
 /// A missing reference is written from the frame and the test fails, asking for it to be looked
 /// at and committed. Setting <c>E3D_WRITE_REFERENCES=1</c> writes every reference again after a
 /// change meant to alter frames. A frame that does not match is written with its difference into
-/// <c>reference-failures</c> beside the test assembly.
+/// <c>TestResults/reference-failures</c> of the test project, with the reference beside them.
 /// </para>
 /// </remarks>
 [Collection("Engine3D")]
@@ -111,12 +111,46 @@ public sealed partial class ReferenceFrameTests : IDisposable
 
         var share = (double)differing / (frame.Width * frame.Height);
         if (share <= allowed) return;
-        var failures = Path.Combine(AppContext.BaseDirectory, "reference-failures");
+        // Under the test project's TestResults, which a failing job of the workflow uploads, so
+        // the pictures of a device that draws apart can be looked at, where beside the assembly no
+        // artifact carried them.
+        var failures = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(source))!, "TestResults", "reference-failures");
         Directory.CreateDirectory(failures);
         ExportImage(frame, Path.Combine(failures, name + ".png"));
         ExportImage(difference, Path.Combine(failures, name + ".difference.png"));
-        Assert.Fail($"{share:P1} of the pixels differ from {reference}, more than {allowed:P0}, {WhereDiffering(difference)}. "
-                    + $"The frame and its difference are in {failures}.");
+        ExportImage(expected, Path.Combine(failures, name + ".reference.png"));
+        Assert.Fail($"{share:P1} of the pixels differ from {reference}, more than {allowed:P0}, {WhereDiffering(difference)}; "
+                    + $"by surface, the frame's mean against the reference's, {Surfaces(frame, expected)}. "
+                    + $"The frame, its difference and the reference are in {failures}.");
+    }
+
+    // The frame against its reference over the kinds of surface the reference shows, so a page with
+    // no pictures says which surface a device draws apart and which way, as gi.compare says it
+    // for the light that bounces: a pixel the reference holds red, green or blue most of by half
+    // again is of that color's surface, and the rest, gray and white, by the third of the picture
+    // they lie in, the top's a ceiling's and the bottom's a floor's where a room is drawn; each kind
+    // of a fiftieth of the picture or more, with how many of its pixels differ and its means.
+    private static string Surfaces(Image frame, Image expected)
+    {
+        var kinds = new Dictionary<string, (int Count, int Differing, double[] Frame, double[] Reference)>();
+        for (int y = 0; y < frame.Height; y++)
+            for (int x = 0; x < frame.Width; x++)
+            {
+                Color a = GetImageColor(frame, x, y), b = GetImageColor(expected, x, y);
+                if (b.R + b.G + b.B < 24) continue;
+                var kind = b.R > 1.5 * b.G && b.R > 1.5 * b.B ? "red" : b.G > 1.5 * b.R && b.G > 1.5 * b.B ? "green"
+                    : b.B > 1.5 * b.R && b.B > 1.5 * b.G ? "blue" : y < frame.Height / 3 ? "gray in the top third"
+                    : y < frame.Height * 2 / 3 ? "gray in the middle third" : "gray in the bottom third";
+                var (count, differing, sumFrame, sumReference) = kinds.GetValueOrDefault(kind, (0, 0, new double[3], new double[3]));
+                (sumFrame[0], sumFrame[1], sumFrame[2]) = (sumFrame[0] + a.R, sumFrame[1] + a.G, sumFrame[2] + a.B);
+                (sumReference[0], sumReference[1], sumReference[2]) = (sumReference[0] + b.R, sumReference[1] + b.G, sumReference[2] + b.B);
+                var most = Math.Max(Math.Max(Math.Abs(a.R - b.R), Math.Abs(a.G - b.G)), Math.Abs(a.B - b.B));
+                kinds[kind] = (count + 1, differing + (most > Step ? 1 : 0), sumFrame, sumReference);
+            }
+        string Mean(double[] sum, int count) => $"({sum[0] / count:0}, {sum[1] / count:0}, {sum[2] / count:0})";
+        return string.Join(", ", kinds.Where(k => k.Value.Count * 50 >= frame.Width * frame.Height).OrderByDescending(k => k.Value.Differing)
+            .Select(k => $"{k.Key} {Mean(k.Value.Frame, k.Value.Count)} against {Mean(k.Value.Reference, k.Value.Count)}, "
+                         + $"{k.Value.Differing} of {k.Value.Count} apart"));
     }
 
     // Where a frame's differing pixels lie, the rows and columns they fall within, and the eighths

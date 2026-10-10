@@ -425,7 +425,13 @@ def read_text(path):
 
 
 def read_results(path):
-    """Each test in a results file, by name, as its outcome, the first line of its message and its stack."""
+    """
+    Each test in a results file, by name, as its outcome, the first line of its message and its
+    stack. Two cases of a theory whose arguments are cut to the same name are both counted, the
+    second under the name and a number, as BevyCSharp's page counts them, so the same cases read
+    from a lost run and from its parts are still one each and a run cut short of one cannot pass
+    for a whole one.
+    """
     try:
         run_ = ET.parse(path).getroot()
     except (OSError, ET.ParseError):
@@ -434,7 +440,10 @@ def read_results(path):
     for result in run_.iterfind("t:Results/t:UnitTestResult", NS):
         message = result.findtext("t:Output/t:ErrorInfo/t:Message", default="", namespaces=NS)
         stack = result.findtext("t:Output/t:ErrorInfo/t:StackTrace", default="", namespaces=NS)
-        results[result.get("testName", "?")] = (result.get("outcome", ""), message, stack)
+        name = key = result.get("testName", "?")
+        while key in results:
+            key = f"{name} [{len([k for k in results if k == name or k.startswith(name + ' [')]) + 1}]"
+        results[key] = (result.get("outcome", ""), message, stack)
     return results
 
 
@@ -469,13 +478,15 @@ LOGGED = re.compile(r"^(?:\[\s*[\d.]+s\]\s*)?\[(TRACE|DEBUG|INFO|WARN|ERROR|FATA
 
 def repeated_lines(texts):
     """
-    The lines the output repeated most, as one count for lines that differ only in their numbers.
+    The lines the output repeated most, as one count for lines that differ only in their numbers,
+    each shown as the last of them, so a line that counts as it goes, as the leak test's app it is
+    at, says how far it got, where shown as the first it said the second app 198 times.
     Only a line logged as a warning or an error counts, or one with no level, as an exception's
     message is, since a line logged below them repeats by design: each app's start logs the
     engine's banner, which filled the section with 2,190 lines of it where a system that throws in
     every frame was to be seen.
     """
-    counts, first = Counter(), {}
+    counts, last = Counter(), {}
     for text in texts:
         for line in text.splitlines():
             stripped = line.strip()
@@ -486,8 +497,8 @@ def repeated_lines(texts):
                 continue
             key = re.sub(r"\d+", "#", re.sub(r"^\[\s*[\d.]+s\]\s*", "", stripped))
             counts[key] += 1
-            first.setdefault(key, stripped)
-    return [(first[key], count) for key, count in counts.most_common(REPEATED_SHOWN) if count > 1]
+            last[key] = stripped
+    return [(last[key], count) for key, count in counts.most_common(REPEATED_SHOWN) if count > 1]
 
 
 # -- The page

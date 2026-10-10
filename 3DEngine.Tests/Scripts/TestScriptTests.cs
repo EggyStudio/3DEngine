@@ -102,10 +102,31 @@ public sealed class TestScriptTests : IDisposable
 
         Script("--read", _folder.Path);
         var page = File.ReadAllText(_folder.File("digest.md"));
+        // Each repeated line shown as the last of its kind, so one that counts as it goes says how
+        // far it got.
         page.Should().Contain("### Repeated most in the output")
-            .And.Contain("- 3 × `[ 0.0000s] [ERROR] [Engine.Schedule] System 'Spin' from Game threw on frame 0`")
+            .And.Contain("- 3 × `[ 0.0320s] [ERROR] [Engine.Schedule] System 'Spin' from Game threw on frame 2`")
             .And.Contain("- 3 × `System.InvalidOperationException: the spin has no wheel`", "a line with no level, as an exception's, counts as well")
             .And.NotContain("====").And.NotContain("read asset");
+    }
+
+    /// <summary>
+    /// Two cases of a theory whose arguments are cut to the same name are both counted, as the
+    /// suite's own tally counts them, and the same cases read again from a part are not, as
+    /// BevyCSharp's 1f68fde8 counts them.
+    /// </summary>
+    [NeedsPythonFact]
+    public void Two_Cases_Of_A_Theory_Cut_To_One_Name_Are_Counted_Apart()
+    {
+        const string cut = "Engine.Tests.Scripts.ScriptTests.Compiles(script: &quot;[Behavior] public partial struct&quot;···)";
+        var cases = $"<UnitTestResult testName=\"{cut}\" outcome=\"Passed\" /><UnitTestResult testName=\"{cut}\" outcome=\"Passed\" />";
+        foreach (var file in new[] { "results-the-suite.trx", "results-ScriptTests.trx" })
+            File.WriteAllText(_folder.File(file),
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?><TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\"><Results>"
+                + cases + "</Results></TestRun>");
+
+        Script("--read", _folder.Path);
+        File.ReadAllLines(_folder.File("digest.md"))[0].Should().Contain("2 passed, 0 failed, 0 skipped");
     }
 
     [NeedsPythonTheory]
