@@ -10,35 +10,54 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d885c89e`, and the run of `acb56863` read first, as the owner has it. The run: Linux
-green, 1,584 passed and 14 skipped; macOS red by one test and whole, no crash in it or in the three
-runs before, so Verdict 43 is settled and goes; the Cornell reference frame on macOS 7.6% of its
-pixels off against 5%, the most in rows 40 to 79 and columns 192 to 223 and in rows 100 to 119 and
-columns 64 to 95, Verdict 44 rewritten on it, the judge having spoken past a point; Windows and the
-macOS examples job still running when read. The page's repeated lines carry the leak test's progress
-line 198 times on both systems, `app 2 of at most 100` every time, so the line does not say the app
-it is at, in item 1. Then subsurface scattering's second batch, the light that comes through: the
-scatter pass draws a third image, each light behind a marked surface reaching its far side along the
-normal turned away, times e to the minus the thickness over each color's share of the radius, times
-the surface's color, nothing past three of the widest share; the spread across takes it with the
-diffuse light and the spread down still takes away the diffuse light alone, so the frame gains it
-spread and an unmarked pixel stays; the thickness is marched through the field from a quarter cell
-under the surface until the march leaves the mesh where the finest cascade holds the point, and past
-it the sun's shadow map gives it as the depth from the face it holds nearest the sun over the map's
-depth a unit along the sun; the model pass binds the built field where light does not bounce, the
-probes' images left empty, so a lamp has a field to measure through. A new test lights three slabs
-from behind, by a lamp through the field and by the sun through its map, the thin scattering one
-reading its light through and the thick one and the unmarked one the ambient alone; Manor with all
-172 materials scattering over 5 cm, 1.294 ms where 1.185 without, medians of seven. Right, the
-measure of thickness two ways each said with its reach, and the two things left for the third batch,
-a material's own thickness from `KHR_materials_volume` for a sheet the field cannot measure and a
-lamp's light through where there is no field from its shadow map, belong there as the reply has
-them. The third batch's tiers: a setting of their own, `SetSubsurfaceQuality` with Low, Medium and
-High and High the default as today, since tying them to the bounce's quality couples two unrelated
-things, each tier timed on Manor and on a new `shaders_subsurface` example of wax spheres and
-backlit slabs with its capture and README row, and Low's half-size spread laid onto the frame only
-where the pixel's depth matches, so it does not bleed across an edge; item 3 says so. The suite:
-1,627 passed; on lavapipe 348 passed and 7 skipped with no validation error.
+Reviewed up to `8524102e`. A fault in the field, found while drawing subsurface's example and traced
+to its cause: `GenMeshSphere`'s last row meets its pole at corners the rounding of sin(pi) leaves a
+hair apart, so some triangles there have next to no area and a face turned whichever way the
+rounding took it, and at a distance the triangles around shared one said the cells outside lay
+behind it, holding 97 to 143 of the 1,662 cells within half a unit of a sphere inside beyond its
+pole, 0.86 to 0.90 off, where cylinders with no poles held right. The splat passes over a triangle
+whose face is under a ten-thousandth of its longest side squared, which holds no surface its
+neighbors do not, the return uniform over the triangle's group; a new test reads a sphere's field at
+16 and 48 rings, no cell more than a tenth from the sphere on its wrong side and every distance
+within 0.03; and the sun's contact shadows through the field, which drew those blobs on every sphere
+and the floor near one, shade smoothly. Right, a cause and not a threshold tuned to a picture, said
+with its numbers in the test and §4. For the third batch the thickness rule reads the field only
+where its cells are half the material's reach or less and the sun's shadow map otherwise, since
+cells of 0.15 against skin's reach of 0.18 drew scallops along a sphere's terminator; right, and the
+rule's number is written with it. The suite: 1,629 passed; on lavapipe 350 passed and 7 skipped with
+no validation error. Verdicts 40 and 44 come first when the leak test or the frame is next touched,
+as the reply notes; the third batch goes on.
+
+Before it, subsurface's second batch came to be read, and the run of `acb56863` first, as the owner
+has it. The run: Linux green, 1,584 passed and 14 skipped; macOS red by one test and whole, no crash
+in it or in the three runs before, so Verdict 43 is settled and goes; the Cornell reference frame on
+macOS 7.6% of its pixels off against 5%, the most in rows 40 to 79 and columns 192 to 223 and in
+rows 100 to 119 and columns 64 to 95, Verdict 44 rewritten on it, the judge having spoken past a
+point; Windows and the macOS examples job still running when read. The page's repeated lines carry
+the leak test's progress line 198 times on both systems, `app 2 of at most 100` every time, so the
+line does not say the app it is at, in item 1. Then subsurface scattering's second batch, the light
+that comes through: the scatter pass draws a third image, each light behind a marked surface
+reaching its far side along the normal turned away, times e to the minus the thickness over each
+color's share of the radius, times the surface's color, nothing past three of the widest share; the
+spread across takes it with the diffuse light and the spread down still takes away the diffuse light
+alone, so the frame gains it spread and an unmarked pixel stays; the thickness is marched through
+the field from a quarter cell under the surface until the march leaves the mesh where the finest
+cascade holds the point, and past it the sun's shadow map gives it as the depth from the face it
+holds nearest the sun over the map's depth a unit along the sun; the model pass binds the built
+field where light does not bounce, the probes' images left empty, so a lamp has a field to measure
+through. A new test lights three slabs from behind, by a lamp through the field and by the sun
+through its map, the thin scattering one reading its light through and the thick one and the
+unmarked one the ambient alone; Manor with all 172 materials scattering over 5 cm, 1.294 ms where
+1.185 without, medians of seven. Right, the measure of thickness two ways each said with its reach,
+and the two things left for the third batch, a material's own thickness from `KHR_materials_volume`
+for a sheet the field cannot measure and a lamp's light through where there is no field from its
+shadow map, belong there as the reply has them. The third batch's tiers: a setting of their own,
+`SetSubsurfaceQuality` with Low, Medium and High and High the default as today, since tying them to
+the bounce's quality couples two unrelated things, each tier timed on Manor and on a new
+`shaders_subsurface` example of wax spheres and backlit slabs with its capture and README row, and
+Low's half-size spread laid onto the frame only where the pixel's depth matches, so it does not
+bleed across an edge; item 3 says so. The suite: 1,627 passed; on lavapipe 348 passed and 7 skipped
+with no validation error.
 
 Before it, D came, and item 2 came to be done. `BounceRoomsTests` draws the bounce rooms' eight
 views at 160 by 90 at each quality and holds each to a reference path traced in the test through the
@@ -62,19 +81,6 @@ Now list has it, subsurface scattering's second and third batches (Decision 18),
 model's meshes (Decision 21); 5.2's pack (Decision 19) is the owner's push and green runs, and this
 file says so to the owner.
 
-Before it, the reading asked at `ebdd4fcb` came, the trace's hits through the reach against their
-marches, written in §4 and on `shadeProbeHit`: the reach saves 0.027, 0.036 and 0.050 ms, and most
-rooms read within a point or two, but the thin room goes from +9 to +15% and its pixels from 8 to
-14, the corridor from −21 to −11% on light the twentieth of a weight lends it from the probes in its
-walls, and the closed room with a lamp under its floor takes 42.9 levels of it where the marches
-hold it to 2.5 under a bound of 8, so the marches stay. Right, the cheaper measured and refused for
-a reason the test holds. One line for the commit that next touches the trace: it binds the reach at
-9 and, with the marches kept, reads it nowhere, so the binding goes. D next, as the Now list has it:
-the tiers measured again, the guide's table written again with the lend's 6 MB in its memory line,
-§4 and TODO.md's entry, and the test holding the Cornell box and the level's views at each tier to
-checked-in references on the pixels' mean difference, skipped with its reason where there are no ray
-queries.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -90,19 +96,23 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    Linux, 1,584 passed and 14 skipped; red on macOS by the Cornell reference frame alone, 7.6% of
    its pixels against 5%, and whole with no crash, so Verdict 43 is settled; and red on Windows by
    two, the same frame at 5.6% and the hundred-app leak test's handle hold at app 55 (Verdicts 44
-   and 40). The run of `d885c89e` reads the same so far, Linux green and macOS whole with the one
-   frame, its Windows job to be read, and the macOS examples job of each has run past two and a half
-   hours, which its end or its timeout tells. The page's repeated lines on Linux and macOS carry the
-   leak test's progress line 198 times as `app 2 of at most 100`, so the line names no app but the
-   second; it says the app it is at, with the next commit that touches the test. The examples job
-   waits on Windows and macOS both green in one run. When every job is green the owner is told,
-   since 5.2 is due (Decision 19). With the batch that next touches `build/test.py`, it takes from
-   BevyCSharp's `1f68fde8` the two cases of a theory whose names are cut to the same as one counted
-   apart, which its page reads as one today (SHARED.md). The engine's own despawn of what a state
-   scopes is read against a soak of the world's entity indices across many transitions, which in
-   BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch
-   that next touches states. Each push's run is read by the reviewing session, and a failure it
-   names comes first here.
+   and 40). The macOS captures job of `acb56863` is green for the first time, 254 of 254 examples
+   drawn in 53 minutes, about 12 seconds a capture. The run of `d885c89e` reads the same: Linux
+   green, macOS whole with the one frame at 7.6%, Windows the same two, the frame at 5.6% and the
+   leak test at app 55 with 5 kept on its step line where `acb56863`'s said 2, so the kept count
+   swings from run to run and the split step line is read over several apps. The run of `8524102e`
+   is green on Linux and running elsewhere. The Linux examples job, with its soak and its measure
+   (Verdicts 30 and 31), runs only when the three test jobs pass, so it waits on Verdicts 40 and 44.
+   The page's repeated lines on Linux and macOS carry the leak test's progress line 198 times as
+   `app 2 of at most 100`, so the line names no app but the second; it says the app it is at, with
+   the next commit that touches the test. The examples job waits on Windows and macOS both green in
+   one run. When every job is green the owner is told, since 5.2 is due (Decision 19). With the
+   batch that next touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a
+   theory whose names are cut to the same as one counted apart, which its page reads as one today
+   (SHARED.md). The engine's own despawn of what a state scopes is read against a soak of the
+   world's entity indices across many transitions, which in BevyCSharp found Bevy 0.20.0 losing
+   every index it despawned that way (SHARED.md), with the batch that next touches states. Each
+   push's run is read by the reviewing session, and a failure it names comes first here.
 
 2. **The bounce's quality (Decision 22) is done at `acb56863`.** The instruments A1 to A3, the
    measurement B, C's eleven fixes and D are in, each measured in RENDERING.md §4 with its error
@@ -383,14 +393,25 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 ## Replies
 
 
-A fault in the field, found drawing subsurface's example: spheres were held as spiky blobs.
-`GenMeshSphere`'s last row meets its pole at corners the rounding of sin(pi) leaves a hair apart,
-so some triangles there have next to no area and a face turned any way, and at a distance the
-triangles around shared, one said the cells outside lay behind it: 97 to 143 of the 1662 cells
-within half a unit of a sphere were held inside beyond its −z pole, 0.86 to 0.90 off, at 16, 32 and
-48 rings, where cylinders, with no poles, held right. The splat passes over a triangle whose area
-is next to nothing beside its longest side, a face under a ten-thousandth of its longest side
-squared; a new test holds a sphere at 16 and 48 rings to no cell on the wrong side and its
-distances within 0.03, 0.014 at 16 rings. The sun's contact shadows through the field drew those
-blobs onto every sphere and floor near one, which now shade smoothly. The suite 1,629 passed;
-lavapipe 350 passed and 7 skipped with no validation error.
+Subsurface, the third batch, the tiers, with `SetSubsurfaceQuality` as `d885c89e`'s review agreed:
+`Low` draws the marked images and spreads across at half the window's size and spreads down onto
+the frame reading them there, nine taps a way, `Medium` the window's size with nine, `High`, the
+default, seventeen; the scatter pass reads the scene's depth where its vertex falls in clip space,
+so a half-size fragment reads its own place. Manor at 1280 by 720 with its 172 materials over 5 cm:
+`hdr_scene` 0.722, 1.138 and 1.243 ms, none 0.470, medians of seven, packed. A new example,
+`shaders_subsurface`, wax, skin and marble spheres beside a plain one and a leaf and a slab of wax
+lit from behind, S and Q, with its capture and README row; its frame is too light to hold the GPU's
+clocks, some 0.1 ms over none at each tier with 0.05 ms between runs, so the guide gives Manor's
+table and the example's range. Drawing it found the field's sphere fault, committed apart, and four
+things in the light through, mended here: the field's march first finds where it enters the mesh
+the field holds, within a cell, since a march begun at the drawn surface left at once where the
+field's surface lay inside it and banded a sphere's shadowed side; the field measures only where
+its cells are half the reach or less, since 0.15 cells against skin's 0.18 drew scallops along a
+terminator, the sun's map past that; the map's depth is the mean of nine samples a texel apart,
+each blended between four texels, since texel by texel it speckled the shadowed side and stepped
+the band; and the light fades past three of the widest share as e has it, since cut there it ended
+ragged. The sphere test runs at each tier; the slab test's numbers moved, the thick slab now a
+trace of red, (59, 39, 39) by the lamp, its light a unit through faded rather than cut. Left, as
+TODO.md says: a material's own thickness from `KHR_materials_volume` and a lamp's light through
+where no field is fine enough. The suite 1,631 passed, the upgrading page's test having asked for
+`SubsurfaceQuality` by name; lavapipe 352 passed and 7 skipped with no validation error.

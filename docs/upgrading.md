@@ -200,7 +200,9 @@ guide that shows it.
   [Shadows](materials-light-and-shadows.md#shadows) shows.
 - **Light under the surface.** `ModelMaterial.SubsurfaceRadius` and `ModelMaterial.SubsurfaceColor`,
   and a mesh entity's `Material.SubsurfaceRadius` and `Material.SubsurfaceColor`, spread the light a
-  surface scatters under it, as skin, wax and marble do, over the window's frame, as
+  surface scatters under it, as skin, wax and marble do, over the window's frame, and a thin part
+  lit from behind shows the light that comes through it, at the `SubsurfaceQuality`, `Low`,
+  `Medium` or `High`, that `SetSubsurfaceQuality` sets, as
   [Light under the surface](materials-light-and-shadows.md#light-under-the-surface) shows.
 - **Bevy's tonemappers.** `SetTonemap` takes the eight Bevy offers, `Tonemap.None`,
   `Tonemap.Reinhard`, `Tonemap.ReinhardLuminance`, `Tonemap.AcesFitted`, `Tonemap.AgX`,

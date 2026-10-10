@@ -1420,6 +1420,7 @@ static class Engine.Engine3D
   static void SetSoundPitch(Sound sound, float pitch)
   static void SetSoundVolume(Sound sound, float volume)
   static void SetState<TState>(TState value) where TState : struct, Enum
+  static void SetSubsurfaceQuality(SubsurfaceQuality quality)
   static void SetTargetFPS(int fps)
   static void SetTextInputArea(Rectangle area, int cursor = 0)
   static void SetTextLineSpacing(int spacing)
@@ -2815,6 +2816,10 @@ sealed class Engine.SubStateOfAttribute : Attribute
   SubStateOfAttribute(object whileIn)
   object WhileIn { get; }
   object? Initial { get; set; }
+enum Engine.SubsurfaceQuality : int
+  High = 2
+  Low = 0
+  Medium = 1
 sealed class Engine.SystemDescriptor
   Func<World, bool>? RunCondition { get; init; }
   IReadOnlyCollection<Type> Reads { get; }

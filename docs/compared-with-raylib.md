@@ -26,11 +26,12 @@ machine, with the command that measures it again.
   probes for the inside of a room, bloom over a frame that holds light past white, instancing,
   compute shaders, particles a compute shader steps, a distance field of the scene that ambient
   occlusion, the sun's contact shadows and particles read, light that bounces and glossy
-  reflections traced through it, and light that scatters under skin, wax and marble.
+  reflections traced through it, and light that scatters under skin, wax and marble and comes
+  through their thin parts.
   [Materials, light and shadows](materials-light-and-shadows.md) and
   [Shaders and compute](shaders-and-compute.md) show them, and `models_reflection_probe`,
-  `shaders_shadowmap`, `shaders_scene_field`, `shaders_cornell_box`, `shaders_reflections` and
-  `shaders_compute_life` run them.
+  `shaders_shadowmap`, `shaders_scene_field`, `shaders_cornell_box`, `shaders_reflections`,
+  `shaders_subsurface` and `shaders_compute_life` run them.
 - **An ECS under the flat API.** `[Behavior]` structs whose methods a source generator turns into
   systems run in the same frames as the loop, so a program grows into entities when it needs them.
   [Behaviors and the ECS](behaviors-and-the-ecs.md) and `ecs_behaviors`.
@@ -253,10 +254,13 @@ The scene's distance field, which raylib has nothing like, was timed on the same
 2026-10-07 in `shaders_scene_field` offscreen at 800 by 450, from `./e3d command profile`. A frame
 that stamps its moving crate spends 0.014 ms of the GPU on it, a frame that builds its finest
 cascade 0.25 ms (`./e3d command field.rebuild 400` builds one every frame), and the occlusion pass
-takes 0.073 ms with the field where it took 0.036 without. The light that bounces takes 0.19 ms of
-the GPU at `Low`, 0.27 at `Medium` and 0.34 at `High` in `shaders_cornell_box`, measured on
-2026-10-07 the same way with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`), and the
-guide's table has the memory each takes.
+takes 0.073 ms with the field where it took 0.036 without. The light that bounces takes 0.37 ms of
+the GPU at `Low`, 0.49 at `Medium` and 0.69 at `High` in `shaders_cornell_box`, measured on
+2026-10-10 the same way with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`), and the
+guide's table has the memory each takes. The light under a surface takes `hdr_scene` 0.25, 0.67
+and 0.77 ms more at `Low`, `Medium` and `High` in `games/Manor` at 1280 by 720, every one of its 172
+materials scattering over 5 cm, and some 0.1 ms more in `shaders_subsurface`, measured the same way
+on 2026-10-10.
 
 ```bash
 build/raylib-bench/run.sh

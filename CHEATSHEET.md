@@ -666,6 +666,7 @@ ModelMaterial[] LoadMaterials(string fileName);                                 
 bool IsMaterialValid(ModelMaterial material);                                                                         // Whether its maps are loaded
 void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture);                     // A map by raylib's name for it
 void SetModelMeshMaterial(Model model, int meshId, int materialId);                                                   // Which material a mesh draws with
+void SetSubsurfaceQuality(SubsurfaceQuality quality);                                                                 // How finely the light under a surface spreads, Low, Medium or High
 void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);                                           // One mesh at a transform
 void DrawMeshInstanced(ModelMesh mesh, ModelMaterial material, ReadOnlySpan<Matrix4x4> transforms);                   // Copies of it, one draw, SV_InstanceID from 0
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges

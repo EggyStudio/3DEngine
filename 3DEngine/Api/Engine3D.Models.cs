@@ -644,6 +644,14 @@ public static partial class Engine3D
         model.MeshMaterial[meshId] = materialId;
     }
 
+    /// <summary>
+    /// Sets how finely the light under a surface, a material's <see cref="ModelMaterial.SubsurfaceRadius"/>,
+    /// is spread over the window's frame: at half the window's size with nine taps each way for a
+    /// slow GPU, at its size with nine, or with seventeen, as by default.
+    /// </summary>
+    public static void SetSubsurfaceQuality(SubsurfaceQuality quality) =>
+        World.GetOrInsertResource(static () => new SubsurfaceSettings()).Quality = quality;
+
     /// <summary>Draws one mesh with a material and a model to world transform.</summary>
     public static void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {

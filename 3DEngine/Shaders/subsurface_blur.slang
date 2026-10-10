@@ -18,7 +18,7 @@ struct BlurPush
     // xy: one texel in uv. zw: the way spread, (1, 0) across or (0, 1) down.
     float4 texelAndWay;
     // x: 0 to spread across into an image of its own, 1 to spread down and add the change to the
-    // frame. yzw: unused.
+    // frame. y: the taps along the way, nine or seventeen by the quality. zw: unused.
     float4 mode;
 };
 
@@ -46,8 +46,6 @@ Sampler2D source;
 [[vk::binding(4, 0)]]
 Sampler2D through;
 
-// Taps along the way, the middle one the pixel's own, out to three widths of the widest channel.
-static const int Taps = 17;
 
 [shader("vertex")]
 FullscreenOutput vertexMain(uint id : SV_VertexID)
@@ -80,13 +78,15 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
     float pixels = push.eyeAndHeight.w / max(distance, 1e-4) / push.texelAndWay.y;
     float2 perUnit = push.texelAndWay.zw * push.texelAndWay.xy * pixels;
 
+    // Taps along the way, the middle one the pixel's own, out to three widths of the widest channel.
+    int taps = int(push.mode.y + 0.5);
     float3 sum = float3(0.0);
     float3 weights = float3(0.0);
-    for (int i = 0; i < Taps; i++)
+    for (int i = 0; i < taps; i++)
     {
-        float x = (float(i) / float(Taps - 1) * 2.0 - 1.0) * reach;
+        float x = (float(i) / float(taps - 1) * 2.0 - 1.0) * reach;
         float2 at = uv + perUnit * x;
-        if (i != Taps / 2)
+        if (i != taps / 2)
         {
             if (any(at < float2(0.0)) || any(at > float2(1.0)) || diffuse.SampleLevel(at, 0).a <= 0.0)
                 continue;

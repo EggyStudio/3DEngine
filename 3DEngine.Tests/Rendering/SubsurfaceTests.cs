@@ -65,10 +65,14 @@ public sealed class SubsurfaceTests : IDisposable
 
     private static int Sum(Color c) => c.R + c.G + c.B;
 
-    [NeedsVulkanFact]
-    public void A_Lit_Sphere_Whose_Material_Scatters_Softens_Its_Terminator_And_Bleeds_Red_Where_The_Unmarked_One_Does_Not()
+    [NeedsVulkanTheory]
+    [InlineData(SubsurfaceQuality.Low)]
+    [InlineData(SubsurfaceQuality.Medium)]
+    [InlineData(SubsurfaceQuality.High)]
+    public void A_Lit_Sphere_Whose_Material_Scatters_Softens_Its_Terminator_And_Bleeds_Red_Where_The_Unmarked_One_Does_Not(SubsurfaceQuality quality)
     {
         Open();
+        SetSubsurfaceQuality(quality);
         // The light comes from the right and a little in front, so each sphere's terminator lies a
         // fifth of its radius left of its middle, the left of it in shadow.
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, 0, -0.2f)), Color.White, 1.5f);
@@ -100,9 +104,10 @@ public sealed class SubsurfaceTests : IDisposable
         // Three white slabs a unit square facing the camera, lit only from behind: a thin one and a
         // thick one whose material scatters over 0.3, and a thin one that does not. Behind them a lamp
         // whose light's way through each is measured in the scene's distance field, or the sun with
-        // no field, whose shadow map measures it. The thin one's front read (136, 102, 83) by the
-        // lamp and (180, 162, 150) by the sun, and the thick one's and the unmarked one's 39 in every
-        // channel, the ambient light alone, as this test measured on an RTX 4070.
+        // no field, whose shadow map measures it. The thin one's front read (143, 118, 102) by the
+        // lamp and (180, 162, 150) by the sun, the thick one's (59, 39, 39) and (48, 39, 39), its
+        // light a unit through faded near to nothing, and the unmarked one's 39 in every channel, the
+        // ambient light alone, as this test measured on an RTX 4070.
         Open();
         if (lamp)
         {

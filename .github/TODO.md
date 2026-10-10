@@ -211,10 +211,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   decoded frame, seventeen taps each way, a pixel of another surface never touched and the spread
   stopped at a depth edge, and a thin part lit from behind shows the light that comes through it,
   its thickness toward a lamp read from the scene's distance field and toward the sun from the
-  field or its shadow map (RENDERING.md §5). What is missing is tiers of the taps and a half-size
-  pass for a slow GPU; a material's own thickness for a part the field cannot measure, as a leaf
-  drawn as one sheet, read from a glTF file where it has `KHR_materials_volume`; the light through
-  a lamp's shadow where there is no field; and the spread in render textures and probe captures.
+  field or its shadow map, at three qualities `SetSubsurfaceQuality` sets (RENDERING.md §5). What
+  is missing is a material's own thickness for a part the field cannot measure, as a leaf drawn as
+  one sheet, read from a glTF file where it has `KHR_materials_volume`; the light through a lamp's
+  shadow where there is no field fine enough; and the spread in render textures and probe captures.
 
 ### The device
 

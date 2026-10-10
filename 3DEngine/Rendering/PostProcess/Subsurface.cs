@@ -24,6 +24,12 @@ namespace Engine;
 /// frames later, as are all of them the first frame it draws none.
 /// </para>
 /// </remarks>
+/// <summary>How finely the light under a surface is spread as the program set it, a world resource the renderer reads each frame.</summary>
+internal sealed class SubsurfaceSettings
+{
+    public SubsurfaceQuality Quality { get; set; } = SubsurfaceQuality.High;
+}
+
 internal sealed class SubsurfaceRenderer : IDisposable
 {
     [StructLayout(LayoutKind.Sequential)]
@@ -43,13 +49,14 @@ internal sealed class SubsurfaceRenderer : IDisposable
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
-    // What is made for one size of the window and one depth of the scene: the marked meshes'
-    // diffuse light, profile and light that comes through, the light spread across, and the sets
-    // the two spreads read through.
-    private sealed class Sized(Extent2D extent, IImageView depth, RenderTarget marked, RenderTarget across, IDescriptorSet acrossSet,
+    // What is made for one size of the window, one depth of the scene and whether the marked
+    // surfaces are drawn at half the window's size: the marked meshes' diffuse light, profile and
+    // light that comes through, the light spread across, and the sets the two spreads read through.
+    private sealed class Sized(Extent2D extent, bool half, IImageView depth, RenderTarget marked, RenderTarget across, IDescriptorSet acrossSet,
         IDescriptorSet downSet) : IDisposable
     {
         public Extent2D Extent { get; } = extent;
+        public bool Half { get; } = half;
         public IImageView Depth { get; } = depth;
         public RenderTarget Marked { get; } = marked;
         public RenderTarget Across { get; } = across;
@@ -85,7 +92,11 @@ internal sealed class SubsurfaceRenderer : IDisposable
             return;
         }
 
-        var sized = Ensure(device, frame, sceneDepth);
+        // At Low the marked surfaces are drawn and spread across at half the window's size, and the
+        // spread down onto the frame reads them there; at Low and Medium nine taps a way, at High
+        // seventeen.
+        var quality = renderWorld.TryGet<SubsurfaceSettings>()?.Quality ?? SubsurfaceQuality.High;
+        var sized = Ensure(device, frame, sceneDepth, quality == SubsurfaceQuality.Low);
         var marked = sized.Marked;
         int drawn;
         using (var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
@@ -101,7 +112,8 @@ internal sealed class SubsurfaceRenderer : IDisposable
         {
             InverseViewProjection = inverse,
             EyeAndHeight = new Vector4(view.Eye, AmbientOcclusionRenderer.HeightPerUnit(inverse)),
-            TexelAndWay = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, 1, 0),
+            TexelAndWay = new Vector4(1f / marked.Extent.Width, 1f / marked.Extent.Height, 1, 0),
+            Mode = new Vector4(0, quality == SubsurfaceQuality.High ? 17 : 9, 0, 0),
         };
         Pass(renderContext, sized.Across, LoadOp.Clear, _across!, sized.AcrossSet, push);
         push.TexelAndWay = push.TexelAndWay with { Z = 0, W = 1 };
@@ -121,10 +133,10 @@ internal sealed class SubsurfaceRenderer : IDisposable
         pass.Draw(3);
     }
 
-    private Sized Ensure(GraphicsDevice device, RenderTarget frame, IImageView sceneDepth)
+    private Sized Ensure(GraphicsDevice device, RenderTarget frame, IImageView sceneDepth, bool half)
     {
         var extent = frame.Extent;
-        if (_sized is { } made && made.Extent == extent && ReferenceEquals(made.Depth, sceneDepth)) return made;
+        if (_sized is { } made && made.Extent == extent && made.Half == half && ReferenceEquals(made.Depth, sceneDepth)) return made;
         if (_sized is { } old) _retired.Add((_frame, old));
 
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
@@ -135,9 +147,10 @@ internal sealed class SubsurfaceRenderer : IDisposable
         _sampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
-        var marked = device.CreateRenderTarget(extent.Width, extent.Height,
+        var (width, height) = half ? (Math.Max(1, extent.Width / 2), Math.Max(1, extent.Height / 2)) : (extent.Width, extent.Height);
+        var marked = device.CreateRenderTarget(width, height,
             [ImageFormat.R16G16B16A16_Float, ImageFormat.R16G16B16A16_Float, ImageFormat.R16G16B16A16_Float], depth: false, multisampled: false);
-        var across = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
+        var across = device.CreateRenderTarget(width, height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
         device.Name(marked.ColorView.Image, "Subsurface diffuse light");
         device.Name(across.ColorView.Image, "Subsurface light spread across");
         _across ??= Pipeline(device, across.RenderPass, additive: false);
@@ -153,7 +166,7 @@ internal sealed class SubsurfaceRenderer : IDisposable
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(marked.MoreColorViews[1], _sampler, 4));
             return set;
         }
-        return _sized = new Sized(extent, sceneDepth, marked, across, Set(marked.ColorView), Set(across.ColorView));
+        return _sized = new Sized(extent, half, sceneDepth, marked, across, Set(marked.ColorView), Set(across.ColorView));
     }
 
     private IPipeline Pipeline(GraphicsDevice device, IRenderPass renderPass, bool additive) =>

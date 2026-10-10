@@ -1482,6 +1482,30 @@ from behind reads on its front (136, 102, 83) by a lamp measured through the fie
 (180, 162, 150) by the sun measured through its shadow map, where a slab 1.2 thick and an unmarked
 one read the ambient light's 39 (`SubsurfaceTests`).
 
+`SetSubsurfaceQuality` sets three tiers: at `Low` the marked images and the spread across are
+half the window's size and the spread down onto the frame reads them there, nine taps a way; at
+`Medium` the window's size and nine taps; at `High`, the default, seventeen. The scatter pass reads
+the scene's depth where its vertex falls in clip space, so a fragment of the half-size images reads
+its own place. In `games/Manor` at 1280 by 720, every one of its 172 materials scattering over
+5 cm, `hdr_scene` takes 0.722, 1.138 and 1.243 ms where it takes 0.470 with none scattering, the
+medians of seven readings, the engine packed; `shaders_subsurface`, which draws wax, skin and
+marble spheres and a leaf and a slab of wax lit from behind, takes 0.09 to 0.15 ms more than with
+none at each, its readings moving by 0.05 ms between runs, its frame too light to hold the GPU's
+clocks. `SubsurfaceTests` holds the lit sphere's softened terminator at each tier.
+
+Drawing that example found four things in the light through, each mended. A march begun at the
+drawn surface left at once where the field's surface lay a little inside it, and a sphere's
+shadowed side took the sun's light in bands, so the march first finds where it enters the mesh the
+field holds, within a cell, and measures to where it leaves, the exit placed between its last step
+inside and the first outside. The field's cells of 0.15 against skin's reach, three of its radius
+of 0.06, drew scallops along a sphere's terminator, so the field measures only where its cells are
+half the reach or less, the sun's shadow map past that. The map read texel by texel speckled the
+shadowed side and stepped the band along the terminator, so its depth is the mean of nine samples
+a texel apart, each blended between the four texels about it. And the light cut to nothing at
+three of the widest share, a twentieth of it, ended in a ragged edge where the measured thickness
+wavered across that line, so it fades as e has it. The scene's distance field had held the
+example's spheres as spiky blobs too, the fault `8524102e` mended.
+
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it
 reads the same in the window and in a render texture, with every effect on or off, but for light
