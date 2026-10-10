@@ -45,10 +45,11 @@ public sealed class VoxelGame : IDisposable
 
     /// <summary>How many columns around the player are drawn, and two more loaded.</summary>
     /// <remarks>
-    /// Six by default. Every section within it is drawn each frame, since one left out leaves the
-    /// scene field, so it sets much of the frame's cost.
+    /// Eight by default, about 1,800 draws on the hills of the first seed. Every section within it is
+    /// drawn each frame, since one left out leaves the scene field, so it sets much of the frame's
+    /// cost, most of it the CPU's for each draw.
     /// </remarks>
-    public int RenderDistance { get; set; } = 6;
+    public int RenderDistance { get; set; } = 8;
 
     /// <summary>The block the crosshair rests on, as of this frame.</summary>
     public BlockHit? Target { get; private set; }

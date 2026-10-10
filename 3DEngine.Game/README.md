@@ -111,5 +111,5 @@ open to the sky. Mobs, items, an inventory and survival.
 
 Every section within the render distance is drawn each frame, through the scene field's gather
 and the engine's culling of each pass, so the render distance sets much of the frame's cost. It is
-6 by default and up to 16 in the settings window, whose first lines give the frame's time, draws
+8 by default and up to 16 in the settings window, whose first lines give the frame's time, draws
 and triangles.
