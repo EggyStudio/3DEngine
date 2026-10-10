@@ -35,6 +35,15 @@ Sampler3D sceneField;
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
+// The share of each merged direction that reaches the sky, 1 where a ray of the last cascade met
+// nothing, carried down as the light from beyond is, and the cascade above's, read where this
+// cascade's ray met nothing; the last cascade reads none.
+[[vk::binding(6, 0)]] [format("r16f")]
+RWTexture3D<float> mergedSky;
+
+[[vk::binding(7, 0)]]
+Texture3D<float> aboveSky;
+
 float4 placeOf(int3 at, uint c, uint probes)
 {
     return held[int3(3 * int(probes) + at.x, at.y, int(c * probes) + at.z)];
@@ -103,13 +112,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     if (oc.w <= 0.0 || here.w < 0.5)
     {
         merged[written] = float4(0.0);
+        mergedSky[written] = 0.0;
         return;
     }
     float4 own = radiance[written];
+    // A ray of the last cascade that met nothing, the sky's.
+    float ownSky = abs(own.a - 0.25) < 0.1 ? 1.0 : 0.0;
     uint alone = uint(push.spacing.z + 0.5);
     if (alone > 0u && c >= alone)
     {
         merged[written] = float4(0.0, 0.0, 0.0, 1.0);
+        mergedSky[written] = 0.0;
         return;
     }
     if (alone > 0u && c + 1u < alone)
@@ -119,6 +132,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     if (upper == 0u || own.a < 0.75 || push.spacing.y > 0.5 || alone == c + 1u)
     {
         merged[written] = float4(own.rgb, own.a < 0.75 ? kept : 1.0);
+        mergedSky[written] = ownSky;
         return;
     }
 
@@ -127,6 +141,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float3 f = q - float3(base);
     uint factor = upper / texels;
     float3 sum = float3(0.0);
+    float sky = 0.0;
     float weights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
@@ -139,10 +154,12 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         for (uint v = 0u; v < factor; v++)
             for (uint u = 0u; u < factor; u++)
             {
-                float4 child = above.Load(int4(int2(uint2(neighbor.xy) * upper + texel * factor + uint2(u, v)), neighbor.z, 0));
+                int4 from = int4(int2(uint2(neighbor.xy) * upper + texel * factor + uint2(u, v)), neighbor.z, 0);
+                float4 child = above.Load(from);
                 if (child.a > 0.75)
                 {
                     sum += child.rgb * weight;
+                    sky += aboveSky.Load(from) * weight;
                     weights += weight;
                 }
                 else if (child.a > 0.25)
@@ -151,4 +168,5 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
     merged[written] = float4(own.rgb + beyond, 1.0);
+    mergedSky[written] = weights > 1e-4 ? sky / weights : 0.0;
 }

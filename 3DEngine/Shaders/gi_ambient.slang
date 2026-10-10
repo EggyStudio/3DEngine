@@ -46,6 +46,15 @@ Texture3D<float4> partial;
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
+// The share of each merged direction that reaches the sky, as gi_merge.slang wrote it, and every
+// cascade's probes' faces' share of sky, laid out as the faces are, each direction weighed as the
+// light is, which the model pass weighs the environment's reflection by.
+[[vk::binding(6, 0)]]
+Texture3D<float> mergedSky;
+
+[[vk::binding(7, 0)]] [format("r16f")]
+RWTexture3D<float> skies;
+
 struct AmbientPush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -103,18 +112,21 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     uint3 at = uint3(probe % probes, (probe / probes) % probes, probe / (probes * probes));
     float3 axis = Axes[face];
     float3 sum = float3(0.0);
+    float sky = 0.0;
     float weights = 0.0;
     float shares = 0.0;
     float valid = 0.0;
     for (uint v = 0u; v < texels; v++)
         for (uint u = 0u; u < texels; u++)
         {
-            float4 light = merged.Load(int4(int2(at.xy * texels + uint2(u, v)), int(at.z), 0));
+            int4 from = int4(int2(at.xy * texels + uint2(u, v)), int(at.z), 0);
+            float4 light = merged.Load(from);
             float2 uv = (float2(u, v) + 0.5) / float(texels);
             float share = octahedronShare(uv);
             float weight = max(dot(fromOctahedron(uv), axis), 0.0) * share;
             shares += share;
             sum += light.rgb * weight;
+            sky += mergedSky.Load(from) * weight;
             weights += weight;
             // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
             valid = max(valid, light.a > 0.25 ? 1.0 : 0.0);
@@ -124,6 +136,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float4 place = held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x * probes + at.z))];
     float holds = valid > 0.5 && place.w > 0.5 ? 1.0 : 0.0;
     cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(sum * (Pi / max(weights, 1e-6)), holds * (2.0 + place[face / 2u]));
+    skies[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = sky / max(weights, 1e-6);
     if (face == 0u)
         follow(at, probes, texels, shares);
 

@@ -445,6 +445,48 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
     return weights > 1e-5 ? sum / weights : float3(0.0);
 }
 
+// The share of the sky a surface at p facing n sees along r, the share its probes' rays reached
+// the sky by (gi_ambient.slang), blended between the eight probes around it as bouncedAt blends
+// their light, the three faces r looks toward weighed by the square of r along each, or the whole
+// sky where no cascade of probes holds p.
+public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, float cascades)
+{
+    int c = fieldCascade(info, p, 1.0);
+    if (c < 0 || c >= int(cascades))
+        return 1.0;
+    float4 oc = info.cascades[c].originAndCell;
+    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    int3 base = int3(floor(q));
+    float3 f = q - float3(base);
+    float3 r2 = r * r;
+    float sum = 0.0;
+    float weights = 0.0;
+    for (int corner = 0; corner < 8; corner++)
+    {
+        int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
+        int3 at = min(base + offset, int3(int(probes) - 1));
+        float3 lerps = lerp(1.0 - f, f, float3(offset));
+        float sky = 0.0;
+        float valid = 1.0;
+        float3 moved = float3(0.0);
+        for (int axis = 0; axis < 3; axis++)
+        {
+            int face = axis * 2 + (r[axis] < 0.0 ? 1 : 0);
+            int3 texel = int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z);
+            float alpha = cubes.loadAt(texel).a;
+            sky += skies.loadAt(texel).x * r2[axis];
+            valid = min(valid, faceHolds(alpha));
+            moved[axis] = faceMove(alpha);
+        }
+        float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
+        float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
+        weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
+        sum += sky * weight;
+        weights += weight;
+    }
+    return weights > 1e-5 ? sum / weights : 1.0;
+}
+
 // The light that bounced to a surface at p facing n, as bouncedAt gives it, from those of the eight
 // probes around it the surface sees: in front of its plane, with nothing the field holds between,
 // so a probe under a floor or beyond a wall lends the light it sees there to no surface on this

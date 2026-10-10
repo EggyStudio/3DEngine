@@ -394,7 +394,10 @@ its room. A light switched off or carried away takes the light it bounced with i
 since each probe takes the light that bounced at the share its own light kept where that fell or
 rose by much. The light from all around, the environment map's, the ambient lights' and a reflection
 probe's, reaches a surface only through what a ray that meets nothing brings back, so a room is lit
-by the sky through its windows and dark where no light gets in.
+by the sky through its windows and dark where no light gets in. The environment map's reflection is
+weighed by the share of the sky the probes around a surface see along its mirror direction, so a
+rough wall in a cave sealed from the sky reflects none of it, where the occlusion alone left it a
+sheen of the sky's color, brightest at a grazing angle.
 
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
 a glowing panel, and G steps through the qualities. `shaders_bounce_rooms` gathers the rooms the
@@ -407,9 +410,9 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 1.45 MB | 0.37 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 3.87 MB | 0.49 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.06 MB | 0.69 ms |
+| `Low` | 2 | 64, 64 | every 16 pixels | 1.59 MB | 0.37 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.27 MB | 0.50 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 8.90 MB | 0.70 ms |
 
 A quality traces no more cascades than the field has, and the field adds 5 MB a cascade, 5 MB more
 that a cascade is built in, and 6 MB more once a mesh that gives off light is thinner than a cell.

@@ -402,8 +402,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
         float strength = lighting.environment.x * occlusion;
+        // Where light bounces, by the share of the sky the probes around the surface see along its
+        // mirror direction, so a room sealed from the sky reflects none of it, where the occlusion
+        // alone left a rough wall in a sealed cave a blue sheen.
+        float sky = bounces ? skySeen(input.world, n, reflect(-v, n)) : 1.0;
         light.diffuse += strength * diffuseColor * around;
-        light.specular += strength * reflected * specularShare * (1.0 - gloss);
+        light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
     }
 
     for (int i = 0; i < min(lighting.count, 16); i++)

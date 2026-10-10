@@ -45,7 +45,9 @@ Sampler3D fieldGlow;
 ConstantBuffer<GiLights> lights;
 
 // What each ray brought back: rgb the light, a 1 where it met nothing and lets what lies beyond
-// through, a half where it met a surface before its interval began, 0 where it met one inside it.
+// through, a half where it met a surface before its interval began, 0 where it met one inside it,
+// and a quarter where a ray of the last cascade met nothing and brought the sky's light, which the
+// merge takes as it takes 0 and counts as the sky the probe sees.
 // A texel a direction, each probe a tile of the octahedron's texels.
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> radiance;
@@ -219,7 +221,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         else if (push.cascade.w != 0u)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
-            light = float4(sky, 0.0);
+            light = float4(sky, 0.25);
             own = sky;
         }
     }

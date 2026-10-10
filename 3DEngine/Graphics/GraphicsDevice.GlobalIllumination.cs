@@ -22,8 +22,11 @@ internal sealed class GpuIllumination : IDisposable
     internal GpuIllumination(int probes, int[] texels, (VkImage Image, VkImageView View)[] radiance, (VkImage Image, VkImageView View)[] merged,
         VkImage cubes, IImageView cubesView, ISampler sampler, IBuffer lights, Action dispose,
         (VkImage Image, VkImageView View)[] distances, VkImage reach, IImageView reachView,
-        VkImageView partial, VkImageView held)
+        VkImageView partial, VkImageView held, (VkImage Image, VkImageView View)[] mergedSky, VkImage skies, IImageView skiesView)
     {
+        MergedSky = mergedSky;
+        Skies = skies;
+        SkiesView = skiesView;
         Partial = partial;
         Held = held;
         Distances = distances;
@@ -72,9 +75,25 @@ internal sealed class GpuIllumination : IDisposable
     public long ReachBytes => (long)(8 * Probes) * (8 * Probes) * Probes * Cascades * 2
         + Texels.Sum(n => (long)(Probes * n) * (Probes * n) * Probes * 2);
 
+    /// <summary>
+    /// The share of the sky each probe's faces see, every cascade, laid out as <see cref="CubesView"/>
+    /// is, as <c>gi_ambient.slang</c> gathers it from the rays that met nothing, which the model pass
+    /// weighs the environment's reflection by.
+    /// </summary>
+    public IImageView SkiesView { get; }
+
+    /// <summary>The bytes the sky's shares take, the faces' and each cascade's merged rays'.</summary>
+    public long SkyBytes => (long)(6 * Probes) * Probes * Probes * Cascades * 2
+        + Texels.Sum(n => (long)(Probes * n) * (Probes * n) * Probes * 2);
+
     internal (VkImage Image, VkImageView View)[] Radiance { get; }
     internal (VkImage Image, VkImageView View)[] Merged { get; }
     internal (VkImage Image, VkImageView View)[] Distances { get; }
+
+    // Each cascade's merged rays' share of the sky, a texel a ray, as gi_merge.slang writes it.
+    internal (VkImage Image, VkImageView View)[] MergedSky { get; }
+
+    internal VkImage Skies { get; }
 
     // What each workgroup of a probe's rays brought back straight from the sun, the lights and what
     // gives off light, and the luminance of all they brought back, four a probe, every cascade.
@@ -87,84 +106,6 @@ internal sealed class GpuIllumination : IDisposable
 
     internal VkImage Cubes { get; }
     internal VkImage Reach { get; }
-
-    /// <inheritdoc />
-    public void Dispose() => _dispose();
-}
-
-/// <summary>
-/// The window's screen probes: the light arriving at each probe's surface and the surface's normal
-/// and distance from the eye, an image of each, a texel a probe, and the buffer of the view they
-/// were placed through.
-/// </summary>
-internal sealed class GpuScreenProbes : IDisposable
-{
-    private readonly Action _dispose;
-
-    internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
-        ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
-        IImage lastGeometry, IImageView lastGeometryView)
-    {
-        History = history;
-        HistoryView = historyView;
-        LastGeometry = lastGeometry;
-        LastGeometryView = lastGeometryView;
-        Blended = blended;
-        BlendedView = blendedView;
-        Across = across;
-        Down = down;
-        Tile = tile;
-        Irradiance = irradiance;
-        IrradianceView = irradianceView;
-        Geometry = geometry;
-        GeometryView = geometryView;
-        Sampler = sampler;
-        View = view;
-        _dispose = dispose;
-    }
-
-    /// <summary>The probes across the window.</summary>
-    public int Across { get; }
-
-    /// <summary>The probes down the window.</summary>
-    public int Down { get; }
-
-    /// <summary>The pixels along each side of the tile a probe stands in.</summary>
-    public int Tile { get; }
-
-    internal IImage Irradiance { get; }
-
-    /// <summary>The light arriving at each probe's surface, a texel a probe, its alpha 1 where the probe holds it.</summary>
-    public IImageView IrradianceView { get; }
-
-    internal IImage Geometry { get; }
-
-    /// <summary>Each probe's surface's normal, and in w its distance from the eye, or -1 for a probe on no surface.</summary>
-    public IImageView GeometryView { get; }
-
-    internal IImage Blended { get; }
-
-    /// <summary>The light arriving at each probe's surface blended with its neighbors' on like surfaces, which the model pass reads, its alpha one more than the share of it the frame before's light gave.</summary>
-    public IImageView BlendedView { get; }
-
-    internal IImage History { get; }
-
-    /// <summary>The blended light of the frame before, copied from <see cref="BlendedView"/>, which the next frame's blend takes in.</summary>
-    public IImageView HistoryView { get; }
-
-    internal IImage LastGeometry { get; }
-
-    /// <summary>The probes' surfaces of the frame before, copied from <see cref="GeometryView"/>, which tell where its light may be taken.</summary>
-    public IImageView LastGeometryView { get; }
-
-    /// <summary>A sampler that reads a texel as it is.</summary>
-    public ISampler Sampler { get; }
-
-    /// <summary>The view the probes were placed through, as <c>gi_screen.slang</c>'s <c>ScreenView</c>.</summary>
-    public IBuffer View { get; }
-
-    /// <summary>The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes' layout, and the frame before's camera and eye.</summary>
-    public const int ViewBytes = 3 * 64 + 5 * 16;
 
     /// <inheritdoc />
     public void Dispose() => _dispose();
@@ -208,9 +149,11 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], 32);
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.SampledImage], 32);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
             return _giStages;
         }
     }
@@ -237,26 +180,34 @@ internal sealed unsafe partial class GraphicsDevice
         var radiance = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var merged = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var distances = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
+        var mergedSky = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         for (int c = 0; c < texels.Length; c++)
         {
             var n = (uint)texels[c];
             radiance[c] = ProbeImage(p * n, p * n, p);
             merged[c] = ProbeImage(p * n, p * n, p);
             distances[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
+            mergedSky[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
         }
         var (held, heldMemory, heldView) = ProbeImage(4 * p, p, p * (uint)texels.Length);
         var (partial, partialMemory, partialView) = ProbeImage(4 * p, p, p * (uint)texels.Length, VkFormat.R32G32B32A32Sfloat);
         var (cubes, cubesMemory, cubesView) = ProbeImage(6 * p, p, p * (uint)texels.Length);
         var (reach, reachMemory, reachView) = ProbeImage(8 * p, 8 * p, p * (uint)texels.Length, VkFormat.R16Sfloat);
+        var (skies, skiesMemory, skiesView) = ProbeImage(6 * p, p, p * (uint)texels.Length, VkFormat.R16Sfloat);
         var lights = CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
 
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        var all = radiance.Concat(merged).Concat(distances).Select(i => i.Item1).Append(cubes).Append(reach).Append(held).Append(partial).ToArray();
+        var all = radiance.Concat(merged).Concat(distances).Concat(mergedSky).Select(i => i.Item1).Append(cubes).Append(reach).Append(skies)
+            .Append(held).Append(partial).ToArray();
         PipelineBarrier(cmd, [.. all.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
-        foreach (var image in all.Where(image => image != reach && image != held)) _deviceApi.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
+        foreach (var image in all.Where(image => image != reach && image != held && image != skies)) _deviceApi.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
+        // Every face sees the whole sky until its rays have first been traced, so the environment's
+        // reflection shows as it did before the probes know better.
+        var open = new VkClearColorValue(1f, 0f, 0f, 0f);
+        _deviceApi.vkCmdClearColorImage(cmd, skies, VkImageLayout.General, &open, 1, &whole);
         // No probe's own light known yet, and every probe taking the whole of the light that bounced.
         var unknown = new VkClearColorValue(1f, 1f, 1f, -1f);
         _deviceApi.vkCmdClearColorImage(cmd, held, VkImageLayout.General, &unknown, 1, &whole);
@@ -265,9 +216,9 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdClearColorImage(cmd, reach, VkImageLayout.General, &far, 1, &whole);
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)lights).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         PipelineBarrier(cmd, [
-            .. all.Where(image => image != cubes && image != reach).Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.General,
+            .. all.Where(image => image != cubes && image != reach && image != skies).Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.General,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite)),
-            .. new[] { cubes, reach }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+            .. new[] { cubes, reach, skies }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead)),
         ], new VkMemoryBarrier2
         {
@@ -284,6 +235,9 @@ internal sealed unsafe partial class GraphicsDevice
         var reachOwner = new VulkanImage(this, reach, reachMemory,
             new ImageDesc(new Extent2D(8 * p, 8 * p), ImageFormat.R16_Float, ImageUsage.Sampled | ImageUsage.Storage));
         Name(reachOwner, "Light probes' reach");
+        var skiesOwner = new VulkanImage(this, skies, skiesMemory,
+            new ImageDesc(new Extent2D(6 * p, p), ImageFormat.R16_Float, ImageUsage.Sampled | ImageUsage.Storage));
+        Name(skiesOwner, "Light probes' share of the sky");
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         return new GpuIllumination(probes, [.. texels], [.. radiance.Select(i => (i.Item1, i.Item3))], [.. merged.Select(i => (i.Item1, i.Item3))],
@@ -295,7 +249,9 @@ internal sealed unsafe partial class GraphicsDevice
                 owner.Dispose();
                 _deviceApi.vkDestroyImageView(reachView);
                 reachOwner.Dispose();
-                foreach (var (image, memory, view) in radiance.Concat(merged).Concat(distances).Append((held, heldMemory, heldView))
+                _deviceApi.vkDestroyImageView(skiesView);
+                skiesOwner.Dispose();
+                foreach (var (image, memory, view) in radiance.Concat(merged).Concat(distances).Concat(mergedSky).Append((held, heldMemory, heldView))
                     .Append((partial, partialMemory, partialView)))
                 {
                     _deviceApi.vkDestroyImageView(view);
@@ -305,7 +261,7 @@ internal sealed unsafe partial class GraphicsDevice
                     _deviceApi.vkFreeMemory(memory);
                 }
             }, [.. distances.Select(i => (i.Item1, i.Item3))], reach, new VulkanImageView(this, reachOwner, reachView),
-            partialView, heldView);
+            partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(this, skiesOwner, skiesView));
     }
 
     // A 3D image of half-float colors the probes' work writes and reads, with its view.
@@ -424,6 +380,9 @@ internal sealed unsafe partial class GraphicsDevice
             run.Buffer(set, 3, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 4, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 5, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
+            run.Image(set, 6, VkDescriptorType.StorageImage, gi.MergedSky[c].View, null, VkImageLayout.General);
+            // The last cascade reads no cascade above, its own image standing in for the binding.
+            run.Image(set, 7, VkDescriptorType.SampledImage, gi.MergedSky[Math.Min(c + 1, gi.Cascades - 1)].View, null, VkImageLayout.General);
             ReadOnlySpan<uint> push = [(uint)c, p, n, c == gi.Cascades - 1 ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
                 BitConverter.SingleToUInt32Bits(mergeOff ? 1 : 0), BitConverter.SingleToUInt32Bits(alone + 1), 0];
             run.Dispatch(MergeStage, set, MemoryMarshal.AsBytes(push), (p * p * p * n * n + 63) / 64);
@@ -431,7 +390,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
 
         // The faces and the reach go to the general layout for the gather, after this frame's rays read them.
-        PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.Reach }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal,
+        PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.Reach, gi.Skies }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal,
             VkImageLayout.General, readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite))]);
         for (int c = 0; c < gi.Cascades; c++)
         {
@@ -442,10 +401,12 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 3, VkDescriptorType.StorageImage, ((VulkanImageView)gi.ReachView).View, null, VkImageLayout.General);
             run.Image(set, 4, VkDescriptorType.SampledImage, gi.Partial, null, VkImageLayout.General);
             run.Image(set, 5, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
+            run.Image(set, 6, VkDescriptorType.SampledImage, gi.MergedSky[c].View, null, VkImageLayout.General);
+            run.Image(set, 7, VkDescriptorType.StorageImage, ((VulkanImageView)gi.SkiesView).View, null, VkImageLayout.General);
             ReadOnlySpan<uint> push = [(uint)c, p, (uint)gi.Texels[c], (uint)(frame & 1) | (lying is not null && lying[c] ? 2u : 0u)];
             run.Dispatch(AmbientStage, set, MemoryMarshal.AsBytes(push), (p * p * p * 6 + 63) / 64);
         }
-        PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.Reach }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General,
+        PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.Reach, gi.Skies }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General,
             VkImageLayout.ShaderReadOnlyOptimal, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead))]);
         // Each probe's own light and share, which the next frame's rays read.
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,

@@ -10,7 +10,14 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `aba10656`. Item 2's part f, a changed mesh's light, the fix the measurement chose: a
+Reviewed up to `a063a336`. Verdict 40's census at each step: on Windows each step of the four
+followed apps ends with the kinds of handle it changed, as `SDL plugin built +4 (+3 Thread, +1
+Event)`, the kinds read against the step before, so the next Windows page names the step that opens
+the thread handles the apps keep and whether `ended` gives them back; elsewhere it reads nothing.
+Right, the smallest change that makes the next page say the thing. The suite: 1,641 passed. Part g
+next, the last of the game's asks.
+
+Before it, item 2's part f came to be read, a changed mesh's light, the fix the measurement chose: a
 still mesh replaced in place, by a mesh of other vertices drawn through the same matrix whose bounds
 overlap it, stays in the field as it was until the replacement is still, the replacement not stamped
 meanwhile, so one build takes the one out and puts the other in and an emitter inside a replaced
@@ -50,25 +57,6 @@ replacement settles, sixteen frames at most, the replacement unstamped meanwhile
 rising without a dip; its tests come with its commit. The suite: 1,638 passed; on lavapipe 358
 passed and 7 skipped with no validation error.
 
-Before it, item 2's part d came to be read, the field's plan on a still scene, measured first inside
-the field's node in Release at eight columns over 1,836 meshes: the gather that turns the frame's
-draws into the plan's instances took 325 µs and the plan 1,600, since each frame built a new
-dictionary of every mesh's instance and asked it and the still meshes' of each mesh, some four
-hashes a mesh. A frame that draws the meshes the frame before did, in the same order, is read by
-place, one comparison a mesh by its instance, a skinned one by its mesh since its parts are posed
-afresh and it is never still, the frames each has been drawn the same counted in place and one that
-comes to eight settled as before; any other frame, a mesh added, moved, gone or drawn twice, is
-worked out whole as before and its order kept for the next. The plan took 92 µs where 1,600 and the
-field's node 0.39 ms of the CPU where 1.8 to 2.0; Wick's field 0.05 to 0.14 ms where 0.19 to 0.32,
-Manor's off, the GPU of both unchanged. A test draws meshes that settle, move, leave and a skinned
-figure to one plan in the same order every frame and to another turned a place each frame, which
-never reads by place, and holds the two to the same still meshes, builds, shapes and bricks frame by
-frame, failing with the settling left out of the fast path. Right, the fast path held to the slow
-one frame by frame rather than to a picture, and the whole path kept for every frame that is not the
-same. What is left of the CPU a draw costs in the field is the gather, 330 µs, and the bounce's node
-holds 0.77 ms outside part d, both noted with their numbers. The suite: 1,636 passed; on lavapipe
-356 passed and 7 skipped with no validation error. Part e next, written and in testing.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -87,10 +75,12 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    measure (Verdicts 30 and 31) still waits on a run with Windows green. The run of `4f03a8cb` reads
    the same, its captures green. The run of `0e982877`, the first with the handle census, is green
    on Linux and red on Windows by the leak test alone, whose step line names the kept handles for
-   the first time, threads' (Verdict 40); its macOS jobs run, and `2dd527f1`'s run has begun. The
-   page showed the leak test's progress line as its first of 198, `app 2`, where the line named its
-   app all along; the page shows the last of a repeated line since `88673244`. Verdicts 40 and 44
-   are carried out there, the leak test following four apps through every plugin's making, a failing
+   the first time, threads' (Verdict 40); its macOS job and captures green after; `2dd527f1`'s run
+   reads the same, and the run of the game's `0ccf8f9a` has begun, the first with the census at each
+   step (`a063a336`), whose Windows page names the step that opens the kept thread handles. The page
+   showed the leak test's progress line as its first of 198, `app 2`, where the line named its app
+   all along; the page shows the last of a repeated line since `88673244`. Verdicts 40 and 44 are
+   carried out there, the leak test following four apps through every plugin's making, a failing
    frame written where the job uploads it with each surface's means, and four references drawn again
    after a drift of up to 2.16% on the RTX 4070 itself; the next pushed run judges both. The
    examples job waits on Windows and macOS both green in one run. When every job is green the owner
@@ -273,16 +263,15 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     throughout, so the handles kept are handles to threads that have ended, left open by whatever
     started them, five an app or so, on Windows alone, where a thread's handle outlives the thread
     until it is closed and no finalizer closes a native one. The compiler is ruled out (`0e982877`),
-    the 315 the renderer's step takes and gives back being lavapipe's own. Two things. The census
-    runs at each step of the followed apps and not at their end alone, so the step line says at
-    which step the thread handles are taken and that `ended` gives them back or not, naming the
-    starter: SDL's threads, the audio device's under the dummy driver (Decision 25) and its timer,
-    the CLI's listener, the asset workers, the physics' workers and the behaviors' compiler are the
-    engine's own starters, and lavapipe's rasterizer threads the device's. And the starter named is
-    read for a thread started and never waited on or detached, an `SDL_CreateThread` without its
-    `SDL_WaitThread` or `SDL_DetachThread`, a handle kept after a join, and closed where the app
-    ends, or said to be the driver's with the evidence. The bound stays. Settled when a Windows run
-    passes whole.
+    the 315 the renderer's step takes and gives back being lavapipe's own. The census runs at each
+    step of the followed apps since `a063a336`, so the next Windows page says at which step the
+    thread handles are taken and whether `ended` gives them back, naming the starter: SDL's threads,
+    the audio device's under the dummy driver (Decision 25) and its timer, the CLI's listener, the
+    asset workers, the physics' workers and the behaviors' compiler are the engine's own starters,
+    and lavapipe's rasterizer threads the device's. And the starter named is read for a thread
+    started and never waited on or detached, an `SDL_CreateThread` without its `SDL_WaitThread` or
+    `SDL_DetachThread`, a handle kept after a join, and closed where the app ends, or said to be the
+    driver's with the evidence. The bound stays. Settled when a Windows run passes whole.
 
 ## Decisions
 
@@ -450,9 +439,30 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 40, the census at each step. On Windows each step of the four followed apps now ends with
-the kinds of handle it changed, in the form `<step> +4 (+3 Thread, +1 Event)`, so the next page
-names the step that opens the thread handles the apps keep, the five that `0e982877`'s page found
-as Thread with the process's threads flat, and whether `ended` gives them back; the step line already
-reads the steps in the order they run. Elsewhere it reads nothing, and the suite, 1,641 passed, is
-as before.
+Item 2's part g. Measured first: a box sealed on every side and a floor in the open beside it,
+stone of roughness 0.9 under a blue sky, read 37.5 in blue on the box's inside walls at a grazing
+angle where the sky gave nothing else, and the open floor 62.7; the voxel game's carved chamber at
+noon with its own dimming off read (6.6, 13.3, 24.4) in sRGB, its session's number. The probes now
+say how much sky they see: a ray of the last cascade that meets nothing brings the sky's light
+marked a quarter in its alpha, which the merge reads as it reads a ray that met a surface, so
+nothing else moves, and each merged texel carries its share of the sky in an image of its own,
+1 for such a ray and the cascade above's blended as the light is where a ray met nothing; the
+gather weighs it as it weighs the light into a sixth image of faces, and the model pass weighs the
+environment map's reflection by the share its surface's probes see along the mirror direction where
+light bounces, read from the eight probes around it as their light is, the probe a wall hides
+weighed down as it is for the light. Afterward the sealed box read 0.13 and the open floor 61.8,
+and the game's chamber (0.1, 0.1, 0.1), as it reads with no environment map at all, so the game's
+dimming of the whole map by the light at the player's eyes can go, which its session was told. The
+merge's and the gather's compute stages list their bindings by hand, which the first try missed and
+read the faces' clear value everywhere. The cost: the Cornell box's bounce 0.69 to 0.70 ms at High,
+0.49 to 0.50 at Medium and 0.37 at Low, 0.14 to 0.84 MB more, the guide's table measured again; the
+game's scene pass 1.55 to 1.65 ms and its bounce 1.26 to 1.32 in Release, the scene pass reading
+eight probes more where an environment map is set; Wick, which sets none, unchanged, and Manor,
+whose bounce is off where it is read, within its noise. The sealed box is a test; the guide and
+RENDERING.md §4 say it with its numbers. The screen's probes' rays are not weighed, the share read
+from the world's probes alone, and a reflection probe's capture stands in for the map unweighed.
+The glossy reflections' reference is drawn again, since its floor under the shelf and the chrome
+sphere's underside reflect less of the sky now, as their probes see the floor: lavapipe read it
+2.4% apart against the 2% allowed, the old and the new 1.37% apart on the RTX 4070. The suite 1,642
+passed, the compiler's test of the lights set taking the sky's binding; on lavapipe 362 passed and 7
+skipped with no validation error.

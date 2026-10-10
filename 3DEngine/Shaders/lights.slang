@@ -310,6 +310,14 @@ public float3 bounced(float3 p, float3 n)
     return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
+// The share of the sky a surface at p facing n sees along r, as the probes around it saw it, or the
+// whole sky where no cascade of probes holds p.
+public float skySeen(float3 p, float3 n, float3 r)
+{
+    return skyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField,
+        p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
+}
+
 // The light a glossy surface at p facing n reflects along r, traced through the window's depth and
 // past it through the scene's distance field, with in a how much of it is known: 1 where a ray met
 // a surface, faded at the picture's edge where the frame before's picture gives its light, and 0

@@ -653,9 +653,21 @@ light of the row in front of it as well as theirs. A probe nearer a surface than
 spacing, or inside a mesh, is moved along the field's normal to stand that far off it, half its
 spacing at most, as DDGI moves its probes (`placed` in `gi_trace.slang`), so the probes in a wall's
 or a ceiling's plane stand in the room before it; the trace moves each probe before its rays leave,
-the merge reads where it moved them, and the gather writes each probe's move into its faces'
-alpha, two more than its move along each face's axis in its spacing and 0 for a probe that holds
-nothing, which every pass that reads the faces takes its place from.
+the merge reads where it moved them, and the gather writes each probe's move into its faces' alpha,
+two more than its move along each face's axis in its spacing and 0 for a probe that holds nothing,
+which every pass that reads the faces takes its place from. A ray of the last cascade that meets
+nothing brings the sky's light marked a quarter in its alpha, which the merge reads as it reads a
+ray that met a surface, and each merged texel carries the share of it that reached the sky in an
+image of its own, 1 for a ray of the last cascade that met nothing and the cascade above's blended
+where a ray met nothing, which the gather weighs as it weighs the light into a sixth image of
+faces, each face's share of the sky. The model pass weighs the environment map's reflection by it
+where light bounces, read along the mirror direction from the eight probes around the surface as
+the light is (`skyAt` in `gi.slang`), since the occlusion alone weighed it before and nothing said
+the sky was not there: a box sealed on every side under a blue sky read 37.5 in blue on its rough
+inside walls and 0.13 after, an open floor 62.7 and 61.8 (`GlobalIlluminationTests`). It took the
+voxel game's scene pass at eight columns from 1.55 to 1.65 ms of the GPU and its bounce from 1.26
+to 1.32 in a Release build, and the Cornell box's bounce from 0.69 to 0.70 ms at `High` with 0.84
+MB more, by `./e3d command profile` and `gi.state`.
 
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the

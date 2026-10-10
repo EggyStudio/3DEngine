@@ -366,4 +366,54 @@ public sealed partial class GlobalIlluminationTests
         UnloadMesh(lamp);
         UnloadMesh(cube);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Room_Sealed_From_The_Sky_Reflects_None_Of_It_Where_An_Open_Floor_Reflects_It()
+    {
+        // A box sealed on every side and a floor under the open sky beside it, both of stone as
+        // rough as the voxel game's, under a blue sky, looked at along the box's inside wall and
+        // across the floor at a grazing angle, where a rough surface reflects most. Weighed by the
+        // occlusion alone the sky's reflection read 37.5 in blue inside the box, the open floor
+        // 62.7; weighed by the share of the sky the probes see, 0.13 and 61.8, as this test
+        // measured on an RTX 4070.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var slab = GenMeshCube(1, 1, 1);
+        var stone = new ModelMaterial(Color.Gray) { Roughness = 0.9f };
+        var target = LoadRenderTexture(160, 96);
+        var inside = new Camera3D(new Vector3(-1.6f, 1.2f, 1.6f), new Vector3(1.8f, 1.1f, -1.2f), Vector3.UnitY, 60);
+        var open = new Camera3D(new Vector3(8, 1.2f, 3), new Vector3(8, 0, -3), Vector3.UnitY, 60);
+        float Read(Camera3D camera, int frames)
+        {
+            for (int frame = 0; frame < frames; frame++)
+            {
+                BeginDrawing();
+                BeginTextureMode(target);
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                // The box, four by three by four inside, and the floor beside it.
+                foreach (var (at, size) in new[] { (new Vector3(0, -0.25f, 0), new Vector3(5, 0.5f, 5)), (new Vector3(0, 3.25f, 0), new Vector3(5, 0.5f, 5)),
+                    (new Vector3(0, 1.5f, -2.25f), new Vector3(5, 3, 0.5f)), (new Vector3(0, 1.5f, 2.25f), new Vector3(5, 3, 0.5f)),
+                    (new Vector3(-2.25f, 1.5f, 0), new Vector3(0.5f, 3, 4)), (new Vector3(2.25f, 1.5f, 0), new Vector3(0.5f, 3, 4)),
+                    (new Vector3(8, -0.25f, 0), new Vector3(6, 0.5f, 8)) })
+                    DrawMesh(slab, stone, Matrix4x4.CreateScale(size) * Matrix4x4.CreateTranslation(at));
+                EndMode3D();
+                EndTextureMode();
+                ClearBackground(Color.Black);
+                DrawTexture(target.Texture, 0, 0, Color.White);
+                EndDrawing();
+            }
+            return Mean(LoadImageFromTexture(target.Texture), 0, 0, 160, 96).Z;
+        }
+
+        var dark = (Inside: Read(inside, SceneFieldPlan.SettleFrames + 30), Open: Read(open, 20));
+        SetEnvironmentMap(GenImageColor(64, 32, new Color(60, 120, 255)));
+        var sky = (Inside: Read(inside, 30), Open: Read(open, 30));
+        sky.Open.Should().BeGreaterThan(dark.Open + 40, "the open floor reflects the sky");
+        sky.Inside.Should().BeLessThan(dark.Inside + 3, $"and the sealed room none of it, {sky.Inside:0.0} in blue against {dark.Inside:0.0} with no sky");
+        UnloadRenderTexture(target);
+        UnloadMesh(slab);
+    }
 }
