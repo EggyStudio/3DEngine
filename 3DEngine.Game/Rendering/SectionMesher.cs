@@ -11,9 +11,10 @@ namespace Engine.Game;
 /// <para>
 /// Each face is two triangles of its own, so a flat floor of 256 blocks is 512 triangles, where
 /// greedy meshing would join it into a few. The faces are kept apart so a texture can be laid on
-/// each later, and so each corner keeps a color of its own. The whole section is one mesh, its
-/// surfaces told apart by their vertices' colors, which the scene's distance field reads as each
-/// block's color as the model pass does.
+/// each later, and so each corner keeps a color of its own. A section's opaque faces are one mesh,
+/// their surfaces told apart by their vertices' colors, which the scene's distance field reads as
+/// each block's color as the model pass does, and its see-through faces of glass, ice and water a
+/// second, each vertex's alpha its surface's.
 /// </para>
 /// <para>
 /// A corner is shaded as Minecraft's smooth lighting shades it, from the four cells in front of the
@@ -46,14 +47,26 @@ public sealed class SectionMesher
     /// <summary>Whether a face's corners are darkened where blocks meet around them.</summary>
     public bool CornerShade { get; set; } = true;
 
-    /// <summary>The last section's faces, as the vertices of a mesh.</summary>
-    public List<ModelVertex> Vertices { get; } = [];
+    /// <summary>Faces as the vertices of a mesh, the color of each vertex, its surface's darkened by its shade, and their triangles.</summary>
+    public sealed class Faces
+    {
+        public readonly List<ModelVertex> Vertices = [];
+        public readonly List<Color> Colors = [];
+        public readonly List<uint> Indices = [];
 
-    /// <summary>The color of each of <see cref="Vertices"/>, its surface's darkened by its shade.</summary>
-    public List<Color> Colors { get; } = [];
+        public void Clear()
+        {
+            Vertices.Clear();
+            Colors.Clear();
+            Indices.Clear();
+        }
+    }
 
-    /// <summary>The triangles of <see cref="Vertices"/>.</summary>
-    public List<uint> Indices { get; } = [];
+    /// <summary>The last section's faces of opaque blocks.</summary>
+    public Faces Solid { get; } = new();
+
+    /// <summary>The last section's faces of see-through blocks, glass, ice and water, each vertex's alpha its surface's.</summary>
+    public Faces SeeThrough { get; } = new();
 
     /// <summary>The blocks of the last section that give off light, by their index in it.</summary>
     public List<(int Index, BlockId Block)> Emitters { get; } = [];
@@ -126,13 +139,12 @@ public sealed class SectionMesher
         return 1 - 0.98f * dark * dark * dark * dark;
     }
 
-    /// <summary>Meshes a section into <see cref="Vertices"/>, <see cref="Colors"/>, <see cref="Indices"/> and <see cref="Emitters"/>.</summary>
+    /// <summary>Meshes a section into <see cref="Solid"/>, <see cref="SeeThrough"/> and <see cref="Emitters"/>.</summary>
     /// <returns>False when one of the eight columns around it is not loaded, so its edges cannot be told yet, and nothing is meshed.</returns>
     public bool Mesh(VoxelWorld world, SectionKey key)
     {
-        Vertices.Clear();
-        Colors.Clear();
-        Indices.Clear();
+        Solid.Clear();
+        SeeThrough.Clear();
         Emitters.Clear();
 
         for (int dz = -1; dz <= 1; dz++)
@@ -159,29 +171,41 @@ public sealed class SectionMesher
                         Emitters.Add((Section.Index(x, y, z), block));
                         continue;
                     }
+                    // Water whose top is open stands a block's eighth low, as Minecraft's does.
+                    var low = block == BlockId.Water && _blocks[at + Steps[2]] != (ushort)BlockId.Water;
                     for (int face = 0; face < 6; face++)
                     {
-                        // Every block but air hides the face beside it, an emitter's cube included.
-                        if (_blocks[at + Steps[face]] != 0) continue;
-                        Add(face == 2 ? info.Top : face == 3 ? info.Bottom : info.Side, face, at, new Vector3(x, y, z));
+                        if (!Shows(block, info.Kind, (BlockId)_blocks[at + Steps[face]])) continue;
+                        Add(face == 2 ? info.Top : face == 3 ? info.Bottom : info.Side, face, at, new Vector3(x, y, z), low);
                     }
                 }
         return true;
     }
 
-    private void Add(int surface, int face, int at, Vector3 block)
+    // Whether a block's face shows beside a neighbor. An opaque block shows a face to anything that is
+    // not opaque, and a see-through block to anything that is neither opaque nor of its own kind, so
+    // two panes of glass or two blocks of water meet with no face between them.
+    private static bool Shows(BlockId block, BlockKind kind, BlockId neighbor)
+    {
+        if (Blocks.IsOpaque(neighbor)) return false;
+        return kind == BlockKind.Opaque || neighbor != block;
+    }
+
+    private void Add(int surface, int face, int at, Vector3 block, bool low)
     {
         // A tinted surface takes its column's grass or foliage color at the block's place.
         var place = (int)block.Z * Section.Size + (int)block.X;
-        var color = Surfaces.All[surface].Under(_column.GrassTint[place], _column.FoliageTint[place]);
-        var first = (uint)Vertices.Count;
+        var look = Surfaces.All[surface];
+        var color = look.Under(_column.GrassTint[place], _column.FoliageTint[place]);
+        var faces = color.A < 255 ? SeeThrough : Solid;
+        var first = (uint)faces.Vertices.Count;
         var front = at + Steps[face];
         Span<int> occlusion = stackalloc int[4];
 
         for (int i = 0; i < 4; i++)
         {
             int side1 = front + Side1[face, i], side2 = front + Side2[face, i], across = front + Across[face, i];
-            bool closed1 = _blocks[side1] != 0, closed2 = _blocks[side2] != 0, closed3 = _blocks[across] != 0;
+            bool closed1 = Blocks.IsOpaque((BlockId)_blocks[side1]), closed2 = Blocks.IsOpaque((BlockId)_blocks[side2]), closed3 = Blocks.IsOpaque((BlockId)_blocks[across]);
             // Two blocks on either side close the corner whatever is across it, as Minecraft has it.
             occlusion[i] = closed1 && closed2 ? 0 : 3 - (closed1 ? 1 : 0) - (closed2 ? 1 : 0) - (closed3 ? 1 : 0);
 
@@ -193,14 +217,16 @@ public sealed class SectionMesher
             // The light kept is linear and the vertex's color sRGB, so it is encoded as the color is.
             var kept = LightLevels ? MathF.Pow(Lit((float)Math.Max(sky, lit) / open), 1 / 2.2f) : 1;
             var shade = kept * (CornerShade ? Occlusion[occlusion[i]] : 1);
-            Vertices.Add(new ModelVertex(block + Corners[face][i], Normals[face], Uvs[face][i]));
-            Colors.Add(new Color((byte)MathF.Round(color.R * shade), (byte)MathF.Round(color.G * shade), (byte)MathF.Round(color.B * shade)));
+            var corner = Corners[face][i];
+            if (low && corner.Y == 1) corner.Y = 0.875f;
+            faces.Vertices.Add(new ModelVertex(block + corner, Normals[face], Uvs[face][i]));
+            faces.Colors.Add(new Color((byte)MathF.Round(color.R * shade), (byte)MathF.Round(color.G * shade), (byte)MathF.Round(color.B * shade), color.A));
         }
 
         // The quad is split along the diagonal whose corners are less closed, so a closed corner
         // darkens one triangle softly rather than both along a line. The choice follows the blocks
         // alone, so a change of light keeps the triangles and changes only the colors.
-        var indices = Indices;
+        var indices = faces.Indices;
         if (occlusion[0] + occlusion[2] < occlusion[1] + occlusion[3])
         {
             indices.Add(first + 1);

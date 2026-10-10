@@ -88,6 +88,10 @@ public static class Surfaces
     public static readonly int CactusSide = Add("cactus side", new Color(78, 128, 42));
     public static readonly int CactusTop = Add("cactus top", new Color(108, 150, 64));
     public static readonly int Gravel = Add("gravel", new Color(132, 126, 124));
+    // A see-through surface's alpha is how much of it covers what is behind.
+    public static readonly int Glass = Add("glass", new Color(214, 232, 236, 64), roughness: 0.05f);
+    public static readonly int Water = Add("water", new Color(44, 92, 196, 168), roughness: 0.05f);
+    public static readonly int Ice = Add("ice", new Color(164, 200, 242, 190), roughness: 0.1f);
 
     /// <summary>Every surface, its index its id.</summary>
     public static IReadOnlyList<Surface> All => _all;

@@ -29,7 +29,7 @@ driven by `./e3d` should, so it leaves the saves as they were.
 |---|---|
 | Mouse | Look |
 | W, A, S, D | Walk |
-| Space | Jump, or rise while flying. Pressed twice quickly, start or stop flying |
+| Space | Jump, or rise while flying or swimming. Pressed twice quickly, start or stop flying |
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
 | Left button | Break the block looked at, four a second while held |
@@ -83,6 +83,20 @@ values at the corners of Minecraft's colormaps, so their green changes smoothly 
 edge, yellowing near a desert and cooling toward the snow, while the biome itself changes at once.
 Birch and spruce leaves keep a color of their own. A hot, dry climate also flattens the land, so a
 desert lies flat and the hills sink as they near it.
+
+## Water, glass and ice
+
+Wide basins sink the land under the sea level of 48, where water stands over a floor of sand near
+the shore and gravel deeper, its top frozen to ice where the climate is cold, as about a fourteenth
+of the land is on seed 1. Water stands still and does not flow. The player swims in it, sinking
+slowly, rising while Space is held and moving at a little over half speed, and sees through a blue
+tint while the eye is under it. Glass, ice and water are drawn see-through, a second mesh of each
+section drawn after the opaque ones and farthest first, each vertex's alpha its surface's. They
+cast no shadow, which keeps them out of the scene's distance field as well, since the field holds
+a see-through mesh as solid, so the sun and the light that bounces come through a window of glass
+as through an opening: a room lit through a skylight reads the same with glass in it as without.
+Glass lets the light levels through, and water takes a level more for each block of it, so the sky
+fades with depth and a lake's floor darkens as it deepens.
 
 ## Trees and structures
 
@@ -142,8 +156,8 @@ the light that bounces alone.
 
 ## What is not here yet
 
-Textures, water and anything seen through, leaves included, which are solid. Greedy meshing. Light
-that passes through leaves at a cost, as Minecraft's does. Villages of several houses and paths, and
+Textures, and leaves seen through, which are solid. Water that flows. Greedy meshing. Light that
+passes through leaves at a cost, as Minecraft's does. Villages of several houses and paths, and
 structures read from files rather than built in code. Caves open to the sky. Mobs, items, an
 inventory and survival.
 

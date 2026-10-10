@@ -215,7 +215,8 @@ public sealed class VoxelGame : IDisposable
     {
         if (Target is not { Inside: false } hit) return false;
         var (x, y, z) = hit.Beside;
-        if (Player.Body.Overlaps(x, y, z) || World.GetBlock(x, y, z) != BlockId.Air) return false;
+        // A block goes into air or water, the water giving way to it.
+        if (Player.Body.Overlaps(x, y, z) || World.GetBlock(x, y, z) is not (BlockId.Air or BlockId.Water)) return false;
         return World.SetBlock(x, y, z, block);
     }
 
@@ -229,6 +230,8 @@ public sealed class VoxelGame : IDisposable
         if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit);
         EndMode3D();
 
+        // Under water the view is tinted blue, as Minecraft's is.
+        if (Player.EyeInWater) DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), new Color(20, 50, 140, 110));
         if (!HudHidden)
         {
             Hud.DrawCrosshair();

@@ -82,7 +82,7 @@ public sealed class VoxelWorld
         if (y < 0) return true;
         if (y >= ChunkColumn.Height) return false;
         if (!_columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column)) return true;
-        return Blocks.IsSolid(column.Get(x & Section.Mask, y, z & Section.Mask));
+        return Blocks.Collides(column.Get(x & Section.Mask, y, z & Section.Mask));
     }
 
     /// <summary>

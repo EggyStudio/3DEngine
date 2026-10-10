@@ -3,16 +3,20 @@ namespace Engine.Game;
 /// <summary>
 /// Land of the biomes a climate chooses: rolling plains and forests of oak and birch, taiga and
 /// snowy plains of spruce where it is cold, flat desert of sand and cactus where it is hot and
-/// dry, mountains of stone with snowy tops, sandy hollows, and caves under the ground.
+/// dry, mountains of stone with snowy tops, lakes and seas up to sea level over sand and gravel,
+/// frozen where it is cold, sandy shores, and caves under the ground.
 /// </summary>
 public sealed class Overworld : IWorldGenerator
 {
+    /// <summary>The height water stands to over lower ground.</summary>
+    public const int SeaLevel = 48;
+
     private const int SnowLine = 92;
     // Ground this high is mountains, bare stone, whatever the climate.
     private const int MountainsFrom = 82;
     private const int SandBelow = 50;
 
-    private readonly Noise _hills, _mountains, _sand, _gravel, _tunnelA, _tunnelB, _caverns;
+    private readonly Noise _hills, _mountains, _sand, _gravel, _tunnelA, _tunnelB, _caverns, _basins;
     private readonly Climate _climate;
 
     public Overworld(int seed)
@@ -25,6 +29,7 @@ public sealed class Overworld : IWorldGenerator
         _tunnelA = new Noise(seed + 4);
         _tunnelB = new Noise(seed + 5);
         _caverns = new Noise(seed + 6);
+        _basins = new Noise(seed + 7);
         _climate = new Climate(seed);
     }
 
@@ -43,7 +48,10 @@ public sealed class Overworld : IWorldGenerator
         var dry = Climate.Dryness(temperature, humidity);
         var hills = _hills.Fractal(x / 160f, z / 160f, 5) * 18 * (1 - 0.6f * dry);
         var mountains = Math.Max(0, _mountains.Fractal(x / 420f, z / 420f, 3)) * (1 - dry);
-        var height = Math.Clamp((int)(56 + hills + mountains * mountains * 110), 4, ChunkColumn.Height - 12);
+        // Wide basins sink the land under the sea level, the lakes and seas of the world, as
+        // Minecraft's continentalness lowers its oceans.
+        var basin = Math.Clamp((-_basins.Fractal(x / 520f, z / 520f, 3) - 0.1f) / 0.3f, 0, 1);
+        var height = Math.Clamp((int)(56 + hills + mountains * mountains * 110 - basin * basin * (3 - 2 * basin) * 22), 4, ChunkColumn.Height - 12);
         return (height, temperature, humidity, Climate.Choose(temperature, humidity, height, MountainsFrom));
     }
 
@@ -75,6 +83,12 @@ public sealed class Overworld : IWorldGenerator
         var (height, temperature, humidity, biome) = At(x, z);
         var temperate = biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest;
         var sandy = temperate && height < SandBelow && _sand.At(x / 48f, z / 48f) > 0.05f;
+        // Ground under the water is sand near the shore and gravel deeper, as a sea's floor is.
+        if (height < SeaLevel)
+        {
+            var floor = height >= SeaLevel - 4 ? BlockId.Sand : BlockId.Gravel;
+            return (height, biome, floor, floor, temperature, humidity);
+        }
         var top = height >= SnowLine ? BlockId.Snow
             : sandy ? BlockId.Sand
             : biome == Biomes.Mountains && _gravel.At(x / 24f, z / 24f) > 0.3f ? BlockId.Gravel
@@ -103,6 +117,9 @@ public sealed class Overworld : IWorldGenerator
                     if (y < height - 3 && IsCave(wx, y, wz)) continue;
                     column.Set(x, y, z, block);
                 }
+                // Water over lower ground, its top frozen where the climate is cold.
+                for (int y = height + 1; y <= SeaLevel; y++)
+                    column.Set(x, y, z, y == SeaLevel && temperature < 0.3f ? BlockId.Ice : BlockId.Water);
             }
 
         var clip = new ColumnClip(column);

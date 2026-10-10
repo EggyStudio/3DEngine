@@ -3,7 +3,8 @@ namespace Engine.Game;
 /// <summary>
 /// The light levels of Minecraft: the sky's, 15 under the open sky, falling straight down without
 /// losing any and one level for each block it goes sideways or up, and the light-giving blocks', one
-/// level less for each block from the block that gives it. Solid blocks stop both.
+/// level less for each block from the block that gives it. Opaque blocks stop both, glass lets them
+/// through, and water takes a level more for each block of it, so the sky's light fades with depth.
 /// </summary>
 /// <remarks>
 /// Each block's levels darken the faces beside it where neither the sky nor a lamp reaches, so a
@@ -21,8 +22,16 @@ public static class Lighting
     internal static readonly int[] Dz = [0, 0, 0, 0, 1, -1];
     internal const int Down = 3;
 
-    /// <summary>The level a neighbor takes from a block at <paramref name="level"/> the way <paramref name="direction"/> goes.</summary>
-    internal static int Passed(int level, int direction, bool sky) => sky && direction == Down && level == Max ? Max : level - 1;
+    /// <summary>The level a neighbor of a kind of block takes from a block at <paramref name="level"/> the way <paramref name="direction"/> goes, or 0 for one light does not enter.</summary>
+    internal static int Into(int level, int direction, bool sky, BlockId neighbor)
+    {
+        if (Blocks.IsOpaque(neighbor)) return 0;
+        if (neighbor == BlockId.Water) return level - 2;
+        return sky && direction == Down && level == Max ? Max : level - 1;
+    }
+
+    // Whether the sky shines straight down through a block without losing a level, as through air and glass.
+    private static bool Clear(BlockId block) => !Blocks.IsOpaque(block) && block != BlockId.Water;
 
     /// <summary>
     /// Works out a column's light as though its sides were walls, on the worker that generated it,
@@ -35,13 +44,14 @@ public static class Lighting
             for (int x = 0; x < Section.Size; x++)
             {
                 var y = ChunkColumn.Height - 1;
-                for (; y >= 0 && !Blocks.IsSolid(column.Get(x, y, z)); y--)
+                for (; y >= 0 && Clear(column.Get(x, y, z)); y--)
                     column.Sections[y >> Section.Shift].SetLevel(Section.Index(x, y & Section.Mask, z), true, Max);
                 tops[z * Section.Size + x] = y;
             }
 
         // The open sky beside a column whose top is higher spreads sideways under its overhang and
-        // into any cave opening from it, so those cells are where the spreading starts.
+        // into any cave opening from it, and the lowest open cell of each place spreads down into
+        // the water under it, so those cells are where the spreading starts.
         var queue = new Queue<(int X, int Y, int Z)>();
         for (int z = 0; z < Section.Size; z++)
             for (int x = 0; x < Section.Size; x++)
@@ -53,7 +63,8 @@ public static class Lighting
                     if (Dy[d] != 0 || (uint)nx >= Section.Size || (uint)nz >= Section.Size) continue;
                     highest = Math.Max(highest, tops[nz * Section.Size + nx]);
                 }
-                for (int y = tops[z * Section.Size + x] + 1; y <= highest; y++) queue.Enqueue((x, y, z));
+                var lowest = tops[z * Section.Size + x] + 1;
+                for (int y = lowest; y <= Math.Max(highest, lowest) && y < ChunkColumn.Height; y++) queue.Enqueue((x, y, z));
             }
         Spread(column, queue, sky: true);
 
@@ -81,8 +92,7 @@ public static class Lighting
                 if ((uint)x >= Section.Size || (uint)z >= Section.Size || (uint)y >= ChunkColumn.Height) continue;
                 var section = column.Sections[y >> Section.Shift];
                 var index = Section.Index(x, y & Section.Mask, z);
-                if (Blocks.IsSolid((BlockId)section.Blocks[index])) continue;
-                var next = Passed(level, d, sky);
+                var next = Into(level, d, sky, (BlockId)section.Blocks[index]);
                 if (section.Level(index, sky) >= next) continue;
                 section.SetLevel(index, sky, next);
                 queue.Enqueue((x, y, z));
@@ -153,11 +163,16 @@ public sealed class LightEngine(VoxelWorld world)
         Spread(_block, sky: false);
     }
 
-    /// <summary>Takes back and spreads again the light around a block that has changed to <paramref name="now"/>.</summary>
+    /// <summary>
+    /// Takes back and spreads again the light around a block that has changed to <paramref name="now"/>:
+    /// the levels at the block and every level that came from them are taken away, and the light
+    /// around spreads back in as the new block lets it, which covers every change between air, glass,
+    /// water and an opaque block alike.
+    /// </summary>
     public void Changed(int x, int y, int z, BlockId now)
     {
         if (!TryCell(x, y, z, out var section, out var index)) return;
-        var solid = Blocks.IsSolid(now);
+        var opaque = Blocks.IsOpaque(now);
 
         var held = section.BlockLight(index);
         if (held > 0)
@@ -171,20 +186,20 @@ public sealed class LightEngine(VoxelWorld world)
             Set(x, y, z, section, index, false, gives);
             _block.Enqueue((x, y, z));
         }
-        if (!solid) Around(x, y, z, _block);
+        if (!opaque) Around(x, y, z, _block);
         Spread(_block, sky: false);
 
         var sky = section.SkyLight(index);
-        if (solid && sky > 0)
+        if (sky > 0)
         {
             Set(x, y, z, section, index, true, 0);
             _taken.Enqueue((x, y, z, sky));
             Take(_sky, sky: true);
         }
-        else if (!solid)
+        if (!opaque)
         {
             // The open sky above the world's top shines straight in.
-            if (y == ChunkColumn.Height - 1) Set(x, y, z, section, index, true, Lighting.Max);
+            if (y == ChunkColumn.Height - 1) Set(x, y, z, section, index, true, Lighting.Into(Lighting.Max, Lighting.Down, true, now));
             Around(x, y, z, _sky);
         }
         Spread(_sky, sky: true);
@@ -210,7 +225,7 @@ public sealed class LightEngine(VoxelWorld world)
                 var level = section.Level(index, sky);
                 if (level == 0) continue;
                 // A light-giving block keeps its own level, which nothing else writes into it.
-                var keeps = Blocks.IsSolid((BlockId)section.Blocks[index]);
+                var keeps = Blocks.IsOpaque((BlockId)section.Blocks[index]);
                 var came = level < cell.Level || sky && d == Lighting.Down && cell.Level == Lighting.Max && level == Lighting.Max;
                 if (came && !keeps)
                 {
@@ -232,8 +247,8 @@ public sealed class LightEngine(VoxelWorld world)
             for (int d = 0; d < 6; d++)
             {
                 int x = cell.X + Lighting.Dx[d], y = cell.Y + Lighting.Dy[d], z = cell.Z + Lighting.Dz[d];
-                if (!TryCell(x, y, z, out var section, out var index) || Blocks.IsSolid((BlockId)section.Blocks[index])) continue;
-                var next = Lighting.Passed(level, d, sky);
+                if (!TryCell(x, y, z, out var section, out var index)) continue;
+                var next = Lighting.Into(level, d, sky, (BlockId)section.Blocks[index]);
                 if (section.Level(index, sky) >= next) continue;
                 Set(x, y, z, section, index, sky, next);
                 queue.Enqueue((x, y, z));

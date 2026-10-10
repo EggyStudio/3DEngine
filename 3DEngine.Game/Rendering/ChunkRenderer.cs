@@ -28,24 +28,64 @@ namespace Engine.Game;
 /// </remarks>
 public sealed class ChunkRenderer : IDisposable
 {
-    private sealed class SectionMeshes(Matrix4x4 transform)
+    // One of a section's meshes and the arrays it was made from, kept to tell a new meshing's faces
+    // from the same faces in new colors.
+    private sealed class Part
     {
-        public readonly Matrix4x4 Transform = transform;
         public ModelMesh Mesh;
         public ModelVertex[] Vertices = [];
         public uint[] Indices = [];
         public Color[] Colors = [];
+
+        public void Take(SectionMesher.Faces faces)
+        {
+            var vertices = CollectionsMarshal.AsSpan(faces.Vertices);
+            var indices = CollectionsMarshal.AsSpan(faces.Indices);
+            var colors = CollectionsMarshal.AsSpan(faces.Colors);
+            if (vertices.SequenceEqual(Vertices) && indices.SequenceEqual(Indices))
+            {
+                if (colors.SequenceEqual(Colors)) return;
+                UpdateMeshBuffer<Color>(Mesh, 3, colors, 0);
+                Colors = colors.ToArray();
+                return;
+            }
+            Forget();
+            // The store keeps the arrays it is given until the frame uploads them, so each mesh has
+            // arrays of its own that nothing changes afterward.
+            (Vertices, Indices, Colors) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
+            Mesh = Vertices.Length > 0 ? UploadMesh(Vertices, Indices, Colors, null) : default;
+        }
+
+        public void Forget()
+        {
+            if (Mesh.IsValid) UnloadMesh(Mesh);
+            Mesh = default;
+        }
+    }
+
+    private sealed class SectionMeshes(Matrix4x4 transform, Vector3 middle)
+    {
+        public readonly Matrix4x4 Transform = transform;
+        public readonly Vector3 Middle = middle;
+        public readonly Part Solid = new(), SeeThrough = new();
         public readonly List<(BlockId Block, Matrix4x4 At)> Emitters = [];
     }
 
-    // Every section's faces are drawn with this, their colors in their vertices.
+    // Every section's opaque faces are drawn with this, their colors in their vertices.
     private static readonly ModelMaterial Terrain = new(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, Roughness = 0.9f };
+
+    // And its see-through faces with this, each vertex's alpha its surface's. An alpha under 255 makes
+    // the draw blend, which the vertices' alpha alone does not. They cast no shadow, which keeps them
+    // out of the scene's distance field too, since the field holds a see-through mesh as solid and
+    // a window of glass would then shut out the light that bounces in through it.
+    private static readonly ModelMaterial SeeThrough = new(new Color(255, 255, 255, 254)) { AlphaMode = MaterialAlphaMode.Blend, Roughness = 0.08f, CastsShadows = false };
 
     private readonly Dictionary<SectionKey, SectionMeshes> _sections = [];
     private readonly SectionMesher _mesher = new();
     private readonly ModelMesh _cube = GenMeshCube(1, 1, 1);
     private readonly List<Matrix4x4>[] _emitterDraws = [.. Blocks.All.Select(_ => new List<Matrix4x4>())];
     private readonly List<SectionKey> _queue = [];
+    private readonly List<(float Distance, SectionMeshes Entry)> _seeThrough = [];
     private ModelMaterial[] _lamps = [];
     private float _glowScale = 1;
 
@@ -128,33 +168,16 @@ public sealed class ChunkRenderer : IDisposable
         }
         if (!_mesher.Mesh(world, key)) return false;
 
-        if (_mesher.Vertices.Count == 0 && _mesher.Emitters.Count == 0)
+        if (_mesher.Solid.Vertices.Count == 0 && _mesher.SeeThrough.Vertices.Count == 0 && _mesher.Emitters.Count == 0)
         {
             Forget(key);
             return true;
         }
         if (!_sections.TryGetValue(key, out var entry))
-            _sections[key] = entry = new SectionMeshes(Matrix4x4.CreateTranslation(key.Origin));
+            _sections[key] = entry = new SectionMeshes(Matrix4x4.CreateTranslation(key.Origin), key.Origin + new Vector3(Section.Size / 2f));
 
-        var vertices = CollectionsMarshal.AsSpan(_mesher.Vertices);
-        var indices = CollectionsMarshal.AsSpan(_mesher.Indices);
-        var colors = CollectionsMarshal.AsSpan(_mesher.Colors);
-        if (vertices.SequenceEqual(entry.Vertices) && indices.SequenceEqual(entry.Indices))
-        {
-            if (!colors.SequenceEqual(entry.Colors))
-            {
-                UpdateMeshBuffer<Color>(entry.Mesh, 3, colors, 0);
-                entry.Colors = colors.ToArray();
-            }
-        }
-        else
-        {
-            if (entry.Mesh.IsValid) UnloadMesh(entry.Mesh);
-            // The store keeps the arrays it is given until the frame uploads them, so each mesh has
-            // arrays of its own that nothing changes afterward.
-            (entry.Vertices, entry.Indices, entry.Colors) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
-            entry.Mesh = entry.Vertices.Length > 0 ? UploadMesh(entry.Vertices, entry.Indices, entry.Colors, null) : default;
-        }
+        entry.Solid.Take(_mesher.Solid);
+        entry.SeeThrough.Take(_mesher.SeeThrough);
 
         entry.Emitters.Clear();
         foreach (var (index, block) in _mesher.Emitters)
@@ -167,7 +190,9 @@ public sealed class ChunkRenderer : IDisposable
 
     private void Forget(SectionKey key)
     {
-        if (_sections.Remove(key, out var entry) && entry.Mesh.IsValid) UnloadMesh(entry.Mesh);
+        if (!_sections.Remove(key, out var entry)) return;
+        entry.Solid.Forget();
+        entry.SeeThrough.Forget();
     }
 
     /// <summary>Lets go of the meshes of a column's sections, as it unloads.</summary>
@@ -189,18 +214,30 @@ public sealed class ChunkRenderer : IDisposable
         var reach = renderDistance * renderDistance + renderDistance;
         int draws = 0, triangles = 0, lamps = 0;
         foreach (var list in _emitterDraws) list.Clear();
+        _seeThrough.Clear();
 
         foreach (var (key, entry) in _sections)
         {
             int dx = key.X - cx, dz = key.Z - cz;
             if (dx * dx + dz * dz > reach) continue;
-            if (entry.Mesh.IsValid)
+            if (entry.Solid.Mesh.IsValid)
             {
-                DrawMesh(entry.Mesh, Terrain, entry.Transform);
+                DrawMesh(entry.Solid.Mesh, Terrain, entry.Transform);
                 draws++;
-                triangles += entry.Mesh.TriangleCount;
+                triangles += entry.Solid.Mesh.TriangleCount;
             }
+            if (entry.SeeThrough.Mesh.IsValid) _seeThrough.Add((Vector3.DistanceSquared(entry.Middle, eye), entry));
             foreach (var (block, at) in entry.Emitters) _emitterDraws[(int)block].Add(at);
+        }
+
+        // See-through sections farthest first, so each blends over what lies behind it. The faces
+        // inside one section are drawn in the order they were meshed.
+        _seeThrough.Sort((a, b) => b.Distance.CompareTo(a.Distance));
+        foreach (var (_, entry) in _seeThrough)
+        {
+            DrawMesh(entry.SeeThrough.Mesh, SeeThrough, entry.Transform);
+            draws++;
+            triangles += entry.SeeThrough.Mesh.TriangleCount;
         }
 
         for (int block = 0; block < _emitterDraws.Length; block++)

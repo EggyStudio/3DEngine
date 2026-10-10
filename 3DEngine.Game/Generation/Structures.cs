@@ -79,7 +79,7 @@ public sealed class VillageHouse : Structure
     protected override bool Suits(Biome biome, int ground, uint hash, out int y)
     {
         y = ground;
-        return biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest || biome == Biomes.Taiga;
+        return ground >= Overworld.SeaLevel && (biome == Biomes.Plains || biome == Biomes.Forest || biome == Biomes.BirchForest || biome == Biomes.Taiga);
     }
 
     public override void Build(ColumnClip clip, StructureStart start)
@@ -126,7 +126,7 @@ public sealed class Igloo : Structure
     {
         y = ground;
         // Open snow alone, since the snowy taiga's spruces would hide it.
-        return biome == Biomes.SnowyPlains;
+        return ground >= Overworld.SeaLevel && biome == Biomes.SnowyPlains;
     }
 
     public override void Build(ColumnClip clip, StructureStart start)
@@ -163,7 +163,7 @@ public sealed class DesertPyramid : Structure
     protected override bool Suits(Biome biome, int ground, uint hash, out int y)
     {
         y = ground;
-        return biome == Biomes.Desert;
+        return ground >= Overworld.SeaLevel && biome == Biomes.Desert;
     }
 
     public override void Build(ColumnClip clip, StructureStart start)

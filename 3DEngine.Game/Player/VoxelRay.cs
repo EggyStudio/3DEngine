@@ -15,7 +15,7 @@ public readonly record struct BlockHit(int X, int Y, int Z, int NormalX, int Nor
 /// <summary>Steps a ray through the grid of blocks one block at a time, after Amanatides and Woo.</summary>
 public static class VoxelRay
 {
-    /// <summary>The first block that is not air along a ray within <paramref name="reach"/>, or null.</summary>
+    /// <summary>The first block the crosshair rests on along a ray within <paramref name="reach"/>, passing through air and water, or null.</summary>
     public static BlockHit? Cast(VoxelWorld world, Vector3 origin, Vector3 direction, float reach)
     {
         direction = Vector3.Normalize(direction);
@@ -28,7 +28,7 @@ public static class VoxelRay
 
         while (travelled <= reach)
         {
-            if (Blocks.IsSolid(world.GetBlock(x, y, z))) return new BlockHit(x, y, z, nx, ny, nz, travelled);
+            if (Blocks.IsTarget(world.GetBlock(x, y, z))) return new BlockHit(x, y, z, nx, ny, nz, travelled);
             if (nextX < nextY && nextX < nextZ)
             {
                 x += stepX;

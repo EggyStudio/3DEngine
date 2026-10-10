@@ -30,14 +30,33 @@ public enum BlockId : ushort
     Sandstone,
     Cactus,
     Gravel,
+    Glass,
+    Water,
+    Ice,
+}
+
+/// <summary>How a block meets light, the player and the faces beside it.</summary>
+public enum BlockKind
+{
+    /// <summary>Nothing: no faces, no collision, light passes.</summary>
+    Air,
+
+    /// <summary>A solid block that hides the faces beside it and stops light.</summary>
+    Opaque,
+
+    /// <summary>A solid block light passes through, drawn see-through, as glass and ice are.</summary>
+    Glass,
+
+    /// <summary>A block the player swims through, drawn see-through, which dims light a level more for each block of it.</summary>
+    Water,
 }
 
 /// <summary>
 /// What a kind of block is: its key, the name commands take in lower case with underscores, the
-/// name shown, the surface of each face, whether it can be broken, and the light level from 0 to 15
-/// it fills the blocks around it with, as Minecraft's light-giving blocks do.
+/// name shown, the surface of each face, whether it can be broken, the light level from 0 to 15
+/// it fills the blocks around it with, as Minecraft's light-giving blocks do, and its kind.
 /// </summary>
-public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true, int Light = 0)
+public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true, int Light = 0, BlockKind Kind = BlockKind.Opaque)
 {
     /// <summary>Whether it gives off light, in which case it is drawn as a cube of its own rather than in its chunk's meshes.</summary>
     public bool Emits => Surfaces.All[Top].Emits;
@@ -53,12 +72,12 @@ public static class Blocks
 
     private static BlockInfo[] Build()
     {
-        BlockInfo Same(BlockId id, string key, string name, int surface, bool breakable = true, int light = 0) =>
-            new(id, key, name, surface, surface, surface, breakable, light);
+        BlockInfo Same(BlockId id, string key, string name, int surface, bool breakable = true, int light = 0, BlockKind kind = BlockKind.Opaque) =>
+            new(id, key, name, surface, surface, surface, breakable, light, kind);
 
         BlockInfo[] all =
         [
-            Same(BlockId.Air, "air", "Air", Surfaces.Stone),
+            Same(BlockId.Air, "air", "Air", Surfaces.Stone, kind: BlockKind.Air),
             new(BlockId.Grass, "grass", "Grass Block", Surfaces.Grass, Surfaces.Dirt, Surfaces.Dirt),
             Same(BlockId.Dirt, "dirt", "Dirt", Surfaces.Dirt),
             Same(BlockId.Stone, "stone", "Stone", Surfaces.Stone),
@@ -84,6 +103,9 @@ public static class Blocks
             Same(BlockId.Sandstone, "sandstone", "Sandstone", Surfaces.Sandstone),
             new(BlockId.Cactus, "cactus", "Cactus", Surfaces.CactusTop, Surfaces.CactusSide, Surfaces.CactusTop),
             Same(BlockId.Gravel, "gravel", "Gravel", Surfaces.Gravel),
+            Same(BlockId.Glass, "glass", "Glass", Surfaces.Glass, kind: BlockKind.Glass),
+            Same(BlockId.Water, "water", "Water", Surfaces.Water, kind: BlockKind.Water),
+            Same(BlockId.Ice, "ice", "Ice", Surfaces.Ice, kind: BlockKind.Glass),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");
@@ -96,8 +118,23 @@ public static class Blocks
     /// <summary>The kind of block an id names.</summary>
     public static BlockInfo Get(BlockId id) => _all[(int)id];
 
-    /// <summary>Whether a block is solid to walk on and hides the faces beside it, which every block but air is for now.</summary>
-    public static bool IsSolid(BlockId id) => id != BlockId.Air;
+    // Each kind's answers by id, looked up rather than asked of the record, since the mesher and the
+    // light ask them for every block they pass.
+    private static readonly bool[] _opaque = [.. _all.Select(b => b.Kind == BlockKind.Opaque)];
+    private static readonly bool[] _collides = [.. _all.Select(b => b.Kind is BlockKind.Opaque or BlockKind.Glass)];
+    private static readonly bool[] _seeThrough = [.. _all.Select(b => b.Kind is BlockKind.Glass or BlockKind.Water)];
+
+    /// <summary>Whether a block hides the faces beside it, stops light and darkens the corners around it.</summary>
+    public static bool IsOpaque(BlockId id) => _opaque[(int)id];
+
+    /// <summary>Whether a body stands on and walks into a block, which it does all but air and water.</summary>
+    public static bool Collides(BlockId id) => _collides[(int)id];
+
+    /// <summary>Whether a block is drawn see-through, in its section's second mesh.</summary>
+    public static bool IsSeeThrough(BlockId id) => _seeThrough[(int)id];
+
+    /// <summary>Whether the crosshair rests on a block, which it does on all but air and water, as Minecraft's does.</summary>
+    public static bool IsTarget(BlockId id) => id != BlockId.Air && id != BlockId.Water;
 
     /// <summary>Finds a block by its key, its name or its number, as a command gives it.</summary>
     public static bool TryFind(string text, out BlockId id)
