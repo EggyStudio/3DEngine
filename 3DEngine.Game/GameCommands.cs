@@ -28,7 +28,8 @@ public static class GameCommands
             + $"{(player.Flying ? "flying" : player.Body.OnGround ? "on the ground" : "in the air")}, {target}; "
             + $"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh; "
             + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
-            + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, holding {Blocks.Get(game.Hotbar.Current).Key}";
+            + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, "
+            + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, holding {Blocks.Get(game.Hotbar.Current).Key}";
     }
 
     [Command("voxel.tp", "Puts the player's feet at a place: voxel.tp <x> <y> <z>")]
@@ -125,19 +126,22 @@ public static class GameCommands
         return on ? "the day goes on" : "the hour is held";
     }
 
-    [Command("voxel.world", "Begins a new world, overworld or flat, from a seed: voxel.world <kind> [seed]")]
+    [Command("voxel.world", "Saves the world and opens the one of a kind, overworld or flat, and seed, beginning it where none is saved: voxel.world <kind> [seed]")]
     internal static string NewWorld(string kind, int seed = 1)
     {
         if (Game is not { } game) return "no world is loaded";
-        IWorldGenerator? generator = kind.ToLowerInvariant() switch
-        {
-            "overworld" => new Overworld(seed),
-            "flat" => new Superflat(seed),
-            _ => null,
-        };
-        if (generator is null) return $"no world is called {kind}, which is overworld or flat";
-        game.NextWorld = generator;
-        return $"the {generator.Name} world of seed {seed} begins next frame";
+        if (Generators.Create(kind, seed) is null) return $"no world is called {kind}, which is {string.Join(" or ", Generators.Kinds)}";
+        game.NextWorld = (kind.ToLowerInvariant(), seed);
+        return $"the {kind.ToLowerInvariant()} world of seed {seed} opens next frame";
+    }
+
+    [Command("voxel.save", "Saves the changed columns and the player's place now, as is done every 30 seconds and on leaving a world")]
+    internal static string SaveNow()
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (game.Save is null) return "the world is transient and is not saved";
+        game.SaveWorld();
+        return $"saved to {game.Save.Folder}";
     }
 
     [Command("voxel.distance", "Sets how many columns around the player are drawn, from 2 to 16: voxel.distance <columns>")]

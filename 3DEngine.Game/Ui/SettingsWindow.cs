@@ -11,7 +11,7 @@ namespace Engine.Game;
 public sealed class SettingsWindow
 {
     private static readonly string[] Qualities = Enum.GetNames<GlobalIllumination>();
-    private static readonly string[] Worlds = ["overworld", "flat"];
+    private static readonly string[] Worlds = Generators.Kinds;
 
     private int _worldType;
     private int _seed = 1;
@@ -124,8 +124,10 @@ public sealed class SettingsWindow
     {
         var distance = game.RenderDistance;
         if (ImGui.SliderInt("Render distance", ref distance, 2, 16)) game.RenderDistance = distance;
+        ImGui.TextUnformatted(game.Save is { } save ? $"Saved in {save.Folder} every 30 seconds" : "Transient, not saved");
+        if (game.Save is not null && ImGui.Button("Save now")) game.SaveWorld();
         ImGui.Combo("Kind", ref _worldType, Worlds, Worlds.Length);
         ImGui.InputInt("Seed", ref _seed);
-        if (ImGui.Button("New world")) game.NextWorld = _worldType == 0 ? new Overworld(_seed) : new Superflat(_seed);
+        if (ImGui.Button("Open or begin")) game.NextWorld = (Worlds[_worldType], _seed);
     }
 }

@@ -14,3 +14,17 @@ public interface IWorldGenerator
 
     ChunkColumn Generate(int columnX, int columnZ);
 }
+
+/// <summary>The kinds of world, by the names a save and <c>voxel.world</c> give them.</summary>
+public static class Generators
+{
+    public static readonly string[] Kinds = ["overworld", "flat"];
+
+    /// <summary>The generator of a kind of world from a seed, or null for a kind not known.</summary>
+    public static IWorldGenerator? Create(string kind, int seed) => kind.ToLowerInvariant() switch
+    {
+        "overworld" => new Overworld(seed),
+        "flat" => new Superflat(seed),
+        _ => null,
+    };
+}

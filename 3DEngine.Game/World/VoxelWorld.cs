@@ -97,6 +97,7 @@ public sealed class VoxelWorld
         int lx = x & Section.Mask, lz = z & Section.Mask, ly = y & Section.Mask;
         if (column.Get(lx, y, lz) == block) return false;
         column.Set(lx, y, lz, block);
+        column.Changed = true;
         _light.Changed(x, y, z, block);
 
         var key = new SectionKey(column.X, y >> Section.Shift, column.Z);

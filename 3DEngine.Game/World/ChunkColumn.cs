@@ -20,6 +20,9 @@ public sealed class ChunkColumn
     public int X { get; }
     public int Z { get; }
 
+    /// <summary>Whether a block of it changed since it was generated or last kept by the save.</summary>
+    public bool Changed { get; set; }
+
     /// <summary>Its sections from the bottom.</summary>
     public readonly Section[] Sections = new Section[SectionCount];
 

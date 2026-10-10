@@ -12,23 +12,35 @@ public sealed class VoxelGame : IDisposable
     private const float Repeat = 0.25f;
     private const double MeshBudgetMs = 4;
 
-    private float _breakWait, _placeWait;
+    // The changed columns and the player are saved this often, beside a save on leaving a world.
+    private const float SaveSeconds = 30;
+
+    private readonly bool _transient;
+    private float _breakWait, _placeWait, _sinceSave;
     private bool _captured, _swallowClick;
 
-    public VoxelGame(IWorldGenerator generator)
+    /// <summary>
+    /// Opens the world saved under <paramref name="name"/>, or under its kind and seed when no name is
+    /// given, or begins it there from <paramref name="kind"/> and <paramref name="seed"/> where none is
+    /// saved yet. A <paramref name="transient"/> world is neither read from disk nor written to it, as
+    /// a test run's is.
+    /// </summary>
+    public VoxelGame(string kind, int seed, string? name, bool transient)
     {
+        _transient = transient;
         Renderer = new ChunkRenderer();
         Sky = new Sky(10);
         Light.ApplyAll();
-        World = new VoxelWorld(generator);
-        Streamer = new ChunkStreamer(World, Renderer);
-        Spawn();
+        Open(kind, seed, name);
         Capture(true);
     }
 
-    public VoxelWorld World { get; private set; }
+    public VoxelWorld World { get; private set; } = null!;
 
-    public ChunkStreamer Streamer { get; private set; }
+    public ChunkStreamer Streamer { get; private set; } = null!;
+
+    /// <summary>Where the world is saved, or null for a transient one.</summary>
+    public WorldSave? Save { get; private set; }
 
     public ChunkRenderer Renderer { get; }
 
@@ -57,25 +69,52 @@ public sealed class VoxelGame : IDisposable
 
     public bool PickerOpen { get; private set; }
 
-    /// <summary>A world asked for by a command or the settings window, begun at the start of the next frame.</summary>
-    public IWorldGenerator? NextWorld { get; set; }
+    /// <summary>A world asked for by a command or the settings window by its kind and seed, opened at the start of the next frame.</summary>
+    public (string Kind, int Seed)? NextWorld { get; set; }
 
-    /// <summary>Begins a new world from a generator, in place of the one loaded.</summary>
-    public void NewWorld(IWorldGenerator generator)
+    /// <summary>Saves the world loaded and opens the one saved under a kind and seed, or begins it.</summary>
+    public void SwitchWorld(string kind, int seed)
     {
+        SaveWorld();
+        Open(kind, seed, null);
+    }
+
+    private void Open(string kind, int seed, string? name)
+    {
+        Save = _transient ? null : new WorldSave(Path.Combine(WorldSave.Root, name ?? $"{kind}-{seed}"));
+        var info = Save?.ReadInfo();
+        var generator = (info is null ? null : Generators.Create(info.Kind, info.Seed)) ?? Generators.Create(kind, seed) ?? new Overworld(seed);
         Renderer.Clear();
         World = new VoxelWorld(generator);
         // The old streamer's workers finish into its own queue, which nothing reads again.
-        Streamer = new ChunkStreamer(World, Renderer);
-        Spawn();
+        Streamer = new ChunkStreamer(World, Renderer, Save);
+        _sinceSave = 0;
+
+        if (info is null)
+        {
+            // A new world's player stands on the highest block at the origin.
+            Streamer.LoadNow(Vector3.Zero, 2);
+            Player.Flying = false;
+            Player.Teleport(new Vector3(0.5f, World.Top(0, 0) + 1, 0.5f));
+            return;
+        }
+        var at = new Vector3(info.X, info.Y, info.Z);
+        Streamer.LoadNow(at, 2);
+        Player.Teleport(at);
+        (Player.Heading, Player.Pitch, Player.Flying, Sky.Hour) = (info.Heading, info.Pitch * MathF.PI / 180, info.Flying, info.Hour);
     }
 
-    // The columns around the origin generated here, and the player stood on the highest block there.
-    private void Spawn()
+    /// <summary>Keeps every loaded column the player changed and the player's place, and writes them, unless the world is transient.</summary>
+    public void SaveWorld()
     {
-        Streamer.LoadNow(Vector3.Zero, 2);
-        Player.Flying = false;
-        Player.Teleport(new Vector3(0.5f, World.Top(0, 0) + 1, 0.5f));
+        if (Save is null) return;
+        foreach (var column in World.Columns)
+            if (column.Changed) Save.Keep(column);
+        Save.Flush();
+        var at = Player.Body.Position;
+        Save.WriteInfo(new WorldInfo(World.Generator.Name, World.Generator.Seed, at.X, at.Y, at.Z,
+            Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)]));
+        _sinceSave = 0;
     }
 
     public void Update()
@@ -83,11 +122,13 @@ public sealed class VoxelGame : IDisposable
         if (NextWorld is { } next)
         {
             NextWorld = null;
-            NewWorld(next);
+            SwitchWorld(next.Kind, next.Seed);
         }
         // A long frame, as when the window is dragged, is taken as a short one, so the player does
         // not fall through the time it took.
         var seconds = MathF.Min(GetFrameTime(), 0.05f);
+        _sinceSave += seconds;
+        if (_sinceSave > SaveSeconds) SaveWorld();
         var io = ImGui.GetIO();
         var keys = !io.WantTextInput;
 
@@ -224,5 +265,9 @@ public sealed class VoxelGame : IDisposable
         }
     }
 
-    public void Dispose() => Renderer.Dispose();
+    public void Dispose()
+    {
+        SaveWorld();
+        Renderer.Dispose();
+    }
 }

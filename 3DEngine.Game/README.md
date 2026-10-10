@@ -13,8 +13,15 @@ its package, so a change to the light that bounces is played on the next build.
 ```bash
 dotnet run --project 3DEngine.Game                      # the hills of seed 1
 dotnet run --project 3DEngine.Game -- --flat --seed 7   # a flat world to build a test on
-./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden
+dotnet run --project 3DEngine.Game -- --world house     # a save of its own name
+./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden --transient
 ```
+
+A world is saved under `~/.local/share/3DEngine.Game/saves` on Linux, and the matching local
+application data folder elsewhere, in a folder named by its kind and seed, `overworld-1` or
+`flat-7`, unless `--world` names it. It is saved every 30 seconds, on opening another world and
+on quitting, and opened where it was left. `--transient` keeps nothing on disk, as a test run
+driven by `./e3d` should, so it leaves the saves as they were.
 
 ## Controls
 
@@ -55,8 +62,9 @@ light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `vo
 `voxel.fly` move the player, `voxel.break` and `voxel.place` act as the mouse buttons do,
 `voxel.time` and `voxel.cycle` set the sky, `voxel.distance` the render distance, `voxel.light`
 reads a block's light levels, `voxel.shade` turns the light levels and the shaded corners on or off,
-`voxel.world` begins a new world, and `voxel.blocks` lists the blocks by number and name. The
-engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
+`voxel.world` saves the world and opens or begins another of a kind and seed, `voxel.save` saves at
+once, and `voxel.blocks` lists the blocks by number and name. The engine's own `gi.*` and `field.*`
+commands show and measure the light that bounces.
 
 ## How the world is drawn
 
@@ -100,11 +108,11 @@ the light that bounces alone.
 
 ## What is not here yet
 
-Textures, water and anything seen through, leaves included, which are solid. Greedy meshing.
-Light that passes through leaves at a cost, as Minecraft's does. Saving a world.
-Features and structures that cross from one column into the next, so a tree is placed only two
-blocks or more from its column's edge, and villages and the like have nowhere to go yet. Caves
-open to the sky. Mobs, items, an inventory and survival.
+Textures, water and anything seen through, leaves included, which are solid. Greedy meshing. Light
+that passes through leaves at a cost, as Minecraft's does. Features and structures that cross from
+one column into the next, so a tree is placed only two blocks or more from its column's edge, and
+villages and the like have nowhere to go yet. Caves open to the sky. Mobs, items, an inventory and
+survival.
 
 ## What it costs
 

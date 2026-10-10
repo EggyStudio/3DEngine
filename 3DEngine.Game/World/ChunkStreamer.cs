@@ -11,9 +11,10 @@ namespace Engine.Game;
 /// Columns are loaded two further than the render distance, since a section on the edge of what is
 /// drawn is meshed only once the eight columns around it are there, its corners shaded by their
 /// blocks and light, and unloaded three further, so walking back and forth over a boundary does
-/// not load and unload the same columns each time.
+/// not load and unload the same columns each time. A column the player changed is read from the
+/// save rather than generated, and kept by the save as it unloads.
 /// </remarks>
-public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer)
+public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, WorldSave? save)
 {
     private readonly ConcurrentQueue<(int X, int Z, ChunkColumn? Column)> _done = new();
     private readonly HashSet<(int X, int Z)> _pending = [];
@@ -32,7 +33,7 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer)
         int cx = VoxelWorld.ColumnOf((int)MathF.Floor(at.X)), cz = VoxelWorld.ColumnOf((int)MathF.Floor(at.Z));
         for (int z = cz - radius; z <= cz + radius; z++)
             for (int x = cx - radius; x <= cx + radius; x++)
-                if (!world.HasColumn(x, z)) world.Add(Generate(world.Generator, x, z));
+                if (!world.HasColumn(x, z)) world.Add(Make(world.Generator, Kept(x, z), save?.Renumber, x, z));
     }
 
     /// <summary>Takes in the columns the workers finished, asks for those now in reach, and unloads those out of it.</summary>
@@ -59,13 +60,13 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer)
             if (_running >= _workers) break;
             if (world.HasColumn(x, z) || !_pending.Add((x, z))) continue;
             Interlocked.Increment(ref _running);
-            var generator = world.Generator;
+            var (generator, kept, renumber) = (world.Generator, Kept(x, z), save?.Renumber);
             Task.Run(() =>
             {
                 ChunkColumn? column = null;
                 try
                 {
-                    column = Generate(generator, x, z);
+                    column = Make(generator, kept, renumber, x, z);
                 }
                 catch (Exception ex)
                 {
@@ -79,10 +80,18 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer)
         _wanted.RemoveAll(c => world.HasColumn(c.X, c.Z) || _pending.Contains(c));
     }
 
-    // A column with its own light worked out, which leaves the main thread only the light across its edges.
-    private static ChunkColumn Generate(IWorldGenerator generator, int x, int z)
+    // The compressed blocks the save keeps for a column, read on the main thread, or null.
+    private byte[]? Kept(int x, int z)
     {
-        var column = generator.Generate(x, z);
+        save?.ReadRegion(x, z);
+        return save?.Kept(x, z);
+    }
+
+    // A column from its kept blocks or its generator, with its own light worked out, which leaves the
+    // main thread only the light across its edges.
+    private static ChunkColumn Make(IWorldGenerator generator, byte[]? kept, ushort[]? renumber, int x, int z)
+    {
+        var column = kept is null ? generator.Generate(x, z) : WorldSave.Decode(x, z, kept, renumber);
         Lighting.Compute(column);
         return column;
     }
@@ -112,6 +121,7 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer)
         }
         foreach (var (x, z) in _leaving)
         {
+            if (save is not null && world.TryGetColumn(x, z, out var column) && column.Changed) save.Keep(column);
             world.Remove(x, z);
             renderer.ForgetColumn(x, z);
         }
