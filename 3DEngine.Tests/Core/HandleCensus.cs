@@ -76,6 +76,10 @@ internal static class HandleCensus
         return kinds;
     }
 
+    /// <summary>How many more handles of a kind the second reading holds than the first.</summary>
+    public static int ChangeOf(Dictionary<string, int> before, Dictionary<string, int> after, string kind) =>
+        after.GetValueOrDefault(kind) - before.GetValueOrDefault(kind);
+
     /// <summary>The kinds whose counts differ between two readings, most changed first, as "+2 Event, -1 File".</summary>
     public static string Change(Dictionary<string, int> before, Dictionary<string, int> after) =>
         string.Join(", ", before.Keys.Union(after.Keys)

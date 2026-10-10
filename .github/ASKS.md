@@ -115,3 +115,16 @@ and `voxel-spokes-low.webp`.
 
 Review: item 2 of REVIEW.md, its part d, 2026-10-10; the probes' octahedron, the first cascade's 64
 directions the first thing measured.
+
+### 2026-10-10, the voxel game in `3DEngine.Game`: its tests build on every run but run on none
+
+`3DEngine.Game.Tests` holds 22 tests of the game's light levels, its meshes' faces and corners, the
+player's body, its saves and its generation, each in a small world laid out without a window or a
+GPU, which `dotnet test 3DEngine.Game.Tests` runs in about a second on the RTX 4070 Laptop's
+machine. The solution builds the project under `-warnaserror` on every system, and `build/test.py`
+runs `3DEngine.Tests` alone, so a test of the game that fails reaches no page. The engine lacks a
+step that runs the game's tests and counts them on the page beside its own. The game runs them by
+hand before each of its commits.
+
+Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
+the batch that next touches it, its count apart on the page.

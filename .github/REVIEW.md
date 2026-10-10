@@ -10,14 +10,52 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `63961dbb`. Item 3's first two of its three remaining, in one commit since both
-change one thickness function and its slabs' test. A material's own thickness, `SubsurfaceThickness`
-on `ModelMaterial` and on a mesh entity's `Material`, which a glTF file's `KHR_materials_volume`
-sets through Assimp's `$mat.volume.thicknessFactor` and the scene payload on both loading paths,
-rides beside the batch's profile as a second attribute of the scatter pass's fifth binding, 32 bytes
-a batch at locations 11 and 12, keys the batch where the draw scatters and as zero where it does
-not, so draws that differ only where nothing scatters share a batch, and caps the thickness measured
-or stands in where nothing measured, one line of the shader. And a spot or point light that casts
+Reviewed up to `9064685a`. Item 2's part a, the terminator, is done, measured first on a sphere lit
+from its side, the meridian read every two degrees with the scattering off and on: no dark ring of
+its own, but a bright line six degrees past the terminator on every scattering sphere, as bright as
+the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator read dark
+between them, and wax's far side through the field lit again, 70 at 120 degrees and 88 at 148. The
+spread alone falls smoothly past the terminator, 83, 65, 51, 43, 40 from 88 degrees, so the suspect
+named first is cleared; the light through made both. Three causes: a few degrees past the terminator
+the point lies at the sphere's edge as the light sees it, where the map's mean of nine depths took
+in the empty map beyond the edge and the field's march along the surface found no mesh within a cell
+and took the part for a sheet, so the sphere read no thicker than nothing and the light came through
+whole; a march still in the mesh at the reach returned the reach, a twentieth of the light kept on
+the far side however thick; and the falloff as e to the minus the thickness over the travel still
+rose to a hump ten degrees out from the true chord. Four mends: the map's mean takes only the depths
+in front of the point, or the point's own where none is; a light that casts shadows measures through
+its map wherever it has one and the field is kept for a lamp with none, since the field giving way
+to the map past its sheet's cell dashed a line across the example's marble; the light fades out
+between half the reach and the reach; and it falls as the Gaussian the spread uses for each color, a
+third of its travel wide, as Jimenez derives the light through from the profile. Wax falls 84, 69,
+60, 54, 50, 47, 43 from 88 degrees to 100, half its light by 93 and a tenth by 100, and skin's edge
+lies at the terminator 0.04 of a degree from its neighbors' mean where it ran 0.41 in the map's
+texels; two theories hold them, the fall without a dip for wax with and without the field, marble
+and skin, and the edge under 0.3 of a degree, each failing on the shader before; the slabs' and the
+sheet's numbers moved with the falloff and say so; the example's capture is drawn again; §5 and the
+guide say it, §5's long line gone. Right, measured first and the three causes mended where they
+arise, and the maps given the thickness whole rather than a seam between two measures. One thing to
+know, asked of nothing: at half the reach the Gaussian has fallen to e to the minus ten, so the fade
+between half the reach and the reach changes nothing the eye or a test reads and stands as a guard
+for a march that returns the reach; and the gap the reply keeps stands, a Burley tail longer than
+one Gaussian's, which a sum of Gaussians in the spread would follow. The owner's eye judges the look
+(Decision 27). The suite: 1,652 passed; on lavapipe 371 passed and 7 skipped with no validation
+error. Item 2's work runs b, then d, then c. Verdict 40's two mends are in the tree with their reply
+drafted, read on their commit. The game's `77e020dc`, `e69543b0`, `d3394780` and `a5534f03` are the
+game's own, structures across its columns' edges, see-through glass, ice and water kept out of the
+field, a terrain shader fading the world into the sky, and a test project of its light, meshes,
+body, saves and generation that joins the solution and AGENTS.md's table, so it builds on every run
+under `-warnaserror` and runs nowhere there, `build/test.py` running `3DEngine.Tests` alone. The run
+of `187de604` has its captures green, so the Linux examples job waits on Windows alone.
+
+Before it, item 3's first two of its three remaining came in one commit, since both change one
+thickness function and its slabs' test. A material's own thickness, `SubsurfaceThickness` on
+`ModelMaterial` and on a mesh entity's `Material`, which a glTF file's `KHR_materials_volume` sets
+through Assimp's `$mat.volume.thicknessFactor` and the scene payload on both loading paths, rides
+beside the batch's profile as a second attribute of the scatter pass's fifth binding, 32 bytes a
+batch at locations 11 and 12, keys the batch where the draw scatters and as zero where it does not,
+so draws that differ only where nothing scatters share a batch, and caps the thickness measured or
+stands in where nothing measured, one line of the shader. And a spot or point light that casts
 shadows measures the thickness from its own map where the field is coarse, the mean of nine depths
 in its tile or its face through the lookups its shadow shares, `spotTile` and `pointFace` drawn out
 of the two reaching functions, and the distance at which the way met the face in one division from
@@ -66,13 +104,6 @@ the merge's and gather's hand-listed bindings found as the first try's fault and
 1,642 passed; on lavapipe 362 passed and 7 skipped with no validation error. Item 2 is closed in the
 Now list; by it, item 3's remainder next, unless a page or a verdict comes first.
 
-Before it, Verdict 40's census at each step came: on Windows each step of the four followed apps
-ends with the kinds of handle it changed, as `SDL plugin built +4 (+3 Thread, +1 Event)`, the kinds
-read against the step before, so the next Windows page names the step that opens the thread handles
-the apps keep and whether `ended` gives them back; elsewhere it reads nothing. Right, the smallest
-change that makes the next page say the thing. The suite: 1,641 passed. Part g next, the last of the
-game's asks.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -95,21 +126,24 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    reads the same, the run of the game's `0ccf8f9a`, the first with the census at each step
    (`a063a336`), is green on Linux, on macOS and on the captures and red on Windows by the leak test
    alone, whose page names the steps that open the kept thread handles, the device's (Verdict 40),
-   and the run of the game's `187de604` reads the same on Linux and on Windows, its macOS job green
-   and its captures still drawing. The page showed the leak test's progress line as its first of
-   198, `app 2`, where the line named its app all along; the page shows the last of a repeated line
-   since `88673244`. Verdicts 40 and 44 are carried out there, the leak test following four apps
-   through every plugin's making, a failing frame written where the job uploads it with each
-   surface's means, and four references drawn again after a drift of up to 2.16% on the RTX 4070
-   itself; the runs since read the references green and the leak test red. The examples job waits on
-   Windows and macOS both green in one run. When every job is green the owner is told, since 5.2 is
-   due (Decision 19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's
-   `1f68fde8` the two cases of a theory whose names are cut to the same as one counted apart, which
-   its page reads as one today (SHARED.md). The engine's own despawn of what a state scopes is read
-   against a soak of the world's entity indices across many transitions, which in BevyCSharp found
-   Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch that next
-   touches states. Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+   and the run of the game's `187de604` reads the same on Linux and on Windows, its macOS job and
+   its captures green, so the Linux examples job waits on Windows alone. The page showed the leak
+   test's progress line as its first of 198, `app 2`, where the line named its app all along; the
+   page shows the last of a repeated line since `88673244`. Verdicts 40 and 44 are carried out
+   there, the leak test following four apps through every plugin's making, a failing frame written
+   where the job uploads it with each surface's means, and four references drawn again after a drift
+   of up to 2.16% on the RTX 4070 itself; the runs since read the references green and the leak test
+   red. The examples job waits on Windows and macOS both green in one run. When every job is green
+   the owner is told, since 5.2 is due (Decision 19). With the batch that next touches
+   `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a theory whose names are
+   cut to the same as one counted apart, which its page reads as one today (SHARED.md), and runs the
+   game's `3DEngine.Game.Tests`, 22 tests of its light, meshes, body, saves and generation that need
+   no window, beside its own through its `--project`, counted on the page apart from the engine's
+   and reddening the run as the engine's do (ASKS.md). The engine's own despawn of what a state
+   scopes is read against a soak of the world's entity indices across many transitions, which in
+   BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with the batch
+   that next touches states. Each push's run is read by the reviewing session, and a failure it
+   names comes first here.
 
 2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
@@ -117,26 +151,18 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    measure, the voxel game's read through the testbed at eight columns, and the game's session asked
    to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
    and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
-   The order of work: a, then b, then d, then c.
+   The order of work: b, then d, then c, a being done.
 
-   **a. A dark ring at the terminator of every scattering sphere, and a jagged red line on the
-   skin's.** In `shaders_subsurface` all three spheres that scatter show a dark line along the ring
-   where the light's direction and the normal are square, the scattering beginning too far into the
-   shadow where it should wrap the terminator, and the skin sphere, whose radius is 0.06 under cells
-   of 0.15, ends its red light through on the dark side in a zig-zag edge, where the wax's and the
-   marble's end smooth. Measured first: the frame's light along a meridian of each sphere from the
-   lit pole through the terminator into the shadow, read every degree with the spread on and off and
-   against a Burley profile worked out for the sphere, which says where the dip lies and how deep;
-   and the angle of the light-through band's edge around the sphere, whose variance is the zig-zag.
-   The dip's suspects, in order: the spread down taking away the pixel's own diffuse where the
-   spread across under-fills near the terminator, so a pixel ends darker than it began; the model
-   pass's diffuse and the scatter pass's disagreeing at the terminator, one wrapped or softened and
-   the other cut at zero; and the light through at grazing angles, where the march runs along the
-   surface. The edge's suspect is the thickness read texel by texel from the sun's map where the
-   field's cells are too coarse for skin's reach, which the nine-sample mean softened and did not
-   smooth; the thickness is read with a wider filter or from the field at a finer reach, measured.
-   The tests hold the profile falling without a dip across the terminator and the band's edge within
-   a bound of its variance.
+   **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
+   first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
+   read as nothing at the sphere's edge as the light sees it, by the map's mean taking in the empty
+   map beyond the edge and the field's march calling the part a sheet, and a march still inside at
+   the reach returning the reach; mended by the mean of the depths in front alone, a light with a
+   map measuring through it wherever it has one, the light faded out by the reach and the falloff as
+   the spread's own Gaussian. Wax falls 84, 69, 60, 54, 50, 47, 43 from 88 to 100 degrees and skin's
+   edge lies 0.04 of a degree from its neighbors where it ran 0.41; two theories hold them. The
+   owner's eye judges the look (Decision 27). A gap kept: a Burley tail is longer than one
+   Gaussian's, which a sum of Gaussians in the spread would follow.
 
    **b. The bounce drifts for 13 to 18 frames after the camera moves in the voxel game, then
    holds.** Measured by the game's session in a closed room of white concrete at night with one
@@ -479,33 +505,17 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's part a, the terminator. Measured first on a sphere of a unit lit from its side at 640 by
-480, the meridian the camera sees read every two degrees with the scattering off and on: no dark
-ring of its own, but a bright line six degrees past the terminator on every scattering sphere, as
-bright as the lit side six degrees before it, skin's 117 against the shadow's 39, so the terminator
-read dark between them; and wax through the field lit again on its far side, 70 at 120 degrees and
-88 at 148. The suspects read in order: the spread alone falls smoothly past the terminator, 83, 65,
-51, 43, 40 from 88 degrees, so it takes nothing away; the light through made both. A few degrees
-past the terminator the point lies at the sphere's edge as the light sees it, where the map's mean
-of nine depths took in the empty map beyond the edge and the field's march along the surface found
-no mesh within a cell and took it for a sheet, so the sphere read no thicker than nothing and the
-light came through whole; and a march still in the mesh at the reach returned the reach, a
-twentieth of the light kept on the far side however thick. Mended four ways: the map's mean takes
-only the depths in front of the point; a light that casts shadows measures through its own map
-wherever it has one, the field kept for a lamp with none, since a field that gave way to the map
-past its sheet's cell dashed a line across the example's marble; the light fades out between half
-the reach and the reach; and it falls as the Gaussian the spread uses for each color, as Jimenez
-derives the light through from the profile, since from the true chord e's falloff still rose to a
-hump ten degrees out. Wax falls 84, 69, 60, 54, 50, 47, 43 from 88 degrees to 100, half its light
-at the terminator by 93 degrees and a tenth by 100; a Burley profile of a third of wax's reach over
-the same sphere, worked out on a grid of a degree, falls to half by 98 and a tenth by 118, its tail
-longer than one Gaussian's, which a sum of Gaussians in the spread would follow and which stays a
-gap. The jagged edge: great circles through the light's pole turned by 5 degrees read where the
-light falls to the ambient's, skin's edge 0.41 of a degree from its neighbors' mean on average
-where its light through was read from the map texel by texel, 0.04 afterward, at the terminator.
-Two tests hold them, the profile falling across the terminator for wax with and without the field,
-marble and skin, and the edge under 0.3 of a degree from its neighbors, each failing on the shader
-before; the slab and sheet tests' numbers moved with the falloff and say so; `shaders_subsurface`'s
-capture is drawn again; RENDERING.md §5 says it with its numbers. Manor and Wick scatter nothing
-and are not measured. The suite 1,652 passed; on lavapipe 371 passed and 7 skipped with no
-validation error.
+Verdict 40, the two mends. The hold reads its counts, the twentieth app's and each later one, once
+the app's threads have ended and what they held is given back, by the same full collection and
+finalizers awaited that the census's `ended` step waits on, on Windows, where the race read the
+baseline 44 apps' kept handles above a settled count and a check 338 above; on Linux and macOS,
+whose counts hold from the second app, nothing waits, so the resident memory they read every ten
+apps still lets memory only a finalizer gives back pile up between collections for its bound to
+see. The engine's own code at the instance, the device and the first draw starts no thread: its
+only parallel work is `Parallel.For` over the thread pool, whose threads stay for the process. So
+the kept Thread handles are the loader's and lavapipe's, and the hold allows, for each app past the
+twentieth, the most Thread handles a followed app's census counts the instance's, the device's and
+the first draw's steps opening net of what the device's going gives back, five on the pages read,
+and no other kind nor any other step's; the line names that allowance. The bound on everything else
+stays. It cannot be run here, so it waits on the next Windows page; the leak test's three cases pass
+on Linux as before. The suite: 1,652 passed.
