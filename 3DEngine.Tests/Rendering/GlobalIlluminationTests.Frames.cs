@@ -71,10 +71,10 @@ public sealed partial class GlobalIlluminationTests
     {
         // A room split by an inner wall, its lamp carried from one side to the other at frame 0,
         // each frame after against the frame 90 on, the light left where the lamp was, the picture
-        // brighter than it settles, under a quarter of a level a channel by frame 10. It went under
-        // at frame 14 at Low and 13 at High, as this test measured on an RTX 4070, where it goes
-        // at 8 and 7, each probe on the lamp's old side taking the light that bounced at the share
-        // its own light kept.
+        // brighter than it settles, under half of it 4 frames on. Taken whole, as the probes took
+        // the light that bounced before, it kept nine tenths of it 4 frames on, where each probe on
+        // the lamp's old side taking it at the share its own light kept leaves 0.17 at Low and
+        // 0.22 at High, as this test measured on an RTX 4070.
         Open();
         SetGlobalIllumination(quality);
         var lamp = CreatePointLight(new Vector3(-1.5f, 2.2f, -0.5f), new Color(255, 230, 200), 8, range: 10, castsShadows: true);
@@ -117,8 +117,8 @@ public sealed partial class GlobalIlluminationTests
                 }
             return sum / (image.Width * image.Height * 3);
         }).ToList();
-        left[0].Should().BeGreaterThan(2, "the lamp's light is left behind the frame it is carried");
-        left.FindIndex(level => level < 0.25).Should().BeLessThanOrEqualTo(10,
+        left[0].Should().BeGreaterThan(1, "the lamp's light is left behind the frame it is carried");
+        left[4].Should().BeLessThan(left[0] * 0.5,
             $"and goes, the light left reading {string.Join(", ", left.Select(level => $"{level:0.00}"))} frame by frame");
     }
 

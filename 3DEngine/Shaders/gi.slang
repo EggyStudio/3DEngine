@@ -322,6 +322,12 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
 // gi_ambient.slang lays them out.
 public static const int ReachTexels = 8;
 
+// How far off a surface along its normal the probes around it are weighed from, in their spacing.
+// A room whose walls lie in planes of probes, as one whose size is a whole number of the spacing
+// may, weighed at the surface itself took its walls' and ceiling's light from the probes in their
+// planes alone, which stand inside them and hold nothing, and none from the row in front.
+public static const float Lean = 0.5;
+
 // How much of the frame before's own light a probe's may keep before the light that bounced is
 // taken at the share it kept: a fall by a fifth or more, which a light switched off or carried
 // away gives and the field's cells settling after a camera moves do not, and a rise by a quarter
@@ -387,7 +393,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
     float4 oc = info.cascades[c].originAndCell;
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
@@ -429,7 +435,7 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, V cubes, 
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
     float4 oc = info.cascades[c].originAndCell;
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;

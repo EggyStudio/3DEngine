@@ -309,6 +309,40 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         UnloadModel(panel);
     }
 
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.High)]
+    public void A_Ceiling_In_A_Plane_Of_Probes_Takes_The_Light_Of_The_Probes_Below_It(GlobalIllumination quality)
+    {
+        // A closed room six units square and three high whose ceiling and walls lie in planes of
+        // the first cascade's probes, 1.2 apart from 0.6 at cells of 0.15, lit by a glowing panel
+        // on its floor, so the ceiling, seen from below, is lit by the light that bounces alone.
+        // Weighed at the ceiling itself, its probes were those in its plane, inside the ceiling,
+        // which hold nothing, and it read 9.8 levels at Low and 13.3 at High, where weighed half
+        // their spacing below it, the row of probes in the room taking its weight, it reads 191
+        // and 195, as this test measured on an RTX 4070.
+        Open();
+        SetGlobalIllumination(quality);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        panel.Materials[0].Emissive = Color.White;
+        panel.Materials[0].EmissiveIntensity = 1;
+        var ceiling = Mean(Capture(() =>
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6.6f, 0.3f, 6.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(6.6f, 0.3f, 6.6f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 1.5f, -3.15f), Vector3.UnitY, 0, new Vector3(6.6f, 3, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(0, 1.5f, 3.15f), Vector3.UnitY, 0, new Vector3(6.6f, 3, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(-3.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), Color.White);
+            DrawModelEx(slab, new Vector3(3.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), Color.White);
+            DrawModelEx(panel, new Vector3(0, 0.03f, 0), Vector3.UnitY, 0, new Vector3(1.6f, 0.06f, 1.6f), Color.White);
+        }, new Camera3D(new Vector3(0, 0.5f, 2.6f), new Vector3(0, 3, -0.5f), Vector3.UnitY, 70)), 20, 4, 120, 30);
+        ceiling.X.Should().BeGreaterThan(60, $"the ceiling takes the light the probes below it hold, {ceiling}");
+        UnloadModel(slab);
+        UnloadModel(panel);
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void A_Glowing_Panel_Lights_Its_Room_In_A_Render_Texture_Too()

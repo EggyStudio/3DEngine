@@ -626,7 +626,9 @@ light into six faces of a cube, irradiance from each axis's two ways (`gi_ambien
 ray's hit reads the frame after for the light that bounced to it, and the model pass reads where no
 screen probe holds a pixel. Between the eight probes around a point, a probe is weighed by how near
 it is and, as DDGI weighs them, how squarely it stands in front of the surface, and one behind the
-surface's plane next to nothing.
+surface's plane next to nothing, how near taken from a point half the probes' spacing off the
+surface along its normal (`Lean` in `gi.slang`), so a wall lying in a plane of probes, which stand
+inside it and hold nothing, takes the light of the row in front of it.
 
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
@@ -1106,6 +1108,60 @@ frame at `Low` with the hold and 1.06 without, and 0.97 at `High` either way, so
 of moving meshes do not set it off. The bounce costs 0.444, 0.585 and 0.676 ms where it cost 0.438,
 0.576 and 0.661, timed one after the other on the bounce rooms' Cornell view; summed by one thread a
 probe in the gather, the 256 rays of the finer cascades cost `High` 0.022 ms.
+
+The eleventh reads the three rooms still far under after the tenth, which look too dim from afar,
+at their probes, with `gi.probe` at `High` against references of the light that bounces none, once
+and every time, and finds two causes, the first in most of the rooms. The reference counts the
+bounces after the first
+surface a path meets, so a probe's rays with `gi.toggle again off` are set against its reference
+of no bounce. In the window's room a probe a unit past the sunlit patch read the light straight
+from the sun 70% short, and the room's ceiling and side walls read 0.003 of the reference's 0.086
+and 0.07, 91 to 97% short at one bounce already: the room is six units across and three high, a
+whole number of the first cascade's spacing of 1.2, so its walls and ceiling lie in planes of its
+probes, which stand inside them and hold nothing, and a surface weighed its probes at its own
+point, the trilinear weight all on those in its plane and none on the row in front. Weighed from a
+point half the spacing off the surface along its normal, the row in front takes the weight that
+the probes inside the wall drop. Each room's error over every region against its reference with
+every bounce (`build/bounce-rooms.sh`'s references, `gi.compare`), by quality:
+
+| Room | `Low` | `Medium` | `High` |
+|---|---|---|---|
+| Cornell box | +9% → +10% | +7% → +8% | +10% → +11% |
+| Thin walls | −15% → +6% | −14% → +6% | −14% → +6% |
+| Corridor | −21% → −21% | −21% → −21% | −21% → −21% |
+| Window | −53% → +8% | −53% → +10% | −50% → +17% |
+| Red walls | −1% → −1% | −1% → −1% | −1% → −1% |
+| Strip | −46% → −15% | −44% → −24% | −42% → −15% |
+| Grazing floor | −37% → −8% | −36% → −5% | −28% → +13% |
+| Carried lamp | −32% → −5% | −32% → −4% | −32% → −4% |
+
+The errors summed fall from 214 points to 74 at `Low` and from 198 to 88 at `High`. A lean of 0.3
+of the spacing reads within two points of it in every room, and 0.75 brings the Cornell box to +6
+and +8% and takes the thin room to +12% and the grazing floor at `High` to +17%, 76 and 99 summed,
+so it is half. A closed room whose ceiling and walls lie in planes of probes, lit by a glowing
+panel on its floor, reads 191 levels on its ceiling at `Low` and 195 at `High` where it read 9.8
+and 13.3 (`GlobalIlluminationTests`). The window room's middle probe brings 22% over the
+reference where it brought 46% under, its light straight from the sun still 20% short and the
+light that bounces again over, as the Cornell box reads over too, and its walls and ceiling
+read 32 to 48% over at `High` where they read 91 to 97% under. A surface in a plane of probes now
+marches to the row in front, where it marched to none, so the bounce costs 0.473, 0.621 and 0.720
+ms where it cost 0.446, 0.588 and 0.678, timed one after the other twice. More light bounces again,
+and it takes longer to settle: taken whole, the panel's room falls under a level 45 frames after
+the panel where it fell in 30, and with the hold in 2 still; the lamp carried across the split
+room leaves 3.2 levels behind it where it left 8.5, the room settling brighter, of which the hold
+keeps 0.17 at `Low` and 0.22 at `High` 4 frames on where taken whole it keeps nine tenths, the
+last of it under a quarter of a level by frames 10 and 9 where taken whole by 18 and 16; and the
+light the lamp has not yet brought to its new side goes in 18 frames where it went in 12. The
+carried lamp's test reads the share left 4 frames on, since its last part, which lavapipe takes to
+frames 11 and 12, lies near a quarter of a level. The corridor, two units
+wide, keeps its −21%: its walls read 0.000 of the reference's 0.004 and every probe of its first
+cascade brings nothing, its rays meeting only walls no light reaches straight, since the second
+cascade's probes, 2.4 apart, stand at its walls' planes a unit and a fifth either side of its
+middle, inside the walls, so no probe carries the sunlit end's light along it into the first
+cascade's reach. That is the method's limit: a corridor narrower than the second cascade's spacing
+holds none of its probes where their rows fall in its walls, and moving such a probe into the
+open, as DDGI does, takes it to the nearer free side, here outside the corridor, 0.1 past the
+walls' outer faces against 0.2 to their inner.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the

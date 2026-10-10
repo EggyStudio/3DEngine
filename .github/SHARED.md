@@ -76,7 +76,7 @@ table also answers whether the two agree.
 |---|---|---|
 | Sub-states and computed states, declared on the enum | has (`16c4c1e`) | has (`eca05448`) |
 | A system run on a move from one value to a particular other | taken at `66a5b4d` | has (`OnTransition`, `3ca94c66`) |
-| An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | taken at `8a96917c` |
+| An entity that lives as long as a state holds a value, and a soak reading the world's entity indices across many transitions, since a despawn that frees no index shows only there | has (`DespawnOnExit`); Bevy 0.20.0's own despawn of them lost every index it despawned, Swarm climbing to 16,384 with 500 alive, and the bridge despawns them first, one at a time (`384f9150`, `ecs::despawn_all`) | taken at `8a96917c`; its own despawn by state to read against such a soak |
 | A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`), by its scene schemas | has (`2d506d4b`), by the fields themselves |
 
 ### Physics
