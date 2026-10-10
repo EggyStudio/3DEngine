@@ -203,7 +203,7 @@ public sealed partial class NormTests
 
     // The documents of the sessions that write and keep the repository, which name them.
     private static readonly HashSet<string> SessionDocuments =
-        [".github/REVIEW.md", ".github/SHARED.md", ".github/NORM.md", ".github/COMMITS.md", "AGENTS.md"];
+        [".github/REVIEW.md", ".github/SHARED.md", ".github/NORM.md", ".github/COMMITS.md", ".github/ASKS.md", "AGENTS.md"];
 
     // The comment a line of a file holds, empty where it holds none, or null for a file whose
     // comments the rule does not read. A comment of C# or Slang runs from its slashes, those of a

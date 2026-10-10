@@ -35,10 +35,23 @@ internal sealed partial class ModelRenderer
         }
     }
 
+    // Grows a block to hold a mesh's box placed by a world matrix: the box's middle placed, and
+    // each half width the sum of the box's half widths along the matrix's rows (Arvo), so a mesh
+    // moved without turning keeps a box as tight as its own.
+    private static void Enclose(ref Block block, in Matrix4x4 world, Vector3 min, Vector3 max)
+    {
+        var middle = Vector3.Transform((min + max) / 2, world);
+        var half = (max - min) / 2;
+        var reach = new Vector3(
+            MathF.Abs(world.M11) * half.X + MathF.Abs(world.M21) * half.Y + MathF.Abs(world.M31) * half.Z,
+            MathF.Abs(world.M12) * half.X + MathF.Abs(world.M22) * half.Y + MathF.Abs(world.M32) * half.Z,
+            MathF.Abs(world.M13) * half.X + MathF.Abs(world.M23) * half.Y + MathF.Abs(world.M33) * half.Z);
+        block.Min = Vector3.Min(block.Min, middle - reach);
+        block.Max = Vector3.Max(block.Max, middle + reach);
+    }
+
     // The four side planes of a view, as (normal, distance) with the inside where the sum is not
     // negative, from a view-projection that takes row vectors to clip space (Gribb and Hartmann).
-    // Near and far are left out, so a depth convention, or a shadow box's reach toward the light,
-    // never leaves out what a view draws.
     internal static (Vector4 Left, Vector4 Right, Vector4 Bottom, Vector4 Top) Planes(in Matrix4x4 m)
     {
         var x = new Vector4(m.M11, m.M21, m.M31, m.M41);
@@ -54,16 +67,50 @@ internal sealed partial class ModelRenderer
         return plane.X * far.X + plane.Y * far.Y + plane.Z * far.Z + plane.W < 0;
     }
 
-    /// <summary>Whether a view through <paramref name="viewProjection"/> may see a box, by its four side planes.</summary>
-    internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max)
+    /// <summary>
+    /// Whether a view through <paramref name="viewProjection"/> may see a box, by its four side
+    /// planes, and by its near and far planes too for a light's pass (<paramref name="light"/>).
+    /// </summary>
+    internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max, bool light = false) => new Frustum(viewProjection, light).Sees(min, max);
+
+    // The planes a pass leaves blocks out by, made once for each view-projection it draws through.
+    // A camera's pass uses the four sides alone, so its depth convention never leaves out what it
+    // draws. A light's pass (depth) also leaves out a block before its near plane or past its far
+    // one, Vulkan keeping depths from 0 to w, the shadow shader writing the position as the
+    // light's matrix gives it and no pipeline clamping depth, so such a block is clipped whole
+    // whether drawn or not; a cascade's box, which reaches far toward the light, holds every caster
+    // that can shadow it.
+    private readonly struct Frustum
     {
-        var (left, right, bottom, top) = Planes(viewProjection);
-        return !(Outside(left, min, max) || Outside(right, min, max) || Outside(bottom, min, max) || Outside(top, min, max));
+        private readonly Vector4 _left, _right, _bottom, _top, _near, _far;
+        private readonly bool _depth;
+
+        public Frustum(in Matrix4x4 viewProjection, bool depth)
+        {
+            (_left, _right, _bottom, _top) = Planes(viewProjection);
+            _near = new Vector4(viewProjection.M13, viewProjection.M23, viewProjection.M33, viewProjection.M43);
+            _far = new Vector4(viewProjection.M14, viewProjection.M24, viewProjection.M34, viewProjection.M44) - _near;
+            _depth = depth;
+        }
+
+        public bool Sees(Vector3 min, Vector3 max) =>
+            !(Outside(_left, min, max) || Outside(_right, min, max) || Outside(_bottom, min, max) || Outside(_top, min, max)
+              || _depth && (Outside(_near, min, max) || Outside(_far, min, max)));
+
+        // Whether the pass draws any of a batch, a batch with no blocks always, so a batch it draws
+        // none of is passed over before its buffers are bound.
+        public bool SeesAny(in Batch batch, Block[] blocks)
+        {
+            if (batch.BlockCount == 0) return true;
+            for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
+                if (Sees(blocks[i].Min, blocks[i].Max)) return true;
+            return false;
+        }
     }
 
-    // Draws a batch, a group's blocks a view sees as runs of calls and anything else as one, and
+    // Draws a batch, the blocks a view sees as runs of calls and a batch with none as one, and
     // answers how many calls it made.
-    private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, in Matrix4x4 viewProjection)
+    private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, in Frustum frustum)
     {
         if (batch.BlockCount == 0)
         {
@@ -71,14 +118,12 @@ internal sealed partial class ModelRenderer
             return 1;
         }
 
-        var (left, right, bottom, top) = Planes(viewProjection);
         int calls = 0;
         uint runFirst = 0, runCount = 0;
         for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
         {
             ref var block = ref blocks[i];
-            var seen = !(Outside(left, block.Min, block.Max) || Outside(right, block.Min, block.Max)
-                || Outside(bottom, block.Min, block.Max) || Outside(top, block.Min, block.Max));
+            var seen = frustum.Sees(block.Min, block.Max);
             block.Drawn |= seen;
             if (seen && runCount > 0 && runFirst + runCount == block.First)
             {
@@ -98,19 +143,5 @@ internal sealed partial class ModelRenderer
             calls++;
         }
         return calls;
-    }
-
-    // The ring of instances, with room for a region per frame slot of at least this call's
-    // instances past those the frame has written already. A ring outgrown is replaced by one twice
-    // the size, the old one kept until no frame in flight reads it, and the frame's earlier
-    // commands keep the old one bound.
-    private void EnsureInstanceRoom(IGraphicsDevice gfx, int instances)
-    {
-        if (_instanceRing is not null && _ringCursor + instances <= _ringCapacity) return;
-
-        if (_instanceRing is not null) _retiredBuffers.Add((_frames, _instanceRing));
-        _ringCapacity = Math.Max(Math.Max(1024, _ringCapacity * 2), _ringCursor + instances);
-        _instanceRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * Instance.Size), BufferUsage.Vertex, CpuAccessMode.Write));
-        (gfx as GraphicsDevice)?.Name(_instanceRing, "Model instances");
     }
 }

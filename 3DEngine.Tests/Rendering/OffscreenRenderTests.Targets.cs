@@ -574,7 +574,7 @@ public sealed partial class OffscreenRenderTests
         Enumerable.Range(0, 4).Select(i => (int)GetImageColor(image, 8 + i * 16, 8).R)
             .Should().Equal([0, 85, 170, 255], "each copy is colored by its instance, the first 0");
         GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().DrawCalls
-            .Should().Be(2, "the plain cube is one call and the four copies with the shader another");
+            .Should().Be(1, "the four copies with the shader are one call, and the plain cube, far above the view, is left out of it");
         UnloadModel(cube);
         UnloadShader(shader);
     }

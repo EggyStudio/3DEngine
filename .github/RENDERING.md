@@ -1713,6 +1713,31 @@ The largest costs as they were measured, in order, each with what changed:
    them again for each camera, and each camera's groups hold the same instances under a template
    with the camera's view-projection, so a camera drawing into a render texture costs its
    translucent entities' sort and not a pass over every entity.
+8. **A plain draw was drawn whole by every view.** Item 6 culled the groups of mesh entities, and
+   a `DrawMesh` or `DrawModel` was still drawn into the camera's pass, the occlusion's depth and
+   each cascade wherever it lay. The voxel game in `3DEngine.Game` draws its world as some 1,800
+   meshes a frame and cannot leave out the ones it does not see, since the scene's field gathers
+   the frame's draws and a mesh left out of a frame leaves it. On seed 1's hills at 1280 by 720,
+   standing at the spawn facing north at hour 10 with eight columns drawn around the player, the
+   frame took 25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the
+   occlusion's depth, over 9,181 calls, 1,836 in each of the camera's pass, the depth and the three
+   cascades, averaged over 600 frames after `profile.reset` by `./e3d command profile` on an RTX
+   4070 Laptop GPU, the Debug build.
+   **Changed.** `GpuMeshes` keeps the box around each mesh's positions, unknown for a skin the GPU
+   poses, and a batch of plain draws is in blocks of 64 as a group is, each around its draws' boxes
+   placed by their world matrices (Arvo), so a section of blocks keeps a box as tight as its own. A
+   batch with a shader of the program's own is not, since its vertex stage may move what it draws
+   past the box. Each pass makes its planes once for the matrix it draws through and passes over a
+   batch it sees none of before binding its buffers, and a light's pass adds its near and far
+   planes, which item 6 left out: the shadow shader writes the position as the light's matrix gives
+   it and no pipeline clamps depth, so a block past either is clipped whole whether drawn or not,
+   and the cascade's box reaching four of its radii toward the light holds every caster that can
+   shadow it. The same scene afterward took 11.9 ms a frame, the GPU 2.3 ms for the shadows, 1.4 for
+   the scene and 1.2 for the depth, over 1,825 calls, 424 the camera's, 423 the depth's, and 17, 90
+   and 871 the cascades', the CPU 1.29 ms for the shadows in place of 1.78 and 0.70 for the scene in
+   place of 1.53, and no pixel of the frames moved by more than one level in 255. `models.draws`
+   gives the last frame's calls by pass. At six columns the frame went from 14.3 to 8.4 ms and the
+   shadows from 6.8 to 1.8.
 
 ### Beside raylib
 

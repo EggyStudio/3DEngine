@@ -70,9 +70,17 @@ internal sealed partial class ModelRenderer
         IPipeline? pipeline = null;
         var pushed = default(Matrix4x4?);
         index = 0;
+        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
         foreach (var batch in view.Batches)
         {
             if (!Scatters(batch)) continue;
+            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
+            // A batch passed over keeps its profile's place.
+            if (!frustum.SeesAny(batch, view.Blocks))
+            {
+                index++;
+                continue;
+            }
             var streams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
             var wanted = SubsurfacePipeline(gfx, renderPass, renderWorld, batch.Cull, streams);
             if (!ReferenceEquals(wanted, pipeline))
@@ -93,7 +101,7 @@ internal sealed partial class ModelRenderer
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, view.Ring!, colors, texcoords2, profiles.Buffer],
                 [0, view.Offset, 0, 0, profiles.Offset + (ulong)(index++ * 16)]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, view.Blocks, batch.ViewProjection);
+            Count("subsurface", DrawSeen(pass, batch, view.Blocks, frustum));
         }
         return marked;
     }

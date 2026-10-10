@@ -251,6 +251,12 @@ internal sealed class GpuMeshes : IDisposable
 
         /// <summary>The GPU side of a skinned mesh, whose posed vertices are <see cref="Vertices"/>, or null.</summary>
         internal GpuSkin? Skin { get; init; }
+
+        /// <summary>
+        /// The box around its positions, which a pass leaves its draws out by when the box is outside
+        /// what the pass sees, or null where the CPU does not know them, as a skin the GPU poses.
+        /// </summary>
+        internal (Vector3 Min, Vector3 Max)? Box { get; init; }
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
@@ -280,7 +286,7 @@ internal sealed class GpuMeshes : IDisposable
                 var bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
                 if (upload.VerticesOnly && _entries.TryGetValue(upload.Id, out var old))
                 {
-                    _entries[upload.Id] = Advance(gfx, old, bytes);
+                    _entries[upload.Id] = Advance(gfx, old, bytes) with { Box = old.Skin is null ? BoxOf(upload.Vertices) : null };
                     continue;
                 }
 
@@ -302,7 +308,7 @@ internal sealed class GpuMeshes : IDisposable
                     continue;
                 }
                 _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length)
-                    { Colors = colors, Texcoords2 = texcoords2 };
+                    { Colors = colors, Texcoords2 = texcoords2, Box = BoxOf(upload.Vertices) };
             }
         }
 
@@ -332,6 +338,19 @@ internal sealed class GpuMeshes : IDisposable
         var slot = (entry.Slot + 1) % ring.Length;
         vertices.CopyTo(gfx.Map(ring[slot]));
         return entry with { Vertices = ring[slot], Slot = slot };
+    }
+
+    // The box around a mesh's positions, or null for a mesh with none.
+    private static (Vector3 Min, Vector3 Max)? BoxOf(ModelVertex[] vertices)
+    {
+        if (vertices.Length == 0) return null;
+        var (min, max) = (vertices[0].Position, vertices[0].Position);
+        foreach (ref readonly var vertex in vertices.AsSpan())
+        {
+            min = Vector3.Min(min, vertex.Position);
+            max = Vector3.Max(max, vertex.Position);
+        }
+        return (min, max);
     }
 
     // Hands a mesh's buffers to the retired list, which destroys them once no frame can read them.

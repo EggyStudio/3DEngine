@@ -43,7 +43,7 @@ internal sealed partial class ModelRenderer
             var (x, y) = ShadowFit.TileOrigin(t, shadow.TileSize);
             pass.SetViewport(x, y, shadow.TileSize, shadow.TileSize, 0, 1);
             pass.SetScissor(x, y, (uint)shadow.TileSize, (uint)shadow.TileSize);
-            DrawShadowBatches(pass, view, shadow.Cascades[t].ViewProjection);
+            Count(t < CascadeNames.Length ? CascadeNames[t] : $"cascade {t}", DrawShadowBatches(pass, view, shadow.Cascades[t].ViewProjection));
         }
         var spots = shadow.SpotLights ?? [];
         for (int s = 0; s < spots.Count; s++)
@@ -51,7 +51,7 @@ internal sealed partial class ModelRenderer
             var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count, shadow.TileSize);
             pass.SetViewport(x, y, size, size, 0, 1);
             pass.SetScissor(x, y, (uint)size, (uint)size);
-            DrawShadowBatches(pass, view, spots[s].ViewProjection);
+            Count("spot lights", DrawShadowBatches(pass, view, spots[s].ViewProjection));
         }
         pass.EndRenderPass();
 
@@ -78,7 +78,7 @@ internal sealed partial class ModelRenderer
             {
                 facePass.SetViewport(x, y, size, size, 0, 1);
                 facePass.SetScissor(x, y, (uint)size, (uint)size);
-                DrawShadowBatches(facePass, view, face);
+                Count("point lights", DrawShadowBatches(facePass, view, face));
             }
             facePass.EndRenderPass();
         }
@@ -145,8 +145,11 @@ internal sealed partial class ModelRenderer
         var (ring, offset) = (view.Ring!, view.Offset);
         IPipeline? bound = null;
         Matrix4x4? pushed = null;
+        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
         foreach (var batch in _shadowBatches)
         {
+            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
+            if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;
             if (!ReferenceEquals(pipeline, bound))
             {
@@ -162,22 +165,25 @@ internal sealed partial class ModelRenderer
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, view.Blocks, batch.ViewProjection);
+            Count("depth", DrawSeen(pass, batch, view.Blocks, frustum));
         }
     }
 
     // The view's batches that cast a shadow, gathered into _shadowBatches, drawn as a light sees
-    // them through lightViewProjection. A solid shadow reads the world matrix alone, and a masked
-    // one its color and cutoff too.
-    private void DrawShadowBatches(TrackedRenderPass pass, View view, Matrix4x4 lightViewProjection)
+    // them through lightViewProjection, answering how many calls they took. A solid shadow reads
+    // the world matrix alone, and a masked one its color and cutoff too.
+    private int DrawShadowBatches(TrackedRenderPass pass, View view, Matrix4x4 lightViewProjection)
     {
+        var calls = 0;
         var (ring, offset) = (view.Ring!, view.Offset);
         var push = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in lightViewProjection));
         pass.SetPipeline(_shadowPipeline!);
         pass.PushConstants(_shadowPipeline!, ShaderStageFlags.Vertex, 0, push);
         IPipeline bound = _shadowPipeline!;
+        var frustum = new Frustum(lightViewProjection, depth: true);
         foreach (var batch in _shadowBatches)
         {
+            if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;
             if (!ReferenceEquals(pipeline, bound))
             {
@@ -188,9 +194,12 @@ internal sealed partial class ModelRenderer
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, view.Blocks, lightViewProjection);
+            calls += DrawSeen(pass, batch, view.Blocks, frustum);
         }
+        return calls;
     }
+
+    private static readonly string[] CascadeNames = ["cascade 0", "cascade 1", "cascade 2", "cascade 3"];
 
     // The point lights' faces, six layers a light, made when a point light first casts a shadow,
     // or a stand-in of two texels for the lights' set to bind before then.

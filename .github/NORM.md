@@ -20,6 +20,7 @@ is its own design, which the annexes point to.
 | an example | A program in the examples project, opened by name |
 | a capture | The picture the workflow takes of an example or a game |
 | a game | A project under `games/`, built from the package |
+| a testbed | A game beside the engine, built on its project rather than the package, so a change plays on the next build; it is a game to every rule but N 5.3 |
 | the workflow | What GitHub runs on a push |
 | a batch | One finished piece of work, which is one commit |
 | the working session | The session that writes an engine |
@@ -195,12 +196,13 @@ them, gives a rule with its reason and names no one who decided it.** A reader o
 the source has no owner, reviewer or session to follow, and a reason stands on its own where a name
 does not. Who chose what, and when, belongs to REVIEW.md's Decisions, and a commit's message, from
 which release notes are made, says what changed and why without it. The sessions' own documents,
-REVIEW.md, SHARED.md, NORM.md, AGENTS.md and COMMITS.md, name them, and nothing else does.
-`NormTests` over every Markdown file but those five, over the comments of every source, shader,
-script, manifest and workflow, and the pack workflow's step that writes the release notes, for the
-owner or a session named as the one who chose, decided, asked, allowed, admitted, wants, sets, files
-or publishes, and for `REVIEW.md` in a page a game's author reads; a word that means a thing's owner
-in the code, a widget's or a handle's, is not a name.
+REVIEW.md, SHARED.md, NORM.md, AGENTS.md, COMMITS.md and ASKS.md, which the sessions making games
+write, name them, and nothing else does. `NormTests` over every Markdown file but those six, over
+the comments of every source, shader, script, manifest and workflow, and the pack workflow's step
+that writes the release notes, for the owner or a session named as the one who chose, decided,
+asked, allowed, admitted, wants, sets, files or publishes, and for `REVIEW.md` in a page a game's
+author reads; a word that means a thing's owner in the code, a widget's or a handle's, is not a
+name.
 
 ## 5 Examples and games
 
@@ -215,7 +217,10 @@ checked in.
 
 **N 5.3 A game is built from the packed package and played by the workflow.** A game built on the
 project itself does not find what the package leaves out. The workflow packs, builds a game on the
-package and plays it with no display.
+package and plays it with no display. A testbed is built on the engine's project instead, so the
+engine's session and the session making it play a change before it is packed; the workflow builds it
+with the solution and need not play it, since what it finds is the engine's and goes to ASKS.md, and
+it is no proof of the package.
 
 ## 6 Build and package
 

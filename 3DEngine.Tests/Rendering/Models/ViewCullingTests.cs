@@ -5,7 +5,8 @@ namespace Engine.Tests.Rendering.Models;
 
 /// <summary>
 /// The test the model and shadow passes leave a block of instances out by, the four side planes
-/// of a view, which keeps what a view shows and leaves out what lies wholly to a side of it.
+/// of a view, which keeps what a view shows and leaves out what lies wholly to a side of it, and
+/// for a light's pass its near and far planes, past which the GPU clips what is drawn anyway.
 /// </summary>
 [Trait("Category", "Unit")]
 public class ViewCullingTests
@@ -51,5 +52,21 @@ public class ViewCullingTests
         Seen(light, new Vector3(0, 0, 0)).Should().BeTrue();
         Seen(light, new Vector3(3, 400, -3)).Should().BeTrue("a caster high above, toward the light, still throws its shadow in");
         Seen(light, new Vector3(30, 0, 0)).Should().BeFalse("it is beside the box");
+    }
+
+    [Fact]
+    public void A_Lights_Pass_Leaves_Out_A_Box_Past_Its_Far_Plane_Or_Before_Its_Near_One_And_Keeps_One_Across_Either()
+    {
+        // A sun straight down whose box reaches from 50 units above the origin to 50 below it.
+        var light = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitY, -Vector3.UnitZ) *
+                    Matrix4x4.CreateOrthographicOffCenter(-10, 10, -10, 10, -50, 50);
+        bool ByLight(Vector3 at) => ModelRenderer.Seen(light, at - Half, at + Half, light: true);
+
+        ByLight(new Vector3(0, 0, 0)).Should().BeTrue();
+        ByLight(new Vector3(0, 49.8f, 0)).Should().BeTrue("the near plane crosses it");
+        ByLight(new Vector3(0, -49.8f, 0)).Should().BeTrue("the far plane crosses it");
+        ByLight(new Vector3(0, -60, 0)).Should().BeFalse("it lies past the far plane, where its shadow could fall on nothing the box holds");
+        ByLight(new Vector3(0, 60, 0)).Should().BeFalse("it lies before the near plane, which the GPU clips it by");
+        Seen(light, new Vector3(0, -60, 0)).Should().BeTrue("a camera's pass leaves near and far to the depth test");
     }
 }

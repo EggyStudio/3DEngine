@@ -198,66 +198,12 @@ internal sealed partial class ModelRenderer : IDisposable
         IImageView V0, ISampler S0, IImageView V1, ISampler S1, IImageView V2, ISampler S2,
         IImageView V3, ISampler S3, IImageView V4, ISampler S4);
 
-    // Every draw's instance, a region per frame slot, kept mapped. Each frame writes its instances
-    // into its own region, which the GPU finished reading RetireFrames frames ago, the shadow pass's
-    // and every target's one after another.
-    private IBuffer? _instanceRing;
-    private int _ringCapacity;
-    private int _ringSlot;
-    private int _ringCursor;
-    private readonly List<(long Frame, IBuffer Buffer)> _retiredBuffers = [];
-
     // This call's batches, which batch each draw went into (-1 for none), and the batch of each
     // mesh and set, kept between calls so a frame allocates nothing once they have grown.
     private readonly List<Batch> _batches = [];
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
 
-    // The frame's group segments to copy into the ring, each with where its first instance goes,
-    // and where its first block goes in _blocks.
-    private readonly List<(Instance[] Items, int Count, int At, InstanceGroup Group)> _copies = [];
-    private readonly List<int> _copyBlocks = [];
-
-    // A run of a group's instances in the ring and the box around them, which a view leaves out
-    // when the box is outside it. A group's instances are in blocks of this many, so a view draws
-    // the runs of blocks it sees, each a call, rather than every instance.
-    private const int BlockSize = 64;
-
-    private struct Block
-    {
-        public uint First;
-        public uint Count;
-        public Vector3 Min;
-        public Vector3 Max;
-        // Whether a pass of the frame drew the block, the camera's, a cascade's or a light's.
-        public bool Drawn;
-    }
-
-    /// <summary>
-    /// The instances the last frame copied into the ring for its groups and those of them in blocks
-    /// some pass drew, the camera's, a shadow cascade's or a light's, over every view, read between
-    /// frames, so what copying the blocks no pass drew costs can be weighed.
-    /// </summary>
-    internal (long Copied, long Drawn) BlocksLastFrame()
-    {
-        long copied = 0, drawn = 0;
-        foreach (var view in _views.Values)
-            foreach (var batch in view.Batches)
-                for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
-                {
-                    copied += view.Blocks[i].Count;
-                    if (view.Blocks[i].Drawn) drawn += view.Blocks[i].Count;
-                }
-        return (copied, drawn);
-    }
-
-    // The blocks of the last gathered view's groups, which the view keeps a copy of.
-    private Block[] _blocks = new Block[64];
-    private int _blockCount;
-
-    // Past this many instances the segments are copied on several threads, since one thread
-    // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
-    private const int ParallelCopyInstances = 16384;
     private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
@@ -296,6 +242,18 @@ internal sealed partial class ModelRenderer : IDisposable
 
     /// <summary>How many draw calls the model and shadow passes recorded this frame.</summary>
     internal int DrawCalls { get; private set; }
+
+    // This frame's draw calls by pass, read between frames as DrawCalls is.
+    private readonly Dictionary<string, int> _callsByPass = [];
+
+    /// <summary>How many draw calls each pass recorded this frame, the camera's, the depth's, each cascade's and the lights'.</summary>
+    internal IReadOnlyDictionary<string, int> CallsByPass => _callsByPass;
+
+    private void Count(string pass, int calls)
+    {
+        DrawCalls += calls;
+        _callsByPass[pass] = _callsByPass.GetValueOrDefault(pass) + calls;
+    }
     private long _frames;
     // The lights' sets, a list for each frame in flight, and the set each view took this frame.
     private readonly List<List<IDescriptorSet>> _lightSets = [];
@@ -420,8 +378,12 @@ internal sealed partial class ModelRenderer : IDisposable
         // The scissor the pass was begun with is the whole target, which a batch kept to some of it
         // changes, and a face of a probe, drawn through a camera of its own, keeps.
         ScissorRect? scissored = null;
+        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
         foreach (var batch in batches)
         {
+            var through = viewProjection ?? batch.ViewProjection;
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
+            if (!frustum.SeesAny(batch, blocks)) continue;
             var keptTo = viewProjection is null ? batch.Scissor : null;
             if (keptTo != scissored)
             {
@@ -446,7 +408,6 @@ internal sealed partial class ModelRenderer : IDisposable
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, lights ?? target), index: 1);
                 pushed = null;
             }
-            var through = viewProjection ?? batch.ViewProjection;
             if (pushed != through)
             {
                 pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in through)));
@@ -462,7 +423,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!, colors, texcoords2], [0, offset, 0, 0]);
             }
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, blocks, through);
+            Count(target == 0 ? "camera" : "targets", DrawSeen(pass, batch, blocks, frustum));
         }
         if (scissored is not null) pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);
     }
@@ -642,89 +603,6 @@ internal sealed partial class ModelRenderer : IDisposable
         var batch = _batches[index];
         batch.Count++;
         _batches[index] = batch;
-    }
-
-    // Writes each batched draw's instance into this frame's region of the ring, a batch's
-    // instances together, and gives each batch the first of them, counted from the returned offset
-    // in bytes. A group's batch is its instances, copied as they are.
-    private (IBuffer Ring, ulong Offset) WriteInstances(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<Instance> instanceOf,
-        IReadOnlyList<InstanceGroup> groups)
-    {
-        uint total = 0;
-        foreach (var batch in _batches) total += batch.Count;
-        var slots = (int)total;
-        EnsureInstanceRoom(gfx, slots);
-
-        var offset = (ulong)(_ringSlot * _ringCapacity + _ringCursor) * Instance.Size;
-        _ringCursor += slots;
-        uint first = 0;
-        _filled.Clear();
-        for (int b = 0; b < _batches.Count; b++)
-        {
-            var batch = _batches[b];
-            batch.First = first;
-            _batches[b] = batch;
-            _filled.Add(first);
-            first += batch.Count;
-        }
-
-        var instances = MemoryMarshal.Cast<byte, Instance>(gfx.Map(_instanceRing!)[(int)offset..]);
-        for (int i = 0; i < _drawBatch.Count; i++)
-        {
-            var b = _drawBatch[i];
-            if (b < 0) continue;
-            instances[(int)_filled[b]++] = instanceOf(in draws[i]);
-        }
-        _copies.Clear();
-        _copyBlocks.Clear();
-        _blockCount = 0;
-        var copied = 0;
-        for (int b = 0; b < _batches.Count; b++)
-        {
-            var batch = _batches[b];
-            if (batch.Group < 0) continue;
-            var firstCopy = _copies.Count;
-            groups[batch.Group].AddSegments(_copies, (int)batch.First);
-            copied += groups[batch.Group].Count;
-            batch.BlockStart = _blockCount;
-            for (int c = firstCopy; c < _copies.Count; c++)
-            {
-                _copyBlocks.Add(_blockCount);
-                _blockCount += (_copies[c].Count + BlockSize - 1) / BlockSize;
-            }
-            batch.BlockCount = _blockCount - batch.BlockStart;
-            _batches[b] = batch;
-        }
-        if (_blocks.Length < _blockCount) Array.Resize(ref _blocks, Math.Max(_blockCount, _blocks.Length * 2));
-        CopySegments(instances, copied);
-        return (_instanceRing!, offset);
-    }
-
-    // Copies the frame's group segments into the ring, each into its own range, and finds the
-    // box around each block of each, on several threads when there are many instances.
-    private unsafe void CopySegments(Span<Instance> instances, int count)
-    {
-        if (count < ParallelCopyInstances || _copies.Count < 2)
-        {
-            for (int i = 0; i < _copies.Count; i++)
-            {
-                var (items, n, at, group) = _copies[i];
-                items.AsSpan(0, n).CopyTo(instances[at..]);
-                Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i]);
-            }
-            return;
-        }
-
-        // The ring is mapped memory, which does not move, so its address outlives the span.
-        var ring = (nint)Unsafe.AsPointer(ref MemoryMarshal.GetReference(instances));
-        var length = instances.Length;
-        var blocks = _blocks;
-        Parallel.For(0, _copies.Count, i =>
-        {
-            var (items, n, at, group) = _copies[i];
-            items.AsSpan(0, n).CopyTo(new Span<Instance>((Instance*)ring + at, length - at));
-            Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i]);
-        });
     }
 
     /// <inheritdoc />

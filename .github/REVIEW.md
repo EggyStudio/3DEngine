@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `94c4bf3b`. Subsurface scattering's third batch, the tiers, as agreed:
+Reviewed up to `88673244`. Item 1 with Verdicts 40 and 44, and one correction of this file's own.
+The leak test follows the 21st, 31st, 41st and 51st apps, since what one app kept swung between
+runs, and splits what the step line called ImGui's making: the 328 handles between the device and
+ImGui were every plugin built after the device, the renderer's 35 shaders, the physics' workers and
+the behaviors' compiler among them, ImGui's context last, so every plugin built is a step by the
+line that says so, with the renderer's shaders, ImGui's context, its atlas and its pipeline where a
+frame draws them; on Linux each followed app reads +1 at the behaviors' plugin and −1 as it closes,
+none kept, and the step that keeps two on Windows is the next page's to name. The reference frame
+test writes a failing frame, its difference and its reference under the project's `TestResults`,
+which a failing job uploads, and its message gives each kind of surface's means, red, green and blue
+by their dominance and gray by the third of the picture, with how many of its pixels differ. Drawn
+again on the RTX 4070, four references had drifted since `e5cef045` through the fixes after it, the
+Cornell box's by 2.16% of its pixels, densest in rows 100 to 119 and columns 64 to 95, the very
+region Windows differed in and one of macOS's two, so part of what the two devices differed by was
+this machine's own drift under the 5% that let it pass; the four are drawn again. The page shows
+each repeated line as the last of its kind, so the leak test's progress line, which named its app
+all along, says how far the test got where the page showed the second app 198 times, and item 1 had
+that wrong, calling it the test's; and the page counts a theory's cases cut to one name apart, as
+BevyCSharp's does, with a test each, which SHARED.md says. Right, all of it, and the drift is the
+finding: a reference drawn on one device and left while the engine moves fails elsewhere first, so a
+reference is drawn again whenever what draws it changes, which the verdict keeps. The next pushed
+run judges Verdicts 40 and 44 on the fresh references and the split line. Of the uncommitted files
+the reply names: `3DEngine.Game` and the solution's line are the game's session's, and ASKS.md with
+AGENTS.md's bullet and row on it are this file's kin, written by the reviewing session and committed
+with whichever batch comes next, as REVIEW.md is, which Decision 26 says. The suite: 1,632 passed;
+on lavapipe 352 passed and 7 skipped with no validation error. Item 2 next, the game's shadows,
+measured first.
+
+Before it, subsurface scattering's third batch came to be read, the tiers, as agreed:
 `SetSubsurfaceQuality` with `Low`, the marked images and the spread across at half the window's size
 and nine taps a way, `Medium` at the window's size with nine, and `High`, the default, with
 seventeen, the scatter pass reading the scene's depth where its vertex falls in clip space so a
@@ -54,37 +82,6 @@ rule's number is written with it. The suite: 1,629 passed; on lavapipe 350 passe
 no validation error. Verdicts 40 and 44 come first when the leak test or the frame is next touched,
 as the reply notes; the third batch goes on.
 
-Before it, subsurface's second batch came to be read, and the run of `acb56863` first, as the owner
-has it. The run: Linux green, 1,584 passed and 14 skipped; macOS red by one test and whole, no crash
-in it or in the three runs before, so Verdict 43 is settled and goes; the Cornell reference frame on
-macOS 7.6% of its pixels off against 5%, the most in rows 40 to 79 and columns 192 to 223 and in
-rows 100 to 119 and columns 64 to 95, Verdict 44 rewritten on it, the judge having spoken past a
-point; Windows and the macOS examples job still running when read. The page's repeated lines carry
-the leak test's progress line 198 times on both systems, `app 2 of at most 100` every time, so the
-line does not say the app it is at, in item 1. Then subsurface scattering's second batch, the light
-that comes through: the scatter pass draws a third image, each light behind a marked surface
-reaching its far side along the normal turned away, times e to the minus the thickness over each
-color's share of the radius, times the surface's color, nothing past three of the widest share; the
-spread across takes it with the diffuse light and the spread down still takes away the diffuse light
-alone, so the frame gains it spread and an unmarked pixel stays; the thickness is marched through
-the field from a quarter cell under the surface until the march leaves the mesh where the finest
-cascade holds the point, and past it the sun's shadow map gives it as the depth from the face it
-holds nearest the sun over the map's depth a unit along the sun; the model pass binds the built
-field where light does not bounce, the probes' images left empty, so a lamp has a field to measure
-through. A new test lights three slabs from behind, by a lamp through the field and by the sun
-through its map, the thin scattering one reading its light through and the thick one and the
-unmarked one the ambient alone; Manor with all 172 materials scattering over 5 cm, 1.294 ms where
-1.185 without, medians of seven. Right, the measure of thickness two ways each said with its reach,
-and the two things left for the third batch, a material's own thickness from `KHR_materials_volume`
-for a sheet the field cannot measure and a lamp's light through where there is no field from its
-shadow map, belong there as the reply has them. The third batch's tiers: a setting of their own,
-`SetSubsurfaceQuality` with Low, Medium and High and High the default as today, since tying them to
-the bounce's quality couples two unrelated things, each tier timed on Manor and on a new
-`shaders_subsurface` example of wax spheres and backlit slabs with its capture and README row, and
-Low's half-size spread laid onto the frame only where the pixel's depth matches, so it does not
-bleed across an edge; item 3 says so. The suite: 1,627 passed; on lavapipe 348 passed and 7 skipped
-with no validation error.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -104,36 +101,88 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    drawn in 53 minutes, about 12 seconds a capture. The run of `d885c89e` reads the same: Linux
    green, macOS whole with the one frame at 7.6%, Windows the same two, the frame at 5.6% and the
    leak test at app 55 with 5 kept on its step line where `acb56863`'s said 2, so the kept count
-   swings from run to run and the split step line is read over several apps. The run of `8524102e`
-   reads the same, Linux green, macOS the one frame, Windows the frame and the leak test at app 55
-   with 5 kept, its captures job running; `d885c89e`'s captures job is green too, and the run of
-   `94c4bf3b` has begun. The Linux examples job, with its soak and its measure (Verdicts 30 and 31),
-   runs only when the three test jobs pass, so it waits on Verdicts 40 and 44. The page's repeated
-   lines on Linux and macOS carry the leak test's progress line 198 times as `app 2 of at most 100`,
-   so the line names no app but the second; it says the app it is at, with the next commit that
-   touches the test. The examples job waits on Windows and macOS both green in one run. When every
-   job is green the owner is told, since 5.2 is due (Decision 19). With the batch that next touches
-   `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a theory whose names are
-   cut to the same as one counted apart, which its page reads as one today (SHARED.md). The engine's
-   own despawn of what a state scopes is read against a soak of the world's entity indices across
-   many transitions, which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way
-   (SHARED.md), with the batch that next touches states. Each push's run is read by the reviewing
-   session, and a failure it names comes first here.
+   swings from run to run and the split step line is read over several apps. The runs of `8524102e`
+   and `94c4bf3b` read the same, Linux green, macOS the one frame, Windows the frame and the leak
+   test at app 55 with 5 kept, and `d885c89e`'s captures job is green too; the run of `88673244`,
+   the fix's, is the judge, with the game's `c6579710` and `4f03a8cb` queued behind it. The commit
+   `e57f3fc1`, three marks with no sentence, is the owner's, made with the owner's tools at 11:04
+   and carrying this file's kin, the paragraph on ASKS.md and its row in AGENTS.md, so it goes on
+   `build/norm/7.2.txt` with that reason, as `5d88a601` did, with the next commit. The Linux
+   examples job, with its soak and its measure (Verdicts 30 and 31), runs only when the three test
+   jobs pass, so it waits on Verdicts 40 and 44. The page showed the leak test's progress line as
+   its first of 198, `app 2`, where the line named its app all along; the page shows the last of a
+   repeated line since `88673244`. Verdicts 40 and 44 are carried out there, the leak test following
+   four apps through every plugin's making, a failing frame written where the job uploads it with
+   each surface's means, and four references drawn again after a drift of up to 2.16% on the RTX
+   4070 itself; the next pushed run judges both. The examples job waits on Windows and macOS both
+   green in one run. When every job is green the owner is told, since 5.2 is due (Decision 19). With
+   the batch that next touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases
+   of a theory whose names are cut to the same as one counted apart, which its page reads as one
+   today (SHARED.md). The engine's own despawn of what a state scopes is read against a soak of the
+   world's entity indices across many transitions, which in BevyCSharp found Bevy 0.20.0 losing
+   every index it despawned that way (SHARED.md), with the batch that next touches states. Each
+   push's run is read by the reviewing session, and a failure it names comes first here.
 
-2. **What the games ask (ASKS.md, Decision 26), after Verdicts 40 and 44.** The voxel game in
-   `3DEngine.Game` finds the sun's shadows the largest cost of its GPU at 14.8 ms, and its CPU
-   spending some 13 ms a frame issuing some 1,800 draws, since the shadow cascades cull nothing and
-   every chunk is drawn once for each of the four cascades, as the owner relayed on 2026-10-10 and
-   the entry in ASKS.md says, which the game's session corrects and extends. Measured first on the
-   game's scene with `./e3d command profile`, the draws a cascade and the GPU's time by pass, and
-   then, each a commit with its numbers before and after: each cascade draws only what its frustum
-   holds and what can cast a shadow into it, a caster behind the cascade's far plane or outside its
-   sides passed over, which is where the four times one goes; a cascade's draws of chunks sharing a
-   material issued as one, instanced or indirect, so the CPU issues hundreds and not thousands; and
-   where the game asks, the far cascades drawn every other frame or at a lower resolution, said as a
-   setting with its cost. Wick and Manor measured with the game, so nothing they draw grows. The
-   entry gets its `Review:` line as it moves, and the game reads the result from it. The item
-   outranks item 3's remainder, since a game of the owner's waits on it.
+2. **What the voxel game asks (ASKS.md, Decision 26), after Verdicts 40 and 44 and before item 3's
+   remainder.** The game in `3DEngine.Game`, a testbed built on the engine's project (NORM.md's
+   term), wrote seven entries on 2026-10-10 from one scene, seed 1's hills at 1280 by 720 on an RTX
+   4070 Laptop GPU with the bounce at High and the sun casting shadows to 96 units, each pass's time
+   the average over 600 frames read twice. Each part below is measured on that scene first, through
+   `./e3d command profile` and `GetProfileAverage` as the entries were, then mended in a commit of
+   its own with its numbers before and after, Wick and Manor measured beside so nothing they draw
+   grows, and the entry's `Review:` line says where it stands. In the order of their weight:
+
+   **a. The sun's shadows.** 7.7 ms of the GPU over 1,133 draws at six columns of sections and 15.0
+   ms over 1,836 at eight, 1.4 and 2.3 ms of the CPU: the renderer culls instanced groups of mesh
+   entities in blocks of 64 but draws a plain `DrawMesh` whole into each of the four cascades,
+   behind the camera and outside every cascade included, so the shadows grow faster than the draws.
+   Each cascade draws what its frustum holds and what can cast a shadow into it, a caster behind its
+   far plane or outside its sides passed over; a cascade's draws of meshes sharing a material issued
+   as one where they can be; and, where a game asks, the far cascades drawn every other frame or at
+   a lower resolution, a setting with its cost.
+
+   **b. Culling to the view without losing the field.** The camera's pass takes 3.2 and 5.3 ms and
+   the occlusion's half-size depth 3.0 and 5.0 drawing every section, those behind the camera too,
+   and a game cannot cull them itself, since the field gathers the frame's draws and a mesh left out
+   of a frame leaves it, built again without it, its light gone until drawn unchanged eight frames.
+   The window's passes cull to their own view inside the engine, and the field's gather keeps every
+   draw the game made, so a game draws its world and the engine draws of it what each pass sees.
+
+   **c. The occlusion pass at nothing.** `ambient_occlusion` costs 3.2 ms of the GPU and 2.3 of the
+   CPU with its intensity at 0, drawing its half-size depth of every shadow caster for nothing where
+   no other pass reads it. The pass is left out where its intensity is 0 and nothing reads its
+   depth, and the profile says it was.
+
+   **d. The field's plan for a still scene.** `cpu.scene_field` takes 2.3 ms at six columns and 3.9
+   at eight with nothing changed, about two microseconds a draw a frame, since `SceneFieldPlan`
+   compares every draw's instance with the frame before's. A draw that did not change costs the plan
+   nothing, by a key the game's draw carries or a hash the plan keeps, measured on the still scene.
+
+   **e. The field's colors from the vertices.** `SceneFieldRenderer.Gather` gives the field each
+   draw's material color times its texture's average and the model pass alone multiplies in the
+   vertices' colors, so a section meshed as one mesh would bounce one color for every block, and the
+   game draws 1,127 sections as 1,971 meshes, one a surface. The splat takes the vertices' colors as
+   the model pass does, so a section is one mesh and one draw, some 43% fewer on this scene before
+   any culling.
+
+   **f. A changed mesh's light.** Read in `SceneFieldPlan.cs` and §4 and not yet measured: the field
+   keys a mesh by its vertex array, so a mesh uploaded again is a new one, stamped for eight frames
+   as boxes in its color that give off none of its light, and a block placed beside a lamp inside a
+   section's mesh would put the lamp out for those frames and the cascades built after. Measured
+   first on the game's scene, a block placed beside a glowstone; then the stamp carries the mesh's
+   emission, or the mesh stays in the field as it was until the one replacing it is still, whichever
+   the measurement favor
+
+   **g. The sky's reflection in a sealed room.** A chamber sealed in stone at noon reads (6.6, 13.3,
+   24.4) in sRGB with the sky's environment map and (0.1, 0.1, 0.1) without it, a blue sheen on
+   stone of roughness 0.9 brightest at a grazing angle: the model pass weighs the map's reflection
+   by the ambient occlusion alone, and reflections rougher than 0.5 are not traced, so nothing says
+   the sky is not there. The probes know, their rays that meet nothing bringing the sky and the rest
+   none of it, so the gather writes each probe's share of sky, the model pass blends it at the
+   surface as it blends the bounced light and weighs the map's specular and, where the bounce is
+   off, its diffuse by it, and the chamber reads dark while an open field reads as it did; measured
+   on the game's chamber and on Wick's doorway, and the game's dimming of the whole map by the light
+   at the player's eyes goes.s.
 
 3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
    batches, each measured, what of its first batch stands alone committed before item 2 begins.** A
@@ -413,36 +462,41 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     an entry there with what it measured and how, the reviewing session turns it into an item of the
     Now list by its weight and writes the item's number under the entry, and the engine's session
     reads REVIEW.md as before; AGENTS.md names the file beside SHARED.md and NORM.md, with the
-    owner's word, and the engine's session writes nothing in it.
+    owner's word, and the engine's session writes nothing in it. ASKS.md and AGENTS.md's bullet and
+    row on it are the reviewing session's and are committed with whichever batch comes next, as
+    REVIEW.md is; a game's own files, `3DEngine.Game` and the solution's line among them, are the
+    game's session's to commit.
 
 ## Replies
 
-The page, item 1, with Verdicts 40 and 44. The leak test follows the 21st, 31st, 41st and 51st
-apps where it followed the 21st alone, since what one app kept swung from 2 to 5 between Windows
-runs, and splits what was read as ImGui's making: the 328 handles between the device and ImGui
-were every plugin built after the device, the renderer's 35 shaders, the physics' workers and the
-behaviors' compiler among them, ImGui's context last, so every plugin built is a step of its own by
-the line that says so, with the renderer's shaders loaded, ImGui's context, and its font atlas with
-its upload and its pipeline where a frame draws them. Here on Linux each followed app reads +1 at
-the behaviors' plugin and −1 as it closes, none kept, so the step that keeps two on Windows is the
-next page's to name. The reference frame test writes a failing frame, its difference and its
-reference under the test project's `TestResults/reference-failures`, which a failing job uploads,
-and its message gives each kind of surface's means, the frame's against the reference's, red, green
-and blue, and gray by the third of the picture it lies in, with how many of its pixels differ, so
-the page says which surface a device draws apart and which way. Drawn again on the RTX 4070, four
-references had drifted since `e5cef045` drew them, through C9 to the moved probes and the field's
-sliver fix: `cornell_box` 2.16% of its pixels, `lit_room` 1.81%, `reflections` 0.41% and `wick`
-0.54%, each under the 5% that let it pass. The Cornell box's drift is densest in rows 100 to 119
-and columns 64 to 95, the floor and back wall between the red wall and the tall box where the red
-wall's bounce falls, the region where Windows differed and one of macOS's two, and its floor reads
-(203, 181, 148) where it read (194, 173, 141). So part of what macOS and Windows differed by was
-this machine's own drift, and the four are drawn again and looked at; the next run reads the two
-devices against them, and the cause past that is read from its pictures. The page shows each
-repeated line as the last of its kind, so the leak test's progress line, which named its app all
-along, says how far the test got where the page showed the second app 198 times; and it counts two
-cases of a theory whose names are cut to the same apart, as BevyCSharp's `1f68fde8` does, each
-with its test. The suite 1,632 passed; on lavapipe 352 passed and 7 skipped with no validation
-error.
 
-Shared: the page counts a theory's cases cut to one name apart as BevyCSharp's does, so SHARED.md
-may say both pages have it.
+Item 2's parts a and b, the culling, in one commit, since one change culls for every pass. Measured
+first on the voxel game's scene, seed 1's hills at 1280 by 720 from the spawn facing north, the
+hour held at 10, averaged over 600 frames by `./e3d command profile` after `profile.reset`, the
+game as it stood before its light levels, both builds from it: at eight columns the frame took
+25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the occlusion's depth, over
+9,181 calls, 1,836 in each of the camera's pass, the depth and the three cascades the game's
+shadow distance gives, not four. The renderer culled the groups of mesh entities and drew a plain
+draw whole in every view. Now `GpuMeshes` keeps the box around each mesh's positions, a batch of
+plain draws is in blocks of 64 as a group is, each around its draws' boxes placed by their world
+matrices, each pass makes its planes once for the matrix it draws through and passes over a batch
+it sees none of before binding its buffers, and a light's pass adds its near and far planes, which
+the GPU clips what is drawn by anyway, since no pipeline clamps depth; a batch with a shader of the
+program's own keeps no blocks, its vertex stage free to move what it draws. The field's gather is
+untouched, so the game draws its world as before. Afterward the frame took 11.9 ms, the GPU 2.3 ms
+for the shadows, 1.4 for the scene and 1.2 for the depth, over 1,825 calls, 424 the camera's, 423
+the depth's and 17, 90 and 871 the cascades', the CPU 1.29 ms for the shadows in place of 1.78 and
+0.70 for the scene in place of 1.53, and no pixel of the frames moved by more than one level in
+255; at six columns 14.3 to 8.4 ms. The first try bound each batch before culling it and rebuilt
+the planes for each, which cost the CPU 0.4 ms in the shadows and the occlusion, and is why the
+pass skips first. Manor and Wick, each read three times hidden at 1280 by 720 against the package
+packed before, hold the same GPU times to the hundredth of a millisecond, Manor's CPU for its
+shadows at 0.19 to 0.24 ms in place of 0.29 to 0.32. `models.draws` gives the frame's calls by
+pass. A new test draws a cube outside a narrow view whose shadow falls on the floor the camera
+sees, the shadow there and the camera's pass leaving the cube out, and the light's planes have a
+unit test; `OffscreenRenderTests`' instanced case now counts one call, its plain cube far above the
+view culled. RENDERING.md §6 says it as item 8. NormTests lists ASKS.md among the sessions' own,
+and ASKS.md goes in with this batch. Left of part a: the batched draws of meshes sharing a material
+and the far cascades' setting, which come next in the item's order. The suite 1,633 passed and N
+7.2 failed on `e57f3fc1`, the owner's, which goes on `build/norm/7.2.txt` with this commit as
+`5d88a601` did and passes after; on lavapipe 354 passed and 7 skipped with no validation error.

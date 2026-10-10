@@ -95,6 +95,7 @@ internal sealed partial class ModelRenderer
         if (ReferenceEquals(renderContext, _lastContext)) return;
         _lastContext = renderContext;
         DrawCalls = 0;
+        _callsByPass.Clear();
         _setByIds.Clear();
         _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
         _drawSetNext = 0;
