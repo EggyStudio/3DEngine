@@ -1,10 +1,3 @@
----
-name: e3d-cli
-description: Use when working in the 3DEngine repository, to run an example or a program headless or in a hidden window, ask it what is in its world, drive its input, capture what it draws, or read its log, from the terminal and without opening a visible window. Prefer it over launching a program per question, over xdotool, and over guessing what a change looks like.
-allowed-tools:
-  - Bash
----
-
 # Driving a running 3DEngine app with e3d
 
 ## Check for a live session first

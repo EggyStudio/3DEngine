@@ -202,8 +202,8 @@ serving and `6` when the command failed. A script checks a game this way:
 ```
 
 The repository's own captures of the examples are taken by `build/capture-example.sh` in the
-same way. An AI agent working on a game drives it through the same commands, which the skill at
-[`.claude/skills/e3d-cli/SKILL.md`](../.claude/skills/e3d-cli/SKILL.md) teaches.
+same way. An AI agent working on a game drives it through the same commands, which
+[`.github/E3D.md`](../.github/E3D.md) teaches.
 
 The socket listens on 127.0.0.1 alone, and each request carries a token from a session file only
 the program's user can read. `eval` runs any code with the program's rights, which are that user's
@@ -211,7 +211,7 @@ own.
 
 ## See also
 
-- The [skill](../.claude/skills/e3d-cli/SKILL.md), with every command and the failure modes
+- [E3D.md](../.github/E3D.md), with every command and the failure modes
 - [BUILDING.md](../.github/BUILDING.md), on the flags and building the command line
 - [`build/capture-example.sh`](../build/capture-example.sh), a script that drives every example
 - Previous: [Scenes](scenes.md)

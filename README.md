@@ -237,7 +237,7 @@ without opening a visible window:
 
 Programs take `--serve`, `--hidden`, `--offscreen`, `--headless`, `--frames N` and
 `--frame-time S`, and a game adds commands with
-`[Command]` on a static method. [The skill](https://github.com/EggyStudio/3DEngine/blob/main/.claude/skills/e3d-cli/SKILL.md) lists the commands.
+`[Command]` on a static method. [E3D.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/E3D.md) lists the commands.
 
 ## Building
 

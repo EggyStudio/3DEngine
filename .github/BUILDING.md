@@ -53,8 +53,8 @@ Every program built on the engine reads these flags, or the variables beside the
 | `--samples N` | `E3D_SAMPLES=N` | a window is drawn with N samples a pixel where the program asks for none |
 | `--seed N` | `E3D_SEED=N` | the random generator is seeded with N as the window opens, in place of the clock |
 
-`./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
-`.claude/skills/e3d-cli/SKILL.md` covers driving it.
+`./e3d open <example>` starts an example with `--serve` and any of the others, and [E3D.md](E3D.md)
+covers driving it.
 
 `build/capture-example.sh <example> <png|webp> [--hidden|--offscreen]` captures an example as the
 README shows it: it gives the examples that wait for input their input (a gamepad, Enter, typed

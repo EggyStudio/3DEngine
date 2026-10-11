@@ -21,7 +21,7 @@ the live session instead of launching a process per question.**
 ./e3d stop
 ```
 
-The workflow, the commands and the failure modes are in `.claude/skills/e3d-cli/SKILL.md`. Read it
+The workflow, the commands and the failure modes are in [.github/E3D.md](.github/E3D.md). Read it
 before driving a session.
 
 ## Documents
@@ -31,6 +31,7 @@ before driving a session.
 | [.github/DESIGN.md](.github/DESIGN.md) | The flat API, the frame, immediate drawing, the dependency policy |
 | [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
 | [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
+| [.github/E3D.md](.github/E3D.md) | Driving a running app through `./e3d`: the workflow, every command and the failure modes |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
