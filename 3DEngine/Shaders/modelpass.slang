@@ -192,9 +192,11 @@ public float3 screenBounced(ScreenProbesHere probes)
 // with no screen probes does, those few pixels cost the model pass 1.1 ms in a room of 64 lamps at
 // 1280 by 720 on an RTX 4070, since each group of pixels the GPU runs together waits on its
 // slowest. Marched from every pixel, the glow lights cost it 3.3 ms in a room of sixteen lamps,
-// where taken from the probes they cost 0.14, and 0.25 in a room of sixteen as the voxel game's,
-// closer together, where every light's bits read, those of a sixteenth of the light, and the probes
-// weighed again apart from the light that bounced cost it 0.47.
+// where taken from the probes they cost 0.14, and 0.25 in a room of sixteen eleven blocks square,
+// where every light's bits read, those of a sixteenth of the light, and the probes weighed again
+// apart from the light that bounced cost it 0.47. In the voxel game's own room, its lamps two
+// blocks apart and the eye a block over the floor, they cost it 0.30, and 0.40 with the glow
+// code unrolled and inlined at each call (glow.slang).
 public float3 glowLightsHere(ModelVertexOutput input, float3 n, ScreenProbesHere probes, bool screen)
 {
     int count = min(int(reflectLights.glowCounts.x), MostGlowLights);

@@ -261,7 +261,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // the model pass reads the light of at most eight at a probe. Every light marched to by its
     // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the bounce
     // 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and 0.3. Past a sixteenth
-    // the bounce cost a room of sixteen lamps as the voxel game's 0.89 ms, where past an eighth 0.68.
+    // the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms, where past an eighth 0.68.
     // A light falls to the probes' sum at one probe and not the next where it is far from being the
     // brightest, where its light changes little from probe to probe; split by the light's distance
     // from the probe instead, two of a block's half diagonals, the floor beside a lamp read 0.80 of

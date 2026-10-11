@@ -1415,10 +1415,12 @@ on a white floor in a dark room with a low wall beside it and four more stacked,
 panel costs the bounce 0.21 to 0.26 ms and the model pass 0.04 to 0.05 at 800 by 450, and a dark
 room of glowing blocks at 1280 by 720 at `High` costs them 0.26 and 0.03 ms for one block, 0.70 and
 0.14 for sixteen and 1.78 and 0.30 for sixty-four, where marching to each face of every light, and
-from each pixel at an edge, cost sixty-four 5.3 and 2.3, and a room of sixteen as the voxel game's,
-eleven blocks square, 0.68 and 0.25, where the lights of a sixteenth of the light read at each pixel
-cost them 0.89 and 0.47 (`./e3d command profile`'s `global_illumination` and `hdr_scene`, against
-`gi.toggle glow off`).
+from each pixel at an edge, cost sixty-four 5.3 and 2.3, and a room of sixteen eleven blocks square,
+its lamps two and a half apart, 0.68 and 0.25, where the lights of a sixteenth of the light read at
+each pixel cost them 0.89 and 0.47; in the voxel game's own room, its lamps two apart and the eye a
+block over the floor, the model pass's share is 0.30 ms, 0.40 with the glow code as `0f5cdbcf`
+compiled it, the same with the land around it drawn to two columns as to eight
+(`./e3d command profile`'s `global_illumination` and `hdr_scene`, against `gi.toggle glow off`).
 
 ## 5. Render targets and post processing
 

@@ -10,82 +10,59 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0f5cdbcf`. One commit of the engine's, the model pass's cost for the lamps, read in
-a room built as the game's with sixteen lamps at 1280 by 720 at High, where the pass took 0.47 ms
-more with them and the bounce 0.89: of the pass's share 0.29 was the closed form at each light the
-probes mark, 0.13 the loop over every light's bits, 0.11 the probes' weights and the fainter lights'
-sum, and the march where no probe stands nothing. Three changes: a pixel reads the lights its probes
-mark alone, found by their bits; the probes are weighed once for the bounced light and the lamps,
-which found them apart; and a probe marks the lights that give it an eighth of the lamps' light
-rather than a sixteenth, eight at most, the rest summed at the probe. The pass's share is 0.25 ms
-and the bounce's 0.68, the dark rooms 0.29, 0.84 and 2.1 ms for one, sixteen and sixty-four lamps,
-the Cornell box's table 0.59, 0.74 and 1.00, the rooms as they were, the ring within 2%; two cheaper
-splits were tried and refused by the reference, the pixel reading only the lights within two half
-diagonals of each probe, which read the floor 0.80 to 0.88 where the split fell, and the faces as
-points past two half diagonals, 1.14 at 1.8 blocks, and a quarter in place of an eighth took the
-ninth room from 0.052 to 0.062. Found on the way: `34f39fcb`'s march, its depth read after the loop
-alone, ran through every wall to the light and cost the Cornell box's bounce 0.13 ms at Low; bounded
-at each step by the way to the nearest face it ends inside a wall thicker than its cone, and how it
-ends matters to this driver: left by a `break` there the device was lost again in five runs of five
-of the game's case, ended by its own condition, `t` set to its end, in none of eight, of eight with
-the tree's shaders and of ten of the engine's, so the loss follows the march leaving a wall by a
-nested loop or a break and not what it reads, which SHARED.md's row says since. And the game's log
-named a loss only when it came before the run ended, two of ten where the kernel's Xids for the
-run's own process named all ten, so each run is counted by the Xids since, which the game's session
-is told. Right, the cost found by its parts before it was cut, the cheaper splits refused by the
-reference, and the march's end chosen by the driver's evidence. The suite: 1,669 passed; on lavapipe
-382 passed and 7 skipped with no validation error. The game's `2cc7a354`, slabs, stairs and fences,
-and `0059a2eb`, ravines, are the game's own. Next the end rod's step, the reference's vertex colors,
-then part f. The Windows page of `98a1edca`, the lamps' first, came red and slow: 87 minutes, 1,262
-passed and 363 without a result, the Rendering group ended at its 40-minute limit with nothing
-finished and the leak test lost at app 26 with a frame taking 10.6 seconds where it took 1.2 to 2.6,
-while Linux's lavapipe job took its eight minutes as before, so the lamps' shaders cost the Windows
-Mesa dearly where Linux's shrugs, Verdict 48, which comes before the rod's step since 5.2 waits on a
-green Windows job (Decision 19).
+Reviewed up to `214feb11`. Verdict 48's mend, found where the verdict asked first: the seconds go to
+the compile of one pipeline, the model pass's fragment shader, 142 KB of SPIR-V before the lamps and
+293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them and 0.90 s since on lavapipe here,
+every other pipeline a few milliseconds and a frame after the first as fast as before, so an app
+that draws no lamp, the leak test's, paid it all, and the Windows Mesa, 26.2.4 against 26.2.2 here,
+is not the difference. With every glow call out the shader is 146 KB and 0.22 s, so it was the glow
+code inlined at four places and unrolled in each, the reflection's hit shaded by two calls with a
+`glowLightsAt` holding two ways through, and the pixel's fallback a third. The hit is shaded once
+wherever it is met, `glowLightsAt` keeps one way through for every count, and the glow loops are
+`[loop]`: 177 KB and 0.32 s, a lampless app's first frame 0.35 s where 0.23 before the lamps and
+0.94 on `0f5cdbcf`, the Rendering tests of before `98a1edca` in 280 s on lavapipe where 261 before
+the lamps. The cost on the RTX 4070 holds within hundredths, the rooms read as they did, and the
+closed room seen from outside lost no device in ten runs of the engine's case and eight of the
+game's. Right, the seconds found in one pipeline's compile before anything was cut, the cut at the
+code's shape and not the lamps' count, and the two remedies the verdict named besides kept for a
+Windows job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7 skipped with
+no validation error. Verdict 48 settles on the Windows page. Next the two rooms of sixteen lamps
+against each other, then the end rod's step, the reference's vertex colors, part f and part c.
 
-Before it, three commits came to be read, Verdict 47 at `34f39fcb`: the device loss is bisected on a
-copy of the game's build to the world probes' hits, within them the lamps' march, and within it the
-loop nested inside the march's own that read how far under a wall's edge the way passed at each step
-inside one; with no loop nested none of three runs lost the device, and with the nested loop held to
-two steps or kept from unrolling it was still lost, while the validation layer's GPU-assisted checks
-found no read of a uniform out of its range and kept the device, so the fault is the driver's on
-that shape of shader and not a read of the engine's. The depth is read once after the march at the
-step that lay deepest inside: no loss in twenty runs of the engine's new case, the room, the lamp
-and the eye twenty blocks off, and twenty of the game's, the test holding it, the rooms within 0.002
-of their light. Held besides as the verdict asked: a kept light's index clamped, the counts written
-from zeroed bytes for every view, the stand-in lights' buffer written as no lights where it held
-what its memory held before, the probes' words read for the probes a pixel clamps into the grid; and
-two things found on the way, `field_stamp` reading a brick's shape 12 bytes past its buffer's end,
-which the GPU-assisted checks named and whole elements mend, and the shader cache's key not
-following `__exported import`, so an edit to `glow.slang` alone left every importer of `gi` on its
-old SPIR-V, which the bisect's first edits met, mended with a test. Verdict 47 is settled; the two
-lessons are rows of SHARED.md. Verdict 30 at `5e240044`: `memory.buffers` names the device's buffers
-alive by the file and line that made each, and over Manor's walk the ones that moved were
-`MeshStore`'s, a vertex and an index buffer a mesh, 176 meshes at sixteen cells, let go as cells go,
-the world's and no leak; they were many because the spawner de-indexed a model again at every spawn,
-so each cell uploaded its own copy, and a scene's mesh is de-indexed once and shared since, Manor's
-buffers over a walk 96 to 158 where 385 to 668, with a test; in the workflow's image the least still
-climbed as the walk entered the house, 133 to 149, so `soak-check.py` bounds a game that streams its
-level by the most a whole walk holds, 162 for Manor, with tests that the same climb fails a game
-that streams nothing. Right, the census before the mend, the mend a sharing that pays by itself, and
-the bound the world's. Item 5 at `1fa88e8b`: the 212 shares from job 114279020552 are the measured
-file, `audio_sound_multi` as none. The suite: 1,668 passed; on lavapipe 463 passed and 7 skipped
-with no validation error, the scene tests among them since. Next the model pass's cost at sixteen
-lamps, then part f, then part c; the run of `98a1edca` is in flight, and Verdict 30 settles when an
-examples job with `5e240044` passes the soak, which makes 5.2 due (Decision 19). The game's session
-holds Verdict 47 on its own binary built at `1fa88e8b` with the shader cache cleared, the closed
-room's lamp with the eye outside losing the device in none of ten runs where three of five before,
-its entry taken off ASKS.md. Two entries more from the game on 2026-10-11, after its `9e9074dc`,
-torches, lanterns and end rods as small glowing boxes, the game's own: a long thin emitter's light
-steps on the floor by 8% along a curve 2.3 to 2.7 blocks out, in the carried light alone and for the
-rod alone, which is the lamps' switch from the faces' closed form to their point form, written into
-part d and e; and the path-traced reference reads a mesh's flat color and not its vertex colors,
-which the game's sections carry, so the game's rooms cannot be measured against it, written into
-item 2 as its apparatus and before part f's measures. The game's `ea336919`, villages and clouds, is
-the game's own, and it says a thing every measure made through the game minds since: a game built on
-the engine's project stages the engine's working tree's shaders, so a reading on the game's binary
-carries uncommitted shader work unless `HEAD`'s shaders are copied into its output first, which the
-game's captures do, and an entry's commit names what its shaders were.
+Before it, `0f5cdbcf` came, the model pass's cost for the lamps, read in a room built as the game's
+with sixteen lamps at 1280 by 720 at High, where the pass took 0.47 ms more with them and the bounce
+0.89: of the pass's share 0.29 was the closed form at each light the probes mark, 0.13 the loop over
+every light's bits, 0.11 the probes' weights and the fainter lights' sum, and the march where no
+probe stands nothing. Three changes: a pixel reads the lights its probes mark alone, found by their
+bits; the probes are weighed once for the bounced light and the lamps, which found them apart; and a
+probe marks the lights that give it an eighth of the lamps' light rather than a sixteenth, eight at
+most, the rest summed at the probe. The pass's share is 0.25 ms and the bounce's 0.68, the dark
+rooms 0.29, 0.84 and 2.1 ms for one, sixteen and sixty-four lamps, the Cornell box's table 0.59,
+0.74 and 1.00, the rooms as they were, the ring within 2%; two cheaper splits were tried and refused
+by the reference, the pixel reading only the lights within two half diagonals of each probe, which
+read the floor 0.80 to 0.88 where the split fell, and the faces as points past two half diagonals,
+1.14 at 1.8 blocks, and a quarter in place of an eighth took the ninth room from 0.052 to 0.062.
+Found on the way: `34f39fcb`'s march, its depth read after the loop alone, ran through every wall to
+the light and cost the Cornell box's bounce 0.13 ms at Low; bounded at each step by the way to the
+nearest face it ends inside a wall thicker than its cone, and how it ends matters to this driver:
+left by a `break` there the device was lost again in five runs of five of the game's case, ended by
+its own condition, `t` set to its end, in none of eight, of eight with the tree's shaders and of ten
+of the engine's, so the loss follows the march leaving a wall by a nested loop or a break and not
+what it reads, which SHARED.md's row says since. And the game's log named a loss only when it came
+before the run ended, two of ten where the kernel's Xids for the run's own process named all ten, so
+each run is counted by the Xids since, which the game's session is told. Right, the cost found by
+its parts before it was cut, the cheaper splits refused by the reference, and the march's end chosen
+by the driver's evidence. The suite: 1,669 passed; on lavapipe 382 passed and 7 skipped with no
+validation error. The game's `2cc7a354`, slabs, stairs and fences, and `0059a2eb`, ravines, are the
+game's own. Next the end rod's step, the reference's vertex colors, then part f. The Windows page of
+`98a1edca`, the lamps' first, came red and slow: 87 minutes, 1,262 passed and 363 without a result,
+the Rendering group ended at its 40-minute limit with nothing finished and the leak test lost at app
+26 with a frame taking 10.6 seconds where it took 1.2 to 2.6, while Linux's lavapipe job took eight
+minutes, so the lamps' shaders cost the Windows Mesa dearly, Verdict 48, which comes before the
+rod's step since 5.2 waits on a green Windows job (Decision 19). The run of the game's `9e9074dc`,
+with `34f39fcb`'s march, reads the same on Windows, 87 minutes and 364 without a result with a frame
+of 11.9 seconds, and its Linux job took 15 minutes where `98a1edca`'s took 8, so lavapipe pays
+everywhere, doubled on Linux and eightfold on the Windows Mesa, which Verdict 48 says since.
 
 Before it, item 2's part b came, the bounce's drift after a move, done, measured first in the game's
 room drawn by the engine alone and the cause read before the remedy: not a coherent change where a
@@ -171,24 +148,27 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    5.2 waits (Decision 19); the run of `98a1edca`, the lamps, is green on Linux in eight minutes, on
    macOS and on the captures, and red on Windows after 87 minutes, the Rendering group ended at its
    40-minute limit with nothing finished and the leak test lost at app 26 with 10.6 seconds a frame
-   (Verdict 48), its examples job skipped; the drive script says since `e50fd247` whether a game's
-   process lives when a command finds no session, and its exit code and Windows' crash event when it
-   ended. The page showed the leak test's progress line as its first of 198, `app 2`, where the line
-   named its app all along; the page shows the last of a repeated line since `88673244`. Verdicts 40
-   and 44 are carried out there, the leak test following four apps through every plugin's making, a
-   failing frame written where the job uploads it with each surface's means, and four references
-   drawn again after a drift of up to 2.16% on the RTX 4070 itself; the runs since read the
-   references green and the leak test red. The examples job runs when Windows and macOS are both
-   green in one run, which they are since `817f7fd4`. When every job is green the owner is told,
-   since 5.2 is due (Decision 19). With the batch that next touches `build/test.py`, it takes from
-   BevyCSharp's `1f68fde8` the two cases of a theory whose names are cut to the same as one counted
-   apart, which its page reads as one today (SHARED.md), and runs the game's `3DEngine.Game.Tests`,
-   22 tests of its light, meshes, body, saves and generation that need no window, beside its own
-   through its `--project`, counted on the page apart from the engine's and reddening the run as the
-   engine's do (ASKS.md). The engine's own despawn of what a state scopes is read against a soak of
-   the world's entity indices across many transitions, which in BevyCSharp found Bevy 0.20.0 losing
-   every index it despawned that way (SHARED.md), with the batch that next touches states. Each
-   push's run is read by the reviewing session, and a failure it names comes first here.
+   (Verdict 48), its examples job skipped; the run of the game's `9e9074dc` reads the same, Windows
+   red in 87 minutes with 364 without a result and a frame of 11.9 seconds, its Linux job green in
+   15 minutes where 8 before, macOS and the captures green, the examples job skipped; the drive
+   script says since `e50fd247` whether a game's process lives when a command finds no session, and
+   its exit code and Windows' crash event when it ended. The page showed the leak test's progress
+   line as its first of 198, `app 2`, where the line named its app all along; the page shows the
+   last of a repeated line since `88673244`. Verdicts 40 and 44 are carried out there, the leak test
+   following four apps through every plugin's making, a failing frame written where the job uploads
+   it with each surface's means, and four references drawn again after a drift of up to 2.16% on the
+   RTX 4070 itself; the runs since read the references green and the leak test red. The examples job
+   runs when Windows and macOS are both green in one run, which they are since `817f7fd4`. When
+   every job is green the owner is told, since 5.2 is due (Decision 19). With the batch that next
+   touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a theory whose
+   names are cut to the same as one counted apart, which its page reads as one today (SHARED.md),
+   and runs the game's `3DEngine.Game.Tests`, 22 tests of its light, meshes, body, saves and
+   generation that need no window, beside its own through its `--project`, counted on the page apart
+   from the engine's and reddening the run as the engine's do (ASKS.md). The engine's own despawn of
+   what a state scopes is read against a soak of the world's entity indices across many transitions,
+   which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way (SHARED.md), with
+   the batch that next touches states. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 
 2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
@@ -398,20 +378,21 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 48. **The Windows job of `98a1edca`, the first with the lamps' shaders, runs 87 minutes and ends
     with 1,262 passed and 363 without a result: the Rendering group reaches its 40-minute limit with
     nothing finished, and the leak test is lost at app 26, a frame taking 10.6 seconds where it took
-    1.2 to 2.6 the run before.** Linux's lavapipe job took its eight minutes as before and the
-    laptop's lavapipe passed the suite, so the cost lies with the Mesa the Windows job installs, an
-    older LLVM or fewer threads, on what `98a1edca` added: `glow.slang` and the loops over 64 lights
-    in the probes' passes and the model pass, which a compiler unrolling them turns into code many
-    times the size, and each app of the leak test compiles anew. Read first where the seconds go,
-    the pipelines' compile or the frame itself, by the engine's own timing of each pipeline's making
-    and of a frame on lavapipe here with the loops as they are and with the lights' count held low,
-    and the Windows Mesa's version read from the workflow against the laptop's; then the remedy by
-    what the reading names: the loops over the lights kept from unrolling, or bounded by the count
-    written rather than `MostGlowLights`, or the lamps' passes compiled once and shared by the apps
-    of a process, and the leak test's small app, which draws no lamp, given no lamp pass to compile.
-    The 40-minute limit and the leak test's hold stay as they are. Settled when a Windows job runs
-    its tests whole in the time the run before `98a1edca` took, within a quarter, and 5.2 is due
-    with it (Decision 19).
+    1.2 to 2.6 the run before.** The run of `9e9074dc` after it reads the same, 87 minutes, 364
+    without a result and a frame of 11.9 seconds, with `34f39fcb`'s march; its Linux lavapipe job
+    took 15 minutes where `98a1edca`'s took 8 and the run before that 7, so lavapipe pays
+    everywhere, doubled on Linux and eightfold on the Mesa the Windows job installs, an older LLVM
+    or fewer threads, on what `98a1edca` added: `glow.slang` and the loops over 64 lights in the
+    probes' passes and the model pass, which a compiler unrolling them turns into code many times
+    the size, and each app of the leak test compiles anew. Read at `214feb11`: the seconds go to the
+    compile of the model pass's fragment shader, 142 KB of SPIR-V before the lamps and 293 KB after,
+    0.23 s to 0.90 s for each app on lavapipe, the glow code inlined at four places and unrolled in
+    each, which every app paid whether it drew a lamp or not; the hit shaded once, one way through
+    `glowLightsAt` and the glow loops kept from unrolling bring it to 177 KB and 0.32 s, the
+    Rendering tests on lavapipe here within 8% of their time before the lamps. The passes compiled
+    once a process and a lampless app spared them are kept for a Windows job that still runs long.
+    Settled when a Windows job runs its tests whole in the time the run before `98a1edca` took,
+    within a quarter, and 5.2 is due with it (Decision 19).
 
 ## Decisions
 
@@ -590,25 +571,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 48. The seconds go to the compile, and to one pipeline. Timed at its making on lavapipe
-here, Mesa 26.2.2 where the Windows job takes 26.2.4, the model pass's fragment shader, 142 KB of
-SPIR-V before the glow lights and 293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them
-and 0.90 s since; every other pipeline takes a few milliseconds, and a frame after the first runs as
-fast as before. An app that draws no lamp, as the leak test's, paid it all, since the model pass
-holds the glow code whether a lamp is drawn or not. With every glow call taken out the shader is 146
-KB and 0.22 s, so it was the glow code, inlined at four places and unrolled in each: the
-reflection's hit shaded by two calls, one for a hit met on the screen and one for a hit met in the
-field, each with `glowLightsAt`, which held two ways through, one for few lights and one keeping the
-brightest, each with its own march and closed form; and the pixel's own light, its fallback's
-`glowLightsAt` a third. The hit is shaded once wherever it is met, `glowLightsAt` keeps one way
-through for every count, and the glow loops are kept from unrolling: 177 KB and 0.32 s, the first
-frame of a lampless app 0.35 s where 0.23 before the glow lights and 0.94 on `0f5cdbcf`. The
-Rendering tests the commit before `98a1edca` has run on lavapipe here in 280 s where they ran in 261
-before the glow lights. The cost on the RTX 4070 holds within a few hundredths, the room of sixteen
-lamps 0.21 ms of the model pass and 0.70 of the bounce, the rooms read as they did against their
-references, and the closed room seen from outside lost the device in none of ten runs of the
-engine's case and none of eight of the game's on the tree's shaders. The other remedies the verdict
-names, the passes compiled once a process and the lampless app spared them, are kept for a Windows
-job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7 skipped with no
-validation error. The two rooms of sixteen lamps against each other, the game's 0.47 to 0.53 ms of
-the model pass where mine read 0.25, come next, then the end rod's step.
+Item 2, the two rooms of sixteen lamps against each other. The difference is the layout and the eye:
+the game's lamps stand two blocks apart and its eye a block over the floor, twenty degrees down,
+where my room's stood two and a half apart under an eye 3.6 up at ten degrees, so its floor's pixels
+lie nearer more lamps and the pixel reads more of them in closed form. Built as the game's, my room
+reads 0.36 ms of the model pass on `214feb11`; the game's own room, profiled in a copy of its build
+carrying that commit's shaders, reads 0.30, and 0.40 on `0f5cdbcf`'s shaders, near its own 0.47 to
+0.53, the pass without the glow lights 0.1 ms slower there too, so `214feb11`'s smaller shader runs
+faster as well as compiling faster. The land around the room is not it: drawn to two columns rather
+than eight the glow lights cost the pass the same 0.30, though the land costs the pass 0.6 ms of its
+own, 1.42 ms with the glow lights off at eight columns and 0.83 at two; the model pass can discard
+for an alpha cutoff and draws no depth ahead of itself, so a section behind a wall drawn before the
+wall is shaded, which the game may cut by drawing its solid sections nearest first, the engine
+keeping the order meshes come in. Neither a floor of block-sized quads in one mesh nor two hundred
+hidden cubes drawn after the walls moved the glow lights' share. RENDERING.md and the shaders'
+comments name the rooms so. The end rod's step comes next.
