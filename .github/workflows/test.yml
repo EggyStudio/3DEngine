@@ -43,11 +43,24 @@ jobs:
           path: build/tools/vulkan-layer
           key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
 
+      # Mesa's cache of the shaders lavapipe compiles, named in the workspace and kept from run to
+      # run. lavapipe compiles a pipeline's variants as it first draws with them, and every app of the
+      # suite opens a device of its own, so with no cache each app compiled them again: on a host's
+      # lavapipe four apps in one process took 3.7 seconds each with Mesa's cache off and 0.84 with
+      # it, a pipeline cache of the engine's own sparing none of it, since lavapipe keeps its
+      # variants out of one.
+      - uses: actions/cache@v6
+        with:
+          path: build/mesa-cache
+          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          restore-keys: mesa-${{ runner.os }}-
+
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: |
           sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1
           build/fetch-validation-layer.sh
           echo "VK_LAYER_PATH=$PWD/build/tools/vulkan-layer/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+          echo "MESA_SHADER_CACHE_DIR=$PWD/build/mesa-cache" >> "$GITHUB_ENV"
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
@@ -108,6 +121,15 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
+      # Mesa's cache of the shaders lavapipe compiles, as the Linux job keeps it. The suite's apps
+      # here drew a frame in 3.8 seconds where four apps on a host's lavapipe took 3.7 each with
+      # Mesa's cache off and 0.84 with it.
+      - uses: actions/cache@v6
+        with:
+          path: build/mesa-cache
+          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          restore-keys: mesa-${{ runner.os }}-
+
       # The Vulkan loader from LunarG's runtime, the validation layer from its SDK, and lavapipe
       # from Mesa's Windows build, pointed at by the loader's variables rather than installed.
       - name: Install the Vulkan loader, the validation layer and lavapipe
@@ -128,6 +150,7 @@ jobs:
           echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
           echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
           echo "VK_ADD_LAYER_PATH=C:\VulkanSDK\Bin" >> "$GITHUB_ENV"
+          echo "MESA_SHADER_CACHE_DIR=$(cygpath -w "$GITHUB_WORKSPACE/build/mesa-cache")" >> "$GITHUB_ENV"
           echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
 
       # The loader leaves VK_DRIVER_FILES and VK_ICD_FILENAMES unread in a process with an

@@ -28,6 +28,8 @@ msbuild.log
 # The templates as build/pack.sh packs them, with the version written in.
 /build/templates/
 /build/shader-cache/
+# Mesa's cache of the shaders lavapipe compiles, which CI names here and keeps from run to run.
+/build/mesa-cache/
 # What an app launched by `e3d open` writes, so its output can be read after it is gone.
 /build/sessions/
 # Claude Code's own folder, its lock file and state the tool's, kept out of the tree.

@@ -335,7 +335,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 7.1 | by review | by review |
-| N 7.2 | checked, `NormTests`, 2 left out | checked, `NormTests` |
+| N 7.2 | checked, `NormTests`, 3 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
