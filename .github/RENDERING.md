@@ -1437,9 +1437,15 @@ middle, the face halved along its short side was marched at two points on its mi
 behind the block from the floor under the whole row, and a march passing inside the block's side
 read as deep as the block is tall, so the floor three blocks under the block read 0.74 of a
 path-traced reference and beside it 1.09, where 0.98 and 1.07 with the longer side halved and the
-way out taken across (`GlowLightsTests`). Each marches from a point of its tile that moves from
-frame to frame, the middles of the tile's four by four cells in the order of Bayer's matrix, so a
-round of sixteen frames marches from each texel of the half-sized depth under the tile once, while
+way out taken across (`GlowLightsTests`). Each half counts by its own light as a point, its area by
+the two cosines over the square of its distance. Weighed by the box's half size along the face's
+normal in place of the face's area, alike for a cube, four glowing blocks two by two weighed the
+side a pillar beside them hid at a quarter of its due against the face it left open, so the wall
+past the pillar read 0.07 to 0.19 more of the light seen past it than a path-traced reference, and a
+red wall in the voxel game 1.2 to 1.3 of its reference; weighed by area, within 0.03
+(`GlowLightsTests`), and the red wall 0.90 to 0.98. Each marches from a point of its tile that moves
+from frame to frame, the middles of the tile's four by four cells in the order of Bayer's matrix, so
+a round of sixteen frames marches from each texel of the half-sized depth under the tile once, while
 the probe's tiers and its rays stay at the tile's middle. A pass over the half-sized depth
 (`gi_screen_glow.slang`) takes each texel's light from the four probes around it, where they marched
 from, weighed by how near each is, how alike its normal is, how near its distance from the eye is to

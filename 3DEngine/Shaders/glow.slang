@@ -429,7 +429,13 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
             float3 toward = target - p;
             float distance2 = max(dot(toward, toward), 1e-8);
             float3 way = toward * rsqrt(distance2);
-            float given = abs(dot(way, h)) * max(dot(way, n), 0.0) / distance2;
+            // Each half by its own light as a point, its area by the two cosines over the square
+            // of its distance. Weighed by the box's half size along the face's normal in place of
+            // the face's area, as for a cube the two are alike, a light of four blocks two by two
+            // weighed the face a pillar beside it hid at a quarter of its due against the face it
+            // left open, and a wall past the pillar read 0.385 to 0.684 of the light seen past it
+            // where a path-traced reference reads 0.235 to 0.550, and 0.234 to 0.521 weighed so.
+            float given = abs(dot(way, h)) / halves[k].w * u.w * v.w * max(dot(way, n), 0.0) / distance2;
             if (given <= 0.0)
                 continue;
             lit += given;

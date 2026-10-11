@@ -10,7 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `56db892b`. Item 2's part h, its first part, the penumbra too dark, found by
+Reviewed up to `1b8a9217`. Verdict 49's second thing: the examples job's measure against raylib's
+programs carries on past a pair that does not hold, the package's steps, the games and the soak run
+after it, and a last step fails the job where the measure did not hold, the captures uploaded either
+way; the script and norm tests read the workflow and pass, 51, and the strict build holds. Right,
+the measure's answer and the soak's no longer waiting on each other, and the job red by either. The
+push after this reads the soak for Verdict 30. With it, part h's fourth thing measured in the
+owner's room, the game having made the copy again: with the probes' bounce left out against a
+reference of the lamps' light alone, the red wall reads 1.01 beside the four glowstones, 1.33 a
+third of the way across and 1.61 behind the pillar on `56db892b`, where `64fd2f14` read 1.18 behind
+it, the same with the screen's probes off; with nothing hidden the wall reads 2.29 and 4.95, so the
+march passes 0.58 of the lamps' light where the reference passes 0.44 and 0.33 where 0.20, too light
+across the wide penumbra a pillar a block from the lamps throws, on both commits, and `56db892b`'s
+halving of the lamps' level face along its longer side, upright here, makes it lighter behind the
+pillar than before; quarters on a tie read 2.0 behind the pillar with the row's floor at 0.951, and
+halving along the side the point lies furthest along reads 1.62 as the longer does, so the tie is
+left and the march's estimate of what passes an edge, the least of a half and the clearance over the
+cone along the march, is read next against the share of the face seen. The suite as at `56db892b`.
+Left in h: that estimate, the saw's teeth of 13 and 9 pixels and the blotches' rest. The owner asked
+at 15:55 for the README's gallery as one scrolling row of pictures a folder of examples, sorted by
+folder, the games in a row of their own, and the text explaining the games under the table taken
+out, which is item 11 (Decision 29), taken as a batch of its own after h's next commit. Then Verdict
+49's pairs, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `56db892b` came, item 2's part h, its first part, the penumbra too dark, found by
 elimination: in an engine room built as the game's, three touching lamps under the ceiling and a
 block floating under the middle one against a reference of 4,096 paths, the floor under the block
 read 0.742 of the reference and 1.094 beside it, as the game read 0.76 and 1.06; with the probes'
@@ -87,66 +110,6 @@ lay in the owner's own cave; its entry is off, and h's stays. The owner checked 
 size of the probes' tiles, which part h names and no commit takes. Then part h with Verdict 49's
 steps that run whether the measure holds, Verdict 49's pairs, Verdict 48's two remedies, f's second,
 item 10, item 9 and item 8.
-
-Before it, `e477bc1e` came, item 2's part c, built wider than the part asked and by the measure's
-own account: each cascade's light fades into the next across its outer band, eight of its cells, a
-probes' spacing, the screen's probes' into the world's across the second cascade's band, and the
-last cascade's into the light from beyond the probes, the environment's and the ambient lights'
-unhidden, which the model pass and a reflection's hit take in its place; a surface's depth in a
-cascade is its point's leaned off it as the probes read it, so a floor on a cascade's lower side
-lies half a spacing inside; and the passes that read the field to its edge, the occlusion from it,
-the sun's contact shadows and the glow lights' marches, fade across the coarsest built cascade's
-band the same way. Measured on a canyon's floor under a sky with no sun, seen as the game's hills
-were, the largest change from one row of pixels to the next at 640 by 360: 15.1% at the last
-cascade's end, 14.3% at the screen's probes' and 9.6% at the third cascade's at High, 17.7% and
-17.4% at Medium, 26.0% at Low, and with the fades 2.9%, 3.0% and 1.0%; `CascadeEdgeTests` holds it
-under 6% at Low and High at 320 by 180, where the parent reads 25% and 15%; the cost 0.02 to 0.04 ms
-of the bounce and 0.007 of the model pass. Right, the inner cascades' steps found by the same
-measure and faded with the last's rather than left for the owner's eye to find, and the fades read
-by the field's own depth and not the screen's. One thing left, which the part keeps: the field's
-hold is read from the coarsest built cascade since the penumbra's test caught the last unbuilt in
-its scene, where the bounce's hold, the screen's hold and the second cascade read beside the finest
-take their cascade's place from the same info whether built or not and read none where it is not, so
-a scene whose last cascade of the bounce is unbuilt loses the bounce to the environment's light
-whole; whether the penumbra's scene is one is read, and the three read as the field's hold reads
-either way, the second read skipped where its cascade is unbuilt, with a test of the bounce in that
-scene, before f's two left things, which touch the same file. RENDERING.md's new paragraph stands
-between a table and the sentence the table interrupts, which goes on with the other rooms, and moves
-to the end of the eighth's paragraph with the batch that next touches the file. `gi.slang` stands at
-784 lines and f's two things touch it, so it is split before a touch passes 800 (N 1.3). The suite:
-1,676 passed; on lavapipe 388 passed and 8 skipped with no validation error; the game's glowstone
-room lost no device in eight runs. The game's session read c on the commit against `b1e86aef`, both
-built clean: seed 1's view of its entry shows a forest and a coast in the game as well, a hill
-hiding 90 to 114 blocks, so it read a flat world at hour 18.2 facing east ten degrees down at eight
-columns, where the bounce over the light with the bounce off read 0.80 to 0.86 out to 92 blocks and
-1.00 at 100, a line, and reads 0.85, 0.90 and 0.96 at 79, 85 and 92 blocks and 1.00 at 100, the
-largest step from one row to the next 0.054 where 0.141, a soft band sixteen blocks wide where the
-line was; its entry is off, and ASKS.md holds the tests' entry and items 8 and 9's. The owner
-pushed: `b1e86aef`'s run is green on Linux in 12 m 9 s with 1,633 passed and 15 skipped, where
-`9e9074dc`'s took 15 minutes and the runs before the lamps 8, green on macOS in 34 minutes and on
-the macOS captures, 255 of 255 drawn in 3,335 s, and green on Windows whole, the first Windows job
-green since the lamps, 1,626 passed and 22 skipped in 39 m 21 s of tests and 68 minutes of job,
-where the tests took 23 minutes with the census before the lamps and the leak test's frame reads 3.8
-s where 10.6 to 11.9 on `98a1edca` and 1.2 to 2.6 before, so Verdict 48's two kept remedies come due
-after part g and the verdict stays open on the time; the digest is green and the examples job with
-the soak began at 10:42, which Verdict 30 reads, and 5.2 is due by Decision 19 when it passes, which
-the owner is told with Verdict 48 open. `e477bc1e`'s run is green on Linux in 12 m 28 s with 1,635
-passed, the two cascade edge tests among them, and 1,750 MB at most where 1,631, on macOS, on the
-macOS captures and on Windows whole in 69 minutes, its examples job begun at 10:59 behind
-`b1e86aef`'s. `b1e86aef`'s examples job is red by the measure alone after 55 minutes, 255 of 255
-captures drawn in 1,546 s and four pairs over the share recorded for them by three to five points,
-`models_loading`, `models_loading_m3d`, `models_directional_billboard` and `shaders_depth_writing`,
-the soak and the package's steps skipped after it, so Verdict 30 is unread and 5.2 not yet due
-(Verdict 49); `e477bc1e`'s examples job reads the same way after 50 minutes, 255 of 255 captures in
-1,368 s and two pairs over, `models_directional_billboard` 5.4 and `shaders_depth_writing` 8.6, the
-two loading examples within their point this time, so those two vary between runs and the two others
-moved; raylib's own `audio_sound_multi` program ended with a signal at frame 157 there, counted
-against no pair. The owner's two asks of 10:05 are item 2's part g, the sky's light leaking into the
-game's cave by the heading, and item 10, a post-processing window (Decision 28). The owner looked at
-11:15 at the tree with g's mend: dark at every heading and tier but High between 259 and 281
-degrees, where the face turned to the right still takes the sky, which g keeps; and the indirect
-light is noisy and spotted where a penumbra is wide, which is part h (Decision 28). Then g's
-remainder, h, f's two left things with c's one, Verdict 48's remedies, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -526,11 +489,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    left at the foot with the screen's probes off, the lit side over the dark 1.40 where the
    reference reads 1.27 and 1.81 before, the blotches 0.30% and 0.36% of the light with the history
    on and off where 0.65% and 0.85% with the tile's repeat gone, and the red wall 1.2 to 1.3 of the
-   reference on both sides of the seam, which is a fourth thing of h. Left, on that commit: the
-   saw's teeth of 13 and 9 pixels at the pillar's ends, the blotches' rest, and the wall's fifth
-   over the reference; the game's entry is off, its numbers here, and the game makes the owner's
-   save copy again when the engine's session asks for it. The owner's eye judges the look (Decision
-   27).
+   reference on both sides of the seam, which is a fourth thing of h. The wall's excess is measured
+   with the bounce left out against the lamps' light alone: 1.01 beside the lamps, 1.33 a third
+   across and 1.61 behind the pillar on `56db892b`, 1.18 on `64fd2f14`, the march passing 0.58 of
+   the lamps' light where the reference passes 0.44, so the march's soft shadow is too light across
+   a wide penumbra and `56db892b`'s halving along the longer side made it lighter there; the march's
+   estimate of what passes an edge is read next against the share of the face seen, the tie left as
+   it is. Left, on `1b8a9217`: that estimate, the saw's teeth of 13 and 9 pixels at the pillar's
+   ends and the blotches' rest; the game's entry is off, its numbers here, and the game keeps the
+   owner's save copy for the engine's reads. The owner's eye judges the look (Decision 27).
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -644,6 +611,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the engine has it. Taken after item 2's parts g, c and f and before item 9, since the owner
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
+11. **The README's examples as one scrolling row a folder, the games' text under them gone (Decision
+    29).** The owner asked on 2026-10-11 at 15:55. The README's Examples section holds a table of
+    two columns and thirty-four rows, pictures of picked examples and games mixed, and under it
+    eighty lines of prose and a block that explain the games. It becomes one table a folder of
+    `3DEngine.Examples`, in the folders' order as the repository lists them, Audio, Benchmarks,
+    Core, Ecs, Gui, Models, Physics, Scenes, Shaders, Shapes, Text and Textures, each a single row
+    holding every example of the folder that has a capture under `.github/assets/examples`, the
+    picture linking the program and the run name under it as the rows do today, with a heading line
+    naming the folder before each, and a last table of the same shape for `games`; a single row
+    wider than the page scrolls sideways on GitHub, which is the point, so no row is wrapped. The
+    prose and the block between the table and the Guide heading that explain the games go, their
+    facts living in the games' own READMEs and in the games table of EXAMPLES.md where they are not
+    already. The README's walk and the examples' table check read the file as before, so each is run
+    on the result, and the captures' links keep their raw form. Taken as a batch of its own after
+    h's next commit, since it is small and the owner asked; the owner's eye judges the look
+    (Decision 27).
+
 ## Verdicts
 
 Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not given again.
@@ -708,10 +692,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     frames count being there or not at the frame captured, which the compare reads for and holds by
     a wider point or a later frame with the reason, and the two others moved and stay moved;
     raylib's own `audio_sound_multi` program ended with signal 11 at frame 157 in that run, counted
-    against no pair, which the page says and the step should name as raylib's. Its second thing, the
-    steps that run whether the measure holds, goes with part h's commit, and the pairs' reading
-    right after h, so the soak is read on the next push. Settled when an examples job's measure
-    holds and the steps after it run.
+    against no pair, which the page says and the step should name as raylib's. Its second thing is
+    done at `1b8a9217`, the measure carried on past a pair that does not hold and a last step
+    failing the job where it did not, so the next push reads the soak; the pairs' reading follows
+    part h. Settled when an examples job's measure holds and the steps after it run.
 
 ## Decisions
 
@@ -899,27 +883,40 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     and spotted where a penumbra is wide, which is item 2's part h. The order is this file's: g
     first, then h, then item 2's remainders, then item 10 before item 9.
 
+29. **The README's gallery is one scrolling row of pictures a folder, sorted by folder, and the
+    games' text under the table goes.** The owner asked at 15:55 on 2026-10-11, which is item 11:
+    the examples' pictures in one-row tables that scroll sideways rather than the grid, one a folder
+    of the examples with the games in their own, and the long text explaining the games under the
+    table taken out.
+
 ## Replies
 
-Verdict 49, its second thing. The measure against raylib's programs carries on past a pair that does
-not hold (`continue-on-error`), the package's steps, the games and the soak run after it, and a last
-step fails the job where the measure did not hold, the captures uploaded either way. The script and
-norm tests read the workflows and pass, 51; the strict build holds.
+Item 2, part h, its fourth thing, the red wall. Measured in the owner's room, the copy checked by
+its pillar's block before each read, the frame's lamp light alone over a reference of it, with the
+pillar and with it taken away, so the share seen past the pillar is a number apart from the light
+unhidden, which the frame gives within 1 to 3%. The reference passes 0.35 to 0.96 of it across the
+wall and `56db892b` 0.55 to 0.98, the same with the screen's probes off; in an engine room of the
+same blocks, 0.235 to 1.0 against 0.385 to 0.986. A simulation of the march on an exact field
+followed the reference, so the march's points were sound and their sum was not. `glowLightShown`
+weighed each half by the cosines over the square of its distance times the box's half size along the
+face's normal, where the face's area belongs, alike for a cube, and the four glowing blocks two by
+two, one light of 1 by 2 by 2, weighed the side the pillar hides at a quarter of its due against the
+face it leaves open.
 
-Item 2, part h, after `56db892b`, read by the game's session in the owner's room and its own. The
-owner's seam has teeth of 13 and 9 pixels where 34 and 23, and it steps lit over dark by 1.40
-against the reference's 1.27 where 1.81. The blotches are 0.30% of the light where 0.65%, the tiles'
-repeat gone, and the spot after a step is gone, 1.6 levels over its ring where 5.5.
+Weighed by area, the engine room's share reads within 0.03 of the reference, and the owner's red
+wall 0.90 to 0.98 of its reference where 1.20 to 1.27, its lamp light alone 0.97 to 1.12. The row of
+lamps over the floating block holds, under the block 0.980 and beside it 1.026 where 1.073.
+`GlowLightsTests` reads the share past the pillar at five points of a pale wall in a dark room
+within 0.05 of a reference's recorded shares, which it read 0.07 to 0.19 over before. The work is
+the same, weighed otherwise.
 
-The fourth thing, the red wall at 1.2 to 1.3 of its reference, measured in the owner's room with the
-probes' bounce left out against a reference of the lamps' light alone. The wall reads 1.01 beside
-the four glowstones, 1.33 a third of the way across and 1.61 behind the pillar on `56db892b`, and
-1.18 behind it on `64fd2f14`, the same with the screen's probes off. With nothing hidden it reads
-2.29 and 4.95, so the march passes 0.58 of the lamps' light where the reference passes 0.44, and
-0.33 where 0.20. The march's soft shadow is too light across the wide penumbra a pillar a block from
-the lamps throws, on both commits, and halving the lamps' level face along its longer side, upright,
-makes it lighter behind the pillar. Two other ways measured: quarters on a tie read 2.0 behind the
-pillar and the row's floor under the block 0.951, and halving along the side the point lies furthest
-along, the longer within half its half side, reads 1.62 as the longer does. The mend lies in the
-march's estimate of what passes an edge, the least of a half and the clearance over the cone along
-the march, which is read against the share of the face seen next.
+The owner's seam: its middle rows lie straighter, 1.7 pixels off a line on average where 8.9 on
+`64fd2f14`, and its rise is steeper than on `56db892b` with the hidden side weighed rightly, the
+largest kink of the wall's profile 0.065 where 0.106 on `64fd2f14`, the reference's own noise 0.077.
+Two softenings measured and left: four points along the face's rising side, the kink 0.041 and the
+shares within 0.07, at 0.14 ms more of the bounce in the owner's room; and the halves' cones widened
+to 0.8 of the side, the kink 0.043 for nothing more, but the engine room's wall at its lit end 0.83
+of the reference where 0.91. `56db892b`'s tie stands, since with the faces weighed by area halving
+the longer side reads the owner's wall within the same.
+
+The suite: 1,683 passed; on lavapipe 395 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight runs.

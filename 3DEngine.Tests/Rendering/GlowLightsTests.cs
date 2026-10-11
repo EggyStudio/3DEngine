@@ -277,6 +277,86 @@ public sealed class GlowLightsTests : IDisposable
         share.Should().BeGreaterThan(0.8, "the floor under the block takes the row's light past it, as the reference's does");
     }
 
+    // The share of four glowing blocks' light, two by two on a floor and one light, that a pale wall
+    // two blocks south sees past a pillar from floor to ceiling a block east of them, at points of the
+    // wall's face along x at a height of two blocks, everything but the wall nearly black so little
+    // light bounces, as BounceReference traced the frame with 4096 paths a pixel at 640 by 360.
+    private static readonly (float X, double Share)[] PillarTraced =
+        [(7.5f, 0.814), (8.5f, 0.541), (9.5f, 0.386), (10.5f, 0.304), (11.5f, 0.265)];
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Wall_Sees_Four_Joined_Lamps_Past_A_Pillar_As_A_Path_Traced_Reference_Does()
+    {
+        // The voxel game's room where a pillar's shadow drew a seam. The faces of a light's box
+        // were weighed by the box's half size along each face's normal where their area belongs,
+        // alike for a cube, so for the four blocks two by two the side the pillar hides weighed a
+        // quarter of its due against the face it leaves open, and the wall read 0.07 to 0.19 more
+        // of the light past the pillar than the reference, 0.893, 0.679, 0.572, 0.478 and 0.388;
+        // weighed by area, within 0.03.
+        var eye = new Vector3(9.5f, 56.62f, -35.4f);
+        var heading = 185 * MathF.PI / 180;
+        var pitch = -3 * MathF.PI / 180;
+        var camera = new Camera3D(eye, eye + new Vector3(MathF.Sin(heading) * MathF.Cos(pitch), MathF.Sin(pitch), -MathF.Cos(heading) * MathF.Cos(pitch)), Vector3.UnitY, 70);
+        const int Width = 320, Height = 180;
+        float[] Wall(bool pillar)
+        {
+            var config = Config.Default.WithWindow("pillar", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            SetSceneField(4, 0.25f, 2);
+            SetGlobalIllumination(GlobalIllumination.High);
+            SetAmbientLight(Color.Black, 0);
+            var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            lamp.Materials[0].Emissive = new Color(255, 200, 120);
+            lamp.Materials[0].EmissiveIntensity = 4;
+            var dark = new Color(6, 6, 6);
+            void Box(Vector3 from, Vector3 to, Model model, Color color) => DrawModelEx(model, (from + to) / 2, Vector3.UnitY, 0, to - from, color);
+            for (int frame = 0; frame < 90; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                // The room's floor, ceiling and walls around 16 by 4 by 9, the wall to the south pale.
+                Box(new(-2, 54, -42), new(16, 55, -32), block, dark);
+                Box(new(-2, 59, -42), new(16, 60, -32), block, dark);
+                Box(new(-2, 55, -42), new(-1, 59, -32), block, dark);
+                Box(new(15, 55, -42), new(16, 59, -32), block, dark);
+                Box(new(-1, 55, -42), new(15, 59, -41), block, dark);
+                Box(new(-1, 55, -33), new(15, 59, -32), block, new Color(212, 216, 217));
+                for (int y = 55; y <= 56; y++)
+                    for (int z = -37; z <= -36; z++)
+                        Box(new(4, y, z), new(5, y + 1, z + 1), lamp, new Color(230, 190, 110));
+                if (pillar)
+                    Box(new(6, 55, -37), new(7, 59, -35), block, dark);
+                EndMode3D();
+                EndDrawing();
+            }
+            var renderer = GetApp().World.Resource<Engine.Renderer>();
+            var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+            UnloadModel(block);
+            UnloadModel(lamp);
+            CloseWindow();
+            UseApp(null);
+            return [.. PillarTraced.Select(point =>
+            {
+                var at = GetWorldToScreenEx(new Vector3(point.X, 57, -33), camera, Width, Height);
+                float sum = 0;
+                for (int y = (int)at.Y - 2; y <= (int)at.Y + 2; y++)
+                    for (int x = (int)at.X - 2; x <= (int)at.X + 2; x++)
+                    {
+                        int p = (y * Width + x) * 4;
+                        sum += 0.2126f * linear[p] + 0.7152f * linear[p + 1] + 0.0722f * linear[p + 2];
+                    }
+                return sum;
+            })];
+        }
+        var hidden = Wall(true);
+        var open = Wall(false);
+        for (int i = 0; i < PillarTraced.Length; i++)
+            ((double)hidden[i] / open[i]).Should().BeApproximately(PillarTraced[i].Share, 0.05, $"the wall {PillarTraced[i].X} blocks east sees as much past the pillar as the reference");
+    }
+
     // The floor's light, linear, around the block, or where `rod` is set a rod standing in its
     // place, seen straight down from `height` blocks above, the mean of 72 points on each ring of
     // `radii`, the reference's rings by default, and the eighth harmonic of them as a share of the mean.
