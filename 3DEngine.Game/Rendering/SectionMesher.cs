@@ -176,12 +176,23 @@ public sealed class SectionMesher
                         continue;
                     }
                     if (info.Emits) continue;
-                    // Water whose top is open stands a block's eighth low, as Minecraft's does.
-                    var low = block == BlockId.Water && _blocks[at + Steps[2]] != (ushort)BlockId.Water;
+                    // Water stands lower the further it has flowed, a source's top an eighth low, and
+                    // fills its cell under more water. Beside lower water its side shows above the
+                    // other's top, and beside water as high it shows nothing.
+                    var water = Blocks.IsWater(block);
+                    var top = water ? Blocks.WaterHeight(block, Blocks.IsWater((BlockId)_blocks[at + Steps[2]])) : 1;
                     for (int face = 0; face < 6; face++)
                     {
-                        if (!Shows(block, info.Kind, (BlockId)_blocks[at + Steps[face]])) continue;
-                        Add(face == 2 ? info.Top : face == 3 ? info.Bottom : info.Side, face, at, new Vector3(x, y, z), low);
+                        var neighbor = (BlockId)_blocks[at + Steps[face]];
+                        var bottom = 0f;
+                        if (water && Blocks.IsWater(neighbor))
+                        {
+                            if (face is 2 or 3) continue;
+                            bottom = Blocks.WaterHeight(neighbor, Blocks.IsWater((BlockId)_blocks[at + Steps[face] + Steps[2]]));
+                            if (bottom >= top) continue;
+                        }
+                        else if (!Shows(block, info.Kind, neighbor)) continue;
+                        Add(face == 2 ? info.Top : face == 3 ? info.Bottom : info.Side, face, at, new Vector3(x, y, z), bottom, top);
                     }
                 }
         return true;
@@ -196,7 +207,9 @@ public sealed class SectionMesher
         return kind == BlockKind.Opaque || neighbor != block;
     }
 
-    private void Add(int surface, int face, int at, Vector3 block, bool low)
+    // A face of a block, its corners on the cell's floor raised to bottom and those on its ceiling
+    // lowered to top, for water and for a side shown only above the water beside it.
+    private void Add(int surface, int face, int at, Vector3 block, float bottom, float top)
     {
         // A tinted surface takes its column's grass or foliage color at the block's place.
         var place = (int)block.Z * Section.Size + (int)block.X;
@@ -223,7 +236,7 @@ public sealed class SectionMesher
             var kept = LightLevels ? MathF.Pow(Lit((float)Math.Max(sky, lit) / open), 1 / 2.2f) : 1;
             var shade = kept * (CornerShade ? Occlusion[occlusion[i]] : 1);
             var corner = Corners[face][i];
-            if (low && corner.Y == 1) corner.Y = 0.875f;
+            corner.Y = corner.Y == 1 ? top : bottom;
             faces.Vertices.Add(new ModelVertex(block + corner, Normals[face], Uvs[face][i]));
             faces.Colors.Add(new Color((byte)MathF.Round(color.R * shade), (byte)MathF.Round(color.G * shade), (byte)MathF.Round(color.B * shade), color.A));
         }

@@ -89,15 +89,22 @@ desert lies flat and the hills sink as they near it.
 
 Wide basins sink the land under the sea level of 48, where water stands over a floor of sand near
 the shore and gravel deeper, its top frozen to ice where the climate is cold, as about a fourteenth
-of the land is on seed 1. Water stands still and does not flow. The player swims in it, sinking
-slowly, rising while Space is held and moving at a little over half speed, and sees through a blue
-tint while the eye is under it. Glass, ice and water are drawn see-through, a second mesh of each
-section drawn after the opaque ones and farthest first, each vertex's alpha its surface's. They
-cast no shadow, which keeps them out of the scene's distance field as well, since the field holds
-a see-through mesh as solid, so the sun and the light that bounces come through a window of glass
-as through an opening: a room lit through a skylight reads the same with glass in it as without.
-Glass lets the light levels through, and water takes a level more for each block of it, so the sky
-fades with depth and a lake's floor darkens as it deepens.
+of the land is on seed 1. The player swims in it, sinking slowly, rising while Space is held and
+moving at a little over half speed, and sees through a blue tint while the eye is under it. Glass,
+ice and water are drawn see-through, a second mesh of each section drawn after the opaque ones and
+farthest first, each vertex's alpha its surface's. They cast no shadow, which keeps them out of the
+scene's distance field as well, since the field holds a see-through mesh as solid, so the sun and
+the light that bounces come through a window of glass as through an opening, and a room lit through
+a skylight reads the same with glass in it as without. Glass lets the light levels through, and
+water takes a level more for each block of it, so the sky fades with depth and a lake's floor
+darkens as it deepens.
+
+Water flows as Minecraft's does, a block every quarter second. It falls into the air under it, and
+where it stands on ground or on a source it spreads sideways, a level further from its source for
+each block, up to seven, each level standing lower in its cell, and it dries back when its source is
+taken away. Two sources with a gap between them over ground fill it with a third. A lake the world
+generates stands still until a block beside it changes, and water half flowed when a world is left
+stands as it was until then.
 
 ## Torches, lanterns and end rods
 
@@ -233,9 +240,9 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 ## What is not here yet
 
 Textures, and leaves seen through, which are solid. The corners stairs make where two meet, and
-slabs and stairs that keep light out, as Minecraft's do. Water that flows. Greedy meshing. Light
-that passes through leaves at a cost, as Minecraft's does. Villagers. Structures read from files
-rather than built in code. Mobs, items, an inventory and survival.
+slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
+leaves at a cost, as Minecraft's does. Villagers. Structures read from files rather than built in
+code. Mobs, items, an inventory and survival.
 
 ## What it costs
 

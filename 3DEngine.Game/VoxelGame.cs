@@ -156,6 +156,7 @@ public sealed class VoxelGame : IDisposable
         if (_captured && !_swallowClick) Interact(seconds);
 
         Sky.Update(seconds);
+        World.Fluids.Update(seconds);
         Clouds.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
@@ -258,7 +259,7 @@ public sealed class VoxelGame : IDisposable
         if (Blocks.Get(there) is { Item: var beside, Doubled: { } joined, Shape: { } half } && beside == block && Blocks.Get(placed).Shape?.Upper != half.Upper)
             placed = joined;
         // A whole block goes into air or water, the water giving way to it, and a smaller one into air.
-        else if (there is not (BlockId.Air or BlockId.Water) || Blocks.Get(placed).Shape is not null && there != BlockId.Air) return BlockId.Air;
+        else if (there != BlockId.Air && !Blocks.IsWater(there) || Blocks.Get(placed).Shape is not null && there != BlockId.Air) return BlockId.Air;
         if (Player.Body.Overlaps(x, y, z, Blocks.Get(placed).Boxes)) return BlockId.Air;
         return World.SetBlock(x, y, z, placed) ? placed : BlockId.Air;
     }

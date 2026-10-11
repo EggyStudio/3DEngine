@@ -26,12 +26,12 @@ public static class Lighting
     internal static int Into(int level, int direction, bool sky, BlockId neighbor)
     {
         if (Blocks.IsOpaque(neighbor)) return 0;
-        if (neighbor == BlockId.Water) return level - 2;
+        if (Blocks.IsWater(neighbor)) return level - 2;
         return sky && direction == Down && level == Max ? Max : level - 1;
     }
 
     // Whether the sky shines straight down through a block without losing a level, as through air and glass.
-    private static bool Clear(BlockId block) => !Blocks.IsOpaque(block) && block != BlockId.Water;
+    private static bool Clear(BlockId block) => !Blocks.IsOpaque(block) && !Blocks.IsWater(block);
 
     /// <summary>
     /// Works out a column's light as though its sides were walls, on the worker that generated it,

@@ -14,9 +14,13 @@ public sealed class VoxelWorld
     {
         Generator = generator;
         _light = new LightEngine(this);
+        Fluids = new Fluids(this);
     }
 
     public IWorldGenerator Generator { get; }
+
+    /// <summary>The water that flows, which a changed block asks to look again around it.</summary>
+    public Fluids Fluids { get; }
 
     /// <summary>Sections an edit changed the faces of, which are meshed again before the frame is drawn.</summary>
     public HashSet<SectionKey> Edited { get; } = [];
@@ -123,6 +127,8 @@ public sealed class VoxelWorld
         if (ly == Section.Mask && key.Y < ChunkColumn.SectionCount - 1) Edited.Add(key with { Y = key.Y + 1 });
         // A block shades the corners of faces in the sections across its edges and corners as well.
         Reshade(x, y, z);
+
+        Fluids.Around(x, y, z);
 
         // A door's other half goes with it, unless the door is only opened or shut.
         if (Blocks.Get(was) is { Toggled: not null, Shape: { } half } && Blocks.Get(block).Toggled is null)

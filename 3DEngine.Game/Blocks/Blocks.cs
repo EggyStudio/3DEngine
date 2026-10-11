@@ -128,6 +128,14 @@ public enum BlockId : ushort
     OakDoorEastTopOpen,
     OakDoorSouthTopOpen,
     OakDoorWestTopOpen,
+    Water1,
+    Water2,
+    Water3,
+    Water4,
+    Water5,
+    Water6,
+    Water7,
+    FallingWater,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -327,6 +335,14 @@ public static class Blocks
             Door(BlockId.OakDoorEastTopOpen, "oak_door_east_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.East, true, true), BlockId.OakDoorEastTop, BlockId.OakDoor),
             Door(BlockId.OakDoorSouthTopOpen, "oak_door_south_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.South, true, true), BlockId.OakDoorSouthTop, BlockId.OakDoor),
             Door(BlockId.OakDoorWestTopOpen, "oak_door_west_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.West, true, true), BlockId.OakDoorWestTop, BlockId.OakDoor),
+            Same(BlockId.Water1, "water_1", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water2, "water_2", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water3, "water_3", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water4, "water_4", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water5, "water_5", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water6, "water_6", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.Water7, "water_7", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.FallingWater, "falling_water", "Falling Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");
@@ -384,7 +400,27 @@ public static class Blocks
     public static BlockId Variant(BlockId item, Facing facing, bool upper = false) => _variants[(int)item, (int)facing, upper ? 1 : 0];
 
     /// <summary>Whether the crosshair rests on a block, which it does on all but air and water, as Minecraft's does.</summary>
-    public static bool IsTarget(BlockId id) => id != BlockId.Air && id != BlockId.Water;
+    public static bool IsTarget(BlockId id) => id != BlockId.Air && !IsWater(id);
+
+    /// <summary>Whether a block is water, still, flowing or falling.</summary>
+    public static bool IsWater(BlockId id) => id == BlockId.Water || id >= BlockId.Water1 && id <= BlockId.FallingWater;
+
+    /// <summary>
+    /// How far water has flowed from its source, as Minecraft's level: 0 for a source, 1 to 7 for
+    /// flowing water a block further each, and 0 for falling water, which spreads as from a source
+    /// where it lands.
+    /// </summary>
+    public static int WaterLevel(BlockId id) => id is >= BlockId.Water1 and <= BlockId.Water7 ? id - BlockId.Water1 + 1 : 0;
+
+    /// <summary>Flowing water of a level from 1 to 7.</summary>
+    public static BlockId FlowingWater(int level) => (BlockId)((int)BlockId.Water1 + level - 1);
+
+    /// <summary>
+    /// The height of water's top in its cell: a source's an eighth low, flowing water's lower for each
+    /// block it has flowed, and the whole cell under more water or falling.
+    /// </summary>
+    public static float WaterHeight(BlockId id, bool waterAbove) =>
+        waterAbove || id == BlockId.FallingWater ? 1 : id == BlockId.Water ? 0.875f : (8 - WaterLevel(id)) / 9f;
 
     /// <summary>Finds a block by its key, its name or its number, as a command gives it.</summary>
     public static bool TryFind(string text, out BlockId id)

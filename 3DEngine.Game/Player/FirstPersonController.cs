@@ -102,7 +102,7 @@ public sealed class FirstPersonController
         if (forward <= 0) Sprinting = false;
         else if (sprintKey) Sprinting = true;
         var middle = Body.Position + new Vector3(0, 0.9f, 0);
-        Swimming = !Flying && world.GetBlock((int)MathF.Floor(middle.X), (int)MathF.Floor(middle.Y), (int)MathF.Floor(middle.Z)) == BlockId.Water;
+        Swimming = !Flying && world.GetBlock((int)MathF.Floor(middle.X), (int)MathF.Floor(middle.Y), (int)MathF.Floor(middle.Z)) is var at && Blocks.IsWater(at);
         Sneaking = down && !Flying && !Swimming;
 
         var ahead = new Vector3(-MathF.Sin(Yaw), 0, -MathF.Cos(Yaw));
@@ -133,7 +133,7 @@ public sealed class FirstPersonController
 
         _eyes += ((Sneaking ? SneakingEyes : StandingEyes) - _eyes) * (1 - MathF.Exp(-20 * seconds));
         var eye = Eye;
-        EyeInWater = world.GetBlock((int)MathF.Floor(eye.X), (int)MathF.Floor(eye.Y), (int)MathF.Floor(eye.Z)) == BlockId.Water;
+        EyeInWater = world.GetBlock((int)MathF.Floor(eye.X), (int)MathF.Floor(eye.Y), (int)MathF.Floor(eye.Z)) is var around && Blocks.IsWater(around);
         var widened = Sprinting && wish != Vector3.Zero ? FieldOfView * 1.12f : FieldOfView;
         _fov += (widened - _fov) * (1 - MathF.Exp(-10 * seconds));
     }
