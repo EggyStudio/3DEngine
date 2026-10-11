@@ -156,4 +156,33 @@ public class ShapeTests
         Assert.Equal(0, shape.Min.Z, 4);
         Assert.Equal(1, shape.Max.X, 4);
     }
+
+    [Fact]
+    public void A_Door_Opens_Both_Its_Halves_And_Breaking_One_Breaks_The_Other()
+    {
+        var world = Floor();
+        world.SetBlock(8, 19, 8, BlockId.Stone);
+        world.SetBlock(8, 20, 8, BlockId.OakDoorEast);
+        world.SetBlock(8, 21, 8, BlockId.OakDoorEastTop);
+
+        Assert.True(world.Toggle(8, 21, 8));
+        Assert.Equal(BlockId.OakDoorEastOpen, world.GetBlock(8, 20, 8));
+        Assert.Equal(BlockId.OakDoorEastTopOpen, world.GetBlock(8, 21, 8));
+        Assert.True(world.Toggle(8, 20, 8));
+        Assert.Equal(BlockId.OakDoorEast, world.GetBlock(8, 20, 8));
+
+        world.SetBlock(8, 21, 8, BlockId.Air);
+        Assert.Equal(BlockId.Air, world.GetBlock(8, 20, 8));
+        Assert.Equal(BlockId.Stone, world.GetBlock(8, 19, 8));
+    }
+
+    [Fact]
+    public void A_Shut_Door_Lies_Across_The_Way_It_Faces_And_An_Open_One_Along_It()
+    {
+        // Facing east, shut across the cell's west side, and open along the north side to its left.
+        var shut = Blocks.Get(BlockId.OakDoorEast).Shape!;
+        var open = Blocks.Get(BlockId.OakDoorEastOpen).Shape!;
+        Assert.Equal((0f, 3 / 16f, 1f), (shut.Min.X, shut.Max.X, shut.Max.Z - shut.Min.Z));
+        Assert.Equal((0f, 3 / 16f, 1f), (open.Min.Z, open.Max.Z, open.Max.X - open.Min.X));
+    }
 }

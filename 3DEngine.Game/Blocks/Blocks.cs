@@ -112,6 +112,22 @@ public enum BlockId : ushort
     StoneBrickStairsEastTop,
     StoneBrickStairsSouthTop,
     StoneBrickStairsWestTop,
+    OakDoor,
+    OakDoorEast,
+    OakDoorSouth,
+    OakDoorWest,
+    OakDoorTop,
+    OakDoorEastTop,
+    OakDoorSouthTop,
+    OakDoorWestTop,
+    OakDoorOpen,
+    OakDoorEastOpen,
+    OakDoorSouthOpen,
+    OakDoorWestOpen,
+    OakDoorTopOpen,
+    OakDoorEastTopOpen,
+    OakDoorSouthTopOpen,
+    OakDoorWestTopOpen,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -138,10 +154,11 @@ public enum BlockKind
 /// name shown, the surface of each face, whether it can be broken, the light level from 0 to 15
 /// it fills the blocks around it with, as Minecraft's light-giving blocks do, its kind, the boxes
 /// of a block smaller than its cell, the block a player holds to place it where that is another,
-/// as a torch is held to place a torch on a wall, and the whole block two of a slab make.
+/// as a torch is held to place a torch on a wall, the whole block two of a slab make, and the block
+/// a door becomes when it is opened or shut.
 /// </summary>
 public sealed record BlockInfo(BlockId Id, string Key, string Name, int Top, int Side, int Bottom, bool Breakable = true, int Light = 0,
-    BlockKind Kind = BlockKind.Opaque, BlockShape? Shape = null, BlockId? HeldAs = null, BlockId? Doubled = null)
+    BlockKind Kind = BlockKind.Opaque, BlockShape? Shape = null, BlockId? HeldAs = null, BlockId? Doubled = null, BlockId? Toggled = null)
 {
     /// <summary>The boxes that stop the player: the whole cell for a solid block, a solid shape's own, and none for air, water and the rest.</summary>
     public IReadOnlyList<Box> Boxes { get; } = Kind is BlockKind.Opaque or BlockKind.Glass ? [Box.Cell] : Shape?.Collision ?? [];
@@ -174,6 +191,10 @@ public static class Blocks
     {
         BlockInfo Same(BlockId id, string key, string name, int surface, bool breakable = true, int light = 0, BlockKind kind = BlockKind.Opaque) =>
             new(id, key, name, surface, surface, surface, breakable, light, kind);
+
+        // A half of a door, which opening or shutting turns into its other way.
+        BlockInfo Door(BlockId id, string key, BlockShape shape, BlockId toggled, BlockId? heldAs = null) =>
+            new(id, key, "Oak Door", Surfaces.DoorWood, Surfaces.DoorWood, Surfaces.DoorWood, Kind: BlockKind.Shaped, Shape: shape, HeldAs: heldAs, Toggled: toggled);
 
         // A block smaller than its cell shows the surface of the piece that glows on its hotbar slot.
         BlockInfo Shaped(BlockId id, string key, string name, BlockShape shape, int light, BlockId? heldAs = null, BlockId? doubled = null)
@@ -290,6 +311,22 @@ public static class Blocks
             Shaped(BlockId.StoneBrickStairsEastTop, "stone_brick_stairs_east_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.East, true), 0, BlockId.StoneBrickStairs),
             Shaped(BlockId.StoneBrickStairsSouthTop, "stone_brick_stairs_south_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.South, true), 0, BlockId.StoneBrickStairs),
             Shaped(BlockId.StoneBrickStairsWestTop, "stone_brick_stairs_west_top", "Stone Brick Stairs", BlockShape.Stairs(Surfaces.StoneBricks, Facing.West, true), 0, BlockId.StoneBrickStairs),
+            Door(BlockId.OakDoor, "oak_door", BlockShape.Door(Surfaces.DoorWood, Facing.North, false, false), BlockId.OakDoorOpen),
+            Door(BlockId.OakDoorEast, "oak_door_east", BlockShape.Door(Surfaces.DoorWood, Facing.East, false, false), BlockId.OakDoorEastOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorSouth, "oak_door_south", BlockShape.Door(Surfaces.DoorWood, Facing.South, false, false), BlockId.OakDoorSouthOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorWest, "oak_door_west", BlockShape.Door(Surfaces.DoorWood, Facing.West, false, false), BlockId.OakDoorWestOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorTop, "oak_door_north_top", BlockShape.Door(Surfaces.DoorWood, Facing.North, true, false), BlockId.OakDoorTopOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorEastTop, "oak_door_east_top", BlockShape.Door(Surfaces.DoorWood, Facing.East, true, false), BlockId.OakDoorEastTopOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorSouthTop, "oak_door_south_top", BlockShape.Door(Surfaces.DoorWood, Facing.South, true, false), BlockId.OakDoorSouthTopOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorWestTop, "oak_door_west_top", BlockShape.Door(Surfaces.DoorWood, Facing.West, true, false), BlockId.OakDoorWestTopOpen, BlockId.OakDoor),
+            Door(BlockId.OakDoorOpen, "oak_door_north_open", BlockShape.Door(Surfaces.DoorWood, Facing.North, false, true), BlockId.OakDoor, BlockId.OakDoor),
+            Door(BlockId.OakDoorEastOpen, "oak_door_east_open", BlockShape.Door(Surfaces.DoorWood, Facing.East, false, true), BlockId.OakDoorEast, BlockId.OakDoor),
+            Door(BlockId.OakDoorSouthOpen, "oak_door_south_open", BlockShape.Door(Surfaces.DoorWood, Facing.South, false, true), BlockId.OakDoorSouth, BlockId.OakDoor),
+            Door(BlockId.OakDoorWestOpen, "oak_door_west_open", BlockShape.Door(Surfaces.DoorWood, Facing.West, false, true), BlockId.OakDoorWest, BlockId.OakDoor),
+            Door(BlockId.OakDoorTopOpen, "oak_door_north_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.North, true, true), BlockId.OakDoorTop, BlockId.OakDoor),
+            Door(BlockId.OakDoorEastTopOpen, "oak_door_east_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.East, true, true), BlockId.OakDoorEastTop, BlockId.OakDoor),
+            Door(BlockId.OakDoorSouthTopOpen, "oak_door_south_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.South, true, true), BlockId.OakDoorSouthTop, BlockId.OakDoor),
+            Door(BlockId.OakDoorWestTopOpen, "oak_door_west_top_open", BlockShape.Door(Surfaces.DoorWood, Facing.West, true, true), BlockId.OakDoorWestTop, BlockId.OakDoor),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");
@@ -315,7 +352,7 @@ public static class Blocks
     {
         var variants = new BlockId[_all.Length, 6, 2];
         foreach (var block in _all)
-            if (block.Shape is { } shape) variants[(int)block.Item, (int)shape.Facing, shape.Upper ? 1 : 0] = block.Id;
+            if (block.Shape is { Open: false } shape) variants[(int)block.Item, (int)shape.Facing, shape.Upper ? 1 : 0] = block.Id;
         return variants;
     }
 

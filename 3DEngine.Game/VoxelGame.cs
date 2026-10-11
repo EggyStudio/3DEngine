@@ -220,8 +220,8 @@ public sealed class VoxelGame : IDisposable
     /// <summary>
     /// Places a block against the face the crosshair rests on, unless it would take up some of the
     /// player: a torch or a lantern the way of it that has a block to hold to, stairs climbing the
-    /// way the player looks, and a slab on the open half of a slab of its kind joined to it as the
-    /// whole block.
+    /// way the player looks, a door two blocks high, and a slab on the open half of a slab of its
+    /// kind joined to it as the whole block. A door met is opened or shut instead.
     /// </summary>
     /// <returns>The block placed, which for a torch on a wall is the wall torch, or air where none was.</returns>
     public BlockId Place(BlockId block)
@@ -233,13 +233,25 @@ public sealed class VoxelGame : IDisposable
             ? Player.Look.X > 0 ? Facing.East : Facing.West
             : Player.Look.Z > 0 ? Facing.South : Facing.North;
 
-        // A slab met on its open half, its top for the lower one and its underside for the upper.
+        // A door opens or shuts, whatever is held.
         var under = World.GetBlock(hit.X, hit.Y, hit.Z);
+        if (World.Toggle(hit.X, hit.Y, hit.Z)) return World.GetBlock(hit.X, hit.Y, hit.Z);
+
+        // A slab met on its open half, its top for the lower one and its underside for the upper.
         if (Blocks.Get(under) is { Item: var item, Doubled: { } whole, Shape: { } slab } && item == block && hit.NormalY == (slab.Upper ? -1 : 1))
             return World.SetBlock(hit.X, hit.Y, hit.Z, whole) ? whole : BlockId.Air;
 
         var (x, y, z) = hit.Beside;
         var there = World.GetBlock(x, y, z);
+        // A door stands two blocks high, shut and facing the way the player looks, on a whole block.
+        if (Blocks.Get(block).Toggled is not null)
+        {
+            BlockId lower = Blocks.Variant(block, look), upper = Blocks.Variant(block, look, true);
+            if (there != BlockId.Air || World.GetBlock(x, y + 1, z) != BlockId.Air || !Blocks.IsSturdy(World.GetBlock(x, y - 1, z))
+                || Player.Body.Overlaps(x, y, z, Blocks.Get(lower).Boxes) || Player.Body.Overlaps(x, y + 1, z, Blocks.Get(upper).Boxes)) return BlockId.Air;
+            World.SetBlock(x, y + 1, z, upper);
+            return World.SetBlock(x, y, z, lower) ? lower : BlockId.Air;
+        }
         var placed = World.Fit(block, x, y, z, hit.NormalX, hit.NormalY, hit.NormalZ, look, height);
         if (placed == BlockId.Air) return BlockId.Air;
         // A slab placed into the other half of a slab of its kind beside the face met fills the block.

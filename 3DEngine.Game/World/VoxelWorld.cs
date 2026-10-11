@@ -107,7 +107,8 @@ public sealed class VoxelWorld
         if ((uint)y >= ChunkColumn.Height || !_columns.TryGetValue((x >> Section.Shift, z >> Section.Shift), out var column))
             return false;
         int lx = x & Section.Mask, lz = z & Section.Mask, ly = y & Section.Mask;
-        if (column.Get(lx, y, lz) == block) return false;
+        var was = column.Get(lx, y, lz);
+        if (was == block) return false;
         column.Set(lx, y, lz, block);
         column.Changed = true;
         _light.Changed(x, y, z, block);
@@ -122,6 +123,13 @@ public sealed class VoxelWorld
         if (ly == Section.Mask && key.Y < ChunkColumn.SectionCount - 1) Edited.Add(key with { Y = key.Y + 1 });
         // A block shades the corners of faces in the sections across its edges and corners as well.
         Reshade(x, y, z);
+
+        // A door's other half goes with it, unless the door is only opened or shut.
+        if (Blocks.Get(was) is { Toggled: not null, Shape: { } half } && Blocks.Get(block).Toggled is null)
+        {
+            var other = half.Upper ? y - 1 : y + 1;
+            if (Blocks.Get(GetBlock(x, other, z)).Toggled is not null) SetBlock(x, other, z, BlockId.Air);
+        }
 
         // A block smaller than its cell that held to this one falls with it, as a torch does when the
         // wall behind it is broken.
@@ -165,6 +173,17 @@ public sealed class VoxelWorld
             if (Blocks.Holds(GetBlock(x + sx, y + sy, z + sz), way)) return variant;
         }
         return BlockId.Air;
+    }
+
+    /// <summary>Opens a shut door or shuts an open one, both its halves, where a half of one stands.</summary>
+    /// <returns>Whether a door stood there.</returns>
+    public bool Toggle(int x, int y, int z)
+    {
+        if (Blocks.Get(GetBlock(x, y, z)) is not { Toggled: { } turned, Shape: { } half }) return false;
+        var other = half.Upper ? y - 1 : y + 1;
+        SetBlock(x, y, z, turned);
+        if (Blocks.Get(GetBlock(x, other, z)).Toggled is { } partner) SetBlock(x, other, z, partner);
+        return true;
     }
 
     /// <summary>Marks the sections whose faces a block's light or presence shades: its own, and those across each edge of it on a section's side.</summary>

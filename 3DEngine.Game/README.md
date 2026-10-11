@@ -34,7 +34,7 @@ driven by `./e3d` should, so it leaves the saves as they were.
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
 | Left button | Break the block looked at, four a second while held |
-| Right button | Place the chosen block against the face looked at |
+| Right button | Place the chosen block against the face looked at, or open or shut a door |
 | Middle button | Pick the block looked at into the hotbar |
 | 1 to 9, wheel | Choose a slot of the hotbar |
 | E | The blocks, to put any of them in the chosen slot |
@@ -116,18 +116,21 @@ of glowstone's light from a torch or an end rod, nine tenths from a lantern and 
 soul fire. A flame a quarter of a block from a wall lights a bright round pool on it, as a light
 that near a wall does.
 
-## Slabs, stairs and fences
+## Slabs, stairs, fences and doors
 
 Slabs of stone, cobblestone, oak, spruce and sandstone fill the lower half of a block, or the upper
 half where placed against a ceiling or on the upper half of a side, and a slab placed on the open
 half of one of its kind joins it into the whole block. Stairs of cobblestone, oak, spruce, sandstone
 and stone brick climb the way the player looks, turned over in the upper half. A fence joins the
-fences and the whole blocks on its four sides with two rails each.
+fences and the whole blocks on its four sides with two rails each. An oak door stands two blocks
+high on a whole block, shut across the side away from the way the player looked placing it, and a
+right click opens or shuts both its halves, whatever is held. Breaking either half breaks the door.
 
 The player climbs half a block and a little more without jumping, onto a slab or a stair, as
-Minecraft's does. A slab, stairs, a lantern, an end rod and a fence stop the player at their own
-boxes, a fence's standing half a block above its post so it cannot be jumped, and a torch and wheat
-are walked through. Light passes through them all, so a roof of slabs lets the sky's level down.
+Minecraft's does. A slab, stairs, a door, a lantern, an end rod and a fence stop the player at their
+own boxes, a fence's standing half a block above its post so it cannot be jumped, and a torch and
+wheat are walked through. Light passes through them all, so a roof of slabs lets the sky's level
+down.
 
 ## Caves and ravines
 
@@ -159,10 +162,10 @@ A village stands where the plains, the taiga, the snowy plains or the desert lie
 its roof, four roads of dirt path lead out from it, and beside each road stand two plots, each a
 small house, a long house, a farm of wheat with a row of water through it, a forge with a hearth of
 magma or a pile of hay, its front toward the road, with lamp posts along the roads, a lantern on a
-fence, or a torch in the desert. A house has a torch over its door, lanterns hanging inside and a
-roof of stairs climbing to a ridge, flat in the desert. Each road follows the ground block by block
-and crosses water on planks, each building stands at its own ground's height on a footing of stone,
-and no tree grows within the village.
+fence, or a torch in the desert. A house has a shut oak door with a torch over it, lanterns hanging
+inside and a roof of stairs climbing to a ridge, flat in the desert. Each road follows the ground
+block by block and crosses water on planks, each building stands at its own ground's height on a
+footing of stone, and no tree grows within the village.
 
 ## How the world is drawn
 
@@ -229,8 +232,8 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 
 ## What is not here yet
 
-Textures, and leaves seen through, which are solid. Doors, the corners stairs make where two meet,
-and slabs and stairs that keep light out, as Minecraft's do. Water that flows. Greedy meshing. Light
+Textures, and leaves seen through, which are solid. The corners stairs make where two meet, and
+slabs and stairs that keep light out, as Minecraft's do. Water that flows. Greedy meshing. Light
 that passes through leaves at a cost, as Minecraft's does. Villagers. Structures read from files
 rather than built in code. Mobs, items, an inventory and survival.
 

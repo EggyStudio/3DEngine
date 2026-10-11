@@ -55,11 +55,12 @@ public readonly record struct Box(Vector3 Min, Vector3 Max)
 /// </remarks>
 public sealed class BlockShape
 {
-    public BlockShape(Facing facing, Piece[] pieces, bool falls = true, bool solid = false, bool upper = false, Box[]? collision = null)
+    public BlockShape(Facing facing, Piece[] pieces, bool falls = true, bool solid = false, bool upper = false, bool open = false, Box[]? collision = null)
     {
         Facing = facing;
         Falls = falls;
         Upper = upper;
+        Open = open;
         Pieces = pieces;
         (Min, Max) = (Vector3.One, Vector3.Zero);
         var boxes = new List<Box>();
@@ -85,6 +86,9 @@ public sealed class BlockShape
 
     /// <summary>Whether it is the upper of the two ways a slab or stairs are placed, as one placed against a ceiling is.</summary>
     public bool Upper { get; }
+
+    /// <summary>Whether it is a door swung open, which a player places shut.</summary>
+    public bool Open { get; }
 
     public IReadOnlyList<Piece> Pieces { get; }
 
@@ -201,6 +205,14 @@ public sealed class BlockShape
         Px(3.5f, 0, 0, 4.5f, 14, 16, stalks),
         Px(11.5f, 0, 0, 12.5f, 14, 16, stalks),
     ]);
+
+    /// <summary>
+    /// A half of a door, a panel three sixteenths thick across the side of its cell away from
+    /// <paramref name="facing"/>, the way the player looked placing it, or swung open on its hinge
+    /// to lie along the side to the left of that way.
+    /// </summary>
+    public static BlockShape Door(int wood, Facing facing, bool upper, bool open) => new(facing, Yawed(facing,
+        open ? Px(0, 0, 0, 3, 16, 16, wood) : Px(0, 0, 13, 16, 16, 16, wood)), falls: false, solid: true, upper: upper, open: open);
 
     /// <summary>A slab, half a block high, in the lower half of its cell or the <paramref name="upper"/> one.</summary>
     public static BlockShape Slab(int surface, bool upper) => new(Facing.Up,

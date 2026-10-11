@@ -94,6 +94,7 @@ public static class Surfaces
     public static readonly int Ice = Add("ice", new Color(164, 200, 242, 190), roughness: 0.1f);
     public static readonly int DirtPath = Add("dirt path", new Color(148, 122, 65));
     public static readonly int StoneBricks = Add("stone bricks", new Color(122, 121, 122));
+    public static readonly int DoorWood = Add("door wood", new Color(140, 108, 62));
     public static readonly int Farmland = Add("farmland", new Color(96, 62, 36));
     public static readonly int SprucePlanks = Add("spruce planks", new Color(115, 85, 49));
     public static readonly int Hay = Add("hay", new Color(186, 152, 32));

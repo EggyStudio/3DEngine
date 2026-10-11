@@ -211,8 +211,8 @@ public sealed class Village : Structure
         }
     }
 
-    // Walls of a palette around a floor, logs at the corners, the inside cleared, and a door in the
-    // front's middle with a torch over it outside.
+    // Walls of a palette around a floor, logs at the corners, the inside cleared, and a shut door in
+    // the front's middle, facing in, with a torch over it outside.
     private static void Shell(Frame f, Palette p, int half, int depth)
     {
         f.Ground(-half, half, depth, p.Floor, 9);
@@ -221,7 +221,8 @@ public sealed class Village : Structure
         f.Fill(-half + 1, 1, 1, half - 1, 4, depth - 2, BlockId.Air);
         foreach (var (x, z) in (ReadOnlySpan<(int, int)>)[(-half, 0), (half, 0), (-half, depth - 1), (half, depth - 1)])
             f.Fill(x, 1, z, x, 4, z, p.Corner);
-        f.Fill(0, 1, 0, 0, 2, 0, BlockId.Air);
+        f.Set(0, 1, 0, BlockId.OakDoorSouth);
+        f.Set(0, 2, 0, BlockId.OakDoorSouthTop);
         f.Set(0, 3, -1, BlockId.WallTorchNorth);
     }
 
