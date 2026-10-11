@@ -10,17 +10,39 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3051fab8`. Item 11's last thing: every gallery tag gives 320 by 180 and every cell
+Reviewed up to `76e7c278`. Verdict 48's first remedy, taken another way by measurement: a pipeline
+cache of the engine's own, each device's seeded from the process's last, was built and read on this
+host's lavapipe with Mesa's cache off, and saved nothing, four apps in one process taking 3.73 to
+3.93 s each with it against 3.66 to 3.74 without, since lavapipe runs what a frame submits on a
+thread of its own and compiles each pipeline's variants as it first draws with them, nearly three of
+an app's 3.7 s falling at the device's last wait, which only Mesa's own disk cache spares, the same
+apps at 0.82 to 0.88 s with it; the Windows job's frame of 3.8 s is this host's cost with that cache
+off. So the engine's cache is dropped, and the test workflow's Linux and Windows jobs and the build
+workflow's examples job name Mesa's cache in the workspace and keep it from run to run by the
+workflow's cache, keyed by the shaders with a restore key by system, the folder ignored; whether
+Mesa's Windows build keeps a disk cache is read on the Windows page's group times and the leak
+test's frame. The script and norm tests pass, 51. Right, the engine's cache measured before it was
+kept and dropped by its number, and the cost found at the driver's thread rather than guessed at the
+pipeline's creation. Next item 11's caption, then the lampless variant of the model pass, the second
+remedy, measured by the pass's SPIR-V size and the per-app time on lavapipe; then the bounce around
+the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter offset, item
+10, item 9 and item 8.
+
+Before it, `3051fab8` came, item 11's last thing: every gallery tag gives 320 by 180 and every cell
 320, each name padded to 42 characters, all 268 read here so, the captures unchanged at 800 by 450;
-the document and norm tests pass, 34. Item 11 is done, the owner's eye on the push. Verdict 48's
-baseline on this host's lavapipe, four apps in one process each drawing a lit cube for three frames:
-with Mesa's disk cache on, the first app takes 27.8 s filling it and the three after 0.82 to 0.88 s;
-with that cache off, the first 4.6 s and the three after 3.66 to 3.74 s, so where the driver keeps
-no cache every later app pays about fourfold, and whether the workflow's Mesa on Ubuntu and on
-Windows keeps one is the question the page's times answer; the process-wide pipeline cache is built
-next and measured with Mesa's cache off, to see whether lavapipe skips its compile on a hit, then
-the lampless variant of the model pass. Then the bounce around the pillar as a read of its own, h's
-blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
+the document and norm tests pass, 34. The owner looked at the pushed pages at 20:05: right, and on a
+phone the caption outruns the picture by a tenth to a fifth, so item 11 keeps the caption's width,
+the picture nominally wider than the caption can render so the caption sets the cell and the picture
+fills it, the caption in a small code tag padded to the longest name, 32, every tag 260 by 146, a
+batch of its own next. Verdict 48's baseline on this host's lavapipe, four apps in one process each
+drawing a lit cube for three frames: with Mesa's disk cache on, the first app takes 27.8 s filling
+it and the three after 0.82 to 0.88 s; with that cache off, the first 4.6 s and the three after 3.66
+to 3.74 s, so where the driver keeps no cache every later app pays about fourfold, and whether the
+workflow's Mesa on Ubuntu and on Windows keeps one is the question the page's times answer; the
+process-wide pipeline cache is built next and measured with Mesa's cache off, to see whether
+lavapipe skips its compile on a hit, then the lampless variant of the model pass. Then the bounce
+around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
+offset, item 10, item 9 and item 8.
 
 Before it, `54c0e669` came, item 11's padding: each run name under a picture is padded inside its
 code tag with non-breaking spaces, the character and not the entity, to 52 characters, all 268 of
@@ -34,27 +56,6 @@ the process, none being used today, every create call passing the null cache, me
 as successive apps' pipeline creation, then the lampless variant of the model pass; then the bounce
 around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
 offset, item 10, item 9 and item 8.
-
-Before it, `623bdc47` came, item 11's cells: each folder's row is an HTML table on a line of its
-own, every cell `width="400"` with its picture's link and tag as before and the run name in a code
-tag, since Markdown is not read inside an HTML block, so no column is squeezed below its picture and
-a row wider than the page scrolls; 268 cells and thirteen headings read here, the document and norm
-tests pass, 34, and the README's walk and the examples' check read nothing of it. Right, the width
-given where the squeeze acts. The owner looked at the pushed page at 18:55 and the pictures still
-differ: the cell's width survives but the browser treats it as a preference and shrinks a cell to
-its name when the table is wider than the page, so item 11 keeps the fallback, each name padded with
-non-breaking spaces in its code tag to fifty-two characters, a batch of its own next. Part h's dark
-side, read so far in an engine room of the owner's pillar with pale walls against a reference of
-4,096 paths: the wall reads 0.84 to 0.97 of the reference with the pillar standing and 1.00 to 1.03
-without it, the lamps' light alone with it 0.90 to 1.07, and one bounce with the second left out
-against a reference of two bounces 0.86 to 0.99, so the short grows bounce by bounce where the
-pillar stands; the same or lower with the screen's probes off and with a ray's hits marched to the
-faces' halves, and with the bounce alone 0.70 to 0.95 of the reference's bounce with the pillar
-against 1.01 to 1.07 without, unchanged by the probes off, the hits marched to halves, the walled-in
-finding off or half the spacing, so the world probes under-gather the bounce around a small bright
-occluder, the rooms' general error, which is a read of its own after Verdict 48's two remedies.
-Then, after item 11's padding: Verdict 48's remedies, the pillar's bounce, h's blotches and teeth by
-the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -575,62 +576,75 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done
-    through `3051fab8` (Decision 29).** The owner asked on 2026-10-11 at 15:55. The README's
-    Examples section holds a table of two columns and thirty-four rows, pictures of picked examples
-    and games mixed, and under it eighty lines of prose and a block that explain the games. It
-    becomes one table a folder of `3DEngine.Examples`, in the folders' order as the repository lists
-    them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders, Shapes, Text and
-    Textures, each a single row holding every example of the folder that has a capture under
-    `.github/assets/examples`, the picture linking the program and the run name under it as the rows
-    do today, with a heading line naming the folder before each, and a last table of the same shape
-    for `games`; a single row wider than the page scrolls sideways on GitHub, which is the point, so
-    no row is wrapped. The prose and the block between the table and the Guide heading that explain
-    the games go, their facts living in the games' own READMEs and in the games table of EXAMPLES.md
-    where they are not already. The README's walk and the examples' table check read the file as
-    before, so each is run on the result, and the captures' links keep their raw form. Taken as a
-    batch of its own after h's next commit, since it is small and the owner asked; The owner asked
-    at 16:35 that the pictures be one size, where they differ today: every picture in the rows
-    carries the same width and height on its tag, and the captures that are not 800 by 450, sixteen
-    of 268, among them a square and a four by three, are taken again at that size where the
-    program's window allows or padded to it by the capture script, so the tag distorts nothing; the
-    examples' table check and the captures' comparison read the result. Done at `ee47849e`: twelve
-    rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen captures of
-    other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into each game's own
-    README. The owner looked at the pushed page at 17:10 and the pictures still read as different
-    sizes. GitHub renders every tag at one box, its own style giving each the full width of its
-    cell, an automatic height and the tag's aspect, so the box is uniform; what differs is the
-    picture inside it, since a capture of another shape was fitted inside sixteen by nine with black
-    bars, which read as a smaller picture. The fit fills instead: the WebP script scales a capture
-    of another shape so its shorter side fills the box and cuts the rest around the middle, or the
-    example's window is opened at sixteen by nine where the cut would lose something that matters,
-    so every picture fills its box edge to edge; the sixteen captures and the games' thirteen are
-    fitted again so, and the page is read after the push. Done at `60f2999d`: the WebP script fills
-    its size and cuts around the middle or from a named side, all 268 captures at 800 by 450 and
-    filling their boxes. The owner looked again at 18:20: each picture is as wide as the name under
-    it, a short name's tiny and a long name's large. GitHub squeezes a table to the page's width
-    before it lets it scroll, and a cell shrinks to the one thing in it that cannot wrap, the name,
-    the picture shrinking with it under the page's own rule of a picture no wider than its cell.
-    Each cell takes a width of its own, `width="400"` on every `td`, which the page's sanitizer
-    keeps as it keeps a picture's, so no column goes below it and the row keeps its full width and
-    scrolls; a header row of non-breaking spaces would do the same and is the fallback should the
-    attribute be stripped, which the rendered page says after the push. Done at `623bdc47`: every
-    cell 400 wide in an HTML table a folder, the rendered page read after the push. The owner looked
-    at the pushed page at 18:55 and the pictures still differ. The rendered page keeps the cell's
-    width, read here, so the squeeze is the browser's table layout: a cell's width is a preference,
-    and when a table is wider than the page the browser shrinks each cell to its narrowest
-    unbreakable content, the name, the picture with it, GitHub's table being a block capped at the
-    page's width that scrolls only past that minimum. So the minimum comes from content: the run
-    name under each picture, in its code tag, is padded with non-breaking spaces, the character
-    itself and not the entity, to fifty-two characters, which the code font draws at some 426
-    pixels, past the picture's 400 on every platform's monospace, so no cell can shrink below its
-    picture and the name reads as a caption bar as wide as it; the cell's width stays as the
-    preference. The rendered page is read after the push. Done at `54c0e669`: every name padded to
-    52 characters, the README at 237 lines of prose, the rendered page read after the push. The
+    through `3051fab8` but for the caption's width (Decision 29).** The owner asked on 2026-10-11 at
+    15:55. The README's Examples section holds a table of two columns and thirty-four rows, pictures
+    of picked examples and games mixed, and under it eighty lines of prose and a block that explain
+    the games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
+    repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
+    Shapes, Text and Textures, each a single row holding every example of the folder that has a
+    capture under `.github/assets/examples`, the picture linking the program and the run name under
+    it as the rows do today, with a heading line naming the folder before each, and a last table of
+    the same shape for `games`; a single row wider than the page scrolls sideways on GitHub, which
+    is the point, so no row is wrapped. The prose and the block between the table and the Guide
+    heading that explain the games go, their facts living in the games' own READMEs and in the games
+    table of EXAMPLES.md where they are not already. The README's walk and the examples' table check
+    read the file as before, so each is run on the result, and the captures' links keep their raw
+    form. Taken as a batch of its own after h's next commit, since it is small and the owner asked;
+    The owner asked at 16:35 that the pictures be one size, where they differ today: every picture
+    in the rows carries the same width and height on its tag, and the captures that are not 800 by
+    450, sixteen of 268, among them a square and a four by three, are taken again at that size where
+    the program's window allows or padded to it by the capture script, so the tag distorts nothing;
+    the examples' table check and the captures' comparison read the result. Done at `ee47849e`:
+    twelve rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen
+    captures of other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into
+    each game's own README. The owner looked at the pushed page at 17:10 and the pictures still read
+    as different sizes. GitHub renders every tag at one box, its own style giving each the full
+    width of its cell, an automatic height and the tag's aspect, so the box is uniform; what differs
+    is the picture inside it, since a capture of another shape was fitted inside sixteen by nine
+    with black bars, which read as a smaller picture. The fit fills instead: the WebP script scales
+    a capture of another shape so its shorter side fills the box and cuts the rest around the
+    middle, or the example's window is opened at sixteen by nine where the cut would lose something
+    that matters, so every picture fills its box edge to edge; the sixteen captures and the games'
+    thirteen are fitted again so, and the page is read after the push. Done at `60f2999d`: the WebP
+    script fills its size and cuts around the middle or from a named side, all 268 captures at 800
+    by 450 and filling their boxes. The owner looked again at 18:20: each picture is as wide as the
+    name under it, a short name's tiny and a long name's large. GitHub squeezes a table to the
+    page's width before it lets it scroll, and a cell shrinks to the one thing in it that cannot
+    wrap, the name, the picture shrinking with it under the page's own rule of a picture no wider
+    than its cell. Each cell takes a width of its own, `width="400"` on every `td`, which the page's
+    sanitizer keeps as it keeps a picture's, so no column goes below it and the row keeps its full
+    width and scrolls; a header row of non-breaking spaces would do the same and is the fallback
+    should the attribute be stripped, which the rendered page says after the push. Done at
+    `623bdc47`: every cell 400 wide in an HTML table a folder, the rendered page read after the
+    push. The owner looked at the pushed page at 18:55 and the pictures still differ. The rendered
+    page keeps the cell's width, read here, so the squeeze is the browser's table layout: a cell's
+    width is a preference, and when a table is wider than the page the browser shrinks each cell to
+    its narrowest unbreakable content, the name, the picture with it, GitHub's table being a block
+    capped at the page's width that scrolls only past that minimum. So the minimum comes from
+    content: the run name under each picture, in its code tag, is padded with non-breaking spaces,
+    the character itself and not the entity, to fifty-two characters, which the code font draws at
+    some 426 pixels, past the picture's 400 on every platform's monospace, so no cell can shrink
+    below its picture and the name reads as a caption bar as wide as it; the cell's width stays as
+    the preference. The rendered page is read after the push. Done at `54c0e669`: every name padded
+    to 52 characters, the README at 237 lines of prose, the rendered page read after the push. The
     owner looked at the pushed page at 19:25 and it works, and asked for the pictures a bit smaller:
     every tag 320 by 180 in place of 400 by 225, the cell's width 320 with it, and each name padded
     to 42 characters, which the code font draws at some 344 pixels, past the picture, the captures
     themselves unchanged at 800 by 450. Done at `3051fab8`: 320 by 180, cells of 320 and names of
-    42. the owner's eye judges the look (Decision 27).
+    42. The owner looked at the pushed pages at 20:05: the look is right, and on a phone the caption
+    under each picture is a tenth to a fifth wider than the picture, on a desktop a little wider.
+    The caption's padded text sets the cell's width while the picture fills no more than its own
+    size, so on a font that draws text wider, as a phone's does, the text overshoots the picture.
+    The caption sets the width on purpose and the picture fills it exactly: each picture's tag and
+    cell take a nominal width past the caption's widest rendering, so the cell is the caption's
+    width on every device and the picture, no wider than its cell by the page's rule, fills it edge
+    to edge; and the caption shrinks to the small tag, `<small><code>`, which the page keeps, since
+    the padding cannot go below the longest name and the font is the other knob: the names padded to
+    32 characters, the longest, in a small code caption, which the code font draws at some 235 to
+    240 pixels, every tag 260 by 146 and every cell 260, so the pictures come out about 240 wide,
+    smaller like BevyCSharp's as the owner asked, and the same width as their captions; the rendered
+    page read after the push on a desktop and a phone. the owner's eye judges the look (Decision
+    27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -687,9 +701,13 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     1.7 times the tests' time with the census. The two remedies kept come due after item 2's parts g
     and h: the passes compiled once a process, each app of the leak test taking them built, and a
     lampless app spared the lamps' code, measured by the Windows page's group times and the leak
-    test's frame. Settled when a Windows job runs its tests whole in the time the run before
-    `98a1edca` took, within a quarter; 5.2 is due by Decision 19 when every job is green, which this
-    verdict's time does not hold back, the owner told so.
+    test's frame. The first remedy is taken another way at `76e7c278`: an engine pipeline cache
+    saved nothing on lavapipe, which compiles at the first draw on its own thread and takes only
+    Mesa's disk cache, so the test and examples jobs keep Mesa's cache in the workspace from run to
+    run, keyed by the shaders, and whether Mesa's Windows build keeps one is read on the Windows
+    page; the lampless variant follows. Settled when a Windows job runs its tests whole in the time
+    the run before `98a1edca` took, within a quarter; 5.2 is due by Decision 19 when every job is
+    green, which this verdict's time does not hold back, the owner told so.
 
 49. **The examples job of `b1e86aef`, the first to reach the measure since the lamps, is red by the
     measure alone: four pairs stand more than a point above the share recorded for them at
@@ -920,15 +938,7 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 48, its first remedy. A pipeline cache of the engine's own, a process's last device's data
-started each next device's cache, was built and measured on this host's lavapipe with Mesa's cache
-off: four apps in one process took 3.73 to 3.93 seconds each with it and 3.66 to 3.74 without, so
-lavapipe takes none of its compiling from one. The seconds fall at the device's last wait, nearly
-three of an app's 3.7, since lavapipe runs what a frame submits on a thread of its own and compiles
-each pipeline's variants as it first draws with them, and Mesa's own disk cache spares them, the
-same apps taking 0.82 to 0.88 seconds each with it. The Windows job's frame of 3.8 seconds is this
-host's cost with Mesa's cache off. So the engine's cache is not kept, and the test workflow's Linux
-and Windows jobs and the build workflow's examples job name Mesa's cache in the workspace
-(`MESA_SHADER_CACHE_DIR`) and keep it from run to run, keyed by the shaders; whether Mesa's Windows
-build keeps it is read on the Windows page's group times and the leak test's frame. The script and
-norm tests pass, 51.
+Item 11, the captions. Every tag is 260 by 146 and every cell 260, each name padded to 32
+characters with the non-breaking space itself and set in `<small><code>`, the longest,
+`shapes_rounded_rectangle_drawing`, filling its 32 with none. The document links and the norm
+tests pass, 20 of them. The rendered page is read after the push.
