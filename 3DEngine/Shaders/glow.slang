@@ -1,6 +1,8 @@
 // The small surfaces that give off light the bounce carries as lights of their own, each a box in
 // the world, the light one sends a point in closed form, and the marches through the field that say
-// how much of it a point sees, which gi.slang sums (GlowLights.cs).
+// how much of it a point sees, which gi.slang sums (GlowLights.cs). Its loops are kept from
+// unrolling: unrolled, with each of the model pass's calls of them inlined apart, they made the
+// model pass's compile on lavapipe four times as long, 0.9 s for every app where 0.23 before them.
 module glow;
 
 import scenefield;
@@ -54,6 +56,7 @@ float squareIrradiance(float3 x, float3 n, float3 c, float3 u, float3 v)
     float3 corners[4] = { c + u + v - x, c - u + v - x, c - u - v - x, c + u - v - x };
     float3 kept[5];
     int count = 0;
+    [loop]
     for (int i = 0; i < 4; i++)
     {
         float3 a = corners[i], b = corners[(i + 1) & 3];
@@ -66,6 +69,7 @@ float squareIrradiance(float3 x, float3 n, float3 c, float3 u, float3 v)
     if (count < 3)
         return 0.0;
     float3 sum = float3(0.0);
+    [loop]
     for (int i = 0; i < count; i++)
     {
         float3 a = kept[i], b = kept[(i + 1) % count];
@@ -90,6 +94,7 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
     float3 offset = x - middle;
     bool near = dot(offset, offset) < 16.0 * (halves[0].w * halves[0].w + halves[1].w * halves[1].w + halves[2].w * halves[2].w);
     float sum = 0.0;
+    [loop]
     for (int k = 0; k < 3; k++)
     {
         float3 h = halves[k].xyz;
@@ -118,6 +123,7 @@ public float glowLightEntry(GlowLight light, float3 from, float3 way)
     float3 offset = from - light.middleAndReach.xyz;
     float3 halves[3] = { light.halfX.xyz, light.halfY.xyz, light.halfZ.xyz };
     float enter = 0.0, leave = 1e6;
+    [loop]
     for (int k = 0; k < 3; k++)
     {
         float squared = max(dot(halves[k], halves[k]), 1e-12);
@@ -204,6 +210,7 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     float3 deepAt = float3(0.0);
     int deepIn = 0;
     float deepCone = 1.0;
+    [loop]
     for (int i = 0; i < 64 && t < end; i++)
     {
         float3 q = from + way * t;
@@ -248,6 +255,7 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     {
         float step = info.cascades[deepIn].originAndCell.w;
         float under = 0.0;
+        [loop]
         for (int out = 0; out < 8 && under < deepCone; out++)
         {
             float inside = fieldDistanceIn(field, info, deepIn, deepAt + n * under);
@@ -295,6 +303,7 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
     float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
     float3 offset = p - middle;
     float lit = 0.0, seen = 0.0;
+    [loop]
     for (int k = 0; k < 3; k++)
     {
         float3 h = halves[k].xyz;
@@ -308,6 +317,7 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
         bool alongU = abs(dot(u.xyz, n)) * v.w >= abs(dot(v.xyz, n)) * u.w;
         float3 rise = alongU ? u.xyz : v.xyz;
         float radius = (alongU ? u.w : v.w) * 0.5;
+        [loop]
         for (int half = 0; half < 2; half++)
         {
             float3 target = face + rise * (half == 0 ? 0.5 : -0.5);

@@ -610,40 +610,36 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 
 // The light the glow lights send a surface at p facing n, irradiance, each that reaches p by as
 // much of it as p sees by glowLightSeen's one march to its middle, as a probe's ray's hit and a
-// pixel no screen probe holds read them. The marches are the cost, so where more lights reach p
-// than `marches`, four at most, the brightest at p are kept with their light as the lights are read
-// and only they are marched, a fainter light giving nothing. A light gives nothing to its own
-// surface, which a hit finds within half a cell of its box (glowLightOn). Where the field does not
-// hold p, unhidden.
+// pixel no screen probe holds read them. The marches are the cost, so the brightest at p, as many as
+// `marches`, four at most, are kept with their light as the lights are read and only they are
+// marched, a fainter light giving nothing. One way through for every count, the lights read and the
+// kept ones marched in loops kept from unrolling, so a shader holds one march and one closed form of
+// it: a second way for few lights, and both in each of the model pass's two shadings of a
+// reflection's hit, made its compile on lavapipe 0.68 s longer for each app. A light gives nothing
+// to its own surface, which a hit finds within half a cell of its box (glowLightOn). Where the field
+// does not hold p, every light unhidden.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches)
 {
     int count = min(int(lights.glowCounts.x), MostGlowLights);
     float cell = fieldCell(info, p);
     float margin = max(cell, 0.0) * 0.5;
-    float3 sum = float3(0.0);
-    if (marches >= count || cell <= 0.0)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            GlowLight light = lights.glows[i];
-            float faded = glowLightFade(light, p, n);
-            if (faded > 0.0)
-                sum += glowLightIrradiance(light, p, n, margin) * (faded * glowLightSeen(field, info, light, p, n, cell));
-        }
-        return sum;
-    }
+    float3 unhidden = float3(0.0);
     float3 kept[4] = { float3(0.0), float3(0.0), float3(0.0), float3(0.0) };
     float bright[4] = { 0.0, 0.0, 0.0, 0.0 };
     int which[4] = { -1, -1, -1, -1 };
     int most = min(marches, 4);
+    [loop]
     for (int i = 0; i < count; i++)
     {
-        float faded = glowLightFade(lights.glows[i], p, n);
+        GlowLight light = lights.glows[i];
+        float faded = glowLightFade(light, p, n);
         if (faded <= 0.0)
             continue;
-        float3 arrived = glowLightIrradiance(lights.glows[i], p, n, margin) * faded;
+        float3 arrived = glowLightIrradiance(light, p, n, margin) * faded;
+        unhidden += arrived;
         float b = luminance(arrived);
         int one = i;
+        [unroll]
         for (int k = 0; k < 4; k++)
             if (k < most && b > bright[k])
             {
@@ -658,7 +654,11 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
                 one = movedOne;
             }
     }
-    for (int k = 0; k < 4; k++)
+    if (cell <= 0.0)
+        return unhidden;
+    float3 sum = float3(0.0);
+    [loop]
+    for (int k = 0; k < most; k++)
         if (which[k] >= 0)
             sum += kept[k] * glowLightSeen(field, info, lights.glows[clamp(which[k], 0, MostGlowLights - 1)], p, n, cell);
     return sum;

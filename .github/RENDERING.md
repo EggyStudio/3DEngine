@@ -1389,7 +1389,12 @@ box whose normal leads out of it, the light's own surface, since a hit lies anyw
 fraction of a cell of a face and the field's normal tilts near its edges, so part of the face rose
 above the hit's plane and lit it: on lavapipe the block's faces lit themselves and added 0.018 to
 the floor two blocks off, 0.044. The field marks the cells such an emitter paints, so a ray that
-meets it leaves its light out (`surfaceGlowUncarried`), and a reflection keeps it.
+meets it leaves its light out (`surfaceGlowUncarried`), and a reflection keeps it. The shaders hold
+one march and one closed form for each place that reads the glow lights, a reflection's hit shaded
+once whether met on the screen or in the field, and their loops are kept from unrolling, since
+unrolled and inlined at each of the model pass's calls they made its compile on lavapipe 0.9 s for
+every app where it took 0.23 before them, and the Windows job's tests ran out their time; 0.32 so,
+the Rendering tests on lavapipe here 280 s where 261 before the glow lights.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the

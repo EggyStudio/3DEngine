@@ -232,6 +232,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, ScreenProbesHere
             sum += float3(asfloat(screenGlowSeen[faint]), asfloat(screenGlowSeen[faint + 1]), asfloat(screenGlowSeen[faint + 2]))
                  * (weight[corner] / total);
         }
+    [loop]
     for (int word = 0; word * 8 < count; word++)
     {
         uint4 levels = uint4(screenGlowSeen[first.x + word], screenGlowSeen[first.y + word],
@@ -240,6 +241,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, ScreenProbesHere
         // lights its probes mark and passes the rest by.
         uint seen = levels.x | levels.y | levels.z | levels.w;
         uint marked = (seen | (seen >> 1) | (seen >> 2) | (seen >> 3)) & 0x11111111u;
+        [loop]
         while (marked != 0u)
         {
             uint bit = firstbitlow(marked);

@@ -58,26 +58,32 @@ hand before each of its commits.
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights cost 0.67 ms of the model pass
+### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights cost 0.5 ms of the model pass
 
-On `98a1edca`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
-white_concrete` on a flat world), its west wall red and its east wall green, and sixteen glowstones
-on its floor in a grid of 4 by 4, the eye inside it 10 degrees down across them, hour 23, High,
-render distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop GPU.
-Each figure is `./e3d command profile` read three times after 600 frames with `gi.toggle glow` off
-and on, in two passes that agreed, and the averages from `GetProfileAverage` beside them.
+A closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 white_concrete`
+on a flat world), its west wall red and its east wall green (`voxel.fill 11 5 -21 11 10 -11
+red_concrete`, and green at x 21), and sixteen glowstones on its floor at x 13, 15, 17 and 19 and z
+-19, -17, -15 and -13, the eye at 16.5, 6, -11.5 facing north 20 degrees down, hour 23, High, render
+distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop GPU, its
+clock at 2490 MHz throughout. Each figure is `./e3d command profile` read three times after 600
+frames with `gi.toggle glow` off and on, twice each, in two processes on `0f5cdbcf`, whose shaders
+the game's output carries with the shader cache cleared.
 
-| Glow lights | `gpu.hdr_scene` | `gpu.global_illumination` | Frame |
-|---|---|---|---|
-| Off | 1.38 to 1.43 ms | 1.30 to 1.33 ms | 4.5 ms |
-| On | 2.05 to 2.14 ms | 2.15 to 2.22 ms | 6.1 to 6.2 ms |
+| Commit | Glow lights | `gpu.hdr_scene` | `gpu.global_illumination` | Frame |
+|---|---|---|---|---|
+| `98a1edca` | Off | 1.38 to 1.43 ms | 1.30 to 1.33 ms | 4.5 ms |
+| `98a1edca` | On | 2.05 to 2.14 ms | 2.15 to 2.22 ms | 6.1 to 6.2 ms |
+| `0f5cdbcf` | Off | 1.42 to 1.50 ms | 1.25 to 1.30 ms | 4.5 to 4.8 ms |
+| `0f5cdbcf` | On | 1.92 to 2.03 ms | 2.03 to 2.42 ms | 5.8 to 6.1 ms |
 
-The bounce gains 0.85 ms, near the 0.8 expected of sixteen blocks, and the model pass 0.67 ms where
-0.2 was expected; before the commit's cost work it gained 1.56 ms of the model pass and 0.81 ms of
-the bounce. The same commit holds parts d and e of item 2 as measured before it: the lamp's light at
-2 and 2.5 blocks 13.6 and 7.3 at a cell of 0.25 and 13.3 and 7.2 at 0.125 at each quality, its eight
-lobes 0.01 of it or less, and its pool the same from 5 to 80 blocks up, 52 to 57 at a block and half
-that by 1.5, so those two entries are taken off.
+On `0f5cdbcf` the model pass gains 0.47 to 0.53 ms with the glow lights where it gained 0.67 on
+`98a1edca`, and the bounce 0.75 to 0.85 ms where 0.85. The engine reads 0.25 and 0.68 ms in a room
+built as this one, so the game's room costs the model pass twice the engine's. The game draws the
+room's walls and floor as sections of 16 blocks a side, each block's color in their vertices, 226
+draws with the land around, which may be where the two differ. No Xid line in the kernel's log names
+either process, nor any of five runs of the closed room seen from 20 blocks outside with one
+glowstone, the case that lost the device on `98a1edca`. The game does nothing about the cost
+meanwhile.
 
 Review: item 2 of REVIEW.md, its part d and e, 2026-10-10; the model pass's share read for where it
 goes and brought down, your room the measure, after Verdicts 47 and 30.
