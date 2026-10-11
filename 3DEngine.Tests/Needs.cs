@@ -191,6 +191,24 @@ internal static class Probes
         return null;
     });
 
+    // Which of cwebp and ImageMagick build/webp.sh finds, cwebp first as it takes it, or null for neither.
+    public static readonly Lazy<string?> WebP = new(() =>
+    {
+        try
+        {
+            using var shell = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("bash", "-c \"command -v cwebp || command -v magick || command -v convert\"")
+                { RedirectStandardOutput = true, RedirectStandardError = true });
+            if (shell is null) return null;
+            var found = shell.StandardOutput.ReadToEnd().Trim();
+            shell.WaitForExit(10_000);
+            return found.Length > 0 ? Path.GetFileName(found.Split('\n')[0]) : null;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            return null;
+        }
+    });
+
     public static readonly Lazy<bool> Audio = new(() =>
     {
         using var backend = new SdlAudioBackend();
@@ -222,6 +240,19 @@ public sealed class NeedsPackageAndPythonFactAttribute : FactAttribute
             Skip = "build/package holds no 3DEngine package. build/pack.sh makes one.";
         else if (Probes.Python.Value is null)
             Skip = "Neither python3 nor python runs here.";
+    }
+}
+
+/// <summary>
+/// Skipped on Windows, whose jobs encode no picture, or where neither cwebp nor ImageMagick is on
+/// PATH, for a test of <c>build/webp.sh</c>.
+/// </summary>
+public sealed class NeedsWebPFactAttribute : FactAttribute
+{
+    public NeedsWebPFactAttribute()
+    {
+        if (OperatingSystem.IsWindows()) Skip = "No job encodes a picture on Windows.";
+        else if (Probes.WebP.Value is null) Skip = "Neither cwebp nor ImageMagick is on PATH.";
     }
 }
 

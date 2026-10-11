@@ -18,6 +18,20 @@ mkdir -p .github/assets/first-game
 # written into a file or a variable is not turned into one there as an argument is.
 native() { if command -v cygpath > /dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
 
+# The system by the name a reader knows it by, where Git's bash on Windows calls itself MINGW64.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) system=Windows ;;
+  Darwin) system=macOS ;;
+  *) system=$(uname -s) ;;
+esac
+# What fails is said as an error annotation naming the step and the system, with the lines that say
+# why, so the page says why a step stopped where the job's own log is closed to its reader.
+fail() {
+  echo "::error title=First game step $n on $system::Step $n of the first game $1"
+  echo "step $n $1" >&2
+  exit 1
+}
+
 for step in games/FirstGame/steps/*.cs; do
   n="$(basename "$step" .cs)"
   project="$work/Coins"
@@ -28,12 +42,21 @@ for step in games/FirstGame/steps/*.cs; do
   sed "s#../../build/package#$(native "$root")/build/package#" games/FirstGame/nuget.config > "$project/nuget.config"
   cp "$step" "$project/Program.cs"
   echo "step $n"
-  dotnet build "$project" -v q --nologo | grep -E "error|rror\(s\)" || true
+  if ! dotnet build "$project" -v q --nologo > "$work/build.log" 2>&1; then
+    cat "$work/build.log"
+    said=$( { grep -E ' error ' "$work/build.log" || true; } | tail -n 3 | tr -s '\r\n' '  ' | cut -c1-600)
+    fail "did not build${said:+, $said}"
+  fi
   program="$project/bin/Debug/net10.0/Coins"
-  (cd "$project/bin/Debug/net10.0" && ./Coins --offscreen --frames 30 > run.log 2>&1)
-  if grep -E '\[(ERROR|FATAL)' "$project/bin/Debug/net10.0/run.log"; then
-    echo "step $n logged an error" >&2
-    exit 1
+  log="$project/bin/Debug/net10.0/run.log"
+  if ! (cd "$project/bin/Debug/net10.0" && ./Coins --offscreen --frames 30 > run.log 2>&1); then
+    tail -n 40 "$log" 2>/dev/null || true
+    ending=$( { tail -n 3 "$log" 2>/dev/null || true; } | tr -s '\r\n' '  ' | sed 's/ *$//' | cut -c1-600)
+    fail "did not run to frame 30${ending:+, its log ends with $ending}"
+  fi
+  if grep -E '\[(ERROR|FATAL)' "$log"; then
+    said=$(grep -E '\[(ERROR|FATAL)' "$log" | head -n 1 | tr -d '\r' | cut -c1-600)
+    fail "logged an error, $said"
   fi
 
   if [ "$shots" = "--shots" ]; then

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 
@@ -66,6 +67,33 @@ public sealed partial class ScriptTests
     public void Each_Form_Is_Found_Where_A_Line_Has_It_And_Nowhere_Else(string line, string? form)
     {
         GnuOnly.Where(entry => entry.Pattern.IsMatch(Code(line))).Select(entry => entry.Form).Should().Equal(form is null ? Array.Empty<string>() : new[] { form });
+    }
+
+    [NeedsWebPFact]
+    public void A_Picture_Of_Another_Shape_Is_Filled_To_The_Size_Given_By_Whichever_Encoder_There_Is()
+    {
+        // build/webp.sh fits a capture with cwebp where it is installed, as the macOS runner has no
+        // ImageMagick, and with ImageMagick where it is not. A square, a four by three and a strip,
+        // the shapes captures had before the gallery's were fitted, are each cut from a side or
+        // around the middle and scaled to 800 by 450.
+        using var folder = new TestFolder("engine-webp-test-");
+        foreach (var (width, height, gravity) in new[] { (600, 600, "north"), (640, 480, "center"), (1000, 300, "East") })
+        {
+            var png = Path.Combine(folder.Path, $"{width}x{height}.png");
+            var rgba = new byte[width * height * 4];
+            for (int i = 0; i < rgba.Length; i += 4) (rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]) = ((byte)(i / 4 % width), (byte)(i / 4 / width), 128, 255);
+            PngWriter.Write(png, rgba, width, height);
+            var webp = Path.ChangeExtension(png, ".webp");
+
+            var start = new ProcessStartInfo("bash") { WorkingDirectory = Root, RedirectStandardOutput = true, RedirectStandardError = true };
+            foreach (var argument in new[] { "build/webp.sh", png, webp, "lossy", "800x450", gravity }) start.ArgumentList.Add(argument);
+            using var script = Process.Start(start)!;
+            var said = script.StandardError.ReadToEnd();
+            script.WaitForExit();
+
+            script.ExitCode.Should().Be(0, $"{Probes.WebP.Value} fits {width} by {height} to the size: {said}");
+            NormTests.WebPSize(File.ReadAllBytes(webp)).Should().Be((800, 450), $"{Probes.WebP.Value} fills the size given from {width} by {height}");
+        }
     }
 
     // The shell scripts the jobs of test.yml that run on Windows or macOS name, and those each of

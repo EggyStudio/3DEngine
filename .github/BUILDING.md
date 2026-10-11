@@ -69,7 +69,10 @@ and in a macOS job of its own for PNGs kept as that job's artifact, and a new or
 capture in `.github/assets/examples` is taken with `capture-example.sh`. The gallery's captures are WebP at the size their window
 is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at quality 85 for a lit
 3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
-`webp` package. The render tests' references stay PNG, since they compare pixels.
+`webp` package. A capture of another shape is filled to that size and cut, by `cwebp` itself where
+it is installed, the box of the size's shape cut from the capture's own pixels and scaled, so a
+runner needs the encoder alone, and by ImageMagick where it is not. The render tests' references
+stay PNG, since they compare pixels.
 
 `build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left
 at it would, restarting its level and spawning and clearing what it spawns, and reads

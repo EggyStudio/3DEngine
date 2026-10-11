@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Captures every example offscreen into the folder given (build/capture-example.sh), as WebP or as
 # PNG by the second argument, and checks each one's session log for validation errors, which counts
-# the teardown too. Every example is captured before the script fails. A capture that fails says
+# the teardown too. Every example is captured before the script fails, but where build/webp.sh
+# lacks a tool, which stops every capture. A capture that fails says
 # why in its error, as the test page names its causes (N 6.7): the script's exit code and its own
 # last line, and the last lines the example logged at a warning or worse, since an annotation is
 # all a reader not signed in sees. The build workflow's examples job runs it for the README's
@@ -87,6 +88,13 @@ it wrote no picture"
     failed=1
     ./e3d stop --quiet || true
     printf '%s\t%s\tfailed\n' "$example" "$seconds" >> "$times"
+    # A capture that failed on build/webp.sh's own line lacks a tool every capture after it needs
+    # as well, so the rest are left, where the examples job spent twenty minutes failing each one.
+    case "$(printf '%s' "$said" | tail -n 1)" in
+      webp.sh:*)
+        echo "::error title=Captures on $system::The captures stopped after $example, since build/webp.sh lacks a tool each capture needs, $(( total - reached )) left uncaptured"
+        break ;;
+    esac
   else
     drew=$(( drew + 1 ))
     printf '%s\t%s\tdrew\n' "$example" "$seconds" >> "$times"

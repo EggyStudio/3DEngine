@@ -293,7 +293,7 @@ public sealed partial class NormTests
     }
 
     // The width and height a WebP file's header gives, from whichever of its three kinds it is.
-    private static (int Width, int Height) WebPSize(byte[] file) => System.Text.Encoding.ASCII.GetString(file, 12, 4) switch
+    internal static (int Width, int Height) WebPSize(byte[] file) => System.Text.Encoding.ASCII.GetString(file, 12, 4) switch
     {
         "VP8X" => (1 + (file[24] | file[25] << 8 | file[26] << 16), 1 + (file[27] | file[28] << 8 | file[29] << 16)),
         "VP8L" => (1 + ((file[21] | file[22] << 8) & 0x3FFF), 1 + ((file[22] >> 6 | file[23] << 2 | file[24] << 10) & 0x3FFF)),
