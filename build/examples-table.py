@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Writes .github/EXAMPLES.md, a row for each of raylib's examples and what this engine makes of it.
+"""Writes .github/EXAMPLES.md, a row for each of raylib's examples and what this engine makes of it,
+and the README's count of the examples and of the pictures in each row of its gallery.
 
-    build/examples-table.py [--raylib <checkout>]            # write the table
-    build/examples-table.py [--raylib <checkout>] --check    # fail where it is out of date, or an example has no row
+    build/examples-table.py [--raylib <checkout>]            # write the table and the README's counts
+    build/examples-table.py [--raylib <checkout>] --check    # fail where either is out of date, or an example has no row
     build/examples-table.py [--raylib <checkout>] --triage   # print a line for each example with no row yet
 
 The examples are read from examples/examples_list.txt of the raylib that build/raylib-bench/run.sh
@@ -19,9 +20,11 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TABLE = os.path.join(ROOT, ".github", "EXAMPLES.md")
+README = os.path.join(ROOT, "README.md")
 TRIAGE = os.path.join(ROOT, "3DEngine.Examples", "triage.tsv")
 MEASURED = os.path.join(ROOT, "3DEngine.Examples", "measured.tsv")
 EXAMPLES = os.path.join(ROOT, "3DEngine.Examples")
@@ -277,6 +280,45 @@ def build(commit, examples, triage, written):
     return "\n".join(out) + "\n"
 
 
+def counted(readme, examples, total, own):
+    """The README with each heading of its gallery counting the pictures in the row under it, and a
+    line before the first of them counting the table's examples, the engine's own and the games."""
+    lines = readme.split("\n")
+    start = lines.index("## Examples")
+    end = next(i for i in range(start + 1, len(lines)) if lines[i].startswith("## "))
+    headings = [i for i in range(start, end) if lines[i].startswith("### ")]
+    games = 0
+    for i in headings:
+        title = re.sub(r" \(\d+\)$", "", lines[i][4:])
+        row = next((line for line in lines[i + 1:end] if line.startswith("<table")), "")
+        pictures = row.count("<img ")
+        lines[i] = f"### {title} ({pictures})"
+        if title == "Games":
+            games = pictures
+    states = [f"{total['written']} are written here"]
+    states += [f"{total[state]} {words}" for state, words in (("part", "in part"), ("can", "can be written"), ("missing", "are missing")) if total[state]]
+    states.append(f"{total['n/a']} {'does' if total['n/a'] == 1 else 'do'} not apply")
+    line = textwrap.fill(
+        f"**Of raylib's {len(examples)} examples {', '.join(states[:-1])} and {states[-1]}, and beside them are "
+        f"{len(own)} examples of the engine's own and {games} games.**",
+        width=100, break_long_words=False, break_on_hyphens=False)
+    # The line stands between the section's opening paragraph and the first heading, in place of
+    # the line written before.
+    first = headings[0]
+    paragraph_end = first - 1
+    while lines[paragraph_end] == "":
+        paragraph_end -= 1
+    if lines[paragraph_end].startswith("**Of raylib's") or lines[paragraph_end].endswith("games.**"):
+        top = paragraph_end
+        while not lines[top].startswith("**Of raylib's"):
+            top -= 1
+        paragraph_end = top - 1
+        while lines[paragraph_end] == "":
+            paragraph_end -= 1
+    lines[paragraph_end + 1:first] = ["", *line.split("\n"), ""]
+    return "\n".join(lines)
+
+
 def main():
     arguments = sys.argv[1:]
     given = arguments[arguments.index("--raylib") + 1] if "--raylib" in arguments else None
@@ -296,14 +338,22 @@ def main():
         return
 
     table = build(commit, examples, triage, written)
+    names = {example["name"] for example in examples}
+    total = {state: sum(1 for example in examples if example["state"] == state) for state in ORDER}
+    readme = open(README, encoding="utf-8").read()
+    gallery = counted(readme, examples, total, [name for name in written if name not in names])
     if "--check" in arguments:
         current = open(TABLE, encoding="utf-8").read() if os.path.exists(TABLE) else ""
         if current != table:
             sys.exit(".github/EXAMPLES.md is out of date; run build/examples-table.py")
+        if readme != gallery:
+            sys.exit("README.md's counts of the examples are out of date; run build/examples-table.py")
         return
     with open(TABLE, "w", encoding="utf-8") as out:
         out.write(table)
-    print(f"wrote {os.path.relpath(TABLE, ROOT)}, {len(examples)} examples")
+    with open(README, "w", encoding="utf-8") as out:
+        out.write(gallery)
+    print(f"wrote {os.path.relpath(TABLE, ROOT)}, {len(examples)} examples, and README.md's counts")
 
 
 if __name__ == "__main__":

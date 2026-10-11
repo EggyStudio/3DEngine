@@ -1301,12 +1301,11 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 50, the remedy. `build/test.py` gives the suite a cache of the driver's compiled pipelines
-of its own, `build/nvidia-cache` at 2 GiB through `__GL_SHADER_DISK_CACHE_PATH` and
-`__GL_SHADER_DISK_CACHE_SIZE` where neither is set, and makes the folder, since the driver makes
-none: a first run through the script with the path named and the folder missing ran as with no
-cache, 26 minutes, and failed a test with `VK_ERROR_UNKNOWN` from the bloom pass's exposure
-pipeline, so a folder the driver cannot write in fails a compile as a full cache does, and the
-error is the driver's whatever pipeline it compiles. With the folder made, two runs through the
-script pass, 1,686 each, in 7 m 31 s with the cache new and 6 m 39 s after. `.gitignore` leaves the
-folder out and BUILDING.md says why, with the three timings.
+Item 18, taken before item 19 since both change `build/examples-table.py` and this one was
+written. The script that writes the examples table writes the README's counts too, and `--check`
+fails where they are out of date: a line under the Examples heading's paragraph, "Of raylib's 222
+examples 221 are written here and 1 does not apply, and beside them are 34 examples of the engine's
+own and 12 games", from the table's own counts and the games' row, and each heading of the gallery
+with the pictures in its row, Audio (12) to Games (12), 255 pictures in all. A second run changes
+nothing, and nothing links to the headings' old anchors. The table check, the norm and document
+link tests and the README walk pass.

@@ -104,8 +104,10 @@ holds level on the desktop.
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under
 `build/raylib-bench/work`. An example is written when `3DEngine.Examples/Program.cs` opens it by
 raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.tsv`, which
-`--triage` starts for a new one from the functions it calls that the flat API lacks. `--check`
-fails where the table is out of date, which `build.yml` runs.
+`--triage` starts for a new one from the functions it calls that the flat API lacks. It also writes
+the README's counts of the examples, a line under the Examples heading and each of the gallery's
+headings with the pictures in its row. `--check` fails where the table or the counts are out of
+date, which `build.yml` runs.
 
 `build/raylib-bench/compare.py <group, example or all>` builds raylib's own program of each written
 example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library, linked
