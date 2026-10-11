@@ -10,7 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `76e7c278`. Verdict 48's first remedy, taken another way by measurement: a pipeline
+Reviewed up to `4805676c`. Item 11's captions in two commits, both pushed: `706a1499` as first
+asked, every tag 260 by 146 and every cell 260, each name padded to 32 characters with the
+non-breaking space itself and set in a small code tag; and `4805676c` as the owner's change of 20:20
+had it, the tags and cells 220 by 124, the names padded to 28, and the seven names past 28, not the
+three the item counted, broken after their last underscore within 28 by a `<wbr>` tag with the last
+piece padded to 28; the norm and document-link tests pass on each, 20. The owner looked at both on a
+phone at 20:35 and prefers the first, so `4805676c` is reverted by a commit in the form and item 11
+is done at `706a1499`'s look, 32 and 260, which BevyCSharp's gallery takes as well, 35 and 260, in
+place of the 28 and 220 it was told. Right, each form built as asked and the owner's eye the judge
+between them (Decision 27). Next the lampless variant of the model pass, Verdict 48's second remedy,
+then the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye,
+f's filter offset, item 10, item 9 and item 8.
+
+Before it, `76e7c278` came, Verdict 48's first remedy, taken another way by measurement: a pipeline
 cache of the engine's own, each device's seeded from the process's last, was built and read on this
 host's lavapipe with Mesa's cache off, and saved nothing, four apps in one process taking 3.73 to
 3.93 s each with it against 3.66 to 3.74 without, since lavapipe runs what a frame submits on a
@@ -42,19 +55,6 @@ to 3.74 s, so where the driver keeps no cache every later app pays about fourfol
 workflow's Mesa on Ubuntu and on Windows keeps one is the question the page's times answer; the
 process-wide pipeline cache is built next and measured with Mesa's cache off, to see whether
 lavapipe skips its compile on a hit, then the lampless variant of the model pass. Then the bounce
-around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
-offset, item 10, item 9 and item 8.
-
-Before it, `54c0e669` came, item 11's padding: each run name under a picture is padded inside its
-code tag with non-breaking spaces, the character and not the entity, to 52 characters, all 268 of
-them read here at that length, so a cell's narrowest content is wider than its picture and the table
-cannot squeeze it, the cell's width kept as the preference; the README holds 237 lines of prose
-against the norm's 320, and the document and norm tests pass, 34. Right, the minimum put in content
-where the browser's layout reads it. The owner looked at the pushed page at 19:25: it works, and the
-pictures go a bit smaller, 320 by 180 with the cell and the padding following, item 11's last thing,
-a batch of its own next. The working session goes to Verdict 48's two remedies: a pipeline cache for
-the process, none being used today, every create call passing the null cache, measured on lavapipe
-as successive apps' pipeline creation, then the lampless variant of the model pass; then the bounce
 around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
 offset, item 10, item 9 and item 8.
 
@@ -576,11 +576,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the engine has it. Taken after item 2's parts g, c and f and before item 9, since the owner
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
-11. **The README's examples as one scrolling row a folder, the games' text under them gone, done
-    through `3051fab8` but for the caption's width (Decision 29).** The owner asked on 2026-10-11 at
-    15:55. The README's Examples section holds a table of two columns and thirty-four rows, pictures
-    of picked examples and games mixed, and under it eighty lines of prose and a block that explain
-    the games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
+11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
+    `706a1499`'s look, `4805676c` reverted (Decision 29).** The owner asked on 2026-10-11 at 15:55.
+    The README's Examples section holds a table of two columns and thirty-four rows, pictures of
+    picked examples and games mixed, and under it eighty lines of prose and a block that explain the
+    games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
     repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
     Shapes, Text and Textures, each a single row holding every example of the folder that has a
     capture under `.github/assets/examples`, the picture linking the program and the run name under
@@ -648,7 +648,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     tag 220 by 124 and every cell 220, so the pictures come out about 205 wide, like BevyCSharp's as
     the owner asked, and the same width as their captions, a long name wrapping to a second caption
     line only where the table is squeezed; the rendered page read after the push on a desktop and a
-    phone. the owner's eye judges the look (Decision 27).
+    phone. `706a1499` carries the first form, 32 and 260, and `4805676c` the change of 20:20, 28 and
+    220 with seven names broken by a `<wbr>` tag, and the owner looked at both on a phone at 20:35
+    and prefers the first, its pictures filling up to the caption's width where the second's fell
+    short of it, so `4805676c` is reverted by a commit in the form and the gallery stands at
+    `706a1499`'s look. the owner's eye judges the look (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -942,10 +946,5 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11, the captions as chosen at 20:20. Every tag is 220 by 124 and every cell 220, each name
-padded to 28 characters with the non-breaking space itself and set in `<small><code>`. Seven names
-run past 28 rather than three, `models_orthographic_projection` and
-`textures_framebuffer_rendering` at 30, `shapes_rounded_rectangle_drawing` at 32 and four at 29,
-and each is broken after its last underscore within 28 by a `<wbr>` tag, its last piece padded to
-28. The document links and the norm tests pass, 20 of them. The rendered page is read after the
-push.
+Item 11. `4805676c` is reverted, the gallery back at `706a1499`'s captions of 32 characters set
+small under pictures of 260 by 146. The document links and the norm tests pass, 20 of them.
