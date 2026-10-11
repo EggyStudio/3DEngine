@@ -53,8 +53,8 @@ A shader of the game's own is compiled ahead into the same `source/.slang-cache`
 ## Before shipping
 
 `./e3d open` runs the published executable as it runs an example, so a game is driven and captured
-from the terminal the same way, and CI plays each game from a freshly made package with the
-validation layer on, as `build.yml` shows.
+from the terminal the same way, and CI builds each game from a freshly made package and plays
+each with the validation layer on, as `examples.yml` shows.
 
 ## See also
 

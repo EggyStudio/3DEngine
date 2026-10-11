@@ -1301,11 +1301,16 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 18, taken before item 19 since both change `build/examples-table.py` and this one was
-written. The script that writes the examples table writes the README's counts too, and `--check`
-fails where they are out of date: a line under the Examples heading's paragraph, "Of raylib's 222
-examples 221 are written here and 1 does not apply, and beside them are 34 examples of the engine's
-own and 12 games", from the table's own counts and the games' row, and each heading of the gallery
-with the pictures in its row, Audio (12) to Games (12), 255 pictures in all. A second run changes
-nothing, and nothing links to the headings' old anchors. The table check, the norm and document
-link tests and the README walk pass.
+Item 19. The examples job is a workflow of its own, `examples.yml`, which `build.yml` calls after
+the tests on every push with `whole` false and `pack.yml` beside the pack with `whole` true. On a
+push it packs the engine, checks the package, publishes Slide native, builds the examples and the
+guides' code on the package, builds every game, plays Slide through `build/drive-game.sh` and soaks
+it alone, builds the first game's steps and checks both tables against raylib. The captures, the
+measure against raylib with its summary and its failing step, the twelve games played and
+captured, the whole soak, the resize storms and the README walk run where `whole` is set. The pack
+does not wait on the examples job, so a measure that drifted holds no release back and its page is
+read before a pack is pushed; it waits if you say so. Each step's shell names `examples.yml` to
+`build/step.py`, since a called workflow's run names its caller's file, and step.py finds each of
+the 30 named steps there. BUILDING.md, the scripts' comments, the table's sentence and the shipping
+guide say which run does what. The script, step, norm and document tests pass, 69, and the table
+check.

@@ -188,10 +188,10 @@ def build(commit, examples, triage, written):
         if name in written:
             # A line kept for a written example says how it differs from raylib's, one marked part
             # names what it leaves out, and one marked moves why its picture moves by the clock or
-            # the device, which the build workflow's measure then leaves out.
+            # the device, which the pack run's measure then leaves out.
             state, note = triage.get(name, ("can", ""))
             if state == "moves":
-                note += ", so the build workflow's measure leaves it out"
+                note += ", so the pack run's measure leaves it out"
             example["state"], example["note"] = ("part" if state == "part" else "written"), note
         elif name in triage:
             example["state"], example["note"] = triage[name]
@@ -231,7 +231,7 @@ def build(commit, examples, triage, written):
         "where a channel differs by more than 24 of 255, as the reference frames are compared, "
         "which `build/raylib-bench/compare.py` measures with each program at one sample a pixel "
         "unless it asks for more, a sixtieth of a second a frame, the same random seed and no "
-        "input. The build workflow measures every pair again on its own device and fails where "
+        "input. The pack run measures every pair again on its own device and fails where "
         "one stands more than a point above the share that device recorded for it, leaving out a "
         "pair whose row says its picture moves by the clock or the device.")
     out.append("")

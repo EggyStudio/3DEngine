@@ -71,18 +71,19 @@ README shows it: it gives the examples that wait for input their input (a gamepa
 text, taps and swipes), runs it until its scene has settled and its frame rate is measured, and
 captures it. `build/capture-examples.sh <folder> <webp|png> [example...]` captures every example
 with it, or those named, checking each to draw with no error from the validation layer and naming
-any that did not in an error annotation. An example whose capture takes past `CAPTURE_SECONDS`,
-300 unless set, is stopped and fails alone, `CAPTURE_MINUTES` ends the run where it is set, naming
-the last example reached, and the script ends with a notice of how many drew and in how long, each
-example's seconds written to `times.tsv` beside the pictures. CI runs it on Linux for the gallery
-and in a macOS job of its own for PNGs kept as that job's artifact, and a new or changed example's
-capture in `.github/assets/examples` is taken with `capture-example.sh`. The gallery's captures are WebP at the size their window
-is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at quality 85 for a lit
-3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
-`webp` package. A capture of another shape is filled to that size and cut, by `cwebp` itself where
-it is installed, the box of the size's shape cut from the capture's own pixels and scaled, so a
-runner needs the encoder alone, and by ImageMagick where it is not. The render tests' references
-stay PNG, since they compare pixels.
+any that did not in an error annotation. An example whose capture takes past `CAPTURE_SECONDS`, 300
+unless set, is stopped and fails alone, `CAPTURE_MINUTES` ends the run where it is set, naming the
+last example reached, and the script ends with a notice of how many drew and in how long, each
+example's seconds written to `times.tsv` beside the pictures. The pack run runs it on Linux for the
+gallery, and the test workflow in a macOS job of its own for PNGs kept as that job's artifact, and a
+new or changed example's capture in `.github/assets/examples` is taken with `capture-example.sh`.
+The gallery's captures are WebP at the size their window is drawn, raylib's 800 by 450 for an
+example, which `build/webp.sh` encodes at quality 85 for a lit 3D scene and losslessly for flat
+color, 2D shapes or text, with ImageMagick or with `cwebp` from the `webp` package. A capture of
+another shape is filled to that size and cut, by `cwebp` itself where it is installed, the box of
+the size's shape cut from the capture's own pixels and scaled, so a runner needs the encoder alone,
+and by ImageMagick where it is not. The render tests' references stay PNG, since they compare
+pixels.
 
 `build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left
 at it would, restarting its level and spawning and clearing what it spawns, and reads
@@ -97,8 +98,8 @@ climbed with its numbers or the command that ended its soak, and the process's r
 game that streams its level is held instead to the most a whole walk through it holds, since a slow
 device's two minutes see part of the level in each half and its least climbs with the world: Manor's
 buffers, a vertex and an index buffer for each mesh its cells show, 158 at most on the RTX 4070 and
-162 on lavapipe. CI plays every game for two minutes at once this way, and a ten-minute run of each
-holds level on the desktop.
+162 on lavapipe. The pack run plays every game for two minutes at once this way, and a push Slide
+alone, and a ten-minute run of each holds level on the desktop.
 
 `build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under
@@ -107,25 +108,26 @@ raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.
 `--triage` starts for a new one from the functions it calls that the flat API lacks. It also writes
 the README's counts of the examples, a line under the Examples heading and each of the gallery's
 headings with the pictures in its row. `--check` fails where the table or the counts are out of
-date, which `build.yml` runs.
+date, which the examples job runs on every push.
 
 `build/raylib-bench/compare.py <group, example or all>` builds raylib's own program of each written
-example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library, linked
-under the name a program loads it by (`libSDL3.so.0`, which the package does not bring), runs
+example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library,
+linked under the name a program loads it by (`libSDL3.so.0`, which the package does not bring), runs
 it and the example here to the same frame, and writes the share of pixels apart into
 `3DEngine.Examples/measured.tsv`, which the table shows. raylib's programs draw through SDL's
 offscreen driver with OpenGL, which Mesa gives on a machine with no GPU (`libegl1`, `libegl-mesa0`
-and `libgl1-mesa-dri` on Ubuntu), and the pictures are compared with Pillow (`python3-pil`).
-`build.yml` measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the shares its
-own device recorded, and fails where one stands more than a point above its share, leaving out a
-pair whose line in `triage.tsv` marks it as moving by the clock or the device. A pair it measures
-for the first time is listed in the run's summary, to be recorded in that file. A run where raylib's
-programs drew no frame for any pair records nothing and fails, saying why the first drew none.
+and `libgl1-mesa-dri` on Ubuntu), and the pictures are compared with Pillow (`python3-pil`). The
+pack run's examples job measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the
+shares its own device recorded, and fails where one stands more than a point above its share,
+leaving out a pair whose line in `triage.tsv` marks it as moving by the clock or the device. A pair
+it measures for the first time is listed in the run's summary, to be recorded in that file. A run
+where raylib's programs drew no frame for any pair records nothing and fails, saying why the first
+drew none.
 
 `build/storm.sh <program> <png>` resizes a program a frame apart through odd sizes, minimizes and
-restores it and moves it to each monitor there is, under the validation layer, then captures a
-frame and fails unless it is drawn at the size last asked for with nothing reported. CI puts each
-game and five examples through one.
+restores it and moves it to each monitor there is, under the validation layer, then captures a frame
+and fails unless it is drawn at the size last asked for with nothing reported. The pack run puts
+each game and five examples through one.
 
 `--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
 one (`mesa-vulkan-drivers` on Debian and Ubuntu), and CI renders with it. The render tests in
@@ -174,11 +176,14 @@ taken in its place, and `dotnet add package` is given the version, since without
 newest version nuget.org lists before the mapping applies.
 
 A release is made by the `pack` workflow, run from the Actions tab on GitHub. It runs the tests on
-Linux, Windows and macOS through `test.yml`, the same workflow `build.yml` runs on each push, and only
-once all three pass packs with `build/pack.sh <version>` and keeps the package as the run's artifact.
-With its "publish" box ticked it pushes the package to nuget.org through the `NUGET_API_KEY`
-secret. The version
-is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
+Linux, Windows and macOS through `test.yml`, the same workflow `build.yml` runs on each push, and
+only once all three pass packs with `build/pack.sh <version>` and keeps the package as the run's
+artifact. With its "publish" box ticked it pushes the package to nuget.org through the
+`NUGET_API_KEY` secret. Beside the pack it runs the examples job whole (`examples.yml`), which a
+push runs in part: every example captured for the gallery and measured against raylib's program,
+every game played, captured, soaked and resized, and the README followed on Linux, its page read
+before a package is pushed and holding the pack back in nothing. The version is
+`build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `5.0` to `5.1` starts it again at `5.1.0`.
 
@@ -337,7 +342,12 @@ so a failure there names the types that grew. The Linux job fetches the commit t
 packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name the public surface
 lost since.
 
-On Linux, `build.yml` then checks the package as a player and a reader meet it.
+On Linux, the examples job (`examples.yml`), which `build.yml` runs after the tests on every push
+and the `pack` run runs whole, then checks the package as a player and a reader meet it. On a push
+it packs the engine, publishes Slide native and draws it, builds the examples, the guides' code and
+every game on the package, plays Slide through `./e3d` and soaks it, builds the first game's steps
+and checks the tables against raylib; the captures, the measure against raylib, every game played,
+soaked and resized and the README's walk are the pack run's.
 `build/play-native.sh Slide` publishes a game as native code from the package and draws 300
 frames of it under the layer, so a type the library reaches by reflection that the native
 compiler left out fails there. The native compiler needs clang and zlib's headers, which the

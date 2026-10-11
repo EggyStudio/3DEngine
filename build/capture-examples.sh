@@ -5,7 +5,7 @@
 # lacks a tool, which stops every capture. A capture that fails says
 # why in its error, as the test page names its causes (N 6.7): the script's exit code and its own
 # last line, and the last lines the example logged at a warning or worse, since an annotation is
-# all a reader not signed in sees. The build workflow's examples job runs it for the README's
+# all a reader not signed in sees. The examples job runs it in the pack run for the README's
 # gallery, and the test workflow's macOS captures job for pictures kept as its artifact and compared
 # with nothing. It runs in the bash macOS ships too. Examples named after the format are captured
 # alone.

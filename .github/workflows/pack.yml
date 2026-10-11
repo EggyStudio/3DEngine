@@ -1,6 +1,9 @@
 # Tests the engine on Linux, Windows and macOS (test.yml), then packs it and its `dotnet new`
 # templates, when run from the Actions tab ("Run workflow"), and pushes both packages to nuget.org
-# when asked to. Nothing is packed unless every test job passes.
+# when asked to. Nothing is packed unless every test job passes. Beside the pack the examples job
+# runs whole (examples.yml): every example captured for the gallery and measured against raylib's
+# program, every game played, captured, soaked and resized, and the README followed, which a push
+# leaves to this run; its page is read before a pack is pushed, and does not hold the pack back.
 #
 # The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
 # commits since that file last changed. The package and its symbols are kept as the run's artifact
@@ -18,6 +21,12 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/test.yml
+
+  examples:
+    needs: test
+    uses: ./.github/workflows/examples.yml
+    with:
+      whole: true
 
   pack:
     needs: test

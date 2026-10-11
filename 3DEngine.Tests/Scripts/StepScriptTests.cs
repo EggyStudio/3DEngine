@@ -4,7 +4,7 @@ using FluentAssertions;
 namespace Engine.Tests.Scripts;
 
 /// <summary>
-/// <c>build/step.py</c>, which runs each step of the build workflow's examples job, says what failed
+/// <c>build/step.py</c>, which runs each step of the examples job, says what failed
 /// in a step that fails having said nothing, and <c>build/raylib-bench/compare.py</c> says the pairs
 /// it measured for the first time where a reader who is not signed in sees them (REVIEW.md, Verdict 28).
 /// </summary>

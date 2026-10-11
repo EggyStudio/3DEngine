@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Plays a game from the package through ./e3d, offscreen and under the validation layer, as the
-# build workflow's examples job plays it on Linux, and asserts its walk or its win, so a game's
+# examples job plays it on Linux, and asserts its walk or its win, so a game's
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
 # runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine,
 # and once more for one game with window as the second argument, which opens the game in a window
