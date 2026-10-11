@@ -15,7 +15,9 @@ namespace Engine.Game;
 /// scene's distance field reads as the model pass does, so the light that bounces takes each
 /// block's color from the mesh it shares with its neighbors. A section meshed again with the same
 /// faces keeps its mesh and takes only new colors, which keep its vertex array, the field knowing a
-/// mesh by that, so a change of light leaves the section settled in the field.
+/// mesh by that, so a change of light leaves the section settled in the field. The field and the
+/// ray-traced scene keep the colors of a mesh's last upload, so the bounce off a section relit since
+/// takes its old colors until the section is meshed with new faces.
 /// </para>
 /// <para>
 /// A material's light is one for its whole draw, so a block that gives off light is a cube drawn

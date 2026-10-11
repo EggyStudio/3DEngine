@@ -202,15 +202,17 @@ column's light is worked out on the worker that generates it, joined to its neig
 arrives, and taken back and spread again around each block placed or broken.
 
 Each corner of a face is shaded from the four cells in front of the face that meet at it, as
-Minecraft's smooth lighting is. Its light is the average of the open ones, its occlusion counts
-the solid ones, and the shade darkens the block's color in the vertex, where neither the sky nor
-a lamp reaches it and where blocks meet. A level keeps nearly all of the color down to a few
-levels from dark and next to none at 0, because the light that bounces brings a lamp's falloff
-itself, where Minecraft's own curve, which is its only light, dims by distance. The field reads
-the darkened color too, so an unlit cave sends on nearly none of the light that bounces. A change of
-light gives a mesh new colors and keeps its vertices, which the field knows it by, so relighting
-leaves the meshes settled in the field. Each quad is
-split along the diagonal its occlusion favors, so a shaded corner darkens one triangle softly.
+Minecraft's smooth lighting is. Its light is the average of the open ones, its occlusion counts the
+solid ones, and the shade darkens the block's color in the vertex, where neither the sky nor a lamp
+reaches it and where blocks meet. A level keeps nearly all of the color down to a few levels from
+dark and next to none at 0, because the light that bounces brings a lamp's falloff itself, where
+Minecraft's own curve, which is its only light, dims by distance. The field reads the darkened color
+too, so an unlit cave sends on nearly none of the light that bounces. A change of light gives a mesh
+new colors and keeps its vertices, which the field knows it by, so relighting leaves the meshes
+settled in the field. The field and the ray-traced scene keep the colors of a mesh's last upload,
+though, so the light that bounces off a section a lamp has lit since is as dark as before it until a
+block in the section changes. Each quad is split along the diagonal its occlusion favors, so a
+shaded corner darkens one triangle softly.
 
 The settings window turns the light levels and the shaded corners off, each on its own, to see
 the light that bounces alone.
