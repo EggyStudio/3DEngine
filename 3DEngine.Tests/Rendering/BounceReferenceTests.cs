@@ -62,6 +62,42 @@ public sealed class BounceReferenceTests : IDisposable
         probe.Middle.Length().Should().BeLessThan(2, "the probe is the one nearest the box's middle");
     }
 
+    [NeedsRayQueryFact]
+    public void A_Probe_Beside_A_Block_The_Bounce_Carries_As_A_Light_Reads_None_Of_Its_Glow_In_The_Reference()
+    {
+        // A glowing block two units on a side, which the bounce carries as a light, alone under a
+        // black sky. The probe's rays leave its glow out where they meet it, since the light reaches
+        // a surface as a glow light rather than through the probes, and the reference leaves it out
+        // as they do, where it counted it and read the rays of the probes around four glowing
+        // blocks 44 to 70% under; a reference of the window's picture still shows the block's glow.
+        var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f, 1);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var block = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        block.Materials[0] = new ModelMaterial(new Color(188, 188, 188)) { Emissive = Color.White, EmissiveIntensity = 1 };
+        var camera = new Camera3D(new Vector3(4, 2, 4), Vector3.Zero, Vector3.UnitY, 60);
+        for (int frame = 0; frame < 12; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(block, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(2.5f, 0, 0), 256, -1, 0, out var why);
+        probe.Should().NotBeNull(why);
+        probe!.Hits.Should().BeGreaterThan(0, "some of the probe's rays meet the block");
+        probe.HitReference.X.Should().BeLessThan(0.01f, "nothing but the block's own glow lies along them");
+        probe.HitRays.X.Should().BeLessThan(0.01f, "the probe's rays leave the glow out where they meet the block");
+        var path = Path.Combine(_folder.Path, "block.png");
+        BounceReference.Trace(GetApp().World, path, 16, bounces: 0).Should().StartWith("traced");
+        ReadPfm(path + ".pfm").Max().Should().BeGreaterThan(0.9f, "a reference of the window's picture shows the block's glow where the eye meets it");
+        UnloadModel(block);
+    }
+
     // A closed box of walls of sRGB 188, which reflect half the light that reaches them in linear
     // light, each giving off 1, drawn until light bouncing at High has settled, the share returned.
     private static float GlowingBox()

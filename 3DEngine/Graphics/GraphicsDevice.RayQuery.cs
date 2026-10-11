@@ -42,7 +42,8 @@ internal sealed unsafe class AddressedBuffer : IDisposable
 /// <param name="Emission">The light it gives off, linear.</param>
 /// <param name="Roughness">Its material's roughness, which a path traced reference lights its face by.</param>
 /// <param name="Metallic">Its material's metallic.</param>
-internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0);
+/// <param name="Carried">Whether the bounce carries it as a glow light, whose light a probe's rays leave out where they meet it, as a probe's reference does.</param>
+internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0, bool Carried = false);
 
 /// <summary>
 /// The window's meshes as the device's ray tracing sees them: a bottom-level acceleration structure
@@ -316,7 +317,7 @@ internal sealed unsafe partial class GraphicsDevice
             shaded[i] = new SurfaceRecord
             {
                 Color = new Vector4(instance.Color, 1),
-                Emission = new Vector4(instance.Emission, 0),
+                Emission = new Vector4(instance.Emission, instance.Carried ? 1 : 0),
                 FirstCorner = (uint)mesh.FirstCorner,
                 Roughness = instance.Roughness,
                 Metallic = instance.Metallic,

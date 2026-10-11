@@ -352,7 +352,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
         // The window's meshes for the device's ray tracing, which a reflection the field misses is
         // traced through, at the top quality where the device and the model pass trace rays, a
-        // skinned mesh, whose posed shape no vertices on the CPU hold, left out.
+        // skinned mesh, whose posed shape no vertices on the CPU hold, left out, and each marked
+        // where the bounce carries it as a glow light, for a probe's reference.
         if (quality == GlobalIllumination.High && device.CanQueryRays && renderWorld.TryGet<ModelRenderer>() is { TracesRays: true }
             && !renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff
             && renderWorld.TryGet<SceneFieldRenderer>() is { } fields)
@@ -360,7 +361,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _rays ??= device.CreateRayScene();
             var copies = new List<RayInstance>(fields.Drawn.Count);
             foreach (var (instance, skinned) in fields.Drawn)
-                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic));
+                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
+                    plan is not null && GlowLights.Carries(instance.Emission, fields.BoundsOf(instance.Vertices), instance.World, plan.CellSize)));
             _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
                 mesh => fields.CornerColorsOf((ModelVertex[])mesh))));
         }

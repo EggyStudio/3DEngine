@@ -1492,7 +1492,10 @@ normal leads out of it, the light's own surface, since a hit lies anywhere withi
 cell of a face and the field's normal tilts near its edges, so part of the face rose above the hit's
 plane and lit it: on lavapipe the block's faces lit themselves and added 0.018 to the floor two
 blocks off, 0.044. The field marks the cells such an emitter paints, so a ray that meets it leaves
-its light out (`surfaceGlowUncarried`), and a reflection keeps it. The shaders hold one march and
+its light out (`surfaceGlowUncarried`), and a reflection keeps it. A probe's reference (`gi.probe`)
+leaves it out where a path first meets the emitter, as the probe's rays do; counted, the rays of
+twelve probes around four glowing blocks read 44 to 70% under it at one bounce, and within 12% of it
+left out, all but the dimmest, which reads 37% under. The shaders hold one march and
 one closed form for each place that reads the glow lights, a reflection's hit shaded once whether
 met on the screen or in the field, and their loops are kept from unrolling, since unrolled and
 inlined at each of the model pass's calls they made its compile on lavapipe 0.9 s for every app

@@ -88,33 +88,36 @@ place, as the model pass's do. The game keeps writing colors in place meanwhile,
 section anew on each change of light would have the field build it again.
 
 The vertex stream of the game's own, at `b275f738` against the commit before it, each built from a
-clean worktree on `3ec1fdb3`'s engine, each corner of a section being its position and eight packed
-bytes and a relight writing the packed bytes alone. In this entry's room with the game's light
-levels on and the glowstone placed, 294 sections and 117,054 triangles on the flat world and 1,344
-sections and 781,834 triangles on seed 1's land around the same place, the device's mesh buffers
-from `./e3d command memory.buffers`, the frame and its `gpu.window_depth`, `gpu.shadows` and
-`gpu.hdr_scene` from `./e3d command profile` after 300 frames, and the relight as the time from
-`voxel.shade off off` until no section waits to mesh, which shades every loaded section anew. The
-flat world is read twice each, before and after by turns; on the land the desktop took up to a fifth
-of the GPU at the start of the pair.
+clean worktree on `3ec1fdb3`'s engine, and `b275f738`'s game again on `86fba7ad`'s engine, each
+corner of a section being its position and eight packed bytes and a relight writing the packed bytes
+alone. In this entry's room with the game's light levels on and the glowstone placed, 294 sections
+and 117,054 triangles on the flat world and 1,344 sections and 781,834 triangles on seed 1's land
+around the same place, the device's mesh buffers from `./e3d command memory.buffers`, the frame and
+its `gpu.window_depth`, `gpu.shadows` and `gpu.hdr_scene` from `./e3d command profile` after 300
+frames, and the relight as the time from `voxel.shade off off` until no section waits to mesh, which
+shades every loaded section anew. The flat world is read twice each, before and after by turns; on
+the land the desktop took up to a fifth of the GPU at the start of the pair, and another program's
+process up to a sixth during `86fba7ad`'s read. The lines of passes give the window's depth, the
+shadows and the scene in that order, in milliseconds.
 
-| Measure | Before | After |
-|---|---|---|
-| Vertex bytes on the device, flat | 13.62 MB in 887 buffers | 9.82 MB in 1,178 buffers |
-| Vertex bytes on the device, land | 87.07 MB in 4,100 buffers | 63.24 MB in 5,462 buffers |
-| Frame, flat | 5.13 to 5.17 ms | 3.96 to 4.49 ms |
-| Depth, shadows and scene, flat | 0.92, 0.84 to 0.93, 1.45 to 1.48 ms | 0.42, 0.30, 1.10 ms |
-| Frame, land | 34.1 ms | 18.0 ms |
-| Depth, shadows and scene, land | 6.0, 18.2, 7.2 ms | 2.9, 7.8, 4.8 ms |
-| Relight of every section | 0.34 to 0.38 s | 0.34 to 0.40 s |
+| Measure | Before | `b275f738` | `86fba7ad`'s engine |
+|---|---|---|---|
+| Vertex bytes on the device, flat | 13.62 MB, 887 buffers | 9.82 MB, 1,178 | 6.16 MB, 590 |
+| Vertex bytes on the device, land | 87.07 MB, 4,100 buffers | 63.24 MB, 5,462 | 39.56 MB, 2,732 |
+| Frame, flat | 5.13 to 5.17 ms | 3.96 to 4.49 ms | 4.13 to 4.29 ms |
+| Passes, flat | 0.92, 0.84 to 0.93, 1.45 to 1.48 | 0.42, 0.30, 1.10 | 0.43, 0.39, 1.16 |
+| Frame, land | 34.1 ms | 18.0 ms | 20.5 ms |
+| Passes, land | 6.0, 18.2, 7.2 ms | 2.9, 7.8, 4.8 ms | 2.8, 7.3, 4.5 ms |
+| Relight of every section | 0.34 to 0.38 s | 0.34 to 0.40 s | 0.33 to 0.36 s |
 
-A section uploads 72% of the vertex bytes it did, where 45% was expected of 20 bytes a vertex for
-44, because the colors the field reads go with the upload, as they must until item 9, and on the
-device they bring a buffer of four bytes a vertex and one of eight of zeros for the second texture
-coordinate, 32 bytes a vertex in four buffers. The passes that read positions alone, the window's
-depth and the shadows, take half to a third of their time, and the frame on the land half; the
-relight is the mesher's work and is unchanged. The engine lacks a way to give a mesh of positions
-its colors for the field alone, which would take a section to 20 bytes a vertex on the device.
+With `b275f738` on `3ec1fdb3`'s engine a section uploads 72% of the vertex bytes it did, the colors
+the field reads going to the device as well with a buffer of eight bytes of zeros for the second
+texture coordinate, 32 bytes a vertex in four buffers. On `86fba7ad`'s engine, which keeps a mesh of
+positions' colors on the CPU for the field alone, it uploads 45%, its positions and packed bytes, 20
+bytes a vertex in two buffers, as expected. The passes that read positions alone, the window's depth
+and the shadows, take half to a third of their time with the stream, and the frame on the land half
+or near it; the bytes saved since change the frame little, and the relight is the mesher's work and
+is unchanged.
 
 Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item

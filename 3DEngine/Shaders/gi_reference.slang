@@ -15,7 +15,11 @@
 // one, or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
 // octahedron, its paths leaving the probe's middle through it and every face they meet lit as the
 // light that bounces lights one, so the image is the light arriving at the probe from each way, as
-// its rays and the merge of the cascades above should bring it.
+// its rays and the merge of the cascades above should bring it. The light a glow light the bounce
+// carries gives off is left out where such a path first meets it, as the probe's rays leave it out,
+// since it reaches a surface as a light rather than through the probes; counted, the rays of twelve
+// probes around four glowing blocks read 44 to 70% under it at one bounce, where left out they read
+// within 12% of it, all but the dimmest.
 
 import color;
 
@@ -26,7 +30,7 @@ struct RaySurface
 {
     // rgb: the copy's color, linear.
     float4 color;
-    // rgb: the light it gives off, linear.
+    // rgb: the light it gives off, linear. w: 1 where the bounce carries it as a glow light.
     float4 emission;
     // x: its mesh's first corner in corners. y: its roughness's bits. z: its metallic's bits.
     uint4 corners;
@@ -275,7 +279,8 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float2 between = query.CommittedTriangleBarycentrics();
         float3 color = surface.color.rgb * (cornerColor(corners[corner]) * (1.0 - between.x - between.y)
             + cornerColor(corners[corner + 1u]) * between.x + cornerColor(corners[corner + 2u]) * between.y);
-        light += throughput * (surface.emission.rgb + direct(p, n, color, -way, first, roughness, metallic));
+        float3 given = fromProbe && bounce == 0u && surface.emission.w > 0.5 ? float3(0.0) : surface.emission.rgb;
+        light += throughput * (given + direct(p, n, color, -way, first, roughness, metallic));
 
         // The diffuse share goes on, the first face's past its metal, as the light that bounces to
         // a pixel lights it.

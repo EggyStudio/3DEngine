@@ -118,6 +118,11 @@ internal static class BounceReference
     /// with the cascades above against the reference's, which holds the merge; and each face's light
     /// gathered from the merge against the reference's, which holds the gather.
     /// </summary>
+    /// <remarks>
+    /// The reference leaves out the light a glow light the bounce carries gives off where a path first
+    /// meets it, as the probe's rays do, since that light reaches a surface as a light of its own
+    /// (<see cref="GlowLights"/>) rather than through the probes.
+    /// </remarks>
     public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
     {
         if (MeasureProbe(world, point, samples, bounces, cascade, out var why) is not { } probe) return why;

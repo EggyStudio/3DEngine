@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2172090b`. Item 17, the radiance cascades said: docs/global-illumination.md, "Light
+Reviewed up to `86fba7ad`. Item 21: the store's handoff gives a mesh of positions alone no streams,
+so `GpuMeshes` makes it no colors and no second texture coordinates, the colors kept in the store
+where the light field's tint, the glow lights and the bounce reference read them, the overload's
+remark and the guide's paragraph saying that a stage reading `COLOR0` or `TEXCOORD1` on such a mesh
+reads white and zero; a store test that the colors stay for the readers and the upload carries no
+stream buffers, stage 2's Vulkan fact unchanged, the suite 1,694. Right, one line where the upload
+is handed over and nothing the readers see changed. Item 21 is done and measured by the game, read
+at 01:15, on `86fba7ad`'s engine from a clean worktree, a third column in its entry: the vertex
+bytes on the device 39.56 MB in 2,732 buffers on the land where 87.07 before the stream and 63.24
+after it, and 6.16 MB on the flat world where 13.62 and 9.82, so a section uploads 45% of what it
+did, positions and packed bytes in two buffers, as meant; the frame on the land 20.5 ms with another
+process on the GPU during the read, the flat world's 4.1 to 4.3, and the relight 0.33 to 0.36 s, the
+mesher's own, so the bytes saved since `b275f738` change the frame little and the time came from the
+stream itself. The bounce around the pillar, read so far with nothing changed: at pixels the bounce
+alone is 0.71 to 0.95 of the reference with the pillar and 1.01 to 1.07 without; at the probe
+nearest the pillar, the light that bounces again off and the references of one bounce, by direction,
+the floor half a block in front of the lamps' face brings 0.40 of the reference with the pillar or
+without it, and hits taking the box's faces' halves or no march at all change nothing, so it is not
+the march, the field's normal tilting where the box meets the floor being the next suspect; and with
+the pillar the rays that meet its south face bring nothing against 0.01 to 0.05 in the reference, a
+face that cannot see the lamps, so those paths of the reference bounce off the floor first, and how
+the reference's probe counts its bounces is read before the engine is blamed. Next those two checks,
+then h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `2172090b` came, item 17, the radiance cascades said: docs/global-illumination.md, "Light
 that bounces", 226 lines in eleven sections, turning it on with the Cornell box as a compiled block,
 what radiance cascades are and why the engine took them, the scene's field with its cascades, cell
 and budget and the side behind the eye at 1.6 to 9.6 cells, the world's probes eight cells apart
@@ -61,33 +85,6 @@ owner's asks of 17:26 and 20:05. Next item 17, the radiance cascades said in the
 page of their own, then the bounce around the pillar as a read of its own, its baseline at this head
 unchanged, 0.71 to 0.95 of the reference with the pillar and 1.01 to 1.07 without, then h's blotches
 and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `b275f738` came, the game's commit, its adoption of the stream from ASKS.md's line: a
-section and the clouds are positions and eight packed bytes a vertex, `UInt2`, the face at 3 bits,
-the corner at 2 and the shade at 8 in the first four bytes and the tint's red, green, blue and the
-surface's alpha a byte each in the second, two being needed since glass, water and ice blend by a
-per-surface alpha that one `uint` has no room for beside the rest; `terrain.slang` takes the
-position and the packed bytes and unpacks the normal and the texture coordinate from its tables by
-face and corner and the color from the tint under the shade; a relight is `UpdateMeshBuffer` at
-`MeshStreamBuffer`, the positions and triangles deciding a relight against a new upload, and the
-colors still go with the upload for the light field; the game's README says so; `MesherTests` is
-rewritten for positions and packed bytes with three tests more, the packing read back as the shader
-reads it, each corner lying toward its face's normal, and a change of light keeping the positions
-and changing the packed bytes, 48 game tests passing; a shot of the room at night and the hills by
-day matches the build before within one level of 255. Twenty bytes a vertex on the GPU where 44. The
-bytes a section, the relight's time and the frame's come into the game's entry once the GPU is
-quiet, the BevyCSharp suite having been on it. Right, the alpha the second four bytes' reason, the
-look held to a level, and the relight writing the packed bytes alone. The game's files are clear for
-item 15's rename, the game's session holding its `using static` lines until the rename lands, which
-it told the working session, so item 15 is unblocked. The page at 00:15: the run of `7798d5e5` is
-green on every job, the first whole green run since the lamps' shaders grew, the Windows tests in 23
-m 25 s, the macOS captures drawn and the examples job of the split workflow green in nine minutes
-with its captures and measure skipped on a push as item 19 has it; the leak test held its bound, the
-third of three, so Verdict 51 is settled and leaves this file; and since a push no longer captures
-on Linux, Verdict 52's captures and Verdict 49's measure are read on the pack run, which Decision 19
-makes due, every job being green, the owner's to start. The run of `958a3eb3` is in flight. Next the
-bounce around the pillar as a read of its own and item 17, then item 15, h's blotches and teeth by
-the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -878,21 +875,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     change of five files. Done at `958a3eb3` and `3ec1fdb3` as written; the voxel game's adoption is
     the `Review:` line under its entry in ASKS.md.
 
-21. **The colors of a mesh of positions alone serve the light field alone and reach no buffer.** The
-    game's measure at `b275f738`, in its entry in ASKS.md: a section of positions and eight packed
-    bytes uploads 72% of the vertex bytes it did where 45% was expected, since the colors given for
-    the field's tint, which must go with the upload until item 9, give the mesh on the device a
-    colors buffer of four bytes a vertex and a zero second texture coordinate of eight, 32 bytes a
-    vertex in four buffers. A mesh uploaded from its positions is drawn by a shader that unpacks its
-    color from its stream, so its colors are the CPU's alone: `UploadMesh(positions, indices,
-    stream, colors)` keeps them where the field, the glow lights and the bounce reference read them
-    and gives `GpuMeshes` no colors and no second texture coordinates for such a mesh; a shader of
-    the program's own that reads `COLOR0` or `TEXCOORD1` on it reads the defaults, white and zero,
-    at stride 0 as a mesh without streams does, said in the guide's positions-alone paragraph and in
-    the overload's remark. A store test that a positions-only upload with colors keeps them for the
-    readers and queues no stream buffers, and the Vulkan fact of stage 2 unchanged. The game then
-    measures its land again, 20 bytes a vertex and about 40 MB expected where 63. Before the
-    pillar's read.
+21. **The colors of a mesh of positions alone serve the light field alone and reach no buffer, done
+    at `86fba7ad`.** The game's measure at `b275f738`, in its entry in ASKS.md: a section of
+    positions and eight packed bytes uploads 72% of the vertex bytes it did where 45% was expected,
+    since the colors given for the field's tint, which must go with the upload until item 9, give
+    the mesh on the device a colors buffer of four bytes a vertex and a zero second texture
+    coordinate of eight, 32 bytes a vertex in four buffers. A mesh uploaded from its positions is
+    drawn by a shader that unpacks its color from its stream, so its colors are the CPU's alone:
+    `UploadMesh(positions, indices, stream, colors)` keeps them where the field, the glow lights and
+    the bounce reference read them and gives `GpuMeshes` no colors and no second texture coordinates
+    for such a mesh; a shader of the program's own that reads `COLOR0` or `TEXCOORD1` on it reads
+    the defaults, white and zero, at stride 0 as a mesh without streams does, said in the guide's
+    positions-alone paragraph and in the overload's remark. A store test that a positions-only
+    upload with colors keeps them for the readers and queues no stream buffers, and the Vulkan fact
+    of stage 2 unchanged. The game then measures its land again, 20 bytes a vertex and about 40 MB
+    expected where 63. Done at `86fba7ad`; the game measures again.
 
 ## Verdicts
 
@@ -1149,3 +1146,37 @@ second texture coordinates; a shader of the program's own that takes `COLOR0` or
 reads white and zero at a stride of 0, as on a mesh without them, which the overload's remark and
 the guide's paragraph say. A store test holds the colors kept and the upload without them; stage
 2's Vulkan fact and the suite pass, 1,694. The game's measure of its land follows on its side.
+
+Item 2, the pillar's two checks. The probe's reference counted the glow of a light the bounce
+carries where a path first met it, which the probe's rays leave out by design, since that light
+reaches a surface as a glow light, so a texel whose cone took in part of a lamp's face read it in
+the reference alone. Left out there, as this batch makes it with a test that reads 0.65 on the old
+reference where 0.01 is allowed, the rays of the twelve probes read within 12% of the reference at
+one bounce, all but the dimmest at 37% under, where they read 44 to 70% under, and the floor before
+the lamps' face reads 0.28 against the reference's 0.21, where the reference read 0.69. Snapping a hit's normal to its axis
+moved nothing, so the field's normal at the box's foot is not the cause. The pillar's south face,
+its rays' 0 against the reference's 0.01 to 0.05, is a ray through a texel's middle meeting the
+pillar where the reference's paths through the texel's cone meet part of the lit floor before it,
+and summed over the ways it evens out.
+
+Over eight bounces against that reference the probes read -5, +4, -7, -6 and -11% with the pillar
+and +13, +10, +7, +6 and +2% without, so the 20 to 41% short read before was the reference's.
+Cascade 0's face toward the wall reads 19 to 28% under with the pillar and within 9% without, and
+cascade 1's within 6% with it. Part of that is the merge. A ray of cascade 0 passing beside the
+pillar takes three quarters of its light from beyond from the probe of cascade 1 at x 6, whose ray
+meets the pillar before its interval and is read as dark (`gi_merge.slang`). Passing such a probe
+over took the face to 6 to 16% under with the pillar and 1 to 14% over without, and the wall's
+bounce in the frame up 4% in both, 0.75 to 1.01 of the reference's with the pillar and 1.06 to 1.11
+without, so the gap between the two stays. Probes at half the spacing read the wall's bounce 0.78
+to 0.92 with the pillar and 0.89 to 0.98 without, the gap at x 7 15 points where 35, mostly by the
+room without the pillar falling. With the screen's probes off the gap at x 7 to 7.5 is 47 to 51
+points, wider than the probes' faces show, so the gather from probes 2 units apart to a wall 2
+units before the pillar loses more than the probes do, because the wall's pixels blend in probes
+standing at the pillar's dark face. The bilinear fix the merge's comment names would take the place
+of the dark reading. Neither it nor a change to the gather is made here, and these measures are the
+base for whichever comes.
+
+Shared: a probe's path-traced reference leaves out the glow of an emitter the bounce carries as a
+light where a path first meets it, as the probe's rays do, or it reads the probes 44 to 70% under
+for what they leave out by design; for BevyCSharp's row on the reference, where its probes leave any
+light to a light of its own.
