@@ -65,14 +65,20 @@ models_bone_socket	2.3
 models_box_collisions	1.2
 models_cubicmap_rendering	0.4
 models_decals	1.4
-models_directional_billboard	0.8
+# Recorded anew from b1e86aef's run, 5.5 where 0.8 and 5.4 in e477bc1e's. Nothing the example
+# draws through changed since 71050c8f, and on lavapipe and llvmpipe outside the job it reads 0.5 as
+# it did, so the job's drivers moved it.
+models_directional_billboard	5.5
 models_first_person_maze	0.1
 models_geometric_shapes	0.7
 models_heightmap_rendering	0.2
-models_loading	1.6
+# Five points of room, since the job's share moved by more than a point between two runs whose
+# commits touched nothing the example draws through, 5.9 in b1e86aef's and 1.6 in e477bc1e's.
+models_loading	1.6	5
 models_loading_gltf	1.5
 models_loading_iqm	1.8
-models_loading_m3d	11.5
+# Five points of room for the reason models_loading has them, 15.2 and 11.5 apart in two runs.
+models_loading_m3d	11.5	5
 models_loading_vox	1.4
 models_mesh_generation	0.6
 models_mesh_picking	1.3
@@ -95,7 +101,9 @@ shaders_color_correction	3.6
 shaders_custom_uniform	4.6
 shaders_deferred_rendering	2.0
 shaders_depth_rendering	0.5
-shaders_depth_writing	5.4
+# Recorded anew from b1e86aef's run, 8.7 where 5.4 and 8.6 in e477bc1e's, for the reason the
+# billboard's is.
+shaders_depth_writing	8.7
 shaders_eratosthenes_sieve	1.5
 shaders_fog_rendering	1.1
 shaders_game_of_life	6.8

@@ -21,8 +21,8 @@ into 3DEngine.Examples/measured.tsv, which build/examples-table.py puts beside t
 
 --record writes the shares into the file given in place of measured.tsv. --against holds each pair
 to the share the file given recorded for it on the same machine before, and the run fails where a
-pair stands more than one point above it, where it drew a frame and draws none, or where its
-pictures came to differ in size. A run in which raylib's programs drew no frame for any pair, as
+pair stands more than one point above it, or the room a third column of the file gives it, where it
+drew a frame and draws none, or where its pictures came to differ in size. A run in which raylib's programs drew no frame for any pair, as
 where they cannot start, records nothing and fails, saying why the first drew none. A pair with no share recorded is measured and recorded for the
 first time, and one triage.tsv marks as moving, by the clock or the device, is left out, with its
 reason. Where the file holds no share at all, as before its first run is recorded, what would fail
@@ -149,7 +149,8 @@ def capture_theirs(binary, example, frame):
         return picture, []
     # A program that ended without its frame says why in its last lines, which a library it could
     # not load, or a window it could not open, is.
-    return None, [f"it ended with {ran.returncode}"] + ran.stdout.strip().splitlines()[-LAST_LINES:]
+    ended = f"raylib's own program ended with signal {-ran.returncode}" if ran.returncode < 0 else f"raylib's own program ended with {ran.returncode}"
+    return None, [ended] + ran.stdout.strip().splitlines()[-LAST_LINES:]
 
 
 def apart(ours, theirs):
@@ -171,8 +172,10 @@ def read_measured(path=MEASURED):
         with open(path, encoding="utf-8") as lines:
             for line in lines:
                 if line.strip() and not line.startswith("#"):
-                    name, share = line.rstrip("\n").split("\t")[:2]
+                    name, share, *rest = line.rstrip("\n").split("\t")
                     measured[name] = share
+                    if rest and rest[0]:
+                        ROOMS[name] = float(rest[0])
     return measured
 
 
@@ -196,8 +199,11 @@ def option(name):
 LAST_LINES = 4
 
 # How far, in points of the share, a pair may stand above the share recorded for it before a run held
-# against the record fails, room for a driver's rounding that moves from run to run.
+# against the record fails, room for a driver's rounding that moves from run to run. A pair whose
+# picture moves further from run to run has its own room in a third column of the record, with the
+# reason in a comment above it.
 ROOM = 1.0
+ROOMS = {}
 
 
 def held(name, share, recorded):
@@ -206,7 +212,7 @@ def held(name, share, recorded):
         return None
     if share in ("none", "size") or recorded in ("none", "size"):
         return None if share == recorded else f"it was {recorded} and is {share}"
-    return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOM else None
+    return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOMS.get(name, ROOM) else None
 
 
 def nothing_drawn(blind, count):

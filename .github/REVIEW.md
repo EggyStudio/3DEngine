@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ee47849e`. Item 11 with its size: the README's examples as a heading and a single
+Reviewed up to `7a69c936`. Item 12, on the owner's word typed in the working session: the e3d guide
+is `.github/E3D.md`, the skill's body with its header of name, description and allowed tools
+dropped, beside the other documents a session reads; AGENTS.md's driving paragraph links it and its
+documents table has its row, BUILDING.md, STYLE.md's scope, which is every Markdown file under
+`.github` and `docs` and itself since, the README's line on the commands and the two links in the
+e3d guide for programs point to it, the build workflow's path filters drop the tool's folder, the
+new file falling under the filter on `.github` Markdown as the others do, the folder is gone with
+the lock file the tool kept in it, and `.claude/` is in `.gitignore`; no reference to the old path
+is left outside this file. The document, norm, script and package tests pass, 73. Right, taken on
+the owner's word where it was given and every reference moved with the file. The working session is
+back on Verdict 49's pairs: on lavapipe here `shaders_depth_writing` differs 3.49% between
+`71050c8f` and the tree, in its wireframes and grid lines, matching the page's 5.4 to 8.7, and what
+moved is being read. The owner looked at the pushed README at 17:10 and the pictures still read as
+different sizes: GitHub's own style gives every tag one box, so it is the bars of the fitted
+captures that read as smaller pictures, and item 11 keeps the fit, the capture scaled to fill its
+box and cut around the middle rather than padded, a batch of its own next. Then h's rest, Verdict
+48's two remedies, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `ee47849e` came, item 11 with its size: the README's examples as a heading and a single
 row a folder in the folders' order, 257 captured examples in twelve rows and the thirteen games in a
 last, the picture opening the program and the name under it, every tag 400 by 225, and the games'
 prose and the block under the table gone, each game's paragraph become `games/<name>/README.md` with
@@ -59,31 +77,6 @@ grid, the seam's teeth of about ten pixels and the dark side's fifth, the seam's
 owner's eye on the push. Next items 11 and 12 as one batch, the README's rows and the skill's move,
 then h's rest, Verdict 49's pairs, Verdict 48's two remedies, f's filter offset, item 10, item 9 and
 item 8.
-
-Before it, `1b8a9217` came, Verdict 49's second thing: the examples job's measure against raylib's
-programs carries on past a pair that does not hold, the package's steps, the games and the soak run
-after it, and a last step fails the job where the measure did not hold, the captures uploaded either
-way; the script and norm tests read the workflow and pass, 51, and the strict build holds. Right,
-the measure's answer and the soak's no longer waiting on each other, and the job red by either. The
-push after this reads the soak for Verdict 30. With it, part h's fourth thing measured in the
-owner's room, the game having made the copy again: with the probes' bounce left out against a
-reference of the lamps' light alone, the red wall reads 1.01 beside the four glowstones, 1.33 a
-third of the way across and 1.61 behind the pillar on `56db892b`, where `64fd2f14` read 1.18 behind
-it, the same with the screen's probes off; with nothing hidden the wall reads 2.29 and 4.95, so the
-march passes 0.58 of the lamps' light where the reference passes 0.44 and 0.33 where 0.20, too light
-across the wide penumbra a pillar a block from the lamps throws, on both commits, and `56db892b`'s
-halving of the lamps' level face along its longer side, upright here, makes it lighter behind the
-pillar than before; quarters on a tie read 2.0 behind the pillar with the row's floor at 0.951, and
-halving along the side the point lies furthest along reads 1.62 as the longer does, so the tie is
-left and the march's estimate of what passes an edge, the least of a half and the clearance over the
-cone along the march, is read next against the share of the face seen. The suite as at `56db892b`.
-Left in h: that estimate, the saw's teeth of 13 and 9 pixels and the blotches' rest. The owner asked
-at 15:55 for the README's gallery as one scrolling row of pictures a folder of examples, sorted by
-folder, the games in a row of their own, and the text explaining the games under the table taken
-out, which is item 11 (Decision 29), taken as a batch of its own after h's next commit. At 16:30 the
-owner asked for the e3d skill out of the `.claude` folder, which is item 12, and at 16:35 for the
-gallery's pictures at one size, which item 11 takes (Decision 30). Then Verdict 49's pairs, Verdict
-48's two remedies, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -592,42 +585,52 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
-    `ee47849e` (Decision 29).** The owner asked on 2026-10-11 at 15:55. The README's Examples
-    section holds a table of two columns and thirty-four rows, pictures of picked examples and games
-    mixed, and under it eighty lines of prose and a block that explain the games. It becomes one
-    table a folder of `3DEngine.Examples`, in the folders' order as the repository lists them,
-    Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders, Shapes, Text and Textures,
-    each a single row holding every example of the folder that has a capture under
-    `.github/assets/examples`, the picture linking the program and the run name under it as the rows
-    do today, with a heading line naming the folder before each, and a last table of the same shape
-    for `games`; a single row wider than the page scrolls sideways on GitHub, which is the point, so
-    no row is wrapped. The prose and the block between the table and the Guide heading that explain
-    the games go, their facts living in the games' own READMEs and in the games table of EXAMPLES.md
-    where they are not already. The README's walk and the examples' table check read the file as
-    before, so each is run on the result, and the captures' links keep their raw form. Taken as a
-    batch of its own after h's next commit, since it is small and the owner asked; The owner asked
-    at 16:35 that the pictures be one size, where they differ today: every picture in the rows
-    carries the same width and height on its tag, and the captures that are not 800 by 450, sixteen
-    of 268, among them a square and a four by three, are taken again at that size where the
-    program's window allows or padded to it by the capture script, so the tag distorts nothing; the
-    examples' table check and the captures' comparison read the result. Done at `ee47849e`: twelve
-    rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen captures of
-    other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into each game's own
-    README. the owner's eye judges the look (Decision 27).
+    `ee47849e` but for the pictures' fit (Decision 29).** The owner asked on 2026-10-11 at 15:55.
+    The README's Examples section holds a table of two columns and thirty-four rows, pictures of
+    picked examples and games mixed, and under it eighty lines of prose and a block that explain the
+    games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
+    repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
+    Shapes, Text and Textures, each a single row holding every example of the folder that has a
+    capture under `.github/assets/examples`, the picture linking the program and the run name under
+    it as the rows do today, with a heading line naming the folder before each, and a last table of
+    the same shape for `games`; a single row wider than the page scrolls sideways on GitHub, which
+    is the point, so no row is wrapped. The prose and the block between the table and the Guide
+    heading that explain the games go, their facts living in the games' own READMEs and in the games
+    table of EXAMPLES.md where they are not already. The README's walk and the examples' table check
+    read the file as before, so each is run on the result, and the captures' links keep their raw
+    form. Taken as a batch of its own after h's next commit, since it is small and the owner asked;
+    The owner asked at 16:35 that the pictures be one size, where they differ today: every picture
+    in the rows carries the same width and height on its tag, and the captures that are not 800 by
+    450, sixteen of 268, among them a square and a four by three, are taken again at that size where
+    the program's window allows or padded to it by the capture script, so the tag distorts nothing;
+    the examples' table check and the captures' comparison read the result. Done at `ee47849e`:
+    twelve rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen
+    captures of other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into
+    each game's own README. The owner looked at the pushed page at 17:10 and the pictures still read
+    as different sizes. GitHub renders every tag at one box, its own style giving each the full
+    width of its cell, an automatic height and the tag's aspect, so the box is uniform; what differs
+    is the picture inside it, since a capture of another shape was fitted inside sixteen by nine
+    with black bars, which read as a smaller picture. The fit fills instead: the WebP script scales
+    a capture of another shape so its shorter side fills the box and cuts the rest around the
+    middle, or the example's window is opened at sixteen by nine where the cut would lose something
+    that matters, so every picture fills its box edge to edge; the sixteen captures and the games'
+    thirteen are fitted again so, and the page is read after the push. the owner's eye judges the
+    look (Decision 27).
 
-12. **The e3d skill leaves the `.claude` folder (Decision 30).** The owner asked on 2026-10-11 at
-    16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the `.claude` folder
-    and long subfolders holding nothing else being unwanted. The document becomes `.github/E3D.md`,
-    beside the other documents a session reads, its skill header, the name, the description and the
-    allowed tools, dropped since it means nothing outside that folder, its body as it is;
-    AGENTS.md's paragraph on driving the engine and its documents table name the new place, which
-    the owner's ask is the word for, as do BUILDING.md, STYLE.md's line on the skills, the README's
-    line on the commands, the two links in `docs/driving-with-e3d.md` and the workflow's path
-    filters, which drop `.claude`; the folder goes with the move, and `.claude/` joins `.gitignore`
-    so the tool's own lock file there never enters the tree. A batch of its own, taken when the
-    owner types the ask in the working session, which changes AGENTS.md, the ignore file and the
-    tool's own folder only on the owner's word given there and has asked the owner for it, a right
-    the reviewing session holds.
+12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
+    on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
+    `.claude` folder and long subfolders holding nothing else being unwanted. The document becomes
+    `.github/E3D.md`, beside the other documents a session reads, its skill header, the name, the
+    description and the allowed tools, dropped since it means nothing outside that folder, its body
+    as it is; AGENTS.md's paragraph on driving the engine and its documents table name the new
+    place, which the owner's ask is the word for, as do BUILDING.md, STYLE.md's line on the skills,
+    the README's line on the commands, the two links in `docs/driving-with-e3d.md` and the
+    workflow's path filters, which drop `.claude`; the folder goes with the move, and `.claude/`
+    joins `.gitignore` so the tool's own lock file there never enters the tree. A batch of its own,
+    taken when the owner types the ask in the working session, which changes AGENTS.md, the ignore
+    file and the tool's own folder only on the owner's word given there and has asked the owner for
+    it, a right the reviewing session holds. Done at `7a69c936` on the owner's word typed there:
+    `.github/E3D.md`, every reference moved, the folder gone and ignored.
 
 ## Verdicts
 
@@ -898,9 +901,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 12, on the owner's word typed in this session. The skill's body is `.github/E3D.md`,
-its header of name, description and allowed tools dropped. AGENTS.md's driving paragraph names it
-and its documents table has its row, and BUILDING.md, STYLE.md's scope, the README's line on the
-commands and the two links in `docs/driving-with-e3d.md` point to it. The build workflow's path
-filters drop `.claude`, the folder is gone with the lock file the tool kept in it, and `.claude/` is
-in `.gitignore`. The docs, norm, script and package tests pass, 73.
+Verdict 49, its pairs. Nothing `models_directional_billboard` or `shaders_depth_writing` draws
+through changed between `71050c8f` and `b1e86aef`. The immediate pass, the shapes, the text and the
+pipelines are untouched, the commits between them the bounce's shaders and the voxel game's.
+Measured outside the job, on lavapipe for the engine and llvmpipe for raylib's programs, the two
+read 0.5% and 0.2% apart, as the local record holds them, and on the RTX 4070 the same; the loading
+pairs read 1.6% and 1.2%. So the job's drivers moved the billboard and depth writing, and
+`measured-ci.tsv` records them anew at 5.5 and 8.7 with that reason above each. The two loading
+pairs moved by more than a point between two runs whose commits touched nothing they draw through,
+5.9 and 1.6, 15.2 and 11.5, so the record gives them five points of room in a third column with the
+reason, which `compare.py` reads in place of the one point; taken at frame 300 rather than 150,
+`models_loading` read 2.8% here where 1.6%, so a later frame would have moved its record too. A
+raylib program that ends with a signal is named as raylib's own,
+`raylib's own program ended with signal 11`. Without the job's uploads, which need a sign-in here,
+the pictures the billboard and depth writing moved by are not read, which the next run's uploads can
+settle. The script and norm tests pass, 51.
