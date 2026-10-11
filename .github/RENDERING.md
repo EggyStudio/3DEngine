@@ -1421,19 +1421,26 @@ sees is marched through the field, at each step the way's clearance from the nea
 the cone the light spans there, so a shadow's edge is as soft as the light is wide, as a distance
 field gives a penumbra, a surface counted only where it lies nearer than the point's own plane and
 the light's own box, and inside a surface the share read by stepping out of it along the point's
-normal, once after the march at the step that lay deepest inside, and at each step bounded by the
-way to the nearest face, which the way out is no shorter than, the march ending by its own condition
-where the bound leaves nothing. Read at each step by a loop inside the march's own, or the march
-left by a break inside a wall, it lost the RTX 4070's device in a closed room with a lamp inside
-seen from outside, an MMU fault through the constant cache (Xid 31) for which the validation layer's
-GPU-assisted checks found no read out of range, and a test holds the room (`GlowLightsTests`). The
-screen's probes march to the halves of each face of each light in reach that gives the probe's
-surface an eighth of the lights' light or more, halved across the axis that rises most from the
-surface, and keep a byte of each such light, and march to the middle of each fainter one and keep
-the fainter ones' light summed. Each marches from a point of its tile that moves from frame to
-frame, the middles of the tile's four by four cells in the order of Bayer's matrix, so a round of
-sixteen frames marches from each texel of the half-sized depth under the tile once, while the
-probe's tiers and its rays stay at the tile's middle. A pass over the half-sized depth
+normal and, where the field's slope there leans across the way, across it toward the nearest face,
+the nearer way out kept, once after the march at the step that lay deepest inside, and at each step
+bounded by the way to the nearest face, which the way out is no shorter than, the march ending by
+its own condition where the bound leaves nothing. Read at each step by a loop inside the march's
+own, or the march left by a break inside a wall, it lost the RTX 4070's device in a closed room with
+a lamp inside seen from outside, an MMU fault through the constant cache (Xid 31) for which the
+validation layer's GPU-assisted checks found no read out of range, and a test holds the room
+(`GlowLightsTests`). The screen's probes march to the halves of each face of each light in reach
+that gives the probe's surface an eighth of the lights' light or more, halved across the axis that
+rises most from the surface, or the longer where neither rises more, and keep a byte of each such
+light, and march to the middle of each fainter one and keep the fainter ones' light summed. Under a
+row of three glowing blocks touching under a ceiling, one light, with a block floating under its
+middle, the face halved along its short side was marched at two points on its middle line, both
+behind the block from the floor under the whole row, and a march passing inside the block's side
+read as deep as the block is tall, so the floor three blocks under the block read 0.74 of a
+path-traced reference and beside it 1.09, where 0.98 and 1.07 with the longer side halved and the
+way out taken across (`GlowLightsTests`). Each marches from a point of its tile that moves from
+frame to frame, the middles of the tile's four by four cells in the order of Bayer's matrix, so a
+round of sixteen frames marches from each texel of the half-sized depth under the tile once, while
+the probe's tiers and its rays stay at the tile's middle. A pass over the half-sized depth
 (`gi_screen_glow.slang`) takes each texel's light from the four probes around it, where they marched
 from, weighed by how near each is, how alike its normal is, how near its distance from the eye is to
 the distance the texel's plane lies at along its way, and how near that plane the depth lies a third

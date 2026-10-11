@@ -211,6 +211,72 @@ public sealed class GlowLightsTests : IDisposable
         UnloadModel(lamp);
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Row_Of_Lamps_Lights_The_Floor_Under_A_Block_Floating_Below_It_As_Beside_It()
+    {
+        // The voxel game's room: three glowing blocks touching in a row under the ceiling, one light,
+        // and a white block floating two under the middle one, the floor three under the block, a
+        // path-traced reference reading the floor under the block 0.98 of the floor beside it. The
+        // row's face was marched to two points on its middle line, both behind the block from the
+        // floor under the whole row, and a march passing inside the block's side was taken as deep
+        // as the block is tall, so the floor under it read 0.68 of the floor beside it, and reads
+        // 0.92 with the longer side halved and the way out taken across the march.
+        var config = Config.Default.WithWindow("lamp row", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        lamp.Materials[0].Emissive = new Color(255, 200, 120);
+        lamp.Materials[0].EmissiveIntensity = 4;
+        var white = new Color(212, 216, 217);
+        var eye = new Vector3(16.5f, 8.6f, -11.5f);
+        var down = 35 * MathF.PI / 180;
+        var camera = new Camera3D(eye, eye + new Vector3(0, -MathF.Sin(down), -MathF.Cos(down)), Vector3.UnitY, 70);
+        void Box(Vector3 from, Vector3 to, Model model, Color color) =>
+            DrawModelEx(model, (from + to) / 2, Vector3.UnitY, 0, to - from, color);
+        for (int frame = 0; frame < 120; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            // The room's floor, ceiling and walls, its inside from 11 to 22, 5 to 11 and -21 to -10.
+            Box(new(10, 4, -22), new(23, 5, -9), block, white);
+            Box(new(10, 11, -22), new(23, 12, -9), block, white);
+            Box(new(10, 5, -22), new(11, 11, -9), block, white);
+            Box(new(22, 5, -22), new(23, 11, -9), block, white);
+            Box(new(11, 5, -22), new(22, 11, -21), block, white);
+            Box(new(11, 5, -10), new(22, 11, -9), block, white);
+            for (int x = 15; x <= 17; x++)
+                Box(new(x, 10, -16), new(x + 1, 11, -15), lamp, new Color(230, 190, 110));
+            Box(new(16, 8, -16), new(17, 9, -15), block, white);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        UnloadModel(block);
+        UnloadModel(lamp);
+
+        // The floor's mean light over five by five pixels around a point.
+        double Floor(Vector3 at)
+        {
+            var pixel = GetWorldToScreenEx(at, camera, 320, 180);
+            double sum = 0;
+            for (int y = (int)pixel.Y - 2; y <= (int)pixel.Y + 2; y++)
+                for (int x = (int)pixel.X - 2; x <= (int)pixel.X + 2; x++)
+                {
+                    int p = (y * 320 + x) * 4;
+                    sum += 0.2126 * linear[p] + 0.7152 * linear[p + 1] + 0.0722 * linear[p + 2];
+                }
+            return sum / 25;
+        }
+        var share = Floor(new Vector3(16.5f, 5, -15.5f)) / Floor(new Vector3(19.5f, 5, -15.5f));
+        share.Should().BeGreaterThan(0.8, "the floor under the block takes the row's light past it, as the reference's does");
+    }
+
     // The floor's light, linear, around the block, or where `rod` is set a rod standing in its
     // place, seen straight down from `height` blocks above, the mean of 72 points on each ring of
     // `radii`, the reference's rings by default, and the eighth harmonic of them as a share of the mean.

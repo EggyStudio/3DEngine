@@ -322,20 +322,46 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
         before = max(d, 1e-4);
         t += max(d, step * 0.5);
     }
-    // Inside one, half and less by how far under its edge the way passes, stepped out along p's normal.
+    // Inside one, half and less by how far under its edge the way passes, stepped out along p's
+    // normal and, where the field's slope there leans across the way, across it toward the nearest
+    // face, the nearer way out kept. Along p's normal alone, a march passing a twentieth of a block
+    // inside the side of a block floating over the floor stepped up through the whole block, and
+    // the floor under it took 0.29 of the light a reference gives it, where 0.96 with the way
+    // across.
     if (deepest < 0.0 && seen > 0.0)
     {
         float step = info.cascades[deepIn].originAndCell.w;
-        float under = 0.0;
+        float e = step * 0.5;
+        float3 slope = float3(
+            fieldDistanceIn(field, info, deepIn, deepAt + float3(e, 0, 0)) - fieldDistanceIn(field, info, deepIn, deepAt - float3(e, 0, 0)),
+            fieldDistanceIn(field, info, deepIn, deepAt + float3(0, e, 0)) - fieldDistanceIn(field, info, deepIn, deepAt - float3(0, e, 0)),
+            fieldDistanceIn(field, info, deepIn, deepAt + float3(0, 0, e)) - fieldDistanceIn(field, info, deepIn, deepAt - float3(0, 0, e)));
+        float3 across = slope - way * dot(slope, way);
+        float acrossLength = length(across);
+        float3 aside = acrossLength > 0.5 * length(slope) && acrossLength > 1e-6 ? across / acrossLength : n;
+        float under = 0.0, beside = 0.0;
+        bool outUnder = false, outBeside = false;
         [loop]
-        for (int out = 0; out < 8 && under < deepCone; out++)
+        for (int out = 0; out < 8 && !(outUnder && outBeside) && min(under, beside) < deepCone; out++)
         {
-            float inside = fieldDistanceIn(field, info, deepIn, deepAt + n * under);
-            if (inside >= 0.0)
-                break;
-            under += max(-inside, step * 0.5);
+            if (!outUnder)
+            {
+                float inside = fieldDistanceIn(field, info, deepIn, deepAt + n * under);
+                if (inside >= 0.0)
+                    outUnder = true;
+                else
+                    under += max(-inside, step * 0.5);
+            }
+            if (!outBeside)
+            {
+                float inside = fieldDistanceIn(field, info, deepIn, deepAt + aside * beside);
+                if (inside >= 0.0)
+                    outBeside = true;
+                else
+                    beside += max(-inside, step * 0.5);
+            }
         }
-        seen = min(seen, saturate(0.5 - 0.5 * under / deepCone));
+        seen = min(seen, saturate(0.5 - 0.5 * min(under, beside) / deepCone));
     }
     return seen;
 }
@@ -386,8 +412,14 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
             continue;
         float3 face = middle + (side > 0.0 ? h : -h);
         float4 u = halves[(k + 1) % 3], v = halves[(k + 2) % 3];
-        // The face's axis that rises most from p's surface is halved, the other kept whole.
-        bool alongU = abs(dot(u.xyz, n)) * v.w >= abs(dot(v.xyz, n)) * u.w;
+        // The face's axis that rises most from p's surface is halved, the other kept whole, and the
+        // longer where neither rises more, as from a floor under a level face. Halved along the
+        // first, a row of three lamps under a ceiling, one light of a face three blocks long, was
+        // marched to two points on its middle line, and a block floating under the middle lamp hid
+        // the whole row from the floor beneath all three, which read none of its light where a
+        // path-traced reference gives it two fifths of the row's unhidden light.
+        float riseU = abs(dot(u.xyz, n)) * v.w, riseV = abs(dot(v.xyz, n)) * u.w;
+        bool alongU = abs(riseU - riseV) > 0.05 * u.w * v.w ? riseU > riseV : u.w >= v.w;
         float3 rise = alongU ? u.xyz : v.xyz;
         float radius = (alongU ? u.w : v.w) * 0.5;
         [loop]

@@ -10,8 +10,60 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e477bc1e`. Item 2's part c, built wider than the part asked and by the measure's own
-account: each cascade's light fades into the next across its outer band, eight of its cells, a
+Reviewed up to `64fd2f14`. Item 2's part g with c's one left thing and f's first, all three on the
+holds, measured as the parts asked. The leak: an engine room closed to the sky read up to 0.0155 on
+its walls and 0.0234 on its floor at about half the headings on `e477bc1e` and 0.00003 at every one
+on `b1e86aef`, the same with the sun at nothing and with the screen's probes or their history off,
+nothing with the sky left out or the last band read as a step, so the band across the side behind
+the eye was the source as read here. Of two mends measured, a lead of 0.25 that costs some 13 blocks
+of reach ahead and the eye written into the field's info with every band ending six cells short of
+the eye on a side it stands near or being none, the second is taken, dark at every heading with the
+canyon's step unchanged at 2.9, 3.0 and 1.0%. The owner's remainder at High was found in the owner's
+own save, a lamp-lit tunnel turned a degree a frame: at 269 to 271 degrees a pillar's face a block
+before the eye leaned four cells past the side behind the eye, which stood 2.2 cells away, held
+nothing and went sky-blue by 21 to 37 levels over Medium, so the hold is read at the surface where
+that holds more, and no frame of the turn reads over Medium by more than 0.05 levels at any quality,
+the game's stone room 0.00 to 0.01 at every degree from 250 to 290; the owner's dark tunnel of 12:38
+reads 52.2 levels on `e477bc1e`'s engine and 0.00 on the commit, the game's build output having held
+an old shader beside new ones. The owner's capture of the merged probes showed probes deep in the
+rock seeing the sky, since the field holds a solid as its faces and cells deeper inside read as the
+open: a ray that stops half a cell or more behind a face met it from behind and is marked below
+zero, and a probe whose rays met more faces from behind than in front is passed over as one inside a
+mesh, as DDGI finds its probes inside geometry, the rooms unchanged to the fourth place at 0.02 ms.
+C's left thing: the bounce's hold, the screen's hold and the second cascade's read take the coarsest
+built cascade as the field's hold does, in `cascades.slang` split from `gi.slang`, 742 lines since,
+a closed room under an ambient light reading 0.54, 0.54 and 1.46 times its settled light in the
+three frames before its last cascade is built where 9.4. F's first: a blend younger than a round is
+dropped where the field's cascade under the texel was built again within the box around the meshes
+that came or went, which the view's bytes carry, the penumbra 0.5% from where it settles two rounds
+after an app's start where 6.3%. `CascadeEdgeTests` turns the eye through the closed room at Low and
+High, under 0.0004 of the open floor's light where 0.11 to 0.14, places the eye 2.5 to 3.5 cells
+from the side with a pillar before it, 0.0006 where 0.157, and holds the unbuilt frames under twice;
+`GlowPenumbraTests` holds the start under 2%. RENDERING.md's paragraph stands at the end of the
+eighth's, and the two limits left are written there: a probe's ray that leaves the field through the
+side behind the eye takes the sky, a cave of 30 by 30 blocks under a hill reading 1.7 levels at High
+with the game's shading off, which the lead of 0.25 takes to 0.00 to 0.02 at the reach's cost, and
+at Low, whose last cascade's rays reach 16 units, a cave wider than that takes the sky at every
+heading, 27 levels; both part g keeps, measured and left to the order after Verdict 49. Right, the
+cause found by elimination in a room of the engine's own before the mend, the mend that keeps the
+reach taken over the one that does not, the owner's remainder run down in the owner's own save to a
+leaned point, and two limits measured and written rather than left unsaid. The suite: 1,681 passed;
+on lavapipe 393 passed and 8 skipped with no validation error; the game's glowstone room lost no
+device in eight runs. The owner's own captures of the cave lie untracked in the repository's root,
+seven files, which no commit takes. This file's part g had been split by the reviewing session's own
+edit of 11:15, its tail glued to part h's end, and is whole again here. The game's session holds it
+on the commit, built clean: its stone room reads 0.0 at High, Medium and Low from 250 to 288 degrees
+and through the whole turn, the brightest patch 3 levels at most, where `e477bc1e` read 14.7 to 18.7
+at High and 2.6 to 4.6 at Medium, and a right-turned face it added reads 0.0 on both, so the owner's
+lay in the owner's own cave; its entry is off, and h's stays. The owner checked the leak fixed at
+14:05 and put two captures of part h in the repository's root, `Penumbra_MergingZigZag.png` and
+`Penumbra_NoisyFalloff.png`, a shadow's line drawn as a saw and a penumbra's falloff as blotches the
+size of the probes' tiles, which part h names and no commit takes. Then part h with Verdict 49's
+steps that run whether the measure holds, Verdict 49's pairs, Verdict 48's two remedies, f's second,
+item 10, item 9 and item 8.
+
+Before it, `e477bc1e` came, item 2's part c, built wider than the part asked and by the measure's
+own account: each cascade's light fades into the next across its outer band, eight of its cells, a
 probes' spacing, the screen's probes' into the world's across the second cascade's band, and the
 last cascade's into the light from beyond the probes, the environment's and the ambient lights'
 unhidden, which the model pass and a reflection's hit take in its place; a surface's depth in a
@@ -111,28 +163,6 @@ validation error in 9.3 minutes where 8.1, which the Windows page reads against 
 quarter; the game's glowstone room lost no device in eight runs. Part c next, then the two left,
 item 9 and item 8.
 
-Before it, `3c7fe822` came, the reference's colors, item 2's apparatus: `BounceReference` traced a
-copy's color times its texture's average alone, so a mesh colored in its vertices, as the game's
-sections of white concrete, was traced white and read 0.58 of its light apart from the frame. Each
-corner of the ray scene carries its vertex's color in the w its structure's build leaves unread,
-three sRGB bytes under a bit that keeps the word a whole float, white where a mesh has none, from
-the colors the field and the model pass read; the reference and a ray's reflection in the model pass
-take a hit's color as the copy's times its three corners' colors, linear, blended by the hit's
-barycentrics as the model pass blends them. A slab colored in its vertices under a white material
-reads in the frame as in the reference within 1%, as a slab colored in its material does, with a
-test that wants the GPU's rays. Right, the colors carried in a word the structure already held
-rather than a buffer added, and the reflection given them with the reference so the two read one
-color. The suite: 1,671 passed; on lavapipe 383 passed and 8 skipped with no validation error; the
-game's room seen from outside faulted in none of five runs by Xid. Part f next, measured in the
-game's room against the reference, which can read that room since; then part c, item 9 and item 8.
-The game's session read both fixes on a build at `3c7fe822`: the rod's largest drop 0.6% where 8.5%,
-and its white room against a reference of eight bounces within 3% on the floor and 2% on the far
-wall for a glowstone, where a reference of two bounces read 22 to 31% over, so that room is measured
-at eight; both entries are off. And a new finding, item 9: colors written in place by
-`UpdateMeshBuffer` reach the model pass and not the bounce or the reference, which keep a mesh's
-colors from its last upload, so a lamp placed in a dark room bounces off walls as dark as they were.
-The game's `cc888f33`, which says the limit in its README, is its own.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -227,10 +257,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    the reference than in the frame and the comparison cannot tell the bounce's error from the
    color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`,
    blended by the hit's barycentrics as the model pass blends them, a colored slab within 1% where
-   0.58 apart, with a test. The order of work: g with its remainder at High, then h, then f's two
-   left things with c's one, then item 10, item 9 and item 8, the others being done; the game's
-   session measured g in the game and wrote it in ASKS.md, as it measured d at both cells and e
-   along the distance, and measures g's remainder and h the same way.
+   0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run whether the
+   measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then
+   item 10, item 9 and item 8, the others being done; the game's session measured g and h in the
+   game and wrote them in ASKS.md, as it measured d at both cells and e along the distance, and
+   reads g on `64fd2f14`.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -256,36 +287,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    (Decision 27). What drift is left lies on the floor before the glowing block, patches a tile wide
    where some of a probe's rays meet the block and the rest miss it, which is part d's ground.
 
-   **c. The border between near and far was the field's last cascade's end, done at `e477bc1e` but
-   for one thing.** Measured by the game's session on the hills at sunset with the sun under the
-   horizon, the bounce at High over the light with the bounce off, which takes the environment
-   map's: 0.56 to 0.80 of it from 60 to 96 blocks and 1.00 from 122 on, the step between 96 and 102
-   blocks where `field.state` ends the last cascade; doubling the cell moves the step past the 148
-   blocks drawn, and the shadows taken to 200 leave it where it was, so the line is the field's and
-   not the shadows'; by day the bounce and the map differ under 8% and no step shows. Past the last
-   cascade a surface takes the map's unoccluded light, up to two thirds brighter than the bounce
-   inside at a low sun, and nothing blends the one into the other. The near is blended into the far
-   across a band at the last cascade's edge, the probes' light fading to the map's over the outer
-   part of the cascade's reach as the light's cascades are merged into one another, and the field's
-   distances the same where a pass reads them to the edge; measured by the luminance along the
-   view's middle rows across the edge at sunset, and a test holds the step across it under a bound.
-   Done at `e477bc1e`, wider than the measure asked by the measure's own account: every cascade's
-   light fades into the next across its outer band, eight of its cells, the screen's probes' into
-   the world's across the second's, and the last's into the light from beyond the probes, which the
-   model pass and a reflection's hit take in its place, the field's occlusion, the sun's contact
-   shadows and the glow lights' marches fading across the coarsest built cascade's band the same
-   way; a canyon's floor seen as the game's hills were stepped from one row of pixels to the next by
-   15.1% at the last cascade's end, 14.3% at the screen's probes' and 9.6% at the third's at High,
-   17.7% and 17.4% at Medium and 26.0% at Low, and reads 2.9%, 3.0% and 1.0% with the fades,
-   `CascadeEdgeTests` holding it under 6% at 320 by 180; 0.02 to 0.04 ms of the bounce. Left: the
-   bounce's hold, the screen's hold and the second cascade read beside the finest take their
-   cascade's place whether built or not, where the field's hold reads the coarsest built since the
-   penumbra's test caught the last unbuilt in its scene, and an unbuilt last leaves the frame the
-   environment's light where the bounce was; the three read as the field's hold reads, the second
-   read skipped where its cascade is unbuilt, with a test of the bounce in that scene, before f's
-   two left things. The game's session holds it on a flat world at sunset, the ask's view hiding the
-   distance behind a hill since: the largest step from one row to the next 0.054 where 0.141, the
-   line a band sixteen blocks wide; its entry is off.
+   **c. The border between near and far was the field's last cascade's end, done at `e477bc1e` and
+   its one left thing at `64fd2f14`.** Measured by the game's session on the hills at sunset with
+   the sun under the horizon, the bounce at High over the light with the bounce off, which takes the
+   environment map's: 0.56 to 0.80 of it from 60 to 96 blocks and 1.00 from 122 on, the step between
+   96 and 102 blocks where `field.state` ends the last cascade; doubling the cell moves the step
+   past the 148 blocks drawn, and the shadows taken to 200 leave it where it was, so the line is the
+   field's and not the shadows'; by day the bounce and the map differ under 8% and no step shows.
+   Past the last cascade a surface takes the map's unoccluded light, up to two thirds brighter than
+   the bounce inside at a low sun, and nothing blends the one into the other. The near is blended
+   into the far across a band at the last cascade's edge, the probes' light fading to the map's over
+   the outer part of the cascade's reach as the light's cascades are merged into one another, and
+   the field's distances the same where a pass reads them to the edge; measured by the luminance
+   along the view's middle rows across the edge at sunset, and a test holds the step across it under
+   a bound. Done at `e477bc1e`, wider than the measure asked by the measure's own account: every
+   cascade's light fades into the next across its outer band, eight of its cells, the screen's
+   probes' into the world's across the second's, and the last's into the light from beyond the
+   probes, which the model pass and a reflection's hit take in its place, the field's occlusion, the
+   sun's contact shadows and the glow lights' marches fading across the coarsest built cascade's
+   band the same way; a canyon's floor seen as the game's hills were stepped from one row of pixels
+   to the next by 15.1% at the last cascade's end, 14.3% at the screen's probes' and 9.6% at the
+   third's at High, 17.7% and 17.4% at Medium and 26.0% at Low, and reads 2.9%, 3.0% and 1.0% with
+   the fades, `CascadeEdgeTests` holding it under 6% at 320 by 180; 0.02 to 0.04 ms of the bounce.
+   Left: the bounce's hold, the screen's hold and the second cascade read beside the finest take
+   their cascade's place whether built or not, where the field's hold reads the coarsest built since
+   the penumbra's test caught the last unbuilt in its scene, and an unbuilt last leaves the frame
+   the environment's light where the bounce was; the three read as the field's hold reads, the
+   second read skipped where its cascade is unbuilt, with a test of the bounce in that scene, before
+   f's two left things. The game's session holds it on a flat world at sunset, the ask's view hiding
+   the distance behind a hill since: the largest step from one row to the next 0.054 where 0.141,
+   the line a band sixteen blocks wide; its entry is off. The left thing is done at `64fd2f14`: the
+   three holds take the coarsest built cascade as the field's does, the second read skipped where
+   its cascade is unbuilt, a closed room under an ambient light reading 0.54, 0.54 and 1.46 times
+   its settled light in the three frames before its last cascade is built where 9.4, held under
+   twice.
 
    **d and e. The lamp's lobes, its pool's edge and its loss at a distance, done at `98a1edca`.**
    The measured cause: the world's probes stand above a floor at their spacing and their faces see
@@ -336,54 +371,84 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    0.6% at the switch where it read 11% over, its floor within 2% of the reference and its log
    bending nowhere over 0.021, with a test; the game's entry stays until it has read it.
 
-   **f. The screen's probes made the light depend on the view, done at `b1e86aef` but for two
-   things.** Measured first: the view's share over the whole picture was a tenth of a percent and
-   there was no second of noise or leak, the view living in the lamps' penumbra at the probes'
-   footprint, a shadow's edge straying 60 to 90% between views turned by pixels. The remedy, the
-   part's first: the probes march to the lamps from a point moved about their tiles in a round of
-   sixteen frames, and the lamps' light is blended over the frames at each texel of the half-sized
-   depth, reprojected by its surface and dropped where the surface, a lamp's place or the light's
-   spread changed, the nearest lamp's falloff drawn again at each pixel; where no probe holds a
-   pixel it marches to the faces' halves, so a shadow holds with the probes off. The strays 0.36 to
-   0.89% where 3.1 to 7.9%, the line within 0.8% over a round, a lamp placed shown in its first
-   frame, the cost within hundredths. Left: an app's first frames, before the field holds a wall,
-   light a shadow's texels for some hundred frames, mended by the blend restarting where the field's
-   cascade under the point was built this frame; and the probes' filter reads the frame before a
-   pixel off, put right with the thin room's loss read for the filter's width. The owner's eye
-   judges the look and the settling (Decision 27), the finer grid for the two brightest lamps the
-   second way should it want more.
+   **f. The screen's probes made the light depend on the view, done at `b1e86aef` but for the
+   filter's offset.** Measured first: the view's share over the whole picture was a tenth of a
+   percent and there was no second of noise or leak, the view living in the lamps' penumbra at the
+   probes' footprint, a shadow's edge straying 60 to 90% between views turned by pixels. The remedy,
+   the part's first: the probes march to the lamps from a point moved about their tiles in a round
+   of sixteen frames, and the lamps' light is blended over the frames at each texel of the
+   half-sized depth, reprojected by its surface and dropped where the surface, a lamp's place or the
+   light's spread changed, the nearest lamp's falloff drawn again at each pixel; where no probe
+   holds a pixel it marches to the faces' halves, so a shadow holds with the probes off. The strays
+   0.36 to 0.89% where 3.1 to 7.9%, the line within 0.8% over a round, a lamp placed shown in its
+   first frame, the cost within hundredths. Left: an app's first frames, before the field holds a
+   wall, light a shadow's texels for some hundred frames, mended by the blend restarting where the
+   field's cascade under the point was built this frame; and the probes' filter reads the frame
+   before a pixel off, put right with the thin room's loss read for the filter's width. The owner's
+   eye judges the look and the settling (Decision 27), the finer grid for the two brightest lamps
+   the second way should it want more. The first left thing is done at `64fd2f14`: a blend younger
+   than a round is dropped where the field's cascade under the texel was built again within the box
+   around the meshes that came or went, the penumbra 0.5% from where it settles two rounds after an
+   app's start where 6.3%, held under 2%; the filter's offset follows Verdict 48's remedies.
 
-   **g. The sky's light leaks into a cave by the heading.** The owner, standing in a cave of the
-   voxel game at 10:05 on 2026-10-11 and turning in place, saw the sky's light enter where none
-   should: between headings of 258 and 282 degrees the cave is lit bright, the two faces of a block
-   seen diagonally lit with it; between 219 and 322 the face turned to the right is lit a little and
-   between 314 and 46 the face turned away a little, the faces named from a heading of 0 looking at
-   a block to the front left, whose two seen faces they are; at the other headings the cave is dark.
-   A leak that comes and goes with the heading alone, nothing in the world moving, is the view's.
-   Measured by the game's session on 2026-10-11 in a closed room of stone on a flat world at hour
-   10, no opening and no lamp, the eye turned through 360 degrees in steps of six and each shot's
-   mean luminance read (ASKS.md): on `e477bc1e` the headings 324 to 36 and 234 to 306 read 14.4 to
-   16.3 levels with a patch at 82 and the others 0, the wall ahead and its block's faces turned
-   toward the eye sky-blue and the floor black, the north wall going dark at heading 42 while half
-   in view; the same with the screen's probes off and with their history off; 2.2 to 2.5 as played,
-   with the light levels on; and 0 at every heading on `b1e86aef`, so part c's fade brought it and
-   the screen's probes did not. Read from the code against those numbers: the cascades stand ahead
-   of the eye, their middle 0.35 of their 64 cells along the view and snapped to 8 cells, so the eye
-   stands 1.6 to 9.6 cells from every cascade's back side by the heading, where the hold's band is 8
-   cells, and the hold leans a surface's point along its normal by half a probe spacing, 4 cells
-   more, so a wall facing the eye a few blocks off has its point in the last cascade's back band or
-   past it, 3 to 19 units for a cell of 2, and takes the sky's unhidden light by up to all of it,
-   while the floor's point leans up and stays inside, which is the picture seen, the snap turning
-   which walls fall in the band with the heading. Before part c that wall took the last cascade's
-   probes, which held it to a cell of its side. The mend is measured before it is chosen: the depth
-   read at the surface and not at the leaned point; and the band kept from the sides the eye stands
-   near, by the cascades placed so the eye stands a band and the snap from every side, which
-   shortens the reach ahead, or by the fade past the last cascade going to the probes' light at its
-   edge with the sky entering only by the share of it the probes see, as the specular's `skySeen`
-   reads, rather than to the sky whole; each read against the numbers above and against the canyon's
-   step and the sunset border of part c, which keep theirs. A test turns the eye through the closed
-   room and holds the walls' light under a bound of the sky's at every heading. Measured by the
-   engine's session in a stone ro
+   **g. The sky's light leaked into a cave by the heading, done at `64fd2f14` but for two limits.**
+   The owner, standing in a cave of the voxel game at 10:05 on 2026-10-11 and turning in place, saw
+   the sky's light enter where none should: between headings of 258 and 282 degrees the cave is lit
+   bright, the two faces of a block seen diagonally lit with it; between 219 and 322 the face turned
+   to the right is lit a little and between 314 and 46 the face turned away a little, the faces
+   named from a heading of 0 looking at a block to the front left, whose two seen faces they are; at
+   the other headings the cave is dark. A leak that comes and goes with the heading alone, nothing
+   in the world moving, is the view's. Measured by the game's session on 2026-10-11 in a closed room
+   of stone on a flat world at hour 10, no opening and no lamp, the eye turned through 360 degrees
+   in steps of six and each shot's mean luminance read (ASKS.md): on `e477bc1e` the headings 324 to
+   36 and 234 to 306 read 14.4 to 16.3 levels with a patch at 82 and the others 0, the wall ahead
+   and its block's faces turned toward the eye sky-blue and the floor black, the north wall going
+   dark at heading 42 while half in view; the same with the screen's probes off and with their
+   history off; 2.2 to 2.5 as played, with the light levels on; and 0 at every heading on
+   `b1e86aef`, so part c's fade brought it and the screen's probes did not. Read from the code
+   against those numbers: the cascades stand ahead of the eye, their middle 0.35 of their 64 cells
+   along the view and snapped to 8 cells, so the eye stands 1.6 to 9.6 cells from every cascade's
+   back side by the heading, where the hold's band is 8 cells, and the hold leans a surface's point
+   along its normal by half a probe spacing, 4 cells more, so a wall facing the eye a few blocks off
+   has its point in the last cascade's back band or past it, 3 to 19 units for a cell of 2, and
+   takes the sky's unhidden light by up to all of it, while the floor's point leans up and stays
+   inside, which is the picture seen, the snap turning which walls fall in the band with the
+   heading. Before part c that wall took the last cascade's probes, which held it to a cell of its
+   side. The mend is measured before it is chosen: the depth read at the surface and not at the
+   leaned point; and the band kept from the sides the eye stands near, by the cascades placed so the
+   eye stands a band and the snap from every side, which shortens the reach ahead, or by the fade
+   past the last cascade going to the probes' light at its edge with the sky entering only by the
+   share of it the probes see, as the specular's `skySeen` reads, rather than to the sky whole; each
+   read against the numbers above and against the canyon's step and the sunset border of part c,
+   which keep theirs. A test turns the eye through the closed room and holds the walls' light under
+   a bound of the sky's at every heading. Measured by the engine's session in a stone room of its
+   own, the walls read 0.011 to 0.015 at the lit headings on `e477bc1e` and 0.00003 on `b1e86aef`,
+   gone with the sky off and with the last band read as a step, unchanged with the screen's probes
+   or their history off, so the band across the side behind the eye is the source; of two mends
+   measured, a lead of 0.25 that costs 13 blocks of reach ahead and the eye written into the field's
+   info with every band ending six cells short of the eye on a side it stands near, the second is
+   taken, dark at every heading with the canyon's step unchanged. The owner's eye at 11:15 on the
+   tree with it: dark at every heading and every tier but High between 259 and 281 degrees, where
+   the face turned to the right still takes the sky, so the remainder is measured at High alone in
+   steps of a degree about 270 in the game's room and the engine's, High having four cascades of
+   probes where Medium has three and Low two, and whatever band or read the fourth adds that the
+   mend's six cells do not cover is found by the number and mended, the test turning the eye at High
+   as well as Low. Done at `64fd2f14`: every band ends six cells short of the eye on a side it
+   stands near or is none, the eye carried in the field's info, the hold read at the surface where
+   that holds more than its leaned point, which was the owner's remainder at High, a pillar's face
+   leaned past the side 2.2 cells behind the eye, and a probe whose rays meet more faces from behind
+   than in front passed over, which darkened the probes deep in the rock the owner's capture showed;
+   the engine's room under 0.0004 of the open floor's light at every heading where 0.11 to 0.14, the
+   owner's tunnel 0.00 where 52.2 levels, the game's room 0.00 to 0.01 from 250 to 290 degrees at
+   every quality, the canyon's step unchanged, with tests that turn the eye and place it by the
+   side. Two limits left, measured and written in RENDERING.md: a probe's ray leaving the field
+   through the side behind the eye takes the sky, a cave of 30 by 30 blocks under a hill reading 1.7
+   levels at High, which a lead of 0.25 takes to 0.02 at some 13 blocks of reach, and at Low a cave
+   wider than its last cascade's 16 units takes the sky at every heading, 27 levels; both after
+   Verdict 49, by the measure. The game's session holds it on the commit: 0.0 at every quality from
+   250 to 288 degrees and through the whole turn, the brightest patch 3 levels at most, where
+   `e477bc1e` read 14.7 to 18.7 at High and 2.6 to 4.6 at Medium; its entry is off. The owner's eye
+   judges the look (Decision 27).
 
    **h. The indirect light is noisy and spotted where a penumbra is wide.** The owner, at 11:15 on
    2026-10-11 on the tree with g's mend, saw noise and spots of light across the surfaces where the
@@ -421,20 +486,49 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    the probes' filter weighs, so a lone bright sample is spread and not shown; and where a move
    drops the history, the frames after it blended from the probes around rather than the one, each
    read against the reference and the frame's cost, part f's bounds kept. A test holds the
-   penumbra's pixel-to-pixel difference under a bound still and after a move. The owner's eye judges
-   the look (Decision 27).om of its own, the walls read 0.011 to 0.015 at the lit headings on
-   `e477bc1e` and 0.00003 on `b1e86aef`, gone with the sky off and with the last band read as a
-   step, unchanged with the screen's probes or their history off, so the band across the side behind
-   the eye is the source; of two mends measured, a lead of 0.25 that costs 13 blocks of reach ahead
-   and the eye written into the field's info with every band ending six cells short of the eye on a
-   side it stands near, the second is taken, dark at every heading with the canyon's step unchanged.
-   The owner's eye at 11:15 on the tree with it: dark at every heading and every tier but High
-   between 259 and 281 degrees, where the face turned to the right still takes the sky, so the
-   remainder is measured at High alone in steps of a degree about 270 in the game's room and the
-   engine's, High having four cascades of probes where Medium has three and Low two, and whatever
-   band or read the fourth adds that the mend's six cells do not cover is found by the number and
-   mended, the test turning the eye at High as well as Low. The owner's eye judges the look
-   (Decision 27).
+   penumbra's pixel-to-pixel difference under a bound still and after a move. The owner's two
+   captures of 14:05, in the repository's root and in no commit: `Penumbra_MergingZigZag.png`, a
+   lamp's red light on a wall with a shadow's line drawn as a saw, a zigzag with teeth some pixels
+   long where the line should be straight, which the owner reads as the merge's; and
+   `Penumbra_NoisyFalloff.png`, a lit wall whose penumbra falls off in blotches of light and dark
+   the size of the probes' tiles across the band, where the lit part and the dark part read smooth.
+   Both are measured with the rest of h: the teeth's length and the blotches' size against the
+   probes' tile of eight pixels and the half-sized texel of two, and against the sixteen levels a
+   probe keeps a lamp's penumbra in, since a straight edge marched from a point moved about each
+   tile in Bayer's order lands a tile's offset apart from one tile to the next, which is a saw with
+   the tile's period, and four probes' shares weighed into a texel from marches made from four
+   places give the band its patches; the remedy by the number, a texel's share taken by where each
+   probe's march of that frame stood rather than averaged across the tile, or the brightest lamps'
+   penumbra marched at the texel itself near the eye, as part f's second way offered, read against
+   the reference and the cost. A test holds a straight shadow's edge within a pixel of a line and
+   the band's pixel-to-pixel difference under a bound. The game's session measured both on
+   `64fd2f14` (ASKS.md): a glowstone's shadow edge thrown by a column on a wall seen head-on, traced
+   per row and fitted to a line, lies 1.8 pixels from it still and 1.5 after a step, 2.0 and 1.3
+   with the history off, a slow bow of 6 to 8 pixels' range and no teeth either way, and a torch's
+   stairs at its reach are the game's own light levels, so a lamp's edge does not give the owner's
+   saw; the wide penumbra's blotches, the light less its blur, are 0.65% of the light with the
+   history on and 0.85% off, where the reference's noise is 6.5% and a pixel wide, and their
+   correlation holds at 0.42 at 8 and 16 pixels, so they repeat on the tile's grid, and with the
+   history off the band's edge breaks into beads every 19 pixels. The reviewing session read the saw
+   as the probes' merge, an emitter too large for a box light lit through the cascades alone, and
+   the game's session measured that too: a wall of magma six by six with a column four blocks before
+   it throws a shadow 0.7 to 0.9 pixels from a line still and after a step, no teeth, and with the
+   glow lights off the room is black, so a wall of emitting blocks is carried as box lights alone,
+   each block its own and touching ones merged, and the cascades carry none of it; the reading was
+   wrong for a wall of blocks, and the saw stands unreproduced in three setups. It is found in the
+   owner's save, copied by the game's session as `owner-zigzag-copy`: an underground room with its
+   floor at 54 and ceiling at 59, a red concrete wall at z -33, four glowstones at x 4 and a white
+   concrete pillar from floor to ceiling at x 6, whose shadow falls on the red wall as an upright
+   seam near x 8, seen from 9.5, 55, -35.4 at heading 185 and pitch -3, which matches the owner's
+   picture. Read on `64fd2f14`, the seam traced per row: its middle rows lie within 1.05 pixels of
+   its median, and teeth of 3 rows and more stand out at its top, rows 70 to 180, by up to 34
+   pixels, and at its foot, rows 520 to 650, by up to 23, to either side by turns; 31 and 17 after a
+   step, 42 and 31 with the history off, 22 and 36 with the screen's probes off, 42 and 23 with the
+   game's light levels off, and the room black with the glow lights off, so the teeth are the glow
+   lights' march past the pillar's ends, where it meets the floor and the ceiling, and not the
+   screen's probes or the merge; the engine reads it there with the copy, `--world
+   owner-zigzag-copy`, and the march's cone at the pillar's ends against the reference, before the
+   mend. The owner's eye judges the look (Decision 27).
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -612,8 +706,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     frames count being there or not at the frame captured, which the compare reads for and holds by
     a wider point or a later frame with the reason, and the two others moved and stay moved;
     raylib's own `audio_sound_multi` program ended with signal 11 at frame 157 in that run, counted
-    against no pair, which the page says and the step should name as raylib's. Taken with the commit
-    after part g's. Settled when an examples job's measure holds and the steps after it run.
+    against no pair, which the page says and the step should name as raylib's. Its second thing, the
+    steps that run whether the measure holds, goes with part h's commit, and the pairs' reading
+    right after h, so the soak is read on the next push. Settled when an examples job's measure
+    holds and the steps after it run.
 
 ## Decisions
 
@@ -803,68 +899,33 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, part g. Measured first in an engine room closed to the sky, a stone room 6 by 3 by 6 inside
-on a sunlit ground under a painted sky, the eye inside turned in steps of 5 and 15 degrees at 640 by
-360, at three places of the eye and with the sun at hours 8, 10 and 16. On `e477bc1e` the walls read
-up to 0.0155 and the floor up to 0.0234 at about half the headings and 0.00003 at the others;
-`b1e86aef` reads 0.00003 at every heading. With the sun's light at nothing it reads the same, with
-the sky left out nothing, with the screen's probes or their history off the same, and with the last
-cascade's band read as a step nothing, so the leak is the last cascade's band across the side behind
-the eye, as read here. A cascade lies 0.35 of its width ahead of the eye, so the eye stands 1.6 to
-9.6 cells from its side behind it, inside a band of eight. Two mends measured: a lead of 0.25 with
-the hold read at the surface, dark at every heading and the canyon's largest step 2.0, 2.4 and 0.4%
-where 2.9, 3.0 and 1.0%, but the last cascade reaching some 13 blocks less ahead; and the eye
-written into the field's info, every band (the last cascade's into the light from beyond, each
-cascade's into the next, the field's own) narrowed on a side the eye stands near to end six cells
-short of it or be none (`bandHold` in `scenefield.slang`), dark at every heading with the canyon
-unchanged. The second is taken.
+Item 2, part h, its first part, the penumbra too dark. Measured in an engine room built as the
+game's, three glowing blocks touching in a row under the ceiling and a white block floating two
+under the middle one, against a reference of 4,096 paths and eight bounces at 640 by 360. The floor
+under the block read 0.742 of the reference, at the penumbra's edge 0.754, beside it 1.094 and in
+front 0.993, as the game read 0.76, 0.78 and 1.06. With the probes' bounce left out of the frame and
+the reference traced with the lamps' light alone, the floor under the block and at the edge read
+nothing where the reference reads 0.026, a black rectangle under the whole row; with the march
+seeing everything they read the light unhidden, and without the block, or with one lamp, the floor
+reads within 2% of its reference. So the march, with two faults in it.
 
-The owner's remainder at High between 259 and 281 degrees was found in the owner's save, which the
-game's session copied, a lamp-lit tunnel turned a degree a frame. At 269 to 271 degrees a pillar's
-face a block before the eye went flat sky-blue, 21, 28 and 37 levels over Medium, because a surface
-facing the eye leans four cells toward the side behind it, and with the eye 2.2 cells from that side
-the face's point lay past it and held nothing. The hold is read at the surface where that holds
-more, and no frame of the turn reads over Medium by more than 0.05 levels at any quality. The game's
-stone room reads 0.00 to 0.01 at every degree from 250 to 290 at every quality. The owner's dark
-tunnel of 12:38, the owner's latest capture, reads 52.2 levels with the game's shading off on
-`e477bc1e`'s engine, the capture's tint, and 0.00 on the tree; the game's build output in the tree
-held `e477bc1e`'s `scenefield.slang` beside newer shaders, so a fresh build shows the mend.
-`CascadeEdgeTests` turns the eye through a closed room under a sky map at Low and High, which read
-0.11 to 0.14 of the open floor's light at six headings of twelve at High and up to 0.021 at Low on
-`e477bc1e` and under 0.0004 here, and places the eye 2.5 to 3.5 cells from the last cascade's side
-behind it with a pillar before it, 0.157 without the surface's hold and 0.0006 with it.
+The touching lamps are one light (`GlowLights`), and `glowLightShown` halves a face across the axis
+that rises most from the surface, which from a floor under a level face neither does, so it took the
+first, the row's short side, and marched to two points on the row's middle line, both behind the
+block from the floor under all three lamps. It halves the longer side where neither rises more, and
+the floor under the block reads 0.285 of the lamps' reference. A march passing a twentieth of a
+block inside the block's side then read how far under its edge it passed by stepping out along the
+floor's normal, up through the whole block; it steps across the march toward the nearest face as
+well, where the field's slope leans across the way, and keeps the nearer way out, and the floor
+reads 0.956 of it. With the bounce the floor reads 0.980 under the block, 1.001 at the edge, 1.073
+beside and 1.022 in front, the mean stray over the floor 0.030 where 0.079. `GlowLightsTests` holds
+the floor under the block over 0.8 of the floor beside it at 320 by 180, 0.68 before and 0.92 after,
+the reference 0.98. The cost lies within the noise of three runs each in the game's room of the same
+lamps, the bounce 1.52 to 1.53 ms and the scene pass 1.49 to 1.51 where 1.50 to 1.55 and 1.46 to
+1.54.
 
-The owner's capture of the last cascade's merged probes in the tunnel, `gi.show merged 3`, shows
-probes deep in the rock seeing the sky and the grass on top. The field holds a solid as the faces
-around it, so its cells deeper inside than the band read as the open, and those probes traced
-through the rock. A ray that stops half a cell or more behind a face met it from behind, the trace
-marks its distance below zero, and a probe whose rays met more faces from behind than from in front
-is passed over as one inside a mesh, as DDGI finds its probes inside geometry. In the tunnel's view
-the probes in the rock go dark and those above ground keep their sky and grass. The tunnel's picture
-is dark either way on the tree, the rooms read their references as before to the fourth place, and
-the bounce costs 0.02 ms more in `shaders_bounce_rooms`, 1.47 where 1.45.
+Left in h, taken next on this commit: the spot held after a move, which the game measured beside the
+black row's edges that are gone; the blotches, 0.65% of the light on the tiles' grid; and the saw,
+read where the owner saw it once the game's session finds the place.
 
-Two things are left, each as it was before part c and written in RENDERING.md. A probe's ray that
-leaves the field through the side behind the eye takes the sky, so a cave of 30 by 30 blocks carved
-in a hill reads 1.7 levels at High with the game's shading off, and 0.01 with that sky left out; a
-lead of 0.25 takes it to 0.00 to 0.02 at the cost of the reach ahead, measured and left to the
-order. At Low, whose last cascade's rays reach 16 units, a cave wider than that takes the sky at
-every heading, that cave 27 levels.
-
-Part c's one left thing goes with it, since both touch the holds. The bounce's hold, the screen's
-hold and the second cascade's read take the coarsest built cascade as the field's hold does, the
-second read skipped where its cascade is unbuilt (`probesHold` in `cascades.slang`, split from
-`gi.slang`, which stands at 742 lines). A closed room under an ambient light, its field built a
-cascade a frame, read 9.4 times the light it settles at in the three frames before its last cascade
-was built, and reads 0.54, 0.54 and 1.46 times it; `CascadeEdgeTests` holds it under twice.
-RENDERING.md's paragraph stands at the end of the eighth's.
-
-Part f's first left thing goes with it too. A blend younger than a round is dropped where the
-field's cascade under the texel was built again in the frame within the box around the meshes that
-came or went, which the view's bytes carry. Two rounds after an app's start the penumbra strayed
-from where it settles by 6.3%, under 1% only after 110 frames, and strays by 0.5%;
-`GlowPenumbraTests` holds it under 2%, the placed lamp and the wall taken away reading as before.
-The filter's offset, f's second, follows after part h and Verdict 48's two remedies, then Verdict
-49.
-
-The suite: 1,681 passed; on lavapipe 393 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight runs.
+The suite: 1,682 passed; on lavapipe 394 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight runs.

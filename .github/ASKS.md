@@ -91,47 +91,6 @@ Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mes
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item
 8.
 
-### 2026-10-11, the voxel game in `3DEngine.Game`: a closed cave shows the sky at some headings
-
-A closed room of stone 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 stone` on a flat world)
-at hour 10, with no opening to the sky and no lamp, a block of white concrete 3 blocks from the eye
-on each side, the eye at 16.5, 6.6, -15.5 turned through 360 degrees in steps of 6 and 15 degrees
-down, a shot 45 frames after each turn, High, render distance 8; a hidden window of 1280 by 720 and
-an RTX 4070 Laptop GPU. Each figure is a shot's mean luminance in levels of 255, and beside it its
-brightest patch of 64 by 64 pixels. Both commits are built from clean worktrees, with the game's
-light levels and corners off (`voxel.shade off off`) so that whatever lights the room shows, and
-once with them on, as the game is played.
-
-| Commit and part left out | Headings 324 to 36 and 234 to 306 | Headings 42 to 228 and 312 to 318 |
-|---|---|---|
-| `e477bc1e` | 14.4 to 16.3, patch 82 | 0.0, patch 0 or 1 |
-| `e477bc1e`, `gi.toggle screen off` | 14.5 to 16.4, patch 82 | 0.0 to 0.5, patch 7 at most |
-| `e477bc1e`, `gi.toggle history off` | 14.4 to 16.3, patch 82 | 0.0, patch 0 or 1 |
-| `e477bc1e`, light levels on | 2.2 to 2.5, patch 12 or 13 | 0.0, patch 0 |
-| `b1e86aef` | 0.0, patch 0 or 1 | 0.0, patch 0 or 1 |
-
-At the lit headings the wall ahead and the faces of its block turned toward the eye show the sky's
-blue, and the floor stays black; at the others the same walls are black, the north wall going dark
-at heading 42 while it is still half in view. The room is all but symmetric about the eye, so north
-and west read alike. The finest cascade of the field follows the heading, from 8, -4, -30 at heading
-0 to 12, -4, -24 at 90, 8, -4, -20 at 180, 2, -4, -24 at 270 and 4, -4, -28 at 312, so which band of
-it the room's walls lie in turns with the eye. `b1e86aef` reads black at every heading, so the light
-comes with part c's fade into the sky's light, and leaving out the screen's probes or their history
-does not take it away. The sun's contact shadows have no switch of their own apart from the sun's
-shadows, which would let the sun into the room, so they were not left out. Capture
-`voxel-cave-sky-leak.webp`: heading 270 and 180 with the light levels on, stretched four times, and
-heading 270 on `e477bc1e` and on `b1e86aef` with them off.
-
-The engine lacks a fade into the sky's light that keeps a room closed to the sky dark at every
-heading. The game does nothing about it, and a cave a player stands in shows the sky's blue on its
-walls when the eye turns north or west.
-
-Review: item 2 of REVIEW.md, its part g, 2026-10-11, the owner's finding of 10:05 and first in the
-engine's order; the numbers put it at part c's hold: the cascades stand ahead of the eye with their
-back sides 1.6 to 9.6 cells behind it, the hold's band is 8 cells and a wall's point is leaned 4
-more toward the eye, so the walls near the eye fade into the sky's light; the engine measures the
-mend against these numbers and the sunset border's.
-
 ### 2026-10-11, the voxel game in `3DEngine.Game`: a wide penumbra is too dark and takes a spot
 
 On `e477bc1e`, built from a clean worktree: a closed room of white concrete 11 by 6 by 11 inside
@@ -165,8 +124,88 @@ lighting nothing but through the glow lights. Capture `voxel-penumbra-spot.webp`
 levels 52 to 93 for all four: the frame still, its reference, the frame 600 frames after the step
 with the spot ringed, and the frame after the step with the history off.
 
+A straight edge, on `64fd2f14`: in the same room a glowstone floating at 13, 6, -16 and a column of
+white concrete from floor to ceiling at 15, 5 to 10, -18, whose shadow's edge crosses the north wall
+upright about 100 pixels wide, the eye at 19.5, 8.1, -13 facing it head on. In each row from 200 to
+520 the edge is where the light falls halfway from its lit side to its shadowed side, between
+pixels, and a straight line is fitted to the rows.
+
+| Edge | Off the line, rms | Its range | Autocorrelation 8 rows apart |
+|---|---|---|---|
+| Still | 1.83 px | 6.3 px | 0.90 |
+| 1 frame after a step east | 1.48 px | 7.2 px | 0.81 |
+| 30 frames after it | 1.50 px | 7.1 px | 0.82 |
+| Still, history off | 2.03 px | 7.8 px | 0.89 |
+| 1 frame after the step, history off | 1.31 px | 6.7 px | 0.77 |
+
+The edge bows a pixel or two over its height and has no teeth, its deviation alike 8 rows apart. A
+torch two blocks before a wall a block high, which throws a line about 16 pixels wide across the
+wall behind, draws the end of the torch's reach as stairs of whole blocks with the game's light
+levels on, which are the game's own, spreading a block at a time as Minecraft's do, and smooth with
+them off. Neither shows the owner's saw, which stands in the owner's own room, below.
+
+The blotches, in the wide penumbra above at the same still frames, as the light less its blur over
+10 pixels in the floor's crop of 480 by 230: 0.65% of the light with the history on and 0.85% with
+it off, the reference's own noise 6.5% and single pixels. The blotches' correlation falls to half
+within 6 to 7 pixels across and 5 to 6 down, near the screen probes' tile of 8 and far over the
+texel of 2, and holds at 0.42 and 0.40 at 8 and 16 pixels with the history on, 0.35 and 0.37 off, so
+they repeat on the tiles' grid. With the history off the shadow's edges break into a chain of beads
+in that picture, the left edge's trace repeating every 19 pixels with teeth 26 pixels from crest to
+trough, and with it on the same edge runs as a smooth line. Captures `voxel-penumbra-edge.webp`, the
+upright edge at one stretch of linear light 0 to 0.06, still, 30 frames after the step and still
+with the history off, and `voxel-penumbra-blotches.webp`, the light less its blur at one stretch of
+2% either side, with the history on and off.
+
+A wall of red light, on `64fd2f14`: in the same room a wall of magma blocks 6 by 6 against the north
+wall at x 13 to 18, y 5 to 10, and a column of white concrete from floor to ceiling at 16, 5 to 10,
+-17 four blocks before it, whose shadow runs south across the floor, one edge sharp and one wide;
+the eye at 16.5, 10.4, -14.5 looking straight down. Each edge is traced in rows 260 to 700 as the
+upright edge was.
+
+| Edge | Off the line, rms | Its range | Autocorrelation 8 rows apart |
+|---|---|---|---|
+| Sharp edge, still | 0.66 px | 4.1 px | 0.72 |
+| Sharp edge, 1 and 30 frames after a step east | 0.91 and 0.87 px | 5.5 and 5.3 px | 0.77 |
+| Wide edge, still | 0.73 px | 3.3 px | 0.55 |
+| Wide edge, 1 and 30 frames after the step | 0.77 and 0.74 px | 3.6 and 3.7 px | 0.54 and 0.51 |
+
+Neither edge has teeth, no lag up to 40 rows standing out in its deviation. With `gi.toggle glow
+off` the room is black, its brightest pixel 0.0000057 where 0.022 with the glow lights on, so each
+magma block is carried as a light of its own and the wall lights the room through the glow lights
+alone, not through the cascades. Capture `voxel-penumbra-redwall.webp`, the floor in the log of its
+light from 0.00001 to 0.03, still and 30 frames after the step.
+
+The owner's saw, in the owner's world: seed 1's overworld as the owner's save stood at 13:53, an
+underground room with a floor of stone at y 54 and a ceiling at 59, a wall of green concrete at z
+-40 and one of red concrete at z -33 from x 4 to 11, four glowstones at x 4, y 55 and 56, z -37 and
+-36, and a pillar of white concrete from floor to ceiling at x 6, z -37 and -36, two blocks east of
+them. The pillar's shadow falls on the red wall as an upright seam near x 8, dark on its east side
+and lit red on its west. Seen from 9.5, 56.6, -35.4 facing heading 185 and 3 degrees down, High, the
+game's light levels on, on `64fd2f14` built from a clean worktree, the seam is traced in each row
+from 70 to 650 where the light first rises past halfway from its dark side to its lit side, in
+linear light from `gi.compare`, and a tooth is a run of three rows or more standing over 4 pixels
+off the seam's median place.
+
+| Case | Rows 250 to 470 off the seam, rms | Teeth, rows 70 to 180 | Teeth, rows 520 to 650 |
+|---|---|---|---|
+| Still | 1.05 px | up to 34 px | up to 23 px |
+| 1 and 30 frames after a step east | 2.40 and 1.52 px | up to 31 and 32 px | up to 17 and 18 px |
+| `gi.toggle history off` | 0.28 px | up to 42 px | up to 31 px |
+| `gi.toggle screen off` | 0.80 px | up to 22 px | up to 36 px |
+| The game's light levels off | 0.97 px | up to 42 px | up to 23 px |
+
+The seam runs straight through its middle and breaks into teeth at its two ends, near the floor and
+the ceiling, standing out to either side by turns. They stand with the screen's probes, their
+history and the game's light levels each left out, and with `gi.toggle glow off` the room is black,
+so they are in the glow lights' march toward the glowstones, past the pillar's ends. Captures
+`voxel-penumbra-owner-seam.webp`, the view with its red stretched from level 1 to 114, and
+`voxel-penumbra-owner-seam-parts.webp`, the seam in the log of its light from 0.0001 to 0.05 in six
+cases: still, 30 frames after the step, the history off, the screen's probes off, the glow lights
+off and the light levels off.
+
 The engine lacks a soft shadow from a lamp wider than what blocks it that keeps the light the
-penumbra gets, and screen probes that give no spot after a move. The game does nothing about it.
+penumbra gets, a shadow edge that stays straight to its ends, and screen probes that give no spot
+after a move. The game does nothing about it.
 
 Review: item 2 of REVIEW.md, its part h, 2026-10-11, the owner's finding of 11:15, after part g; the
 numbers name two things, a soft shadow too dark for a lamp wider than what blocks it and a sample at
