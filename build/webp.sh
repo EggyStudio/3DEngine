@@ -2,17 +2,19 @@
 # Encodes a capture as WebP for the README's gallery: a lit 3D scene at quality 85, and flat color,
 # 2D shapes or text losslessly, which keeps their edges exact and is the smaller of the two for
 # them. ImageMagick encodes it where it was built with WebP, and cwebp where it was not. Given a
-# size, the picture is first scaled to fit inside it and padded with black to it, by ImageMagick,
-# so every picture of the gallery is one size and the README's tags, which give each the same
-# width and height, stretch none.
+# size, the picture is first scaled by ImageMagick until it fills that size and cut to it, from
+# the middle or from the side a gravity names, so every picture of the gallery is one size and
+# fills its box, where fitted inside it and padded with black the pictures of other shapes read as
+# smaller beside the rest.
 #
-#   build/webp.sh <png> <webp> lossy|lossless [<width>x<height>]
+#   build/webp.sh <png> <webp> lossy|lossless [<width>x<height> [<gravity>]]
 set -euo pipefail
 
 in="$1"
 out="$2"
 kind="$3"
 size="${4:-}"
+gravity="${5:-center}"
 
 if [ -n "$size" ]; then
   if command -v magick >/dev/null; then fit=(magick); elif command -v convert >/dev/null; then fit=(convert); else
@@ -21,7 +23,7 @@ if [ -n "$size" ]; then
   fi
   fitted="$(mktemp --suffix=.png)"
   trap 'rm -f "$fitted"' EXIT
-  "${fit[@]}" "$in" -resize "$size" -background black -gravity center -extent "$size" "$fitted"
+  "${fit[@]}" "$in" -resize "$size^" -gravity "$gravity" -extent "$size" "$fitted"
   in="$fitted"
 fi
 

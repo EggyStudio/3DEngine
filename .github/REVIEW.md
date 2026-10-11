@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7a69c936`. Item 12, on the owner's word typed in the working session: the e3d guide
+Reviewed up to `7644d055`. Verdict 49's pairs: nothing the billboard or the depth writing example
+draws through changed between `71050c8f` and `b1e86aef`, the immediate pass, the shapes, the text
+and the pipelines untouched and the commits between them the bounce's and the game's, and measured
+outside the job, on lavapipe for the engine and llvmpipe for raylib's programs and on the RTX 4070
+alike, the two read 0.5% and 0.2% apart as the local record holds them, so the job's drivers moved
+them, and `measured-ci.tsv` records them anew at 5.5 and 8.7 with that reason in a comment above
+each; the two loading pairs, which moved by more than a point between two runs whose commits touched
+nothing they draw through, 5.9 and 1.6, 15.2 and 11.5, get five points of room in a third column of
+the record with the reason, which the compare reads in place of its one point, the capture's frame
+left where it is since at frame 300 `models_loading` read 2.8% here where 1.6%; and a raylib program
+that ends with a signal is named as raylib's own. The job's uploads need a sign-in the working
+session has none of, so the pictures the two pairs moved by are unread, and the next run's uploads,
+which the reviewing session can read, settle whether the drivers' move looks like one; the script
+and norm tests pass, 51. Right, the pairs' drawing paths read for change before the record was
+touched, the record given its reasons in the file that holds it, and the loading pairs' variance
+given room rather than a later frame that would have moved them too. Verdict 49's two things are
+done and it settles on the next run's examples job. Next item 11's fit, the captures filling their
+boxes, then h's rest, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `7a69c936` came, item 12, on the owner's word typed in the working session: the e3d guide
 is `.github/E3D.md`, the skill's body with its header of name, description and allowed tools
 dropped, beside the other documents a session reads; AGENTS.md's driving paragraph links it and its
 documents table has its row, BUILDING.md, STYLE.md's scope, which is every Markdown file under
@@ -46,37 +65,6 @@ asked the owner there; the reviewing session holds that right and the owner is t
 pushed `8118e2c7` at 15:50, the first run with `1b8a9217`'s workflow, so its examples job reaches
 the soak, which Verdict 30 reads. Next Verdict 49's pairs, as the working session has taken them,
 then h's rest, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `8118e2c7` came, item 2's part h, its fourth thing, the red wall, found by taking the
-pillar away: with the frame's lamp light alone over a direct-only reference, with the pillar and
-without it, the share seen past the pillar is a number apart from the unhidden light, which the
-frame gives within 1 to 3%, and the reference passes 0.35 to 0.96 of it across the wall where
-`56db892b` passed 0.55 to 0.98, the engine room of the same blocks 0.235 to 1.0 against 0.385 to
-0.986; a simulation of the march on an exact field followed the reference, so the march's points
-were sound and their sum was not. The sum weighed each half of a glow light's face by the box's half
-size along the face's normal where the face's area belongs, alike for a cube, so the four glowing
-blocks two by two, one light of one by two by two, weighed the face the pillar hides at a quarter of
-its due; weighed by area, the engine room reads within 0.03 of the reference and the owner's wall
-0.90 to 0.98 of its reference where 1.20 to 1.27, the row of lamps over the floating block holding
-at 0.980 under and 1.026 beside, and `GlowLightsTests` reads the share past the pillar at five
-points of a pale wall within 0.05 of recorded shares where 0.07 to 0.19 over; the work the same,
-weighed otherwise. The owner's seam lies straighter, 1.7 pixels off a line on average where 8.9 on
-`64fd2f14`, its rise steeper with the hidden side weighed rightly, the profile's largest kink 0.065
-where 0.106 and the reference's own noise 0.077; two softenings measured and left, four points along
-the rising side at 0.14 ms more and wider cones that cost the lit end, and `56db892b`'s tie stands
-since with the faces weighed by area it reads the owner's wall the same. Right, the pillar taken
-away to split the share seen from the light unhidden, the march simulated on an exact field to clear
-its points before its sum was blamed, and the two softenings measured and refused by their numbers.
-The suite: 1,683 passed; on lavapipe 395 passed and 8 skipped with no validation error; the game's
-glowstone room lost no device in eight runs. The game's session read the seam on the commit, the
-copy checked present, and then let the copy go: the wall's dark side 0.80 of the reference and its
-lit side 0.96 where 1.21 and 1.34, so the overshoot is mended and the shadowed side reads a fifth
-under; lit over dark 1.51 against the reference's 1.27, where 1.39 and 1.81 before; the teeth up to
-10 and 13 pixels as played and 10 and 8 after a step. Left in h: the blotches' rest on the tiles'
-grid, the seam's teeth of about ten pixels and the dark side's fifth, the seam's rise for the
-owner's eye on the push. Next items 11 and 12 as one batch, the README's rows and the skill's move,
-then h's rest, Verdict 49's pairs, Verdict 48's two remedies, f's filter offset, item 10, item 9 and
-item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -699,7 +687,11 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     against no pair, which the page says and the step should name as raylib's. Its second thing is
     done at `1b8a9217`, the measure carried on past a pair that does not hold and a last step
     failing the job where it did not, so the next push reads the soak; the pairs' reading follows
-    part h. Settled when an examples job's measure holds and the steps after it run.
+    part h. Its first thing is done at `7644d055`: the billboard and the depth writing recorded anew
+    with the reason, their drawing paths unchanged and their local reading as before, the loading
+    pairs given five points of room in the record's third column, and raylib's own signal named; the
+    next run's uploads are read for what the two moved by. Settled when an examples job's measure
+    holds and the steps after it run.
 
 ## Decisions
 
@@ -901,18 +893,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 49, its pairs. Nothing `models_directional_billboard` or `shaders_depth_writing` draws
-through changed between `71050c8f` and `b1e86aef`. The immediate pass, the shapes, the text and the
-pipelines are untouched, the commits between them the bounce's shaders and the voxel game's.
-Measured outside the job, on lavapipe for the engine and llvmpipe for raylib's programs, the two
-read 0.5% and 0.2% apart, as the local record holds them, and on the RTX 4070 the same; the loading
-pairs read 1.6% and 1.2%. So the job's drivers moved the billboard and depth writing, and
-`measured-ci.tsv` records them anew at 5.5 and 8.7 with that reason above each. The two loading
-pairs moved by more than a point between two runs whose commits touched nothing they draw through,
-5.9 and 1.6, 15.2 and 11.5, so the record gives them five points of room in a third column with the
-reason, which `compare.py` reads in place of the one point; taken at frame 300 rather than 150,
-`models_loading` read 2.8% here where 1.6%, so a later frame would have moved its record too. A
-raylib program that ends with a signal is named as raylib's own,
-`raylib's own program ended with signal 11`. Without the job's uploads, which need a sign-in here,
-the pictures the billboard and depth writing moved by are not read, which the next run's uploads can
-settle. The script and norm tests pass, 51.
+Item 11, the fit. `build/webp.sh` fills the size it is given, scaling a capture until its shorter
+side fills it and cutting the rest around the middle, or from the side a gravity names. The games'
+captures are 16 by 9 already and come out as they were. Of the four of other shapes,
+`core_2d_camera_split_screen` and `shapes_math_angle_rotation` lose some ten pixels at their sides,
+`shaders_rlgl_compute`, square at raylib's 768 by 768, keeps its whole pattern and loses its line of
+help at the top, its window held at raylib's size for the measure against raylib's program, which
+reads the PNG and not this, and `games/Slide`, four by three, is cut from the top so its score
+stays, its step in the workflow naming north. Every capture is 800 by 450 and fills its box; the
+docs, norm and script tests pass, 68.

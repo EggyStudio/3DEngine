@@ -469,7 +469,9 @@ jobs:
           ./e3d command frames.wait 10 --quiet --timeout 600
           ./e3d shot captures/slide.png --quiet
           ./e3d stop --quiet
-          build/webp.sh captures/slide.png captures/slide.webp lossy 800x450
+          # The window is four by three, so the picture keeps its top, where the score is, and loses
+          # the line of help at its foot.
+          build/webp.sh captures/slide.png captures/slide.webp lossy 800x450 north
 
       # The runner, by build/drive-game.sh as Windows and macOS play it, its run watched again from
       # its recorded input and its best run watched from its file in the game opened again, each
