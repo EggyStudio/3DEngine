@@ -23,10 +23,11 @@ workflow's cache, keyed by the shaders with a restore key by system, the folder 
 Mesa's Windows build keeps a disk cache is read on the Windows page's group times and the leak
 test's frame. The script and norm tests pass, 51. Right, the engine's cache measured before it was
 kept and dropped by its number, and the cost found at the driver's thread rather than guessed at the
-pipeline's creation. Next item 11's caption, then the lampless variant of the model pass, the second
-remedy, measured by the pass's SPIR-V size and the per-app time on lavapipe; then the bounce around
-the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter offset, item
-10, item 9 and item 8.
+pipeline's creation. Next item 11's caption, padded to 28 with a longer name broken at an underscore
+by a `<wbr>` tag rather than every name padded to the longest, as the owner chose at 20:20, the tags
+220 by 124, then the lampless variant of the model pass, the second remedy, measured by the pass's
+SPIR-V size and the per-app time on lavapipe; then the bounce around the pillar as a read of its
+own, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 Before it, `3051fab8` came, item 11's last thing: every gallery tag gives 320 by 180 and every cell
 320, each name padded to 42 characters, all 268 read here so, the captures unchanged at 800 by 450;
@@ -640,11 +641,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     width on every device and the picture, no wider than its cell by the page's rule, fills it edge
     to edge; and the caption shrinks to the small tag, `<small><code>`, which the page keeps, since
     the padding cannot go below the longest name and the font is the other knob: the names padded to
-    32 characters, the longest, in a small code caption, which the code font draws at some 235 to
-    240 pixels, every tag 260 by 146 and every cell 260, so the pictures come out about 240 wide,
-    smaller like BevyCSharp's as the owner asked, and the same width as their captions; the rendered
-    page read after the push on a desktop and a phone. the owner's eye judges the look (Decision
-    27).
+    28 characters in a small code caption, and a name longer than that, three of 268, broken at an
+    underscore with a `<wbr>` tag, which the page keeps, so no piece exceeds 28 and its last piece
+    is padded to 28, which the owner chose at 20:20 over padding every name to the longest, the
+    names being raylib's and not renamed; the code font draws 28 at some 204 to 210 pixels, every
+    tag 220 by 124 and every cell 220, so the pictures come out about 205 wide, like BevyCSharp's as
+    the owner asked, and the same width as their captions, a long name wrapping to a second caption
+    line only where the table is squeezed; the rendered page read after the push on a desktop and a
+    phone. the owner's eye judges the look (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -938,7 +942,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11, the captions. Every tag is 260 by 146 and every cell 260, each name padded to 32
-characters with the non-breaking space itself and set in `<small><code>`, the longest,
-`shapes_rounded_rectangle_drawing`, filling its 32 with none. The document links and the norm
-tests pass, 20 of them. The rendered page is read after the push.
+Item 11, the captions as chosen at 20:20. Every tag is 220 by 124 and every cell 220, each name
+padded to 28 characters with the non-breaking space itself and set in `<small><code>`. Seven names
+run past 28 rather than three, `models_orthographic_projection` and
+`textures_framebuffer_rendering` at 30, `shapes_rounded_rectangle_drawing` at 32 and four at 29,
+and each is broken after its last underscore within 28 by a `<wbr>` tag, its last piece padded to
+28. The document links and the norm tests pass, 20 of them. The rendered page is read after the
+push.
