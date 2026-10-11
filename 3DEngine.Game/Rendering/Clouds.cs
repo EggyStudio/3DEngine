@@ -19,7 +19,8 @@ namespace Engine.Game;
 /// they neither shade the sun's light nor stand in the light that bounces, as Minecraft's cast no
 /// shadow. Their faces are shaded by the way they face, the top brightest, and lit by the model
 /// pass, so they darken at night, and they fade into the sky at twice the render distance through a
-/// copy of the terrain shader of their own.
+/// copy of the terrain shader of their own, each vertex its position and the packed bytes of a
+/// section's vertices, the shade full.
 /// </para>
 /// </remarks>
 public sealed class Clouds : IDisposable
@@ -89,41 +90,39 @@ public sealed class Clouds : IDisposable
         _mesh = default;
 
         var cells = reach / Cell + 1;
-        var vertices = new List<ModelVertex>();
-        var colors = new List<Color>();
-        var indices = new List<uint>();
+        var faces = new SectionMesher.Faces();
         for (int dz = -cells; dz <= cells; dz++)
             for (int dx = -cells; dx <= cells; dx++)
             {
                 if (dx * dx + dz * dz > cells * cells || !IsCloud(cx + dx, cz + dz)) continue;
                 var corner = new Vector3(dx * Cell, 0, dz * Cell);
-                // The top and the bottom always show, and a side only where no cloud stands beside it.
-                Face(corner, Vector3.UnitY, new Color(255, 255, 255, 204));
-                Face(corner, -Vector3.UnitY, new Color(196, 198, 208, 204));
-                if (!IsCloud(cx + dx + 1, cz + dz)) Face(corner, Vector3.UnitX, new Color(226, 228, 234, 204));
-                if (!IsCloud(cx + dx - 1, cz + dz)) Face(corner, -Vector3.UnitX, new Color(226, 228, 234, 204));
-                if (!IsCloud(cx + dx, cz + dz + 1)) Face(corner, Vector3.UnitZ, new Color(214, 216, 224, 204));
-                if (!IsCloud(cx + dx, cz + dz - 1)) Face(corner, -Vector3.UnitZ, new Color(214, 216, 224, 204));
+                // The top and the bottom always show, and a side only where no cloud stands beside it,
+                // each face by its number in the terrain shader's table, +x, -x, +y, -y, +z, -z.
+                Face(corner, 2, new Color(255, 255, 255, 204));
+                Face(corner, 3, new Color(196, 198, 208, 204));
+                if (!IsCloud(cx + dx + 1, cz + dz)) Face(corner, 0, new Color(226, 228, 234, 204));
+                if (!IsCloud(cx + dx - 1, cz + dz)) Face(corner, 1, new Color(226, 228, 234, 204));
+                if (!IsCloud(cx + dx, cz + dz + 1)) Face(corner, 4, new Color(214, 216, 224, 204));
+                if (!IsCloud(cx + dx, cz + dz - 1)) Face(corner, 5, new Color(214, 216, 224, 204));
             }
-        Faces = indices.Count / 6;
-        if (indices.Count == 0) return;
-        // The store keeps the arrays it is given until the frame uploads them, so they are the mesh's own.
-        _mesh = UploadMesh([.. vertices], [.. indices], [.. colors], null);
+        Faces = faces.Indices.Count / 6;
+        if (faces.Indices.Count == 0) return;
+        // The store keeps the arrays it is given until the frame uploads them, so they are the mesh's
+        // own. The clouds cast no shadow and stand outside the light field, which takes no colors.
+        _mesh = UploadMesh([.. faces.Positions], [.. faces.Indices], MeshStream.From(MeshStreamFormat.UInt2, faces.Packed.ToArray().AsSpan()), null);
 
-        void Face(Vector3 corner, Vector3 normal, Color color)
+        void Face(Vector3 corner, int face, Color color)
         {
+            var normal = SectionMesher.Normal(face);
             var size = new Vector3(Cell, Thick, Cell);
             // Two axes across the face, ordered so its corners run counterclockwise seen from outside.
             var (u, v) = normal.X != 0 ? (Vector3.UnitY, Vector3.UnitZ) : normal.Y != 0 ? (Vector3.UnitZ, Vector3.UnitX) : (Vector3.UnitX, Vector3.UnitY);
             if (normal.X + normal.Y + normal.Z < 0) (u, v) = (v, u);
             var origin = corner + Vector3.Max(normal, Vector3.Zero) * size;
-            var first = (uint)vertices.Count;
-            foreach (var at in (ReadOnlySpan<Vector3>)[Vector3.Zero, u, u + v, v])
-            {
-                vertices.Add(new ModelVertex(origin + at * size, normal, new Vector2(at.X + at.Z, at.Y + at.Z)));
-                colors.Add(color);
-            }
-            indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
+            var first = (uint)faces.Count;
+            var i = 0;
+            foreach (var at in (ReadOnlySpan<Vector3>)[Vector3.Zero, u, u + v, v]) faces.Add(origin + at * size, face, i++, 1, color);
+            faces.Indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
         }
     }
 

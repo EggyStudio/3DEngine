@@ -11,11 +11,13 @@ namespace Engine.Game;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A section is one mesh in one white material, each block's color in its vertices, which the
-/// scene's distance field reads as the model pass does, so the light that bounces takes each
-/// block's color from the mesh it shares with its neighbors. A section meshed again with the same
-/// faces keeps its mesh and takes only new colors, which keep its vertex array, the field knowing a
-/// mesh by that, so a change of light leaves the section settled in the field. The field and the
+/// A section is one mesh in one white material, each vertex its position and eight packed bytes
+/// the terrain shader unpacks into its normal, texture coordinate and color (SectionMesher.Pack),
+/// twenty bytes a vertex on the GPU. The colors also go with the upload for the scene's distance
+/// field, which reads them as the model pass reads the packed bytes, so the light that bounces takes
+/// each block's color from the mesh it shares with its neighbors. A section meshed again with the
+/// same faces keeps its mesh and takes only new packed bytes, which keep its positions, the field
+/// knowing a mesh by those, so a change of light leaves the section settled in the field. The field and the
 /// ray-traced scene keep the colors of a mesh's last upload, so the bounce off a section relit since
 /// takes its old colors until the section is meshed with new faces.
 /// </para>
@@ -32,31 +34,33 @@ namespace Engine.Game;
 public sealed class ChunkRenderer : IDisposable
 {
     // One of a section's meshes and the arrays it was made from, kept to tell a new meshing's faces
-    // from the same faces in new colors.
+    // from the same faces in new light.
     private sealed class Part
     {
         public ModelMesh Mesh;
-        public ModelVertex[] Vertices = [];
+        public Vector3[] Positions = [];
         public uint[] Indices = [];
-        public Color[] Colors = [];
+        public uint[] Packed = [];
 
         public void Take(SectionMesher.Faces faces)
         {
-            var vertices = CollectionsMarshal.AsSpan(faces.Vertices);
+            var positions = CollectionsMarshal.AsSpan(faces.Positions);
             var indices = CollectionsMarshal.AsSpan(faces.Indices);
-            var colors = CollectionsMarshal.AsSpan(faces.Colors);
-            if (vertices.SequenceEqual(Vertices) && indices.SequenceEqual(Indices))
+            var packed = CollectionsMarshal.AsSpan(faces.Packed);
+            if (positions.SequenceEqual(Positions) && indices.SequenceEqual(Indices))
             {
-                if (colors.SequenceEqual(Colors)) return;
-                UpdateMeshBuffer<Color>(Mesh, 3, colors, 0);
-                Colors = colors.ToArray();
+                // A relight writes the packed bytes alone, eight a vertex, the positions kept.
+                if (packed.SequenceEqual(Packed)) return;
+                UpdateMeshBuffer<uint>(Mesh, MeshStreamBuffer, packed, 0);
+                Packed = packed.ToArray();
                 return;
             }
             Forget();
             // The store keeps the arrays it is given until the frame uploads them, so each mesh has
-            // arrays of its own that nothing changes afterward.
-            (Vertices, Indices, Colors) = (vertices.ToArray(), indices.ToArray(), colors.ToArray());
-            Mesh = Vertices.Length > 0 ? UploadMesh(Vertices, Indices, Colors, null) : default;
+            // arrays of its own that nothing changes afterward. The colors go with the upload for the
+            // scene's light field, which reads its colors from them.
+            (Positions, Indices, Packed) = (positions.ToArray(), indices.ToArray(), packed.ToArray());
+            Mesh = Positions.Length > 0 ? UploadMesh(Positions, Indices, MeshStream.From(MeshStreamFormat.UInt2, Packed.AsSpan()), faces.Colors.ToArray()) : default;
         }
 
         public void Forget()
@@ -188,7 +192,7 @@ public sealed class ChunkRenderer : IDisposable
         }
         if (!_mesher.Mesh(world, key)) return false;
 
-        if (_mesher.Solid.Vertices.Count == 0 && _mesher.SeeThrough.Vertices.Count == 0 && _mesher.Emitters.Count == 0)
+        if (_mesher.Solid.Count == 0 && _mesher.SeeThrough.Count == 0 && _mesher.Emitters.Count == 0)
         {
             Forget(key);
             return true;

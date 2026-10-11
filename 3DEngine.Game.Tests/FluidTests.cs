@@ -69,9 +69,9 @@ public class FluidTests
         var mesher = new SectionMesher();
         Assert.True(mesher.Mesh(world, new SectionKey(0, 0, 0)));
         // The tops of the source and of the water one and two blocks from it along x.
-        var vertices = mesher.SeeThrough.Vertices;
-        var tops = Enumerable.Range(0, vertices.Count / 4).Select(q => vertices.Skip(q * 4).Take(4).ToArray())
-            .Where(f => f[0].Normal.Y > 0.5f).Select(f => (Middle: (f[0].Position + f[2].Position) / 2, Height: f[0].Position.Y)).ToArray();
+        var faces = mesher.SeeThrough;
+        var tops = Enumerable.Range(0, faces.Count / 4).Where(q => faces.Unpack(q * 4).Face == 2)
+            .Select(q => (Middle: (faces.Positions[q * 4] + faces.Positions[q * 4 + 2]) / 2, Height: faces.Positions[q * 4].Y)).ToArray();
         float TopAt(int x) => tops.Where(t => (int)MathF.Floor(t.Middle.X) == x && (int)MathF.Floor(t.Middle.Z) == 8).Select(t => t.Height).DefaultIfEmpty(-1).Max();
         Assert.True(TopAt(8) > TopAt(9) && TopAt(9) > TopAt(10), $"the tops stand at {TopAt(8)}, {TopAt(9)} and {TopAt(10)}");
     }

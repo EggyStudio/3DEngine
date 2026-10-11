@@ -19,7 +19,7 @@ public class ShapeTests
 
         var mesher = new SectionMesher();
         Assert.True(mesher.Mesh(world, new SectionKey(0, 1, 0)));
-        Assert.Equal(6 * 4, mesher.Solid.Vertices.Count);
+        Assert.Equal(6 * 4, mesher.Solid.Count);
         Assert.Equal(BlockId.Torch, Assert.Single(mesher.Emitters).Block);
         Assert.Equal(Surfaces.Flame, Assert.Single(Blocks.Get(BlockId.Torch).Glows).Surface);
     }

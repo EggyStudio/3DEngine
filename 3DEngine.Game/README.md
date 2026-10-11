@@ -176,12 +176,15 @@ footing of stone, and no tree grows within the village.
 
 ## How the world is drawn
 
-A section of 16 blocks a side is one mesh in one white material, each block's color in its
-faces' vertices. The scene's distance field, which the light is traced through, reads those
-colors as the model pass does, so the light that bounces takes each block's color. Faces between
-two blocks are left out, and each face that remains is two triangles of its own, since greedy
-meshing is not written yet. A section meshed again with the same faces keeps its mesh and takes
-only new colors.
+A section of 16 blocks a side is one mesh in one white material, each corner of a face its position
+and eight packed bytes of the game's own, which `resources/shaders/terrain.slang` unpacks: the face
+it lies on, which of the face's corners it is, its shade and its surface's color, from which the
+shader takes the normal and texture coordinate by table and the color under the shade, twenty bytes
+a corner on the GPU. The colors go with the mesh as well for the scene's distance field, which the
+light is traced through, so the light that bounces takes each block's color. Faces between two
+blocks are left out, and each face that remains is two triangles of its own, since greedy meshing is
+not written yet. A section meshed again with the same faces keeps its mesh and takes only new packed
+bytes, written in place.
 
 A block that gives off light (glowstone, a sea lantern, shroomlight, magma) is drawn as a cube of
 its own, and the glowing piece of a torch, a lantern or an end rod as that cube scaled to it, every

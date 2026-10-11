@@ -47,20 +47,64 @@ public sealed class SectionMesher
     /// <summary>Whether a face's corners are darkened where blocks meet around them.</summary>
     public bool CornerShade { get; set; } = true;
 
-    /// <summary>Faces as the vertices of a mesh, the color of each vertex, its surface's darkened by its shade, and their triangles.</summary>
+    /// <summary>
+    /// Faces as a mesh: the position of each corner, eight packed bytes a corner (<see cref="Pack"/>)
+    /// that the terrain shader unpacks into its normal, its texture coordinate and its color, the
+    /// color of each corner as the scene's light field reads it, its surface's darkened by its
+    /// shade, and their triangles.
+    /// </summary>
     public sealed class Faces
     {
-        public readonly List<ModelVertex> Vertices = [];
+        public readonly List<Vector3> Positions = [];
+        public readonly List<uint> Packed = [];
         public readonly List<Color> Colors = [];
         public readonly List<uint> Indices = [];
 
+        /// <summary>The corners held.</summary>
+        public int Count => Positions.Count;
+
         public void Clear()
         {
-            Vertices.Clear();
+            Positions.Clear();
+            Packed.Clear();
             Colors.Clear();
             Indices.Clear();
         }
+
+        /// <summary>A corner of a face, its surface's color under the shade from 0 to 1.</summary>
+        public void Add(Vector3 position, int face, int corner, float shade, Color tint)
+        {
+            var (first, second) = Pack(face, corner, shade, tint);
+            Positions.Add(position);
+            Packed.Add(first);
+            Packed.Add(second);
+            Colors.Add(new Color((byte)MathF.Round(tint.R * shade), (byte)MathF.Round(tint.G * shade), (byte)MathF.Round(tint.B * shade), tint.A));
+        }
+
+        /// <summary>The face, corner, shade and tint packed into a corner's eight bytes.</summary>
+        public (int Face, int Corner, float Shade, Color Tint) Unpack(int corner) => SectionMesher.Unpack(Packed[2 * corner], Packed[2 * corner + 1]);
     }
+
+    /// <summary>
+    /// A corner's eight bytes as two uints: in the first the face it lies on, 0 to 5 in the order of
+    /// <c>Normals</c>, at its low 3 bits, which of the face's four corners it is at the next 2, and
+    /// its shade from 0 to 255 at the 8 above; in the second the surface's color under its tint, red,
+    /// green and blue a byte each from the lowest, and its alpha in the highest byte. The color is
+    /// sRGB, as a vertex color is, and the shade multiplies it in that space.
+    /// </summary>
+    public static (uint First, uint Second) Pack(int face, int corner, float shade, Color tint)
+    {
+        var level = (uint)Math.Clamp(MathF.Round(shade * 255), 0, 255);
+        return ((uint)face | (uint)corner << 3 | level << 5, tint.R | (uint)tint.G << 8 | (uint)tint.B << 16 | (uint)tint.A << 24);
+    }
+
+    /// <summary>A corner's eight bytes read back, as the terrain shader reads them.</summary>
+    public static (int Face, int Corner, float Shade, Color Tint) Unpack(uint first, uint second) =>
+        ((int)(first & 7), (int)(first >> 3 & 3), (first >> 5 & 255) / 255f,
+            new Color((byte)second, (byte)(second >> 8), (byte)(second >> 16), (byte)(second >> 24)));
+
+    /// <summary>The outward normal of a face by its number, as the terrain shader's table holds it.</summary>
+    public static Vector3 Normal(int face) => Normals[face];
 
     /// <summary>The last section's faces of opaque blocks.</summary>
     public Faces Solid { get; } = new();
@@ -72,8 +116,9 @@ public sealed class SectionMesher
     public List<(int Index, BlockId Block)> Emitters { get; } = [];
 
     // The six directions in the order +x, -x, +y, -y, +z, -z, each face's corners counterclockwise
-    // seen from outside the block, which is the side the model pass draws, with their texture
-    // coordinates as GenMeshCube lays them.
+    // seen from outside the block, which is the side the model pass draws. The terrain shader holds
+    // the same six normals and each corner's texture coordinate, as GenMeshCube lays them, by the
+    // face and corner a vertex's packed bytes give.
     private static readonly Vector3[] Normals = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
     private static readonly int[] Steps = [1, -1, P * P, -P * P, P, -P];
     private static readonly Vector3[][] Corners =
@@ -85,16 +130,6 @@ public sealed class SectionMesher
         [new(0, 0, 1), new(1, 0, 1), new(1, 1, 1), new(0, 1, 1)],
         [new(0, 0, 0), new(0, 1, 0), new(1, 1, 0), new(1, 0, 0)],
     ];
-    private static readonly Vector2[][] Uvs =
-    [
-        [new(1, 0), new(1, 1), new(0, 1), new(0, 0)],
-        [new(0, 0), new(1, 0), new(1, 1), new(0, 1)],
-        [new(0, 1), new(0, 0), new(1, 0), new(1, 1)],
-        [new(1, 1), new(0, 1), new(0, 0), new(1, 0)],
-        [new(0, 0), new(1, 0), new(1, 1), new(0, 1)],
-        [new(1, 0), new(1, 1), new(0, 1), new(0, 0)],
-    ];
-
     // For each face and corner, the steps in the padded copy from the cell the face looks into to the
     // two cells beside it toward the corner and to the cell across the corner.
     private static readonly int[,] Side1 = new int[6, 4], Side2 = new int[6, 4], Across = new int[6, 4];
@@ -216,7 +251,7 @@ public sealed class SectionMesher
         var look = Surfaces.All[surface];
         var color = look.Under(_column.GrassTint[place], _column.FoliageTint[place]);
         var faces = color.A < 255 ? SeeThrough : Solid;
-        var first = (uint)faces.Vertices.Count;
+        var first = (uint)faces.Count;
         var front = at + Steps[face];
         Span<int> occlusion = stackalloc int[4];
 
@@ -237,8 +272,7 @@ public sealed class SectionMesher
             var shade = kept * (CornerShade ? Occlusion[occlusion[i]] : 1);
             var corner = Corners[face][i];
             corner.Y = corner.Y == 1 ? top : bottom;
-            faces.Vertices.Add(new ModelVertex(block + corner, Normals[face], Uvs[face][i]));
-            faces.Colors.Add(new Color((byte)MathF.Round(color.R * shade), (byte)MathF.Round(color.G * shade), (byte)MathF.Round(color.B * shade), color.A));
+            faces.Add(block + corner, face, i, shade, color);
         }
 
         // The quad is split along the diagonal whose corners are less closed, so a closed corner
@@ -273,12 +307,10 @@ public sealed class SectionMesher
     {
         int sky = _light[at] >> 4, lit = _light[at] & 15;
         var kept = LightLevels ? MathF.Pow(Lit(Math.Max(sky, lit)), 1 / 2.2f) : 1;
-        Span<Vector3> corners = stackalloc Vector3[4];
         foreach (var piece in shape.Pieces)
         {
             if (piece.Glows) continue;
             var color = Surfaces.All[piece.Surface].Color;
-            var shaded = new Color((byte)MathF.Round(color.R * kept), (byte)MathF.Round(color.G * kept), (byte)MathF.Round(color.B * kept));
             var size = piece.To - piece.From;
             for (int face = 0; face < 6; face++)
             {
@@ -286,18 +318,13 @@ public sealed class SectionMesher
                 var onSide = face % 2 == 0 ? Component(piece.To, axis) >= 1 : Component(piece.From, axis) <= 0;
                 if (onSide && (axis == 1 || piece.Lean == Vector3.Zero) && Blocks.IsOpaque((BlockId)_blocks[at + Steps[face]])) continue;
 
+                // A leaning face keeps the normal of the face it leans from, the terrain shader holding
+                // six, which a wall torch's stick, leaning by 23 degrees, shows little of.
+                var first = (uint)Solid.Count;
                 for (int i = 0; i < 4; i++)
                 {
                     var corner = Corners[face][i];
-                    corners[i] = block + piece.From + corner * size + corner.Y * piece.Lean;
-                }
-                // A leaning face is no longer square to its axis, so its normal is found from its edges.
-                var normal = Vector3.Normalize(Vector3.Cross(corners[1] - corners[0], corners[2] - corners[0]));
-                var first = (uint)Solid.Vertices.Count;
-                for (int i = 0; i < 4; i++)
-                {
-                    Solid.Vertices.Add(new ModelVertex(corners[i], normal, Uvs[face][i]));
-                    Solid.Colors.Add(shaded);
+                    Solid.Add(block + piece.From + corner * size + corner.Y * piece.Lean, face, i, kept, color);
                 }
                 Solid.Indices.Add(first);
                 Solid.Indices.Add(first + 1);
