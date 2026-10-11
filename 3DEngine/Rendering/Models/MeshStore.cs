@@ -28,8 +28,9 @@ internal sealed class MeshStore
     /// <param name="Streams">A color and a second texture coordinate at each vertex, which a mesh may have beside its vertices.</param>
     /// <param name="Custom">The stream of the program's own a vertex stage reads as <c>CUSTOM0</c>, or null for a mesh without one.</param>
     /// <param name="CustomOnly">Whether only that stream changed, so the mesh's other buffers are kept.</param>
+    /// <param name="PositionsOnly">Whether the GPU is given the vertices' positions alone, twelve bytes a vertex, for a mesh uploaded from its positions.</param>
     public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null, Streams? Streams = null,
-        MeshStream? Custom = null, bool CustomOnly = false);
+        MeshStream? Custom = null, bool CustomOnly = false, bool PositionsOnly = false);
 
     /// <summary>
     /// A mesh's colors and second texture coordinates, one a vertex each, either or both, kept in
@@ -54,6 +55,9 @@ internal sealed class MeshStore
     // The streams of the program's own, kept apart from the colors and second texture coordinates,
     // since a mesh with those carries both and one with this stream alone pays for neither.
     private readonly Dictionary<int, MeshStream> _custom = [];
+    // The meshes uploaded from their positions alone, whose vertices here hold zero normals and
+    // texture coordinates for the readers of the CPU's copy and reach the GPU as positions.
+    private readonly HashSet<int> _positionsOnly = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -69,7 +73,24 @@ internal sealed class MeshStore
     /// the program's own when it has them, and returns its id.
     /// </summary>
     /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or a stream's count differs from the vertices'.</exception>
-    public int Add(ModelVertex[] vertices, uint[] indices, Streams? streams = null, MeshStream? custom = null)
+    public int Add(ModelVertex[] vertices, uint[] indices, Streams? streams = null, MeshStream? custom = null) =>
+        Add(vertices, indices, streams, custom, positionsOnly: false);
+
+    /// <summary>
+    /// Queues a mesh of triangles from its positions alone, with its stream of the program's own and
+    /// its colors where given, and returns its id. The GPU is given twelve bytes a vertex, and the
+    /// vertices kept here have zero normals and texture coordinates, which the light field, the
+    /// glow lights, picking and bodies read as they read any mesh's.
+    /// </summary>
+    /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or a stream's count differs from the positions'.</exception>
+    public int AddPositions(System.Numerics.Vector3[] positions, uint[] indices, MeshStream? custom = null, Color[]? colors = null)
+    {
+        var vertices = new ModelVertex[positions.Length];
+        for (int i = 0; i < positions.Length; i++) vertices[i] = new ModelVertex(positions[i], Vector3.Zero, System.Numerics.Vector2.Zero);
+        return Add(vertices, indices, colors is null ? null : new Streams(colors, null), custom, positionsOnly: true);
+    }
+
+    private int Add(ModelVertex[] vertices, uint[] indices, Streams? streams, MeshStream? custom, bool positionsOnly)
     {
         if (indices.Length == 0 || indices.Length % 3 != 0)
             throw new ArgumentException("A mesh needs a whole number of triangles.", nameof(indices));
@@ -89,6 +110,7 @@ internal sealed class MeshStore
             _live.Add(id, (vertices, indices));
             if (streams is not null) _streams[id] = streams;
             if (custom is not null) _custom[id] = custom;
+            if (positionsOnly) _positionsOnly.Add(id);
             _uploads.Add(new Upload(id, vertices, indices, Streams: streams, Custom: custom));
             return id;
         }
@@ -101,6 +123,18 @@ internal sealed class MeshStore
         if (custom.Data.Length % size != 0 || custom.Data.Length / size != vertices)
             throw new ArgumentException($"{custom.Data.Length} bytes of {custom.Format} are not {vertices} vertices of {size} bytes each.", nameof(custom));
     }
+
+    /// <summary>
+    /// Whether a mesh was uploaded from its positions alone, and where <paramref name="firstAsked"/>
+    /// is set whether it is the first time that is asked of it so, which a warning is given once by.
+    /// </summary>
+    internal bool IsPositionsOnly(int id, bool firstAsked = false)
+    {
+        lock (_gate) return _positionsOnly.Contains(id) && (!firstAsked || _positionsAsked.Add(id));
+    }
+
+    // The meshes of positions alone a warning has been given of.
+    private readonly HashSet<int> _positionsAsked = [];
 
     /// <summary>A loaded mesh's stream of the program's own, or null for one without it.</summary>
     internal MeshStream? CustomOf(int id)
@@ -195,6 +229,8 @@ internal sealed class MeshStore
             _skins.Remove(id);
             _streams.Remove(id);
             _custom.Remove(id);
+            _positionsOnly.Remove(id);
+            _positionsAsked.Remove(id);
             _poses.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
@@ -206,12 +242,12 @@ internal sealed class MeshStore
     /// Makes a loaded mesh one the GPU poses, by four joints and weights a vertex, which uploads it
     /// again with them.
     /// </summary>
-    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh that keeps more than its positions on the GPU, which a skin needs.</returns>
     internal bool SetSkin(int id, Skin skin)
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var data)) return false;
+            if (!_live.TryGetValue(id, out var data) || _positionsOnly.Contains(id)) return false;
             _skins[id] = skin;
             _uploads.RemoveAll(u => u.Id == id);
             _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin, Streams: _streams.GetValueOrDefault(id), Custom: _custom.GetValueOrDefault(id)));
@@ -276,7 +312,7 @@ internal sealed class MeshStore
     {
         lock (_gate)
         {
-            var taken = (_uploads.ToArray(), _removals.ToArray());
+            var taken = (_uploads.Select(u => _positionsOnly.Contains(u.Id) ? u with { PositionsOnly = true } : u).ToArray(), _removals.ToArray());
             _uploads.Clear();
             _removals.Clear();
             return taken;
@@ -304,6 +340,9 @@ internal sealed class GpuMeshes : IDisposable
 
         internal IBuffer[]? Ring { get; init; }
         internal int Slot { get; init; }
+
+        /// <summary>Whether <see cref="Vertices"/> holds positions alone, twelve bytes a vertex, the normal and texture coordinate read as zero.</summary>
+        internal bool PositionsOnly { get; init; }
 
         /// <summary>Its stream of the program's own and the stream's format, or null for a mesh without one.</summary>
         internal (IBuffer Buffer, MeshStreamFormat Format)? Custom { get; init; }
@@ -346,7 +385,8 @@ internal sealed class GpuMeshes : IDisposable
 
             foreach (var upload in uploads)
             {
-                var bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
+                // A mesh uploaded from its positions is given them alone.
+                var bytes = upload.PositionsOnly ? MemoryMarshal.AsBytes(PositionsOf(upload.Vertices).AsSpan()) : MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
                 if ((upload.VerticesOnly || upload.CustomOnly) && _entries.TryGetValue(upload.Id, out var old))
                 {
                     var entry = old;
@@ -384,7 +424,7 @@ internal sealed class GpuMeshes : IDisposable
                     continue;
                 }
                 _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length)
-                    { Colors = colors, Texcoords2 = texcoords2, Custom = own, Box = BoxOf(upload.Vertices) };
+                    { Colors = colors, Texcoords2 = texcoords2, Custom = own, Box = BoxOf(upload.Vertices), PositionsOnly = upload.PositionsOnly };
             }
         }
 
@@ -414,6 +454,13 @@ internal sealed class GpuMeshes : IDisposable
         slot = (slot + 1) % ring.Length;
         data.CopyTo(gfx.Map(ring[slot]));
         return (ring, slot);
+    }
+
+    private static Vector3[] PositionsOf(ModelVertex[] vertices)
+    {
+        var positions = new Vector3[vertices.Length];
+        for (int i = 0; i < vertices.Length; i++) positions[i] = vertices[i].Position;
+        return positions;
     }
 
     // The box around a mesh's positions, or null for a mesh with none.

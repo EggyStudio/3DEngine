@@ -4,106 +4,94 @@ using static Engine.Engine3D;
 namespace Engine.Examples;
 
 /// <summary>
-/// A town of block columns as one mesh, each vertex carrying four bytes of the program's own beside
-/// its position, normal and texture coordinates (<see cref="MeshStream"/>): a palette index and a
-/// shade, which a shader of the program's own unpacks. A wave moves the palette through the town,
-/// the packed bytes written in place each frame and nothing else of the mesh uploaded again.
+/// A hill of voxels as one mesh of positions alone, each vertex carrying four bytes of the
+/// program's own (<see cref="MeshStream"/>) with the face it lies on, its corner of the face and its
+/// tile, which a shader of the program's own unpacks into the normal, the texture coordinate and the
+/// color it lights, sixteen bytes a vertex where a whole one with the stream is thirty-six.
 /// </summary>
 public static class ShadersPackedVertices
 {
-    private const int Size = 16;
+    private const int Size = 24, Height = 12;
+
+    // Each face's normal's index, as the shader's table holds them, and its four corners in a unit
+    // cube, wound to face outward.
+    private static readonly (int X, int Y, int Z)[] Ways = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)];
+    private static readonly Vector3[][] Faces =
+    [
+        [new(1, 0, 1), new(1, 0, 0), new(1, 1, 0), new(1, 1, 1)],
+        [new(0, 0, 0), new(0, 0, 1), new(0, 1, 1), new(0, 1, 0)],
+        [new(0, 1, 1), new(1, 1, 1), new(1, 1, 0), new(0, 1, 0)],
+        [new(0, 0, 0), new(1, 0, 0), new(1, 0, 1), new(0, 0, 1)],
+        [new(0, 0, 1), new(1, 0, 1), new(1, 1, 1), new(0, 1, 1)],
+        [new(1, 0, 0), new(0, 0, 0), new(0, 1, 0), new(1, 1, 0)],
+    ];
 
     public static void Run()
     {
         InitWindow(800, 450, "[shaders] packed vertices");
 
         var shader = LoadShader("resources/shaders/packed.slang");
-        var material = new ModelMaterial(Color.White) { Shader = shader, Roughness = 0.8f };
+        var material = new ModelMaterial(Color.White) { Shader = shader, Roughness = 0.9f };
 
-        // A column on each cell of the grid, its height from two waves over the ground.
-        var vertices = new List<ModelVertex>();
-        var indices = new List<uint>();
-        var shades = new List<uint>();
+        // A hill of columns, the ground the height of two waves, each voxel's faces against the air
+        // kept, as a voxel game meshes its chunks.
         var heights = new int[Size, Size];
         for (int x = 0; x < Size; x++)
             for (int z = 0; z < Size; z++)
             {
-                heights[x, z] = 1 + (int)(4 + 3 * MathF.Sin(x * 0.5f) * MathF.Cos(z * 0.4f));
-                Column(vertices, indices, shades, new Vector3(x - Size / 2f, 0, z - Size / 2f), heights[x, z]);
+                var (dx, dz) = (x - Size / 2f, z - Size / 2f);
+                heights[x, z] = Math.Clamp((int)(Height - MathF.Sqrt(dx * dx + dz * dz) * 0.7f + 2 * MathF.Sin(x * 0.6f) * MathF.Cos(z * 0.5f)), 1, Height);
             }
-        var packed = new uint[vertices.Count];
-        Paint(packed, shades, heights, 0);
-        var town = UploadMesh([.. vertices], [.. indices], null, null, MeshStream.From(MeshStreamFormat.UInt, packed.AsSpan()));
+        bool Solid(int x, int y, int z) => x >= 0 && z >= 0 && x < Size && z < Size && y >= 0 && y < heights[x, z];
 
-        CreateDirectionalLight(new Vector3(-0.5f, -1, -0.3f), Color.White, 1.4f, castsShadows: true);
-        SetAmbientLight(new Color(150, 170, 200), 0.25f);
-        var camera = new Camera3D(new Vector3(14, 16, 18), new Vector3(0, 2, 0), Vector3.UnitY, 45);
-        var time = 0f;
+        var positions = new List<Vector3>();
+        var packed = new List<uint>();
+        var indices = new List<uint>();
+        for (int x = 0; x < Size; x++)
+            for (int z = 0; z < Size; z++)
+                for (int y = 0; y < heights[x, z]; y++)
+                    for (int face = 0; face < 6; face++)
+                    {
+                        var (wx, wy, wz) = Ways[face];
+                        if (Solid(x + wx, y + wy, z + wz)) continue;
+                        // Grass on a column's top, snow on a high one, dirt under the top and stone
+                        // deep in the hill.
+                        var top = y == heights[x, z] - 1;
+                        uint tile = top && y >= Height - 3 ? 3u : top ? 0u : y >= heights[x, z] - 3 ? 1u : 2u;
+                        var first = (uint)positions.Count;
+                        for (int corner = 0; corner < 4; corner++)
+                        {
+                            positions.Add(new Vector3(x - Size / 2f, y, z - Size / 2f) + Faces[face][corner]);
+                            packed.Add((uint)face | (uint)corner << 3 | tile << 5);
+                        }
+                        indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
+                    }
+        var hill = UploadMesh([.. positions], [.. indices], MeshStream.From(MeshStreamFormat.UInt, packed.ToArray().AsSpan()), null);
+
+        CreateDirectionalLight(new Vector3(-0.5f, -1, -0.3f), new Color(255, 244, 225), 1.6f, castsShadows: true);
+        SetAmbientLight(new Color(150, 175, 215), 0.3f);
+        var camera = new Camera3D(new Vector3(22, 20, 26), new Vector3(0, 3, 0), Vector3.UnitY, 45);
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
-            time += GetFrameTime();
             UpdateCamera(ref camera, CameraMode.Orbital);
-            Paint(packed, shades, heights, time);
-            UpdateMeshBuffer(town, MeshStreamBuffer, packed.AsSpan(), 0);
 
             BeginDrawing();
-            ClearBackground(new Color(30, 34, 44));
+            ClearBackground(new Color(125, 165, 210));
             BeginMode3D(camera);
-            DrawMesh(town, material, Matrix4x4.Identity);
+            DrawMesh(hill, material, Matrix4x4.Identity);
             EndMode3D();
 
-            DrawRectangle(0, 0, 570, 40, new Color(0, 0, 0, 160));
-            DrawText($"{vertices.Count} vertices, four bytes each written in place", 10, 10, 20, Color.RayWhite);
-            DrawFPS(GetScreenWidth() - 100, 10);
+            var line = $"{positions.Count} vertices, 16 bytes each: a position and four bytes packed";
+            DrawRectangle(0, 0, MeasureText(line, 20) + 20, 40, new Color(0, 0, 0, 160));
+            DrawText(line, 10, 10, 20, Color.RayWhite);
+            DrawFPS(GetScreenWidth() - 100, GetScreenHeight() - 30);
             EndDrawing();
         }
 
-        UnloadMesh(town);
+        UnloadMesh(hill);
         UnloadShader(shader);
         CloseWindow();
-    }
-
-    // A box of one unit by height units on a cell, each face four vertices of its own with the
-    // face's normal, and the shade each face's vertices carry: the top brightest and the sides by
-    // the way they face.
-    private static void Column(List<ModelVertex> vertices, List<uint> indices, List<uint> shades, Vector3 at, int height)
-    {
-        (Vector3 Normal, Vector3 Right, Vector3 Up, uint Shade)[] faces =
-        [
-            (Vector3.UnitY, Vector3.UnitX, -Vector3.UnitZ, 255),
-            (Vector3.UnitZ, Vector3.UnitX, Vector3.UnitY, 215),
-            (-Vector3.UnitZ, -Vector3.UnitX, Vector3.UnitY, 175),
-            (Vector3.UnitX, -Vector3.UnitZ, Vector3.UnitY, 195),
-            (-Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY, 165),
-        ];
-        var size = new Vector3(0.9f, height, 0.9f);
-        var middle = at + new Vector3(0.5f, height / 2f, 0.5f);
-        foreach (var (normal, right, up, shade) in faces)
-        {
-            var first = (uint)vertices.Count;
-            var center = middle + normal * size / 2;
-            var (r, u) = (right * size / 2, up * size / 2);
-            vertices.Add(new ModelVertex(center - r - u, normal, new Vector2(0, 1)));
-            vertices.Add(new ModelVertex(center + r - u, normal, new Vector2(1, 1)));
-            vertices.Add(new ModelVertex(center + r + u, normal, new Vector2(1, 0)));
-            vertices.Add(new ModelVertex(center - r + u, normal, new Vector2(0, 0)));
-            indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
-            shades.AddRange([shade, shade, shade, shade]);
-        }
-    }
-
-    // Each vertex's four bytes, its column's palette index in the low four bits, moved by a wave
-    // through the town, and its face's shade in the eight above them.
-    private static void Paint(uint[] packed, List<uint> shades, int[,] heights, float time)
-    {
-        int vertex = 0;
-        for (int x = 0; x < Size; x++)
-            for (int z = 0; z < Size; z++)
-            {
-                var index = (uint)((heights[x, z] + (int)(time * 4 - MathF.Sqrt((x - 8) * (x - 8) + (z - 8) * (z - 8)))) & 15);
-                for (int i = 0; i < 20; i++, vertex++) packed[vertex] = index | shades[vertex] << 4;
-            }
     }
 }

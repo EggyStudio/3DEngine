@@ -188,7 +188,13 @@ buffers at bindings 2 and 3 where it has them, and its stream of the program's o
 one at binding 5, past the subsurface pass's binding 4, read as `CUSTOM0` by a vertex stage of the
 program's own alone, which a mesh without it feeds from sixteen bytes of zeros at a stride of 0 in a
 format of the input's class; a write of the stream in place goes into the next of a ring of buffers,
-as replaced vertices do. `model.slang` shades by the frame's lights, or when the
+as replaced vertices do. A mesh uploaded from its positions alone gives twelve bytes a vertex at
+binding 0, its normal and texture coordinate read as zeros at binding 6 at a stride of 0, and every
+pipeline that binds a mesh's vertex, the model pass's own and a shader's of the program's own, the
+solid and masked shadow pipelines and the velocity pass's, has a form for it, picked by the mesh as
+it draws; the pass that scatters light under a surface leaves such a mesh out. The CPU keeps its
+positions with zero normals, which the field, the glow lights, picking and bodies read as any
+mesh's. `model.slang` shades by the frame's lights, or when the
 world has none and no environment draws the color unlit, texture times color with the light the
 material gives off, as raylib's default shader draws a model.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports

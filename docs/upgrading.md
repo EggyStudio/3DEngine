@@ -198,7 +198,9 @@ guide that shows it.
 - **A vertex stream of the program's own.** `UploadMesh` takes a `MeshStream` after a mesh's
   colors and second texture coordinates, its values one a vertex in one of the five
   `MeshStreamFormat`s, which a vertex stage of the program's own reads as `CUSTOM0`, and
-  `UpdateMeshBuffer` writes it in place at `MeshStreamBuffer`, as
+  `UpdateMeshBuffer` writes it in place at `MeshStreamBuffer`. `UploadMesh` takes a mesh's
+  positions alone with its stream, twelve bytes a vertex, for a stream that packs the normal and
+  texture coordinate, as
   [A vertex stream of the program's own](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)
   shows.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws

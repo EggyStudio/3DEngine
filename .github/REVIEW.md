@@ -10,28 +10,54 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7798d5e5`. Three commits. `3af4cda8`, Verdict 50's remedy: the suite's script gives
-an NVIDIA driver a cache of the suite's own in `build/nvidia-cache`, 2 GiB, through the driver's two
-variables where neither is set, and makes the folder, since the driver makes none and a folder it
-could not write in failed a compile with the same unknown error, this time on the bloom's exposure
-pipeline, which says the cause is the driver's on any pipeline; two runs through the script then
-passed 1,686 each in 7 m 31 s with a fresh cache and 6 m 39 s with a warm one, where 26 minutes with
-none; the folder in `.gitignore` and BUILDING.md's paragraph with the timings and the runs. Verdict
-50 is settled, its cause named and ten runs green, and leaves this file. `043b3af1`, item 18, taken
-before 19 since both touch the table script: the README says under Examples that of raylib's 222
-examples 221 are written and one does not apply, beside 34 of the engine's own and 12 games, and
-each folder's heading counts its row's pictures, Audio 12 through Games 12, 255 in all, written by
-the table script and failed by its check where stale. `7798d5e5`, item 19: the examples job is a
-workflow of its own, called with whole false by a push, which keeps the table's check, builds every
-game from the package, plays and soaks Slide and runs the first game's steps, and with whole true by
-the pack, which captures, measures, plays the twelve games, soaks, resizes and walks the README;
-each step names the workflow file to the step script, since a called workflow's run names its
-caller's, and the script finds the thirty named steps; BUILDING.md says which run does what and the
-shipping guide follows. Items 18 and 19 are done. Right, the cache folder made and the unwritable
-one read as the same fault, the counts written by the script that owns the gallery rather than by
-hand, and the one job split by a flag rather than two copies of its steps. One thing left of item
-19: the pack job does not wait on the examples job, both needing the tests alone, so a package is
-made before the games are proven, which Decision 19 does not allow for 5.2; the pack waits on it,
+Reviewed up to `958a3eb3`. Item 20's first stage, with item 19's last line: `MeshStream` and
+`MeshStreamFormat` with BevyCSharp's names and numbers, a fifth argument of `UploadMesh` and
+`UpdateMeshBuffer` at `MeshStreamBuffer`, 9, writing the stream alone, queued as its own kind of
+upload through a ring of buffers and merged with a write of the vertices queued the same frame; a
+vertex stage of the program's own reading `CUSTOM0` fed at binding 5 from the mesh's stream in its
+format or, where the mesh has none, from sixteen bytes of zeros at a stride of 0 in the input's
+class, which the reflection says and the shader cache's input line keeps, the pipeline keyed by the
+feed; the store checking a whole number of the format's vertices against the mesh's and forgetting
+the stream with the mesh; the three Vulkan formats; the models and shaders guides, the upgrading
+page's line, RENDERING.md's bindings; `Engine3D.Models.cs` past 800 lines split, the program's own
+meshes in `Engine3D.Meshes.cs`. Four bytes, a `uint` or `packed` throughout. The guide gives the
+reasons for a vertex stream over a buffer read by the vertex's index, the working session rightly
+leaving out the one about batches, since a draw with a shader of its own is a batch of its own here
+already, and item 20's text drops it too. Tests: the store's count check and its in-place queueing,
+the write of index 9 changing one value, the reflection's class, and the Vulkan fact of two planes
+at 64 by 32, the left's packed color reaching its stage whole and the right, without a stream,
+reading zero. The example `shaders_packed_vertices`, 5,120 vertices whose four bytes a wave writes
+in place each frame, captured and in the Shaders row, the counts 35 of the engine's own and Shaders
+51. The pack job waits on the examples job. The suite passes, 1,691; on lavapipe under the
+validation layer 401 pass with no VUID; the guides' 144 blocks and the examples build on the
+package. Right, the feed keyed by format and class so a shader serves meshes with the stream and
+without, the in-place write merged rather than doubled, and the reasons in the guide as they hold
+here. Next item 20's second stage as revised, then item 14, item 15 as a batch of its own, item 17,
+the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
+filter offset, item 10, item 9 and item 8.
+
+Before it, `3af4cda8`, `043b3af1` and `7798d5e5` came. `3af4cda8`, Verdict 50's remedy: the suite's
+script gives an NVIDIA driver a cache of the suite's own in `build/nvidia-cache`, 2 GiB, through the
+driver's two variables where neither is set, and makes the folder, since the driver makes none and a
+folder it could not write in failed a compile with the same unknown error, this time on the bloom's
+exposure pipeline, which says the cause is the driver's on any pipeline; two runs through the script
+then passed 1,686 each in 7 m 31 s with a fresh cache and 6 m 39 s with a warm one, where 26 minutes
+with none; the folder in `.gitignore` and BUILDING.md's paragraph with the timings and the runs.
+Verdict 50 is settled, its cause named and ten runs green, and leaves this file. `043b3af1`, item
+18, taken before 19 since both touch the table script: the README says under Examples that of
+raylib's 222 examples 221 are written and one does not apply, beside 34 of the engine's own and 12
+games, and each folder's heading counts its row's pictures, Audio 12 through Games 12, 255 in all,
+written by the table script and failed by its check where stale. `7798d5e5`, item 19: the examples
+job is a workflow of its own, called with whole false by a push, which keeps the table's check,
+builds every game from the package, plays and soaks Slide and runs the first game's steps, and with
+whole true by the pack, which captures, measures, plays the twelve games, soaks, resizes and walks
+the README; each step names the workflow file to the step script, since a called workflow's run
+names its caller's, and the script finds the thirty named steps; BUILDING.md says which run does
+what and the shipping guide follows. Items 18 and 19 are done. Right, the cache folder made and the
+unwritable one read as the same fault, the counts written by the script that owns the gallery rather
+than by hand, and the one job split by a flag rather than two copies of its steps. One thing left of
+item 19: the pack job does not wait on the examples job, both needing the tests alone, so a package
+is made before the games are proven, which Decision 19 does not allow for 5.2; the pack waits on it,
 one line, with item 20's first commit. The owner refined item 20 at 22:55, approved at 22:58
 (Decision 37): a position is every mesh's, as Bevy has it, since shadows, motion vectors and
 everything around a mesh read it, and the packed data is a stream beside it; so the second stage is
@@ -89,68 +115,6 @@ build is read and removed, its numbers here. Next Verdict 50's remedy, then item
 then item 20's first stage and its second, then item 14, item 15 as a batch of its own, item 17, the
 bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
 offset, item 10, item 9 and item 8.
-
-Before it, `ffa3ec48` came, items 13 and 16: `games/Pusher` is gone with its capture and its cell,
-and Slide takes its three roles in the test workflow, the game built and played from the package,
-published native and drawn, and played once more in a window on the runner's desktop, chosen as the
-lightest of the 3D games by the play script's steps after the pack, measured once on lavapipe under
-the validation layer with Mesa's cache off, Slide at 11.1 s against Jelly's 20.2, Tempo's 23.2,
-Summit's 30.0, Tactics' 30.5, Wick's 37.0, Rally's 47.1, Sumo's 49.6 and Manor's 55.0, its native
-publish 38 s for an executable of 14 MB and its drive 55 s; the games' loops, the soak and drive
-scripts, the soak check's test, BUILDING.md's paragraphs, the shipping guide's example, TODO.md's
-lines, the raylib comparison's size line and Hopper's README follow, and RENDERING.md's row and the
-materials guide's clause are removed rather than replaced, being before and after readings no game
-can take again; nothing outside SHARED.md and this file names the game, and SHARED.md's two rows
-name Slide since this pass, in both copies. Item 16: the cheat sheet's row heads the guide table and
-the old row at its foot is gone. The suite passes, 1,684, with the README's walk and the table's
-check. Right, the replacement chosen by a measure across every game rather than by habit, and the
-readings that named the gone game dropped rather than faked. An open problem, Verdict 50: two of
-four full suite runs on the development machine since `ea9a23cd` failed one test each, the
-subsurface tests at High and then a particle test of the field, on an unknown error from the
-creation of a model-pass pipeline in an app's first frame, the same pipeline made without error the
-next frame, no Xid and no memory pressure, unreproduced in two hundred scratch apps with the
-driver's cache off and the shader compiler running beside; the suite runs at `e28064f7` to tell
-whether it predates the lampless build. First the page, read at 19:30: the owner pushed everything
-through `ffa3ec48`, and the Windows jobs of `aa9fe773` and `e28064f7` are red again by the time
-limit, the Rendering group and the suite ended at 40 minutes with 377 tests without a result and the
-leak test's frame at 4.3 s where `b1e86aef`'s read 3.8 and ran whole, so Verdict 48 is red where it
-was open on time, and on `e28064f7` the leak test's resident memory grew 92 MB past its 50 MB bound
-over fifty apps with no Vulkan object left alive, which is Verdict 51; the Linux jobs are green, the
-macOS jobs run, and the runs of `ea9a23cd` and `ffa3ec48` with the lampless build wait in the queue,
-which read the first remedy's worth on Windows. The owner asked at 19:35 for the examples' counts
-under the Examples heading and a count on each folder's heading, which is item 18 (Decision 34), a
-small batch of its own after the third build. And the macOS job of `aa9fe773` is red by its first
-game's step, where `build/webp.sh` wants ImageMagick for the fit it does since `60f2999d` and the
-macOS runner has none, its tests green, 1,618, which is Verdict 52 and comes first; `e28064f7`'s
-macOS job is green, which the verdict reads. The owner chose at 19:50 that a push plays one game and
-the pack run the rest, which is item 19 (Decision 35), a workflow batch after the third build. The
-owner put `.ref/Voxel-Sandbox-main` in the tree at 20:05, a game on the 3.1.0 package feeding its
-shader one packed float a vertex through an input layout of its own and unpacking it there, and
-asked whether a vertex stream of the game's own belongs in a game engine and how both engines would
-do it; the plan was made with the owner and approved at 20:40, and is item 20 (Decision 36): a
-stream beside the vertex as `CUSTOM0` in five formats, then a mesh that is the stream alone with its
-bounds given and its shadow by the shader's own stage, the voxel game its first user after, from 44
-bytes a vertex to 8. The page read at 20:45: `ffa3ec48`'s Windows job is green, its tests 22 m 5 s
-and the job 43 minutes, within a quarter of the time the run before `98a1edca` took, which Verdict
-48 asked, while the Windows jobs of `ea9a23cd` and `76f7ca49`, with the same lampless build, passed
-1,636 tests with none without a result and then lost the suite's group to the 40-minute limit, 82
-and 84 minutes of tests, so the build's worth is shown once and what varies between runners or in
-Mesa's cache is the open thing; `ea9a23cd`'s macOS job is red by the Slide step, a swipe that did
-not slide the tiles, its tests green, which is Verdict 53; the macOS jobs of `76f7ca49` and
-`ffa3ec48` run. At 21:14 the macOS jobs of `76f7ca49` and `ffa3ec48` are green, the Slide step and
-the first game's step played on each, so Verdict 53 stands at two of its three and the first game's
-failure at `aa9fe773` was once; `ffa3ec48`'s macOS examples job runs, and with every test job green
-its examples job follows, the first since the lamps' growth and since the fit, which reads Verdict
-49's measure and the fit on the Linux runner. At 21:46 that examples job has run and is red by its
-captures: 0 of 255 drew on Linux, every one failing on the picture script's line that ImageMagick is
-not installed, 1,208 seconds spent failing, so the line the owner quoted came from the Linux
-examples job after all, whose runner has no ImageMagick and whose apt line installs webp alone,
-which Verdict 52 says, and Verdict 49's measure waits on the captures again. Next Verdict 52, then
-Verdict 48's third build with Verdict 51's read, written and measured in the working tree and
-touching the files item 20's first stage touches, so it goes in before them, then item 19 and item
-18, then item 20's first stage and its second, then item 14, item 15 as a batch of its own, item 17,
-the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
-filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -854,8 +818,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     heading its row's pictures, 255 in all, the script writing both and its check failing where
     stale.
 
-19. **A push plays one game, and the pack run plays them all (Decision 35), done at `7798d5e5` but
-    for one line.** The owner chose on 2026-10-11 at 19:50, asked whether every push must play the
+19. **A push plays one game, and the pack run plays them all (Decision 35), done at `7798d5e5` and
+    `958a3eb3`.** The owner chose on 2026-10-11 at 19:50, asked whether every push must play the
     thirteen games for an hour and offered one game or a benchmark instead, and a nightly schedule
     declined. The examples job on a push keeps the examples' table check, builds every game from the
     package, which catches what a consumer of the package would hit in a few minutes, and plays and
@@ -868,60 +832,60 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the result, and BUILDING.md's paragraph on the jobs says which run does what. A workflow batch
     of its own after the third build. Done at `7798d5e5`: the examples job a workflow of its own,
     called with whole false by a push and true by the pack, the thirty steps found by the step
-    script given the workflow's file. Left: the pack job waits on the examples job, one line in
-    pack.yml's needs, since Decision 19 packs 5.2 when every job is green and a package made before
-    the games are proven is one that could be taken by mistake; with item 20's first commit.
+    script given the workflow's file. The pack waits on the examples job since `958a3eb3`, as
+    Decision 19 wants.
 
 20. **A vertex stream of the game's own beside the mesh's vertex, and a vertex of positions alone
-    (Decisions 36 and 37).** The owner put `.ref/Voxel-Sandbox-main` in the tree on 2026-10-11 at
-    20:05, a game on the 3.1.0 package that fed its shader one packed float a vertex through an
-    input layout it set itself and unpacked it in the shader, and asked for the same in both
-    engines; the plan was approved at 20:40 and refined at 22:55, a position every mesh's and the
-    packed data beside it, its full text kept by the reviewing session, this item being what it asks
-    of the engine. First stage, one commit: a mesh may carry one stream of the game's own beside its
-    vertices, in one of five formats, `UInt`, `UInt2`, `Float`, `Float4` and `UNorm8x4`, the types
-    `MeshStream` with `From<T>` and `SizeOf` and `MeshStreamFormat` named as BevyCSharp's are, given
-    to `UploadMesh` with the colors and second texture coordinates and written in place by
-    `UpdateMeshBuffer` at index 9, a constant naming it, which writes the stream's buffer through a
-    ring as the vertices are written and never uploads the mesh again; a shader of the program's own
-    reads it as `CUSTOM0`, placed by its semantic as the others are, at binding 5 of the model
-    pass's pipelines since the subsurface pass holds binding 4, the stream bound by a call of its
-    own, the pipeline keyed by the format; a shader that reads it drawn with a mesh without it reads
-    zero from a sixteen-byte buffer at stride 0 as the default color and coordinates are, zeros of
-    the shader's own class, integer or float, which the reflection of the stage's inputs then says,
-    since Vulkan wants the attribute's class to be the input's; the stream is kept beside the mesh's
-    streams in the store and not inside them, since a mesh with streams carries both default buffers
-    and one with the game's stream alone must not pay for those. A `uint` and not a `float` is the
-    packing type, which the guide says and why. The guide says why the packed bytes are a vertex
-    stream and not a storage buffer read by the vertex id, which the owner asked at 23:15: a stream
-    travels with the mesh, uploaded once with its positions and indices and read by every draw of it
-    with nothing else bound, where a buffer is bound to the shader or the material, so thousands of
-    chunks would each need a binding a draw or one giant buffer with an offset a chunk; meshes
-    sharing a shader keep drawing in one batch; the GPU fetches the attribute by the vertex index as
-    it fetches the position, where a buffer read needs the vertex id by hand and an offset an
-    instance when instanced; the fetch is about as fast either way, so the gain is the binding
-    model; and a buffer stays the right tool for what is not per vertex, a palette or atlas table
-    every chunk shares, per-chunk constants, or what a compute pass also reads. Tests: the store
-    refusing a wrong count and queueing the in-place write alone, the write of index 9 changing one
-    value of four bytes, the reflection naming `CUSTOM0` with its class, and one Vulkan fact of two
-    planes through one shader, the left with the stream and the right without, drawn at 64 by 32 on
-    lavapipe. The example `shaders_packed_vertices` in the Shaders folder, a grid of cubes whose
-    four bytes a vertex hold a palette index and a shade, captured and in the README's row and
-    count. Second stage, one commit: a mesh uploaded from positions alone, `UploadMesh(Vector3[]
-    positions, uint[] indices, MeshStream? stream, Color[]? colors)`, 12 bytes a vertex at binding 0
-    with no normal and no texture coordinate of its own, since a shader that unpacks four bytes has
-    both in them; the store keeps a `ModelVertex[]` of the positions with zero normals and
-    coordinates for the light field, the glow lights, the bounce reference, picking and the bodies,
-    which then work unchanged, and uploads the positions alone as the vertex buffer; every pipeline
-    that binds a mesh's vertex gets a variant with binding 0 at stride 12 and the normal and
-    coordinate read as zero from a stride-0 default at binding 6, the model pass's own and custom
-    pipelines, the solid and masked shadow pipelines and the velocity pass's, picked by the mesh at
-    draw, the subsurface pass leaving such a mesh out since it shades with the engine's normal;
-    `UpdateMeshBuffer` at index 0 writes its positions through the ring and indices 1 and 2 warn, a
-    skin is refused and `UpdateMeshVertices` warns once; the engine's own shader lights such a mesh
-    by a zero normal, so it wants a shader of the program's own, said in the guide and warned once
-    where drawn with the engine's own, its shadow right either way. Tests: the store keeping the
-    zero-normal array and uploading 12 bytes a vertex, and a Vulkan fact of a quad of positions
+    (Decisions 36 and 37), first stage done at `958a3eb3`.** The owner put `.ref/Voxel-Sandbox-main`
+    in the tree on 2026-10-11 at 20:05, a game on the 3.1.0 package that fed its shader one packed
+    float a vertex through an input layout it set itself and unpacked it in the shader, and asked
+    for the same in both engines; the plan was approved at 20:40 and refined at 22:55, a position
+    every mesh's and the packed data beside it, its full text kept by the reviewing session, this
+    item being what it asks of the engine. First stage, one commit: a mesh may carry one stream of
+    the game's own beside its vertices, in one of five formats, `UInt`, `UInt2`, `Float`, `Float4`
+    and `UNorm8x4`, the types `MeshStream` with `From<T>` and `SizeOf` and `MeshStreamFormat` named
+    as BevyCSharp's are, given to `UploadMesh` with the colors and second texture coordinates and
+    written in place by `UpdateMeshBuffer` at index 9, a constant naming it, which writes the
+    stream's buffer through a ring as the vertices are written and never uploads the mesh again; a
+    shader of the program's own reads it as `CUSTOM0`, placed by its semantic as the others are, at
+    binding 5 of the model pass's pipelines since the subsurface pass holds binding 4, the stream
+    bound by a call of its own, the pipeline keyed by the format; a shader that reads it drawn with
+    a mesh without it reads zero from a sixteen-byte buffer at stride 0 as the default color and
+    coordinates are, zeros of the shader's own class, integer or float, which the reflection of the
+    stage's inputs then says, since Vulkan wants the attribute's class to be the input's; the stream
+    is kept beside the mesh's streams in the store and not inside them, since a mesh with streams
+    carries both default buffers and one with the game's stream alone must not pay for those. A
+    `uint` and not a `float` is the packing type, which the guide says and why. The guide says why
+    the packed bytes are a vertex stream and not a storage buffer read by the vertex id, which the
+    owner asked at 23:15: a stream travels with the mesh, uploaded once with its positions and
+    indices and read by every draw of it with nothing else bound, where a buffer is bound to the
+    shader or the material, so thousands of chunks would each need a binding a draw or one giant
+    buffer with an offset a chunk; a shader's buffers are bound per shader and a mesh's stream per
+    mesh, a draw with a shader of its own being a batch of its own here already; the GPU fetches the
+    attribute by the vertex index as it fetches the position, where a buffer read needs the vertex
+    id by hand and an offset an instance when instanced; the fetch is about as fast either way, so
+    the gain is the binding model; and a buffer stays the right tool for what is not per vertex, a
+    palette or atlas table every chunk shares, per-chunk constants, or what a compute pass also
+    reads. Tests: the store refusing a wrong count and queueing the in-place write alone, the write
+    of index 9 changing one value of four bytes, the reflection naming `CUSTOM0` with its class, and
+    one Vulkan fact of two planes through one shader, the left with the stream and the right
+    without, drawn at 64 by 32 on lavapipe. The example `shaders_packed_vertices` in the Shaders
+    folder, a grid of cubes whose four bytes a vertex hold a palette index and a shade, captured and
+    in the README's row and count. Second stage, one commit: a mesh uploaded from positions alone,
+    `UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)`, 12 bytes
+    a vertex at binding 0 with no normal and no texture coordinate of its own, since a shader that
+    unpacks four bytes has both in them; the store keeps a `ModelVertex[]` of the positions with
+    zero normals and coordinates for the light field, the glow lights, the bounce reference, picking
+    and the bodies, which then work unchanged, and uploads the positions alone as the vertex buffer;
+    every pipeline that binds a mesh's vertex gets a variant with binding 0 at stride 12 and the
+    normal and coordinate read as zero from a stride-0 default at binding 6, the model pass's own
+    and custom pipelines, the solid and masked shadow pipelines and the velocity pass's, picked by
+    the mesh at draw, the subsurface pass leaving such a mesh out since it shades with the engine's
+    normal; `UpdateMeshBuffer` at index 0 writes its positions through the ring and indices 1 and 2
+    warn, a skin is refused and `UpdateMeshVertices` warns once; the engine's own shader lights such
+    a mesh by a zero normal, so it wants a shader of the program's own, said in the guide and warned
+    once where drawn with the engine's own, its shadow right either way. Tests: the store keeping
+    the zero-normal array and uploading 12 bytes a vertex, and a Vulkan fact of a quad of positions
     alone with a `UInt` stream over a floor under one light, the quad's pixel the packed color and
     the floor darker under it than beside it, so the positions-only shadow pipeline is proven; the
     reference frames unchanged; RENDERING.md's bindings table gains binding 6. The example becomes
@@ -929,8 +893,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     coordinate and the tile unpacked in the shader, with its shadow and a line of text giving the
     bytes a vertex. Then the voxel game takes the stream as its first user, its own item once this
     lands, 20 bytes a vertex where 44. Kept out and said: keying the field's readers on positions
-    rather than the vertex array, a later change of five files. After the pack's one line and before
-    item 14.
+    rather than the vertex array, a later change of five files. The first stage is done at
+    `958a3eb3`, the pack's line with it; the second is next, before item 14.
 
 ## Verdicts
 
@@ -1269,25 +1233,24 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 20, its first stage, with item 19's last line. A mesh may carry one stream of the program's
-own: `MeshStream` and `MeshStreamFormat` with BevyCSharp's names and numbers, `UInt`, `UInt2`,
-`Float`, `Float4` and `UNorm8x4`, with `From<T>` and `SizeOf`, given to an `UploadMesh` overload
-after the colors and second texture coordinates and written in place by `UpdateMeshBuffer` at
-`MeshStreamBuffer`, 9, which queues the stream alone and writes it into the next of a ring of
-buffers, a write of the vertices in the same frame keeping it beside them. The store keeps the
-stream apart from the colors and coordinates and carries it through every upload again. A shader of
-the program's own whose vertex stage takes `CUSTOM0` is fed it at binding 5, its pipeline keyed by
-the feed, and a mesh without the stream feeds it sixteen bytes of zeros at a stride of 0 in the
-input's class, which the reflection reads into `ShaderInput.Integer` and the cache keeps. The
-packed value is four bytes or a uint and never a word, and the guide says why a vertex stream and
-not a buffer read by the vertex's index, but for meshes sharing a shader keeping one batch, which a
-draw with a shader of the program's own does not do here, being a batch alone already. Tests: the
-store refusing a stream of the wrong size and queueing the write alone and beside written vertices,
-the write at 9 changing one vertex's four bytes, the reflection naming `CUSTOM0` as integers, and
-two planes through one shader at 64 by 32, the left's packed color exact and the right reading
-zero, which passes on lavapipe under the validation layer. The example `shaders_packed_vertices`,
-a town of 256 block columns, 5,120 vertices of four bytes each that a wave writes in place each
-frame, is captured and in the README's Shaders row and counts. `Engine3D.Models.cs` passed 800
-lines, so the meshes of the program's own moved into `Engine3D.Meshes.cs`. The pack waits on the
-examples job, which BUILDING.md says. The suite passes, 1,691; on lavapipe under the validation
-layer 401 pass with 8 skipped and no VUID; the guides' code and the examples build on the package.
+Item 20, its second stage. `UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream,
+Color[]? colors)` makes a mesh of positions alone: the store keeps them as vertices with zero
+normals and coordinates, which the field, the glow lights, picking and bodies read unchanged, and
+the GPU is given twelve bytes a vertex. Every pipeline that binds a mesh's vertex has a form that
+reads binding 0 at a stride of 12 and the normal and coordinate as zeros at binding 6 at a stride
+of 0, picked by the mesh as it draws: the model pass's own and a shader's of the program's own, the
+solid and masked shadow pipelines, made the first time such a mesh casts, and the velocity pass's;
+the subsurface pass leaves such a mesh out. The model pass's own shader drawing one is warned of
+once a mesh, `UpdateMeshBuffer` writes its positions at 0 and warns at 1 and 2,
+`UpdateMeshVertices` warns once a mesh, and the store refuses it a skin. Tests: the store keeping
+the zero-normal vertices and every upload of positions, and a quad of positions alone with a
+`UInt` stream over a white floor under a light from the side, its pixel the packed color exact,
+the floor in its shadow under half the light of the floor beside it, and its vertex buffer twelve
+bytes a vertex; on lavapipe under the validation layer 403 pass with 8 skipped and no VUID, the
+reference frames among them unchanged. The example is the reference's chunk, a hill of 8,080
+vertices of a position and four packed bytes, the face, the corner and the tile unpacked in the
+shader into the normal, the coordinate and a speckled tile, with its shadows, its line reading
+"16 bytes each: a position and four bytes packed" as the owner worded it, the FPS counter moved
+below. The guide gives the positions-only mesh its paragraph and a general snippet in place of
+the old `packed.slang`'s, and RENDERING.md binding 6. The suite passes, 1,693, and the guides' code
+and the examples build on the package.

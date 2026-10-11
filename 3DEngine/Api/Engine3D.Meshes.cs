@@ -46,6 +46,27 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Uploads a mesh of positions alone, twelve bytes a vertex, with a stream of the program's own
+    /// and a color at each vertex where given, for a mesh whose normal and texture coordinates its
+    /// stream packs, as a voxel world's chunks are.
+    /// </summary>
+    /// <remarks>
+    /// The GPU is given the positions alone, and a vertex stage reads the normal and texture
+    /// coordinate as zero, so such a mesh is drawn with a shader of the program's own that unpacks
+    /// them from the stream, the model pass's own lighting it by a zero normal, which is warned of
+    /// once where it draws one. Its shadow is cast by its positions as any mesh's is, and the
+    /// light field, the glow lights, picking and bodies read its positions with zero normals. Its
+    /// positions are written in place by <see cref="UpdateMeshBuffer{T}"/> at 0, it takes no skin,
+    /// and the pass that scatters light under a surface leaves it out.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or the stream or colors are not one a vertex.</exception>
+    public static ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)
+    {
+        var id = Meshes.AddPositions(positions, indices, stream, colors);
+        return new ModelMesh(id, positions.Length, indices.Length / 3, BoundingBox.Around(positions));
+    }
+
+    /// <summary>
     /// The index <see cref="UpdateMeshBuffer{T}"/> writes a mesh's stream of the program's own at
     /// (<see cref="MeshStream"/>), past raylib's 0 to 8, which end at a skin's weights.
     /// </summary>
@@ -55,11 +76,18 @@ public static partial class Engine3D
     /// Replaces a mesh's vertices with as many new ones, keeping its triangles, as raylib's
     /// <c>UpdateMeshBuffer</c> does for the vertex arrays.
     /// </summary>
-    /// <remarks>The mesh's bounds are those it was made with.</remarks>
+    /// <remarks>
+    /// The mesh's bounds are those it was made with. A mesh uploaded from its positions alone takes
+    /// their positions, its normals and texture coordinates read as zero, which is warned of once a
+    /// mesh.
+    /// </remarks>
     /// <exception cref="ArgumentException">The count differs from the mesh's.</exception>
     public static void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices)
     {
-        if (mesh.IsValid) Meshes.UpdateVertices(mesh.Id, vertices);
+        if (!mesh.IsValid) return;
+        if (Meshes.IsPositionsOnly(mesh.Id, firstAsked: true))
+            ApiLogger.Warn("UpdateMeshVertices: a mesh uploaded from its positions alone takes the vertices' positions, its normals and texture coordinates being read as zero.");
+        Meshes.UpdateVertices(mesh.Id, vertices);
     }
 
     /// <summary>
@@ -85,6 +113,9 @@ public static partial class Engine3D
         var bytes = MemoryMarshal.AsBytes(data);
         switch (index)
         {
+            case 1 or 2 when Meshes.IsPositionsOnly(mesh.Id):
+                ApiLogger.Warn($"UpdateMeshBuffer: a mesh uploaded from its positions alone keeps no {(index == 1 ? "texture coordinates" : "normals")} ({index}), which its stream packs, so it is left as it is.");
+                break;
             case 0 or 1 or 2:
             {
                 // Where the array sits in ModelVertex, and how many bytes it has a vertex.

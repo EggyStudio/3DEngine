@@ -83,6 +83,22 @@ public class MeshStoreTests
     }
 
     [Fact]
+    public void A_Mesh_Of_Positions_Alone_Keeps_Them_With_Zero_Normals_And_Is_Uploaded_As_Positions()
+    {
+        var store = new MeshStore();
+        var id = store.AddPositions([Vector3.Zero, Vector3.UnitX, Vector3.UnitY], [0, 1, 2], MeshStream.From(MeshStreamFormat.UInt, new uint[] { 1, 2, 3 }));
+
+        store.TryGetData(id, out var vertices, out _).Should().BeTrue();
+        vertices.Select(v => v.Position).Should().Equal(Vector3.Zero, Vector3.UnitX, Vector3.UnitY);
+        vertices.Should().OnlyContain(v => v.Normal == Vector3.Zero && v.Uv == Vector2.Zero, "the readers of the CPU's copy see its positions with zero normals");
+        store.Take().Uploads.Should().ContainSingle().Which.PositionsOnly.Should().BeTrue();
+
+        store.UpdateVertices(id, vertices);
+        store.Take().Uploads.Should().ContainSingle().Which.PositionsOnly.Should().BeTrue("every upload of it is of positions");
+        store.SetSkin(id, new MeshStore.Skin(new ushort[12], new float[12], 1)).Should().BeFalse("a skin poses whole vertices the GPU is not given");
+    }
+
+    [Fact]
     public void A_Vertex_Is_32_Bytes_In_The_Order_The_Pipeline_Reads()
     {
         System.Runtime.InteropServices.Marshal.SizeOf<ModelVertex>().Should().Be(32);

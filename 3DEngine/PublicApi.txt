@@ -848,6 +848,7 @@ static class Engine.Engine3D
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2, MeshStream? stream)
+  static ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)
   static MonitorMode[] GetMonitorModes(int monitor)
   static Music LoadMusicStream(string fileName)
   static Music LoadMusicStreamFromMemory(string fileType, byte[] data)

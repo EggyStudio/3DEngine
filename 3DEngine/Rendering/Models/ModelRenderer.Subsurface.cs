@@ -53,7 +53,8 @@ internal sealed partial class ModelRenderer
         var gfx = renderContext.Device;
         BeginFrameOfSets(renderContext);
         var view = ViewBatches(0, gfx, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
-        static bool Scatters(in Batch batch) => batch.Subsurface.W > 0 && batch.Custom < 0 && !batch.Points;
+        // A mesh of positions alone is left out, the pass shading with the engine's own normal.
+        static bool Scatters(in Batch batch) => batch.Subsurface.W > 0 && batch.Custom < 0 && !batch.Points && !batch.Mesh.PositionsOnly;
         var marked = 0;
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
             if (Scatters(batch)) marked++;

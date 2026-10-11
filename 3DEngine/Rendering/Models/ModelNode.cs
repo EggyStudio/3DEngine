@@ -151,7 +151,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly IShader?[] _fragmentShaders = new IShader?[3], _streamsFragmentShaders = new IShader?[3];
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, bool Positions), IPipeline> _pipelines = [];
 
     // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
@@ -191,22 +191,27 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly int _plainVertexInputs;
     private readonly int _plainFragmentInputs;
 
-    // A white color and a second texture coordinate of zero, bound with a stride of 0, and sixteen
-    // bytes of zeros for CUSTOM0 on a mesh without a stream of the program's own.
+    // A white color and a second texture coordinate of zero, bound with a stride of 0, and 32 bytes
+    // of zeros, read as CUSTOM0 on a mesh without a stream of the program's own and as the normal
+    // and texture coordinate of a mesh of positions alone.
     private IBuffer? _defaultColor;
     private IBuffer? _defaultTexcoords2;
-    private IBuffer? _defaultCustom;
+    private IBuffer? _zeros;
 
-    private IBuffer DefaultCustom(IGraphicsDevice gfx)
+    private IBuffer Zeros(IGraphicsDevice gfx)
     {
-        if (_defaultCustom is null)
+        if (_zeros is null)
         {
-            _defaultCustom = gfx.CreateBuffer(new BufferDesc(16, BufferUsage.Vertex, CpuAccessMode.Write));
-            gfx.Map(_defaultCustom).Clear();
-            gfx.Unmap(_defaultCustom);
+            _zeros = gfx.CreateBuffer(new BufferDesc(32, BufferUsage.Vertex, CpuAccessMode.Write));
+            gfx.Map(_zeros).Clear();
+            gfx.Unmap(_zeros);
         }
-        return _defaultCustom;
+        return _zeros;
     }
+
+    // The meshes of positions alone drawn with the model pass's own shader, which lights them by a
+    // zero normal, each warned of once.
+    private readonly HashSet<IBuffer> _unlit = [];
 
     private (IBuffer Colors, IBuffer Texcoords2) DefaultStreams(IGraphicsDevice gfx)
     {
@@ -349,7 +354,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0)> _custom = [];
     // A program's shader's fragment stage with its color held to an eight-bit frame's, for the HDR frame.
     private readonly Dictionary<int, IShader> _heldFragments = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed), IPipeline> _customPipelines = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, bool Positions), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -462,9 +467,13 @@ internal sealed partial class ModelRenderer : IDisposable
             // A shader of the program's own that reads CUSTOM0 is fed the mesh's stream of the
             // program's own, or zeros where the mesh has none.
             StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, batch.Mesh.Custom?.Format) : null;
+            var positions = batch.Mesh.PositionsOnly;
+            if (positions && program is null && _unlit.Add(batch.Mesh.Indices))
+                Logger.Warn("A mesh uploaded from its positions alone is drawn with the model pass's own shader, which lights it by a zero normal. " +
+                            "A shader of the program's own gives it the normal its stream packs.");
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed);
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build, positions)
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed, positions);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -487,7 +496,8 @@ internal sealed partial class ModelRenderer : IDisposable
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!, colors, texcoords2], [0, offset, 0, 0]);
             }
             if (feed is { } fed)
-                pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : DefaultCustom(gfx)], [0]);
+                pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : Zeros(gfx)], [0]);
+            if (positions) pass.SetVertexBuffer(6, [Zeros(gfx)], [0]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count(target == 0 ? "camera" : "targets", DrawSeen(pass, batch, blocks, frustum));
         }
@@ -726,7 +736,7 @@ internal sealed partial class ModelRenderer : IDisposable
         _noBuffer?.Dispose();
         _defaultColor?.Dispose();
         _defaultTexcoords2?.Dispose();
-        _defaultCustom?.Dispose();
+        _zeros?.Dispose();
     }
 }
 

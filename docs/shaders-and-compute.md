@@ -215,12 +215,12 @@ ModelVertex[] vertices = [];
 uint[] indices = [];
 -->
 ```csharp
-// Four bytes a vertex, a palette index in the low four bits and a shade in the eight above them.
+// Four bytes a vertex, a palette index in the low two bits and a shade in the eight above them.
 var packed = new uint[vertices.Length];
-for (int i = 0; i < packed.Length; i++) packed[i] = (uint)(i % 16) | 255u << 4;
+for (int i = 0; i < packed.Length; i++) packed[i] = (uint)(i % 4) | 255u << 2;
 var town = UploadMesh(vertices, indices, null, null, MeshStream.From(MeshStreamFormat.UInt, packed.AsSpan()));
 // ...
-packed[0] = 3 | 200u << 4;
+packed[0] = 3 | 200u << 2;
 UpdateMeshBuffer(town, MeshStreamBuffer, packed.AsSpan(), 0);
 ```
 
@@ -229,17 +229,18 @@ A vertex stage of the program's own reads it as `CUSTOM0`, of a Slang type of th
 attribute of one class into an input of the other as nothing it defines. Bytes packed for the
 shader are a `UInt` and not a `Float`: a float's bits are read as a float, so a value whose bits 23
 to 30 are all set is not a number and one whose are all clear is a number so small a GPU may read
-it as zero. The `packed.slang` of the `shaders_packed_vertices` example unpacks the packed color
-into the color it lights:
+it as zero. The stage unpacks them into what it hands on, here the color the fragment stage lights:
 
 ```slang
+static const float3 Palette[4] = { float3(0.9, 0.3, 0.2), float3(0.2, 0.7, 0.4), float3(0.2, 0.5, 0.9), float3(0.9, 0.8, 0.3) };
+
 [shader("vertex")]
 ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0, uint packed : CUSTOM0,
     ModelInstance instance)
 {
     ModelVertexOutput output = transformModelVertex(position, normal, uv, instance);
-    float shade = ((packed >> 4) & 0xff) / 255.0;
-    output.color = float4(Palette[packed & 0xf] * shade, 1);
+    float shade = ((packed >> 2) & 0xff) / 255.0;
+    output.color = float4(Palette[packed & 3] * shade, 1);
     return output;
 }
 ```
@@ -256,6 +257,30 @@ as it fetches the position, where a buffer is read by `SV_VertexID` by hand, wit
 each copy of an instanced draw; the fetch costs about the same either way, so what is gained is in
 how it is bound. A buffer stays the way for what is not one a vertex: a palette or an atlas's table
 every chunk shares, a chunk's own constants, or what a compute pass reads too.
+
+A mesh whose normal and texture coordinate its stream packs, as a voxel world's chunk does, is
+uploaded from its positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a
+vertex where a whole one is thirty-two, so its vertex with four packed bytes is sixteen. Its vertex
+stage reads the normal and texture coordinate as zero and unpacks them, as the `packed.slang` of
+the `shaders_packed_vertices` example does for a hill of voxels, the face a vertex lies on in the
+low three bits, its corner of the face in the next two and its tile in the eight above:
+
+```slang
+[shader("vertex")]
+ModelVertexOutput vertexMain(float3 position : POSITION, uint packed : CUSTOM0, ModelInstance instance)
+{
+    ModelVertexOutput output = transformModelVertex(position, Normals[packed & 7], Corners[(packed >> 3) & 3], instance);
+    output.color = float4(float((packed >> 5) & 0xff), 0, 0, 1);
+    return output;
+}
+```
+
+The model pass's own shader lights such a mesh by a zero normal, so it is drawn with a shader of
+the program's own, which a warning says once where it is not. Its shadow is cast by its positions
+as any mesh's is, and the light field, the glow lights, picking and bodies read its positions with
+zero normals. It takes no skin, `UpdateMeshBuffer` writes its positions at 0 and leaves its
+normals and texture coordinates alone with a warning, and the pass that scatters light under a
+surface leaves it out.
 
 ## Compute shaders
 

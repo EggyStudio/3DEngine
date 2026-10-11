@@ -90,6 +90,7 @@ internal sealed partial class ModelRenderer
     {
         if (_shadowVertexSpv.IsEmpty) return false;
         if (_shadowPipeline is not null) return true;
+        _shadowMaking = (device, depthOnly, renderWorld);
         _shadowVertexShader = device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _shadowVertexSpv));
         _shadowPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, fragment: null, shadow: true);
         if (!_shadowMaskSpv.IsEmpty)
@@ -98,6 +99,23 @@ internal sealed partial class ModelRenderer
             _shadowMaskPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, _shadowMaskShader, shadow: true);
         }
         return true;
+    }
+
+    // What the shadow pass's pipelines are made with, kept for the pair that reads positions alone.
+    private (GraphicsDevice Device, IRenderPass DepthOnly, RenderWorld RenderWorld)? _shadowMaking;
+    private IPipeline? _shadowPositionsPipeline, _shadowMaskPositionsPipeline;
+
+    // The shadow pass's pipeline for a batch, solid or cut out by its material, reading the mesh's
+    // whole vertex or, for a mesh of positions alone, its positions with the rest zeros at binding
+    // 6, that pair made the first time such a mesh casts a shadow.
+    private IPipeline ShadowPipeline(in Batch batch)
+    {
+        var masked = batch.Shadow == ShadowKind.Masked;
+        if (!batch.Mesh.PositionsOnly) return masked ? _shadowMaskPipeline! : _shadowPipeline!;
+        var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
+        return masked
+            ? _shadowMaskPositionsPipeline ??= MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader!, _shadowMaskShader, shadow: true, positions: true)
+            : _shadowPositionsPipeline ??= MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader!, fragment: null, shadow: true, positions: true);
     }
 
     // The view's batches, which its model pass draws after, those that cast a shadow gathered into
@@ -150,7 +168,7 @@ internal sealed partial class ModelRenderer
         {
             if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
-            var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;
+            var pipeline = ShadowPipeline(batch);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -164,6 +182,7 @@ internal sealed partial class ModelRenderer
             }
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
+            if (batch.Mesh.PositionsOnly) pass.SetVertexBuffer(6, [Zeros(device)], [0]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count("depth", DrawSeen(pass, batch, view.Blocks, frustum));
         }
@@ -184,7 +203,7 @@ internal sealed partial class ModelRenderer
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(_shadowBatches))
         {
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
-            var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;
+            var pipeline = ShadowPipeline(batch);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -193,6 +212,7 @@ internal sealed partial class ModelRenderer
             }
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
+            if (batch.Mesh.PositionsOnly) pass.SetVertexBuffer(6, [Zeros(_shadowMaking!.Value.Device)], [0]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             calls += DrawSeen(pass, batch, view.Blocks, frustum);
         }

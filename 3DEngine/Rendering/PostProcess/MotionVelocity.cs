@@ -33,6 +33,8 @@ internal sealed class MotionVelocity : IDisposable
     private IShader? _vertex, _fragment;
     private IDescriptorSetLayout? _layout;
     private IPipeline? _pipeline;
+    // The pipeline for a mesh of positions alone, twelve bytes a vertex, made the first time one moves.
+    private IPipeline? _positionsPipeline;
 
     /// <summary>Creates the pass from <c>velocity.slang</c>, compiled.</summary>
     public MotionVelocity(ShaderProgram velocity) =>
@@ -50,12 +52,14 @@ internal sealed class MotionVelocity : IDisposable
     {
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
-        _pipeline ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
+        // The position alone is read, at the start of the mesh's vertex, whose stride is its
+        // ModelVertex's or twelve bytes for a mesh of positions alone.
+        IPipeline Made(uint stride) => device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             target.RenderPass, _vertex, _fragment,
             Cull: CullMode.None,
             VertexBindings:
             [
-                new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>()),
+                new VertexInputBindingDesc(0, stride),
                 new VertexInputBindingDesc(1, (uint)Marshal.SizeOf<MovingInstance>(), PerInstance: true),
             ],
             VertexAttributes:
@@ -65,6 +69,7 @@ internal sealed class MotionVelocity : IDisposable
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, (uint)Marshal.SizeOf<Push>())],
             DescriptorSetLayouts: [Layout(device)]));
+        _pipeline ??= Made((uint)Marshal.SizeOf<ModelVertex>());
 
         // Each mesh's entities, gathered by mesh already, copied whole as one run of instances.
         var buffer = Instances(device, moving.Count);
@@ -87,13 +92,19 @@ internal sealed class MotionVelocity : IDisposable
             target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black with { A = 0 }));
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-        pass.SetPipeline(_pipeline);
-        pass.SetBindGroup(_pipeline, depth);
         var push = new Push { ViewProjection = viewProjection, LastViewProjection = lastViewProjection };
-        pass.PushConstants(_pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        IPipeline? bound = null;
         foreach (var (id, first, count) in runs)
         {
             if (meshes.Get(id) is not { } mesh) continue;
+            var pipeline = mesh.PositionsOnly ? _positionsPipeline ??= Made(12) : _pipeline;
+            if (!ReferenceEquals(pipeline, bound))
+            {
+                pass.SetPipeline(pipeline);
+                pass.SetBindGroup(pipeline, depth);
+                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+                bound = pipeline;
+            }
             pass.SetVertexBuffer(0, [mesh.Vertices, buffer], [0, 0]);
             pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
             pass.DrawIndexed(mesh.IndexCount, (uint)count, firstInstance: (uint)first);
@@ -116,6 +127,7 @@ internal sealed class MotionVelocity : IDisposable
     {
         foreach (var buffer in _instances) buffer?.Dispose();
         _pipeline?.Dispose();
+        _positionsPipeline?.Dispose();
         _layout?.Dispose();
         _vertex?.Dispose();
         _fragment?.Dispose();

@@ -634,6 +634,7 @@ Mesh GetMeshComponent(ModelMesh mesh);                                     // It
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2); // With a color and a second texture coordinate at each vertex
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2, MeshStream? stream); // And a stream of the program's own, which a vertex stage reads as CUSTOM0
+ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors); // From positions alone, twelve bytes a vertex, its stream packing the rest
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset); // Write into one of its arrays by raylib's index, 0 to 3 and 5, or its own stream at MeshStreamBuffer (9)
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh

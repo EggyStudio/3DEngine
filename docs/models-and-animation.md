@@ -96,7 +96,9 @@ was not given white or zero, which adds twelve bytes to each of its vertices' th
 with neither is drawn from its vertices alone. A stream of the program's own, a `MeshStream` given
 to `UploadMesh` after them, is a buffer of its own too, of four to sixteen bytes a vertex by its
 format, which a vertex stage of the program's own reads as `CUSTOM0` ([Shaders and
-compute](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)).
+compute](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)). A mesh whose stream packs its
+normal and texture coordinate is uploaded from its positions alone, twelve bytes a vertex, and drawn
+with such a shader.
 
 `UpdateMeshVertices` moves a mesh's vertices later, keeping the triangles, as water or cloth
 needs, and `UpdateMeshBuffer` writes into one of its arrays by raylib's index for it, positions,
