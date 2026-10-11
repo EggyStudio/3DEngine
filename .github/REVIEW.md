@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b275f738`, the game's commit, its adoption of the stream from ASKS.md's line: a
+Reviewed up to `35322cfe`. Item 15, the rename: the flat API's class is `E3D`, its 48 partial files
+named for it, the test files, classes and the collection's name following, 493 files changed, the
+game's thirteen `using static` lines alone among them, which the game's session cleared first and
+was told of after; the namespace stays `Engine`, the package and the projects their names and the
+version untouched, as the item has it; the upgrading page names the rename in its opening and gains
+a section of two rows, the using line and the app's hosting call, and the upgrading test maps 5.1's
+name to the new one so the lost and gained members are still compared one by one, the old name
+allowed on that page alone. What still says it: AGENTS.md twice, in its testing paragraph and its
+table's row for the API folder, which changes only on the owner's word, asked at 00:20. The strict
+build is clean, the suite 1,693 and the game's tests 48; on the repacked package the guides' code,
+the examples, the README's walk, the first game's steps and all twelve games build, and the
+evaluator runs. Right, the names moved and nothing else, the game's lines by agreement, and the
+upgrading page the one place the old name lives on. Items 14, 15, 18, 19 and 20 are done since the
+owner's asks of 17:26 and 20:05. Next item 17, the radiance cascades said in the README and a guide
+page of their own, then the bounce around the pillar as a read of its own, its baseline at this head
+unchanged, 0.71 to 0.95 of the reference with the pillar and 1.01 to 1.07 without, then h's blotches
+and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `b275f738` came, the game's commit, its adoption of the stream from ASKS.md's line: a
 section and the clouds are positions and eight packed bytes a vertex, `UInt2`, the face at 3 bits,
 the corner at 2 and the shade at 8 in the first four bytes and the tint's red, green, blue and the
 surface's alpha a byte each in the second, two being needed since glass, water and ice blend by a
@@ -54,31 +72,6 @@ namespace stays `Engine` and the projects and the package their names, 743 menti
 outside the game. Until that word, the bounce around the pillar as a read of its own, then item 17.
 Then item 15, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item
 8.
-
-Before it, `3ec1fdb3` came, item 20's second stage, and item 20 is done: a mesh uploaded from its
-positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a vertex on the GPU,
-the store keeping vertices of zero normals and coordinates for the light field, the glow lights,
-picking and the bodies, which read them as any mesh's; every pipeline that binds the vertex has its
-positions form, binding 0 at stride 12 with the normal and coordinate read as zeros from binding 6
-at stride 0, the model pass's own and a program's own, the solid and masked shadow pipelines made
-the first time such a mesh casts a shadow, and the velocity pass's, the subsurface pass leaving such
-meshes out; a draw with the engine's own shader and `UpdateMeshVertices` are warned of once a mesh,
-`UpdateMeshBuffer` writes positions at 0 and warns at 1 and 2, and a skin is refused. Tests: the
-store's, and a Vulkan fact of a quad of positions alone with a `UInt` stream over a white floor
-under a side light, the quad's pixel the packed color exactly, the floor in its shadow under half as
-bright as beside it, and the vertex buffer twelve bytes a vertex. The example is the reference's
-chunk, a hill of 8,080 voxels' vertices, each a position and four packed bytes, the face, the corner
-and the tile, the normal, the coordinate and a speckled tile unpacked in the shader, the hill
-casting its shadow, its line of text set by the owner to sixteen bytes each, a position and four
-bytes packed, and the frame counter moved out of its way; the guides' sections grown by the
-positions-alone mesh. The suite passes, 1,693; on lavapipe under the validation layer 403 pass with
-no VUID and the reference frames unchanged; the guides' code and the examples build on the package.
-Right, one zero buffer serving both the stream a mesh lacks and the normal and coordinate it never
-had, the shadow pipelines made on first need, and the refusals and warnings each said once. Item 20
-is done, the voxel game's adoption its own ask, written under the game's entry in ASKS.md at 23:50
-with the packing and the measure. Next item 14, then item 15 as a batch of its own when nothing else
-is in flight, item 17, the bounce around the pillar as a read of its own, h's blotches and teeth by
-the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -732,19 +725,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Done at `e910f4f4` for the seventeen files; whether the documents under `.github` follow is
     asked of the owner at 23:59.
 
-15. **`Engine3D` becomes `E3D` (Decision 32).** The owner asked on 2026-10-11 at 17:26 that the flat
-    API's class be renamed, with the namespaces and the collections that carry its name. The static
-    class `Engine3D` in the namespace `Engine` becomes `E3D`, its partial files under `3DEngine/Api`
-    named for it, the 63 test collections named for it, and every `using static` and every mention
-    in the guides, the cheat sheet, the templates, the games, the examples and the README follow,
-    716 mentions in 486 files; the namespace `Engine` stays unless the owner says, since `E3D.E3D`
-    reads badly, and the package and the projects keep their names as the owner's (Decision 2). A
-    rename of the public surface, so the version is the owner's to number (Decision 5). A batch of
-    its own, moving names alone, taken when no other batch is in flight. The rename touches thirteen
-    files of `3DEngine.Game` by their `using static` line, which the game's session owns and the
-    solution needs changed in the same commit, so the working session changes those lines and
-    nothing else of the game's in the rename's commit, once the game's session has committed or set
-    aside its edits to those files and said so.
+15. **`Engine3D` becomes `E3D` (Decision 32), done at `35322cfe`.** The owner asked on 2026-10-11 at
+    17:26 that the flat API's class be renamed, with the namespaces and the collections that carry
+    its name. The static class `Engine3D` in the namespace `Engine` becomes `E3D`, its partial files
+    under `3DEngine/Api` named for it, the 63 test collections named for it, and every `using
+    static` and every mention in the guides, the cheat sheet, the templates, the games, the examples
+    and the README follow, 716 mentions in 486 files; the namespace `Engine` stays unless the owner
+    says, since `E3D.E3D` reads badly, and the package and the projects keep their names as the
+    owner's (Decision 2). A rename of the public surface, so the version is the owner's to number
+    (Decision 5). A batch of its own, moving names alone, taken when no other batch is in flight.
+    The rename touches thirteen files of `3DEngine.Game` by their `using static` line, which the
+    game's session owns and the solution needs changed in the same commit, so the working session
+    changes those lines and nothing else of the game's in the rename's commit, once the game's
+    session has committed or set aside its edits to those files and said so. Done at `35322cfe` so,
+    the old name left on the upgrading page and in its test alone; AGENTS.md's two mentions wait on
+    the owner's word.
 
 16. **The README's guide table opens with the cheat sheet's row, done at `ffa3ec48` (Decision 32).**
     The owner asked on 2026-10-11 at 17:26 for the row BevyCSharp's README has first in its guide
@@ -1189,17 +1184,18 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 15. The flat API's class is `E3D`: its 48 partial files under `3DEngine/Api` are named for it,
-the 15 test files and classes named for it are `E3DModelTests` and the rest, the test collection is
-`"E3D"`, and every `using static`, `cref` and mention follows in the engine, the tests, the
-examples, the guides, the cheat sheet, the README, the templates, the games and `.github`'s own
-documents, 489 files, the voxel game's thirteen `using static` lines alone of its files, its
-session having cleared them. The namespace stays `Engine`, the projects and the package keep their
-names, and the version is left to the owner. The upgrade page gains a section for the class with
-its two rows and names it in its opening, and its tests map 5.1's `Engine3D` to `E3D`, so the flat
-API's names lost and gained are still counted member by member, `Engine3D` itself held to that page
-alone. AGENTS.md names `Engine3D` twice, in its paragraph on testing and its table's Api row, which
-wait on the owner's word, since nothing else in that file changes without it. The strict build is
-clean; the suite passes, 1,693, and the game's tests, 48; the guides' code, the examples, the
-README walk, the first game's steps and all twelve games build on the repacked package, and `e3d
-eval` compiles against the class.
+Item 17. `docs/global-illumination.md`, "Light that bounces", is the guide's page after the
+materials guide's: what the light that bounces is, radiance cascades and why the engine took them,
+the scene's distance field with `SetSceneField`'s cascades, cell and budget and the cascade's side
+behind the eye, the world's probes and their reach, the screen's probes and what they add, glowing
+surfaces as lights, the qualities with their table and their costs and when each suits, a glossy
+reflection and the sky's share, where it falls short (behind the eye, a cave wider than the last
+cascade, moving meshes, thin gaps), and the tools, `DrawBounceWindow` and a table of the `gi`
+commands with how a scene is read against `gi.reference` by `gi.compare` and `gi.show difference`.
+Its two code blocks are the Cornell box's and the window's call, which build under the guides'
+check, 146 blocks. The materials guide's bounce section is a paragraph and its call pointing to
+the page, its measured facts moved into the page, the upgrading page's link follows, the README
+says the radiance cascades in two sentences with the page's row after the materials guide's in
+its table, and the cheat sheet groups `SetSceneField`, `SetGlobalIllumination` and
+`DrawBounceWindow` under a section of the page's name. The document, norm and cheat sheet tests
+pass, and the suite, 1,693. The owner's eye judges the text.

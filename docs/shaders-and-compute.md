@@ -412,5 +412,5 @@ texture's first level, and the dispatch makes the smaller levels again from it.
 - The game [`games/Sumo`](../games/Sumo/Program.cs), whose marbles, crowd and floor are drawn by
   shaders of its own and whose floor a compute shader paints each frame
 - The cheatsheet's [Shaders](../CHEATSHEET.md#shaders) and [Compute](../CHEATSHEET.md#compute)
-- Previous: [Materials, light and shadows](materials-light-and-shadows.md)
+- Previous: [Light that bounces](global-illumination.md)
 - Next: [Audio](audio.md)

@@ -34,6 +34,13 @@ reflections, an ECS, physics, skeletal animation, scene files and ImGui in the f
 raylib's reach, the web, phones and small boards, and asks for Vulkan. The comparison, with what
 was measured, is [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md).
 
+A scene is lit by global illumination worked out in real time by radiance cascades, the light that
+leaves every surface it reaches lighting what it falls on next, tinted by its color, each frame and
+with nothing baked. A lamp carried through a cave lights it round its corners, a red wall tints the
+floor beside it, and every light and mesh of a game may move.
+[Light that bounces](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md)
+says how, and what it costs.
+
 ```csharp
 [Behavior]
 public struct Ball
@@ -186,6 +193,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Text and fonts](https://github.com/EggyStudio/3DEngine/blob/main/docs/text-and-fonts.md) | The default font, fonts from files, other scripts, typed text and distance field fonts |
 | [Models and animation](https://github.com/EggyStudio/3DEngine/blob/main/docs/models-and-animation.md) | Loading and generating models, terrain, skeletal animation, layered clips, morph targets, a sky and instancing |
 | [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, glowing and see-through surfaces, bloom and effects over the frame, lights and shadows, light that bounces, reflection probes |
+| [Light that bounces](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md) | Global illumination by radiance cascades, the scene's field and the probes, glowing surfaces as lights, the qualities and their cost, and the tools that read it against a reference |
 | [Shaders and compute](https://github.com/EggyStudio/3DEngine/blob/main/docs/shaders-and-compute.md) | Slang shaders for 2D drawing and models, post processing, compute shaders, their buffers and the textures they write |
 | [Audio](https://github.com/EggyStudio/3DEngine/blob/main/docs/audio.md) | Sounds, streamed music, volume, pitch and pan, and sound placed in a 3D world |
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
