@@ -110,7 +110,7 @@ jobs:
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 90 --quiet
           ./e3d shot captures/pusher.png --quiet
-          build/webp.sh captures/pusher.png captures/pusher.webp lossy
+          build/webp.sh captures/pusher.png captures/pusher.webp lossy 800x450
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Pusher.log | grep -F 'Validation Error'; then
             echo "::error::Pusher: the validation layer reported an error"
@@ -152,7 +152,7 @@ jobs:
           ./e3d command input.button 0 RightFaceDown 2 --quiet
           ./e3d command input.key Right 120 --quiet
           ./e3d shot captures/hopper.png --quiet
-          build/webp.sh captures/hopper.png captures/hopper.webp lossless
+          build/webp.sh captures/hopper.png captures/hopper.webp lossless 800x450
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Hopper.log | grep -F 'Validation Error'; then
             echo "::error::Hopper: the validation layer reported an error"
@@ -172,7 +172,7 @@ jobs:
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 120 --quiet
           ./e3d shot captures/summit.png --quiet
-          build/webp.sh captures/summit.png captures/summit.webp lossy
+          build/webp.sh captures/summit.png captures/summit.webp lossy 800x450
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Summit.log | grep -F 'Validation Error'; then
             echo "::error::Summit: the validation layer reported an error"
@@ -197,7 +197,7 @@ jobs:
           sed -i 's/tuning.EnemySpeed = 1;/tuning.EnemySpeed = 0.5f;/' games/Swarm/source/behaviors/Tune.cs
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d shot captures/swarm.png --quiet
-          build/webp.sh captures/swarm.png captures/swarm.webp lossy
+          build/webp.sh captures/swarm.png captures/swarm.webp lossy 800x450
           ./e3d command profile > captures/swarm-profile.txt
           ./e3d stop --quiet
           case "$status" in
@@ -226,7 +226,7 @@ jobs:
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 640 --quiet --timeout 600
           ./e3d shot captures/rally.png --quiet
-          build/webp.sh captures/rally.png captures/rally.webp lossy
+          build/webp.sh captures/rally.png captures/rally.webp lossy 800x450
           # A lap takes about 30 seconds of the game's time, which a slow device reaches later.
           status=""
           for i in $(seq 1 20); do
@@ -269,7 +269,7 @@ jobs:
           ./e3d command manor.autopilot true --quiet
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d shot captures/manor.png --quiet
-          build/webp.sh captures/manor.png captures/manor.webp lossy
+          build/webp.sh captures/manor.png captures/manor.webp lossy 800x450
           # The walk takes about 90 seconds of the game's time, which a slow device reaches later.
           status=""
           for i in $(seq 1 40); do
@@ -331,7 +331,7 @@ jobs:
           ./e3d command tactics.autopilot true --quiet
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d shot captures/tactics.png --quiet
-          build/webp.sh captures/tactics.png captures/tactics.webp lossy
+          build/webp.sh captures/tactics.png captures/tactics.webp lossy 800x450
           status=""
           for i in $(seq 1 40); do
             status=$(./e3d command tactics.status)
@@ -378,7 +378,7 @@ jobs:
             ./e3d command frames.wait 5 --quiet --timeout 600
           done
           ./e3d shot captures/tempo.png --quiet
-          build/webp.sh captures/tempo.png captures/tempo.webp lossy
+          build/webp.sh captures/tempo.png captures/tempo.webp lossy 800x450
           status=""
           for i in $(seq 1 60); do
             status=$(./e3d command tempo.status)
@@ -419,7 +419,7 @@ jobs:
           ./e3d command sumo.autopilot true --quiet
           ./e3d command frames.wait 240 --quiet --timeout 600
           ./e3d shot captures/sumo.png --quiet
-          build/webp.sh captures/sumo.png captures/sumo.webp lossy
+          build/webp.sh captures/sumo.png captures/sumo.webp lossy 800x450
           status=""
           for i in $(seq 1 60); do
             status=$(./e3d command sumo.status)
@@ -453,7 +453,7 @@ jobs:
           ./e3d command frames.wait 900 --quiet --timeout 600
           ./e3d shot captures/wordfall.png --quiet
           ./e3d stop --quiet
-          build/webp.sh captures/wordfall.png captures/wordfall.webp lossy
+          build/webp.sh captures/wordfall.png captures/wordfall.webp lossy 800x450
 
       # The puzzle played by gestures, by build/drive-game.sh as Windows and macOS play it, a swipe,
       # a double tap and a hold made with the mouse asserted, and then captured at its own size a
@@ -469,7 +469,7 @@ jobs:
           ./e3d command frames.wait 10 --quiet --timeout 600
           ./e3d shot captures/slide.png --quiet
           ./e3d stop --quiet
-          build/webp.sh captures/slide.png captures/slide.webp lossy
+          build/webp.sh captures/slide.png captures/slide.webp lossy 800x450
 
       # The runner, by build/drive-game.sh as Windows and macOS play it, its run watched again from
       # its recorded input and its best run watched from its file in the game opened again, each
@@ -483,7 +483,7 @@ jobs:
           ./e3d command frames.wait 600 --quiet --timeout 600
           ./e3d shot captures/jelly.png --quiet
           ./e3d stop --quiet
-          build/webp.sh captures/jelly.png captures/jelly.webp lossy
+          build/webp.sh captures/jelly.png captures/jelly.webp lossy 800x450
 
       # The house lit by a lamp, by build/drive-game.sh as Windows and macOS play it, its walk and
       # the autopilot's way out asserted, and then captured with the lamp in a doorway, the room
@@ -496,7 +496,7 @@ jobs:
           ./e3d command frames.wait 120 --quiet --timeout 600
           ./e3d shot captures/wick.png --quiet
           ./e3d stop --quiet
-          build/webp.sh captures/wick.png captures/wick.webp lossy
+          build/webp.sh captures/wick.png captures/wick.webp lossy 800x450
 
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without

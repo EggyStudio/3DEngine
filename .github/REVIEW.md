@@ -30,8 +30,10 @@ cone along the march, is read next against the share of the face seen. The suite
 Left in h: that estimate, the saw's teeth of 13 and 9 pixels and the blotches' rest. The owner asked
 at 15:55 for the README's gallery as one scrolling row of pictures a folder of examples, sorted by
 folder, the games in a row of their own, and the text explaining the games under the table taken
-out, which is item 11 (Decision 29), taken as a batch of its own after h's next commit. Then Verdict
-49's pairs, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
+out, which is item 11 (Decision 29), taken as a batch of its own after h's next commit. At 16:30 the
+owner asked for the e3d skill out of the `.claude` folder, which is item 12, and at 16:35 for the
+gallery's pictures at one size, which item 11 takes (Decision 30). Then Verdict 49's pairs, Verdict
+48's two remedies, f's filter offset, item 10, item 9 and item 8.
 
 Before it, `56db892b` came, item 2's part h, its first part, the penumbra too dark, found by
 elimination: in an engine room built as the game's, three touching lamps under the ceiling and a
@@ -625,8 +627,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     facts living in the games' own READMEs and in the games table of EXAMPLES.md where they are not
     already. The README's walk and the examples' table check read the file as before, so each is run
     on the result, and the captures' links keep their raw form. Taken as a batch of its own after
-    h's next commit, since it is small and the owner asked; the owner's eye judges the look
-    (Decision 27).
+    h's next commit, since it is small and the owner asked; The owner asked at 16:35 that the
+    pictures be one size, where they differ today: every picture in the rows carries the same width
+    and height on its tag, and the captures that are not 800 by 450, sixteen of 268, among them a
+    square and a four by three, are taken again at that size where the program's window allows or
+    padded to it by the capture script, so the tag distorts nothing; the examples' table check and
+    the captures' comparison read the result. the owner's eye judges the look (Decision 27).
+
+12. **The e3d skill leaves the `.claude` folder (Decision 30).** The owner asked on 2026-10-11 at
+    16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the `.claude` folder
+    and long subfolders holding nothing else being unwanted. The document becomes `.github/E3D.md`,
+    beside the other documents a session reads, its skill header, the name, the description and the
+    allowed tools, dropped since it means nothing outside that folder, its body as it is;
+    AGENTS.md's paragraph on driving the engine and its documents table name the new place, which
+    the owner's ask is the word for, as do BUILDING.md, STYLE.md's line on the skills, the README's
+    line on the commands, the two links in `docs/driving-with-e3d.md` and the workflow's path
+    filters, which drop `.claude`; the folder goes with the move, and `.claude/` joins `.gitignore`
+    so the tool's own lock file there never enters the tree. A batch of its own with item 11.
 
 ## Verdicts
 
@@ -889,6 +906,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     of the examples with the games in their own, and the long text explaining the games under the
     table taken out.
 
+30. **The e3d skill leaves `.claude` for `.github/E3D.md`, and the gallery's pictures are one
+    size.** The owner asked at 16:30 and 16:35 on 2026-10-11: the skill document out of the
+    `.claude` folder and its empty subfolders, to the root or elsewhere, which is item 12 with
+    AGENTS.md's line changed on that word; and every picture in the README's rows the same size,
+    which item 11 takes.
+
 ## Replies
 
 Item 2, part h, its fourth thing, the red wall. Measured in the owner's room, the copy checked by
@@ -920,3 +943,23 @@ of the reference where 0.91. `56db892b`'s tie stands, since with the faces weigh
 the longer side reads the owner's wall within the same.
 
 The suite: 1,683 passed; on lavapipe 395 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight runs.
+
+Item 11. The Examples section holds one table a folder of `3DEngine.Examples` in the folders' order,
+each a single row of every example of the folder, 257 with captures, the picture linking the program
+and the run name under it, a heading line naming the folder before each, and a last row of the
+thirteen games. The games' prose and the block under the table are gone. Each game's facts are its
+own README, `games/<name>/README.md`, since EXAMPLES.md has no games table, and the section says the
+games are built from the package with a README each. Every picture's tag gives 400 by 225, and the
+sixteen captures not at 800 by 450 are fitted to it and padded with black by `build/webp.sh`, which
+the capture script and the games' steps call with that size, so `build/norm/4.5.txt` lists none. The
+README walk passes, the examples table check passes, and the docs, norm, script and package tests
+pass, 73.
+
+Item 12 waits on the owner's word in this session. It moves a file out of `.claude`, drops that
+folder, which holds the tool's own state, and changes AGENTS.md and `.gitignore`, and this session
+changes instruction files and the tool's folder only on the owner's word given here.
+
+Item 2, part h, after `8118e2c7`, read by the game's session in the owner's room. The wall reads
+0.80 of the reference on the seam's dark side and 0.96 on its lit side, where 1.21 and 1.34, its
+seam steps 1.51 against the reference's 1.27, and its teeth are 10 and 13 pixels. The dark side a
+fifth under is left for h's remainder.

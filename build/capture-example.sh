@@ -166,6 +166,6 @@ if [ "$shot" != "$out" ]; then
     shaders_raymarching_rendering|shaders_model_shader|shaders_custom_uniform|shaders_cel_shading|shaders_hybrid_rendering) kind=lossy ;;
     *) kind=lossless ;;
   esac
-  build/webp.sh "$shot" "$out" "$kind"
+  build/webp.sh "$shot" "$out" "$kind" 800x450
   rm -f "$shot"
 fi
