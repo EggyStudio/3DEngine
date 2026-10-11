@@ -325,21 +325,31 @@ internal static partial class SlangCompiler
                 return fields.EnumerateArray().All(field => Gather(field, location));
             if (!input.TryGetProperty("semanticName", out var name)) return false;
             var number = input.TryGetProperty("semanticIndex", out var index) ? index.GetInt32() : 0;
-            inputs.Add(new ShaderInput($"{name.GetString()!.ToUpperInvariant()}{number}", location));
+            inputs.Add(new ShaderInput($"{name.GetString()!.ToUpperInvariant()}{number}", location, IsInteger(type)));
             return true;
+        }
+
+        // Whether an input's scalars are integers, as a uint or an int2 is, from its type or its
+        // vector's element type.
+        static bool IsInteger(System.Text.Json.JsonElement type)
+        {
+            if (type.ValueKind != System.Text.Json.JsonValueKind.Object) return false;
+            var scalar = type.TryGetProperty("elementType", out var element) ? element : type;
+            return scalar.TryGetProperty("scalarType", out var kind) && kind.GetString() is { } name
+                && (name.StartsWith("int", StringComparison.Ordinal) || name.StartsWith("uint", StringComparison.Ordinal));
         }
     }
 
     // An input's line is "input", its semantic and its location, its second word never a number,
-    // which tells it from a uniform's.
+    // which tells it from a uniform's, and "integer" after them for an input of integers.
     private static string WriteInputs(IReadOnlyList<ShaderInput> inputs) =>
-        string.Concat(inputs.Select(i => $"input {i.Semantic} {i.Location}\n"));
+        string.Concat(inputs.Select(i => $"input {i.Semantic} {i.Location}{(i.Integer ? " integer" : "")}\n"));
 
     private static IReadOnlyList<ShaderInput> ReadInputs(string text) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
-            .Where(parts => parts.Length == 3 && parts[0] == "input" && !IsNumber(parts[1]) && IsNumber(parts[2]))
-            .Select(parts => new ShaderInput(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
+            .Where(parts => parts.Length is 3 or 4 && parts[0] == "input" && !IsNumber(parts[1]) && IsNumber(parts[2]))
+            .Select(parts => new ShaderInput(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture), parts is [_, _, _, "integer"]))
             .ToArray();
 
     // A binding's line is "binding", its name, its set, its index and its kind.
@@ -619,8 +629,11 @@ internal sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uni
     IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null,
     IReadOnlyList<ShaderInput>? Inputs = null);
 
-/// <summary>An input a vertex stage takes, by its semantic, as <c>TEXCOORD1</c>, and the location it is read at.</summary>
-internal readonly record struct ShaderInput(string Semantic, int Location);
+/// <summary>
+/// An input a vertex stage takes, by its semantic, as <c>TEXCOORD1</c>, the location it is read at,
+/// and whether its scalars are integers, which the attribute that feeds it must be too.
+/// </summary>
+internal readonly record struct ShaderInput(string Semantic, int Location, bool Integer = false);
 
 /// <summary>A descriptor a shader declares, by its name, its set, its binding in the set and its kind.</summary>
 internal readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);

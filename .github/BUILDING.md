@@ -179,13 +179,12 @@ A release is made by the `pack` workflow, run from the Actions tab on GitHub. It
 Linux, Windows and macOS through `test.yml`, the same workflow `build.yml` runs on each push, and
 only once all three pass packs with `build/pack.sh <version>` and keeps the package as the run's
 artifact. With its "publish" box ticked it pushes the package to nuget.org through the
-`NUGET_API_KEY` secret. Beside the pack it runs the examples job whole (`examples.yml`), which a
+`NUGET_API_KEY` secret. Before the pack it runs the examples job whole (`examples.yml`), which a
 push runs in part: every example captured for the gallery and measured against raylib's program,
-every game played, captured, soaked and resized, and the README followed on Linux, its page read
-before a package is pushed and holding the pack back in nothing. The version is
-`build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
-number of commits since that file last changed, so each commit counts the patch up by one and
-changing `5.0` to `5.1` starts it again at `5.1.0`.
+every game played, captured, soaked and resized, and the README followed on Linux, and it packs only
+once that job passes too. The version is `build/version.sh`'s: the major and minor written in
+`build/version.txt`, and as the patch the number of commits since that file last changed, so each
+commit counts the patch up by one and changing `5.0` to `5.1` starts it again at `5.1.0`.
 
 The package's release notes are those same commits, each one's sentence a line and the newest
 first, which `build/pack.sh` reads from the history into `build/artifacts/release-notes.txt` and

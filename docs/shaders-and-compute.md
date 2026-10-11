@@ -200,6 +200,63 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 A vertex stage that moves vertices, as grass in the wind does, casts the shadow of its mesh as it
 was before the stage moved it.
 
+## A vertex stream of the program's own
+
+A mesh may carry one stream of the program's own beside its position, normal and texture
+coordinates, a value each vertex holds that the mesh's own streams do not say: a voxel's face and
+texture packed into four bytes, a blend weight, a wind phase. It is a `MeshStream` of one of five
+formats, `UInt`, `UInt2`, `Float`, `Float4` and `UNorm8x4`, four bytes read as 0 to 1, given to
+`UploadMesh` beside the colors and second texture coordinates, and written in place by
+`UpdateMeshBuffer` at `MeshStreamBuffer`, which writes the stream alone and uploads nothing else of
+the mesh again:
+
+<!-- compiled with:
+ModelVertex[] vertices = [];
+uint[] indices = [];
+-->
+```csharp
+// Four bytes a vertex, a palette index in the low four bits and a shade in the eight above them.
+var packed = new uint[vertices.Length];
+for (int i = 0; i < packed.Length; i++) packed[i] = (uint)(i % 16) | 255u << 4;
+var town = UploadMesh(vertices, indices, null, null, MeshStream.From(MeshStreamFormat.UInt, packed.AsSpan()));
+// ...
+packed[0] = 3 | 200u << 4;
+UpdateMeshBuffer(town, MeshStreamBuffer, packed.AsSpan(), 0);
+```
+
+A vertex stage of the program's own reads it as `CUSTOM0`, of a Slang type of the format's class,
+`uint` or `uint2` for a stream of integers and a float type for the rest, since Vulkan reads an
+attribute of one class into an input of the other as nothing it defines. Bytes packed for the
+shader are a `UInt` and not a `Float`: a float's bits are read as a float, so a value whose bits 23
+to 30 are all set is not a number and one whose are all clear is a number so small a GPU may read
+it as zero. The `packed.slang` of the `shaders_packed_vertices` example unpacks the packed color
+into the color it lights:
+
+```slang
+[shader("vertex")]
+ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0, uint packed : CUSTOM0,
+    ModelInstance instance)
+{
+    ModelVertexOutput output = transformModelVertex(position, normal, uv, instance);
+    float shade = ((packed >> 4) & 0xff) / 255.0;
+    output.color = float4(Palette[packed & 0xf] * shade, 1);
+    return output;
+}
+```
+
+The model pass's own shader does not read the stream, and a stage that reads it drawn with a mesh
+without one reads zero, so one shader serves meshes with the stream and without it.
+
+The stream is a vertex stream rather than a `ShaderBuffer` read by the vertex's index, since it
+travels with the mesh: uploaded once with its positions and triangles and read by every draw of
+the mesh with nothing more bound, where a buffer is bound to the shader, so a few thousand chunks
+of a world would each need a `SetShaderValueBuffer` before their draw, or one buffer of them all
+with each chunk's offset carried into the shader. The GPU fetches the stream by the vertex's index
+as it fetches the position, where a buffer is read by `SV_VertexID` by hand, with an offset for
+each copy of an instanced draw; the fetch costs about the same either way, so what is gained is in
+how it is bound. A buffer stays the way for what is not one a vertex: a palette or an atlas's table
+every chunk shares, a chunk's own constants, or what a compute pass reads too.
+
 ## Compute shaders
 
 A compute shader has a `[shader("compute")]` function run over a grid of threads, and reads and

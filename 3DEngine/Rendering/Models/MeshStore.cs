@@ -15,14 +15,21 @@ namespace Engine;
 /// </remarks>
 internal sealed class MeshStore
 {
-    /// <summary>A mesh waiting to be uploaded, or only its vertices when <paramref name="VerticesOnly"/> is set.</summary>
+    /// <summary>
+    /// A mesh waiting to be uploaded, or what of it is written in place: its vertices where
+    /// <paramref name="VerticesOnly"/> is set, its stream of the program's own where
+    /// <paramref name="CustomOnly"/> is, or both where both are.
+    /// </summary>
     /// <param name="Id">The mesh's id.</param>
     /// <param name="Vertices">Its vertices.</param>
     /// <param name="Indices">Three indices into the vertices for each triangle.</param>
     /// <param name="VerticesOnly">Whether only the vertices changed, so the index buffer is kept.</param>
     /// <param name="Skin">The joints and weights that pose it on the GPU, or null for a mesh that is not skinned there.</param>
     /// <param name="Streams">A color and a second texture coordinate at each vertex, which a mesh may have beside its vertices.</param>
-    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null, Streams? Streams = null);
+    /// <param name="Custom">The stream of the program's own a vertex stage reads as <c>CUSTOM0</c>, or null for a mesh without one.</param>
+    /// <param name="CustomOnly">Whether only that stream changed, so the mesh's other buffers are kept.</param>
+    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null, Streams? Streams = null,
+        MeshStream? Custom = null, bool CustomOnly = false);
 
     /// <summary>
     /// A mesh's colors and second texture coordinates, one a vertex each, either or both, kept in
@@ -44,6 +51,9 @@ internal sealed class MeshStore
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
     private readonly Dictionary<int, Streams> _streams = [];
+    // The streams of the program's own, kept apart from the colors and second texture coordinates,
+    // since a mesh with those carries both and one with this stream alone pays for neither.
+    private readonly Dictionary<int, MeshStream> _custom = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -54,9 +64,12 @@ internal sealed class MeshStore
         get { lock (_gate) return _live.Count; }
     }
 
-    /// <summary>Queues a mesh of triangles, with its colors and second texture coordinates when it has them, and returns its id.</summary>
+    /// <summary>
+    /// Queues a mesh of triangles, with its colors and second texture coordinates and its stream of
+    /// the program's own when it has them, and returns its id.
+    /// </summary>
     /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or a stream's count differs from the vertices'.</exception>
-    public int Add(ModelVertex[] vertices, uint[] indices, Streams? streams = null)
+    public int Add(ModelVertex[] vertices, uint[] indices, Streams? streams = null, MeshStream? custom = null)
     {
         if (indices.Length == 0 || indices.Length % 3 != 0)
             throw new ArgumentException("A mesh needs a whole number of triangles.", nameof(indices));
@@ -68,14 +81,53 @@ internal sealed class MeshStore
         if (streams?.Texcoords2 is { } texcoords2 && texcoords2.Length != vertices.Length)
             throw new ArgumentException($"{texcoords2.Length} second texture coordinates for {vertices.Length} vertices.", nameof(streams));
         if (streams is { Colors: null, Texcoords2: null }) streams = null;
+        if (custom is not null) Check(custom, vertices.Length);
 
         lock (_gate)
         {
             var id = _next++;
             _live.Add(id, (vertices, indices));
             if (streams is not null) _streams[id] = streams;
-            _uploads.Add(new Upload(id, vertices, indices, Streams: streams));
+            if (custom is not null) _custom[id] = custom;
+            _uploads.Add(new Upload(id, vertices, indices, Streams: streams, Custom: custom));
             return id;
+        }
+    }
+
+    // A stream of the program's own of a whole number of its format's vertices, one a vertex.
+    private static void Check(MeshStream custom, int vertices)
+    {
+        var size = MeshStream.SizeOf(custom.Format);
+        if (custom.Data.Length % size != 0 || custom.Data.Length / size != vertices)
+            throw new ArgumentException($"{custom.Data.Length} bytes of {custom.Format} are not {vertices} vertices of {size} bytes each.", nameof(custom));
+    }
+
+    /// <summary>A loaded mesh's stream of the program's own, or null for one without it.</summary>
+    internal MeshStream? CustomOf(int id)
+    {
+        lock (_gate) return _custom.GetValueOrDefault(id);
+    }
+
+    /// <summary>
+    /// Replaces a loaded mesh's stream of the program's own with one of as many vertices, which the
+    /// renderer writes into the next of a ring of buffers and uploads nothing else of the mesh.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    /// <exception cref="ArgumentException">The count differs from the mesh's vertices'.</exception>
+    internal bool UpdateCustom(int id, MeshStream custom)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var data)) return false;
+            Check(custom, data.Vertices.Length);
+            _custom[id] = custom;
+            // A mesh whose whole upload is still queued takes the stream with it, and one whose
+            // vertices are written in place this frame has the stream written in place beside them.
+            int queued = _uploads.FindIndex(u => u.Id == id);
+            if (queued < 0) _uploads.Add(new Upload(id, data.Vertices, data.Indices, Custom: custom, CustomOnly: true));
+            else if (_uploads[queued] is { VerticesOnly: false, CustomOnly: false } whole) _uploads[queued] = whole with { Custom = custom };
+            else _uploads[queued] = _uploads[queued] with { Custom = custom, CustomOnly = true };
+            return true;
         }
     }
 
@@ -104,9 +156,12 @@ internal sealed class MeshStore
 
             _live[id] = (vertices, data.Indices);
             // A mesh not yet uploaded is uploaded whole with the new vertices, and an update
-            // queued earlier this frame is replaced, since only the last one is seen.
+            // queued earlier this frame is replaced, since only the last one is seen, keeping a
+            // write of the stream of the program's own queued with it.
             int queued = _uploads.FindIndex(u => u.Id == id);
-            var upload = new Upload(id, vertices, data.Indices, VerticesOnly: queued < 0 || _uploads[queued].VerticesOnly, Streams: _streams.GetValueOrDefault(id));
+            var previous = queued >= 0 ? _uploads[queued] : null;
+            var upload = new Upload(id, vertices, data.Indices, VerticesOnly: previous is null || previous.VerticesOnly || previous.CustomOnly,
+                Streams: _streams.GetValueOrDefault(id), Custom: _custom.GetValueOrDefault(id), CustomOnly: previous is { CustomOnly: true });
             if (queued >= 0) _uploads[queued] = upload;
             else _uploads.Add(upload);
             return true;
@@ -139,6 +194,7 @@ internal sealed class MeshStore
             if (!_live.Remove(id)) return false;
             _skins.Remove(id);
             _streams.Remove(id);
+            _custom.Remove(id);
             _poses.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
@@ -158,7 +214,7 @@ internal sealed class MeshStore
             if (!_live.TryGetValue(id, out var data)) return false;
             _skins[id] = skin;
             _uploads.RemoveAll(u => u.Id == id);
-            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin, Streams: _streams.GetValueOrDefault(id)));
+            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin, Streams: _streams.GetValueOrDefault(id), Custom: _custom.GetValueOrDefault(id)));
             return true;
         }
     }
@@ -177,7 +233,7 @@ internal sealed class MeshStore
                 throw new ArgumentException($"{texcoords2.Length} second texture coordinates for {data.Vertices.Length} vertices.", nameof(streams));
             _streams[id] = streams;
             _uploads.RemoveAll(u => u.Id == id);
-            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams));
+            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams, Custom: _custom.GetValueOrDefault(id)));
             return true;
         }
     }
@@ -249,6 +305,13 @@ internal sealed class GpuMeshes : IDisposable
         internal IBuffer[]? Ring { get; init; }
         internal int Slot { get; init; }
 
+        /// <summary>Its stream of the program's own and the stream's format, or null for a mesh without one.</summary>
+        internal (IBuffer Buffer, MeshStreamFormat Format)? Custom { get; init; }
+
+        // The ring the stream moves through once it is written in place, as the vertices' does.
+        internal IBuffer[]? CustomRing { get; init; }
+        internal int CustomSlot { get; init; }
+
         /// <summary>The GPU side of a skinned mesh, whose posed vertices are <see cref="Vertices"/>, or null.</summary>
         internal GpuSkin? Skin { get; init; }
 
@@ -284,9 +347,21 @@ internal sealed class GpuMeshes : IDisposable
             foreach (var upload in uploads)
             {
                 var bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
-                if (upload.VerticesOnly && _entries.TryGetValue(upload.Id, out var old))
+                if ((upload.VerticesOnly || upload.CustomOnly) && _entries.TryGetValue(upload.Id, out var old))
                 {
-                    _entries[upload.Id] = Advance(gfx, old, bytes) with { Box = old.Skin is null ? BoxOf(upload.Vertices) : null };
+                    var entry = old;
+                    if (upload.VerticesOnly)
+                    {
+                        var (ring, slot) = Advance(gfx, entry.Ring, entry.Slot, bytes, () => Retire(entry, vertices: true, indices: false));
+                        entry = entry with { Vertices = ring[slot], Ring = ring, Slot = slot, Box = entry.Skin is null ? BoxOf(upload.Vertices) : null };
+                    }
+                    if (upload.CustomOnly && upload.Custom is { } custom)
+                    {
+                        var (ring, slot) = Advance(gfx, entry.CustomRing, entry.CustomSlot, custom.Data,
+                            () => { if (entry.Custom is { } held) _retired.Add((_frame, held.Buffer)); });
+                        entry = entry with { Custom = (ring[slot], custom.Format), CustomRing = ring, CustomSlot = slot };
+                    }
+                    _entries[upload.Id] = entry;
                     continue;
                 }
 
@@ -299,16 +374,17 @@ internal sealed class GpuMeshes : IDisposable
                     ? (Buffer(gfx, streams.Colors is { } c ? MemoryMarshal.AsBytes(c.AsSpan()) : Filled(upload.Vertices.Length * 4, 255), BufferUsage.Vertex),
                        Buffer(gfx, streams.Texcoords2 is { } t ? MemoryMarshal.AsBytes(t.AsSpan()) : new byte[upload.Vertices.Length * 8], BufferUsage.Vertex))
                     : ((IBuffer?)null, (IBuffer?)null);
+                (IBuffer, MeshStreamFormat)? own = upload.Custom is { } stream ? (Buffer(gfx, stream.Data, BufferUsage.Vertex), stream.Format) : null;
                 // A skin the GPU poses writes its vertices into a buffer of its own.
                 if (upload.Skin is { } skinData && gfx is GraphicsDevice { CanSkin: true } device)
                 {
                     var skin = device.CreateSkin(upload.Vertices, skinData.Joints, skinData.Weights, skinData.JointCount, GpuTextures.RetireFrames + 1,
                         skinData.Morphs, skinData.MorphCount);
-                    _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin, Colors = colors, Texcoords2 = texcoords2 };
+                    _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin, Colors = colors, Texcoords2 = texcoords2, Custom = own };
                     continue;
                 }
                 _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length)
-                    { Colors = colors, Texcoords2 = texcoords2, Box = BoxOf(upload.Vertices) };
+                    { Colors = colors, Texcoords2 = texcoords2, Custom = own, Box = BoxOf(upload.Vertices) };
             }
         }
 
@@ -320,24 +396,24 @@ internal sealed class GpuMeshes : IDisposable
         }
     }
 
-    // Writes replaced vertices into the next buffer of the mesh's ring, making the ring the first
-    // time. A buffer comes round again only after RetireFrames more updates, at most one a frame,
-    // by which time no frame in flight reads it.
-    private Entry Advance(IGraphicsDevice gfx, Entry entry, ReadOnlySpan<byte> vertices)
+    // Writes replaced vertices, or a stream written in place, into the next buffer of its ring,
+    // making the ring the first time after retiring what it replaces. A buffer comes round again
+    // only after RetireFrames more updates, at most one a frame, by which time no frame in flight
+    // reads it.
+    private static (IBuffer[] Ring, int Slot) Advance(IGraphicsDevice gfx, IBuffer[]? ring, int slot, ReadOnlySpan<byte> data, Action retire)
     {
-        var ring = entry.Ring;
-        if (ring is null || ring[0].Description.Size != (ulong)vertices.Length)
+        if (ring is null || ring[0].Description.Size != (ulong)data.Length)
         {
-            Retire(entry, vertices: true, indices: false);
+            retire();
             ring = new IBuffer[GpuTextures.RetireFrames + 1];
             for (int i = 0; i < ring.Length; i++)
-                ring[i] = gfx.CreateBuffer(new BufferDesc((ulong)vertices.Length, BufferUsage.Vertex, CpuAccessMode.Write));
-            entry = entry with { Ring = ring, Slot = -1 };
+                ring[i] = gfx.CreateBuffer(new BufferDesc((ulong)data.Length, BufferUsage.Vertex, CpuAccessMode.Write));
+            slot = -1;
         }
 
-        var slot = (entry.Slot + 1) % ring.Length;
-        vertices.CopyTo(gfx.Map(ring[slot]));
-        return entry with { Vertices = ring[slot], Slot = slot };
+        slot = (slot + 1) % ring.Length;
+        data.CopyTo(gfx.Map(ring[slot]));
+        return (ring, slot);
     }
 
     // The box around a mesh's positions, or null for a mesh with none.
@@ -369,6 +445,9 @@ internal sealed class GpuMeshes : IDisposable
             _retired.Add((_frame, entry.Indices));
             if (entry.Colors is { } colors) _retired.Add((_frame, colors));
             if (entry.Texcoords2 is { } texcoords2) _retired.Add((_frame, texcoords2));
+            if (entry.CustomRing is { } customRing)
+                foreach (var buffer in customRing) _retired.Add((_frame, buffer));
+            else if (entry.Custom is { } custom) _retired.Add((_frame, custom.Buffer));
         }
     }
 
@@ -402,6 +481,9 @@ internal sealed class GpuMeshes : IDisposable
             entry.Indices.Dispose();
             entry.Colors?.Dispose();
             entry.Texcoords2?.Dispose();
+            if (entry.CustomRing is { } customRing)
+                foreach (var buffer in customRing) buffer.Dispose();
+            else entry.Custom?.Buffer.Dispose();
         }
         _retired.Clear();
         _entries.Clear();

@@ -459,6 +459,22 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
+    public void Four_Bytes_Written_To_A_Meshs_Own_Stream_Change_Those_Alone()
+    {
+        var plane = GenMeshPlane(2, 2, 1, 1);
+        var store = _app.World.Resource<MeshStore>();
+        store.TryGetData(plane.Id, out var vertices, out var indices).Should().BeTrue();
+        var packed = UploadMesh(vertices, indices, null, null, MeshStream.From(MeshStreamFormat.UInt, new uint[] { 1, 2, 3, 4 }));
+
+        // The second vertex's four bytes, 4 bytes in, and a write to a mesh made without a stream.
+        UpdateMeshBuffer(packed, MeshStreamBuffer, [9u], 4);
+        UpdateMeshBuffer(plane, MeshStreamBuffer, [9u], 0);
+
+        System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(store.CustomOf(packed.Id)!.Data).ToArray().Should().Equal(1u, 9u, 3u, 4u);
+        store.CustomOf(plane.Id).Should().BeNull("the write does not say the format a stream would be in");
+    }
+
+    [Fact]
     public void A_Position_Written_To_A_Mesh_Moves_That_Vertex_Alone()
     {
         var plane = GenMeshPlane(2, 2, 1, 1);

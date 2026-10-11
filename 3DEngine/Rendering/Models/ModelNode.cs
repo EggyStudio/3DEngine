@@ -160,14 +160,53 @@ internal sealed partial class ModelRenderer : IDisposable
     // without them draws through model.slang, reading its vertices alone.
     private enum Streams : byte { None, PerVertex, Default }
 
+    // How a pipeline feeds CUSTOM0 at binding 5 to a shader of the program's own that reads it: a
+    // vertex at a time from the mesh's stream of the program's own, in its format, or once from
+    // sixteen bytes of zeros in a format of the input's class, since Vulkan reads an attribute of
+    // one class into an input of the other as nothing it defines.
+    private readonly record struct StreamFeed(VertexFormat Format, bool PerVertex)
+    {
+        // The feed for an input from a mesh's stream, or from the zeros where it has none.
+        public static StreamFeed For(ShaderInput input, MeshStreamFormat? stream) => stream switch
+        {
+            MeshStreamFormat.UInt => new(VertexFormat.UInt, true),
+            MeshStreamFormat.UInt2 => new(VertexFormat.UInt2, true),
+            MeshStreamFormat.Float => new(VertexFormat.Float, true),
+            MeshStreamFormat.Float4 => new(VertexFormat.Float4, true),
+            MeshStreamFormat.UNorm8x4 => new(VertexFormat.UNormR8G8B8A8, true),
+            _ => new(input.Integer ? VertexFormat.UInt2 : VertexFormat.Float4, false),
+        };
+
+        // Bytes a vertex, or none for the zeros every vertex reads.
+        public uint Stride => !PerVertex ? 0u : Format switch
+        {
+            VertexFormat.UInt2 => 8u,
+            VertexFormat.Float4 => 16u,
+            _ => 4u,
+        };
+    }
+
     // The inputs model.slang's stages take, the mesh's vertex and its instance into the vertex
     // stage and ModelVertexOutput into the fragment stage, past which a shader reads the streams.
     private readonly int _plainVertexInputs;
     private readonly int _plainFragmentInputs;
 
-    // A white color and a second texture coordinate of zero, bound with a stride of 0.
+    // A white color and a second texture coordinate of zero, bound with a stride of 0, and sixteen
+    // bytes of zeros for CUSTOM0 on a mesh without a stream of the program's own.
     private IBuffer? _defaultColor;
     private IBuffer? _defaultTexcoords2;
+    private IBuffer? _defaultCustom;
+
+    private IBuffer DefaultCustom(IGraphicsDevice gfx)
+    {
+        if (_defaultCustom is null)
+        {
+            _defaultCustom = gfx.CreateBuffer(new BufferDesc(16, BufferUsage.Vertex, CpuAccessMode.Write));
+            gfx.Map(_defaultCustom).Clear();
+            gfx.Unmap(_defaultCustom);
+        }
+        return _defaultCustom;
+    }
 
     private (IBuffer Colors, IBuffer Texcoords2) DefaultStreams(IGraphicsDevice gfx)
     {
@@ -307,10 +346,10 @@ internal sealed partial class ModelRenderer : IDisposable
 
     // The modules of the program's own shaders, by ShaderStore id, and their pipelines by the pass
     // they draw in.
-    private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams)> _custom = [];
+    private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0)> _custom = [];
     // A program's shader's fragment stage with its color held to an eight-bit frame's, for the HDR frame.
     private readonly Dictionary<int, IShader> _heldFragments = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held), IPipeline> _customPipelines = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -416,12 +455,16 @@ internal sealed partial class ModelRenderer : IDisposable
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
             var meshStreams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
+            var modules = program is null ? default : CustomModules(gfx, draw.Shader, program);
             var streams = program is null
                 ? meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None
-                : CustomModules(gfx, draw.Shader, program).ReadsStreams ? meshStreams : Streams.None;
+                : modules.ReadsStreams ? meshStreams : Streams.None;
+            // A shader of the program's own that reads CUSTOM0 is fed the mesh's stream of the
+            // program's own, or zeros where the mesh has none.
+            StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, batch.Mesh.Custom?.Format) : null;
             var wanted = program is null
                 ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held);
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -443,6 +486,8 @@ internal sealed partial class ModelRenderer : IDisposable
                 var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!, colors, texcoords2], [0, offset, 0, 0]);
             }
+            if (feed is { } fed)
+                pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : DefaultCustom(gfx)], [0]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count(target == 0 ? "camera" : "targets", DrawSeen(pass, batch, blocks, frustum));
         }
@@ -637,7 +682,7 @@ internal sealed partial class ModelRenderer : IDisposable
         foreach (var set in _lightSets.SelectMany(s => s)) set.Dispose();
         foreach (var sets in _drawSets)
             foreach (var set in sets) set.Dispose();
-        foreach (var (vertex, fragment, _) in _custom.Values)
+        foreach (var (vertex, fragment, _, _) in _custom.Values)
         {
             vertex.Dispose();
             fragment.Dispose();
@@ -681,6 +726,7 @@ internal sealed partial class ModelRenderer : IDisposable
         _noBuffer?.Dispose();
         _defaultColor?.Dispose();
         _defaultTexcoords2?.Dispose();
+        _defaultCustom?.Dispose();
     }
 }
 

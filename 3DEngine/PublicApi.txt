@@ -761,6 +761,7 @@ struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
   bool MoveNext()
 static class Engine.Engine3D
   const int AnimationFps = 60
+  const int MeshStreamBuffer = 9
   static App GetApp()
   static AudioStream LoadAudioStream(int sampleRate, int sampleSize, int channels)
   static AutomationEventList LoadAutomationEventList(string? fileName)
@@ -846,6 +847,7 @@ static class Engine.Engine3D
   static ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2)
+  static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2, MeshStream? stream)
   static MonitorMode[] GetMonitorModes(int monitor)
   static Music LoadMusicStream(string fileName)
   static Music LoadMusicStreamFromMemory(string fileType, byte[] data)
@@ -2152,6 +2154,26 @@ struct Engine.Mesh
   Vector2[]? Uvs
   Vector3[] Positions
   Vector3[]? Normals
+sealed class Engine.MeshStream : IEquatable<MeshStream>
+  MeshStream(MeshStreamFormat Format, byte[] Data)
+  MeshStreamFormat Format { get; init; }
+  bool Equals(MeshStream? other)
+  byte[] Data { get; init; }
+  int Count { get; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static MeshStream From<T>(MeshStreamFormat format, ReadOnlySpan<T> values) where T : unmanaged
+  static bool op_Equality(MeshStream? left, MeshStream? right)
+  static bool op_Inequality(MeshStream? left, MeshStream? right)
+  static int SizeOf(MeshStreamFormat format)
+  void Deconstruct(out MeshStreamFormat Format, out byte[] Data)
+enum Engine.MeshStreamFormat : int
+  Float = 2
+  Float4 = 3
+  UInt = 0
+  UInt2 = 1
+  UNorm8x4 = 4
 sealed class Engine.Model
   Matrix4x4 Transform { get; set; }
   Model()

@@ -191,6 +191,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_subsurface"] = ShadersSubsurface.Run,
     ["shaders_mesh_instancing"] = ShadersMeshInstancing.Run,
     ["shaders_instance_hues"] = ShadersInstanceHues.Run,
+    ["shaders_packed_vertices"] = ShadersPackedVertices.Run,
     ["shaders_shapes_textures"] = ShadersShapesTextures.Run,
     ["shaders_texture_outline"] = ShadersTextureOutline.Run,
     ["shaders_texture_waves"] = ShadersTextureWaves.Run,

@@ -403,6 +403,9 @@ internal sealed unsafe partial class GraphicsDevice
         VertexFormat.Float3 => VkFormat.R32G32B32Sfloat,
         VertexFormat.Float4 => VkFormat.R32G32B32A32Sfloat,
         VertexFormat.UNormR8G8B8A8 => VkFormat.R8G8B8A8Unorm,
+        VertexFormat.UInt => VkFormat.R32Uint,
+        VertexFormat.UInt2 => VkFormat.R32G32Uint,
+        VertexFormat.Float => VkFormat.R32Sfloat,
         _ => throw new ArgumentOutOfRangeException(nameof(format))
     };
 

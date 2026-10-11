@@ -51,11 +51,13 @@ internal sealed partial class ModelRenderer
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does, its
-    // color held to an eight-bit frame's where it draws into the HDR frame.
+    // color held to an eight-bit frame's where it draws into the HDR frame, and CUSTOM0 fed as the
+    // mesh gives it.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
-        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false)
+        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false,
+        StreamFeed? feed = null)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
         var fragment = held
@@ -66,17 +68,18 @@ internal sealed partial class ModelRenderer
         // stage that reads less than the instance's every row would leave unread, each by its
         // semantic where the reflection names them and otherwise at the location it reads.
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
-        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
+        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held, feed)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
             blend: blend, streams: streams, depth: depth, inputs: own ? ShaderProgram.InputLocationSet(vertex) : null,
-            named: own ? program.VertexInputs : [], shaderName: program.Name);
+            named: own ? program.VertexInputs : [], shaderName: program.Name, feed: feed);
     }
 
-    // A material's own shader's stages, and whether it reads a mesh's colors and second texture
-    // coordinates: a vertex stage of its own that takes an input past the mesh's vertex and its
+    // A material's own shader's stages, whether it reads a mesh's colors and second texture
+    // coordinates, a vertex stage of its own that takes an input past the mesh's vertex and its
     // instance, or a fragment stage that takes ModelStreamsOutput, which then draws with
-    // model_streams.slang's vertex stage where it has none of its own.
-    private (IShader Vertex, IShader Fragment, bool ReadsStreams) CustomModules(IGraphicsDevice gfx, int id, ShaderProgram program)
+    // model_streams.slang's vertex stage where it has none of its own, and the input its vertex
+    // stage reads a mesh's stream of the program's own by, CUSTOM0, where it reads one.
+    private (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0) CustomModules(IGraphicsDevice gfx, int id, ShaderProgram program)
     {
         if (_custom.TryGetValue(id, out var modules)) return modules;
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
@@ -85,10 +88,12 @@ internal sealed partial class ModelRenderer
                 ? program.VertexInputs.Any(input => input.Semantic is "COLOR0" or "TEXCOORD1")
                 : program.InputLocations(ShaderStage.Vertex) > _plainVertexInputs
             : program.InputLocations(ShaderStage.Fragment) > _plainFragmentInputs;
+        ShaderInput? custom0 = own && program.VertexInputs.FirstOrDefault(input => input.Semantic == "CUSTOM0") is { Semantic: not null } found ? found : null;
         return _custom[id] = (
             gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, own ? vertex! : reads ? _streamsVertexSpv : _vertexSpv)),
             gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment)),
-            reads);
+            reads,
+            custom0);
     }
 
     // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
@@ -287,7 +292,8 @@ internal sealed partial class ModelRenderer
 
     // The attributes a pipeline of the pass is fed, the stage's inputs placed by their semantics
     // where it names them, with a warning once for a stage that reads one no stream gives.
-    private VertexInputAttributeDesc[] Placed(int rows, Streams streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? inputs, string? shaderName)
+    private VertexInputAttributeDesc[] Placed(int rows, Streams streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? inputs, string? shaderName,
+        StreamFeed? feed = null)
     {
         VertexStream[] given =
         [
@@ -300,11 +306,14 @@ internal sealed partial class ModelRenderer
                 new("COLOR0", new VertexInputAttributeDesc(9, 2, VertexFormat.UNormR8G8B8A8, 0)),
                 new("TEXCOORD1", new VertexInputAttributeDesc(10, 3, VertexFormat.Float2, 0)),
             ],
+            // The stream of the program's own at binding 5, past the subsurface pass's binding 4,
+            // location 13 standing where a stage's inputs are not named.
+            .. feed is { } fed ? [new VertexStream("CUSTOM0", new VertexInputAttributeDesc(13, 5, fed.Format, 0))] : Array.Empty<VertexStream>(),
         ];
         var placed = VertexStream.Placed(given, named, inputs, out var missing);
         if (missing.Length > 0 && shaderName is not null && _unfed.Add(shaderName))
             Logger.Warn($"'{shaderName}': its vertex stage takes {string.Join(", ", missing)}, which no stream of a model gives. " +
-                        "A model's vertices give POSITION, NORMAL, TEXCOORD0, COLOR0, TEXCOORD1 and a ModelInstance.");
+                        "A model's vertices give POSITION, NORMAL, TEXCOORD0, COLOR0, TEXCOORD1, a ModelInstance and the mesh's own stream as CUSTOM0.");
         return placed;
     }
 
@@ -315,7 +324,7 @@ internal sealed partial class ModelRenderer
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null)
+        string? shaderName = null, StreamFeed? feed = null)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -330,7 +339,8 @@ internal sealed partial class ModelRenderer
             // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats
             // from location 3 in ModelInstance's order. With streams, its colors at binding 2 and
             // location 9 and its second texture coordinates at binding 3 and location 10, each a
-            // vertex at a time from the mesh or the one default for every vertex.
+            // vertex at a time from the mesh or the one default for every vertex, and its stream of
+            // the program's own at binding 5 the same way.
             VertexBindings:
             [
                 new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>()),
@@ -340,8 +350,9 @@ internal sealed partial class ModelRenderer
                     new VertexInputBindingDesc(2, streams == Streams.PerVertex ? 4u : 0u),
                     new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
                 ],
+                .. feed is { } fed ? [new VertexInputBindingDesc(5, fed.Stride)] : Array.Empty<VertexInputBindingDesc>(),
             ],
-            VertexAttributes: Placed(rows, streams, named ?? [], inputs, shaderName),
+            VertexAttributes: Placed(rows, streams, named ?? [], inputs, shaderName, feed),
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.

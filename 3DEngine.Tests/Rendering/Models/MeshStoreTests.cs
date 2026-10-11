@@ -47,6 +47,42 @@ public class MeshStoreTests
     }
 
     [Fact]
+    public void A_Stream_Of_The_Programs_Own_That_Is_Not_One_Of_Its_Format_A_Vertex_Is_Refused()
+    {
+        var store = new MeshStore();
+
+        var fewer = () => store.Add(Triangle, [0, 1, 2], custom: MeshStream.From(MeshStreamFormat.UInt, new uint[] { 1, 2 }));
+        var ragged = () => store.Add(Triangle, [0, 1, 2], custom: new MeshStream(MeshStreamFormat.UInt2, new byte[20]));
+        var ragged2 = () => MeshStream.From(MeshStreamFormat.Float4, new float[] { 1, 2, 3 });
+
+        fewer.Should().Throw<ArgumentException>("eight bytes do not give three vertices four each");
+        ragged.Should().Throw<ArgumentException>("20 bytes are not a whole number of eight-byte vertices");
+        ragged2.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void A_Stream_Written_In_Place_Is_Queued_Alone_And_Beside_Vertices_Written_In_Place()
+    {
+        var store = new MeshStore();
+        var id = store.Add(Triangle, [0, 1, 2], custom: MeshStream.From(MeshStreamFormat.UInt, new uint[] { 1, 2, 3 }));
+        store.Take().Uploads.Should().ContainSingle().Which.Custom!.Format.Should().Be(MeshStreamFormat.UInt);
+
+        store.UpdateCustom(id, MeshStream.From(MeshStreamFormat.UInt, new uint[] { 4, 5, 6 })).Should().BeTrue();
+        var alone = store.Take().Uploads.Should().ContainSingle().Which;
+        (alone.CustomOnly, alone.VerticesOnly).Should().Be((true, false), "the stream alone is written, and nothing else of the mesh");
+        alone.Custom!.Data.Should().Equal(System.Runtime.InteropServices.MemoryMarshal.AsBytes<uint>([4, 5, 6]).ToArray());
+
+        store.UpdateCustom(id, MeshStream.From(MeshStreamFormat.UInt, new uint[] { 7, 8, 9 }));
+        store.UpdateVertices(id, Triangle);
+        var both = store.Take().Uploads.Should().ContainSingle().Which;
+        (both.CustomOnly, both.VerticesOnly).Should().Be((true, true), "the vertices written after it in the frame keep the stream's write beside them");
+        store.CustomOf(id)!.Data.Should().Equal(System.Runtime.InteropServices.MemoryMarshal.AsBytes<uint>([7, 8, 9]).ToArray());
+
+        store.Remove(id);
+        store.CustomOf(id).Should().BeNull();
+    }
+
+    [Fact]
     public void A_Vertex_Is_32_Bytes_In_The_Order_The_Pipeline_Reads()
     {
         System.Runtime.InteropServices.Marshal.SizeOf<ModelVertex>().Should().Be(32);

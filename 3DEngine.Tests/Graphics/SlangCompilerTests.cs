@@ -358,6 +358,27 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void An_Input_Of_Integers_Is_Reflected_As_Such_And_Kept_In_The_Cache()
+    {
+        // Four packed bytes and eight read as integers, which a stream of the program's own must
+        // feed as integers, and a float beside them.
+        const string packed = """
+            [shader("vertex")]
+            float4 vertexMain(float3 position : POSITION, uint packed : CUSTOM0, uint2 pair : CUSTOM1, float4 tint : CUSTOM2) : SV_Position
+            {
+                return float4(position + float3(packed, pair.y, tint.x), 1);
+            }
+            """;
+
+        var compiled = SlangCompiler.CompileStage(packed, "packed.slang", "vertexMain", ShaderStage.Vertex, _folder.Path);
+        var cached = SlangCompiler.CompileStage(packed, "packed.slang", "vertexMain", ShaderStage.Vertex, _folder.Path, null, compiler: null);
+
+        compiled.Inputs.Should().Equal(new ShaderInput("POSITION0", 0), new ShaderInput("CUSTOM0", 1, Integer: true),
+            new ShaderInput("CUSTOM1", 2, Integer: true), new ShaderInput("CUSTOM2", 3));
+        cached.Inputs.Should().Equal(compiled.Inputs);
+    }
+
+    [NeedsSlangFact]
     public void A_Texture_And_Its_Sampler_Declared_Apart_Are_Reflected_As_Such_And_Kept_In_The_Cache()
     {
         const string apart = """

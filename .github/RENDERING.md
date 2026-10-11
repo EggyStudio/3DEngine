@@ -183,7 +183,12 @@ in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `Model
 shader), holding the world matrix as three rows of a 3x4 (the rotation for normals and the
 translation for world positions) and the material's factors. The camera's view-projection is a
 push constant for the batch (`modelPush`), as a light's is in the shadow pass, so draws recorded
-through two cameras are batched apart. `model.slang` shades by the frame's lights, or when the
+through two cameras are batched apart. A mesh's colors and second texture coordinates are vertex
+buffers at bindings 2 and 3 where it has them, and its stream of the program's own (`MeshStream`)
+one at binding 5, past the subsurface pass's binding 4, read as `CUSTOM0` by a vertex stage of the
+program's own alone, which a mesh without it feeds from sixteen bytes of zeros at a stride of 0 in a
+format of the input's class; a write of the stream in place goes into the next of a ring of buffers,
+as replaced vertices do. `model.slang` shades by the frame's lights, or when the
 world has none and no environment draws the color unlit, texture times color with the light the
 material gives off, as raylib's default shader draws a model.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports

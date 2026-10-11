@@ -10,7 +10,13 @@ internal enum VertexFormat
     /// <summary>Four 32-bit floats (VK_FORMAT_R32G32B32A32_SFLOAT).</summary>
     Float4,
     /// <summary>Four 8-bit unsigned normalized values (VK_FORMAT_R8G8B8A8_UNORM).</summary>
-    UNormR8G8B8A8
+    UNormR8G8B8A8,
+    /// <summary>One 32-bit unsigned integer (VK_FORMAT_R32_UINT).</summary>
+    UInt,
+    /// <summary>Two 32-bit unsigned integers (VK_FORMAT_R32G32_UINT).</summary>
+    UInt2,
+    /// <summary>One 32-bit float (VK_FORMAT_R32_SFLOAT).</summary>
+    Float
 }
 
 /// <summary>Index buffer element type.</summary>
