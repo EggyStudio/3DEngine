@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7644d055`. Verdict 49's pairs: nothing the billboard or the depth writing example
+Reviewed up to `60f2999d`. Item 11's fit: `build/webp.sh` fills the size it is given, scaling a
+capture until its shorter side fills it and cutting the rest around the middle or from the side a
+gravity names, so every picture fills its box where the padded ones read as smaller beside the rest;
+the games' sixteen by nine captures came out the same, the split-screen camera and the angle
+rotation lose some ten pixels at their sides, the compute shader's square keeps its pattern and
+loses its line of help, its window left at raylib's size since the comparison reads the PNG and not
+this file, and Slide, four by three, is cut from the top so its score stays, its workflow step
+passing north with the reason; the four were fitted again from their originals before `ee47849e`, so
+each carries one encoding, and all 268 captures are 800 by 450, read here file by file. The
+document, norm and script tests pass, 68. Right, the fill done in the file once rather than by the
+page, the one cut that would lose something given a gravity with its reason, and the pictures taken
+from their originals rather than from a fitted copy. Item 11 keeps one thing from the owner's look
+at 18:20: each picture is as wide as the name under it, since GitHub squeezes a table to the page
+before it scrolls and a cell shrinks to its name, so every cell takes `width="400"`, which the
+sanitizer keeps, a batch of its own next. Next h's rest, the wall's dark side a fifth under, the
+blotches on the tiles' grid and the seam's teeth of about ten pixels, then Verdict 48's two
+remedies, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `7644d055` came, Verdict 49's pairs: nothing the billboard or the depth writing example
 draws through changed between `71050c8f` and `b1e86aef`, the immediate pass, the shapes, the text
 and the pipelines untouched and the commits between them the bounce's and the game's, and measured
 outside the job, on lavapipe for the engine and llvmpipe for raylib's programs and on the RTX 4070
@@ -46,25 +64,6 @@ different sizes: GitHub's own style gives every tag one box, so it is the bars o
 captures that read as smaller pictures, and item 11 keeps the fit, the capture scaled to fill its
 box and cut around the middle rather than padded, a batch of its own next. Then h's rest, Verdict
 48's two remedies, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `ee47849e` came, item 11 with its size: the README's examples as a heading and a single
-row a folder in the folders' order, 257 captured examples in twelve rows and the thirteen games in a
-last, the picture opening the program and the name under it, every tag 400 by 225, and the games'
-prose and the block under the table gone, each game's paragraph become `games/<name>/README.md` with
-a line on how it is built, Hopper's and Swarm's reworded to stand alone, since EXAMPLES.md has no
-games table to hold them; `build/webp.sh` takes a size and fits a picture inside it with
-ImageMagick, padded black, which the capture script and the thirteen games' workflow steps pass as
-800 by 450, so the sixteen captures of other sizes are fitted again and `build/norm/4.5.txt` is
-empty but for its header, which NORM.md's table says since this pass. The README's walk passes with
-the shader compiler set, as do the examples' table check and the document, norm, script and package
-tests, 73. Right, the games' notes kept where a reader of the game looks rather than dropped, and
-every picture fitted once in the file rather than stretched by the page. Item 12, the skill's move,
-the working session takes only on the owner's word given in its own session, since it moves a file
-out of the tool's folder, deletes that folder and edits AGENTS.md and the ignore file, and it has
-asked the owner there; the reviewing session holds that right and the owner is told. The owner
-pushed `8118e2c7` at 15:50, the first run with `1b8a9217`'s workflow, so its examples job reaches
-the soak, which Verdict 30 reads. Next Verdict 49's pairs, as the working session has taken them,
-then h's rest, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -573,37 +572,46 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
-    `ee47849e` but for the pictures' fit (Decision 29).** The owner asked on 2026-10-11 at 15:55.
-    The README's Examples section holds a table of two columns and thirty-four rows, pictures of
-    picked examples and games mixed, and under it eighty lines of prose and a block that explain the
-    games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
-    repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
-    Shapes, Text and Textures, each a single row holding every example of the folder that has a
-    capture under `.github/assets/examples`, the picture linking the program and the run name under
-    it as the rows do today, with a heading line naming the folder before each, and a last table of
-    the same shape for `games`; a single row wider than the page scrolls sideways on GitHub, which
-    is the point, so no row is wrapped. The prose and the block between the table and the Guide
-    heading that explain the games go, their facts living in the games' own READMEs and in the games
-    table of EXAMPLES.md where they are not already. The README's walk and the examples' table check
-    read the file as before, so each is run on the result, and the captures' links keep their raw
-    form. Taken as a batch of its own after h's next commit, since it is small and the owner asked;
-    The owner asked at 16:35 that the pictures be one size, where they differ today: every picture
-    in the rows carries the same width and height on its tag, and the captures that are not 800 by
-    450, sixteen of 268, among them a square and a four by three, are taken again at that size where
-    the program's window allows or padded to it by the capture script, so the tag distorts nothing;
-    the examples' table check and the captures' comparison read the result. Done at `ee47849e`:
-    twelve rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen
-    captures of other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into
-    each game's own README. The owner looked at the pushed page at 17:10 and the pictures still read
-    as different sizes. GitHub renders every tag at one box, its own style giving each the full
-    width of its cell, an automatic height and the tag's aspect, so the box is uniform; what differs
-    is the picture inside it, since a capture of another shape was fitted inside sixteen by nine
-    with black bars, which read as a smaller picture. The fit fills instead: the WebP script scales
-    a capture of another shape so its shorter side fills the box and cuts the rest around the
-    middle, or the example's window is opened at sixteen by nine where the cut would lose something
-    that matters, so every picture fills its box edge to edge; the sixteen captures and the games'
-    thirteen are fitted again so, and the page is read after the push. the owner's eye judges the
-    look (Decision 27).
+    `ee47849e` and `60f2999d` but for the cells' width (Decision 29).** The owner asked on
+    2026-10-11 at 15:55. The README's Examples section holds a table of two columns and thirty-four
+    rows, pictures of picked examples and games mixed, and under it eighty lines of prose and a
+    block that explain the games. It becomes one table a folder of `3DEngine.Examples`, in the
+    folders' order as the repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics,
+    Scenes, Shaders, Shapes, Text and Textures, each a single row holding every example of the
+    folder that has a capture under `.github/assets/examples`, the picture linking the program and
+    the run name under it as the rows do today, with a heading line naming the folder before each,
+    and a last table of the same shape for `games`; a single row wider than the page scrolls
+    sideways on GitHub, which is the point, so no row is wrapped. The prose and the block between
+    the table and the Guide heading that explain the games go, their facts living in the games' own
+    READMEs and in the games table of EXAMPLES.md where they are not already. The README's walk and
+    the examples' table check read the file as before, so each is run on the result, and the
+    captures' links keep their raw form. Taken as a batch of its own after h's next commit, since it
+    is small and the owner asked; The owner asked at 16:35 that the pictures be one size, where they
+    differ today: every picture in the rows carries the same width and height on its tag, and the
+    captures that are not 800 by 450, sixteen of 268, among them a square and a four by three, are
+    taken again at that size where the program's window allows or padded to it by the capture
+    script, so the tag distorts nothing; the examples' table check and the captures' comparison read
+    the result. Done at `ee47849e`: twelve rows of 257 examples and a games row of thirteen, every
+    tag 400 by 225, the sixteen captures of other sizes fitted to 800 by 450 by the WebP script, the
+    games' notes moved into each game's own README. The owner looked at the pushed page at 17:10 and
+    the pictures still read as different sizes. GitHub renders every tag at one box, its own style
+    giving each the full width of its cell, an automatic height and the tag's aspect, so the box is
+    uniform; what differs is the picture inside it, since a capture of another shape was fitted
+    inside sixteen by nine with black bars, which read as a smaller picture. The fit fills instead:
+    the WebP script scales a capture of another shape so its shorter side fills the box and cuts the
+    rest around the middle, or the example's window is opened at sixteen by nine where the cut would
+    lose something that matters, so every picture fills its box edge to edge; the sixteen captures
+    and the games' thirteen are fitted again so, and the page is read after the push. Done at
+    `60f2999d`: the WebP script fills its size and cuts around the middle or from a named side, all
+    268 captures at 800 by 450 and filling their boxes. The owner looked again at 18:20: each
+    picture is as wide as the name under it, a short name's tiny and a long name's large. GitHub
+    squeezes a table to the page's width before it lets it scroll, and a cell shrinks to the one
+    thing in it that cannot wrap, the name, the picture shrinking with it under the page's own rule
+    of a picture no wider than its cell. Each cell takes a width of its own, `width="400"` on every
+    `td`, which the page's sanitizer keeps as it keeps a picture's, so no column goes below it and
+    the row keeps its full width and scrolls; a header row of non-breaking spaces would do the same
+    and is the fallback should the attribute be stripped, which the rendered page says after the
+    push. the owner's eye judges the look (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -893,12 +901,15 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11, the fit. `build/webp.sh` fills the size it is given, scaling a capture until its shorter
-side fills it and cutting the rest around the middle, or from the side a gravity names. The games'
-captures are 16 by 9 already and come out as they were. Of the four of other shapes,
-`core_2d_camera_split_screen` and `shapes_math_angle_rotation` lose some ten pixels at their sides,
-`shaders_rlgl_compute`, square at raylib's 768 by 768, keeps its whole pattern and loses its line of
-help at the top, its window held at raylib's size for the measure against raylib's program, which
-reads the PNG and not this, and `games/Slide`, four by three, is cut from the top so its score
-stays, its step in the workflow naming north. Every capture is 800 by 450 and fills its box; the
-docs, norm and script tests pass, 68.
+Item 11, the cells' width. Each folder's row is an HTML table on a line of its own, every cell
+`width="400"` with its picture's link and tag as before and the run name in `<code>`, since Markdown
+is not read inside an HTML block, so no column is squeezed below the picture and a row wider than
+the page scrolls. The docs and norm tests pass, 34, the pictures' links read by them as before.
+
+Item 2, part h, the dark side, read so far in an engine room of the owner's pillar with pale walls
+against a reference of 4,096 paths. Along the wall the frame reads 0.84 to 0.97 of the reference
+with the pillar standing and 1.00 to 1.03 without it; the lamps' light alone with it 0.90 to 1.07,
+and one bounce with the light that bounces again left out against a reference of two bounces 0.86 to
+0.99, so the short grows bounce by bounce where the pillar stands. With the screen's probes off it
+reads the same or lower, and with a ray's hits marched to the faces' halves the same, so the world's
+probes' bounce around the pillar is read next.
