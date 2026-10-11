@@ -10,18 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4805676c`. Item 11's captions in two commits, both pushed: `706a1499` as first
-asked, every tag 260 by 146 and every cell 260, each name padded to 32 characters with the
-non-breaking space itself and set in a small code tag; and `4805676c` as the owner's change of 20:20
-had it, the tags and cells 220 by 124, the names padded to 28, and the seven names past 28, not the
-three the item counted, broken after their last underscore within 28 by a `<wbr>` tag with the last
-piece padded to 28; the norm and document-link tests pass on each, 20. The owner looked at both on a
-phone at 20:35 and prefers the first, so `4805676c` is reverted by a commit in the form and item 11
-is done at `706a1499`'s look, 32 and 260, which BevyCSharp's gallery takes as well, 35 and 260, in
-place of the 28 and 220 it was told. Right, each form built as asked and the owner's eye the judge
-between them (Decision 27). Next the lampless variant of the model pass, Verdict 48's second remedy,
-then the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye,
-f's filter offset, item 10, item 9 and item 8.
+Reviewed up to `aa9fe773`. The revert of `4805676c`: the README is byte for byte `706a1499`'s again,
+the captions of 32 and the pictures of 260, which the owner chose on a phone, their pictures filling
+up to the caption's width where the smaller form's fell short, and the commit's sentence says the
+look was chosen on a phone and names no one, as N 4.7 asks, where the reviewing session's own line
+to the working session had named the owner; the norm and document-link tests pass, 20. Item 11 keeps
+one thing from the owner's look at 21:30: the games' captions break after the slash of `games/`, so
+each is the game's name alone, padded as the examples' are, a batch of its own next. Right, the rule
+kept where the direction slipped. Next the lampless variant of the model pass, Verdict 48's second
+remedy, then the bounce around the pillar as a read of its own, h's blotches and teeth by the
+owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `4805676c` and `706a1499` came, item 11's captions in two commits, both pushed:
+`706a1499` as first asked, every tag 260 by 146 and every cell 260, each name padded to 32
+characters with the non-breaking space itself and set in a small code tag; and `4805676c` as the
+owner's change of 20:20 had it, the tags and cells 220 by 124, the names padded to 28, and the seven
+names past 28, not the three the item counted, broken after their last underscore within 28 by a
+`<wbr>` tag with the last piece padded to 28; the norm and document-link tests pass on each, 20. The
+owner looked at both on a phone at 20:35 and prefers the first, so `4805676c` is reverted by a
+commit in the form and item 11 is done at `706a1499`'s look, 32 and 260, which BevyCSharp's gallery
+takes as well, 35 and 260, in place of the 28 and 220 it was told. Right, each form built as asked
+and the owner's eye the judge between them (Decision 27). Next the lampless variant of the model
+pass, Verdict 48's second remedy, then the bounce around the pillar as a read of its own, h's
+blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 Before it, `76e7c278` came, Verdict 48's first remedy, taken another way by measurement: a pipeline
 cache of the engine's own, each device's seeded from the process's last, was built and read on this
@@ -41,22 +52,6 @@ by a `<wbr>` tag rather than every name padded to the longest, as the owner chos
 220 by 124, then the lampless variant of the model pass, the second remedy, measured by the pass's
 SPIR-V size and the per-app time on lavapipe; then the bounce around the pillar as a read of its
 own, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `3051fab8` came, item 11's last thing: every gallery tag gives 320 by 180 and every cell
-320, each name padded to 42 characters, all 268 read here so, the captures unchanged at 800 by 450;
-the document and norm tests pass, 34. The owner looked at the pushed pages at 20:05: right, and on a
-phone the caption outruns the picture by a tenth to a fifth, so item 11 keeps the caption's width,
-the picture nominally wider than the caption can render so the caption sets the cell and the picture
-fills it, the caption in a small code tag padded to the longest name, 32, every tag 260 by 146, a
-batch of its own next. Verdict 48's baseline on this host's lavapipe, four apps in one process each
-drawing a lit cube for three frames: with Mesa's disk cache on, the first app takes 27.8 s filling
-it and the three after 0.82 to 0.88 s; with that cache off, the first 4.6 s and the three after 3.66
-to 3.74 s, so where the driver keeps no cache every later app pays about fourfold, and whether the
-workflow's Mesa on Ubuntu and on Windows keeps one is the question the page's times answer; the
-process-wide pipeline cache is built next and measured with Mesa's cache off, to see whether
-lavapipe skips its compile on a hit, then the lampless variant of the model pass. Then the bounce
-around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
-offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -577,82 +572,86 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
-    `706a1499`'s look, `4805676c` reverted (Decision 29).** The owner asked on 2026-10-11 at 15:55.
-    The README's Examples section holds a table of two columns and thirty-four rows, pictures of
-    picked examples and games mixed, and under it eighty lines of prose and a block that explain the
-    games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
-    repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
-    Shapes, Text and Textures, each a single row holding every example of the folder that has a
-    capture under `.github/assets/examples`, the picture linking the program and the run name under
-    it as the rows do today, with a heading line naming the folder before each, and a last table of
-    the same shape for `games`; a single row wider than the page scrolls sideways on GitHub, which
-    is the point, so no row is wrapped. The prose and the block between the table and the Guide
-    heading that explain the games go, their facts living in the games' own READMEs and in the games
-    table of EXAMPLES.md where they are not already. The README's walk and the examples' table check
-    read the file as before, so each is run on the result, and the captures' links keep their raw
-    form. Taken as a batch of its own after h's next commit, since it is small and the owner asked;
-    The owner asked at 16:35 that the pictures be one size, where they differ today: every picture
-    in the rows carries the same width and height on its tag, and the captures that are not 800 by
-    450, sixteen of 268, among them a square and a four by three, are taken again at that size where
-    the program's window allows or padded to it by the capture script, so the tag distorts nothing;
-    the examples' table check and the captures' comparison read the result. Done at `ee47849e`:
-    twelve rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen
-    captures of other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into
-    each game's own README. The owner looked at the pushed page at 17:10 and the pictures still read
-    as different sizes. GitHub renders every tag at one box, its own style giving each the full
-    width of its cell, an automatic height and the tag's aspect, so the box is uniform; what differs
-    is the picture inside it, since a capture of another shape was fitted inside sixteen by nine
-    with black bars, which read as a smaller picture. The fit fills instead: the WebP script scales
-    a capture of another shape so its shorter side fills the box and cuts the rest around the
-    middle, or the example's window is opened at sixteen by nine where the cut would lose something
-    that matters, so every picture fills its box edge to edge; the sixteen captures and the games'
-    thirteen are fitted again so, and the page is read after the push. Done at `60f2999d`: the WebP
-    script fills its size and cuts around the middle or from a named side, all 268 captures at 800
-    by 450 and filling their boxes. The owner looked again at 18:20: each picture is as wide as the
-    name under it, a short name's tiny and a long name's large. GitHub squeezes a table to the
-    page's width before it lets it scroll, and a cell shrinks to the one thing in it that cannot
-    wrap, the name, the picture shrinking with it under the page's own rule of a picture no wider
-    than its cell. Each cell takes a width of its own, `width="400"` on every `td`, which the page's
-    sanitizer keeps as it keeps a picture's, so no column goes below it and the row keeps its full
-    width and scrolls; a header row of non-breaking spaces would do the same and is the fallback
-    should the attribute be stripped, which the rendered page says after the push. Done at
-    `623bdc47`: every cell 400 wide in an HTML table a folder, the rendered page read after the
-    push. The owner looked at the pushed page at 18:55 and the pictures still differ. The rendered
-    page keeps the cell's width, read here, so the squeeze is the browser's table layout: a cell's
-    width is a preference, and when a table is wider than the page the browser shrinks each cell to
-    its narrowest unbreakable content, the name, the picture with it, GitHub's table being a block
-    capped at the page's width that scrolls only past that minimum. So the minimum comes from
-    content: the run name under each picture, in its code tag, is padded with non-breaking spaces,
-    the character itself and not the entity, to fifty-two characters, which the code font draws at
-    some 426 pixels, past the picture's 400 on every platform's monospace, so no cell can shrink
-    below its picture and the name reads as a caption bar as wide as it; the cell's width stays as
-    the preference. The rendered page is read after the push. Done at `54c0e669`: every name padded
-    to 52 characters, the README at 237 lines of prose, the rendered page read after the push. The
-    owner looked at the pushed page at 19:25 and it works, and asked for the pictures a bit smaller:
-    every tag 320 by 180 in place of 400 by 225, the cell's width 320 with it, and each name padded
-    to 42 characters, which the code font draws at some 344 pixels, past the picture, the captures
-    themselves unchanged at 800 by 450. Done at `3051fab8`: 320 by 180, cells of 320 and names of
-    42. The owner looked at the pushed pages at 20:05: the look is right, and on a phone the caption
-    under each picture is a tenth to a fifth wider than the picture, on a desktop a little wider.
-    The caption's padded text sets the cell's width while the picture fills no more than its own
-    size, so on a font that draws text wider, as a phone's does, the text overshoots the picture.
-    The caption sets the width on purpose and the picture fills it exactly: each picture's tag and
-    cell take a nominal width past the caption's widest rendering, so the cell is the caption's
-    width on every device and the picture, no wider than its cell by the page's rule, fills it edge
-    to edge; and the caption shrinks to the small tag, `<small><code>`, which the page keeps, since
-    the padding cannot go below the longest name and the font is the other knob: the names padded to
-    28 characters in a small code caption, and a name longer than that, three of 268, broken at an
-    underscore with a `<wbr>` tag, which the page keeps, so no piece exceeds 28 and its last piece
-    is padded to 28, which the owner chose at 20:20 over padding every name to the longest, the
-    names being raylib's and not renamed; the code font draws 28 at some 204 to 210 pixels, every
-    tag 220 by 124 and every cell 220, so the pictures come out about 205 wide, like BevyCSharp's as
-    the owner asked, and the same width as their captions, a long name wrapping to a second caption
-    line only where the table is squeezed; the rendered page read after the push on a desktop and a
-    phone. `706a1499` carries the first form, 32 and 260, and `4805676c` the change of 20:20, 28 and
-    220 with seven names broken by a `<wbr>` tag, and the owner looked at both on a phone at 20:35
-    and prefers the first, its pictures filling up to the caption's width where the second's fell
-    short of it, so `4805676c` is reverted by a commit in the form and the gallery stands at
-    `706a1499`'s look. the owner's eye judges the look (Decision 27).
+    `706a1499`'s look, `4805676c` reverted at `aa9fe773`, but for the games' captions (Decision
+    29).** The owner asked on 2026-10-11 at 15:55. The README's Examples section holds a table of
+    two columns and thirty-four rows, pictures of picked examples and games mixed, and under it
+    eighty lines of prose and a block that explain the games. It becomes one table a folder of
+    `3DEngine.Examples`, in the folders' order as the repository lists them, Audio, Benchmarks,
+    Core, Ecs, Gui, Models, Physics, Scenes, Shaders, Shapes, Text and Textures, each a single row
+    holding every example of the folder that has a capture under `.github/assets/examples`, the
+    picture linking the program and the run name under it as the rows do today, with a heading line
+    naming the folder before each, and a last table of the same shape for `games`; a single row
+    wider than the page scrolls sideways on GitHub, which is the point, so no row is wrapped. The
+    prose and the block between the table and the Guide heading that explain the games go, their
+    facts living in the games' own READMEs and in the games table of EXAMPLES.md where they are not
+    already. The README's walk and the examples' table check read the file as before, so each is run
+    on the result, and the captures' links keep their raw form. Taken as a batch of its own after
+    h's next commit, since it is small and the owner asked; The owner asked at 16:35 that the
+    pictures be one size, where they differ today: every picture in the rows carries the same width
+    and height on its tag, and the captures that are not 800 by 450, sixteen of 268, among them a
+    square and a four by three, are taken again at that size where the program's window allows or
+    padded to it by the capture script, so the tag distorts nothing; the examples' table check and
+    the captures' comparison read the result. Done at `ee47849e`: twelve rows of 257 examples and a
+    games row of thirteen, every tag 400 by 225, the sixteen captures of other sizes fitted to 800
+    by 450 by the WebP script, the games' notes moved into each game's own README. The owner looked
+    at the pushed page at 17:10 and the pictures still read as different sizes. GitHub renders every
+    tag at one box, its own style giving each the full width of its cell, an automatic height and
+    the tag's aspect, so the box is uniform; what differs is the picture inside it, since a capture
+    of another shape was fitted inside sixteen by nine with black bars, which read as a smaller
+    picture. The fit fills instead: the WebP script scales a capture of another shape so its shorter
+    side fills the box and cuts the rest around the middle, or the example's window is opened at
+    sixteen by nine where the cut would lose something that matters, so every picture fills its box
+    edge to edge; the sixteen captures and the games' thirteen are fitted again so, and the page is
+    read after the push. Done at `60f2999d`: the WebP script fills its size and cuts around the
+    middle or from a named side, all 268 captures at 800 by 450 and filling their boxes. The owner
+    looked again at 18:20: each picture is as wide as the name under it, a short name's tiny and a
+    long name's large. GitHub squeezes a table to the page's width before it lets it scroll, and a
+    cell shrinks to the one thing in it that cannot wrap, the name, the picture shrinking with it
+    under the page's own rule of a picture no wider than its cell. Each cell takes a width of its
+    own, `width="400"` on every `td`, which the page's sanitizer keeps as it keeps a picture's, so
+    no column goes below it and the row keeps its full width and scrolls; a header row of
+    non-breaking spaces would do the same and is the fallback should the attribute be stripped,
+    which the rendered page says after the push. Done at `623bdc47`: every cell 400 wide in an HTML
+    table a folder, the rendered page read after the push. The owner looked at the pushed page at
+    18:55 and the pictures still differ. The rendered page keeps the cell's width, read here, so the
+    squeeze is the browser's table layout: a cell's width is a preference, and when a table is wider
+    than the page the browser shrinks each cell to its narrowest unbreakable content, the name, the
+    picture with it, GitHub's table being a block capped at the page's width that scrolls only past
+    that minimum. So the minimum comes from content: the run name under each picture, in its code
+    tag, is padded with non-breaking spaces, the character itself and not the entity, to fifty-two
+    characters, which the code font draws at some 426 pixels, past the picture's 400 on every
+    platform's monospace, so no cell can shrink below its picture and the name reads as a caption
+    bar as wide as it; the cell's width stays as the preference. The rendered page is read after the
+    push. Done at `54c0e669`: every name padded to 52 characters, the README at 237 lines of prose,
+    the rendered page read after the push. The owner looked at the pushed page at 19:25 and it
+    works, and asked for the pictures a bit smaller: every tag 320 by 180 in place of 400 by 225,
+    the cell's width 320 with it, and each name padded to 42 characters, which the code font draws
+    at some 344 pixels, past the picture, the captures themselves unchanged at 800 by 450. Done at
+    `3051fab8`: 320 by 180, cells of 320 and names of 42. The owner looked at the pushed pages at
+    20:05: the look is right, and on a phone the caption under each picture is a tenth to a fifth
+    wider than the picture, on a desktop a little wider. The caption's padded text sets the cell's
+    width while the picture fills no more than its own size, so on a font that draws text wider, as
+    a phone's does, the text overshoots the picture. The caption sets the width on purpose and the
+    picture fills it exactly: each picture's tag and cell take a nominal width past the caption's
+    widest rendering, so the cell is the caption's width on every device and the picture, no wider
+    than its cell by the page's rule, fills it edge to edge; and the caption shrinks to the small
+    tag, `<small><code>`, which the page keeps, since the padding cannot go below the longest name
+    and the font is the other knob: the names padded to 28 characters in a small code caption, and a
+    name longer than that, three of 268, broken at an underscore with a `<wbr>` tag, which the page
+    keeps, so no piece exceeds 28 and its last piece is padded to 28, which the owner chose at 20:20
+    over padding every name to the longest, the names being raylib's and not renamed; the code font
+    draws 28 at some 204 to 210 pixels, every tag 220 by 124 and every cell 220, so the pictures
+    come out about 205 wide, like BevyCSharp's as the owner asked, and the same width as their
+    captions, a long name wrapping to a second caption line only where the table is squeezed; the
+    rendered page read after the push on a desktop and a phone. `706a1499` carries the first form,
+    32 and 260, and `4805676c` the change of 20:20, 28 and 220 with seven names broken by a `<wbr>`
+    tag, and the owner looked at both on a phone at 20:35 and prefers the first, its pictures
+    filling up to the caption's width where the second's fell short of it, so `4805676c` is reverted
+    by a commit in the form and the gallery stands at `706a1499`'s look. Reverted at `aa9fe773`, the
+    README byte for byte `706a1499`'s. The owner saw at 21:30 that the games' captions, `games/`
+    before each name, break onto a second line, since a browser may break a line after a slash; each
+    game's caption is the game's name alone, padded to 32 as the examples' are, the picture's link
+    unchanged. the owner's eye judges the look (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -946,5 +945,6 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11. `4805676c` is reverted, the gallery back at `706a1499`'s captions of 32 characters set
-small under pictures of 260 by 146. The document links and the norm tests pass, 20 of them.
+Item 11, the games' captions. Each of the thirteen is the game's name alone, padded to 32
+characters as the examples' are, its picture's link unchanged. The document links and the norm
+tests pass, 20 of them.
