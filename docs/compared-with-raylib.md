@@ -52,7 +52,7 @@ machine, with the command that measures it again.
   presses its keys and captures its frames, in a window never shown.
   [Driving a program with e3d](driving-with-e3d.md).
 - **Native builds.** A game publishes as one native executable through .NET's native AOT,
-  `games/Pusher` at 11 MB ([BUILDING.md](../.github/BUILDING.md#shipping-a-game)).
+  `games/Slide` at 14 MB ([BUILDING.md](../.github/BUILDING.md#shipping-a-game)).
 
 ## What it costs
 

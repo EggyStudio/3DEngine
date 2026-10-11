@@ -59,7 +59,7 @@ validation layer on, as `build.yml` shows.
 ## See also
 
 - The game [`games/Summit`](../games/Summit/Program.cs), and the smaller
-  [`games/Pusher`](../games/Pusher/Program.cs) and [`games/Hopper`](../games/Hopper/Program.cs)
+  [`games/Slide`](../games/Slide/Program.cs) and [`games/Hopper`](../games/Hopper/Program.cs)
 - [BUILDING.md](../.github/BUILDING.md#shipping-a-game), on the package, publishing and what a
   native build leaves out
 - Previous: [Driving a program with e3d](driving-with-e3d.md)

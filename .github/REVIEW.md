@@ -10,39 +10,57 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e28064f7`. Item 11's games' captions: each of the thirteen is the game's name alone,
-padded to 32 with the non-breaking space, its picture's link unchanged, so no caption holds a slash
-a browser may break after; all 268 captions read here at 32 with none holding a slash, and the norm
-and document-link tests pass, 20. Item 11 is done, the owner's eye on the push. The owner asked at
-21:55 that `games/Pusher` go, which is item 13 (Decision 31), a batch of its own after the lampless
-variant, since the game holds three of the test workflow's roles. Next the lampless variant of the
-model pass, Verdict 48's second remedy, its checks done but for the lavapipe run; then item 13; then
-the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
-filter offset, item 10, item 9 and item 8.
+Reviewed up to `76f7ca49`, which sets the version, `build/version.txt` alone, the owner's, pushed
+with everything before it at 17:28, four runs queued behind one another. `ea9a23cd`, Verdict 48's
+second remedy: a frame with no glow lights draws with a build of the model pass that leaves their
+marches out, the define read in `lights.slang` as a constant and passed to the hit's shading as a
+parameter of the build, since a constant argument left the marches in the code at 180 KB, and
+`gi.slang` naming nothing new so the probes' compute shaders gain no build; the fragment stage is
+124,628 bytes of SPIR-V where the whole's is 253,180, and 146,864 where 275,416 with ray queries.
+`ModelRenderer` takes the build each frame by the glow lights the frame's lights hold, which the
+illumination binding carries, a program's own model shader built whole; four apps in one process on
+this host's lavapipe with Mesa's cache off take 2.11 to 2.51 s each after the first where 3.90 to
+4.08, the device's last wait 1.6 to 1.8 s where 2.9 to 3.1. The precompile builds every set of the
+variants a shader names, four builds for the six that import the model pass, which the package's
+test counts, the pack 81 s; a test reads the pick with no glow light, a lamp placed and the lamp
+taken away. The suite: 1,684 passed; on lavapipe under the validation layer 396 passed and 8 skipped
+for rays with no VUID; the glowstone room on the RTX 4070 faulted in none of eight runs. Right, the
+gate a parameter of the build where a constant argument left the code in, measured by the bytes and
+the seconds, and the pick read by what the frame holds. Offered and not built: a third build for a
+frame where light does not bounce, which leaves the bounce and the traced reflection out as well,
+54,824 bytes, a scratch of it taking the same apps to 1.28 to 1.40 s with the last wait 0.8 to 0.9,
+and most tests and examples running with the bounce off; it is taken, measured as this one was with
+the pack's time named, after item 13 and before the pillar's bounce, since the Windows page is what
+Verdict 48 reads and the gain is near half again. The owner asked three more things at 17:26, which
+are items 14 to 16 (Decision 32): the development machine's GPU named nowhere a user reads, the flat
+API's class `Engine3D` renamed `E3D` with its files and the test collections, and the README's guide
+table opening with the cheat sheet's row as BevyCSharp's does. Next item 13, Pusher's removal, with
+item 16's row in its commit, then the third build, then item 14, then item 15 as a batch of its own
+when the tree is quiet, then item 17, the owner's ask of 17:40 for the radiance cascades said in the
+README and in a guide page of their own (Decision 33), then the bounce around the pillar as a read
+of its own, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item
+8.
+
+Before it, `e28064f7` came, item 11's games' captions: each of the thirteen is the game's name
+alone, padded to 32 with the non-breaking space, its picture's link unchanged, so no caption holds a
+slash a browser may break after; all 268 captions read here at 32 with none holding a slash, and the
+norm and document-link tests pass, 20. Item 11 is done, the owner's eye on the push. The owner asked
+at 17:18 that `games/Pusher` go, which is item 13 (Decision 31), a batch of its own after the
+lampless variant, since the game holds three of the test workflow's roles. Next the lampless variant
+of the model pass, Verdict 48's second remedy, its checks done but for the lavapipe run; then item
+13; then the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's
+eye, f's filter offset, item 10, item 9 and item 8.
 
 Before it, `aa9fe773` came, the revert of `4805676c`: the README is byte for byte `706a1499`'s
 again, the captions of 32 and the pictures of 260, which the owner chose on a phone, their pictures
 filling up to the caption's width where the smaller form's fell short, and the commit's sentence
 says the look was chosen on a phone and names no one, as N 4.7 asks, where the reviewing session's
 own line to the working session had named the owner; the norm and document-link tests pass, 20. Item
-11 keeps one thing from the owner's look at 21:30: the games' captions break after the slash of
+11 keeps one thing from the owner's look at 17:02: the games' captions break after the slash of
 `games/`, so each is the game's name alone, padded as the examples' are, a batch of its own next.
 Right, the rule kept where the direction slipped. Next the lampless variant of the model pass,
 Verdict 48's second remedy, then the bounce around the pillar as a read of its own, h's blotches and
 teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `4805676c` and `706a1499` came, item 11's captions in two commits, both pushed:
-`706a1499` as first asked, every tag 260 by 146 and every cell 260, each name padded to 32
-characters with the non-breaking space itself and set in a small code tag; and `4805676c` as the
-owner's change of 20:20 had it, the tags and cells 220 by 124, the names padded to 28, and the seven
-names past 28, not the three the item counted, broken after their last underscore within 28 by a
-`<wbr>` tag with the last piece padded to 28; the norm and document-link tests pass on each, 20. The
-owner looked at both on a phone at 20:35 and prefers the first, so `4805676c` is reverted by a
-commit in the form and item 11 is done at `706a1499`'s look, 32 and 260, which BevyCSharp's gallery
-takes as well, 35 and 260, in place of the 28 and 220 it was told. Right, each form built as asked
-and the owner's eye the judge between them (Decision 27). Next the lampless variant of the model
-pass, Verdict 48's second remedy, then the bounce around the pillar as a read of its own, h's
-blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -129,7 +147,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
    `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
    part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's
-   light enter it by the heading alone, which is part g and comes first (Decision 28). At 11:15 the
+   light enter it by the heading alone, which is part g and comes first (Decision 28). At 10:55 the
    owner looked at the tree with g's mend and found it right at every heading and tier but one
    window at High, and found the indirect light noisy and spotted where a penumbra is wide, which is
    part h. The apparatus first: `BounceReference` traces a mesh's flat color times its texture's
@@ -308,7 +326,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    or their history off, so the band across the side behind the eye is the source; of two mends
    measured, a lead of 0.25 that costs 13 blocks of reach ahead and the eye written into the field's
    info with every band ending six cells short of the eye on a side it stands near, the second is
-   taken, dark at every heading with the canyon's step unchanged. The owner's eye at 11:15 on the
+   taken, dark at every heading with the canyon's step unchanged. The owner's eye at 10:55 on the
    tree with it: dark at every heading and every tier but High between 259 and 281 degrees, where
    the face turned to the right still takes the sky, so the remainder is measured at High alone in
    steps of a degree about 270 in the game's room and the engine's, High having four cascades of
@@ -332,7 +350,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    judges the look (Decision 27).
 
    **h. The indirect light is noisy and spotted where a penumbra is wide, its first part done at
-   `56db892b`.** The owner, at 11:15 on 2026-10-11 on the tree with g's mend, saw noise and spots of
+   `56db892b`.** The owner, at 10:55 on 2026-10-11 on the tree with g's mend, saw noise and spots of
    light across the surfaces where the light's penumbra is wide, a lamp far from what shadows it or
    a bounce arriving from part of the room, where the sharp shadows and the open floor read clean.
    Measured by the game's session on `e477bc1e` in a white room at hour 23, three glowstones in a
@@ -368,7 +386,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    lone bright sample is spread and not shown; and where a move drops the history, the frames after
    it blended from the probes around rather than the one, each read against the reference and the
    frame's cost, part f's bounds kept. A test holds the penumbra's pixel-to-pixel difference under a
-   bound still and after a move. The owner's two captures of 14:05, in the repository's root and in
+   bound still and after a move. The owner's two captures of 13:50, in the repository's root and in
    no commit: `Penumbra_MergingZigZag.png`, a lamp's red light on a wall with a shadow's line drawn
    as a saw, a zigzag with teeth some pixels long where the line should be straight, which the owner
    reads as the merge's; and `Penumbra_NoisyFalloff.png`, a lit wall whose penumbra falls off in
@@ -564,7 +582,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
     `706a1499`'s look, `4805676c` reverted at `aa9fe773`, the games' captions at `e28064f7`
-    (Decision 29).** The owner asked on 2026-10-11 at 15:55. The README's Examples section holds a
+    (Decision 29).** The owner asked on 2026-10-11 at 15:30. The README's Examples section holds a
     table of two columns and thirty-four rows, pictures of picked examples and games mixed, and
     under it eighty lines of prose and a block that explain the games. It becomes one table a folder
     of `3DEngine.Examples`, in the folders' order as the repository lists them, Audio, Benchmarks,
@@ -577,7 +595,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     facts living in the games' own READMEs and in the games table of EXAMPLES.md where they are not
     already. The README's walk and the examples' table check read the file as before, so each is run
     on the result, and the captures' links keep their raw form. Taken as a batch of its own after
-    h's next commit, since it is small and the owner asked; The owner asked at 16:35 that the
+    h's next commit, since it is small and the owner asked; The owner asked at 15:52 that the
     pictures be one size, where they differ today: every picture in the rows carries the same width
     and height on its tag, and the captures that are not 800 by 450, sixteen of 268, among them a
     square and a four by three, are taken again at that size where the program's window allows or
@@ -585,7 +603,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the captures' comparison read the result. Done at `ee47849e`: twelve rows of 257 examples and a
     games row of thirteen, every tag 400 by 225, the sixteen captures of other sizes fitted to 800
     by 450 by the WebP script, the games' notes moved into each game's own README. The owner looked
-    at the pushed page at 17:10 and the pictures still read as different sizes. GitHub renders every
+    at the pushed page at 16:04 and the pictures still read as different sizes. GitHub renders every
     tag at one box, its own style giving each the full width of its cell, an automatic height and
     the tag's aspect, so the box is uniform; what differs is the picture inside it, since a capture
     of another shape was fitted inside sixteen by nine with black bars, which read as a smaller
@@ -595,7 +613,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     edge to edge; the sixteen captures and the games' thirteen are fitted again so, and the page is
     read after the push. Done at `60f2999d`: the WebP script fills its size and cuts around the
     middle or from a named side, all 268 captures at 800 by 450 and filling their boxes. The owner
-    looked again at 18:20: each picture is as wide as the name under it, a short name's tiny and a
+    looked again at 16:12: each picture is as wide as the name under it, a short name's tiny and a
     long name's large. GitHub squeezes a table to the page's width before it lets it scroll, and a
     cell shrinks to the one thing in it that cannot wrap, the name, the picture shrinking with it
     under the page's own rule of a picture no wider than its cell. Each cell takes a width of its
@@ -604,7 +622,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     non-breaking spaces would do the same and is the fallback should the attribute be stripped,
     which the rendered page says after the push. Done at `623bdc47`: every cell 400 wide in an HTML
     table a folder, the rendered page read after the push. The owner looked at the pushed page at
-    18:55 and the pictures still differ. The rendered page keeps the cell's width, read here, so the
+    16:20 and the pictures still differ. The rendered page keeps the cell's width, read here, so the
     squeeze is the browser's table layout: a cell's width is a preference, and when a table is wider
     than the page the browser shrinks each cell to its narrowest unbreakable content, the name, the
     picture with it, GitHub's table being a block capped at the page's width that scrolls only past
@@ -614,12 +632,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     platform's monospace, so no cell can shrink below its picture and the name reads as a caption
     bar as wide as it; the cell's width stays as the preference. The rendered page is read after the
     push. Done at `54c0e669`: every name padded to 52 characters, the README at 237 lines of prose,
-    the rendered page read after the push. The owner looked at the pushed page at 19:25 and it
+    the rendered page read after the push. The owner looked at the pushed page at 16:27 and it
     works, and asked for the pictures a bit smaller: every tag 320 by 180 in place of 400 by 225,
     the cell's width 320 with it, and each name padded to 42 characters, which the code font draws
     at some 344 pixels, past the picture, the captures themselves unchanged at 800 by 450. Done at
     `3051fab8`: 320 by 180, cells of 320 and names of 42. The owner looked at the pushed pages at
-    20:05: the look is right, and on a phone the caption under each picture is a tenth to a fifth
+    16:30: the look is right, and on a phone the caption under each picture is a tenth to a fifth
     wider than the picture, on a desktop a little wider. The caption's padded text sets the cell's
     width while the picture fills no more than its own size, so on a font that draws text wider, as
     a phone's does, the text overshoots the picture. The caption sets the width on purpose and the
@@ -629,24 +647,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     tag, `<small><code>`, which the page keeps, since the padding cannot go below the longest name
     and the font is the other knob: the names padded to 28 characters in a small code caption, and a
     name longer than that, three of 268, broken at an underscore with a `<wbr>` tag, which the page
-    keeps, so no piece exceeds 28 and its last piece is padded to 28, which the owner chose at 20:20
+    keeps, so no piece exceeds 28 and its last piece is padded to 28, which the owner chose at 16:34
     over padding every name to the longest, the names being raylib's and not renamed; the code font
     draws 28 at some 204 to 210 pixels, every tag 220 by 124 and every cell 220, so the pictures
     come out about 205 wide, like BevyCSharp's as the owner asked, and the same width as their
     captions, a long name wrapping to a second caption line only where the table is squeezed; the
     rendered page read after the push on a desktop and a phone. `706a1499` carries the first form,
-    32 and 260, and `4805676c` the change of 20:20, 28 and 220 with seven names broken by a `<wbr>`
-    tag, and the owner looked at both on a phone at 20:35 and prefers the first, its pictures
+    32 and 260, and `4805676c` the change of 16:34, 28 and 220 with seven names broken by a `<wbr>`
+    tag, and the owner looked at both on a phone at 16:38 and prefers the first, its pictures
     filling up to the caption's width where the second's fell short of it, so `4805676c` is reverted
     by a commit in the form and the gallery stands at `706a1499`'s look. Reverted at `aa9fe773`, the
-    README byte for byte `706a1499`'s. The owner saw at 21:30 that the games' captions, `games/`
+    README byte for byte `706a1499`'s. The owner saw at 17:02 that the games' captions, `games/`
     before each name, break onto a second line, since a browser may break a line after a slash; each
     game's caption is the game's name alone, padded to 32 as the examples' are, the picture's link
     unchanged. Done at `e28064f7`, the thirteen names alone at 32. the owner's eye judges the look
     (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
-    on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
+    on 2026-10-11 at 15:50 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
     `.claude` folder and long subfolders holding nothing else being unwanted. The document becomes
     `.github/E3D.md`, beside the other documents a session reads, its skill header, the name, the
     description and the allowed tools, dropped since it means nothing outside that folder, its body
@@ -660,7 +678,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it, a right the reviewing session holds. Done at `7a69c936` on the owner's word typed there:
     `.github/E3D.md`, every reference moved, the folder gone and ignored.
 
-13. **`games/Pusher` goes (Decision 31).** The owner asked on 2026-10-11 at 21:55, finding it ugly
+13. **`games/Pusher` goes (Decision 31).** The owner asked on 2026-10-11 at 17:18, finding it ugly
     and of no use. The folder goes with its capture under `.github/assets/examples` and its cell in
     the README's games row, and every place that names it follows: the test workflow, where Pusher
     is the game built and played from the package, published native and drawn, and played once more
@@ -675,6 +693,53 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the reviewing session's and names the replacement once the commit does. The suite, the document
     and norm tests and the README walk on the result, and the examples' table check. A batch of its
     own after the lampless variant.
+
+14. **The development machine's GPU is named nowhere a user reads (Decision 32).** The owner asked
+    on 2026-10-11 at 17:26 that the mention of their machine, the RTX 4070, leave the code and
+    comments a user sees. Seventeen files outside `.github` name it, the shaders' comments, the
+    rendering tests' comments and the guides among them, each naming it where a measurement was
+    taken; the measurement stays and the device becomes a plain phrase, the development machine's
+    GPU or a laptop GPU of its class, so a reader knows the class of device and not the owner's. The
+    documents under `.github`, RENDERING.md, ASKS.md and this file, keep the name since their
+    measurements are read against one device, unless the owner says otherwise. With the batch after
+    the third build.
+
+15. **`Engine3D` becomes `E3D` (Decision 32).** The owner asked on 2026-10-11 at 17:26 that the flat
+    API's class be renamed, with the namespaces and the collections that carry its name. The static
+    class `Engine3D` in the namespace `Engine` becomes `E3D`, its partial files under `3DEngine/Api`
+    named for it, the 63 test collections named for it, and every `using static` and every mention
+    in the guides, the cheat sheet, the templates, the games, the examples and the README follow,
+    716 mentions in 486 files; the namespace `Engine` stays unless the owner says, since `E3D.E3D`
+    reads badly, and the package and the projects keep their names as the owner's (Decision 2). A
+    rename of the public surface, so the version is the owner's to number (Decision 5). A batch of
+    its own, moving names alone, taken when no other batch is in flight, after item 14.
+
+16. **The README's guide table opens with the cheat sheet's row (Decision 32).** The owner asked on
+    2026-10-11 at 17:26 for the row BevyCSharp's README has first in its guide table, the cheat
+    sheet, every public function of the library on one line, grouped as the pages are, linking
+    `CHEATSHEET.md` at the root. One line, with item 13's commit. The working tree holds the row at
+    the table's head and the older cheat sheet row at its foot, so the one at the foot goes with it.
+
+17. **The radiance cascades said in the README and in a guide page of their own (Decision 33).** The
+    owner asked on 2026-10-11 at 17:40. The README's prose says in a sentence or two that the engine
+    lights its scenes with real-time global illumination by radiance cascades, light that bounces
+    from every surface, with a line on what that brings a game, and the guide table gains the page's
+    row after the materials guide's. The page, `docs/global-illumination.md` or a name the working
+    session finds better, is for somebody using the engine and goes into the detail the materials
+    guide, which holds the bounce in fifty-three mentions today, cannot: what radiance cascades are
+    and why the engine chose them, the scene distance field the probes trace through and
+    `SetSceneField`'s cascades, cell and budget, the world probes in cascades and their reach, the
+    screen probes and what they add, emissive materials carried as box lights, the quality tiers of
+    `SetGlobalIllumination` and what each costs on the development machine's GPU in plain words, how
+    a glossy reflection and the sky's share read the probes, the limits a game meets, the field's
+    reach behind the eye and a cave wider than the last cascade among them, and the tools, the
+    bounce window, `gi.show`, `gi.state`, `gi.toggle`, `gi.probe`, `gi.rays`, and `gi.compare` with
+    `gi.reference` for reading a scene against a path-traced reference; built on an example that
+    runs, the bounce rooms or the Cornell box, with blocks that compile under the guides' check, and
+    the materials guide pointing to it where it speaks of the bounce rather than saying it twice;
+    RENDERING.md stays the renderer's own record. The cheat sheet's grouping follows the pages, so
+    the page's functions group under it. A batch of its own after item 15, since the page names the
+    API and the rename comes first; the owner's eye judges the text.
 
 ## Verdicts
 
@@ -720,9 +785,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     saved nothing on lavapipe, which compiles at the first draw on its own thread and takes only
     Mesa's disk cache, so the test and examples jobs keep Mesa's cache in the workspace from run to
     run, keyed by the shaders, and whether Mesa's Windows build keeps one is read on the Windows
-    page; the lampless variant follows. Settled when a Windows job runs its tests whole in the time
-    the run before `98a1edca` took, within a quarter; 5.2 is due by Decision 19 when every job is
-    green, which this verdict's time does not hold back, the owner told so.
+    page; the lampless variant is in at `ea9a23cd`, the fragment stage at half its bytes and a later
+    app on lavapipe at 2.1 to 2.5 s where 3.9 to 4.1 with Mesa's cache off, and a third build for a
+    frame where light does not bounce, 55 KB and 1.3 to 1.4 s in a scratch, follows item 13. Settled
+    when a Windows job runs its tests whole in the time the run before `98a1edca` took, within a
+    quarter; 5.2 is due by Decision 19 when every job is green, which this verdict's time does not
+    hold back, the owner told so.
 
 49. **The examples job of `b1e86aef`, the first to reach the measure since the lamps, is red by the
     measure alone: four pairs stand more than a point above the share recorded for them at
@@ -933,45 +1001,62 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     asked at 10:05 on 2026-10-11, standing in a cave of the voxel game: the leak between headings of
     258 and 282 degrees and the faint ones between 219 and 322 and between 314 and 46, which is item
     2's part g, and a tab of the ImGui overlay that opens a window of tonemapping and coloring
-    settings as the performance window is opened, which is item 10. At 11:15 the owner looked at the
+    settings as the performance window is opened, which is item 10. At 10:55 the owner looked at the
     tree with g's mend: right at every heading and tier but High between 259 and 281 degrees, where
     the face turned to the right still takes the sky, which g keeps, and the indirect light noisy
     and spotted where a penumbra is wide, which is item 2's part h. The order is this file's: g
     first, then h, then item 2's remainders, then item 10 before item 9.
 
 29. **The README's gallery is one scrolling row of pictures a folder, sorted by folder, and the
-    games' text under the table goes.** The owner asked at 15:55 on 2026-10-11, which is item 11:
+    games' text under the table goes.** The owner asked at 15:30 on 2026-10-11, which is item 11:
     the examples' pictures in one-row tables that scroll sideways rather than the grid, one a folder
     of the examples with the games in their own, and the long text explaining the games under the
     table taken out.
 
 30. **The e3d skill leaves `.claude` for `.github/E3D.md`, and the gallery's pictures are one
-    size.** The owner asked at 16:30 and 16:35 on 2026-10-11: the skill document out of the
+    size.** The owner asked at 15:50 and 15:52 on 2026-10-11: the skill document out of the
     `.claude` folder and its empty subfolders, to the root or elsewhere, which is item 12 with
     AGENTS.md's line changed on that word; and every picture in the README's rows the same size,
     which item 11 takes.
 
-31. **`games/Pusher` goes.** The owner asked at 21:55 on 2026-10-11, finding it ugly and of no use,
+31. **`games/Pusher` goes.** The owner asked at 17:18 on 2026-10-11, finding it ugly and of no use,
     which is item 13: the game, its capture and its cell gone, and its three roles in the test
     workflow, the game built and played from the package, published native and drawn, and played in
     a window on the runner's desktop, passed to the lightest 3D game.
 
+32. **The GPU named nowhere a user reads, `Engine3D` renamed `E3D`, and the guide table opening with
+    the cheat sheet.** The owner asked at 17:26 on 2026-10-11, which are items 14, 15 and 16: the
+    development machine's GPU out of the code and comments a user sees, the flat API's class renamed
+    with its files and the test collections, and the README's guide table given the cheat sheet's
+    row as BevyCSharp's has it.
+
+33. **The radiance cascades are said in the README and in a guide page of their own.** The owner
+    asked at 17:40 on 2026-10-11, which is item 17: the README's prose saying the engine lights its
+    scenes by radiance cascades, and a page of the guide going into their detail, built on an
+    example that runs.
+
 ## Replies
 
-Verdict 48, its second remedy. A frame with no glow lights draws with a build of the model pass
-that leaves them out, `NO_GLOW_LIGHTS`, which `lights.slang` reads as `Glowing` and passes to
-`shadeHit` as a parameter of the build, since a constant argument left the hit's marches in the
-SPIR-V at 180,436 bytes; `gi.slang` names nothing new, so the probes' compute shaders gain no
-build. The fragment stage is 124,628 bytes of SPIR-V where the whole's is 253,180, and 146,864
-where 275,416 with `RAY_QUERY`. `ModelRenderer` takes the build each frame by the glow lights the
-frame's lights hold, which `IlluminationBinding` carries, and a program's own model shader is built
-whole. Four apps in one process on this host's lavapipe with Mesa's cache off, each drawing a lit
-cube, took 2.11 to 2.51 seconds after the first where 3.90 to 4.08 before, the device's last wait
-1.6 to 1.8 seconds where 2.9 to 3.1. `e3d shaders` compiles each set of the variants a shader
-names, four builds for the six that import `modelpass`, which the package's test counts, the pack
-81 seconds. A test reads the pick with no glow light, a lamp placed and the lamp taken away. The
-suite passes, 1,684; on lavapipe under the validation layer 396 pass with 8 skipped for rays and no
-VUID; the glowstone room on the RTX 4070 faulted in none of 8 runs. A third build, for a frame
-where light does not bounce, would leave the bounce and the traced reflection out as well, 54,824
-bytes, and a scratch build of it took the same apps to 1.28 to 1.40 seconds, the last wait 0.8 to
-0.9. It is offered and not built.
+Items 13 and 16. `games/Pusher` is gone with its capture and its gallery cell, and Slide takes its
+three roles, the lightest of the 3D games by `build/play-game.sh`'s steps after the pack, measured
+once on this host's lavapipe under the validation layer with Mesa's cache off: Slide 11.1 seconds,
+its build 4.1 and its 300 frames 7.0, then Jelly 20.2, Tempo 23.2, Summit 30.0, Tactics 30.5, Wick
+37.0, Rally 47.1, Sumo 49.6 and Manor 55.0, none with a validation error. Slide published native
+here in 38 seconds, its executable 14 MB, and drew its 300 frames clean, and its drive took 55
+seconds on lavapipe. The test workflow builds, publishes and plays Slide in the window and drops
+Pusher from its loops; the build workflow's step that packed and played Pusher packs alone, Slide is
+published native, and Pusher leaves the soak and the resize storm. The scripts, the soak check's
+test, its reading named `slide`, BUILDING.md, TODO.md, the shipping guide, the raylib comparison's
+size and Hopper's README follow. The materials guide's Pusher timing and RENDERING.md's Pusher row
+go, being readings before and after a change that no game can take again. The README's guide table
+opens with the cheat sheet's row, the old row at its foot gone. The suite passes, 1,684, and the
+README walk and the table check pass.
+
+Two of four full runs on the RTX 4070 since `ea9a23cd` failed one rendering test each,
+`SubsurfaceTests` at High once and a particle test of `SceneFieldTests` once, with `VkException:
+ErrorUnknown` from `vkCreateGraphicsPipelines` on a model pass pipeline in an app's first frame,
+the same pipeline made with no error the next frame. It is first seen today, with no Xid in the
+kernel log and the suite at 1.9 GB of its 20 GB scope. 60 apps at High with no glow light and the
+driver's shader cache off gave none, nor 140 more with slangc compiling beside them, from another
+process or from the test process. Next the suite at `e28064f7`, before the lampless build, to learn
+whether it predates it, then the third build.

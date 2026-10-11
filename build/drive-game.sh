@@ -6,7 +6,7 @@
 # and once more for one game with window as the second argument, which opens the game in a window
 # on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried there.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -190,15 +190,6 @@ cmd window.size 480 270
 cmd frames.wait 30
 
 case "$game" in
-  Pusher)
-    before=$(ask pusher.status)
-    cmd input.key Enter 2
-    cmd input.key W 90
-    after=$(ask pusher.status)
-    echo "$before / $after"
-    distance=$(moved "$before" "$after" at)
-    awk -v d="$distance" 'BEGIN { exit !(d > 1) }' || fail "the player did not walk, $before then $after"
-    ;;
   Hopper)
     before=$(ask hopper.status)
     cmd input.key Right 40

@@ -100,7 +100,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    # Room for thirteen games played on lavapipe after the suite, which took 22 minutes together
+    # Room for twelve games played on lavapipe after the suite, which took 22 minutes together
     # on four cores of a desktop's before Wick's two, Manor's walk the longest at six.
     timeout-minutes: 180
     defaults:
@@ -187,14 +187,14 @@ jobs:
 
 
       - name: Build a game from the package and draw it under the validation layer
-        run: build/play-game.sh Pusher
+        run: build/play-game.sh Slide
 
       # The same game published as native code from the package, as a player's copy is, linked by
       # the Visual Studio the runner has, and drawn under the validation layer (NORM.md, N 2.5), as
       # the build workflow's Linux job publishes it, a failure named in an error of its own.
       - name: Publish the game native from the package and draw it
         timeout-minutes: 15
-        run: build/play-native.sh Pusher
+        run: build/play-native.sh Slide
 
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are
@@ -211,19 +211,19 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
 
-      # Pusher played once more in a window on the runner's desktop, as a player sees it, so SDL's
+      # Slide played once more in a window on the runner's desktop, as a player sees it, so SDL's
       # window and the swapchain are tried on this system and not the offscreen path alone. Its
-      # walk takes well under a minute, and the step stops it at four.
+      # play takes about a minute on lavapipe, and the step stops it at four.
       - name: Play a game in a window through e3d
         timeout-minutes: 6
         env:
           DRIVE_MINUTES: '4'
-        run: build/drive-game.sh Pusher window
+        run: build/drive-game.sh Slide window
 
       # The README's commands in a new project and every step of the game docs/first-game.md makes,
       # from the same package, as a newcomer on this system follows them.
@@ -255,7 +255,7 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # Room for thirteen games after the suite, each a few minutes on the GPU. Every example's capture
+    # Room for twelve games after the suite, each a few minutes on the GPU. Every example's capture
     # is the macos-examples job's, beside this one.
     timeout-minutes: 120
     steps:
@@ -311,14 +311,14 @@ jobs:
           E3D_REQUIRE_VULKAN: '1'
 
       - name: Build a game from the package and draw it under the validation layer
-        run: build/play-game.sh Pusher
+        run: build/play-game.sh Slide
 
       # The same game published as native code from the package, as a player's copy is, linked by
       # the Xcode the runner has, and drawn under the validation layer (NORM.md, N 2.5), as the
       # build workflow's Linux job publishes it, a failure named in an error of its own.
       - name: Publish the game native from the package and draw it
         timeout-minutes: 15
-        run: build/play-native.sh Pusher
+        run: build/play-native.sh Slide
 
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are
@@ -332,19 +332,19 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
 
-      # Pusher played once more in a window on the runner's desktop, as a player sees it, so SDL's
+      # Slide played once more in a window on the runner's desktop, as a player sees it, so SDL's
       # window and the swapchain are tried on this system and not the offscreen path alone. Its
-      # walk takes well under a minute, and the step stops it at four.
+      # play takes about a minute on lavapipe, and the step stops it at four.
       - name: Play a game in a window through e3d
         timeout-minutes: 6
         env:
           DRIVE_MINUTES: '4'
-        run: build/drive-game.sh Pusher window
+        run: build/drive-game.sh Slide window
 
       # The README's commands in a new project and every step of the game docs/first-game.md makes,
       # from the same package, as a newcomer on this system follows them.

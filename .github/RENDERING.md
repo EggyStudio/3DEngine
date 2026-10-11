@@ -1623,7 +1623,6 @@ path whatever the effects and after:
 | `shaders_bloom` with bloom on | `hdr_scene` 0.064, `bloom` 0.034, `main_pass` 0.019 | 0.071, 0.027, 0.016 |
 | `models_loading`, no light | `models` 0.033, `main_pass` 0.049 | `hdr_scene` 0.102, `main_pass` 0.010 |
 | `shaders_cornell_box`, light bouncing | `hdr_scene` 0.095 | 0.111 |
-| `games/Pusher`, 960 by 540 | `models` 0.056, `main_pass` 0.010 | `hdr_scene` 0.075, `main_pass` 0.014 |
 | `games/Wick`, 960 by 540, light bouncing | `hdr_scene` 0.234 | 0.258 |
 
 A frame with every effect off pays some 0.02 to 0.035 ms for the target's clear and resolve and the

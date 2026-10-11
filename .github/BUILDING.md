@@ -186,8 +186,8 @@ build/api.sh         # 3DEngine/PublicApi.txt from the built engine, and what ch
 A pack made locally without a version is a version of its own, `0.1.0-preview.` and the time,
 since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
-the version it chose before. `games/Pusher` is such a game, built this way in CI, and
-`./e3d open games/Pusher/bin/Debug/net10.0/Pusher` drives it as it does the examples.
+the version it chose before. `games/Slide` is such a game, built this way in CI, and
+`./e3d open games/Slide/bin/Debug/net10.0/Slide` drives it as it does the examples.
 
 ### A program on a local package
 
@@ -241,20 +241,19 @@ executable through native AOT, which starts at once and needs nothing installed:
 dotnet publish -c Release -r linux-x64 -p:PublishAot=true -o publish    # or win-x64, osx-arm64
 ```
 
-`games/Pusher` publishes and runs this way, trimmed or native, on Linux, Windows and macOS in CI
-(`build/play-native.sh`), with its level, physics, sound,
-ImGui panel and shaders, the engine's own compiled ahead in the package and the game's own in its
-`source/.slang-cache` (`e3d shaders`, above). Behaviors, scene components and console commands
-register through code the generator writes, from module initializers, so nothing is found by a
-search the trimmer could break. The library is marked `IsAotCompatible`, so every build runs the
+`games/Slide`, the lightest of the 3D games to build and draw, publishes and runs this way, trimmed
+or native, on Linux, Windows and macOS in CI (`build/play-native.sh`), with its models, its sounds
+made as waves, its font and the images its tiles' faces are drawn into, the engine's shaders
+compiled ahead in the package (`e3d shaders`, above). Behaviors, scene components and console
+commands register through code the generator writes, from module initializers, so nothing is found
+by a search the trimmer could break. The library is marked `IsAotCompatible`, so every build runs the
 trimmer's analysis over it and `-warnaserror` keeps it clean. The console's commands that read a
 component by reflection (`entity.add`, `entity.set`, a tool for development) and the compiler for
 behavior scripts, which loads assemblies at run time and so works only in a build that is not
 native, say at their places why they are safe. A native build runs the behaviors compiled into it,
 and leaves the compiler and Roslyn out, since the plugin starts it only where
-`RuntimeFeature.IsDynamicCodeSupported`, which the AOT compiler takes as false, so Pusher's
-executable is 11 MB in place of 37. The warnings a publish prints come from the AssimpNetter
-package alone (IL2104 and IL3053), whose loader binds Assimp's native functions to delegates by
+`RuntimeFeature.IsDynamicCodeSupported`, which the AOT compiler takes as false, and Slide's
+executable is 14 MB. The warnings a publish prints come from the AssimpNetter package alone (IL2104 and IL3053), whose loader binds Assimp's native functions to delegates by
 reflection, and which a native game's models are read through all the same.
 
 ## The generator
@@ -295,17 +294,17 @@ extension lavapipe offers. Windows draws on lavapipe too, from Mesa's Windows bu
 loader and validation layer, and macOS draws on its GPU through MoltenVK, with the loader and the
 layer from Homebrew. On each the render tests and the reference frames run under the validation
 layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
-does not start rather than letting them skip, and `build/play-game.sh Pusher` builds a game from the
+does not start rather than letting them skip, and `build/play-game.sh Slide` builds a game from the
 package and draws 300 frames of it offscreen, failing on an error the layer reports. `build/play-native.sh
-Pusher` then publishes it native from the package, linked by the runner's own toolchain, Visual
+Slide` then publishes it native from the package, linked by the runner's own toolchain, Visual
 Studio's on Windows and Xcode's on macOS, as the examples job does on Linux, and draws it the same
 way, a failure named in an error annotation with the compiler's or the linker's own lines. On Windows and
-macOS `build/drive-game.sh <game>` then plays each of the thirteen games through `./e3d`, offscreen at
+macOS `build/drive-game.sh <game>` then plays each of the twelve games through `./e3d`, offscreen at
 480 by 270, as the examples job plays them on Linux, each asserting its walk or its win, so a game's
 input, its sound and the session `./e3d` drives are tried there, and a game that fails says why in
 an error annotation naming the system. Each game has twelve minutes there (`DRIVE_MINUTES`), past
-which it is stopped and its error says how far it got by its last status, and Pusher is played once
-more in a window on the runner's desktop (`build/drive-game.sh Pusher window`) with four minutes,
+which it is stopped and its error says how far it got by its last status, and Slide is played once
+more in a window on the runner's desktop (`build/drive-game.sh Slide window`) with four minutes,
 so SDL's window and the swapchain are tried on both systems. They then follow the README in a new project
 (`build/readme-walk.sh`) and build and run every step of the first game (`build/first-game.sh`)
 from the same package, as a newcomer on either system does. Each job runs
@@ -324,7 +323,7 @@ packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name 
 lost since.
 
 On Linux, `build.yml` then checks the package as a player and a reader meet it.
-`build/play-native.sh Pusher` publishes the game as native code from the package and draws 300
+`build/play-native.sh Slide` publishes a game as native code from the package and draws 300
 frames of it under the layer, so a type the library reaches by reflection that the native
 compiler left out fails there. The native compiler needs clang and zlib's headers, which the
 workflow installs beside lavapipe. `build/examples-on-package.sh` builds every example in a

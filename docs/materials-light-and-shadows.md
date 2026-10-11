@@ -143,7 +143,7 @@ result untouched.
 That frame and its pass cost some 0.02 to 0.035 ms of a laptop's RTX 4070 with every effect off,
 as `./e3d command profile` gives the GPU's time for `hdr_scene` and `main_pass` with the frame rate
 unlimited: 0.082 ms where the models drawn straight into the window took 0.047 in `shaders_bloom`
-with its bloom off at 800 by 450, and 0.089 where they took 0.066 in `games/Pusher` at 960 by 540.
+with its bloom off at 800 by 450.
 Bloom's chain adds about 0.03 ms (`bloom`). Bloom, an exposure that follows the scene, the depth of
 field, motion blur, light that bounces and particles read the scene's light, and the frame is
 decoded for them once, about 0.02 ms more. The frame takes 44 bytes a pixel of the GPU's memory at

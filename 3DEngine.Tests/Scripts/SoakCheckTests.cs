@@ -33,7 +33,7 @@ public sealed class SoakCheckTests : IDisposable
     [NeedsPythonFact]
     public void A_Game_Whose_Heap_Climbs_Is_Named_With_The_Heap_And_Its_Numbers()
     {
-        var steady = Readings("pusher", 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20);
+        var steady = Readings("slide", 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20, 100 << 20);
         var climbing = Readings("swarm", 100 << 20, 110 << 20, 120 << 20, 130 << 20, 140 << 20, 160 << 20, 180 << 20, 200 << 20);
 
         var (exit, log) = Check(steady, climbing);
@@ -101,7 +101,7 @@ public sealed class SoakCheckTests : IDisposable
         int[] walk = [53, 100, 96, 111, 133, 155, 156, 160, 153, 153, 152, 149, 162];
 
         Check(Buffers("manor", walk)).Exit.Should().Be(0, "the house's models are the world's");
-        Check(Buffers("pusher", walk)).Exit.Should().Be(1, "a game that streams nothing has no whole walk to grow into");
+        Check(Buffers("slide", walk)).Exit.Should().Be(1, "a game that streams nothing has no whole walk to grow into");
         Check(Buffers("manor", [.. walk.Select((count, i) => i < 7 ? count : count + 40)])).Exit.Should().Be(1, "past the most its whole walk holds");
     }
 

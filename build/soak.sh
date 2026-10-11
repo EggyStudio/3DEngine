@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -41,7 +41,7 @@ cmd window.size 320 180
 # How each game starts.
 wait_frames 60
 case "$name" in
-  pusher|summit) key Enter 2 ;;
+  summit) key Enter 2 ;;
   swarm) cmd swarm.invulnerable true; key Enter 2 ;;
   rally) cmd rally.autopilot true; key Enter 2 ;;
   manor) cmd input.button 0 RightFaceDown 2; cmd manor.autopilot true ;;
@@ -60,9 +60,6 @@ esac
 turn() {
   local i="$1"
   case "$name" in
-    pusher)
-      key W 40; key D 40; key S 40; key A 40
-      if (( i % 4 == 3 )); then key R 2; fi ;;
     hopper)
       key Right 60; key Space 2; key Right 40; key Left 30
       if (( i % 5 == 4 )); then key R 2; fi ;;

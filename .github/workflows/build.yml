@@ -104,27 +104,9 @@ jobs:
             { echo '### Shares apart from raylib, this run'; echo; echo '```'; grep -v '^#' captures/measured-ci.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      # The game under games/, built from the package as a user's is, then played offscreen. It
-      # opens on the menu, Enter starts it, the player walks toward the goal, and the frame is
-      # captured, its log checked as the examples' are. The package is a Release build, which turns
-      # the validation layer on only when asked, so the check has the layer to read.
-      - name: Build and play the game from the package
-        env:
-          ENGINE_VULKAN_VALIDATION: '1'
-        run: |
-          build/pack.sh
-          dotnet restore games/Pusher --force-evaluate
-          dotnet build games/Pusher --no-restore
-          ./e3d open games/Pusher/bin/Debug/net10.0/Pusher --offscreen --quiet
-          ./e3d command input.key Enter 2 --quiet
-          ./e3d command input.key W 90 --quiet
-          ./e3d shot captures/pusher.png --quiet
-          build/webp.sh captures/pusher.png captures/pusher.webp lossy 800x450
-          ./e3d stop --quiet
-          if grep -F '[Vulkan.Validation]' build/sessions/Pusher.log | grep -F 'Validation Error'; then
-            echo "::error::Pusher: the validation layer reported an error"
-            exit 1
-          fi
+      # The package the games and the examples below are built from, as a user's game is.
+      - name: Pack the engine
+        run: build/pack.sh
 
       # What the package build/pack.sh made holds, as the pack workflow checks before offering one.
       - name: Check what the package holds
@@ -132,11 +114,11 @@ jobs:
           E3D_REQUIRE_PACKAGE: '1'
         run: dotnet test 3DEngine.Tests -c Release --filter "FullyQualifiedName~PackageContentsTests"
 
-      # The same game published as native code from the package, as a player gets it, which keeps
-      # only what the compiler sees used, and drawn under the validation layer (NORM.md, N 2.5).
-      # The native compiler links with clang and zlib, installed above.
-      - name: Publish the game native from the package and draw it
-        run: build/play-native.sh Pusher
+      # The lightest of the 3D games published as native code from the package, as a player gets
+      # it, which keeps only what the compiler sees used, and drawn under the validation layer
+      # (NORM.md, N 2.5). The native compiler links with clang and zlib, installed above.
+      - name: Publish a game native from the package and draw it
+        run: build/play-native.sh Slide
 
       # Every example built in a project of its own on the package alone, as a reader copying one
       # into a game of their own builds it (NORM.md, N 2.7).
@@ -516,7 +498,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick)
+          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -532,13 +514,12 @@ jobs:
       - name: Resize each game and some examples while they draw
         run: |
           failed=0
-          for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
-                         games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
-                         games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
-                         games/Tactics/bin/Debug/net10.0/Tactics games/Tempo/bin/Debug/net10.0/Tempo \
-                         games/Sumo/bin/Debug/net10.0/Sumo games/Wordfall/bin/Debug/net10.0/Wordfall \
-                         games/Slide/bin/Debug/net10.0/Slide games/Jelly/bin/Debug/net10.0/Jelly \
-                         games/Wick/bin/Debug/net10.0/Wick \
+          for program in games/Hopper/bin/Debug/net10.0/Hopper games/Summit/bin/Debug/net10.0/Summit \
+                         games/Swarm/bin/Debug/net10.0/Swarm games/Rally/bin/Debug/net10.0/Rally \
+                         games/Manor/bin/Debug/net10.0/Manor games/Tactics/bin/Debug/net10.0/Tactics \
+                         games/Tempo/bin/Debug/net10.0/Tempo games/Sumo/bin/Debug/net10.0/Sumo \
+                         games/Wordfall/bin/Debug/net10.0/Wordfall games/Slide/bin/Debug/net10.0/Slide \
+                         games/Jelly/bin/Debug/net10.0/Jelly games/Wick/bin/Debug/net10.0/Wick \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done
