@@ -10,7 +10,41 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `35322cfe`. Item 15, the rename: the flat API's class is `E3D`, its 48 partial files
+Reviewed up to `2172090b`. Item 17, the radiance cascades said: docs/global-illumination.md, "Light
+that bounces", 226 lines in eleven sections, turning it on with the Cornell box as a compiled block,
+what radiance cascades are and why the engine took them, the scene's field with its cascades, cell
+and budget and the side behind the eye at 1.6 to 9.6 cells, the world's probes eight cells apart
+tracing from their spacing to four times it with the walled-in left out, the screen's probes every
+16, 12 and 8 pixels held over frames, glowing surfaces as lights, the qualities' table with when
+each suits and what it costs, reflections traced at High and the sky's share, where it falls short,
+behind the eye, a cave wider than the last cascade, moving meshes and thin gaps, and reading it, the
+bounce window, the table of the gi commands and a scene read against its reference; the materials
+guide's bounce section is one paragraph and its call pointing to the page, its measured facts moved
+into the page, the guides' chain running materials, this page, shaders, the upgrading link pointing
+here, the README saying it in two sentences with the page's row after the materials guide's, and the
+cheat sheet's section of its three calls. Read whole against the renderer and found right in every
+number and limit it names, the style clean. The 146 guide blocks build on the package, the document,
+norm and cheat sheet tests pass, the suite 1,693. Item 17 is done, the owner's eye judging the text.
+The game's measure of its stream is in its entry at 00:38, `b275f738` against the commit before on
+`3ec1fdb3`'s engine, the desktop read first: on seed 1's land of 1,344 sections the frame goes from
+34.1 ms to 18.0, the shadows from 18.2 to 7.8 and the window's depth from 6.0 to 2.9, the passes
+that read positions alone taking half to a third of their time, the flat world's frame from 5.1 ms
+to 4.0 to 4.5, and the relight unchanged, the mesher's work; the vertex bytes on the device fall to
+72% where 45% was expected, 87 MB to 63 on the land, since the colors the field reads go with the
+upload and bring a buffer of four bytes a vertex and one of eight zeros for the second texture
+coordinate, 32 bytes a vertex in four buffers where 20 were meant, which is item 21, small and ahead
+of the pillar's read since the game waits on it. The page at 00:47: the runs of `fdf27346`,
+`7798d5e5` and `958a3eb3` are green on every job, and `fdf27346`'s examples job, the last of the
+whole workflow on a push and the first with the picture script's mend, ran the whole of it green,
+255 captures drawn on Linux in twenty minutes, the measure against raylib's programs holding, the
+package packed and checked, every one of the twelve games built and played from it, the soak passed
+on each, the resize, the README's walk and the first game's steps; so Verdicts 30, 49 and 52 are
+settled and leave this file, and no verdict is open. Three runs green on every job and the whole
+workflow once: 5.2's pack is due by Decision 19, the owner's to start, which also makes the version
+the rename asks (Decision 5). Next the bounce around the pillar as a read of its own, then h's
+blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `35322cfe` came, item 15, the rename: the flat API's class is `E3D`, its 48 partial files
 named for it, the test files, classes and the collection's name following, 493 files changed, the
 game's thirteen `using static` lines alone among them, which the game's session cleared first and
 was told of after; the namespace stays `Engine`, the package and the projects their names and the
@@ -54,24 +88,6 @@ on Linux, Verdict 52's captures and Verdict 49's measure are read on the pack ru
 makes due, every job being green, the owner's to start. The run of `958a3eb3` is in flight. Next the
 bounce around the pillar as a read of its own and item 17, then item 15, h's blotches and teeth by
 the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `e910f4f4` came, item 14: the seventeen files outside `.github` that named the
-development machine's GPU say the development machine's GPU or a laptop GPU, the shaders' and the
-rendering tests' comments, the lights guide and the raylib comparison among them, every measurement
-kept, and the comparison names the machine as a laptop with its processor and an NVIDIA GPU; the
-suite passes, 1,693. Item 14 is done for what a user reads; the documents under `.github` keep the
-name as the item says, RENDERING.md in twelve places, BUILDING.md in one and the game's ASKS.md
-entries in three, and the owner is asked at 23:59 whether those go too, since the repository is read
-on GitHub. Right, the device a plain phrase and no number lost. Item 15 is blocked on one point and
-unblocked so: the rename touches thirteen files of `3DEngine.Game`, each by its `using static` line,
-which the game's session owns and two of which are in its tree, and the solution builds only if they
-change in the rename's commit, no alias bridging a static class's members; so the working session
-changes those thirteen lines and nothing else of the game's in its one commit, once the game's
-session has committed or set aside its edits to those files and said so, which it is asked to; the
-namespace stays `Engine` and the projects and the package their names, 743 mentions in 493 files
-outside the game. Until that word, the bounce around the pillar as a read of its own, then item 17.
-Then item 15, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item
-8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -748,26 +764,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     holds the row at the table's head and the older cheat sheet row at its foot, so the one at the
     foot goes with it. Done at `ffa3ec48`.
 
-17. **The radiance cascades said in the README and in a guide page of their own (Decision 33).** The
-    owner asked on 2026-10-11 at 17:40. The README's prose says in a sentence or two that the engine
-    lights its scenes with real-time global illumination by radiance cascades, light that bounces
-    from every surface, with a line on what that brings a game, and the guide table gains the page's
-    row after the materials guide's. The page, `docs/global-illumination.md` or a name the working
-    session finds better, is for somebody using the engine and goes into the detail the materials
-    guide, which holds the bounce in fifty-three mentions today, cannot: what radiance cascades are
-    and why the engine chose them, the scene distance field the probes trace through and
-    `SetSceneField`'s cascades, cell and budget, the world probes in cascades and their reach, the
-    screen probes and what they add, emissive materials carried as box lights, the quality tiers of
-    `SetGlobalIllumination` and what each costs on the development machine's GPU in plain words, how
-    a glossy reflection and the sky's share read the probes, the limits a game meets, the field's
-    reach behind the eye and a cave wider than the last cascade among them, and the tools, the
-    bounce window, `gi.show`, `gi.state`, `gi.toggle`, `gi.probe`, `gi.rays`, and `gi.compare` with
-    `gi.reference` for reading a scene against a path-traced reference; built on an example that
-    runs, the bounce rooms or the Cornell box, with blocks that compile under the guides' check, and
-    the materials guide pointing to it where it speaks of the bounce rather than saying it twice;
-    RENDERING.md stays the renderer's own record. The cheat sheet's grouping follows the pages, so
-    the page's functions group under it. A batch of its own after item 15, since the page names the
-    API and the rename comes first; the owner's eye judges the text.
+17. **The radiance cascades said in the README and in a guide page of their own (Decision 33)., done
+    at `2172090b`.** The owner asked on 2026-10-11 at 17:40. The README's prose says in a sentence
+    or two that the engine lights its scenes with real-time global illumination by radiance
+    cascades, light that bounces from every surface, with a line on what that brings a game, and the
+    guide table gains the page's row after the materials guide's. The page,
+    `docs/global-illumination.md` or a name the working session finds better, is for somebody using
+    the engine and goes into the detail the materials guide, which holds the bounce in fifty-three
+    mentions today, cannot: what radiance cascades are and why the engine chose them, the scene
+    distance field the probes trace through and `SetSceneField`'s cascades, cell and budget, the
+    world probes in cascades and their reach, the screen probes and what they add, emissive
+    materials carried as box lights, the quality tiers of `SetGlobalIllumination` and what each
+    costs on the development machine's GPU in plain words, how a glossy reflection and the sky's
+    share read the probes, the limits a game meets, the field's reach behind the eye and a cave
+    wider than the last cascade among them, and the tools, the bounce window, `gi.show`, `gi.state`,
+    `gi.toggle`, `gi.probe`, `gi.rays`, and `gi.compare` with `gi.reference` for reading a scene
+    against a path-traced reference; built on an example that runs, the bounce rooms or the Cornell
+    box, with blocks that compile under the guides' check, and the materials guide pointing to it
+    where it speaks of the bounce rather than saying it twice; RENDERING.md stays the renderer's own
+    record. The cheat sheet's grouping follows the pages, so the page's functions group under it. A
+    batch of its own after item 15, since the page names the API and the rename comes first; the
+    owner's eye judges the text.
 
 18. **The examples' counts under the Examples heading, and a count on each folder's heading
     (Decision 34), done at `043b3af1`.** The owner asked on 2026-10-11 at 19:35, as of BevyCSharp.
@@ -861,85 +878,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     change of five files. Done at `958a3eb3` and `3ec1fdb3` as written; the voxel game's adoption is
     the `Review:` line under its entry in ASKS.md.
 
+21. **The colors of a mesh of positions alone serve the light field alone and reach no buffer.** The
+    game's measure at `b275f738`, in its entry in ASKS.md: a section of positions and eight packed
+    bytes uploads 72% of the vertex bytes it did where 45% was expected, since the colors given for
+    the field's tint, which must go with the upload until item 9, give the mesh on the device a
+    colors buffer of four bytes a vertex and a zero second texture coordinate of eight, 32 bytes a
+    vertex in four buffers. A mesh uploaded from its positions is drawn by a shader that unpacks its
+    color from its stream, so its colors are the CPU's alone: `UploadMesh(positions, indices,
+    stream, colors)` keeps them where the field, the glow lights and the bounce reference read them
+    and gives `GpuMeshes` no colors and no second texture coordinates for such a mesh; a shader of
+    the program's own that reads `COLOR0` or `TEXCOORD1` on it reads the defaults, white and zero,
+    at stride 0 as a mesh without streams does, said in the guide's positions-alone paragraph and in
+    the overload's remark. A store test that a positions-only upload with colors keeps them for the
+    readers and queues no stream buffers, and the Vulkan fact of stage 2 unchanged. The game then
+    measures its land again, 20 bytes a vertex and about 40 MB expected where 63. Before the
+    pillar's read.
+
 ## Verdicts
 
-Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not given again.
-
-30. **The soak fails on Manor, whose buffers climb from 499 to 573 in two minutes past a bound of
-    527 while its memory holds at 523 to 532 MB.** The soak's error names the game and the measure
-    since the examples job of `71050c8f`, as this verdict first asked when `22bbf15a`'s named no
-    game, and the other seven games pass it. Read at `5e240044` by `memory.buffers`, the device's
-    census by the file and line that made each buffer: the buffers that move are `MeshStore`'s, a
-    vertex and an index buffer a mesh of the models the cells show, let go as cells go, the world's
-    and no leak, and many because the spawner de-indexed a model again at every spawn, so each cell
-    uploaded its own copy; a scene's mesh is shared by every entity spawned from it since, Manor's
-    walk at 96 to 158 buffers where 385 to 668, and the soak bounds a game that streams its level by
-    the most a whole walk holds, 162 for Manor, since on the runner the walk enters rooms the first
-    half never reached. The examples job of `b1e86aef` did not reach the soak, its measure failing
-    first and the steps after it skipped (Verdict 49). Settled when an examples job passes the soak,
-    and 5.2 is due with it (Decision 19).
-
-49. **The examples job of `b1e86aef`, the first to reach the measure since the lamps, is red by the
-    measure alone: four pairs stand more than a point above the share recorded for them at
-    `1fa88e8b`, and the soak and the package's steps after it are skipped.** Read from the page: 255
-    of 255 captures drew on Linux in 1,546 s, and the measure against raylib's program ends with
-    exit code 1 naming `models_loading` 5.9% apart where 1.6% was recorded, `models_loading_m3d`
-    15.2 where 11.5, `models_directional_billboard` 5.5 where 0.8 and `shaders_depth_writing` 8.7
-    where 5.4, the 213 other pairs holding; the step then skips the twenty-one steps after it, the
-    package built and played, the soak Verdict 30 waits for and the README's walk among them, so one
-    drifted pair hides the soak's answer for an hour. Two things: the four pairs' captures, which
-    the job uploads, are read against raylib's pictures for what moved, the baseline being
-    `71050c8f`'s and the commits since the lamps' `98a1edca`, a billboard moving from 0.8 to 5.5
-    being no noise of lavapipe's, and each pair is mended where the engine's picture is wrong or
-    recorded anew with its reason where the engine's picture is right and raylib's differs; and the
-    soak and the package's steps run whether the measure holds or not, the job red by either, since
-    the measure writes its shares to the summary either way. The examples job of `e477bc1e` reads
-    two pairs over, `models_directional_billboard` 5.4 and `shaders_depth_writing` 8.6, and the two
-    loading examples within their point, so those two vary from run to run, a model loaded while the
-    frames count being there or not at the frame captured, which the compare reads for and holds by
-    a wider point or a later frame with the reason, and the two others moved and stay moved;
-    raylib's own `audio_sound_multi` program ended with signal 11 at frame 157 in that run, counted
-    against no pair, which the page says and the step should name as raylib's. Its second thing is
-    done at `1b8a9217`, the measure carried on past a pair that does not hold and a last step
-    failing the job where it did not, so the next push reads the soak; the pairs' reading follows
-    part h. Its first thing is done at `7644d055`: the billboard and the depth writing recorded anew
-    with the reason, their drawing paths unchanged and their local reading as before, the loading
-    pairs given five points of room in the record's third column, and raylib's own signal named; the
-    next run's uploads are read for what the two moved by. `ffa3ec48`'s examples job, the first to
-    run since, drew no capture (Verdict 52), so the measure waits on the next job after the picture
-    script's mend. The measure runs on the pack run alone since `7798d5e5`, item 19, so it is read
-    there. Settled when an examples job's measure holds and the steps after it run.
-
-52. **The macOS job of `aa9fe773` is red by the first game's step, which ended in 22 seconds with no
-    page saying why, and `build/webp.sh` wants ImageMagick for the fit it does since `60f2999d`,
-    which a capture the owner saw failed on.** Read again at 20:55 from the job's steps and the
-    scripts as committed: the step runs `build/first-game.sh` with no argument, which calls the
-    picture script only with `--shots`, so the ImageMagick line this verdict first laid at that step
-    cannot have come from it; the step's exit code is all its page keeps, since the script says that
-    a step logged an error to the error stream and writes no `::error::` line with the run log's
-    tail, which the rule every step keeps asks for, and `e28064f7`'s macOS job ran the same step
-    green, so the step's failure is read on the macOS jobs of `76f7ca49` and `ffa3ec48`, which run,
-    and the script gets its error line with the log's tail either way. The ImageMagick line, found
-    at 21:46: `ffa3ec48`'s examples job, the first to run since `60f2999d`, is red by its captures,
-    0 of 255 drawn on Linux and every one failing on that line, 1,208 seconds spent failing, since
-    the runner image has no ImageMagick and the job's apt line installs webp alone; the macOS
-    examples jobs are green because that runner has it. So the line the owner quoted was the Linux
-    examples job's, and this verdict's first reading put it at the wrong job. The fit is done by the
-    WebP encoder itself, which crops and resizes on its own, the cover box worked out in the
-    source's pixels from the gravity and the resize after it, so no machine needs a tool it lacks
-    and the script's one dependency stays the encoder, with the ImageMagick way kept only where the
-    encoder is absent; a test of the script fits a picture of another shape to 800 by 450 and reads
-    its size. The macOS jobs of `76f7ca49` and `ffa3ec48` ran the first game's step green, read at
-    21:14, so `aa9fe773`'s failure was once and stays unread, the error line owed all the same; and
-    `ffa3ec48`'s Linux examples job follows its macOS one, the first to run the fit there. The mend
-    is in at `ae277b79`: the fit by the encoder with the box cut from the source's pixels,
-    ImageMagick kept only where the encoder is absent, the capture loop stopping at the first such
-    failure with a line saying so, the first game's script writing its error lines, and the script's
-    test passing through the encoder alone. `fdf27346`'s macOS job ran the first game's step green
-    again at 23:10, and the mend is read on `7798d5e5`'s examples job, in flight. The push's
-    examples job captures no longer since `7798d5e5`, item 19, and the macOS jobs of `fdf27346` and
-    `7798d5e5` ran the first game's step green, so the Linux captures are read on the pack run.
-    Settled when the pack run's captures draw on Linux with the mend in.
+Verdicts 1 to 53 are settled, the last three, the soak, the measure and the picture script, on
+`fdf27346`'s examples job on 2026-10-12, and their numbers are not given again. No verdict is open.
 
 ## Decisions
 
@@ -1184,18 +1142,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 17. `docs/global-illumination.md`, "Light that bounces", is the guide's page after the
-materials guide's: what the light that bounces is, radiance cascades and why the engine took them,
-the scene's distance field with `SetSceneField`'s cascades, cell and budget and the cascade's side
-behind the eye, the world's probes and their reach, the screen's probes and what they add, glowing
-surfaces as lights, the qualities with their table and their costs and when each suits, a glossy
-reflection and the sky's share, where it falls short (behind the eye, a cave wider than the last
-cascade, moving meshes, thin gaps), and the tools, `DrawBounceWindow` and a table of the `gi`
-commands with how a scene is read against `gi.reference` by `gi.compare` and `gi.show difference`.
-Its two code blocks are the Cornell box's and the window's call, which build under the guides'
-check, 146 blocks. The materials guide's bounce section is a paragraph and its call pointing to
-the page, its measured facts moved into the page, the upgrading page's link follows, the README
-says the radiance cascades in two sentences with the page's row after the materials guide's in
-its table, and the cheat sheet groups `SetSceneField`, `SetGlobalIllumination` and
-`DrawBounceWindow` under a section of the page's name. The document, norm and cheat sheet tests
-pass, and the suite, 1,693. The owner's eye judges the text.
+Item 21. A mesh of positions alone keeps the colors it is given in the store, where the light
+field's tint, the glow lights and the bounce's reference read them, and its uploads carry none to
+the GPU, so it is given its positions and its own stream alone, and no buffer of colors or of zero
+second texture coordinates; a shader of the program's own that takes `COLOR0` or `TEXCOORD1` on it
+reads white and zero at a stride of 0, as on a mesh without them, which the overload's remark and
+the guide's paragraph say. A store test holds the colors kept and the upload without them; stage
+2's Vulkan fact and the suite pass, 1,694. The game's measure of its land follows on its side.

@@ -99,6 +99,20 @@ public class MeshStoreTests
     }
 
     [Fact]
+    public void A_Mesh_Of_Positions_Alone_Keeps_Its_Colors_For_The_Readers_And_Gives_The_GPU_None()
+    {
+        // Its shader unpacks its color from its stream, so the colors tint the light field alone.
+        var store = new MeshStore();
+        Color[] colors = [Color.Red, Color.Green, Color.Blue];
+        var id = store.AddPositions([Vector3.Zero, Vector3.UnitX, Vector3.UnitY], [0, 1, 2], MeshStream.From(MeshStreamFormat.UInt, new uint[] { 1, 2, 3 }), colors);
+
+        store.StreamsOf(id)!.Colors.Should().Equal(colors);
+        var upload = store.Take().Uploads.Should().ContainSingle().Which;
+        upload.Streams.Should().BeNull("no buffer of colors or second texture coordinates is made for it");
+        upload.Custom.Should().NotBeNull();
+    }
+
+    [Fact]
     public void A_Vertex_Is_32_Bytes_In_The_Order_The_Pipeline_Reads()
     {
         System.Runtime.InteropServices.Marshal.SizeOf<ModelVertex>().Should().Be(32);

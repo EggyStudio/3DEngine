@@ -87,6 +87,35 @@ The engine lacks the field's colors and the ray-traced scene's following a color
 place, as the model pass's do. The game keeps writing colors in place meanwhile, since uploading a
 section anew on each change of light would have the field build it again.
 
+The vertex stream of the game's own, at `b275f738` against the commit before it, each built from a
+clean worktree on `3ec1fdb3`'s engine, each corner of a section being its position and eight packed
+bytes and a relight writing the packed bytes alone. In this entry's room with the game's light
+levels on and the glowstone placed, 294 sections and 117,054 triangles on the flat world and 1,344
+sections and 781,834 triangles on seed 1's land around the same place, the device's mesh buffers
+from `./e3d command memory.buffers`, the frame and its `gpu.window_depth`, `gpu.shadows` and
+`gpu.hdr_scene` from `./e3d command profile` after 300 frames, and the relight as the time from
+`voxel.shade off off` until no section waits to mesh, which shades every loaded section anew. The
+flat world is read twice each, before and after by turns; on the land the desktop took up to a fifth
+of the GPU at the start of the pair.
+
+| Measure | Before | After |
+|---|---|---|
+| Vertex bytes on the device, flat | 13.62 MB in 887 buffers | 9.82 MB in 1,178 buffers |
+| Vertex bytes on the device, land | 87.07 MB in 4,100 buffers | 63.24 MB in 5,462 buffers |
+| Frame, flat | 5.13 to 5.17 ms | 3.96 to 4.49 ms |
+| Depth, shadows and scene, flat | 0.92, 0.84 to 0.93, 1.45 to 1.48 ms | 0.42, 0.30, 1.10 ms |
+| Frame, land | 34.1 ms | 18.0 ms |
+| Depth, shadows and scene, land | 6.0, 18.2, 7.2 ms | 2.9, 7.8, 4.8 ms |
+| Relight of every section | 0.34 to 0.38 s | 0.34 to 0.40 s |
+
+A section uploads 72% of the vertex bytes it did, where 45% was expected of 20 bytes a vertex for
+44, because the colors the field reads go with the upload, as they must until item 9, and on the
+device they bring a buffer of four bytes a vertex and one of eight of zeros for the second texture
+coordinate, 32 bytes a vertex in four buffers. The passes that read positions alone, the window's
+depth and the shadows, take half to a third of their time, and the frame on the land half; the
+relight is the mesher's work and is unchanged. The engine lacks a way to give a mesh of positions
+its colors for the field alone, which would take a section to 20 bytes a vertex on the device.
+
 Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item
 8.
@@ -113,3 +142,7 @@ shader; a value is four bytes or a `uint` in names, comments and the guide. Meas
 after with `./e3d command profile` on this entry's room, the bytes a section uploads, the relight's
 time and the frame's, written here in this entry's style, and `MesherTests` rewritten for positions
 and packed bytes. When the game's own order allows.
+
+Review: item 21 of REVIEW.md, 2026-10-12; the colors of a mesh of positions alone serve the field
+alone and reach no buffer on the device, so a section is 20 bytes a vertex there, before the
+pillar's read; the land measured again after it.

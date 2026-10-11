@@ -278,7 +278,8 @@ ModelVertexOutput vertexMain(float3 position : POSITION, uint packed : CUSTOM0, 
 The model pass's own shader lights such a mesh by a zero normal, so it is drawn with a shader of
 the program's own, which a warning says once where it is not. Its shadow is cast by its positions
 as any mesh's is, and the light field, the glow lights, picking and bodies read its positions with
-zero normals. It takes no skin, `UpdateMeshBuffer` writes its positions at 0 and leaves its
+zero normals. Its colors, where given, tint the light it bounces and are not given to the GPU,
+which reads white and zero for a stage that takes `COLOR0` or `TEXCOORD1` on it. It takes no skin, `UpdateMeshBuffer` writes its positions at 0 and leaves its
 normals and texture coordinates alone with a warning, and the pass that scatters light under a
 surface leaves it out.
 

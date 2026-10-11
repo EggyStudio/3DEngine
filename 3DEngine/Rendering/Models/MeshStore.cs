@@ -312,7 +312,11 @@ internal sealed class MeshStore
     {
         lock (_gate)
         {
-            var taken = (_uploads.Select(u => _positionsOnly.Contains(u.Id) ? u with { PositionsOnly = true } : u).ToArray(), _removals.ToArray());
+            // A mesh of positions alone reaches the GPU as its positions and its own stream, its
+            // colors kept here for the readers of the CPU's copy, since its shader unpacks its color
+            // from the stream, and a buffer of them and one of zero second texture coordinates
+            // beside it took a section of the voxel game's 32 bytes a vertex where 20 were meant.
+            var taken = (_uploads.Select(u => _positionsOnly.Contains(u.Id) ? u with { PositionsOnly = true, Streams = null } : u).ToArray(), _removals.ToArray());
             _uploads.Clear();
             _removals.Clear();
             return taken;
