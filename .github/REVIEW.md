@@ -10,7 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `60f2999d`. Item 11's fit: `build/webp.sh` fills the size it is given, scaling a
+Reviewed up to `623bdc47`. Item 11's cells: each folder's row is an HTML table on a line of its own,
+every cell `width="400"` with its picture's link and tag as before and the run name in a code tag,
+since Markdown is not read inside an HTML block, so no column is squeezed below its picture and a
+row wider than the page scrolls; 268 cells and thirteen headings read here, the document and norm
+tests pass, 34, and the README's walk and the examples' check read nothing of it. Right, the width
+given where the squeeze acts. The owner looked at the pushed page at 18:55 and the pictures still
+differ: the cell's width survives but the browser treats it as a preference and shrinks a cell to
+its name when the table is wider than the page, so item 11 keeps the fallback, each name padded with
+non-breaking spaces in its code tag to fifty-two characters, a batch of its own next. Part h's dark
+side, read so far in an engine room of the owner's pillar with pale walls against a reference of
+4,096 paths: the wall reads 0.84 to 0.97 of the reference with the pillar standing and 1.00 to 1.03
+without it, the lamps' light alone with it 0.90 to 1.07, and one bounce with the second left out
+against a reference of two bounces 0.86 to 0.99, so the short grows bounce by bounce where the
+pillar stands; the same or lower with the screen's probes off and with a ray's hits marched to the
+faces' halves, and with the bounce alone 0.70 to 0.95 of the reference's bounce with the pillar
+against 1.01 to 1.07 without, unchanged by the probes off, the hits marched to halves, the walled-in
+finding off or half the spacing, so the world probes under-gather the bounce around a small bright
+occluder, the rooms' general error, which is a read of its own after Verdict 48's two remedies.
+Then, after item 11's padding: Verdict 48's remedies, the pillar's bounce, h's blotches and teeth by
+the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `60f2999d` came, item 11's fit: `build/webp.sh` fills the size it is given, scaling a
 capture until its shorter side fills it and cutting the rest around the middle or from the side a
 gravity names, so every picture fills its box where the padded ones read as smaller beside the rest;
 the games' sixteen by nine captures came out the same, the split-screen camera and the angle
@@ -46,24 +67,6 @@ touched, the record given its reasons in the file that holds it, and the loading
 given room rather than a later frame that would have moved them too. Verdict 49's two things are
 done and it settles on the next run's examples job. Next item 11's fit, the captures filling their
 boxes, then h's rest, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `7a69c936` came, item 12, on the owner's word typed in the working session: the e3d guide
-is `.github/E3D.md`, the skill's body with its header of name, description and allowed tools
-dropped, beside the other documents a session reads; AGENTS.md's driving paragraph links it and its
-documents table has its row, BUILDING.md, STYLE.md's scope, which is every Markdown file under
-`.github` and `docs` and itself since, the README's line on the commands and the two links in the
-e3d guide for programs point to it, the build workflow's path filters drop the tool's folder, the
-new file falling under the filter on `.github` Markdown as the others do, the folder is gone with
-the lock file the tool kept in it, and `.claude/` is in `.gitignore`; no reference to the old path
-is left outside this file. The document, norm, script and package tests pass, 73. Right, taken on
-the owner's word where it was given and every reference moved with the file. The working session is
-back on Verdict 49's pairs: on lavapipe here `shaders_depth_writing` differs 3.49% between
-`71050c8f` and the tree, in its wireframes and grid lines, matching the page's 5.4 to 8.7, and what
-moved is being read. The owner looked at the pushed README at 17:10 and the pictures still read as
-different sizes: GitHub's own style gives every tag one box, so it is the bars of the fitted
-captures that read as smaller pictures, and item 11 keeps the fit, the capture scaled to fill its
-box and cut around the middle rather than padded, a batch of its own next. Then h's rest, Verdict
-48's two remedies, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -452,8 +455,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    it is. The wall is done at `8118e2c7`: each half of a light's face weighed by the face's area
    rather than the box's half size, the owner's wall 0.90 to 0.98 of its reference where 1.20 to
    1.27 and the engine room within 0.03, with a test of five points, the seam's middle 1.7 pixels
-   off a line where 8.9. Left, on that commit: the blotches' rest on the tiles' grid, the seam's
-   teeth of about ten pixels and the wall's dark side at 0.80 of the reference, which the game read
+   off a line where 8.9. The dark side read so far in an engine room of the pillar: 0.84 to 0.97 of
+   the reference with the pillar and 1.00 to 1.03 without, the lamps alone 0.90 to 1.07 and one
+   bounce against two 0.86 to 0.99, the short growing bounce by bounce where the pillar stands, the
+   same with the screen's probes off. Read further with the bounce alone, the whole reference less
+   the direct one: with the pillar the bounce reads 0.70 to 0.95 of the reference's bounce along the
+   wall, where the bounce is 45 to 86% of the light, and without it 1.01 to 1.07, unchanged by the
+   screen's probes off, by a ray's hits marched to the faces' halves, by the walled-in finding off
+   and by the probes at half the spacing, 0.78 to 0.92 with the pillar at a cell of 0.125, and
+   already 0.86 to 0.99 at one bounce against two, so the short begins at the first bounce and
+   grows: the world probes' bounce around a small, brightly lit occluder is under-gathered, which is
+   the rooms' general bounce error rather than a penumbra fault, and it becomes a read of its own
+   after Verdict 48's two remedies, which cost every push. Left, on `623bdc47`: the blotches' rest
+   on the tiles' grid at 0.30% and the seam's teeth of about ten pixels, the owner's eye on them
+   after the pillar's read, and the wall's dark side at 0.80 of the reference, which the game read
    on the commit with the lit side at 0.96 and lit over dark 1.51 where the reference reads 1.27,
    and the seam's rise for the owner's eye; the game's entry is off, its numbers here, and the copy
    of the owner's save is let go, made again on request. The owner's eye judges the look (Decision
@@ -571,47 +586,58 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the engine has it. Taken after item 2's parts g, c and f and before item 9, since the owner
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
-11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
-    `ee47849e` and `60f2999d` but for the cells' width (Decision 29).** The owner asked on
-    2026-10-11 at 15:55. The README's Examples section holds a table of two columns and thirty-four
-    rows, pictures of picked examples and games mixed, and under it eighty lines of prose and a
-    block that explain the games. It becomes one table a folder of `3DEngine.Examples`, in the
-    folders' order as the repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics,
-    Scenes, Shaders, Shapes, Text and Textures, each a single row holding every example of the
-    folder that has a capture under `.github/assets/examples`, the picture linking the program and
-    the run name under it as the rows do today, with a heading line naming the folder before each,
-    and a last table of the same shape for `games`; a single row wider than the page scrolls
-    sideways on GitHub, which is the point, so no row is wrapped. The prose and the block between
-    the table and the Guide heading that explain the games go, their facts living in the games' own
-    READMEs and in the games table of EXAMPLES.md where they are not already. The README's walk and
-    the examples' table check read the file as before, so each is run on the result, and the
-    captures' links keep their raw form. Taken as a batch of its own after h's next commit, since it
-    is small and the owner asked; The owner asked at 16:35 that the pictures be one size, where they
-    differ today: every picture in the rows carries the same width and height on its tag, and the
-    captures that are not 800 by 450, sixteen of 268, among them a square and a four by three, are
-    taken again at that size where the program's window allows or padded to it by the capture
-    script, so the tag distorts nothing; the examples' table check and the captures' comparison read
-    the result. Done at `ee47849e`: twelve rows of 257 examples and a games row of thirteen, every
-    tag 400 by 225, the sixteen captures of other sizes fitted to 800 by 450 by the WebP script, the
-    games' notes moved into each game's own README. The owner looked at the pushed page at 17:10 and
-    the pictures still read as different sizes. GitHub renders every tag at one box, its own style
-    giving each the full width of its cell, an automatic height and the tag's aspect, so the box is
-    uniform; what differs is the picture inside it, since a capture of another shape was fitted
-    inside sixteen by nine with black bars, which read as a smaller picture. The fit fills instead:
-    the WebP script scales a capture of another shape so its shorter side fills the box and cuts the
-    rest around the middle, or the example's window is opened at sixteen by nine where the cut would
-    lose something that matters, so every picture fills its box edge to edge; the sixteen captures
-    and the games' thirteen are fitted again so, and the page is read after the push. Done at
-    `60f2999d`: the WebP script fills its size and cuts around the middle or from a named side, all
-    268 captures at 800 by 450 and filling their boxes. The owner looked again at 18:20: each
-    picture is as wide as the name under it, a short name's tiny and a long name's large. GitHub
-    squeezes a table to the page's width before it lets it scroll, and a cell shrinks to the one
-    thing in it that cannot wrap, the name, the picture shrinking with it under the page's own rule
-    of a picture no wider than its cell. Each cell takes a width of its own, `width="400"` on every
-    `td`, which the page's sanitizer keeps as it keeps a picture's, so no column goes below it and
-    the row keeps its full width and scrolls; a header row of non-breaking spaces would do the same
-    and is the fallback should the attribute be stripped, which the rendered page says after the
-    push. the owner's eye judges the look (Decision 27).
+11. **The README's examples as one scrolling row a folder, the games' text under them gone, done
+    through `623bdc47` but for the names' padding (Decision 29).** The owner asked on 2026-10-11 at
+    15:55. The README's Examples section holds a table of two columns and thirty-four rows, pictures
+    of picked examples and games mixed, and under it eighty lines of prose and a block that explain
+    the games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
+    repository lists them, Audio, Benchmarks, Core, Ecs, Gui, Models, Physics, Scenes, Shaders,
+    Shapes, Text and Textures, each a single row holding every example of the folder that has a
+    capture under `.github/assets/examples`, the picture linking the program and the run name under
+    it as the rows do today, with a heading line naming the folder before each, and a last table of
+    the same shape for `games`; a single row wider than the page scrolls sideways on GitHub, which
+    is the point, so no row is wrapped. The prose and the block between the table and the Guide
+    heading that explain the games go, their facts living in the games' own READMEs and in the games
+    table of EXAMPLES.md where they are not already. The README's walk and the examples' table check
+    read the file as before, so each is run on the result, and the captures' links keep their raw
+    form. Taken as a batch of its own after h's next commit, since it is small and the owner asked;
+    The owner asked at 16:35 that the pictures be one size, where they differ today: every picture
+    in the rows carries the same width and height on its tag, and the captures that are not 800 by
+    450, sixteen of 268, among them a square and a four by three, are taken again at that size where
+    the program's window allows or padded to it by the capture script, so the tag distorts nothing;
+    the examples' table check and the captures' comparison read the result. Done at `ee47849e`:
+    twelve rows of 257 examples and a games row of thirteen, every tag 400 by 225, the sixteen
+    captures of other sizes fitted to 800 by 450 by the WebP script, the games' notes moved into
+    each game's own README. The owner looked at the pushed page at 17:10 and the pictures still read
+    as different sizes. GitHub renders every tag at one box, its own style giving each the full
+    width of its cell, an automatic height and the tag's aspect, so the box is uniform; what differs
+    is the picture inside it, since a capture of another shape was fitted inside sixteen by nine
+    with black bars, which read as a smaller picture. The fit fills instead: the WebP script scales
+    a capture of another shape so its shorter side fills the box and cuts the rest around the
+    middle, or the example's window is opened at sixteen by nine where the cut would lose something
+    that matters, so every picture fills its box edge to edge; the sixteen captures and the games'
+    thirteen are fitted again so, and the page is read after the push. Done at `60f2999d`: the WebP
+    script fills its size and cuts around the middle or from a named side, all 268 captures at 800
+    by 450 and filling their boxes. The owner looked again at 18:20: each picture is as wide as the
+    name under it, a short name's tiny and a long name's large. GitHub squeezes a table to the
+    page's width before it lets it scroll, and a cell shrinks to the one thing in it that cannot
+    wrap, the name, the picture shrinking with it under the page's own rule of a picture no wider
+    than its cell. Each cell takes a width of its own, `width="400"` on every `td`, which the page's
+    sanitizer keeps as it keeps a picture's, so no column goes below it and the row keeps its full
+    width and scrolls; a header row of non-breaking spaces would do the same and is the fallback
+    should the attribute be stripped, which the rendered page says after the push. Done at
+    `623bdc47`: every cell 400 wide in an HTML table a folder, the rendered page read after the
+    push. The owner looked at the pushed page at 18:55 and the pictures still differ. The rendered
+    page keeps the cell's width, read here, so the squeeze is the browser's table layout: a cell's
+    width is a preference, and when a table is wider than the page the browser shrinks each cell to
+    its narrowest unbreakable content, the name, the picture with it, GitHub's table being a block
+    capped at the page's width that scrolls only past that minimum. So the minimum comes from
+    content: the run name under each picture, in its code tag, is padded with non-breaking spaces,
+    the character itself and not the entity, to fifty-two characters, which the code font draws at
+    some 426 pixels, past the picture's 400 on every platform's monospace, so no cell can shrink
+    below its picture and the name reads as a caption bar as wide as it; the cell's width stays as
+    the preference. The rendered page is read after the push. the owner's eye judges the look
+    (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -901,15 +927,8 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11, the cells' width. Each folder's row is an HTML table on a line of its own, every cell
-`width="400"` with its picture's link and tag as before and the run name in `<code>`, since Markdown
-is not read inside an HTML block, so no column is squeezed below the picture and a row wider than
-the page scrolls. The docs and norm tests pass, 34, the pictures' links read by them as before.
-
-Item 2, part h, the dark side, read so far in an engine room of the owner's pillar with pale walls
-against a reference of 4,096 paths. Along the wall the frame reads 0.84 to 0.97 of the reference
-with the pillar standing and 1.00 to 1.03 without it; the lamps' light alone with it 0.90 to 1.07,
-and one bounce with the light that bounces again left out against a reference of two bounces 0.86 to
-0.99, so the short grows bounce by bounce where the pillar stands. With the screen's probes off it
-reads the same or lower, and with a ray's hits marched to the faces' halves the same, so the world's
-probes' bounce around the pillar is read next.
+Item 11, the names' padding. Each run name under a picture is padded inside its `<code>` with
+non-breaking spaces, the character and not the entity, to 52 characters, all 268 of them, so a
+cell's narrowest content is wider than its picture and the table cannot squeeze it, the cell's width
+kept as the preference. The README holds 237 lines of prose, the norm's bound 320, and the docs and
+norm tests pass, 34.
