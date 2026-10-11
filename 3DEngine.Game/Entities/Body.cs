@@ -3,22 +3,30 @@ using System.Numerics;
 namespace Engine.Game;
 
 /// <summary>
-/// The player's box, 0.6 blocks wide and 1.8 tall as Minecraft's is, moved through the blocks
-/// one axis at a time and stopped by the first solid box on each, climbing onto a slab or a stair
-/// in its way.
+/// A box that stands for the player or a mob, the player's 0.6 blocks wide and 1.8 tall as
+/// Minecraft's is, moved through the blocks one axis at a time and stopped by the first solid box
+/// on each, climbing onto a slab or a stair in its way.
 /// </summary>
 /// <remarks>
 /// The box moves up or down first, then along x, then along z, as Minecraft moves an entity, so
 /// walking into a wall while falling slides down it. A move is cut into steps under half a block,
 /// so a fast fall cannot pass through a floor between two frames.
 /// </remarks>
-public sealed class PlayerBody
+public sealed class Body(float halfWidth, float height)
 {
-    public const float HalfWidth = 0.3f;
-    public const float Height = 1.8f;
     private const float Skin = 1e-4f;
     // How high the box climbs onto what it walks into, as onto a slab or a stair.
     private const float StepHeight = 0.6f;
+
+    /// <summary>The player's box.</summary>
+    public Body() : this(0.3f, 1.8f)
+    {
+    }
+
+    /// <summary>Half the box's width along x and along z.</summary>
+    public float HalfWidth { get; } = halfWidth;
+
+    public float Height { get; } = height;
 
     /// <summary>The middle of the box's bottom face.</summary>
     public Vector3 Position;
@@ -124,7 +132,7 @@ public sealed class PlayerBody
         aMin.X < bMax.X - Skin && aMax.X > bMin.X + Skin && aMin.Y < bMax.Y - Skin && aMax.Y > bMin.Y + Skin && aMin.Z < bMax.Z - Skin && aMax.Z > bMin.Z + Skin;
 
     /// <summary>Whether the box at a position overlaps nothing solid.</summary>
-    public static bool Fits(VoxelWorld world, Vector3 at)
+    public bool Fits(VoxelWorld world, Vector3 at)
     {
         Vector3 min = at - new Vector3(HalfWidth, 0, HalfWidth), max = at + new Vector3(HalfWidth, Height, HalfWidth);
         for (int y = Floor(min.Y + Skin) - 1; y <= Floor(max.Y - Skin); y++)
@@ -136,7 +144,7 @@ public sealed class PlayerBody
     }
 
     // Whether a solid box's top lies under the box's footprint at a position, within a hair of its feet.
-    private static bool Supported(VoxelWorld world, Vector3 at)
+    private bool Supported(VoxelWorld world, Vector3 at)
     {
         for (int y = Floor(at.Y - 0.01f) - 1; y <= Floor(at.Y - 0.01f); y++)
             for (int z = Floor(at.Z - HalfWidth + Skin); z <= Floor(at.Z + HalfWidth - Skin); z++)

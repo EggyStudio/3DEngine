@@ -43,6 +43,12 @@ public readonly struct ColumnClip(ChunkColumn column)
                     column.Set(x - MinX, y, z - MinZ, block);
     }
 
+    /// <summary>Places a mob where its feet stand, if they stand inside the column.</summary>
+    public void Spawn(MobRecord mob)
+    {
+        if (Inside((int)MathF.Floor(mob.Position.X), (int)MathF.Floor(mob.Position.Y), (int)MathF.Floor(mob.Position.Z))) column.Spawns.Add(mob);
+    }
+
     /// <summary>Whether a box between two corners reaches into the column.</summary>
     public bool Touches(int x0, int z0, int x1, int z1) =>
         x1 >= MinX && x0 <= MinX + Section.Mask && z1 >= MinZ && z0 <= MinZ + Section.Mask;

@@ -1,10 +1,13 @@
+using System.Numerics;
+
 namespace Engine.Game;
 
 /// <summary>
 /// A village in the plains, the taiga, the snowy plains or the desert: a well at its middle with a
 /// lantern under its roof, four roads of dirt path from it, houses, a forge, farms of wheat and
 /// piles of hay beside the roads, and lamp posts along them, each village of its biome's wood and
-/// stone.
+/// stone, with a villager in its robe in each house, two in a long one, at each forge and at each
+/// farm.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -36,13 +39,13 @@ public sealed class Village : Structure
     private static readonly (int X, int Z)[] Ways = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
     /// <summary>What a village of a biome is built from, its houses' roofs of stairs where it has them and flat where not.</summary>
-    private sealed record Palette(BlockId Wall, BlockId Corner, BlockId Floor, BlockId Roof, BlockId Post, BlockId? Stairs);
+    private sealed record Palette(BlockId Wall, BlockId Corner, BlockId Floor, BlockId Roof, BlockId Post, BlockId? Stairs, byte Robe);
 
     private static Palette? For(Biome biome) =>
-        biome == Biomes.Plains ? new(BlockId.OakPlanks, BlockId.OakLog, BlockId.Cobblestone, BlockId.OakPlanks, BlockId.Lantern, BlockId.OakStairs)
-        : biome == Biomes.Taiga ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.SprucePlanks, BlockId.Lantern, BlockId.SpruceStairs)
-        : biome == Biomes.SnowyPlains ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.Snow, BlockId.Lantern, BlockId.SpruceStairs)
-        : biome == Biomes.Desert ? new(BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Torch, null)
+        biome == Biomes.Plains ? new(BlockId.OakPlanks, BlockId.OakLog, BlockId.Cobblestone, BlockId.OakPlanks, BlockId.Lantern, BlockId.OakStairs, 0)
+        : biome == Biomes.Taiga ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.SprucePlanks, BlockId.Lantern, BlockId.SpruceStairs, 2)
+        : biome == Biomes.SnowyPlains ? new(BlockId.SprucePlanks, BlockId.SpruceLog, BlockId.Cobblestone, BlockId.Snow, BlockId.Lantern, BlockId.SpruceStairs, 3)
+        : biome == Biomes.Desert ? new(BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Sandstone, BlockId.Torch, null, 1)
         : null;
 
     protected override bool Suits(Biome biome, int ground, uint hash, out int y)
@@ -199,6 +202,15 @@ public sealed class Village : Structure
             return Blocks.Variant(info.Item, round[(Array.IndexOf(round, shape.Facing) + Turn) % 4], shape.Upper);
         }
 
+        // A villager of a robe standing at a place of the plot, facing its front, at home at another.
+        public void Villager(int x, int z, byte robe, int homeX, int homeZ)
+        {
+            var (wx, wz) = At(x, z);
+            var (hx, hz) = At(homeX, homeZ);
+            Clip.Spawn(new MobRecord(MobKinds.Villager, robe, new Vector3(wx + 0.5f, Y + 1, wz + 0.5f), -Turn * MathF.PI / 2,
+                MobKinds.Villager.Health, new Vector3(hx + 0.5f, Y + 1, hz + 0.5f)));
+        }
+
         // Stone under each place of a footprint down to the ground, so a building on a slope stands
         // on it rather than over a gap, and the space above it cleared of the trees.
         public void Ground(int x0, int x1, int depth, BlockId footing, int height)
@@ -234,6 +246,7 @@ public sealed class Village : Structure
         var hang = Roof(f, p, 3);
         foreach (var (x, z) in (ReadOnlySpan<(int, int)>)[(-3, 3), (3, 3), (0, 6)]) f.Set(x, 2, z, BlockId.Glass);
         f.Set(0, hang, 3, BlockId.HangingLantern);
+        f.Villager(0, 3, p.Robe, 0, 3);
     }
 
     // A long house of nine by seven, two windows a wall and two lanterns.
@@ -244,6 +257,8 @@ public sealed class Village : Structure
         foreach (var (x, z) in (ReadOnlySpan<(int, int)>)[(-2, 0), (2, 0), (-2, 6), (2, 6), (-4, 3), (4, 3)]) f.Set(x, 2, z, BlockId.Glass);
         f.Set(-2, hang, 3, BlockId.HangingLantern);
         f.Set(2, hang, 3, BlockId.HangingLantern);
+        f.Villager(-2, 3, p.Robe, -2, 3);
+        f.Villager(2, 3, p.Robe, 2, 3);
     }
 
     // The roof over walls seven deep and a half width across: of stairs climbing from the front and
@@ -288,6 +303,7 @@ public sealed class Village : Structure
         f.Set(2, 1, 5, BlockId.Magma);
         f.Fill(2, 2, 5, 2, 7, 5, BlockId.Cobblestone);
         f.Set(-1, 3, 5, BlockId.WallTorchNorth);
+        f.Villager(0, 3, p.Robe, 0, 3);
     }
 
     // A field of wheat on farmland in a border of logs, a row of water through its middle.
@@ -299,6 +315,7 @@ public sealed class Village : Structure
         f.Fill(-3, 0, 3, 3, 0, 3, BlockId.Water);
         f.Fill(-3, 1, 1, 3, 1, 2, BlockId.Wheat);
         f.Fill(-3, 1, 4, 3, 1, 5, BlockId.Wheat);
+        f.Villager(-4, 3, p.Robe, -4, 3);
     }
 
     // A few bales of hay piled on the ground.

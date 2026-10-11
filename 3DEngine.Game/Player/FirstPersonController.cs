@@ -25,7 +25,7 @@ public sealed class FirstPersonController
 
     public FirstPersonController() => _fov = FieldOfView;
 
-    public PlayerBody Body { get; } = new();
+    public Body Body { get; } = new();
 
     /// <summary>The turn about the vertical in radians, 0 looking north (toward -z) and growing to the left.</summary>
     public float Yaw { get; set; }

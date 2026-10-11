@@ -10,21 +10,25 @@ public sealed record Biome(string Name, BlockId Top, BlockId Under, BlockId Deep
 {
     /// <summary>The biome's place in <see cref="Biomes.All"/>, which a column keeps for each of its places.</summary>
     public byte Id { get; init; }
+
+    /// <summary>The animals that graze on it, one kind of which a column's herd is.</summary>
+    public MobKind[] Animals { get; init; } = [];
 }
 
 /// <summary>Every biome, by its id.</summary>
 public static class Biomes
 {
     private static readonly IFeature Oak = new OakTree(), Birch = new BirchTree(), Spruce = new SpruceTree(), Cactus = new CactusFeature();
+    private static readonly MobKind[] Farm = [MobKinds.Pig, MobKinds.Cow, MobKinds.Sheep, MobKinds.Chicken];
 
-    public static readonly Biome Plains = new("plains", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Oak, 3)]) { Id = 0 };
-    public static readonly Biome Forest = new("forest", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Oak, 30), (Birch, 8)]) { Id = 1 };
-    public static readonly Biome BirchForest = new("birch forest", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Birch, 34)]) { Id = 2 };
-    public static readonly Biome Taiga = new("taiga", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Spruce, 28)]) { Id = 3 };
+    public static readonly Biome Plains = new("plains", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Oak, 3)]) { Id = 0, Animals = Farm };
+    public static readonly Biome Forest = new("forest", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Oak, 30), (Birch, 8)]) { Id = 1, Animals = Farm };
+    public static readonly Biome BirchForest = new("birch forest", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Birch, 34)]) { Id = 2, Animals = Farm };
+    public static readonly Biome Taiga = new("taiga", BlockId.Grass, BlockId.Dirt, BlockId.Air, [(Spruce, 28)]) { Id = 3, Animals = Farm };
     public static readonly Biome SnowyTaiga = new("snowy taiga", BlockId.Snow, BlockId.Dirt, BlockId.Air, [(Spruce, 22)]) { Id = 4 };
     public static readonly Biome SnowyPlains = new("snowy plains", BlockId.Snow, BlockId.Dirt, BlockId.Air, [(Spruce, 2)]) { Id = 5 };
     public static readonly Biome Desert = new("desert", BlockId.Sand, BlockId.Sand, BlockId.Sandstone, [(Cactus, 6)]) { Id = 6 };
-    public static readonly Biome Mountains = new("mountains", BlockId.Stone, BlockId.Stone, BlockId.Air, [(Spruce, 3)]) { Id = 7 };
+    public static readonly Biome Mountains = new("mountains", BlockId.Stone, BlockId.Stone, BlockId.Air, [(Spruce, 3)]) { Id = 7, Animals = [MobKinds.Sheep] };
 
     public static readonly Biome[] All = [Plains, Forest, BirchForest, Taiga, SnowyTaiga, SnowyPlains, Desert, Mountains];
 }

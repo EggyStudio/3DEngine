@@ -12,9 +12,10 @@ namespace Engine.Game;
 /// drawn is meshed only once the eight columns around it are there, its corners shaded by their
 /// blocks and light, and unloaded three further, so walking back and forth over a boundary does
 /// not load and unload the same columns each time. A column the player changed is read from the
-/// save rather than generated, and kept by the save as it unloads.
+/// save rather than generated, and kept by the save as it unloads. The mobs standing in a column
+/// come and go with it.
 /// </remarks>
-public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, WorldSave? save)
+public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Mobs mobs, WorldSave? save)
 {
     private readonly ConcurrentQueue<(int X, int Z, ChunkColumn? Column)> _done = new();
     private readonly HashSet<(int X, int Z)> _pending = [];
@@ -33,7 +34,7 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Worl
         int cx = VoxelWorld.ColumnOf((int)MathF.Floor(at.X)), cz = VoxelWorld.ColumnOf((int)MathF.Floor(at.Z));
         for (int z = cz - radius; z <= cz + radius; z++)
             for (int x = cx - radius; x <= cx + radius; x++)
-                if (!world.HasColumn(x, z)) world.Add(Make(world.Generator, Kept(x, z), save?.Renumber, x, z));
+                if (!world.HasColumn(x, z)) Join(Make(world.Generator, Kept(x, z), save?.Renumber, x, z));
     }
 
     /// <summary>Takes in the columns the workers finished, asks for those now in reach, and unloads those out of it.</summary>
@@ -43,7 +44,7 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Worl
         {
             Interlocked.Decrement(ref _running);
             _pending.Remove((result.X, result.Z));
-            if (result.Column is not null) world.Add(result.Column);
+            if (result.Column is not null) Join(result.Column);
         }
 
         int cx = VoxelWorld.ColumnOf((int)MathF.Floor(player.X)), cz = VoxelWorld.ColumnOf((int)MathF.Floor(player.Z));
@@ -78,6 +79,12 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Worl
             });
         }
         _wanted.RemoveAll(c => world.HasColumn(c.X, c.Z) || _pending.Contains(c));
+    }
+
+    private void Join(ChunkColumn column)
+    {
+        world.Add(column);
+        mobs.Joined(column);
     }
 
     // The compressed blocks the save keeps for a column, read on the main thread, or null.
@@ -128,6 +135,7 @@ public sealed class ChunkStreamer(VoxelWorld world, ChunkRenderer renderer, Worl
         foreach (var (x, z) in _leaving)
         {
             if (save is not null && world.TryGetColumn(x, z, out var column) && column.Changed) save.Keep(column);
+            mobs.Leaving(x, z);
             world.Remove(x, z);
             renderer.ForgetColumn(x, z);
         }

@@ -23,13 +23,14 @@ public static class GameCommands
         var player = game.Player;
         var at = player.Body.Position;
         var renderer = game.Renderer;
-        var target = game.Target is { } hit
-            ? $"looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Key} at {hit.X}, {hit.Y}, {hit.Z}"
+        var target = game.TargetMob is { } mob ? $"looking at {mob.Kind.Name} {mob.Id}"
+            : game.Target is { } hit ? $"looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Key} at {hit.X}, {hit.Y}, {hit.Z}"
             : "looking at nothing within reach";
         return $"feet at {at.X:0.00}, {at.Y:0.00}, {at.Z:0.00} in {game.World.BiomeAt((int)MathF.Floor(at.X), (int)MathF.Floor(at.Z))?.Name ?? "nowhere loaded"}, facing {player.Heading:0} and pitched {player.Pitch * 180 / MathF.PI:0}, "
             + $"{(player.Flying ? "flying" : player.Body.OnGround ? "on the ground" : "in the air")}, {target}; "
             + $"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh; "
             + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
+            + $"{game.Mobs.All.Count} mobs loaded, {game.MobRenderer.Drawn} drawn in {game.MobRenderer.Draws} draws; "
             + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, "
             + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, holding {Blocks.Get(game.Hotbar.Current).Key}";
     }
@@ -178,6 +179,60 @@ public static class GameCommands
     [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, as a right click does")]
     internal static string Place() =>
         Game is not { } game ? "no world is loaded" : game.Place(game.Hotbar.Current) is not BlockId.Air and var placed ? $"{Blocks.Get(placed).Key} is placed" : "no block can be placed there";
+
+    [Command("voxel.mobs", "How many mobs of each kind are loaded and kept, and the nearest few, each with its number, where it stands, what it does and its health: voxel.mobs [count]")]
+    internal static string ListMobs(int count = 5)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var mobs = game.Mobs;
+        var kinds = string.Join(", ", MobKinds.All.Select(k => $"{mobs.All.Count(m => m.Kind == k)} {k.Name}"));
+        var at = game.Player.Body.Position;
+        var nearest = mobs.All.OrderBy(m => Vector3.DistanceSquared(m.Body.Position, at)).Take(Math.Max(0, count))
+            .Select(m => $"{m.Kind.Name} {m.Id} at {m.Body.Position.X:0.0}, {m.Body.Position.Y:0.0}, {m.Body.Position.Z:0.0}, "
+                + $"{Vector3.Distance(m.Body.Position, at):0} blocks away, {m.Doing}, health {m.Health}{(m.Home is { } home ? $", at home at {home.X:0}, {home.Y:0}, {home.Z:0}" : "")}");
+        return $"{mobs.All.Count} loaded ({kinds}), {mobs.Kept} kept by columns not loaded{(mobs.Still ? ", standing still" : "")}"
+            + (count > 0 && mobs.All.Count > 0 ? "; " + string.Join("; ", nearest) : "");
+    }
+
+    [Command("voxel.spawn", "Places a mob of a kind where the crosshair rests, or three blocks ahead, its variant by number where given, a villager at home there: voxel.spawn <pig|cow|sheep|chicken|villager> [variant]")]
+    internal static string Spawn(string kind, int variant = -1)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (MobKinds.Find(kind) is not { } found) return $"no mob is called {kind}, which is {string.Join(", ", MobKinds.All.Select(k => k.Name))}";
+        var player = game.Player;
+        var at = game.Target is { } hit ? new Vector3(hit.Beside.X + 0.5f, hit.Beside.Y, hit.Beside.Z + 0.5f)
+            : player.Body.Position + Vector3.Normalize(new Vector3(player.Look.X, 0, player.Look.Z)) * 3;
+        var chosen = variant >= 0 ? (byte)(variant % found.Variants.Length) : found.Variant(Random.Shared.Next(1000));
+        var mob = game.Mobs.Add(new MobRecord(found, chosen, at, player.Yaw + MathF.PI, found.Health, found.OpensDoors ? at : null));
+        return $"{found.Name} {mob.Id} stands at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}";
+    }
+
+    [Command("voxel.attack", "Hits the mob the crosshair rests on, as a left click does")]
+    internal static string Attack()
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (game.TargetMob is not { } mob) return $"no mob within {Mobs.Reach} blocks under the crosshair";
+        if (!game.Attack()) return $"{mob.Kind.Name} {mob.Id} is still red from the last hit";
+        return mob.Dying >= 0 ? $"{mob.Kind.Name} {mob.Id} dies" : $"{mob.Kind.Name} {mob.Id} is hit, its health {mob.Health}";
+    }
+
+    [Command("voxel.still", "Stops the mobs where they stand, or lets them move again, for a capture: voxel.still <on>")]
+    internal static string Still(bool on)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.Mobs.Still = on;
+        return on ? "the mobs stand still" : "the mobs move";
+    }
+
+    [Command("voxel.kill", "Takes away the loaded mobs of a kind, or all of them: voxel.kill <kind|all>")]
+    internal static string Kill(string kind)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        MobKind? found = null;
+        if (!kind.Equals("all", StringComparison.OrdinalIgnoreCase) && (found = MobKinds.Find(kind)) is null)
+            return $"no mob is called {kind}, which is {string.Join(", ", MobKinds.All.Select(k => k.Name))} or all";
+        return $"{game.Mobs.Clear(found)} mobs taken away";
+    }
 
     [Command("voxel.gi", "Sets the light that bounces to a quality, off, low, medium or high: voxel.gi <quality>")]
     internal static string Gi(string quality)

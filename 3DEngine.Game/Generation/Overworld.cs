@@ -129,6 +129,7 @@ public sealed class Overworld : IWorldGenerator
         var clip = new ColumnClip(column);
         PlaceFeatures(clip, columnX, columnZ);
         foreach (var structure in Structures.All) structure.BuildIn(clip, this);
+        Herds.Place(column, Seed);
         return column;
     }
 

@@ -1,11 +1,12 @@
 # 3DEngine.Game
 
 A voxel game in the manner of Minecraft, and the ground floor of a larger one. Its first use is
-to test the light that bounces (Radiance Cascades over the scene's distance field) with blocks
-that give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128,
-a first-person player with Minecraft's sizes and speeds, building and breaking with an outline
-on the block looked at, Minecraft's light levels with smooth lighting and shaded corners, a sky
-whose sun crosses it under drifting clouds, and an ImGui window of the light's settings.
+to test the light that bounces (Radiance Cascades over the scene's distance field) with blocks that
+give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128, animals
+that graze it and villagers in its villages, a first-person player with Minecraft's sizes and
+speeds, building and breaking with an outline on the block looked at, Minecraft's light levels with
+smooth lighting and shaded corners, a sky whose sun crosses it under drifting clouds, and an ImGui
+window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -15,7 +16,7 @@ dotnet run --project 3DEngine.Game                      # the hills of seed 1
 dotnet run --project 3DEngine.Game -- --flat --seed 7   # a flat world to build a test on
 dotnet run --project 3DEngine.Game -- --world house     # a save of its own name
 ./e3d open 3DEngine.Game/bin/Debug/net10.0/3DEngine.Game --hidden --transient
-dotnet test 3DEngine.Game.Tests                         # its light, meshes, body, saves and land
+dotnet test 3DEngine.Game.Tests                         # its light, meshes, mobs, saves and land
 ```
 
 A world is saved under `~/.local/share/3DEngine.Game/saves` on Linux, and the matching local
@@ -33,7 +34,7 @@ driven by `./e3d` should, so it leaves the saves as they were.
 | Space | Jump, or rise while flying or swimming. Pressed twice quickly, start or stop flying |
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
-| Left button | Break the block looked at, four a second while held |
+| Left button | Hit the mob looked at, or break the block looked at, four a second while held |
 | Right button | Place the chosen block against the face looked at, or open or shut a door |
 | Middle button | Pick the block looked at into the hotbar |
 | 1 to 9, wheel | Choose a slot of the hotbar |
@@ -65,13 +66,16 @@ light. `voxel.fill`, `voxel.room` and `voxel.set` change blocks, `voxel.tp`, `vo
 `voxel.distance` the render distance, `voxel.light` reads a block's light levels, `voxel.shade`
 turns the light levels and the shaded corners on or off, `voxel.world` saves the world and opens or
 begins another of a kind and seed, `voxel.save` saves at once, and `voxel.blocks` lists the blocks
-by number and name. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the
-scene's distance field and the sun's shadows, and `voxel.hud` hides what is drawn over the world for
-a capture. Three measure the light: `voxel.flicker` records each frame's change in the picture
-around a turn or a step into a file, with the first frame after it, the settled one and their
-difference beside it, `voxel.ring` reads the last frame's light around a circle on the ground by
-angle, and `voxel.depth` says how far the block under a pixel is. The engine's own `gi.*` and
-`field.*` commands show and measure the light that bounces.
+by number and name. `voxel.mobs` counts the mobs and lists the nearest, `voxel.spawn` places one
+where the crosshair rests, `voxel.attack` hits the one it rests on as the left button does,
+`voxel.still` stops them where they stand for a capture, and `voxel.kill` takes them away.
+`voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the scene's distance field
+and the sun's shadows, and `voxel.hud` hides what is drawn over the world for a capture. Three
+measure the light: `voxel.flicker` records each frame's change in the picture around a turn or a
+step into a file, with the first frame after it, the settled one and their difference beside it,
+`voxel.ring` reads the last frame's light around a circle on the ground by angle, and `voxel.depth`
+says how far the block under a pixel is. The engine's own `gi.*` and `field.*` commands show and
+measure the light that bounces.
 
 ## Biomes
 
@@ -172,7 +176,37 @@ magma or a pile of hay, its front toward the road, with lamp posts along the roa
 fence, or a torch in the desert. A house has a shut oak door with a torch over it, lanterns hanging
 inside and a roof of stairs climbing to a ridge, flat in the desert. Each road follows the ground
 block by block and crosses water on planks, each building stands at its own ground's height on a
-footing of stone, and no tree grows within the village.
+footing of stone, and no tree grows within the village. A villager lives in each house, two in a
+long house, and one keeps each forge and each farm.
+
+## Animals and villagers
+
+Pigs, cows, sheep and chickens graze the plains, the forests and the taiga, and sheep the mountains,
+a herd of two to four of one kind in about a tenth of the columns, placed as a column is first
+generated, as Minecraft places them. A sheep's wool is white, or now and then gray, black, brown or
+pink, about as often as Minecraft's are born so. A villager wears a robe of its village's biome.
+
+A mob stands a few seconds and then walks to a place up to ten blocks off, along a way found through
+the blocks: along the ground and around what stands in it, up a block with a jump, down as far as
+three, and through water where no other way goes, floating in it and climbing out onto a bank. Now
+and then one turns its head to watch the player within six blocks. A hit turns it red for half a
+second, knocks it back and sends it running from place to place for five seconds, and once its
+health is gone it falls onto its side and is taken away, a chicken after four hits, a sheep after
+eight, a pig or a cow after ten and a villager after twenty. A villager wanders within 20 blocks of
+its house by day and from six in the evening to six in the morning goes home, opening the doors in
+its way and shutting them behind it. The player pushes mobs aside, they push each other apart, and
+no block is placed into one.
+
+A mob thinks and moves only while the columns around its own are loaded, so it never walks onto the
+air a column not loaded reads as. The mobs standing in a column go with it when it unloads and come
+back where they stood when it loads, and the save keeps them in `mobs.bin` with the columns that
+have had theirs placed, so a herd or a village's villagers are placed once.
+
+Each piece of a mob, its head, body, legs and a chicken's wings, is a few boxes after Minecraft's
+models, one mesh of colored vertices drawn instanced for every mob of its kind, its legs swinging as
+it walks. Mobs are drawn within 64 blocks, as Minecraft draws its entities, through the engine's own
+shader, so the haze is not on them. They cast shadows, which puts them in the scene's distance field
+too, so the light that bounces takes their colors, a white robe beside a pig turning pink.
 
 ## How the world is drawn
 
@@ -246,12 +280,19 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 
 Textures, and leaves seen through, which are solid. The corners stairs make where two meet, and
 slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
-leaves at a cost, as Minecraft's does. Villagers. Structures read from files rather than built in
-code. Mobs, items, an inventory and survival.
+leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
+Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
+Hostile mobs, items, an inventory and survival.
 
 ## What it costs
 
 Every section within the render distance is drawn each frame, through the scene field's gather
 and the engine's culling of each pass, so the render distance sets much of the frame's cost. It is
-8 by default and up to 16 in the settings window, whose first lines give the frame's time, draws
-and triangles.
+8 by default and up to 16 in the settings window, whose first lines give the frame's time, draws and
+triangles.
+
+A mob standing still costs next to nothing, but each piece of one that walks is a moving mesh, which
+the scene's distance field stamps as a box each frame. Over seed 1's first village with the hills at
+8 columns, the 17 mobs drawn walking cost the field 2.1 ms of the CPU and 1.0 ms of the GPU a frame,
+and a crowd of 76 cost 4.0 and 3.9 ms, the field stamping 256 boxes at most, so the farthest pieces
+of a larger crowd are left out of it.

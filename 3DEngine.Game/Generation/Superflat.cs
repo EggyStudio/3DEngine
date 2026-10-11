@@ -1,6 +1,6 @@
 namespace Engine.Game;
 
-/// <summary>A flat world of bedrock, two layers of dirt and grass, a plain floor to build a test on.</summary>
+/// <summary>A flat world of bedrock, two layers of dirt and grass, a plain floor to build a test on, with the plains' animals.</summary>
 public sealed class Superflat(int seed) : IWorldGenerator
 {
     public string Name => "flat";
@@ -27,6 +27,7 @@ public sealed class Superflat(int seed) : IWorldGenerator
                 column.Set(x, 2, z, BlockId.Dirt);
                 column.Set(x, 3, z, BlockId.Grass);
             }
+        Herds.Place(column, Seed);
         return column;
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.IO.Compression;
+using System.Numerics;
 using System.Text.Json;
 using static Engine.E3D;
 
@@ -13,7 +14,8 @@ public sealed record WorldInfo(string Kind, int Seed, float X, float Y, float Z,
 
 /// <summary>
 /// A world's folder on disk: the columns changed from what the generator makes, in region files of
-/// 32 by 32 columns, and the world's <see cref="WorldInfo"/>.
+/// 32 by 32 columns, the mobs of every column that has had its mobs placed, and the world's
+/// <see cref="WorldInfo"/>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -34,6 +36,7 @@ public sealed class WorldSave
     public const int RegionSize = 32;
     private const int Version = 1;
     private static readonly byte[] Magic = "E3DR"u8.ToArray();
+    private static readonly byte[] MobsMagic = "E3DM"u8.ToArray();
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
     private readonly ConcurrentDictionary<(int X, int Z), byte[]> _kept = new();
@@ -165,6 +168,97 @@ public sealed class WorldSave
     {
         var path = Path.Combine(Folder, "world.json");
         File.WriteAllText(path + ".new", JsonSerializer.Serialize(info, Json));
+        File.Move(path + ".new", path, overwrite: true);
+    }
+
+    /// <summary>
+    /// The mobs kept by each column that has had its mobs placed, read from the folder's mobs file,
+    /// with the columns that have, or none of either for a folder never saved into.
+    /// </summary>
+    /// <remarks>
+    /// A mob is saved by its kind's name, which the file lists once, so kinds added or reordered
+    /// since keep what was saved, and a mob of a kind no longer known is left out.
+    /// </remarks>
+    public (Dictionary<(int X, int Z), List<MobRecord>> Kept, HashSet<(int X, int Z)> Placed) ReadMobs()
+    {
+        var kept = new Dictionary<(int X, int Z), List<MobRecord>>();
+        var placed = new HashSet<(int X, int Z)>();
+        var path = Path.Combine(Folder, "mobs.bin");
+        if (!File.Exists(path)) return (kept, placed);
+        try
+        {
+            using var reader = new BinaryReader(new ZLibStream(File.OpenRead(path), CompressionMode.Decompress));
+            if (!reader.ReadBytes(4).AsSpan().SequenceEqual(MobsMagic) || reader.ReadInt32() != Version)
+                throw new InvalidDataException("it is not a mobs file of this version");
+            var kinds = new MobKind?[reader.ReadInt32()];
+            for (int i = 0; i < kinds.Length; i++) kinds[i] = MobKinds.Find(reader.ReadString());
+            var columns = reader.ReadInt32();
+            for (int c = 0; c < columns; c++)
+            {
+                var key = (reader.ReadInt32(), reader.ReadInt32());
+                placed.Add(key);
+                var count = reader.ReadUInt16();
+                var list = new List<MobRecord>(count);
+                for (int m = 0; m < count; m++)
+                {
+                    var number = reader.ReadByte();
+                    var kind = number < kinds.Length ? kinds[number] : null;
+                    var variant = reader.ReadByte();
+                    var at = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    var yaw = reader.ReadSingle();
+                    var health = reader.ReadByte();
+                    Vector3? home = reader.ReadBoolean() ? new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()) : null;
+                    if (kind is not null) list.Add(new MobRecord(kind, (byte)(variant % kind.Variants.Length), at, yaw, Math.Clamp((int)health, 1, kind.Health), home));
+                }
+                if (list.Count > 0) kept[key] = list;
+            }
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or EndOfStreamException)
+        {
+            // The columns' mobs are placed again by their generator rather than the world not loading.
+            TraceLog(LogLevel.Warning, $"{path} could not be read, so the columns' mobs are placed again: {ex.Message}");
+            kept.Clear();
+            placed.Clear();
+        }
+        return (kept, placed);
+    }
+
+    /// <summary>Writes the mobs of every column that has had its mobs placed, those with none among them, to a file beside the old one that then takes its name.</summary>
+    public void WriteMobs(IEnumerable<((int X, int Z) Column, IReadOnlyList<MobRecord> Mobs)> columns)
+    {
+        var path = Path.Combine(Folder, "mobs.bin");
+        var list = columns.ToList();
+        using (var writer = new BinaryWriter(new ZLibStream(File.Create(path + ".new"), CompressionLevel.Fastest)))
+        {
+            writer.Write(MobsMagic);
+            writer.Write(Version);
+            writer.Write(MobKinds.All.Length);
+            foreach (var kind in MobKinds.All) writer.Write(kind.Name);
+            writer.Write(list.Count);
+            foreach (var ((x, z), mobs) in list)
+            {
+                writer.Write(x);
+                writer.Write(z);
+                writer.Write((ushort)mobs.Count);
+                foreach (var mob in mobs)
+                {
+                    writer.Write(mob.Kind.Id);
+                    writer.Write(mob.Variant);
+                    writer.Write(mob.Position.X);
+                    writer.Write(mob.Position.Y);
+                    writer.Write(mob.Position.Z);
+                    writer.Write(mob.Yaw);
+                    writer.Write((byte)Math.Clamp(mob.Health, 0, 255));
+                    writer.Write(mob.Home is not null);
+                    if (mob.Home is { } home)
+                    {
+                        writer.Write(home.X);
+                        writer.Write(home.Y);
+                        writer.Write(home.Z);
+                    }
+                }
+            }
+        }
         File.Move(path + ".new", path, overwrite: true);
     }
 

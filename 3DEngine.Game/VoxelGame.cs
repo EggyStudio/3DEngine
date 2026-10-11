@@ -4,13 +4,16 @@ using static Engine.E3D;
 
 namespace Engine.Game;
 
-/// <summary>The game's state and its frame: the world, the player, the sky, and what is drawn over them.</summary>
+/// <summary>The game's state and its frame: the world, its mobs, the player, the sky, and what is drawn over them.</summary>
 public sealed class VoxelGame : IDisposable
 {
     private const float Reach = 5;
     // Holding a mouse button breaks or places a block four times a second, as creative mode does.
     private const float Repeat = 0.25f;
     private const double MeshBudgetMs = 4;
+
+    // A hit takes this much of a mob's health, a hand's in Minecraft.
+    private const int HandDamage = 1;
 
     // The changed columns and the player are saved this often, beside a save on leaving a world.
     private const float SaveSeconds = 30;
@@ -36,6 +39,11 @@ public sealed class VoxelGame : IDisposable
     }
 
     public VoxelWorld World { get; private set; } = null!;
+
+    /// <summary>The animals and villagers of the loaded columns, and those the unloaded ones keep.</summary>
+    public Mobs Mobs { get; private set; } = null!;
+
+    public MobRenderer MobRenderer { get; } = new();
 
     public ChunkStreamer Streamer { get; private set; } = null!;
 
@@ -64,8 +72,11 @@ public sealed class VoxelGame : IDisposable
     /// </remarks>
     public int RenderDistance { get; set; } = 8;
 
-    /// <summary>The block the crosshair rests on, as of this frame.</summary>
+    /// <summary>The block the crosshair rests on, as of this frame, or null where a mob stands before it.</summary>
     public BlockHit? Target { get; private set; }
+
+    /// <summary>The mob the crosshair rests on within <see cref="Mobs.Reach"/>, as of this frame, nearer than any block.</summary>
+    public Mob? TargetMob { get; private set; }
 
     public bool HudHidden { get; set; }
 
@@ -94,8 +105,10 @@ public sealed class VoxelGame : IDisposable
         var generator = (info is null ? null : Generators.Create(info.Kind, info.Seed)) ?? Generators.Create(kind, seed) ?? new Overworld(seed);
         Renderer.Clear();
         World = new VoxelWorld(generator);
+        var (kept, placed) = Save?.ReadMobs() ?? ([], []);
+        Mobs = new Mobs(kept, placed);
         // The old streamer's workers finish into its own queue, which nothing reads again.
-        Streamer = new ChunkStreamer(World, Renderer, Save);
+        Streamer = new ChunkStreamer(World, Renderer, Mobs, Save);
         Clouds.Follow(generator.Seed);
         _sinceSave = 0;
 
@@ -120,6 +133,7 @@ public sealed class VoxelGame : IDisposable
         foreach (var column in World.Columns)
             if (column.Changed) Save.Keep(column);
         Save.Flush();
+        Save.WriteMobs(Mobs.Columns());
         var at = Player.Body.Position;
         Save.WriteInfo(new WorldInfo(World.Generator.Name, World.Generator.Seed, at.X, at.Y, at.Z,
             Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)]));
@@ -152,7 +166,8 @@ public sealed class VoxelGame : IDisposable
 
         Hotbar.Update(keys, _captured);
         Player.Update(World, seconds, look: _captured, move: keys);
-        Target = VoxelRay.Cast(World, Player.Eye, Player.Look, Reach);
+        Mobs.Update(World, Player.Body, Player.Eye, Sky.Hour, seconds);
+        Aim();
         if (_captured && !_swallowClick) Interact(seconds);
 
         Sky.Update(seconds);
@@ -160,6 +175,18 @@ public sealed class VoxelGame : IDisposable
         Clouds.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
+    }
+
+    // The block and the mob the crosshair rests on, a mob before a block hiding it.
+    private void Aim()
+    {
+        Target = VoxelRay.Cast(World, Player.Eye, Player.Look, Reach);
+        TargetMob = null;
+        if (Mobs.Cast(Player.Eye, Player.Look, Mobs.Reach) is { } met && (Target is not { } hit || met.Distance < hit.Distance))
+        {
+            TargetMob = met.Mob;
+            Target = null;
+        }
     }
 
     private void Toggles()
@@ -200,7 +227,7 @@ public sealed class VoxelGame : IDisposable
         if (IsMouseButtonDown(MouseButton.Left) && _breakWait <= 0)
         {
             _breakWait = Repeat;
-            Break();
+            if (!Attack()) Break();
         }
         if (IsMouseButtonDown(MouseButton.Right) && _placeWait <= 0)
         {
@@ -211,6 +238,9 @@ public sealed class VoxelGame : IDisposable
             Hotbar.Pick(Blocks.Get(World.GetBlock(hit.X, hit.Y, hit.Z)).Item);
     }
 
+    /// <summary>Hits the mob the crosshair rests on, unless it is still red from the last hit.</summary>
+    public bool Attack() => TargetMob is { } mob && mob.Hit(Player.Body.Position, HandDamage);
+
     /// <summary>Breaks the block the crosshair rests on, unless it cannot be broken.</summary>
     public bool Break()
     {
@@ -220,7 +250,7 @@ public sealed class VoxelGame : IDisposable
 
     /// <summary>
     /// Places a block against the face the crosshair rests on, unless it would take up some of the
-    /// player: a torch or a lantern the way of it that has a block to hold to, stairs climbing the
+    /// player or of a mob: a torch or a lantern the way of it that has a block to hold to, stairs climbing the
     /// way the player looks, a door two blocks high, and a slab on the open half of a slab of its
     /// kind joined to it as the whole block. A door met is opened or shut instead.
     /// </summary>
@@ -249,7 +279,8 @@ public sealed class VoxelGame : IDisposable
         {
             BlockId lower = Blocks.Variant(block, look), upper = Blocks.Variant(block, look, true);
             if (there != BlockId.Air || World.GetBlock(x, y + 1, z) != BlockId.Air || !Blocks.IsSturdy(World.GetBlock(x, y - 1, z))
-                || Player.Body.Overlaps(x, y, z, Blocks.Get(lower).Boxes) || Player.Body.Overlaps(x, y + 1, z, Blocks.Get(upper).Boxes)) return BlockId.Air;
+                || Player.Body.Overlaps(x, y, z, Blocks.Get(lower).Boxes) || Player.Body.Overlaps(x, y + 1, z, Blocks.Get(upper).Boxes)
+                || Mobs.Overlaps(x, y, z, Blocks.Get(lower).Boxes) || Mobs.Overlaps(x, y + 1, z, Blocks.Get(upper).Boxes)) return BlockId.Air;
             World.SetBlock(x, y + 1, z, upper);
             return World.SetBlock(x, y, z, lower) ? lower : BlockId.Air;
         }
@@ -260,7 +291,7 @@ public sealed class VoxelGame : IDisposable
             placed = joined;
         // A whole block goes into air or water, the water giving way to it, and a smaller one into air.
         else if (there != BlockId.Air && !Blocks.IsWater(there) || Blocks.Get(placed).Shape is not null && there != BlockId.Air) return BlockId.Air;
-        if (Player.Body.Overlaps(x, y, z, Blocks.Get(placed).Boxes)) return BlockId.Air;
+        if (Player.Body.Overlaps(x, y, z, Blocks.Get(placed).Boxes) || Mobs.Overlaps(x, y, z, Blocks.Get(placed).Boxes)) return BlockId.Air;
         return World.SetBlock(x, y, z, placed) ? placed : BlockId.Air;
     }
 
@@ -278,6 +309,7 @@ public sealed class VoxelGame : IDisposable
         BeginMode3D(Player.Camera);
         DrawSkybox();
         Renderer.Draw(Player.Eye, RenderDistance);
+        MobRenderer.Draw(Mobs.All, Player.Eye);
         Clouds.Draw(Player.Eye, RenderDistance, Sky.Horizon);
         if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.ShapeAt(hit.X, hit.Y, hit.Z));
         EndMode3D();
@@ -329,6 +361,7 @@ public sealed class VoxelGame : IDisposable
     {
         SaveWorld();
         Renderer.Dispose();
+        MobRenderer.Dispose();
         Clouds.Dispose();
     }
 }

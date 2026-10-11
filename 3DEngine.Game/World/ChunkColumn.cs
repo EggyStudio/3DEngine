@@ -35,6 +35,9 @@ public sealed class ChunkColumn
     /// <summary>The biome of each place, by its id in <see cref="Biomes.All"/>, as <see cref="GrassTint"/> is laid out.</summary>
     public readonly byte[] Biome = new byte[Section.Size * Section.Size];
 
+    /// <summary>The mobs its generator placed in it, which the world's <see cref="Mobs"/> takes the first time it loads.</summary>
+    public readonly List<MobRecord> Spawns = [];
+
     /// <summary>The block at a place inside the column, x and z from 0 to 15 and y from 0 to <see cref="Height"/> less one.</summary>
     public BlockId Get(int x, int y, int z) => Sections[y >> Section.Shift].Get(x, y & Section.Mask, z);
 

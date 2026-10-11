@@ -12,7 +12,7 @@ public class BodyTests
     public void A_Falling_Body_Lands_On_The_Floor_And_Stands_On_It()
     {
         var world = Floor();
-        var body = new PlayerBody { Position = new Vector3(4.5f, 15, 4.5f) };
+        var body = new Body { Position = new Vector3(4.5f, 15, 4.5f) };
 
         body.Move(world, new Vector3(0, -10, 0), keepToEdges: false);
 
@@ -26,11 +26,11 @@ public class BodyTests
         var world = Floor();
         world.SetBlock(7, 11, 4, BlockId.Stone);
         world.SetBlock(7, 12, 4, BlockId.Stone);
-        var body = new PlayerBody { Position = new Vector3(4.5f, 11, 4.5f) };
+        var body = new Body { Position = new Vector3(4.5f, 11, 4.5f) };
 
         body.Move(world, new Vector3(5, 0, 0), keepToEdges: false);
 
-        Assert.Equal(7 - PlayerBody.HalfWidth, body.Position.X, 4);
+        Assert.Equal(7 - body.HalfWidth, body.Position.X, 4);
     }
 
     [Fact]
@@ -41,12 +41,12 @@ public class BodyTests
         for (int z = 0; z < 16; z++)
             for (int x = 6; x < 16; x++)
                 world.SetBlock(x, 10, z, BlockId.Air);
-        var body = new PlayerBody { Position = new Vector3(5.5f, 11, 4.5f) };
+        var body = new Body { Position = new Vector3(5.5f, 11, 4.5f) };
         body.Move(world, new Vector3(0, -0.01f, 0), keepToEdges: false);
 
         body.Move(world, new Vector3(2, 0, 0), keepToEdges: true);
 
-        Assert.True(body.Position.X < 6 + PlayerBody.HalfWidth);
+        Assert.True(body.Position.X < 6 + body.HalfWidth);
         Assert.Equal(11, body.Position.Y);
     }
 
@@ -58,7 +58,7 @@ public class BodyTests
             Laid.Fill(c, 0, 10, BlockId.Stone);
             Laid.Fill(c, 11, 14, BlockId.Water);
         });
-        var body = new PlayerBody { Position = new Vector3(4.5f, 16, 4.5f) };
+        var body = new Body { Position = new Vector3(4.5f, 16, 4.5f) };
 
         body.Move(world, new Vector3(0, -10, 0), keepToEdges: false);
 
@@ -87,8 +87,8 @@ public class BodyTests
         var world = Floor();
         world.SetBlock(6, 11, 4, BlockId.StoneSlab);
         world.SetBlock(6, 11, 8, BlockId.Stone);
-        var onSlab = new PlayerBody { Position = new Vector3(4.5f, 11, 4.5f) };
-        var atBlock = new PlayerBody { Position = new Vector3(4.5f, 11, 8.5f) };
+        var onSlab = new Body { Position = new Vector3(4.5f, 11, 4.5f) };
+        var atBlock = new Body { Position = new Vector3(4.5f, 11, 8.5f) };
         onSlab.Move(world, new Vector3(0, -0.01f, 0), keepToEdges: false);
         atBlock.Move(world, new Vector3(0, -0.01f, 0), keepToEdges: false);
 
@@ -101,7 +101,7 @@ public class BodyTests
         Assert.Equal(11.5f, onSlab.Position.Y, 4);
         Assert.Equal(6.5f, onSlab.Position.X, 4);
         Assert.Equal(11, atBlock.Position.Y, 4);
-        Assert.Equal(6 - PlayerBody.HalfWidth, atBlock.Position.X, 4);
+        Assert.Equal(6 - atBlock.HalfWidth, atBlock.Position.X, 4);
     }
 
     [Fact]
@@ -110,14 +110,14 @@ public class BodyTests
         var world = Floor();
         world.SetBlock(6, 11, 4, BlockId.Lantern);
         world.SetBlock(6, 11, 8, BlockId.Torch);
-        var atLantern = new PlayerBody { Position = new Vector3(4.5f, 11, 4.5f) };
-        var atTorch = new PlayerBody { Position = new Vector3(4.5f, 11, 8.5f) };
+        var atLantern = new Body { Position = new Vector3(4.5f, 11, 4.5f) };
+        var atTorch = new Body { Position = new Vector3(4.5f, 11, 8.5f) };
 
         atLantern.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
         atTorch.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
 
         // The lantern's glass begins 5/16 into its cell, and the body climbs no lantern of half a block.
-        Assert.Equal(6 + 5 / 16f - PlayerBody.HalfWidth, atLantern.Position.X, 4);
+        Assert.Equal(6 + 5 / 16f - atLantern.HalfWidth, atLantern.Position.X, 4);
         Assert.Equal(7.5f, atTorch.Position.X, 4);
     }
 
@@ -127,10 +127,10 @@ public class BodyTests
         var world = Floor();
         for (int z = 0; z < 16; z++) world.SetBlock(6, 11, z, BlockId.OakFence);
         // Rising by a block and a quarter, more than the fence's post and less than its box.
-        var body = new PlayerBody { Position = new Vector3(4.5f, 12.25f, 4.5f) };
+        var body = new Body { Position = new Vector3(4.5f, 12.25f, 4.5f) };
 
         body.Move(world, new Vector3(3, 0, 0), keepToEdges: false);
 
-        Assert.True(body.Position.X < 6 + PlayerBody.HalfWidth);
+        Assert.True(body.Position.X < 6 + body.HalfWidth);
     }
 }

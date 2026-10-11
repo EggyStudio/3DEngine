@@ -48,13 +48,14 @@ public sealed class SettingsWindow
         var at = player.Body.Position;
         ImGui.TextUnformatted($"{GetFPS()} fps, {GetFrameTime() * 1000:0.0} ms a frame");
         ImGui.TextUnformatted($"Feet at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}, facing {player.Heading:0} degrees{(player.Flying ? ", flying" : "")}, in {game.World.BiomeAt((int)MathF.Floor(at.X), (int)MathF.Floor(at.Z))?.Name ?? "nowhere loaded"}");
-        ImGui.TextUnformatted(game.Target is { } hit
-            ? $"Looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Name} at {hit.X}, {hit.Y}, {hit.Z}, its face's light {LightBeside(game, hit)}"
+        ImGui.TextUnformatted(game.TargetMob is { } mob ? $"Looking at a {mob.Kind.Name}, {mob.Doing}, its health {mob.Health} of {mob.Kind.Health}"
+            : game.Target is { } hit ? $"Looking at {Blocks.Get(game.World.GetBlock(hit.X, hit.Y, hit.Z)).Name} at {hit.X}, {hit.Y}, {hit.Z}, its face's light {LightBeside(game, hit)}"
             : "Looking at nothing within reach");
         var renderer = game.Renderer;
         ImGui.TextUnformatted($"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh");
         ImGui.TextUnformatted($"{renderer.Sections} sections drawn as a mesh each, {renderer.Lamps} lamps");
         ImGui.TextUnformatted($"{renderer.Draws} draws of {renderer.Triangles:N0} triangles");
+        ImGui.TextUnformatted($"{game.Mobs.All.Count} mobs loaded, {game.MobRenderer.Drawn} drawn in {game.MobRenderer.Draws} draws, {game.Mobs.Kept} kept by columns not loaded");
     }
 
     private static string LightBeside(VoxelGame game, BlockHit hit)
@@ -128,6 +129,8 @@ public sealed class SettingsWindow
         if (ImGui.Checkbox($"Clouds, {game.Clouds.Faces} faces###clouds", ref clouds)) game.Clouds.Shown = clouds;
         var distance = game.RenderDistance;
         if (ImGui.SliderInt("Render distance", ref distance, 2, 16)) game.RenderDistance = distance;
+        var still = game.Mobs.Still;
+        if (ImGui.Checkbox("Mobs stand still", ref still)) game.Mobs.Still = still;
         ImGui.TextUnformatted(game.Save is { } save ? $"Saved in {save.Folder} every 30 seconds" : "Transient, not saved");
         if (game.Save is not null && ImGui.Button("Save now")) game.SaveWorld();
         ImGui.Combo("Kind", ref _worldType, Worlds, Worlds.Length);
