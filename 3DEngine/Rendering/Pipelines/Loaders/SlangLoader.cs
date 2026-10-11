@@ -63,13 +63,21 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// <summary>
     /// The names a built-in shader is compiled with beside its plain build where it mentions them,
     /// each for a capability some devices lack or a frame that needs less: <c>RAY_QUERY</c> for the
-    /// GPU's own ray tracing, and <c>NO_GLOW_LIGHTS</c> for the model pass's build for a frame with
-    /// no glow lights, which leaves half its fragment stage out.
+    /// GPU's own ray tracing, <c>NO_GLOW_LIGHTS</c> for the model pass's build for a frame with no
+    /// glow lights, which leaves half its fragment stage out, and <c>NO_BOUNCE</c> for its build for
+    /// a frame where no light bounces, which leaves the bounce and the glow lights out.
     /// </summary>
     /// <remarks>
     /// A build's names are given in this order, since the cache keys a build by them as given.
     /// </remarks>
-    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS"];
+    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS", "NO_BOUNCE"];
+
+    /// <summary>
+    /// The <see cref="Variants"/> built alone and never with another, since each leaves out all
+    /// the others would change: the model pass traces rays and marches to the glow lights only
+    /// where light bounces.
+    /// </summary>
+    internal static readonly string[] Alone = ["NO_BOUNCE"];
 
     /// <summary>Compiles every entry point in <paramref name="source"/>.</summary>
     /// <param name="source">The Slang source.</param>
@@ -151,13 +159,17 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
 
     /// <summary>
     /// The builds of <paramref name="source"/> beside its plain one: each set of the <see
-    /// cref="Variants"/> it mentions, its names in their order.
+    /// cref="Variants"/> it mentions, its names in their order, and each it mentions of those
+    /// built <see cref="Alone"/> by itself.
     /// </summary>
     internal static IEnumerable<string[]> BuildsOf(string source, string importDirectory)
     {
         var named = VariantsOf(source, importDirectory).ToArray();
-        for (int set = 1; set < 1 << named.Length; set++)
-            yield return [.. named.Where((_, i) => (set >> i & 1) != 0)];
+        var together = named.Except(Alone).ToArray();
+        for (int set = 1; set < 1 << together.Length; set++)
+            yield return [.. together.Where((_, i) => (set >> i & 1) != 0)];
+        foreach (var alone in named.Intersect(Alone))
+            yield return [alone];
     }
 
     /// <summary>Finds the functions marked with a stage attribute, in the order they appear.</summary>

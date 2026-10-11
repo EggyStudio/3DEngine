@@ -269,6 +269,18 @@ public class SlangCompilerTests : IDisposable
     }
 
     [Fact]
+    public void The_Model_Pass_Is_Built_For_Each_Set_Of_What_It_Names_And_Without_The_Bounce_Alone()
+    {
+        // A frame where no light bounces draws with the build that leaves the bounce out, which
+        // traces no rays and marches to no glow light, so it is made with neither.
+        var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
+        var model = File.ReadAllText(Path.Combine(shaders, "model.slang"));
+        SlangLoader.BuildsOf(model, shaders).Select(build => string.Join(' ', build)).Should()
+            .Equal("RAY_QUERY", "NO_GLOW_LIGHTS", "RAY_QUERY NO_GLOW_LIGHTS", "NO_BOUNCE");
+        SlangLoader.BuildsOf(File.ReadAllText(Path.Combine(shaders, "immediate.slang")), shaders).Should().BeEmpty();
+    }
+
+    [Fact]
     public void Layouts_Merge_By_Binding_The_First_Giving_The_Kind_And_Each_Its_Stages()
     {
         var merged = ShaderProgram.Merge(

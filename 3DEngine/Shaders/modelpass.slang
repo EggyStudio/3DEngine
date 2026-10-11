@@ -492,9 +492,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     // stands in for the diffuse share of the light from all around, the environment's, a probe's
     // and the ambient lights', its rays having met that light where they met nothing.
     float3 bouncedHere = float3(-1.0);
-    bool screen = lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
+    bool screen = Bouncing && lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
     ScreenProbesHere probes = screenProbesHere(input, normalize(input.normal));
-    if (lighting.indirect.x > 0.0)
+    if (Bouncing && lighting.indirect.x > 0.0)
     {
         if (screen)
             bouncedHere = screenBounced(probes);

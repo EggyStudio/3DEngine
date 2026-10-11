@@ -1260,17 +1260,19 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 52. `build/webp.sh` fits a capture with cwebp where it is installed, the box of the size's
-shape cut from the source's own pixels by `-crop`, its place by the gravity and the source's size
-read from the PNG's header, and scaled by `-resize` in the same call that encodes it, so the
-examples job, whose runner has cwebp from its apt line and no ImageMagick, needs nothing more.
-ImageMagick fits it where cwebp is absent, its temporary file made without GNU's `mktemp --suffix`,
-which macOS's `mktemp` does not read. A picture of 640 by 480 fitted both ways reads 0.04 to 0.08
-levels apart on average, the two scaling a hard edge differently. A test in `ScriptTests` fits a
-square, a four by three and a strip to 800 by 450 from three gravities and reads the size back,
-passing here through ImageMagick and in a container with cwebp alone. `build/capture-examples.sh`
-stops at the first capture that fails on `webp.sh`'s own line, which every capture after it would
-fail the same way, and `build/first-game.sh` says a step that does not build, does not run to its
-thirtieth frame or logs an error in an error annotation naming the step and the system, with the
-compiler's lines or the log's last. The macOS job's brew line is left as it was. The suite passes,
-1,686.
+Verdict 48, its third remedy. A frame where no light bounces draws with a build of the model pass
+that leaves out the bounce, the traced reflection and the glow lights, `NO_BOUNCE`, which
+`lights.slang` reads as `Bouncing` and which makes `Glowing` false with it. `ModelRenderer` takes
+the build each frame (`ModelBuild`): unbounced where `GlobalIlluminationRenderer.CascadesIn` is
+none, which every view's lighting then says, the build without the glow lights where light bounces
+with none of them, and the whole otherwise. The fragment stage is 55,228 bytes of SPIR-V, the same
+with `RAY_QUERY`, against 124,660 without the glow lights and 253,212 whole, so `e3d shaders`
+builds `NO_BOUNCE` alone (`SlangLoader.Alone`), five builds of each shader that imports
+`modelpass`, which a test of the loader and the package's test count, the pack 92 seconds where 81.
+Four apps in one process on this host's lavapipe with Mesa's cache off, each drawing a lit cube,
+took 1.30 to 1.42 seconds after the first, against 2.11 to 2.51 with the build without the glow
+lights and 3.90 to 4.08 whole, the device's last wait 0.79 to 0.89. The test of the pick reads the
+three builds as the lamp comes and goes and the bounce is turned off. The suite passes, 1,686; on
+lavapipe under the validation layer 397 pass with 8 skipped for rays and no VUID, the Rendering
+group in 10.2 minutes where 10.7; the glowstone room faulted in none of 8 runs. Verdict 51 is read
+on the next Windows page.

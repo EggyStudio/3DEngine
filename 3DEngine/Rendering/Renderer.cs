@@ -66,12 +66,17 @@ internal sealed class Renderer : IDisposable
         string[] rays = [];
         if (Context.Graphics is GraphicsDevice { CanQueryRays: true } && Build("model.slang", ["RAY_QUERY"], "The model pass traces no rays") is { } traced)
             (model, rays) = (traced, ["RAY_QUERY"]);
-        // And its builds for a frame with no glow lights, which leave their marches out, half the
-        // fragment stage, that lavapipe compiles as it first draws with each pipeline.
-        var (lampless, lamplessStreams) = Context.Graphics is GraphicsDevice
-            ? (Build("model.slang", [.. rays, "NO_GLOW_LIGHTS"], "The model pass draws every frame with the glow lights' marches"),
-               Build("model_streams.slang", ["NO_GLOW_LIGHTS"], "The model pass draws every frame with the glow lights' marches"))
-            : (null, null);
+        // And its builds for a frame that needs less, which lavapipe compiles as it first draws
+        // with each pipeline: one for a frame with no glow lights, which leaves their marches out,
+        // half the fragment stage, and one for a frame where no light bounces, which leaves the
+        // bounce out with them and traces no rays.
+        const string Whole = "The model pass draws such a frame whole";
+        var lampless = Context.Graphics is GraphicsDevice
+            ? (Build("model.slang", [.. rays, "NO_GLOW_LIGHTS"], Whole), Build("model_streams.slang", ["NO_GLOW_LIGHTS"], Whole))
+            : default;
+        var unbounced = Context.Graphics is GraphicsDevice
+            ? (Build("model.slang", ["NO_BOUNCE"], Whole), Build("model_streams.slang", ["NO_BOUNCE"], Whole))
+            : default;
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
         var shadow = server.LoadSync<ShaderProgram>("shaders/shadow.slang");
         if (Context.Graphics is GraphicsDevice device)
@@ -96,7 +101,7 @@ internal sealed class Renderer : IDisposable
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),
-            server.LoadSync<ShaderProgram>("shaders/subsurface.slang"), lampless, lamplessStreams));
+            server.LoadSync<ShaderProgram>("shaders/subsurface.slang"), lampless, unbounced));
         RenderWorld.Set(new SubsurfaceRenderer(server.LoadSync<ShaderProgram>("shaders/subsurface_blur.slang")));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");

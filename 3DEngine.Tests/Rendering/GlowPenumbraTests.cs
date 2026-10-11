@@ -97,23 +97,26 @@ public sealed class GlowPenumbraTests : IDisposable
     }
 
     [NeedsVulkanFact]
-    public void A_Frame_With_No_Glow_Light_Draws_With_The_Build_That_Leaves_Them_Out()
+    public void Each_Frame_Draws_With_The_Build_That_Leaves_Out_What_It_Does_Not_Hold()
     {
-        // The model pass's fragment stage without the glow lights' marches is under half the
-        // whole's, 124,628 bytes of SPIR-V to 253,180, which lavapipe compiles as it first draws
-        // with each pipeline. Each frame takes its build by its own glow lights, so the lamp shows
-        // in the frame it is placed in, as the test of a lamp placed reads.
+        // The model pass's fragment stage is 253,212 bytes of SPIR-V whole, 124,660 without the
+        // glow lights' marches and 55,228 without the bounce as well, which lavapipe compiles as it
+        // first draws with each pipeline. Each frame takes its build by its own glow lights and
+        // bounce, so the lamp shows in the frame it is placed in, as the test of a lamp placed reads.
         using var scene = new Scene(screenOff: false);
         var models = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<ModelRenderer>()!;
         scene.Lamp = false;
         scene.Frames(2);
-        models.DrewLampless.Should().BeTrue("the frame holds no glow light");
+        models.Drew.Should().Be(ModelBuild.Lampless, "the frame holds no glow light");
         scene.Lamp = true;
         scene.Frames(1);
-        models.DrewLampless.Should().BeFalse("the lamp placed is a glow light");
+        models.Drew.Should().Be(ModelBuild.Whole, "the lamp placed is a glow light");
         scene.Lamp = false;
         scene.Frames(1);
-        models.DrewLampless.Should().BeTrue("the lamp taken away leaves none");
+        models.Drew.Should().Be(ModelBuild.Lampless, "the lamp taken away leaves none");
+        SetGlobalIllumination(GlobalIllumination.Off);
+        scene.Frames(1);
+        models.Drew.Should().Be(ModelBuild.Unbounced, "no light bounces");
     }
 
     // How far a line strays from another on average, as a share of the light at each point, the

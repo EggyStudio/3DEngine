@@ -4,6 +4,24 @@ using System.Runtime.CompilerServices;
 
 namespace Engine;
 
+/// <summary>
+/// Which build of the model pass draws a frame, each leaving out what a frame may not hold, which
+/// lavapipe compiles as it first draws with each pipeline: the whole, the one without the glow
+/// lights' marches, half the fragment stage, and the one without the bounce and the traced
+/// reflection besides, a fifth of it.
+/// </summary>
+internal enum ModelBuild
+{
+    /// <summary>The whole, for a frame with glow lights.</summary>
+    Whole,
+
+    /// <summary>Without the glow lights, for a frame where light bounces with none (<c>NO_GLOW_LIGHTS</c>).</summary>
+    Lampless,
+
+    /// <summary>Without the bounce, the traced reflection and the glow lights, for a frame where no light bounces (<c>NO_BOUNCE</c>).</summary>
+    Unbounced,
+}
+
 internal sealed partial class ModelRenderer
 {
     // Which faces of a draw are left out, whether it is drawn as points, blended and writes its
@@ -14,27 +32,21 @@ internal sealed partial class ModelRenderer
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
     // front ones out, filled or as points, blended or written as they are, writing its depth or
-    // not, through model_streams.slang for a mesh with streams, and with the build that leaves the
-    // glow lights out where lampless and that build was made.
+    // not, through model_streams.slang for a mesh with streams, and with the build given where it
+    // was made and the whole where it was not.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None, bool depth = true, bool lampless = false)
+        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole)
     {
-        var lamplessSpv = streams == Streams.None ? _lamplessFragmentSpv : _lamplessStreamsFragmentSpv;
-        lampless &= lamplessSpv is not null;
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, lampless), out var made)) return made;
+        var (spvs, shaders) = streams == Streams.None ? (_fragmentSpvs, _fragmentShaders) : (_streamsFragmentSpvs, _streamsFragmentShaders);
+        if (spvs[(int)build] is null) build = ModelBuild.Whole;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         var vertex = streams == Streams.None
             ? _vertexShader
             : _streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv));
-        var fragment = (streams == Streams.None, lampless) switch
-        {
-            (true, false) => _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv)),
-            (false, false) => _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)),
-            (true, true) => _lamplessFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, lamplessSpv!)),
-            (false, true) => _lamplessStreamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, lamplessSpv!)),
-        };
-        return _pipelines[(renderPass, cull, points, blend, streams, depth, lampless)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
+        var fragment = shaders[(int)build] ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, spvs[(int)build]!));
+        return _pipelines[(renderPass, cull, points, blend, streams, depth, build)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
             blend: blend, streams: streams, depth: depth);
     }
 

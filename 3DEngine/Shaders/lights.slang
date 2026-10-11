@@ -9,11 +9,18 @@ import scenefield;
 import gi;
 import color;
 
-// Whether this build of the model pass shades the glow lights, which it leaves out where it is
-// compiled with NO_GLOW_LIGHTS, as ModelRenderer draws a frame that has none, since their marches
-// are half of its fragment stage and lavapipe compiles each pipeline's variants as it first draws
-// with them.
-#if defined(NO_GLOW_LIGHTS)
+// Whether this build of the model pass reads the light that bounces and a glossy surface's traced
+// reflection, which it leaves out where it is compiled with NO_BOUNCE, as ModelRenderer draws a
+// frame where no light bounces, and whether it shades the glow lights, which it leaves out where it
+// is compiled with NO_GLOW_LIGHTS or NO_BOUNCE, as it draws a frame that has none. Their marches
+// are half of its fragment stage, the bounce most of the rest, and lavapipe compiles each
+// pipeline's variants as it first draws with them.
+#if defined(NO_BOUNCE)
+public static const bool Bouncing = false;
+#else
+public static const bool Bouncing = true;
+#endif
+#if defined(NO_GLOW_LIGHTS) || defined(NO_BOUNCE)
 public static const bool Glowing = false;
 #else
 public static const bool Glowing = true;
@@ -375,7 +382,7 @@ public float skySeen(float3 p, float3 n, float3 r)
 // reaching it, as the light that bounces shades a hit.
 public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, float3 eye)
 {
-    if (lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
+    if (!Bouncing || lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
         return float4(0.0);
     float probes = lighting.indirect.z, spacing = lighting.indirect.y, cascades = lighting.indirect.w;
     float cell = max(fieldCell(bouncedField, p), 0.02);

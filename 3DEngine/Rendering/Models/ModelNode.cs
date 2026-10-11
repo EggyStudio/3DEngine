@@ -138,25 +138,20 @@ internal sealed partial class ModelRenderer : IDisposable
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _streamsVertexSpv;
-    private readonly ReadOnlyMemory<byte> _streamsFragmentSpv;
     private IShader? _streamsVertexShader;
-    private IShader? _streamsFragmentShader;
-    private readonly ReadOnlyMemory<byte> _fragmentSpv;
     private readonly ReadOnlyMemory<byte> _shadowVertexSpv;
     private readonly ReadOnlyMemory<byte> _shadowMaskSpv;
     private IShader? _shadowVertexShader;
     private IShader? _shadowMaskShader;
     private IPipeline? _shadowMaskPipeline;
     private IShader? _vertexShader;
-    private IShader? _fragmentShader;
-    // The fragment stages built for a frame with no glow lights, model.slang's and
-    // model_streams.slang's, which leave their marches out, or none where they were not made and
-    // every frame draws with the whole.
-    private readonly byte[]? _lamplessFragmentSpv, _lamplessStreamsFragmentSpv;
-    private IShader? _lamplessFragmentShader, _lamplessStreamsFragmentShader;
+    // The fragment stages of each build, model.slang's and model_streams.slang's, by ModelBuild,
+    // none for a build that was not made, whose frames draw with the whole.
+    private readonly byte[]?[] _fragmentSpvs = new byte[]?[3], _streamsFragmentSpvs = new byte[]?[3];
+    private readonly IShader?[] _fragmentShaders = new IShader?[3], _streamsFragmentShaders = new IShader?[3];
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Lampless), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build), IPipeline> _pipelines = [];
 
     // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
@@ -335,19 +330,21 @@ internal sealed partial class ModelRenderer : IDisposable
     /// <param name="shadow">The compiled <c>shadow.slang</c>.</param>
     /// <param name="streams">The compiled <c>model_streams.slang</c>, for a mesh with a color or a second texture coordinate at each vertex, or none where every mesh is drawn with <c>model.slang</c>.</param>
     /// <param name="subsurface">The compiled <c>subsurface.slang</c>, which draws the window's meshes that scatter light under their surface again for <see cref="SubsurfaceRenderer"/>, or none where no light scatters.</param>
-    /// <param name="lampless"><c>model.slang</c> compiled with <c>NO_GLOW_LIGHTS</c>, as <paramref name="model"/> was otherwise, which draws a frame with no glow lights, or none where every frame draws with <paramref name="model"/>.</param>
-    /// <param name="lamplessStreams"><c>model_streams.slang</c> compiled so, for a mesh with streams in such a frame.</param>
+    /// <param name="lampless"><c>model.slang</c> and <c>model_streams.slang</c> compiled with <c>NO_GLOW_LIGHTS</c>, as <paramref name="model"/> and <paramref name="streams"/> were otherwise, which draw a frame with no glow lights (<see cref="ModelBuild.Lampless"/>), or none where such a frame draws whole.</param>
+    /// <param name="unbounced">The same compiled with <c>NO_BOUNCE</c>, which draw a frame where no light bounces (<see cref="ModelBuild.Unbounced"/>).</param>
     public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null, ShaderProgram? subsurface = null,
-        ShaderProgram? lampless = null, ShaderProgram? lamplessStreams = null)
+        (ShaderProgram? Model, ShaderProgram? Streams) lampless = default, (ShaderProgram? Model, ShaderProgram? Streams) unbounced = default)
     {
-        _lamplessFragmentSpv = lampless?.Fragment;
-        _lamplessStreamsFragmentSpv = streams is null ? lampless?.Fragment : lamplessStreams?.Fragment;
+        foreach (var (build, programs) in new[] { (ModelBuild.Whole, (Model: (ShaderProgram?)model, Streams: streams)), (ModelBuild.Lampless, lampless), (ModelBuild.Unbounced, unbounced) })
+        {
+            _fragmentSpvs[(int)build] = programs.Model?.Fragment;
+            // Where there is no model_streams.slang a mesh with streams draws with model.slang.
+            _streamsFragmentSpvs[(int)build] = streams is null ? programs.Model?.Fragment : programs.Streams?.Fragment;
+        }
         if (subsurface is not null)
             (_subsurfaceVertexSpv, _subsurfaceFragmentSpv, _subsurfaceDepthBindings) = (subsurface.Vertex, subsurface.Fragment, subsurface.LayoutOf(2));
         _vertexSpv = model.Vertex;
         _streamsVertexSpv = streams?.Vertex ?? model.Vertex;
-        _streamsFragmentSpv = streams?.Fragment ?? model.Fragment;
-        _fragmentSpv = model.Fragment;
         _plainVertexInputs = model.InputLocations(ShaderStage.Vertex);
         _plainFragmentInputs = model.InputLocations(ShaderStage.Fragment);
         _shadowVertexSpv = shadow.Vertex;
@@ -358,8 +355,8 @@ internal sealed partial class ModelRenderer : IDisposable
         _lightsBindings = model.LayoutOf(1);
     }
 
-    /// <summary>Whether the last draw used the model pass's build for a frame with no glow lights, which the tests read.</summary>
-    internal bool DrewLampless { get; private set; }
+    /// <summary>The build of the model pass the last draw used, which the tests read.</summary>
+    internal ModelBuild Drew { get; private set; }
 
     // The buffer of a program's uniforms, at binding 0 of the material set.
     private static readonly DescriptorSetLayoutBinding Uniforms = new(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment);
@@ -388,11 +385,14 @@ internal sealed partial class ModelRenderer : IDisposable
         var view = ViewBatches(target, gfx, draws, meshes, textures, store);
         var (batches, ring, offset, blocks) = (view.Batches, view.Ring, view.Offset, view.Blocks);
 
-        // A frame with no glow lights draws with the build that leaves their marches out, which
-        // shades it as the whole does with a count of none. The window and every target read the
-        // frame's one set of lights, so the window's count holds for each.
-        var lampless = renderWorld.TryGet<IlluminationBinding>() is not { GlowLights: > 0 };
-        DrewLampless = lampless && _lamplessFragmentSpv is not null;
+        // A frame draws with the build that leaves out what it does not hold, which shades it as
+        // the whole does: the bounce and the glow lights where no light bounces, which every
+        // view's lighting then says (LightingUboPrepare), and the glow lights' marches where light
+        // bounces with a count of none. The window and every target read the frame's one set of
+        // lights, so the window's count holds for each.
+        var build = GlobalIlluminationRenderer.CascadesIn(renderWorld) == 0 ? ModelBuild.Unbounced
+            : renderWorld.TryGet<IlluminationBinding>() is { GlowLights: > 0 } ? ModelBuild.Whole : ModelBuild.Lampless;
+        Drew = _fragmentSpvs[(int)build] is null ? ModelBuild.Whole : build;
 
         IPipeline? pipeline = null;
         var pushed = default(Matrix4x4?);
@@ -420,7 +420,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 ? meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None
                 : CustomModules(gfx, draw.Shader, program).ReadsStreams ? meshStreams : Streams.None;
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, lampless)
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build)
                 : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held);
             if (!ReferenceEquals(wanted, pipeline))
             {
@@ -675,12 +675,9 @@ internal sealed partial class ModelRenderer : IDisposable
         _shadowVertexShader?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();
-        _fragmentShader?.Dispose();
+        foreach (var shader in _fragmentShaders.Concat(_streamsFragmentShaders)) shader?.Dispose();
         _vertexShader?.Dispose();
-        _lamplessFragmentShader?.Dispose();
-        _lamplessStreamsFragmentShader?.Dispose();
         _streamsVertexShader?.Dispose();
-        _streamsFragmentShader?.Dispose();
         _noBuffer?.Dispose();
         _defaultColor?.Dispose();
         _defaultTexcoords2?.Dispose();
