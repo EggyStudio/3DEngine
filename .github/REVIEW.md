@@ -10,16 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `aa9fe773`. The revert of `4805676c`: the README is byte for byte `706a1499`'s again,
-the captions of 32 and the pictures of 260, which the owner chose on a phone, their pictures filling
-up to the caption's width where the smaller form's fell short, and the commit's sentence says the
-look was chosen on a phone and names no one, as N 4.7 asks, where the reviewing session's own line
-to the working session had named the owner; the norm and document-link tests pass, 20. Item 11 keeps
-one thing from the owner's look at 21:30: the games' captions break after the slash of `games/`, so
-each is the game's name alone, padded as the examples' are, a batch of its own next. Right, the rule
-kept where the direction slipped. Next the lampless variant of the model pass, Verdict 48's second
-remedy, then the bounce around the pillar as a read of its own, h's blotches and teeth by the
-owner's eye, f's filter offset, item 10, item 9 and item 8.
+Reviewed up to `e28064f7`. Item 11's games' captions: each of the thirteen is the game's name alone,
+padded to 32 with the non-breaking space, its picture's link unchanged, so no caption holds a slash
+a browser may break after; all 268 captions read here at 32 with none holding a slash, and the norm
+and document-link tests pass, 20. Item 11 is done, the owner's eye on the push. The owner asked at
+21:55 that `games/Pusher` go, which is item 13 (Decision 31), a batch of its own after the lampless
+variant, since the game holds three of the test workflow's roles. Next the lampless variant of the
+model pass, Verdict 48's second remedy, its checks done but for the lavapipe run; then item 13; then
+the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
+filter offset, item 10, item 9 and item 8.
+
+Before it, `aa9fe773` came, the revert of `4805676c`: the README is byte for byte `706a1499`'s
+again, the captions of 32 and the pictures of 260, which the owner chose on a phone, their pictures
+filling up to the caption's width where the smaller form's fell short, and the commit's sentence
+says the look was chosen on a phone and names no one, as N 4.7 asks, where the reviewing session's
+own line to the working session had named the owner; the norm and document-link tests pass, 20. Item
+11 keeps one thing from the owner's look at 21:30: the games' captions break after the slash of
+`games/`, so each is the game's name alone, padded as the examples' are, a batch of its own next.
+Right, the rule kept where the direction slipped. Next the lampless variant of the model pass,
+Verdict 48's second remedy, then the bounce around the pillar as a read of its own, h's blotches and
+teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 Before it, `4805676c` and `706a1499` came, item 11's captions in two commits, both pushed:
 `706a1499` as first asked, every tag 260 by 146 and every cell 260, each name padded to 32
@@ -33,25 +43,6 @@ takes as well, 35 and 260, in place of the 28 and 220 it was told. Right, each f
 and the owner's eye the judge between them (Decision 27). Next the lampless variant of the model
 pass, Verdict 48's second remedy, then the bounce around the pillar as a read of its own, h's
 blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `76e7c278` came, Verdict 48's first remedy, taken another way by measurement: a pipeline
-cache of the engine's own, each device's seeded from the process's last, was built and read on this
-host's lavapipe with Mesa's cache off, and saved nothing, four apps in one process taking 3.73 to
-3.93 s each with it against 3.66 to 3.74 without, since lavapipe runs what a frame submits on a
-thread of its own and compiles each pipeline's variants as it first draws with them, nearly three of
-an app's 3.7 s falling at the device's last wait, which only Mesa's own disk cache spares, the same
-apps at 0.82 to 0.88 s with it; the Windows job's frame of 3.8 s is this host's cost with that cache
-off. So the engine's cache is dropped, and the test workflow's Linux and Windows jobs and the build
-workflow's examples job name Mesa's cache in the workspace and keep it from run to run by the
-workflow's cache, keyed by the shaders with a restore key by system, the folder ignored; whether
-Mesa's Windows build keeps a disk cache is read on the Windows page's group times and the leak
-test's frame. The script and norm tests pass, 51. Right, the engine's cache measured before it was
-kept and dropped by its number, and the cost found at the driver's thread rather than guessed at the
-pipeline's creation. Next item 11's caption, padded to 28 with a longer name broken at an underscore
-by a `<wbr>` tag rather than every name padded to the longest, as the owner chose at 20:20, the tags
-220 by 124, then the lampless variant of the model pass, the second remedy, measured by the pass's
-SPIR-V size and the per-app time on lavapipe; then the bounce around the pillar as a read of its
-own, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -572,11 +563,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
-    `706a1499`'s look, `4805676c` reverted at `aa9fe773`, but for the games' captions (Decision
-    29).** The owner asked on 2026-10-11 at 15:55. The README's Examples section holds a table of
-    two columns and thirty-four rows, pictures of picked examples and games mixed, and under it
-    eighty lines of prose and a block that explain the games. It becomes one table a folder of
-    `3DEngine.Examples`, in the folders' order as the repository lists them, Audio, Benchmarks,
+    `706a1499`'s look, `4805676c` reverted at `aa9fe773`, the games' captions at `e28064f7`
+    (Decision 29).** The owner asked on 2026-10-11 at 15:55. The README's Examples section holds a
+    table of two columns and thirty-four rows, pictures of picked examples and games mixed, and
+    under it eighty lines of prose and a block that explain the games. It becomes one table a folder
+    of `3DEngine.Examples`, in the folders' order as the repository lists them, Audio, Benchmarks,
     Core, Ecs, Gui, Models, Physics, Scenes, Shaders, Shapes, Text and Textures, each a single row
     holding every example of the folder that has a capture under `.github/assets/examples`, the
     picture linking the program and the run name under it as the rows do today, with a heading line
@@ -651,7 +642,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     README byte for byte `706a1499`'s. The owner saw at 21:30 that the games' captions, `games/`
     before each name, break onto a second line, since a browser may break a line after a slash; each
     game's caption is the game's name alone, padded to 32 as the examples' are, the picture's link
-    unchanged. the owner's eye judges the look (Decision 27).
+    unchanged. Done at `e28064f7`, the thirteen names alone at 32. the owner's eye judges the look
+    (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -667,6 +659,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     file and the tool's own folder only on the owner's word given there and has asked the owner for
     it, a right the reviewing session holds. Done at `7a69c936` on the owner's word typed there:
     `.github/E3D.md`, every reference moved, the folder gone and ignored.
+
+13. **`games/Pusher` goes (Decision 31).** The owner asked on 2026-10-11 at 21:55, finding it ugly
+    and of no use. The folder goes with its capture under `.github/assets/examples` and its cell in
+    the README's games row, and every place that names it follows: the test workflow, where Pusher
+    is the game built and played from the package, published native and drawn, and played once more
+    in a window on the runner's desktop, the three roles passing to the lightest of the 3D games by
+    the time `build/play-game.sh` takes it, measured once across them, and the games' loops dropping
+    it; `build/soak.sh`, `build/drive-game.sh` and the soak check's test, whose reading named for it
+    takes another game's name; BUILDING.md's two paragraphs on a game built and shipped this way and
+    the shipping guide's worked example, which name the replacement; TODO.md's two lines; the raylib
+    comparison's size line, which gives the replacement's; the materials guide's timing line and
+    RENDERING.md's table row, which go or give the replacement's; and Hopper's README, which no
+    longer calls it a counterpart. SHARED.md's row on a game published native and played by CI is
+    the reviewing session's and names the replacement once the commit does. The suite, the document
+    and norm tests and the README walk on the result, and the examples' table check. A batch of its
+    own after the lampless variant.
 
 ## Verdicts
 
@@ -943,8 +951,27 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     AGENTS.md's line changed on that word; and every picture in the README's rows the same size,
     which item 11 takes.
 
+31. **`games/Pusher` goes.** The owner asked at 21:55 on 2026-10-11, finding it ugly and of no use,
+    which is item 13: the game, its capture and its cell gone, and its three roles in the test
+    workflow, the game built and played from the package, published native and drawn, and played in
+    a window on the runner's desktop, passed to the lightest 3D game.
+
 ## Replies
 
-Item 11, the games' captions. Each of the thirteen is the game's name alone, padded to 32
-characters as the examples' are, its picture's link unchanged. The document links and the norm
-tests pass, 20 of them.
+Verdict 48, its second remedy. A frame with no glow lights draws with a build of the model pass
+that leaves them out, `NO_GLOW_LIGHTS`, which `lights.slang` reads as `Glowing` and passes to
+`shadeHit` as a parameter of the build, since a constant argument left the hit's marches in the
+SPIR-V at 180,436 bytes; `gi.slang` names nothing new, so the probes' compute shaders gain no
+build. The fragment stage is 124,628 bytes of SPIR-V where the whole's is 253,180, and 146,864
+where 275,416 with `RAY_QUERY`. `ModelRenderer` takes the build each frame by the glow lights the
+frame's lights hold, which `IlluminationBinding` carries, and a program's own model shader is built
+whole. Four apps in one process on this host's lavapipe with Mesa's cache off, each drawing a lit
+cube, took 2.11 to 2.51 seconds after the first where 3.90 to 4.08 before, the device's last wait
+1.6 to 1.8 seconds where 2.9 to 3.1. `e3d shaders` compiles each set of the variants a shader
+names, four builds for the six that import `modelpass`, which the package's test counts, the pack
+81 seconds. A test reads the pick with no glow light, a lamp placed and the lamp taken away. The
+suite passes, 1,684; on lavapipe under the validation layer 396 pass with 8 skipped for rays and no
+VUID; the glowstone room on the RTX 4070 faulted in none of 8 runs. A third build, for a frame
+where light does not bounce, would leave the bounce and the traced reflection out as well, 54,824
+bytes, and a scratch build of it took the same apps to 1.28 to 1.40 seconds, the last wait 0.8 to
+0.9. It is offered and not built.

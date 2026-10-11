@@ -14,19 +14,27 @@ internal sealed partial class ModelRenderer
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
     // front ones out, filled or as points, blended or written as they are, writing its depth or
-    // not, through model_streams.slang for a mesh with streams.
+    // not, through model_streams.slang for a mesh with streams, and with the build that leaves the
+    // glow lights out where lampless and that build was made.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None, bool depth = true)
+        bool blend = true, Streams streams = Streams.None, bool depth = true, bool lampless = false)
     {
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth), out var made)) return made;
+        var lamplessSpv = streams == Streams.None ? _lamplessFragmentSpv : _lamplessStreamsFragmentSpv;
+        lampless &= lamplessSpv is not null;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, lampless), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
-        _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
-        var (vertex, fragment) = streams == Streams.None
-            ? (_vertexShader, _fragmentShader)
-            : (_streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv)),
-               _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)));
-        return _pipelines[(renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
+        var vertex = streams == Streams.None
+            ? _vertexShader
+            : _streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv));
+        var fragment = (streams == Streams.None, lampless) switch
+        {
+            (true, false) => _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv)),
+            (false, false) => _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)),
+            (true, true) => _lamplessFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, lamplessSpv!)),
+            (false, true) => _lamplessStreamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, lamplessSpv!)),
+        };
+        return _pipelines[(renderPass, cull, points, blend, streams, depth, lampless)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
             blend: blend, streams: streams, depth: depth);
     }
 

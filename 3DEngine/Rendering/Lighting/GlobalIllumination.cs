@@ -78,10 +78,12 @@ internal sealed class GlobalIlluminationSettings
 /// The probes the model pass reads the window's bounced light from this frame, over the field they
 /// were traced through, and the screen's probes, which it reads first where one stands near, with
 /// what a glossy surface traces its reflection through: the window's depth, its scene the frame
-/// before where one was kept, and its meshes for the device's ray tracing where it traces rays.
+/// before where one was kept, its meshes for the device's ray tracing where it traces rays, and how
+/// many glow lights the frame's lights hold, without which the model pass draws with its build that
+/// leaves them out.
 /// </summary>
 internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen,
-    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null);
+    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null, int GlowLights = 0);
 
 /// <summary>
 /// What the model pass reads each render target's bounced light from this frame, by the target's
@@ -367,7 +369,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _retired.Add((_frame, _rays));
             _rays = null;
         }
-        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays));
+        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays, _glowCount));
     }
 
     /// <summary>
@@ -403,7 +405,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         state.Last = (camera, at);
         var targets = renderWorld.TryGet<TargetIllumination>();
         if (targets is null) renderWorld.Set(targets = new TargetIllumination());
-        targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth);
+        targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }
 
     // A view's buffer for the screen's probes, as gi_screen.slang reads it: its camera both ways

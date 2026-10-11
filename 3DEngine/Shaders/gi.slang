@@ -729,14 +729,18 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 // as the light reaching a face; read as they are, a lit surface sent on a pi-th of its light,
 // which left the probes' hits 48 to 75% under a path-traced reference. hiddenLampLight's loop after
 // directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'
-// loop moved ahead of the sun's in directLight is not (build/mesa).
-public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
+// loop moved ahead of the sun's in directLight is not (build/mesa). Glowing false leaves the glow
+// lights' marches out, the model pass's build for a frame with none passing it so (Glowing in
+// lights); a parameter of the build, since a constant argument left them in the SPIR-V.
+public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
-        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z + glowLightsAt(field, info, lights, p, n, 2, false);
+        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
+    if (Glowing)
+        arrived += glowLightsAt(field, info, lights, p, n, 2, false);
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
 

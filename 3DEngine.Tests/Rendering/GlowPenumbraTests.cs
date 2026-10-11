@@ -96,6 +96,26 @@ public sealed class GlowPenumbraTests : IDisposable
         line.Take(5).Should().OnlyContain(light => light < 0.02 * peak, "the floor from 1.3 to 1.7 blocks out lies in the wall's shadow, the lamp hidden from it");
     }
 
+    [NeedsVulkanFact]
+    public void A_Frame_With_No_Glow_Light_Draws_With_The_Build_That_Leaves_Them_Out()
+    {
+        // The model pass's fragment stage without the glow lights' marches is under half the
+        // whole's, 124,628 bytes of SPIR-V to 253,180, which lavapipe compiles as it first draws
+        // with each pipeline. Each frame takes its build by its own glow lights, so the lamp shows
+        // in the frame it is placed in, as the test of a lamp placed reads.
+        using var scene = new Scene(screenOff: false);
+        var models = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<ModelRenderer>()!;
+        scene.Lamp = false;
+        scene.Frames(2);
+        models.DrewLampless.Should().BeTrue("the frame holds no glow light");
+        scene.Lamp = true;
+        scene.Frames(1);
+        models.DrewLampless.Should().BeFalse("the lamp placed is a glow light");
+        scene.Lamp = false;
+        scene.Frames(1);
+        models.DrewLampless.Should().BeTrue("the lamp taken away leaves none");
+    }
+
     // How far a line strays from another on average, as a share of the light at each point, the
     // light floored at a tenth of the other's peak so the shadow's near nothing does not divide.
     private static double Strays(double[] line, double[] from)

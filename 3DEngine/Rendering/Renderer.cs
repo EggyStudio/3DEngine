@@ -63,16 +63,15 @@ internal sealed class Renderer : IDisposable
         // Where the device traces rays, the model pass built to trace a reflection the scene's
         // distance field misses, or the plain one where the build is not in the cache and there
         // is no compiler to make it.
-        if (Context.Graphics is GraphicsDevice { CanQueryRays: true })
-            try
-            {
-                var loader = new SlangLoader();
-                model = loader.Compile(File.ReadAllText(Path.Combine(loader.ImportDirectory, "model.slang")), "model.slang", ["RAY_QUERY"]);
-            }
-            catch (Exception e) when (e is InvalidOperationException or IOException)
-            {
-                Logger.Warn($"The model pass traces no rays, its build for them not made: {e.Message}");
-            }
+        string[] rays = [];
+        if (Context.Graphics is GraphicsDevice { CanQueryRays: true } && Build("model.slang", ["RAY_QUERY"], "The model pass traces no rays") is { } traced)
+            (model, rays) = (traced, ["RAY_QUERY"]);
+        // And its builds for a frame with no glow lights, which leave their marches out, half the
+        // fragment stage, that lavapipe compiles as it first draws with each pipeline.
+        var (lampless, lamplessStreams) = Context.Graphics is GraphicsDevice
+            ? (Build("model.slang", [.. rays, "NO_GLOW_LIGHTS"], "The model pass draws every frame with the glow lights' marches"),
+               Build("model_streams.slang", ["NO_GLOW_LIGHTS"], "The model pass draws every frame with the glow lights' marches"))
+            : (null, null);
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
         var shadow = server.LoadSync<ShaderProgram>("shaders/shadow.slang");
         if (Context.Graphics is GraphicsDevice device)
@@ -97,7 +96,7 @@ internal sealed class Renderer : IDisposable
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),
-            server.LoadSync<ShaderProgram>("shaders/subsurface.slang")));
+            server.LoadSync<ShaderProgram>("shaders/subsurface.slang"), lampless, lamplessStreams));
         RenderWorld.Set(new SubsurfaceRenderer(server.LoadSync<ShaderProgram>("shaders/subsurface_blur.slang")));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
@@ -178,6 +177,22 @@ internal sealed class Renderer : IDisposable
 
         _initialized = true;
         Logger.Info($"Renderer initialized in {sw.ElapsedMilliseconds}ms.");
+    }
+
+    // A built-in shader compiled with defines, or none, said in the log with otherwise, where the
+    // build is not in the cache and there is no compiler to make it.
+    private static ShaderProgram? Build(string file, string[] defines, string otherwise)
+    {
+        try
+        {
+            var loader = new SlangLoader();
+            return loader.Compile(File.ReadAllText(Path.Combine(loader.ImportDirectory, file)), file, defines);
+        }
+        catch (Exception e) when (e is InvalidOperationException or IOException)
+        {
+            Logger.Warn($"{otherwise}, its build with {string.Join(" and ", defines)} not made: {e.Message}");
+            return null;
+        }
     }
 
     /// <summary>Registers an extract system that copies game-world data into the <see cref="RenderWorld"/> each frame.</summary>

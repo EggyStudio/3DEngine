@@ -40,9 +40,9 @@ public sealed class PackageContentsTests
             var name = Path.GetFileNameWithoutExtension(shader);
             var source = Read(package, shader);
             var entryPoints = Regex.Matches(source, @"^\s*\[shader\(", RegexOptions.Multiline).Count;
-            // Once, and once more for each capability it or a module it imports names, which a
-            // device that has the capability loads in its place.
-            var builds = 1 + SlangLoader.VariantsOf(source, imports).Count();
+            // Once, and once more for each set of the names it or a module it imports mentions,
+            // which a device with the capability, or a frame that needs less, loads in its place.
+            var builds = 1 + SlangLoader.BuildsOf(source, imports).Count();
             var compiled = entries.Count(e => e.StartsWith($"contentFiles/any/any/source/.slang-cache/{name}.") && e.EndsWith(".spv"));
             compiled.Should().Be(entryPoints * builds,
                 $"{name}.slang has {entryPoints} entry points in {builds} builds, each compiled ahead so a game needs no slangc");

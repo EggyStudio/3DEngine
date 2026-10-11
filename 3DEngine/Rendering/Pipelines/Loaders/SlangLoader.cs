@@ -61,10 +61,15 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     }
 
     /// <summary>
-    /// The names a built-in shader is compiled with a second time where it mentions one, each for a
-    /// capability some devices lack: <c>RAY_QUERY</c> for the GPU's own ray tracing.
+    /// The names a built-in shader is compiled with beside its plain build where it mentions them,
+    /// each for a capability some devices lack or a frame that needs less: <c>RAY_QUERY</c> for the
+    /// GPU's own ray tracing, and <c>NO_GLOW_LIGHTS</c> for the model pass's build for a frame with
+    /// no glow lights, which leaves half its fragment stage out.
     /// </summary>
-    internal static readonly string[] Variants = ["RAY_QUERY"];
+    /// <remarks>
+    /// A build's names are given in this order, since the cache keys a build by them as given.
+    /// </remarks>
+    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS"];
 
     /// <summary>Compiles every entry point in <paramref name="source"/>.</summary>
     /// <param name="source">The Slang source.</param>
@@ -129,10 +134,10 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
             var source = File.ReadAllText(file);
             if (!EntryPoints(source).Any()) continue;
             loader.Compile(source, Path.GetFileName(file));
-            // And its build for each capability it or a module it imports names, which a device
-            // that has the capability loads in its place.
-            foreach (var variant in VariantsOf(source, shaderDirectory))
-                loader.Compile(source, Path.GetFileName(file), [variant]);
+            // And its build for each set of the names it or a module it imports mentions, which a
+            // device with the capability, or a frame that needs less, loads in its place.
+            foreach (var build in BuildsOf(source, shaderDirectory))
+                loader.Compile(source, Path.GetFileName(file), build);
             compiled.Add(Path.GetFileName(file));
         }
         return compiled;
@@ -143,6 +148,17 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         Variants.Where(name => source.Contains(name, StringComparison.Ordinal)
             || SlangCompiler.ImportedFiles(source, importDirectory).Any(file => file.Bytes is { } bytes
                 && System.Text.Encoding.UTF8.GetString(bytes).Contains(name, StringComparison.Ordinal)));
+
+    /// <summary>
+    /// The builds of <paramref name="source"/> beside its plain one: each set of the <see
+    /// cref="Variants"/> it mentions, its names in their order.
+    /// </summary>
+    internal static IEnumerable<string[]> BuildsOf(string source, string importDirectory)
+    {
+        var named = VariantsOf(source, importDirectory).ToArray();
+        for (int set = 1; set < 1 << named.Length; set++)
+            yield return [.. named.Where((_, i) => (set >> i & 1) != 0)];
+    }
 
     /// <summary>Finds the functions marked with a stage attribute, in the order they appear.</summary>
     /// <remarks>

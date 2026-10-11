@@ -9,6 +9,16 @@ import scenefield;
 import gi;
 import color;
 
+// Whether this build of the model pass shades the glow lights, which it leaves out where it is
+// compiled with NO_GLOW_LIGHTS, as ModelRenderer draws a frame that has none, since their marches
+// are half of its fragment stage and lavapipe compiles each pipeline's variants as it first draws
+// with them.
+#if defined(NO_GLOW_LIGHTS)
+public static const bool Glowing = false;
+#else
+public static const bool Glowing = true;
+#endif
+
 // LightKind's values.
 public static const int Directional = 0;
 public static const int Point = 1;
@@ -394,7 +404,7 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         }
         hit = start + r * t;
     }
-    float3 shaded = shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
+    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
     if (!onScreen)
         return float4(shaded, 1.0);
     float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));

@@ -1486,7 +1486,15 @@ one closed form for each place that reads the glow lights, a reflection's hit sh
 met on the screen or in the field, and their loops are kept from unrolling, since unrolled and
 inlined at each of the model pass's calls they made its compile on lavapipe 0.9 s for every app
 where it took 0.23 before them, and the Windows job's tests ran out their time; 0.32 so, the
-Rendering tests on lavapipe here 280 s where 261 before the glow lights.
+Rendering tests on lavapipe here 280 s where 261 before the glow lights. A frame with no glow lights
+draws with a build of the model pass that leaves them out (`NO_GLOW_LIGHTS`, read as `Glowing` in
+`lights.slang`), picked each frame by the count the frame's lights hold, its fragment stage 124,628
+bytes of SPIR-V where the whole's is 253,180, both in a program's cache from `e3d shaders`, which
+compiles each set of the variants a shader names. lavapipe compiles a pipeline's variants on a
+thread of its own as it first draws with them, and the device's last wait waits for them, so with
+Mesa's cache off an app that draws a lit cube took 2.1 to 2.5 seconds after the first in one process
+where it took 3.9 to 4.1, its last wait 1.6 to 1.8 seconds where 2.9 to 3.1. A program's own model
+shader that imports `modelpass` is built whole.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the

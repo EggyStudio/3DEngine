@@ -518,8 +518,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         light.diffuse += occlusion * diffuseColor * bouncedHere * held;
     // The glow lights' light straight to the surface, taken here at each pixel rather than at the
     // screen's probes, whose filter spread a small bright strip's light near it over five tiles
-    // and doubled its room's difference from a path-traced reference at Low (glowLightsAt).
-    if (lighting.indirect.x > 0.0)
+    // and doubled its room's difference from a path-traced reference at Low (glowLightsAt). The
+    // build for a frame with no glow lights leaves it out (Glowing in lights).
+    if (Glowing && lighting.indirect.x > 0.0)
         light.diffuse += diffuseColor * glowLightsHere(input, n, screen);
 
     // A glossy surface's reflection traced through the scene where light bounces, which takes the
