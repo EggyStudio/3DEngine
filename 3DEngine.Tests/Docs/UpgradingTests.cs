@@ -21,6 +21,12 @@ public sealed partial class UpgradingTests
     // The commit 5.1.116 was packed from, the package the page counts from.
     private const string FiveOne = "b43818f9";
 
+    // The class of the flat API, which 5.1 named Engine3D, its members a game calls by name alone,
+    // and the name in 5.1's surface of a type of now's.
+    private const string Flat = "E3D", FlatOfFiveOne = "Engine3D";
+    private static string Then(string type) => type == Flat ? FlatOfFiveOne : type;
+    private static string Now(string type) => type == FlatOfFiveOne ? Flat : type;
+
     [NeedsHistoryFact(FiveOne, "from which docs/upgrading.md counts the names lost")]
     public void Every_Name_The_Public_Surface_Lost_Since_5_1_Is_On_The_Upgrading_Page()
     {
@@ -29,17 +35,19 @@ public sealed partial class UpgradingTests
         var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
         var code = Code(File.ReadAllText(Path.Combine(root, "docs", "upgrading.md")));
 
+        // The flat API's class renamed is on the page by its 5.1 name.
         var missing = new SortedSet<string>(StringComparer.Ordinal);
+        if (!Named(code, FlatOfFiveOne)) missing.Add(FlatOfFiveOne);
         foreach (var (type, members) in before)
         {
-            if (!now.TryGetValue(type, out var kept))
+            if (!now.TryGetValue(Now(type), out var kept))
             {
                 if (!Named(code, type)) missing.Add(type);
                 continue;
             }
             foreach (var line in members.Except(kept))
             {
-                var name = type == "Engine3D" ? MemberName(line) : $"{type}.{MemberName(line)}";
+                var name = type == FlatOfFiveOne ? MemberName(line) : $"{type}.{MemberName(line)}";
                 if (!Named(code, name)) missing.Add(name);
             }
         }
@@ -62,7 +70,7 @@ public sealed partial class UpgradingTests
         var missing = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var (type, members) in now)
         {
-            if (!before.TryGetValue(type, out var had))
+            if (!before.TryGetValue(Then(type), out var had))
             {
                 if (!Named(code, type)) missing.Add(type);
                 continue;
@@ -70,7 +78,7 @@ public sealed partial class UpgradingTests
             var names = had.Select(MemberName).ToHashSet(StringComparer.Ordinal);
             foreach (var name in members.Select(MemberName).Where(name => !names.Contains(name)).Distinct())
             {
-                var written = type == "Engine3D" ? name : $"{type}.{name}";
+                var written = type == Flat ? name : $"{type}.{name}";
                 if (!Named(code, written)) missing.Add(written);
             }
         }
@@ -103,10 +111,10 @@ public sealed partial class UpgradingTests
         var root = Api.CheatsheetTests.RepoRoot();
         var before = Surface(NormTests.Git("show", $"{FiveOne}:3DEngine/PublicApi.txt"));
         var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
-        var gone = new List<string>();
+        var gone = new List<string> { FlatOfFiveOne };
         foreach (var (type, members) in before)
         {
-            if (!now.TryGetValue(type, out var kept))
+            if (!now.TryGetValue(Now(type), out var kept))
             {
                 gone.Add(type);
                 continue;
@@ -114,7 +122,7 @@ public sealed partial class UpgradingTests
             // A name the type still has, as a call whose arguments were reordered, is no name lost.
             var still = kept.Select(MemberName).ToHashSet(StringComparer.Ordinal);
             gone.AddRange(members.Select(MemberName).Where(name => !still.Contains(name)).Distinct()
-                .Select(name => type == "Engine3D" ? name : $"{type}.{name}"));
+                .Select(name => type == FlatOfFiveOne ? name : $"{type}.{name}"));
         }
 
         var pages = Directory.GetFiles(Path.Combine(root, "docs"), "*.md").Where(page => Path.GetFileName(page) != "upgrading.md")

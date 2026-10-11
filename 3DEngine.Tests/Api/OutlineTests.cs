@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Api;
 /// for a width above 0 and outside it for one below. Read back from the draw list of an app whose
 /// stores queue without a GPU, and sampled on a grid finer than a pixel.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public sealed class OutlineTests : IDisposable
 {

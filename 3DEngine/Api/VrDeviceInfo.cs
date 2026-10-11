@@ -3,7 +3,7 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// A head-mounted display's measures, which <see cref="Engine3D.LoadVrStereoConfig"/> works a
+/// A head-mounted display's measures, which <see cref="E3D.LoadVrStereoConfig"/> works a
 /// stereo frame out from, raylib's <c>VrDeviceInfo</c>.
 /// </summary>
 public struct VrDeviceInfo

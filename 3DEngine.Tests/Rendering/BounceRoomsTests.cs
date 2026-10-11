@@ -2,7 +2,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -20,7 +20,7 @@ namespace Engine.Tests.Rendering;
 /// the references are traced through them and the bounds were measured on such a GPU, the
 /// development machine's.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class BounceRoomsTests : IDisposable
 {

@@ -6,7 +6,7 @@
 // raylib's own build does, and PollInputEvents and SwapScreenBuffer have nothing left to do, so
 // the program's timing alone decides the frame rate, as it is meant to.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

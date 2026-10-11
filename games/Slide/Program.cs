@@ -7,7 +7,7 @@
 // engine's package, as a game outside this repository would be.
 using System.Numerics;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 InitWindow(960, 720, "Slide");
 InitAudioDevice();

@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -11,7 +11,7 @@ namespace Engine.Tests.Rendering;
 /// and a closed room under the same sky, with the eye inside turned through a circle and in the
 /// frames before its last cascade is built.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class CascadeEdgeTests : IDisposable
 {

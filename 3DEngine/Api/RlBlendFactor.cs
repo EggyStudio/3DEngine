@@ -1,8 +1,8 @@
 namespace Engine;
 
 /// <summary>
-/// What a color or alpha is multiplied by as it is blended, for <see cref="Engine3D.rlSetBlendFactors"/>
-/// and <see cref="Engine3D.rlSetBlendFactorsSeparate"/>, under rlgl's values, <c>RL_ZERO</c> to
+/// What a color or alpha is multiplied by as it is blended, for <see cref="E3D.rlSetBlendFactors"/>
+/// and <see cref="E3D.rlSetBlendFactorsSeparate"/>, under rlgl's values, <c>RL_ZERO</c> to
 /// <c>RL_SRC_ALPHA_SATURATE</c>.
 /// </summary>
 public enum RlBlendFactor

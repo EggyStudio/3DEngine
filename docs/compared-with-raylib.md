@@ -7,7 +7,7 @@ machine, with the command that measures it again.
 ## The same
 
 - **One flat API.** A program calls static functions named as raylib names them, `InitWindow`,
-  `DrawTexture`, `LoadModel`, imported with `using static Engine.Engine3D;`, and a raylib example
+  `DrawTexture`, `LoadModel`, imported with `using static Engine.E3D;`, and a raylib example
   reads almost line for line in C#.
 - **A loop the program owns.** `while (!WindowShouldClose())`, `BeginDrawing`, `EndDrawing`, with
   nothing to subclass and no callbacks to register.

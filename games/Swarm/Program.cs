@@ -1,7 +1,7 @@
 using System.Numerics;
 using Engine;
 using ImGuiNET;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 // Swarm, holding out in an arena against waves of creatures that close in from every side, with a
 // gun that fires at the nearest. Unlike the other games here it is written in the ECS, so the

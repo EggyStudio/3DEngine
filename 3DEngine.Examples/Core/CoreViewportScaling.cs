@@ -7,7 +7,7 @@
 // filter in raylib, so the target is set to point, as raylib's is without a call.
 
 using System.Numerics;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

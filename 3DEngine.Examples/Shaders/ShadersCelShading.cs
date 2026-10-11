@@ -2,7 +2,7 @@
 // license, written again for the flat API.
 
 using System.Numerics;
-using static Engine.Engine3D;
+using static Engine.E3D;
 using static Engine.Examples.RLights;
 
 namespace Engine.Examples;

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Assets;
 
@@ -13,7 +13,7 @@ namespace Engine.Tests.Assets;
 /// test asks the system which files are open, under <c>/proc/self/fd</c>, and on Windows opens each
 /// for writing with no sharing, which fails while anything holds it.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class FileHandleTests : IDisposable
 {

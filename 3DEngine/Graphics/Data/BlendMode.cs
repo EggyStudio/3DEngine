@@ -21,9 +21,9 @@ public enum BlendMode
     SubtractColors,
     /// <summary>A color already multiplied by its alpha laid over what is there.</summary>
     AlphaPremultiply,
-    /// <summary>The factors and equation <see cref="Engine3D.rlSetBlendFactors"/> set, for the color and its alpha alike.</summary>
+    /// <summary>The factors and equation <see cref="E3D.rlSetBlendFactors"/> set, for the color and its alpha alike.</summary>
     Custom,
-    /// <summary>The factors and equations <see cref="Engine3D.rlSetBlendFactorsSeparate"/> set, the color's apart from its alpha's.</summary>
+    /// <summary>The factors and equations <see cref="E3D.rlSetBlendFactorsSeparate"/> set, the color's apart from its alpha's.</summary>
     CustomSeparate,
 }
 

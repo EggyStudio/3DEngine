@@ -7,7 +7,7 @@ namespace Engine;
 /// the program starts, pauses, seeks and stops.
 /// </summary>
 /// <remarks>
-/// As in raylib, <see cref="Engine3D.UpdateMusicStream"/> feeds the voice, so it is called
+/// As in raylib, <see cref="E3D.UpdateMusicStream"/> feeds the voice, so it is called
 /// every frame the music plays, and music left without it falls silent after half a second. Ogg
 /// Vorbis is decoded from the open file as it plays. A WAV file is read whole, since it is not
 /// compressed and reading it in pieces would save nothing, and so is an XM or MOD module, which is
@@ -24,7 +24,7 @@ public sealed class Music
 
     /// <summary>
     /// The stream the music plays on, raylib's <c>music.stream</c>, to attach processors to with
-    /// <see cref="Engine3D.AttachAudioStreamProcessor"/>.
+    /// <see cref="E3D.AttachAudioStreamProcessor"/>.
     /// </summary>
     /// <remarks>The music itself is played with the music functions, which feed this stream's processors.</remarks>
     public AudioStream Stream { get; }

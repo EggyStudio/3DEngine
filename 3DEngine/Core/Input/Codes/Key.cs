@@ -11,7 +11,7 @@ namespace Engine;
 /// </remarks>
 public enum Key
 {
-    /// <summary>No key, which a key the engine does not know reports and <see cref="Engine3D.SetExitKey"/> takes for none.</summary>
+    /// <summary>No key, which a key the engine does not know reports and <see cref="E3D.SetExitKey"/> takes for none.</summary>
     Null = 0,
     /// <summary>The key where a US layout has A.</summary>
     A = 4,

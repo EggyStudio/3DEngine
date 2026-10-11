@@ -3,7 +3,7 @@
 // a 2D game outside this repository would be.
 using System.Numerics;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 const int ViewWidth = 320, ViewHeight = 180, Tile = 16;
 

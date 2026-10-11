@@ -64,7 +64,7 @@ internal static class SceneSpawnSystem
             // A model a ModelRef names that has clips plays its first through an AnimatedModel on
             // a child, where its meshes spawned as entities would stand at rest. The child carries
             // a SceneInstance, so a level saved with the reference is saved without it.
-            if (ecs.TryGet<ModelRef>(entity, out var reference) && Engine3D.Holds(world) && Animated(asset.Scene))
+            if (ecs.TryGet<ModelRef>(entity, out var reference) && E3D.Holds(world) && Animated(asset.Scene))
             {
                 var path = ModelRefSystem.AssetPath(reference.Path);
                 var child = ecs.Spawn();

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Api;
 /// joined by the cursive attachment of <c>arabic-cursive.ttf</c>, each place expected the one
 /// HarfBuzz gives the glyph in the same font, at 100 pixels a tenth of its units.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ArabicMarksTests : IDisposable
 {

@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// How the two sides of a blend, each multiplied by its factor, are put together, for
-/// <see cref="Engine3D.rlSetBlendFactors"/> and <see cref="Engine3D.rlSetBlendFactorsSeparate"/>,
+/// <see cref="E3D.rlSetBlendFactors"/> and <see cref="E3D.rlSetBlendFactorsSeparate"/>,
 /// under rlgl's values, <c>RL_FUNC_ADD</c> to <c>RL_FUNC_REVERSE_SUBTRACT</c>.
 /// </summary>
 public enum RlBlendEquation

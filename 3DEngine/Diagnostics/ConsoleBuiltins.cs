@@ -23,10 +23,10 @@ internal static class ConsoleBuiltins
     internal static string Monitors()
     {
         var text = new StringBuilder();
-        for (int i = 0; i < Engine3D.GetMonitorCount(); i++)
+        for (int i = 0; i < E3D.GetMonitorCount(); i++)
         {
-            text.AppendLine($"{i} {Engine3D.GetMonitorName(i)}: {Engine3D.GetMonitorWidth(i)}x{Engine3D.GetMonitorHeight(i)} at {Engine3D.GetMonitorRefreshRate(i)} Hz");
-            text.AppendLine("  " + string.Join(", ", Engine3D.GetMonitorModes(i).Select(m => $"{m.Width}x{m.Height}@{m.RefreshRate}")));
+            text.AppendLine($"{i} {E3D.GetMonitorName(i)}: {E3D.GetMonitorWidth(i)}x{E3D.GetMonitorHeight(i)} at {E3D.GetMonitorRefreshRate(i)} Hz");
+            text.AppendLine("  " + string.Join(", ", E3D.GetMonitorModes(i).Select(m => $"{m.Width}x{m.Height}@{m.RefreshRate}")));
         }
         return text.Length == 0 ? "no monitors" : text.ToString().TrimEnd();
     }

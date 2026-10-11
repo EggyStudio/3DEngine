@@ -6,7 +6,7 @@
 using System.Numerics;
 using Engine;
 using Wick;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 InitWindow(960, 540, "Wick");
 InitAudioDevice();

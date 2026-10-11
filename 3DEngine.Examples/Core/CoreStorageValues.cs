@@ -1,7 +1,7 @@
 // raylib's core_storage_values example, Copyright (c) 2015-2025 Ramon Santamaria (@raysan5), under the zlib
 // license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

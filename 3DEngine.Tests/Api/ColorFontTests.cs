@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Api;
 /// pixels to the em and no outlines, <c>layers.ttf</c>, outlines colored by layers, and
 /// <c>paints.ttf</c>, outlines colored by paints, which <c>build/make-color-test-fonts.py</c> writes.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ColorFontTests : IDisposable
 {

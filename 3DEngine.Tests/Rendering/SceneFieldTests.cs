@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -9,7 +9,7 @@ namespace Engine.Tests.Rendering;
 /// the CPU, and the distances the GPU builds read back against those to the meshes they were built
 /// from.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 public sealed class SceneFieldTests : IDisposable
 {
     public void Dispose()

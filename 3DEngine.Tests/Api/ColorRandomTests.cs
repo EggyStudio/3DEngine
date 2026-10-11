@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -9,7 +9,7 @@ namespace Engine.Tests.Api;
 /// In the flat API's collection, since its random values come from one generator every program
 /// drawing them shares, and a program run beside a seed and the values read after it moved them.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public class ColorRandomTests
 {

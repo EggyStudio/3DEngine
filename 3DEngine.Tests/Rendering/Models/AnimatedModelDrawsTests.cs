@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Text.Json.Nodes;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering.Models;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Rendering.Models;
 /// to y 2 whose clip "bend" turns its elbow at y 1 a quarter turn about Z over a second, posed on
 /// the CPU in an app with no renderer.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public sealed class AnimatedModelDrawsTests : IDisposable
 {

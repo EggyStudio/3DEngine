@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -23,7 +23,7 @@ namespace Engine.Tests.Rendering;
 /// <c>TestResults/reference-failures</c> of the test project, with the reference beside them.
 /// </para>
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed partial class ReferenceFrameTests : IDisposable
 {

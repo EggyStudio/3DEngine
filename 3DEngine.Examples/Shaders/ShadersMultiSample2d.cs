@@ -1,7 +1,7 @@
 // raylib's shaders_multi_sample2d example, Copyright (c) 2020-2025 Ramon Santamaria (@raysan5), under the
 // zlib license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

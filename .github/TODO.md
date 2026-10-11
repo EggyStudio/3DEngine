@@ -78,7 +78,7 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### The flat API
 
-`Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and
+`E3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and
 3D shapes, 2D collision, images and textures, models and meshes, shaders, lights, states, scenes,
 physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:

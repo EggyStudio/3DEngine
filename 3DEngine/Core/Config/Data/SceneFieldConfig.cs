@@ -6,7 +6,7 @@ namespace Engine;
 /// frame at most.
 /// </summary>
 /// <remarks>
-/// <see cref="Engine3D.SetSceneField"/> changes it while the app runs. Each cascade is 64 cells a
+/// <see cref="E3D.SetSceneField"/> changes it while the app runs. Each cascade is 64 cells a
 /// side and twice as coarse and as wide as the one before, so four cascades of 0.25 units reach 128
 /// units across and take 4 MB of the GPU's memory.
 /// </remarks>

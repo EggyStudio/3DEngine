@@ -70,7 +70,7 @@ internal static class RunMode
     }
 
     /// <summary>
-    /// The seed <see cref="Engine3D.InitWindow"/> gives the random generator, from <c>--seed N</c>
+    /// The seed <see cref="E3D.InitWindow"/> gives the random generator, from <c>--seed N</c>
     /// or <c>E3D_SEED</c>, or <c>null</c> for the clock's, as raylib's takes it.
     /// </summary>
     /// <remarks>

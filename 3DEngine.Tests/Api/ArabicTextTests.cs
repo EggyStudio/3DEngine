@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Api;
 /// <c>arabic-forms.ttf</c> maps, which <c>build/make-color-test-fonts.py</c> writes. The glyphs
 /// expected are those HarfBuzz chooses in the same fonts.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ArabicTextTests : IDisposable
 {

@@ -1,7 +1,7 @@
 // raylib's audio_mixed_processor example, Copyright (c) 2023-2025 hkc (@hatkidchan), under the zlib
 // license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

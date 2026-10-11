@@ -14,7 +14,7 @@ namespace Engine;
 /// with no <c>InitWindow</c>, plays its entities' clips too.
 /// A file is loaded once, with its clips, the first frame an entity names it, and unloaded the
 /// first frame no entity does. Each entity draws a copy of it with skinned meshes of its own, posed
-/// apart, sharing the rest (<see cref="Engine3D.PosedCopy"/>), so a crowd of one file costs a load
+/// apart, sharing the rest (<see cref="E3D.PosedCopy"/>), so a crowd of one file costs a load
 /// and a skinned mesh an entity. A file that cannot be loaded is tried once while entities name
 /// it, with the reason in the log.
 /// </para>
@@ -78,16 +78,16 @@ internal sealed class AnimatedModelDraws
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
         var self = world.GetOrInsertResource(static () => new AnimatedModelDraws());
-        var current = Engine3D.CurrentApp;
-        var borrowed = app is not null && !Engine3D.Holds(world) && ReferenceEquals(app.World, world);
-        if (borrowed) Engine3D.UseApp(app);
+        var current = E3D.CurrentApp;
+        var borrowed = app is not null && !E3D.Holds(world) && ReferenceEquals(app.World, world);
+        if (borrowed) E3D.UseApp(app);
         try
         {
             self.Record(world, ecs);
         }
         finally
         {
-            if (borrowed) Engine3D.UseApp(current);
+            if (borrowed) E3D.UseApp(current);
         }
     }
 
@@ -96,7 +96,7 @@ internal sealed class AnimatedModelDraws
         _seen.Clear();
         if (ecs.Count<AnimatedModel>() > 0)
         {
-            if (!Engine3D.Holds(world))
+            if (!E3D.Holds(world))
             {
                 if (!_warned) Logger.Warn("AnimatedModel is drawn through the flat API, which runs against another app than this one.");
                 _warned = true;
@@ -116,7 +116,7 @@ internal sealed class AnimatedModelDraws
                 ref var component = ref ecs.GetRef<AnimatedModel>(entity);
                 Play(model, playing, ref component, dt);
                 var placed = TransformPropagation.WorldMatrix(ecs, entity);
-                foreach (var (viewProjection, _, target) in cameras) Engine3D.RecordModel(model, placed, viewProjection, target);
+                foreach (var (viewProjection, _, target) in cameras) E3D.RecordModel(model, placed, viewProjection, target);
             }
         }
 
@@ -141,23 +141,23 @@ internal sealed class AnimatedModelDraws
         {
             file = new LoadedFile();
             _files[path] = file;
-            var model = Engine3D.LoadModel(path);
+            var model = E3D.LoadModel(path);
             if (model.Meshes.Length == 0)
             {
                 Logger.Warn($"AnimatedModel: '{path}' has no meshes to draw.");
-                Engine3D.UnloadModel(model);
+                E3D.UnloadModel(model);
             }
             else
             {
                 file.Model = model;
-                file.Clips = Engine3D.LoadModelAnimations(path);
+                file.Clips = E3D.LoadModelAnimations(path);
             }
         }
         file.Users++;
         playing.File = file;
         if (file.Model is { } loaded)
         {
-            playing.Model = Engine3D.PosedCopy(loaded);
+            playing.Model = E3D.PosedCopy(loaded);
             playing.Clips = file.Clips;
         }
         return playing;
@@ -190,12 +190,12 @@ internal sealed class AnimatedModelDraws
             playing.Blend += dt / animated.BlendSeconds;
             if (playing.Blend < 1)
             {
-                Engine3D.UpdateModelAnimationBlend(model, from, playing.FromTime, clip, animated.Time, playing.Blend);
+                E3D.UpdateModelAnimationBlend(model, from, playing.FromTime, clip, animated.Time, playing.Blend);
                 return;
             }
             playing.From = null;
         }
-        Engine3D.UpdateModelAnimationAt(model, clip, animated.Time);
+        E3D.UpdateModelAnimationAt(model, clip, animated.Time);
     }
 
     // A clip by name, or the first for an empty name, or null for a name the file does not have.
@@ -205,9 +205,9 @@ internal sealed class AnimatedModelDraws
     private void Forget(int entity)
     {
         if (!_playing.Remove(entity, out var playing) || playing.File is not { } file) return;
-        if (playing.Model is { } copy && file.Model is { } model) Engine3D.UnloadPosedCopy(copy, model);
+        if (playing.Model is { } copy && file.Model is { } model) E3D.UnloadPosedCopy(copy, model);
         if (--file.Users > 0) return;
         _files.Remove(playing.Path);
-        if (file.Model is { } last) Engine3D.UnloadModel(last);
+        if (file.Model is { } last) E3D.UnloadModel(last);
     }
 }

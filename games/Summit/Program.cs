@@ -7,7 +7,7 @@
 // which is how resources/level.json and resources/prefabs were made.
 using System.Numerics;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 if (args is ["build-level", var folder])
 {

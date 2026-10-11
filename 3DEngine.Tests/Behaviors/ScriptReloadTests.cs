@@ -8,7 +8,7 @@ namespace Engine.Tests.Behaviors;
 /// <summary>A script changed while its game runs, which finds the game where it was.</summary>
 // With the other tests whose app has Dear ImGui, whose one context for the process two apps side
 // by side would both ask for.
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ScriptReloadTests : IDisposable
 {

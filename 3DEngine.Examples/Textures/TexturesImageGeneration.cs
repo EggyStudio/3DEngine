@@ -1,7 +1,7 @@
 // raylib's textures_image_generation example, Copyright (c) 2017-2025 Wilhem Barbier (@nounoursheureux) and
 // Ramon Santamaria (@raysan5), under the zlib license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

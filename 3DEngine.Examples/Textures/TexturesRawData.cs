@@ -2,7 +2,7 @@
 // zlib license, written again for the flat API.
 
 using System.Runtime.InteropServices;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

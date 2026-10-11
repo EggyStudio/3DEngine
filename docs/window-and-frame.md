@@ -8,7 +8,7 @@ program starts.
 
 `InitWindow` opens a window and builds the app behind it, `SetTargetFPS` caps how many frames a
 second it draws, and `CloseWindow` frees what the app holds. A program imports the flat API once,
-with `using static Engine.Engine3D;`, and calls each function by name:
+with `using static Engine.E3D;`, and calls each function by name:
 
 ```csharp
 InitWindow(800, 450, "[core] basic window");

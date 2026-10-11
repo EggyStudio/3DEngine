@@ -18,7 +18,7 @@ namespace Engine.Tests.Behaviors;
 /// is built with the default plugins, whose ImGui context is one for the process, so it runs in the
 /// collection of the other tests that build one, never beside them.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public class GeneratorAttributeTests
 {

@@ -2,7 +2,7 @@ using SDL3;
 
 namespace Engine;
 
-/// <summary>What <see cref="Engine3D.SetConfigFlags"/> asks of the next window, with raylib's names and values.</summary>
+/// <summary>What <see cref="E3D.SetConfigFlags"/> asks of the next window, with raylib's names and values.</summary>
 [Flags]
 public enum ConfigFlags : uint
 {
@@ -24,7 +24,7 @@ public enum ConfigFlags : uint
     WindowMaximized = 0x00000400,
     /// <summary>Keep the window above others.</summary>
     WindowTopmost = 0x00001000,
-    /// <summary>Four samples a pixel, which the engine draws with unless <see cref="Engine3D.SetConfigSamples"/> says otherwise.</summary>
+    /// <summary>Four samples a pixel, which the engine draws with unless <see cref="E3D.SetConfigSamples"/> says otherwise.</summary>
     Msaa4xHint = 0x00000020,
     /// <summary>
     /// Let the desktop show through where the window is drawn clear, as <c>ClearBackground(Color.Blank)</c>
@@ -34,13 +34,13 @@ public enum ConfigFlags : uint
     /// <summary>Keep the program's loop going while the window is minimized, as the engine's loop always goes on.</summary>
     WindowAlwaysRun = 0x00000100,
     /// <summary>
-    /// Leave the keyboard focus where it is when the window is shown. <see cref="Engine3D.IsWindowState"/>
+    /// Leave the keyboard focus where it is when the window is shown. <see cref="E3D.IsWindowState"/>
     /// answers whether the window is without the focus, as raylib's does.
     /// </summary>
     WindowUnfocused = 0x00000800,
     /// <summary>
     /// Draw at the monitor's pixels on one that scales them, so a monitor at twice the density
-    /// draws twice as many each way, which <see cref="Engine3D.GetRenderWidth"/> gives. Asked
+    /// draws twice as many each way, which <see cref="E3D.GetRenderWidth"/> gives. Asked
     /// before the window opens.
     /// </summary>
     /// <remarks>
@@ -49,7 +49,7 @@ public enum ConfigFlags : uint
     /// by the monitor's scale and draws it at those pixels either way.
     /// </remarks>
     WindowHighdpi = 0x00002000,
-    /// <summary>Cover the monitor with the window, borderless, at the desktop's display mode, as <see cref="Engine3D.ToggleBorderlessWindowed"/> does.</summary>
+    /// <summary>Cover the monitor with the window, borderless, at the desktop's display mode, as <see cref="E3D.ToggleBorderlessWindowed"/> does.</summary>
     BorderlessWindowedMode = 0x00008000,
     /// <summary>Let the mouse through the window to what is under it, which SDL3 has no way to, so it is warned of and does nothing, as raylib's SDL backend does.</summary>
     WindowMousePassthrough = 0x00004000,

@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>How an image lays out a cube's six faces, for <see cref="Engine3D.LoadTextureCubemap"/>, as raylib's <c>CubemapLayout</c>.</summary>
+/// <summary>How an image lays out a cube's six faces, for <see cref="E3D.LoadTextureCubemap"/>, as raylib's <c>CubemapLayout</c>.</summary>
 /// <remarks>The faces are +X, -X, +Y, -Y, +Z and -Z, in that order along a line.</remarks>
 public enum CubemapLayout
 {

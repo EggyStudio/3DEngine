@@ -6,9 +6,9 @@ public surface is for, and this document says how the parts under it fit togethe
 ## The layers
 
 ```
-  Program            using static Engine.Engine3D; InitWindow, BeginDrawing, DrawCube, ImGui.*
+  Program            using static Engine.E3D; InitWindow, BeginDrawing, DrawCube, ImGui.*
      │
-  Api/               Engine3D: the flat functions, a DrawList, Camera3D, Color
+  Api/               E3D: the flat functions, a DrawList, Camera3D, Color
      │
   Core/  Ecs/        App, plugins, the schedule, World (resources), EcsWorld (entities), events
   Behaviors/         [Behavior] structs, generated into systems at compile time or at runtime
@@ -51,7 +51,7 @@ Dear ImGui has one current context for the whole process, and a program calls it
 one app holds it at a time. Building `SdlImGuiPlugin`, which `DefaultPlugins` does, for a second
 app while another that has not shut down holds it throws an `InvalidOperationException` that says
 so, and the holder lets go in `Cleanup`, when `App.Shutdown` or `CloseWindow` runs. Tests that
-build such apps share the `Engine3D` collection, so they run one after another.
+build such apps share the `E3D` collection, so they run one after another.
 
 ## The schedule
 

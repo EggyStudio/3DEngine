@@ -24,7 +24,7 @@
 //   3. This notice may not be removed or altered from any source distribution.
 
 using System.Numerics;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

@@ -1,6 +1,6 @@
 using System.Globalization;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 /// <summary>What a player does, each bound to a key and a gamepad button.</summary>
 public enum Action { Forward, Back, Left, Right, Jump, Run, Pause }

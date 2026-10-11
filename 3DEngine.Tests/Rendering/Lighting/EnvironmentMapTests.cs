@@ -1,7 +1,7 @@
 using System.Numerics;
 using FluentAssertions;
 using Xunit;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering.Lighting;
 

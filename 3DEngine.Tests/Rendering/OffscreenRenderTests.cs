@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -12,7 +12,7 @@ namespace Engine.Tests.Rendering;
 /// Skipped, with the reason, on a machine with no Vulkan device or no Slang compiler. A software
 /// device such as lavapipe is enough to run them.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed partial class OffscreenRenderTests : IDisposable
 {

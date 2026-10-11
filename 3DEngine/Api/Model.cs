@@ -46,7 +46,7 @@ public sealed class Model
     /// </summary>
     internal Dictionary<int, Matrix4x4[]> GpuPoses { get; } = [];
 
-    /// <summary>Textures the model loaded itself, which <see cref="Engine3D.UnloadModel"/> frees.</summary>
+    /// <summary>Textures the model loaded itself, which <see cref="E3D.UnloadModel"/> frees.</summary>
     internal Texture2D[] OwnedTextures { get; init; } = [];
 
     /// <summary>Whether the model has a mesh to draw.</summary>

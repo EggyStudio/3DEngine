@@ -3,9 +3,9 @@ using Xunit;
 
 namespace Engine.Tests.Common;
 
-// In the Engine3D collection, since its tests set the console's level, which a test there
+// In the E3D collection, since its tests set the console's level, which a test there
 // saves and puts back, and run beside it would leave a level of the other's behind.
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public class LoggerTests
 {
@@ -284,17 +284,17 @@ public class LoggerTests
     {
         var heard = new System.Collections.Concurrent.ConcurrentQueue<(LogLevel, string)>();
         var before = LogConfig.ConsoleMinimumLevel;
-        Engine3D.SetTraceLogLevel(LogLevel.Info);
-        Engine3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
+        E3D.SetTraceLogLevel(LogLevel.Info);
+        E3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
         try
         {
-            Engine3D.TraceLog(LogLevel.Warning, "callback test line");
-            Engine3D.TraceLog(LogLevel.Trace, "below the console's level");
+            E3D.TraceLog(LogLevel.Warning, "callback test line");
+            E3D.TraceLog(LogLevel.Trace, "below the console's level");
         }
         finally
         {
-            Engine3D.SetTraceLogCallback(null);
-            Engine3D.SetTraceLogLevel(before);
+            E3D.SetTraceLogCallback(null);
+            E3D.SetTraceLogLevel(before);
         }
 
         heard.Should().ContainSingle(h => h.Item2.EndsWith("callback test line") && h.Item1 == LogLevel.Warning);
@@ -306,18 +306,18 @@ public class LoggerTests
     {
         var heard = new System.Collections.Concurrent.ConcurrentQueue<(LogLevel, string)>();
         var before = LogConfig.ConsoleMinimumLevel;
-        Engine3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
+        E3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
         try
         {
-            Engine3D.SetTraceLogLevel(LogLevel.None);
-            Engine3D.TraceLog(LogLevel.Warning, "a warning with the console silenced");
-            Engine3D.SetTraceLogLevel(LogLevel.All);
-            Engine3D.TraceLog(LogLevel.Trace, "a trace with every level shown");
+            E3D.SetTraceLogLevel(LogLevel.None);
+            E3D.TraceLog(LogLevel.Warning, "a warning with the console silenced");
+            E3D.SetTraceLogLevel(LogLevel.All);
+            E3D.TraceLog(LogLevel.Trace, "a trace with every level shown");
         }
         finally
         {
-            Engine3D.SetTraceLogCallback(null);
-            Engine3D.SetTraceLogLevel(before);
+            E3D.SetTraceLogCallback(null);
+            E3D.SetTraceLogLevel(before);
         }
 
         heard.Should().NotContain(h => h.Item2.Contains("with the console silenced"));

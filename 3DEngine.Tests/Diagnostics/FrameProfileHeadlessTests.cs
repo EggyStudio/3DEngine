@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Diagnostics;
 
@@ -11,7 +11,7 @@ namespace Engine.Tests.Diagnostics;
 /// In the collection of the other test that sets the log's callback, which is one for the process,
 /// so the two never run together.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public sealed class FrameProfileHeadlessTests : IDisposable
 {

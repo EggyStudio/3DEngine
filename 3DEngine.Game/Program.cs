@@ -5,7 +5,7 @@
 // as a test run does.
 using Engine;
 using Engine.Game;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 var seed = 1;
 var flat = false;

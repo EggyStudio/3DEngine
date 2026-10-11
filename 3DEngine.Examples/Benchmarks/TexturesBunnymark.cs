@@ -2,7 +2,7 @@
 // zlib license, written again for the flat API, and with --stress the benchmark beside raylib's.
 
 using System.Numerics;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

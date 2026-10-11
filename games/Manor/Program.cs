@@ -10,7 +10,7 @@
 using System.Numerics;
 using Engine;
 using ImGuiNET;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 if (args is ["build-level", var folder])
 {

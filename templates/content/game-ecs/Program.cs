@@ -1,6 +1,6 @@
 using System.Numerics;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 InitWindow(1280, 720, "Hello");
 SetTargetFPS(60);

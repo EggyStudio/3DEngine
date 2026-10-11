@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// The views of what the light that bounces holds (<see cref="BounceViewRenderer"/>) and the parts
 /// of it that may be left out, drawn offscreen at Low, which a device without ray queries traces.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class BounceViewTests : IDisposable
 {

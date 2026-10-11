@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -11,7 +11,7 @@ namespace Engine.Tests.Rendering;
 /// light and reflect the same share of what reaches them, every wall shows the light it gives off
 /// over one less that share, the sum of every bounce.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class BounceReferenceTests : IDisposable
 {

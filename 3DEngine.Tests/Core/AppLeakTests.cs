@@ -345,22 +345,22 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         {
             app.AddPlugin(new DefaultPlugins());
             // Shapes, text, a cube and a model, each of which makes its pipeline on the device.
-            Engine3D.UseApp(app);
-            var model = Engine3D.LoadModelFromMesh(Engine3D.GenMeshCube(1, 1, 1));
+            E3D.UseApp(app);
+            var model = E3D.LoadModelFromMesh(E3D.GenMeshCube(1, 1, 1));
             for (int frame = 0; frame < 3; frame++)
             {
-                Engine3D.BeginDrawing();
-                Engine3D.ClearBackground(Color.RayWhite);
-                Engine3D.DrawRectangle(4, 4, 20, 20, Color.Red);
-                Engine3D.DrawText("leak", 4, 30, 10, Color.Black);
-                Engine3D.BeginMode3D(new Camera3D(new System.Numerics.Vector3(3, 3, 3), System.Numerics.Vector3.Zero, System.Numerics.Vector3.UnitY, 45));
-                Engine3D.DrawCube(System.Numerics.Vector3.Zero, 1, 1, 1, Color.Blue);
-                Engine3D.DrawModel(model, System.Numerics.Vector3.UnitX, 1, Color.White);
-                Engine3D.EndMode3D();
-                Engine3D.EndDrawing();
+                E3D.BeginDrawing();
+                E3D.ClearBackground(Color.RayWhite);
+                E3D.DrawRectangle(4, 4, 20, 20, Color.Red);
+                E3D.DrawText("leak", 4, 30, 10, Color.Black);
+                E3D.BeginMode3D(new Camera3D(new System.Numerics.Vector3(3, 3, 3), System.Numerics.Vector3.Zero, System.Numerics.Vector3.UnitY, 45));
+                E3D.DrawCube(System.Numerics.Vector3.Zero, 1, 1, 1, Color.Blue);
+                E3D.DrawModel(model, System.Numerics.Vector3.UnitX, 1, Color.White);
+                E3D.EndMode3D();
+                E3D.EndDrawing();
             }
-            Engine3D.UnloadModel(model);
-            Engine3D.UseApp(null);
+            E3D.UnloadModel(model);
+            E3D.UseApp(null);
             return app;
         });
 

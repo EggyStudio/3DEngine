@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>A camera the program keeps and passes to <see cref="Engine3D.BeginMode3D"/>.</summary>
+/// <summary>A camera the program keeps and passes to <see cref="E3D.BeginMode3D"/>.</summary>
 /// <remarks>
 /// A camera is a value rather than an entity, so a program keeps as many as it likes and
 /// switches between them by passing a different one. The fields are raylib's.

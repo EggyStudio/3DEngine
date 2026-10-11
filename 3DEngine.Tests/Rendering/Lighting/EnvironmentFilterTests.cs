@@ -1,11 +1,11 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering.Lighting;
 
 /// <summary>An environment map filtered on the GPU into its cube and irradiance, read back from the renderer.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class EnvironmentFilterTests : IDisposable
 {

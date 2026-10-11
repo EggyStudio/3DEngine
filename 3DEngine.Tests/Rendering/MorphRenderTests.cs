@@ -1,11 +1,11 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
 /// <summary>A morph target's weight moving a mesh on the GPU, read from the pixels it covers.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class MorphRenderTests : IDisposable
 {

@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -11,7 +11,7 @@ namespace Engine.Tests.Rendering;
 /// left as it was; and slabs lit from behind, a thin one that scatters showing the light on its
 /// front where a thick one barely does and an unmarked one does not.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class SubsurfaceTests : IDisposable
 {

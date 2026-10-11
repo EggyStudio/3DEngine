@@ -1,10 +1,10 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
 /// <summary>Runs compute shaders through the flat API on a real Vulkan device and reads their buffers back.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class ComputeTests : IDisposable
 {

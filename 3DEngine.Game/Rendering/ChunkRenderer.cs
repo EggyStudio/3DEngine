@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Game;
 

@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Rendering;
 /// foot and in the corner and nowhere far from them, in the window and in a render texture alike,
 /// and the frame's passes for it, which the profile names one by one.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class AmbientOcclusionTests : IDisposable
 {

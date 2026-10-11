@@ -2,11 +2,11 @@ namespace Engine;
 
 /// <summary>
 /// How pixels are laid out in memory, raylib's <c>PixelFormat</c> under its values, which
-/// <see cref="Engine3D.LoadImageRaw"/> reads and <see cref="Engine3D.ImageFormat"/> brings an image to.
+/// <see cref="E3D.LoadImageRaw"/> reads and <see cref="E3D.ImageFormat"/> brings an image to.
 /// </summary>
 /// <remarks>
 /// An image here always holds four bytes a pixel, red, green, blue and alpha. A format is read into
-/// them, and <see cref="Engine3D.ImageFormat"/> keeps of each pixel what the format keeps. The
+/// them, and <see cref="E3D.ImageFormat"/> keeps of each pixel what the format keeps. The
 /// compressed formats are named for raylib's values and read by neither.
 /// </remarks>
 public enum PixelFormat

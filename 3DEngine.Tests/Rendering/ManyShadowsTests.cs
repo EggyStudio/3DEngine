@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// More shadowed point and spot lights than the four the first layouts held, each beside a block,
 /// read from the floor where each block's shadow falls.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class ManyShadowsTests : IDisposable
 {

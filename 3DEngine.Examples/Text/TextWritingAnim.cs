@@ -1,7 +1,7 @@
 // raylib's text_writing_anim example, Copyright (c) 2016-2025 Ramon Santamaria (@raysan5), under the zlib
 // license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

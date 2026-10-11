@@ -2,7 +2,7 @@
 // from the game so the engine's tests draw a room of it as the game does.
 using System.Numerics;
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Wick;
 

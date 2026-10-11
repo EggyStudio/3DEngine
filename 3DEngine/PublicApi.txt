@@ -545,221 +545,7 @@ readonly struct Engine.DespawnWhen<TState> : IEquatable<DespawnWhen<TState>> whe
   static bool op_Equality(DespawnWhen<TState> left, DespawnWhen<TState> right)
   static bool op_Inequality(DespawnWhen<TState> left, DespawnWhen<TState> right)
   void Deconstruct(out Func<StateTransition<TState>, bool> Rule)
-sealed class Engine.EcsCommands
-  EcsCommands Add<T>(int entity, T? component)
-  EcsCommands Despawn(int entity)
-  EcsCommands DespawnRecursive(int entity)
-  EcsCommands Remove<T>(int entity)
-  EcsCommands Spawn(Action<int, EcsWorld> builder)
-  EcsCommands SpawnBatch(int count, Action<int, EcsWorld> builder)
-  EcsCommands SpawnBatch<T>(int count) where T : new()
-  EcsCommands SpawnBatch<T>(int count, Func<int, T?> factory)
-  EcsCommands()
-  void Apply(EcsWorld world)
-sealed class Engine.EcsWorld : IDisposable
-  EcsWorld()
-  EcsWorld.ComponentStore<T?> GetStorePublic<T>()
-  EcsWorld.CopyQuery<T1, T2, T3> Query<T1, T2, T3>()
-  EcsWorld.CopyQuery<T1, T2> Query<T1, T2>()
-  EcsWorld.CopyQuery<T> Query<T>()
-  EcsWorld.ReadOnlyEnumerable<T1, T2, T3> QueryReadOnly<T1, T2, T3>()
-  EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
-  EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
-  Entity Handle(int entity)
-  IEnumerable<int> AllEntities()
-  IReadOnlyList<Type> ComponentTypes { get; }
-  List<int> Removed<T>()
-  bool Added<T>(int entity)
-  bool Changed<T>(int entity)
-  bool Despawn(Entity entity)
-  bool Has<T>(Entity entity)
-  bool Has<T>(int entity)
-  bool Remove<T>(Entity entity)
-  bool Remove<T>(int entity)
-  bool TryResolve(Entity entity, out int id)
-  int Count<T>()
-  int EntityCount { get; }
-  int ParentOf(int child)
-  int Spawn()
-  protected override void Finalize()
-  ref T? GetRef<T>(Entity entity)
-  ref T? GetRef<T>(int entity)
-  ref readonly T? GetReadOnly<T>(Entity entity)
-  ref readonly T? GetReadOnly<T>(int entity)
-  void Add<T>(Entity entity, T? component)
-  void Add<T>(int entity, T? component)
-  void Despawn(int entity)
-  void DespawnOnEnter<TState>(Entity entity, TState value) where TState : struct, Enum
-  void DespawnOnEnter<TState>(int entity, TState value) where TState : struct, Enum
-  void DespawnOnExit<TState>(Entity entity, TState value) where TState : struct, Enum
-  void DespawnOnExit<TState>(int entity, TState value) where TState : struct, Enum
-  void DespawnRecursive(int entity)
-  void DespawnWhen<TState>(Entity entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
-  void DespawnWhen<TState>(int entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
-  void Dispose()
-  void SetName(int entity, string name)
-  void Update<T>(Entity entity, T? component)
-  void Update<T>(int entity, T? component)
-delegate void Engine.EcsWorld.BulkProcessAction<T>(Span<T?> components, ReadOnlySpan<int> entities)
-readonly struct Engine.EcsWorld.ComponentSpan<T>
-  ComponentSpan(ReadOnlySpan<int> entities, Span<T?> components)
-  bool IsValid { get; }
-  readonly ReadOnlySpan<int> Entities
-  readonly Span<T?> Components
-sealed class Engine.EcsWorld.ComponentStore<T> : EcsWorld.IComponentStore
-  EcsWorld.ComponentSpan<T?> AsSpan()
-  EcsWorld.ComponentStore<T>.ComponentEnumerable Enumerate()
-  T?[] ComponentsArray { get; }
-  bool Added(int entity)
-  bool AnyChanged()
-  bool Changed(int entity)
-  bool Has(int entity)
-  bool Remove(int entity)
-  bool SetBoxed(int entity, object value)
-  bool TryGet(int entity, out T? value)
-  bool TryRemove(int entity, out IDisposable? disposable)
-  int Count { get; }
-  int DenseIndexOf(int entity)
-  int EntityByDenseIndex(int denseIndex)
-  int[] EntitiesArray { get; }
-  object? GetBoxed(int entity)
-  ref T? ComponentRefByDenseIndex(int denseIndex)
-  ref T? GetRef(int entity)
-  void Add(int entity, T? component)
-  void MarkChangedByDenseIndex(int denseIndex, int tick)
-  void MarkChangedByDenseIndexThreadSafe(int denseIndex)
-  void PruneRemovals(long before)
-  void Removed(List<int> into)
-  void Reserve(int componentCapacity, int maxEntityIdHint)
-  void StampAll()
-  void Update(int entity, T? component, int currentTick)
-readonly struct Engine.EcsWorld.ComponentStore<T>.ComponentEnumerable
-  ComponentEnumerable(EcsWorld.ComponentStore<T?> store)
-  EcsWorld.ComponentStore<T>.ComponentEnumerable.Enumerator GetEnumerator()
-struct Engine.EcsWorld.ComponentStore<T>.ComponentEnumerable.Enumerator
-  (int, T?) Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.CopyQuery<T> : IEnumerable, IEnumerable<(int, T)>
-  EcsWorld.CopyQuery<T>.Enumerator GetEnumerator()
-  EcsWorld.CopyQuery<T?> Added<TAdded>()
-  EcsWorld.CopyQuery<T?> Changed<TChanged>()
-  EcsWorld.CopyQuery<T?> With<TWith>()
-  EcsWorld.CopyQuery<T?> Without<TWithout>()
-struct Engine.EcsWorld.CopyQuery<T>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T)>
-  (int, T) Current { get; }
-  bool MoveNext()
-  void Dispose()
-  void Reset()
-readonly struct Engine.EcsWorld.CopyQuery<T1, T2> : IEnumerable, IEnumerable<(int, T1, T2)>
-  EcsWorld.CopyQuery<T1, T2>.Enumerator GetEnumerator()
-  EcsWorld.CopyQuery<T1?, T2?> Added<TAdded>()
-  EcsWorld.CopyQuery<T1?, T2?> Changed<TChanged>()
-  EcsWorld.CopyQuery<T1?, T2?> With<TWith>()
-  EcsWorld.CopyQuery<T1?, T2?> Without<TWithout>()
-struct Engine.EcsWorld.CopyQuery<T1, T2>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2)>
-  (int, T1, T2) Current { get; }
-  bool MoveNext()
-  void Dispose()
-  void Reset()
-readonly struct Engine.EcsWorld.CopyQuery<T1, T2, T3> : IEnumerable, IEnumerable<(int, T1, T2, T3)>
-  EcsWorld.CopyQuery<T1, T2, T3>.Enumerator GetEnumerator()
-  EcsWorld.CopyQuery<T1?, T2?, T3?> Added<TAdded>()
-  EcsWorld.CopyQuery<T1?, T2?, T3?> Changed<TChanged>()
-  EcsWorld.CopyQuery<T1?, T2?, T3?> With<TWith>()
-  EcsWorld.CopyQuery<T1?, T2?, T3?> Without<TWithout>()
-struct Engine.EcsWorld.CopyQuery<T1, T2, T3>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2, T3)>
-  (int, T1, T2, T3) Current { get; }
-  bool MoveNext()
-  void Dispose()
-  void Reset()
-readonly struct Engine.EcsWorld.QueryFilter
-  bool IsEmpty { get; }
-  bool Passes(int entity)
-readonly struct Engine.EcsWorld.ReadOnlyComponentSpan<T>
-  ReadOnlyComponentSpan(ReadOnlySpan<int> entities, ReadOnlySpan<T?> components)
-  bool IsValid { get; }
-  readonly ReadOnlySpan<T?> Components
-  readonly ReadOnlySpan<int> Entities
-readonly struct Engine.EcsWorld.ReadOnlyComponent<T>
-  T? Component { get; }
-  int Entity { get; }
-readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2>
-  T1? C1 { get; }
-  T2? C2 { get; }
-  int Entity { get; }
-readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3>
-  T1? C1 { get; }
-  T2? C2 { get; }
-  T3? C3 { get; }
-  int Entity { get; }
-readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T>
-  EcsWorld.ReadOnlyEnumerable<T>.Enumerator GetEnumerator()
-  EcsWorld.ReadOnlyEnumerable<T?> Added<TAdded>()
-  EcsWorld.ReadOnlyEnumerable<T?> Changed<TChanged>()
-  EcsWorld.ReadOnlyEnumerable<T?> With<TWith>()
-  EcsWorld.ReadOnlyEnumerable<T?> Without<TWithout>()
-struct Engine.EcsWorld.ReadOnlyEnumerable<T>.Enumerator
-  EcsWorld.ReadOnlyComponent<T> Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2>
-  EcsWorld.ReadOnlyEnumerable<T1, T2>.Enumerator GetEnumerator()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Added<TAdded>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Changed<TChanged>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?> With<TWith>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Without<TWithout>()
-struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2>.Enumerator
-  EcsWorld.ReadOnlyComponents<T1, T2> Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>
-  EcsWorld.ReadOnlyEnumerable<T1, T2, T3>.Enumerator GetEnumerator()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Added<TAdded>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Changed<TChanged>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> With<TWith>()
-  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Without<TWithout>()
-struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>.Enumerator
-  EcsWorld.ReadOnlyComponents<T1, T2, T3> Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.RefComponent<T>
-  T? Component { get; }
-  readonly int Entity
-readonly struct Engine.EcsWorld.RefComponents<T1, T2>
-  T1? C1 { get; }
-  T2? C2 { get; }
-  readonly int Entity
-readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3>
-  T1? C1 { get; }
-  T2? C2 { get; }
-  T3? C3 { get; }
-  readonly int Entity
-readonly struct Engine.EcsWorld.RefEnumerable<T>
-  EcsWorld.RefEnumerable<T>.RefEnumerator GetEnumerator()
-  EcsWorld.RefEnumerable<T?> Added<TAdded>()
-  EcsWorld.RefEnumerable<T?> Changed<TChanged>()
-  EcsWorld.RefEnumerable<T?> With<TWith>()
-  EcsWorld.RefEnumerable<T?> Without<TWithout>()
-  static EcsWorld.RefEnumerable<T?> From(EcsWorld.ComponentSpan<T?> span)
-struct Engine.EcsWorld.RefEnumerable<T>.RefEnumerator
-  EcsWorld.RefComponent<T> Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.RefEnumerable<T1, T2>
-  EcsWorld.RefEnumerable<T1, T2>.RefEnumerator GetEnumerator()
-  EcsWorld.RefEnumerable<T1?, T2?> Added<TAdded>()
-  EcsWorld.RefEnumerable<T1?, T2?> Changed<TChanged>()
-  EcsWorld.RefEnumerable<T1?, T2?> With<TWith>()
-  EcsWorld.RefEnumerable<T1?, T2?> Without<TWithout>()
-struct Engine.EcsWorld.RefEnumerable<T1, T2>.RefEnumerator
-  EcsWorld.RefComponents<T1, T2> Current { get; }
-  bool MoveNext()
-readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>
-  EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator GetEnumerator()
-  EcsWorld.RefEnumerable<T1?, T2?, T3?> Added<TAdded>()
-  EcsWorld.RefEnumerable<T1?, T2?, T3?> Changed<TChanged>()
-  EcsWorld.RefEnumerable<T1?, T2?, T3?> With<TWith>()
-  EcsWorld.RefEnumerable<T1?, T2?, T3?> Without<TWithout>()
-struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
-  EcsWorld.RefComponents<T1, T2, T3> Current { get; }
-  bool MoveNext()
-static class Engine.Engine3D
+static class Engine.E3D
   const int AnimationFps = 60
   const int MeshStreamBuffer = 9
   static App GetApp()
@@ -1531,6 +1317,220 @@ static class Engine.Engine3D
   static void rlTranslatef(float x, float y, float z)
   static void rlVertex2f(float x, float y)
   static void rlVertex3f(float x, float y, float z)
+sealed class Engine.EcsCommands
+  EcsCommands Add<T>(int entity, T? component)
+  EcsCommands Despawn(int entity)
+  EcsCommands DespawnRecursive(int entity)
+  EcsCommands Remove<T>(int entity)
+  EcsCommands Spawn(Action<int, EcsWorld> builder)
+  EcsCommands SpawnBatch(int count, Action<int, EcsWorld> builder)
+  EcsCommands SpawnBatch<T>(int count) where T : new()
+  EcsCommands SpawnBatch<T>(int count, Func<int, T?> factory)
+  EcsCommands()
+  void Apply(EcsWorld world)
+sealed class Engine.EcsWorld : IDisposable
+  EcsWorld()
+  EcsWorld.ComponentStore<T?> GetStorePublic<T>()
+  EcsWorld.CopyQuery<T1, T2, T3> Query<T1, T2, T3>()
+  EcsWorld.CopyQuery<T1, T2> Query<T1, T2>()
+  EcsWorld.CopyQuery<T> Query<T>()
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3> QueryReadOnly<T1, T2, T3>()
+  EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
+  EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
+  Entity Handle(int entity)
+  IEnumerable<int> AllEntities()
+  IReadOnlyList<Type> ComponentTypes { get; }
+  List<int> Removed<T>()
+  bool Added<T>(int entity)
+  bool Changed<T>(int entity)
+  bool Despawn(Entity entity)
+  bool Has<T>(Entity entity)
+  bool Has<T>(int entity)
+  bool Remove<T>(Entity entity)
+  bool Remove<T>(int entity)
+  bool TryResolve(Entity entity, out int id)
+  int Count<T>()
+  int EntityCount { get; }
+  int ParentOf(int child)
+  int Spawn()
+  protected override void Finalize()
+  ref T? GetRef<T>(Entity entity)
+  ref T? GetRef<T>(int entity)
+  ref readonly T? GetReadOnly<T>(Entity entity)
+  ref readonly T? GetReadOnly<T>(int entity)
+  void Add<T>(Entity entity, T? component)
+  void Add<T>(int entity, T? component)
+  void Despawn(int entity)
+  void DespawnOnEnter<TState>(Entity entity, TState value) where TState : struct, Enum
+  void DespawnOnEnter<TState>(int entity, TState value) where TState : struct, Enum
+  void DespawnOnExit<TState>(Entity entity, TState value) where TState : struct, Enum
+  void DespawnOnExit<TState>(int entity, TState value) where TState : struct, Enum
+  void DespawnRecursive(int entity)
+  void DespawnWhen<TState>(Entity entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
+  void DespawnWhen<TState>(int entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
+  void Dispose()
+  void SetName(int entity, string name)
+  void Update<T>(Entity entity, T? component)
+  void Update<T>(int entity, T? component)
+delegate void Engine.EcsWorld.BulkProcessAction<T>(Span<T?> components, ReadOnlySpan<int> entities)
+readonly struct Engine.EcsWorld.ComponentSpan<T>
+  ComponentSpan(ReadOnlySpan<int> entities, Span<T?> components)
+  bool IsValid { get; }
+  readonly ReadOnlySpan<int> Entities
+  readonly Span<T?> Components
+sealed class Engine.EcsWorld.ComponentStore<T> : EcsWorld.IComponentStore
+  EcsWorld.ComponentSpan<T?> AsSpan()
+  EcsWorld.ComponentStore<T>.ComponentEnumerable Enumerate()
+  T?[] ComponentsArray { get; }
+  bool Added(int entity)
+  bool AnyChanged()
+  bool Changed(int entity)
+  bool Has(int entity)
+  bool Remove(int entity)
+  bool SetBoxed(int entity, object value)
+  bool TryGet(int entity, out T? value)
+  bool TryRemove(int entity, out IDisposable? disposable)
+  int Count { get; }
+  int DenseIndexOf(int entity)
+  int EntityByDenseIndex(int denseIndex)
+  int[] EntitiesArray { get; }
+  object? GetBoxed(int entity)
+  ref T? ComponentRefByDenseIndex(int denseIndex)
+  ref T? GetRef(int entity)
+  void Add(int entity, T? component)
+  void MarkChangedByDenseIndex(int denseIndex, int tick)
+  void MarkChangedByDenseIndexThreadSafe(int denseIndex)
+  void PruneRemovals(long before)
+  void Removed(List<int> into)
+  void Reserve(int componentCapacity, int maxEntityIdHint)
+  void StampAll()
+  void Update(int entity, T? component, int currentTick)
+readonly struct Engine.EcsWorld.ComponentStore<T>.ComponentEnumerable
+  ComponentEnumerable(EcsWorld.ComponentStore<T?> store)
+  EcsWorld.ComponentStore<T>.ComponentEnumerable.Enumerator GetEnumerator()
+struct Engine.EcsWorld.ComponentStore<T>.ComponentEnumerable.Enumerator
+  (int, T?) Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.CopyQuery<T> : IEnumerable, IEnumerable<(int, T)>
+  EcsWorld.CopyQuery<T>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T?> Added<TAdded>()
+  EcsWorld.CopyQuery<T?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T?> With<TWith>()
+  EcsWorld.CopyQuery<T?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T)>
+  (int, T) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
+readonly struct Engine.EcsWorld.CopyQuery<T1, T2> : IEnumerable, IEnumerable<(int, T1, T2)>
+  EcsWorld.CopyQuery<T1, T2>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T1?, T2?> Added<TAdded>()
+  EcsWorld.CopyQuery<T1?, T2?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T1?, T2?> With<TWith>()
+  EcsWorld.CopyQuery<T1?, T2?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T1, T2>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2)>
+  (int, T1, T2) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
+readonly struct Engine.EcsWorld.CopyQuery<T1, T2, T3> : IEnumerable, IEnumerable<(int, T1, T2, T3)>
+  EcsWorld.CopyQuery<T1, T2, T3>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T1?, T2?, T3?> Added<TAdded>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?> With<TWith>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T1, T2, T3>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2, T3)>
+  (int, T1, T2, T3) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
+readonly struct Engine.EcsWorld.QueryFilter
+  bool IsEmpty { get; }
+  bool Passes(int entity)
+readonly struct Engine.EcsWorld.ReadOnlyComponentSpan<T>
+  ReadOnlyComponentSpan(ReadOnlySpan<int> entities, ReadOnlySpan<T?> components)
+  bool IsValid { get; }
+  readonly ReadOnlySpan<T?> Components
+  readonly ReadOnlySpan<int> Entities
+readonly struct Engine.EcsWorld.ReadOnlyComponent<T>
+  T? Component { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T>
+  EcsWorld.ReadOnlyEnumerable<T>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T>.Enumerator
+  EcsWorld.ReadOnlyComponent<T> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2>
+  EcsWorld.ReadOnlyEnumerable<T1, T2>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2>.Enumerator
+  EcsWorld.ReadOnlyComponents<T1, T2> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>.Enumerator
+  EcsWorld.ReadOnlyComponents<T1, T2, T3> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefComponent<T>
+  T? Component { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefComponents<T1, T2>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefEnumerable<T>
+  EcsWorld.RefEnumerable<T>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T?> With<TWith>()
+  EcsWorld.RefEnumerable<T?> Without<TWithout>()
+  static EcsWorld.RefEnumerable<T?> From(EcsWorld.ComponentSpan<T?> span)
+struct Engine.EcsWorld.RefEnumerable<T>.RefEnumerator
+  EcsWorld.RefComponent<T> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefEnumerable<T1, T2>
+  EcsWorld.RefEnumerable<T1, T2>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T1?, T2?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T1?, T2?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T1?, T2?> With<TWith>()
+  EcsWorld.RefEnumerable<T1?, T2?> Without<TWithout>()
+struct Engine.EcsWorld.RefEnumerable<T1, T2>.RefEnumerator
+  EcsWorld.RefComponents<T1, T2> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>
+  EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?> With<TWith>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?> Without<TWithout>()
+struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
+  EcsWorld.RefComponents<T1, T2, T3> Current { get; }
+  bool MoveNext()
 readonly struct Engine.Entity : IEquatable<Entity>
   Entity(int Index, int Generation)
   bool Equals(Entity other)

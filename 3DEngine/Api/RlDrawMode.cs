@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>How <see cref="Engine3D.rlBegin"/> joins the vertices that follow, rlgl's <c>RL_LINES</c>, <c>RL_TRIANGLES</c> and <c>RL_QUADS</c>.</summary>
+/// <summary>How <see cref="E3D.rlBegin"/> joins the vertices that follow, rlgl's <c>RL_LINES</c>, <c>RL_TRIANGLES</c> and <c>RL_QUADS</c>.</summary>
 public enum RlDrawMode
 {
     /// <summary>A line from each two vertices.</summary>

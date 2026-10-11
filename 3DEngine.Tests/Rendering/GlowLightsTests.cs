@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -11,7 +11,7 @@ namespace Engine.Tests.Rendering;
 /// glowing block on a floor lighting the floor around it as a path-traced reference does, with no
 /// lobes and from far off as from near.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 public sealed class GlowLightsTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-glow-");

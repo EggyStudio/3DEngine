@@ -4,7 +4,7 @@ using ImGuiNET;
 namespace Engine.Tests.Gui;
 
 /// <summary>A gamepad driving ImGui's navigation, so a game's menus work with the pad alone.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public class ImGuiGamepadTests
 {

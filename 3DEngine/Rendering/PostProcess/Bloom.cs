@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>How much light past a threshold spreads into the pixels around it, a world resource the renderer reads each frame.</summary>
-/// <seealso cref="Engine3D.SetBloom"/>
+/// <seealso cref="E3D.SetBloom"/>
 internal sealed class BloomSettings
 {
     /// <summary>How much of the spread light is added to the frame, 0 for none.</summary>

@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Rendering;
 /// glossy surfaces reflect what is on the screen and what is behind the camera, with in
 /// <c>GlobalIlluminationTests.Frames.cs</c> how the light holds still and follows its lights over frames.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 public sealed partial class GlobalIlluminationTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-gi-");

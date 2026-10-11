@@ -3,7 +3,7 @@
 
 using System.Numerics;
 using System.Text;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

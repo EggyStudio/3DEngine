@@ -5,9 +5,9 @@ namespace Engine;
 /// makes its sound as it runs does, raylib's <c>AudioStream</c>.
 /// </summary>
 /// <remarks>
-/// The program asks <see cref="Engine3D.IsAudioStreamProcessed"/> each frame and, when it answers
-/// true, gives the next samples to <see cref="Engine3D.UpdateAudioStream(AudioStream, ReadOnlySpan{float})"/>,
-/// or hands the stream a callback with <see cref="Engine3D.SetAudioStreamCallback"/>, which the
+/// The program asks <see cref="E3D.IsAudioStreamProcessed"/> each frame and, when it answers
+/// true, gives the next samples to <see cref="E3D.UpdateAudioStream(AudioStream, ReadOnlySpan{float})"/>,
+/// or hands the stream a callback with <see cref="E3D.SetAudioStreamCallback"/>, which the
 /// frame calls for as many samples as keep it fed. Samples are interleaved, a frame of one for each
 /// channel, from -1 to 1.
 /// </remarks>

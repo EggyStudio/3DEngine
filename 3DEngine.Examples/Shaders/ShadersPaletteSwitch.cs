@@ -1,7 +1,7 @@
 // raylib's shaders_palette_switch example, Copyright (c) 2019-2025 Marco Lizza (@MarcoLizza) and Ramon
 // Santamaria (@raysan5), under the zlib license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

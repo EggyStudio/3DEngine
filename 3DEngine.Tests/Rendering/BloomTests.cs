@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Rendering;
 /// turned off draws the frame it drew before it was on, and a shader of the program's own draws
 /// alike either way.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class BloomTests : IDisposable
 {

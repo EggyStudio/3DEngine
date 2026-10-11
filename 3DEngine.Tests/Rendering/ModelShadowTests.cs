@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// A model's material deciding whether it casts a shadow, read from the floor under it, and a
 /// caster the camera does not see still casting one where the camera's pass leaves it out.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class ModelShadowTests : IDisposable
 {

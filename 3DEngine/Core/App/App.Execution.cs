@@ -12,7 +12,7 @@ public sealed partial class App
     /// <remarks>
     /// The main loop is driven by the <see cref="IMainLoopDriver"/> resource, which a window plugin
     /// such as <c>AppWindowPlugin</c> inserts. A program that drives its own loop calls the same
-    /// steps itself, which is how <see cref="Engine3D"/> runs a frame between
+    /// steps itself, which is how <see cref="E3D"/> runs a frame between
     /// <c>BeginDrawing</c> and <c>EndDrawing</c>.
     /// </remarks>
     /// <exception cref="InvalidOperationException">

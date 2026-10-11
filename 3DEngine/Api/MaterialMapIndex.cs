@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// A material's maps by raylib's names, for <see cref="Engine3D.SetMaterialTexture"/>. Metalness
+/// A material's maps by raylib's names, for <see cref="E3D.SetMaterialTexture"/>. Metalness
 /// and roughness share one map here, as glTF packs them, and the last four name maps this
 /// engine's materials do not have.
 /// </summary>
@@ -21,7 +21,7 @@ public enum MaterialMapIndex
     Emission,
     /// <summary>A height map, which the engine's materials do not have.</summary>
     Height,
-    /// <summary>A cube map, which the engine's materials do not hold, a shader's <c>SamplerCube</c> being given one by <see cref="Engine3D.SetShaderValueTexture"/>.</summary>
+    /// <summary>A cube map, which the engine's materials do not hold, a shader's <c>SamplerCube</c> being given one by <see cref="E3D.SetShaderValueTexture"/>.</summary>
     Cubemap,
     /// <summary>An irradiance map, which the environment map gives instead.</summary>
     Irradiance,

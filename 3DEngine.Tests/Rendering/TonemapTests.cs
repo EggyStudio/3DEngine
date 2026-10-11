@@ -1,7 +1,7 @@
 using System.Numerics;
 using FluentAssertions;
 using Vortice.Vulkan;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -19,7 +19,7 @@ namespace Engine.Tests.Rendering;
 /// <c>BevyCSharp.Tests/references/tonemapping</c> at its commit 64ec311, drawn there by Bevy 0.19.1
 /// with its tables on the development machine's GPU, each named as Bevy names its tonemapper.
 /// </remarks>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class TonemapTests : IDisposable
 {

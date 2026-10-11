@@ -12,7 +12,7 @@
 
 ```csharp
 using Engine;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 InitWindow(800, 450, "[core] basic window");
 SetTargetFPS(60);

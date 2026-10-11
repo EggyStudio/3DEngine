@@ -1,10 +1,11 @@
 # Moving a game from 5.1 to 6.0
 
 6.0 answers to raylib's names where 5.1 had names of its own. Its keys, gamepad buttons and log
-levels are named as raylib names them, a model's skeleton and a clip's keyframes are held as
-raylib 6 holds them, and three functions 5.1 carried under older names are gone, each with the
-call that does its work. This page counts from 5.1.116, the 5.1 package these changes came after,
-and the packages of 5.1 made since carry some of them already.
+levels are named as raylib names them, a model's skeleton and a clip's keyframes are held as raylib
+6 holds them, three functions 5.1 carried under older names are gone, each with the call that does
+its work, and the class the flat API is called through is `E3D`, where 5.1's was `Engine3D`. This
+page counts from 5.1.116, the 5.1 package these changes came after, and the packages of 5.1 made
+since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
@@ -48,6 +49,17 @@ effect, light past white to glow, returns `toDisplay(light)` in its place.
 color over one plus its luminance, which is `Tonemap.ReinhardLuminance` now. A gray is drawn the
 same by both, and a game that chose Reinhard for how its colors kept their hue chooses
 `Tonemap.ReinhardLuminance`.
+
+## The flat API's class
+
+The class a game calls the flat API through is `E3D`, where 5.1 named it `Engine3D`. The namespace
+is `Engine` as before and the package `3DEngine`, so a game changes the class's name where it writes
+it and nothing else.
+
+| A game wrote | It writes |
+|---|---|
+| `using static Engine.Engine3D;` | `using static Engine.E3D;` |
+| `Engine3D.UseApp(app)` | `E3D.UseApp(app)`, as every call written through the class |
 
 ## Functions
 

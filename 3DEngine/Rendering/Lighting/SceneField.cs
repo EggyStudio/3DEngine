@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>The scene's distance field as the program set it, a world resource the renderer reads each frame.</summary>
-/// <seealso cref="Engine3D.SetSceneField"/>
+/// <seealso cref="E3D.SetSceneField"/>
 internal sealed class SceneFieldSettings
 {
     /// <summary>How many cascades, 0 for no field.</summary>

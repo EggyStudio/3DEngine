@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Api;
 /// are bars 800, 400 and 200 units high, which <c>build/make-color-test-fonts.py</c> writes, so the
 /// order they are drawn in is read from their heights.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class RightToLeftTextTests : IDisposable
 {

@@ -18,15 +18,15 @@ public partial class CheatsheetTests
     [Fact]
     public void Every_Public_Function_Of_The_Flat_API_Has_Its_Line_And_Every_Line_A_Function()
     {
-        var api = typeof(Engine3D).GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+        var api = typeof(E3D).GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
             .Where(m => !m.IsSpecialName)
             .Select(m => $"{m.Name}/{m.GetParameters().Length}")
             .ToHashSet();
         var listed = Listed(File.ReadAllLines(Path.Combine(RepoRoot(), "CHEATSHEET.md"))).ToHashSet();
 
         // Joined, so a failure names every function at once.
-        string.Join(", ", api.Except(listed).Order()).Should().BeEmpty("each public function of Engine3D has its line in CHEATSHEET.md");
-        string.Join(", ", listed.Except(api).Order()).Should().BeEmpty("each line of CHEATSHEET.md names a function Engine3D has");
+        string.Join(", ", api.Except(listed).Order()).Should().BeEmpty("each public function of E3D has its line in CHEATSHEET.md");
+        string.Join(", ", listed.Except(api).Order()).Should().BeEmpty("each line of CHEATSHEET.md names a function E3D has");
     }
 
     [Fact]

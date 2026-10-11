@@ -7,7 +7,7 @@ namespace Engine;
 /// frame, the work in it (the schedule's stages, which leave out the wait for the target frame
 /// rate), each stage and system, the renderer's phases and prepare systems, and each render graph
 /// node on the CPU and, where the device writes timestamps, on the GPU. A program adds numbers of its own with
-/// <see cref="Engine3D.SetProfileValue"/>, as a stress test's count.
+/// <see cref="E3D.SetProfileValue"/>, as a stress test's count.
 /// </summary>
 /// <remarks>
 /// <para>

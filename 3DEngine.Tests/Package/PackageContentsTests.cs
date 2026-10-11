@@ -23,7 +23,7 @@ public sealed class PackageContentsTests
 
         // The documentation of the flat API, which a game's editor shows on hovering a call.
         var documentation = Read(package, "lib/net10.0/3DEngine.xml");
-        documentation.Should().Contain("M:Engine.Engine3D.InitWindow(", "the documentation file is the engine's");
+        documentation.Should().Contain("M:Engine.E3D.InitWindow(", "the documentation file is the engine's");
     }
 
     [NeedsPackageFact]

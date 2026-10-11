@@ -6,7 +6,7 @@ namespace Engine;
 /// The light from all around a scene, an equirectangular image of linear light the renderer filters
 /// into a cube prefiltered by roughness, which the model pass reflects off every surface, and into
 /// its irradiance, which the pass scatters off the diffuse share. A world resource, set by
-/// <see cref="Engine3D.SetEnvironmentMap(string, float)"/> or inserted directly.
+/// <see cref="E3D.SetEnvironmentMap(string, float)"/> or inserted directly.
 /// </summary>
 /// <remarks>
 /// <para>

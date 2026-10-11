@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>The pointer's shapes <see cref="Engine3D.SetMouseCursor"/> sets, as raylib's <c>MouseCursor</c> names them.</summary>
+/// <summary>The pointer's shapes <see cref="E3D.SetMouseCursor"/> sets, as raylib's <c>MouseCursor</c> names them.</summary>
 public enum MouseCursor
 {
     /// <summary>The desktop's own pointer.</summary>

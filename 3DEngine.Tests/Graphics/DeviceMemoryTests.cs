@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace Engine.Tests.Graphics;
 
 /// <summary>Buffers and images carved out of shared blocks of device memory, on a real Vulkan device.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class DeviceMemoryTests
 {

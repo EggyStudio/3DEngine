@@ -10,7 +10,52 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3ec1fdb3`. Item 20's second stage, and item 20 is done: a mesh uploaded from its
+Reviewed up to `b275f738`, the game's commit, its adoption of the stream from ASKS.md's line: a
+section and the clouds are positions and eight packed bytes a vertex, `UInt2`, the face at 3 bits,
+the corner at 2 and the shade at 8 in the first four bytes and the tint's red, green, blue and the
+surface's alpha a byte each in the second, two being needed since glass, water and ice blend by a
+per-surface alpha that one `uint` has no room for beside the rest; `terrain.slang` takes the
+position and the packed bytes and unpacks the normal and the texture coordinate from its tables by
+face and corner and the color from the tint under the shade; a relight is `UpdateMeshBuffer` at
+`MeshStreamBuffer`, the positions and triangles deciding a relight against a new upload, and the
+colors still go with the upload for the light field; the game's README says so; `MesherTests` is
+rewritten for positions and packed bytes with three tests more, the packing read back as the shader
+reads it, each corner lying toward its face's normal, and a change of light keeping the positions
+and changing the packed bytes, 48 game tests passing; a shot of the room at night and the hills by
+day matches the build before within one level of 255. Twenty bytes a vertex on the GPU where 44. The
+bytes a section, the relight's time and the frame's come into the game's entry once the GPU is
+quiet, the BevyCSharp suite having been on it. Right, the alpha the second four bytes' reason, the
+look held to a level, and the relight writing the packed bytes alone. The game's files are clear for
+item 15's rename, the game's session holding its `using static` lines until the rename lands, which
+it told the working session, so item 15 is unblocked. The page at 00:15: the run of `7798d5e5` is
+green on every job, the first whole green run since the lamps' shaders grew, the Windows tests in 23
+m 25 s, the macOS captures drawn and the examples job of the split workflow green in nine minutes
+with its captures and measure skipped on a push as item 19 has it; the leak test held its bound, the
+third of three, so Verdict 51 is settled and leaves this file; and since a push no longer captures
+on Linux, Verdict 52's captures and Verdict 49's measure are read on the pack run, which Decision 19
+makes due, every job being green, the owner's to start. The run of `958a3eb3` is in flight. Next the
+bounce around the pillar as a read of its own and item 17, then item 15, h's blotches and teeth by
+the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `e910f4f4` came, item 14: the seventeen files outside `.github` that named the
+development machine's GPU say the development machine's GPU or a laptop GPU, the shaders' and the
+rendering tests' comments, the lights guide and the raylib comparison among them, every measurement
+kept, and the comparison names the machine as a laptop with its processor and an NVIDIA GPU; the
+suite passes, 1,693. Item 14 is done for what a user reads; the documents under `.github` keep the
+name as the item says, RENDERING.md in twelve places, BUILDING.md in one and the game's ASKS.md
+entries in three, and the owner is asked at 23:59 whether those go too, since the repository is read
+on GitHub. Right, the device a plain phrase and no number lost. Item 15 is blocked on one point and
+unblocked so: the rename touches thirteen files of `3DEngine.Game`, each by its `using static` line,
+which the game's session owns and two of which are in its tree, and the solution builds only if they
+change in the rename's commit, no alias bridging a static class's members; so the working session
+changes those thirteen lines and nothing else of the game's in its one commit, once the game's
+session has committed or set aside its edits to those files and said so, which it is asked to; the
+namespace stays `Engine` and the projects and the package their names, 743 mentions in 493 files
+outside the game. Until that word, the bounce around the pillar as a read of its own, then item 17.
+Then item 15, h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item
+8.
+
+Before it, `3ec1fdb3` came, item 20's second stage, and item 20 is done: a mesh uploaded from its
 positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a vertex on the GPU,
 the store keeping vertices of zero normals and coordinates for the light field, the glow lights,
 picking and the bodies, which read them as any mesh's; every pipeline that binds the vertex has its
@@ -34,73 +79,6 @@ is done, the voxel game's adoption its own ask, written under the game's entry i
 with the packing and the measure. Next item 14, then item 15 as a batch of its own when nothing else
 is in flight, item 17, the bounce around the pillar as a read of its own, h's blotches and teeth by
 the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `958a3eb3` came, item 20's first stage, with item 19's last line: `MeshStream` and
-`MeshStreamFormat` with BevyCSharp's names and numbers, a fifth argument of `UploadMesh` and
-`UpdateMeshBuffer` at `MeshStreamBuffer`, 9, writing the stream alone, queued as its own kind of
-upload through a ring of buffers and merged with a write of the vertices queued the same frame; a
-vertex stage of the program's own reading `CUSTOM0` fed at binding 5 from the mesh's stream in its
-format or, where the mesh has none, from sixteen bytes of zeros at a stride of 0 in the input's
-class, which the reflection says and the shader cache's input line keeps, the pipeline keyed by the
-feed; the store checking a whole number of the format's vertices against the mesh's and forgetting
-the stream with the mesh; the three Vulkan formats; the models and shaders guides, the upgrading
-page's line, RENDERING.md's bindings; `Engine3D.Models.cs` past 800 lines split, the program's own
-meshes in `Engine3D.Meshes.cs`. Four bytes, a `uint` or `packed` throughout. The guide gives the
-reasons for a vertex stream over a buffer read by the vertex's index, the working session rightly
-leaving out the one about batches, since a draw with a shader of its own is a batch of its own here
-already, and item 20's text drops it too. Tests: the store's count check and its in-place queueing,
-the write of index 9 changing one value, the reflection's class, and the Vulkan fact of two planes
-at 64 by 32, the left's packed color reaching its stage whole and the right, without a stream,
-reading zero. The example `shaders_packed_vertices`, 5,120 vertices whose four bytes a wave writes
-in place each frame, captured and in the Shaders row, the counts 35 of the engine's own and Shaders
-51. The pack job waits on the examples job. The suite passes, 1,691; on lavapipe under the
-validation layer 401 pass with no VUID; the guides' 144 blocks and the examples build on the
-package. Right, the feed keyed by format and class so a shader serves meshes with the stream and
-without, the in-place write merged rather than doubled, and the reasons in the guide as they hold
-here. Next item 20's second stage as revised, then item 14, item 15 as a batch of its own, item 17,
-the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
-filter offset, item 10, item 9 and item 8.
-
-Before it, `3af4cda8`, `043b3af1` and `7798d5e5` came. `3af4cda8`, Verdict 50's remedy: the suite's
-script gives an NVIDIA driver a cache of the suite's own in `build/nvidia-cache`, 2 GiB, through the
-driver's two variables where neither is set, and makes the folder, since the driver makes none and a
-folder it could not write in failed a compile with the same unknown error, this time on the bloom's
-exposure pipeline, which says the cause is the driver's on any pipeline; two runs through the script
-then passed 1,686 each in 7 m 31 s with a fresh cache and 6 m 39 s with a warm one, where 26 minutes
-with none; the folder in `.gitignore` and BUILDING.md's paragraph with the timings and the runs.
-Verdict 50 is settled, its cause named and ten runs green, and leaves this file. `043b3af1`, item
-18, taken before 19 since both touch the table script: the README says under Examples that of
-raylib's 222 examples 221 are written and one does not apply, beside 34 of the engine's own and 12
-games, and each folder's heading counts its row's pictures, Audio 12 through Games 12, 255 in all,
-written by the table script and failed by its check where stale. `7798d5e5`, item 19: the examples
-job is a workflow of its own, called with whole false by a push, which keeps the table's check,
-builds every game from the package, plays and soaks Slide and runs the first game's steps, and with
-whole true by the pack, which captures, measures, plays the twelve games, soaks, resizes and walks
-the README; each step names the workflow file to the step script, since a called workflow's run
-names its caller's, and the script finds the thirty named steps; BUILDING.md says which run does
-what and the shipping guide follows. Items 18 and 19 are done. Right, the cache folder made and the
-unwritable one read as the same fault, the counts written by the script that owns the gallery rather
-than by hand, and the one job split by a flag rather than two copies of its steps. One thing left of
-item 19: the pack job does not wait on the examples job, both needing the tests alone, so a package
-is made before the games are proven, which Decision 19 does not allow for 5.2; the pack waits on it,
-one line, with item 20's first commit. The owner refined item 20 at 22:55, approved at 22:58
-(Decision 37): a position is every mesh's, as Bevy has it, since shadows, motion vectors and
-everything around a mesh read it, and the packed data is a stream beside it; so the second stage is
-a vertex of positions alone, 12 bytes, which every pass binds, in place of the mesh that was the
-stream alone and its shadow pipelines, and the voxel vertex is 20 bytes or 16 where 44, the item
-rewritten below. The owner asked at 23:05 that four bytes be called four bytes and never a word,
-which this file does from here and the working session's guides and comments of item 20 do; the
-game's session is told the same. The page at 23:10: `fdf27346`'s Windows job ran its tests whole in
-23 m 44 s, 1,686 passed, where the job ran 87 minutes to its limit before, the second in a row
-within a quarter of the mark, so Verdict 48 is settled, its two remedies and the third build having
-done it, and leaves this file; its macOS job is green with the Slide step and the first game's, the
-third in a row, so Verdict 53 is settled and leaves too; the leak test held its bound, the second of
-Verdict 51's three; its examples job waits on its macOS captures and runs without the mend, so it
-reads nothing new. The run of `7798d5e5`, pushed at 22:53 with the mend, the counts and the split,
-is in flight, its Linux job green, and its examples job reads Verdicts 49 and 52. Next item 20's
-first stage with BevyCSharp's names, then its second, then item 14, item 15 as a batch of its own,
-item 17, the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's
-eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -743,15 +721,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the three roles, the lightest 3D game by measure, every place that named Pusher following, and
     SHARED.md's rows naming Slide.
 
-14. **The development machine's GPU is named nowhere a user reads (Decision 32).** The owner asked
-    on 2026-10-11 at 17:26 that the mention of their machine, the RTX 4070, leave the code and
-    comments a user sees. Seventeen files outside `.github` name it, the shaders' comments, the
-    rendering tests' comments and the guides among them, each naming it where a measurement was
-    taken; the measurement stays and the device becomes a plain phrase, the development machine's
-    GPU or a laptop GPU of its class, so a reader knows the class of device and not the owner's. The
-    documents under `.github`, RENDERING.md, ASKS.md and this file, keep the name since their
-    measurements are read against one device, unless the owner says otherwise. With the batch after
-    the third build.
+14. **The development machine's GPU is named nowhere a user reads (Decision 32), done at
+    `e910f4f4`.** The owner asked on 2026-10-11 at 17:26 that the mention of their machine, the RTX
+    4070, leave the code and comments a user sees. Seventeen files outside `.github` name it, the
+    shaders' comments, the rendering tests' comments and the guides among them, each naming it where
+    a measurement was taken; the measurement stays and the device becomes a plain phrase, the
+    development machine's GPU or a laptop GPU of its class, so a reader knows the class of device
+    and not the owner's. The documents under `.github`, RENDERING.md, ASKS.md and this file, keep
+    the name since their measurements are read against one device, unless the owner says otherwise.
+    Done at `e910f4f4` for the seventeen files; whether the documents under `.github` follow is
+    asked of the owner at 23:59.
 
 15. **`Engine3D` becomes `E3D` (Decision 32).** The owner asked on 2026-10-11 at 17:26 that the flat
     API's class be renamed, with the namespaces and the collections that carry its name. The static
@@ -761,7 +740,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     716 mentions in 486 files; the namespace `Engine` stays unless the owner says, since `E3D.E3D`
     reads badly, and the package and the projects keep their names as the owner's (Decision 2). A
     rename of the public surface, so the version is the owner's to number (Decision 5). A batch of
-    its own, moving names alone, taken when no other batch is in flight, after item 14.
+    its own, moving names alone, taken when no other batch is in flight. The rename touches thirteen
+    files of `3DEngine.Game` by their `using static` line, which the game's session owns and the
+    solution needs changed in the same commit, so the working session changes those lines and
+    nothing else of the game's in the rename's commit, once the game's session has committed or set
+    aside its edits to those files and said so.
 
 16. **The README's guide table opens with the cheat sheet's row, done at `ffa3ec48` (Decision 32).**
     The owner asked on 2026-10-11 at 17:26 for the row BevyCSharp's README has first in its guide
@@ -929,23 +912,8 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     pairs given five points of room in the record's third column, and raylib's own signal named; the
     next run's uploads are read for what the two moved by. `ffa3ec48`'s examples job, the first to
     run since, drew no capture (Verdict 52), so the measure waits on the next job after the picture
-    script's mend. Settled when an examples job's measure holds and the steps after it run.
-
-51. **The leak test's resident memory on Windows grew 92 MB past its 50 MB bound over fifty apps at
-    `e28064f7`, with no Vulkan object left alive.** Read from the page: fifty apps in 255 seconds,
-    the heap flat at 13.3 to 13.4 MB after every ten, the Vulkan objects after the last app none
-    more than after the twentieth, the threads 19 to 23, and the resident memory 142 MB above the
-    twentieth's where the test allows 50; `aa9fe773`'s job, with the same shaders and the same Mesa
-    cache folder, named no such failure, so the growth is either the run's own or came between the
-    two. Two suspects, read first: Mesa's shader cache named in the workspace since `76e7c278`,
-    which on a Windows build of Mesa may hold its index in memory per device made, and the glow
-    shaders grown since `b1e86aef`, whose pipelines each app compiles anew; read on the Windows page
-    with the cache folder set and unset and on the next queued runs, since the resident memory
-    cannot be read here on Mesa's Windows build. `ffa3ec48`'s Windows job passed the leak test
-    within its bound, the first of the three; `ea9a23cd`'s and `76f7ca49`'s lost the group it runs
-    in to the time limit and read nothing of it. `fdf27346`'s Windows job held it too, the second of
-    three, read next on `7798d5e5`'s. Settled when the leak test holds its bound on three Windows
-    jobs in a row.
+    script's mend. The measure runs on the pack run alone since `7798d5e5`, item 19, so it is read
+    there. Settled when an examples job's measure holds and the steps after it run.
 
 52. **The macOS job of `aa9fe773` is red by the first game's step, which ended in 22 seconds with no
     page saying why, and `build/webp.sh` wants ImageMagick for the fit it does since `60f2999d`,
@@ -973,9 +941,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     ImageMagick kept only where the encoder is absent, the capture loop stopping at the first such
     failure with a line saying so, the first game's script writing its error lines, and the script's
     test passing through the encoder alone. `fdf27346`'s macOS job ran the first game's step green
-    again at 23:10, and the mend is read on `7798d5e5`'s examples job, in flight. Settled when the
-    Linux examples job's captures draw with the mend in and a macOS job runs the first game's step
-    green beside it.
+    again at 23:10, and the mend is read on `7798d5e5`'s examples job, in flight. The push's
+    examples job captures no longer since `7798d5e5`, item 19, and the macOS jobs of `fdf27346` and
+    `7798d5e5` ran the first game's step green, so the Linux captures are read on the pack run.
+    Settled when the pack run's captures draw on Linux with the mend in.
 
 ## Decisions
 
@@ -1220,10 +1189,17 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 14. The seventeen files outside `.github` that named the RTX 4070 name the development
-machine's GPU instead, or its laptop GPU where they said a laptop's, every measurement kept: the
-nine rendering tests' comments, five shaders' comments, the soak check's comment, the raylib
-comparison's machine, now "the development machine, a laptop with an Intel Core i9-14900HX and an
-NVIDIA GPU", and the materials guide's six timings. Each changed comment or paragraph is wrapped
-again at 100 columns, an XML tag's own line kept. `.github`'s documents keep the name. The suite
-passes, 1,693.
+Item 15. The flat API's class is `E3D`: its 48 partial files under `3DEngine/Api` are named for it,
+the 15 test files and classes named for it are `E3DModelTests` and the rest, the test collection is
+`"E3D"`, and every `using static`, `cref` and mention follows in the engine, the tests, the
+examples, the guides, the cheat sheet, the README, the templates, the games and `.github`'s own
+documents, 489 files, the voxel game's thirteen `using static` lines alone of its files, its
+session having cleared them. The namespace stays `Engine`, the projects and the package keep their
+names, and the version is left to the owner. The upgrade page gains a section for the class with
+its two rows and names it in its opening, and its tests map 5.1's `Engine3D` to `E3D`, so the flat
+API's names lost and gained are still counted member by member, `Engine3D` itself held to that page
+alone. AGENTS.md names `Engine3D` twice, in its paragraph on testing and its table's Api row, which
+wait on the owner's word, since nothing else in that file changes without it. The strict build is
+clean; the suite passes, 1,693, and the game's tests, 48; the guides' code, the examples, the
+README walk, the first game's steps and all twelve games build on the repacked package, and `e3d
+eval` compiles against the class.

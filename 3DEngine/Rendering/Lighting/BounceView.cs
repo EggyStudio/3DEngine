@@ -39,7 +39,7 @@ internal enum BounceView
 /// names a view: a cascade's probes as cubes into the window's scene
 /// (<c>gi_probes.slang</c>, <see cref="DrawProbes"/>), and every other view over the window after
 /// its shapes and before ImGui (<c>gi_view.slang</c>, <see cref="Draw"/>), as the
-/// <c>gi.show</c> command and <see cref="Engine3D.DrawBounceWindow"/> set it.
+/// <c>gi.show</c> command and <see cref="E3D.DrawBounceWindow"/> set it.
 /// </summary>
 /// <remarks>
 /// <para>

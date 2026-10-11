@@ -2,14 +2,14 @@ using FluentAssertions;
 
 namespace Engine.Tests.Api;
 
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public class FontTests
 {
     [Fact]
     public void The_Default_Font_Bakes_Printable_Glyphs()
     {
-        var baked = Engine3D.BakeAtlas(atlas => atlas.AddFontDefault());
+        var baked = E3D.BakeAtlas(atlas => atlas.AddFontDefault());
 
         baked.Should().NotBeNull();
         var (image, size, glyphs) = baked!.Value;
@@ -25,8 +25,8 @@ public class FontTests
     [Fact]
     public void Code_Points_Become_Merged_Ranges_Ending_In_Zero()
     {
-        Engine3D.GlyphRanges([0x41, 0x43, 0x42, 0x45, 0x1F600, 0x41]).Should().Equal((ushort)0x41, (ushort)0x43, (ushort)0x45, (ushort)0x45, (ushort)0);
-        Engine3D.LoadCodepoints("aba€").Should().Equal(['a', 'b', 'a', 0x20AC], "a character that comes again is counted again, as raylib's are");
+        E3D.GlyphRanges([0x41, 0x43, 0x42, 0x45, 0x1F600, 0x41]).Should().Equal((ushort)0x41, (ushort)0x43, (ushort)0x45, (ushort)0x45, (ushort)0);
+        E3D.LoadCodepoints("aba€").Should().Equal(['a', 'b', 'a', 0x20AC], "a character that comes again is counted again, as raylib's are");
     }
 
     [Fact]
@@ -39,8 +39,8 @@ public class FontTests
         };
         var font = new Font(new Texture2D(1, 8, 8), 8, 8, glyphs);
 
-        Engine3D.MeasureTextEx(font, "A\u0436", 8, 0).X.Should().Be(5 + 7, "the Cyrillic letter the font lacks takes the '?' glyph's advance");
-        Engine3D.GetGlyphInfo(font, 0x436).Should().Be(glyphs['?']);
+        E3D.MeasureTextEx(font, "A\u0436", 8, 0).X.Should().Be(5 + 7, "the Cyrillic letter the font lacks takes the '?' glyph's advance");
+        E3D.GetGlyphInfo(font, 0x436).Should().Be(glyphs['?']);
     }
 
     [Fact]
@@ -55,11 +55,11 @@ public class FontTests
             ['?'] = new Glyph(0, 0, 6, 8, 0.5f, 0, 1, 1, 7), [0xAC00] = letter,
         });
 
-        Engine3D.TextKeys(font, "e\u0301").Should().Equal('\u00e9');
-        Engine3D.MeasureTextEx(font, "e\u0301", 8, 0).X.Should().Be(6, "it is measured as the \u00e9 it is drawn as");
-        Engine3D.TextKeys(font, "u\u0308\u0301").Should().Equal(['\u00fc', 0x301], "u and the diaeresis are \u00fc, and the font has no \u01d8 for the acute after");
-        Engine3D.TextKeys(font, "a\u0301").Should().Equal(['a', 0x301], "the font has no \u00e1");
-        Engine3D.TextKeys(font, "\u1100\u1161").Should().Equal([0xAC00], "Hangul's letters are composed into their syllable by Unicode's formula");
+        E3D.TextKeys(font, "e\u0301").Should().Equal('\u00e9');
+        E3D.MeasureTextEx(font, "e\u0301", 8, 0).X.Should().Be(6, "it is measured as the \u00e9 it is drawn as");
+        E3D.TextKeys(font, "u\u0308\u0301").Should().Equal(['\u00fc', 0x301], "u and the diaeresis are \u00fc, and the font has no \u01d8 for the acute after");
+        E3D.TextKeys(font, "a\u0301").Should().Equal(['a', 0x301], "the font has no \u00e1");
+        E3D.TextKeys(font, "\u1100\u1161").Should().Equal([0xAC00], "Hangul's letters are composed into their syllable by Unicode's formula");
     }
 
     [Fact]
@@ -81,11 +81,11 @@ public class FontTests
     [Fact]
     public void The_Frame_Rate_Is_Lime_Then_Orange_Below_30_And_Red_Below_15_As_In_Raylib()
     {
-        Engine3D.FpsColor(60).Should().Be(Color.Lime);
-        Engine3D.FpsColor(30).Should().Be(Color.Lime);
-        Engine3D.FpsColor(29).Should().Be(Color.Orange);
-        Engine3D.FpsColor(15).Should().Be(Color.Orange);
-        Engine3D.FpsColor(14).Should().Be(Color.Red);
+        E3D.FpsColor(60).Should().Be(Color.Lime);
+        E3D.FpsColor(30).Should().Be(Color.Lime);
+        E3D.FpsColor(29).Should().Be(Color.Orange);
+        E3D.FpsColor(15).Should().Be(Color.Orange);
+        E3D.FpsColor(14).Should().Be(Color.Red);
     }
 
     internal static string Lato()
@@ -101,31 +101,31 @@ public class FontTests
         var app = new App();
         app.World.InitResource<TextureStore>();
         app.World.InitResource<DrawList>();
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
-            var font = Engine3D.LoadFontEx(Lato(), 16);
+            var font = E3D.LoadFontEx(Lato(), 16);
             var store = app.World.Resource<TextureStore>();
             var before = store.Count;
 
-            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 18, 0, Color.White);
+            E3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 18, 0, Color.White);
             store.Count.Should().Be(before, "a size within a quarter of the bake is drawn from it");
-            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 62, 0, Color.White);
+            E3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 62, 0, Color.White);
             store.Count.Should().Be(before + 1, "62 pixels is baked again at 64");
-            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 63, 0, Color.White);
+            E3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 63, 0, Color.White);
             store.Count.Should().Be(before + 1, "and that bake serves the next size that rounds to it");
 
             var drawn = app.World.Resource<DrawList>().Batches.Last().Texture;
             drawn.Should().NotBe(font.Texture.Id, "large text is drawn from the larger bake");
-            var size = Engine3D.MeasureTextEx(font, "AAAA", 63, 0);
+            var size = E3D.MeasureTextEx(font, "AAAA", 63, 0);
             size.X.Should().BeApproximately(4 * font.ForSize(63).Glyphs['A'].Advance * 63 / 64, 0.01f, "it is measured in the bake it is drawn from");
 
-            Engine3D.UnloadFont(font);
+            E3D.UnloadFont(font);
             store.Count.Should().Be(before - 1, "unloading the font frees its larger bakes too");
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 
@@ -135,34 +135,34 @@ public class FontTests
         var app = new App();
         app.World.InitResource<TextureStore>();
         app.World.InitResource<DrawList>();
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
-            var fromFile = Engine3D.LoadFontEx(Lato(), 24);
-            var fromMemory = Engine3D.LoadFontFromMemory(".ttf", File.ReadAllBytes(Lato()), 24, null);
+            var fromFile = E3D.LoadFontEx(Lato(), 24);
+            var fromMemory = E3D.LoadFontFromMemory(".ttf", File.ReadAllBytes(Lato()), 24, null);
 
             fromMemory.Glyphs['A'].Should().Be(fromFile.Glyphs['A'], "the same bytes bake the same glyphs");
-            Engine3D.GetGlyphInfo(fromMemory, 'A').Should().Be(fromFile.Glyphs['A']);
-            Engine3D.GetGlyphInfo(fromMemory, 0x4E00).Should().Be(fromFile.Glyphs['?'], "Latin-1 has no CJK, and raylib answers with the '?' glyph");
+            E3D.GetGlyphInfo(fromMemory, 'A').Should().Be(fromFile.Glyphs['A']);
+            E3D.GetGlyphInfo(fromMemory, 0x4E00).Should().Be(fromFile.Glyphs['?'], "Latin-1 has no CJK, and raylib answers with the '?' glyph");
             fromFile.Glyphs.Should().NotContainKey('\t', "ImGui's tab four spaces wide is left out, as raylib's fonts have no tab");
-            Engine3D.GetGlyphInfo(fromFile, '\t').Should().Be(fromFile.Glyphs['?']);
-            var rec = Engine3D.GetGlyphAtlasRec(fromMemory, 'A');
+            E3D.GetGlyphInfo(fromFile, '\t').Should().Be(fromFile.Glyphs['?']);
+            var rec = E3D.GetGlyphAtlasRec(fromMemory, 'A');
             (rec.Width, rec.Height).Should().Match<(float W, float H)>(s => s.W > 0 && s.H > 0);
-            Engine3D.LoadFontFromMemory(".png", [1, 2, 3], 24, null).Should().BeSameAs(Engine3D.GetFontDefault());
+            E3D.LoadFontFromMemory(".png", [1, 2, 3], 24, null).Should().BeSameAs(E3D.GetFontDefault());
 
-            var twoLines = Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y;
-            Engine3D.SetTextLineSpacing(16);
-            Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().BeApproximately(24 + 16 + fromMemory.LineHeight, 0.01f,
+            var twoLines = E3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y;
+            E3D.SetTextLineSpacing(16);
+            E3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().BeApproximately(24 + 16 + fromMemory.LineHeight, 0.01f,
                 "a line then moves down by the size and the spacing");
-            Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().NotBe(twoLines);
+            E3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().NotBe(twoLines);
 
-            Engine3D.DrawTextCodepoints(fromMemory, ['H', 'i'], System.Numerics.Vector2.Zero, 24, 0, Color.White);
-            Engine3D.DrawTextCodepoint(fromMemory, 'A', System.Numerics.Vector2.Zero, 24, Color.White);
+            E3D.DrawTextCodepoints(fromMemory, ['H', 'i'], System.Numerics.Vector2.Zero, 24, 0, Color.White);
+            E3D.DrawTextCodepoint(fromMemory, 'A', System.Numerics.Vector2.Zero, 24, Color.White);
             app.World.Resource<DrawList>().Vertices.Length.Should().BeGreaterThan(0);
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 
@@ -171,28 +171,28 @@ public class FontTests
     {
         var app = new App();
         app.World.InitResource<TextureStore>();
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
             // Magenta all round, a gap of 2 before the glyphs and 1 above their row: an A three
             // pixels wide, a gap of 2, and a B four wide, both five high.
-            var image = Engine3D.GenImageColor(16, 7, Color.Magenta);
-            Engine3D.ImageDrawRectangle(ref image, 2, 1, 3, 5, Color.White);
-            Engine3D.ImageDrawRectangle(ref image, 7, 1, 4, 5, Color.White);
+            var image = E3D.GenImageColor(16, 7, Color.Magenta);
+            E3D.ImageDrawRectangle(ref image, 2, 1, 3, 5, Color.White);
+            E3D.ImageDrawRectangle(ref image, 7, 1, 4, 5, Color.White);
 
-            var font = Engine3D.LoadFontFromImage(image, Color.Magenta, 'A');
+            var font = E3D.LoadFontFromImage(image, Color.Magenta, 'A');
 
             font.BaseSize.Should().Be(5);
             font.Glyphs.Keys.Should().Equal('A', 'B');
             font.Glyphs['A'].Advance.Should().Be(3);
             font.Glyphs['B'].Advance.Should().Be(4);
-            Engine3D.GetGlyphAtlasRec(font, 'B').Should().Be(new Rectangle(7, 1, 4, 5));
-            Engine3D.MeasureTextEx(font, "AB", 5, 1).X.Should().Be(3 + 1 + 4, "the spacing goes between the characters, as raylib measures it");
-            Engine3D.GetImageColor(font.Atlas, 0, 0).A.Should().Be(0, "the key becomes clear");
+            E3D.GetGlyphAtlasRec(font, 'B').Should().Be(new Rectangle(7, 1, 4, 5));
+            E3D.MeasureTextEx(font, "AB", 5, 1).X.Should().Be(3 + 1 + 4, "the spacing goes between the characters, as raylib measures it");
+            E3D.GetImageColor(font.Atlas, 0, 0).A.Should().Be(0, "the key becomes clear");
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 
@@ -200,13 +200,13 @@ public class FontTests
     public void A_Font_Bakes_The_Characters_Asked_For_Beyond_Latin_1()
     {
         var lato = Lato();
-        var ranges = Engine3D.GlyphRanges(Engine3D.LoadCodepoints("A€Ωж"));
+        var ranges = E3D.GlyphRanges(E3D.LoadCodepoints("A€Ωж"));
 
         var pin = System.Runtime.InteropServices.GCHandle.Alloc(ranges, System.Runtime.InteropServices.GCHandleType.Pinned);
         try
         {
             var address = pin.AddrOfPinnedObject();
-            var baked = Engine3D.BakeAtlas(atlas => atlas.AddFontFromFileTTF(lato, 24, null, address));
+            var baked = E3D.BakeAtlas(atlas => atlas.AddFontFromFileTTF(lato, 24, null, address));
 
             var glyphs = baked!.Value.Glyphs;
             glyphs.Should().ContainKeys('A', 0x20AC);
@@ -261,16 +261,16 @@ public class FontTests
     public void A_Distance_Field_Atlas_Grows_Each_Glyph_By_Its_Padding_At_The_Size_Meant()
     {
         var lato = Lato();
-        var plain = Engine3D.BakeAtlas(atlas => atlas.AddFontFromFileTTF(lato, 32))!.Value;
+        var plain = E3D.BakeAtlas(atlas => atlas.AddFontFromFileTTF(lato, 32))!.Value;
 
-        var (field, coverage, glyphs) = Engine3D.BakeDistanceField(lato, 32, IntPtr.Zero)!.Value;
+        var (field, coverage, glyphs) = E3D.BakeDistanceField(lato, 32, IntPtr.Zero)!.Value;
 
         (coverage.Width, coverage.Height).Should().Be((field.Width, field.Height));
         var a = glyphs['A'];
         a.Advance.Should().BeApproximately(plain.Glyphs['A'].Advance, 0.5f, "the glyphs are measured at the size meant");
         (a.X1 - a.X0).Should().BeApproximately((a.U1 - a.U0) * field.Width, 1e-3f, "a pixel of the glyph is a texel of the atlas");
         (a.Y1 - a.Y0).Should().BeApproximately((a.V1 - a.V0) * field.Height, 1e-3f);
-        (a.X1 - a.X0).Should().BeApproximately(plain.Glyphs['A'].X1 - plain.Glyphs['A'].X0 + 2 * Engine3D.SdfPadding, 1.5f, "each side grows by the padding");
+        (a.X1 - a.X0).Should().BeApproximately(plain.Glyphs['A'].X1 - plain.Glyphs['A'].X0 + 2 * E3D.SdfPadding, 1.5f, "each side grows by the padding");
 
         // The grown corner is outside the glyph, and the alpha there says how far.
         var corner = GetAlpha(field, a.U0, a.V0);
@@ -311,23 +311,23 @@ public class FontTests
 
         var app = new App();
         app.World.InitResource<TextureStore>();
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
-            var font = Engine3D.LoadFont(Path.Combine(folder.Path, "test.fnt"));
+            var font = E3D.LoadFont(Path.Combine(folder.Path, "test.fnt"));
 
             (font.BaseSize, font.LineHeight).Should().Be((10f, 10f), "raylib takes the line height for the font's size");
             (font.Atlas.Width, font.Atlas.Height).Should().Be((4, 8), "the two pages stacked");
             font.Glyphs['A'].Should().Be(new Glyph(1, 2, 3, 5, 0, 0, 0.5f, 3 / 8f, 4));
             font.Glyphs[0x1F600].Should().Be(new Glyph(0, -1, 2, 1, 0.5f, 5 / 8f, 1, 7 / 8f, 5), "the second page's characters sit below the first's");
-            Engine3D.GetImageColor(font.Atlas, 0, 0).Should().Be(new Color(255, 255, 255, 200), "a gray page's coverage is drawn white");
-            Engine3D.GetImageColor(font.Atlas, 1, 0).Should().Be(new Color(255, 255, 255, 0));
-            Engine3D.GetImageColor(font.Atlas, 2, 5).Should().Be(new Color(255, 0, 0, 128), "a page of color is kept as it is");
-            Engine3D.UnloadFont(font);
+            E3D.GetImageColor(font.Atlas, 0, 0).Should().Be(new Color(255, 255, 255, 200), "a gray page's coverage is drawn white");
+            E3D.GetImageColor(font.Atlas, 1, 0).Should().Be(new Color(255, 255, 255, 0));
+            E3D.GetImageColor(font.Atlas, 2, 5).Should().Be(new Color(255, 0, 0, 128), "a page of color is kept as it is");
+            E3D.UnloadFont(font);
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 

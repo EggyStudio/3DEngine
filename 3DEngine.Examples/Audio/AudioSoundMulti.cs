@@ -1,7 +1,7 @@
 // raylib's audio_sound_multi example, Copyright (c) 2023-2025 Jeffery Myers (@JeffM2501), under the zlib
 // license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

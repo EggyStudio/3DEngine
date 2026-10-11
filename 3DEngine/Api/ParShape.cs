@@ -125,7 +125,7 @@ internal sealed class ParShape
     {
         var vertices = new ModelVertex[Points.Count];
         for (int i = 0; i < vertices.Length; i++) vertices[i] = new ModelVertex(Points[i], Normals[i], Uvs[i]);
-        return Engine3D.UploadMesh(vertices, [.. Triangles.Select(t => (uint)t)]);
+        return E3D.UploadMesh(vertices, [.. Triangles.Select(t => (uint)t)]);
     }
 
     // par_shapes__compute_welded_normals. Points closer than a thousandth of a cell of the grid

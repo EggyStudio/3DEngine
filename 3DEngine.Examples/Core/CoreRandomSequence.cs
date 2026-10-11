@@ -1,7 +1,7 @@
 // raylib's core_random_sequence example, Copyright (c) 2023-2025 Dalton Overmyer (@REDl3east), under the zlib
 // license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

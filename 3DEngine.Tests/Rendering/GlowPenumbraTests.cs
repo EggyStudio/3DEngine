@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -10,7 +10,7 @@ namespace Engine.Tests.Rendering;
 /// view turns and frame to frame, follows a lamp placed or a wall taken away within a round of
 /// the probes' points, and with no screen probe the pixel's own marches keep the shadow.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class GlowPenumbraTests : IDisposable
 {

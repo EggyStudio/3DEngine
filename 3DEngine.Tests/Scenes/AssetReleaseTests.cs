@@ -8,7 +8,7 @@ namespace Engine.Tests.Scenes;
 /// A level's models and textures let go once no entity uses them, as a level streamed in near the
 /// player and despawned behind needs, and kept while anything still does.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class AssetReleaseTests : IDisposable
 {

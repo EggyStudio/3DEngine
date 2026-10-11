@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>How <see cref="Engine3D.UpdateCamera"/> moves a camera from input.</summary>
+/// <summary>How <see cref="E3D.UpdateCamera"/> moves a camera from input.</summary>
 public enum CameraMode
 {
     /// <summary>
@@ -17,7 +17,7 @@ public enum CameraMode
 
     /// <summary>
     /// The mouse and the arrow keys turn the camera, Q and E roll it, and W, A, S and D walk along
-    /// the ground, the plane across <see cref="Camera3D.Up"/>. Meant with <see cref="Engine3D.DisableCursor"/>.
+    /// the ground, the plane across <see cref="Camera3D.Up"/>. Meant with <see cref="E3D.DisableCursor"/>.
     /// </summary>
     FirstPerson,
 

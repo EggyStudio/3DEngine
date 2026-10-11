@@ -1,7 +1,7 @@
 // raylib's textures_blend_modes example, Copyright (c) 2020-2025 Karlo Licudine (@accidentalrebel), under
 // the zlib license, written again for the flat API.
 
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Examples;
 

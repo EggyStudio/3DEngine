@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>How much of the light that bounces between surfaces is worked out, from none to the full set of cascades.</summary>
-/// <seealso cref="Engine3D.SetGlobalIllumination"/>
+/// <seealso cref="E3D.SetGlobalIllumination"/>
 public enum GlobalIllumination
 {
     /// <summary>No light bounces, as raylib draws a scene.</summary>

@@ -19,7 +19,7 @@ public sealed class PublicSurfaceTests
     [Fact]
     public void The_Public_Surface_Is_The_Listing_Checked_In()
     {
-        var built = PublicSurface.Write(typeof(Engine3D).Assembly);
+        var built = PublicSurface.Write(typeof(E3D).Assembly);
         if (Environment.GetEnvironmentVariable("ENGINE_WRITE_API") == "1") File.WriteAllText(Listing(), built);
 
         var checkedIn = File.Exists(Listing()) ? File.ReadAllText(Listing()).ReplaceLineEndings("\n") : "";
@@ -36,8 +36,8 @@ public sealed class PublicSurfaceTests
     [Fact]
     public void A_Listing_Spells_Members_As_A_Signature_Does()
     {
-        var listing = PublicSurface.Write(typeof(Engine3D).Assembly);
-        listing.Should().Contain("static class Engine.Engine3D\n");
+        var listing = PublicSurface.Write(typeof(E3D).Assembly);
+        listing.Should().Contain("static class Engine.E3D\n");
         listing.Should().Contain("  static void DrawCube(Vector3 position, float width, float height, float length, Color color)\n");
         listing.Should().Contain("  static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)\n");
         listing.Should().Contain("  static void SetBloom(float intensity, float threshold = 1f)\n");

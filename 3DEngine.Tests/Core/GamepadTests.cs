@@ -2,7 +2,7 @@ using FluentAssertions;
 
 namespace Engine.Tests.Core;
 
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public class GamepadTests
 {
@@ -29,44 +29,44 @@ public class GamepadTests
     {
         var app = new App();
         app.World.InitResource<Input>();
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
             var input = app.World.Resource<Input>();
             var first = input.ConnectGamepad(1, "First", 0);
             var second = input.ConnectGamepad(2, "Second", 0);
 
-            Engine3D.GetGamepadButtonPressed().Should().BeNull();
+            E3D.GetGamepadButtonPressed().Should().BeNull();
             second.SetButton(GamepadButton.MiddleRight, true);
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight);
+            E3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight);
             input.BeginFrame();
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight, "it is the last pressed while it is held, as raylib's is");
+            E3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight, "it is the last pressed while it is held, as raylib's is");
             first.SetButton(GamepadButton.RightFaceDown, true);
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.RightFaceDown, "the last pressed on any pad");
+            E3D.GetGamepadButtonPressed().Should().Be(GamepadButton.RightFaceDown, "the last pressed on any pad");
             first.SetButton(GamepadButton.RightFaceDown, false);
-            Engine3D.GetGamepadButtonPressed().Should().BeNull("once the last one is up, as raylib clears it, though Start is held");
+            E3D.GetGamepadButtonPressed().Should().BeNull("once the last one is up, as raylib clears it, though Start is held");
             second.SetButton(GamepadButton.MiddleRight, false);
 
             input.AddWheel(2, -1);
-            Engine3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));
-            Engine3D.GetMouseWheelMove().Should().Be(-1);
-            Engine3D.SetMouseCursor(MouseCursor.PointingHand);
+            E3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));
+            E3D.GetMouseWheelMove().Should().Be(-1);
+            E3D.SetMouseCursor(MouseCursor.PointingHand);
 
             // A letterboxed texture of half the window's size, 40 pixels in from its left edge.
             input.SetMousePosition(140, 100);
-            Engine3D.SetMouseOffset(-40, 0);
-            Engine3D.SetMouseScale(0.5f, 0.5f);
-            Engine3D.GetMousePosition().Should().Be(new System.Numerics.Vector2(50, 50));
-            (Engine3D.GetMouseX(), Engine3D.GetMouseY()).Should().Be((50, 50));
-            Engine3D.EnableEventWaiting();
-            Engine3D.DisableEventWaiting();
+            E3D.SetMouseOffset(-40, 0);
+            E3D.SetMouseScale(0.5f, 0.5f);
+            E3D.GetMousePosition().Should().Be(new System.Numerics.Vector2(50, 50));
+            (E3D.GetMouseX(), E3D.GetMouseY()).Should().Be((50, 50));
+            E3D.EnableEventWaiting();
+            E3D.DisableEventWaiting();
 
             var outline = new App();
             outline.World.InitResource<Input>();
             outline.World.InitResource<DrawList>();
-            Engine3D.UseApp(outline);
-            Engine3D.GetMousePosition().Should().Be(System.Numerics.Vector2.Zero, "a new app starts with no offset or scale");
-            Engine3D.DrawRectangleRoundedLinesEx(new Rectangle(10, 10, 100, 50), 0.5f, 4, 6, Color.Red);
+            E3D.UseApp(outline);
+            E3D.GetMousePosition().Should().Be(System.Numerics.Vector2.Zero, "a new app starts with no offset or scale");
+            E3D.DrawRectangleRoundedLinesEx(new Rectangle(10, 10, 100, 50), 0.5f, 4, 6, Color.Red);
             var points = outline.World.Resource<DrawList>().Vertices.ToArray().Select(v => v.Position).ToArray();
             points.Should().NotBeEmpty();
             points.Should().OnlyContain(p => p.X >= 4 - 1e-3 && p.X <= 116 + 1e-3 && p.Y >= 4 - 1e-3 && p.Y <= 66 + 1e-3,
@@ -74,7 +74,7 @@ public class GamepadTests
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 
@@ -137,32 +137,32 @@ public class GamepadTests
         var app = new App();
         var input = new Input();
         app.World.InsertResource(input);
-        Engine3D.UseApp(app);
+        E3D.UseApp(app);
         try
         {
             var pad = input.ConnectGamepad(3, "Pad", 0);
-            Engine3D.IsGamepadMotionAvailable(0).Should().BeFalse("a pad that has not said otherwise has no sensors");
+            E3D.IsGamepadMotionAvailable(0).Should().BeFalse("a pad that has not said otherwise has no sensors");
             pad.HasMotion = true;
             pad.Gyro = new System.Numerics.Vector3(0, 1.5f, 0);
             pad.Accelerometer = new System.Numerics.Vector3(0, 9.81f, 0);
             pad.SetTouch(1, new System.Numerics.Vector2(0.75f, 0.5f));
             pad.SetTouch(0, new System.Numerics.Vector2(0.25f, 0.5f));
 
-            Engine3D.IsGamepadMotionAvailable(0).Should().BeTrue();
-            Engine3D.GetGamepadGyro(0).Y.Should().Be(1.5f);
-            Engine3D.GetGamepadAccelerometer(0).Y.Should().Be(9.81f);
-            Engine3D.GetGamepadTouchCount(0).Should().Be(2);
-            Engine3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.25f, "fingers are in the order of their numbers");
+            E3D.IsGamepadMotionAvailable(0).Should().BeTrue();
+            E3D.GetGamepadGyro(0).Y.Should().Be(1.5f);
+            E3D.GetGamepadAccelerometer(0).Y.Should().Be(9.81f);
+            E3D.GetGamepadTouchCount(0).Should().Be(2);
+            E3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.25f, "fingers are in the order of their numbers");
 
             pad.SetTouch(0, null);
-            Engine3D.GetGamepadTouchCount(0).Should().Be(1, "a lifted finger is gone");
-            Engine3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.75f);
-            Engine3D.GetGamepadGyro(1).Should().Be(System.Numerics.Vector3.Zero, "a pad that is not connected reads zero");
-            Engine3D.SetGamepadLight(0, Color.Red);
+            E3D.GetGamepadTouchCount(0).Should().Be(1, "a lifted finger is gone");
+            E3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.75f);
+            E3D.GetGamepadGyro(1).Should().Be(System.Numerics.Vector3.Zero, "a pad that is not connected reads zero");
+            E3D.SetGamepadLight(0, Color.Red);
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
         }
     }
 }

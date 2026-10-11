@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// Particle emitters, stepped by a compute shader and drawn after the window's meshes, read from
 /// chosen pixels of frames drawn offscreen.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class ParticleTests : IDisposable
 {

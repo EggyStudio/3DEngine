@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// The effects over the frame, each set alone and read from chosen pixels of a frame drawn
 /// offscreen: exposure, the curves, grading, the vignette and FXAA.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class FrameEffectsTests : IDisposable
 {

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Api;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Api;
 /// DESIGN.md §6 says a failed load does: a warning naming the file, a resource that reports itself
 /// invalid or empty, and no exception. A loader added later is a row of <see cref="Loaders"/>.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class BadFileTests : IDisposable
 {

@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>A list automation events are recorded into and played from, as raylib's.</summary>
 /// <remarks>
-/// It is a class, so the list given to <see cref="Engine3D.SetAutomationEventList"/> is the one
+/// It is a class, so the list given to <see cref="E3D.SetAutomationEventList"/> is the one
 /// recording adds to, as raylib's list given by its address is.
 /// </remarks>
 public sealed class AutomationEventList

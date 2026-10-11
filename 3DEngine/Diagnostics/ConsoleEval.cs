@@ -52,7 +52,7 @@ internal static class ConsoleEval
         global using System.Numerics;
         global using System.Threading.Tasks;
         global using Engine;
-        global using static Engine.Engine3D;
+        global using static Engine.E3D;
         global using static FragmentScope;
 
         internal static class FragmentScope

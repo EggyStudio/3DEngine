@@ -1,6 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 /// The window resized and minimized while it draws, through the commands <c>./e3d</c> sends, on an
 /// offscreen run, whose images are made again at each size as a window's swapchain is.
 /// </summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class WindowResizeTests : IDisposable
 {

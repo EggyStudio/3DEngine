@@ -38,7 +38,7 @@ from page import annotate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 USINGS = ["System", "System.Collections.Generic", "System.IO", "System.Linq", "System.Numerics", "Engine", "ImGuiNET"]
-STATIC_USINGS = ["Engine.Engine3D"]
+STATIC_USINGS = ["Engine.E3D"]
 FENCE = re.compile(r"^```csharp\s*$")
 CONTEXT = re.compile(r"^<!-- compiled with:\s*$")
 SKIP = re.compile(r"^<!-- not compiled: (?P<reason>.+?) -->\s*$")

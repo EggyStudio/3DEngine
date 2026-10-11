@@ -7,7 +7,7 @@ namespace Engine.Tests.Behaviors;
 /// <summary>A generation of a script compiled while the app runs, let go once the script is compiled again.</summary>
 // With the other tests whose app has Dear ImGui, whose one context for the process two apps
 // side by side would both ask for.
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ScriptGenerationTests : IDisposable
 {

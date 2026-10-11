@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace Engine.Tests.Gui;
 
 /// <summary>Dear ImGui's one context for the process, held by one app at a time.</summary>
-[Collection("Engine3D")]
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public class ImGuiHolderTests
 {
@@ -141,11 +141,11 @@ public class ImGuiHolderTests
         var app = Build();
         try
         {
-            Engine3D.UseApp(app);
+            E3D.UseApp(app);
             for (int i = 0; i < 3; i++)
             {
                 app.BeginFrame();
-                Engine3D.DrawProfileWindow();
+                E3D.DrawProfileWindow();
                 app.EndFrame();
             }
 
@@ -156,7 +156,7 @@ public class ImGuiHolderTests
         }
         finally
         {
-            Engine3D.UseApp(null);
+            E3D.UseApp(null);
             app.Shutdown();
         }
     }

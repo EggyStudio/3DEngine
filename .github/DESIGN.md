@@ -32,11 +32,11 @@ Every area of the flat API has a first version. What each lacks is in [TODO.md](
 
 ## 1. One flat API
 
-Every operation a program needs is a static method on one class, `Engine3D`, split into files by
+Every operation a program needs is a static method on one class, `E3D`, split into files by
 area. A program imports it once:
 
 ```csharp
-using static Engine.Engine3D;
+using static Engine.E3D;
 
 InitWindow(1280, 720, "Hello");
 SetTargetFPS(60);
@@ -67,16 +67,16 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 
 | file | covers |
 |---|---|
-| `Engine3D.Window.cs`, `Engine3D.Display.cs` | the window, its state, the monitors, the clipboard and frame timing |
-| `Engine3D.Input.cs` | keyboard, mouse and gamepads |
-| `Engine3D.Drawing.cs` | the frame, cameras and render targets |
-| `Engine3D.Shapes.cs` | 2D shapes |
-| `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
-| `Engine3D.Text.cs`, `Engine3D.Fonts.cs` | text and fonts |
-| `Engine3D.Textures.cs`, `Engine3D.Images.cs` | images, editing them on the CPU, and textures |
-| `Engine3D.Models.cs`, `Engine3D.MeshGen.cs` | meshes, models, materials and the mesh generators |
-| `Engine3D.Shaders.cs` | Slang shaders and their parameters |
-| `Engine3D.Audio.cs` | sounds and music |
+| `E3D.Window.cs`, `E3D.Display.cs` | the window, its state, the monitors, the clipboard and frame timing |
+| `E3D.Input.cs` | keyboard, mouse and gamepads |
+| `E3D.Drawing.cs` | the frame, cameras and render targets |
+| `E3D.Shapes.cs` | 2D shapes |
+| `E3D.Shapes3D.cs` | 3D shapes and the grid |
+| `E3D.Text.cs`, `E3D.Fonts.cs` | text and fonts |
+| `E3D.Textures.cs`, `E3D.Images.cs` | images, editing them on the CPU, and textures |
+| `E3D.Models.cs`, `E3D.MeshGen.cs` | meshes, models, materials and the mesh generators |
+| `E3D.Shaders.cs` | Slang shaders and their parameters |
+| `E3D.Audio.cs` | sounds and music |
 
 Arguments are plain values (`Vector3`, `Color`, `Rectangle`, `Camera3D`), and resources are small
 structs holding an id, so nothing in the API needs a class hierarchy to be understood.
@@ -136,7 +136,7 @@ ImGui.End();
 EndDrawing();
 ```
 
-ImGui is drawn last, over everything else. `Engine3D` never wraps ImGui's own API, because ImGui
+ImGui is drawn last, over everything else. `E3D` never wraps ImGui's own API, because ImGui
 is already immediate and flat, and a second name for each widget would be a second cheatsheet.
 
 ## 5. The ECS underneath
@@ -248,7 +248,7 @@ and the renderer is one commit.
 
 ## 10. The cheatsheet
 
-`CHEATSHEET.md` at the repository's root lists every public `Engine3D` function on one line,
+`CHEATSHEET.md` at the repository's root lists every public `E3D` function on one line,
 grouped by area, with a comment saying what it does, in the form of the raylib cheatsheet. A
 function that is added, renamed or removed changes the cheatsheet in the same commit, so the sheet
 is always the API.

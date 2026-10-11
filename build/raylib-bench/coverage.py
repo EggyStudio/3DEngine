@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Counts how many of raylib.h's functions the flat API carries, by name, against the lines of
-# CHEATSHEET.md, which a test keeps equal to Engine3D's public functions, and names the rest by the
+# CHEATSHEET.md, which a test keeps equal to E3D's public functions, and names the rest by the
 # section of raylib.h they are declared in.
 #
 #   build/raylib-bench/coverage.py [path to raylib.h] [--check]
