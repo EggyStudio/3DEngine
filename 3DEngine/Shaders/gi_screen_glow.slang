@@ -393,7 +393,18 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // from the blend's than the frames' has.
     float lit = luminance(now * rough + far), litBefore = luminance(before * rough + farBefore);
     float apart = abs(lit - litBefore);
-    bool dropped = held <= 1e-4 || glowPlaceNew(p, n)
+    // A blend still in its first round is dropped too where the field's cascade under the point was
+    // built this frame as meshes came or went around the point, or for the first time, since what
+    // the probes saw before the field held what stands between is no part of what they see. Held
+    // whole, the frames of an app before the field built its meshes in place of their boxes lay in
+    // the blend under a wall's shadow, and the floor across a lamp's penumbra strayed from where it
+    // settles by 13% a round after the app began and by 6% two rounds after. Dropped wherever the
+    // cascade was built, the blends begun the frame a lamp was placed began again when its own mesh
+    // was built eight frames on, and the penumbra was 2% from where it settles a round after the lamp.
+    int under = fieldCascade(fieldInfo, p, 1.0);
+    bool rebuilt = under >= 0 && ((asuint(view.glows.w) >> uint(under)) & 1u) != 0u
+        && all(p >= view.changedMin.xyz) && all(p <= view.changedMax.xyz);
+    bool dropped = held <= 1e-4 || glowPlaceNew(p, n) || (rebuilt && frames < GlowRound)
         || (frames >= GlowRound && apart > GlowDeviations * furthest + GlowMargin * max(lit, litBefore) + 1e-6);
     if (dropped)
         frames = 0.0;

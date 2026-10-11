@@ -139,6 +139,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The places the glow lights were written in, kept from frame to frame, and how many there were.
     private readonly GlowPlaces _glowPlaces = new();
     private int _glowCount;
+    // The field's cascades built this frame as meshes came or went within them or for the first
+    // time, a bit a cascade, and the box around what came or went, where the glow lights' young
+    // blends start again.
+    private uint _fieldRebuilt;
+    private SceneFieldPlan.Box _fieldChanged;
     // How far the screen's probes trace, the first cascade's probes' spacing, this frame.
     private float _screenReach;
     // The frame's settings, whose switches the screen's blend reads.
@@ -296,6 +301,13 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // Each cascade lying where it lay the frame before, its probes the same, so a probe's own
         // light of the frame before is its own.
         var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
+        _fieldRebuilt = 0;
+        foreach (var build in plan?.Builds ?? [])
+            if (build.Changed is { } changed)
+            {
+                _fieldChanged = _fieldRebuilt == 0 ? changed : _fieldChanged.With(changed);
+                _fieldRebuilt |= 1u << build.Cascade;
+            }
         var origins = new Vector3?[cascades];
         var lying = new bool[cascades];
         // And where each lay the frame before, which the rays read the faces of the light that
@@ -398,9 +410,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // and its eye, the probes' tile and how many lie across and down, the first interval's half, the
     // world's probes, their spacing and cascades, the depth's size and the view's, its camera and
     // eye the frame before where the probes were placed then, how far from their tiles' middles the
-    // probes march to the glow lights from, and how many glow lights there are with the places whose
-    // light the frame before had there. The matrices lie as they do in memory, which the shaders,
-    // reading them column-major, multiply a point by as the CPU does.
+    // probes march to the glow lights from, how many glow lights there are with the places whose
+    // light the frame before had there, and the field's cascades built this frame as meshes came or
+    // went within them with the box around those meshes. The matrices lie as they do in memory, which
+    // the shaders, reading them column-major, multiply a point by as the CPU does.
     private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
         Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last)
     {
@@ -422,7 +435,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         }
         floats[72] = _glowCount;
         var words = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
-        (words[73], words[74]) = _glowPlaces.Kept;
+        (words[73], words[74], words[75]) = (_glowPlaces.Kept.Low, _glowPlaces.Kept.High, _fieldRebuilt);
+        (floats[76], floats[77], floats[78]) = (_fieldChanged.Min.X, _fieldChanged.Min.Y, _fieldChanged.Min.Z);
+        (floats[80], floats[81], floats[82]) = (_fieldChanged.Max.X, _fieldChanged.Max.Y, _fieldChanged.Max.Z);
         return bytes;
     }
 

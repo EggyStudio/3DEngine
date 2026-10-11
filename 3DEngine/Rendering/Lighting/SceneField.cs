@@ -384,6 +384,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         for (int c = 0; c < plan.Cascades; c++)
             if (plan.BuiltOrigin(c) is { } origin)
                 (values[4 + c * 4], values[5 + c * 4], values[6 + c * 4], values[7 + c * 4]) = (origin.X, origin.Y, origin.Z, plan.CellOf(c));
+        (values[36], values[37], values[38]) = (plan.Eye.X, plan.Eye.Y, plan.Eye.Z);
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 

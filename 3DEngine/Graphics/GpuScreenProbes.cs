@@ -87,9 +87,10 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>
     /// The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes'
     /// layout, the frame before's camera and eye, how far from their tiles' middles the probes march
-    /// to the glow lights from, and the glow lights' count and the places kept.
+    /// to the glow lights from, the glow lights' count and the places kept, and the field's cascades
+    /// built as meshes came or went within them with the box around those meshes.
     /// </summary>
-    public const int ViewBytes = 3 * 64 + 7 * 16;
+    public const int ViewBytes = 3 * 64 + 9 * 16;
 
     /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty words (GlowSeenWords in glow.slang).</summary>
     public const int GlowSeenBytes = 20 * 4;

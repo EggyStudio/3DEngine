@@ -16,35 +16,6 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the bounce's last cascade draws a line at sunset
-
-Seed 1's hills from 0.5, 100, 0.5, flying, facing east and 12 degrees down, at hour 18.2 with the
-sun under the horizon, render distance 8, the field's four cascades of 0.25 built two a frame, the
-sun's shadows to 96 blocks, the light levels and corners off, the hud hidden; a hidden window of
-1280 by 720 and an RTX 4070 Laptop GPU. Each row of the view's middle, columns 560 to 720, is read
-for luminance from `./e3d shot`, and the distance along the ground under its middle comes from the
-game's `voxel.depth <x> <y>`. Each figure is the light at High over the light with the bounce Off,
-which takes the environment map's light instead.
-
-| Distance along the ground | High | High, cell 0.5 | High, shadows to 200 |
-|---|---|---|---|
-| 21 to 48 blocks | 0.80 to 0.87 | 0.91 to 1.09 | as High |
-| 60 to 96 blocks | 0.56 to 0.80 | 0.54 to 0.79 | as High |
-| 102 blocks | 0.94 | 0.69 | as High |
-| 122 to 148 blocks | 1.00 | 0.77 to 0.94 | as High |
-
-The step from about 0.6 to 1.0 falls between 96 and 102 blocks, where `field.state` puts the end of
-the last cascade, 2 a cell from x -32, so 96 blocks ahead. With the cell doubled it moves past the
-148 blocks drawn, and with the shadows taken to 200 blocks it stays where it was, so the line is the
-field's and not the shadows'. At hour 10 the bounce differs from the map by under 8% and no step
-shows. Past the last cascade a surface takes the map's unoccluded light, which at a low sun is up to
-two-thirds brighter than the bounce inside, and nothing blends the one into the other. The game does
-nothing about it; a cell of 0.5 moves the line past the render distance at the cost of the finest
-cells. Captures: `voxel-border-sunset.webp` and `voxel-border-sunset-cell05.webp`.
-
-Review: item 2 of REVIEW.md, its part c, 2026-10-10; the near blended into the far across a band at
-the last cascade's edge.
-
 ### 2026-10-10, the voxel game in `3DEngine.Game`: its tests build on every run but run on none
 
 `3DEngine.Game.Tests` holds 22 tests of the game's light levels, its meshes' faces and corners, the
@@ -119,3 +90,84 @@ section anew on each change of light would have the field build it again.
 Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item
 8.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: a closed cave shows the sky at some headings
+
+A closed room of stone 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 stone` on a flat world)
+at hour 10, with no opening to the sky and no lamp, a block of white concrete 3 blocks from the eye
+on each side, the eye at 16.5, 6.6, -15.5 turned through 360 degrees in steps of 6 and 15 degrees
+down, a shot 45 frames after each turn, High, render distance 8; a hidden window of 1280 by 720 and
+an RTX 4070 Laptop GPU. Each figure is a shot's mean luminance in levels of 255, and beside it its
+brightest patch of 64 by 64 pixels. Both commits are built from clean worktrees, with the game's
+light levels and corners off (`voxel.shade off off`) so that whatever lights the room shows, and
+once with them on, as the game is played.
+
+| Commit and part left out | Headings 324 to 36 and 234 to 306 | Headings 42 to 228 and 312 to 318 |
+|---|---|---|
+| `e477bc1e` | 14.4 to 16.3, patch 82 | 0.0, patch 0 or 1 |
+| `e477bc1e`, `gi.toggle screen off` | 14.5 to 16.4, patch 82 | 0.0 to 0.5, patch 7 at most |
+| `e477bc1e`, `gi.toggle history off` | 14.4 to 16.3, patch 82 | 0.0, patch 0 or 1 |
+| `e477bc1e`, light levels on | 2.2 to 2.5, patch 12 or 13 | 0.0, patch 0 |
+| `b1e86aef` | 0.0, patch 0 or 1 | 0.0, patch 0 or 1 |
+
+At the lit headings the wall ahead and the faces of its block turned toward the eye show the sky's
+blue, and the floor stays black; at the others the same walls are black, the north wall going dark
+at heading 42 while it is still half in view. The room is all but symmetric about the eye, so north
+and west read alike. The finest cascade of the field follows the heading, from 8, -4, -30 at heading
+0 to 12, -4, -24 at 90, 8, -4, -20 at 180, 2, -4, -24 at 270 and 4, -4, -28 at 312, so which band of
+it the room's walls lie in turns with the eye. `b1e86aef` reads black at every heading, so the light
+comes with part c's fade into the sky's light, and leaving out the screen's probes or their history
+does not take it away. The sun's contact shadows have no switch of their own apart from the sun's
+shadows, which would let the sun into the room, so they were not left out. Capture
+`voxel-cave-sky-leak.webp`: heading 270 and 180 with the light levels on, stretched four times, and
+heading 270 on `e477bc1e` and on `b1e86aef` with them off.
+
+The engine lacks a fade into the sky's light that keeps a room closed to the sky dark at every
+heading. The game does nothing about it, and a cave a player stands in shows the sky's blue on its
+walls when the eye turns north or west.
+
+Review: item 2 of REVIEW.md, its part g, 2026-10-11, the owner's finding of 10:05 and first in the
+engine's order; the numbers put it at part c's hold: the cascades stand ahead of the eye with their
+back sides 1.6 to 9.6 cells behind it, the hold's band is 8 cells and a wall's point is leaned 4
+more toward the eye, so the walls near the eye fade into the sky's light; the engine measures the
+mend against these numbers and the sunset border's.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: a wide penumbra is too dark and takes a spot
+
+On `e477bc1e`, built from a clean worktree: a closed room of white concrete 11 by 6 by 11 inside
+(`voxel.room 10 4 -22 22 11 -10 white_concrete` on a flat world) at hour 23, three glowstones in a
+row under its ceiling at x 15 to 17, y 10, z -16, and a block of white concrete floating at 16, 8,
+-16 two blocks under the middle one, so the floor 3 blocks under the block lies wholly in penumbra,
+the lamps' row three times as wide as the block and no umbra reaching it; each section uploaded anew
+after the lamps (the entry on colors written in place); the eye at 16.5, 8.6, -11.5 facing north 35
+degrees down, High, the game's light levels on, as played; a hidden window of 1280 by 720 and an RTX
+4070 Laptop GPU. The frame is read in linear light from `gi.compare` against `gi.reference <png>
+4096 8`, after 600 frames still, then shots at frames 1 to 40 and 600 after a step of one block
+west, in levels of 255 over the floor's crop of 560 by 280 pixels.
+
+| Floor, linear light | Frame | Reference | Frame over reference |
+|---|---|---|---|
+| Under the block | 0.0574 | 0.0758 | 0.76 |
+| At the penumbra's edge | 0.0593 | 0.0756 | 0.78 |
+| Beside it | 0.0726 | 0.0688 | 1.06 |
+| In front of it | 0.0816 | 0.0903 | 0.90 |
+
+In the reference the floor under the block reads a tenth brighter than beside it, being nearer the
+lamps, with no shadow to see; the frame draws a shadow with an edge, a fifth darker than beside it.
+After the step a spot of light stands at the shadow's edge, at pixel 875, 420, 5.5 levels over the
+ring 12 to 20 pixels around it from the first frame after the step to the 600th, and none stood
+there before the step. With `gi.toggle history off` the spot reads 8.2 to 8.6 levels, the shadow's
+edge breaks into steps of the screen's probes' 8 pixels, and the frames change by 0.1 to 0.2 levels
+from one to the next; with the history on they change by 0.01 or less, so the picture is still after
+a step and its error stands. With `gi.toggle screen off` there is no spot, the frames do not change
+at all, and the shadow's edges show twice. With `gi.toggle glow off` the room is dark, the lamps
+lighting nothing but through the glow lights. Capture `voxel-penumbra-spot.webp`, one stretch of
+levels 52 to 93 for all four: the frame still, its reference, the frame 600 frames after the step
+with the spot ringed, and the frame after the step with the history off.
+
+The engine lacks a soft shadow from a lamp wider than what blocks it that keeps the light the
+penumbra gets, and screen probes that give no spot after a move. The game does nothing about it.
+
+Review: item 2 of REVIEW.md, its part h, 2026-10-11, the owner's finding of 11:15, after part g; the
+numbers name two things, a soft shadow too dark for a lamp wider than what blocks it and a sample at
+the shadow's edge the probes' blend holds wrong after a move, each mended against this reference.

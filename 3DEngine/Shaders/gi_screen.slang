@@ -119,8 +119,8 @@ float4 hemisphere(float2 uv)
 }
 
 // The eight probes of the world's cascade c around p on a surface facing normal, weighed from
-// gi.slang's Lean off it, the one nearest the field's origin first, and how far that point lies
-// from it toward the last, in probes, or false where it lies outside the cascade.
+// cascades.slang's Lean off it, the one nearest the field's origin first, and how far that point
+// lies from it toward the last, in probes, or false where it lies outside the cascade.
 bool probesAround(float3 p, uint c, float3 normal, out int3 base, out float3 f)
 {
     float4 oc = fieldInfo.cascades[c].originAndCell;

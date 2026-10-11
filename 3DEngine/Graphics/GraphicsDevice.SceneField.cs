@@ -60,11 +60,11 @@ internal sealed class GpuSceneField : IDisposable
     /// <summary>A sampler that blends between the eight cells around a point, clamped at the edges.</summary>
     public ISampler Sampler { get; }
 
-    /// <summary>Where each cascade lies, as <c>scenefield.slang</c>'s <c>SceneFieldInfo</c>.</summary>
+    /// <summary>Where each cascade lies and the eye they lie around, as <c>scenefield.slang</c>'s <c>SceneFieldInfo</c>.</summary>
     public IBuffer Info { get; }
 
     /// <summary>The bytes of <see cref="Info"/>.</summary>
-    public const int InfoBytes = 16 + 8 * 16;
+    public const int InfoBytes = 16 + 8 * 16 + 16;
 
     /// <summary>
     /// The color of each cell's nearest still surface, linear, its alpha 1 where a surface painted

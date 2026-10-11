@@ -22,10 +22,9 @@ public sealed class GlowPenumbraTests : IDisposable
 
     private const int Width = 320, Height = 180;
 
-    // The frames an app is drawn before its first line is read, past those the history blended
-    // before the field held the wall, and a round of the probes' points
+    // The frames an app is drawn before its first line is read, and a round of the probes' points
     // (GlobalIlluminationRenderer.JitterAt), which a line is read over.
-    private const int Warm = 64, Round = 16;
+    private const int Warm = 48, Round = 16;
 
     [NeedsVulkanFact]
     public void A_Turn_Of_A_Few_Pixels_Moves_The_Penumbra_With_The_World()
@@ -53,7 +52,7 @@ public sealed class GlowPenumbraTests : IDisposable
         // than the frames before had lain, and strays by 0.04%.
         using var scene = new Scene(screenOff: false);
         scene.Lamp = false;
-        scene.Frames(Warm / 2);
+        scene.Frames(2 * Round);
         scene.Lamp = true;
         var placed = scene.Read();
         scene.Frames(Round - 1);
@@ -67,6 +66,20 @@ public sealed class GlowPenumbraTests : IDisposable
         var opened = scene.Read();
         var open = scene.Line(0, Round, out _);
         Strays(opened, open).Should().BeLessThan(0.01, "the floor behind the wall takes the lamp's light in the frame the wall goes");
+    }
+
+    [NeedsVulkanFact]
+    public void The_Shadow_Settles_Within_Two_Rounds_Of_An_Apps_Start()
+    {
+        // Before the field holds the wall, the probes see the lamp past it. Held whole in the
+        // blend, those frames left the line straying from where it settles by 6.3% two rounds after
+        // the app began and under 1% only after 110 frames; with a young blend restarted where the
+        // field's cascade under its point is built where it lay, by 0.5%.
+        using var scene = new Scene(screenOff: false);
+        scene.Frames(2 * Round - 1);
+        var early = scene.Read();
+        var settled = scene.Line(0, 2 * Round, out _);
+        Strays(early, settled).Should().BeLessThan(0.02, "the shadow is in place two rounds after the app began");
     }
 
     [NeedsVulkanFact]

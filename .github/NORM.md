@@ -272,11 +272,13 @@ and one that dies.
 **N 7.1 Commits stay local, and the owner pushes.** The owner decides what is published and when.
 By review.
 
-**N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The
-history is read by its descriptions, and release notes are written from them. A test reads the
-messages back, from the commit that adds the test on. A commit that changes `build/version.txt`
-alone is the owner's setting of the version and is left out, whatever its message, and any other
-commit of the owner's is left out on the rule's list with that reason.
+**N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The history
+is read by its descriptions, and release notes are written from them. A test reads the messages
+back, from the commit that adds the test on. A commit that changes `build/version.txt` alone is the
+owner's setting of the version and is left out, whatever its message, and any other commit of the
+owner's is left out on the rule's list with that reason, as is a commit of a working session's
+pushed before its fault was seen, with the fault as its reason, since a pushed commit is not
+amended; the subject is pasted from COMMITS.md and not typed, which BUILDING.md says.
 
 **N 7.3 REVIEW.md, SHARED.md and this file have one writer, the reviewing session, and the working
 session writes under Replies.** Two sessions editing one file write over each other. By review.
@@ -333,7 +335,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 7.1 | by review | by review |
-| N 7.2 | checked, `NormTests`, 1 left out | checked, `NormTests` |
+| N 7.2 | checked, `NormTests`, 2 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |

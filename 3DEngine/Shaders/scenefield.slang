@@ -51,6 +51,9 @@ public struct SceneFieldInfo
     // side of a cascade. z: how many cells from a surface the distances are exact. w: unused.
     public float4 counts;
     public FieldCascade cascades[8];
+    // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
+    // (bandHold). w: unused.
+    public float4 eye;
 };
 
 // Whether the field holds anything to read.
@@ -63,25 +66,56 @@ public bool fieldOn(SceneFieldInfo info)
 // distances fades to what it gives where the field holds nothing (fieldHold).
 public static const float FieldBand = 8.0;
 
+// The cells an outer band ends short of the eye on a side the eye stands near (bandHold): the half
+// of a probes' spacing a surface facing the eye is leaned toward it by as the probes are read for
+// it, four cells, and two more.
+public static const float EyeClear = 6.0;
+
+// How far into cascade c's outer band a point `cell` lies, in its cells, as a share of the band, 1
+// at the band's inner edge and beyond and 0 at the side, `margin` cells off each side. A cascade
+// lies 0.35 of its width ahead of the eye, so the eye stands 1.6 to 9.6 cells from the side behind
+// it, inside a band of eight; on a side the eye is that near the band ends EyeClear cells short of
+// it, or is none and the light steps at the side, behind the eye where no surface it sees lies.
+// With the last cascade's band across that side, a closed room's walls took the sky's light whole
+// wherever the band reached them, by the heading as the cascades turned with the eye, up to 0.14 of
+// the open floor's light at half the headings, and with the band kept clear of the eye under 0.0004
+// at every one (CascadeEdgeTests).
+public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin)
+{
+    float4 oc = info.cascades[c].originAndCell;
+    float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
+    float3 low = clamp(eye - margin - EyeClear, 0.0, band);
+    float3 high = clamp(info.counts.y - eye - margin - EyeClear, 0.0, band);
+    float3 held = saturate(min((cell - margin) / max(low, 1e-3), (info.counts.y - cell - margin) / max(high, 1e-3)));
+    return min(min(held.x, held.y), held.z);
+}
+
 // How much of what the field holds at p a pass takes: all of it inside the field's cascades,
-// falling to none across the outer band (FieldBand) of the coarsest one built and none past it, so
-// a pass that reads the field to its edge, as the occlusion from it, the sun's contact shadows or a
-// glow light's march, fades there rather than stepping. Taken from the last cascade whether built
-// or not, it read none while the last was not built, and a turn of five pixels moved the floor's
-// light across a glowing block's penumbra by 16% where 3% (GlowPenumbraTests).
+// falling to none across the outer band (FieldBand) of the coarsest one built, kept clear of the
+// eye (bandHold), and none past it, so a pass that reads the field to its edge, as the occlusion
+// from it, the sun's contact shadows or a glow light's march, fades there rather than stepping.
+// Taken from the last cascade whether built or not, it read none while the last was not built, and
+// a turn of five pixels moved the floor's light across a glowing block's penumbra by 16% where 3%
+// (GlowPenumbraTests).
 public float fieldHold(SceneFieldInfo info, float3 p)
 {
+    int c = fieldCoarsestBuilt(info, int(info.counts.x) - 1);
+    if (c < 0)
+        return 0.0;
+    float4 oc = info.cascades[c].originAndCell;
+    return bandHold(info, c, (p - oc.xyz) / oc.w, FieldBand, 1.0);
+}
+
+// The coarsest built cascade no coarser than `upTo`, or -1 where none is built, as in an app's
+// first frames, where the field builds its cascades finest first as many a frame as its budget
+// allows.
+public int fieldCoarsestBuilt(SceneFieldInfo info, int upTo)
+{
     [loop]
-    for (int i = int(info.counts.x) - 1; i >= 0; i--)
-    {
-        float4 oc = info.cascades[i].originAndCell;
-        if (oc.w <= 0.0)
-            continue;
-        float3 cell = (p - oc.xyz) / oc.w;
-        float3 inside = min(cell, info.counts.y - cell) - 1.0;
-        return saturate(min(min(inside.x, inside.y), inside.z) / FieldBand);
-    }
-    return 0.0;
+    for (int i = min(upTo, int(info.counts.x) - 1); i >= 0; i--)
+        if (info.cascades[i].originAndCell.w > 0.0)
+            return i;
+    return -1;
 }
 
 // The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none.

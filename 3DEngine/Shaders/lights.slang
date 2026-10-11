@@ -326,7 +326,7 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
 // band (CascadeBand in gi.slang).
 public float screenHold(float3 p, float3 n)
 {
-    return saturate(probesDepthIn(bouncedField, min(1, int(lighting.indirect.w) - 1), p, n, lighting.indirect.y) / CascadeBand);
+    return probesHold(bouncedField, p, n, lighting.indirect.y, min(1, int(lighting.indirect.w) - 1));
 }
 
 // The light that bounced to a surface at p facing n, irradiance over pi, from the world's probes

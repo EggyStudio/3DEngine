@@ -20,6 +20,15 @@ namespace Engine;
 /// it was built with, which the info the passes read says.
 /// </para>
 /// <para>
+/// The eye so stands 1.6 to 9.6 cells from each cascade's side behind it, and the outer bands the
+/// passes fade across, from a cascade to the next and from the last to what lies past the field,
+/// end short of the eye on such a side or are none, the info carrying the eye
+/// (<c>scenefield.slang</c>'s <c>bandHold</c>). A reflection's hit lies where the eye does not look,
+/// so a glossy floor can mirror a wall past the last cascade's side behind the eye, which takes the
+/// sky's light unhidden, and a probe's ray that leaves the field through that side takes the sky as
+/// well, so a cave reaching past it lets a little in.
+/// </para>
+/// <para>
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
 /// <see cref="SettleFrames"/> frames running is still and built into the cascades around it. One
 /// that moved more recently, a skinned one, and a still one whose cascades have not been built
@@ -77,6 +86,9 @@ internal sealed class SceneFieldPlan
 
         public Box Grown(float by) => new(Min - new Vector3(by), Max + new Vector3(by));
 
+        /// <summary>The box around this one and <paramref name="other"/>.</summary>
+        public Box With(Box other) => new(Vector3.Min(Min, other.Min), Vector3.Max(Max, other.Max));
+
         /// <summary>The box around this one's eight corners moved by <paramref name="world"/>.</summary>
         public Box Transformed(Matrix4x4 world)
         {
@@ -99,8 +111,12 @@ internal sealed class SceneFieldPlan
         }
     }
 
-    /// <summary>A cascade built this frame: which, its corner, its cells' width and the still meshes that come within its band.</summary>
-    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances);
+    /// <summary>
+    /// A cascade built this frame: which, its corner, its cells' width, the still meshes that come
+    /// within its band, and the box around the meshes that came or went within it since it was last
+    /// built, the whole cascade at its first build, or null where nothing did, as where the eye moved it.
+    /// </summary>
+    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null);
 
     /// <summary>
     /// A mesh stamped as a box: from the world into its own space, the box's middle and half
@@ -119,6 +135,8 @@ internal sealed class SceneFieldPlan
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
+    // The box around the meshes that came or went within each cascade since it was last built.
+    private readonly Box?[] _changed;
     // How many shapes come within each brick of each cascade this frame and the frame before, the
     // cascades one after another, which a figure of many boxes that come within the same bricks
     // counts at the cost of an add each, where a set of the bricks cost a hash each, and the bricks
@@ -157,6 +175,7 @@ internal sealed class SceneFieldPlan
         _built = new Vector3?[Cascades];
         _builtFrame = new long[Cascades];
         _dirty = Enumerable.Repeat(true, Cascades).ToArray();
+        _changed = new Box?[Cascades];
     }
 
     /// <summary>How many cascades.</summary>
@@ -195,6 +214,9 @@ internal sealed class SceneFieldPlan
     /// <summary>The width of a cell of a cascade.</summary>
     public float CellOf(int cascade) => CellSize * (1 << cascade);
 
+    /// <summary>The eye the cascades lie around this frame, as <see cref="Update"/> was last given it.</summary>
+    public Vector3 Eye { get; private set; }
+
     /// <summary>Where a cascade lies as it was last built, its corner, or null for one not yet built.</summary>
     public Vector3? BuiltOrigin(int cascade) => _built[cascade];
 
@@ -229,6 +251,7 @@ internal sealed class SceneFieldPlan
     public void Update(Vector3 eye, IReadOnlyList<(Instance Instance, bool Skinned)> drawn, Vector3 ahead = default)
     {
         _frame++;
+        Eye = eye;
         Builds.Clear();
         Shapes.Clear();
         Bricks.Clear();
@@ -319,7 +342,9 @@ internal sealed class SceneFieldPlan
             budget--;
             var origin = OriginAround(c, eye, ahead);
             var reach = CascadeBox(c, origin).Grown(Band * CellOf(c));
-            Builds.Add(new Build(c, origin, CellOf(c), [.. _still.Where(entry => entry.Value.Bounds.Overlaps(reach)).Select(entry => entry.Key)]));
+            Builds.Add(new Build(c, origin, CellOf(c), [.. _still.Where(entry => entry.Value.Bounds.Overlaps(reach)).Select(entry => entry.Key)],
+                _built[c] is null ? reach : _changed[c]));
+            _changed[c] = null;
             (_built[c], _builtFrame[c], _dirty[c], rebuilt[c]) = (origin, _frame, false, true);
         }
 
@@ -483,6 +508,9 @@ internal sealed class SceneFieldPlan
     {
         for (int c = 0; c < Cascades; c++)
             if (_built[c] is { } origin && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c))))
+            {
                 _dirty[c] = true;
+                _changed[c] = _changed[c] is { } box ? box.With(bounds) : bounds;
+            }
     }
 }

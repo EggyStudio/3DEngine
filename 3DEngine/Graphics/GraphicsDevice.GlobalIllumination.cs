@@ -160,7 +160,7 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.SampledImage], 32);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 32);
             return _giStages;
         }
     }
@@ -411,7 +411,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 5, VkDescriptorType.StorageImage, gi.Held, null, VkImageLayout.General);
             run.Image(set, 6, VkDescriptorType.SampledImage, gi.MergedSky[c].View, null, VkImageLayout.General);
             run.Image(set, 7, VkDescriptorType.StorageImage, ((VulkanImageView)gi.SkiesView).View, null, VkImageLayout.General);
-            ReadOnlySpan<uint> push = [(uint)c, p, (uint)gi.Texels[c], (uint)(frame & 1) | (lying is not null && lying[c] ? 2u : 0u)];
+            ReadOnlySpan<uint> push = [(uint)c, p, (uint)gi.Texels[c], (uint)(frame & 1) | (lying is not null && lying[c] ? 2u : 0u),
+                BitConverter.SingleToUInt32Bits(intervals[c].End), 0, 0, 0];
             run.Dispatch(AmbientStage, set, MemoryMarshal.AsBytes(push), (p * p * p * 6 + 63) / 64);
         }
         PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.Reach, gi.Skies }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General,

@@ -657,19 +657,28 @@ spacing at most, as DDGI moves its probes (`placed` in `gi_trace.slang`), so the
 or a ceiling's plane stand in the room before it; the trace moves each probe before its rays leave,
 the merge reads where it moved them, and the gather writes each probe's move into its faces' alpha,
 two more than its move along each face's axis in its spacing and 0 for a probe that holds nothing,
-which every pass that reads the faces takes its place from. A ray of the last cascade that meets
-nothing brings the sky's light marked a quarter in its alpha, which the merge reads as it reads a
-ray that met a surface, and each merged texel carries the share of it that reached the sky in an
-image of its own, 1 for a ray of the last cascade that met nothing and the cascade above's blended
-where a ray met nothing, which the gather weighs as it weighs the light into a sixth image of
-faces, each face's share of the sky. The model pass weighs the environment map's reflection by it
-where light bounces, read along the mirror direction from the eight probes around the surface as
-the light is (`skyAt` in `gi.slang`), since the occlusion alone weighed it before and nothing said
-the sky was not there: a box sealed on every side under a blue sky read 37.5 in blue on its rough
-inside walls and 0.13 after, an open floor 62.7 and 61.8 (`GlobalIlluminationTests`). It took the
-voxel game's scene pass at eight columns from 1.55 to 1.65 ms of the GPU and its bounce from 1.26
-to 1.32 in a Release build, and the Cornell box's bounce from 0.69 to 0.70 ms at `High` with 0.84
-MB more, by `./e3d command profile` and `gi.state`.
+which every pass that reads the faces takes its place from. The field holds a solid as the faces
+around it, so its cells deeper inside than the faces' band read as the open, and a probe standing
+there traces through the rock to the backs of the faces around it. In the voxel game the last
+cascade's probes deep in a mountain held the sky they found past the field's side and the grass they
+met from below. A ray that stops half a cell or more behind a face came on it from behind, having
+stepped from such a cell straight into the cells behind it, and the trace marks its distance below
+zero; a probe whose rays met more faces from behind than from in front is passed over as one inside
+a mesh from the next frame, its rays traced all the same so it is found again, as DDGI finds its
+probes inside geometry by the share of rays that met back faces. The rooms read their references as
+before to the fourth place, and the bounce costs 0.02 ms more in `shaders_bounce_rooms`, 1.47 where
+1.45. A ray of the last cascade that meets nothing brings the sky's light marked a quarter in its
+alpha, which the merge reads as it reads a ray that met a surface, and each merged texel carries the
+share of it that reached the sky in an image of its own, 1 for a ray of the last cascade that met
+nothing and the cascade above's blended where a ray met nothing, which the gather weighs as it
+weighs the light into a sixth image of faces, each face's share of the sky. The model pass weighs
+the environment map's reflection by it where light bounces, read along the mirror direction from the
+eight probes around the surface as the light is (`skyAt` in `gi.slang`), since the occlusion alone
+weighed it before and nothing said the sky was not there: a box sealed on every side under a blue
+sky read 37.5 in blue on its rough inside walls and 0.13 after, an open floor 62.7 and 61.8
+(`GlobalIlluminationTests`). It took the voxel game's scene pass at eight columns from 1.55 to 1.65
+ms of the GPU and its bounce from 1.26 to 1.32 in a Release build, and the Cornell box's bounce from
+0.69 to 0.70 ms at `High` with 0.84 MB more, by `./e3d command profile` and `gi.state`.
 
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
@@ -1078,6 +1087,12 @@ that jump most, fall from 93.8% of the light to 41.8%. The error over every regi
 | A corridor lit from its end | −18% → −21% | −17% → −21% | −16% → −21% |
 | A floor at a grazing angle | −35% → −37% | −34% → −36% | −27% → −28% |
 
+and the other rooms by a point at most. The probes past the first cascade trace their rays where
+they held nothing, which costs 0.028 ms at `Low`, 0.013 at `Medium` and 0.017 at `High`, the bounce
+0.45, 0.57 and 0.66 ms. The look: the bounce adds 1.00 levels a frame to the sliding picture's change
+where it added 0.95, and 3.68 without the history, and the panel's room fades as it did, to 24.3
+levels 18 frames on and 0.9 at 30.
+
 Each cascade's light fades into the next across its outer band, eight of its cells, a probes'
 spacing (`CascadeBand`), the screen's probes' into the world's across the second cascade's, and the
 last cascade's into the light from beyond the probes, the environment's and the ambient lights'
@@ -1085,20 +1100,32 @@ unhidden, which takes the bounce's place past it (`bouncedHold`); a surface's de
 that of its point leaned off it as the probes are read for it, so a floor on a cascade's lower side,
 its probes half a spacing over it, lies half a spacing inside. The passes that read the field to its
 edge, the occlusion from it, the sun's contact shadows and the glow lights' marches, fade across the
-outer band of the field's coarsest built cascade the same way (`fieldHold`). Read from one cascade
-alone, the light stepped at each one's end, on a canyon's floor under a sky with no sun, seen from
-twenty units up and twelve degrees down as the voxel game's hills were, from one row of pixels to
-the next by 14% at the screen's probes' end at `High`, 10% at the third cascade's and 15% at the
-last's, by 18% twice at `Medium` and by 25% at `Low`, whose screen probes end with its last cascade,
-and on the game's hills at sunset from 0.6 to 1.0 of the sky's light where the last ended; faded,
-the canyon's floor changes from row to row by 3.7%, 3.8% and 1.9% at most at 320 by 180
-(`CascadeEdgeTests`) and by 2.9%, 3.0% and 1.0% at 640 by 360.
-
-and the other rooms by a point at most. The probes past the first cascade trace their rays where
-they held nothing, which costs 0.028 ms at `Low`, 0.013 at `Medium` and 0.017 at `High`, the bounce
-0.45, 0.57 and 0.66 ms. The look: the bounce adds 1.00 levels a frame to the sliding picture's change
-where it added 0.95, and 3.68 without the history, and the panel's room fades as it did, to 24.3
-levels 18 frames on and 0.9 at 30.
+outer band of the field's coarsest built cascade the same way (`fieldHold`). Every band is read from
+the coarsest cascade built, and on a side the eye stands near it ends six cells short of the eye or
+is none, the field's info carrying the eye (`bandHold`). A cascade lies 0.35 of its width ahead of
+the eye, so the eye stands 1.6 to 9.6 cells from its side behind it, and across that side the last
+cascade's band gave a closed room's walls the sky's light whole wherever it reached them, by the
+heading as the cascades turned with the eye, 0.11 to 0.14 of the open floor's light at six headings
+of twelve, where with the band kept clear of the eye they read under 0.0004 at every one; read from
+the last cascade while it was not built, a closed room's floor under an ambient light took 9.4 times
+the light it settles at in the frames before. The last cascade's hold is read at the surface itself
+where that holds more than its leaned point, since a surface facing the eye leans four cells toward
+the side behind it, which may stand 1.6 cells behind the eye, and a pillar's face a block before the
+eye leaned past that side, held nothing and took the sky's light whole, in the voxel game's cave at
+three headings of a turn and in `CascadeEdgeTests` 0.157 of the open floor's light where 0.0006. A
+reflection's hit lies where the eye does not look, so a glossy floor can mirror a wall past the last
+cascade's side behind the eye, which takes the sky's light unhidden. A probe's ray that leaves the
+field through that side takes the sky as well, so a cave reaching past it lets a little in. One of
+30 by 30 blocks under a hill reads 1.7 levels of 255 at `High` with the game's own shading off and
+0.01 with the sky left out of the probes' rays; and at `Low`, whose last cascade's rays reach 16
+units, a cave wider than that takes the sky past them at every heading, that one 27 levels. Read
+from one cascade alone, the light stepped at each one's end, on a canyon's floor under a sky with no
+sun, seen from twenty units up and twelve degrees down as the voxel game's hills were, from one row
+of pixels to the next by 14% at the screen's probes' end at `High`, 10% at the third cascade's and
+15% at the last's, by 18% twice at `Medium` and by 25% at `Low`, whose screen probes end with its
+last cascade, and on the game's hills at sunset from 0.6 to 1.0 of the sky's light where the last
+ended; faded, the canyon's floor changes from row to row by 3.7%, 3.8% and 1.9% at most at 320 by
+180 (`CascadeEdgeTests`) and by 2.9%, 3.0% and 1.0% at 640 by 360.
 
 The ninth gives the field the light of an emitter thinner than a cell. A strip 0.06 thick on a wall,
 under cells of 0.15, painted no cell its own, the wall nearer every cell's middle, so its light was
@@ -1420,9 +1447,14 @@ frame's so the mean starts anew where it stops. The blend is dropped where no te
 before held the surface, where a light that reaches it has a place whose light the frame before did
 not have there, the lights kept in their places from frame to frame (`GlowPlaces`), or where, after
 a round, the frame's light lies further from it than half again the furthest the frames' light had
-lain, that furthest let go by a sixty-fourth a frame. What a texel keeps is, of the light near it
-that gives it the most, within twice its box's half diagonal, its share of that light's rough
-unhidden light, half its box's surface over the square of the distance from the box
+lain, that furthest let go by a sixty-fourth a frame. A blend younger than a round is dropped as
+well where the field's cascade under the texel was built again in the frame, within the box around
+the meshes that came or went in it, which the view's bytes carry, since before the field holds a
+wall the probes see a lamp past it. Held whole in the blend, those first frames left a penumbra
+straying from where it settles by 6.3% two rounds after an app began and under 1% only after 110
+frames, and with the young blend dropped by 0.5% (`GlowPenumbraTests`). What a texel keeps is, of
+the light near it that gives it the most, within twice its box's half diagonal, its share of that
+light's rough unhidden light, half its box's surface over the square of the distance from the box
 (`glowLightRough`), which the model pass scales by the same worked out at the pixel with the pixel's
 own normal, so a lamp's light falls away at each pixel as it does across the lamp's thickness, and
 the other lights' light as it is. The model pass reads the two by two texels around a pixel, each

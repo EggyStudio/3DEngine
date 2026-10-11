@@ -61,8 +61,9 @@ Sampler3D bounced;
 [[vk::binding(7, 0)]]
 SamplerCube environment;
 
-// How far each ray went before it met a surface, or its interval's end where it met none, which
-// gi_ambient.slang lays out as each probe's reach.
+// How far each ray went before it met a surface, or its interval's end where it met none, below
+// zero where it met a face from behind, which gi_ambient.slang lays out as each probe's reach and
+// counts to find a probe inside a solid.
 [[vk::binding(8, 0)]] [format("r16f")]
 RWTexture3D<float> distances;
 
@@ -96,6 +97,10 @@ struct TracePush
 ConstantBuffer<TracePush> push;
 
 groupshared float4 place;
+
+// Whether the gather found the frame before that the probe's rays met more faces from behind than
+// from in front (gi_ambient.slang), so it stands inside a solid.
+groupshared bool walledIn;
 
 // The field's layout with each cascade at the corner it lay at the frame before, where the faces of
 // the light that bounced, which the rays read, were gathered. Read at this frame's corners, a
@@ -205,17 +210,23 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float4 oc = fieldInfo.cascades[push.cascade.x].originAndCell;
     float apart = oc.w * push.interval.z;
     float3 spot = oc.xyz + (float3(at) + 0.5) * apart;
-    // The probe moved into the open by the group's first ray, for every ray of it.
+    // The probe moved into the open by the group's first ray, for every ray of it. One the gather
+    // found inside a solid is left for the merge and the gather as one inside a mesh, its rays
+    // traced all the same, so it is found again each frame; found for a probe that stood elsewhere,
+    // its cascade moved since, the finding is not this probe's.
     if (lane == 0u)
     {
         place = oc.w > 0.0 ? placed(spot, apart) : float4(0.0);
-        held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = place;
+        int z = int(push.cascade.x) * int(probes) + int(at.z);
+        walledIn = place.w > 0.5 && push.follow.x != 0u && held[int3(2 * int(probes) + int(at.x), int(at.y), z)].w > 0.5;
+        held[int3(3 * int(probes) + int(at.x), int(at.y), z)] = walledIn ? float4(place.xyz, 0.0) : place;
     }
     GroupMemoryBarrierWithGroupSync();
     float3 origin = spot + place.xyz * apart;
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
     float reached = 0.0;
+    bool behind = false;
     if (oc.w <= 0.0)
     {
     }
@@ -227,10 +238,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
         reached = t >= 0.0 ? t : push.interval.y;
         if (t >= 0.0)
+        {
             // The light that bounced to the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
             light = float4(shadeProbeHit(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bounced, origin + way * t,
                 float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
+            // A ray that came on a face from behind it stops half a cell or more behind the face,
+            // having stepped from a cell no face comes within the band of, which the field holds as
+            // the open, straight into the cells behind it, where a ray from in front, slowing as it
+            // nears the face, stops within a tenth of a cell of it.
+            behind = fieldDistance(sceneField, fieldInfo, origin + way * t) < -0.5 * fieldCell(fieldInfo, origin + way * t);
+        }
         else if (push.cascade.w != 0u)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
@@ -238,8 +256,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             own = sky;
         }
     }
+    if (walledIn)
+    {
+        light = float4(0.0);
+        own = float3(0.0);
+    }
     radiance[written] = light;
-    distances[written] = reached;
+    // Below zero where the ray met a face from behind, which the gather counts.
+    distances[written] = behind ? -reached : reached;
 
     // The group's own light and all it brought back summed, each ray weighed by the share of the
     // sphere its texel spans, as the gather weighs them, halving the rays that add each step.
