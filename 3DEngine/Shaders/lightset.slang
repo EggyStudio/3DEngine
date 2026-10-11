@@ -233,6 +233,8 @@ public struct RaySurface
 [[vk::binding(29, 1)]]
 public StructuredBuffer<RaySurface> raySurfaces;
 
+// Every mesh's corners in its own space, and in w each corner's color, three sRGB bytes under a bit
+// that keeps the word a whole float (GpuRayScene).
 [[vk::binding(30, 1)]]
 public StructuredBuffer<float4> rayCorners;
 #endif

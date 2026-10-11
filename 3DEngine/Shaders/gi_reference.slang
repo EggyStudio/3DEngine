@@ -1,21 +1,23 @@
 // A path-traced reference of the window's picture, which the light that bounces is measured
 // against: from each pixel, paths through the window's meshes as the device's ray tracing holds
-// them (GpuRayScene), each hit a copy's flat color and the light it gives off. The first hit is lit
-// as the model pass lights one, each light's diffuse share past what its face reflects and its
-// specular share by the material's roughness and metallic, and every hit after it as the light
-// that bounces lights one, its color times what arrives. A light that casts shadows reaches a hit
-// only where a ray toward it gets through, as the shadow maps and the field let it. A path goes on
-// in a direction drawn by the cosine about the face's normal, ends at what Russian roulette draws
-// after its third bounce, and brings back the sky, the environment map's or the ambient lights',
-// where it meets nothing. Lights are given as the model pass has them, the light a white diffuse
-// surface facing one returns, so a surface's diffuse light is its color times what arrives, with
-// no pi. Each pass adds its samples to an image of sums, the count in alpha, and its first sample
-// of each pixel, through the pixel's middle, writes what it met into the image of regions: the
-// copy's index times eight and the axis its face turns toward most, plus one, or 0 for nothing.
-// Started at a probe instead, a texel of the image is a texel of the probe's octahedron, its paths
-// leaving the probe's middle through it and every face they meet lit as the light that bounces
-// lights one, so the image is the light arriving at the probe from each way, as its rays and the
-// merge of the cascades above should bring it.
+// them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, and the
+// light it gives off. The first hit is lit as the model pass lights one, each light's diffuse share
+// past what its face reflects and its specular share by the material's roughness and metallic, and
+// every hit after it as the light that bounces lights one, its color times what arrives. A light
+// that casts shadows reaches a hit only where a ray toward it gets through, as the shadow maps and
+// the field let it. A path goes on in a direction drawn by the cosine about the face's normal, ends
+// at what Russian roulette draws after its third bounce, and brings back the sky, the environment
+// map's or the ambient lights', where it meets nothing. Lights are given as the model pass has
+// them, the light a white diffuse surface facing one returns, so a surface's diffuse light is its
+// color times what arrives, with no pi. Each pass adds its samples to an image of sums, the count
+// in alpha, and its first sample of each pixel, through the pixel's middle, writes what it met into
+// the image of regions: the copy's index times eight and the axis its face turns toward most, plus
+// one, or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
+// octahedron, its paths leaving the probe's middle through it and every face they meet lit as the
+// light that bounces lights one, so the image is the light arriving at the probe from each way, as
+// its rays and the merge of the cascades above should bring it.
+
+import color;
 
 [[vk::binding(0, 0)]]
 RaytracingAccelerationStructure scene;
@@ -33,8 +35,17 @@ struct RaySurface
 [[vk::binding(1, 0)]]
 StructuredBuffer<RaySurface> surfaces;
 
+// Every mesh's corners in its own space, and in w each corner's color, three sRGB bytes under a bit
+// that keeps the word a whole float (GpuRayScene).
 [[vk::binding(2, 0)]]
 StructuredBuffer<float4> corners;
+
+// A corner's color, linear, as the model pass brings a vertex's color in.
+float3 cornerColor(float4 corner)
+{
+    uint bits = asuint(corner.w);
+    return srgbToLinear(float3(float(bits & 255u), float((bits >> 8) & 255u), float((bits >> 16) & 255u)) / 255.0);
+}
 
 [[vk::binding(3, 0)]]
 RWTexture2D<float4> sums;
@@ -259,7 +270,11 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         bool first = bounce == 0u && !fromProbe;
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
-        float3 color = surface.color.rgb;
+        // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass
+        // blends them, so a mesh of many colors, as a voxel game's section, is traced in them.
+        float2 between = query.CommittedTriangleBarycentrics();
+        float3 color = surface.color.rgb * (cornerColor(corners[corner]) * (1.0 - between.x - between.y)
+            + cornerColor(corners[corner + 1u]) * between.x + cornerColor(corners[corner + 2u]) * between.y);
         light += throughput * (surface.emission.rgb + direct(p, n, color, -way, first, roughness, metallic));
 
         // The diffuse share goes on, the first face's past its metal, as the light that bounces to

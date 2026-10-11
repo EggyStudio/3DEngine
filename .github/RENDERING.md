@@ -738,28 +738,32 @@ layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
 
 The light that bounces is measured against a reference the engine traces itself through the same
 structures (`BounceReference`, `gi_reference.slang`), each copy's surface record holding its
-material's roughness and metallic for it. `gi.reference <png> <samples>` traces that many paths a
-pixel from the window's view, a few a submission, each waited for: the first face lit as the model
-pass lights one, specular and the share its face reflects included, every face after as the light
-that bounces lights one, the sun and the lamps that cast shadows reaching a face where a ray toward
-them gets through, the light given off at every face, the way on drawn by the cosine, Russian
-roulette from the third bounce, and the environment map or the ambient lights where a path meets
-nothing. It writes a PNG of the light, the light itself as a PFM, what each pixel's first ray met,
-the copy and the axis its face turns toward, and the names of those regions: a flat slab's top a
-floor and its underside a ceiling, a standing slab a wall by its color and the way it faces, and
-the rest blocks by their order. `gi.compare <png>` reads the window's decoded light back and gives
-each region's mean light in each channel against the reference's, the difference and its share of
-the reference, and writes a picture of the difference, red where the frame is brighter and blue
-where it is darker. `BounceReferenceTests` holds the reference to a closed box whose walls all give
-off the same light, which it shows as that light over one less the walls' color, 2.01 within 2%,
-and to a lone slab under a lamp, which the frame and the reference read alike to a hundredth of a
-percent. The Cornell box at 800 by 450 takes 1.0 s on the RTX 4070 for 1,024 paths a pixel.
-`shaders_bounce_rooms` holds the cases the bounce finds hardest, a room each forty units apart with
-a camera fixed on it: the Cornell box, a room of walls thinner than the field's cell with a lamp
-outside it, a corridor lit from its open end, the sun through a window, white blocks beside red
-walls one, three and six units off, a small bright strip in a dark room, a floor seen at a grazing
-angle, and a room whose lamp a key carries and whose wall another moves. `build/bounce-rooms.sh`
-captures each view, traces its reference at `High` and compares each quality's frame with it.
+material's roughness and metallic for it. A hit takes its mesh's vertices' colors as well, blended
+as the model pass blends them, carried in the w of each corner the structures' build leaves unread,
+so a mesh of many colors, as a voxel game's section of white concrete, is traced as drawn, where
+traced in its copy's color alone the game's rooms read a third brighter in the reference than in the
+frame. `gi.reference <png> <samples>` traces that many paths a pixel from the window's view, a few a
+submission, each waited for: the first face lit as the model pass lights one, specular and the share
+its face reflects included, every face after as the light that bounces lights one, the sun and the
+lamps that cast shadows reaching a face where a ray toward them gets through, the light given off at
+every face, the way on drawn by the cosine, Russian roulette from the third bounce, and the
+environment map or the ambient lights where a path meets nothing. It writes a PNG of the light, the
+light itself as a PFM, what each pixel's first ray met, the copy and the axis its face turns toward,
+and the names of those regions: a flat slab's top a floor and its underside a ceiling, a standing
+slab a wall by its color and the way it faces, and the rest blocks by their order.
+`gi.compare <png>` reads the window's decoded light back and gives each region's mean light in each
+channel against the reference's, the difference and its share of the reference, and writes a picture
+of the difference, red where the frame is brighter and blue where it is darker.
+`BounceReferenceTests` holds the reference to a closed box whose walls all give off the same light,
+which it shows as that light over one less the walls' color, 2.01 within 2%, and to a lone slab
+under a lamp, which the frame and the reference read alike to a hundredth of a percent. The Cornell
+box at 800 by 450 takes 1.0 s on the RTX 4070 for 1,024 paths a pixel. `shaders_bounce_rooms` holds
+the cases the bounce finds hardest, a room each forty units apart with a camera fixed on it: the
+Cornell box, a room of walls thinner than the field's cell with a lamp outside it, a corridor lit
+from its open end, the sun through a window, white blocks beside red walls one, three and six units
+off, a small bright strip in a dark room, a floor seen at a grazing angle, and a room whose lamp a
+key carries and whose wall another moves. `build/bounce-rooms.sh` captures each view, traces its
+reference at `High` and compares each quality's frame with it.
 
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before

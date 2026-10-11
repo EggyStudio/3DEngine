@@ -129,6 +129,41 @@ public sealed class BounceReferenceTests : IDisposable
         UnloadModel(slab);
     }
 
+    [NeedsRayQueryFact]
+    public void A_Slab_Colored_In_Its_Vertices_Reads_In_The_Frame_As_In_The_Reference()
+    {
+        // The slab above with its color in its vertices and a white material, as a voxel game colors
+        // a section's blocks. The reference traced a copy's flat color alone, so a game's rooms of
+        // white concrete read a third brighter in it than in the frame.
+        var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f, 1);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetTonemap(Tonemap.None);
+        CreatePointLight(new Vector3(0.5f, 2, 0.5f), new Color(255, 230, 200), 3, range: 10);
+        var cube = GenMeshCube(1, 1, 1);
+        GetApp().World.Resource<MeshStore>().TryGetData(cube.Id, out var vertices, out var indices).Should().BeTrue();
+        var slab = LoadModelFromMesh(UploadMesh(vertices, indices, [.. vertices.Select(_ => new Color(200, 160, 120))], null));
+        slab.Materials[0] = new ModelMaterial(Color.White) { Roughness = 0.4f };
+        var camera = new Camera3D(new Vector3(0, 3, 4), Vector3.Zero, Vector3.UnitY, 45);
+        for (int frame = 0; frame < 12; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(slab, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(4, 0.2f, 4), Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var path = Path.Combine(_folder.Path, "colored.png");
+        BounceReference.Trace(GetApp().World, path, 256).Should().StartWith("traced");
+        var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
+        regions.Should().NotBeNull(why);
+        var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
+        Math.Abs(floor.Share).Should().BeLessThan(0.01f, $"the slab's top reads in the frame {floor.Frame} as in the reference {floor.Reference}");
+        UnloadModel(slab);
+    }
+
     // A PFM file's floats, whatever their order.
     private static float[] ReadPfm(string path)
     {

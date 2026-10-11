@@ -10,31 +10,53 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0defd508`. Verdict 48's mend, found where the verdict asked first: the seconds go to
-the compile of one pipeline, the model pass's fragment shader, 142 KB of SPIR-V before the lamps and
-293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them and 0.90 s since on lavapipe here,
-every other pipeline a few milliseconds and a frame after the first as fast as before, so an app
-that draws no lamp, the leak test's, paid it all, and the Windows Mesa, 26.2.4 against 26.2.2 here,
-is not the difference. With every glow call out the shader is 146 KB and 0.22 s, so it was the glow
-code inlined at four places and unrolled in each, the reflection's hit shaded by two calls with a
-`glowLightsAt` holding two ways through, and the pixel's fallback a third. The hit is shaded once
-wherever it is met, `glowLightsAt` keeps one way through for every count, and the glow loops are
-`[loop]`: 177 KB and 0.32 s, a lampless app's first frame 0.35 s where 0.23 before the lamps and
-0.94 on `0f5cdbcf`, the Rendering tests of before `98a1edca` in 280 s on lavapipe where 261 before
-the lamps. The cost on the RTX 4070 holds within hundredths, the rooms read as they did, and the
-closed room seen from outside lost no device in ten runs of the engine's case and eight of the
-game's. Right, the seconds found in one pipeline's compile before anything was cut, the cut at the
-code's shape and not the lamps' count, and the two remedies the verdict named besides kept for a
-Windows job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7 skipped with
-no validation error. Verdict 48 settles on the Windows page. Then `0defd508`, the two rooms read
-against each other: the difference is the layout and the eye, the game's lamps two blocks apart
-under an eye a block over the floor at twenty degrees, where the engine's stood two and a half apart
-under an eye 3.6 up at ten, so the game's floor pixels lie nearer more lamps; the engine's room
-built as the game's reads 0.36 ms of the model pass on `214feb11`, and the game's own room in a copy
-of its build with that commit's shaders 0.30, where `0f5cdbcf`'s shaders read 0.40 near the game's
-0.47 to 0.53, the smaller shader running faster as well as compiling faster; the land around is not
-it, the lamps' share the same at two columns as at eight, though the land costs the pass 0.6 ms of
-its own, since the pass discards for an alpha cutoff and draws no depth ahead of itself, so a
+Reviewed up to `3105e73e`. The end rod's step, found against the path-traced reference: the lamps'
+faces are summed in closed form within four half diagonals of the middle and as a point each past
+them, and at that switch, 1.9 blocks from the rod's middle, a face fifteen sixteenths long and two
+wide read 11% over the closed form as one point, so the floor's light stepped 8% between 1.85 and
+1.9 blocks and the log of its light bent by 0.062; a block's square face read 7% over at its own
+switch, where the comment claimed 3%, the closed form itself matching an integral of the face taken
+numerically. Each face past the closed form is cut along its longer side into pieces about as long
+as its shorter, four at most, a face about square into quarters, each a point, the cuts unrolled
+with the count kept so no loop nests in the faces' loop, which this driver's fault forbids: the rod
+within 0.6% at its switch, a block's face 1.6%, a thin slab 0.2%, so neither the switch by the
+longest half side nor a blend over a band was needed. The rod's floor reads a reference of 16,384
+paths a pixel within 2% to 1.6 blocks, past which its reach fades it as made, and its log bends
+nowhere over 0.021 from one block to three; a test holds both and failed on the old form at 0.062.
+The rooms read within 0.001, the game's room seen from outside faulted in none of eight runs by Xid,
+and the model pass compiles on lavapipe in 0.35 s where 0.32. Right, the cause measured at the
+switch itself and the cheapest form that meets the reference taken, the two the part offered set
+aside by the numbers, and the driver's shape kept in mind. The suite: 1,670 passed; on lavapipe 383
+passed and 7 skipped with no validation error. The rooms' 0.30 and 0.36 want no retake, the game's
+own reading with the desktop quiet having closed the cost. The game's `6772c6f0`, oak doors, and
+`1454ba6b`, flowing water, are its own. Next the reference's vertex colors, then part f, part c and
+item 8.
+
+Before it, `214feb11` and `0defd508` came, Verdict 48's mend found where the verdict asked first:
+the seconds go to the compile of one pipeline, the model pass's fragment shader, 142 KB of SPIR-V
+before the lamps and 293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them and 0.90 s
+since on lavapipe here, every other pipeline a few milliseconds and a frame after the first as fast
+as before, so an app that draws no lamp, the leak test's, paid it all, and the Windows Mesa, 26.2.4
+against 26.2.2 here, is not the difference. With every glow call out the shader is 146 KB and 0.22
+s, so it was the glow code inlined at four places and unrolled in each, the reflection's hit shaded
+by two calls with a `glowLightsAt` holding two ways through, and the pixel's fallback a third. The
+hit is shaded once wherever it is met, `glowLightsAt` keeps one way through for every count, and the
+glow loops are `[loop]`: 177 KB and 0.32 s, a lampless app's first frame 0.35 s where 0.23 before
+the lamps and 0.94 on `0f5cdbcf`, the Rendering tests of before `98a1edca` in 280 s on lavapipe
+where 261 before the lamps. The cost on the RTX 4070 holds within hundredths, the rooms read as they
+did, and the closed room seen from outside lost no device in ten runs of the engine's case and eight
+of the game's. Right, the seconds found in one pipeline's compile before anything was cut, the cut
+at the code's shape and not the lamps' count, and the two remedies the verdict named besides kept
+for a Windows job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7
+skipped with no validation error. Verdict 48 settles on the Windows page. Then `0defd508`, the two
+rooms read against each other: the difference is the layout and the eye, the game's lamps two blocks
+apart under an eye a block over the floor at twenty degrees, where the engine's stood two and a half
+apart under an eye 3.6 up at ten, so the game's floor pixels lie nearer more lamps; the engine's
+room built as the game's reads 0.36 ms of the model pass on `214feb11`, and the game's own room in a
+copy of its build with that commit's shaders 0.30, where `0f5cdbcf`'s shaders read 0.40 near the
+game's 0.47 to 0.53, the smaller shader running faster as well as compiling faster; the land around
+is not it, the lamps' share the same at two columns as at eight, though the land costs the pass 0.6
+ms of its own, since the pass discards for an alpha cutoff and draws no depth ahead of itself, so a
 section behind a wall drawn before the wall is shaded, which a nearest-first order of the solid
 draws would cut, the game trying its own and the engine keeping the order meshes come in;
 RENDERING.md and the shaders' comments name the rooms. Right, the discrepancy run down to its cause
@@ -83,47 +105,6 @@ rod's step since 5.2 waits on a green Windows job (Decision 19). The run of the 
 with `34f39fcb`'s march, reads the same on Windows, 87 minutes and 364 without a result with a frame
 of 11.9 seconds, and its Linux job took 15 minutes where `98a1edca`'s took 8, so lavapipe pays
 everywhere, doubled on Linux and eightfold on the Windows Mesa, which Verdict 48 says since.
-
-Before it, item 2's part b came, the bounce's drift after a move, done, measured first in the game's
-room drawn by the engine alone and the cause read before the remedy: not a coherent change where a
-cascade moved, since a nudge of a fiftieth of a block drifted the same with no snap crossed, and
-each screen probe's raw light changed by 18% of the mean with it. The normal a probe rebuilds from
-the depth lies 1.6 degrees off its wall's axis, and a ray took each world probe's light from the one
-texel of its octahedron it fell in, half the 16 rays on a wall square to the axes lying on texel
-borders, so the rays flipped texel by texel as the camera moved, the filter made the flips the
-blotches, the history averaged them, and the drift was the way back to the pattern that stands;
-neither remedy the item named would have mended it, which the measure shows. Read between the four
-texels around the ray, folded across the octahedron's edges as DDGI folds its border, the raw change
-is 4.1%. The turn had a cause of its own: the trace read the frame before's faces at this frame's
-corners, so each probe of a moved cascade took a neighbor's faces and the light bouncing again took
-ten frames to find itself, and a turn moves all four cascades since they lead the eye; the lights'
-buffer carries the frame before's corners, 64 bytes, and the trace reads the faces through them, the
-screen's probes keeping this frame's since they read after the gather. The fifth frame after a walk
-changes 0.07 levels where it changed 0.19, after a turn 0.06 where 0.84, a theory of the two at 320
-by 180 holding each under 0.12 and failing without its own mend, lavapipe reading the same; the
-slide test's crawl went with the flips, 0.33 levels a frame to −0.03, so it holds 0.15 absolute. The
-cost 0.04 ms, the guide's table 0.41, 0.53 and 0.74. The path-traced rooms move both ways, the
-Cornell box 0.170 to 0.203 of its light at Low and the strip 0.511 to 0.466, the eight views summing
-4.59 where 4.62, and every bound of `BounceRoomsTests` is reset to 15% over its new reading by the
-rule it was set by, five up and eight tighter, looked at here: the rule holds, and the Cornell box's
-rise is the angular blur of reading between an 8 by 8 octahedron's texels, the thing part d's 256
-directions would cut, so that remedy is read for the Cornell box's error as well as the lobes.
-Right, the suspects measured and two cleared before anything moved, the fold DDGI's, and the faces
-read where they were gathered. The owner's eye found this tree stable and good before the commit
-(Decision 27). The suite: 1,652 passed, the Cornell box's two moved with the others; on lavapipe 373
-passed and 7 skipped with no validation error. NORM.md's counts and SHARED.md's two rows went in
-with it. Parts d and e next, together, the GPU with the game's session for their measures meanwhile.
-The game's session measured d and e on the tree with bloom off, which had stood in the earlier
-figures for a fifth, and parts d and e are rewritten on the measures: the finer cell did not mend
-the lobes but took the pool away, e's own mechanism, and the pool's sharp edge at two and a half
-blocks names the first cascade's directions; the game's `de36ead1`, its ring reading a point behind
-the eye as off the picture, is the game's own. The engine's session then measured both parts on the
-engine, GPU and lavapipe agreeing, and the cause is in neither the octahedron nor the field's hold
-of the cube but in the probes' horizon, so the two readings this paragraph gave stand corrected and
-parts d and e are one part with its measured cause and the remedy the measure names. The Windows
-page of `3a83cec6` came: its tests pass whole, the leak test's hold held to app 70, so Verdict 40 is
-settled after its two mends, and the job fails playing Slide, whose app stopped serving after its
-first tap, Verdict 45; 5.2 waits on that alone.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -292,8 +273,10 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    past them, within 3% of the closed form for a block, where a face fifteen sixteenths long and two
    wide seen from the side at that distance is no point, so the two forms meet in a step; the switch
    goes by the longest half side, or the long face is cut into squares each a point, or the two
-   forms are blended over a band, whichever the rod's floor against the reference names, with a test
-   of a long thin box's floor smooth across the curve.
+   forms are blended over a band, which the rod's floor against the reference named at `3105e73e`:
+   the faces past the closed form cut into points about as long as they are wide, the rod within
+   0.6% at the switch where it read 11% over, its floor within 2% of the reference and its log
+   bending nowhere over 0.021, with a test; the game's entry stays until it has read it.
 
    **f. The screen's probes make the light depend on the view: as the camera turns, the penumbras'
    steps and the lit borders move on the screen, the light is noisy for a second after a move and
@@ -616,21 +599,14 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, the end rod's step. The rod's floor against a path-traced reference names the switch from
-the faces' closed form to their point form at four of the rod's half diagonals, 1.9 from its middle:
-as one point a face fifteen sixteenths long and two wide reads 11% over the closed form there, so
-the floor's light stepped by 8% between 1.85 and 1.9 blocks out, its log bending by 0.062; a block's
-square face read 7% over the closed form at its own switch, a smaller step in a fainter light, and
-not the 3% the comment claimed, the closed form itself matching an integral of the face taken
-numerically. Each face is cut along its longer side into pieces about as long as its shorter, four
-at most, and a face about square into quarters, each a point, the cuts unrolled with no loop nested
-in the faces' loop: the rod within 0.6% of the closed form at its switch, a block's face 1.6%, a
-thin slab 0.2%, so neither a switch by the longest half side nor a blend over a band was needed. The
-rod's floor reads the reference, traced at 16384 paths a pixel, within 2% to 1.6 blocks, past which
-its reach fades it as made, its half a block of surface reaching five blocks, and the log of its
-light bends nowhere over 0.021 from one block to three; a test holds both, and failed on the point
-form as it was, 0.062 at 1.8 blocks. The rooms read within 0.001 of what they did, the closed room
-seen from outside faulted in none of eight runs of the game's case counted by Xid, and the model
-pass compiles on lavapipe in 0.35 s where 0.32, the cuts unrolled by the driver. The suite: 1,670
-passed; on lavapipe 383 passed and 7 skipped with no validation error. The reference's vertex colors
-come next.
+Item 2, the reference's colors. `BounceReference` traced a copy's color times its texture's average
+alone, so a mesh colored in its vertices, as the voxel game's sections of white concrete, was traced
+white. Each corner of the ray scene carries its vertex's color in the w its structure's build leaves
+unread, three sRGB bytes under a bit that keeps the word a whole float, from the colors the field
+and the model pass read, white where a mesh has none; the reference and a ray's reflection in the
+model pass take a hit's color as the copy's times its three corners' colors, linear, blended by the
+hit's barycentrics as the model pass blends them. A slab colored in its vertices under a white
+material reads in the frame as in the reference within 1%, as the slab colored in its material does,
+where the reference as it was read it 0.58 of its light apart; a test holds it. The suite: 1,671
+passed; on lavapipe 383 passed and 8 skipped, the new test among those that need the GPU's rays,
+with no validation error. Part f comes next, measured in the game's room as the part names.

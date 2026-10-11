@@ -22,8 +22,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// The reference traces the window's meshes as the device's ray tracing holds them, at
-/// <see cref="GlobalIllumination.High"/> on a GPU that traces rays: each copy's flat color times its
-/// texture's average and the light it gives off, its first face lit as the model pass lights one
+/// <see cref="GlobalIllumination.High"/> on a GPU that traces rays: each copy's color times its
+/// texture's average and its mesh's vertices' colors at the hit, blended as the model pass blends
+/// them, and the light it gives off, its first face lit as the model pass lights one
 /// and every face after as the light that bounces does, the sun as the first directional light, and
 /// the sky as the environment map or the ambient lights.
 /// </para>

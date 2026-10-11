@@ -55,6 +55,8 @@ internal sealed class SceneFieldRenderer : IDisposable
     private int _cornerCapacity, _cornerCount;
     private readonly Dictionary<ModelVertex[], (int First, int Count)> _pooled = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], uint[]> _indices = new(ReferenceEqualityComparer.Instance);
+    // The frame's meshes by their vertices, whose colors the device's ray tracing takes.
+    private readonly Dictionary<ModelVertex[], int> _meshOf = new(ReferenceEqualityComparer.Instance);
     // The frame's meshes, whose vertices' colors a mesh is pooled with.
     private MeshStore? _store;
     private readonly Dictionary<ModelVertex[], Vector3> _tints = new(ReferenceEqualityComparer.Instance);
@@ -73,6 +75,23 @@ internal sealed class SceneFieldRenderer : IDisposable
     /// the window draws none, each with whether it is skinned, as the field gathered them.
     /// </summary>
     internal IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> Drawn => _drawn;
+
+    /// <summary>
+    /// The colors of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out, three
+    /// sRGB bytes a corner as the model pass reads them, or null for a mesh with no colors of its own.
+    /// </summary>
+    internal uint[]? CornerColorsOf(ModelVertex[] vertices)
+    {
+        if (!_indices.TryGetValue(vertices, out var indices) || !_meshOf.TryGetValue(vertices, out var mesh)
+            || _store?.StreamsOf(mesh)?.Colors is not { } colors || colors.Length != vertices.Length) return null;
+        var packed = new uint[indices.Length / 3 * 3];
+        for (int i = 0; i < packed.Length; i++)
+        {
+            var color = colors[indices[i]];
+            packed[i] = color.R | (uint)color.G << 8 | (uint)color.B << 16;
+        }
+        return packed;
+    }
 
     /// <summary>The corners of a mesh drawn this frame, three a triangle in its own space, or null for one not drawn.</summary>
     internal Vector3[]? CornersOf(ModelVertex[] vertices)
@@ -169,6 +188,7 @@ internal sealed class SceneFieldRenderer : IDisposable
     {
         _drawn.Clear();
         _indices.Clear();
+        _meshOf.Clear();
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
         if (_bounds.Count > 4096) _bounds.Clear();
         if (_shares.Count > 4096) _shares.Clear();
@@ -184,6 +204,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         {
             if (windowAlone && draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
+            _meshOf[vertices] = draw.Mesh;
             var one = ModelRenderer.Instance.Of(in draw);
             var skinned = store.IsSkinned(draw.Mesh);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
@@ -196,6 +217,7 @@ internal sealed class SceneFieldRenderer : IDisposable
             if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || template.Points
                 || !store.TryGetData(template.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
+            _meshOf[vertices] = template.Mesh;
             var skinned = store.IsSkinned(template.Mesh);
             var limbs = skinned ? Limbs(store, template.Mesh, vertices) : null;
             if (_groupInstances.Length < group.Count) _groupInstances = new ModelRenderer.Instance[Math.Max(group.Count, _groupInstances.Length * 2)];

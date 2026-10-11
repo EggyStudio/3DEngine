@@ -7,6 +7,7 @@ module lights;
 __exported import lightset;
 import scenefield;
 import gi;
+import color;
 
 // LightKind's values.
 public static const int Directional = 0;
@@ -407,6 +408,13 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
 }
 
 #if defined(RAY_QUERY)
+// A corner's color, linear, as the model pass brings a vertex's color in.
+float3 rayCornerColor(float4 corner)
+{
+    uint bits = asuint(corner.w);
+    return srgbToLinear(float3(float(bits & 255u), float((bits >> 8) & 255u), float((bits >> 16) & 255u)) / 255.0);
+}
+
 // Whether a ray from p along way meets any of the window's meshes within reach.
 bool rayBlocked(float3 p, float3 way, float reach = 1e4)
 {
@@ -483,6 +491,10 @@ float4 rayReflection(float3 p, float3 way)
         arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
     else
         arrived += lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi;
-    return float4(surface.color.rgb / Pi * arrived + surface.emission.rgb, 1.0);
+    // The copy's color times its mesh's vertices' colors at the hit, as the model pass blends them.
+    float2 between = query.CommittedTriangleBarycentrics();
+    float3 color = surface.color.rgb * (rayCornerColor(rayCorners[corner]) * (1.0 - between.x - between.y)
+        + rayCornerColor(rayCorners[corner + 1u]) * between.x + rayCornerColor(rayCorners[corner + 2u]) * between.y);
+    return float4(color / Pi * arrived + surface.emission.rgb, 1.0);
 }
 #endif

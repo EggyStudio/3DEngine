@@ -195,12 +195,13 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Records the frame's meshes for the device's ray tracing: the structure of each mesh in
     /// <paramref name="instances"/> not yet built, from the corners <paramref name="cornersOf"/>
-    /// gives, three a triangle in its own space, then the top-level structure of every copy,
-    /// ready for the passes after to trace through.
+    /// gives, three a triangle in its own space, with each corner's color <paramref name="colorsOf"/>
+    /// gives, three sRGB bytes, or white where it gives none, then the top-level structure of every
+    /// copy, ready for the passes after to trace through.
     /// </summary>
     /// <returns>What the builds read, to be let go once no frame in flight reads it.</returns>
     public IDisposable RecordRayScene(ICommandBuffer commandBuffer, GpuRayScene scene, IReadOnlyList<RayInstance> instances,
-        Func<object, Vector3[]?> cornersOf)
+        Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
         var cmd = vkCmd.Handle;
@@ -210,7 +211,7 @@ internal sealed unsafe partial class GraphicsDevice
         foreach (var instance in instances)
         {
             if (scene.Meshes.ContainsKey(instance.Mesh) || cornersOf(instance.Mesh) is not { Length: >= 3 } corners) continue;
-            var first = AddCorners(scene, corners, retired);
+            var first = AddCorners(scene, corners, colorsOf?.Invoke(instance.Mesh), retired);
             scene.Meshes[instance.Mesh] = BuildMesh(cmd, scene, first, corners.Length / 3, retired);
             built = true;
         }
@@ -223,8 +224,11 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // Writes a mesh's corners after those the buffer holds, made again larger where they do not
-    // fit, and gives where the first lies.
-    private int AddCorners(GpuRayScene scene, Vector3[] corners, Retired retired)
+    // fit, and gives where the first lies. Each corner's color rides in the w its structure's build
+    // leaves unread, three sRGB bytes under a bit that keeps the word a whole float rather than one
+    // a GPU may read as nothing, so the reference and a ray's reflection take a mesh's vertices'
+    // colors as the model pass and the field do.
+    private int AddCorners(GpuRayScene scene, Vector3[] corners, uint[]? colors, Retired retired)
     {
         var needed = scene.CornerCount + corners.Length;
         if (scene.Corners is null || (ulong)needed * 16 > scene.Corners.Size)
@@ -239,7 +243,8 @@ internal sealed unsafe partial class GraphicsDevice
             scene.Corners = bigger;
         }
         var into = new Span<Vector4>((Vector4*)scene.Corners.Mapped + scene.CornerCount, corners.Length);
-        for (int i = 0; i < corners.Length; i++) into[i] = new Vector4(corners[i], 1);
+        for (int i = 0; i < corners.Length; i++)
+            into[i] = new Vector4(corners[i], BitConverter.UInt32BitsToSingle(1u << 30 | (colors is { } c && i < c.Length ? c[i] : 0xFFFFFFu)));
         var first = scene.CornerCount;
         scene.CornerCount = needed;
         return first;
