@@ -102,8 +102,8 @@ float fieldOcclusion(float3 p, float3 n, float radius)
         }
     }
     // The sum of 1/s over four distances is 25/12 a way, so a point closed off along every way at
-    // every distance sums to five of those.
-    return closed / (5.0 * 25.0 / 12.0);
+    // every distance sums to five of those. Faded across the field's last band (fieldHold).
+    return closed / (5.0 * 25.0 / 12.0) * fieldHold(fieldInfo, p);
 }
 
 // The share of the sun's light that reaches p on a surface facing n, traced toward the sun through
@@ -118,6 +118,7 @@ float sunReaching(float3 p, float3 n)
         return 1.0;
     float3 l = push.sunAndReach.xyz;
     float3 start = p + n * (cell * 1.5);
+    float hold = fieldHold(fieldInfo, p);
     float shown = 1.0;
     float t = cell;
     for (int i = 0; i < 40 && t < reach; i++)
@@ -128,10 +129,11 @@ float sunReaching(float3 p, float3 n)
             break;
         shown = min(shown, 8.0 * d / t);
         if (shown < 0.01)
-            return 0.0;
+            return 1.0 - hold;
         t += max(d, 0.5 * fieldCell(fieldInfo, q));
     }
-    return saturate(shown);
+    // Faded across the field's last band (fieldHold).
+    return lerp(1.0, saturate(shown), hold);
 }
 
 float2 occlude(float2 uv, float2 pixel)

@@ -59,6 +59,31 @@ public bool fieldOn(SceneFieldInfo info)
     return info.counts.x > 0.5;
 }
 
+// The cells of the field's last cascade's outer band, across which a pass that reads the field's
+// distances fades to what it gives where the field holds nothing (fieldHold).
+public static const float FieldBand = 8.0;
+
+// How much of what the field holds at p a pass takes: all of it inside the field's cascades,
+// falling to none across the outer band (FieldBand) of the coarsest one built and none past it, so
+// a pass that reads the field to its edge, as the occlusion from it, the sun's contact shadows or a
+// glow light's march, fades there rather than stepping. Taken from the last cascade whether built
+// or not, it read none while the last was not built, and a turn of five pixels moved the floor's
+// light across a glowing block's penumbra by 16% where 3% (GlowPenumbraTests).
+public float fieldHold(SceneFieldInfo info, float3 p)
+{
+    [loop]
+    for (int i = int(info.counts.x) - 1; i >= 0; i--)
+    {
+        float4 oc = info.cascades[i].originAndCell;
+        if (oc.w <= 0.0)
+            continue;
+        float3 cell = (p - oc.xyz) / oc.w;
+        float3 inside = min(cell, info.counts.y - cell) - 1.0;
+        return saturate(min(min(inside.x, inside.y), inside.z) / FieldBand);
+    }
+    return 0.0;
+}
+
 // The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none.
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin)
 {

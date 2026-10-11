@@ -447,20 +447,79 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
     return saturate((reached + slack - d) / slack);
 }
 
-// The light that bounced to a surface at p facing n, irradiance, from the faces of the eight probes
-// of the finest cascade around it that the probes reach, each weighed by how near it is, how
-// squarely it stands in front of the surface and how much of it it sees (probeSees), a probe inside
-// a mesh passed over, the three faces n looks toward weighed by the square of n along each, or none
-// where no cascade of probes holds p. A probe it does not see keeps a twentieth of its weight, as
-// one behind its plane keeps a little, since cut to nothing a pixel left with one or two probes
-// around it seen took their light alone and a Cornell box showed a notch beside its tall block, and
-// a surface that sees none of them, as one wedged between two meshes may, blends them by that
-// twentieth, so it is not left dark.
+// The cells of a cascade's outer band, a probes' spacing, across which the light that bounced fades
+// from its probes to the next cascade's, and from the last cascade's to the light from beyond it
+// (bouncedHold). Read from one cascade alone, the light stepped where each ended, a canyon's floor
+// under a sky with no sun by 14, 10 and 15% from one row of pixels to the next at the second's, the
+// third's and the last's end at High, and the voxel game's hills at sunset from 0.6 to 1.0 of the
+// sky's light at the last's.
+public static const float CascadeBand = 8.0;
+
+// How far p lies inside cascade c from its nearest side, in its cells, past the cell fieldCascade
+// keeps.
+public float fieldDepthIn(SceneFieldInfo info, int c, float3 p)
+{
+    float4 oc = info.cascades[c].originAndCell;
+    float3 cell = (p - oc.xyz) / oc.w;
+    float3 inside = min(cell, info.counts.y - cell) - 1.0;
+    return min(min(inside.x, inside.y), inside.z);
+}
+
+// How far a surface at p facing n lies inside the probes of cascade c, in its cells, from the box's
+// side, which the probes' grid reaches half a spacing past its outer probes, the point taken leaned
+// off the surface as the probes are read for it (Lean), so a floor on the box's lower side, its
+// probes half a spacing over it, lies half a spacing inside.
+public float probesDepthIn(SceneFieldInfo info, int c, float3 p, float3 n, float spacing)
+{
+    float4 oc = info.cascades[c].originAndCell;
+    if (oc.w <= 0.0)
+        return -1.0;
+    float3 cell = (p + n * (Lean * oc.w * spacing) - oc.xyz) / oc.w;
+    float3 inside = min(cell, info.counts.y - cell);
+    return min(min(inside.x, inside.y), inside.z);
+}
+
+// How much of the light from all around a surface at p facing n the probes give rather than what
+// lies past them, the environment's and the ambient lights' unhidden: all of it inside the cascades
+// of probes, falling to none across the last one's outer band (CascadeBand), and none past it.
+public float bouncedHold(SceneFieldInfo info, float3 p, float3 n, float spacing, float cascades)
+{
+    if (cascades < 0.5)
+        return 0.0;
+    return saturate(probesDepthIn(info, int(cascades) - 1, p, n, spacing) / CascadeBand);
+}
+
+// The light that bounced to a surface at p facing n, irradiance, from the finest cascade of probes
+// that holds it, fading to the next cascade's across its outer band (CascadeBand), or none where no
+// cascade of probes holds p. The two cascades are read in a loop kept from unrolling, so a shader
+// holds one read of a cascade.
 public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
+    float own = c + 1 < int(cascades) ? saturate(fieldDepthIn(info, c, p) / CascadeBand) : 1.0;
+    float3 light = float3(0.0);
+    [loop]
+    for (int k = 0; k < 2; k++)
+    {
+        float share = k == 0 ? own : 1.0 - own;
+        if (share > 0.0)
+            light += bouncedIn(cubes, reach, info, p, n, probes, spacing, c + k) * share;
+    }
+    return light;
+}
+
+// The light that bounced to a surface at p facing n, irradiance, from the faces of the eight probes
+// of cascade c around it that the probes reach, each weighed by how near it is, how squarely it
+// stands in front of the surface and how much of it it sees (probeSees), a probe inside a mesh
+// passed over, the three faces n looks toward weighed by the square of n along each. A probe it does
+// not see keeps a twentieth of its weight, as one behind its plane keeps a little, since cut to
+// nothing a pixel left with one or two probes around it seen took their light alone and a Cornell
+// box showed a notch beside its tall block, and a surface that sees none of them, as one wedged
+// between two meshes may, blends them by that twentieth, so it is not left dark.
+float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c)
+{
     float4 oc = info.cascades[c].originAndCell;
     float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));

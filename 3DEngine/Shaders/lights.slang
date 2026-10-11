@@ -320,6 +320,15 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
     return f0 * ab.x + ab.y;
 }
 
+// How much of the light that bounced to a surface at p facing n the screen's probes give rather than
+// the world's, which they take the light from beyond their rays from: all of it inside the world's
+// second cascade, or its first where light bounces through one, falling to none across its outer
+// band (CascadeBand in gi.slang).
+public float screenHold(float3 p, float3 n)
+{
+    return saturate(probesDepthIn(bouncedField, min(1, int(lighting.indirect.w) - 1), p, n, lighting.indirect.y) / CascadeBand);
+}
+
 // The light that bounced to a surface at p facing n, irradiance over pi, from the world's probes
 // around it as gi.slang blends them, or -1 where no cascade of probes holds p.
 public float3 bounced(float3 p, float3 n)
@@ -488,10 +497,12 @@ float4 rayReflection(float3 p, float3 way)
     // The lamps and the sun as the light reaching the face, beside the bounced light and the sky,
     // as shadeHit takes them.
     arrived *= Pi;
-    if (fieldCascade(bouncedField, hit, 1.0) >= 0 && fieldCascade(bouncedField, hit, 1.0) < int(lighting.indirect.w))
-        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
-    else
-        arrived += lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi;
+    // The light that bounced fading to the sky's across the last cascade's outer band, as the
+    // model pass takes it (bouncedHold).
+    float held = bouncedHold(bouncedField, hit, n, lighting.indirect.y, lighting.indirect.w);
+    if (held > 0.0)
+        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) * held;
+    arrived += (lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi) * (1.0 - held);
     // The copy's color times its mesh's vertices' colors at the hit, as the model pass blends them.
     float2 between = query.CommittedTriangleBarycentrics();
     float3 color = surface.color.rgb * (rayCornerColor(rayCorners[corner]) * (1.0 - between.x - between.y)

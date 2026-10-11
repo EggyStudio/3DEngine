@@ -355,7 +355,8 @@ public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight 
     float entry = glowLightEntry(light, from, toward / total);
     if (entry <= cell * 2.0)
         return 1.0;
-    return glowMarch(field, info, light, p, n, cell, from + toward / total * entry, (light.halfX.w + light.halfY.w + light.halfZ.w) / 3.0, 1.5);
+    float seen = glowMarch(field, info, light, p, n, cell, from + toward / total * entry, (light.halfX.w + light.halfY.w + light.halfZ.w) / 3.0, 1.5);
+    return lerp(1.0, seen, fieldHold(info, p));
 }
 
 // How much of a glow light's light a surface at p facing n, in cells of `cell`, sees, from 0 to 1,
@@ -403,5 +404,5 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
             seen += given * glowMarch(field, info, light, p, n, cell, target, radius, 0.1);
         }
     }
-    return lit > 0.0 ? seen / lit : 1.0;
+    return lit > 0.0 ? lerp(1.0, seen / lit, fieldHold(info, p)) : 1.0;
 }

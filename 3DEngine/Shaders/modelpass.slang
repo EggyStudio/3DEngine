@@ -498,12 +498,24 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     {
         if (screen)
             bouncedHere = screenBounced(probes);
-        if (bouncedHere.x < 0.0)
-            bouncedHere = bounced(input.world, n);
+        // The screen's probes reach as far as the world's second cascade, across whose outer band
+        // their light fades to the world's probes', which read alone past it. Switched there, a
+        // canyon's floor stepped by 14% at High.
+        float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) : 0.0;
+        if (near < 1.0)
+        {
+            float3 world = bounced(input.world, n);
+            if (world.x >= 0.0)
+                bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
+        }
     }
     bool bounces = bouncedHere.x >= 0.0;
+    // Across the last cascade's outer band the light that bounced fades to the light from beyond
+    // the probes, the environment's and the ambient lights' unhidden, which past it takes its place
+    // whole (bouncedHold), so the near does not step into the far where the probes end.
+    float held = bounces ? bouncedHold(bouncedField, input.world, n, lighting.indirect.y, lighting.indirect.w) : 0.0;
     if (bounces)
-        light.diffuse += occlusion * diffuseColor * bouncedHere;
+        light.diffuse += occlusion * diffuseColor * bouncedHere * held;
     // The glow lights' light straight to the surface, taken here at each pixel rather than at the
     // screen's probes, whose filter spread a small bright strip's light near it over five tiles
     // and doubled its room's difference from a path-traced reference at Low (glowLightsAt).
@@ -526,7 +538,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     {
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
         float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
-        float3 around = bounces ? float3(0.0) : probeIrradiance(probe, n);
+        float3 around = probeIrradiance(probe, n) * (1.0 - held);
         float strength = lighting.probes[probe].centerAndIntensity.w * occlusion;
         light.diffuse += strength * diffuseColor * around;
         light.specular += strength * reflected * specularShare * (1.0 - gloss);
@@ -535,12 +547,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
-        float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
+        float3 around = environmentIrradiance(n) * (1.0 - held);
         float strength = lighting.environment.x * occlusion;
         // Where light bounces, by the share of the sky the probes around the surface see along its
         // mirror direction, so a room sealed from the sky reflects none of it, where the occlusion
         // alone left a rough wall in a sealed cave a blue sheen.
-        float sky = bounces ? skySeen(input.world, n, reflect(-v, n)) : 1.0;
+        float sky = bounces ? lerp(1.0, skySeen(input.world, n, reflect(-v, n)), held) : 1.0;
         light.diffuse += strength * diffuseColor * around;
         light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
     }
@@ -551,7 +563,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float3 arrived = arriving(lamp, input.world, n);
         if (int(lamp.positionAndKind.w) == Ambient)
         {
-            light.diffuse += arrived * occlusion * (bounces ? float3(0.0) : diffuseColor);
+            light.diffuse += arrived * occlusion * diffuseColor * (1.0 - held);
             light.specular += arrived * occlusion * specularShare * (1.0 - gloss);
             continue;
         }

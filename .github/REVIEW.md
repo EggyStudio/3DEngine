@@ -10,7 +10,48 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3c7fe822`. The reference's colors, item 2's apparatus: `BounceReference` traced a
+Reviewed up to `b1e86aef`. Item 2's part f, the first way, built as the part chose and measured as
+it asked. The screen's probes keep their tiles and march to the lamps from a point of the tile that
+moves frame to frame, the middles of its four by four cells in Bayer's order, so a round of sixteen
+frames marches from each texel of the half-sized depth under the tile once, a byte a lamp where
+sixteen levels. The lamps' light is blended over the frames at each texel of the half-sized depth in
+a compute pass ahead of the bounce, `gi_screen_glow.slang`, rather than in two targets of the
+window: each texel takes each lamp's share from the four probes around it where they marched from,
+weighed by distance, normal and the depth between, keeps a running mean over the round and a
+thirty-second after, reprojected by its surface, and drops it where no texel held the surface, where
+a lamp that reaches it is new to its place, the lamps kept in their places frame to frame, or where
+after a round the frame's light lies past half again the round's furthest; of the nearest lamp a
+texel keeps its share of a rough unhidden light which the model pass works out again at the pixel,
+so a lamp's near falloff is drawn per pixel, and the pass reads two by two texels by distance and
+normal. The blend was tried at the probes first and flickered 6% over a round as the points moved
+with them, which put it at the texels. Where no probe holds a pixel it marches to the faces' halves,
+so the shadow stays dark with the probes off where it read 0.3 to 1.0 of the line's most light.
+Measured at 640 by 360: the penumbra's strays 0.36 to 0.89% for turns of one to eight pixels, where
+3.1 to 7.9% before and 0.69 to 0.91% for a pixel marching itself, the line within 0.8% over a round,
+a lamp placed shown in its first frame and within 1% a round on, a wall taken away shown in its
+first frame; in the game's room the turn's share 0.42 to 0.58% against 0.37 to 0.45% with the probes
+off; the cost 0.35, 1.08 and 2.77 ms for one, sixteen and sixty-four lamps where 0.30, 1.07 and
+2.65, the game's room 0.1 ms cheaper and a frame with no lamp skipping the pass. `GlowPenumbraTests`
+holds the turn, the round, the lamp placed, the wall taken away and the shadow with the probes off,
+at 320 by 180; the strip's and the ninth room's bounds move with their reason, half-sized texels two
+pixels wide at 160 by 90 beside a strip six hundredths of a block thick, the two within 0.1% and
+0.25% at 1280 by 720. Right, the view's share taken out at the texel where the probes' places stay,
+every drop condition named and tested, and the cost held within hundredths. Two things left, which
+the part keeps: before the field holds a wall, in an app's first frames, every point sees the lamp
+and a shadow's texels keep that for some hundred frames, which the blend's drop by a jump could not
+take since a penumbra never finished a round so; the blend restarts where the field's cascade under
+the texel's point was built this frame, which the field knows, measured by the frames a shadow takes
+to darken from an app's start. And the probes' filter finds a probe's place in the frame before a
+pixel off where the probe stands, which put right read the thin room 0.3 to 0.6% further from its
+reference; the offset is put right and the thin room's loss read for the filter's width, which is
+the knob and not the accident, its bound moved by the rule with the reason. The owner's eye judges
+the look and the settling (Decision 27), the finer grid for the two brightest lamps the second way
+should it want more. The suite: 1,674 passed; on lavapipe 386 passed and 8 skipped with no
+validation error in 9.3 minutes where 8.1, which the Windows page reads against Verdict 48's
+quarter; the game's glowstone room lost no device in eight runs. Part c next, then the two left,
+item 9 and item 8.
+
+Before it, `3c7fe822` came, the reference's colors, item 2's apparatus: `BounceReference` traced a
 copy's color times its texture's average alone, so a mesh colored in its vertices, as the game's
 sections of white concrete, was traced white and read 0.58 of its light apart from the frame. Each
 corner of the ray scene carries its vertex's color in the w its structure's build leaves unread,
@@ -53,45 +94,6 @@ passed and 7 skipped with no validation error. The rooms' 0.30 and 0.36 want no 
 own reading with the desktop quiet having closed the cost. The game's `6772c6f0`, oak doors, and
 `1454ba6b`, flowing water, are its own. Next the reference's vertex colors, then part f, part c and
 item 8.
-
-Before it, `214feb11` and `0defd508` came, Verdict 48's mend found where the verdict asked first:
-the seconds go to the compile of one pipeline, the model pass's fragment shader, 142 KB of SPIR-V
-before the lamps and 293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them and 0.90 s
-since on lavapipe here, every other pipeline a few milliseconds and a frame after the first as fast
-as before, so an app that draws no lamp, the leak test's, paid it all, and the Windows Mesa, 26.2.4
-against 26.2.2 here, is not the difference. With every glow call out the shader is 146 KB and 0.22
-s, so it was the glow code inlined at four places and unrolled in each, the reflection's hit shaded
-by two calls with a `glowLightsAt` holding two ways through, and the pixel's fallback a third. The
-hit is shaded once wherever it is met, `glowLightsAt` keeps one way through for every count, and the
-glow loops are `[loop]`: 177 KB and 0.32 s, a lampless app's first frame 0.35 s where 0.23 before
-the lamps and 0.94 on `0f5cdbcf`, the Rendering tests of before `98a1edca` in 280 s on lavapipe
-where 261 before the lamps. The cost on the RTX 4070 holds within hundredths, the rooms read as they
-did, and the closed room seen from outside lost no device in ten runs of the engine's case and eight
-of the game's. Right, the seconds found in one pipeline's compile before anything was cut, the cut
-at the code's shape and not the lamps' count, and the two remedies the verdict named besides kept
-for a Windows job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7
-skipped with no validation error. Verdict 48 settles on the Windows page. Then `0defd508`, the two
-rooms read against each other: the difference is the layout and the eye, the game's lamps two blocks
-apart under an eye a block over the floor at twenty degrees, where the engine's stood two and a half
-apart under an eye 3.6 up at ten, so the game's floor pixels lie nearer more lamps; the engine's
-room built as the game's reads 0.36 ms of the model pass on `214feb11`, and the game's own room in a
-copy of its build with that commit's shaders 0.30, where `0f5cdbcf`'s shaders read 0.40 near the
-game's 0.47 to 0.53, the smaller shader running faster as well as compiling faster; the land around
-is not it, the lamps' share the same at two columns as at eight, though the land costs the pass 0.6
-ms of its own, since the pass discards for an alpha cutoff and draws no depth ahead of itself, so a
-section behind a wall drawn before the wall is shaded, which a nearest-first order of the solid
-draws would cut, the game trying its own and the engine keeping the order meshes come in;
-RENDERING.md and the shaders' comments name the rooms. Right, the discrepancy run down to its cause
-and not averaged, and the land's cost named for the game to measure, which, if the order pays, is
-the engine's to do for every game. The game's session read the nearest-first order of its solid
-sections and it does not pay, 0.05 ms worse in the room and the same on the hills, which fits a
-depth test run after the model pass's discard, so the land's 0.6 ms waits on an opaque pipeline
-without the discard or a depth pass ahead of the model pass, the game asked to write the entry. And
-a warning for every timing since about 01:50: the desktop's compositor has been taking a quarter to
-half of the GPU on and off, which inflates every pass's reading threefold while it does, the hills
-from 8.9 ms a frame to 31, so a reading taken since is trusted only where `nvidia-smi pmon` showed
-the desktop quiet, which the two rooms' 0.30 and 0.36 are read again under. The game's `6772c6f0`,
-oak doors, is its own. Next the end rod's step, the reference's vertex colors, part f and part c.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -174,9 +176,9 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    the reference than in the frame and the comparison cannot tell the bounce's error from the
    color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`,
    blended by the hit's barycentrics as the model pass blends them, a colored slab within 1% where
-   0.58 apart, with a test. The order of work: f, then c, then item 8, the others being done; the
-   game's session is asked to measure d at both cells and e along the distance, in ASKS.md as
-   before.
+   0.58 apart, with a test. The order of work: c, then f's two left things, then item 9 and item 8,
+   the others being done; the game's session is asked to measure d at both cells and e along the
+   distance, in ASKS.md as before.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -265,65 +267,22 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    0.6% at the switch where it read 11% over, its floor within 2% of the reference and its log
    bending nowhere over 0.021, with a test; the game's entry stays until it has read it.
 
-   **f. The screen's probes make the light depend on the view: as the camera turns, the penumbras'
-   steps and the lit borders move on the screen, the light is noisy for a second after a move and
-   then holds with some noise left, and light leaks where none should reach.** The owner's eye at
-   23:40 on `98a1edca` (Decision 27): with the screen's probes off the bounce is wholly steady under
-   any motion and hard, with no penumbra; with them on it is smooth but the smoothness is the view's
-   and not the world's. Read from the engine as it stands: a screen probe stands on a pixel of a
-   grid fixed to the screen and traces from the surface under it, so as the camera turns the probes
-   sweep across the world's surfaces and sample them in new places, the light blended between four
-   probes eight pixels apart changes with where they fall, the lamps' penumbra a probe keeps in
-   sixteen levels is read between probes that lie on either side of a shadow's edge, which is the
-   steps, and the frame before's light carries the old places' light into the new until it has been
-   averaged out, which is the second of noise; a leak is a probe that sees a lamp or a lit surface
-   from where it stands while the pixel reading it, a step away across a depth edge or a corner,
-   does not. Measured first, in the game's room of lamps and the Cornell box: the camera turned by a
-   quarter of the probes' spacing, by half and by a whole, nothing else moving, and the picture's
-   change read at each, with the screen's probes on and off, so the view's share of the change is a
-   number; the penumbra's edge read along a line across it at each turn, its steps' height and how
-   far they move; the frames after a turn read as part b's test reads them; and the leak read where
-   a lamp stands behind a wall's corner, the lit pixels on the dark side counted. Then the remedies,
-   in the order the measure names, each read against those numbers and the frame's cost: the probes'
-   places kept with the world and not the screen, the grid jittered a share of its spacing each
-   frame and the frame before's light brought forward by where each pixel's surface was, so what a
-   probe samples averages over frames in one place in the world and a turn moves nothing but the
-   picture; the penumbra read from the probes with the pixel's depth and normal weighing each, as
-   the probes' light is weighed, and in more than sixteen levels, or the one or two brightest lamps'
-   penumbra marched at the pixel itself near the eye, where the steps show, which the cost work of d
-   and e left; and a probe's light kept from a pixel across a depth edge or a corner it does not
-   share, which is the leak. The tests hold the picture's change under a quarter turn of the spacing
-   to a bound with the probes on, the penumbra's edge within a pixel of where it stands with them
-   off, and the leak's pixels under a count. The reference in the game's white room is traced at
-   eight bounces, two leaving 22 to 31% of the light unbounced there, as the game found. Measured by
-   the engine's session on `3c7fe822` in the game's room of sixteen lamps at 640 by 360, the camera
-   turned by a quarter, a half and a whole of the probes' spacing and each pixel read against the
-   frame before through its ray: the picture changes 0.46 to 0.54% of its light with the screen's
-   probes and 0.37 to 0.45% without, the edges' reprojection, so the view's share over the whole
-   picture is a tenth of a percent; after a turn, or sixty frames of steady turning, the first frame
-   after reads as the sixtieth within 0.05%, so there is no second of noise in the light itself; a
-   lamp inside a corner of two walls gives nothing to any of 64,962 floor pixels outside it, so no
-   leak is found there; and the penumbra is where the view lives, a glowing block's shadow behind a
-   half-high wall straying 3.9 to 10.6% along a line across it between views turned by pixels and 60
-   to 90% at the penumbra's edge, since a probe covers 0.15 to 0.25 blocks of floor there, about the
-   penumbra's width, and its sixteen levels land differently in each view, while with the probes off
-   the pixel's fallback, one march to the lamp's middle from a cell and a half up, sees over the
-   wall and lights the shadow whole. So the unsteadiness the owner saw is the lamps' penumbra at the
-   probes' footprint, and the second of noise and the leak are not in these measures, the owner's
-   eye asked where it saw them. Tried: a pixel marching to a light itself where its probes disagree
-   holds the penumbra still, strays 1.2 to 2.7%, and costs the room 1.0 to 1.4 ms of the model pass,
-   sixteen lamps shading one another putting most of the floor in some penumbra, and the same for
-   one light where the probes differ by three levels still 0.7 to 0.8 ms and nearly as unsteady; so
-   the pixel's march does not pay. The remedy chosen, the part's first: the probes' grid jittered a
-   share of its spacing each frame and the lamps' light accumulated at each pixel, two half-float
-   targets of the window reprojected by each pixel's surface, the history dropped where the surface
-   differs or where the frame's value lies outside the history's spread as the screen probes' hold
-   has it, so a turn moves nothing but the picture and a lamp placed or a wall opened shows within a
-   few frames; and the fallback, where no probe holds a pixel, marches to the faces' halves as the
-   probes do, so a shadow holds with the probes off. Measured by the strays along the line, under
-   1%, the frames to settle after a lamp is placed, the turn's share, and the cost, the finer grid
-   for the two brightest lights kept as the second way should the settling show as the owner's
-   noise.
+   **f. The screen's probes made the light depend on the view, done at `b1e86aef` but for two
+   things.** Measured first: the view's share over the whole picture was a tenth of a percent and
+   there was no second of noise or leak, the view living in the lamps' penumbra at the probes'
+   footprint, a shadow's edge straying 60 to 90% between views turned by pixels. The remedy, the
+   part's first: the probes march to the lamps from a point moved about their tiles in a round of
+   sixteen frames, and the lamps' light is blended over the frames at each texel of the half-sized
+   depth, reprojected by its surface and dropped where the surface, a lamp's place or the light's
+   spread changed, the nearest lamp's falloff drawn again at each pixel; where no probe holds a
+   pixel it marches to the faces' halves, so a shadow holds with the probes off. The strays 0.36 to
+   0.89% where 3.1 to 7.9%, the line within 0.8% over a round, a lamp placed shown in its first
+   frame, the cost within hundredths. Left: an app's first frames, before the field holds a wall,
+   light a shadow's texels for some hundred frames, mended by the blend restarting where the field's
+   cascade under the point was built this frame; and the probes' filter reads the frame before a
+   pixel off, put right with the thin room's loss read for the filter's width. The owner's eye
+   judges the look and the settling (Decision 27), the finer grid for the two brightest lamps the
+   second way should it want more.
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -632,45 +591,25 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, part f, the first way. The probes keep their places and march to the lamps from a point of
-the tile that moves from frame to frame, the middles of its four by four cells in Bayer's order, so
-a round of sixteen frames marches from each texel of the half-sized depth under the tile once, and
-keep a byte of each lamp where sixteen levels. The lamps' light is blended over the frames not in
-two targets of the window but at each texel of the half-sized depth the window draws ahead of the
-bounce (`gi_screen_glow.slang`), each texel taking each lamp's share from the four probes around it
-where they marched from, weighed by distance, normal and the depth between, and keeping a running
-mean over the round and a thirty-second after, its history reprojected by its surface. It is dropped
-where no texel held the surface, where a lamp that reaches it is new to its place, the lamps kept in
-their places from frame to frame (`GlowPlaces`), or where after a round the frame's light lies past
-half again the furthest the round's light had lain. Of the lamp nearest it a texel keeps its share
-of a rough unhidden light, which the model pass works out again at the pixel with the pixel's
-normal, so a lamp's near falloff is drawn at each pixel, and the model pass reads the two by two
-texels around a pixel by distance and normal. Kept at the probes instead, the blend was read between
-moving probes every frame and the line flickered by 6% over a round, which put the history at the
-texels. Where no probe holds a pixel it marches to the faces' halves with the screen's probes off,
-the floor at the wall's foot staying in the shadow where it read 0.3 to 1.0 of the line's most
-light, and with them on a sliver that no probe of its own surface holds marches to the middles, the
-halves costing 0.3 ms for 271 pixels in a room of sixteen lamps. Measured at 640 by 360: the strays
-along the line 0.36 to 0.89% for turns of one to eight pixels, where 3.1 to 7.9% before and 0.69 to
-0.91% for a pixel marching itself, and the line within 0.8% over a round; a lamp placed shows in its
-first frame and is within 1% a round on, and a wall taken away in its first frame; in the game's
-room the turn's share 0.42 to 0.58% against 0.37 to 0.45% with the probes off, after a sweep stops
-the 99th part of the pixels 0.8% off in the frame after and 0.3% fifteen frames on, and a frame of a
-slow turn 0.1% off the one before more than a pixel marching; the cost, bounce and model pass
-against the glow off, 0.35, 1.08 and 2.77 ms for one, sixteen and sixty-four lamps where 0.30, 1.07
-and 2.65 in the same session, the game's room 0.1 ms cheaper in all, and a frame with no lamp skips
-the pass. `GlowPenumbraTests` holds the turn, the round, the lamp placed, the wall taken away and
-the shadow with the probes off, at 320 by 180, where the probes before moved the line 15 to 18% and
-lit the shadow. The rooms read as before but the strip's and the ninth at their 160 by 90, where
-half-sized texels are two pixels beside a strip six hundredths of a block thick, 0.275 to 0.290 and
-0.050 to 0.060 where 0.256 to 0.270 and 0.046 to 0.053, and at 1280 by 720 0.163 and 0.020 against
-0.162 and 0.018, so their bounds moved with the reason. Left: before the field holds a wall, in an
-app's first frames, every point sees the lamp and a shadow's texels keep that for some hundred
-frames, which the tests draw past, since dropping a blend in its first round on a jump of half its
-light kept a penumbra from ever finishing a round. Found beside it: the screen probes' filter finds
-a probe's place in the frame before a pixel off where the probe stands, so a still view's blend
-takes an eighth of the probes beside it each frame, and put right the thin room read 0.3 to 0.6%
-further from its reference, so it is left. The finer grid for the two brightest lamps stays the
-second way, unbuilt, for the owner's eye on the settling. The suite: 1,674 passed; on lavapipe 386
-passed and 8 skipped with no validation error, in 9.3 minutes where 8.1; the game's glowstone room
-lost no device in eight runs. Part c next.
+Item 2, part c. The light that bounced is read from the finest cascade holding a point and fades
+into the next cascade's across its outer band, eight of its cells, a probes' spacing; the screen's
+probes fade into the world's across the second cascade's band; and the last cascade's light fades
+into the light from beyond the probes, the environment's and the ambient lights' unhidden, which the
+model pass and a reflection's hit take in its place (`bouncedHold`). A surface's depth in a cascade
+is its point's leaned off it as the probes read it, so a floor on a cascade's lower side lies half a
+spacing inside rather than outside. The field's occlusion, the sun's contact shadows and the glow
+lights' marches fade across the coarsest built cascade's band the same way (`fieldHold`); taken from
+the last cascade whether built or not, the hold read none in a scene whose last was not built and a
+glowing block's penumbra moved 16% with a turn, which the penumbra's test caught. Measured on a
+canyon's floor under a sky with no sun, seen from twenty units up and twelve degrees down, the
+largest change from one row of pixels to the next at 640 by 360: at High 15.1% at the last cascade's
+end, 14.3% at the screen's probes' and 9.6% at the third cascade's, at Medium 17.7% and 17.4%, at
+Low 26.0%, and with the fades 2.9%, 3.0% and 1.0%; `CascadeEdgeTests` holds it under 6% at Low and
+High at 320 by 180, where the parent reads 25% and 15%. The cost 0.02 to 0.04 ms of the bounce in
+`shaders_bounce_rooms` and 0.007 of the model pass. The game's seed 1 from 0.5, 100, 0.5 facing east
+at hour 18.2 shows a forest and a coast under the fog in a build of `b1e86aef`, not the ask's grassy
+hills, and its light over the light with the bounce off climbs smoothly from 0.35 at 36 blocks to
+1.0 at 112 both before and after, so the game's session is asked to read its own view on this
+commit. The two left in part f follow, then item 9 and item 8. The suite: 1,676 passed; on lavapipe
+388 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight
+runs.

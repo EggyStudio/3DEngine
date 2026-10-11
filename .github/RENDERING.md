@@ -1078,6 +1078,22 @@ that jump most, fall from 93.8% of the light to 41.8%. The error over every regi
 | A corridor lit from its end | −18% → −21% | −17% → −21% | −16% → −21% |
 | A floor at a grazing angle | −35% → −37% | −34% → −36% | −27% → −28% |
 
+Each cascade's light fades into the next across its outer band, eight of its cells, a probes'
+spacing (`CascadeBand`), the screen's probes' into the world's across the second cascade's, and the
+last cascade's into the light from beyond the probes, the environment's and the ambient lights'
+unhidden, which takes the bounce's place past it (`bouncedHold`); a surface's depth in a cascade is
+that of its point leaned off it as the probes are read for it, so a floor on a cascade's lower side,
+its probes half a spacing over it, lies half a spacing inside. The passes that read the field to its
+edge, the occlusion from it, the sun's contact shadows and the glow lights' marches, fade across the
+outer band of the field's coarsest built cascade the same way (`fieldHold`). Read from one cascade
+alone, the light stepped at each one's end, on a canyon's floor under a sky with no sun, seen from
+twenty units up and twelve degrees down as the voxel game's hills were, from one row of pixels to
+the next by 14% at the screen's probes' end at `High`, 10% at the third cascade's and 15% at the
+last's, by 18% twice at `Medium` and by 25% at `Low`, whose screen probes end with its last cascade,
+and on the game's hills at sunset from 0.6 to 1.0 of the sky's light where the last ended; faded,
+the canyon's floor changes from row to row by 3.7%, 3.8% and 1.9% at most at 320 by 180
+(`CascadeEdgeTests`) and by 2.9%, 3.0% and 1.0% at 640 by 360.
+
 and the other rooms by a point at most. The probes past the first cascade trace their rays where
 they held nothing, which costs 0.028 ms at `Low`, 0.013 at `Medium` and 0.017 at `High`, the bounce
 0.45, 0.57 and 0.66 ms. The look: the bounce adds 1.00 levels a frame to the sliding picture's change
