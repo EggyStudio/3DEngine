@@ -58,45 +58,16 @@ hand before each of its commits.
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: the glow lights cost 0.5 ms of the model pass
-
-A closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 white_concrete`
-on a flat world), its west wall red and its east wall green (`voxel.fill 11 5 -21 11 10 -11
-red_concrete`, and green at x 21), and sixteen glowstones on its floor at x 13, 15, 17 and 19 and z
--19, -17, -15 and -13, the eye at 16.5, 6, -11.5 facing north 20 degrees down, hour 23, High, render
-distance 8, 226 draws, bloom off; a hidden window of 1280 by 720 and an RTX 4070 Laptop GPU, its
-clock at 2490 MHz throughout. Each figure is `./e3d command profile` read three times after 600
-frames with `gi.toggle glow` off and on, twice each, in two processes on `0f5cdbcf`, whose shaders
-the game's output carries with the shader cache cleared.
-
-| Commit | Glow lights | `gpu.hdr_scene` | `gpu.global_illumination` | Frame |
-|---|---|---|---|---|
-| `98a1edca` | Off | 1.38 to 1.43 ms | 1.30 to 1.33 ms | 4.5 ms |
-| `98a1edca` | On | 2.05 to 2.14 ms | 2.15 to 2.22 ms | 6.1 to 6.2 ms |
-| `0f5cdbcf` | Off | 1.42 to 1.50 ms | 1.25 to 1.30 ms | 4.5 to 4.8 ms |
-| `0f5cdbcf` | On | 1.92 to 2.03 ms | 2.03 to 2.42 ms | 5.8 to 6.1 ms |
-
-On `0f5cdbcf` the model pass gains 0.47 to 0.53 ms with the glow lights where it gained 0.67 on
-`98a1edca`, and the bounce 0.75 to 0.85 ms where 0.85. The engine reads 0.25 and 0.68 ms in a room
-built as this one, so the game's room costs the model pass twice the engine's. The game draws the
-room's walls and floor as sections of 16 blocks a side, each block's color in their vertices, 226
-draws with the land around, which may be where the two differ. No Xid line in the kernel's log names
-either process, nor any of five runs of the closed room seen from 20 blocks outside with one
-glowstone, the case that lost the device on `98a1edca`. The game does nothing about the cost
-meanwhile.
-
-Review: item 2 of REVIEW.md, its part d and e, 2026-10-10; the model pass's share read for where it
-goes and brought down, your room the measure, after Verdicts 47 and 30.
-
 ### 2026-10-11, the voxel game in `3DEngine.Game`: a long, thin emitter's light steps on the floor
 
 On `1fa88e8b`, the game's end rod, a glowing box 2/16 by 15/16 by 2/16 of a block drawn as one
-scaled lamp cube over a base of its section's mesh 4/16 wide and 1/16 high, stands on the floor of
-the closed room of white concrete of the entry above at 16, 5, -16 (`voxel.set 16 5 -16 end_rod`),
-the eye at 16.5, 5, -11.8 facing north and 25 degrees down, hour 23, High, render distance 8; a
-hidden window of 1280 by 720 and an RTX 4070 Laptop GPU. The floor's linear light is read along rows
-of the frame that `gi.compare` writes beside a reference (its `-frame.pfm`), and the point under
-each pixel is worked out from the camera.
+scaled lamp cube over a base of its section's mesh 4/16 wide and 1/16 high, stands on the floor of a
+closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 white_concrete`
+on a flat world) at 16, 5, -16 (`voxel.set 16 5 -16 end_rod`), the eye at 16.5, 5, -11.8 facing
+north and 25 degrees down, hour 23, High, render distance 8; a hidden window of 1280 by 720 and an
+RTX 4070 Laptop GPU. The floor's linear light is read along rows of the frame that `gi.compare`
+writes beside a reference (its `-frame.pfm`), and the point under each pixel is worked out from the
+camera.
 
 Toward the rod the light rises smoothly and then drops from one pixel to the next, by 8.4 to 8.8%
 along rows 380 to 450 with the game's light levels and corners on and the rod's glow at 17, as the
@@ -138,3 +109,30 @@ its own lamps.
 
 Review: item 2 of REVIEW.md, its apparatus, 2026-10-11; the reference takes a hit's vertex colors as
 the field's splat blends them, before part f's measures in your room.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: land behind a wall is lit in any order
+
+In a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
+white_concrete` on a flat world), its west wall red and its east wall green, with sixteen glowstones
+on its floor at x 13, 15, 17 and 19 and z -19, -17, -15 and -13, the eye inside at 16.5, 6, -11.5
+facing north 20 degrees down, hour 23, High, bloom off, the glow lights left out by `gi.toggle glow
+off`; a hidden window of 1280 by 720 and an RTX 4070 Laptop GPU. The model pass, `gpu.hdr_scene`
+from `./e3d command profile`, reads 1.42 ms at a render distance of 8 columns and 0.83 ms at 2, as
+the engine's session read it in a copy of the game's build with `214feb11`'s shaders, so the land
+outside the room, all of it behind the room's walls, costs the pass about 0.6 ms though none of it
+is seen.
+
+The game draws its opaque sections in the order it keeps them. Drawn nearest the eye first they cost
+no less: 1.40 to 1.43 ms nearest first against 1.35 to 1.38 ms kept with the glow lights off, and
+1.85 to 1.92 against 1.79 to 1.83 with them on, three readings after 400 frames of each order, each
+order twice, the kept order's readings matching the room's earlier ones, so no other work held the
+GPU then. The model pass discards a fragment for its alpha cutoff and no pass writes depth ahead of
+it, so its depth test runs after a fragment is lit, and an order that puts the walls first saves
+nothing.
+
+The engine lacks an opaque pipeline without the discard for materials that cut nothing out, or a
+depth pass ahead of the model pass, either of which would let the walls hide the land before it is
+lit. The game draws in its own order meanwhile, its render distance a setting.
+
+Review: item 8 of REVIEW.md, 2026-10-11; an opaque pipeline without the discard for materials that
+cut nothing out, tried before a depth pass, after item 2's parts f and c.

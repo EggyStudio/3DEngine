@@ -10,7 +10,7 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `214feb11`. Verdict 48's mend, found where the verdict asked first: the seconds go to
+Reviewed up to `0defd508`. Verdict 48's mend, found where the verdict asked first: the seconds go to
 the compile of one pipeline, the model pass's fragment shader, 142 KB of SPIR-V before the lamps and
 293 KB on `0f5cdbcf`, compiled in 0.23 s for each app before them and 0.90 s since on lavapipe here,
 every other pipeline a few milliseconds and a frame after the first as fast as before, so an app
@@ -26,8 +26,28 @@ closed room seen from outside lost no device in ten runs of the engine's case an
 game's. Right, the seconds found in one pipeline's compile before anything was cut, the cut at the
 code's shape and not the lamps' count, and the two remedies the verdict named besides kept for a
 Windows job that still runs long. The suite: 1,669 passed; on lavapipe 382 passed and 7 skipped with
-no validation error. Verdict 48 settles on the Windows page. Next the two rooms of sixteen lamps
-against each other, then the end rod's step, the reference's vertex colors, part f and part c.
+no validation error. Verdict 48 settles on the Windows page. Then `0defd508`, the two rooms read
+against each other: the difference is the layout and the eye, the game's lamps two blocks apart
+under an eye a block over the floor at twenty degrees, where the engine's stood two and a half apart
+under an eye 3.6 up at ten, so the game's floor pixels lie nearer more lamps; the engine's room
+built as the game's reads 0.36 ms of the model pass on `214feb11`, and the game's own room in a copy
+of its build with that commit's shaders 0.30, where `0f5cdbcf`'s shaders read 0.40 near the game's
+0.47 to 0.53, the smaller shader running faster as well as compiling faster; the land around is not
+it, the lamps' share the same at two columns as at eight, though the land costs the pass 0.6 ms of
+its own, since the pass discards for an alpha cutoff and draws no depth ahead of itself, so a
+section behind a wall drawn before the wall is shaded, which a nearest-first order of the solid
+draws would cut, the game trying its own and the engine keeping the order meshes come in;
+RENDERING.md and the shaders' comments name the rooms. Right, the discrepancy run down to its cause
+and not averaged, and the land's cost named for the game to measure, which, if the order pays, is
+the engine's to do for every game. The game's session read the nearest-first order of its solid
+sections and it does not pay, 0.05 ms worse in the room and the same on the hills, which fits a
+depth test run after the model pass's discard, so the land's 0.6 ms waits on an opaque pipeline
+without the discard or a depth pass ahead of the model pass, the game asked to write the entry. And
+a warning for every timing since about 01:50: the desktop's compositor has been taking a quarter to
+half of the GPU on and off, which inflates every pass's reading threefold while it does, the hills
+from 8.9 ms a frame to 31, so a reading taken since is trusted only where `nvidia-smi pmon` showed
+the desktop quiet, which the two rooms' 0.30 and 0.36 are read again under. The game's `6772c6f0`,
+oak doors, is its own. Next the end rod's step, the reference's vertex colors, part f and part c.
 
 Before it, `0f5cdbcf` came, the model pass's cost for the lamps, read in a room built as the game's
 with sixteen lamps at 1280 by 720 at High, where the pass took 0.47 ms more with them and the bounce
@@ -249,20 +269,31 @@ then subsurface scattering and what follows it, and item 7 for a wait.
    engine's room, two cheaper splits refused by the reference. The game's own reading on `0f5cdbcf`
    in its room, which it draws as section meshes of sixteen blocks with vertex colors, the GPU held
    at one clock: the pass gains 0.47 to 0.53 ms where it gained 0.67, and the bounce 0.75 to 0.85,
-   twice the engine's room in the pass, so the two rooms are read against each other, the engine's
-   built as the game draws it or the game's binary profiled, and the difference named before the
-   cost is called done; the game's runs on the commit, counted by the kernel's Xids, lost no device.
-   And one more from the game on 2026-10-11: an end rod, a glowing box 2 by 15 by 2 sixteenths of a
-   block, lights the floor with a drop of 7 to 9% from one pixel to the next along a closed curve
-   2.3 to 2.7 blocks from its axis, nearest along the diagonals, at every quality and with the
-   screen's probes, their filter and the history each off, black with the glow off, and for no
-   glowstone, torch or lantern, where the path-traced reference shows no step. Read from
-   `glowLightIrradiance`: a light's faces are summed in closed form within four half diagonals of
-   its middle and as points past them, within 3% of the closed form for a block, where a face
-   fifteen sixteenths long and two wide seen from the side at that distance is no point, so the two
-   forms meet in a step; the switch goes by the longest half side, or the long face is cut into
-   squares each a point, or the two forms are blended over a band, whichever the rod's floor against
-   the reference names, with a test of a long thin box's floor smooth across the curve.
+   twice the engine's room in the pass, read against each other at `0defd508`: the difference is the
+   layout and the eye, the game's lamps two blocks apart under a low eye so its floor's pixels lie
+   nearer more lamps, and on `214feb11`'s shaders the game's own room reads 0.30 ms of the pass in a
+   copy of its build, the engine's built as the game's 0.36, and the game's own last reading with
+   the desktop quiet, on a build carrying `0defd508`'s shaders with its eye a block higher than the
+   engine's copy stood, 0.39 to 0.47 ms where 0.67 on `98a1edca`, the bounce 0.85, so the cost is
+   done and the game's entry is off; the game's runs on the commits, counted by the kernel's Xids,
+   lost no device. Found beside it: the land around the game's room costs the model pass 0.6 ms of
+   its own, the pass discarding for an alpha cutoff and drawing no depth ahead of itself, so
+   sections behind a wall drawn before it are shaded; the game's nearest-first order of its solid
+   sections does not pay, 0.05 ms worse in the room and the same on the hills, since the depth test
+   runs after the discard, so the remedy is the engine's, an opaque pipeline without the discard for
+   materials that cut nothing out, or a depth pass ahead of the model pass, measured on the game's
+   hills at eight columns, 1.42 ms against 0.83 at two, which the game's entry carries. And one more
+   from the game on 2026-10-11: an end rod, a glowing box 2 by 15 by 2 sixteenths of a block, lights
+   the floor with a drop of 7 to 9% from one pixel to the next along a closed curve 2.3 to 2.7
+   blocks from its axis, nearest along the diagonals, at every quality and with the screen's probes,
+   their filter and the history each off, black with the glow off, and for no glowstone, torch or
+   lantern, where the path-traced reference shows no step. Read from `glowLightIrradiance`: a
+   light's faces are summed in closed form within four half diagonals of its middle and as points
+   past them, within 3% of the closed form for a block, where a face fifteen sixteenths long and two
+   wide seen from the side at that distance is no point, so the two forms meet in a step; the switch
+   goes by the longest half side, or the long face is cut into squares each a point, or the two
+   forms are blended over a band, whichever the rod's floor against the reference names, with a test
+   of a long thin box's floor smooth across the curve.
 
    **f. The screen's probes make the light depend on the view: as the camera turns, the penumbras'
    steps and the lit borders move on the screen, the light is noisy for a second after a move and
@@ -357,6 +388,20 @@ then subsurface scattering and what follows it, and item 7 for a wait.
 7. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
    being the point of each.
+
+8. **An opaque material's hidden fragments are rejected before they are lit.** The model pass
+   discards a fragment for its alpha cutoff, so the GPU's early depth test is off for every material
+   and a fragment behind a wall is lit before the depth test throws it away: in the game's room the
+   land outside, all of it behind the walls, costs the pass 0.6 ms, 1.42 ms at eight columns against
+   0.83 at two, and drawing the walls first saves nothing, 0.05 ms worse (ASKS.md, 2026-10-11).
+   Either an opaque pipeline without the discard for materials whose alpha mode cuts nothing out,
+   the masked and blended keeping theirs, so the early test rejects a hidden fragment before it is
+   shaded, or a depth pass ahead of the model pass that every opaque draw writes, which costs a pass
+   of its own and pays only where the shading is heavy; the first is tried first, since it adds no
+   pass, and the second measured against it where the first leaves most of the cost. Measured by the
+   model pass on the game's room at eight columns against two, with the desktop quiet, and on Manor
+   and Wick, with the pipelines' count; a test holds the room's land to a share of the pass. Taken
+   after item 2's parts f and c and before item 3's remainder.
 
 ## Verdicts
 
@@ -571,18 +616,21 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, the two rooms of sixteen lamps against each other. The difference is the layout and the eye:
-the game's lamps stand two blocks apart and its eye a block over the floor, twenty degrees down,
-where my room's stood two and a half apart under an eye 3.6 up at ten degrees, so its floor's pixels
-lie nearer more lamps and the pixel reads more of them in closed form. Built as the game's, my room
-reads 0.36 ms of the model pass on `214feb11`; the game's own room, profiled in a copy of its build
-carrying that commit's shaders, reads 0.30, and 0.40 on `0f5cdbcf`'s shaders, near its own 0.47 to
-0.53, the pass without the glow lights 0.1 ms slower there too, so `214feb11`'s smaller shader runs
-faster as well as compiling faster. The land around the room is not it: drawn to two columns rather
-than eight the glow lights cost the pass the same 0.30, though the land costs the pass 0.6 ms of its
-own, 1.42 ms with the glow lights off at eight columns and 0.83 at two; the model pass can discard
-for an alpha cutoff and draws no depth ahead of itself, so a section behind a wall drawn before the
-wall is shaded, which the game may cut by drawing its solid sections nearest first, the engine
-keeping the order meshes come in. Neither a floor of block-sized quads in one mesh nor two hundred
-hidden cubes drawn after the walls moved the glow lights' share. RENDERING.md and the shaders'
-comments name the rooms so. The end rod's step comes next.
+Item 2, the end rod's step. The rod's floor against a path-traced reference names the switch from
+the faces' closed form to their point form at four of the rod's half diagonals, 1.9 from its middle:
+as one point a face fifteen sixteenths long and two wide reads 11% over the closed form there, so
+the floor's light stepped by 8% between 1.85 and 1.9 blocks out, its log bending by 0.062; a block's
+square face read 7% over the closed form at its own switch, a smaller step in a fainter light, and
+not the 3% the comment claimed, the closed form itself matching an integral of the face taken
+numerically. Each face is cut along its longer side into pieces about as long as its shorter, four
+at most, and a face about square into quarters, each a point, the cuts unrolled with no loop nested
+in the faces' loop: the rod within 0.6% of the closed form at its switch, a block's face 1.6%, a
+thin slab 0.2%, so neither a switch by the longest half side nor a blend over a band was needed. The
+rod's floor reads the reference, traced at 16384 paths a pixel, within 2% to 1.6 blocks, past which
+its reach fades it as made, its half a block of surface reaching five blocks, and the log of its
+light bends nowhere over 0.021 from one block to three; a test holds both, and failed on the point
+form as it was, 0.062 at 1.8 blocks. The rooms read within 0.001 of what they did, the closed room
+seen from outside faulted in none of eight runs of the game's case counted by Xid, and the model
+pass compiles on lavapipe in 0.35 s where 0.32, the cuts unrolled by the driver. The suite: 1,670
+passed; on lavapipe 383 passed and 7 skipped with no validation error. The reference's vertex colors
+come next.

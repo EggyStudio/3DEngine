@@ -82,8 +82,8 @@ float squareIrradiance(float3 x, float3 n, float3 c, float3 u, float3 v)
 // The light reaching a point x facing n from a glow light, unhidden: the light from each face of
 // its box that x lies before, three at most, in closed form within four of the box's half
 // diagonals, which a path-traced floor beside a glowing block reads to within 3% from one block
-// out to four, and past them each face's as a point at its middle, its area by the two cosines
-// over the square of its distance, within 3% of the closed form there at a tenth of its cost.
+// out to four, and past them each face's as points, its area by the two cosines over the square of
+// its distance, within 1.6% of the closed form there at a fraction of its cost.
 // None where x lies on the light's own surface, as glowLightOn finds it within margin.
 public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float margin)
 {
@@ -108,10 +108,29 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
             sum += squareIrradiance(x, n, face, u.xyz, v.xyz);
         else
         {
-            float3 toward = face - x;
-            float distance2 = dot(toward, toward);
-            float3 way = toward * rsqrt(distance2);
-            sum += 4.0 * u.w * v.w * abs(dot(way, h)) / halves[k].w * max(dot(way, n), 0.0) / distance2;
+            // The face cut along its longer side into pieces about as long as its shorter, four at
+            // most, or a face about square into quarters, each a point at its middle. Whole, a face
+            // fifteen sixteenths of a block long and two wide, as a glowing rod's side, read 11%
+            // over the closed form at four half diagonals and a block's face 7%, a step in the
+            // floor's light where the forms met; cut so, 0.6% and 1.6%. Unrolled with the count
+            // kept, so no loop nests in the faces' loop.
+            bool longer = u.w >= v.w;
+            float3 along = longer ? u.xyz : v.xyz, across = longer ? v.xyz : u.xyz;
+            int pieces = clamp(int(max(u.w, v.w) / max(min(u.w, v.w), 1e-6) + 0.5), 1, 4);
+            int points = pieces == 1 ? 4 : pieces;
+            float area = 4.0 * u.w * v.w / float(points);
+            [unroll]
+            for (int piece = 0; piece < 4; piece++)
+                if (piece < points)
+                {
+                    float3 at = pieces == 1
+                        ? face + along * ((piece & 1) != 0 ? 0.5 : -0.5) + across * ((piece & 2) != 0 ? 0.5 : -0.5)
+                        : face + along * ((2.0 * float(piece) + 1.0) / float(pieces) - 1.0);
+                    float3 toward = at - x;
+                    float distance2 = dot(toward, toward);
+                    float3 way = toward * rsqrt(distance2);
+                    sum += area * abs(dot(way, h)) / halves[k].w * max(dot(way, n), 0.0) / distance2;
+                }
         }
     }
     return light.glowAndShare.rgb * (sum * light.glowAndShare.w);

@@ -1364,37 +1364,42 @@ reaching as far as it lights a surface by a fiftieth; emitters square to the axe
 give off the same light are one light of the box around them, the faces they press together left out
 of its surface. Its light at a point is that of the faces of its box the point lies before, in
 closed form within four of its half diagonals, Lambert's sum over each face's edges clipped to the
-point's horizon by Heitz's fit of the arc, and past them each face as a point at its middle, within
-3% of the closed form there. How much of it a point sees is marched through the field, at each step
-the way's clearance from the nearest surface against the cone the light spans there, so a shadow's
-edge is as soft as the light is wide, as a distance field gives a penumbra, a surface counted only
-where it lies nearer than the point's own plane and the light's own box, and inside a surface the
-share read by stepping out of it along the point's normal, once after the march at the step that lay
-deepest inside, and at each step bounded by the way to the nearest face, which the way out is no
-shorter than, the march ending by its own condition where the bound leaves nothing. Read at each
-step by a loop inside the march's own, or the march left by a break inside a wall, it lost the RTX
-4070's device in a closed room with a lamp inside seen from outside, an MMU fault through the
-constant cache (Xid 31) for which the validation layer's GPU-assisted checks found no read out of
-range, and a test holds the room (`GlowLightsTests`). The screen's probes march to the halves of
-each face of each light in reach that gives the probe's surface an eighth of the lights' light or
-more, halved across the axis that rises most from the surface, and keep sixteen levels of each such
-light, and march to the middle of each fainter one and keep the fainter ones' light summed, which
-the model pass weighs each pixel's light by as it weighs the probes' light, reading the lights its
-probes mark alone, by their bits, with the probes' weights found once for the light that bounced and
-the glow lights; a pixel at an edge, no probe around it on a surface like its own, takes those
-around it on any surface by how near each is. A view with no screen probes marches from each pixel
-to the middles of the four brightest, and a probe's ray's hit marches to those of the two brightest,
-so the walls a lamp lights bounce it on. A light gives nothing to a point within half a cell of its
-box whose normal leads out of it, the light's own surface, since a hit lies anywhere within a
-fraction of a cell of a face and the field's normal tilts near its edges, so part of the face rose
-above the hit's plane and lit it: on lavapipe the block's faces lit themselves and added 0.018 to
-the floor two blocks off, 0.044. The field marks the cells such an emitter paints, so a ray that
-meets it leaves its light out (`surfaceGlowUncarried`), and a reflection keeps it. The shaders hold
-one march and one closed form for each place that reads the glow lights, a reflection's hit shaded
-once whether met on the screen or in the field, and their loops are kept from unrolling, since
-unrolled and inlined at each of the model pass's calls they made its compile on lavapipe 0.9 s for
-every app where it took 0.23 before them, and the Windows job's tests ran out their time; 0.32 so,
-the Rendering tests on lavapipe here 280 s where 261 before the glow lights.
+point's horizon by Heitz's fit of the arc, and past them each face as points, cut along its longer
+side into pieces about as long as its shorter, four at most, or a face about square into quarters,
+within 1.6% of the closed form there; as one point a face read 7% over it, a block's, and 11%, a
+rod's 2 by 15 by 2 sixteenths, which stepped the floor's light around the voxel game's end rod by 7
+to 9% where the forms met, and cut so the rod's floor reads a path-traced reference within 2% to 1.6
+blocks, past which its reach fades it, and bends nowhere (`GlowLightsTests`). How much of it a point
+sees is marched through the field, at each step the way's clearance from the nearest surface against
+the cone the light spans there, so a shadow's edge is as soft as the light is wide, as a distance
+field gives a penumbra, a surface counted only where it lies nearer than the point's own plane and
+the light's own box, and inside a surface the share read by stepping out of it along the point's
+normal, once after the march at the step that lay deepest inside, and at each step bounded by the
+way to the nearest face, which the way out is no shorter than, the march ending by its own condition
+where the bound leaves nothing. Read at each step by a loop inside the march's own, or the march
+left by a break inside a wall, it lost the RTX 4070's device in a closed room with a lamp inside
+seen from outside, an MMU fault through the constant cache (Xid 31) for which the validation layer's
+GPU-assisted checks found no read out of range, and a test holds the room (`GlowLightsTests`). The
+screen's probes march to the halves of each face of each light in reach that gives the probe's
+surface an eighth of the lights' light or more, halved across the axis that rises most from the
+surface, and keep sixteen levels of each such light, and march to the middle of each fainter one and
+keep the fainter ones' light summed, which the model pass weighs each pixel's light by as it weighs
+the probes' light, reading the lights its probes mark alone, by their bits, with the probes' weights
+found once for the light that bounced and the glow lights; a pixel at an edge, no probe around it on
+a surface like its own, takes those around it on any surface by how near each is. A view with no
+screen probes marches from each pixel to the middles of the four brightest, and a probe's ray's hit
+marches to those of the two brightest, so the walls a lamp lights bounce it on. A light gives
+nothing to a point within half a cell of its box whose normal leads out of it, the light's own
+surface, since a hit lies anywhere within a fraction of a cell of a face and the field's normal
+tilts near its edges, so part of the face rose above the hit's plane and lit it: on lavapipe the
+block's faces lit themselves and added 0.018 to the floor two blocks off, 0.044. The field marks the
+cells such an emitter paints, so a ray that meets it leaves its light out (`surfaceGlowUncarried`),
+and a reflection keeps it. The shaders hold one march and one closed form for each place that reads
+the glow lights, a reflection's hit shaded once whether met on the screen or in the field, and their
+loops are kept from unrolling, since unrolled and inlined at each of the model pass's calls they
+made its compile on lavapipe 0.9 s for every app where it took 0.23 before them, and the Windows
+job's tests ran out their time; 0.32 so, the Rendering tests on lavapipe here 280 s where 261 before
+the glow lights.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the

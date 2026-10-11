@@ -92,6 +92,33 @@ public sealed class GlowLightsTests : IDisposable
         (2.6f, 0.0207), (2.8f, 0.0165), (3.0f, 0.0134), (3.2f, 0.0110), (3.4f, 0.0091), (3.6f, 0.0077), (3.8f, 0.0065),
     ];
 
+    // The voxel game's end rod, 2 by 15 by 2 sixteenths of a block, and the floor's light around it
+    // standing in the block's place, as BounceReference traced the frame with 16384 paths a pixel at
+    // 256 by 256 from five blocks up, read as the test reads the frame.
+    private static readonly Vector3 Rod = new(2f / 16, 15f / 16, 2f / 16);
+
+    private static readonly (float Radius, double Light)[] RodTraced =
+        [(1.0f, 0.018642), (1.2f, 0.012486), (1.4f, 0.008741), (1.6f, 0.006212), (1.8f, 0.004641)];
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Glowing_Rods_Light_On_The_Floor_Falls_With_No_Step()
+    {
+        // The rod's light stepped by 7 to 9% on a curve around it where its faces' closed form gave
+        // way to points at four of its half diagonals, a face fifteen sixteenths long read as one
+        // point 11% over the closed form there, the bend of the light's log 0.062 at 1.8 blocks.
+        // Cut into points as long as the face is wide, the floor reads the reference within 2% to
+        // 1.6 blocks, past which the light fades by its reach, and bends nowhere over 0.021.
+        float[] radii = [.. Enumerable.Range(0, 41).Select(i => 1.0f + i * 0.05f)];
+        var light = Rings(GlobalIllumination.High, 5, rod: true, radii);
+        double At(float radius) => light[radii.First(r => MathF.Abs(r - radius) < 1e-4f)].Mean;
+        foreach (var (radius, traced) in RodTraced)
+            (At(radius) / traced).Should().BeApproximately(1, 0.05, $"the floor {radius} blocks from the rod reads as the reference");
+        var logs = radii.Select(r => Math.Log(light[r].Mean)).ToArray();
+        for (int i = 1; i + 1 < logs.Length; i++)
+            Math.Abs(logs[i - 1] - 2 * logs[i] + logs[i + 1]).Should().BeLessThan(0.03, $"the rod's light bends nowhere, as it did {radii[i]:0.00} blocks out");
+    }
+
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
@@ -184,9 +211,10 @@ public sealed class GlowLightsTests : IDisposable
         UnloadModel(lamp);
     }
 
-    // The floor's light, linear, around the block seen straight down from `height` blocks above,
-    // the mean of 72 points on each ring and the eighth harmonic of them as a share of the mean.
-    private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height)
+    // The floor's light, linear, around the block, or where `rod` is set a rod standing in its
+    // place, seen straight down from `height` blocks above, the mean of 72 points on each ring of
+    // `radii`, the reference's rings by default, and the eighth harmonic of them as a share of the mean.
+    private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height, bool rod = false, float[]? radii = null)
     {
         const int Size = 256;
         var config = Config.Default.WithWindow("glow test", Size, Size) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -206,14 +234,17 @@ public sealed class GlowLightsTests : IDisposable
             ClearBackground(Color.Black);
             BeginMode3D(camera);
             DrawModelEx(floor, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(128, 1, 128), new Color(200, 200, 200));
-            DrawModelEx(lamp, middle + new Vector3(0, 0.5f, 0), Vector3.UnitY, 0, Vector3.One, new Color(230, 190, 110));
+            if (rod)
+                DrawModelEx(lamp, middle + new Vector3(0, Rod.Y / 2, 0), Vector3.UnitY, 0, Rod, new Color(230, 190, 110));
+            else
+                DrawModelEx(lamp, middle + new Vector3(0, 0.5f, 0), Vector3.UnitY, 0, Vector3.One, new Color(230, 190, 110));
             EndMode3D();
             EndDrawing();
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
         var rings = new Dictionary<float, (double, double)>();
-        foreach (var (radius, _) in Traced)
+        foreach (var radius in radii ?? [.. Traced.Select(t => t.Radius)])
         {
             var values = Enumerable.Range(0, 72).Select(i =>
             {
