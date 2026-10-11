@@ -225,10 +225,10 @@ public float glowLightFade(GlowLight light, float3 p, float3 n)
 // Whether p, facing n, lies on a glow light's own surface: within margin of its box, n leading out
 // of it, so that a step of margin along n moves p away from the box by half the step or more. A
 // ray's hit on the light lies anywhere within a fraction of a cell of the box, inside or out, and
-// the field's normal tilts near its edges, so part of a face rose above the hit's plane and lit
-// it: on lavapipe, whose hits fell a little outside the faces where the RTX 4070's fell inside, the
-// light bounced off the block's own faces added 0.018 to the floor two blocks from it, 0.044. A
-// floor beside the box, n along the box's side, is not on it.
+// the field's normal tilts near its edges, so part of a face rose above the hit's plane and lit it:
+// on lavapipe, whose hits fell a little outside the faces where those on the development machine's
+// GPU fell inside, the light bounced off the block's own faces added 0.018 to the floor two blocks
+// from it, 0.044. A floor beside the box, n along the box's side, is not on it.
 public bool glowLightOn(GlowLight light, float3 p, float3 n, float margin)
 {
     float at = glowLightDistance(light, p);
@@ -261,12 +261,12 @@ public float glowLightDistance(GlowLight light, float3 q)
 // surface the share is half and less by how far under its edge the way passes, read by stepping out
 // along p's normal, since the distance to its nearest face reads no deeper than half a thin wall
 // and let a fifteenth of the light through one. That is read once, after the march, at the step
-// that lay deepest inside: read at each step, a loop inside the march's own, it lost the RTX 4070's
-// device where the world probes' rays met a closed room's walls with a lamp inside, an MMU fault
-// through the constant cache (Xid 31) that the validation layer's GPU-assisted checks found no
-// read out of range for and lavapipe never met. The cone is kept within the step's height over p's
-// plane, below which glowLightIrradiance has already cut the box's light. Where nothing stands
-// nearer, or the field does not hold p, all of it.
+// that lay deepest inside: read at each step, a loop inside the march's own, it lost the device on
+// the development machine's GPU where the world probes' rays met a closed room's walls with a lamp
+// inside, an MMU fault through the constant cache (Xid 31) that the validation layer's GPU-assisted
+// checks found no read out of range for and lavapipe never met. The cone is kept within the step's
+// height over p's plane, below which glowLightIrradiance has already cut the box's light. Where
+// nothing stands nearer, or the field does not hold p, all of it.
 float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell, float3 target, float radius, float lift)
 {
     float3 from = p + n * (cell * lift);
@@ -306,7 +306,8 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
                 // thicker than the cone ends there, where with the depth read after the march alone
                 // it ran on to the light and cost the Cornell box's bounce 0.13 ms more at Low. It
                 // ends by its own condition, `t` set to its end: left by a break there, the march
-                // lost the RTX 4070's device in five runs of five as the loop nested in it had.
+                // lost the device on the development machine's GPU in five runs of five as the loop
+                // nested in it had.
                 seen = min(seen, saturate(0.5 + 0.5 * d / cone));
                 if (seen <= 0.0)
                     t = end;

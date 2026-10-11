@@ -228,11 +228,11 @@ array or a string nothing holds.
 
 ## Measured
 
-Taken on 2026-10-04 on an Intel Core i9-14900HX with an NVIDIA GeForce RTX 4070 Laptop GPU (driver
-615.71.09, Linux 7.2). raylib at commit `30fa673` (after 5.5) built in C with `-O2` and its SDL3
-backend, drawing through OpenGL 3.3, and this engine's Release build drawing through Vulkan. Both
-run in a hidden 800 by 450 window with no frame rate cap, and search for the most that holds 60
-frames a second with the same steps (`StressRamp`): growing by half until a frame passes a
+Taken on 2026-10-04 on the development machine, a laptop with an Intel Core i9-14900HX and an NVIDIA
+GPU (driver 615.71.09, Linux 7.2). raylib at commit `30fa673` (after 5.5) built in C with `-O2` and
+its SDL3 backend, drawing through OpenGL 3.3, and this engine's Release build drawing through
+Vulkan. Both run in a hidden 800 by 450 window with no frame rate cap, and search for the most that
+holds 60 frames a second with the same steps (`StressRamp`): growing by half until a frame passes a
 sixtieth of a second, then halving the gap to within about 3 percent.
 
 | | raylib | 3DEngine |

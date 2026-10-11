@@ -200,7 +200,8 @@ public float3 screenBounced(ScreenProbesHere probes)
 // holds a point like its own, as along a thin mesh the half-sized depth missed, takes the texels
 // around on any surface by how near each is, since marching from those few pixels, as from a pixel
 // at an edge no probe around held, cost the model pass 1.1 ms in a room of 64 lamps at 1280 by 720
-// on an RTX 4070, since each group of pixels the GPU runs together waits on its slowest.
+// on the development machine's GPU, since each group of pixels the GPU runs together waits on its
+// slowest.
 public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
 {
     int count = min(int(reflectLights.glowCounts.x), MostGlowLights);

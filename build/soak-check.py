@@ -56,8 +56,8 @@ SLACK = {
 # cores does, the walk enters rooms the first half never reached and the least climbs with the
 # world, as Manor's buffers did from 133 to 149 on lavapipe at a core with nothing leaking. Its
 # buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
-# grounds and at most 158 in the house over a whole walk on the RTX 4070 and 162 on lavapipe, which
-# the device's census named (`memory.buffers`).
+# grounds and at most 158 in the house over a whole walk on the development machine's GPU and 162 on
+# lavapipe, which the device's census named (`memory.buffers`).
 WHOLE = {
     "manor": {"buffers": 162},
 }

@@ -16,9 +16,10 @@ public sealed partial class GlobalIlluminationTests
         // frame after the panel goes dark. Each frame the probes' rays take the light that bounced
         // to what they meet the frame before, so it went on bouncing after the panel, its room
         // under a level 30 frames on at Low and 28 at High, and 45 at Low once surfaces weighed
-        // their probes off themselves, as this test measured on an RTX 4070, where it goes the
-        // frame after the own light of the probes around each falls, under a level 2 frames on,
-        // the room's probes lit more by the panel's light bounced than by the panel.
+        // their probes off themselves, as this test measured on the development machine's GPU,
+        // where it goes the frame after the own light of the probes around each falls, under a
+        // level 2 frames on, the room's probes lit more by the panel's light bounced than by the
+        // panel.
         Open();
         SetGlobalIllumination(quality);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -75,8 +76,8 @@ public sealed partial class GlobalIlluminationTests
         // whose lamp, bright enough to hold some half of every probe's own light, goes out at frame
         // 0. A probe lit mostly by light that bounced is judged by the probes around it, so the
         // corridor keeps its light to the tenth of a level; judged by every probe's own light, it
-        // dimmed with the far room's lamp by 3.3 and 3.7% 3 frames on, as this test measured on an
-        // RTX 4070.
+        // dimmed with the far room's lamp by 3.3 and 3.7% 3 frames on, as this test measured on the
+        // development machine's GPU.
         Open();
         SetGlobalIllumination(quality);
         CreatePointLight(new Vector3(0, 2.4f, 0), new Color(255, 236, 210), 14, range: 14, castsShadows: true);
@@ -140,7 +141,7 @@ public sealed partial class GlobalIlluminationTests
         // brighter than it settles, under half of it 4 frames on. Taken whole, as the probes took
         // the light that bounced before, it kept nine tenths of it 4 frames on, where each probe on
         // the lamp's old side taking it at the share its own light kept leaves 0.17 at Low and
-        // 0.22 at High, as this test measured on an RTX 4070.
+        // 0.22 at High, as this test measured on the development machine's GPU.
         Open();
         SetGlobalIllumination(quality);
         var lamp = CreatePointLight(new Vector3(-1.5f, 2.2f, -0.5f), new Color(255, 230, 200), 8, range: 10, castsShadows: true);
@@ -290,10 +291,11 @@ public sealed partial class GlobalIlluminationTests
         }
 
         // What the bounce adds to the change, held by the frame before's light and not: 0.33 levels
-        // a frame of 1.61 on an RTX 4070, as this test measured them, while each ray of a screen
-        // probe took the world's probes' light from the one texel of their octahedron it fell in,
-        // so a ray near a texel's border flipped to the next as its probe slid; read between the
-        // four texels around it, -0.03 of 0.03, the slide's own change and the bounce's alike.
+        // a frame of 1.61 on the development machine's GPU, as this test measured them, while each
+        // ray of a screen probe took the world's probes' light from the one texel of their
+        // octahedron it fell in, so a ray near a texel's border flipped to the next as its probe
+        // slid; read between the four texels around it, -0.03 of 0.03, the slide's own change and
+        // the bounce's alike.
         var (adds, unhelds) = (new List<double>(), new List<double>());
         foreach (var way in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ, new Vector3(0.7f, 0.3f, -0.6f) })
         {
@@ -323,9 +325,9 @@ public sealed partial class GlobalIlluminationTests
         // moved with the eye, as every cascade does in a turn, each probe taking the faces of a
         // probe a step or more beside it, so the light bouncing again found itself over ten frames
         // and more. The fifth frame after the walk changed 0.19 levels and after the turn 0.84, as
-        // this test measured on an RTX 4070, and read between the texels and at the corners
-        // gathered at, 0.07 and 0.06; the texels alone leave the turn at 0.69, and the corners
-        // alone the walk at 0.19.
+        // this test measured on the development machine's GPU, and read between the texels and at
+        // the corners gathered at, 0.07 and 0.06; the texels alone leave the turn at 0.69, and the
+        // corners alone the walk at 0.19.
         var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -386,10 +388,10 @@ public sealed partial class GlobalIlluminationTests
     {
         // Three walls around a lamp drawn apart, which lights them by bouncing alone, the walls one
         // mesh replaced at frame 60 by one of four, the fourth a block beside the lamp, as a game's
-        // section is meshed again when a block is placed. The walls left the field at once and their
-        // replacement stood in as a few boxes until it settled, the wall reading 116 before and 69
-        // six frames after and the floor 85 and 60, as this test measured on an RTX 4070; kept in
-        // the field until the replacement settles, neither fell.
+        // section is meshed again when a block is placed. The walls left the field at once and
+        // their replacement stood in as a few boxes until it settled, the wall reading 116 before
+        // and 69 six frames after and the floor 85 and 60, as this test measured on the development
+        // machine's GPU; kept in the field until the replacement settles, neither fell.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
         SetAmbientLight(Color.Black, 0);
@@ -451,7 +453,7 @@ public sealed partial class GlobalIlluminationTests
         // across the floor at a grazing angle, where a rough surface reflects most. Weighed by the
         // occlusion alone the sky's reflection read 37.5 in blue inside the box, the open floor
         // 62.7; weighed by the share of the sky the probes see, 0.13 and 61.8, as this test
-        // measured on an RTX 4070.
+        // measured on the development machine's GPU.
         Open();
         SetGlobalIllumination(GlobalIllumination.High);
         SetAmbientLight(Color.Black, 0);

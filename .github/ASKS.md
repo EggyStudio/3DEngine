@@ -90,3 +90,26 @@ section anew on each change of light would have the field build it again.
 Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item
 8.
+
+Review: the engine's vertex stream of the program's own, item 20 of REVIEW.md, done at `3ec1fdb3` on
+2026-10-11, is the game's to take as its first user, which the owner asked for at 20:05 and refined
+at 22:55: a section's mesh becomes positions alone and four or eight packed bytes a vertex,
+`UploadMesh(positions, indices, MeshStream.From(format, packed), colors)`, twelve bytes of position
+on the GPU and the packed bytes beside, where a vertex costs 44 today. The packed bytes hold the
+face at 3 bits, the corner at 2, the shade at 8 and the tint, a `UInt2` keeping the tint at 8 bits a
+channel with room to spare, 20 bytes a vertex, and a `UInt` holding it at 6 bits a channel, 16
+bytes, which may band in a biome's gradient, the choice the owner's eye's (Decision 27), `UInt2`
+unless the look is the same; the position stays a `Vector3`, so wheat, the lantern and water keep
+their shapes. `terrain.slang`'s stage takes `float3 position : POSITION, uint2 packed : CUSTOM0,
+ModelInstance instance`, unpacks the normal from a six-entry table and the coordinate from a
+four-entry one, the color from the tint and the shade, and calls the streams overload of
+`transformModelVertex` with a zero `uv2`; a relight is `UpdateMeshBuffer(mesh, MeshStreamBuffer,
+packed, 0)`, which writes the packed bytes alone through a ring, and the positions' equality decides
+a new upload against a relight; the colors stay in the upload for the field's tint, which reads the
+color stream, so this entry's fault stands as it is until item 9. The packed bytes ride in the
+mesh's stream and not in a `ShaderBuffer` read by the vertex's index, since the stream travels with
+each section's mesh and every draw reads it with nothing else bound, where a buffer is bound to the
+shader; a value is four bytes or a `uint` in names, comments and the guide. Measured before and
+after with `./e3d command profile` on this entry's room, the bytes a section uploads, the relight's
+time and the frame's, written here in this entry's style, and `MesherTests` rewritten for positions
+and packed bytes. When the game's own order allows.

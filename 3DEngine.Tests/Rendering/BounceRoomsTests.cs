@@ -17,7 +17,8 @@ namespace Engine.Tests.Rendering;
 /// <c>E3D_WRITE_REFERENCES=1</c> traces them again. The frame's linear light is averaged the same,
 /// and a view's difference is its pixels' differences summed over the reference's light, so one
 /// region's excess does not hide another's shortfall. The test runs where the GPU traces rays, as
-/// the references are traced through them and the bounds were measured on such a GPU, an RTX 4070.
+/// the references are traced through them and the bounds were measured on such a GPU, the
+/// development machine's.
 /// </remarks>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -31,16 +32,16 @@ public sealed class BounceRoomsTests : IDisposable
 
     private const int Width = 160, Height = 90, Down = 2;
 
-    // Each view at each quality, bound 15% over what it read on an RTX 4070, where the views
-    // read 0.12 to 0.14 of their light apart from their references in the Cornell box, 0.08 to
-    // 0.10 in the thin room, 0.26 in the corridor, 0.27 to 0.29 in the window's, 0.02 among the red
-    // walls, 0.27 to 0.29 in the strip's, 0.11 to 0.13 on the grazing floor, 0.10 to 0.12 in the
-    // carried lamp's and 0.05 to 0.06 around the glowing blocks, since the small emitters are
-    // lights of their own (GlowLights), where the strip's read 0.45 to 0.47. The strip's and the
-    // blocks' read 0.25 to 0.27 and 0.05 with each pixel's glow light its own; taken from texels of
-    // half the window's size (gi_screen_glow.slang), which at 160 by 90 are two pixels wide beside
-    // a strip six hundredths of a block thick, they read further, where at 1280 by 720 the strip's
-    // reads 0.163 against 0.162 and the blocks' 0.020 against 0.018.
+    // Each view at each quality, bound 15% over what it read on the development machine's GPU,
+    // where the views read 0.12 to 0.14 of their light apart from their references in the Cornell
+    // box, 0.08 to 0.10 in the thin room, 0.26 in the corridor, 0.27 to 0.29 in the window's, 0.02
+    // among the red walls, 0.27 to 0.29 in the strip's, 0.11 to 0.13 on the grazing floor, 0.10 to
+    // 0.12 in the carried lamp's and 0.05 to 0.06 around the glowing blocks, since the small
+    // emitters are lights of their own (GlowLights), where the strip's read 0.45 to 0.47. The
+    // strip's and the blocks' read 0.25 to 0.27 and 0.05 with each pixel's glow light its own;
+    // taken from texels of half the window's size (gi_screen_glow.slang), which at 160 by 90 are
+    // two pixels wide beside a strip six hundredths of a block thick, they read further, where at
+    // 1280 by 720 the strip's reads 0.163 against 0.162 and the blocks' 0.020 against 0.018.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.15)]

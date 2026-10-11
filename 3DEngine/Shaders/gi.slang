@@ -699,15 +699,15 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // it from the probes it sees alone (bouncedSeenAt). The world's probes set it, since every
 // surface's light comes to them. The screen's probes, whose rays are many and short, do not,
 // because marching to the probes at each of their hits cost 0.10 to 0.15 ms of the bounce's 0.3 to
-// 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held 3 levels of its
-// light without it, where it held 247 before either. Weighed by the probes' reach instead, as
-// bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let 42.9 levels of a lamp under a
-// closed room's floor into it where the marches hold it to 2.5. The model pass's reflections call
-// shadeHit, which hides the lamps as this does and marches to no probe. The light that bounced is
-// taken at kept's share of it, from the faces where gathered says the probes stood, and own holds
-// the light the surface sends on of what reaches it straight from the sun, the lights and the two
-// brightest glow lights, with the light it gives off but a glow light's, which a world probe weighs
-// the frame before's light by (gi_ambient.slang).
+// 0.4 on the development machine's GPU in shaders_cornell_box, and a closed room under a lamp held
+// 3 levels of its light without it, where it held 247 before either. Weighed by the probes' reach
+// instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let 42.9 levels of a
+// lamp under a closed room's floor into it where the marches hold it to 2.5. The model pass's
+// reflections call shadeHit, which hides the lamps as this does and marches to no probe. The light
+// that bounced is taken at kept's share of it, from the faces where gathered says the probes stood,
+// and own holds the light the surface sends on of what reaches it straight from the sun, the lights
+// and the two brightest glow lights, with the light it gives off but a glow light's, which a world
+// probe weighs the frame before's light by (gi_ambient.slang).
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {

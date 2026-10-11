@@ -479,7 +479,7 @@ public sealed class SceneFieldTests : IDisposable
         // leaves a hair apart, so some there have next to no area and a face turned any way; taken
         // as faces, they turned the cells outside the pole inside, 143 of the 1662 within half a
         // unit of the sphere at 16 rings and 97 at 48, their distances 0.86 to 0.90 off, as this
-        // test measured on an RTX 4070.
+        // test measured on the development machine's GPU.
         var config = Config.Default.WithWindow("sphere field", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f);
@@ -526,12 +526,12 @@ public sealed class SceneFieldTests : IDisposable
     public void A_Glowing_Sheet_Thinner_Than_A_Cell_On_A_Wall_Gives_Off_Its_Whole_Light_Where_It_Lies()
     {
         // A sheet 0.02 thick flat on a wall, under cells of 0.15, so the cells inside the wall
-        // behind it, which the field blends with those in front where it is read at the sheet,
-        // are painted by the wall, nearer them, and give off what the sheet lends them. Lent to the
-        // cells within half a cell at a share of its thickness over the cell, the face read 1.27
-        // of the sheet's 2, as this test measured on an RTX 4070. The sheet is wider than twice
-        // the probes' spacing, so the bounce leaves it to the rays and does not carry it as a glow
-        // light, whose cells lend nothing.
+        // behind it, which the field blends with those in front where it is read at the sheet, are
+        // painted by the wall, nearer them, and give off what the sheet lends them. Lent to the
+        // cells within half a cell at a share of its thickness over the cell, the face read 1.27 of
+        // the sheet's 2, as this test measured on the development machine's GPU. The sheet is wider
+        // than twice the probes' spacing, so the bounce leaves it to the rays and does not carry it
+        // as a glow light, whose cells lend nothing.
         var config = Config.Default.WithWindow("scene field sheet", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f);

@@ -128,10 +128,11 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // A wide floor lit only by the light that bounces, from a dim sky and a glowing wall at its
         // far end, the camera low over it, so each row of the screen's probes stands further off
         // than the one below. Weighed by how alike their distances from the eye were, the probes
-        // around a pixel of the floor by the wall lay too far apart for any to count, the pixel took
-        // the world's probes instead, and the wall's light on the floor ended in a hard line, the
-        // light falling by half within four rows, where weighed by how near each lies to the
-        // pixel's plane it falls by 18% at most, as this test measured on an RTX 4070.
+        // around a pixel of the floor by the wall lay too far apart for any to count, the pixel
+        // took the world's probes instead, and the wall's light on the floor ended in a hard line,
+        // the light falling by half within four rows, where weighed by how near each lies to the
+        // pixel's plane it falls by 18% at most, as this test measured on the development machine's
+        // GPU.
         var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
@@ -165,7 +166,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // took the world's probes' light alone where they stood, and a step showed along that edge;
         // they take the light from beyond their rays from the second cascade, 19.2 units across. Of
         // the 182 probes on the floor 106 held light, where 161 do, the rest past both cascades, as
-        // this test measured on an RTX 4070.
+        // this test measured on the development machine's GPU.
         var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
@@ -207,7 +208,8 @@ public sealed partial class GlobalIlluminationTests : IDisposable
             DrawModelEx(slab, new Vector3(2.65f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 5.6f), Color.White);
             DrawModelEx(strip, new Vector3(0, 1.5f, -2.45f), Vector3.UnitY, 0, new Vector3(2, 0.06f, 0.06f), Color.White);
         }, new Camera3D(new Vector3(0, 1.4f, 2.3f), new Vector3(0, 1.2f, -2.5f), Vector3.UnitY, 65)), 0, 60, 160, 36);
-        // The floor reads 131 levels where it read none, as this test measured on an RTX 4070.
+        // The floor reads 131 levels where it read none, as this test measured on the development
+        // machine's GPU.
         room.X.Should().BeGreaterThan(40, $"the strip's light, lent to the cells near it, reaches the floor by bouncing, {room}");
         UnloadModel(slab);
         UnloadModel(strip);
@@ -321,7 +323,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // Weighed at the ceiling itself, its probes were those in its plane, inside the ceiling,
         // which hold nothing, and it read 9.8 levels at Low and 13.3 at High, where weighed half
         // their spacing below it, the row of probes in the room taking its weight, it reads 191
-        // and 195, as this test measured on an RTX 4070.
+        // and 195, as this test measured on the development machine's GPU.
         Open();
         SetGlobalIllumination(quality);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));

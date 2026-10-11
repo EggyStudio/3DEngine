@@ -116,10 +116,10 @@ surface is left as it was, and the light does not cross from a near surface to o
 render texture and a reflection probe's faces draw the surface without it, and so does a material
 with a shader of its own or one laid over by alpha. `SetSubsurfaceQuality` sets how finely it is
 spread, and `shaders_subsurface` shows wax, skin, marble and a leaf, S turning it off and Q stepping
-through the qualities. On a laptop's RTX 4070, with the frame rate unlimited, the HDR frame's pass
-in `games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5 cm, takes this, as
-`./e3d command profile` gives `hdr_scene`, and `shaders_subsurface` some 0.1 ms more than with none
-at each:
+through the qualities. On the development machine's laptop GPU, with the frame rate unlimited, the
+HDR frame's pass in `games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5
+cm, takes this, as `./e3d command profile` gives `hdr_scene`, and `shaders_subsurface` some 0.1 ms
+more than with none at each:
 
 | Quality | Spread | `hdr_scene` |
 |---|---|---|
@@ -140,17 +140,16 @@ scene, and a shader of a program's own drawn in it, look the same whichever effe
 what each effect changes. What is drawn after `EndMode3D`, text, shapes and ImGui, goes over the
 result untouched.
 
-That frame and its pass cost some 0.02 to 0.035 ms of a laptop's RTX 4070 with every effect off,
-as `./e3d command profile` gives the GPU's time for `hdr_scene` and `main_pass` with the frame rate
-unlimited: 0.082 ms where the models drawn straight into the window took 0.047 in `shaders_bloom`
-with its bloom off at 800 by 450.
-Bloom's chain adds about 0.03 ms (`bloom`). Bloom, an exposure that follows the scene, the depth of
-field, motion blur, light that bounces and particles read the scene's light, and the frame is
-decoded for them once, about 0.02 ms more. The frame takes 44 bytes a pixel of the GPU's memory at
-four samples, drawing into the window's own multisampled depth, 16 MB at 800 by 450 and 91 MB at
-1920 by 1080, where `nvidia-smi` gave `shaders_bloom` 96 MiB more with it than with no such frame,
-its bloom chain's levels in that. A frame of 2D alone, as `textures_bunnymark` draws, draws none of
-it.
+That frame and its pass cost some 0.02 to 0.035 ms of the development machine's laptop GPU with
+every effect off, as `./e3d command profile` gives the GPU's time for `hdr_scene` and `main_pass`
+with the frame rate unlimited: 0.082 ms where the models drawn straight into the window took 0.047
+in `shaders_bloom` with its bloom off at 800 by 450. Bloom's chain adds about 0.03 ms (`bloom`).
+Bloom, an exposure that follows the scene, the depth of field, motion blur, light that bounces and
+particles read the scene's light, and the frame is decoded for them once, about 0.02 ms more. The
+frame takes 44 bytes a pixel of the GPU's memory at four samples, drawing into the window's own
+multisampled depth, 16 MB at 800 by 450 and 91 MB at 1920 by 1080, where `nvidia-smi` gave
+`shaders_bloom` 96 MiB more with it than with no such frame, its bloom chain's levels in that. A
+frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 
 | Call | What it does |
 |---|---|
@@ -179,10 +178,10 @@ so a picture tonemapped here is the one a Bevy game draws:
 
 AgX, Tony McMapface and Blender's filmic look the light up in Bevy's own tables, 3D textures read
 the first time their curve is chosen. Reading one takes 0.4 ms of the CPU for AgX's, 1.6 for Tony
-McMapface's and 2.4 for Blender's, the best of five reads warm, and they hold 256 KB, 432 KB and
-2 MB of the GPU's memory. Looking the light up costs the pass that brings the frame into the window
-about 0.002 ms more on a laptop's RTX 4070 at 800 by 450, 0.015 ms against 0.013 to 0.014 for the
-engine's curve, as `./e3d command profile` gives `main_pass` in `shaders_bloom`.
+McMapface's and 2.4 for Blender's, the best of five reads warm, and they hold 256 KB, 432 KB and 2
+MB of the GPU's memory. Looking the light up costs the pass that brings the frame into the window
+about 0.002 ms more on the development machine's laptop GPU at 800 by 450, 0.015 ms against 0.013 to
+0.014 for the engine's curve, as `./e3d command profile` gives `main_pass` in `shaders_bloom`.
 
 The `shaders_bloom` example gives each a key:
 
@@ -354,27 +353,26 @@ The field is cascades of 64 cells a side, each twice as coarse and as wide as th
 four cascades of 0.25 reach 16 units across in the first and 128 in the last. A double-sided mesh,
 as a model from an OBJ file is, has no inside and is held half a cell thick on either side, and a
 closed wall thinner than a cell, which may have no cell's middle inside it, is held the same about
-its middle, so a wall or a floor thinner than a cell still stops what is traced through the field.
-A mesh that gives off light and is thinner than a cell, as a glowing strip on a wall, lends its light
+its middle, so a wall or a floor thinner than a cell still stops what is traced through the field. A
+mesh that gives off light and is thinner than a cell, as a glowing strip on a wall, lends its light
 to the cells near it, a share as large as the part of a cell it covers, so it lights its room
-through the light that bounces. An open mesh,
-as a ground plane, is inside only below its faces and not past its rim. A mesh drawn in the same place for eight frames is built into the
-cascades around it from its triangles, and one that moves is stamped each frame as boxes rather than
-its triangles, painted its color, so a red figure bounces red light, though the light it gives off
-does not bounce: a skinned model a box for each joint around the vertices it holds, as
-its pose puts them, so the shadows a character gives the light that bounces are its limbs' as
-boxes, and a model that does not bend a box for each of up to eight parts its triangles are cut
-into, so a table or a car is not one block. Three of raylib's dancing robots in
-`shaders_cornell_box` are 147 boxes in 540 bricks of four cells, which the GPU stamps and paints in
-0.06 ms and the CPU places in 0.45, in the Release build, where it stamped them unpainted in 0.05
-ms. A cascade is built again where the camera has gone past it or a mesh came or went, as many a
-frame as the third argument says, one by default, the finest first. In
-`shaders_scene_field` on a
-laptop's RTX 4070, a frame that stamps its moving crate takes 0.014 ms on the GPU and building the
-finest cascade 0.25 ms, and the occlusion pass takes 0.073 ms with the field where it took 0.036
-without, as `./e3d command profile` shows them, `field.rebuild 400` building a cascade every frame
-for the second. Holding the thin walls and the open rims took a cascade's build there from 0.44 ms
-to 0.46 in the Release build, with `field.rebuild 4000`. `Config.SceneField` sets the same for an app made from a `Config`, and
+through the light that bounces. An open mesh, as a ground plane, is inside only below its faces and
+not past its rim. A mesh drawn in the same place for eight frames is built into the cascades around
+it from its triangles, and one that moves is stamped each frame as boxes rather than its triangles,
+painted its color, so a red figure bounces red light, though the light it gives off does not bounce:
+a skinned model a box for each joint around the vertices it holds, as its pose puts them, so the
+shadows a character gives the light that bounces are its limbs' as boxes, and a model that does not
+bend a box for each of up to eight parts its triangles are cut into, so a table or a car is not one
+block. Three of raylib's dancing robots in `shaders_cornell_box` are 147 boxes in 540 bricks of four
+cells, which the GPU stamps and paints in 0.06 ms and the CPU places in 0.45, in the Release build,
+where it stamped them unpainted in 0.05 ms. A cascade is built again where the camera has gone past
+it or a mesh came or went, as many a frame as the third argument says, one by default, the finest
+first. In `shaders_scene_field` on the development machine's laptop GPU, a frame that stamps its
+moving crate takes 0.014 ms on the GPU and building the finest cascade 0.25 ms, and the occlusion
+pass takes 0.073 ms with the field where it took 0.036 without, as `./e3d command profile` shows
+them, `field.rebuild 400` building a cascade every frame for the second. Holding the thin walls and
+the open rims took a cascade's build there from 0.44 ms to 0.46 in the Release build, with
+`field.rebuild 4000`. `Config.SceneField` sets the same for an app made from a `Config`, and
 `./e3d command field.show 0` draws the first cascade over the window as the field holds the scene.
 
 ## Light that bounces
@@ -408,11 +406,11 @@ sheen of the sky's color, brightest at a grazing angle.
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
 a glowing panel, and G steps through the qualities. `shaders_bounce_rooms` gathers the rooms the
 bounce finds hardest, one to each of the keys 1 to 9, from a room of thin walls with a lamp outside
-to a small bright strip in the dark and a glowing block on a floor. On a laptop's RTX 4070 at 800 by
-450, with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU holds its clocks,
-they cost this on the GPU, as `./e3d command profile` names it `global_illumination`, and
-`./e3d command gi.state` gives the rest, `High` measured with the example's field at four cascades
-(`./e3d eval "SetSceneField(4, 0.15f, 2)"`), where it traces three:
+to a small bright strip in the dark and a glowing block on a floor. On the development machine's
+laptop GPU at 800 by 450, with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU
+holds its clocks, they cost this on the GPU, as `./e3d command profile` names it
+`global_illumination`, and `./e3d command gi.state` gives the rest, `High` measured with the
+example's field at four cascades (`./e3d eval "SetSceneField(4, 0.15f, 2)"`), where it traces three:
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
@@ -484,17 +482,17 @@ the frame before's light, where it added 0.33 and 1.61 while a ray of the screen
 world's probes from the one texel it fell in; and after a walk or a turn the light has settled by
 the fifth frame, which changes 0.07 levels after a walk of four blocks in a white room lit by a
 glowing block, and 0.06 after a quarter turn, where it changed 0.19 and 0.84, as
-`GlobalIlluminationTests` reads them on an RTX 4070. In Wick's first doorway the hold costs nothing
-that can be read, the bounce taking 0.229 ms at `Low` and 0.359 at `High` with it and without, as
-`./e3d command profile` gives `global_illumination` with the frame rate unlimited. A render texture
-that draws models through a camera, as each half of a split screen, has screen probes of its own,
-traced, blended and held as the window's are in the same frame, so it shows the light that bounced
-as the window would: two views of `games/Sumo` at 640 by 720 take 1.14 ms of the GPU at `Low`
-between them, as `./e3d command profile` gives `targets`, where they took 0.62 reading the world's
-probes alone, some 0.26 ms a view. A reflection probe's faces take the light that bounced from the
-world's probes alone, and where the window draws no model, as a game that draws its scene into a
-texture at a low size and shows the texture, the field follows the first texture's camera and holds
-its models. `Config.GlobalIllumination` sets the same for an app made from a `Config`.
+`GlobalIlluminationTests` reads them on the development machine's GPU. In Wick's first doorway the
+hold costs nothing that can be read, the bounce taking 0.229 ms at `Low` and 0.359 at `High` with it
+and without, as `./e3d command profile` gives `global_illumination` with the frame rate unlimited. A
+render texture that draws models through a camera, as each half of a split screen, has screen probes
+of its own, traced, blended and held as the window's are in the same frame, so it shows the light
+that bounced as the window would: two views of `games/Sumo` at 640 by 720 take 1.14 ms of the GPU at
+`Low` between them, as `./e3d command profile` gives `targets`, where they took 0.62 reading the
+world's probes alone, some 0.26 ms a view. A reflection probe's faces take the light that bounced
+from the world's probes alone, and where the window draws no model, as a game that draws its scene
+into a texture at a low size and shows the texture, the field follows the first texture's camera and
+holds its models. `Config.GlobalIllumination` sets the same for an app made from a `Config`.
 
 `DrawBounceWindow()`, called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows
 what the light that bounces holds while a scene's light is worked on. It gives what `gi.state`

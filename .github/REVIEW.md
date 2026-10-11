@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `958a3eb3`. Item 20's first stage, with item 19's last line: `MeshStream` and
+Reviewed up to `3ec1fdb3`. Item 20's second stage, and item 20 is done: a mesh uploaded from its
+positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a vertex on the GPU,
+the store keeping vertices of zero normals and coordinates for the light field, the glow lights,
+picking and the bodies, which read them as any mesh's; every pipeline that binds the vertex has its
+positions form, binding 0 at stride 12 with the normal and coordinate read as zeros from binding 6
+at stride 0, the model pass's own and a program's own, the solid and masked shadow pipelines made
+the first time such a mesh casts a shadow, and the velocity pass's, the subsurface pass leaving such
+meshes out; a draw with the engine's own shader and `UpdateMeshVertices` are warned of once a mesh,
+`UpdateMeshBuffer` writes positions at 0 and warns at 1 and 2, and a skin is refused. Tests: the
+store's, and a Vulkan fact of a quad of positions alone with a `UInt` stream over a white floor
+under a side light, the quad's pixel the packed color exactly, the floor in its shadow under half as
+bright as beside it, and the vertex buffer twelve bytes a vertex. The example is the reference's
+chunk, a hill of 8,080 voxels' vertices, each a position and four packed bytes, the face, the corner
+and the tile, the normal, the coordinate and a speckled tile unpacked in the shader, the hill
+casting its shadow, its line of text set by the owner to sixteen bytes each, a position and four
+bytes packed, and the frame counter moved out of its way; the guides' sections grown by the
+positions-alone mesh. The suite passes, 1,693; on lavapipe under the validation layer 403 pass with
+no VUID and the reference frames unchanged; the guides' code and the examples build on the package.
+Right, one zero buffer serving both the stream a mesh lacks and the normal and coordinate it never
+had, the shadow pipelines made on first need, and the refusals and warnings each said once. Item 20
+is done, the voxel game's adoption its own ask, written under the game's entry in ASKS.md at 23:50
+with the packing and the measure. Next item 14, then item 15 as a batch of its own when nothing else
+is in flight, item 17, the bounce around the pillar as a read of its own, h's blotches and teeth by
+the owner's eye, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `958a3eb3` came, item 20's first stage, with item 19's last line: `MeshStream` and
 `MeshStreamFormat` with BevyCSharp's names and numbers, a fifth argument of `UploadMesh` and
 `UpdateMeshBuffer` at `MeshStreamBuffer`, 9, writing the stream alone, queued as its own kind of
 upload through a ring of buffers and merged with a write of the vertices queued the same frame; a
@@ -76,45 +101,6 @@ is in flight, its Linux job green, and its examples job reads Verdicts 49 and 52
 first stage with BevyCSharp's names, then its second, then item 14, item 15 as a batch of its own,
 item 17, the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's
 eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `ae277b79` and `fdf27346` came. `ae277b79`, Verdict 52's mend: the picture script fits a
-capture with the WebP encoder itself where it is installed, the box of the size's shape cut from the
-source's own pixels, read from the PNG header, and placed by the gravity, then scaled, so a runner
-needs the encoder alone, with ImageMagick the way where the encoder is absent and its temporary
-folder made portably; the capture loop stops at the first capture that fails on the script's own
-line, with an error line saying how many were left, since every one after would fail the same way
-and the examples job spent twenty minutes proving it; and the first game's script writes an error
-line naming the step and the system for a step that does not build, does not reach its thirtieth
-frame or logs an error, with the compiler's lines or the log's tail, so the page says why where the
-job's log is closed to its reader. The script's test fits pictures of three shapes to 800 by 450 and
-reads their size, passing through ImageMagick here and through the encoder alone in a container;
-BUILDING.md's paragraph says the encoder suffices. `fdf27346`, Verdict 48's third remedy: a frame
-where no light bounces draws with a build of the model pass that leaves out the bounce, the traced
-reflection and the glow lights, `NO_BOUNCE`, read in `lights.slang` as a constant that also turns
-the glow off, the fragment stage 55,228 bytes of SPIR-V against 124,660 without the glow lights and
-253,212 whole; `ModelRenderer` picks the build once a frame from what the frame holds, unbounced
-where no cascades are in, which every view's lighting then says, lampless where light bounces with
-no glow light, and the whole otherwise, the pipelines keyed by the build and a build not made
-falling back to the whole; `e3d shaders` builds the unbounced variant alone, five builds of each
-shader that imports the model pass, which the loader's test and the package's count, the pack 92
-seconds where 81. Four apps in one process on lavapipe with Mesa's cache off take 1.30 to 1.42 s
-each after the first against 2.11 to 2.51 lampless and 3.90 to 4.08 whole, the device's last wait
-0.79 to 0.89; the suite passes, 1,686; on lavapipe under the validation layer 397 pass with no VUID
-and the Rendering group in 10.2 minutes where 10.7; the glowstone room faulted in none of eight
-runs; RENDERING.md's rows say the three builds. Right, the fit cut from the source's pixels rather
-than a tool installed on every runner, the failure made to stop at its first instance and say so,
-and the build chosen by what the frame holds rather than by a flag a game sets. Verdict 50, read by
-the working session on the third build's tree: fourteen suite runs with no unknown error, three with
-the driver's cache off at some 310 fresh compiles each in 26 minutes and eleven with a cache of the
-suite's own of 2 GiB in 6.6 to 7.3 minutes, ten of them green and the other two red only by N 1.4 on
-a test file misplaced since, so the cause is named, the driver's cache at its 128 MiB cap since
-16:35 caching no new pipeline, and the remedy follows as a commit of its own, the suite's own cache
-set in `build/test.py` with `.gitignore` and BUILDING.md's lines; the verdict settles with it.
-Verdicts 48, 51 and 52 read their next pages after the push. The Replies paragraph on the third
-build is read and removed, its numbers here. Next Verdict 50's remedy, then item 19 and item 18,
-then item 20's first stage and its second, then item 14, item 15 as a batch of its own, item 17, the
-bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
-offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -836,65 +822,66 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Decision 19 wants.
 
 20. **A vertex stream of the game's own beside the mesh's vertex, and a vertex of positions alone
-    (Decisions 36 and 37), first stage done at `958a3eb3`.** The owner put `.ref/Voxel-Sandbox-main`
-    in the tree on 2026-10-11 at 20:05, a game on the 3.1.0 package that fed its shader one packed
-    float a vertex through an input layout it set itself and unpacked it in the shader, and asked
-    for the same in both engines; the plan was approved at 20:40 and refined at 22:55, a position
-    every mesh's and the packed data beside it, its full text kept by the reviewing session, this
-    item being what it asks of the engine. First stage, one commit: a mesh may carry one stream of
-    the game's own beside its vertices, in one of five formats, `UInt`, `UInt2`, `Float`, `Float4`
-    and `UNorm8x4`, the types `MeshStream` with `From<T>` and `SizeOf` and `MeshStreamFormat` named
-    as BevyCSharp's are, given to `UploadMesh` with the colors and second texture coordinates and
-    written in place by `UpdateMeshBuffer` at index 9, a constant naming it, which writes the
-    stream's buffer through a ring as the vertices are written and never uploads the mesh again; a
-    shader of the program's own reads it as `CUSTOM0`, placed by its semantic as the others are, at
-    binding 5 of the model pass's pipelines since the subsurface pass holds binding 4, the stream
-    bound by a call of its own, the pipeline keyed by the format; a shader that reads it drawn with
-    a mesh without it reads zero from a sixteen-byte buffer at stride 0 as the default color and
-    coordinates are, zeros of the shader's own class, integer or float, which the reflection of the
-    stage's inputs then says, since Vulkan wants the attribute's class to be the input's; the stream
-    is kept beside the mesh's streams in the store and not inside them, since a mesh with streams
-    carries both default buffers and one with the game's stream alone must not pay for those. A
-    `uint` and not a `float` is the packing type, which the guide says and why. The guide says why
-    the packed bytes are a vertex stream and not a storage buffer read by the vertex id, which the
-    owner asked at 23:15: a stream travels with the mesh, uploaded once with its positions and
-    indices and read by every draw of it with nothing else bound, where a buffer is bound to the
-    shader or the material, so thousands of chunks would each need a binding a draw or one giant
-    buffer with an offset a chunk; a shader's buffers are bound per shader and a mesh's stream per
-    mesh, a draw with a shader of its own being a batch of its own here already; the GPU fetches the
-    attribute by the vertex index as it fetches the position, where a buffer read needs the vertex
-    id by hand and an offset an instance when instanced; the fetch is about as fast either way, so
-    the gain is the binding model; and a buffer stays the right tool for what is not per vertex, a
-    palette or atlas table every chunk shares, per-chunk constants, or what a compute pass also
-    reads. Tests: the store refusing a wrong count and queueing the in-place write alone, the write
-    of index 9 changing one value of four bytes, the reflection naming `CUSTOM0` with its class, and
-    one Vulkan fact of two planes through one shader, the left with the stream and the right
-    without, drawn at 64 by 32 on lavapipe. The example `shaders_packed_vertices` in the Shaders
-    folder, a grid of cubes whose four bytes a vertex hold a palette index and a shade, captured and
-    in the README's row and count. Second stage, one commit: a mesh uploaded from positions alone,
-    `UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)`, 12 bytes
-    a vertex at binding 0 with no normal and no texture coordinate of its own, since a shader that
-    unpacks four bytes has both in them; the store keeps a `ModelVertex[]` of the positions with
-    zero normals and coordinates for the light field, the glow lights, the bounce reference, picking
-    and the bodies, which then work unchanged, and uploads the positions alone as the vertex buffer;
-    every pipeline that binds a mesh's vertex gets a variant with binding 0 at stride 12 and the
-    normal and coordinate read as zero from a stride-0 default at binding 6, the model pass's own
-    and custom pipelines, the solid and masked shadow pipelines and the velocity pass's, picked by
-    the mesh at draw, the subsurface pass leaving such a mesh out since it shades with the engine's
-    normal; `UpdateMeshBuffer` at index 0 writes its positions through the ring and indices 1 and 2
-    warn, a skin is refused and `UpdateMeshVertices` warns once; the engine's own shader lights such
-    a mesh by a zero normal, so it wants a shader of the program's own, said in the guide and warned
-    once where drawn with the engine's own, its shadow right either way. Tests: the store keeping
-    the zero-normal array and uploading 12 bytes a vertex, and a Vulkan fact of a quad of positions
-    alone with a `UInt` stream over a floor under one light, the quad's pixel the packed color and
-    the floor darker under it than beside it, so the positions-only shadow pipeline is proven; the
-    reference frames unchanged; RENDERING.md's bindings table gains binding 6. The example becomes
-    the reference's chunk, a hill of voxels as positions and four bytes a vertex, the normal, the
-    coordinate and the tile unpacked in the shader, with its shadow and a line of text giving the
-    bytes a vertex. Then the voxel game takes the stream as its first user, its own item once this
-    lands, 20 bytes a vertex where 44. Kept out and said: keying the field's readers on positions
-    rather than the vertex array, a later change of five files. The first stage is done at
-    `958a3eb3`, the pack's line with it; the second is next, before item 14.
+    (Decisions 36 and 37), done at `958a3eb3` and `3ec1fdb3`.** The owner put
+    `.ref/Voxel-Sandbox-main` in the tree on 2026-10-11 at 20:05, a game on the 3.1.0 package that
+    fed its shader one packed float a vertex through an input layout it set itself and unpacked it
+    in the shader, and asked for the same in both engines; the plan was approved at 20:40 and
+    refined at 22:55, a position every mesh's and the packed data beside it, its full text kept by
+    the reviewing session, this item being what it asks of the engine. First stage, one commit: a
+    mesh may carry one stream of the game's own beside its vertices, in one of five formats, `UInt`,
+    `UInt2`, `Float`, `Float4` and `UNorm8x4`, the types `MeshStream` with `From<T>` and `SizeOf`
+    and `MeshStreamFormat` named as BevyCSharp's are, given to `UploadMesh` with the colors and
+    second texture coordinates and written in place by `UpdateMeshBuffer` at index 9, a constant
+    naming it, which writes the stream's buffer through a ring as the vertices are written and never
+    uploads the mesh again; a shader of the program's own reads it as `CUSTOM0`, placed by its
+    semantic as the others are, at binding 5 of the model pass's pipelines since the subsurface pass
+    holds binding 4, the stream bound by a call of its own, the pipeline keyed by the format; a
+    shader that reads it drawn with a mesh without it reads zero from a sixteen-byte buffer at
+    stride 0 as the default color and coordinates are, zeros of the shader's own class, integer or
+    float, which the reflection of the stage's inputs then says, since Vulkan wants the attribute's
+    class to be the input's; the stream is kept beside the mesh's streams in the store and not
+    inside them, since a mesh with streams carries both default buffers and one with the game's
+    stream alone must not pay for those. A `uint` and not a `float` is the packing type, which the
+    guide says and why. The guide says why the packed bytes are a vertex stream and not a storage
+    buffer read by the vertex id, which the owner asked at 23:15: a stream travels with the mesh,
+    uploaded once with its positions and indices and read by every draw of it with nothing else
+    bound, where a buffer is bound to the shader or the material, so thousands of chunks would each
+    need a binding a draw or one giant buffer with an offset a chunk; a shader's buffers are bound
+    per shader and a mesh's stream per mesh, a draw with a shader of its own being a batch of its
+    own here already; the GPU fetches the attribute by the vertex index as it fetches the position,
+    where a buffer read needs the vertex id by hand and an offset an instance when instanced; the
+    fetch is about as fast either way, so the gain is the binding model; and a buffer stays the
+    right tool for what is not per vertex, a palette or atlas table every chunk shares, per-chunk
+    constants, or what a compute pass also reads. Tests: the store refusing a wrong count and
+    queueing the in-place write alone, the write of index 9 changing one value of four bytes, the
+    reflection naming `CUSTOM0` with its class, and one Vulkan fact of two planes through one
+    shader, the left with the stream and the right without, drawn at 64 by 32 on lavapipe. The
+    example `shaders_packed_vertices` in the Shaders folder, a grid of cubes whose four bytes a
+    vertex hold a palette index and a shade, captured and in the README's row and count. Second
+    stage, one commit: a mesh uploaded from positions alone, `UploadMesh(Vector3[] positions, uint[]
+    indices, MeshStream? stream, Color[]? colors)`, 12 bytes a vertex at binding 0 with no normal
+    and no texture coordinate of its own, since a shader that unpacks four bytes has both in them;
+    the store keeps a `ModelVertex[]` of the positions with zero normals and coordinates for the
+    light field, the glow lights, the bounce reference, picking and the bodies, which then work
+    unchanged, and uploads the positions alone as the vertex buffer; every pipeline that binds a
+    mesh's vertex gets a variant with binding 0 at stride 12 and the normal and coordinate read as
+    zero from a stride-0 default at binding 6, the model pass's own and custom pipelines, the solid
+    and masked shadow pipelines and the velocity pass's, picked by the mesh at draw, the subsurface
+    pass leaving such a mesh out since it shades with the engine's normal; `UpdateMeshBuffer` at
+    index 0 writes its positions through the ring and indices 1 and 2 warn, a skin is refused and
+    `UpdateMeshVertices` warns once; the engine's own shader lights such a mesh by a zero normal, so
+    it wants a shader of the program's own, said in the guide and warned once where drawn with the
+    engine's own, its shadow right either way. Tests: the store keeping the zero-normal array and
+    uploading 12 bytes a vertex, and a Vulkan fact of a quad of positions alone with a `UInt` stream
+    over a floor under one light, the quad's pixel the packed color and the floor darker under it
+    than beside it, so the positions-only shadow pipeline is proven; the reference frames unchanged;
+    RENDERING.md's bindings table gains binding 6. The example becomes the reference's chunk, a hill
+    of voxels as positions and four bytes a vertex, the normal, the coordinate and the tile unpacked
+    in the shader, with its shadow and a line of text giving the bytes a vertex. Then the voxel game
+    takes the stream as its first user, its own item once this lands, 20 bytes a vertex where 44.
+    Kept out and said: keying the field's readers on positions rather than the vertex array, a later
+    change of five files. Done at `958a3eb3` and `3ec1fdb3` as written; the voxel game's adoption is
+    the `Review:` line under its entry in ASKS.md.
 
 ## Verdicts
 
@@ -1233,24 +1220,10 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 20, its second stage. `UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream,
-Color[]? colors)` makes a mesh of positions alone: the store keeps them as vertices with zero
-normals and coordinates, which the field, the glow lights, picking and bodies read unchanged, and
-the GPU is given twelve bytes a vertex. Every pipeline that binds a mesh's vertex has a form that
-reads binding 0 at a stride of 12 and the normal and coordinate as zeros at binding 6 at a stride
-of 0, picked by the mesh as it draws: the model pass's own and a shader's of the program's own, the
-solid and masked shadow pipelines, made the first time such a mesh casts, and the velocity pass's;
-the subsurface pass leaves such a mesh out. The model pass's own shader drawing one is warned of
-once a mesh, `UpdateMeshBuffer` writes its positions at 0 and warns at 1 and 2,
-`UpdateMeshVertices` warns once a mesh, and the store refuses it a skin. Tests: the store keeping
-the zero-normal vertices and every upload of positions, and a quad of positions alone with a
-`UInt` stream over a white floor under a light from the side, its pixel the packed color exact,
-the floor in its shadow under half the light of the floor beside it, and its vertex buffer twelve
-bytes a vertex; on lavapipe under the validation layer 403 pass with 8 skipped and no VUID, the
-reference frames among them unchanged. The example is the reference's chunk, a hill of 8,080
-vertices of a position and four packed bytes, the face, the corner and the tile unpacked in the
-shader into the normal, the coordinate and a speckled tile, with its shadows, its line reading
-"16 bytes each: a position and four bytes packed" as the owner worded it, the FPS counter moved
-below. The guide gives the positions-only mesh its paragraph and a general snippet in place of
-the old `packed.slang`'s, and RENDERING.md binding 6. The suite passes, 1,693, and the guides' code
-and the examples build on the package.
+Item 14. The seventeen files outside `.github` that named the RTX 4070 name the development
+machine's GPU instead, or its laptop GPU where they said a laptop's, every measurement kept: the
+nine rendering tests' comments, five shaders' comments, the soak check's comment, the raylib
+comparison's machine, now "the development machine, a laptop with an Intel Core i9-14900HX and an
+NVIDIA GPU", and the materials guide's six timings. Each changed comment or paragraph is wrapped
+again at 100 columns, an XML tag's own line kept. `.github`'s documents keep the name. The suite
+passes, 1,693.

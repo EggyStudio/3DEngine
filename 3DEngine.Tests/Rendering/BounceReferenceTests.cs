@@ -124,7 +124,8 @@ public sealed class BounceReferenceTests : IDisposable
         regions.Should().NotBeNull(why);
         var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
         floor.Pixels.Should().BeGreaterThan(5000, "the slab's top fills most of the view");
-        // The two read alike to a hundredth of a percent on an RTX 4070, the paths' noise the rest.
+        // The two read alike to a hundredth of a percent on the development machine's GPU, the
+        // paths' noise the rest.
         Math.Abs(floor.Share).Should().BeLessThan(0.01f, $"the slab's top reads in the frame {floor.Frame} as in the reference {floor.Reference}");
         UnloadModel(slab);
     }

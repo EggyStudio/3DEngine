@@ -57,8 +57,8 @@ Texture2D<float4> lastGlowState;
 // rgb: the light of the other glow lights, irradiance, which changes less from texel to texel and
 // the model pass takes as it is. This frame's and the frame before's, as the share's. With every
 // glow light's rough light summed at each pixel, the model pass cost 1.1 ms more in a room of 64
-// lamps at 1280 by 720 on an RTX 4070, and with that of the lights near each pixel 0.55 ms more,
-// its loop over the lights alone.
+// lamps at 1280 by 720 on the development machine's GPU, and with that of the lights near each
+// pixel 0.55 ms more, its loop over the lights alone.
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture2D<float4> glowFar;
 

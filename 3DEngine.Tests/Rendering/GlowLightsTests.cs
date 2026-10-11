@@ -133,8 +133,9 @@ public sealed class GlowLightsTests : IDisposable
         // blocks and 0.35 at two and a half, where the rays met the block at some angles and not
         // others. Carried as a light whose penumbra counted the floor and the block's own faces as
         // what hid it, the floor's light ran in dark rings, the falloff 0.83 to 1.02 of the
-        // reference's, dipping by a tenth every block or so, as this test measured on an RTX 4070.
-        // Each ring reads within 2% of the reference and the eighth harmonic 0.005.
+        // reference's, dipping by a tenth every block or so, as this test measured on the
+        // development machine's GPU. Each ring reads within 2% of the reference and the eighth
+        // harmonic 0.005.
         var light = Rings(quality, 9);
         var shares = Traced.Select(t => light[t.Radius].Mean / t.Light).ToArray();
         for (int i = 0; i < Traced.Length; i++)
@@ -166,10 +167,11 @@ public sealed class GlowLightsTests : IDisposable
     public void A_Glowing_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
     {
         // The voxel game's case: a glowstone set in a closed room of white blocks, eleven by six by
-        // eleven inside, the eye twenty blocks off outside, lost the RTX 4070's device within a few
-        // frames in three runs of five, an MMU fault through the constant cache (Xid 31), while the
-        // world probes' rays met the walls and marched through them to the lamp with a loop nested
-        // in the march's own; read once after the march, the device holds.
+        // eleven inside, the eye twenty blocks off outside, lost the device on the development
+        // machine's GPU within a few frames in three runs of five, an MMU fault through the
+        // constant cache (Xid 31), while the world probes' rays met the walls and marched through
+        // them to the lamp with a loop nested in the march's own; read once after the march, the
+        // device holds.
         var config = Config.Default.WithWindow("glow room", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 4);

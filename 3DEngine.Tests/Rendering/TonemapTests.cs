@@ -17,7 +17,7 @@ namespace Engine.Tests.Rendering;
 /// grading or dither in the way, and the window's eight bits hold it in sRGB. BevyCSharp's pictures
 /// under <c>References/tonemapping</c> are copied as they are from its
 /// <c>BevyCSharp.Tests/references/tonemapping</c> at its commit 64ec311, drawn there by Bevy 0.19.1
-/// with its tables on an RTX 4070, each named as Bevy names its tonemapper.
+/// with its tables on the development machine's GPU, each named as Bevy names its tonemapper.
 /// </remarks>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]

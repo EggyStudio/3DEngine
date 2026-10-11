@@ -275,18 +275,18 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // byte says how much of it the surface sees. A fainter one is marched to at its middle alone,
     // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
     // so the model pass reads the light of at most eight at a probe. Every light marched to by its
-    // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the
-    // bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and 0.3. Past a
-    // sixteenth the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms, where past an
-    // eighth 0.68. A light falls to the probes' sum at one probe and not the next where it is far
-    // from being the brightest, where its light changes little from probe to probe; split by the
-    // light's distance from the probe instead, two of a block's half diagonals, the floor beside a
-    // lamp read 0.80 of the path-traced reference where the split fell, a probe's own light
-    // standing in for the pixel's on the far side alone. The glow lights take the surface's normal
-    // from its way along each axis of the depth, which holds at a wall's foot where the nearer
-    // texel's does not. Tilted up the wall, a probe's normal on the floor beside it saw a lamp past
-    // the wall that the floor does not. The light that bounces keeps the nearer texel's, which put
-    // the thin room 0.3 to 0.9% nearer its path-traced reference.
+    // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on the development machine's
+    // GPU cost the bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and
+    // 0.3. Past a sixteenth the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms,
+    // where past an eighth 0.68. A light falls to the probes' sum at one probe and not the next
+    // where it is far from being the brightest, where its light changes little from probe to probe;
+    // split by the light's distance from the probe instead, two of a block's half diagonals, the
+    // floor beside a lamp read 0.80 of the path-traced reference where the split fell, a probe's
+    // own light standing in for the pixel's on the far side alone. The glow lights take the
+    // surface's normal from its way along each axis of the depth, which holds at a wall's foot
+    // where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor beside
+    // it saw a lamp past the wall that the floor does not. The light that bounces keeps the nearer
+    // texel's, which put the thin room 0.3 to 0.9% nearer its path-traced reference.
     float3 gn = normalize(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))));
     if (dot(gn, view.eye.xyz - p) < 0.0)
         gn = -gn;
