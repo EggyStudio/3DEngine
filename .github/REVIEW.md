@@ -10,67 +10,106 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ffa3ec48`. Items 13 and 16, unpushed: `games/Pusher` is gone with its capture and
-its cell, and Slide takes its three roles in the test workflow, the game built and played from the
-package, published native and drawn, and played once more in a window on the runner's desktop,
-chosen as the lightest of the 3D games by the play script's steps after the pack, measured once on
-lavapipe under the validation layer with Mesa's cache off, Slide at 11.1 s against Jelly's 20.2,
-Tempo's 23.2, Summit's 30.0, Tactics' 30.5, Wick's 37.0, Rally's 47.1, Sumo's 49.6 and Manor's 55.0,
-its native publish 38 s for an executable of 14 MB and its drive 55 s; the games' loops, the soak
-and drive scripts, the soak check's test, BUILDING.md's paragraphs, the shipping guide's example,
-TODO.md's lines, the raylib comparison's size line and Hopper's README follow, and RENDERING.md's
-row and the materials guide's clause are removed rather than replaced, being before and after
-readings no game can take again; nothing outside SHARED.md and this file names the game, and
-SHARED.md's two rows name Slide since this pass, in both copies. Item 16: the cheat sheet's row
-heads the guide table and the old row at its foot is gone. The suite passes, 1,684, with the
-README's walk and the table's check. Right, the replacement chosen by a measure across every game
-rather than by habit, and the readings that named the gone game dropped rather than faked. An open
-problem, Verdict 50: two of four full suite runs on the development machine since `ea9a23cd` failed
-one test each, the subsurface tests at High and then a particle test of the field, on an unknown
-error from the creation of a model-pass pipeline in an app's first frame, the same pipeline made
-without error the next frame, no Xid and no memory pressure, unreproduced in two hundred scratch
-apps with the driver's cache off and the shader compiler running beside; the suite runs at
-`e28064f7` to tell whether it predates the lampless build. First the page, read at 19:30: the owner
-pushed everything through `ffa3ec48`, and the Windows jobs of `aa9fe773` and `e28064f7` are red
-again by the time limit, the Rendering group and the suite ended at 40 minutes with 377 tests
-without a result and the leak test's frame at 4.3 s where `b1e86aef`'s read 3.8 and ran whole, so
-Verdict 48 is red where it was open on time, and on `e28064f7` the leak test's resident memory grew
-92 MB past its 50 MB bound over fifty apps with no Vulkan object left alive, which is Verdict 51;
-the Linux jobs are green, the macOS jobs run, and the runs of `ea9a23cd` and `ffa3ec48` with the
-lampless build wait in the queue, which read the first remedy's worth on Windows. The owner asked at
-19:35 for the examples' counts under the Examples heading and a count on each folder's heading,
-which is item 18 (Decision 34), a small batch of its own after the third build. And the macOS job of
-`aa9fe773` is red by its first game's step, where `build/webp.sh` wants ImageMagick for the fit it
-does since `60f2999d` and the macOS runner has none, its tests green, 1,618, which is Verdict 52 and
-comes first; `e28064f7`'s macOS job is green, which the verdict reads. The owner chose at 19:50 that
-a push plays one game and the pack run the rest, which is item 19 (Decision 35), a workflow batch
-after the third build. The owner put `.ref/Voxel-Sandbox-main` in the tree at 20:05, a game on the
-3.1.0 package feeding its shader one packed float a vertex through an input layout of its own and
-unpacking it there, and asked whether a vertex stream of the game's own belongs in a game engine and
-how both engines would do it; the plan was made with the owner and approved at 20:40, and is item 20
-(Decision 36): a stream beside the vertex as `CUSTOM0` in five formats, then a mesh that is the
-stream alone with its bounds given and its shadow by the shader's own stage, the voxel game its
-first user after, from 44 bytes a vertex to 8. The page read at 20:45: `ffa3ec48`'s Windows job is
-green, its tests 22 m 5 s and the job 43 minutes, within a quarter of the time the run before
-`98a1edca` took, which Verdict 48 asked, while the Windows jobs of `ea9a23cd` and `76f7ca49`, with
-the same lampless build, passed 1,636 tests with none without a result and then lost the suite's
-group to the 40-minute limit, 82 and 84 minutes of tests, so the build's worth is shown once and
-what varies between runners or in Mesa's cache is the open thing; `ea9a23cd`'s macOS job is red by
-the Slide step, a swipe that did not slide the tiles, its tests green, which is Verdict 53; the
-macOS jobs of `76f7ca49` and `ffa3ec48` run. At 21:14 the macOS jobs of `76f7ca49` and `ffa3ec48`
-are green, the Slide step and the first game's step played on each, so Verdict 53 stands at two of
-its three and the first game's failure at `aa9fe773` was once; `ffa3ec48`'s macOS examples job runs,
-and with every test job green its examples job follows, the first since the lamps' growth and since
-the fit, which reads Verdict 49's measure and the fit on the Linux runner.At 21:46 that examples job
-has run and is red by its captures: 0 of 255 drew on Linux, every one failing on the picture
-script's line that ImageMagick is not installed, 1,208 seconds spent failing, so the line the owner
-quoted came from the Linux examples job after all, whose runner has no ImageMagick and whose apt
-line installs webp alone, which Verdict 52 says, and Verdict 49's measure waits on the captures
-again.Next Verdict 52, then Verdict 48's third build with Verdict 51's read, written and measured in
-the working tree and touching the files item 20's first stage touches, so it goes in before them,
-then item 19 and item 18, then item 20's first stage and its second, then item 14, item 15 as a
-batch of its own, item 17, the bounce around the pillar as a read of its own, h's blotches and teeth
-by the owner's eye, f's filter offset, item 10, item 9 and item 8.
+Reviewed up to `fdf27346`. Two commits. `ae277b79`, Verdict 52's mend: the picture script fits a
+capture with the WebP encoder itself where it is installed, the box of the size's shape cut from the
+source's own pixels, read from the PNG header, and placed by the gravity, then scaled, so a runner
+needs the encoder alone, with ImageMagick the way where the encoder is absent and its temporary
+folder made portably; the capture loop stops at the first capture that fails on the script's own
+line, with an error line saying how many were left, since every one after would fail the same way
+and the examples job spent twenty minutes proving it; and the first game's script writes an error
+line naming the step and the system for a step that does not build, does not reach its thirtieth
+frame or logs an error, with the compiler's lines or the log's tail, so the page says why where the
+job's log is closed to its reader. The script's test fits pictures of three shapes to 800 by 450 and
+reads their size, passing through ImageMagick here and through the encoder alone in a container;
+BUILDING.md's paragraph says the encoder suffices. `fdf27346`, Verdict 48's third remedy: a frame
+where no light bounces draws with a build of the model pass that leaves out the bounce, the traced
+reflection and the glow lights, `NO_BOUNCE`, read in `lights.slang` as a constant that also turns
+the glow off, the fragment stage 55,228 bytes of SPIR-V against 124,660 without the glow lights and
+253,212 whole; `ModelRenderer` picks the build once a frame from what the frame holds, unbounced
+where no cascades are in, which every view's lighting then says, lampless where light bounces with
+no glow light, and the whole otherwise, the pipelines keyed by the build and a build not made
+falling back to the whole; `e3d shaders` builds the unbounced variant alone, five builds of each
+shader that imports the model pass, which the loader's test and the package's count, the pack 92
+seconds where 81. Four apps in one process on lavapipe with Mesa's cache off take 1.30 to 1.42 s
+each after the first against 2.11 to 2.51 lampless and 3.90 to 4.08 whole, the device's last wait
+0.79 to 0.89; the suite passes, 1,686; on lavapipe under the validation layer 397 pass with no VUID
+and the Rendering group in 10.2 minutes where 10.7; the glowstone room faulted in none of eight
+runs; RENDERING.md's rows say the three builds. Right, the fit cut from the source's pixels rather
+than a tool installed on every runner, the failure made to stop at its first instance and say so,
+and the build chosen by what the frame holds rather than by a flag a game sets. Verdict 50, read by
+the working session on the third build's tree: fourteen suite runs with no unknown error, three with
+the driver's cache off at some 310 fresh compiles each in 26 minutes and eleven with a cache of the
+suite's own of 2 GiB in 6.6 to 7.3 minutes, ten of them green and the other two red only by N 1.4 on
+a test file misplaced since, so the cause is named, the driver's cache at its 128 MiB cap since
+16:35 caching no new pipeline, and the remedy follows as a commit of its own, the suite's own cache
+set in `build/test.py` with `.gitignore` and BUILDING.md's lines; the verdict settles with it.
+Verdicts 48, 51 and 52 read their next pages after the push. The Replies paragraph on the third
+build is read and removed, its numbers here. Next Verdict 50's remedy, then item 19 and item 18,
+then item 20's first stage and its second, then item 14, item 15 as a batch of its own, item 17, the
+bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
+offset, item 10, item 9 and item 8.
+
+Before it, `ffa3ec48` came, items 13 and 16: `games/Pusher` is gone with its capture and its cell,
+and Slide takes its three roles in the test workflow, the game built and played from the package,
+published native and drawn, and played once more in a window on the runner's desktop, chosen as the
+lightest of the 3D games by the play script's steps after the pack, measured once on lavapipe under
+the validation layer with Mesa's cache off, Slide at 11.1 s against Jelly's 20.2, Tempo's 23.2,
+Summit's 30.0, Tactics' 30.5, Wick's 37.0, Rally's 47.1, Sumo's 49.6 and Manor's 55.0, its native
+publish 38 s for an executable of 14 MB and its drive 55 s; the games' loops, the soak and drive
+scripts, the soak check's test, BUILDING.md's paragraphs, the shipping guide's example, TODO.md's
+lines, the raylib comparison's size line and Hopper's README follow, and RENDERING.md's row and the
+materials guide's clause are removed rather than replaced, being before and after readings no game
+can take again; nothing outside SHARED.md and this file names the game, and SHARED.md's two rows
+name Slide since this pass, in both copies. Item 16: the cheat sheet's row heads the guide table and
+the old row at its foot is gone. The suite passes, 1,684, with the README's walk and the table's
+check. Right, the replacement chosen by a measure across every game rather than by habit, and the
+readings that named the gone game dropped rather than faked. An open problem, Verdict 50: two of
+four full suite runs on the development machine since `ea9a23cd` failed one test each, the
+subsurface tests at High and then a particle test of the field, on an unknown error from the
+creation of a model-pass pipeline in an app's first frame, the same pipeline made without error the
+next frame, no Xid and no memory pressure, unreproduced in two hundred scratch apps with the
+driver's cache off and the shader compiler running beside; the suite runs at `e28064f7` to tell
+whether it predates the lampless build. First the page, read at 19:30: the owner pushed everything
+through `ffa3ec48`, and the Windows jobs of `aa9fe773` and `e28064f7` are red again by the time
+limit, the Rendering group and the suite ended at 40 minutes with 377 tests without a result and the
+leak test's frame at 4.3 s where `b1e86aef`'s read 3.8 and ran whole, so Verdict 48 is red where it
+was open on time, and on `e28064f7` the leak test's resident memory grew 92 MB past its 50 MB bound
+over fifty apps with no Vulkan object left alive, which is Verdict 51; the Linux jobs are green, the
+macOS jobs run, and the runs of `ea9a23cd` and `ffa3ec48` with the lampless build wait in the queue,
+which read the first remedy's worth on Windows. The owner asked at 19:35 for the examples' counts
+under the Examples heading and a count on each folder's heading, which is item 18 (Decision 34), a
+small batch of its own after the third build. And the macOS job of `aa9fe773` is red by its first
+game's step, where `build/webp.sh` wants ImageMagick for the fit it does since `60f2999d` and the
+macOS runner has none, its tests green, 1,618, which is Verdict 52 and comes first; `e28064f7`'s
+macOS job is green, which the verdict reads. The owner chose at 19:50 that a push plays one game and
+the pack run the rest, which is item 19 (Decision 35), a workflow batch after the third build. The
+owner put `.ref/Voxel-Sandbox-main` in the tree at 20:05, a game on the 3.1.0 package feeding its
+shader one packed float a vertex through an input layout of its own and unpacking it there, and
+asked whether a vertex stream of the game's own belongs in a game engine and how both engines would
+do it; the plan was made with the owner and approved at 20:40, and is item 20 (Decision 36): a
+stream beside the vertex as `CUSTOM0` in five formats, then a mesh that is the stream alone with its
+bounds given and its shadow by the shader's own stage, the voxel game its first user after, from 44
+bytes a vertex to 8. The page read at 20:45: `ffa3ec48`'s Windows job is green, its tests 22 m 5 s
+and the job 43 minutes, within a quarter of the time the run before `98a1edca` took, which Verdict
+48 asked, while the Windows jobs of `ea9a23cd` and `76f7ca49`, with the same lampless build, passed
+1,636 tests with none without a result and then lost the suite's group to the 40-minute limit, 82
+and 84 minutes of tests, so the build's worth is shown once and what varies between runners or in
+Mesa's cache is the open thing; `ea9a23cd`'s macOS job is red by the Slide step, a swipe that did
+not slide the tiles, its tests green, which is Verdict 53; the macOS jobs of `76f7ca49` and
+`ffa3ec48` run. At 21:14 the macOS jobs of `76f7ca49` and `ffa3ec48` are green, the Slide step and
+the first game's step played on each, so Verdict 53 stands at two of its three and the first game's
+failure at `aa9fe773` was once; `ffa3ec48`'s macOS examples job runs, and with every test job green
+its examples job follows, the first since the lamps' growth and since the fit, which reads Verdict
+49's measure and the fit on the Linux runner.At 21:46 that examples job has run and is red by its
+captures: 0 of 255 drew on Linux, every one failing on the picture script's line that ImageMagick is
+not installed, 1,208 seconds spent failing, so the line the owner quoted came from the Linux
+examples job after all, whose runner has no ImageMagick and whose apt line installs webp alone,
+which Verdict 52 says, and Verdict 49's measure waits on the captures again.Next Verdict 52, then
+Verdict 48's third build with Verdict 51's read, written and measured in the working tree and
+touching the files item 20's first stage touches, so it goes in before them, then item 19 and item
+18, then item 20's first stage and its second, then item 14, item 15 as a batch of its own, item 17,
+the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's
+filter offset, item 10, item 9 and item 8.
 
 Before it, `76f7ca49` came, the version set by the owner, pushed with everything before it at 17:28,
 and `ea9a23cd`: `ea9a23cd`, Verdict 48's second remedy: a frame with no glow lights draws with a
@@ -101,16 +140,6 @@ build, then item 14, then item 15 as a batch of its own when the tree is quiet, 
 owner's ask of 17:40 for the radiance cascades said in the README and in a guide page of their own
 (Decision 33), then the bounce around the pillar as a read of its own, h's blotches and teeth by the
 owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `e28064f7` came, item 11's games' captions: each of the thirteen is the game's name
-alone, padded to 32 with the non-breaking space, its picture's link unchanged, so no caption holds a
-slash a browser may break after; all 268 captions read here at 32 with none holding a slash, and the
-norm and document-link tests pass, 20. Item 11 is done, the owner's eye on the push. The owner asked
-at 17:18 that `games/Pusher` go, which is item 13 (Decision 31), a batch of its own after the
-lampless variant, since the game holds three of the test workflow's roles. Next the lampless variant
-of the model pass, Verdict 48's second remedy, its checks done but for the lavapipe run; then item
-13; then the bounce around the pillar as a read of its own, h's blotches and teeth by the owner's
-eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -926,10 +955,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     a result and then lost the suite's group to the limit, 82 and 84 minutes of tests, in the leak
     test at app 39 of 3.2 s each on one and in the ambient occlusion tests on the other, so the
     Rendering group no longer goes over, and what varies between the runs is the runner or Mesa's
-    cache hit, which the pages' cache steps say and are read next with the third build. Settled when
-    two Windows jobs in a row run their tests whole in the time the run before `98a1edca` took,
-    within a quarter, which `ffa3ec48` did once; 5.2 is due by Decision 19 when every job is green,
-    which this verdict's time does not hold back, the owner told so.
+    cache hit, which the pages' cache steps say and are read next with the third build. The third
+    build is in at `fdf27346`, a frame where no light bounces drawn with the fragment stage at 55
+    KB, a lavapipe app at 1.3 to 1.4 s where 2.1 to 2.5 lampless, its worth on Windows read on the
+    next page.Settled when two Windows jobs in a row run their tests whole in the time the run
+    before `98a1edca` took, within a quarter, which `ffa3ec48` did once; 5.2 is due by Decision 19
+    when every job is green, which this verdict's time does not hold back, the owner told so.
 
 49. **The examples job of `b1e86aef`, the first to reach the measure since the lamps, is red by the
     measure alone: four pairs stand more than a point above the share recorded for them at
@@ -972,7 +1003,14 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     cache's write beside a read, the pipeline's variant picked for a frame with no lamp, or the
     device's own cache, with the driver's log; a creation that fails with an unknown error is
     retried once in the frame after, said in the log, only where the cause is the driver's and not
-    the engine's. Settled when the cause is named and the suite passes ten runs.
+    the engine's. Read on the third build's tree at 22:00: fourteen runs with no unknown error,
+    three with the driver's cache off and eleven with a cache of the suite's own, ten green and two
+    red only by a misplaced test file, where the two failures fell while the driver's cache sat at
+    its 128 MiB cap, full since 16:35 and caching no new pipeline, and the runs before the lampless
+    build drew only pipelines cached before that; so the cause is the driver's cache at its cap, the
+    engine's retry stays out, and the remedy is the suite's own cache above the cap through the
+    driver's two variables, set in `build/test.py` and said in BUILDING.md with the three timings,
+    7, 13 and 26 minutes.Settled with the remedy's commit, the cause named and ten runs green.
 
 51. **The leak test's resident memory on Windows grew 92 MB past its 50 MB bound over fifty apps at
     `e28064f7`, with no Vulkan object left alive.** Read from the page: fifty apps in 255 seconds,
@@ -1010,9 +1048,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
     encoder is absent; a test of the script fits a picture of another shape to 800 by 450 and reads
     its size. The macOS jobs of `76f7ca49` and `ffa3ec48` ran the first game's step green, read at
     21:14, so `aa9fe773`'s failure was once and stays unread, the error line owed all the same; and
-    `ffa3ec48`'s Linux examples job follows its macOS one, the first to run the fit there. First in
-    the order. Settled when the Linux examples job's captures draw with the mend in and a macOS job
-    runs the first game's step green beside it.
+    `ffa3ec48`'s Linux examples job follows its macOS one, the first to run the fit there. The mend
+    is in at `ae277b79`: the fit by the encoder with the box cut from the source's pixels,
+    ImageMagick kept only where the encoder is absent, the capture loop stopping at the first such
+    failure with a line saying so, the first game's script writing its error lines, and the script's
+    test passing through the encoder alone.Settled when the Linux examples job's captures draw with
+    the mend in and a macOS job runs the first game's step green beside it.
 
 53. **The macOS job of `ea9a23cd` is red by the step that plays Slide: a swipe up or down did not
     slide the tiles, the board as it began, the tests green.** Read from the page: 1,619 passed and
@@ -1260,19 +1301,12 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 48, its third remedy. A frame where no light bounces draws with a build of the model pass
-that leaves out the bounce, the traced reflection and the glow lights, `NO_BOUNCE`, which
-`lights.slang` reads as `Bouncing` and which makes `Glowing` false with it. `ModelRenderer` takes
-the build each frame (`ModelBuild`): unbounced where `GlobalIlluminationRenderer.CascadesIn` is
-none, which every view's lighting then says, the build without the glow lights where light bounces
-with none of them, and the whole otherwise. The fragment stage is 55,228 bytes of SPIR-V, the same
-with `RAY_QUERY`, against 124,660 without the glow lights and 253,212 whole, so `e3d shaders`
-builds `NO_BOUNCE` alone (`SlangLoader.Alone`), five builds of each shader that imports
-`modelpass`, which a test of the loader and the package's test count, the pack 92 seconds where 81.
-Four apps in one process on this host's lavapipe with Mesa's cache off, each drawing a lit cube,
-took 1.30 to 1.42 seconds after the first, against 2.11 to 2.51 with the build without the glow
-lights and 3.90 to 4.08 whole, the device's last wait 0.79 to 0.89. The test of the pick reads the
-three builds as the lamp comes and goes and the bounce is turned off. The suite passes, 1,686; on
-lavapipe under the validation layer 397 pass with 8 skipped for rays and no VUID, the Rendering
-group in 10.2 minutes where 10.7; the glowstone room faulted in none of 8 runs. Verdict 51 is read
-on the next Windows page.
+Verdict 50, the remedy. `build/test.py` gives the suite a cache of the driver's compiled pipelines
+of its own, `build/nvidia-cache` at 2 GiB through `__GL_SHADER_DISK_CACHE_PATH` and
+`__GL_SHADER_DISK_CACHE_SIZE` where neither is set, and makes the folder, since the driver makes
+none: a first run through the script with the path named and the folder missing ran as with no
+cache, 26 minutes, and failed a test with `VK_ERROR_UNKNOWN` from the bloom pass's exposure
+pipeline, so a folder the driver cannot write in fails a compile as a full cache does, and the
+error is the driver's whatever pipeline it compiles. With the folder made, two runs through the
+script pass, 1,686 each, in 7 m 31 s with the cache new and 6 m 39 s after. `.gitignore` leaves the
+folder out and BUILDING.md says why, with the three timings.

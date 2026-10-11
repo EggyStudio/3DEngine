@@ -28,6 +28,16 @@ it was in and its last lines, and the suite runs again in parts, a process for e
 tests or more and one for the rest, so a part that is lost costs only its own tests.
 `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
+On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in
+`build/nvidia-cache`, of 2 GiB, through `__GL_SHADER_DISK_CACHE_PATH` and
+`__GL_SHADER_DISK_CACHE_SIZE`, where either is not already set, and makes the folder, since the
+driver makes none. The driver keeps its cache in the user's folder at 128 MiB, and a cache at that
+size keeps no pipeline new to it, so each app the suite makes compiled each of its pipelines again:
+on the development machine the suite took 12.6 to 13 minutes so, 7.2 with a cache of its own, and
+26 with none. Two runs of four with the cache at its size, and one with a folder the driver could
+not write in, failed a test each with `VK_ERROR_UNKNOWN` from a pipeline's creation, which fourteen
+runs with a cache of its own or none did not. `dotnet test` run directly takes the user's.
+
 ```
 build/               fetch-slang.sh, and the compiler it downloads under tools/
 3DEngine/            the engine library, one folder per area

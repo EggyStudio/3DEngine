@@ -30,6 +30,8 @@ msbuild.log
 /build/shader-cache/
 # Mesa's cache of the shaders lavapipe compiles, which CI names here and keeps from run to run.
 /build/mesa-cache/
+# An NVIDIA driver's cache of the pipelines the suite compiles, which build/test.py names here.
+/build/nvidia-cache/
 # What an app launched by `e3d open` writes, so its output can be read after it is gone.
 /build/sessions/
 # Claude Code's own folder, its lock file and state the tool's, kept out of the tree.

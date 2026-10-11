@@ -110,6 +110,15 @@ def run(dotnet, process, args, results):
         before = set(os.listdir(dumps))
         environment = dict(os.environ, DOTNET_DbgEnableMiniDump="1", DOTNET_DbgMiniDumpType="1",
                            DOTNET_DbgMiniDumpName=os.path.join(dumps, "%e-%p.dmp"))
+        # An NVIDIA driver's cache of the pipelines it compiled, a folder of the suite's own and
+        # larger than the driver's 128 MiB, where a desktop's cache at that size keeps no pipeline
+        # new to it and every app compiles each again, the suite taking 12.6 to 13 minutes where
+        # 7.2, and once in two runs a compile failing with VK_ERROR_UNKNOWN (BUILDING.md). The
+        # folder is made here, since the driver makes none and with one it cannot write in failed
+        # a compile so too. Other drivers read neither name.
+        cache = environment.setdefault("__GL_SHADER_DISK_CACHE_PATH", os.path.join(ROOT, "build", "nvidia-cache"))
+        os.makedirs(cache, exist_ok=True)
+        environment.setdefault("__GL_SHADER_DISK_CACHE_SIZE", str(2 << 30))
         child = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT, cwd=ROOT, env=environment, **options)
         limit_seconds = args.timeout_minutes * 60
         while child.poll() is None:
