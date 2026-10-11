@@ -11,9 +11,10 @@ internal sealed class GpuScreenProbes : IDisposable
 
     internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
         ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
-        IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen)
+        IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen, ScreenGlow glow)
     {
         GlowSeen = glowSeen;
+        Glow = glow;
         History = history;
         HistoryView = historyView;
         LastGeometry = lastGeometry;
@@ -67,12 +68,15 @@ internal sealed class GpuScreenProbes : IDisposable
     public IImageView LastGeometryView { get; }
 
     /// <summary>
-    /// How much of each glow light each probe's surface sees past what the field holds between,
-    /// four bits a light in the order of the bounce's lights, eight words of them, and three of the
-    /// light of those too faint to be marched to by their faces, which the model pass takes each
-    /// pixel's from the probes around it rather than marching from every pixel to every light.
+    /// How much of each glow light each probe's surface sees past what the field holds between, a
+    /// byte a light in the places the bounce's lights are written in, sixteen words of them, and
+    /// three of the light of those too faint to be marched to by their faces, which
+    /// <c>gi_screen_glow.slang</c> takes each point's from the probes around it.
     /// </summary>
     public IBuffer GlowSeen { get; }
+
+    /// <summary>The glow lights' light on the view's surfaces, a texel of the view's depth each, and what it is blended from.</summary>
+    public ScreenGlow Glow { get; }
 
     /// <summary>A sampler that reads a texel as it is.</summary>
     public ISampler Sampler { get; }
@@ -80,12 +84,34 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>The view the probes were placed through, as <c>gi_screen.slang</c>'s <c>ScreenView</c>.</summary>
     public IBuffer View { get; }
 
-    /// <summary>The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes' layout, and the frame before's camera and eye.</summary>
-    public const int ViewBytes = 3 * 64 + 5 * 16;
+    /// <summary>
+    /// The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes'
+    /// layout, the frame before's camera and eye, how far from their tiles' middles the probes march
+    /// to the glow lights from, and the glow lights' count and the places kept.
+    /// </summary>
+    public const int ViewBytes = 3 * 64 + 7 * 16;
 
-    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twelve words (GlowSeenWords in glow.slang).</summary>
-    public const int GlowSeenBytes = 12 * 4;
+    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty words (GlowSeenWords in glow.slang).</summary>
+    public const int GlowSeenBytes = 20 * 4;
 
     /// <inheritdoc />
     public void Dispose() => _dispose();
+}
+
+/// <summary>
+/// The glow lights' light on a view's surfaces as <c>gi_screen_glow.slang</c> leaves it, a texel of
+/// the view's depth each, half the view's size: the share each point takes of the near lights'
+/// rough light, the far lights' light, how far the frames' light has strayed from the blend and how
+/// many frames it holds, this frame's, which the model pass reads with each texel's normal, and the
+/// frame before's, copied after each frame.
+/// </summary>
+internal sealed record ScreenGlow(IImage Light, IImageView LightView, IImage LastLight, IImageView LastLightView,
+    IImage State, IImageView StateView, IImage LastState, IImageView LastStateView, IImage Normal, IImageView NormalView,
+    IImage Far, IImageView FarView, IImage LastFar, IImageView LastFarView)
+{
+    /// <summary>The images, in the order the views are made of them.</summary>
+    public IImage[] Images => [Light, LastLight, State, LastState, Normal, Far, LastFar];
+
+    /// <summary>The views, in the order of <see cref="Images"/>.</summary>
+    public IImageView[] Views => [LightView, LastLightView, StateView, LastStateView, NormalView, FarView, LastFarView];
 }

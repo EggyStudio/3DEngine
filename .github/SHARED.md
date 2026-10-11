@@ -62,7 +62,7 @@ table also answers whether the two agree.
 | An observer told when a component is added or removed or an event of a game's own is sent to an entity | taken at `26c0a16` | to consider |
 | `Changed` and `Added` filters that a system not run every frame can trust | has, from Bevy | has (`e612ac63`, `58924752`) |
 | The entities that lost a component since a system last ran | to take | has (`Removed`, `ab052859`) |
-| A read that does not mark its component changed, beside one that does | has, from Bevy | has (`GetReadOnly`, `QueryReadOnly`) |
+| A read that does not mark its component changed, beside one that does | has since `88a42cd9`, `TryGet` reading through a pointer that marks nothing, where it read through the mutable one and marked every read changed, which would have defeated every `[Changed]` filter whose system read the component | has (`GetReadOnly`, `QueryReadOnly`) |
 
 ### Animation
 

@@ -49,10 +49,15 @@ internal static class SceneFieldCommands
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
         // A screen probe's five texels of eight bytes, its light, surface, blend and the frame
-        // before's two, and its words of the glow lights.
+        // before's two, and its words of the glow lights; and for each texel of the depth the glow
+        // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
+        // its normal in four.
         if (gi.Screen is { } screen)
+        {
+            var glow = screen.Glow.Light.Description.Extent;
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
-                      + $"{(5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down / 1024 / 1024:0.00} MB");
+                      + $"{((5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down + (6.0 * 8 + 4) * glow.Width * glow.Height) / 1024 / 1024:0.00} MB");
+        }
         var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
         // The frame before at half the window's size in half floats, its mips a third more, and its
         // depth beside it in floats.

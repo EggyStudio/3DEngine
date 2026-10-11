@@ -331,11 +331,12 @@ public float3 bounced(float3 p, float3 n)
 }
 
 // The light the glow lights send a surface at p facing n straight, irradiance over pi, which no
-// probe above a floor holds of a lamp lying on it, the four brightest at p marched to (glowLightsAt
-// in gi.slang).
-public float3 glowLights(float3 p, float3 n)
+// probe above a floor holds of a lamp lying on it, the four brightest at p marched to, with halves
+// by their faces' halves as the screen's probes march, or else to their middles (glowLightsAt in
+// gi.slang).
+public float3 glowLights(float3 p, float3 n, bool halves)
 {
-    return glowLightsAt(SplitVolume(reflectField, lightLinear), bouncedField, reflectLights, p, n, 4) / 3.14159265;
+    return glowLightsAt(SplitVolume(reflectField, lightLinear), bouncedField, reflectLights, p, n, 4, halves) / 3.14159265;
 }
 
 // The share of the sky a surface at p facing n sees along r, as the probes around it saw it, or the

@@ -131,6 +131,13 @@ public struct ScreenView
     // xyz: the frame before's eye. w: 1 where the probes of the frame before may be read, as they
     // may not be on the first frame or the first after the probes were laid out again.
     public float4 last;
+    // xy: how far from its tile's middle each probe marches to the glow lights from this frame, in
+    // pixels, the same for every probe and moved from frame to frame so a probe's points cover its
+    // tile. zw: none.
+    public float4 jitter;
+    // x: how many places of glow lights there are. y, z: the places whose light is the one the
+    // frame before had there, a bit a place, the first 32 in y, as uint bits.
+    public float4 glows;
 };
 
 // A camera's matrices and eye, which a ray is traced through its depth with.
@@ -609,16 +616,18 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 }
 
 // The light the glow lights send a surface at p facing n, irradiance, each that reaches p by as
-// much of it as p sees by glowLightSeen's one march to its middle, as a probe's ray's hit and a
-// pixel no screen probe holds read them. The marches are the cost, so the brightest at p, as many as
-// `marches`, four at most, are kept with their light as the lights are read and only they are
-// marched, a fainter light giving nothing. One way through for every count, the lights read and the
-// kept ones marched in loops kept from unrolling, so a shader holds one march and one closed form of
-// it: a second way for few lights, and both in each of the model pass's two shadings of a
-// reflection's hit, made its compile on lavapipe 0.68 s longer for each app. A light gives nothing
-// to its own surface, which a hit finds within half a cell of its box (glowLightOn). Where the field
-// does not hold p, every light unhidden.
-public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches)
+// much of it as p sees: by glowLightSeen's one march to its middle, as a probe's ray's hit reads
+// them, or with halves by glowLightShown's marches to its faces' halves, as the screen's probes and
+// a pixel no screen probe holds read them, since the one march, from a cell and a half off the
+// surface, sees over a wall half as high as a lamp and lit the floor behind it whole. The marches
+// are the cost, so the brightest at p, as many as `marches`, four at most, are kept with their
+// light as the lights are read and only they are marched, a fainter light giving nothing. One way
+// through for every count, the lights read and the kept ones marched in loops kept from unrolling,
+// so a shader holds one march and one closed form of it: a second way for few lights, and both in
+// each of the model pass's two shadings of a reflection's hit, made its compile on lavapipe 0.68 s
+// longer for each app. A light gives nothing to its own surface, which a hit finds within half a
+// cell of its box (glowLightOn). Where the field does not hold p, every light unhidden.
+public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves)
 {
     int count = min(int(lights.glowCounts.x), MostGlowLights);
     float cell = fieldCell(info, p);
@@ -660,7 +669,10 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
     [loop]
     for (int k = 0; k < most; k++)
         if (which[k] >= 0)
-            sum += kept[k] * glowLightSeen(field, info, lights.glows[clamp(which[k], 0, MostGlowLights - 1)], p, n, cell);
+        {
+            GlowLight light = lights.glows[clamp(which[k], 0, MostGlowLights - 1)];
+            sum += kept[k] * (halves ? glowLightShown(field, info, light, p, n, cell) : glowLightSeen(field, info, light, p, n, cell));
+        }
     return sum;
 }
 
@@ -686,7 +698,7 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
-    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2) / Pi)
+    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }
@@ -707,7 +719,7 @@ public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V gl
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
-        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z + glowLightsAt(field, info, lights, p, n, 2);
+        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z + glowLightsAt(field, info, lights, p, n, 2, false);
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
 

@@ -53,10 +53,10 @@ RWTexture2D<float4> geometry;
 [[vk::binding(10, 0)]]
 ConstantBuffer<ScreenView> view;
 
-// How much of each glow light each probe's surface sees, four bits a light from none to all of it,
-// eight lights a word, and the light of those too faint to be marched to by their faces, in the
-// probe's twelve words (GlowSeenWords), which the model pass takes each pixel's from the probes
-// around it, so it marches to no light itself where a probe stands.
+// How much of each glow light each probe's surface sees, a byte a light from none to all of it, four
+// lights a word, and the light of those too faint to be marched to by their faces, in the probe's
+// twenty words (GlowSeenWords), which gi_screen_glow.slang takes the window's light from the probes
+// around each of its points by, so the model pass marches to no light itself where a probe stands.
 [[vk::binding(13, 0)]]
 RWStructuredBuffer<uint> glowSeen;
 
@@ -90,6 +90,22 @@ ScreenCamera camera()
 float3 worldAt(float2 uv, float d)
 {
     return screenWorld(camera(), uv, d);
+}
+
+// The way the surface at p runs along an axis of the depth, `texel` long: toward the side whose
+// next two texels go on in a line from p, so a probe at the foot of a wall takes its floor's way
+// and not the way up the wall, and away from the depth's edge. Toward the nearer texel, a floor
+// seen at a slant took the wall's, and its probe, its normal tilted, saw a lamp past the wall that
+// the floor does not.
+float3 wayAlong(float2 uv, float3 p, float2 texel)
+{
+    float3 ahead = worldAt(uv + texel, depth.SampleLevel(uv + texel, 0).r);
+    float3 further = worldAt(uv + texel * 2.0, depth.SampleLevel(uv + texel * 2.0, 0).r);
+    float3 behind = worldAt(uv - texel, depth.SampleLevel(uv - texel, 0).r);
+    float3 beyond = worldAt(uv - texel * 2.0, depth.SampleLevel(uv - texel * 2.0, 0).r);
+    float3 aheadMiss = 2.0 * ahead - further - p, behindMiss = 2.0 * behind - beyond - p;
+    bool aheadIn = all(uv + texel * 2.0 < float2(1.0)), behindIn = all(uv - texel * 2.0 > float2(0.0));
+    return aheadIn && (!behindIn || dot(aheadMiss, aheadMiss) <= dot(behindMiss, behindMiss)) ? ahead - p : p - behind;
 }
 
 // A direction of the hemisphere around +z for a point of the square, the octahedron's upper half
@@ -252,52 +268,76 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (dot(n, view.eye.xyz - p) < 0.0)
         n = -n;
     geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
-    // How much of each glow light in reach the surface sees, a word of eight lights at a time, each
+    // How much of each glow light in reach the surface sees, a word of four lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashed on the one the words were gathered in. A light that gives the surface an
-    // eighth of the glow lights' light or more is marched to by the halves of its faces, and its
-    // bits say how much of it the surface sees. A fainter one is marched to at its middle alone, as
-    // a ray's hit is, its light added to the fainter ones' at the probe and its bits left none, so
-    // the model pass reads the light of at most eight at a probe. Every light marched to by its
-    // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the bounce
-    // 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and 0.3. Past a sixteenth
-    // the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms, where past an eighth 0.68.
-    // A light falls to the probes' sum at one probe and not the next where it is far from being the
-    // brightest, where its light changes little from probe to probe; split by the light's distance
-    // from the probe instead, two of a block's half diagonals, the floor beside a lamp read 0.80 of
-    // the path-traced reference where the split fell, a probe's own light standing in for the
-    // pixel's on the far side alone.
+    // of its own and crashed on the one the words were gathered in. A light that gives the surface
+    // an eighth of the glow lights' light or more is marched to by the halves of its faces, and its
+    // byte says how much of it the surface sees. A fainter one is marched to at its middle alone,
+    // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
+    // so the model pass reads the light of at most eight at a probe. Every light marched to by its
+    // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on an RTX 4070 cost the
+    // bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and 0.3. Past a
+    // sixteenth the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms, where past an
+    // eighth 0.68. A light falls to the probes' sum at one probe and not the next where it is far
+    // from being the brightest, where its light changes little from probe to probe; split by the
+    // light's distance from the probe instead, two of a block's half diagonals, the floor beside a
+    // lamp read 0.80 of the path-traced reference where the split fell, a probe's own light
+    // standing in for the pixel's on the far side alone. The glow lights take the surface's normal
+    // from its way along each axis of the depth, which holds at a wall's foot where the nearer
+    // texel's does not. Tilted up the wall, a probe's normal on the floor beside it saw a lamp past
+    // the wall that the floor does not. The light that bounces keeps the nearer texel's, which put
+    // the thin room 0.3 to 0.9% nearer its path-traced reference.
+    float3 gn = normalize(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))));
+    if (dot(gn, view.eye.xyz - p) < 0.0)
+        gn = -gn;
     float glowCell = fieldCell(fieldInfo, p);
     float glowMargin = glowCell * 0.5;
     float glowTotal = 0.0;
     for (int i = 0; i < glows; i++)
     {
-        float faded = glowLightFade(lights.glows[i], p, n);
+        float faded = glowLightFade(lights.glows[i], p, gn);
         if (faded > 0.0)
-            glowTotal += luminance(glowLightIrradiance(lights.glows[i], p, n, glowMargin)) * faded;
+            glowTotal += luminance(glowLightIrradiance(lights.glows[i], p, gn, glowMargin)) * faded;
     }
+    // Which share of each light the surface sees is found from a point of it moved about the tile
+    // from frame to frame, the light's tier from the probe's own, so the window's light that
+    // gi_screen_glow.slang takes from the probes around a point, held over the frames, is the same
+    // wherever the window's grid lies over the surface. Marched to from the tile's middle alone, a
+    // turn of a few pixels moved the floor's light across a glow light's penumbra by up to nine
+    // tenths of it, as the grid moved over the floor.
+    float2 moved = clamp(pixel + view.jitter.xy, 0.5, view.sizes.zw - 0.5);
+    float2 movedUv = (floor(moved / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
+    float movedDepth = depth.SampleLevel(movedUv, 0).r;
+    float3 q = movedDepth < 1.0 ? worldAt(movedUv, movedDepth) : p;
+    // The point is kept on the probe's plane with the depth halfway to it, so a point on the floor
+    // past a wall the probe stands before, on the same plane, is not taken.
+    float2 halfway = (floor((pixel + moved) * 0.5 / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
+    float3 middle = worldAt(halfway, depth.SampleLevel(halfway, 0).r);
+    float plane = 0.02 * distance(view.eye.xyz, p) + 0.05;
+    if (abs(dot(q - p, gn)) > plane || abs(dot(middle - p, gn)) > plane)
+        q = p;
     float3 faint = float3(0.0);
     uint first = probe * uint(GlowSeenWords);
-    for (int word = 0; word * 8 < glows; word++)
+    for (int word = 0; word * 4 < glows; word++)
     {
         uint levels = 0u;
-        for (int j = 0; j < 8 && word * 8 + j < glows; j++)
+        for (int j = 0; j < 4 && word * 4 + j < glows; j++)
         {
-            GlowLight light = lights.glows[word * 8 + j];
-            float faded = glowLightFade(light, p, n);
+            GlowLight light = lights.glows[word * 4 + j];
+            float faded = glowLightFade(light, p, gn);
             if (faded <= 0.0)
                 continue;
-            float3 arrived = glowLightIrradiance(light, p, n, glowMargin) * faded;
+            float3 arrived = glowLightIrradiance(light, p, gn, glowMargin) * faded;
             if (luminance(arrived) * 8.0 >= glowTotal)
-                levels |= uint(glowLightShown(sceneField, fieldInfo, light, p, n, glowCell) * 15.0 + 0.5) << uint(j * 4);
+                levels |= uint(glowLightShown(sceneField, fieldInfo, light, q, gn, glowCell) * 255.0 + 0.5) << uint(j * 8);
             else
-                faint += arrived * glowLightSeen(sceneField, fieldInfo, light, p, n, glowCell);
+                faint += arrived * glowLightSeen(sceneField, fieldInfo, light, q, gn, glowCell);
         }
         glowSeen[first + uint(word)] = levels;
     }
-    glowSeen[first + 8u] = asuint(faint.r);
-    glowSeen[first + 9u] = asuint(faint.g);
-    glowSeen[first + 10u] = asuint(faint.b);
+    glowSeen[first + 16u] = asuint(faint.r);
+    glowSeen[first + 17u] = asuint(faint.g);
+    glowSeen[first + 18u] = asuint(faint.b);
     // The world's first cascade's probes give the light from beyond the rays, or past it its second's,
     // so the screen's probes reach as far as the second cascade does. Ending at the first, a surface
     // past it took the world's probes alone, and a step showed along that edge, as a slanted ceiling

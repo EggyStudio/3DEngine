@@ -58,58 +58,6 @@ hand before each of its commits.
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
 
-### 2026-10-11, the voxel game in `3DEngine.Game`: a long, thin emitter's light steps on the floor
-
-On `1fa88e8b`, the game's end rod, a glowing box 2/16 by 15/16 by 2/16 of a block drawn as one
-scaled lamp cube over a base of its section's mesh 4/16 wide and 1/16 high, stands on the floor of a
-closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10 white_concrete`
-on a flat world) at 16, 5, -16 (`voxel.set 16 5 -16 end_rod`), the eye at 16.5, 5, -11.8 facing
-north and 25 degrees down, hour 23, High, render distance 8; a hidden window of 1280 by 720 and an
-RTX 4070 Laptop GPU. The floor's linear light is read along rows of the frame that `gi.compare`
-writes beside a reference (its `-frame.pfm`), and the point under each pixel is worked out from the
-camera.
-
-Toward the rod the light rises smoothly and then drops from one pixel to the next, by 8.4 to 8.8%
-along rows 380 to 450 with the game's light levels and corners on and the rod's glow at 17, as the
-game ships it, and by 7.3 to 7.8% with them off and its glow at 28. The drops lie on a closed curve
-2.3 to 2.7 blocks from the rod's axis, nearest along the diagonals, 2 to 3 levels of about 75 on the
-screen (`voxel-end-rod-step.webp`, its levels stretched). The path-traced reference shows no step
-there. The step stands at the same pixels at Low, Medium and High, and with the screen's probes,
-their filter and the frame before's light each left out by `gi.toggle`, and with `gi.toggle glow
-off` the floor is black, so it is in the carried light. A scan of each capture's rows for a drop of
-2 levels within 6 pixels finds none in the same room lit by glowstone, a torch's flame of 2/16 by
-3/16 by 2/16, a lantern's glass of 6/16 by 7/16 by 6/16 or their blue soul fire, so it comes with an
-emitter long against its width.
-
-The engine lacks a carried light that is smooth across that curve for such a box. The game draws the
-end rod as it is meanwhile.
-
-Review: item 2 of REVIEW.md, its part d and e, 2026-10-11; the lamps' switch from the faces' closed
-form to their point form at four half diagonals, which a box long against its width crosses too
-near, moved or blended, with a test.
-
-### 2026-10-11, the voxel game in `3DEngine.Game`: the path-traced reference ignores vertex colors
-
-On `1fa88e8b`, the same room lit by one glowstone at 16, 5, -16, the same eye, hour and window,
-`gi.reference <png> 1024 2` and then `gi.compare <png>`. The reference's floor reads 0.155, 0.090
-and 0.029 with the game's light levels and corners on and the same with them off, while the frame's
-goes from 0.084, 0.051 and 0.017 to 0.099, 0.060 and 0.020, so the reference does not read the
-sections' vertex colors. `BounceReference` traces each copy's flat color times its texture's
-average, and the game draws its sections in one white material with each block's color in their
-vertices, white concrete's 212, 216 and 217, which the field and the model pass read. With its
-shading off the frame reads 34% under the reference on the floor and 52% on the walls for glowstone,
-12% and 56% for a torch, and 30% and 55% for an end rod, and a floor of white traced where the frame
-lights one of two thirds of white accounts for a third on its own, so the comparison cannot tell the
-bounce's error from the color's.
-
-The engine lacks a reference that takes a mesh's vertex colors as the field does, so the game's
-light cannot be measured against the path tracer. The game reads its light by `voxel.ring` and the
-frame's rows meanwhile, and lights its rooms of white concrete for the comparisons it makes between
-its own lamps.
-
-Review: item 2 of REVIEW.md, its apparatus, 2026-10-11; the reference takes a hit's vertex colors as
-the field's splat blends them, before part f's measures in your room.
-
 ### 2026-10-11, the voxel game in `3DEngine.Game`: land behind a wall is lit in any order
 
 In a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
@@ -136,3 +84,38 @@ lit. The game draws in its own order meanwhile, its render distance a setting.
 
 Review: item 8 of REVIEW.md, 2026-10-11; an opaque pipeline without the discard for materials that
 cut nothing out, tried before a depth pass, after item 2's parts f and c.
+
+### 2026-10-11, the voxel game in `3DEngine.Game`: colors written in place miss the bounce
+
+On `3c7fe822`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
+white_concrete` on a flat world) built at hour 23, the game's light levels and corners then turned
+off (`voxel.shade off off`), which the game gives the room's sections as new colors written by
+`UpdateMeshBuffer` into their color stream, their vertices kept, and a glowstone placed at 16, 5,
+-16; the eye at 16.5, 5, -11.8 facing north 25 degrees down, High; a hidden window of 1280 by 720
+and an RTX 4070 Laptop GPU. Each figure is a region's mean linear light in the frame, as
+`gi.compare` reads it beside a reference of 1024 paths a pixel.
+
+From 300 frames after the lamp to 2,100 the frame's floor reads 0.099, 0.060 and 0.020 and its far
+wall 0.035, 0.021 and 0.007. A block set outside each of the room's four columns and taken away
+again makes each section upload its mesh anew, the room's blocks and light as before, and from 300
+frames on the floor reads 0.130, 0.081 and 0.027 and the wall 0.072, 0.047 and 0.016, a third
+brighter and twice as bright, and stays so. The reference does the same: its far wall reads 0.002
+before the uploads and 0.043 after, and whole sections are black in its picture where the room was
+dark at their last upload. The light that bounces and the reference keep a mesh's colors from its
+last upload and take none that `UpdateMeshBuffer` writes, while the model pass draws the new ones.
+The game writes colors in place whenever a block's light changes, so a lamp placed in a dark room
+bounces off walls as dark as they were before it, until a block changes in their section.
+
+After the uploads the frame agrees with a reference of 8 bounces within 3% on the floor and 2% on
+the far wall for the glowstone, and 5% and 20% for an end rod in its place, the vertex colors of
+`3c7fe822` in both; against 2 bounces it reads 22% and 31% over, the bounces past the second in a
+white room. The end rod's step is gone at `3105e73e`, the largest drop toward it along rows 370 to
+460 of the frame 0.6% of the light where 8.5%.
+
+The engine lacks the field's colors and the ray-traced scene's following a color stream written in
+place, as the model pass's do. The game keeps writing colors in place meanwhile, since uploading a
+section anew on each change of light would have the field build it again.
+
+Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
+the field repainting its cells' colors and the ray scene its corners in the frame after, before item
+8.

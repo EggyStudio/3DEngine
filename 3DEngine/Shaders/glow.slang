@@ -11,10 +11,16 @@ import scenefield;
 // nearest the eye, as many as a screen probe keeps a bit of each for (GlowLights.Most).
 public static const int MostGlowLights = 64;
 
-// The words each screen probe keeps of the glow lights: eight of four bits a light, how much of each
-// it sees that gives it a sixteenth of their light or more, and three of the light of the fainter
-// ones, summed by how much of each it sees (gi_screen.slang, GpuScreenProbes.GlowSeenBytes).
-public static const int GlowSeenWords = 12;
+// The words each screen probe keeps of the glow lights: sixteen of a byte a light, how much of each
+// it sees that gives it an eighth of their light or more, three of the light of the fainter ones,
+// summed by how much of each it sees, and one spare (gi_screen.slang, GpuScreenProbes.GlowSeenBytes).
+public static const int GlowSeenWords = 20;
+
+// The kinds of texel of the window's glow light past the lights the share is of, in 255ths of its
+// normal's w: one on a glow light's own surface, which takes no other light's, and one no screen
+// probe around holds, whose pixels march to the lights themselves (gi_screen_glow.slang).
+public static const int GlowOnLight = 254;
+public static const int GlowAsk = 255;
 
 // A small surface that gives off light, carried through the bounce as a light of its own rather
 // than by the rays that meet it, since few of a probe's rays meet a small one and those that do
@@ -134,6 +140,53 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
         }
     }
     return light.glowAndShare.rgb * (sum * light.glowAndShare.w);
+}
+
+// The light reaching p facing n from a glow light, unhidden, roughly: half its box's surface over
+// the square of p's distance from the box's nearest point, softened by twice its thinnest half side,
+// by how far its middle rises above p's plane. The window's glow light is kept as a share of it
+// (gi_screen_glow.slang), read from texels of half the window's size, and the model pass scales
+// that share by this at each pixel, so the light rises toward a lamp at each pixel as it does
+// across the lamp's own thickness. Taken from the texels whole, the room around a glowing strip six
+// hundredths of a block thick read 3.4 to 4% further from its path-traced reference at 160 by 90
+// than with each pixel's own light; with this softened by the box's whole size, 3.4 to 3.5%, the
+// strip's two blocks of length keeping it flat across the strip's thickness; with this, 1.7 to
+// 2%, and at 1280 by 720 within 0.1%. None where p lies on the light's own surface, as
+// glowLightIrradiance gives.
+public float3 glowLightRough(GlowLight light, float3 p, float3 n, float margin)
+{
+    if (glowLightOn(light, p, n, margin))
+        return float3(0.0);
+    float3 offset = p - light.middleAndReach.xyz;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    float3 beyond = float3(0.0);
+    float thin = 1e6, size2 = 0.0;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float side = halves[k].w;
+        float3 axis = halves[k].xyz / max(side, 1e-6);
+        float along = dot(offset, axis);
+        beyond += axis * (along - clamp(along, -side, side));
+        thin = min(thin, side);
+        size2 += side * side;
+    }
+    float distance2 = dot(beyond, beyond) + 4.0 * thin * thin;
+    float rise = saturate((sqrt(size2) - dot(offset, n)) * rsqrt(dot(offset, offset) + size2));
+    float surface = 4.0 * (halves[0].w * halves[1].w + halves[1].w * halves[2].w + halves[2].w * halves[0].w);
+    return light.glowAndShare.rgb * (light.glowAndShare.w * surface * rise / distance2);
+}
+
+// How near p lies to a glow light for its light to be drawn at each pixel: 1 within its box's half
+// diagonal of the box, none past twice that, falling off between, the same at a texel of the
+// window's depth as at a pixel (gi_screen_glow.slang, glowLightsHere in modelpass.slang).
+public float glowLightNear(GlowLight light, float3 p)
+{
+    float diagonal = max(length(float3(light.halfX.w, light.halfY.w, light.halfZ.w)), 1e-6);
+    float3 toward = p - light.middleAndReach.xyz;
+    if (dot(toward, toward) >= 9.0 * diagonal * diagonal)
+        return 0.0;
+    return saturate(2.0 - glowLightDistance(light, p) / diagonal);
 }
 
 // How far along the way from `from` its line enters a glow light's box, 0 where it starts inside.

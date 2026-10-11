@@ -432,18 +432,19 @@ cascade's probes, 4 units at the field's cell of a quarter, lights what is aroun
 would, with no light made for it: its light reaches each surface from the faces of its box, so a
 glowing block lights the floor it lies on as a path-traced reference does, within 5% from a block
 out to four, at every quality and seen from far off as from near, and throws soft shadows behind
-what stands between, read from the field (`GlowLightsTests`). Left to the probes' rays, which met so
-small a surface at some angles and not others, it drew eight lobes around itself on the floor, a
-pool that ended two blocks out, and from forty blocks off no pool at all. Glowing blocks that touch,
-as a stack of them, are one light, the faces they press together giving off nothing. The 64 such
-lights nearest the eye light so, each as far as it lights a surface by a fiftieth, 17 units for a
-glowing block of the voxel game's; one past them lights nothing a floor takes from it, so a level of
-more glowing blocks than that has the nearest lit. A larger surface, as a panel across a ceiling, is
-left to the rays, which meet it often enough. The glowing panel of `shaders_cornell_box`, small
-enough to be one, takes 0.26 to 0.31 ms of the times in the table and the model pass's, and in a
-dark room of glowing blocks at 1280 by 720 at `High` one block costs 0.29 ms, sixteen 0.84 and
-sixty-four 2.1, as `./e3d command profile` gives `global_illumination` and `hdr_scene` together,
-against `./e3d command gi.toggle glow off`.
+what stands between, read from the field (`GlowLightsTests`), which hold still as the view turns,
+and follow a lamp placed or a wall taken away within the frame (`GlowPenumbraTests`). Left to the
+probes' rays, which met so small a surface at some angles and not others, it drew eight lobes around
+itself on the floor, a pool that ended two blocks out, and from forty blocks off no pool at all.
+Glowing blocks that touch, as a stack of them, are one light, the faces they press together giving
+off nothing. The 64 such lights nearest the eye light so, each as far as it lights a surface by a
+fiftieth, 17 units for a glowing block of the voxel game's; one past them lights nothing a floor
+takes from it, so a level of more glowing blocks than that has the nearest lit. A larger surface, as
+a panel across a ceiling, is left to the rays, which meet it often enough. The glowing panel of
+`shaders_cornell_box`, small enough to be one, takes 0.26 to 0.31 ms of the times in the table and
+the model pass's, and in a dark room of glowing blocks at 1280 by 720 at `High` one block costs 0.35
+ms, sixteen 1.08 and sixty-four 2.77, as `./e3d command profile` gives `global_illumination` and
+`hdr_scene` together, against `./e3d command gi.toggle glow off`.
 
 Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
 The ray is stepped through the window's depth first, and a surface it meets there reflects the

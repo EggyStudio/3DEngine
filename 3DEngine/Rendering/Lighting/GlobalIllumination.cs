@@ -136,6 +136,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The window's camera the screen's probes were last placed through, which their blend finds a
     // probe's place in the frame before by, or null where the probes were laid out again since.
     private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
+    // The places the glow lights were written in, kept from frame to frame, and how many there were.
+    private readonly GlowPlaces _glowPlaces = new();
+    private int _glowCount;
     // How far the screen's probes trace, the first cascade's probes' spacing, this frame.
     private float _screenReach;
     // The frame's settings, whose switches the screen's blend reads.
@@ -196,6 +199,26 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         GlobalIllumination.Medium => (16, 12),
         _ => (24, 16),
     };
+
+    /// <summary>
+    /// How far from its tile's middle each screen probe marches to the glow lights from in frame
+    /// <paramref name="frame"/>, in pixels, the same for every probe: the middles of the tile's four
+    /// by four cells in the order of Bayer's matrix, sixteen frames a round, so a round visits each
+    /// cell once and each frame's cell lies far from the last.
+    /// </summary>
+    /// <remarks>
+    /// At the window's half-sized depth a tile of eight pixels holds four by four of its texels, which
+    /// a probe's point falls on, so a round marches from each texel once. The Halton points of bases
+    /// 2 and 3 fell on one row of those texels five times a round and on another three, and the floor
+    /// along a lamp's penumbra moved with turns of one to eight pixels by 0.64 to 1.27% of its light,
+    /// where by 0.45 to 0.94% with these.
+    /// </remarks>
+    internal static Vector2 JitterAt(long frame, int tile)
+    {
+        ReadOnlySpan<byte> cells = [0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12];
+        var cell = cells[(int)(frame % 16)];
+        return new Vector2(((cell & 3) + 0.5f) / 4 - 0.5f, ((cell >> 2) + 0.5f) / 4 - 0.5f) * tile;
+    }
 
     /// <summary>The pixels along each side of the tile a screen probe stands in, at a quality.</summary>
     internal static int TileAt(GlobalIllumination quality) => quality switch
@@ -301,8 +324,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 _screen = device.CreateScreenProbes(width, height, tile);
                 _lastScreen = null;
             }
-            var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, _lastScreen);
-            _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes)));
+            var jitter = JitterAt(_frame, tile);
+            var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
+            _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0)));
             _lastScreen = (window.ViewProjection, window.Eye);
         }
         else if (_screen is not null)
@@ -361,8 +385,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         state.Drawn = _frame;
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
         var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
-        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, state.Last);
-        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes)));
+        var jitter = JitterAt(_frame, tile);
+        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
+        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0)));
         state.Last = (camera, at);
         var targets = renderWorld.TryGet<TargetIllumination>();
         if (targets is null) renderWorld.Set(targets = new TargetIllumination());
@@ -371,11 +396,13 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
     // A view's buffer for the screen's probes, as gi_screen.slang reads it: its camera both ways
     // and its eye, the probes' tile and how many lie across and down, the first interval's half, the
-    // world's probes, their spacing and cascades, the depth's size and the view's, and its camera
-    // and eye the frame before where the probes were placed then. The matrices lie as they do in
-    // memory, which the shaders, reading them column-major, multiply a point by as the CPU does.
+    // world's probes, their spacing and cascades, the depth's size and the view's, its camera and
+    // eye the frame before where the probes were placed then, how far from their tiles' middles the
+    // probes march to the glow lights from, and how many glow lights there are with the places whose
+    // light the frame before had there. The matrices lie as they do in memory, which the shaders,
+    // reading them column-major, multiply a point by as the CPU does.
     private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
-        (Matrix4x4 ViewProjection, Vector3 Eye)? last)
+        Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last)
     {
         var bytes = new byte[GpuScreenProbes.ViewBytes];
         MemoryMarshal.Write(bytes, viewProjection);
@@ -387,11 +414,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
         (floats[40], floats[41], floats[42], floats[43]) = (_screenReach, _gi!.Probes, ProbeSpacing, _made.Cascades);
         (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
+        (floats[68], floats[69]) = (jitter.X, jitter.Y);
         if (last is { } then)
         {
             MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);
             (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, 1);
         }
+        floats[72] = _glowCount;
+        var words = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
+        (words[73], words[74]) = _glowPlaces.Kept;
         return bytes;
     }
 
@@ -460,7 +491,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // where the window draws no mesh is the first render target's camera's.
         if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { GlowOff: true }
             && renderWorld.TryGet<SceneFieldRenderer>() is { Plan: { } plan, Eye: { } eye } field)
-            GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf);
+        {
+            GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf, _glowPlaces);
+            _glowCount = (int)MemoryMarshal.Cast<byte, float>(bytes.AsSpan(GlowLights.Offset, 4))[0];
+        }
+        else
+        {
+            _glowPlaces.Forget();
+            _glowCount = 0;
+        }
         return bytes;
     }
 

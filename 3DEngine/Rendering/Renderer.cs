@@ -87,7 +87,8 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute);
+                server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/gi_screen_glow.slang").Compute);
             device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,

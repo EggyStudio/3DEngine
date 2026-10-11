@@ -1386,24 +1386,46 @@ seen from outside, an MMU fault through the constant cache (Xid 31) for which th
 GPU-assisted checks found no read out of range, and a test holds the room (`GlowLightsTests`). The
 screen's probes march to the halves of each face of each light in reach that gives the probe's
 surface an eighth of the lights' light or more, halved across the axis that rises most from the
-surface, and keep sixteen levels of each such light, and march to the middle of each fainter one and
-keep the fainter ones' light summed, which the model pass weighs each pixel's light by as it weighs
-the probes' light, reading the lights its probes mark alone, by their bits, with the probes' weights
-found once for the light that bounced and the glow lights; a pixel at an edge, no probe around it on
-a surface like its own, takes those around it on any surface by how near each is. A view with no
-screen probes marches from each pixel to the middles of the four brightest, and a probe's ray's hit
-marches to those of the two brightest, so the walls a lamp lights bounce it on. A light gives
-nothing to a point within half a cell of its box whose normal leads out of it, the light's own
-surface, since a hit lies anywhere within a fraction of a cell of a face and the field's normal
-tilts near its edges, so part of the face rose above the hit's plane and lit it: on lavapipe the
-block's faces lit themselves and added 0.018 to the floor two blocks off, 0.044. The field marks the
-cells such an emitter paints, so a ray that meets it leaves its light out (`surfaceGlowUncarried`),
-and a reflection keeps it. The shaders hold one march and one closed form for each place that reads
-the glow lights, a reflection's hit shaded once whether met on the screen or in the field, and their
-loops are kept from unrolling, since unrolled and inlined at each of the model pass's calls they
-made its compile on lavapipe 0.9 s for every app where it took 0.23 before them, and the Windows
-job's tests ran out their time; 0.32 so, the Rendering tests on lavapipe here 280 s where 261 before
-the glow lights.
+surface, and keep a byte of each such light, and march to the middle of each fainter one and keep
+the fainter ones' light summed. Each marches from a point of its tile that moves from frame to
+frame, the middles of the tile's four by four cells in the order of Bayer's matrix, so a round of
+sixteen frames marches from each texel of the half-sized depth under the tile once, while the
+probe's tiers and its rays stay at the tile's middle. A pass over the half-sized depth
+(`gi_screen_glow.slang`) takes each texel's light from the four probes around it, where they marched
+from, weighed by how near each is, how alike its normal is, how near its distance from the eye is to
+the distance the texel's plane lies at along its way, and how near that plane the depth lies a third
+and two thirds of the way to it, so a probe on the floor past a wall does not lend the floor before
+the wall what it sees; where none of the four is so, the four of the four by four around that count
+most. The texel's normal is taken along each axis toward the side whose next two texels go on in a
+line, so a texel at a wall's foot takes the floor's. The pass blends the light with what the texel
+held the frame before where its surface was, a running mean over the first round and a thirty-second
+of each frame's after it, an eighth while the view moves, a moving view's blend counting as one
+frame's so the mean starts anew where it stops. The blend is dropped where no texel of the frame
+before held the surface, where a light that reaches it has a place whose light the frame before did
+not have there, the lights kept in their places from frame to frame (`GlowPlaces`), or where, after
+a round, the frame's light lies further from it than half again the furthest the frames' light had
+lain, that furthest let go by a sixty-fourth a frame. What a texel keeps is, of the light near it
+that gives it the most, within twice its box's half diagonal, its share of that light's rough
+unhidden light, half its box's surface over the square of the distance from the box
+(`glowLightRough`), which the model pass scales by the same worked out at the pixel with the pixel's
+own normal, so a lamp's light falls away at each pixel as it does across the lamp's thickness, and
+the other lights' light as it is. The model pass reads the two by two texels around a pixel, each
+weighed by how near it is, how alike its normal is and how near its distance from the eye is to the
+pixel's plane's there. A pixel whose like texels no probe holds, as a sliver of floor between two
+lamps, marches to the middles of the four brightest, one on a light's own surface takes no other's,
+and a view with no screen probes marches from each pixel to the faces' halves of the four brightest,
+as the probes do. A probe's ray's hit marches to the middles of the two brightest, so the walls a
+lamp lights bounce it on. A light gives nothing to a point within half a cell of its box whose
+normal leads out of it, the light's own surface, since a hit lies anywhere within a fraction of a
+cell of a face and the field's normal tilts near its edges, so part of the face rose above the hit's
+plane and lit it: on lavapipe the block's faces lit themselves and added 0.018 to the floor two
+blocks off, 0.044. The field marks the cells such an emitter paints, so a ray that meets it leaves
+its light out (`surfaceGlowUncarried`), and a reflection keeps it. The shaders hold one march and
+one closed form for each place that reads the glow lights, a reflection's hit shaded once whether
+met on the screen or in the field, and their loops are kept from unrolling, since unrolled and
+inlined at each of the model pass's calls they made its compile on lavapipe 0.9 s for every app
+where it took 0.23 before them, and the Windows job's tests ran out their time; 0.32 so, the
+Rendering tests on lavapipe here 280 s where 261 before the glow lights.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the
@@ -1420,16 +1442,38 @@ path-traced rooms the Cornell box's panel and the strip are such emitters: the C
 0.141, 0.129 and 0.117 of its light where it read 0.203, 0.180 and 0.183, the strip's 0.256, 0.248
 and 0.270 where 0.466, 0.473 and 0.448, the others as they were, and a ninth room, a glowing block
 on a white floor in a dark room with a low wall beside it and four more stacked, 0.052, 0.048 and
-0.045 where it read 0.200, 0.193 and 0.171 (`BounceRoomsTests`). On an RTX 4070 the Cornell box's
-panel costs the bounce 0.21 to 0.26 ms and the model pass 0.04 to 0.05 at 800 by 450, and a dark
-room of glowing blocks at 1280 by 720 at `High` costs them 0.26 and 0.03 ms for one block, 0.70 and
-0.14 for sixteen and 1.78 and 0.30 for sixty-four, where marching to each face of every light, and
+0.045 where it read 0.200, 0.193 and 0.171 (`BounceRoomsTests`). Taken from texels of half the
+window's size, which at the rooms' 160 by 90 are two pixels wide beside a strip six hundredths of a
+block thick, the strip's read 0.275, 0.267 and 0.290 and the ninth 0.060, 0.055 and 0.050, where at
+1280 by 720 they read 0.163 and 0.020 against 0.162 and 0.018 with each pixel's own. On an RTX 4070
+the Cornell box's panel costs the bounce 0.21 to 0.26 ms and the model pass 0.04 to 0.05 at 800 by
+450, and a dark room of glowing blocks at 1280 by 720 at `High` costs them 0.33 and 0.02 ms for one
+block, 0.97 and 0.11 for sixteen and 2.63 and 0.14 for sixty-four, where the probes' marks read at
+each pixel cost 0.28 and 0.04, 0.85 and 0.22, and 2.35 and 0.30 in the same session, and before that
+0.26 and 0.03, 0.70 and 0.14, and 1.78 and 0.30, where marching to each face of every light, and
 from each pixel at an edge, cost sixty-four 5.3 and 2.3, and a room of sixteen eleven blocks square,
 its lamps two and a half apart, 0.68 and 0.25, where the lights of a sixteenth of the light read at
 each pixel cost them 0.89 and 0.47; in the voxel game's own room, its lamps two apart and the eye a
-block over the floor, the model pass's share is 0.30 ms, 0.40 with the glow code as `0f5cdbcf`
-compiled it, the same with the land around it drawn to two columns as to eight
-(`./e3d command profile`'s `global_illumination` and `hdr_scene`, against `gi.toggle glow off`).
+block over the floor, the model pass's share was 0.30 ms, 0.40 with the glow code as `0f5cdbcf`
+compiled it, the same with the land around it drawn to two columns as to eight, and the room's
+bounce and model pass take 1.89 to 1.96 and 0.47 to 0.56 ms whole, where with the marks read at each
+pixel they took 1.72 to 1.74 and 0.74 to 0.90 (`./e3d command profile`'s `global_illumination` and
+`hdr_scene`, against `gi.toggle glow off`).
+
+Across a lamp's penumbra behind a wall half its height, a turn of one to eight pixels at 640 by 360
+moves the floor's light along it by 0.36 to 0.89% of it on average, where a pixel that marches
+itself moves it by 0.69 to 0.91%, the probes' points blended at the probes by 1.6 to 2.7%, and the
+probes marching from their tiles' middles by 3.1 to 7.9%; at 320 by 180 by 3%, where at the tiles'
+middles by 15 to 18%, and the line holds within 0.8% of its light over a round of the points
+(`GlowPenumbraTests`). A lamp placed shows in its first frame, all its light there and its penumbra
+one point of a round, 7.7% from where it settles, and within 1% a round on; the floor behind a wall
+taken away takes the lamp's light in the frame the wall goes. After a turn of two to six pixels a
+frame stops, the 99th part of the picture's pixels changes by 0.8% of its mean light in the frame
+after and by 0.3% fifteen frames on, and a frame of a slow turn differs from the one before by 0.1%
+of the light more than where each pixel marches. In the first frames of an app, before the field
+holds what stands between, every point sees the lamps, and a texel under a shadow lets that go over
+some hundred frames, which the tests draw past. A frame with no glow light skips the pass, which
+cost a frame of an app of a cube 0.09 s on lavapipe at 320 by 180.
 
 ## 5. Render targets and post processing
 

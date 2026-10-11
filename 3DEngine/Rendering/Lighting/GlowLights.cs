@@ -79,21 +79,27 @@ internal static class GlowLights
     /// <param name="firstCell">The width of a cell of the field's first cascade, which says which emitters are carried.</param>
     /// <param name="boxOf">The box around a mesh's vertices in its own space.</param>
     /// <param name="shareOf">A mesh's surface over its box's, 1 for a box.</param>
+    /// <param name="places">
+    /// The places the lights kept the frame before, which a light still among them is written in
+    /// again, or null to write them in order of their distance from the eye.
+    /// </param>
     public static int Write(Span<byte> bytes, IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> drawn, Vector3 eye, float firstCell,
-        Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf)
+        Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf, GlowPlaces? places = null)
     {
         var lights = Gather(drawn, firstCell, boxOf, shareOf);
         lights.Sort((a, b) => Vector3.DistanceSquared(a.Middle, eye).CompareTo(Vector3.DistanceSquared(b.Middle, eye)));
         var floats = MemoryMarshal.Cast<byte, float>(bytes);
         var count = Math.Min(lights.Count, Most);
-        floats[0] = count;
+        Span<int> placeOf = stackalloc int[Most];
+        floats[0] = places?.Place(lights, count, placeOf) ?? count;
         for (int n = 0; n < count; n++)
         {
+            if (places is null) placeOf[n] = n;
             var (middle, x, y, z, glow, share) = lights[n];
             var surface = 8 * (x.Length() * y.Length() + y.Length() * z.Length() + z.Length() * x.Length()) * share;
             var brightest = MathF.Max(glow.X, MathF.Max(glow.Y, glow.Z));
             var reach = MathF.Sqrt(brightest * surface / (4 * Faint));
-            var light = floats.Slice(4 + n * Bytes / 4, Bytes / 4);
+            var light = floats.Slice(4 + placeOf[n] * Bytes / 4, Bytes / 4);
             (light[0], light[1], light[2], light[3]) = (middle.X, middle.Y, middle.Z, reach);
             (light[4], light[5], light[6], light[7]) = (x.X, x.Y, x.Z, x.Length());
             (light[8], light[9], light[10], light[11]) = (y.X, y.Y, y.Z, y.Length());
@@ -233,5 +239,68 @@ internal static class GlowLights
         for (int i = 0; i + 2 < corners.Length; i += 3)
             area += Vector3.Cross(corners[i + 1] - corners[i], corners[i + 2] - corners[i]).Length() / 2;
         return (float)Math.Clamp(area / boxSurface, 0.05, 1);
+    }
+}
+
+/// <summary> The place each glow light is written in, kept from frame to frame. A light among the
+/// frame before's keeps its place and a new one takes the first that is free, so what the screen's
+/// probes saw of a light the frame before is found in its place as the lights move nearer the eye
+/// and farther in the order they are taken in. </summary>
+internal sealed class GlowPlaces
+{
+    private readonly Dictionary<Vector3, int> _before = [];
+    private readonly Dictionary<Vector3, int> _now = [];
+
+    /// <summary>The places whose light is the one the frame before had there, a bit a place, the first 32 in the low word.</summary>
+    public (uint Low, uint High) Kept { get; private set; }
+
+    /// <summary>
+    /// Places the first <paramref name="count"/> of <paramref name="lights"/>, each known by its
+    /// middle, in <paramref name="placeOf"/>, and gives how many places are taken up to the last.
+    /// </summary>
+    public int Place(List<GlowLights.Light> lights, int count, Span<int> placeOf)
+    {
+        Span<bool> taken = stackalloc bool[GlowLights.Most];
+        uint low = 0, high = 0;
+        _now.Clear();
+        for (int n = 0; n < count; n++)
+        {
+            placeOf[n] = -1;
+            if (_before.TryGetValue(lights[n].Middle, out var place) && !taken[place])
+            {
+                (placeOf[n], taken[place]) = (place, true);
+                if (place < 32) low |= 1u << place;
+                else high |= 1u << (place - 32);
+            }
+        }
+        int free = 0, used = 0;
+        for (int n = 0; n < count; n++)
+        {
+            if (placeOf[n] < 0)
+            {
+                while (taken[free]) free++;
+                (placeOf[n], taken[free]) = (free, true);
+            }
+            _now[lights[n].Middle] = placeOf[n];
+            used = Math.Max(used, placeOf[n] + 1);
+        }
+        // A place no light took holds nothing new.
+        for (int place = 0; place < used; place++)
+            if (!taken[place])
+            {
+                if (place < 32) low |= 1u << place;
+                else high |= 1u << (place - 32);
+            }
+        _before.Clear();
+        foreach (var (middle, place) in _now) _before[middle] = place;
+        Kept = (low, high);
+        return used;
+    }
+
+    /// <summary>Lets every place go, as a frame that writes no glow light does.</summary>
+    public void Forget()
+    {
+        _before.Clear();
+        Kept = (0, 0);
     }
 }

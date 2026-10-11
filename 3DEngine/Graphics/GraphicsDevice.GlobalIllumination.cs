@@ -116,8 +116,8 @@ internal sealed class GpuIllumination : IDisposable
 
 internal sealed unsafe partial class GraphicsDevice
 {
-    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4;
-    private readonly ComputeStage[] _giStages = new ComputeStage[5];
+    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5;
+    private readonly ComputeStage[] _giStages = new ComputeStage[6];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -139,8 +139,12 @@ internal sealed unsafe partial class GraphicsDevice
     {
         get
         {
-            if (_giStages[FilterStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
-            var (trace, merge, ambient, screen, filter) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4]);
+            if (_giStages[GlowStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
+            var (trace, merge, ambient, screen, filter, glow) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4], spirv[5]);
+            _giStages[GlowStage] = MakeComputeStage(glow, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
+                VkDescriptorType.UniformBuffer, VkDescriptorType.UniformBuffer, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage], 16);
             _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 16);
             _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
@@ -163,13 +167,14 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>
     /// Makes the probes' pipelines from <c>gi_trace.slang</c>, <c>gi_merge.slang</c>,
-    /// <c>gi_ambient.slang</c>, <c>gi_screen.slang</c> and <c>gi_screen_filter.slang</c>, once.
+    /// <c>gi_ambient.slang</c>, <c>gi_screen.slang</c>, <c>gi_screen_filter.slang</c> and
+    /// <c>gi_screen_glow.slang</c>, once.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
-        ReadOnlySpan<byte> filter)
+        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow)
     {
         if (!IsInitialized || CanBounceLight) return;
-        _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray()];
+        _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray()];
     }
 
     /// <summary>
@@ -458,32 +463,52 @@ internal sealed unsafe partial class GraphicsDevice
         Name(lastGeometry, "Screen probes' surfaces, the frame before");
         var view = CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
         var glowSeen = CreateBuffer(new BufferDesc((ulong)(across * down) * GpuScreenProbes.GlowSeenBytes, BufferUsage.Storage | BufferUsage.TransferDst));
+        // The glow lights' light a texel of the view's depth each, half the view's size as
+        // AmbientOcclusionRenderer draws it.
+        var glowDesc = desc with { Extent = new Extent2D(Math.Max(1, width / 2), Math.Max(1, height / 2)) };
+        IImage[] glowImages = [.. Enumerable.Range(0, 4).Select(_ => CreateImage(glowDesc)), CreateImage(glowDesc with { Format = ImageFormat.R8G8B8A8_UNorm }),
+            CreateImage(glowDesc), CreateImage(glowDesc)];
+        var glowViews = glowImages.Select(CreateImageView).ToArray();
+        var glow = new ScreenGlow(glowImages[0], glowViews[0], glowImages[1], glowViews[1], glowImages[2], glowViews[2], glowImages[3], glowViews[3],
+            glowImages[4], glowViews[4], glowImages[5], glowViews[5], glowImages[6], glowViews[6]);
+        Name(glow.Light, "Screen's glow light");
+        Name(glow.LastLight, "Screen's glow light, the frame before");
+        Name(glow.State, "Screen's glow light's spread and frames");
+        Name(glow.LastState, "Screen's glow light's spread and frames, the frame before");
+        Name(glow.Normal, "Screen's glow light's normals");
+        Name(glow.Far, "Screen's far glow light");
+        Name(glow.LastFar, "Screen's far glow light, the frame before");
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
         // Every image holds nothing, ready to be sampled, until the first frame places the probes.
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        VkImage[] images = [.. new[] { irradiance, geometry, blended, history, lastGeometry }.Select(image => ((VulkanImage)image).Image)];
+        IImage[] made = [irradiance, geometry, blended, history, lastGeometry, .. glow.Images];
+        VkImage[] images = [.. made.Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
+        // The glow light's texels on no surface, their distance from the eye -1.
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
-        foreach (var image in images) _deviceApi.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
+        var nowhere = new VkClearColorValue(0f, 0f, 0f, -1f);
+        foreach (var image in made)
+            _deviceApi.vkCmdClearColorImage(cmd, ((VulkanImage)image).Image, VkImageLayout.General,
+                image == glow.Light || image == glow.LastLight ? &nowhere : &none, 1, &whole);
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)glowSeen).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead))]);
         EndSingleTimeCommands(cmd);
-        foreach (var image in new[] { irradiance, geometry, blended, history, lastGeometry }) ((VulkanImage)image).Layout = VkImageLayout.ShaderReadOnlyOptimal;
+        foreach (var image in made) ((VulkanImage)image).Layout = VkImageLayout.ShaderReadOnlyOptimal;
 
         return new GpuScreenProbes(across, down, tile, irradiance, irradianceView, geometry, geometryView, sampler, view, () =>
         {
             sampler.Dispose();
             view.Dispose();
             glowSeen.Dispose();
-            foreach (var made in new IDisposable[] { irradianceView, geometryView, blendedView, historyView, lastGeometryView,
-                         irradiance, geometry, blended, history, lastGeometry })
-                made.Dispose();
-        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen);
+            IDisposable[] all = [irradianceView, geometryView, blendedView, historyView, lastGeometryView, .. glow.Views,
+                irradiance, geometry, blended, history, lastGeometry, .. glow.Images];
+            foreach (var one in all) one.Dispose();
+        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow);
     }
 
     /// <summary>
@@ -493,7 +518,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
-        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view)
+        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights)
     {
         var run = new ProbeRun(this, commandBuffer, 1);
         var cmd = run.Commands;
@@ -503,7 +528,10 @@ internal sealed unsafe partial class GraphicsDevice
         fixed (byte* data = bytes)
             _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)screen.View).Buffer, 0, (ulong)bytes.Length, data);
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead);
-        VkImage[] images = [.. new[] { screen.Irradiance, screen.Geometry, screen.Blended, screen.History, screen.LastGeometry }
+        // The glow lights' buffer written again only once the frame before's passes have read it.
+        MemoryBarrier(cmd, readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite);
+        var glow = screen.Glow;
+        VkImage[] images = [.. new[] { screen.Irradiance, screen.Geometry, screen.Blended, screen.History, screen.LastGeometry }.Concat(glow.Images)
             .Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
             readers | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
@@ -547,7 +575,35 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, filterLayout, 0, 1, &blend, 0, null);
         _deviceApi.vkCmdDispatch(cmd, (uint)(screen.Across + 7) / 8, (uint)(screen.Down + 7) / 8, 1);
 
-        // This frame's blended light and surfaces kept for the next frame's blend.
+        // The glow lights' light on each texel of the view's depth, from the probes around it and
+        // the frame before's, beside the blend, which writes none of what it reads. A frame with no
+        // glow lights skips it, the model pass reading none of it then. Its threads leaving at
+        // once, it cost each frame of an app of a cube 0.09 s on lavapipe at 320 by 180, an eighth
+        // of it.
+        var glowExtent = glow.Light.Description.Extent;
+        if (glowLights)
+        {
+            var lit = run.Set(GlowStage);
+            run.Image(lit, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)depth).View, depthSampler, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Image(lit, 1, VkDescriptorType.SampledImage, ((VulkanImageView)screen.GeometryView).View, null, VkImageLayout.General);
+            run.Buffer(lit, 2, VkDescriptorType.UniformBuffer, screen.View);
+            run.Buffer(lit, 3, VkDescriptorType.UniformBuffer, gi.Lights);
+            run.Buffer(lit, 4, VkDescriptorType.UniformBuffer, field.Info);
+            run.Buffer(lit, 5, VkDescriptorType.StorageBuffer, screen.GlowSeen);
+            run.Image(lit, 6, VkDescriptorType.StorageImage, ((VulkanImageView)glow.LightView).View, null, VkImageLayout.General);
+            run.Image(lit, 7, VkDescriptorType.SampledImage, ((VulkanImageView)glow.LastLightView).View, null, VkImageLayout.General);
+            run.Image(lit, 8, VkDescriptorType.StorageImage, ((VulkanImageView)glow.StateView).View, null, VkImageLayout.General);
+            run.Image(lit, 9, VkDescriptorType.SampledImage, ((VulkanImageView)glow.LastStateView).View, null, VkImageLayout.General);
+            run.Image(lit, 10, VkDescriptorType.StorageImage, ((VulkanImageView)glow.FarView).View, null, VkImageLayout.General);
+            run.Image(lit, 11, VkDescriptorType.StorageImage, ((VulkanImageView)glow.NormalView).View, null, VkImageLayout.General);
+            run.Image(lit, 12, VkDescriptorType.SampledImage, ((VulkanImageView)glow.LastFarView).View, null, VkImageLayout.General);
+            var (glowPipeline, glowLayout, _) = GiStages[GlowStage];
+            _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, glowPipeline);
+            _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, glowLayout, 0, 1, &lit, 0, null);
+            _deviceApi.vkCmdDispatch(cmd, (glowExtent.Width + 7) / 8, (glowExtent.Height + 7) / 8, 1);
+        }
+
+        // This frame's blended light and surfaces, and its glow light, kept for the next frame's blends.
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
         var region = new VkImageCopy
@@ -558,12 +614,14 @@ internal sealed unsafe partial class GraphicsDevice
         };
         _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Blended).Image, VkImageLayout.General, ((VulkanImage)screen.History).Image, VkImageLayout.General, 1, &region);
         _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Geometry).Image, VkImageLayout.General, ((VulkanImage)screen.LastGeometry).Image, VkImageLayout.General, 1, &region);
+        region.extent = new VkExtent3D(glowExtent.Width, glowExtent.Height, 1);
+        _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)glow.Light).Image, VkImageLayout.General, ((VulkanImage)glow.LastLight).Image, VkImageLayout.General, 1, &region);
+        _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)glow.State).Image, VkImageLayout.General, ((VulkanImage)glow.LastState).Image, VkImageLayout.General, 1, &region);
+        _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)glow.Far).Image, VkImageLayout.General, ((VulkanImage)glow.LastFar).Image, VkImageLayout.General, 1, &region);
 
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             readers, VkAccessFlags2.ShaderRead))]);
-        // Which glow lights each probe sees, which the model pass reads.
-        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead);
         return run;
     }
 
@@ -651,7 +709,7 @@ internal sealed unsafe partial class GraphicsDevice
             sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 6 * sets };
             sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 3 * sets };
             sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 4 * sets };
-            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = 2 * sets };
+            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = 3 * sets };
             sizes[4] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = sets };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = sets, poolSizeCount = 5, pPoolSizes = sizes };
             device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
