@@ -10,10 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `623bdc47`. Item 11's cells: each folder's row is an HTML table on a line of its own,
-every cell `width="400"` with its picture's link and tag as before and the run name in a code tag,
-since Markdown is not read inside an HTML block, so no column is squeezed below its picture and a
-row wider than the page scrolls; 268 cells and thirteen headings read here, the document and norm
+Reviewed up to `54c0e669`. Item 11's padding: each run name under a picture is padded inside its
+code tag with non-breaking spaces, the character and not the entity, to 52 characters, all 268 of
+them read here at that length, so a cell's narrowest content is wider than its picture and the table
+cannot squeeze it, the cell's width kept as the preference; the README holds 237 lines of prose
+against the norm's 320, and the document and norm tests pass, 34. Right, the minimum put in content
+where the browser's layout reads it. The owner looked at the pushed page at 19:25: it works, and the
+pictures go a bit smaller, 320 by 180 with the cell and the padding following, item 11's last thing,
+a batch of its own next. The working session goes to Verdict 48's two remedies: a pipeline cache for
+the process, none being used today, every create call passing the null cache, measured on lavapipe
+as successive apps' pipeline creation, then the lampless variant of the model pass; then the bounce
+around the pillar as a read of its own, h's blotches and teeth by the owner's eye, f's filter
+offset, item 10, item 9 and item 8.
+
+Before it, `623bdc47` came, item 11's cells: each folder's row is an HTML table on a line of its
+own, every cell `width="400"` with its picture's link and tag as before and the run name in a code
+tag, since Markdown is not read inside an HTML block, so no column is squeezed below its picture and
+a row wider than the page scrolls; 268 cells and thirteen headings read here, the document and norm
 tests pass, 34, and the README's walk and the examples' check read nothing of it. Right, the width
 given where the squeeze acts. The owner looked at the pushed page at 18:55 and the pictures still
 differ: the cell's width survives but the browser treats it as a preference and shrinks a cell to
@@ -48,25 +61,6 @@ before it scrolls and a cell shrinks to its name, so every cell takes `width="40
 sanitizer keeps, a batch of its own next. Next h's rest, the wall's dark side a fifth under, the
 blotches on the tiles' grid and the seam's teeth of about ten pixels, then Verdict 48's two
 remedies, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `7644d055` came, Verdict 49's pairs: nothing the billboard or the depth writing example
-draws through changed between `71050c8f` and `b1e86aef`, the immediate pass, the shapes, the text
-and the pipelines untouched and the commits between them the bounce's and the game's, and measured
-outside the job, on lavapipe for the engine and llvmpipe for raylib's programs and on the RTX 4070
-alike, the two read 0.5% and 0.2% apart as the local record holds them, so the job's drivers moved
-them, and `measured-ci.tsv` records them anew at 5.5 and 8.7 with that reason in a comment above
-each; the two loading pairs, which moved by more than a point between two runs whose commits touched
-nothing they draw through, 5.9 and 1.6, 15.2 and 11.5, get five points of room in a third column of
-the record with the reason, which the compare reads in place of its one point, the capture's frame
-left where it is since at frame 300 `models_loading` read 2.8% here where 1.6%; and a raylib program
-that ends with a signal is named as raylib's own. The job's uploads need a sign-in the working
-session has none of, so the pictures the two pairs moved by are unread, and the next run's uploads,
-which the reviewing session can read, settle whether the drivers' move looks like one; the script
-and norm tests pass, 51. Right, the pairs' drawing paths read for change before the record was
-touched, the record given its reasons in the file that holds it, and the loading pairs' variance
-given room rather than a later frame that would have moved them too. Verdict 49's two things are
-done and it settles on the next run's examples job. Next item 11's fit, the captures filling their
-boxes, then h's rest, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -587,7 +581,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     asked for it and it is small; the owner's eye judges the look (Decision 27).
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done
-    through `623bdc47` but for the names' padding (Decision 29).** The owner asked on 2026-10-11 at
+    through `54c0e669` but for a smaller picture (Decision 29).** The owner asked on 2026-10-11 at
     15:55. The README's Examples section holds a table of two columns and thirty-four rows, pictures
     of picked examples and games mixed, and under it eighty lines of prose and a block that explain
     the games. It becomes one table a folder of `3DEngine.Examples`, in the folders' order as the
@@ -636,8 +630,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the character itself and not the entity, to fifty-two characters, which the code font draws at
     some 426 pixels, past the picture's 400 on every platform's monospace, so no cell can shrink
     below its picture and the name reads as a caption bar as wide as it; the cell's width stays as
-    the preference. The rendered page is read after the push. the owner's eye judges the look
-    (Decision 27).
+    the preference. The rendered page is read after the push. Done at `54c0e669`: every name padded
+    to 52 characters, the README at 237 lines of prose, the rendered page read after the push. The
+    owner looked at the pushed page at 19:25 and it works, and asked for the pictures a bit smaller:
+    every tag 320 by 180 in place of 400 by 225, the cell's width 320 with it, and each name padded
+    to 42 characters, which the code font draws at some 344 pixels, past the picture, the captures
+    themselves unchanged at 800 by 450. the owner's eye judges the look (Decision 27).
 
 12. **The e3d skill left the `.claude` folder, done at `7a69c936` (Decision 30).** The owner asked
     on 2026-10-11 at 16:30 that `.claude/skills/e3d-cli/SKILL.md` go to the root or elsewhere, the
@@ -927,8 +925,5 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 11, the names' padding. Each run name under a picture is padded inside its `<code>` with
-non-breaking spaces, the character and not the entity, to 52 characters, all 268 of them, so a
-cell's narrowest content is wider than its picture and the table cannot squeeze it, the cell's width
-kept as the preference. The README holds 237 lines of prose, the norm's bound 320, and the docs and
-norm tests pass, 34.
+Item 11, the pictures smaller. Every gallery tag gives 320 by 180 and every cell 320, each name
+padded to 42 characters, the captures unchanged at 800 by 450; the docs and norm tests pass, 34.
