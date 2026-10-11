@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `64fd2f14`. Item 2's part g with c's one left thing and f's first, all three on the
+Reviewed up to `56db892b`. Item 2's part h, its first part, the penumbra too dark, found by
+elimination: in an engine room built as the game's, three touching lamps under the ceiling and a
+block floating under the middle one against a reference of 4,096 paths, the floor under the block
+read 0.742 of the reference and 1.094 beside it, as the game read 0.76 and 1.06; with the probes'
+bounce left out and the reference traced with the lamps' light alone, the floor under the whole row
+read nothing where the reference reads 0.026, a black rectangle, so the lamps' march held two
+faults. The touching lamps are one light whose level face was halved along the axis that rises most
+from the surface, which from a floor under a level face neither does, so the short side was taken
+and both march targets lay on the row's middle line behind the block; on a tie the longer side is
+halved, 0.285 of the lamps' reference. And a march passing a twentieth of a block inside the block's
+side read how far under its edge it passed by stepping out along the floor's normal, up through the
+whole block; it steps across the march toward the nearest face as well, where the field's slope
+leans across the way, and keeps the nearer way out, 0.956. With the bounce the floor reads 0.980
+under the block, 1.001 at the edge, 1.073 beside and 1.022 in front, the mean stray over the floor
+0.030 where 0.079; `GlowLightsTests` holds the floor under the block over 0.8 of the floor beside
+it, 0.68 before and 0.92 after against the reference's 0.98; the cost within three runs' noise in
+the game's room. Right, the bounce cut and a direct-only reference traced before the march was
+touched, so each fault has a number of its own, and the tie halved by the longer side rather than by
+the first. The suite: 1,682 passed; on lavapipe 394 passed and 8 skipped with no validation error;
+the game's glowstone room lost no device in eight runs. The game's session holds it in its room,
+0.95 of the reference under the block where 0.76, and the spot after a step is gone with it, 1.6
+levels where 5.5, so the spot was the black row's edge held. Left in h on this commit: the owner's
+saw in the game's copy of the owner's save, the glow lights' march past a pillar's ends, read
+against the reference first, and the blotches on the tiles' grid. Then Verdict 49's steps with h's
+next commit, its pairs, Verdict 48's two remedies, f's filter offset, item 10, item 9 and item 8.
+
+Before it, `64fd2f14` came, item 2's part g with c's one left thing and f's first, all three on the
 holds, measured as the parts asked. The leak: an engine room closed to the sky read up to 0.0155 on
 its walls and 0.0234 on its floor at about half the headings on `e477bc1e` and 0.00003 at every one
 on `b1e86aef`, the same with the sun at nothing and with the screen's probes or their history off,
@@ -121,47 +147,6 @@ game's cave by the heading, and item 10, a post-processing window (Decision 28).
 degrees, where the face turned to the right still takes the sky, which g keeps; and the indirect
 light is noisy and spotted where a penumbra is wide, which is part h (Decision 28). Then g's
 remainder, h, f's two left things with c's one, Verdict 48's remedies, item 10, item 9 and item 8.
-
-Before it, `b1e86aef` came, item 2's part f, the first way, built as the part chose and measured as
-it asked. The screen's probes keep their tiles and march to the lamps from a point of the tile that
-moves frame to frame, the middles of its four by four cells in Bayer's order, so a round of sixteen
-frames marches from each texel of the half-sized depth under the tile once, a byte a lamp where
-sixteen levels. The lamps' light is blended over the frames at each texel of the half-sized depth in
-a compute pass ahead of the bounce, `gi_screen_glow.slang`, rather than in two targets of the
-window: each texel takes each lamp's share from the four probes around it where they marched from,
-weighed by distance, normal and the depth between, keeps a running mean over the round and a
-thirty-second after, reprojected by its surface, and drops it where no texel held the surface, where
-a lamp that reaches it is new to its place, the lamps kept in their places frame to frame, or where
-after a round the frame's light lies past half again the round's furthest; of the nearest lamp a
-texel keeps its share of a rough unhidden light which the model pass works out again at the pixel,
-so a lamp's near falloff is drawn per pixel, and the pass reads two by two texels by distance and
-normal. The blend was tried at the probes first and flickered 6% over a round as the points moved
-with them, which put it at the texels. Where no probe holds a pixel it marches to the faces' halves,
-so the shadow stays dark with the probes off where it read 0.3 to 1.0 of the line's most light.
-Measured at 640 by 360: the penumbra's strays 0.36 to 0.89% for turns of one to eight pixels, where
-3.1 to 7.9% before and 0.69 to 0.91% for a pixel marching itself, the line within 0.8% over a round,
-a lamp placed shown in its first frame and within 1% a round on, a wall taken away shown in its
-first frame; in the game's room the turn's share 0.42 to 0.58% against 0.37 to 0.45% with the probes
-off; the cost 0.35, 1.08 and 2.77 ms for one, sixteen and sixty-four lamps where 0.30, 1.07 and
-2.65, the game's room 0.1 ms cheaper and a frame with no lamp skipping the pass. `GlowPenumbraTests`
-holds the turn, the round, the lamp placed, the wall taken away and the shadow with the probes off,
-at 320 by 180; the strip's and the ninth room's bounds move with their reason, half-sized texels two
-pixels wide at 160 by 90 beside a strip six hundredths of a block thick, the two within 0.1% and
-0.25% at 1280 by 720. Right, the view's share taken out at the texel where the probes' places stay,
-every drop condition named and tested, and the cost held within hundredths. Two things left, which
-the part keeps: before the field holds a wall, in an app's first frames, every point sees the lamp
-and a shadow's texels keep that for some hundred frames, which the blend's drop by a jump could not
-take since a penumbra never finished a round so; the blend restarts where the field's cascade under
-the texel's point was built this frame, which the field knows, measured by the frames a shadow takes
-to darken from an app's start. And the probes' filter finds a probe's place in the frame before a
-pixel off where the probe stands, which put right read the thin room 0.3 to 0.6% further from its
-reference; the offset is put right and the thin room's loss read for the filter's width, which is
-the knob and not the accident, its bound moved by the rule with the reason. The owner's eye judges
-the look and the settling (Decision 27), the finer grid for the two brightest lamps the second way
-should it want more. The suite: 1,674 passed; on lavapipe 386 passed and 8 skipped with no
-validation error in 9.3 minutes where 8.1, which the Windows page reads against Verdict 48's
-quarter; the game's glowstone room lost no device in eight runs. Part c next, then the two left,
-item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -450,85 +435,102 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    `e477bc1e` read 14.7 to 18.7 at High and 2.6 to 4.6 at Medium; its entry is off. The owner's eye
    judges the look (Decision 27).
 
-   **h. The indirect light is noisy and spotted where a penumbra is wide.** The owner, at 11:15 on
-   2026-10-11 on the tree with g's mend, saw noise and spots of light across the surfaces where the
-   light's penumbra is wide, a lamp far from what shadows it or a bounce arriving from part of the
-   room, where the sharp shadows and the open floor read clean. Measured by the game's session on
-   `e477bc1e` in a white room at hour 23, three glowstones in a row under the ceiling and a block
-   floating two under the middle one, so the floor three below lies wholly in penumbra, read against
-   a reference of 4,096 paths and eight bounces (ASKS.md): the floor under the block reads 0.76 of
-   the reference and 0.78 at the penumbra's edge against 1.06 beside it, the reference showing no
-   shadow, the floor under the block a tenth brighter than beside it for its nearness to the lamps,
-   where the frame draws a shadow with an edge a fifth darker than beside it; and after a step of
-   one block a spot of light stands at the shadow's edge, 5.5 levels over the ring around it from
-   the first frame to the six hundredth, none there before the step, 8.2 to 8.6 levels with the
-   history off, where the edge breaks into the probes' eight-pixel steps and the frames flicker by
-   0.1 to 0.2 levels, and no spot with the screen's probes off, where the shadow's edges show twice.
-   So two things: the lamps' soft shadow is too dark for a lamp wider than what blocks it, the
-   march's cone through the field keeping a penumbra the reference does not have, measured against
-   the reference by the block's size and the lamp's row, and the screen's probes give a wrong sample
-   at the shadow's edge after a move which the texels' blend then holds for six hundred frames, the
-   drop conditions of part f not naming it, so a sample that disagrees with the frame's own march,
-   or with its neighbors past a bound, is dropped rather than held, and with the history off the
-   probes' eight-pixel steps show, which f's blend was to hide. Read from the engine as it stands,
-   what samples the light there: a screen probe's sixteen rays, of which a wide penumbra has some
-   hit and some miss, blended by the five by five filter and the frame before with its hold, and the
-   lamps' penumbra marched from a point moved about the tile over sixteen frames and blended at each
-   half-sized texel, which converges over a round where the surface stays and is dropped where it
-   moved or a lamp changed; a spot is a texel or a tile whose sample disagrees with its neighbors'
-   and is not yet averaged with them. Measured first, in the game's room and an engine room with a
-   lamp whose shadow is wide and a bounce from a lit wall: the pixel-to-pixel difference across the
-   penumbra over the reference, still and after a move, with the glow lights off to tell the lamps'
-   penumbra from the bounce's, with the screen's probes' history off and with part f's moving point
-   held still, so the share of each source is a number. Then the remedy by the number: where the
-   surface is still, a longer blend, more frames of the round kept than a thirty-second; where the
-   neighbors disagree, a filter that widens by their disagreement, weighed by depth and normal as
-   the probes' filter weighs, so a lone bright sample is spread and not shown; and where a move
-   drops the history, the frames after it blended from the probes around rather than the one, each
-   read against the reference and the frame's cost, part f's bounds kept. A test holds the
-   penumbra's pixel-to-pixel difference under a bound still and after a move. The owner's two
-   captures of 14:05, in the repository's root and in no commit: `Penumbra_MergingZigZag.png`, a
-   lamp's red light on a wall with a shadow's line drawn as a saw, a zigzag with teeth some pixels
-   long where the line should be straight, which the owner reads as the merge's; and
-   `Penumbra_NoisyFalloff.png`, a lit wall whose penumbra falls off in blotches of light and dark
-   the size of the probes' tiles across the band, where the lit part and the dark part read smooth.
-   Both are measured with the rest of h: the teeth's length and the blotches' size against the
-   probes' tile of eight pixels and the half-sized texel of two, and against the sixteen levels a
-   probe keeps a lamp's penumbra in, since a straight edge marched from a point moved about each
-   tile in Bayer's order lands a tile's offset apart from one tile to the next, which is a saw with
-   the tile's period, and four probes' shares weighed into a texel from marches made from four
-   places give the band its patches; the remedy by the number, a texel's share taken by where each
-   probe's march of that frame stood rather than averaged across the tile, or the brightest lamps'
-   penumbra marched at the texel itself near the eye, as part f's second way offered, read against
-   the reference and the cost. A test holds a straight shadow's edge within a pixel of a line and
-   the band's pixel-to-pixel difference under a bound. The game's session measured both on
-   `64fd2f14` (ASKS.md): a glowstone's shadow edge thrown by a column on a wall seen head-on, traced
-   per row and fitted to a line, lies 1.8 pixels from it still and 1.5 after a step, 2.0 and 1.3
-   with the history off, a slow bow of 6 to 8 pixels' range and no teeth either way, and a torch's
-   stairs at its reach are the game's own light levels, so a lamp's edge does not give the owner's
-   saw; the wide penumbra's blotches, the light less its blur, are 0.65% of the light with the
-   history on and 0.85% off, where the reference's noise is 6.5% and a pixel wide, and their
-   correlation holds at 0.42 at 8 and 16 pixels, so they repeat on the tile's grid, and with the
-   history off the band's edge breaks into beads every 19 pixels. The reviewing session read the saw
-   as the probes' merge, an emitter too large for a box light lit through the cascades alone, and
-   the game's session measured that too: a wall of magma six by six with a column four blocks before
-   it throws a shadow 0.7 to 0.9 pixels from a line still and after a step, no teeth, and with the
-   glow lights off the room is black, so a wall of emitting blocks is carried as box lights alone,
-   each block its own and touching ones merged, and the cascades carry none of it; the reading was
-   wrong for a wall of blocks, and the saw stands unreproduced in three setups. It is found in the
-   owner's save, copied by the game's session as `owner-zigzag-copy`: an underground room with its
-   floor at 54 and ceiling at 59, a red concrete wall at z -33, four glowstones at x 4 and a white
-   concrete pillar from floor to ceiling at x 6, whose shadow falls on the red wall as an upright
-   seam near x 8, seen from 9.5, 55, -35.4 at heading 185 and pitch -3, which matches the owner's
-   picture. Read on `64fd2f14`, the seam traced per row: its middle rows lie within 1.05 pixels of
-   its median, and teeth of 3 rows and more stand out at its top, rows 70 to 180, by up to 34
-   pixels, and at its foot, rows 520 to 650, by up to 23, to either side by turns; 31 and 17 after a
-   step, 42 and 31 with the history off, 22 and 36 with the screen's probes off, 42 and 23 with the
-   game's light levels off, and the room black with the glow lights off, so the teeth are the glow
-   lights' march past the pillar's ends, where it meets the floor and the ceiling, and not the
-   screen's probes or the merge; the engine reads it there with the copy, `--world
+   **h. The indirect light is noisy and spotted where a penumbra is wide, its first part done at
+   `56db892b`.** The owner, at 11:15 on 2026-10-11 on the tree with g's mend, saw noise and spots of
+   light across the surfaces where the light's penumbra is wide, a lamp far from what shadows it or
+   a bounce arriving from part of the room, where the sharp shadows and the open floor read clean.
+   Measured by the game's session on `e477bc1e` in a white room at hour 23, three glowstones in a
+   row under the ceiling and a block floating two under the middle one, so the floor three below
+   lies wholly in penumbra, read against a reference of 4,096 paths and eight bounces (ASKS.md): the
+   floor under the block reads 0.76 of the reference and 0.78 at the penumbra's edge against 1.06
+   beside it, the reference showing no shadow, the floor under the block a tenth brighter than
+   beside it for its nearness to the lamps, where the frame draws a shadow with an edge a fifth
+   darker than beside it; and after a step of one block a spot of light stands at the shadow's edge,
+   5.5 levels over the ring around it from the first frame to the six hundredth, none there before
+   the step, 8.2 to 8.6 levels with the history off, where the edge breaks into the probes'
+   eight-pixel steps and the frames flicker by 0.1 to 0.2 levels, and no spot with the screen's
+   probes off, where the shadow's edges show twice. So two things: the lamps' soft shadow is too
+   dark for a lamp wider than what blocks it, the march's cone through the field keeping a penumbra
+   the reference does not have, measured against the reference by the block's size and the lamp's
+   row, and the screen's probes give a wrong sample at the shadow's edge after a move which the
+   texels' blend then holds for six hundred frames, the drop conditions of part f not naming it, so
+   a sample that disagrees with the frame's own march, or with its neighbors past a bound, is
+   dropped rather than held, and with the history off the probes' eight-pixel steps show, which f's
+   blend was to hide. Read from the engine as it stands, what samples the light there: a screen
+   probe's sixteen rays, of which a wide penumbra has some hit and some miss, blended by the five by
+   five filter and the frame before with its hold, and the lamps' penumbra marched from a point
+   moved about the tile over sixteen frames and blended at each half-sized texel, which converges
+   over a round where the surface stays and is dropped where it moved or a lamp changed; a spot is a
+   texel or a tile whose sample disagrees with its neighbors' and is not yet averaged with them.
+   Measured first, in the game's room and an engine room with a lamp whose shadow is wide and a
+   bounce from a lit wall: the pixel-to-pixel difference across the penumbra over the reference,
+   still and after a move, with the glow lights off to tell the lamps' penumbra from the bounce's,
+   with the screen's probes' history off and with part f's moving point held still, so the share of
+   each source is a number. Then the remedy by the number: where the surface is still, a longer
+   blend, more frames of the round kept than a thirty-second; where the neighbors disagree, a filter
+   that widens by their disagreement, weighed by depth and normal as the probes' filter weighs, so a
+   lone bright sample is spread and not shown; and where a move drops the history, the frames after
+   it blended from the probes around rather than the one, each read against the reference and the
+   frame's cost, part f's bounds kept. A test holds the penumbra's pixel-to-pixel difference under a
+   bound still and after a move. The owner's two captures of 14:05, in the repository's root and in
+   no commit: `Penumbra_MergingZigZag.png`, a lamp's red light on a wall with a shadow's line drawn
+   as a saw, a zigzag with teeth some pixels long where the line should be straight, which the owner
+   reads as the merge's; and `Penumbra_NoisyFalloff.png`, a lit wall whose penumbra falls off in
+   blotches of light and dark the size of the probes' tiles across the band, where the lit part and
+   the dark part read smooth. Both are measured with the rest of h: the teeth's length and the
+   blotches' size against the probes' tile of eight pixels and the half-sized texel of two, and
+   against the sixteen levels a probe keeps a lamp's penumbra in, since a straight edge marched from
+   a point moved about each tile in Bayer's order lands a tile's offset apart from one tile to the
+   next, which is a saw with the tile's period, and four probes' shares weighed into a texel from
+   marches made from four places give the band its patches; the remedy by the number, a texel's
+   share taken by where each probe's march of that frame stood rather than averaged across the tile,
+   or the brightest lamps' penumbra marched at the texel itself near the eye, as part f's second way
+   offered, read against the reference and the cost. A test holds a straight shadow's edge within a
+   pixel of a line and the band's pixel-to-pixel difference under a bound. The game's session
+   measured both on `64fd2f14` (ASKS.md): a glowstone's shadow edge thrown by a column on a wall
+   seen head-on, traced per row and fitted to a line, lies 1.8 pixels from it still and 1.5 after a
+   step, 2.0 and 1.3 with the history off, a slow bow of 6 to 8 pixels' range and no teeth either
+   way, and a torch's stairs at its reach are the game's own light levels, so a lamp's edge does not
+   give the owner's saw; the wide penumbra's blotches, the light less its blur, are 0.65% of the
+   light with the history on and 0.85% off, where the reference's noise is 6.5% and a pixel wide,
+   and their correlation holds at 0.42 at 8 and 16 pixels, so they repeat on the tile's grid, and
+   with the history off the band's edge breaks into beads every 19 pixels. The reviewing session
+   read the saw as the probes' merge, an emitter too large for a box light lit through the cascades
+   alone, and the game's session measured that too: a wall of magma six by six with a column four
+   blocks before it throws a shadow 0.7 to 0.9 pixels from a line still and after a step, no teeth,
+   and with the glow lights off the room is black, so a wall of emitting blocks is carried as box
+   lights alone, each block its own and touching ones merged, and the cascades carry none of it; the
+   reading was wrong for a wall of blocks, and the saw stands unreproduced in three setups. It is
+   found in the owner's save, copied by the game's session as `owner-zigzag-copy`: an underground
+   room with its floor at 54 and ceiling at 59, a red concrete wall at z -33, four glowstones at x 4
+   and a white concrete pillar from floor to ceiling at x 6, whose shadow falls on the red wall as
+   an upright seam near x 8, seen from 9.5, 55, -35.4 at heading 185 and pitch -3, which matches the
+   owner's picture. Read on `64fd2f14`, the seam traced per row: its middle rows lie within 1.05
+   pixels of its median, and teeth of 3 rows and more stand out at its top, rows 70 to 180, by up to
+   34 pixels, and at its foot, rows 520 to 650, by up to 23, to either side by turns; 31 and 17
+   after a step, 42 and 31 with the history off, 22 and 36 with the screen's probes off, 42 and 23
+   with the game's light levels off, and the room black with the glow lights off, so the teeth are
+   the glow lights' march past the pillar's ends, where it meets the floor and the ceiling, and not
+   the screen's probes or the merge; the engine reads it there with the copy, `--world
    owner-zigzag-copy`, and the march's cone at the pillar's ends against the reference, before the
-   mend. The owner's eye judges the look (Decision 27).
+   mend. The shadow's depth is done at `56db892b`: two faults of the lamps' march, a joined row's
+   level face halved along its short side on a tie so both targets lay behind the block, and a march
+   inside a block's side stepped out along the floor's normal through the whole block, mended by
+   halving the longer side on a tie and stepping across the march as well, the floor under the block
+   0.980 of the reference where 0.742, the floor's mean stray 0.030 where 0.079, with a test. The
+   game's session holds it on the commit in its room: 0.95 of the reference under the block where
+   0.76, 1.01 at the edge where 0.78, 1.03 beside and 0.98 in front, and the spot after a step is
+   gone with it, 1.6 levels over its ring before and after the step where 5.5, the frames after the
+   step still, so the spot was the black row's edge held. The game read the owner's seam and the
+   blotches on the same commit: the seam's teeth reach 13 and 9 pixels where 34 and 23, faint spikes
+   left at the foot with the screen's probes off, the lit side over the dark 1.40 where the
+   reference reads 1.27 and 1.81 before, the blotches 0.30% and 0.36% of the light with the history
+   on and off where 0.65% and 0.85% with the tile's repeat gone, and the red wall 1.2 to 1.3 of the
+   reference on both sides of the seam, which is a fourth thing of h. Left, on that commit: the
+   saw's teeth of 13 and 9 pixels at the pillar's ends, the blotches' rest, and the wall's fifth
+   over the reference; the game's entry is off, its numbers here, and the game makes the owner's
+   save copy again when the engine's session asks for it. The owner's eye judges the look (Decision
+   27).
 
    The game's seven asks that stood here are done at `0f39daf5`, a to g each with its commit in the
    history of this file and RENDERING.md, the game's frame at eight columns from 25.5 ms to 8.9 in
@@ -899,33 +901,25 @@ Verdicts 1 to 29, 32 to 39, 41 and 42 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, part h, its first part, the penumbra too dark. Measured in an engine room built as the
-game's, three glowing blocks touching in a row under the ceiling and a white block floating two
-under the middle one, against a reference of 4,096 paths and eight bounces at 640 by 360. The floor
-under the block read 0.742 of the reference, at the penumbra's edge 0.754, beside it 1.094 and in
-front 0.993, as the game read 0.76, 0.78 and 1.06. With the probes' bounce left out of the frame and
-the reference traced with the lamps' light alone, the floor under the block and at the edge read
-nothing where the reference reads 0.026, a black rectangle under the whole row; with the march
-seeing everything they read the light unhidden, and without the block, or with one lamp, the floor
-reads within 2% of its reference. So the march, with two faults in it.
+Verdict 49, its second thing. The measure against raylib's programs carries on past a pair that does
+not hold (`continue-on-error`), the package's steps, the games and the soak run after it, and a last
+step fails the job where the measure did not hold, the captures uploaded either way. The script and
+norm tests read the workflows and pass, 51; the strict build holds.
 
-The touching lamps are one light (`GlowLights`), and `glowLightShown` halves a face across the axis
-that rises most from the surface, which from a floor under a level face neither does, so it took the
-first, the row's short side, and marched to two points on the row's middle line, both behind the
-block from the floor under all three lamps. It halves the longer side where neither rises more, and
-the floor under the block reads 0.285 of the lamps' reference. A march passing a twentieth of a
-block inside the block's side then read how far under its edge it passed by stepping out along the
-floor's normal, up through the whole block; it steps across the march toward the nearest face as
-well, where the field's slope leans across the way, and keeps the nearer way out, and the floor
-reads 0.956 of it. With the bounce the floor reads 0.980 under the block, 1.001 at the edge, 1.073
-beside and 1.022 in front, the mean stray over the floor 0.030 where 0.079. `GlowLightsTests` holds
-the floor under the block over 0.8 of the floor beside it at 320 by 180, 0.68 before and 0.92 after,
-the reference 0.98. The cost lies within the noise of three runs each in the game's room of the same
-lamps, the bounce 1.52 to 1.53 ms and the scene pass 1.49 to 1.51 where 1.50 to 1.55 and 1.46 to
-1.54.
+Item 2, part h, after `56db892b`, read by the game's session in the owner's room and its own. The
+owner's seam has teeth of 13 and 9 pixels where 34 and 23, and it steps lit over dark by 1.40
+against the reference's 1.27 where 1.81. The blotches are 0.30% of the light where 0.65%, the tiles'
+repeat gone, and the spot after a step is gone, 1.6 levels over its ring where 5.5.
 
-Left in h, taken next on this commit: the spot held after a move, which the game measured beside the
-black row's edges that are gone; the blotches, 0.65% of the light on the tiles' grid; and the saw,
-read where the owner saw it once the game's session finds the place.
-
-The suite: 1,682 passed; on lavapipe 394 passed and 8 skipped with no validation error; the game's glowstone room lost no device in eight runs.
+The fourth thing, the red wall at 1.2 to 1.3 of its reference, measured in the owner's room with the
+probes' bounce left out against a reference of the lamps' light alone. The wall reads 1.01 beside
+the four glowstones, 1.33 a third of the way across and 1.61 behind the pillar on `56db892b`, and
+1.18 behind it on `64fd2f14`, the same with the screen's probes off. With nothing hidden it reads
+2.29 and 4.95, so the march passes 0.58 of the lamps' light where the reference passes 0.44, and
+0.33 where 0.20. The march's soft shadow is too light across the wide penumbra a pillar a block from
+the lamps throws, on both commits, and halving the lamps' level face along its longer side, upright,
+makes it lighter behind the pillar. Two other ways measured: quarters on a tie read 2.0 behind the
+pillar and the row's floor under the block 0.951, and halving along the side the point lies furthest
+along, the longer within half its half side, reads 1.62 as the longer does. The mend lies in the
+march's estimate of what passes an edge, the least of a half and the clearance over the cone along
+the march, which is read against the share of the face seen next.

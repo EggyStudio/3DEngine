@@ -80,8 +80,12 @@ jobs:
       # is listed in the run's summary and in notices, at most ten, which a reader not signed in
       # sees, to be recorded there, and until the file holds a share the step fails on none. One
       # whose picture moves by the clock or the device is left out with the reason its line in
-      # triage.tsv gives.
+      # triage.tsv gives. The steps after it run whether it holds, and the job fails at its end
+      # where it did not, since a pair that drifted by a point skipped the package's steps and the
+      # soak, whose answers then waited on the pair.
       - name: Measure every example against raylib's program
+        id: measure
+        continue-on-error: true
         run: python3 -u build/raylib-bench/compare.py all --against 3DEngine.Examples/measured-ci.tsv --record captures/measured-ci.tsv
 
       - name: Put the shares measured in the run's summary
@@ -557,6 +561,14 @@ jobs:
       - name: Check the comparison with raylib against its functions
         if: ${{ !cancelled() }}
         run: build/raylib-bench/coverage.py --check
+
+      # The measure against raylib, which let the steps after it run, fails the job here where a
+      # pair stood more than its point over its share.
+      - name: Fail where the measure against raylib did not hold
+        if: ${{ !cancelled() && steps.measure.outcome == 'failure' }}
+        run: |
+          echo "::error::A pair stands more than a point over its share against raylib's program, as the run's summary lists."
+          exit 1
 
       - uses: actions/upload-artifact@v7
         if: always()
