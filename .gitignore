@@ -80,3 +80,4 @@ imgui.ini
 /build/raylib-bench/work/
 # raylib's own resources, which build/fetch-raylib-resources.sh downloads for the examples.
 /3DEngine.Examples/raylib-resources/
+/Voxel-Sandbox
