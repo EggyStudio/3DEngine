@@ -318,10 +318,9 @@ dark and next to none at 0, because the light that bounces brings a lamp's fallo
 Minecraft's own curve, which is its only light, dims by distance. The field reads the darkened color
 too, so an unlit cave sends on nearly none of the light that bounces. A change of light gives a mesh
 new colors and keeps its vertices, which the field knows it by, so relighting leaves the meshes
-settled in the field. The field and the ray-traced scene keep the colors of a mesh's last upload,
-though, so the light that bounces off a section a lamp has lit since is as dark as before it until a
-block in the section changes. Each quad is split along the diagonal its occlusion favors, so a
-shaded corner darkens one triangle softly.
+settled in the field, and the field and the ray-traced scene take the new colors in the frame after,
+so the light that bounces off a section a lamp has lit since takes its new light. Each quad is split
+along the diagonal its occlusion favors, so a shaded corner darkens one triangle softly.
 
 The settings window turns the light levels and the shaded corners off, each on its own, to see the
 light that bounces alone, and opens the engine's windows of what the light that bounces holds, of

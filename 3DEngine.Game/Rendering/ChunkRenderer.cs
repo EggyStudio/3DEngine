@@ -16,10 +16,10 @@ namespace Engine.Game;
 /// twenty bytes a vertex on the GPU. The colors also go with the upload for the scene's distance
 /// field, which reads them as the model pass reads the packed bytes, so the light that bounces takes
 /// each block's color from the mesh it shares with its neighbors. A section meshed again with the
-/// same faces keeps its mesh and takes only new packed bytes, which keep its positions, the field
-/// knowing a mesh by those, so a change of light leaves the section settled in the field. The field and the
-/// ray-traced scene keep the colors of a mesh's last upload, so the bounce off a section relit since
-/// takes its old colors until the section is meshed with new faces.
+/// same faces keeps its mesh and takes new packed bytes and new colors in place, which keep its
+/// positions, the field knowing a mesh by those, so a change of light leaves the section settled in
+/// the field, which paints the section's cells in their new colors in the frame after, as the
+/// ray-traced scene does its corners.
 /// </para>
 /// <para>
 /// A material's light is one for its whole draw, so a block that gives off light is a cube drawn
@@ -49,9 +49,11 @@ public sealed class ChunkRenderer : IDisposable
             var packed = CollectionsMarshal.AsSpan(faces.Packed);
             if (positions.SequenceEqual(Positions) && indices.SequenceEqual(Indices))
             {
-                // A relight writes the packed bytes alone, eight a vertex, the positions kept.
+                // A relight writes the packed bytes, eight a vertex, and the colors the light that
+                // bounces reads, the positions kept.
                 if (packed.SequenceEqual(Packed)) return;
                 UpdateMeshBuffer<uint>(Mesh, MeshStreamBuffer, packed, 0);
+                UpdateMeshBuffer<Color>(Mesh, 3, CollectionsMarshal.AsSpan(faces.Colors), 0);
                 Packed = packed.ToArray();
                 return;
             }
