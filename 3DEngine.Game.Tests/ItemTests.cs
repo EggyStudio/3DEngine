@@ -68,9 +68,9 @@ public sealed class ItemTests : IDisposable
     [InlineData(BlockId.StoneSlabTop, BlockId.StoneSlab)]
     [InlineData(BlockId.OakDoorWestTopOpen, BlockId.OakDoor)]
     [InlineData(BlockId.Glowstone, BlockId.Glowstone)]
-    public void A_Block_Broken_Drops_The_Item_It_Leaves(BlockId broken, BlockId left)
+    public void A_Block_Broken_With_A_Pickaxe_Drops_The_Item_It_Leaves(BlockId broken, BlockId left)
     {
-        var drop = Assert.Single(Loot.Of(broken, new Random(1)));
+        var drop = Assert.Single(Loot.Of(broken, new Random(1), Items.Find("wooden_pickaxe")));
         Assert.Equal((Of(left), 1), drop);
     }
 

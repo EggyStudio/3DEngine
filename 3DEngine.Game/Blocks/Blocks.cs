@@ -142,6 +142,9 @@ public enum BlockId : ushort
     BlackWool,
     BrownWool,
     PinkWool,
+    BirchPlanks,
+    CraftingTable,
+    CoalOre,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -355,6 +358,9 @@ public static class Blocks
             Same(BlockId.BlackWool, "black_wool", "Black Wool", Surfaces.BlackWool),
             Same(BlockId.BrownWool, "brown_wool", "Brown Wool", Surfaces.BrownWool),
             Same(BlockId.PinkWool, "pink_wool", "Pink Wool", Surfaces.PinkWool),
+            Same(BlockId.BirchPlanks, "birch_planks", "Birch Planks", Surfaces.BirchPlanks),
+            new(BlockId.CraftingTable, "crafting_table", "Crafting Table", Surfaces.CraftingTableTop, Surfaces.CraftingTableSide, Surfaces.Planks),
+            Same(BlockId.CoalOre, "coal_ore", "Coal Ore", Surfaces.CoalOre),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");

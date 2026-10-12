@@ -3,11 +3,14 @@ using System.Numerics;
 namespace Engine.Game;
 
 /// <summary>A stack of an item lying in the world, which falls, slides to a stop and is picked up.</summary>
-public sealed class ItemDrop(Item item, int count, Vector3 at, Vector3 velocity, float delay)
+public sealed class ItemDrop(Item item, int count, Vector3 at, Vector3 velocity, float delay, int wear = 0)
 {
     public Item Item { get; } = item;
 
     public int Count { get; set; } = count;
+
+    /// <summary>How worn a tool dropped is, which it keeps when picked up again.</summary>
+    public int Wear { get; } = wear;
 
     /// <summary>Its box, a quarter of a block a side.</summary>
     public Body Body { get; } = new(0.125f, 0.25f) { Position = at, Velocity = velocity };
@@ -43,9 +46,9 @@ public sealed class ItemDrops
     public IReadOnlyList<ItemDrop> All => _drops;
 
     /// <summary>Drops a stack at a place with a velocity, which can be picked up after a delay.</summary>
-    public ItemDrop Spawn(Item item, int count, Vector3 at, Vector3 velocity, float delay = Delay)
+    public ItemDrop Spawn(Item item, int count, Vector3 at, Vector3 velocity, float delay = Delay, int wear = 0)
     {
-        var drop = new ItemDrop(item, count, at, velocity, delay);
+        var drop = new ItemDrop(item, count, at, velocity, delay, wear);
         _drops.Add(drop);
         return drop;
     }
@@ -76,7 +79,7 @@ public sealed class ItemDrops
             if (drop.Age < drop.Delay || drop.Count == 0) continue;
             Vector3 min = drop.Body.Min, max = drop.Body.Max;
             if (min.X > reachMax.X || max.X < reachMin.X || min.Y > reachMax.Y || max.Y < reachMin.Y || min.Z > reachMax.Z || max.Z < reachMin.Z) continue;
-            var left = inventory.Add(drop.Item, drop.Count);
+            var left = inventory.Add(drop.Item, drop.Count, drop.Wear);
             picked += drop.Count - left;
             drop.Count = left;
         }

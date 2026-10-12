@@ -12,9 +12,6 @@ public sealed class VoxelGame : IDisposable
     private const float Repeat = 0.25f;
     private const double MeshBudgetMs = 4;
 
-    // A hit takes this much of a mob's health, a hand's in Minecraft.
-    private const int HandDamage = 1;
-
     // The changed columns and the player are saved this often, beside a save on leaving a world.
     private const float SaveSeconds = 30;
 
@@ -113,8 +110,11 @@ public sealed class VoxelGame : IDisposable
     /// <summary>Whether the world fades into the sky's color toward the render distance, as Minecraft's fog hides where the world ends.</summary>
     public bool Fog { get; set; } = true;
 
-    /// <summary>Whether the window E opens is open, the inventory in survival and every item in creative.</summary>
+    /// <summary>Whether the window E opens is open, the inventory in survival and every item in creative, or a crafting table's.</summary>
     public bool InventoryOpen { get; private set; }
+
+    /// <summary>Whether the window open is a crafting table's, which a right click on one opens.</summary>
+    public bool AtTable { get; private set; }
 
     /// <summary>A recording of the picture's change around a motion, which <c>voxel.flicker</c> starts, read a frame at a time.</summary>
     public FlickerRun? Flicker { get; set; }
@@ -241,7 +241,7 @@ public sealed class VoxelGame : IDisposable
         if (Hotbar.Current is not { } stack) return false;
         var count = Inventory.Take(Hotbar.Selected, all ? stack.Count : 1);
         var look = Vector3.Normalize(Player.Look);
-        Drops.Spawn(stack.Item, count, Player.Eye - new Vector3(0, 0.3f, 0) + look * 0.3f, look * 6 + new Vector3(0, 1, 0), ItemDrops.ThrownDelay);
+        Drops.Spawn(stack.Item, count, Player.Eye - new Vector3(0, 0.3f, 0) + look * 0.3f, look * 6 + new Vector3(0, 1, 0), ItemDrops.ThrownDelay, stack.Wear);
         return true;
     }
 
@@ -290,9 +290,9 @@ public sealed class VoxelGame : IDisposable
     // not fit thrown.
     private void CloseInventory()
     {
-        InventoryOpen = false;
-        if (InventoryWindow.Close(Inventory) is { } left)
-            Drops.Spawn(left.Item, left.Count, Player.Eye - new Vector3(0, 0.3f, 0), Vector3.Normalize(Player.Look) * 3, ItemDrops.ThrownDelay);
+        (InventoryOpen, AtTable) = (false, false);
+        foreach (var left in InventoryWindow.Close(Inventory))
+            Drops.Spawn(left.Item, left.Count, Player.Eye - new Vector3(0, 0.3f, 0), Vector3.Normalize(Player.Look) * 3, ItemDrops.ThrownDelay, left.Wear);
     }
 
     private void Interact(float seconds)
@@ -334,7 +334,7 @@ public sealed class VoxelGame : IDisposable
             return;
         }
         if (BreakingAt != (hit.X, hit.Y, hit.Z)) (BreakingAt, BreakProgress) = ((hit.X, hit.Y, hit.Z), 0);
-        var time = Loot.BreakSeconds(World.GetBlock(hit.X, hit.Y, hit.Z));
+        var time = Loot.BreakSeconds(World.GetBlock(hit.X, hit.Y, hit.Z), Hotbar.Current?.Item);
         BreakProgress += time <= 0 ? 1 : seconds / time;
         if (BreakProgress < 1) return;
         Break();
@@ -342,29 +342,58 @@ public sealed class VoxelGame : IDisposable
     }
 
     /// <summary>
-    /// Opens or shuts the door the crosshair rests on, or places the chosen slot's block against the
-    /// face it rests on, using one up in survival, as a right click does.
+    /// Opens the crafting table the crosshair rests on, opens or shuts the door it rests on, or places
+    /// the chosen slot's block against the face it rests on, using one up in survival, as a right
+    /// click does.
     /// </summary>
-    /// <returns>The block placed or the door's half turned, or air where nothing happened.</returns>
+    /// <returns>The table opened, the door's half turned or the block placed, or air where nothing happened.</returns>
     public BlockId Use()
     {
+        if (Target is { } table && World.GetBlock(table.X, table.Y, table.Z) == BlockId.CraftingTable)
+        {
+            (InventoryOpen, AtTable) = (true, true);
+            Capture(false);
+            return BlockId.CraftingTable;
+        }
         var toggles = Target is { } door && Blocks.Get(World.GetBlock(door.X, door.Y, door.Z)).Toggled is not null;
         var placed = Place(Hotbar.CurrentBlock);
         if (Mode == GameMode.Survival && !toggles && placed != BlockId.Air) Inventory.Take(Hotbar.Selected);
         return placed;
     }
 
-    /// <summary>Hits the mob the crosshair rests on, unless it is still red from the last hit.</summary>
-    public bool Attack() => TargetMob is { } mob && mob.Hit(Player.Body.Position, HandDamage);
+    /// <summary>
+    /// Hits the mob the crosshair rests on with the item held, a hand's one point for an item that is
+    /// not a weapon or a tool, unless it is still red from the last hit, wearing a sword by one use
+    /// and another tool by two, as Minecraft's do.
+    /// </summary>
+    public bool Attack()
+    {
+        if (TargetMob is not { } mob || !mob.Hit(Player.Body.Position, Hotbar.Current?.Item.Damage ?? 1)) return false;
+        if (Mode == GameMode.Survival && Hotbar.Current?.Item.Tool is { } tool and not ToolKind.None) Wear(tool == ToolKind.Sword ? 1 : 2);
+        return true;
+    }
 
-    /// <summary>Breaks the block the crosshair rests on at once, unless it cannot be broken, dropping what it leaves in survival.</summary>
+    // Wears the chosen slot's tool by some uses, taking it away once they are all worn.
+    private void Wear(int uses)
+    {
+        if (Hotbar.Current is not { Item.Durability: > 0 } stack) return;
+        Inventory.Slots[Hotbar.Selected] = stack.Wear + uses >= stack.Item.Durability ? null : stack with { Wear = stack.Wear + uses };
+    }
+
+    /// <summary>
+    /// Breaks the block the crosshair rests on at once, unless it cannot be broken, and in survival
+    /// drops what it leaves to the item held and wears a tool held by a use, a sword by two, as
+    /// Minecraft's do for a block that does not break at once.
+    /// </summary>
     public bool Break()
     {
         if (Target is not { } hit) return false;
         var block = World.GetBlock(hit.X, hit.Y, hit.Z);
         if (!Blocks.Get(block).Breakable || !World.SetBlock(hit.X, hit.Y, hit.Z, BlockId.Air)) return false;
-        if (Mode == GameMode.Survival)
-            foreach (var (item, count) in Loot.Of(block, _random)) Drops.Pop(item, count, hit.X, hit.Y, hit.Z);
+        if (Mode != GameMode.Survival) return true;
+        var held = Hotbar.Current?.Item;
+        foreach (var (item, count) in Loot.Of(block, _random, held)) Drops.Pop(item, count, hit.X, hit.Y, hit.Z);
+        if (held is { Tool: not ToolKind.None } tool && Loot.Hardness(block) > 0) Wear(tool.Tool == ToolKind.Sword ? 2 : 1);
         return true;
     }
 
@@ -448,7 +477,9 @@ public sealed class VoxelGame : IDisposable
             if (!Settings.Open) Hud.DrawHelp(Light.Quality, Mode);
         }
         Settings.Draw(this);
-        if (InventoryOpen && !(Mode == GameMode.Survival ? InventoryWindow.DrawSurvival(Inventory, Hotbar.Selected) : InventoryWindow.DrawCreative(Hotbar)))
+        if (InventoryOpen && !(AtTable ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Table)
+            : Mode == GameMode.Survival ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Small)
+            : InventoryWindow.DrawCreative(Hotbar)))
         {
             CloseInventory();
             Capture(!Settings.Open);

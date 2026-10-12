@@ -4,8 +4,8 @@ namespace Engine.Game;
 /// Land of the biomes a climate chooses: rolling plains and forests of oak and birch, taiga and
 /// snowy plains of spruce where it is cold, flat desert of sand and cactus where it is hot and
 /// dry, mountains of stone with snowy tops, lakes and seas up to sea level over sand and gravel,
-/// frozen where it is cold, sandy shores, and caves under the ground that open to the sky in places,
-/// and ravines.
+/// frozen where it is cold, sandy shores, veins of coal in the stone, and caves under the ground
+/// that open to the sky in places, and ravines.
 /// </summary>
 public sealed class Overworld : IWorldGenerator
 {
@@ -126,6 +126,7 @@ public sealed class Overworld : IWorldGenerator
                     column.Set(x, y, z, y == SeaLevel && temperature < 0.3f ? BlockId.Ice : BlockId.Water);
             }
 
+        Ores.Place(column, Seed);
         var clip = new ColumnClip(column);
         PlaceFeatures(clip, columnX, columnZ);
         foreach (var structure in Structures.All) structure.BuildIn(clip, this);

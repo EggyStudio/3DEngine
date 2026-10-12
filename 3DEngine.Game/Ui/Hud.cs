@@ -51,9 +51,19 @@ public static class Hud
             DrawRectangle(x, y, Slot, Slot, new Color(0, 0, 0, 140));
             if (hotbar.Inventory.Slots[i] is { } stack)
             {
-                // Opaque, so glass and ice show their color rather than the slot through it.
+                // Opaque, so glass and ice show their color rather than the slot through it, and a
+                // tool or a stick drawn by its icon over the slot.
                 var color = stack.Item.Color;
-                DrawRectangle(x + 7, y + 7, Slot - 14, Slot - 14, new Color(color.R, color.G, color.B, 255));
+                var icon = ItemIcon.Of(stack.Item);
+                if (icon.Length == 0) DrawRectangle(x + 7, y + 7, Slot - 14, Slot - 14, new Color(color.R, color.G, color.B, 255));
+                foreach (var stroke in icon)
+                    DrawLineEx(new Vector2(x, y) + stroke.From * Slot, new Vector2(x, y) + stroke.To * Slot, stroke.Width * Slot, stroke.Color);
+                if (stack.Wear > 0 && stack.Item.Durability > 0)
+                {
+                    var left = 1 - (float)stack.Wear / stack.Item.Durability;
+                    DrawRectangle(x + 5, y + Slot - 7, Slot - 10, 3, Color.Black);
+                    DrawRectangle(x + 5, y + Slot - 7, (int)((Slot - 10) * left), 3, new Color((byte)(255 * (1 - left)), (byte)(255 * left), 30));
+                }
                 // A block that gives off light is ringed in its light's color.
                 if (stack.Item.Block is { } block && Blocks.Get(block).Emits) DrawRectangleLines(x + 5, y + 5, Slot - 10, Slot - 10, Surfaces.All[Blocks.Get(block).Top].Emissive);
                 if (stack.Count > 1)

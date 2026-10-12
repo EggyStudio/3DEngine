@@ -110,6 +110,11 @@ public static class Surfaces
     public static readonly int BlackWool = Add("black wool", new Color(24, 24, 30), 1);
     public static readonly int BrownWool = Add("brown wool", new Color(114, 71, 40), 1);
     public static readonly int PinkWool = Add("pink wool", new Color(237, 141, 172), 1);
+    public static readonly int BirchPlanks = Add("birch planks", new Color(196, 178, 122));
+    public static readonly int CraftingTableTop = Add("crafting table top", new Color(176, 132, 82));
+    public static readonly int CraftingTableSide = Add("crafting table side", new Color(128, 94, 58));
+    // Stone darkened by its coal, since without textures an ore shows by its color alone.
+    public static readonly int CoalOre = Add("coal ore", new Color(72, 72, 74));
     // A small light's glow is its light over its surface, so a torch's flame, a 48th of a block's
     // surface, glows far brighter than glowstone to light a room nearly as well, as a torch's level of
     // 14 nearly matches glowstone's 15. Each is set so a closed room's floor takes about three

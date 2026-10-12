@@ -5,9 +5,9 @@ test the light that bounces (Radiance Cascades over the scene's distance field) 
 give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128, animals
 that graze it and villagers in its villages, a first-person player with Minecraft's sizes and
 speeds, building and breaking with an outline on the block looked at, in creative mode or in
-survival with an inventory and the items blocks and mobs drop, Minecraft's light levels with smooth
-lighting and shaded corners, a sky whose sun crosses it under drifting clouds, and an ImGui window
-of the light's settings.
+survival with an inventory, tools, crafting and the items blocks and mobs drop, Minecraft's light
+levels with smooth lighting and shaded corners, a sky whose sun crosses it under drifting clouds,
+and an ImGui window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -36,7 +36,7 @@ nothing on disk, as a test run driven by `./e3d` should, so it leaves the saves 
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
 | Left button | Hit the mob looked at or break the block, at once in creative, slowly in survival |
-| Right button | Place the chosen block against the face looked at, or open or shut a door |
+| Right button | Place the chosen block on the face looked at, or open a door or a crafting table |
 | Middle button | Pick the block looked at into the hotbar, in survival from the inventory |
 | 1 to 9, wheel | Choose a slot of the hotbar |
 | E | In creative every item, to put any of them in the chosen slot, and in survival the inventory |
@@ -72,14 +72,15 @@ by number and name. `voxel.mobs` counts the mobs and lists the nearest, `voxel.s
 where the crosshair rests, `voxel.attack` hits the one it rests on as the left button does,
 `voxel.still` stops them where they stand for a capture, and `voxel.kill` takes them away.
 `voxel.mode` plays in creative or survival mode, `voxel.select` puts an item in the chosen slot,
-`voxel.give` puts items in the inventory, `voxel.inventory` lists what it holds, `voxel.items` lists
-every item, and `voxel.throw` throws as Q does. `voxel.gi`, `voxel.field` and `voxel.shadows` set
-the light that bounces, the scene's distance field and the sun's shadows, and `voxel.hud` hides what
-is drawn over the world for a capture. Three measure the light: `voxel.flicker` records each frame's
-change in the picture around a turn or a step into a file, with the first frame after it, the
-settled one and their difference beside it, `voxel.ring` reads the last frame's light around a
-circle on the ground by angle, and `voxel.depth` says how far the block under a pixel is. The
-engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
+`voxel.give` puts items in the inventory, `voxel.craft` makes an item from what the inventory holds,
+`voxel.inventory` lists what it holds, `voxel.items` lists every item, and `voxel.throw` throws as Q
+does. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the scene's distance
+field and the sun's shadows, and `voxel.hud` hides what is drawn over the world for a capture. Three
+measure the light: `voxel.flicker` records each frame's change in the picture around a turn or a
+step into a file, with the first frame after it, the settled one and their difference beside it,
+`voxel.ring` reads the last frame's light around a circle on the ground by angle, and `voxel.depth`
+says how far the block under a pixel is. The engine's own `gi.*` and `field.*` commands show and
+measure the light that bounces.
 
 ## Biomes
 
@@ -220,10 +221,9 @@ the settings window choose and the save keeps. In creative every item is to hand
 breaks at once and drops nothing, placing a block uses nothing up, and Space pressed twice flies. In
 survival there is no flight, and a block takes its hardness times one and a half seconds to break
 with the button held, darkening as it goes, as by hand in Minecraft, and then drops what it leaves:
-grass, farmland and a path their dirt, stone its cobblestone, wheat its wheat and seeds, leaves,
-glass and ice nothing, and any other block itself. A torch or a lantern that falls with the block it
-held to drops too, and placing a block uses one up. There are no tools yet, so stone breaks by hand
-in two and a quarter seconds and drops its cobblestone, where Minecraft's asks for a pickaxe.
+grass, farmland and a path their dirt, stone its cobblestone, coal ore its coal, wheat its wheat and
+seeds, leaves, glass and ice nothing, and any other block itself. A torch or a lantern that falls
+with the block it held to drops too, and placing a block uses one up.
 
 The inventory holds 36 slots of up to 64 of an item, the hotbar its first nine. E opens it in
 survival, where a left click takes up a stack, puts it down, joins it to a stack of its item or
@@ -235,6 +235,29 @@ item lying together join, and a stack is gone after five minutes. The stacks on 
 saved with the world. A mob drops its loot as it dies, in either mode: a pig porkchops, a cow
 leather and beef, a sheep a block of wool of its coat's color and mutton, and a chicken feathers and
 its meat.
+
+## Tools and crafting
+
+A pickaxe, an axe, a shovel and a sword are made of wood or of stone. A tool breaks the blocks its
+kind is for faster than a hand, twice as fast of wood and four times of stone, a pickaxe stone,
+cobblestone, ores, sandstone, concrete and lanterns, an axe logs, planks and what is made of them,
+and a shovel dirt, grass, sand, gravel and snow. A block a pickaxe is for takes its hardness times
+five seconds without one and drops nothing, as in Minecraft, so stone takes seven and a half seconds
+by hand, a little over one with a wooden pickaxe and half of one with a stone pickaxe. A tool wears
+by a use for each block it breaks and a sword by two, and is gone when its 59 uses of wood or 131 of
+stone are worn, a bar under its slot showing what is left. A hit takes a hand's one point of a mob's
+health, and a sword five of wood and six of stone, an axe four and five, a pickaxe three and four
+and a shovel two and three, as Minecraft's took before its attacks had a cooldown.
+
+The inventory has a crafting grid of two by two, and a crafting table, made of four planks, one of
+three by three that a right click on it opens. A recipe matches wherever its shape lies in the grid
+with the rest empty, its mirror image too, and a click on what the grid makes takes it, using one
+item of each stack. A log makes four planks of its wood, two planks four sticks, a stick under coal
+four torches, planks or cobblestone with sticks the tools in Minecraft's shapes, three blocks in a
+row six slabs, a staircase of six blocks four stairs, planks and sticks three fences, six planks
+three doors, four sand a block of sandstone, four stone four stone bricks, and nine wheat a hay
+bale. Veins of coal lie in the stone from 5 to 100 blocks up, 18 to a column, darker than the stone
+around them, which the walls of a cave or a ravine show.
 
 ## How the world is drawn
 
@@ -310,7 +333,7 @@ Textures, and leaves seen through, which are solid. The corners stairs make wher
 slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
 leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
 Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
-Tools and crafting, health, hunger and food, and hostile mobs.
+Iron, furnaces and what they smelt, as glass, health, hunger and food, and hostile mobs.
 
 ## What it costs
 

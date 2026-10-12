@@ -186,6 +186,23 @@ public static class GameCommands
     [Command("voxel.items", "Every item's name, the blocks' and the things' of their own, which voxel.select and voxel.give take")]
     internal static string ListItems() => string.Join(", ", Items.All.Select(i => i.Key));
 
+    [Command("voxel.craft", "Makes an item from what the inventory holds as a recipe book does, as at a crafting table, so many times: voxel.craft <item> [times]")]
+    internal static string Craft(string item, int times = 1)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (Items.Find(item) is not { } found) return $"no item is called {item}, and voxel.items lists them";
+        if (!Recipes.All.Any(r => r.Result == found)) return $"no recipe makes {found.Key}";
+        var made = 0;
+        for (int i = 0; i < Math.Max(1, times); i++)
+        {
+            if (Recipes.CraftFrom(game.Inventory, found) is not { } recipe) break;
+            var left = game.Inventory.Add(recipe.Result, recipe.Count);
+            if (left > 0) game.Drops.Spawn(recipe.Result, left, game.Player.Eye, Vector3.Zero, ItemDrops.ThrownDelay);
+            made += recipe.Count;
+        }
+        return made > 0 ? $"{made} {found.Key} made" : $"the inventory lacks what {found.Key} is made of";
+    }
+
     [Command("voxel.mode", "Plays in creative or survival mode: voxel.mode <creative|survival>")]
     internal static string SetMode(string mode)
     {
@@ -214,9 +231,15 @@ public static class GameCommands
     internal static string Break() =>
         Game is not { } game ? "no world is loaded" : game.Break() ? "the block is broken" : "no block within reach can be broken";
 
-    [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, using one up in survival, or opens or shuts a door, as a right click does")]
-    internal static string Place() =>
-        Game is not { } game ? "no world is loaded" : game.Use() is not BlockId.Air and var placed ? $"{Blocks.Get(placed).Key} is placed" : "nothing can be placed there";
+    [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, using one up in survival, or opens a crafting table or opens or shuts a door, as a right click does")]
+    internal static string Place()
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var atTable = game.AtTable;
+        var used = game.Use();
+        if (!atTable && game.AtTable) return "the crafting table is opened";
+        return used is not BlockId.Air ? $"{Blocks.Get(used).Key} is placed" : "nothing can be placed there";
+    }
 
     [Command("voxel.mobs", "How many mobs of each kind are loaded and kept, and the nearest few, each with its number, where it stands, what it does and its health: voxel.mobs [count]")]
     internal static string ListMobs(int count = 5)
