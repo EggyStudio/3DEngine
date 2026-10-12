@@ -12,7 +12,8 @@ public readonly record struct MobRecord(MobKind Kind, byte Variant, Vector3 Posi
 /// <summary>
 /// A mob in the world: its body, which falls, swims and is stopped by the blocks as the player's is,
 /// and its mind, which wanders along the ways <see cref="Pathfinder"/> finds, runs when hit, looks at
-/// the player nearby, and for a villager goes home at night through its door.
+/// the player nearby, for a villager goes home at night through its door, and for a hostile mob
+/// hunts the player it sees, striking, shooting or exploding beside it.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -27,7 +28,7 @@ public readonly record struct MobRecord(MobKind Kind, byte Variant, Vector3 Posi
 /// so a model built facing north is turned by it alone.
 /// </para>
 /// </remarks>
-public sealed class Mob
+public sealed partial class Mob
 {
     private const float Gravity = 32, FallLimit = 78, JumpSpeed = 9;
     private const float Wander = 10, HomeReach = 20, Panicking = 5, Unhurt = 0.5f, DeathTime = 1;
@@ -95,7 +96,7 @@ public sealed class Mob
     public float Flap { get; private set; }
 
     /// <summary>What it is doing, for <c>voxel.mobs</c>.</summary>
-    public string Doing => Dying >= 0 ? "dying" : _panic > 0 ? "running" : _goingHome ? "going home" : _path is not null ? "walking" : "standing";
+    public string Doing => Dying >= 0 ? "dying" : Fuse >= 0 ? "hissing" : _hunting ? "hunting" : _panic > 0 ? "running" : _goingHome ? "going home" : _path is not null ? "walking" : "standing";
 
     /// <summary>The cells it is walking through, the next first, or none.</summary>
     public IEnumerable<Step> Path => _path is null ? [] : _path.Skip(_next);
@@ -117,6 +118,8 @@ public sealed class Mob
         away = away.LengthSquared() > 1e-6f ? Vector3.Normalize(away) : new Vector3(MathF.Sin(Yaw), 0, MathF.Cos(Yaw));
         Body.Velocity = new Vector3(away.X * 7, 6, away.Z * 7);
         if (Health <= 0) Dying = 0;
+        // A hostile mob hit turns on the player wherever it is, where a passive one runs.
+        else if (Kind.Hostile) _angry = true;
         else
         {
             _panic = Panicking;
@@ -125,8 +128,23 @@ public sealed class Mob
         return true;
     }
 
-    /// <summary>Thinks and moves for a frame of so many seconds, with the player's eye and the hour of the day.</summary>
-    public void Update(VoxelWorld world, Vector3 playerEye, float hour, float seconds)
+    /// <summary>Takes some health with neither a knock nor a run, as burning does, reddening for a moment.</summary>
+    public void Harm(int damage)
+    {
+        if (Dying >= 0) return;
+        Health -= damage;
+        Hurt = MathF.Max(Hurt, 0.25f);
+        if (Health <= 0) Dying = 0;
+    }
+
+    /// <summary>Thinks and moves for a frame of so many seconds, with the player's eye and the hour of the day, hunting no one.</summary>
+    public void Update(VoxelWorld world, Vector3 playerEye, float hour, float seconds) => Update(world, null, playerEye, hour, seconds, []);
+
+    /// <summary>
+    /// Thinks and moves for a frame of so many seconds, a hostile mob hunting the target where one is
+    /// given and adding what it does to the player, its strikes, its shots and its blast, to <paramref name="events"/>.
+    /// </summary>
+    public void Update(VoxelWorld world, MobTarget? target, Vector3 playerEye, float hour, float seconds, List<MobEvent> events)
     {
         Hurt = MathF.Max(0, Hurt - seconds);
         var middle = Body.Position + new Vector3(0, Kind.Height * 0.5f, 0);
@@ -134,7 +152,11 @@ public sealed class Mob
         var wish = Vector3.Zero;
         var jump = false;
         if (Dying >= 0) Dying += seconds;
-        else (wish, jump) = Think(world, playerEye, hour, seconds);
+        else
+        {
+            if (Kind.Burns) Burn(world, hour, seconds);
+            (wish, jump) = Kind.Hostile && Hunts(world, target) is { } prey ? Hunt(world, prey, seconds, events) : Think(world, playerEye, hour, seconds);
+        }
         Move(world, wish, jump, seconds);
         ShutDoorBehind(world);
     }
@@ -325,7 +347,8 @@ public sealed class Mob
         Body.Move(world, Body.Velocity * seconds, keepToEdges: false);
         var moved = Body.Position - before;
         var along = MathF.Sqrt(moved.X * moved.X + moved.Z * moved.Z);
-        if (along > 1e-4f && wish != Vector3.Zero) Yaw = Turn(Yaw, MathF.Atan2(-moved.X, -moved.Z), 10 * seconds);
+        // A hunter faces its prey as it moves, a skeleton backing away from the player among them.
+        if (along > 1e-4f && wish != Vector3.Zero && !_hunting) Yaw = Turn(Yaw, MathF.Atan2(-moved.X, -moved.Z), 10 * seconds);
         Stride += (MathF.Min(1, along / seconds / 1.5f) - Stride) * MathF.Min(1, 10 * seconds);
         StridePhase += along * 3.6f;
         _swing += seconds;

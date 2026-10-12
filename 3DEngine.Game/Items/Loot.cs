@@ -55,7 +55,9 @@ public static class Loot
     /// <summary>
     /// The items a mob drops as it dies: a pig one to three porkchops, a cow up to two leather and one
     /// to three beef, a sheep a block of its wool and one or two mutton, a chicken up to two feathers
-    /// and its meat, and a villager nothing.
+    /// and its meat, a zombie up to two rotten flesh, a skeleton up to two bones and two arrows, a
+    /// creeper up to two gunpowder unless it blew itself up, a spider up to two string and now and
+    /// then an eye, and a villager nothing.
     /// </summary>
     public static IEnumerable<(Item Item, int Count)> Of(Mob mob, Random random)
     {
@@ -65,6 +67,10 @@ public static class Loot
             "cow" => [(Items.Leather, random.Next(3)), (Items.RawBeef, 1 + random.Next(3))],
             "sheep" => [(Items.Of(Wool[mob.Variant % Wool.Length]), 1), (Items.RawMutton, 1 + random.Next(2))],
             "chicken" => [(Items.Feather, random.Next(3)), (Items.RawChicken, 1)],
+            "zombie" => [(Items.RottenFlesh, random.Next(3))],
+            "skeleton" => [(Items.Bone, random.Next(3)), (Items.Arrow, random.Next(3))],
+            "creeper" => mob.Exploded ? [] : [(Items.Gunpowder, random.Next(3))],
+            "spider" => [(Items.String, random.Next(3)), (Items.SpiderEye, random.Next(3) == 0 ? 1 : 0)],
             _ => [],
         };
         return drops.Where(d => d.Item2 > 0);
@@ -94,6 +100,22 @@ public static class Loot
             or BlockId.OakStairs or BlockId.SpruceStairs => (ToolKind.Axe, false),
         BlockId.Dirt or BlockId.Grass or BlockId.Sand or BlockId.Gravel or BlockId.Snow or BlockId.Farmland or BlockId.DirtPath => (ToolKind.Shovel, false),
         _ => (ToolKind.None, false),
+    };
+
+    /// <summary>
+    /// How much a block stands against an explosion, Minecraft's blast resistance: its hardness for
+    /// most, 6 for stone and what is made of it, 3 for wood and coal ore, 100 for water, and bedrock
+    /// past any explosion.
+    /// </summary>
+    public static float Resistance(BlockId block) => Blocks.Get(block).Item switch
+    {
+        BlockId.Bedrock => 3_600_000,
+        BlockId.Water => 100,
+        BlockId.Stone or BlockId.Cobblestone or BlockId.StoneBricks or BlockId.StoneSlab or BlockId.CobblestoneSlab
+            or BlockId.CobblestoneStairs or BlockId.StoneBrickStairs => 6,
+        BlockId.OakLog or BlockId.BirchLog or BlockId.SpruceLog or BlockId.OakPlanks or BlockId.SprucePlanks or BlockId.BirchPlanks
+            or BlockId.OakSlab or BlockId.SpruceSlab or BlockId.OakStairs or BlockId.SpruceStairs or BlockId.OakFence or BlockId.CoalOre => 3,
+        var item => Hardness(item),
     };
 
     /// <summary>A block's hardness, Minecraft's, by the item that places it.</summary>

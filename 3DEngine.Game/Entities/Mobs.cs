@@ -17,11 +17,24 @@ namespace Engine.Game;
 /// Mobs push each other apart and are pushed away by the player, as Minecraft's are, a little each
 /// frame by how far their boxes overlap.
 /// </para>
+/// <para>
+/// Hostile mobs spawn as Minecraft's do, in packs of one to four on a solid block in the dark: no
+/// light from blocks, and sky light no brighter, less the sky's darkening at night, than a roll from
+/// 0 to 7. Four tries a second look for a place between 24 and 64 blocks from the player while
+/// fewer than 30 are about, and a hostile mob more than 128 blocks off is gone at once, and one more
+/// than 32 off now and then. They are not kept by a column that unloads, nor saved.
+/// </para>
 /// </remarks>
 public sealed class Mobs
 {
     // How far the crosshair reaches a mob, as Minecraft's does.
     public const float Reach = 3.5f;
+
+    // At most so many hostile mobs about, a try for a pack each quarter second.
+    private const int HostileCap = 30;
+    private const float SpawnEvery = 0.25f;
+
+    private float _spawnWait;
 
     private readonly List<Mob> _mobs = [];
     private readonly Dictionary<(int X, int Z), List<MobRecord>> _kept;
@@ -43,6 +56,12 @@ public sealed class Mobs
 
     /// <summary>Mobs that died and were taken away, for the game to drop what they leave and clear.</summary>
     public List<Mob> Died { get; } = [];
+
+    /// <summary>What hostile mobs did to the player this frame, their strikes, shots and blasts, for the game to carry out and clear.</summary>
+    public List<MobEvent> Events { get; } = [];
+
+    /// <summary>The hostile mobs alive.</summary>
+    public int Hostile => _mobs.Count(m => m.Kind.Hostile && m.Dying < 0);
 
     /// <summary>Mobs kept by columns not loaded.</summary>
     public int Kept => _kept.Values.Sum(l => l.Count);
@@ -75,7 +94,7 @@ public sealed class Mobs
         _mobs.RemoveAll(mob =>
         {
             if (mob.Dying >= 0 || ColumnOf(mob) != (x, z)) return false;
-            (kept ??= []).Add(mob.Record);
+            if (!mob.Kind.Hostile) (kept ??= []).Add(mob.Record);
             return true;
         });
         if (kept is not null) _kept[(x, z)] = kept;
@@ -89,7 +108,7 @@ public sealed class Mobs
     {
         var loaded = new Dictionary<(int, int), List<MobRecord>>();
         foreach (var mob in _mobs)
-            if (mob.Dying < 0)
+            if (mob.Dying < 0 && !mob.Kind.Hostile)
             {
                 var key = ColumnOf(mob);
                 if (!loaded.TryGetValue(key, out var list)) loaded[key] = list = [];
@@ -103,15 +122,20 @@ public sealed class Mobs
         }
     }
 
-    /// <summary>Thinks and moves every mob whose columns are loaded around it, pushes them apart, and takes away the dead.</summary>
-    public void Update(VoxelWorld world, Body player, Vector3 playerEye, float hour, float seconds)
+    /// <summary>
+    /// Thinks and moves every mob whose columns are loaded around it, the hostile ones hunting the
+    /// player where <paramref name="hunted"/> is set, as in survival, pushes them apart, and takes
+    /// away the dead.
+    /// </summary>
+    public void Update(VoxelWorld world, Body player, Vector3 playerEye, float hour, float seconds, bool hunted = false)
     {
         if (Still) return;
+        MobTarget? target = hunted ? new MobTarget(player, playerEye) : null;
         foreach (var mob in _mobs)
         {
             var (cx, cz) = ColumnOf(mob);
             if (!Around(world, cx, cz)) continue;
-            mob.Update(world, playerEye, hour, seconds);
+            mob.Update(world, target, playerEye, hour, seconds, Events);
         }
         Push(player, seconds);
         foreach (var mob in _mobs)
@@ -198,6 +222,73 @@ public sealed class Mobs
         foreach (var mob in _mobs)
             if (mob.Dying < 0 && mob.Body.Overlaps(x, y, z, boxes)) return true;
         return false;
+    }
+
+    /// <summary>
+    /// How much the sky's light is darkened at an hour, Minecraft's 0 by day and 11 at night, rising
+    /// from half past five in the evening to seven and falling from five in the morning to half past six.
+    /// </summary>
+    public static int Darkening(float hour) =>
+        hour is >= 6.5f and <= 17.5f ? 0
+        : hour > 17.5f && hour < 19 ? (int)((hour - 17.5f) / 1.5f * 11)
+        : hour > 5 && hour < 6.5f ? (int)((6.5f - hour) / 1.5f * 11)
+        : 11;
+
+    /// <summary>Whether a hostile mob of a kind can spawn with its feet in a cell: on a solid block, the cells it takes free, and dark enough by a roll.</summary>
+    public static bool Spawnable(VoxelWorld world, MobKind kind, int x, int y, int z, float hour, int roll)
+    {
+        if (!Blocks.IsOpaque(world.GetBlock(x, y - 1, z))) return false;
+        for (int i = 0; i < (int)MathF.Ceiling(kind.Height); i++)
+        {
+            var block = world.GetBlock(x, y + i, z);
+            if (world.BoxesAt(x, y + i, z).Count > 0 || Blocks.IsWater(block)) return false;
+        }
+        var (sky, light) = world.GetLight(x, y, z);
+        return light == 0 && Math.Max(0, sky - Darkening(hour)) <= roll;
+    }
+
+    /// <summary>Tries for a pack of hostile mobs in the dark around the player, four tries a second, and takes away those far from it.</summary>
+    public void Spawn(VoxelWorld world, Vector3 player, float hour, float seconds)
+    {
+        _mobs.RemoveAll(m => m.Kind.Hostile && m.Dying < 0 && Despawns(Vector3.Distance(m.Body.Position, player), seconds));
+        _spawnWait -= seconds;
+        if (_spawnWait > 0 || Hostile >= HostileCap) return;
+        _spawnWait = SpawnEvery;
+        var angle = _random.NextDouble() * Math.Tau;
+        var distance = 24 + _random.NextDouble() * 40;
+        int x = (int)MathF.Floor(player.X + (float)(Math.Cos(angle) * distance)), z = (int)MathF.Floor(player.Z + (float)(Math.Sin(angle) * distance));
+        if (!Around(world, VoxelWorld.ColumnOf(x), VoxelWorld.ColumnOf(z))) return;
+        var top = world.Top(x, z);
+        if (top < 0) return;
+        // A height at random from the bottom to over the ground, and the first open cell on a block under it.
+        var y = 1 + _random.Next(top + 1);
+        while (y > 1 && (world.BoxesAt(x, y - 1, z).Count == 0 || world.BoxesAt(x, y, z).Count > 0)) y--;
+        var kind = Pick(_random.Next(100));
+        var pack = 1 + _random.Next(4);
+        for (int tries = 0; tries < pack * 3 && pack > 0 && Hostile < HostileCap; tries++)
+        {
+            int px = x + _random.Next(-3, 4), pz = z + _random.Next(-3, 4);
+            for (int py = y + 1; py >= y - 1; py--)
+                if (Spawnable(world, kind, px, py, pz, hour, _random.Next(8)))
+                {
+                    Add(new MobRecord(kind, 0, new Vector3(px + 0.5f, py, pz + 0.5f), (float)(_random.NextDouble() * Math.Tau), kind.Health, null));
+                    pack--;
+                    break;
+                }
+        }
+    }
+
+    // Gone at once beyond 128 blocks and beyond 32 about once in forty seconds, as Minecraft's despawning.
+    private bool Despawns(float distance, float seconds) => distance > 128 || distance > 32 && _random.NextDouble() < seconds / 40;
+
+    private static MobKind Pick(int roll)
+    {
+        foreach (var (kind, weight) in MobKinds.Night)
+        {
+            if (roll < weight) return kind;
+            roll -= weight;
+        }
+        return MobKinds.Zombie;
     }
 
     /// <summary>Takes away every mob of a kind, or every mob where none is given, from the loaded columns.</summary>

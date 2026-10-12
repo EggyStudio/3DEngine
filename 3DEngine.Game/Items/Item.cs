@@ -65,6 +65,12 @@ public static class Items
     public static readonly Item Coal = Find("coal")!;
     public static readonly Item Bread = Find("bread")!;
     public static readonly Item Apple = Find("apple")!;
+    public static readonly Item RottenFlesh = Find("rotten_flesh")!;
+    public static readonly Item Bone = Find("bone")!;
+    public static readonly Item Arrow = Find("arrow")!;
+    public static readonly Item Gunpowder = Find("gunpowder")!;
+    public static readonly Item String = Find("string")!;
+    public static readonly Item SpiderEye = Find("spider_eye")!;
 
     private static Item[] Build()
     {
@@ -94,6 +100,12 @@ public static class Items
             ("wheat_sheaf", "Wheat", new Color(220, 188, 88), 0, 0),
             ("stick", "Stick", new Color(120, 90, 54), 0, 0),
             ("coal", "Coal", new Color(58, 58, 66), 0, 0),
+            ("rotten_flesh", "Rotten Flesh", new Color(140, 74, 52), 4, 0.8f),
+            ("bone", "Bone", new Color(226, 222, 206), 0, 0),
+            ("arrow", "Arrow", new Color(150, 120, 90), 0, 0),
+            ("gunpowder", "Gunpowder", new Color(96, 96, 96), 0, 0),
+            ("string", "String", new Color(232, 232, 232), 0, 0),
+            ("spider_eye", "Spider Eye", new Color(150, 40, 60), 2, 3.2f),
         ];
         foreach (var (key, name, color, food, saturation) in own)
             all.Add(new Item(key, name, color, null) { Id = all.Count, Food = food, Saturation = saturation });

@@ -3,11 +3,11 @@
 A voxel game in the manner of Minecraft, and the ground floor of a larger one. Its first use is to
 test the light that bounces (Radiance Cascades over the scene's distance field) with blocks that
 give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128, animals
-that graze it and villagers in its villages, a first-person player with Minecraft's sizes and
-speeds, building and breaking with an outline on the block looked at, in creative mode or in
-survival with health and hunger, an inventory, tools, crafting and the items blocks and mobs drop,
-Minecraft's light levels with smooth lighting and shaded corners, a sky whose sun crosses it under
-drifting clouds, and an ImGui window of the light's settings.
+that graze it, villagers in its villages and hostile mobs in its dark, a first-person player with
+Minecraft's sizes and speeds, building and breaking with an outline on the block looked at, in
+creative mode or in survival with health and hunger, an inventory, tools, crafting and the items
+blocks and mobs drop, Minecraft's light levels with smooth lighting and shaded corners, a sky whose
+sun crosses it under drifting clouds, and an ImGui window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -280,6 +280,34 @@ second after it. A death spills the inventory where the player fell and offers a
 world's spawn, the highest block at the origin, with full health and food. Creative mode keeps the
 player from all of it.
 
+## Hostile mobs
+
+In survival, zombies, skeletons, spiders and creepers spawn in the dark, as Minecraft's do: on a
+solid block where no block gives light and the sky's light, less its darkening at night, is no
+brighter than a roll from 0 to 7, so on the surface at night and in caves at any hour. Four tries a
+second look between 24 and 64 blocks from the player for a pack of one to four of a kind, zombies
+four times in ten, skeletons three, and spiders and creepers one and a half each, while fewer than
+30 are about. One more than 128 blocks off is gone at once and one more than 32 off now and then,
+and a column that unloads does not keep them, nor does the save.
+
+A hostile mob that sees the player within its range, 24 blocks for a zombie and 16 for the rest,
+hunts the player along a way found through the blocks, and keeps on within twice that, as does one
+the player hits. A zombie strikes for three points a second within reach and a spider for two, a
+skeleton keeps five to ten blocks off and shoots an arrow every two seconds, aimed above the
+player's chest for its drop, each arrow two points for each block a tick it flies and sometimes one
+more, and a creeper within three blocks hisses, swelling and flashing white, and after a second and
+a half explodes, unless the player gets seven blocks away. Its explosion, of Minecraft's power 3,
+sends rays out that break the blocks they reach by each block's blast resistance, a hollow of dirt
+and little stone, drops a third of what it breaks, and harms the player and the mobs by their
+distance and how much of them it sees, 43 points at its middle. Zombies and skeletons burn under the
+open sky by day, a point a second. In creative mode they wander and hunt no one.
+
+They drop Minecraft's loot as they die: a zombie rotten flesh, which feeds four points, a skeleton
+bones and arrows, a spider string and now and then an eye, and a creeper gunpowder, unless it blew
+itself up. Their models are boxes after Minecraft's, a zombie's and a skeleton's arms held out ahead
+and a skeleton's bow upright in its hand, and arrows are thin shafts drawn over the frame, which
+cast no shadow.
+
 ## How the world is drawn
 
 A section of 16 blocks a side is one mesh in one white material, each corner of a face its position
@@ -356,7 +384,7 @@ slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light t
 leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
 Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
 Iron, furnaces and what they smelt, as glass and cooked meat, a bed to set where the player
-respawns, and hostile mobs.
+respawns, spiders that climb walls, and a bow and armor for the player.
 
 ## What it costs
 

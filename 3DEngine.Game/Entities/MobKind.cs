@@ -5,7 +5,11 @@ namespace Engine.Game;
 /// <summary>A box of a mob's model between two corners in sixteenths of a block, its color, or null for the color its mob varies by.</summary>
 public readonly record struct ModelBox(Vector3 Min, Vector3 Max, Color? Color);
 
-/// <summary>How a piece of a model moves: not at all, with the head's look, as one of the two pairs of legs, or as a wing.</summary>
+/// <summary>
+/// How a piece of a model moves: not at all, with the head's look, as one of the two pairs of legs,
+/// as a wing, as one of two arms swinging against the legs, or as one of a spider's two sets of
+/// legs, which swing about the vertical.
+/// </summary>
 public enum Swing
 {
     None,
@@ -14,11 +18,18 @@ public enum Swing
     LegB,
     LeftWing,
     RightWing,
+    ArmA,
+    ArmB,
+    SpiderA,
+    SpiderB,
 }
 
 /// <summary>A piece of a mob's model that moves as one, turning about its pivot, in sixteenths of a block.</summary>
 public sealed record ModelPart(Swing Swing, Vector3 Pivot, ModelBox[] Boxes)
 {
+    /// <summary>How the piece is turned about its pivot before it swings, in radians about x, then z, then y, as a zombie holds its arms out.</summary>
+    public Vector3 Pose { get; init; }
+
     /// <summary>Whether a box of it takes its mob's own color, so it is meshed once for each.</summary>
     public bool Varies => Boxes.Any(b => b.Color is null);
 }
@@ -47,6 +58,27 @@ public sealed record MobKind(string Name, float HalfWidth, float Height, float S
 
     /// <summary>Whether it falls slowly, flapping, as a chicken does.</summary>
     public bool FallsSlowly { get; init; }
+
+    /// <summary>Whether it hunts the player in survival, spawns in the dark and is not kept by a column.</summary>
+    public bool Hostile { get; init; }
+
+    /// <summary>The health a hit of its takes from the player, for a mob that strikes.</summary>
+    public int AttackDamage { get; init; }
+
+    /// <summary>How fast it runs at the player, in blocks a second.</summary>
+    public float ChaseSpeed { get; init; }
+
+    /// <summary>How far off it notices the player it can see.</summary>
+    public float FollowRange { get; init; } = 16;
+
+    /// <summary>Whether it shoots arrows rather than striking, as a skeleton does.</summary>
+    public bool Shoots { get; init; }
+
+    /// <summary>Whether it hisses and explodes beside the player rather than striking, as a creeper does.</summary>
+    public bool Explodes { get; init; }
+
+    /// <summary>Whether it burns under the open sky by day, as zombies and skeletons do.</summary>
+    public bool Burns { get; init; }
 
     /// <summary>The height of its eyes, which turn toward the player, at its head's pivot.</summary>
     public float Eyes => Parts.FirstOrDefault(p => p.Swing == Swing.Head)?.Pivot.Y / 16 ?? Height * 0.85f;
@@ -95,8 +127,18 @@ public static class MobKinds
     public static readonly MobKind Sheep = MakeSheep();
     public static readonly MobKind Chicken = MakeChicken();
     public static readonly MobKind Villager = MakeVillager();
+    public static readonly MobKind Zombie = MakeZombie();
+    public static readonly MobKind Skeleton = MakeSkeleton();
+    public static readonly MobKind Creeper = MakeCreeper();
+    public static readonly MobKind Spider = MakeSpider();
 
-    public static readonly MobKind[] All = [Pig, Cow, Sheep, Chicken, Villager];
+    public static readonly MobKind[] All = [Pig, Cow, Sheep, Chicken, Villager, Zombie, Skeleton, Creeper, Spider];
+
+    /// <summary>The hostile kinds, and how often each of a hundred spawns is of it, as Minecraft's overworld weighs them.</summary>
+    public static readonly (MobKind Kind, int Weight)[] Night = [(Zombie, 40), (Skeleton, 30), (Spider, 15), (Creeper, 15)];
+
+    // An arm held out ahead, as a zombie's and a skeleton's are.
+    private static readonly Vector3 Ahead = new(MathF.PI / 2, 0, 0);
 
     public static MobKind? Find(string name) => All.FirstOrDefault(k => k.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -180,5 +222,84 @@ public static class MobKinds
         // A robe of the plains, the desert, the taiga and the snow, as Minecraft's villagers wear by biome.
         Color[] robes = [new(118, 86, 58), new(204, 168, 112), new(86, 62, 46), new(214, 218, 228)];
         return new MobKind("villager", 0.3f, 1.95f, 1.5f, 20, robes, parts) { Id = 4, OpensDoors = true };
+    }
+
+    private static MobKind MakeZombie()
+    {
+        Color skin = new(86, 138, 70), shirt = new(52, 150, 158), pants = new(60, 58, 138), eye = new(24, 44, 22);
+        ModelPart[] parts =
+        [
+            new(Swing.LegA, new Vector3(-2, 12, 0), [B(-4, 0, -2, 0, 12, 2, pants)]),
+            new(Swing.LegB, new Vector3(2, 12, 0), [B(0, 0, -2, 4, 12, 2, pants)]),
+            new(Swing.None, Vector3.Zero, [B(-4, 12, -2, 4, 24, 2, shirt)]),
+            new(Swing.ArmA, new Vector3(-6, 22, 0), [B(-8, 12, -2, -4, 24, 2, skin), B(-8.05f, 18, -2.05f, -3.95f, 24, 2.05f, shirt)]) { Pose = Ahead },
+            new(Swing.ArmB, new Vector3(6, 22, 0), [B(4, 12, -2, 8, 24, 2, skin), B(3.95f, 18, -2.05f, 8.05f, 24, 2.05f, shirt)]) { Pose = Ahead },
+            new(Swing.Head, new Vector3(0, 24, 0), [B(-4, 24, -4, 4, 32, 4, skin), .. Eyes(1, 28, -4, eye), B(-2, 25, -4.05f, 2, 26, -4, eye)]),
+        ];
+        return new MobKind("zombie", 0.3f, 1.95f, 1.0f, 20, [skin], parts)
+        {
+            Id = 5, Hostile = true, AttackDamage = 3, ChaseSpeed = 2.3f, FollowRange = 24, Burns = true,
+        };
+    }
+
+    private static MobKind MakeSkeleton()
+    {
+        Color bone = new(204, 204, 198), dark = new(44, 44, 44), bow = new(112, 82, 44);
+        ModelPart[] parts =
+        [
+            new(Swing.LegA, new Vector3(-2, 12, 0), [B(-3, 0, -1, -1, 12, 1, bone)]),
+            new(Swing.LegB, new Vector3(2, 12, 0), [B(1, 0, -1, 3, 12, 1, bone)]),
+            // A spine with ribs about it and shoulders across its top.
+            new(Swing.None, Vector3.Zero, [B(-1, 12, -1, 1, 22, 1, bone), B(-3, 15, -1.5f, 3, 21, 1.5f, bone), B(-4, 22, -1, 4, 24, 1, bone)]),
+            new(Swing.ArmA, new Vector3(-5, 22, 0), [B(-6, 12, -1, -4, 24, 1, bone)]) { Pose = Ahead },
+            // The right hand holds a bow upright once the arm is held out.
+            new(Swing.ArmB, new Vector3(5, 22, 0), [B(4, 12, -1, 6, 24, 1, bone), B(4.5f, 10, -4, 5.5f, 12, 4, bow)]) { Pose = Ahead },
+            new(Swing.Head, new Vector3(0, 24, 0), [B(-4, 24, -4, 4, 32, 4, bone), .. Eyes(1, 27, -4, dark), B(-3, 28, -4.05f, 3, 29, -4, dark), B(-0.5f, 26, -4.05f, 0.5f, 27, -4, dark)]),
+        ];
+        return new MobKind("skeleton", 0.3f, 1.99f, 1.2f, 20, [bone], parts)
+        {
+            Id = 6, Hostile = true, ChaseSpeed = 2.4f, FollowRange = 16, Shoots = true, Burns = true,
+        };
+    }
+
+    private static MobKind MakeCreeper()
+    {
+        Color green = new(84, 170, 64), patch = new(58, 128, 44), face = new(20, 24, 20);
+        ModelPart[] parts =
+        [
+            new(Swing.None, Vector3.Zero, [B(-4, 6, -2, 4, 18, 2, green), B(-4.05f, 9, -1, -4, 13, 1.5f, patch), B(4, 12, -1.5f, 4.05f, 16, 1, patch)]),
+            new(Swing.Head, new Vector3(0, 18, 0),
+            [
+                B(-4, 18, -4, 4, 26, 4, green), B(-3, 22, -4.05f, -1, 24, -4, face), B(1, 22, -4.05f, 3, 24, -4, face),
+                B(-1, 19, -4.05f, 1, 22, -4, face), B(-2, 18, -4.05f, -1, 21, -4, face), B(1, 18, -4.05f, 2, 21, -4, face),
+            ]),
+            .. Legs(2, -4, 4, 6, 4, (x, z) => [B(x, 0, z, x + 4, 6, z + 4, patch)]),
+        ];
+        return new MobKind("creeper", 0.3f, 1.7f, 1.0f, 20, [green], parts)
+        {
+            Id = 7, Hostile = true, ChaseSpeed = 2.2f, FollowRange = 16, Explodes = true,
+        };
+    }
+
+    private static MobKind MakeSpider()
+    {
+        Color body = new(52, 44, 40), back = new(66, 56, 50), red = new(196, 30, 30);
+        var parts = new List<ModelPart>
+        {
+            new(Swing.None, Vector3.Zero, [B(-3, 6, -3, 3, 12, 3, body), B(-5, 5, 3, 5, 13, 15, back)]),
+            new(Swing.Head, new Vector3(0, 9, -3), [B(-4, 5, -11, 4, 13, -3, body), .. Eyes(1, 10, -11, red), B(-3, 11, -11.05f, -2, 12, -11, red), B(2, 11, -11.05f, 3, 12, -11, red)]),
+        };
+        // Four legs a side, each reaching out along x from the thorax, tilted down and spread from
+        // forward to back, the sides' sets swinging against each other.
+        for (int i = 0; i < 4; i++)
+        {
+            float z = -2 + i * 1.3f, spread = 0.75f - i * 0.5f;
+            parts.Add(new(i % 2 == 0 ? Swing.SpiderA : Swing.SpiderB, new Vector3(3, 9, z), [B(3, 8, z - 1, 18, 10, z + 1, body)]) { Pose = new Vector3(0, spread, -0.6f) });
+            parts.Add(new(i % 2 == 0 ? Swing.SpiderB : Swing.SpiderA, new Vector3(-3, 9, z), [B(-18, 8, z - 1, -3, 10, z + 1, body)]) { Pose = new Vector3(0, -spread, 0.6f) });
+        }
+        return new MobKind("spider", 0.7f, 0.9f, 1.5f, 16, [body], [.. parts])
+        {
+            Id = 8, Hostile = true, AttackDamage = 2, ChaseSpeed = 3, FollowRange = 16,
+        };
     }
 }

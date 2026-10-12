@@ -53,6 +53,12 @@ public sealed class VoxelGame : IDisposable
     /// <summary>The stacks of items lying in the world.</summary>
     public ItemDrops Drops { get; } = new();
 
+    /// <summary>The arrows skeletons have loosed.</summary>
+    public Arrows Arrows { get; } = new();
+
+    // The explosions of the last half second, where and how long ago, drawn as a fading flash.
+    private readonly List<(Vector3 At, float Power, float Age)> _blasts = [];
+
     public DropRenderer DropRenderer { get; } = new();
 
     public Inventory Inventory { get; } = new();
@@ -150,6 +156,8 @@ public sealed class VoxelGame : IDisposable
         var (kept, placed) = Save?.ReadMobs() ?? ([], []);
         Mobs = new Mobs(kept, placed);
         Drops.Clear();
+        Arrows.Clear();
+        _blasts.Clear();
         // The mode and the inventory are the world's own, a new world's in creative with its hotbar of blocks.
         Mode = Enum.TryParse<GameMode>(info?.Mode, ignoreCase: true, out var mode) ? mode : GameMode.Creative;
         Inventory.Clear();
@@ -221,7 +229,10 @@ public sealed class VoxelGame : IDisposable
         Player.MaySprint = Mode == GameMode.Creative || Vitals.MaySprint;
         Player.Update(World, seconds, look: _captured && alive, move: keys && alive);
         if (Mode == GameMode.Survival) Live(seconds);
-        Mobs.Update(World, Player.Body, Player.Eye, Sky.Hour, seconds);
+        var hunted = Mode == GameMode.Survival && !Vitals.Dead;
+        Mobs.Update(World, Player.Body, Player.Eye, Sky.Hour, seconds, hunted);
+        if (Mode == GameMode.Survival) Mobs.Spawn(World, Player.Body.Position, Sky.Hour, seconds);
+        Answer(seconds);
         Aim();
         if (_captured && !_swallowClick && alive) Interact(seconds);
         else (BreakingAt, BreakProgress, Eating) = (null, 0, 0);
@@ -272,6 +283,71 @@ public sealed class VoxelGame : IDisposable
         Player.Flying = false;
         Player.Teleport(new Vector3(0.5f, World.Top(0, 0) + 1, 0.5f));
         Capture(true);
+    }
+
+    // Carries out what the hostile mobs did, their strikes, shots and blasts, and flies the arrows,
+    // each striking the player for its damage and a knock away from where it came.
+    private void Answer(float seconds)
+    {
+        foreach (var e in Mobs.Events)
+            switch (e)
+            {
+                case MobStrike strike:
+                    Harm(strike.Damage, strike.From, $"were slain by a {strike.Mob.Kind.Name}");
+                    break;
+                case MobShot shot:
+                    Arrows.Shoot(shot.From, shot.Velocity);
+                    break;
+                case MobBlast blast:
+                    Explode(blast.At, blast.Power, $"were blown up by a {blast.Mob.Kind.Name}");
+                    break;
+            }
+        Mobs.Events.Clear();
+        foreach (var (damage, from) in Arrows.Update(World, Player.Body, seconds)) Harm(damage, from, "were shot by a skeleton");
+        for (int i = _blasts.Count - 1; i >= 0; i--)
+        {
+            _blasts[i] = _blasts[i] with { Age = _blasts[i].Age + seconds };
+            if (_blasts[i].Age > 0.5f) _blasts.RemoveAt(i);
+        }
+    }
+
+    // Harms the player in survival and knocks it away from a place, as a mob's hit does.
+    private void Harm(int damage, Vector3 from, string cause)
+    {
+        if (Mode != GameMode.Survival || !Vitals.Damage(damage, cause)) return;
+        var away = Player.Body.Position - from;
+        away.Y = 0;
+        if (away.LengthSquared() > 1e-6f) away = Vector3.Normalize(away);
+        Player.Body.Velocity += new Vector3(away.X * 6, 5, away.Z * 6);
+    }
+
+    /// <summary>
+    /// Sets off an explosion of a power at a place, as a creeper's of 3: the blocks its rays reach
+    /// broken, a third of them dropped in survival, and the player and the mobs near it harmed and
+    /// thrown by its impact, as Minecraft's explosions are.
+    /// </summary>
+    public void Explode(Vector3 at, float power, string cause)
+    {
+        var survival = Mode == GameMode.Survival;
+        var pickaxe = Items.Find("stone_pickaxe");
+        foreach (var (x, y, z) in Explosion.Breaks(World, at, power, _random))
+        {
+            var block = World.GetBlock(x, y, z);
+            if (!World.SetBlock(x, y, z, BlockId.Air) || !survival || _random.NextDouble() >= 1 / power) continue;
+            foreach (var (item, count) in Loot.Of(block, _random, pickaxe)) Drops.Pop(item, count, x, y, z);
+        }
+        var middle = Player.Body.Position + new Vector3(0, Player.Body.Height / 2, 0);
+        var distance = Vector3.Distance(middle, at);
+        var exposure = Explosion.Exposure(World, at, Player.Body.Min, Player.Body.Max);
+        if (survival && Explosion.Damage(distance, power, exposure) is > 0 and var damage && Vitals.Damage(damage, cause))
+            Player.Body.Velocity += Vector3.Normalize(middle - at + new Vector3(0, 0.5f, 0)) * Explosion.Impact(distance, power, exposure) * 12;
+        foreach (var mob in Mobs.All)
+        {
+            var near = Vector3.Distance(mob.Body.Position + new Vector3(0, mob.Kind.Height / 2, 0), at);
+            var harm = Explosion.Damage(near, power, Explosion.Exposure(World, at, mob.Body.Min, mob.Body.Max));
+            if (harm > 0) mob.Hit(at, harm);
+        }
+        _blasts.Add((at, power, 0));
     }
 
     // What the mobs that died and, in survival, the blocks that fell with the block they held to leave
@@ -535,6 +611,10 @@ public sealed class VoxelGame : IDisposable
         Renderer.Draw(Player.Eye, RenderDistance);
         MobRenderer.Draw(Mobs.All, Player.Eye);
         DropRenderer.Draw(Drops.All, Player.Eye, GetTime());
+        DrawArrows();
+        // An explosion's flash, a ball swelling to the power's size and fading over half a second.
+        foreach (var (at, power, age) in _blasts)
+            DrawSphere(at, power * (0.4f + age), new Color(255, 236, 200, (byte)(220 * (1 - age / 0.5f))));
         Clouds.Draw(Player.Eye, RenderDistance, Sky.Horizon);
         if (Target is { } hit && !HudHidden)
         {
@@ -565,6 +645,19 @@ public sealed class VoxelGame : IDisposable
             Capture(!Settings.Open);
         }
         EndDrawing();
+    }
+
+    // Each arrow a thin shaft along its flight, or along its last flight once stuck, with grey fletching at its tail.
+    private void DrawArrows()
+    {
+        foreach (var arrow in Arrows.All)
+        {
+            if (Vector3.DistanceSquared(arrow.Position, Player.Eye) > 64 * 64) continue;
+            var way = arrow.Velocity.LengthSquared() > 1e-6f ? Vector3.Normalize(arrow.Velocity) : Vector3.UnitY;
+            var tail = arrow.Position - way * 0.5f;
+            DrawCylinderEx(tail, arrow.Position, 0.025f, 0.02f, 4, new Color(112, 84, 52));
+            DrawCylinderEx(tail, tail + way * 0.12f, 0.06f, 0.03f, 4, new Color(200, 200, 200));
+        }
     }
 
     // The screen of a death, the view dimmed red under what took the player's life and a button for a new one.
