@@ -198,15 +198,25 @@ internal sealed unsafe partial class GraphicsDevice
     /// <paramref name="instances"/> not yet built, from the corners <paramref name="cornersOf"/>
     /// gives, three a triangle in its own space, with each corner's color <paramref name="colorsOf"/>
     /// gives, three sRGB bytes, or white where it gives none, then the top-level structure of every
-    /// copy, ready for the passes after to trace through.
+    /// copy, ready for the passes after to trace through. The corners of a built mesh among
+    /// <paramref name="recolored"/>, whose colors were written in place, take their colors again,
+    /// which its structure does not read.
     /// </summary>
     /// <returns>What the builds read, to be let go once no frame in flight reads it.</returns>
     public IDisposable RecordRayScene(ICommandBuffer commandBuffer, GpuRayScene scene, IReadOnlyList<RayInstance> instances,
-        Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null)
+        Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null, IEnumerable<object>? recolored = null)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
         var cmd = vkCmd.Handle;
         var retired = new Retired();
+
+        foreach (var mesh in recolored ?? [])
+            if (scene.Meshes.TryGetValue(mesh, out var made) && colorsOf?.Invoke(mesh) is { } colors && scene.Corners is not null)
+            {
+                var into = (Vector4*)scene.Corners.Mapped + made.FirstCorner;
+                for (int i = 0; i < colors.Length && made.FirstCorner + i < scene.CornerCount; i++)
+                    into[i].W = BitConverter.UInt32BitsToSingle(1u << 30 | colors[i]);
+            }
 
         var built = false;
         foreach (var instance in instances)

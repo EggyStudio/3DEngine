@@ -154,21 +154,28 @@ internal sealed class SceneFieldRenderer : IDisposable
         Gather(renderWorld, windowDraws);
         var plan = _plan!;
         plan.Update(view.Eye, _drawn, Ahead(view));
+        var repaints = Repaints(plan);
 
         var commands = renderContext.CommandBuffer;
         device.RecordSceneFieldInfo(commands, _field, Info(plan));
-        if (plan.Builds.Count == 0 && plan.Bricks.Count == 0) return;
+        if (plan.Builds.Count == 0 && plan.Bricks.Count == 0 && repaints.Count == 0) return;
 
         device.RecordSceneFieldOpen(commands, _field);
-        if (plan.Builds.Count > 0)
+        if (plan.Builds.Count > 0 || repaints.Count > 0)
         {
-            var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances));
+            var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances).Concat(repaints.SelectMany(repaint => repaint.Instances)));
             foreach (var build in plan.Builds)
             {
                 var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell);
                 Hold(instances);
                 Hold(device.RecordSceneFieldBuild(commands, _field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow));
+            }
+            foreach (var (cascade, origin, cell, painted) in repaints)
+            {
+                var (instances, count, triangles, _) = Instances(device, [.. painted], cell);
+                Hold(instances);
+                Hold(device.RecordSceneFieldRepaint(commands, _field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
             }
         }
         if (plan.Bricks.Count > 0)
@@ -179,6 +186,45 @@ internal sealed class SceneFieldRenderer : IDisposable
             Hold(device.RecordSceneFieldStamp(commands, _field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
         }
         device.RecordSceneFieldClose(commands, _field);
+    }
+
+    /// <summary>
+    /// The meshes whose colors were written in place since the frame before, by their vertices,
+    /// which the ray scene writes into its corners as the field paints them again.
+    /// </summary>
+    internal IReadOnlySet<ModelVertex[]> Recolored => _recolored;
+    private readonly HashSet<ModelVertex[]> _recolored = new(ReferenceEqualityComparer.Instance);
+
+    // Each built cascade not built again this frame and the still copies within its reach of the
+    // meshes whose colors were written in place, which are pooled again with their colors as they
+    // now are and paint again the cells they are nearest, as a voxel game's section lit again by its
+    // light levels is, where the field kept the colors of the mesh's last upload and the light that
+    // bounced off a relit room took its walls as dark as they had been.
+    private List<(int Cascade, Vector3 Origin, float Cell, List<SceneFieldPlan.Instance> Instances)> Repaints(SceneFieldPlan plan)
+    {
+        _recolored.Clear();
+        var repaints = new List<(int, Vector3, float, List<SceneFieldPlan.Instance>)>();
+        if (_store is null || _store.TakeRecolored() is not { Length: > 0 } ids) return repaints;
+        foreach (var id in ids)
+            if (_store.TryGetData(id, out var vertices, out _))
+            {
+                _recolored.Add(vertices);
+                _pooled.Remove(vertices);
+                _tints.Remove(vertices);
+            }
+        for (int c = 0; c < plan.Cascades; c++)
+        {
+            if (plan.BuiltOrigin(c) is not { } origin || plan.Builds.Any(build => build.Cascade == c)) continue;
+            var cell = plan.CellOf(c);
+            var reach = new SceneFieldPlan.Box(origin, origin + new Vector3(SceneFieldPlan.Resolution * cell)).Grown(SceneFieldPlan.Band * cell);
+            var painted = new List<SceneFieldPlan.Instance>();
+            foreach (var (instance, skinned) in _drawn)
+                if (!skinned && _recolored.Contains(instance.Vertices) && plan.IsStill(instance)
+                    && BoundsOf(instance.Vertices).Transformed(instance.World).Overlaps(reach))
+                    painted.Add(instance);
+            if (painted.Count > 0) repaints.Add((c, origin, cell, painted));
+        }
+        return repaints;
     }
 
     // The meshes drawn into the window this frame that cast shadows and bounce light, or where the

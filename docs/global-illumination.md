@@ -38,7 +38,10 @@ Where `SetSceneField` has not been called, the bounce turns the field on at four
 default cell, a quarter of a unit. `Config.GlobalIllumination` and `Config.SceneField` set both for
 an app made from a `Config`. Nothing else changes in a program. Its lights, materials and meshes are
 those it draws already, and a material's color, its texture's average and its mesh's vertex colors
-are the color the light leaves a surface with.
+are the color the light leaves a surface with. Vertex colors written in place with
+`UpdateMeshBuffer`, as a voxel game lights a section again by its light levels, reach the light that
+bounces in the frame after, the field painting again the cells the mesh is nearest without building
+it again.
 
 ## Radiance cascades
 

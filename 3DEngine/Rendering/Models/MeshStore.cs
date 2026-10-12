@@ -52,6 +52,8 @@ internal sealed class MeshStore
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
     private readonly Dictionary<int, Streams> _streams = [];
+    // The meshes whose colors were written since the light field last asked, which it paints again.
+    private readonly HashSet<int> _recolored = [];
     // The streams of the program's own, kept apart from the colors and second texture coordinates,
     // since a mesh with those carries both and one with this stream alone pays for neither.
     private readonly Dictionary<int, MeshStream> _custom = [];
@@ -268,9 +270,28 @@ internal sealed class MeshStore
             if (streams.Texcoords2 is { } texcoords2 && texcoords2.Length != data.Vertices.Length)
                 throw new ArgumentException($"{texcoords2.Length} second texture coordinates for {data.Vertices.Length} vertices.", nameof(streams));
             _streams[id] = streams;
+            // Asked for by the light field each frame it is on, and let go past what a world holds
+            // where it is off.
+            if (_recolored.Count > 65536) _recolored.Clear();
+            _recolored.Add(id);
             _uploads.RemoveAll(u => u.Id == id);
             _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams, Custom: _custom.GetValueOrDefault(id)));
             return true;
+        }
+    }
+
+    /// <summary>
+    /// The meshes whose colors <see cref="SetStreams"/> wrote since this was last called, which the
+    /// light field paints again and the ray scene writes into its corners, forgotten as they are given.
+    /// </summary>
+    internal int[] TakeRecolored()
+    {
+        lock (_gate)
+        {
+            if (_recolored.Count == 0) return [];
+            var ids = _recolored.ToArray();
+            _recolored.Clear();
+            return ids;
         }
     }
 

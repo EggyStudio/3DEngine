@@ -372,7 +372,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
                     plan is not null && GlowLights.Carries(instance.Emission, fields.BoundsOf(instance.Vertices), instance.World, plan.CellSize)));
             _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
-                mesh => fields.CornerColorsOf((ModelVertex[])mesh))));
+                mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));
         }
         else if (_rays is not null)
         {

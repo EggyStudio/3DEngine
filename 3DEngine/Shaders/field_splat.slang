@@ -20,6 +20,9 @@
 // paints each cell the color and the light given off of a triangle whose word is the one the cell
 // kept, its nearest surface, which light that bounces is read from, its instance's color times its
 // vertices' colors blended at the cell's nearest point, as the model pass blends them across a face.
+// A fourth paints again the cells a mesh whose colors were written is nearest, its instances alone,
+// against the words its cascade's build kept, into the images the passes read, so colors written
+// in place reach the light that bounces without the distances found again.
 
 import color;
 
@@ -73,6 +76,14 @@ RWStructuredBuffer<uint> behind;
 [[vk::binding(6, 0)]]
 RWStructuredBuffer<uint> emitted;
 
+// The colors the still meshes paint and those the passes read, cascade after cascade along z, which
+// the dispatch that paints again writes.
+[[vk::binding(7, 0)]] [format("rgba8")]
+RWTexture3D<float4> stillPaint;
+
+[[vk::binding(8, 0)]] [format("rgba8")]
+RWTexture3D<float4> albedoField;
+
 struct SplatPush
 {
     // xyz: the cascade's corner. w: the width of a cell.
@@ -81,7 +92,8 @@ struct SplatPush
     uint4 counts;
     // x: how many workgroups the dispatch has along x, which the triangle's number is read across.
     // y: 1 for the dispatch that paints, 0 for the one that finds the distances, 2 for the one
-    // that lends an emitter thinner than a cell's light to the cells near it.
+    // that lends an emitter thinner than a cell's light to the cells near it, 3 for the one that
+    // paints again. z: where the cascade's words begin in cells, and w: the cascade, for that one.
     uint4 groups;
 };
 
@@ -355,11 +367,19 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             if (front == 0u && dot(p - q, face) < -0.9 * d * faceLength)
                 InterlockedMin(behind[index], (uint(d / cell * 1024.0) << 8) | way);
         }
-        else if (cells[index] == code)
+        else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)
         {
             float3 weights = barycentric(q, a, b, c);
             float3 painted = instance.color.rgb * (weights.x * cornerColor(ca.w) + weights.y * cornerColor(cb.w) + weights.z * cornerColor(cc.w));
             uint3 c = uint3(saturate(painted) * 255.0 + 0.5);
+            if (push.groups.y == 3u)
+            {
+                int3 into = int3(at.xy, at.z + int(push.groups.w) * size);
+                float4 paint = float4(float3(c) / 255.0, 1.0);
+                stillPaint[into] = paint;
+                albedoField[into] = paint;
+                continue;
+            }
             albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (255u << 24);
             float3 e = max(instance.emission.rgb, 0.0);
             glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, carried && any(e > 0.0) ? 1.0 : 0.0)));

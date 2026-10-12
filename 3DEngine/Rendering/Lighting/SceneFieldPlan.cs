@@ -257,6 +257,9 @@ internal sealed class SceneFieldPlan
     /// <summary>How many meshes are still.</summary>
     public int StillCount => _still.Count;
 
+    /// <summary>Whether a mesh drawn this frame is still, built into the cascades around it rather than stamped.</summary>
+    public bool IsStill(in Instance instance) => _still.ContainsKey(instance);
+
     /// <summary>Whether the last frame drew the meshes the frame before did in the same order, and was read by place.</summary>
     public bool ReadByPlace { get; private set; }
 

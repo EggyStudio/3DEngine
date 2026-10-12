@@ -597,7 +597,14 @@ away (`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what t
 box each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures
 near the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
 bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of
-the CPU in the Release build, as their meshes' 57 boxes were. A mesh whose material's
+the CPU in the Release build, as their meshes' 57 boxes were. A still mesh whose vertices' colors
+are written in place (`UpdateMeshBuffer` at 3, `MeshStore.TakeRecolored`) is pooled again with
+them, and in each built cascade not built again that frame the paint pass runs over its triangles
+alone against the words the cascade's last build kept, a megabyte a cascade, writing the colors
+the passes read directly, so a relit section's light bounces with its new colors in the frame after
+without its distances found again; the ray scene writes the colors into the mesh's corners, which
+its structure does not read. Where the field kept the colors of a mesh's last upload, a lamp placed
+in the voxel game's dark room bounced off walls as dark as they had been. A mesh whose material's
 `BouncesLight` is false is left out of the field as one that casts no shadow is, and so out of the
 glow lights and the ray scene the bounce's reference traces, while it casts its shadows, since the
 voxel game's walking animals, four to six pieces each, cost the field 16 to 28 microseconds of the

@@ -10,9 +10,54 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e424550c`. Item 22's first part: the screen's probes' rays reach twice as far as the
-world's probes are apart where a ray ends in the finest cascade, and as far as before past it; the
-wall behind the pillar at x 7 reads 0.79 of the reference where 0.68 and 1.01 without the pillar
+Reviewed up to `6f4c98bb`, the game's commit opening the post-processing window from its Voxel
+window, and `c54d64eb`, item 10: each effect over the frame is read back beside its setter, the
+tonemap, the exposure and the one that follows the scene, the grading, the vignette, FXAA, the depth
+of field, the motion blur and the bloom, those of several values a tuple named as the setter's
+arguments, and `DrawPostProcessWindow()` shows every one in an ImGui window of its own, drawn on a
+call from a game's frame as its other windows are, the curve a choice by name and the rest sliders
+and checks under headers, each calling its setter at once; a test reads every effect as it stands
+unless set and as each setter leaves it, its bounds kept, and draws the window in a headless frame,
+which changes none; the cheat sheet, the materials guide's effects section and the upgrading guide's
+added list say them. The suite 1,702; the guide's blocks build on the package. Right, the readings
+beside the writings and the window a game calls rather than one the engine opens. The Reply is read
+and removed; the game's session is asked to open the window from its Voxel window, and the owner's
+eye judges the look. Item 10 is done. Part h at 07:10: the owner's two captures of the penumbra are
+no longer in the tree, and pictures in the same place and quality need a fresh copy of the owner's
+save, which the game's session alone makes, so it is asked for them at this head, still and 60 and
+600 frames after a step, the seam traced row by row and the band's blotches measured as on
+`64fd2f14`; the working session's own reading meanwhile, from the engine's room of the saw at 1280
+by 720 from the owner's place, is no seam with teeth and a smooth falloff across the red wall, its
+isolines bending at two heights where the gather's blend between the probes' layers changes slope,
+which reads as faint horizontal bands, and the blotches, the light less its blur, at 0.44% of the
+light still and 0.37% after a step, correlated 0.16 at 8 and 16 pixels, against the game's 0.65% and
+0.42 on `64fd2f14`. The game's pictures came at 07:20, drawn at this head through a fresh copy of
+the owner's save, deleted again after: the seam keeps its teeth, 17 pixels at the top and the foot
+still and 11 and 26 after a step, as at `8118e2c7`, and the blotches are 0.34% of the light with no
+repeat at 8 pixels across, as at `56db892b`; so the blotches are down by half since the owner's
+pictures and the teeth stand where the engine's own room shows none, which makes the seam the game's
+scene's, its cause to be read in the game's pictures row by row after item 9, and the pictures went
+to the owner's eye at 07:21 with the working session's reading beside them, the panels in the engine
+session's scratch folder: across the seam the frame steps 26% in 20 pixels where the reference rises
+smoothly over 170, the frame 0.79 to 0.88 of the reference left of the seam and 0.84 to 0.98 right
+of it, the seam's middle rows within 2 pixels of a line and the teeth at its top and foot 11 to 17
+and 17 to 26 pixels, 18 and 21 at `8118e2c7`, so neither the filter's correction nor the longer
+reach touched them, and they are the glow lights' march past the pillar's ends, as the game first
+read them; the blotches 0.34% of the light still and after a step, settled by 60 frames, half of
+`e477bc1e`'s 0.65% and like `56db892b`'s 0.30%, with no repeat on the 8 or 16 pixel tile grid where
+there was one, what remains running long down the rows along the room's creases and the shadow's
+own. The teeth are item 24, after item 9: the glow lights' shadow past a box's edge is a step where
+a penumbra belongs. The owner pushed at 07:00 and again at 07:24: `e424550c`'s run has its Linux and
+macOS tests green, 14 and 13 minutes, its Windows tests running since 07:02 and its captures drawing
+on macOS, and `6f4c98bb`'s run is in flight; the Windows time, with the third build and the longer
+screen rays, is read next. The game opened the post-processing window from its Voxel window at
+`6f4c98bb`, item 10's last piece, and took the mobs' entry out of ASKS.md as done. Next item 9,
+colors written in place reaching the bounce, which the working session has taken, then item 24, the
+glow lights' penumbra, then item 8.
+
+Before it, `e424550c` came, item 22's first part: the screen's probes' rays reach twice as far as
+the world's probes are apart where a ray ends in the finest cascade, and as far as before past it;
+the wall behind the pillar at x 7 reads 0.79 of the reference where 0.68 and 1.01 without the pillar
 where 1.05, a gap of 22 points where 15 was asked, every other point within 13, the 27 cases summed
 3.778 where 4.006 and the corridor 3 to 9% under where 17, the bounce rooms' bounds set again 15%
 over the new reads. Doubled everywhere the reach let two leaks in, which the suite and lavapipe
@@ -79,30 +124,6 @@ points to 22 and the 27 cases' sum from 4.006 to 3.739, the corridor from 17% un
 is taken for the rooms' gain with its marks missed and said, and the probe's face toward the pillar,
 read 21% low, is the item's second part. Then h's blotches and teeth by the owner's eye, item 10,
 item 9 and item 8.
-
-Before it, `f889a559` came, a commit of the game's, recipes, ores in the generator, loot and drops
-grown, the inventory window with item icons and the hotbar and head-up display with them. Item 22,
-measured by the working session and not taken, its Reply read and removed: the merge tracing from
-where the lower ray ended to where the upper probe's interval begins, along the same way where that
-probe's ray met a surface early, lights what it meets as a probe ray's hit and passes the probe over
-where it meets nothing; behind the pillar the wall at x 7 reads 0.75 of the reference with the
-pillar and 1.09 without where the head reads 0.68 and 1.05, the gap 34 points where 37 against the
-10 asked, since in the pillar's case the trace meets nothing and the probe is passed over as before;
-over the 27 bounce-room cases it adds light wherever it changes anything, the Cornell box and the
-thin room 0.6 and 0.7 points further over, the window's room at Medium from 7.8% under to 12.3% over
-and the grazing floor from 0.4% under to 7.1% over, the sum 4.298 where 4.006 and 4.216 lighting the
-hit alone, so the dark reading earns its place and the diff is kept outside the repository. Right,
-measured before it was kept, and let go on the measure. The gap is the gather's: the wall's pixels
-two units before the pillar blend in probes standing at its dark face, which the gather sees and
-finds facing, whose light is their own position's; item 22 is rewritten below to the screen probes'
-rays reaching the pillar as the first measured step, the gather weight by a surface's half of the
-sphere the fallback. The working session's reproduction of item 23's cost, read at 03:15, moves it
-off the stamp: half a microsecond a box on the GPU, the game's cost being cascade rebuilds as mobs
-settle into the still field after eight frames and leave it again, and the plan's order rebuilt over
-every instance once any mesh moves, so the item's second part is rewritten below to a longer
-stillness before a moving mesh settles and the read-by-place path kept when only a matrix moved.
-Next item 23's second part so, then item 22 as rewritten, h's blotches and teeth by the owner's eye,
-item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -612,22 +633,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    bounce weighs more than its 0.6 ms.
 
 10. **A post-processing window in the overlay, which a game opens as it opens its performance window
-    (Decision 28).** The owner asked on 2026-10-11 for a tab of the ImGui overlay that opens a
-    window of the tonemapping and coloring settings, as the voxel game's Voxel window opens its
-    profile window. The engine's post-processing is set and not read: `SetExposure`,
-    `SetAutoExposure`, `SetTonemap`, `SetColorGrading`, `SetVignette`, `SetFxaa`, `SetDepthOfField`,
-    `SetMotionBlur` and `SetBloom` write `FrameEffects`, which is internal, so a game cannot show
-    the values it has. The engine gains a reading of each setting beside its setter and a window of
-    its own, drawn on a call from a game's ImGui frame as its other windows are, that shows and sets
-    every one: the tonemapper by name from the `Tonemap` choices (Decision 17), the exposure and the
-    automatic exposure's bounds and speed, the contrast, the saturation and the tint, the vignette
-    and its radius, FXAA, the depth of field's distance, range and blur, the motion blur and its
-    per-object kind, and the bloom's intensity and threshold, each a slider, a check or a choice
-    that writes its setter at once, so the owner tunes the picture while looking at it. A test reads
-    each setting back after its setter and draws the window once in a headless frame. The game's
-    session is asked to open the window from its Voxel window as it opens the profile window, once
-    the engine has it. Taken after item 2's parts g, c and f and before item 9, since the owner
-    asked for it and it is small; the owner's eye judges the look (Decision 27).
+    (Decision 28), done at `c54d64eb`.** The owner asked on 2026-10-11 for a tab of the ImGui
+    overlay that opens a window of the tonemapping and coloring settings, as the voxel game's Voxel
+    window opens its profile window. The engine's post-processing is set and not read:
+    `SetExposure`, `SetAutoExposure`, `SetTonemap`, `SetColorGrading`, `SetVignette`, `SetFxaa`,
+    `SetDepthOfField`, `SetMotionBlur` and `SetBloom` write `FrameEffects`, which is internal, so a
+    game cannot show the values it has. The engine gains a reading of each setting beside its setter
+    and a window of its own, drawn on a call from a game's ImGui frame as its other windows are,
+    that shows and sets every one: the tonemapper by name from the `Tonemap` choices (Decision 17),
+    the exposure and the automatic exposure's bounds and speed, the contrast, the saturation and the
+    tint, the vignette and its radius, FXAA, the depth of field's distance, range and blur, the
+    motion blur and its per-object kind, and the bloom's intensity and threshold, each a slider, a
+    check or a choice that writes its setter at once, so the owner tunes the picture while looking
+    at it. A test reads each setting back after its setter and draws the window once in a headless
+    frame. The game's session is asked to open the window from its Voxel window as it opens the
+    profile window, once the engine has it. Taken after item 2's parts g, c and f and before item 9,
+    since the owner asked for it and it is small; the owner's eye judges the look (Decision 27).
+    Done at `c54d64eb`: nine readings beside their setters and the window, with its test.
 
 11. **The README's examples as one scrolling row a folder, the games' text under them gone, done at
     `706a1499`'s look, `4805676c` reverted at `aa9fe773`, the games' captions at `e28064f7`
@@ -989,6 +1011,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     box is not needed. Done at `6a36b2b5` and `089ac771`, the game measuring its village with the
     bounce on after.
 
+24. **The glow lights' shadow past a box's edge is a step where a penumbra belongs.** The owner's
+    picture of 2026-10-11 at 13:50 showed a zigzag seam on the voxel game's wall where the lamps'
+    light falls past a pillar, and the game's pictures drawn again at `6f4c98bb` show it unchanged
+    by part h's work since: across the seam the frame steps 26% of the light in 20 pixels where the
+    path-traced reference rises smoothly over 170, the frame 0.79 to 0.88 of the reference on the
+    dark side and 0.84 to 0.98 on the lit, the seam's middle rows within 2 pixels of a line and
+    teeth of 11 to 26 pixels at its top and foot, where the march passes the pillar's ends. The
+    cause is the glow lights' march: a ray from the surface to the halves of a lamp's faces either
+    reaches or is stopped, so the shadow a box throws is hard at the march's resolution and toothed
+    where its steps cross the box's ends, and the wall's bounce from the lamp, which is most of its
+    light there, takes that edge. The remedy is the distance field's own penumbra: along the march
+    the least of the field's distance over the distance traveled gives how far the ray passes from
+    the occluder's edge, and the lamp's light is scaled by it from zero at a grazing pass to one
+    past a cone's width, the cone set by the lamp's face's size over its distance as a soft shadow
+    is, so the shadow falls off over the width the reference shows and the teeth, which are the
+    step's, go with the step; measured on the game's seam row by row against the reference, the
+    step's 20 pixels to become a falloff within a quarter of the reference's width and the teeth
+    under 3 pixels, the glowstone room and the bounce rooms' 27 cases read for what moves, the
+    march's GPU time before and after, and the owner's eye on the picture drawn again. After item 9.
+
 ## Verdicts
 
 Verdicts 1 to 53 are settled, the last three, the soak, the measure and the picture script, on
@@ -1237,14 +1279,18 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 10. Each effect over the frame is read back beside its setter, `GetTonemap`, `GetExposure`,
-`GetAutoExposure`, `GetColorGrading`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`,
-`GetMotionBlur` and `GetBloom`, those of several values a tuple named as the setter's arguments,
-and `DrawPostProcessWindow()` shows every one in an ImGui window of its own, the curve a choice by
-name, the rest sliders and checks under headers for the exposure that follows the scene, the
-grading with the vignette and FXAA, the depth of field, motion blur and bloom, each calling its
-setter at once. A test reads every effect as it is unless set and as each setter leaves it, its
-bounds kept, and draws the window in a headless frame, which changes none. The cheat sheet, the
-guide's effects section and the upgrading guide's Added list say them. The suite passes, 1,702,
-and the guide's blocks build on the package. The game's session is asked to open the window from
-its Voxel window as it opens the profile window, and the owner's eye judges the look.
+Item 9. Colors written in place now reach the bounce and the reference in the frame after. The
+store keeps the meshes whose colors `UpdateMeshBuffer` wrote (`MeshStore.TakeRecolored`), and each
+frame the field takes them: a still mesh among them is pooled again with its colors as they now
+are, and in each built cascade not built again that frame the paint pass runs over its triangles
+alone against the words the cascade's last build kept, which each build now copies aside, a
+megabyte a cascade, writing the colors the passes read directly, so no distance is found again;
+the ray scene writes the new colors into the mesh's corners, which its structure does not read. A
+test colors a slab white in its vertices with a white wall standing on it, writes its colors red in
+place, and reads the reference trace the slab red and the wall's red over green at 1.230 in the
+frame against 1.240 in the reference, held within 2%; without the ray scene's half the reference
+traces the slab white, and without the field's half the wall's bounce stays white, 1.0. The suite
+passes, 1,703, lavapipe 410 with 10 skipped and no validation error, and the glowstone room lost
+no device in eight runs. The game's room, its floor and wall after a relight against the
+reference at eight bounces and a relit section's cost against an upload's, is asked of the game's
+session.

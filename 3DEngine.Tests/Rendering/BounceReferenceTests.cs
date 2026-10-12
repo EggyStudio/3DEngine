@@ -201,6 +201,60 @@ public sealed class BounceReferenceTests : IDisposable
         UnloadModel(slab);
     }
 
+    [NeedsRayQueryFact]
+    public void A_Slab_Whose_Colors_Are_Written_In_Place_Bounces_Them_Onto_A_Wall_As_The_Reference_Does()
+    {
+        // A slab colored white in its vertices with a white wall standing on it under a lamp, then
+        // its colors written red in place, as a voxel game lights a section again by its light
+        // levels. The field kept the colors of the slab's last upload and the ray scene its corners',
+        // so the light that bounced off the slab onto the wall stayed white, and so did the slab in
+        // the reference.
+        var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f, 1);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetTonemap(Tonemap.None);
+        CreatePointLight(new Vector3(0.5f, 2.5f, 1.5f), Color.White, 4, range: 10);
+        var cube = GenMeshCube(1, 1, 1);
+        GetApp().World.Resource<MeshStore>().TryGetData(cube.Id, out var vertices, out var indices).Should().BeTrue();
+        var colored = UploadMesh(vertices, indices, [.. vertices.Select(_ => Color.White)], null);
+        var slab = LoadModelFromMesh(colored);
+        var wall = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 1.6f, 4), new Vector3(0, 0.7f, -1), Vector3.UnitY, 50);
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModelEx(slab, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(4, 0.2f, 4), Color.White);
+                DrawModelEx(wall, new Vector3(0, 1, -1.1f), Vector3.UnitY, 0, new Vector3(4, 2, 0.2f), Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        Frames(SceneFieldPlan.SettleFrames + 12);
+        UpdateMeshBuffer(colored, 3, (ReadOnlySpan<Color>)[.. vertices.Select(_ => new Color(220, 40, 40))], 0);
+        Frames(40);
+
+        var path = Path.Combine(_folder.Path, "relit.png");
+        BounceReference.Trace(GetApp().World, path, 512).Should().StartWith("traced");
+        var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
+        regions.Should().NotBeNull(why);
+        var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
+        var front = regions!.Single(r => r.Name.Contains("wall facing +z", StringComparison.Ordinal));
+        (floor.Reference.X / floor.Reference.Y).Should().BeGreaterThan(5, $"the reference traces the slab red, {floor.Reference}");
+        Math.Abs(floor.Share).Should().BeLessThan(0.05f, $"the slab reads in the frame {floor.Frame} as in the reference {floor.Reference}");
+        // The wall's red over its green read 1.230 in the frame and 1.240 in the reference on the
+        // development machine's GPU, the slab's own light 3.6% from the reference's.
+        float Tint(Vector3 light) => light.X / light.Y;
+        Tint(front.Frame).Should().BeApproximately(Tint(front.Reference), Tint(front.Reference) * 0.02f,
+            $"the wall takes the slab's red as it bounces, the frame's {front.Frame} against the reference's {front.Reference}");
+        UnloadModel(slab);
+        UnloadModel(wall);
+    }
+
     // A PFM file's floats, whatever their order.
     private static float[] ReadPfm(string path)
     {
