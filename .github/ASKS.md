@@ -177,9 +177,24 @@ Each walking piece costs the field 16 to 28 microseconds of the CPU and 13 to 15
 and past `SceneFieldPlan.MaxShapes`, 256 boxes, the farthest pieces are left out of the field, so a
 crowd of more than 40 or so walking mobs bounces no light from its farthest. The engine lacks a
 cheaper stamp of a moving mesh, or a way for a program to draw a mob's pieces as one box the field
-holds whole while they move, and a way to have a mesh cast the sun's shadow and stay out of the
-field, since `CastsShadows` decides both. The game draws its mobs within 64 blocks, as Minecraft
-draws its entities, and lets them cast shadows, so the light that bounces takes their colors.
+holds whole while they move. The game draws its mobs within 64 blocks, as Minecraft draws its
+entities, casting shadows, with `BouncesLight` off on their two materials.
+
+With `BouncesLight` off, on `6a36b2b5`'s engine against the same build with it on, each from a clean
+worktree and read in the same half hour in the same scene, no box is stamped and the field reads as
+with no mobs. The desktop's gnome-shell took 14 to 23% of the GPU before the first pair of runs and
+a BevyCSharp example up to 24% during the second run with it off, so the frame's lines swing with
+them, and the 0.31 ms of the GPU came in that run with no box stamped. Standing still, the mobs read
+0.82 to 0.99 ms of the CPU with it off and 0.89 to 1.27 with it on. The mobs keep their shadows, and
+a pig's pink does not reach the grass, the trade the game takes for a crowd.
+
+| Mobs drawn | `BouncesLight` | Boxes, bricks | `cpu.scene_field` | `gpu.scene_field` | Frame |
+|---|---|---|---|---|---|
+| None | | 0 | 0.89 to 1.10 ms | 0.004 ms | 21.2 to 23.3 ms |
+| 16 walking | On | 74, 631 | 3.13 ms | 0.87 ms | 23.7 ms |
+| 16 or 17 walking | Off | 0 | 0.82 to 1.08 ms | 0.009 to 0.31 ms | 21.3 to 23.1 ms |
+| 77 walking | On | 256, 846 | 5.78 ms | 4.56 ms | 30.1 ms |
+| 76 or 77 walking | Off | 0 | 0.78 to 0.81 ms | 0.006 to 0.010 ms | 21.5 to 21.7 ms |
 
 Review: item 23 of REVIEW.md, 2026-10-12; first a material's second switch beside `CastsShadows`,
 `BouncesLight`, true by default, which drawn false casts the shadows and leaves the mesh out of the

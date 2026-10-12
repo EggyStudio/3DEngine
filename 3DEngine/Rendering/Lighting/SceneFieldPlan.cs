@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Engine;
 
@@ -30,8 +31,10 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
-/// <see cref="SettleFrames"/> frames running is still and built into the cascades around it. One
-/// that moved more recently, a skinned one, and a still one whose cascades have not been built
+/// <see cref="SettleFrames"/> frames running is still and built into the cascades around it, or for
+/// <see cref="MobileSettleFrames"/> where it moved within as many frames, so a figure that stops for
+/// a while is not built into the cascades and out again. One that moved more
+/// recently, a skinned one, and a still one whose cascades have not been built
 /// again since it came are stamped each frame as boxes, the nearest the eye first to
 /// <see cref="MaxShapes"/> boxes, into the bricks of cells each box comes within the band of, and the
 /// bricks stamped the frame before are stamped again so a box that left one is gone. A skinned
@@ -49,6 +52,27 @@ internal sealed class SceneFieldPlan
 
     /// <summary>How many frames running a mesh is drawn the same before it is still.</summary>
     public const int SettleFrames = 8;
+
+    /// <summary>
+    /// How many frames running a mesh is drawn the same before it is still where it moved within as
+    /// many frames, as a walking figure that stops for a while.
+    /// </summary>
+    /// <remarks>
+    /// A mesh that settles marks the cascades around it to be built again, and one that leaves
+    /// marks them again, a few milliseconds of the GPU each time, where stamping its box costs half a
+    /// microsecond a frame, so a figure that stopped after walking is stamped on until it has stood
+    /// this long. The voxel game's animals stand one to eight seconds between walks, up to 960
+    /// frames at 120 a second, and 76 figures standing so for 240 to 960 frames among a land of 400
+    /// meshes had a cascade built again in a fourth of the frames, 2.5 ms of the GPU's, with 480
+    /// frames here, and with 1024 in one frame of fifty, for the figures that stood from the first
+    /// frame, settled and then walked, the field's share 0.27 ms.
+    /// </remarks>
+    public const int MobileSettleFrames = 1024;
+
+    // What a mesh's frames drawn the same are once it has settled, past every count it settles at,
+    // and the frame a mesh that never moved moved at.
+    private const int Settled = int.MaxValue / 2;
+    private const long Never = long.MinValue / 2;
 
     /// <summary>How many shapes are stamped a frame at most, the nearest the eye.</summary>
     public const int MaxShapes = 256;
@@ -92,6 +116,17 @@ internal sealed class SceneFieldPlan
         /// <summary>The box around this one's eight corners moved by <paramref name="world"/>.</summary>
         public Box Transformed(Matrix4x4 world)
         {
+            // Moved without a perspective, its middle moved and its half extents taken along each
+            // axis of the world by the matrix's sizes, as the corners give it.
+            if (world.M14 == 0 && world.M24 == 0 && world.M34 == 0 && world.M44 == 1)
+            {
+                var (middle, half) = (Vector3.Transform((Min + Max) * 0.5f, world), (Max - Min) * 0.5f);
+                var extents = new Vector3(
+                    MathF.Abs(world.M11) * half.X + MathF.Abs(world.M21) * half.Y + MathF.Abs(world.M31) * half.Z,
+                    MathF.Abs(world.M12) * half.X + MathF.Abs(world.M22) * half.Y + MathF.Abs(world.M32) * half.Z,
+                    MathF.Abs(world.M13) * half.X + MathF.Abs(world.M23) * half.Y + MathF.Abs(world.M33) * half.Z);
+                return new Box(middle - extents, middle + extents);
+            }
             var (min, max) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
             for (int c = 0; c < 8; c++)
             {
@@ -127,11 +162,15 @@ internal sealed class SceneFieldPlan
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], Part[]?> _parts;
     private readonly Func<Instance, Vector3> _tint;
-    private Dictionary<Instance, int> _seen = [];
-    private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = [];
-    private readonly HashSet<Instance> _pending = [];
+    private Dictionary<Instance, int> _seen = new(Keys.Shared);
+    // In a frame read whole, the frame each mesh drawn the frame before last moved where that was
+    // within the longer count, each drawn now, and the vertices of the meshes gone since.
+    private readonly Dictionary<Instance, long> _movedBefore = new(Keys.Shared), _movedNow = new(Keys.Shared);
+    private readonly HashSet<ModelVertex[]> _departed = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = new(Keys.Shared);
+    private readonly HashSet<Instance> _pending = new(Keys.Shared);
     // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
-    private readonly Dictionary<Instance, long> _kept = [];
+    private readonly Dictionary<Instance, long> _kept = new(Keys.Shared);
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
@@ -142,15 +181,25 @@ internal sealed class SceneFieldPlan
     // counts at the cost of an add each, where a set of the bricks cost a hash each, and the bricks
     // each shape comes within in each cascade, its first and last along each axis.
     private int[] _stamped = [], _stampedBefore = [];
+    // The bricks stamped this frame and the frame before, each by its place in those counts, so a
+    // frame reads and clears the bricks it stamped rather than every brick of every cascade.
+    private List<int> _bricksAt = [], _bricksAtBefore = [];
 
     // The meshes drawn the frame before in the order drawn, with the frames each had been drawn the
     // same and whether it is skinned, and whether that order held each mesh once.
     private Instance[] _order = [];
     private int[] _orderFrames = [];
     private bool[] _orderSkinned = [];
+    // Whether the mesh in each place of the order moved this frame, as SameOrder found it, and the
+    // frame it last moved, which it settles after the longer count for as many frames.
+    private bool[] _orderMoved = [];
+    private long[] _orderMovedAt = [];
     private int _orderCount;
     private bool _orderWhole;
     private readonly List<(int Shape, int Cascade, int X0, int Y0, int Z0, int X1, int Y1, int Z1)> _reaches = [];
+    // The meshes stamped this frame, and their distances from the eye with their places, sorted.
+    private Instance[] _nearest = [];
+    private long[] _byDistance = [];
     private long _frame;
 
     /// <summary>A plan of <paramref name="cascades"/> cascades, the first's cells <paramref name="cellSize"/> wide, building <paramref name="budget"/> a frame at most.</summary>
@@ -267,37 +316,85 @@ internal sealed class SceneFieldPlan
         if (ReadByPlace)
         {
             // The meshes drawn the frame before, in the same order, each one frame more the same,
-            // read by place, so a scene that did not change costs a comparison a mesh. None left.
+            // read by place, so a scene that did not change costs a comparison a mesh, the frames
+            // of those not yet still counted in the order alone and those still in the
+            // dictionary as well, which a frame read whole reads them from. A mesh in a
+            // place drawn the frame before through another matrix moved, and where it stood leaves
+            // as one gone from a scene read whole, so a figure walking among still meshes costs a
+            // comparison a mesh too, where read whole each frame, every mesh in a dictionary, a land
+            // of 400 meshes and 76 walking figures of five pieces cost 0.9 ms of the field's 2.4 in
+            // a build that is not optimized.
+            List<Instance>? left = null;
+            var span = Span(drawn);
             for (int i = 0; i < _orderCount; i++)
             {
-                var (instance, skinned) = drawn[i];
+                ref readonly var instance = ref span[i].Instance;
+                var skinned = span[i].Skinned;
                 var frames = _orderFrames[i];
-                if (frames >= SettleFrames) continue;
-                frames = skinned ? 0 : frames + 1;
+                if (_orderMoved[i])
+                {
+                    if (frames >= Settled)
+                    {
+                        _seen.Remove(_order[i]);
+                        if (_still.ContainsKey(_order[i])) (left ??= []).Add(_order[i]);
+                    }
+                    _order[i] = instance;
+                    _orderMovedAt[i] = _frame;
+                    frames = 0;
+                }
+                if (frames >= Settled) continue;
+                frames = skinned ? 0 : frames + 1 >= SettleAfter(_orderMovedAt[i]) ? Settled : frames + 1;
                 _orderFrames[i] = frames;
                 if (skinned) moving.Add(instance);
+                else if (frames < Settled)
+                {
+                    moving.Add(instance);
+                    unsettled.Add(instance);
+                }
                 else
                 {
                     _seen[instance] = frames;
-                    if (frames < SettleFrames)
-                    {
-                        moving.Add(instance);
-                        unsettled.Add(instance);
-                    }
-                    else Settle(instance);
+                    Settle(instance);
                 }
+            }
+            foreach (var instance in left ?? [])
+            {
+                if (ReplacedBy(instance, unsettled)) _kept[instance] = _frame;
+                else Leave(instance);
             }
         }
         else
         {
+            // The frames counted and the moves made in the order since a frame was last read whole.
+            _movedBefore.Clear();
+            _movedNow.Clear();
+            for (int i = 0; i < _orderCount; i++)
+            {
+                if (_orderSkinned[i]) continue;
+                if (_orderFrames[i] < Settled) _seen[_order[i]] = _orderFrames[i];
+                if (_frame - _orderMovedAt[i] < MobileSettleFrames) _movedBefore[_order[i]] = _orderMovedAt[i];
+            }
+            // This frame's meshes, and the vertices of those drawn the frame before and not now, so
+            // a mesh drawn now and not before of vertices one gone had is taken as that one moved,
+            // as a place read by place finds.
+            const int unread = int.MinValue;
+            var seen = new Dictionary<Instance, int>(drawn.Count, Keys.Shared);
+            foreach (var (instance, _) in drawn) seen.TryAdd(instance, unread);
+            _departed.Clear();
+            for (int i = 0; i < _orderCount; i++)
+                if (!_orderSkinned[i] && !seen.ContainsKey(_order[i])) _departed.Add(_order[i].Vertices);
             // Each mesh's frames drawn the same, a skinned one never still.
-            var seen = new Dictionary<Instance, int>(drawn.Count);
             foreach (var (instance, skinned) in drawn)
             {
-                if (seen.ContainsKey(instance)) continue;
-                var frames = skinned ? 0 : Math.Min(SettleFrames, _seen.GetValueOrDefault(instance) + 1);
-                seen[instance] = frames;
-                if (frames >= SettleFrames) continue;
+                ref var counted = ref CollectionsMarshal.GetValueRefOrNullRef(seen, instance);
+                if (counted != unread) continue;
+                var movedAt = skinned ? Never
+                    : !_seen.ContainsKey(instance) && _departed.Contains(instance.Vertices) ? _frame : _movedBefore.GetValueOrDefault(instance, Never);
+                if (movedAt != Never) _movedNow[instance] = movedAt;
+                var before = _seen.GetValueOrDefault(instance);
+                var frames = skinned ? 0 : before >= Settled || before + 1 >= SettleAfter(movedAt) ? Settled : before + 1;
+                counted = frames;
+                if (frames >= Settled) continue;
                 moving.Add(instance);
                 if (!skinned) unsettled.Add(instance);
             }
@@ -308,7 +405,7 @@ internal sealed class SceneFieldPlan
             // section of a game's world edited, stays in the field as it was until the one replacing
             // it is still, where the boxes that one would be stamped as stood in for it badly.
             foreach (var (instance, frames) in seen)
-                if (frames >= SettleFrames && !_still.ContainsKey(instance)) Settle(instance);
+                if (frames >= Settled && !_still.ContainsKey(instance)) Settle(instance);
             foreach (var instance in _kept.Keys.Where(seen.ContainsKey).ToArray()) _kept.Remove(instance);
             foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance) && !_kept.ContainsKey(instance)).ToArray())
             {
@@ -362,66 +459,104 @@ internal sealed class SceneFieldPlan
 
         // The nearest meshes' shapes, a box for each part of each, posed, to as many as a frame
         // stamps, and the bricks they come within the band of in each built cascade.
-        const int side = Resolution / BrickCells;
-        if (_stamped.Length != Cascades * side * side * side) (_stamped, _stampedBefore) = (new int[Cascades * side * side * side], new int[Cascades * side * side * side]);
-        (_stamped, _stampedBefore) = (_stampedBefore, _stamped);
-        Array.Clear(_stamped);
-        // A mesh replacing one the field still holds is not stamped, the one it replaces standing in.
-        var nearest = moving.Where(i => _kept.Count == 0 || !Replaces(i)).OrderBy(i => Vector3.DistanceSquared(i.World.Translation, eye)).ToArray();
-        for (int n = 0; n < nearest.Length && Shapes.Count < MaxShapes; n++)
-        foreach (var (own, pose) in PartsWithin(nearest[n], MaxShapes - Shapes.Count - (nearest.Length - n - 1)))
+        // A brick's place in the counts is its place along each axis in four bits, x lowest, and
+        // its cascade above them, read back by shifts rather than a division an axis.
+        const int side = Resolution / BrickCells, axisBits = 4;
+        const int perCascade = side * side * side;
+        System.Diagnostics.Debug.Assert(side == 1 << axisBits, "a brick's place along an axis takes axisBits bits");
+        if (_stamped.Length != Cascades * perCascade)
         {
-            var instance = nearest[n];
-            var w = pose * instance.World;
-            if (!Matrix4x4.Invert(w, out var toOwn)) continue;
-            var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-            Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, instance.Color * _tint(instance)));
-            var bounds = own.Transformed(w);
-            for (int c = 0; c < Cascades; c++)
+            (_stamped, _stampedBefore) = (new int[Cascades * perCascade], new int[Cascades * perCascade]);
+            (_bricksAt, _bricksAtBefore) = ([], []);
+        }
+        (_stamped, _stampedBefore) = (_stampedBefore, _stamped);
+        (_bricksAt, _bricksAtBefore) = (_bricksAtBefore, _bricksAt);
+        foreach (var at in _bricksAt) _stamped[at] = 0;
+        _bricksAt.Clear();
+        // A mesh replacing one the field still holds is not stamped, the one it replaces standing in.
+        // The rest nearest the eye first, those as near in the order drawn, each sorted by its
+        // distance's bits above its place, which order as the distances do since none is negative.
+        var count = 0;
+        if (_nearest.Length < moving.Count) (_nearest, _byDistance) = (new Instance[moving.Count * 2], new long[moving.Count * 2]);
+        foreach (var instance in moving)
+            if (_kept.Count == 0 || !Replaces(instance))
             {
-                if (_built[c] is not { } origin) continue;
-                var brick = BrickCells * CellOf(c);
-                var near = bounds.Grown(Band * CellOf(c));
-                var first = Vector3.Max(Vector3.Zero, (near.Min - origin) / brick);
-                var last = Vector3.Min(new Vector3(side - 1), (near.Max - origin) / brick);
-                if (first.X > last.X || first.Y > last.Y || first.Z > last.Z) continue;
-                _reaches.Add((Shapes.Count - 1, c, (int)first.X, (int)first.Y, (int)first.Z, (int)last.X, (int)last.Y, (int)last.Z));
-                for (int z = (int)first.Z; z <= (int)last.Z; z++)
-                    for (int y = (int)first.Y; y <= (int)last.Y; y++)
-                        for (int x = (int)first.X; x <= (int)last.X; x++)
-                            _stamped[((c * side + z) * side + y) * side + x]++;
+                _byDistance[count] = (long)BitConverter.SingleToInt32Bits(Vector3.DistanceSquared(instance.World.Translation, eye)) << 32 | (uint)count;
+                _nearest[count++] = instance;
+            }
+        Array.Sort(_byDistance, 0, count);
+        for (int n = 0; n < count && Shapes.Count < MaxShapes; n++)
+        {
+            ref readonly var instance = ref _nearest[(int)(_byDistance[n] & 0xFFFFFFFF)];
+            var tint = instance.Color * _tint(instance);
+            foreach (var (own, pose) in PartsWithin(instance, MaxShapes - Shapes.Count - (count - n - 1)))
+            {
+                var w = pose * instance.World;
+                if (!Matrix4x4.Invert(w, out var toOwn)) continue;
+                var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
+                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint));
+                var (min, max) = own.Transformed(w);
+                for (int c = 0; c < Cascades; c++)
+                {
+                    if (_built[c] is not { } origin) continue;
+                    var cell = CellOf(c);
+                    var brick = BrickCells * cell;
+                    var (low, high) = ((min - origin - new Vector3(Band * cell)) / brick, (max - origin + new Vector3(Band * cell)) / brick);
+                    var (fx, fy, fz) = (MathF.Max(0, low.X), MathF.Max(0, low.Y), MathF.Max(0, low.Z));
+                    var (lx, ly, lz) = (MathF.Min(side - 1, high.X), MathF.Min(side - 1, high.Y), MathF.Min(side - 1, high.Z));
+                    if (fx > lx || fy > ly || fz > lz) continue;
+                    var (x0, y0, z0, x1, y1, z1) = ((int)fx, (int)fy, (int)fz, (int)lx, (int)ly, (int)lz);
+                    _reaches.Add((Shapes.Count - 1, c, x0, y0, z0, x1, y1, z1));
+                    for (int z = z0; z <= z1; z++)
+                        for (int y = y0; y <= y1; y++)
+                        {
+                            var at = ((c * side + z) * side + y) * side + x0;
+                            for (int x = x0; x <= x1; x++, at++)
+                                if (_stamped[at]++ == 0) _bricksAt.Add(at);
+                        }
+                }
             }
         }
         // The bricks stamped now, each with a run of its shapes, and last frame's, which go back to
         // the still field where no shape covers them now, but in a cascade built again this frame,
         // which the build wrote whole. The counts become where each brick's run begins.
+        foreach (var at in _bricksAtBefore)
+            if (_stamped[at] == 0 && _stampedBefore[at] > 0 && !rebuilt[at >> 3 * axisBits]) _bricksAt.Add(at);
         var runs = 0;
-        for (int c = 0, at = 0; c < Cascades; c++)
-            for (int z = 0; z < side; z++)
-                for (int y = 0; y < side; y++)
-                    for (int x = 0; x < side; x++, at++)
-                    {
-                        var shapes = _stamped[at];
-                        if (shapes == 0 && (_stampedBefore[at] == 0 || rebuilt[c])) continue;
-                        Bricks.Add((c, x, y, z));
-                        BrickRanges.Add((runs, shapes));
-                        _stamped[at] = runs;
-                        runs += shapes;
-                    }
+        foreach (var at in _bricksAt)
+        {
+            var shapes = _stamped[at];
+            Bricks.Add((at >> 3 * axisBits, at & side - 1, at >> axisBits & side - 1, at >> 2 * axisBits & side - 1));
+            BrickRanges.Add((runs, shapes));
+            _stamped[at] = runs;
+            runs += shapes;
+        }
         CollectionsMarshal.SetCount(BrickShapes, runs);
         var filled = CollectionsMarshal.AsSpan(BrickShapes);
         foreach (var (shape, c, x0, y0, z0, x1, y1, z1) in _reaches)
             for (int z = z0; z <= z1; z++)
                 for (int y = y0; y <= y1; y++)
-                    for (int x = x0; x <= x1; x++)
-                        filled[_stamped[((c * side + z) * side + y) * side + x]++] = shape;
+                {
+                    var at = ((c * side + z) * side + y) * side + x0;
+                    for (int x = x0; x <= x1; x++, at++) filled[_stamped[at]++] = shape;
+                }
         // Each brick's count put back where the fill left the end of its run, which the frame after
         // reads for the bricks stamped now.
-        for (int b = 0; b < Bricks.Count; b++)
-        {
-            var (c, x, y, z) = Bricks[b];
-            _stamped[((c * side + z) * side + y) * side + x] = BrickRanges[b].Count;
-        }
+        for (int b = 0; b < _bricksAt.Count; b++) _stamped[_bricksAt[b]] = BrickRanges[b].Count;
+    }
+
+    // Meshes told apart as their records are and hashed by their vertices and where they stand
+    // alone, since a record's hash of every field, the matrix's sixteen among them, is a call a
+    // field in a build that is not optimized, and the plan hashes each mesh that moves a few times
+    // a frame.
+    private sealed class Keys : IEqualityComparer<Instance>
+    {
+        public static readonly Keys Shared = new();
+
+        public bool Equals(Instance a, Instance b) => a.Equals(b);
+
+        public int GetHashCode(Instance instance) =>
+            HashCode.Combine(RuntimeHelpers.GetHashCode(instance.Vertices), instance.World.M41, instance.World.M42, instance.World.M43);
     }
 
     // A still mesh that left, its cascades made dirty to be built again without it.
@@ -464,18 +599,49 @@ internal sealed class SceneFieldPlan
     }
 
     // Whether this frame draws the meshes the frame before did, in the same order, each by its
-    // instance, a skinned one by its mesh, whose parts are posed afresh each frame and which is
+    // instance, or moved, as its instance drawn through another matrix that the frame before drew
+    // nowhere, a skinned one by its mesh, whose parts are posed afresh each frame and which is
     // never still. A frame before that drew a mesh twice is not read by place.
     private bool SameOrder(IReadOnlyList<(Instance Instance, bool Skinned)> drawn)
     {
         if (!_orderWhole || drawn.Count != _orderCount) return false;
+        if (_orderMoved.Length < _orderCount) _orderMoved = new bool[_order.Length];
+        var span = Span(drawn);
         for (int i = 0; i < _orderCount; i++)
         {
-            var (instance, skinned) = drawn[i];
-            if (skinned != _orderSkinned[i] || (skinned ? instance.Mesh != _order[i].Mesh : !instance.Equals(_order[i]))) return false;
+            ref readonly var now = ref span[i];
+            ref readonly var before = ref _order[i];
+            if (now.Skinned != _orderSkinned[i]) return false;
+            if (now.Skinned)
+            {
+                if (now.Instance.Mesh != before.Mesh) return false;
+                _orderMoved[i] = false;
+            }
+            else if (_orderMoved[i] = !Same(in now.Instance, in before, true))
+            {
+                if (!Same(in now.Instance, in before, false) || _seen.ContainsKey(now.Instance)) return false;
+            }
         }
         return true;
     }
+
+    // Whether two meshes are drawn the same, through the same world matrix too where `placed` is
+    // set, compared in place, where a record's equality copies each and calls a comparer a field.
+    private static bool Same(in Instance a, in Instance b, bool placed) =>
+        a.Mesh == b.Mesh && ReferenceEquals(a.Vertices, b.Vertices) && (!placed || a.World == b.World) && a.DoubleSided == b.DoubleSided
+        && a.Color == b.Color && a.Emission == b.Emission && ReferenceEquals(a.Parts, b.Parts) && a.Roughness == b.Roughness && a.Metallic == b.Metallic;
+
+    // The meshes drawn, read in place where they are a list or an array, as the field's are.
+    private static ReadOnlySpan<(Instance Instance, bool Skinned)> Span(IReadOnlyList<(Instance Instance, bool Skinned)> drawn) => drawn switch
+    {
+        List<(Instance, bool)> list => CollectionsMarshal.AsSpan(list),
+        (Instance, bool)[] array => array,
+        _ => drawn.ToArray(),
+    };
+
+    // How many frames running a mesh that last moved at the frame given is drawn the same before it
+    // is still, the longer count where that was within as many frames.
+    private int SettleAfter(long movedAt) => _frame - movedAt < MobileSettleFrames ? MobileSettleFrames : SettleFrames;
 
     // This frame's meshes in the order drawn, with the frames each has been drawn the same, for
     // the frame after to read by place.
@@ -484,7 +650,7 @@ internal sealed class SceneFieldPlan
         if (_order.Length < drawn.Count)
         {
             var room = Math.Max(drawn.Count, _order.Length * 2);
-            (_order, _orderFrames, _orderSkinned) = (new Instance[room], new int[room], new bool[room]);
+            (_order, _orderFrames, _orderSkinned, _orderMovedAt) = (new Instance[room], new int[room], new bool[room], new long[room]);
         }
         _orderCount = drawn.Count;
         _orderWhole = seen.Count == drawn.Count;
@@ -492,16 +658,23 @@ internal sealed class SceneFieldPlan
         {
             var (instance, skinned) = drawn[i];
             (_order[i], _orderFrames[i], _orderSkinned[i]) = (instance, seen.GetValueOrDefault(instance), skinned);
+            _orderMovedAt[i] = _movedNow.Count > 0 && _movedNow.TryGetValue(instance, out var movedAt) ? movedAt : Never;
         }
     }
 
     // The parts a mesh is stamped as where there are no more than room for, which leaves a box
     // each for the meshes farther from the eye, and the box around all of it where there are, so a
     // crowd of figures past what a frame stamps is stamped as figures near the eye and boxes beyond.
-    private Part[] PartsWithin(Instance instance, int room) =>
-        (instance.Parts ?? _parts(instance.Vertices)) is { } parts && parts.Length <= room
-            ? parts
-            : [new Part(_bounds(instance.Vertices), Matrix4x4.Identity)];
+    private Part[] PartsWithin(Instance instance, int room)
+    {
+        if ((instance.Parts ?? _parts(instance.Vertices)) is { } parts && parts.Length <= room) return parts;
+        if (_whole.TryGetValue(instance.Vertices, out var whole)) return whole;
+        if (_whole.Count > 4096) _whole.Clear();
+        return _whole[instance.Vertices] = [new Part(_bounds(instance.Vertices), Matrix4x4.Identity)];
+    }
+
+    // The box around all of each mesh as its one part, kept for its vertices.
+    private readonly Dictionary<ModelVertex[], Part[]> _whole = new(ReferenceEqualityComparer.Instance);
 
     // Marks dirty every cascade whose band a box comes within, where the cascade has been built.
     private void MarkAround(Box bounds)

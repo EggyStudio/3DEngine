@@ -189,13 +189,14 @@ public sealed partial class SceneFieldTests : IDisposable
     [Trait("Category", "Unit")]
     public void A_Scene_Drawn_In_The_Same_Order_Is_Read_By_Place_And_Planned_As_One_Drawn_In_Another_Order_Each_Frame()
     {
-        // Three meshes that settle, one of which moves at frame 12 and settles again, another left
-        // out from frame 25, and a skinned figure whose limbs are posed afresh each frame, drawn
-        // to one plan in the same order every frame and to another turned a place each frame,
-        // which never reads by place, so its plans are those of working each frame out whole.
+        // Three meshes that settle, one of which moves at frame 12 and settles again after the
+        // longer count a mesh that moved takes, another left out from frame 25, and a skinned
+        // figure whose limbs are posed afresh each frame, drawn to one plan in the same order every
+        // frame and to another turned a place each frame, which never reads by place, so its plans
+        // are those of working each frame out whole.
         var (byPlace, whole) = (new SceneFieldPlan(2, 0.25f, 2), new SceneFieldPlan(2, 0.25f, 2));
         var eye = new Vector3(0.3f, 0.2f, 0.1f);
-        for (int frame = 0; frame < 32; frame++)
+        for (int frame = 0; frame < 14 + SceneFieldPlan.MobileSettleFrames; frame++)
         {
             var limbs = new[] { new SceneFieldPlan.Part(new SceneFieldPlan.Box(new Vector3(-0.2f), new Vector3(0.2f)), Matrix4x4.CreateTranslation(0, frame * 0.01f, 0)) };
             List<(SceneFieldPlan.Instance, bool)> drawn =
@@ -208,7 +209,7 @@ public sealed partial class SceneFieldTests : IDisposable
             byPlace.Update(eye, drawn);
             whole.Update(eye, [.. drawn.Skip(frame % drawn.Count), .. drawn.Take(frame % drawn.Count)]);
 
-            if (frame is > 0 and not 12 and not 25) byPlace.ReadByPlace.Should().BeTrue($"frame {frame} draws what the one before did, in its order");
+            if (frame is > 0 and not 25) byPlace.ReadByPlace.Should().BeTrue($"frame {frame} draws what the one before did, in its order, one moved in its place");
             whole.ReadByPlace.Should().Be(frame % drawn.Count == (frame - 1) % drawn.Count && frame is > 0 and not 12 and not 25, "the other is turned a place each frame");
             byPlace.StillCount.Should().Be(whole.StillCount, $"frame {frame}");
             byPlace.Builds.Select(b => (b.Cascade, string.Join(";", b.Instances.Select(i => i.World.Translation.ToString()).Order(StringComparer.Ordinal))))

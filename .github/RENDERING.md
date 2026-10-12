@@ -602,7 +602,20 @@ the CPU in the Release build, as their meshes' 57 boxes were. A mesh whose mater
 glow lights and the ray scene the bounce's reference traces, while it casts its shadows, since the
 voxel game's walking animals, four to six pieces each, cost the field 16 to 28 microseconds of the
 CPU and 13 to 15 of the GPU a piece a frame, 17 of them taking the CPU's share from 0.8 ms to 2.9
-and the GPU's from nothing to 1.0.
+and the GPU's from nothing to 1.0. Most of that GPU time was cascades built again, since a piece
+that stood for eight frames between walks settled into the field and left it when it walked on,
+each time marking the cascades around it. A mesh that moved within the last 1,024 frames, as a
+place in the order drawn or as one gone whose vertices a mesh new in the frame has, settles only
+after standing that long, a still copy of the same mesh after eight, and the game's animals stand one to eight
+seconds, up to 960 frames at 120 a second: 76 figures of five pieces walking among a land of 400
+meshes and standing 45 frames in every 135 had a cascade built again every frame, 6.2 ms of the
+GPU's, and have none, 0.16 to 0.19 ms, and standing 240 to 960 frames they had one every fourth
+frame with 480 frames as the count and one in fifty with 1,024, those of the figures that stood from
+the first frame and settled before they walked. A frame in which a mesh drawn in the same place in the order moved is
+read by place, as one in which nothing moved, where it was read whole with every mesh in a
+dictionary, and the plan's work for those figures, 2.7 ms of the CPU's in a build that is not
+optimized, is 1.2 ms, 4.1 microseconds a box, and 0.68 ms in the Release build, 2.4 a box, the stamp
+on the GPU 0.6 a box.
 
 Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
 it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a

@@ -206,10 +206,10 @@ internal sealed class SceneFieldRenderer : IDisposable
                 || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             _meshOf[vertices] = draw.Mesh;
-            var one = ModelRenderer.Instance.Of(in draw);
+            var linear = ModelRenderer.Instance.Linear;
             var skinned = store.IsSkinned(draw.Mesh);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
-                Textured(new Vector3(one.Color.X, one.Color.Y, one.Color.Z), draw.Texture), draw.Emission,
+                Textured(new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]), draw.Texture), draw.Emission,
                 skinned ? Limbs(store, draw.Mesh, vertices) : null, draw.Roughness, draw.Metallic), skinned));
         }
         foreach (var group in draws.Groups)
@@ -532,7 +532,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         for (int b = 0; b < bricks.Count; b++)
             (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =
                 ((uint)bricks[b].Cascade, (uint)(bricks[b].X | bricks[b].Y << 8 | bricks[b].Z << 16), (uint)ranges[b].First, (uint)ranges[b].Count);
-        for (int s = 0; s < shapes.Count; s++) mapped[bricks.Count * 4 + s] = (uint)shapes[s];
+        MemoryMarshal.Cast<int, uint>(CollectionsMarshal.AsSpan(shapes)).CopyTo(mapped[(bricks.Count * 4)..]);
         device.Unmap(buffer);
         return buffer;
     }
