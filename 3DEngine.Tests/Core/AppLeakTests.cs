@@ -23,11 +23,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 {
     // What the apps left, how many there were and how long they took: the process's resident
     // memory and the GC's heap after the twentieth and after the last, in megabytes, and the series
-    // a failure is read by on a machine no one here has, the heap after every tenth app where it is
-    // collected that often, the types that grew from the twentieth app to the last where a census
-    // of the heap could be taken, and the threads the process has after every tenth shutdown.
+    // a failure is read by on a machine no one here has, the resident memory after every tenth app,
+    // the heap after every tenth where it is collected that often, the types that grew from the
+    // twentieth app to the last where a census of the heap could be taken, and the threads the
+    // process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
-        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string? Grown, string Threads, string? DeviceObjectsGrown = null)
+        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, string? Grown, string Threads, string? DeviceObjectsGrown = null)
     {
         // How far the heap's floor rose, the least of the readings from the twentieth app on in the
         // first half against the least in the second, the twentieth to the fiftieth against the
@@ -48,7 +49,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // A line each, the heap's first and the types after it, since the test page shows a
         // message's first five lines and cuts each at its width, which a series on one line with
         // the rest ran past.
+        // The resident memory's series says whether a growth is steady, an allocation each app makes
+        // and its closing does not give back, or a step taken once.
         public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
+            $"the resident memory after every ten in MB, {Residents}{Environment.NewLine}" +
             (Grown is null ? "" : $"grown from the twentieth app to the last, {Grown}{Environment.NewLine}") +
             $"the Vulkan objects alive after the last app beside the twentieth, {DeviceObjectsGrown ?? "none more"}{Environment.NewLine}" +
             $"the threads after every ten apps, {Threads}{Environment.NewLine}";
@@ -102,6 +106,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var heaps = new List<string>();
         var everyTen = new List<(int Apps, double Heap)>();
         var threads = new List<string>();
+        var residents = new List<string>();
         var spent = Stopwatch.StartNew();
         for (int i = 1; i <= 100; i++)
         {
@@ -154,6 +159,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // only to a finalizer is held until a full collection comes, which a program that
             // allocates little on the GC's heap may not see for hundreds of apps.
             var resident = Environment.WorkingSet / 1e6;
+            residents.Add($"{i}: {resident:0.0}");
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
             // The Vulkan objects every device made and none destroyed, which a closed app's device
             // should leave none of, so a native growth is told from the driver's own.
@@ -185,7 +191,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             {
                 Console.WriteLine($"[leak test] {i} apps in {spent.Elapsed.TotalSeconds:0} seconds{took}");
                 output.WriteLine($"{i} apps in {spent.Elapsed.TotalSeconds:0} seconds");
-                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), grown,
+                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), grown,
                     string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!));
             }
         }

@@ -19,13 +19,17 @@ The suite needs no GPU or display, because the tests that touch rendering use
 `NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests report as skipped,
 and so do the render tests without a Vulkan device, each with its reason in the run's output.
 
-`build/test.py` runs the suite as one process held to 40 minutes and 4 GB, with what it prints in
-`3DEngine.Tests/TestResults/output.txt`, and ends with a page of at most 200 lines, also written to
-`TestResults/digest.md`: the counts, the failures by cause, the most frequent first, each with its
-message, its first frames and some of its tests, and the lines the output repeated most. A process
-that is lost, by a crash, a hang, its time or its memory, is said first on the page, with the tests
-it was in and its last lines, and the suite runs again in parts, a process for each area of thirty
-tests or more and one for the rest, so a part that is lost costs only its own tests.
+`build/test.py` runs the suite as one process held to 40 minutes and 4 GB, which the Windows job
+raises to 60 minutes (`--timeout-minutes 60`), since lavapipe compiles the shaders each app draws
+with unless Mesa's cache holds them, 3.7 seconds an app where 0.84, and a cache left unsaved by a
+failed job doubled the suite there from 22 minutes past 40. The test workflow restores that cache
+before the suite and saves it after, whether the suite passed or not. The script writes what the
+suite prints to `3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines,
+also written to `TestResults/digest.md`: the counts, the failures by cause, the most frequent first,
+each with its message, its first frames and some of its tests, and the lines the output repeated
+most. A process that is lost, by a crash, a hang, its time or its memory, is said first on the page,
+with the tests it was in and its last lines, and the suite runs again in parts, a process for each
+area of thirty tests or more and one for the rest, so a part that is lost costs only its own tests.
 `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in
@@ -75,7 +79,7 @@ any that did not in an error annotation. An example whose capture takes past `CA
 unless set, is stopped and fails alone, `CAPTURE_MINUTES` ends the run where it is set, naming the
 last example reached, and the script ends with a notice of how many drew and in how long, each
 example's seconds written to `times.tsv` beside the pictures. The pack run runs it on Linux for the
-gallery, and the test workflow in a macOS job of its own for PNGs kept as that job's artifact, and a
+gallery, and in a macOS job of its own in `examples.yml` for PNGs kept as that job's artifact, and a
 new or changed example's capture in `.github/assets/examples` is taken with `capture-example.sh`.
 The gallery's captures are WebP at the size their window is drawn, raylib's 800 by 450 for an
 example, which `build/webp.sh` encodes at quality 85 for a lit 3D scene and losslessly for flat
@@ -181,10 +185,13 @@ only once all three pass packs with `build/pack.sh <version>` and keeps the pack
 artifact. With its "publish" box ticked it pushes the package to nuget.org through the
 `NUGET_API_KEY` secret. Before the pack it runs the examples job whole (`examples.yml`), which a
 push runs in part: every example captured for the gallery and measured against raylib's program,
-every game played, captured, soaked and resized, and the README followed on Linux, and it packs only
-once that job passes too. The version is `build/version.sh`'s: the major and minor written in
-`build/version.txt`, and as the patch the number of commits since that file last changed, so each
-commit counts the patch up by one and changing `5.0` to `5.1` starts it again at `5.1.0`.
+every game played, captured, soaked and resized, and the README followed on Linux, and every example
+captured on the macOS runner's GPU in a job of its own, and it packs only once both jobs pass too. A
+push runs the three systems' tests and the Linux examples job in part, and leaves the macOS
+captures, the longest job at 53 to 56 minutes, to the pack run. The version is `build/version.sh`'s:
+the major and minor written in `build/version.txt`, and as the patch the number of commits since
+that file last changed, so each commit counts the patch up by one and changing `5.0` to `5.1` starts
+it again at `5.1.0`.
 
 The package's release notes are those same commits, each one's sentence a line and the newest
 first, which `build/pack.sh` reads from the history into `build/artifacts/release-notes.txt` and

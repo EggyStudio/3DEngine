@@ -53,6 +53,35 @@ The engine lacks an opaque pipeline without the discard for materials that cut n
 depth pass ahead of the model pass, either of which would let the walls hide the land before it is
 lit. The game draws in its own order meanwhile, its render distance a setting.
 
+The game culls the sections the eye cannot see, on by default and turned off by `voxel.cull off`, a
+flood through the sections' open faces from the eye's section as Minecraft's visibility graph has
+it, leaving the eye's own section only by the faces the open cells around the eye reach, the lamps'
+cubes drawn all the same. Read on `2a14ab13`'s engine from a clean worktree, each kind twice and in
+turns, `./e3d command profile` over 300 frames, or over a walk of 14 blocks: this entry's room as
+above, a cave carved in a hill of stone at noon on the flat world, from 50, 6, -30 to 60, 10, -20 in
+stone from 40, 4, -40 to 70, 40, -10, and a cave of seed 1's hills at -28, 34, -32 walked east at
+noon. The passes are the window's depth, the model pass, the sun's shadows and the light that
+bounces, in milliseconds.
+
+| Scene, culling | Sections left out | Depth | Model pass | Shadows | Bounce | Frame |
+|---|---|---|---|---|---|---|
+| This room, off | 0 of 226 | 0.416 | 1.115-1.117 | 0.218-0.220 | 1.413-1.419 | 3.7-4.3 |
+| This room, on | 64 of 226 | 0.301 | 0.983-0.990 | 0.167-0.168 | 1.392-1.401 | 3.9-4.1 |
+| Carved cave, off | 0 of 243 | 0.451 | 1.188-1.192 | 0.205-0.224 | 1.532-1.533 | 3.9-4.1 |
+| Carved cave, on | 241 of 243 | 0.006 | 0.617 | 0.042 | 1.057-1.060 | 2.1 |
+| Hills' cave, off | 0 of 1,090 | 2.743-2.752 | 4.640-4.704 | 6.876-6.930 | 1.351-1.363 | 16.2 |
+| Hills' cave, on | 905 of 1,085 | 0.257 | 0.656-0.660 | 0.060-0.073 | 1.095-1.102 | 3.5-4.2 |
+
+In this room the flood leaves out 64 sections, 0.30 ms of the window's passes and the shadows, of
+the 0.34 to 0.42 the land costs: the flat world's open air outside the walls shares the room's
+sections, and a section's faces are joined as wholes, so the flood passes out through them to the
+land around. Underground it leaves out nearly all, five sixths of the frame in the cave of the
+hills. The light the eye sees does not change: that cave lit by a glowstone reads the same with
+culling on and off, its mean 9.93 of 255 both ways and no pixel more than 2 apart, and the carved
+cave stays black at noon with the hill above it left out, so the culled land shades nothing the
+drawn sections do not. The field's own cost over the walk stays at 0.004 ms either way. The game
+draws so meanwhile; the engine's occlusion culling is the review's to weigh against these.
+
 Review: item 8 of REVIEW.md, 2026-10-11; an opaque pipeline without the discard for materials that
 cut nothing out, tried before a depth pass, after item 2's parts f and c.
 
@@ -146,11 +175,12 @@ With the colors written the frame and the reference read from the relight what a
 within 1% of each other, and no section of the reference stays black. The cost, in the same room lit
 and settled, of one section relit in place, section 1, 0, -1 shaded again alone with the light
 levels flipped through `./e3d eval` and its faces kept, against one uploaded anew, a block set or
-cleared at 19, 5, -13 in it, each read by `./e3d command profile` from a reset just before to a read
-two frames after, about four frames, five of each in turns with five of nothing, in two runs. The
-desktop's gnome-shell took 34 to 44% of the GPU through the first run and up to 19% through the
-second, so the lines are ranges over both, lowest to highest, and their medians, in milliseconds,
-the field's `scene_field` and the bounce's `global_illumination` on the CPU and on the GPU.
+cleared at 19, 5, -13 in it, each read by `./e3d command profile` from a reset before the change to
+a read two frames after it, about four frames, five of each in turns with five of nothing, in two
+runs. The desktop's gnome-shell took 34 to 44% of the GPU through the first run and up to 19%
+through the second, so the lines are ranges over both, lowest to highest, and their medians, in
+milliseconds, the field's `scene_field` and the bounce's `global_illumination` on the CPU and on the
+GPU.
 
 | Frames of | Field, CPU | Field, GPU | Bounce, CPU | Bounce, GPU |
 |---|---|---|---|---|

@@ -7,7 +7,10 @@
 # and Windows draw on Mesa's lavapipe, a Vulkan device that runs on the CPU, from the image's
 # packages and from Mesa's Windows build, and macOS on the runner's GPU through MoltenVK. Each then
 # builds a game from the package and draws 300 frames of it under the validation layer, and slangc
-# is fetched so the shaders compile instead of the tests that need them being skipped.
+# is fetched so the shaders compile instead of the tests that need them being skipped. Every example
+# captured on the macOS runner's GPU runs in the pack run alone, in examples.yml, since it took 53 to
+# 56 minutes where the suites take 17 to 38 and a push's Linux examples job captures every example
+# on lavapipe already.
 name: test
 
 on:
@@ -48,8 +51,10 @@ jobs:
       # suite opens a device of its own, so with no cache each app compiled them again: on a host's
       # lavapipe four apps in one process took 3.7 seconds each with Mesa's cache off and 0.84 with
       # it, a pipeline cache of the engine's own sparing none of it, since lavapipe keeps its
-      # variants out of one.
-      - uses: actions/cache@v6
+      # variants out of one. It is restored here and saved after the suite whatever the suite does,
+      # since actions/cache saves only from a job that passed, and a push's job that failed left the
+      # shaders it changed unsaved for the next run to compile again in every app.
+      - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
           key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
@@ -79,6 +84,13 @@ jobs:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
           MALLOC_ARENA_MAX: '2'
+
+      # The shaders the suite compiled, kept whether it passed or not.
+      - uses: actions/cache/save@v6
+        if: always()
+        with:
+          path: build/mesa-cache
+          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
 
 
       # The page, from every run, for the digest job below.
@@ -121,10 +133,10 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
-      # Mesa's cache of the shaders lavapipe compiles, as the Linux job keeps it. The suite's apps
-      # here drew a frame in 3.8 seconds where four apps on a host's lavapipe took 3.7 each with
-      # Mesa's cache off and 0.84 with it.
-      - uses: actions/cache@v6
+      # Mesa's cache of the shaders lavapipe compiles, restored here and saved after the suite as the
+      # Linux job keeps it. The suite's apps here drew a frame in 3.8 seconds where four apps on a
+      # host's lavapipe took 3.7 each with Mesa's cache off and 0.84 with it.
+      - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
           key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
@@ -179,11 +191,22 @@ jobs:
           New-ItemProperty -Path $key -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\3DEngine.Tests\TestResults\dumps" | Out-Null
 
-      # The suite through build/test.py, as on Linux.
-      - run: python build/test.py --no-build
+      # The suite through build/test.py, as on Linux, held to 60 minutes where the script's own
+      # limit is 40, since a Mesa cache never saved after a failed job leaves every app compiling
+      # the changed shaders, 3.7 seconds an app where 0.84, which doubled the suite from 22 minutes
+      # past 40 on the pack run of ee85866f. A suite that runs cold then still ends whole and saves
+      # the cache.
+      - run: python build/test.py --no-build --timeout-minutes 60
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
+
+      # The shaders the suite compiled, kept whether it passed or not.
+      - uses: actions/cache/save@v6
+        if: always()
+        with:
+          path: build/mesa-cache
+          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
 
 
       - name: Build a game from the package and draw it under the validation layer
@@ -256,7 +279,7 @@ jobs:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
     # Room for twelve games after the suite, each a few minutes on the GPU. Every example's capture
-    # is the macos-examples job's, beside this one.
+    # on this GPU is the pack run's, in examples.yml.
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
@@ -372,65 +395,6 @@ jobs:
           path: |
             3DEngine.Tests/TestResults/
             captures/
-
-  macos-examples:
-    # Every example captured on the same runner's GPU, a job of its own beside the tests, so the
-    # captures' time is their own and the games, the window, the native publish and the walk keep
-    # theirs. The captures took 3,012 seconds inside the tests' job at b526089c and were stopped
-    # there by the step's 50 minutes, so the step has 140 here and the script a budget of 130, past
-    # which it names the last example reached, and each example 300 seconds, past which it alone
-    # fails. The 253 took 1,481 seconds on a laptop's RTX 4070 (build/capture-examples.sh), and the
-    # script's notice says how many drew here and how long they took.
-    runs-on: macos-15
-    timeout-minutes: 160
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.0.x'
-
-      - uses: actions/cache@v6
-        with:
-          path: build/tools/slang
-          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
-
-      - run: build/fetch-slang.sh
-
-      # As the macos job installs them, for the same reasons.
-      - name: Install MoltenVK, the Vulkan loader and the validation layer
-        run: |
-          brew install molten-vk vulkan-loader vulkan-validationlayers
-          prefix=$(brew --prefix)
-          echo "DYLD_FALLBACK_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
-          echo "VK_DRIVER_FILES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
-          echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
-          echo "VK_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
-
-      # The files of raylib's own that its examples load, which a build of the examples copies
-      # beside the program.
-      - run: build/fetch-raylib-resources.sh
-
-      - run: dotnet build 3DEngine.Examples -warnaserror
-
-      # Every example captured offscreen, as the build workflow's Linux job captures them, each
-      # checked to draw and its session checked for validation errors, a capture that fails
-      # naming the example and why (build/capture-examples.sh). The pictures are kept as the job's
-      # artifact with each one's seconds in times.tsv, and compared with nothing, since the
-      # README's gallery and the measures against raylib are Linux's.
-      - name: Capture every example offscreen
-        timeout-minutes: 140
-        env:
-          CAPTURE_MINUTES: '130'
-          CAPTURE_SECONDS: '300'
-        run: build/capture-examples.sh captures/examples png
-
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: examples-macos
-          path: captures/examples/
-          if-no-files-found: ignore
 
   digest:
     # One page for the commit from the three systems' pages, a line for each system and each cause

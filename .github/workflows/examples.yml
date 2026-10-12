@@ -1,15 +1,17 @@
 # The examples on the package, which build.yml runs for every push and pull request and pack.yml for
-# a pack, on Linux.
+# a pack, on Linux, and on macOS in a pack alone.
 #
-# Nothing here needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on the CPU,
-# so the examples run with --offscreen, and slangc is fetched so the shaders compile. The Khronos
-# validation layer runs under them, and an error it reports fails the example whose log holds it.
+# Nothing in the Linux job needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on
+# the CPU, so the examples run with --offscreen, and slangc is fetched so the shaders compile. The
+# Khronos validation layer runs under them, and an error it reports fails the example whose log
+# holds it.
 #
 # A push packs the engine, checks the package, publishes a game native, builds the examples, the
 # guides' code and every game on the package, plays and soaks the puzzle of gestures, follows the
 # first game's steps and checks the tables against raylib. A pack, with whole set, also captures
 # every example for the gallery, measures each against raylib's program, plays every game and
-# captures it, soaks them all, resizes them while they draw and follows the README.
+# captures it, soaks them all, resizes them while they draw and follows the README, and captures
+# every example on the macOS runner's GPU in a job of its own.
 name: examples
 
 on:
@@ -607,3 +609,65 @@ jobs:
         with:
           name: example-captures
           path: captures/
+
+  # Every example captured on the macOS runner's GPU through MoltenVK, in a pack alone, where the
+  # soak, the storm and the measure against raylib run, since it is the longest job by far and a
+  # push's Linux job captures every example on lavapipe already.
+  macos-examples:
+    if: ${{ inputs.whole }}
+    # A job of its own beside the tests, so the captures' time is their own and the games, the
+    # window, the native publish and the walk keep theirs. The captures took 3,012 seconds inside the tests' job at b526089c and were stopped
+    # there by the step's 50 minutes, so the step has 140 here and the script a budget of 130, past
+    # which it names the last example reached, and each example 300 seconds, past which it alone
+    # fails. The 253 took 1,481 seconds on a laptop's RTX 4070 (build/capture-examples.sh), and the
+    # script's notice says how many drew here and how long they took.
+    runs-on: macos-15
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v6
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      # As test.yml's macos job installs them, for the same reasons.
+      - name: Install MoltenVK, the Vulkan loader and the validation layer
+        run: |
+          brew install molten-vk vulkan-loader vulkan-validationlayers
+          prefix=$(brew --prefix)
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+
+      # The files of raylib's own that its examples load, which a build of the examples copies
+      # beside the program.
+      - run: build/fetch-raylib-resources.sh
+
+      - run: dotnet build 3DEngine.Examples -warnaserror
+
+      # Every example captured offscreen, as the build workflow's Linux job captures them, each
+      # checked to draw and its session checked for validation errors, a capture that fails
+      # naming the example and why (build/capture-examples.sh). The pictures are kept as the job's
+      # artifact with each one's seconds in times.tsv, and compared with nothing, since the
+      # README's gallery and the measures against raylib are Linux's.
+      - name: Capture every example offscreen
+        timeout-minutes: 140
+        env:
+          CAPTURE_MINUTES: '130'
+          CAPTURE_SECONDS: '300'
+        run: build/capture-examples.sh captures/examples png
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: examples-macos
+          path: captures/examples/
+          if-no-files-found: ignore

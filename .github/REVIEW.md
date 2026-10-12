@@ -10,7 +10,65 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c81eca54`. Item 8 as decided: an opaque material's batches draw with pipelines that
+Reviewed up to `ee85866f`, the game's smelting with its save and its window, `ab9cd9b7`, the game's
+culling, and `2a14ab13`. Item 24, the seam's teeth, by a cause the item had not named: the glow
+lights' march's cone already gives a penumbra as wide as the light, and the step was the way out of
+a surface after the march, which ended at the step that left the surface, so a way grazing the
+pillar's edge counted at least half a cell under it and the lamp's share fell from a half outside
+the edge to a third or less within it; each way out ends where it left the surface, the overshoot
+taken back by the distance read past it, two lines of the shader. On the game's rebuild of the room
+at 1280 by 720 and High the frame's largest rise in 20 pixels is 5 to 7% in every band of rows where
+22 to 24, the reference's thousand paths reading 12 to 17 with their noise, so there is no seam left
+to trace and no teeth to count, and the dark side is 0.95 of the reference where 0.78; the toggles
+placed the step first, staying with the screen's probes off and gone with the glow off, so it was
+the per-pixel march. The 27 bounce rooms move by 0.0003 at most, the glowstone room's walls come a
+point nearer the reference, the GPU time is the same, no fault in eight runs and no validation error
+on lavapipe, 412 passed, the suite whole. The trade, said in the test and RENDERING.md: the penumbra
+test's turn of five pixels moves the floor's light behind a wall one cell thick by 5.4% where 2.2,
+its bound raised from 5 to 6.5%, since the depth under the wall's top comes from the field's
+distance there, a secant between the last inside point and the step past it reading the same. A new
+test holds the room in the engine, the steepest tenth of a block 7.2% where 9.8 against a median of
+4.1, bounded at 8.5, weaker than the game's 24 and failing on the old shader. Right, the cause found
+by the toggles and the fix the smallest that read right. The Reply is read and removed. Item 24 is
+done, and the game's captures at this head came at 09:19 for the owner's eye, drawn from a fresh
+copy of the owner's save of 07:35 at the owner's place and hour, 1280 by 720 at High, against a
+reference of 1,024 paths and eight bounces, with a panel of the still frame at `314b9d48` beside
+this head: the notched seam is a smooth falloff, the largest rise in 20 pixels across the wall 10%
+still and 11% after a step and away from the seam's place where it was 27% at the seam, the dark
+side 0.95 of the reference and the lit 0.92 where 0.80 and 0.90, lit over dark 1.47 to 1.51 against
+the reference's 1.63 and the 1.71 to 1.76 before, and the half level's trace by row wandering as
+across a ramp, so its teeth count means nothing; the game's reading agrees with the engine's of the
+flat rebuild. The game took item 8's remainder at `ab9cd9b7`, read at 09:33: a flood from the eye's
+section across the faces each section's open cells join, as Minecraft's visibility graph does,
+leaving the eye's own section only by the faces the open cells around the eye reach, lamps always
+drawn, on by default with a command and a checkbox to turn it off, and no frustum culling because of
+the field; measured on this engine from a clean worktree, each case twice in turns: the entry's room
+on the flat world leaves 64 of 226 sections out and takes 0.30 ms of the land's 0.34 to 0.42, the
+flat world's open air sharing the room's sections and faces joining as wholes; a cave carved in a
+hill at noon leaves 241 of 243 out and the frame falls from 4.0 ms to 2.1; and a natural cave of
+seed 1's hills walked fourteen blocks leaves 905 of 1,085 out, the frame from 16.2 ms to 3.5 to 4.2,
+the shadows from 6.9 to 0.07, the model pass from 4.7 to 0.66 and the depth from 2.75 to 0.26, the
+field's time unchanged and the light the eye sees the same to two levels. So the engine's own
+occlusion culling is not taken: a voxel world culls itself better than a depth test would, and a
+game of another shape asks when it needs one. The working session's budget ended at 17:03 with
+nothing changed for Verdict 54 and came back at 18:37, so this file is its handoff: the batch of
+Verdicts 54 and 55 and item 25; then item 3, subsurface scattering's first batch. 5.2's pack waits
+on the Windows suite green again under Verdict 54, every job having been green on three runs before
+`ee85866f`. The run on `ee85866f`, the first pushed since `6f4c98bb`: Linux green in 17 minutes and
+macOS in 37, the Windows suite failing one test of 1,679, the drawing leak test's resident bound by
+1.5 MB, Verdict 54, and the macOS examples job green in 56 minutes. The pack run for 5.2 started on
+`ee85866f` at 17:04 with Verdict 54 open, its own Windows suite deciding whether the pack goes
+through, and the game's session holds the verdict's steps until it ends, since nothing lands on main
+under a pack run. Its Linux and macOS suites passed in 17 and 38 minutes and its macOS examples job
+in 53, and its Windows suite ran past its own limit, Verdict 55, so the run made no package: a
+shader cache never saved after the push's failed job left every app compiling the changed shaders.
+The engine's session, back with budget, takes one batch with the owner's word of 18:33, the game's
+standing down from it: the cache saved whatever the suite does and the Windows limit at 60 (Verdict
+55), the resident series in the leak test's message (Verdict 54) and the macOS captures moved to the
+pack run (item 25, Decision 38); the push after it is the Windows suite's green, and the pack run
+after that runs warm.
+
+Before it, `c81eca54` came, item 8 as decided: an opaque material's batches draw with pipelines that
 set specialization constant 0, which folds the alpha test's discard away, the batches split by the
 material's alpha mode and the pipeline description carrying the constant, with a Vulkan fact drawing
 an opaque and a masked copy of one quad with one texture in one frame, the opaque whole and the
@@ -56,51 +114,6 @@ variance on top of the six the suite grew by since the third build, within the l
 verdict if a run passes 36; its other test jobs are green and the games' steps run. The game
 committed its hostile mobs at `6c9284a7`, arrows and explosions with 140 lines of tests. Next item
 24, the glow lights' penumbra, then item 8's commit.
-
-Before it, `6f4c98bb` came, the game's commit opening the post-processing window from its Voxel
-window, and `c54d64eb`, item 10: each effect over the frame is read back beside its setter, the
-tonemap, the exposure and the one that follows the scene, the grading, the vignette, FXAA, the depth
-of field, the motion blur and the bloom, those of several values a tuple named as the setter's
-arguments, and `DrawPostProcessWindow()` shows every one in an ImGui window of its own, drawn on a
-call from a game's frame as its other windows are, the curve a choice by name and the rest sliders
-and checks under headers, each calling its setter at once; a test reads every effect as it stands
-unless set and as each setter leaves it, its bounds kept, and draws the window in a headless frame,
-which changes none; the cheat sheet, the materials guide's effects section and the upgrading guide's
-added list say them. The suite 1,702; the guide's blocks build on the package. Right, the readings
-beside the writings and the window a game calls rather than one the engine opens. The Reply is read
-and removed; the game's session is asked to open the window from its Voxel window, and the owner's
-eye judges the look. Item 10 is done. Part h at 07:10: the owner's two captures of the penumbra are
-no longer in the tree, and pictures in the same place and quality need a fresh copy of the owner's
-save, which the game's session alone makes, so it is asked for them at this head, still and 60 and
-600 frames after a step, the seam traced row by row and the band's blotches measured as on
-`64fd2f14`; the working session's own reading meanwhile, from the engine's room of the saw at 1280
-by 720 from the owner's place, is no seam with teeth and a smooth falloff across the red wall, its
-isolines bending at two heights where the gather's blend between the probes' layers changes slope,
-which reads as faint horizontal bands, and the blotches, the light less its blur, at 0.44% of the
-light still and 0.37% after a step, correlated 0.16 at 8 and 16 pixels, against the game's 0.65% and
-0.42 on `64fd2f14`. The game's pictures came at 07:20, drawn at this head through a fresh copy of
-the owner's save, deleted again after: the seam keeps its teeth, 17 pixels at the top and the foot
-still and 11 and 26 after a step, as at `8118e2c7`, and the blotches are 0.34% of the light with no
-repeat at 8 pixels across, as at `56db892b`; so the blotches are down by half since the owner's
-pictures and the teeth stand where the engine's own room shows none, which makes the seam the game's
-scene's, its cause to be read in the game's pictures row by row after item 9, and the pictures went
-to the owner's eye at 07:21 with the working session's reading beside them, the panels in the engine
-session's scratch folder: across the seam the frame steps 26% in 20 pixels where the reference rises
-smoothly over 170, the frame 0.79 to 0.88 of the reference left of the seam and 0.84 to 0.98 right
-of it, the seam's middle rows within 2 pixels of a line and the teeth at its top and foot 11 to 17
-and 17 to 26 pixels, 18 and 21 at `8118e2c7`, so neither the filter's correction nor the longer
-reach touched them, and they are the glow lights' march past the pillar's ends, as the game first
-read them; the blotches 0.34% of the light still and after a step, settled by 60 frames, half of
-`e477bc1e`'s 0.65% and like `56db892b`'s 0.30%, with no repeat on the 8 or 16 pixel tile grid where
-there was one, what remains running long down the rows along the room's creases and the shadow's
-own. The teeth are item 24, after item 9: the glow lights' shadow past a box's edge is a step where
-a penumbra belongs. The owner pushed at 07:00 and again at 07:24: `e424550c`'s run has its Linux and
-macOS tests green, 14 and 13 minutes, its Windows tests running since 07:02 and its captures drawing
-on macOS, and `6f4c98bb`'s run is in flight; the Windows time, with the third build and the longer
-screen rays, is read next. The game opened the post-processing window from its Voxel window at
-`6f4c98bb`, item 10's last piece, and took the mobs' entry out of ASKS.md as done. Next item 9,
-colors written in place reaching the bounce, which the working session has taken, then item 24, the
-glow lights' penumbra, then item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -609,7 +622,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    see, the game's own flood fill over its sections through their open faces, as Minecraft's
    visibility graph does, which is the game's to build on what the engine has, said under its entry,
    and an occlusion culling in the engine from the frame before's depth, left until the game's
-   culling is measured and falls short.
+   culling is measured and falls short. The game culled its sections at `ab9cd9b7`, a cave's frame
+   from 16.2 ms to 4, so the engine's occlusion culling stays out until a game of another shape
+   asks.
 
 9. **A color stream written in place reaches the bounce, done at `feec07a2`.** The field paints a
    mesh's vertex colors as it stamps it and the ray scene packs them into its corners, both keyed by
@@ -1009,30 +1024,98 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     box is not needed. Done at `6a36b2b5` and `089ac771`, the game measuring its village with the
     bounce on after.
 
-24. **The glow lights' shadow past a box's edge is a step where a penumbra belongs.** The owner's
-    picture of 2026-10-11 at 13:50 showed a zigzag seam on the voxel game's wall where the lamps'
-    light falls past a pillar, and the game's pictures drawn again at `6f4c98bb` show it unchanged
-    by part h's work since: across the seam the frame steps 26% of the light in 20 pixels where the
-    path-traced reference rises smoothly over 170, the frame 0.79 to 0.88 of the reference on the
-    dark side and 0.84 to 0.98 on the lit, the seam's middle rows within 2 pixels of a line and
-    teeth of 11 to 26 pixels at its top and foot, where the march passes the pillar's ends. The
-    cause is the glow lights' march: a ray from the surface to the halves of a lamp's faces either
-    reaches or is stopped, so the shadow a box throws is hard at the march's resolution and toothed
-    where its steps cross the box's ends, and the wall's bounce from the lamp, which is most of its
-    light there, takes that edge. The remedy is the distance field's own penumbra: along the march
-    the least of the field's distance over the distance traveled gives how far the ray passes from
-    the occluder's edge, and the lamp's light is scaled by it from zero at a grazing pass to one
-    past a cone's width, the cone set by the lamp's face's size over its distance as a soft shadow
-    is, so the shadow falls off over the width the reference shows and the teeth, which are the
-    step's, go with the step; measured on the game's seam row by row against the reference, the
-    step's 20 pixels to become a falloff within a quarter of the reference's width and the teeth
-    under 3 pixels, the glowstone room and the bounce rooms' 27 cases read for what moves, the
-    march's GPU time before and after, and the owner's eye on the picture drawn again. After item 9.
+24. **The glow lights' shadow past a box's edge is a step where a penumbra belongs; done at
+    `2a14ab13`.** The owner's picture of 2026-10-11 at 13:50 showed a zigzag seam on the voxel
+    game's wall where the lamps' light falls past a pillar, and the game's pictures drawn again at
+    `6f4c98bb` show it unchanged by part h's work since: across the seam the frame steps 26% of the
+    light in 20 pixels where the path-traced reference rises smoothly over 170, the frame 0.79 to
+    0.88 of the reference on the dark side and 0.84 to 0.98 on the lit, the seam's middle rows
+    within 2 pixels of a line and teeth of 11 to 26 pixels at its top and foot, where the march
+    passes the pillar's ends. The cause is the glow lights' march: a ray from the surface to the
+    halves of a lamp's faces either reaches or is stopped, so the shadow a box throws is hard at the
+    march's resolution and toothed where its steps cross the box's ends, and the wall's bounce from
+    the lamp, which is most of its light there, takes that edge. The remedy is the distance field's
+    own penumbra: along the march the least of the field's distance over the distance traveled gives
+    how far the ray passes from the occluder's edge, and the lamp's light is scaled by it from zero
+    at a grazing pass to one past a cone's width, the cone set by the lamp's face's size over its
+    distance as a soft shadow is, so the shadow falls off over the width the reference shows and the
+    teeth, which are the step's, go with the step; measured on the game's seam row by row against
+    the reference, the step's 20 pixels to become a falloff within a quarter of the reference's
+    width and the teeth under 3 pixels, the glowstone room and the bounce rooms' 27 cases read for
+    what moves, the march's GPU time before and after, and the owner's eye on the picture drawn
+    again. Done at `2a14ab13`, by a cause other than the cone's: the march's way out ended at the
+    step that left the surface, so a way grazing an edge counted half a cell under it; ended where
+    it left, the rise in 20 pixels is 5 to 7% where 22 to 24 and no teeth remain.
+
+25. **The macOS captures move to the pack run (Decision 38).** The macOS examples job of `test.yml`,
+    every example captured on the macOS runner's GPU through MoltenVK and checked to draw without a
+    validation error, runs on every push and is the longest job by far, 53 to 56 minutes where the
+    suites take 17 to 38, and a push's Linux examples job captures every example on lavapipe
+    already. It moves to where the soak, the storm and the measure against raylib run, the pack run
+    alone: the job leaves `test.yml` for `examples.yml` behind `inputs.whole`, with its runner, its
+    caches, MoltenVK and its artifact as they are, the pack job still needing the examples workflow,
+    and the workflows' head comments and BUILDING.md saying what a push runs and what a pack run
+    adds. In the engine's session's batch with Verdicts 54 and 55.
 
 ## Verdicts
 
 Verdicts 1 to 53 are settled, the last three, the soak, the measure and the picture script, on
-`fdf27346`'s examples job on 2026-10-12, and their numbers are not given again. No verdict is open.
+`fdf27346`'s examples job on 2026-10-12, and their numbers are not given again. Verdicts 54 and 55
+are open.
+
+54. **The Windows suite of `ee85866f` fails the drawing leak test's resident bound by 1.5 MB.** The
+    hundred drawing apps of `AppLeakTests`, its line 369, 100 apps in 108 seconds on lavapipe, asks
+    the resident memory after the last app to stand less than 50 MB over the twentieth's and found
+    51.5, with the GC's heap flat at 38 MB from the twentieth app on, no Vulkan object alive after
+    the last app beside the twentieth, and the threads between 23 and 26; the other 1,653 passed in
+    22 minutes, and the same test under the same bound passed on Linux and macOS on the same commit,
+    as it passed on Windows on `6f4c98bb`. So the growth is host memory on Windows alone, 0.6 MB an
+    app over eighty apps, which the heap and the device objects do not hold, and the bound stood
+    close to it. Three steps, given to the game's session at 17:20 while the engine's session was
+    out of budget and taken by the engine's at 18:37: the test's message carries the resident series
+    it writes every ten apps beside the heap's and the threads', so a failure says whether the
+    growth is steady, an allocation an app makes and its closing does not give back, or a step; the
+    drawing variant run here under a bounded scope for its series on Linux, which tells the two
+    causes apart, the driver's allocator on lavapipe's Windows build, where Linux grows well under
+    the bound and the drawing variant's bound then takes an allowance stated from both numbers with
+    the plain variant at line 311 keeping 50, or a real and recent growth, where Linux is near the
+    bound too and the cause is in the engine's changes between `6f4c98bb` and `ee85866f`, the
+    field's buffers and the mesh store of items 21 to 24, host memory an app's end does not free;
+    and the commit carrying the working tree's REVIEW.md, SHARED.md and ASKS.md. In the pack run's
+    rerun by namespace the test passed on Windows under a cold shader cache (Verdict 55), the first
+    pass since the failure, so of the three steps the first alone is taken with Verdict 55's batch,
+    the series in the message, and the bound stands; the Linux series and the allowance wait on a
+    second failure. Settled at two green Windows suites, the push's and the pack run's.
+
+55. **The Windows suite of the pack run on `ee85866f` runs past 36 minutes.** The suite's step stood
+    at 36.6 minutes and running at 17:43, where the push's run of the same code took 22.3 an hour
+    before and the two runs watched earlier took 29.9 and 33.7, the suite's own limit being 40
+    minutes (`build/test.py`, `--timeout-minutes`), past which it ends and counts what it did not
+    reach as lost to its time, and a test that hangs being cut and lost at 5. So by 17:47 the step
+    ends either way, and its page says which: a suite that ran whole and slow names the runner, a
+    Windows machine slower than the push's, since nothing in the code changed between the two runs;
+    one that ended at its limit or lost tests to hangs names them, and those are the ones to read,
+    the leak tests first, whose hundred apps keep to a budget of their own past the fiftieth. The
+    step ended at 18:29 after 82 minutes, failed: the suite was lost at its limit of 40 minutes,
+    1,179 MB at most, the last test to end the closed room's walls at every heading of
+    `CascadeEdgeTests` at 38:29 and the next app starting, and the script then ran the suite again
+    as seventeen processes, one a namespace, which took the other 42 minutes and passed every test,
+    1,654 with 25 skipped, the Rendering process alone 36 minutes and the drawing leak test among
+    the passes, so no test failed and the time was the whole cause. The cause of the time: the
+    Windows job's Mesa shader cache, `build/mesa-cache` keyed by the shaders' hash and restored by
+    prefix, is saved by `actions/cache`'s post step, which runs only when the job passed; the push's
+    Windows job failed on Verdict 54, so the cache of the shaders items 21 to 24 changed was never
+    saved, the pack run restored the older one by prefix, and every app of the suite compiled the
+    changed shaders again, 3.7 seconds an app where 0.84 by the workflow's own measure, which
+    doubled the suite from 22 minutes past 40. The pack run's job failed too, so the next Windows
+    run is as cold, and a cold suite cannot pass within 40 minutes, a circle only a change breaks.
+    Two things, in the engine's session's batch with Verdict 54: the Mesa cache restored by
+    `actions/cache/restore` and saved by `actions/cache/save` under `if: always()`, keyed as today,
+    on Windows and on Linux alike, so a failed suite still leaves the shaders it compiled; and the
+    Windows suite's limit at 60 minutes, `--timeout-minutes 60` on its step with the reason beside
+    it, so a cold suite passes and saves the cache, the hang limit of five minutes a test still
+    catching a hang. Settled when the Windows suite passes on the push and the pack run after it
+    runs warm, under 36 minutes.
 
 ## Decisions
 
@@ -1275,17 +1358,10 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
     pipelines of its own, and the voxel game's vertex is positions and four or eight packed bytes in
     both engines.
 
-## Replies
+38. **The macOS captures run in the pack run alone.** On 2026-10-12 at 18:30 the owner chose to move
+    the macOS examples job, every example captured on the macOS runner's GPU, from each push to the
+    pack run, beside the soak, the storm and the measure against raylib, which run only there, so a
+    push answers in the suites' time and a GPU-only regression is still caught before a package is
+    made, at the cost of sitting on main until the next pack run. Item 25 carries it.
 
-Item 24 is in the next commit. The seam was not the march's cone, which already gives a penumbra as
-wide as the light, but its way out of a surface after the march, which ended at the step that left
-the surface, so a way that grazed the pillar's edge counted at least half a cell under it, and the
-share fell from a half outside the edge to a third or less just inside. Each way out now ends where
-it left the surface, the overshoot taken back by the distance read past it. On the game session's
-rebuild of the room, the frame's largest rise in 20 pixels is 5 to 7% in every band of rows where 22
-to 24%, so there is no seam left to trace for teeth, and the dark side is 0.95 of the reference where
-0.78. The 27 bounce rooms move by 0.0003 at most, the glowstone room's walls come a point nearer the
-reference, the GPU time is the same, and Xids are none in eight runs. The trade is
-`GlowPenumbraTests`' turn of five pixels, which moves the floor's light behind a wall one cell thick
-by 5.4% where 2.2%, its bound raised from 5% to 6.5% with the reason. The owner's eye on the picture
-waits for the game session's captures at the commit.
+## Replies
