@@ -214,7 +214,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   capped by the material's own `SubsurfaceThickness`, which a glTF file's
   `KHR_materials_volume` sets, at three qualities `SetSubsurfaceQuality` sets (RENDERING.md §5).
   A light that casts shadows measures the thickness from its own map where the field is coarse.
-  What is missing is the spread in render textures and probe captures.
+  Render textures and a reflection probe's faces draw the surface without it, a render texture
+  holding no linear frame to add the light into and a probe's 64-pixel faces spanning a few
+  pixels of a reach (RENDERING.md §5).
 
 ### The device
 

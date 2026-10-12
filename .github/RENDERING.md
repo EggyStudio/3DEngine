@@ -1918,6 +1918,16 @@ through's ran 0.41 off in the map's texels (`SubsurfaceTests`). A Burley profile
 wax's reach over the same sphere falls to half by 98 degrees and a tenth by 118, its tail longer
 than one Gaussian's, which a sum of Gaussians in the spread would follow.
 
+The spread and the light through stay out of render textures and of a reflection probe's faces. A
+render texture is drawn in eight bits with the curve and the encoding at the end of the model pass,
+so it holds no linear frame to add the light under a surface into, and bringing one in would give
+each texture the half-float frame and the composite the window has. A wax sphere lit from its side
+reads in a render texture as an unmarked one does, (44, 44, 44) at its terminator and (39, 39, 39)
+four degrees past it, where the window reads (69, 61, 53) and (54, 43, 39), the same frames drawn
+into both at 640 by 480. A probe's faces are 64 pixels of half floats, where wax's reach of 0.3
+seen from three units off spans some three pixels, before the faces are filtered for each
+roughness, so only a mirror's reflection of a scattering surface close to its probe would show it.
+
 Render targets drawn with `BeginTextureMode` stay eight bits, with the curve and the encoding at the
 end of the model pass. A shader of the program's own returns its color encoded in either, so it
 reads the same in the window and in a render texture, with every effect on or off, but for light

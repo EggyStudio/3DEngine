@@ -1344,3 +1344,13 @@ are open.
     made, at the cost of sitting on main until the next pack run. Item 25 carries it.
 
 ## Replies
+
+Item 3's remainder is in two commits. `fca652a1` holds the cap in `SubsurfaceTests`, a sheet in a
+field of 0.15 cells with a lamp behind it reading (39, 39, 39) with no thickness given, the field
+measuring it a cell thick, and (146, 146, 145) with two millimeters, 15 of 15 on the GPU and on
+lavapipe. The commit after it writes why the spread stays out of render textures and probe faces,
+with the numbers, in RENDERING.md and TODO.md. A render texture is eight bits with the curve at
+the end of the model pass, so it has no linear frame to add the light into. A wax sphere lit from
+its side reads in one as an unmarked sphere does, (44, 44, 44) at the terminator where the window
+reads (69, 61, 53), the same frames drawn into both. A probe's 64-pixel faces span some three
+pixels of wax's reach seen from three units off.
