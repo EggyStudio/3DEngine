@@ -10,7 +10,53 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `86fba7ad`. Item 21: the store's handoff gives a mesh of positions alone no streams,
+Reviewed up to `f7971f62`, two commits of the game's: `495fde19`, mobs after Minecraft's, pigs,
+cows, sheep, chickens and villagers, each a kind with its pieces, a renderer drawing them instanced
+with shadows, a pathfinder, herds placed by the generator and the village's own, their save in the
+world's file, commands to spawn, still and kill them, the body moved from the player to the entities
+and 224 lines of tests of them; `f7971f62`, items, an inventory, drops that fall and are picked up,
+loot from blocks and mobs, a hotbar and an inventory window, a game mode, a box mesh of their own
+and 170 lines of tests; the game's README says both. Read as the game's own, their engine cost the
+mobs' entry in ASKS.md of 01:52, item 23. The engine's next batch, f's filter offset, is in the tree
+uncommitted, the Cornell box's reference frame among its files, so its commit is read for what the
+frame moved by.
+
+Before it, `82b40646` came, item 2's pillar, read to its cause: the probe's path-traced reference
+counted the glow of a light the bounce carries where a path first met it, which the probe's rays
+leave out by design since that light reaches a surface as a glow light, so a texel whose cone took
+in part of a lamp's face read it in the reference alone; the reference leaves it out as the rays do,
+with a test that reads 0.65 on the old reference where 0.01 is allowed, and the twelve probes' rays
+then read within 12% of it at one bounce, all but the dimmest at 37% under, where they read 44 to
+70% under before, the floor before the lamps' face 0.28 against 0.21 where the old reference read
+0.69; over eight bounces the probes read 5 to 11% under with the pillar and 2 to 13% over without,
+so the 20 to 41% short read before was the reference's. Snapping a hit's normal to its axis moved
+nothing, so the field's normal at the box's foot is cleared, and the south face's 0 is a texel's
+middle ray against the reference's cone, evening out over the ways. What stays with the pillar is
+the merge's: a ray of cascade 0 passing beside the pillar takes three quarters of its light from
+beyond from a probe of cascade 1 whose ray met the pillar before its interval and is read as dark;
+passing such probes over lifts both rooms by 4% and leaves the gap, probes at half the spacing
+narrow it to 15 points at x 7 where 35, mostly by the room without the pillar falling, and with the
+screen's probes off the gap is 47 to 51 points, so the gather from probes 2 units apart loses more
+than the probes do, the wall's pixels blending in probes standing at the pillar's dark face. The
+bilinear fix the merge's comment names, tracing from a probe toward each probe above in place of the
+dark reading, is the remedy and is item 22, with these measures as its base; nothing of the engine's
+light changed in this commit. RENDERING.md's lines and ASKS.md's column carried. The suite 1,695,
+lavapipe 404 passed and 9 skipped with no validation error, the shader run from the two commands
+alone. Right, the reference questioned before the engine and found wanting, the cause pinned by
+measures that remain, and the remedy named rather than guessed. The Replies on items 21 and 2 are
+read and removed, the Shared line a row of SHARED.md. The game's session wrote a new entry in
+ASKS.md at 01:52, read at once: its mobs, four to six pieces each drawn instanced and casting
+shadows, are stamped as boxes by the field in every frame they move, 17 walking mobs taking the
+field's CPU from 0.8 ms to 2.9 and its GPU from nothing to 1.0, 76 from 1.1 to 4.8 and 3.9 with the
+256 boxes capped and the farthest left out, 16 to 28 microseconds of CPU and 13 to 15 of GPU a
+walking piece a frame, and no way to cast the sun's shadow and stay out of the field since one flag
+decides both; it is item 23 in two parts, the flag first since it is small and frees the game at
+once, the cheaper stamp after item 22. Next f's filter offset, read as the screen's probes standing
+half a depth texel past their tiles' middles so the history is read a sixteenth of a tile off, then
+the thin room against the filter's width, then item 23's flag, item 22, item 23's stamp, h's
+blotches and teeth by the owner's eye, item 10, item 9 and item 8.
+
+Before it, `86fba7ad` came, item 21: the store's handoff gives a mesh of positions alone no streams,
 so `GpuMeshes` makes it no colors and no second texture coordinates, the colors kept in the store
 where the light field's tint, the glow lights and the bounce reference read them, the overload's
 remark and the guide's paragraph saying that a stage reading `COLOR0` or `TEXCOORD1` on such a mesh
@@ -33,58 +79,6 @@ the pillar the rays that meet its south face bring nothing against 0.01 to 0.05 
 face that cannot see the lamps, so those paths of the reference bounce off the floor first, and how
 the reference's probe counts its bounces is read before the engine is blamed. Next those two checks,
 then h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `2172090b` came, item 17, the radiance cascades said: docs/global-illumination.md, "Light
-that bounces", 226 lines in eleven sections, turning it on with the Cornell box as a compiled block,
-what radiance cascades are and why the engine took them, the scene's field with its cascades, cell
-and budget and the side behind the eye at 1.6 to 9.6 cells, the world's probes eight cells apart
-tracing from their spacing to four times it with the walled-in left out, the screen's probes every
-16, 12 and 8 pixels held over frames, glowing surfaces as lights, the qualities' table with when
-each suits and what it costs, reflections traced at High and the sky's share, where it falls short,
-behind the eye, a cave wider than the last cascade, moving meshes and thin gaps, and reading it, the
-bounce window, the table of the gi commands and a scene read against its reference; the materials
-guide's bounce section is one paragraph and its call pointing to the page, its measured facts moved
-into the page, the guides' chain running materials, this page, shaders, the upgrading link pointing
-here, the README saying it in two sentences with the page's row after the materials guide's, and the
-cheat sheet's section of its three calls. Read whole against the renderer and found right in every
-number and limit it names, the style clean. The 146 guide blocks build on the package, the document,
-norm and cheat sheet tests pass, the suite 1,693. Item 17 is done, the owner's eye judging the text.
-The game's measure of its stream is in its entry at 00:38, `b275f738` against the commit before on
-`3ec1fdb3`'s engine, the desktop read first: on seed 1's land of 1,344 sections the frame goes from
-34.1 ms to 18.0, the shadows from 18.2 to 7.8 and the window's depth from 6.0 to 2.9, the passes
-that read positions alone taking half to a third of their time, the flat world's frame from 5.1 ms
-to 4.0 to 4.5, and the relight unchanged, the mesher's work; the vertex bytes on the device fall to
-72% where 45% was expected, 87 MB to 63 on the land, since the colors the field reads go with the
-upload and bring a buffer of four bytes a vertex and one of eight zeros for the second texture
-coordinate, 32 bytes a vertex in four buffers where 20 were meant, which is item 21, small and ahead
-of the pillar's read since the game waits on it. The page at 00:47: the runs of `fdf27346`,
-`7798d5e5` and `958a3eb3` are green on every job, and `fdf27346`'s examples job, the last of the
-whole workflow on a push and the first with the picture script's mend, ran the whole of it green,
-255 captures drawn on Linux in twenty minutes, the measure against raylib's programs holding, the
-package packed and checked, every one of the twelve games built and played from it, the soak passed
-on each, the resize, the README's walk and the first game's steps; so Verdicts 30, 49 and 52 are
-settled and leave this file, and no verdict is open. Three runs green on every job and the whole
-workflow once: 5.2's pack is due by Decision 19, the owner's to start, which also makes the version
-the rename asks (Decision 5). Next the bounce around the pillar as a read of its own, then h's
-blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
-
-Before it, `35322cfe` came, item 15, the rename: the flat API's class is `E3D`, its 48 partial files
-named for it, the test files, classes and the collection's name following, 493 files changed, the
-game's thirteen `using static` lines alone among them, which the game's session cleared first and
-was told of after; the namespace stays `Engine`, the package and the projects their names and the
-version untouched, as the item has it; the upgrading page names the rename in its opening and gains
-a section of two rows, the using line and the app's hosting call, and the upgrading test maps 5.1's
-name to the new one so the lost and gained members are still compared one by one, the old name
-allowed on that page alone. What still says it: AGENTS.md twice, in its testing paragraph and its
-table's row for the API folder, which changes only on the owner's word, asked at 00:20. The strict
-build is clean, the suite 1,693 and the game's tests 48; on the repacked package the guides' code,
-the examples, the README's walk, the first game's steps and all twelve games build, and the
-evaluator runs. Right, the names moved and nothing else, the game's lines by agreement, and the
-upgrading page the one place the old name lives on. Items 14, 15, 18, 19 and 20 are done since the
-owner's asks of 17:26 and 20:05. Next item 17, the radiance cascades said in the README and a guide
-page of their own, then the bounce around the pillar as a read of its own, its baseline at this head
-unchanged, 0.71 to 0.95 of the reference with the pillar and 1.01 to 1.07 without, then h's blotches
-and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -891,6 +885,45 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of stage 2 unchanged. The game then measures its land again, 20 bytes a vertex and about 40 MB
     expected where 63. Done at `86fba7ad`; the game measures again.
 
+22. **The merge reads a probe above whose ray met a surface before its interval as dark; the
+    bilinear fix takes its place.** Read at `82b40646` around the pillar: a ray of cascade 0 passing
+    beside the pillar takes three quarters of its light from beyond from a probe of cascade 1 whose
+    ray met the pillar before its interval began, and `gi_merge.slang` reads such a probe as dark,
+    since the surface it saw lies nearer that probe than this ray reaches, which keeps a ceiling
+    beside a lamp from reading 26 times too bright but loses the light along the ray; passing such
+    probes over lifts both rooms by 4% and leaves the gap between them, probes at half the spacing
+    narrow it to 15 points at x 7 where 35, and with the screen's probes off the gap is 47 to 51
+    points. The fix the merge's comment names: for a probe above whose ray met a surface before its
+    interval, trace from this probe toward that probe's position and take the light met along the
+    way in place of the dark reading, so the light along this ray is this ray's and not a nearer
+    surface's, the alpha of a half then gone. Measured as the pillar was, the wall's bounce at x 7
+    with and without the pillar against the reference, the gap to close within 10 points and both
+    rooms within 15% of the reference, the Cornell box's ceiling beside its lamp read for the
+    brightening the dark reading guards against, the reference frames compared, and the GPU time of
+    the merge before and after; the penumbra's zigzag the owner saw at 13:50 read again after it,
+    since a merge seam is its first suspect. After f's filter offset and the thin room.
+
+23. **A mesh casts the sun's shadow and stays out of the light field, and a moving mesh's stamp
+    costs less.** The game's entry of 2026-10-12 in ASKS.md: its mobs, four to six pieces each drawn
+    with `DrawMeshInstanced` at matrices that change as they walk, casting shadows, are stamped by
+    the field as boxes in every frame they move, 17 walking mobs taking `cpu.scene_field` from 0.8
+    ms to 2.9 and `gpu.scene_field` from nothing to 1.0, 76 taking them to 4.8 and 3.9 with the 256
+    boxes of `SceneFieldPlan.MaxShapes` filled and the farthest pieces left out, 16 to 28
+    microseconds of the CPU and 13 to 15 of the GPU a walking piece a frame, where 76 standing cost
+    1.1 and nothing. First, the flag: `CastsShadows` on a material decides both the shadow and the
+    field, so a material gains a second switch, `BouncesLight`, true by default, which keeps every
+    scene as it is, and a mesh drawn with it false casts its shadows and is left out of the field,
+    the glow lights and the bounce reference, said in the materials guide beside `CastsShadows` with
+    the mob as its case, a test that such a mesh casts a shadow and stamps no box, and the game's
+    measure again with its mobs so, which should read the standing cost; the game's own color is
+    then lost to the bounce for mobs, which is the right trade for a crowd. Second, the stamp: a
+    walking box's cost on the CPU is the plan's own work a frame, the nearest sort, the parts and
+    the dictionary reads, which is profiled and brought under 5 microseconds a box, and on the GPU
+    the brick-level stamp of a box, brought under 3, measured on the entry's village as the game
+    measured it, 17 and 76 walking; where that is not enough, a program draws a mob's pieces as one
+    shape the field holds whole, a grouping around the draws whose union box is stamped once, taken
+    then and not before. The first part after f's filter offset, the second after item 22.
+
 ## Verdicts
 
 Verdicts 1 to 53 are settled, the last three, the soak, the measure and the picture script, on
@@ -1139,44 +1172,22 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 21. A mesh of positions alone keeps the colors it is given in the store, where the light
-field's tint, the glow lights and the bounce's reference read them, and its uploads carry none to
-the GPU, so it is given its positions and its own stream alone, and no buffer of colors or of zero
-second texture coordinates; a shader of the program's own that takes `COLOR0` or `TEXCOORD1` on it
-reads white and zero at a stride of 0, as on a mesh without them, which the overload's remark and
-the guide's paragraph say. A store test holds the colors kept and the upload without them; stage
-2's Vulkan fact and the suite pass, 1,694. The game's measure of its land follows on its side.
-
-Item 2, the pillar's two checks. The probe's reference counted the glow of a light the bounce
-carries where a path first met it, which the probe's rays leave out by design, since that light
-reaches a surface as a glow light, so a texel whose cone took in part of a lamp's face read it in
-the reference alone. Left out there, as this batch makes it with a test that reads 0.65 on the old
-reference where 0.01 is allowed, the rays of the twelve probes read within 12% of the reference at
-one bounce, all but the dimmest at 37% under, where they read 44 to 70% under, and the floor before
-the lamps' face reads 0.28 against the reference's 0.21, where the reference read 0.69. Snapping a hit's normal to its axis
-moved nothing, so the field's normal at the box's foot is not the cause. The pillar's south face,
-its rays' 0 against the reference's 0.01 to 0.05, is a ray through a texel's middle meeting the
-pillar where the reference's paths through the texel's cone meet part of the lit floor before it,
-and summed over the ways it evens out.
-
-Over eight bounces against that reference the probes read -5, +4, -7, -6 and -11% with the pillar
-and +13, +10, +7, +6 and +2% without, so the 20 to 41% short read before was the reference's.
-Cascade 0's face toward the wall reads 19 to 28% under with the pillar and within 9% without, and
-cascade 1's within 6% with it. Part of that is the merge. A ray of cascade 0 passing beside the
-pillar takes three quarters of its light from beyond from the probe of cascade 1 at x 6, whose ray
-meets the pillar before its interval and is read as dark (`gi_merge.slang`). Passing such a probe
-over took the face to 6 to 16% under with the pillar and 1 to 14% over without, and the wall's
-bounce in the frame up 4% in both, 0.75 to 1.01 of the reference's with the pillar and 1.06 to 1.11
-without, so the gap between the two stays. Probes at half the spacing read the wall's bounce 0.78
-to 0.92 with the pillar and 0.89 to 0.98 without, the gap at x 7 15 points where 35, mostly by the
-room without the pillar falling. With the screen's probes off the gap at x 7 to 7.5 is 47 to 51
-points, wider than the probes' faces show, so the gather from probes 2 units apart to a wall 2
-units before the pillar loses more than the probes do, because the wall's pixels blend in probes
-standing at the pillar's dark face. The bilinear fix the merge's comment names would take the place
-of the dark reading. Neither it nor a change to the gather is made here, and these measures are the
-base for whichever comes.
-
-Shared: a probe's path-traced reference leaves out the glow of an emitter the bounce carries as a
-light where a path first meets it, as the probe's rays do, or it reads the probes 44 to 70% under
-for what they leave out by design; for BevyCSharp's row on the reference, where its probes leave any
-light to a light of its own.
+Item 2, f's filter offset. A screen probe stands on the middle of the half-sized depth's texel
+under its tile's middle, a pixel past that middle, and the filter found the frame before's light by
+the tiles' middles, so a still view's blend took a pixel's share of the probes to its right and
+below every frame, a sixteenth of a tile at `Low`, a twelfth at `Medium` and an eighth at `High`.
+The four probes of the frame before are now weighed by where each stands, with a test that reads
+the alpha of the probes at a wall's right and bottom edges against the sky, 1.75, 1.73 and 1.70
+before and 1.8 now. The bounce rooms read the thin room and the Cornell box 0.2 to 0.5 points of
+their light further from their references and the window's room and the carried lamp 0.3 to 0.6
+nearer, the 27 cases summed 4.006 where 4.001. Read for the filter's width, the weights spread
+wider took the thin room further still, 0.0922 and 0.0925 at `High` where 0.0916, and the sum to
+4.027 and 4.039, and narrower brought it to 0.0905 and the sum to 3.968, the carried lamp 0.5 to
+1.0 points nearer and the grazing floor at `Medium` 0.7 further. So the drift, and not the width,
+had held the thin room nearer, and the width is left as it is; a narrower filter is there to take,
+weighed against the probes' noise in the tests of the slide and the settling. The Cornell box's
+reference frame is drawn again. Its floor and blocks read 10 levels under it on `HEAD` on both
+devices, the glow lights and the bounce's fixes since `88673244`, the GPU's frame 1.7% apart and
+lavapipe's 4.7% where 5% is allowed, and 5.2% on lavapipe with this change. Drawn again, the suite
+passes, 1,698, and lavapipe 407 with 9 skipped and no validation error, and the game's glowstone
+room lost no device in eight runs.

@@ -310,6 +310,48 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.Medium)]
+    [InlineData(GlobalIllumination.High)]
+    public void In_A_Still_View_Each_Screen_Probe_Takes_The_Frame_Befores_Light_From_Where_It_Stood(GlobalIllumination quality)
+    {
+        // A lit wall against a black sky, the camera still. A screen probe stands on the middle of
+        // the half-sized depth's texel under its tile's middle, a pixel past it, and read by the
+        // tiles' middles the frame before's light was found a pixel along each axis off where the
+        // probe stood, a sixteenth of a tile at Low and an eighth at High, so each blend took that
+        // share of the probes to its right and below, and a probe at the wall's right or bottom
+        // edge, whose neighbor there stands on the sky, took more of its light from this frame than
+        // the fifth it takes, which its alpha reads, one more than the share the frame before's
+        // light gave: 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8.
+        Open();
+        SetGlobalIllumination(quality);
+        CreatePointLight(new Vector3(0, 0, 2), new Color(255, 236, 210), 6, range: 8);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        for (int frame = 0; frame < 40; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45));
+            DrawModelEx(slab, new Vector3(0, 0, -0.1f), Vector3.UnitY, 0, new Vector3(3, 2, 0.2f), Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var screen = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var (blended, geometry) = (device.ReadFloats(screen.Blended), device.ReadFloats(screen.Geometry));
+        UnloadModel(slab);
+        var held = Enumerable.Range(0, screen.Across * screen.Down)
+            .Where(probe => geometry[probe * 4 + 3] >= 0 && blended[probe * 4 + 3] > 1)
+            .Select(probe => (Across: probe % screen.Across, Down: probe / screen.Across, Share: blended[probe * 4 + 3]))
+            .ToList();
+        held.Should().HaveCountGreaterThan(8, "the wall holds probes that blend with the frame before");
+        held.Should().OnlyContain(probe => Math.Abs(probe.Share - 1.8f) < 0.01f,
+            $"each takes four fifths of its light from the frame before where it stood, the wall's edges too; {string.Join(", ", held.Where(probe => Math.Abs(probe.Share - 1.8f) >= 0.01f).Select(probe => $"{probe.Across},{probe.Down} {probe.Share:0.000}"))}");
+    }
+
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
     [InlineData(false)]
     [InlineData(true)]
     public void The_Light_That_Bounces_Settles_By_The_Fifth_Frame_After_A_Walk_Or_A_Turn(bool turn)

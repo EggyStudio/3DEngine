@@ -149,3 +149,40 @@ and packed bytes. When the game's own order allows.
 Review: item 21 of REVIEW.md, 2026-10-12; the colors of a mesh of positions alone serve the field
 alone and reach no buffer on the device, so a section is 20 bytes a vertex there, before the
 pillar's read; the land measured again after it.
+
+### 2026-10-12, the voxel game in `3DEngine.Game`: mobs that walk cost the scene field a frame
+
+The game's mobs, pigs, cows, sheep, chickens and villagers after Minecraft's, are four to six pieces
+each, a head, a body, legs and a chicken's wings, every piece a mesh of a few boxes drawn with
+`DrawMeshInstanced` at a matrix that changes as the mob walks and its legs swing, casting shadows.
+The scene's distance field so stamps each piece as a box in every frame it moves. Over seed 1's
+first village from the south at noon (`voxel.tp 216.5 72 62.5`, `voxel.look 0 -20`, the hills at a
+render distance of 8 columns, High), in a hidden window of 1280 by 720 on an RTX 4070 Laptop GPU,
+`./e3d command profile` after 300 frames reads as below, with `field.state` for the boxes stamped
+and the bricks they reach. The village's own 17 mobs are drawn first, then those 17 with 60 sheep
+placed before the eye by `voxel.spawn`, each walking and then held by `voxel.still on`, and last
+with every mob taken away by `voxel.kill all`. Another program's process took 6 to 8% of the GPU
+through the runs, which the frame's swing of 21 to 25 ms with no mobs shows, so the field's own
+lines are the ones to read.
+
+| Mobs drawn | Boxes, bricks | `cpu.scene_field` | `gpu.scene_field` | Frame |
+|---|---|---|---|---|
+| None | 0 | 0.79 to 0.84 ms | 0.004 ms | 20.8 to 25.0 ms |
+| 17 standing | 0 | 0.82 ms | 0.006 ms | 20.8 ms |
+| 17 walking | 76, 639 | 2.94 to 2.97 ms | 1.01 ms | 22.1 to 23.0 ms |
+| 76 standing | 0 | 1.11 ms | 0.011 ms | 21.8 ms |
+| 76 walking | 256, 796 | 4.84 ms | 3.86 ms | 25.8 ms |
+
+Each walking piece costs the field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a frame,
+and past `SceneFieldPlan.MaxShapes`, 256 boxes, the farthest pieces are left out of the field, so a
+crowd of more than 40 or so walking mobs bounces no light from its farthest. The engine lacks a
+cheaper stamp of a moving mesh, or a way for a program to draw a mob's pieces as one box the field
+holds whole while they move, and a way to have a mesh cast the sun's shadow and stay out of the
+field, since `CastsShadows` decides both. The game draws its mobs within 64 blocks, as Minecraft
+draws its entities, and lets them cast shadows, so the light that bounces takes their colors.
+
+Review: item 23 of REVIEW.md, 2026-10-12; first a material's second switch beside `CastsShadows`,
+`BouncesLight`, true by default, which drawn false casts the shadows and leaves the mesh out of the
+field, after f's filter offset, the game measuring its village again with its mobs so; then the
+walking box's stamp brought under 5 microseconds of CPU and 3 of GPU, after item 22, and a mob's
+pieces as one shape of the field's where that is not enough.

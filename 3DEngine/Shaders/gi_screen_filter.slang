@@ -53,6 +53,15 @@ float3 standsOn(int2 id)
     return world.xyz / world.w;
 }
 
+// The window's pixel a probe stands on, the middle of the depth's texel under its tile's middle, as
+// standsOn and gi_screen.slang place it, half a depth texel past the tile's middle where the depth is
+// half the window's size.
+float2 probePixel(int2 id)
+{
+    float2 pixel = min((float2(id) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
+    return (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy * view.sizes.zw;
+}
+
 // The spatial blend of a probe's light with its like neighbors', or its own where it holds none,
 // and in spread how far the light of those neighbors lies from that blend, each channel's standard
 // deviation by the same weights. A neighbor counts by how near the plane of the probe's surface its
@@ -94,9 +103,15 @@ float4 earlier(uint2 id, uint across, uint down, float4 surface)
     float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
     if (clip.w <= 1e-5)
         return float4(0.0);
-    float2 then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw / view.grid.x - 0.5;
-    int2 base = int2(floor(then));
-    float2 f = then - float2(base);
+    // The four probes around the point's pixel in the frame before, blended by where they stand
+    // rather than by their tiles' middles, since read by the middles a still view's blend took the
+    // next probe along each axis by a pixel's share, a sixteenth of a tile at Low and an eighth at
+    // High, every frame.
+    float2 then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw;
+    int2 base = int2(floor(then / view.grid.x - 0.5));
+    base -= select(then < probePixel(base), int2(1), int2(0));
+    float2 low = probePixel(base);
+    float2 f = saturate((then - low) / max(probePixel(base + 1) - low, float2(1e-3)));
     float expected = distance(p, view.last.xyz);
     float3 sum = float3(0.0);
     float weights = 0.0;

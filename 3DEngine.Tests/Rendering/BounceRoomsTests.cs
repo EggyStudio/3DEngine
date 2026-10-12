@@ -34,7 +34,7 @@ public sealed class BounceRoomsTests : IDisposable
 
     // Each view at each quality, bound 15% over what it read on the development machine's GPU,
     // where the views read 0.12 to 0.14 of their light apart from their references in the Cornell
-    // box, 0.08 to 0.10 in the thin room, 0.26 in the corridor, 0.27 to 0.29 in the window's, 0.02
+    // box, 0.08 to 0.10 in the thin room, 0.26 in the corridor, 0.26 to 0.29 in the window's, 0.02
     // among the red walls, 0.27 to 0.29 in the strip's, 0.11 to 0.13 on the grazing floor, 0.10 to
     // 0.12 in the carried lamp's and 0.05 to 0.06 around the glowing blocks, since the small
     // emitters are lights of their own (GlowLights), where the strip's read 0.45 to 0.47. The

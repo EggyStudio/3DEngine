@@ -705,7 +705,14 @@ near it lies to the plane of the probe's surface (`gi_screen_filter.slang`), the
 before's, a fifth of this frame's light to four fifths of theirs: the probe's point is read from the
 depth, found in the frame before through that frame's camera, which the view carries, and the four
 probes then around it blended where each stood on a like surface, kept in two images the frame's
-blended light and surfaces are copied into after the filter. A probe whose surface the frame before
+blended light and surfaces are copied into after the filter. Each of the four is weighed by where it
+stands, the middle of the half-sized depth's texel under its tile's middle, a pixel past that
+middle; weighed by the tiles' middles, a still view's blend took a pixel's share of the probes to its
+right and below every frame, a sixteenth of a tile at `Low` and an eighth at `High`, which held the
+thin room and the Cornell box 0.2 to 0.5 points of their light nearer their path-traced references
+and the window's room and the carried lamp 0.3 to 0.6 further (`BounceRoomsTests`). The filter's
+weights spread wider took the thin room further from its reference still, and narrower nearer, so
+the drift had brought it there rather than the filter's width. A probe whose surface the frame before
 did not show, at the edge of the picture or behind what moved, takes this frame's light alone. The
 frame before's light is held first within twice the spread of this frame's light among the like
 probes around, each channel's standard deviation by the filter's own weights, so where a light
