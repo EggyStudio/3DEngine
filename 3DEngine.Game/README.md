@@ -37,7 +37,7 @@ as they were.
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
 | Left button | Hit the mob looked at or break the block, at once in creative, slowly in survival |
-| Right button | Place the chosen block, eat the food held, or open a door or a crafting table |
+| Right button | Place the chosen block or eat the food held, or open a door, a table or a furnace |
 | Middle button | Pick the block looked at into the hotbar, in survival from the inventory |
 | 1 to 9, wheel | Choose a slot of the hotbar |
 | E | In creative every item, to put any of them in the chosen slot, and in survival the inventory |
@@ -74,15 +74,16 @@ where the crosshair rests, `voxel.attack` hits the one it rests on as the left b
 `voxel.still` stops them where they stand for a capture, and `voxel.kill` takes them away.
 `voxel.mode` plays in creative or survival mode, `voxel.select` puts an item in the chosen slot,
 `voxel.give` puts items in the inventory, `voxel.craft` makes an item from what the inventory holds,
-`voxel.inventory` lists what it holds, `voxel.items` lists every item, and `voxel.throw` throws as Q
-does. `voxel.vitals` says or sets the health and food, `voxel.hurt` harms the player, and
-`voxel.respawn` gives a new life. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that
-bounces, the scene's distance field and the sun's shadows, and `voxel.hud` hides what is drawn over
-the world for a capture. Three measure the light: `voxel.flicker` records each frame's change in the
-picture around a turn or a step into a file, with the first frame after it, the settled one and
-their difference beside it, `voxel.ring` reads the last frame's light around a circle on the ground
-by angle, and `voxel.depth` says how far the block under a pixel is. The engine's own `gi.*` and
-`field.*` commands show and measure the light that bounces.
+`voxel.furnace` fills and reads a furnace, `voxel.inventory` lists what it holds, `voxel.items`
+lists every item, and `voxel.throw` throws as Q does. `voxel.vitals` says or sets the health and
+food, `voxel.hurt` harms the player, and `voxel.respawn` gives a new life. `voxel.gi`, `voxel.field`
+and `voxel.shadows` set the light that bounces, the scene's distance field and the sun's shadows,
+and `voxel.hud` hides what is drawn over the world for a capture. Three measure the light:
+`voxel.flicker` records each frame's change in the picture around a turn or a step into a file, with
+the first frame after it, the settled one and their difference beside it, `voxel.ring` reads the
+last frame's light around a circle on the ground by angle, and `voxel.depth` says how far the block
+under a pixel is. The engine's own `gi.*` and `field.*` commands show and measure the light that
+bounces.
 
 ## Biomes
 
@@ -240,26 +241,45 @@ its meat.
 
 ## Tools and crafting
 
-A pickaxe, an axe, a shovel and a sword are made of wood or of stone. A tool breaks the blocks its
-kind is for faster than a hand, twice as fast of wood and four times of stone, a pickaxe stone,
-cobblestone, ores, sandstone, concrete and lanterns, an axe logs, planks and what is made of them,
-and a shovel dirt, grass, sand, gravel and snow. A block a pickaxe is for takes its hardness times
-five seconds without one and drops nothing, as in Minecraft, so stone takes seven and a half seconds
-by hand, a little over one with a wooden pickaxe and half of one with a stone pickaxe. A tool wears
-by a use for each block it breaks and a sword by two, and is gone when its 59 uses of wood or 131 of
-stone are worn, a bar under its slot showing what is left. A hit takes a hand's one point of a mob's
-health, and a sword five of wood and six of stone, an axe four and five, a pickaxe three and four
-and a shovel two and three, as Minecraft's took before its attacks had a cooldown.
+A pickaxe, an axe, a shovel and a sword are made of wood, stone or iron. A tool breaks the blocks
+its kind is for faster than a hand, twice as fast of wood, four times of stone and six times of
+iron, a pickaxe stone, cobblestone, ores, sandstone, concrete and lanterns, an axe logs, planks and
+what is made of them, and a shovel dirt, grass, sand, gravel and snow. A block a pickaxe is for
+takes its hardness times five seconds without one and drops nothing, as in Minecraft, so stone takes
+seven and a half seconds by hand, a little over one with a wooden pickaxe and half of one with a
+stone pickaxe. A tool wears by a use for each block it breaks and a sword by two, and is gone when
+its 59 uses of wood, 131 of stone or 250 of iron are worn, a bar under its slot showing what is
+left. A hit takes a hand's one point of a mob's health, and a sword five, six and seven of wood,
+stone and iron, an axe four, five and six, a pickaxe three, four and five and a shovel two, three
+and four, as Minecraft's took before its attacks had a cooldown.
 
 The inventory has a crafting grid of two by two, and a crafting table, made of four planks, one of
 three by three that a right click on it opens. A recipe matches wherever its shape lies in the grid
 with the rest empty, its mirror image too, and a click on what the grid makes takes it, using one
 item of each stack. A log makes four planks of its wood, two planks four sticks, a stick under coal
-four torches, planks or cobblestone with sticks the tools in Minecraft's shapes, three blocks in a
-row six slabs, a staircase of six blocks four stairs, planks and sticks three fences, six planks
-three doors, four sand a block of sandstone, four stone four stone bricks, and nine wheat a hay
-bale. Veins of coal lie in the stone from 5 to 100 blocks up, 18 to a column, darker than the stone
-around them, which the walls of a cave or a ravine show.
+or charcoal four torches, eight cobblestone in a ring a furnace, planks, cobblestone or iron ingots
+with sticks the tools in Minecraft's shapes, three blocks in a row six slabs, a staircase of six
+blocks four stairs, planks and sticks three fences, six planks three doors, four sand a block of
+sandstone, four stone four stone bricks, and nine wheat a hay bale. Veins of coal lie in the stone
+from 5 to 100 blocks up, 18 to a column, darker than the stone around them, which the walls of a
+cave or a ravine show.
+
+## Furnaces and iron
+
+A furnace smelts what it is given, ten seconds an item: raw meat cooked, porkchop and beef to eight
+points of food and mutton and chicken to six, sand to glass, cobblestone to stone, iron ore to an
+ingot and a log to charcoal. It burns coal or charcoal for 80 seconds, a log, planks or a crafting
+table for 15, a wooden tool for 10, a slab for 7.5 and a stick for 5, lights a new fuel only when it
+has something to smelt with room for what it makes, and starts an item over when its fire goes out,
+as Minecraft's does. A right click opens it, what it smelts over its fuel with the fire's bar
+between them, the smelting's bar, and what it made, which a click takes up. While it burns it glows
+as a whole block and lights the blocks around it to 13. It burns on while its column is loaded, its
+window shut or not, gives up what it holds when it is broken or blown up, and is kept by the save in
+`furnaces.json`.
+
+Iron ore lies in the stone in veins of six, ten to a column from 5 to 64 blocks up, pale tan against
+the gray, and drops itself only to a pickaxe of stone or iron. Three ingots over two sticks make an
+iron pickaxe, and the other iron tools come in their shapes.
 
 ## Health and hunger
 
@@ -388,9 +408,8 @@ lamps' cubes are drawn with the engine's own shader and take no haze.
 Textures, and leaves seen through, which are solid. The corners stairs make where two meet, and
 slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
 leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
-Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
-Iron, furnaces and what they smelt, as glass and cooked meat, a bed to set where the player
-respawns, spiders that climb walls, and a bow and armor for the player.
+Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food. A
+bed to set where the player respawns, spiders that climb walls, and a bow and armor for the player.
 
 ## What it costs
 

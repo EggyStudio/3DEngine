@@ -145,6 +145,9 @@ public enum BlockId : ushort
     BirchPlanks,
     CraftingTable,
     CoalOre,
+    IronOre,
+    Furnace,
+    FurnaceLit,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -361,6 +364,10 @@ public static class Blocks
             Same(BlockId.BirchPlanks, "birch_planks", "Birch Planks", Surfaces.BirchPlanks),
             new(BlockId.CraftingTable, "crafting_table", "Crafting Table", Surfaces.CraftingTableTop, Surfaces.CraftingTableSide, Surfaces.Planks),
             Same(BlockId.CoalOre, "coal_ore", "Coal Ore", Surfaces.CoalOre),
+            Same(BlockId.IronOre, "iron_ore", "Iron Ore", Surfaces.IronOre),
+            new(BlockId.Furnace, "furnace", "Furnace", Surfaces.FurnaceTop, Surfaces.FurnaceSide, Surfaces.FurnaceTop),
+            // A furnace alight glows as a whole block, as magma does, and lights the blocks around it to 13.
+            Same(BlockId.FurnaceLit, "lit_furnace", "Furnace", Surfaces.FurnaceLit, light: 13) with { HeldAs = BlockId.Furnace },
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");

@@ -115,6 +115,11 @@ public static class Surfaces
     public static readonly int CraftingTableSide = Add("crafting table side", new Color(128, 94, 58));
     // Stone darkened by its coal, since without textures an ore shows by its color alone.
     public static readonly int CoalOre = Add("coal ore", new Color(72, 72, 74));
+    // Stone warmed by its iron, pale tan, as the ore's flecks are.
+    public static readonly int IronOre = Add("iron ore", new Color(170, 146, 128));
+    public static readonly int FurnaceSide = Add("furnace side", new Color(92, 92, 92));
+    public static readonly int FurnaceTop = Add("furnace top", new Color(116, 116, 116));
+    public static readonly int FurnaceLit = Add("lit furnace", new Color(110, 92, 80), emissive: new Color(255, 140, 50), glow: 1.2f);
     // A small light's glow is its light over its surface, so a torch's flame, a 48th of a block's
     // surface, glows far brighter than glowstone to light a room nearly as well, as a torch's level of
     // 14 nearly matches glowstone's 15. Each is set so a closed room's floor takes about three

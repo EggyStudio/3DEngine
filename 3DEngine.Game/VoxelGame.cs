@@ -56,6 +56,9 @@ public sealed class VoxelGame : IDisposable
     /// <summary>The arrows skeletons have loosed.</summary>
     public Arrows Arrows { get; } = new();
 
+    /// <summary>The world's furnaces by the place of their block.</summary>
+    public Furnaces Furnaces { get; private set; } = new();
+
     // The explosions of the last half second, where and how long ago, drawn as a fading flash.
     private readonly List<(Vector3 At, float Power, float Age)> _blasts = [];
 
@@ -133,6 +136,9 @@ public sealed class VoxelGame : IDisposable
     /// <summary>Whether the window open is a crafting table's, which a right click on one opens.</summary>
     public bool AtTable { get; private set; }
 
+    /// <summary>The place of the furnace whose window is open, which a right click on one opens, or null.</summary>
+    public (int X, int Y, int Z)? AtFurnace { get; private set; }
+
     /// <summary>A recording of the picture's change around a motion, which <c>voxel.flicker</c> starts, read a frame at a time.</summary>
     public FlickerRun? Flicker { get; set; }
 
@@ -157,6 +163,7 @@ public sealed class VoxelGame : IDisposable
         Mobs = new Mobs(kept, placed);
         Drops.Clear();
         Arrows.Clear();
+        Furnaces = Save?.ReadFurnaces() ?? new Furnaces();
         _blasts.Clear();
         // The mode and the inventory are the world's own, a new world's in creative with its hotbar of blocks.
         Mode = Enum.TryParse<GameMode>(info?.Mode, ignoreCase: true, out var mode) ? mode : GameMode.Creative;
@@ -193,6 +200,7 @@ public sealed class VoxelGame : IDisposable
             if (column.Changed) Save.Keep(column);
         Save.Flush();
         Save.WriteMobs(Mobs.Columns());
+        Save.WriteFurnaces(Furnaces);
         var at = Player.Body.Position;
         Save.WriteInfo(new WorldInfo(World.Generator.Name, World.Generator.Seed, at.X, at.Y, at.Z,
             Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)],
@@ -238,6 +246,11 @@ public sealed class VoxelGame : IDisposable
         else (BreakingAt, BreakProgress, Eating) = (null, 0, 0);
         if (_captured && keys && IsKeyPressed(Key.Q)) Throw(IsKeyDown(Key.LeftControl));
         LeaveDrops();
+        foreach (var ((x, y, z), stack) in Furnaces.Update(World, seconds))
+        {
+            if (AtFurnace == (x, y, z)) CloseInventory();
+            Drops.Spawn(stack.Item, stack.Count, new Vector3(x + 0.5f, y + 0.5f, z + 0.5f), new Vector3(0, 2, 0), wear: stack.Wear);
+        }
         Drops.Update(World, Player.Body, Inventory, seconds, pickUp: alive);
 
         Sky.Update(seconds);
@@ -420,7 +433,7 @@ public sealed class VoxelGame : IDisposable
     // not fit thrown.
     private void CloseInventory()
     {
-        (InventoryOpen, AtTable) = (false, false);
+        (InventoryOpen, AtTable, AtFurnace) = (false, false, null);
         foreach (var left in InventoryWindow.Close(Inventory))
             Drops.Spawn(left.Item, left.Count, Player.Eye - new Vector3(0, 0.3f, 0), Vector3.Normalize(Player.Look) * 3, ItemDrops.ThrownDelay, left.Wear);
     }
@@ -449,11 +462,11 @@ public sealed class VoxelGame : IDisposable
     }
 
     // Holding the right button with food while hungry eats it over a second and a half, unless the
-    // crosshair rests on a door or a crafting table, which the button opens instead. Whether the
-    // player is eating.
+    // crosshair rests on a door, a crafting table or a furnace, which the button opens instead.
+    // Whether the player is eating.
     private bool Eat(float seconds)
     {
-        var opens = Target is { } hit && World.GetBlock(hit.X, hit.Y, hit.Z) is var block && (block == BlockId.CraftingTable || Blocks.Get(block).Toggled is not null);
+        var opens = Target is { } hit && World.GetBlock(hit.X, hit.Y, hit.Z) is var block && (block == BlockId.CraftingTable || Furnaces.IsFurnace(block) || Blocks.Get(block).Toggled is not null);
         if (!IsMouseButtonDown(MouseButton.Right) || opens || Hotbar.Current is not { Item.Food: > 0 } food || Vitals.Food >= Vitals.Most)
         {
             Eating = 0;
@@ -491,11 +504,11 @@ public sealed class VoxelGame : IDisposable
     }
 
     /// <summary>
-    /// Opens the crafting table the crosshair rests on, opens or shuts the door it rests on, or places
+    /// Opens the crafting table or the furnace the crosshair rests on, opens or shuts the door it rests on, or places
     /// the chosen slot's block against the face it rests on, using one up in survival, as a right
     /// click does.
     /// </summary>
-    /// <returns>The table opened, the door's half turned or the block placed, or air where nothing happened.</returns>
+    /// <returns>The table or furnace opened, the door's half turned or the block placed, or air where nothing happened.</returns>
     public BlockId Use()
     {
         if (Target is { } table && World.GetBlock(table.X, table.Y, table.Z) == BlockId.CraftingTable)
@@ -503,6 +516,13 @@ public sealed class VoxelGame : IDisposable
             (InventoryOpen, AtTable) = (true, true);
             Capture(false);
             return BlockId.CraftingTable;
+        }
+        if (Target is { } oven && Furnaces.IsFurnace(World.GetBlock(oven.X, oven.Y, oven.Z)))
+        {
+            Furnaces.At(oven.X, oven.Y, oven.Z);
+            (InventoryOpen, AtFurnace) = (true, (oven.X, oven.Y, oven.Z));
+            Capture(false);
+            return World.GetBlock(oven.X, oven.Y, oven.Z);
         }
         var toggles = Target is { } door && Blocks.Get(World.GetBlock(door.X, door.Y, door.Z)).Toggled is not null;
         var placed = Place(Hotbar.CurrentBlock);
@@ -637,7 +657,8 @@ public sealed class VoxelGame : IDisposable
         }
         Settings.Draw(this);
         if (Mode == GameMode.Survival && Vitals.Dead) DrawDeath();
-        if (InventoryOpen && !(AtTable ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Table)
+        if (InventoryOpen && !(AtFurnace is var (fx, fy, fz) ? InventoryWindow.DrawFurnace(Inventory, Hotbar.Selected, Furnaces.At(fx, fy, fz))
+            : AtTable ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Table)
             : Mode == GameMode.Survival ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Small)
             : InventoryWindow.DrawCreative(Hotbar)))
         {

@@ -63,7 +63,8 @@ public static class Recipes
             R(I(BlockId.BirchPlanks), 4, ["L"], ('L', [I(BlockId.BirchLog)])),
             R(Items.Stick, 4, ["P", "P"], ('P', Planks)),
             R(I(BlockId.CraftingTable), 1, ["PP", "PP"], ('P', Planks)),
-            R(I(BlockId.Torch), 4, ["C", "S"], ('C', [Items.Coal]), ('S', Stick)),
+            R(I(BlockId.Torch), 4, ["C", "S"], ('C', [Items.Coal, Items.Charcoal]), ('S', Stick)),
+            R(I(BlockId.Furnace), 1, ["CCC", "C C", "CCC"], ('C', [I(BlockId.Cobblestone)])),
             R(I(BlockId.OakFence), 3, ["PSP", "PSP"], ('P', Planks), ('S', Stick)),
             R(I(BlockId.OakDoor), 3, ["PP", "PP", "PP"], ('P', Planks)),
             R(I(BlockId.HayBale), 1, ["WWW", "WWW", "WWW"], ('W', [Items.Wheat])),
@@ -72,7 +73,7 @@ public static class Recipes
             R(I(BlockId.StoneBricks), 4, ["SS", "SS"], ('S', [I(BlockId.Stone)])),
         };
         // A tool of each kind from planks and from cobblestone, with sticks for its handle.
-        foreach (var (material, head) in (ReadOnlySpan<(string, Item[])>)[("wooden", Planks), ("stone", [I(BlockId.Cobblestone)])])
+        foreach (var (material, head) in (ReadOnlySpan<(string, Item[])>)[("wooden", Planks), ("stone", [I(BlockId.Cobblestone)]), ("iron", [Items.IronIngot])])
         {
             Item Tool(string kind) => Items.Find($"{material}_{kind}")!;
             all.Add(R(Tool("pickaxe"), 1, ["MMM", " S ", " S "], ('M', head), ('S', Stick)));

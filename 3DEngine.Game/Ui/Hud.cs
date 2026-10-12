@@ -103,16 +103,27 @@ public static class Hud
         {
             // A heart worth one point is its left half, and a drumstick its meat's half on the right.
             var health = Math.Clamp(vitals.Health - i * 2, 0, 2);
+            Outline(Heart, x0 + i * step, y, scale);
             Pixels(Heart, x0 + i * step, y, scale, new Color(40, 0, 0, 200), 0, 7);
             Pixels(Heart, x0 + i * step, y, scale, new Color(220, 30, 40), 0, health == 2 ? 7 : health == 1 ? 4 : 0);
             // Food from the right, as Minecraft's is drawn.
             var fx = x0 + width - 14 - i * step;
             var food = Math.Clamp(vitals.Food - i * 2, 0, 2);
+            Outline(Drumstick, fx, y, scale);
             Pixels(Drumstick, fx, y, scale, new Color(40, 24, 10, 200), 0, 7);
             Pixels(Drumstick, fx, y, scale, new Color(196, 120, 58), food == 2 ? 0 : 3, food == 0 ? 0 : 7);
             if (vitals.Air < Vitals.Breath && i < (int)MathF.Ceiling(vitals.Air / Vitals.Breath * 10))
                 DrawCircleLines(fx + 7, y - 12, 6, new Color(170, 220, 255));
         }
+    }
+
+    // A dark edge a pixel wide around a pattern, so it reads over any color behind it, as Minecraft's
+    // icons are outlined.
+    private static void Outline(string[] pattern, int x, int y, int scale)
+    {
+        var edge = new Color(16, 10, 8, 230);
+        foreach (var (dx, dy) in (ReadOnlySpan<(int, int)>)[(-1, 0), (1, 0), (0, -1), (0, 1)])
+            Pixels(pattern, x + dx, y + dy, scale, edge, 0, 7);
     }
 
     // Draws a pattern's set pixels from one column up to another in a color, each at its own place.

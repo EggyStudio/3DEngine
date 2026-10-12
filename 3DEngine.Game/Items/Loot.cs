@@ -39,6 +39,9 @@ public static class Loot
             case BlockId.CoalOre:
                 yield return (Items.Coal, 1);
                 yield break;
+            case BlockId.FurnaceLit:
+                yield return (Items.Of(BlockId.Furnace), 1);
+                yield break;
             case BlockId.Wheat:
                 yield return (Items.Wheat, 1);
                 yield return (Items.Of(BlockId.Wheat), 1 + random.Next(3));
@@ -84,13 +87,20 @@ public static class Loot
         return Hardness(block) * (Harvests(block, held) ? 1.5f : 5) / speed;
     }
 
-    /// <summary>Whether a block broken with an item held, or by hand, drops anything, which a block that asks for a pickaxe does only to one.</summary>
-    public static bool Harvests(BlockId block, Item? held) => ToolFor(block) is not (ToolKind.Pickaxe, true) || held?.Tool == ToolKind.Pickaxe;
+    /// <summary>
+    /// Whether a block broken with an item held, or by hand, drops anything, which a block that asks
+    /// for a pickaxe does only to one, and iron ore only to one of stone or better.
+    /// </summary>
+    public static bool Harvests(BlockId block, Item? held) =>
+        ToolFor(block) is not (ToolKind.Pickaxe, true) || held?.Tool == ToolKind.Pickaxe && held.Tier >= TierFor(block);
+
+    /// <summary>The tier of pickaxe a block's ore asks, 2 for iron ore and 1 for the rest.</summary>
+    public static int TierFor(BlockId block) => block == BlockId.IronOre ? 2 : 1;
 
     /// <summary>The kind of tool a block breaks fastest to, and whether it drops anything broken without one, as Minecraft's stone does not.</summary>
     public static (ToolKind Tool, bool Needed) ToolFor(BlockId block) => Blocks.Get(block).Item switch
     {
-        BlockId.Stone or BlockId.Cobblestone or BlockId.CoalOre or BlockId.Sandstone or BlockId.StoneBricks or BlockId.Magma
+        BlockId.Stone or BlockId.Cobblestone or BlockId.CoalOre or BlockId.IronOre or BlockId.Furnace or BlockId.Sandstone or BlockId.StoneBricks or BlockId.Magma
             or BlockId.WhiteConcrete or BlockId.RedConcrete or BlockId.GreenConcrete or BlockId.BlueConcrete
             or BlockId.Lantern or BlockId.SoulLantern or BlockId.StoneSlab or BlockId.CobblestoneSlab or BlockId.SandstoneSlab
             or BlockId.CobblestoneStairs or BlockId.SandstoneStairs or BlockId.StoneBrickStairs => (ToolKind.Pickaxe, true),
@@ -114,7 +124,7 @@ public static class Loot
         BlockId.Stone or BlockId.Cobblestone or BlockId.StoneBricks or BlockId.StoneSlab or BlockId.CobblestoneSlab
             or BlockId.CobblestoneStairs or BlockId.StoneBrickStairs => 6,
         BlockId.OakLog or BlockId.BirchLog or BlockId.SpruceLog or BlockId.OakPlanks or BlockId.SprucePlanks or BlockId.BirchPlanks
-            or BlockId.OakSlab or BlockId.SpruceSlab or BlockId.OakStairs or BlockId.SpruceStairs or BlockId.OakFence or BlockId.CoalOre => 3,
+            or BlockId.OakSlab or BlockId.SpruceSlab or BlockId.OakStairs or BlockId.SpruceStairs or BlockId.OakFence or BlockId.CoalOre or BlockId.IronOre => 3,
         var item => Hardness(item),
     };
 
@@ -133,7 +143,8 @@ public static class Loot
         BlockId.Shroomlight => 1,
         BlockId.Stone or BlockId.StoneBricks or BlockId.StoneBrickStairs => 1.5f,
         BlockId.CraftingTable => 2.5f,
-        BlockId.CoalOre => 3,
+        BlockId.CoalOre or BlockId.IronOre => 3,
+        BlockId.Furnace => 3.5f,
         BlockId.WhiteConcrete or BlockId.RedConcrete or BlockId.GreenConcrete or BlockId.BlueConcrete => 1.8f,
         BlockId.OakDoor => 3,
         BlockId.Lantern or BlockId.SoulLantern => 3.5f,

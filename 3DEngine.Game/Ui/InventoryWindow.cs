@@ -5,8 +5,8 @@ namespace Engine.Game;
 
 /// <summary>
 /// The window E opens: in survival the inventory's 36 slots under a crafting grid of two by two, in
-/// creative every item to put in the hotbar's chosen slot, and at a crafting table the inventory
-/// under a grid of three by three in either mode.
+/// creative every item to put in the hotbar's chosen slot, at a crafting table the inventory under
+/// a grid of three by three in either mode, and at a furnace the inventory under the furnace's slots.
 /// </summary>
 /// <remarks>
 /// The slots are laid out as Minecraft's are, three rows of nine and the hotbar's below them. A left
@@ -40,19 +40,7 @@ public sealed class InventoryWindow
         {
             DrawGrid(grid);
             ImGui.Separator();
-            for (int row = 0; row < 3; row++)
-                for (int column = 0; column < Hotbar.Size; column++)
-                {
-                    if (column > 0) ImGui.SameLine();
-                    SlotButton(inventory.Slots, Hotbar.Size + row * Hotbar.Size + column, false);
-                }
-            ImGui.Separator();
-            for (int column = 0; column < Hotbar.Size; column++)
-            {
-                if (column > 0) ImGui.SameLine();
-                SlotButton(inventory.Slots, column, column == selected);
-            }
-            if (Held is { } held) DrawStack(ImGui.GetForegroundDrawList(), ImGui.GetIO().MousePos - new Vector2(Slot / 2), held);
+            InventorySlots(inventory, selected);
         }
         ImGui.End();
         return open;
@@ -89,6 +77,84 @@ public sealed class InventoryWindow
         if (Held is { } held && (held.Item != result.Item || held.Count + result.Count > held.Item.MostInStack)) return;
         grid.Craft();
         Held = new ItemStack(result.Item, (Held?.Count ?? 0) + result.Count);
+    }
+
+    /// <summary>
+    /// Draws a furnace's slots, what it smelts over its fuel with the fire's and the smelting's bars
+    /// beside them and what it made, over the inventory's slots, the chosen hotbar slot outlined. What
+    /// it made is taken up by a click and never put into.
+    /// </summary>
+    /// <returns>Whether the window stays open.</returns>
+    public bool DrawFurnace(Inventory inventory, int selected, Furnace furnace)
+    {
+        Center();
+        var open = true;
+        if (ImGui.Begin("Furnace", ref open, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse))
+        {
+            ImGui.PushID("furnace");
+            ImGui.BeginGroup();
+            SlotButton(furnace.Slots, Furnace.Input, false);
+            ImGui.ProgressBar(furnace.BurnTotal > 0 ? furnace.Burning / furnace.BurnTotal : 0, new Vector2(Slot, 6), "");
+            SlotButton(furnace.Slots, Furnace.Fuel, false);
+            ImGui.EndGroup();
+            ImGui.SameLine();
+            ImGui.BeginGroup();
+            ImGui.Dummy(new Vector2(1, Slot / 2));
+            ImGui.ProgressBar(furnace.Cooked / Smelting.Seconds, new Vector2(Slot * 1.5f, 8), "");
+            ImGui.EndGroup();
+            ImGui.SameLine();
+            ImGui.BeginGroup();
+            ImGui.Dummy(new Vector2(1, Slot / 2 - 4));
+            TakeOnly(furnace.Slots, Furnace.Output);
+            ImGui.EndGroup();
+            ImGui.PopID();
+            ImGui.Separator();
+            InventorySlots(inventory, selected);
+        }
+        ImGui.End();
+        return open;
+    }
+
+    // A slot whose stack a click takes up, onto the held stack where it is of the same item and has
+    // room, as a furnace's output is taken.
+    private void TakeOnly(ItemStack?[] slots, int slot)
+    {
+        ImGui.PushID(slot);
+        var stack = slots[slot];
+        ImGui.ColorButton("##slot", stack is { } s ? Swatch(s.Item) : Empty, ImGuiColorEditFlags.NoTooltip | ImGuiColorEditFlags.NoDragDrop, new Vector2(Slot));
+        var clicked = ImGui.IsItemClicked(ImGuiMouseButton.Left);
+        if (stack is { } shown)
+        {
+            DrawStack(ImGui.GetWindowDrawList(), ImGui.GetItemRectMin(), shown);
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip(shown.Item.Name);
+        }
+        ImGui.PopID();
+        if (!clicked || stack is not { } taken) return;
+        if (Held is not { } held) (Held, slots[slot]) = (taken, null);
+        else if (held.Item == taken.Item && held.Count < held.Item.MostInStack)
+        {
+            var moved = Math.Min(taken.Count, held.Item.MostInStack - held.Count);
+            Held = held with { Count = held.Count + moved };
+            slots[slot] = taken.Count > moved ? taken with { Count = taken.Count - moved } : null;
+        }
+    }
+
+    // The inventory's three rows of nine and the hotbar's below them, as every window but the creative one shows them.
+    private void InventorySlots(Inventory inventory, int selected)
+    {
+        for (int row = 0; row < 3; row++)
+            for (int column = 0; column < Hotbar.Size; column++)
+            {
+                if (column > 0) ImGui.SameLine();
+                SlotButton(inventory.Slots, Hotbar.Size + row * Hotbar.Size + column, false);
+            }
+        ImGui.Separator();
+        for (int column = 0; column < Hotbar.Size; column++)
+        {
+            if (column > 0) ImGui.SameLine();
+            SlotButton(inventory.Slots, column, column == selected);
+        }
+        if (Held is { } held) DrawStack(ImGui.GetForegroundDrawList(), ImGui.GetIO().MousePos - new Vector2(Slot / 2), held);
     }
 
     /// <summary>Draws every item as a swatch, which puts one of it into the hotbar's chosen slot when clicked.</summary>

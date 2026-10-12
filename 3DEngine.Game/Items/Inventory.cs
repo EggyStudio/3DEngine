@@ -54,20 +54,24 @@ public sealed class Inventory
     public void Clear() => Array.Clear(Slots);
 
     /// <summary>Each slot as a save keeps it, an item's key, a count and a tool's wear, or an empty string for an empty slot.</summary>
-    public string[] Save() => [.. Slots.Select(s => s is { } stack ? stack.Wear > 0 ? $"{stack.Item.Key} {stack.Count} {stack.Wear}" : $"{stack.Item.Key} {stack.Count}" : "")];
+    public string[] Save() => [.. Slots.Select(Encode)];
+
+    /// <summary>A slot as a save keeps it, an item's key, a count and a tool's wear, or an empty string for an empty slot.</summary>
+    public static string Encode(ItemStack? slot) => slot is not { } stack ? "" : stack.Wear > 0 ? $"{stack.Item.Key} {stack.Count} {stack.Wear}" : $"{stack.Item.Key} {stack.Count}";
+
+    /// <summary>A slot from what <see cref="Encode"/> gave, empty where its item is no longer known.</summary>
+    public static ItemStack? Decode(string slot)
+    {
+        var parts = slot.Split(' ');
+        if (parts.Length is not (2 or 3) || Items.Find(parts[0]) is not { } item || !int.TryParse(parts[1], out var count) || count <= 0) return null;
+        var wear = parts.Length == 3 && int.TryParse(parts[2], out var worn) ? Math.Clamp(worn, 0, Math.Max(0, item.Durability - 1)) : 0;
+        return new ItemStack(item, Math.Min(count, item.MostInStack), wear);
+    }
 
     /// <summary>Fills the slots from what <see cref="Save"/> gave, a slot whose item is no longer known left empty.</summary>
     public void Load(string[] slots)
     {
         Clear();
-        for (int i = 0; i < Math.Min(Size, slots.Length); i++)
-        {
-            var parts = slots[i].Split(' ');
-            if (parts.Length is 2 or 3 && Items.Find(parts[0]) is { } item && int.TryParse(parts[1], out var count) && count > 0)
-            {
-                var wear = parts.Length == 3 && int.TryParse(parts[2], out var worn) ? Math.Clamp(worn, 0, Math.Max(0, item.Durability - 1)) : 0;
-                Slots[i] = new ItemStack(item, Math.Min(count, item.MostInStack), wear);
-            }
-        }
+        for (int i = 0; i < Math.Min(Size, slots.Length); i++) Slots[i] = Decode(slots[i]);
     }
 }

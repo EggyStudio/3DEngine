@@ -35,6 +35,9 @@ public sealed record Item(string Key, string Name, Color Color, BlockId? Block)
     /// <summary>How many uses wear it out, or 0 for an item that does not wear.</summary>
     public int Durability { get; init; }
 
+    /// <summary>A tool's tier, 1 for wood, 2 for stone and 3 for iron, which a block's ore asks a pickaxe of, 0 for an item that is not a tool.</summary>
+    public int Tier { get; init; }
+
     /// <summary>The health a hit with it takes from a mob, a hand's 1 for an item that is not a weapon or a tool.</summary>
     public int Damage { get; init; } = 1;
 
@@ -71,6 +74,8 @@ public static class Items
     public static readonly Item Gunpowder = Find("gunpowder")!;
     public static readonly Item String = Find("string")!;
     public static readonly Item SpiderEye = Find("spider_eye")!;
+    public static readonly Item IronIngot = Find("iron_ingot")!;
+    public static readonly Item Charcoal = Find("charcoal")!;
 
     private static Item[] Build()
     {
@@ -106,16 +111,22 @@ public static class Items
             ("gunpowder", "Gunpowder", new Color(96, 96, 96), 0, 0),
             ("string", "String", new Color(232, 232, 232), 0, 0),
             ("spider_eye", "Spider Eye", new Color(150, 40, 60), 2, 3.2f),
+            ("iron_ingot", "Iron Ingot", new Color(216, 216, 216), 0, 0),
+            ("charcoal", "Charcoal", new Color(70, 58, 50), 0, 0),
+            ("cooked_porkchop", "Cooked Porkchop", new Color(214, 150, 110), 8, 12.8f),
+            ("steak", "Steak", new Color(150, 84, 52), 8, 12.8f),
+            ("cooked_mutton", "Cooked Mutton", new Color(176, 104, 70), 6, 9.6f),
+            ("cooked_chicken", "Cooked Chicken", new Color(214, 160, 100), 6, 7.2f),
         ];
         foreach (var (key, name, color, food, saturation) in own)
             all.Add(new Item(key, name, color, null) { Id = all.Count, Food = food, Saturation = saturation });
-        // Wooden and stone tools with Minecraft's speeds, uses and damage.
+        // Wooden, stone and iron tools with Minecraft's speeds, uses and damage.
         foreach (var (material, name, color, speed, uses, bonus) in (ReadOnlySpan<(string, string, Color, float, int, int)>)
-            [("wooden", "Wooden", new Color(162, 130, 78), 2, 59, 0), ("stone", "Stone", new Color(130, 130, 130), 4, 131, 1)])
+            [("wooden", "Wooden", new Color(162, 130, 78), 2, 59, 0), ("stone", "Stone", new Color(130, 130, 130), 4, 131, 1), ("iron", "Iron", new Color(216, 216, 216), 6, 250, 2)])
             foreach (var (tool, damage) in (ReadOnlySpan<(ToolKind, int)>)[(ToolKind.Pickaxe, 3), (ToolKind.Axe, 4), (ToolKind.Shovel, 2), (ToolKind.Sword, 5)])
                 all.Add(new Item($"{material}_{tool.ToString().ToLowerInvariant()}", $"{name} {tool}", color, null)
                 {
-                    Id = all.Count, MostInStack = 1, Tool = tool, Speed = speed, Durability = uses, Damage = damage + bonus,
+                    Id = all.Count, MostInStack = 1, Tool = tool, Speed = speed, Durability = uses, Damage = damage + bonus, Tier = bonus + 1,
                 });
         return [.. all];
     }

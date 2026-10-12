@@ -18,8 +18,8 @@ public sealed record WorldInfo(string Kind, int Seed, float X, float Y, float Z,
 
 /// <summary>
 /// A world's folder on disk: the columns changed from what the generator makes, in region files of
-/// 32 by 32 columns, the mobs of every column that has had its mobs placed, and the world's
-/// <see cref="WorldInfo"/>.
+/// 32 by 32 columns, the mobs of every column that has had its mobs placed, the furnaces, and the
+/// world's <see cref="WorldInfo"/>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -263,6 +263,39 @@ public sealed class WorldSave
                 }
             }
         }
+        File.Move(path + ".new", path, overwrite: true);
+    }
+
+    /// <summary>A furnace as a save keeps it: its place, its three slots as <see cref="Inventory.Encode"/> gives them, and its fire and smelting.</summary>
+    public sealed record FurnaceRecord(int X, int Y, int Z, string[] Slots, float Burning, float BurnTotal, float Cooked);
+
+    /// <summary>The world's furnaces, read from its <c>furnaces.json</c>, none for a folder never saved into.</summary>
+    public Furnaces ReadFurnaces()
+    {
+        var furnaces = new Furnaces();
+        var path = Path.Combine(Folder, "furnaces.json");
+        if (!File.Exists(path)) return furnaces;
+        try
+        {
+            foreach (var r in JsonSerializer.Deserialize<FurnaceRecord[]>(File.ReadAllText(path), Json) ?? [])
+            {
+                var furnace = new Furnace { Burning = r.Burning, BurnTotal = r.BurnTotal, Cooked = r.Cooked };
+                for (int i = 0; i < Math.Min(3, r.Slots.Length); i++) furnace.Slots[i] = Inventory.Decode(r.Slots[i]);
+                furnaces.Add((r.X, r.Y, r.Z), furnace);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            TraceLog(LogLevel.Warning, $"{path} could not be read, so the world's furnaces begin empty: {ex.Message}");
+        }
+        return furnaces;
+    }
+
+    public void WriteFurnaces(Furnaces furnaces)
+    {
+        var path = Path.Combine(Folder, "furnaces.json");
+        var records = furnaces.All.Select(f => new FurnaceRecord(f.Key.X, f.Key.Y, f.Key.Z, [.. f.Value.Slots.Select(Inventory.Encode)], f.Value.Burning, f.Value.BurnTotal, f.Value.Cooked));
+        File.WriteAllText(path + ".new", JsonSerializer.Serialize(records.ToArray(), Json));
         File.Move(path + ".new", path, overwrite: true);
     }
 

@@ -234,6 +234,27 @@ public static class GameCommands
         return made > 0 ? $"{made} {found.Key} made" : $"the inventory lacks what {found.Key} is made of";
     }
 
+    [Command("voxel.furnace", "Says what the furnace at a place holds, its fire and its smelting, putting so many of an item to smelt and of a fuel in it where given: voxel.furnace <x> <y> <z> [item] [count] [fuel] [count]")]
+    internal static string Furnace(int x, int y, int z, string item = "", int count = 1, string fuel = "", int fuelCount = 1)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (!Engine.Game.Furnaces.IsFurnace(game.World.GetBlock(x, y, z))) return $"no furnace stands at {x}, {y}, {z}";
+        var furnace = game.Furnaces.At(x, y, z);
+        if (item.Length > 0)
+        {
+            if (Items.Find(item) is not { } input) return $"no item is called {item}";
+            furnace.Slots[Engine.Game.Furnace.Input] = new ItemStack(input, Math.Clamp(count, 1, input.MostInStack));
+        }
+        if (fuel.Length > 0)
+        {
+            if (Items.Find(fuel) is not { } burns) return $"no item is called {fuel}";
+            furnace.Slots[Engine.Game.Furnace.Fuel] = new ItemStack(burns, Math.Clamp(fuelCount, 1, burns.MostInStack));
+        }
+        string Slot(ItemStack? s) => s is { } stack ? $"{stack.Count} {stack.Item.Key}" : "nothing";
+        return $"smelting {Slot(furnace.Slots[0])}, fuel {Slot(furnace.Slots[1])}, made {Slot(furnace.Slots[2])}; "
+            + $"{(furnace.Lit ? $"burning, {furnace.Burning:0.0} of {furnace.BurnTotal:0} s left" : "out")}, smelted {furnace.Cooked:0.0} of {Smelting.Seconds:0} s";
+    }
+
     [Command("voxel.mode", "Plays in creative or survival mode: voxel.mode <creative|survival>")]
     internal static string SetMode(string mode)
     {
@@ -266,9 +287,10 @@ public static class GameCommands
     internal static string Place()
     {
         if (Game is not { } game) return "no world is loaded";
-        var atTable = game.AtTable;
+        var (atTable, atFurnace) = (game.AtTable, game.AtFurnace);
         var used = game.Use();
         if (!atTable && game.AtTable) return "the crafting table is opened";
+        if (atFurnace is null && game.AtFurnace is { } at) return $"the furnace at {at.X}, {at.Y}, {at.Z} is opened";
         return used is not BlockId.Air ? $"{Blocks.Get(used).Key} is placed" : "nothing can be placed there";
     }
 
