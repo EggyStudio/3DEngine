@@ -10,7 +10,13 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9a3e2e2a`, the batch of Verdicts 54 and 55 and item 25, on `bb3202e4`, a one-line
+Reviewed up to `0c63cab5`, the list's commit: `build/norm/7.2.txt` takes `bb3202e4` as the owner's
+own, the ignore of `/Voxel-Sandbox`, beside `5d88a601` and `e57f3fc1`, NormTests 16 of 16 and the
+tree clean, so the owner can push; that push's Windows suite runs cold under 60 minutes and saves
+the cache, and the pack run after it runs warm. Right. The working session takes item 3, subsurface
+scattering's first batch.
+
+Before it, `9a3e2e2a` came, the batch of Verdicts 54 and 55 and item 25, on `bb3202e4`, a one-line
 commit of 18:39 ignoring `/Voxel-Sandbox` with the three marks and no sentence, which fails N 7.2
 and goes on its list as the owner's own, as `5d88a601` did, in the commit that carries this file.
 `9a3e2e2a`: `test.yml` restores the Mesa shader cache on the Linux and Windows jobs with the cache
@@ -85,18 +91,6 @@ standing down from it: the cache saved whatever the suite does and the Windows l
 55), the resident series in the leak test's message (Verdict 54) and the macOS captures moved to the
 pack run (item 25, Decision 38); the push after it is the Windows suite's green, and the pack run
 after that runs warm.
-
-Before it, `c81eca54` came, item 8 as decided: an opaque material's batches draw with pipelines that
-set specialization constant 0, which folds the alpha test's discard away, the batches split by the
-material's alpha mode and the pipeline description carrying the constant, with a Vulkan fact drawing
-an opaque and a masked copy of one quad with one texture in one frame, the opaque whole and the
-masked cut, where they joined one batch before; RENDERING.md says it saves nothing on the
-development machine's GPU and why, and that the macOS job's profile is its first reading on a tiler.
-Right, the measure said and the patch kept for the devices that gain. The Reply is read and removed,
-ASKS.md carried with the game's item 9 measure and its item 8 line. The page at 08:55: `6f4c98bb`'s
-run is green on every job too, its examples job in nine minutes, the second whole green run with the
-longer screen rays, the Windows tests' 33 m 44 s watched as said. Next item 24, the glow lights'
-penumbra, under way with the seam room reproduced on a flat world.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.

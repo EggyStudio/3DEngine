@@ -205,6 +205,46 @@ public sealed class SubsurfaceTests : IDisposable
         UnloadMesh(sheet);
     }
 
+    [NeedsVulkanFact]
+    public void A_Sheet_The_Field_Measures_A_Cell_Thick_Lets_The_Lamp_Through_By_The_Thinner_Thickness_Its_Material_Gives()
+    {
+        // A sheet with no thickness of its own in a field of 0.15 cells, which holds it half a cell
+        // either side, so the lamp behind it is measured through 0.15 and comes through faintly,
+        // until its material says it is two millimeters thick, as a leaf is, and the lesser of the
+        // two is taken. Its front reads (39, 39, 39), the ambient light alone, and (146, 146, 145)
+        // with the two millimeters, as this test measured on the development machine's GPU.
+        Open();
+        SetSceneField(1, 0.15f);
+        CreatePointLight(new Vector3(0, 0, -1.5f), Color.White, 0.6f, range: 10);
+        SetAmbientLight(Color.White, 0.02f);
+        var sheet = GenMeshPlane(1.5f, 1.5f, 1, 1);
+        var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
+        Color Front(float thickness)
+        {
+            var material = new ModelMaterial(Color.White) { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60), SubsurfaceThickness = thickness };
+            var path = Path.Combine(_folder.Path, $"{_captures++}.png");
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 12 && !File.Exists(path); frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawMesh(sheet, material, Matrix4x4.CreateRotationX(MathF.PI / 2));
+                EndMode3D();
+                if (frame == SceneFieldPlan.SettleFrames + 6) TakeScreenshot(path);
+                EndDrawing();
+            }
+            File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+            var image = LoadImage(path);
+            var p = GetWorldToScreen(Vector3.Zero, camera);
+            return GetImageColor(image, (int)p.X, (int)p.Y);
+        }
+
+        var (measured, given) = (Front(0), Front(0.002f));
+        Sum(given).Should().BeGreaterThan(Sum(measured) + 120, $"the two millimeters given, thinner than the cell measured, let more of the lamp through, {given} against {measured}");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong");
+        UnloadMesh(sheet);
+    }
+
     // A sphere of a unit, lit by a sun from toward toLight, drawn at 640 by 480 through a camera six
     // units in front, its material scattering under its surface, captured once the field has settled.
     private Image Lit(Vector3 toLight, string material, bool field)

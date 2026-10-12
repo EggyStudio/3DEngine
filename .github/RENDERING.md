@@ -1880,7 +1880,9 @@ so a leaf of one sheet let the light through as a slab of 0.15 would; and toward
 no shadow where the field is coarse nothing measures it at all. `shaders_subsurface` draws its leaf
 as one sheet two millimeters thick by its material, and `SubsurfaceTests` holds a sheet with a lamp
 behind it and no field dark without a thickness, (39, 39, 39), and lit through with five
-centimeters of it, (138, 96, 62).
+centimeters of it, (138, 96, 62). It holds the cap too, the same sheet in a field of 0.15 cells,
+which measures it a cell thick and lets none of the lamp through, (39, 39, 39), lit through with two
+millimeters given, (146, 146, 145).
 
 Where the field is coarse, a spot or point light that casts shadows measures the thickness from its
 own map as the sun does, the mean of nine depths a texel apart about the point in its square of
