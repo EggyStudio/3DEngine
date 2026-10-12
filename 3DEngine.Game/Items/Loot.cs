@@ -14,9 +14,9 @@ public static class Loot
 {
     /// <summary>
     /// The items a block broken in survival drops with an item held: grass, farmland and a path their
-    /// dirt, stone its cobblestone, coal ore its coal, leaves, glass and ice nothing, wheat its wheat
-    /// and a few seeds, any other block the item that places it, and a block that asks for a pickaxe
-    /// broken without one nothing.
+    /// dirt, stone its cobblestone, coal ore its coal, oak leaves an apple now and then, other leaves,
+    /// glass and ice nothing, wheat its wheat and a few seeds, any other block the item that places it,
+    /// and a block that asks for a pickaxe broken without one nothing.
     /// </summary>
     public static IEnumerable<(Item Item, int Count)> Of(BlockId block, Random random, Item? held = null)
     {
@@ -24,7 +24,11 @@ public static class Loot
         var item = Blocks.Get(block).Item;
         switch (item)
         {
-            case BlockId.Air or BlockId.Water or BlockId.Bedrock or BlockId.OakLeaves or BlockId.BirchLeaves or BlockId.SpruceLeaves or BlockId.Glass or BlockId.Ice:
+            case BlockId.OakLeaves:
+                // An apple now and then, one in two hundred, as Minecraft's oak leaves drop.
+                if (random.Next(200) == 0) yield return (Items.Apple, 1);
+                yield break;
+            case BlockId.Air or BlockId.Water or BlockId.Bedrock or BlockId.BirchLeaves or BlockId.SpruceLeaves or BlockId.Glass or BlockId.Ice:
                 yield break;
             case BlockId.Grass or BlockId.Farmland or BlockId.DirtPath:
                 yield return (Items.Of(BlockId.Dirt), 1);

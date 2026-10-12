@@ -9,11 +9,12 @@ namespace Engine.Game;
 /// <summary>
 /// Where the player stood and looked, the heading and pitch in degrees, the hour, the world's kind
 /// and seed, the key of each block by the number its columns were saved with, the mode played in,
-/// each slot of the inventory as an item's key and a count, and the hotbar's chosen slot, as a save
-/// keeps them. A save that names no mode opens in creative mode.
+/// each slot of the inventory as an item's key and a count, the hotbar's chosen slot, and the
+/// player's health, food and saturation, as a save keeps them. A save that names no mode opens in
+/// creative mode, and one without health and food with them full.
 /// </summary>
 public sealed record WorldInfo(string Kind, int Seed, float X, float Y, float Z, float Heading, float Pitch, bool Flying, float Hour, string[] Blocks,
-    string Mode = "creative", string[]? Inventory = null, int Selected = 0);
+    string Mode = "creative", string[]? Inventory = null, int Selected = 0, int Health = Vitals.Most, int Food = Vitals.Most, float Saturation = 5);
 
 /// <summary>
 /// A world's folder on disk: the columns changed from what the generator makes, in region files of

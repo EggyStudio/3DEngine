@@ -67,6 +67,7 @@ public static class Recipes
             R(I(BlockId.OakFence), 3, ["PSP", "PSP"], ('P', Planks), ('S', Stick)),
             R(I(BlockId.OakDoor), 3, ["PP", "PP", "PP"], ('P', Planks)),
             R(I(BlockId.HayBale), 1, ["WWW", "WWW", "WWW"], ('W', [Items.Wheat])),
+            R(Items.Bread, 1, ["WWW"], ('W', [Items.Wheat])),
             R(I(BlockId.Sandstone), 1, ["SS", "SS"], ('S', [I(BlockId.Sand)])),
             R(I(BlockId.StoneBricks), 4, ["SS", "SS"], ('S', [I(BlockId.Stone)])),
         };

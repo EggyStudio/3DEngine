@@ -41,7 +41,8 @@ public static class Hud
         DrawRectangle(cx - 1, cy - 9, 2, 18, Color.White);
     }
 
-    public static void DrawHotbar(Hotbar hotbar)
+    /// <summary>The hotbar's slots, and over them the name of what the chosen one holds, lifted by so many pixels above the hearts and food in survival.</summary>
+    public static void DrawHotbar(Hotbar hotbar, int lift = 0)
     {
         var width = Hotbar.Size * Slot + (Hotbar.Size - 1) * Gap;
         int x0 = (GetScreenWidth() - width) / 2, y = GetScreenHeight() - Slot - 14;
@@ -80,8 +81,54 @@ public static class Hud
         if (hotbar.Current is not { } held) return;
         var name = held.Item.Name;
         var nameX = (GetScreenWidth() - MeasureText(name, 20)) / 2;
-        DrawText(name, nameX + 2, y - 30, 20, new Color(0, 0, 0, 160));
-        DrawText(name, nameX, y - 32, 20, Color.White);
+        DrawText(name, nameX + 2, y - 30 - lift, 20, new Color(0, 0, 0, 160));
+        DrawText(name, nameX, y - 32 - lift, 20, Color.White);
+    }
+
+    // A heart and a drumstick as pixels seven wide and six high, a row a string.
+    private static readonly string[] Heart = [".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."];
+    private static readonly string[] Drumstick = ["...XXX.", "..XXXXX", "..XXXXX", ".XXXXX.", "XX.....", "X......"];
+
+    /// <summary>
+    /// Ten hearts of health over the hotbar's left half and ten drumsticks of food over its right,
+    /// each worth two points and half drawn for one, as Minecraft's are, and while the eye is under
+    /// water, bubbles of breath over the food.
+    /// </summary>
+    public static void DrawVitals(Vitals vitals)
+    {
+        var width = Hotbar.Size * Slot + (Hotbar.Size - 1) * Gap;
+        int x0 = (GetScreenWidth() - width) / 2, y = GetScreenHeight() - Slot - 14 - 22;
+        const int scale = 2, step = 18;
+        for (int i = 0; i < 10; i++)
+        {
+            // A heart worth one point is its left half, and a drumstick its meat's half on the right.
+            var health = Math.Clamp(vitals.Health - i * 2, 0, 2);
+            Pixels(Heart, x0 + i * step, y, scale, new Color(40, 0, 0, 200), 0, 7);
+            Pixels(Heart, x0 + i * step, y, scale, new Color(220, 30, 40), 0, health == 2 ? 7 : health == 1 ? 4 : 0);
+            // Food from the right, as Minecraft's is drawn.
+            var fx = x0 + width - 14 - i * step;
+            var food = Math.Clamp(vitals.Food - i * 2, 0, 2);
+            Pixels(Drumstick, fx, y, scale, new Color(40, 24, 10, 200), 0, 7);
+            Pixels(Drumstick, fx, y, scale, new Color(196, 120, 58), food == 2 ? 0 : 3, food == 0 ? 0 : 7);
+            if (vitals.Air < Vitals.Breath && i < (int)MathF.Ceiling(vitals.Air / Vitals.Breath * 10))
+                DrawCircleLines(fx + 7, y - 12, 6, new Color(170, 220, 255));
+        }
+    }
+
+    // Draws a pattern's set pixels from one column up to another in a color, each at its own place.
+    private static void Pixels(string[] pattern, int x, int y, int scale, Color color, int from, int to)
+    {
+        for (int row = 0; row < pattern.Length; row++)
+            for (int column = from; column < Math.Min(pattern[row].Length, to); column++)
+                if (pattern[row][column] == 'X') DrawRectangle(x + column * scale, y + row * scale, scale, scale, color);
+    }
+
+    /// <summary>A bar under the crosshair, filling as the food held is eaten.</summary>
+    public static void DrawEating(float progress)
+    {
+        int cx = GetScreenWidth() / 2, cy = GetScreenHeight() / 2 + 16;
+        DrawRectangle(cx - 20, cy, 40, 4, new Color(0, 0, 0, 140));
+        DrawRectangle(cx - 20, cy, (int)(40 * Math.Clamp(progress, 0, 1)), 4, new Color(196, 120, 58));
     }
 
     /// <summary>A line of help at the top left, while the settings window is closed.</summary>

@@ -64,10 +64,11 @@ public sealed class ItemDrops
     /// <summary>
     /// Moves every stack whose column is loaded, joins stacks of one item lying together, puts into
     /// the inventory the stacks the player's box reaches within a block across and half a block up
-    /// and down, and takes away those five minutes old.
+    /// and down unless <paramref name="pickUp"/> is clear, as while the player lies dead, and takes
+    /// away those five minutes old.
     /// </summary>
     /// <returns>How many items the player picked up.</returns>
-    public int Update(VoxelWorld world, Body player, Inventory inventory, float seconds)
+    public int Update(VoxelWorld world, Body player, Inventory inventory, float seconds, bool pickUp = true)
     {
         var picked = 0;
         Vector3 reachMin = player.Min - new Vector3(1, 0.5f, 1), reachMax = player.Max + new Vector3(1, 0.5f, 1);
@@ -76,7 +77,7 @@ public sealed class ItemDrops
             if (!world.HasColumn(VoxelWorld.ColumnOf((int)MathF.Floor(drop.Body.Position.X)), VoxelWorld.ColumnOf((int)MathF.Floor(drop.Body.Position.Z)))) continue;
             drop.Age += seconds;
             Move(world, drop, seconds);
-            if (drop.Age < drop.Delay || drop.Count == 0) continue;
+            if (!pickUp || drop.Age < drop.Delay || drop.Count == 0) continue;
             Vector3 min = drop.Body.Min, max = drop.Body.Max;
             if (min.X > reachMax.X || max.X < reachMin.X || min.Y > reachMax.Y || max.Y < reachMin.Y || min.Z > reachMax.Z || max.Z < reachMin.Z) continue;
             var left = inventory.Add(drop.Item, drop.Count, drop.Wear);

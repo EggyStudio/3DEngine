@@ -37,6 +37,12 @@ public sealed record Item(string Key, string Name, Color Color, BlockId? Block)
 
     /// <summary>The health a hit with it takes from a mob, a hand's 1 for an item that is not a weapon or a tool.</summary>
     public int Damage { get; init; } = 1;
+
+    /// <summary>The food points eating it gives, or 0 for an item that is not eaten.</summary>
+    public int Food { get; init; }
+
+    /// <summary>The saturation eating it gives, which is spent before the food points are, as Minecraft's is.</summary>
+    public float Saturation { get; init; }
 }
 
 /// <summary>So many of an item in one slot, and for a tool how many of its uses are worn away.</summary>
@@ -57,6 +63,8 @@ public static class Items
     public static readonly Item Wheat = Find("wheat_sheaf")!;
     public static readonly Item Stick = Find("stick")!;
     public static readonly Item Coal = Find("coal")!;
+    public static readonly Item Bread = Find("bread")!;
+    public static readonly Item Apple = Find("apple")!;
 
     private static Item[] Build()
     {
@@ -72,19 +80,23 @@ public static class Items
             all.Add(item);
             _byBlock[(int)block.Id] = item;
         }
-        (string Key, string Name, Color Color)[] own =
+        // Things of their own, a food's points and saturation Minecraft's.
+        (string Key, string Name, Color Color, int Food, float Saturation)[] own =
         [
-            ("raw_porkchop", "Raw Porkchop", new Color(238, 140, 142)),
-            ("raw_beef", "Raw Beef", new Color(186, 58, 50)),
-            ("raw_mutton", "Raw Mutton", new Color(200, 82, 72)),
-            ("raw_chicken", "Raw Chicken", new Color(238, 198, 176)),
-            ("leather", "Leather", new Color(150, 84, 44)),
-            ("feather", "Feather", new Color(244, 244, 244)),
-            ("wheat_sheaf", "Wheat", new Color(220, 188, 88)),
-            ("stick", "Stick", new Color(120, 90, 54)),
-            ("coal", "Coal", new Color(58, 58, 66)),
+            ("raw_porkchop", "Raw Porkchop", new Color(238, 140, 142), 3, 1.8f),
+            ("raw_beef", "Raw Beef", new Color(186, 58, 50), 3, 1.8f),
+            ("raw_mutton", "Raw Mutton", new Color(200, 82, 72), 2, 1.2f),
+            ("raw_chicken", "Raw Chicken", new Color(238, 198, 176), 2, 1.2f),
+            ("bread", "Bread", new Color(190, 132, 60), 5, 6),
+            ("apple", "Apple", new Color(214, 40, 44), 4, 2.4f),
+            ("leather", "Leather", new Color(150, 84, 44), 0, 0),
+            ("feather", "Feather", new Color(244, 244, 244), 0, 0),
+            ("wheat_sheaf", "Wheat", new Color(220, 188, 88), 0, 0),
+            ("stick", "Stick", new Color(120, 90, 54), 0, 0),
+            ("coal", "Coal", new Color(58, 58, 66), 0, 0),
         ];
-        foreach (var (key, name, color) in own) all.Add(new Item(key, name, color, null) { Id = all.Count });
+        foreach (var (key, name, color, food, saturation) in own)
+            all.Add(new Item(key, name, color, null) { Id = all.Count, Food = food, Saturation = saturation });
         // Wooden and stone tools with Minecraft's speeds, uses and damage.
         foreach (var (material, name, color, speed, uses, bonus) in (ReadOnlySpan<(string, string, Color, float, int, int)>)
             [("wooden", "Wooden", new Color(162, 130, 78), 2, 59, 0), ("stone", "Stone", new Color(130, 130, 130), 4, 131, 1)])

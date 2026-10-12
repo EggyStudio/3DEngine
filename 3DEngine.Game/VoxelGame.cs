@@ -17,7 +17,12 @@ public sealed class VoxelGame : IDisposable
 
     private readonly bool _transient;
     private readonly Random _random = new();
+    // Seconds food takes to eat, as Minecraft's 32 ticks.
+    private const float EatSeconds = 1.6f;
+
     private float _breakWait, _placeWait, _sinceSave;
+    private int _teleports;
+    private bool _spilled;
     private bool _captured, _swallowClick;
     private GameMode _mode;
 
@@ -51,6 +56,12 @@ public sealed class VoxelGame : IDisposable
     public DropRenderer DropRenderer { get; } = new();
 
     public Inventory Inventory { get; } = new();
+
+    /// <summary>The player's health, food and breath, which change in survival alone.</summary>
+    public Vitals Vitals { get; } = new();
+
+    /// <summary>How far through eating the held food the player is, from 0 to 1, while the right button is held.</summary>
+    public float Eating { get; private set; }
 
     public ChunkStreamer Streamer { get; private set; } = null!;
 
@@ -145,6 +156,8 @@ public sealed class VoxelGame : IDisposable
         if (info?.Inventory is { } slots) Inventory.Load(slots);
         else if (Mode == GameMode.Creative) Hotbar.FillCreative();
         Hotbar.Selected = Math.Clamp(info?.Selected ?? 0, 0, Hotbar.Size - 1);
+        if (info is null) Vitals.Set();
+        else Vitals.Set(info.Health, info.Food, info.Saturation);
         // The old streamer's workers finish into its own queue, which nothing reads again.
         Streamer = new ChunkStreamer(World, Renderer, Mobs, Save);
         Clouds.Follow(generator.Seed);
@@ -175,7 +188,7 @@ public sealed class VoxelGame : IDisposable
         var at = Player.Body.Position;
         Save.WriteInfo(new WorldInfo(World.Generator.Name, World.Generator.Seed, at.X, at.Y, at.Z,
             Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)],
-            Mode.ToString().ToLowerInvariant(), Inventory.Save(), Hotbar.Selected));
+            Mode.ToString().ToLowerInvariant(), Inventory.Save(), Hotbar.Selected, Vitals.Health, Vitals.Food, Vitals.Saturation));
         _sinceSave = 0;
     }
 
@@ -204,20 +217,61 @@ public sealed class VoxelGame : IDisposable
         if (_swallowClick && !IsMouseButtonDown(MouseButton.Left)) _swallowClick = false;
 
         Hotbar.Update(keys, _captured);
-        Player.Update(World, seconds, look: _captured, move: keys);
+        var alive = Mode == GameMode.Creative || !Vitals.Dead;
+        Player.MaySprint = Mode == GameMode.Creative || Vitals.MaySprint;
+        Player.Update(World, seconds, look: _captured && alive, move: keys && alive);
+        if (Mode == GameMode.Survival) Live(seconds);
         Mobs.Update(World, Player.Body, Player.Eye, Sky.Hour, seconds);
         Aim();
-        if (_captured && !_swallowClick) Interact(seconds);
-        else (BreakingAt, BreakProgress) = (null, 0);
+        if (_captured && !_swallowClick && alive) Interact(seconds);
+        else (BreakingAt, BreakProgress, Eating) = (null, 0, 0);
         if (_captured && keys && IsKeyPressed(Key.Q)) Throw(IsKeyDown(Key.LeftControl));
         LeaveDrops();
-        Drops.Update(World, Player.Body, Inventory, seconds);
+        Drops.Update(World, Player.Body, Inventory, seconds, pickUp: alive);
 
         Sky.Update(seconds);
         World.Fluids.Update(seconds);
         Clouds.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
+    }
+
+    // The vitals' frame in survival, reckoned afresh after a teleport, and on death the inventory
+    // spilled where the player fell and the cursor freed for the screen that offers a new life.
+    private void Live(float seconds)
+    {
+        if (Player.Teleports != _teleports)
+        {
+            _teleports = Player.Teleports;
+            Vitals.Arrived();
+        }
+        Vitals.Update(World, Player.Body, Player.Eye, Player.Swimming, Player.Flying, Player.Sprinting, seconds);
+        // A death is met once, however it came, in this frame or by a command before it.
+        if (!Vitals.Dead || _spilled)
+        {
+            _spilled &= Vitals.Dead;
+            return;
+        }
+        _spilled = true;
+        if (InventoryOpen) CloseInventory();
+        for (int i = 0; i < Inventory.Size; i++)
+            if (Inventory.Slots[i] is { } stack)
+            {
+                var angle = (float)_random.NextDouble() * MathF.Tau;
+                Drops.Spawn(stack.Item, stack.Count, Player.Body.Position + new Vector3(0, 1, 0), new Vector3(MathF.Cos(angle) * 2, 3, MathF.Sin(angle) * 2), wear: stack.Wear);
+            }
+        Inventory.Clear();
+        Capture(false);
+    }
+
+    /// <summary>Gives the player a new life at the world's spawn, the highest block at the origin, with full health and food.</summary>
+    public void Respawn()
+    {
+        Vitals.Set();
+        Streamer.LoadNow(Vector3.Zero, 2);
+        Player.Flying = false;
+        Player.Teleport(new Vector3(0.5f, World.Top(0, 0) + 1, 0.5f));
+        Capture(true);
     }
 
     // What the mobs that died and, in survival, the blocks that fell with the block they held to leave
@@ -308,6 +362,7 @@ public sealed class VoxelGame : IDisposable
             if (!Attack()) Break();
         }
         if (Mode == GameMode.Survival) Dig(seconds);
+        if (Mode == GameMode.Survival && Eat(seconds)) return;
         if (IsMouseButtonDown(MouseButton.Right) && _placeWait <= 0)
         {
             _placeWait = Repeat;
@@ -315,6 +370,24 @@ public sealed class VoxelGame : IDisposable
         }
         if (IsMouseButtonPressed(MouseButton.Middle) && Target is { } hit)
             Hotbar.Pick(Items.Of(World.GetBlock(hit.X, hit.Y, hit.Z)), Mode == GameMode.Creative);
+    }
+
+    // Holding the right button with food while hungry eats it over a second and a half, unless the
+    // crosshair rests on a door or a crafting table, which the button opens instead. Whether the
+    // player is eating.
+    private bool Eat(float seconds)
+    {
+        var opens = Target is { } hit && World.GetBlock(hit.X, hit.Y, hit.Z) is var block && (block == BlockId.CraftingTable || Blocks.Get(block).Toggled is not null);
+        if (!IsMouseButtonDown(MouseButton.Right) || opens || Hotbar.Current is not { Item.Food: > 0 } food || Vitals.Food >= Vitals.Most)
+        {
+            Eating = 0;
+            return false;
+        }
+        Eating += seconds / EatSeconds;
+        if (Eating < 1) return true;
+        Eating = 0;
+        if (Vitals.Eat(food.Item)) Inventory.Take(Hotbar.Selected);
+        return true;
     }
 
     // In survival a click hits a mob, and holding the button on a block breaks it over the time its
@@ -369,6 +442,7 @@ public sealed class VoxelGame : IDisposable
     public bool Attack()
     {
         if (TargetMob is not { } mob || !mob.Hit(Player.Body.Position, Hotbar.Current?.Item.Damage ?? 1)) return false;
+        Vitals.Exhaust(0.1f);
         if (Mode == GameMode.Survival && Hotbar.Current?.Item.Tool is { } tool and not ToolKind.None) Wear(tool == ToolKind.Sword ? 1 : 2);
         return true;
     }
@@ -391,6 +465,7 @@ public sealed class VoxelGame : IDisposable
         var block = World.GetBlock(hit.X, hit.Y, hit.Z);
         if (!Blocks.Get(block).Breakable || !World.SetBlock(hit.X, hit.Y, hit.Z, BlockId.Air)) return false;
         if (Mode != GameMode.Survival) return true;
+        Vitals.Exhaust(0.005f);
         var held = Hotbar.Current?.Item;
         foreach (var (item, count) in Loot.Of(block, _random, held)) Drops.Pop(item, count, hit.X, hit.Y, hit.Z);
         if (held is { Tool: not ToolKind.None } tool && Loot.Hardness(block) > 0) Wear(tool.Tool == ToolKind.Sword ? 2 : 1);
@@ -470,13 +545,18 @@ public sealed class VoxelGame : IDisposable
 
         // Under water the view is tinted blue, as Minecraft's is.
         if (Player.EyeInWater) DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), new Color(20, 50, 140, 110));
+        // A hit reddens the view for the half second no other harms.
+        if (Mode == GameMode.Survival && Vitals.Hurt > 0) DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), new Color(200, 0, 0, (byte)(90 * Vitals.Hurt / 0.5f)));
         if (!HudHidden)
         {
             Hud.DrawCrosshair();
-            Hud.DrawHotbar(Hotbar);
+            if (Eating > 0) Hud.DrawEating(Eating);
+            Hud.DrawHotbar(Hotbar, Mode == GameMode.Survival ? 22 : 0);
+            if (Mode == GameMode.Survival) Hud.DrawVitals(Vitals);
             if (!Settings.Open) Hud.DrawHelp(Light.Quality, Mode);
         }
         Settings.Draw(this);
+        if (Mode == GameMode.Survival && Vitals.Dead) DrawDeath();
         if (InventoryOpen && !(AtTable ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Table)
             : Mode == GameMode.Survival ? InventoryWindow.DrawInventory(Inventory, Hotbar.Selected, InventoryWindow.Small)
             : InventoryWindow.DrawCreative(Hotbar)))
@@ -485,6 +565,19 @@ public sealed class VoxelGame : IDisposable
             Capture(!Settings.Open);
         }
         EndDrawing();
+    }
+
+    // The screen of a death, the view dimmed red under what took the player's life and a button for a new one.
+    private void DrawDeath()
+    {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), new Color(110, 0, 0, 120));
+        ImGui.SetNextWindowPos(ImGui.GetMainViewport().GetCenter(), ImGuiCond.Always, new Vector2(0.5f, 0.5f));
+        if (ImGui.Begin("You died", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove))
+        {
+            ImGui.TextUnformatted($"You {Vitals.Cause ?? "died"}.");
+            if (ImGui.Button("Respawn", new Vector2(200, 0))) Respawn();
+        }
+        ImGui.End();
     }
 
     public void Dispose()

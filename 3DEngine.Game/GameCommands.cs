@@ -33,7 +33,38 @@ public static class GameCommands
             + $"{game.Mobs.All.Count} mobs loaded, {game.MobRenderer.Drawn} drawn in {game.MobRenderer.Draws} draws; "
             + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, "
             + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, {game.Mode.ToString().ToLowerInvariant()}, "
-            + $"holding {(game.Hotbar.Current is { } held ? $"{held.Count} {held.Item.Key}" : "nothing")}, {game.Drops.All.Count} stacks on the ground";
+            + $"holding {(game.Hotbar.Current is { } held ? $"{held.Count} {held.Item.Key}" : "nothing")}, {game.Drops.All.Count} stacks on the ground; "
+            + Vitals(game.Vitals);
+    }
+
+    private static string Vitals(Vitals v) =>
+        $"health {v.Health}, food {v.Food}, saturation {v.Saturation:0.0}, exhaustion {v.Exhaustion:0.00}, breath {v.Air:0.0} s{(v.Dead ? $", dead, you {v.Cause}" : "")}";
+
+    [Command("voxel.vitals", "Sets the player's health and food from 0 to 20 where given, and says them with the saturation, exhaustion and breath: voxel.vitals [health] [food]")]
+    internal static string SetVitals(int health = -1, int food = -1)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var v = game.Vitals;
+        if (health >= 0 || food >= 0) v.Set(health >= 0 ? health : v.Health, food >= 0 ? food : v.Food, v.Saturation);
+        return Vitals(v);
+    }
+
+    [Command("voxel.hurt", "Takes some health from the player in survival, as a hit does: voxel.hurt <amount>")]
+    internal static string Hurt(int amount)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (game.Mode != GameMode.Survival) return "the player is harmed in survival alone";
+        game.Vitals.Damage(amount, "were hurt by a command");
+        return Vitals(game.Vitals);
+    }
+
+    [Command("voxel.respawn", "Gives the player a new life at the world's spawn with full health and food, as the button after a death does")]
+    internal static string Respawn()
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.Respawn();
+        var at = game.Player.Body.Position;
+        return $"the player stands at {at.X:0.0}, {at.Y:0.0}, {at.Z:0.0}";
     }
 
     [Command("voxel.tp", "Puts the player's feet at a place: voxel.tp <x> <y> <z>")]

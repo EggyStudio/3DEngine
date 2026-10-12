@@ -38,6 +38,12 @@ public sealed class FirstPersonController
     /// <summary>Whether two presses of Space start flying, as in creative mode and not in survival.</summary>
     public bool MayFly { get; set; } = true;
 
+    /// <summary>Whether Left Control sprints, which in survival asks for more than six food.</summary>
+    public bool MaySprint { get; set; } = true;
+
+    /// <summary>How many times the player has been put somewhere, which the vitals read so a teleport is no fall.</summary>
+    public int Teleports { get; private set; }
+
     public bool Sprinting { get; private set; }
 
     public bool Sneaking { get; private set; }
@@ -103,7 +109,8 @@ public sealed class FirstPersonController
             }
         }
         if (forward <= 0) Sprinting = false;
-        else if (sprintKey) Sprinting = true;
+        else if (sprintKey && MaySprint) Sprinting = true;
+        if (!MaySprint) Sprinting = false;
         var middle = Body.Position + new Vector3(0, 0.9f, 0);
         Swimming = !Flying && world.GetBlock((int)MathF.Floor(middle.X), (int)MathF.Floor(middle.Y), (int)MathF.Floor(middle.Z)) is var at && Blocks.IsWater(at);
         Sneaking = down && !Flying && !Swimming;
@@ -146,5 +153,6 @@ public sealed class FirstPersonController
     {
         Body.Position = feet;
         Body.Velocity = Vector3.Zero;
+        Teleports++;
     }
 }

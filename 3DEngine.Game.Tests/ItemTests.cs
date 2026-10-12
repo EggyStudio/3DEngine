@@ -75,9 +75,12 @@ public sealed class ItemTests : IDisposable
     }
 
     [Fact]
-    public void Leaves_Glass_And_Ice_Drop_Nothing_And_Wheat_Its_Wheat_And_Seeds()
+    public void Leaves_Glass_And_Ice_Drop_Nothing_But_An_Oak_Apple_Now_And_Then_And_Wheat_Its_Wheat_And_Seeds()
     {
-        Assert.Empty(Loot.Of(BlockId.OakLeaves, new Random(1)));
+        Assert.Empty(Loot.Of(BlockId.BirchLeaves, new Random(1)));
+        var random = new Random(1);
+        var apples = Enumerable.Range(0, 4000).Count(_ => Loot.Of(BlockId.OakLeaves, random).Any(d => d.Item == Items.Apple));
+        Assert.InRange(apples, 5, 50);
         Assert.Empty(Loot.Of(BlockId.Glass, new Random(1)));
         Assert.Empty(Loot.Of(BlockId.Ice, new Random(1)));
         var wheat = Loot.Of(BlockId.Wheat, new Random(1)).ToList();

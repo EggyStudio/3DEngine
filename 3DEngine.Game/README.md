@@ -5,9 +5,9 @@ test the light that bounces (Radiance Cascades over the scene's distance field) 
 give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128, animals
 that graze it and villagers in its villages, a first-person player with Minecraft's sizes and
 speeds, building and breaking with an outline on the block looked at, in creative mode or in
-survival with an inventory, tools, crafting and the items blocks and mobs drop, Minecraft's light
-levels with smooth lighting and shaded corners, a sky whose sun crosses it under drifting clouds,
-and an ImGui window of the light's settings.
+survival with health and hunger, an inventory, tools, crafting and the items blocks and mobs drop,
+Minecraft's light levels with smooth lighting and shaded corners, a sky whose sun crosses it under
+drifting clouds, and an ImGui window of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -22,9 +22,10 @@ dotnet test 3DEngine.Game.Tests                         # its light, meshes, mob
 
 A world is saved under `~/.local/share/3DEngine.Game/saves` on Linux, and the matching local
 application data folder elsewhere, in a folder named by its kind and seed, `overworld-1` or
-`flat-7`, unless `--world` names it. Its mode and inventory are saved with it. It is saved every 30
-seconds, on opening another world and on quitting, and opened where it was left. `--transient` keeps
-nothing on disk, as a test run driven by `./e3d` should, so it leaves the saves as they were.
+`flat-7`, unless `--world` names it. Its mode, inventory, health and food are saved with it. It is
+saved every 30 seconds, on opening another world and on quitting, and opened where it was left.
+`--transient` keeps nothing on disk, as a test run driven by `./e3d` should, so it leaves the saves
+as they were.
 
 ## Controls
 
@@ -36,7 +37,7 @@ nothing on disk, as a test run driven by `./e3d` should, so it leaves the saves 
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
 | Left button | Hit the mob looked at or break the block, at once in creative, slowly in survival |
-| Right button | Place the chosen block on the face looked at, or open a door or a crafting table |
+| Right button | Place the chosen block, eat the food held, or open a door or a crafting table |
 | Middle button | Pick the block looked at into the hotbar, in survival from the inventory |
 | 1 to 9, wheel | Choose a slot of the hotbar |
 | E | In creative every item, to put any of them in the chosen slot, and in survival the inventory |
@@ -74,13 +75,14 @@ where the crosshair rests, `voxel.attack` hits the one it rests on as the left b
 `voxel.mode` plays in creative or survival mode, `voxel.select` puts an item in the chosen slot,
 `voxel.give` puts items in the inventory, `voxel.craft` makes an item from what the inventory holds,
 `voxel.inventory` lists what it holds, `voxel.items` lists every item, and `voxel.throw` throws as Q
-does. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the scene's distance
-field and the sun's shadows, and `voxel.hud` hides what is drawn over the world for a capture. Three
-measure the light: `voxel.flicker` records each frame's change in the picture around a turn or a
-step into a file, with the first frame after it, the settled one and their difference beside it,
-`voxel.ring` reads the last frame's light around a circle on the ground by angle, and `voxel.depth`
-says how far the block under a pixel is. The engine's own `gi.*` and `field.*` commands show and
-measure the light that bounces.
+does. `voxel.vitals` says or sets the health and food, `voxel.hurt` harms the player, and
+`voxel.respawn` gives a new life. `voxel.gi`, `voxel.field` and `voxel.shadows` set the light that
+bounces, the scene's distance field and the sun's shadows, and `voxel.hud` hides what is drawn over
+the world for a capture. Three measure the light: `voxel.flicker` records each frame's change in the
+picture around a turn or a step into a file, with the first frame after it, the settled one and
+their difference beside it, `voxel.ring` reads the last frame's light around a circle on the ground
+by angle, and `voxel.depth` says how far the block under a pixel is. The engine's own `gi.*` and
+`field.*` commands show and measure the light that bounces.
 
 ## Biomes
 
@@ -259,6 +261,25 @@ three doors, four sand a block of sandstone, four stone four stone bricks, and n
 bale. Veins of coal lie in the stone from 5 to 100 blocks up, 18 to a column, darker than the stone
 around them, which the walls of a cave or a ravine show.
 
+## Health and hunger
+
+In survival the player has Minecraft's 20 points of health and of food, drawn as ten hearts and ten
+drumsticks over the hotbar. Walking, sprinting, swimming, jumping, breaking blocks, hitting and
+healing tire the player, and each four points of that exhaustion take a point of the saturation food
+leaves, or of the food once none is left. With 18 food or more the player heals a point every four
+seconds, with none starves a point every four seconds down to one, and with six or less cannot
+sprint. Holding the right button with food eats it over a second and a half while the player is
+hungry: raw porkchop or beef three points, raw mutton or chicken two, an apple four and bread, three
+wheat in a row, five. Oak leaves drop an apple once in two hundred.
+
+A fall of more than three blocks takes a point for each block past three, a fifth of that onto a hay
+bale and none into water. Under water the player holds fifteen seconds of breath, shown as bubbles
+over the food, and then drowns two points a second, and a cactus beside the player, or a block where
+the eye is, takes a point every half second. A hit reddens the view, and none other harms for half a
+second after it. A death spills the inventory where the player fell and offers a new life at the
+world's spawn, the highest block at the origin, with full health and food. Creative mode keeps the
+player from all of it.
+
 ## How the world is drawn
 
 A section of 16 blocks a side is one mesh in one white material, each corner of a face its position
@@ -333,7 +354,8 @@ Textures, and leaves seen through, which are solid. The corners stairs make wher
 slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
 leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
 Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
-Iron, furnaces and what they smelt, as glass, health, hunger and food, and hostile mobs.
+Iron, furnaces and what they smelt, as glass and cooked meat, a bed to set where the player
+respawns, and hostile mobs.
 
 ## What it costs
 
