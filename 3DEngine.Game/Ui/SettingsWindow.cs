@@ -23,10 +23,19 @@ public sealed class SettingsWindow
 
     public bool ProfileWindow { get; set; }
 
+    /// <summary>Whether the engine's window of the effects over the frame is drawn, the tonemap, exposure, grading, bloom and the rest.</summary>
+    public bool PostProcessWindow { get; set; }
+
     public void Draw(VoxelGame game)
     {
         if (BounceWindow) DrawBounceWindow();
         if (ProfileWindow) DrawProfileWindow();
+        if (PostProcessWindow)
+        {
+            // At the window's right edge the first time, clear of this window at its left.
+            ImGui.SetNextWindowPos(new Vector2(GetScreenWidth() - 10, 10), ImGuiCond.FirstUseEver, new Vector2(1, 0));
+            DrawPostProcessWindow();
+        }
         if (!Open) return;
 
         ImGui.SetNextWindowPos(new Vector2(10, 10), ImGuiCond.FirstUseEver);
@@ -101,6 +110,9 @@ public sealed class SettingsWindow
 
         var glow = game.Renderer.GlowScale;
         if (ImGui.SliderFloat("Glow", ref glow, 0, 4)) game.Renderer.GlowScale = glow;
+        // Read back from the engine, so these show what the window of the effects over the frame set.
+        (light.Bloom, light.AutoExposure) = (GetBloom().Intensity, GetAutoExposure().Enabled);
+        if (!light.AutoExposure) light.Exposure = GetExposure();
         if (ImGui.SliderFloat("Bloom", ref light.Bloom, 0, 2)) SetBloom(light.Bloom);
         if (ImGui.SliderFloat("Ambient occlusion", ref light.Occlusion, 0, 1)) SetAmbientOcclusion(light.Occlusion);
         var exposure = ImGui.Checkbox("Exposure follows the scene", ref light.AutoExposure);
@@ -112,6 +124,8 @@ public sealed class SettingsWindow
         ImGui.SameLine();
         var profile = ProfileWindow;
         if (ImGui.Checkbox("The frame profile", ref profile)) ProfileWindow = profile;
+        var effects = PostProcessWindow;
+        if (ImGui.Checkbox("The effects over the frame", ref effects)) PostProcessWindow = effects;
     }
 
     private static void Sky(Sky sky)

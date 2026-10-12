@@ -323,8 +323,10 @@ though, so the light that bounces off a section a lamp has lit since is as dark 
 block in the section changes. Each quad is split along the diagonal its occlusion favors, so a
 shaded corner darkens one triangle softly.
 
-The settings window turns the light levels and the shaded corners off, each on its own, to see
-the light that bounces alone.
+The settings window turns the light levels and the shaded corners off, each on its own, to see the
+light that bounces alone, and opens the engine's windows of what the light that bounces holds, of
+the frame's profile, and of the effects over the frame, the tonemap, exposure, grading, vignette,
+FXAA, depth of field, motion blur and bloom, each set at once as it is changed.
 
 ## Clouds
 
