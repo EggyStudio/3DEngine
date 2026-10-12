@@ -220,6 +220,10 @@ guide that shows it.
   is lit as before while the scene's field and the light that bounces leave it out, as
   [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
   shows.
+- **Effects read and tuned.** `GetTonemap`, `GetExposure`, `GetAutoExposure`, `GetColorGrading`,
+  `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom` read what each
+  effect's setter left, and `DrawPostProcessWindow` shows and sets every one in an ImGui window, as
+  [Effects over the frame](materials-light-and-shadows.md#effects-over-the-frame) shows.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
   meshes through, so a render texture shadows the lights it sees, as
   [Shadows](materials-light-and-shadows.md#shadows) shows.

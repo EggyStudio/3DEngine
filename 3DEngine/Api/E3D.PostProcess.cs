@@ -29,6 +29,10 @@ public static partial class E3D
         bloom.Threshold = Math.Max(0, threshold);
     }
 
+    /// <summary>The bloom's intensity and threshold as <see cref="SetBloom"/> left them, 0 and 1 unless set.</summary>
+    public static (float Intensity, float Threshold) GetBloom() =>
+        TryRes<BloomSettings>(out var bloom) ? (bloom.Intensity, bloom.Threshold) : (0, 1);
+
     private static FrameEffects Effects => World.GetOrInsertResource(static () => new FrameEffects());
 
     /// <summary>
@@ -36,6 +40,9 @@ public static partial class E3D
     /// 2 brightens a dark scene and 0.5 dims a bright one, 1 being as it is and the default.
     /// </summary>
     public static void SetExposure(float exposure) => Effects.Exposure = Math.Max(0, exposure);
+
+    /// <summary>What the scene's light is multiplied by before its curve, as <see cref="SetExposure"/> left it, 1 unless set.</summary>
+    public static float GetExposure() => Effects.Exposure;
 
     /// <summary>
     /// Makes the exposure follow the scene, as an eye adapts, brightening a dark room and dimming a
@@ -60,6 +67,16 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Whether the exposure follows the scene, and its bounds and speed, as
+    /// <see cref="SetAutoExposure"/> left them, off between 0.25 and 4 at a speed of 2 unless set.
+    /// </summary>
+    public static (bool Enabled, float Min, float Max, float Speed) GetAutoExposure()
+    {
+        var effects = Effects;
+        return (effects.AutoExposure, effects.AutoExposureMin, effects.AutoExposureMax, effects.AutoExposureSpeed);
+    }
+
+    /// <summary>
     /// Chooses the curve that brings the scene's light past 1 under it: the engine's own, which
     /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the
     /// eight Bevy offers, drawn as Bevy draws them.
@@ -70,6 +87,9 @@ public static partial class E3D
     /// first time its curve is chosen, which takes that frame a few milliseconds.
     /// </remarks>
     public static void SetTonemap(Tonemap curve) => Effects.Tonemap = curve;
+
+    /// <summary>The curve the scene's light past 1 is brought under by, <see cref="Tonemap.Engine"/> unless set.</summary>
+    public static Tonemap GetTonemap() => Effects.Tonemap;
 
     /// <summary>
     /// Grades the scene's color. <paramref name="contrast"/> pushes each channel from the middle gray,
@@ -84,6 +104,13 @@ public static partial class E3D
         effects.Tint = tint;
     }
 
+    /// <summary>The contrast, saturation and tint <see cref="SetColorGrading"/> left, 1, 1 and white unless set.</summary>
+    public static (float Contrast, float Saturation, Color Tint) GetColorGrading()
+    {
+        var effects = Effects;
+        return (effects.Contrast, effects.Saturation, effects.Tint);
+    }
+
     /// <summary>
     /// Darkens the scene toward its corners by <paramref name="intensity"/>, 0 for none and 1 to black,
     /// from <paramref name="radius"/> of the way from the middle to a corner.
@@ -95,11 +122,21 @@ public static partial class E3D
         effects.VignetteRadius = Math.Clamp(radius, 0, 1);
     }
 
+    /// <summary>How much the corners darken and from how far out, as <see cref="SetVignette"/> left them, 0 and 0.5 unless set.</summary>
+    public static (float Intensity, float Radius) GetVignette()
+    {
+        var effects = Effects;
+        return (effects.Vignette, effects.VignetteRadius);
+    }
+
     /// <summary>
     /// Turns FXAA on or off, which smooths the jagged edges multisampling leaves: those inside a
     /// surface, as a sharp highlight's or a texture's, and of lines thinner than a pixel.
     /// </summary>
     public static void SetFxaa(bool enabled) => Effects.Fxaa = enabled;
+
+    /// <summary>Whether FXAA smooths the frame's edges, as <see cref="SetFxaa"/> left it, off unless set.</summary>
+    public static bool IsFxaaEnabled() => Effects.Fxaa;
 
     /// <summary>
     /// Blurs what is nearer or farther than <paramref name="focusDistance"/> from the camera, as a
@@ -118,6 +155,16 @@ public static partial class E3D
         effects.FocusDistance = Math.Max(0, focusDistance);
         effects.FocusRange = Math.Max(1e-3f, focusRange);
         effects.FocusBlur = Math.Clamp(blur, 0, 0.1f);
+    }
+
+    /// <summary>
+    /// The depth of field's focus distance, range and blur, as <see cref="SetDepthOfField"/> left
+    /// them, 10, 5 and 0, which is off, unless set.
+    /// </summary>
+    public static (float FocusDistance, float FocusRange, float Blur) GetDepthOfField()
+    {
+        var effects = Effects;
+        return (effects.FocusDistance, effects.FocusRange, effects.FocusBlur);
     }
 
     /// <summary>
@@ -149,5 +196,96 @@ public static partial class E3D
     {
         Effects.MotionBlur = Math.Clamp(amount, 0, 1);
         Effects.MotionBlurObjects = objects;
+    }
+
+    /// <summary>
+    /// The share of the movement motion blur blurs along and whether mesh entities blur by their own,
+    /// as <see cref="SetMotionBlur(float, bool)"/> left them, 0, which is off, and false unless set.
+    /// </summary>
+    public static (float Amount, bool Objects) GetMotionBlur()
+    {
+        var effects = Effects;
+        return (effects.MotionBlur, effects.MotionBlurObjects);
+    }
+
+    /// <summary>
+    /// Draws the effects over the frame in an ImGui window of its own, each shown as it is set and set
+    /// at once as it is changed, so the picture is tuned while it is looked at: the curve, the
+    /// exposure and the one that follows the scene, the grading, the vignette, FXAA, the depth of
+    /// field, motion blur and bloom.
+    /// </summary>
+    /// <remarks>
+    /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is. Each control
+    /// calls the setter of its effect, so it sets the effect as the program's own call of that setter
+    /// would, and the program's own calls after it set over it.
+    /// </remarks>
+    public static void DrawPostProcessWindow()
+    {
+        ImGuiNET.ImGui.SetNextWindowSize(new System.Numerics.Vector2(420, 520), ImGuiNET.ImGuiCond.FirstUseEver);
+        if (!ImGuiNET.ImGui.Begin("Effects over the frame"))
+        {
+            ImGuiNET.ImGui.End();
+            return;
+        }
+        var logarithmic = ImGuiNET.ImGuiSliderFlags.Logarithmic;
+
+        var curves = Enum.GetValues<Tonemap>();
+        var names = curves.Select(curve => curve.ToString()).ToArray();
+        var curve = Array.IndexOf(curves, GetTonemap());
+        if (ImGuiNET.ImGui.Combo("Curve", ref curve, names, names.Length)) SetTonemap(curves[curve]);
+        var exposure = GetExposure();
+        if (ImGuiNET.ImGui.SliderFloat("Exposure", ref exposure, 0.05f, 8, "%.2f", logarithmic)) SetExposure(exposure);
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Exposure that follows the scene"))
+        {
+            var (follows, min, max, speed) = GetAutoExposure();
+            var changed = ImGuiNET.ImGui.Checkbox("Follows the scene", ref follows);
+            changed |= ImGuiNET.ImGui.SliderFloat("Lowest", ref min, 0.01f, 16, "%.2f", logarithmic);
+            changed |= ImGuiNET.ImGui.SliderFloat("Highest", ref max, 0.01f, 16, "%.2f", logarithmic);
+            changed |= ImGuiNET.ImGui.SliderFloat("Speed", ref speed, 0, 10);
+            if (changed) SetAutoExposure(follows, min, max, speed);
+        }
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Grading", ImGuiNET.ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            var (contrast, saturation, tint) = GetColorGrading();
+            var shade = new System.Numerics.Vector3(tint.R, tint.G, tint.B) / 255f;
+            var changed = ImGuiNET.ImGui.SliderFloat("Contrast", ref contrast, 0, 2);
+            changed |= ImGuiNET.ImGui.SliderFloat("Saturation", ref saturation, 0, 2);
+            changed |= ImGuiNET.ImGui.ColorEdit3("Tint", ref shade);
+            if (changed) SetColorGrading(contrast, saturation, new Color((byte)MathF.Round(shade.X * 255), (byte)MathF.Round(shade.Y * 255), (byte)MathF.Round(shade.Z * 255), tint.A));
+            var (vignette, radius) = GetVignette();
+            changed = ImGuiNET.ImGui.SliderFloat("Vignette", ref vignette, 0, 1);
+            changed |= ImGuiNET.ImGui.SliderFloat("Vignette's radius", ref radius, 0, 1);
+            if (changed) SetVignette(vignette, radius);
+            var fxaa = IsFxaaEnabled();
+            if (ImGuiNET.ImGui.Checkbox("FXAA", ref fxaa)) SetFxaa(fxaa);
+        }
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Depth of field"))
+        {
+            var (distance, range, blur) = GetDepthOfField();
+            var changed = ImGuiNET.ImGui.SliderFloat("Focus distance", ref distance, 0.1f, 200, "%.2f", logarithmic);
+            changed |= ImGuiNET.ImGui.SliderFloat("Focus range", ref range, 0.01f, 100, "%.2f", logarithmic);
+            changed |= ImGuiNET.ImGui.SliderFloat("Blur, 0 for none", ref blur, 0, 0.1f, "%.3f");
+            if (changed) SetDepthOfField(distance, range, blur);
+        }
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Motion blur"))
+        {
+            var (amount, objects) = GetMotionBlur();
+            var changed = ImGuiNET.ImGui.SliderFloat("Amount, 0 for none", ref amount, 0, 1);
+            changed |= ImGuiNET.ImGui.Checkbox("Each mesh entity by its own movement", ref objects);
+            if (changed) SetMotionBlur(amount, objects);
+        }
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Bloom", ImGuiNET.ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            var (intensity, threshold) = GetBloom();
+            var changed = ImGuiNET.ImGui.SliderFloat("Intensity, 0 for none", ref intensity, 0, 2);
+            changed |= ImGuiNET.ImGui.SliderFloat("Threshold", ref threshold, 0, 4);
+            if (changed) SetBloom(intensity, threshold);
+        }
+        ImGuiNET.ImGui.End();
     }
 }

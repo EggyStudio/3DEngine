@@ -220,6 +220,23 @@ SetAutoExposure(true, min: 0.3f, max: 6, speed: 1.5f);
 The field is dazzling for a moment on the way out, and the tunnel dark on the way back in, until the
 exposure catches up.
 
+Each effect is read back as its setter left it, by `GetTonemap`, `GetExposure`, `GetAutoExposure`,
+`GetColorGrading`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom`,
+those of several values as a tuple named as the setter's arguments are. `DrawPostProcessWindow()`,
+called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows every one of them in a
+window of its own, a choice of the curve, a slider or a check for the rest, each calling its setter at
+once, so the picture is tuned while it is looked at:
+
+<!-- compiled with:
+bool showEffects = false;
+-->
+```csharp
+if (IsKeyPressed(Key.F3)) showEffects = !showEffects;
+// ...
+if (showEffects) DrawPostProcessWindow();
+var (contrast, saturation, tint) = GetColorGrading();
+```
+
 ## Lights
 
 A world with no lights draws its models unlit, their color and texture as they are, as raylib

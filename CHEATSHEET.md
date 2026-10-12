@@ -745,15 +745,25 @@ void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Tu
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
 void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold glows into its surroundings, 0 for off
+(float Intensity, float Threshold) GetBloom();                             // The bloom as it was set
 void SetExposure(float exposure);                                          // Scale the scene's light before its curve (1)
+float GetExposure();                                                       // The exposure as it was set
 void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2); // The exposure follows the scene, as an eye adapts
+(bool Enabled, float Min, float Max, float Speed) GetAutoExposure();       // Whether it follows, and its bounds and speed
 void SetTonemap(Tonemap curve);                                            // The curve light past 1 is brought under it by: Engine, Aces, Clamp, or Bevy's None, Reinhard, ReinhardLuminance, AcesFitted, AgX, SomewhatBoring, TonyMcMapface or BlenderFilmic
+Tonemap GetTonemap();                                                      // The curve as it was set
 void SetColorGrading(float contrast, float saturation, Color tint);        // Grade the scene's color, 1, 1 and white for as it is
+(float Contrast, float Saturation, Color Tint) GetColorGrading();          // The grading as it was set
 void SetVignette(float intensity, float radius = 0.5f);                    // Darken toward the corners, 0 for none
+(float Intensity, float Radius) GetVignette();                             // The vignette as it was set
 void SetFxaa(bool enabled);                                                // Smooth the edges multisampling leaves
+bool IsFxaaEnabled();                                                      // Whether FXAA is on
 void SetDepthOfField(float focusDistance, float focusRange, float blur);   // Blur what is out of focus, 0 for none
+(float FocusDistance, float FocusRange, float Blur) GetDepthOfField();     // The depth of field as it was set
 void SetMotionBlur(float amount);                                          // Blur along the camera's movement, 0.5 as a shutter, 0 for none
 void SetMotionBlur(float amount, bool objects);                            // The same, and each mesh entity along its own movement with objects
+(float Amount, bool Objects) GetMotionBlur();                              // The motion blur as it was set
+void DrawPostProcessWindow();                                              // Every effect over the frame, shown and set, in an ImGui window
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 void SetAmbientOcclusion(float intensity, float radius = 1);              // Darken that light where nearby surfaces close it off, 0 for off

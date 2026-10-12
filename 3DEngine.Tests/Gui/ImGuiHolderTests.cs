@@ -160,4 +160,59 @@ public class ImGuiHolderTests
             app.Shutdown();
         }
     }
+
+    [Fact]
+    public void Each_Effect_Over_The_Frame_Reads_Back_As_Its_Setter_Left_It_And_Their_Window_Draws()
+    {
+        var app = Build();
+        try
+        {
+            E3D.UseApp(app);
+            // As they are unless set.
+            E3D.GetTonemap().Should().Be(Tonemap.Engine);
+            E3D.GetExposure().Should().Be(1);
+            E3D.GetAutoExposure().Should().Be((false, 0.25f, 4f, 2f));
+            E3D.GetColorGrading().Should().Be((1f, 1f, Color.White));
+            E3D.GetVignette().Should().Be((0f, 0.5f));
+            E3D.IsFxaaEnabled().Should().BeFalse();
+            E3D.GetDepthOfField().Should().Be((10f, 5f, 0f));
+            E3D.GetMotionBlur().Should().Be((0f, false));
+            E3D.GetBloom().Should().Be((0f, 1f));
+
+            // As each setter leaves them, its bounds kept.
+            E3D.SetTonemap(Tonemap.AgX);
+            E3D.SetExposure(1.4f);
+            E3D.SetAutoExposure(true, 3, 0.5f, 1.5f);
+            E3D.SetColorGrading(1.2f, 0.8f, new Color(255, 240, 220));
+            E3D.SetVignette(2, 0.6f);
+            E3D.SetFxaa(true);
+            E3D.SetDepthOfField(12, 4, 0.5f);
+            E3D.SetMotionBlur(0.5f, objects: true);
+            E3D.SetBloom(0.6f, 1.5f);
+            void Read()
+            {
+                E3D.GetTonemap().Should().Be(Tonemap.AgX);
+                E3D.GetExposure().Should().Be(1.4f);
+                E3D.GetAutoExposure().Should().Be((true, 0.5f, 3f, 1.5f), "the bounds are taken in order");
+                E3D.GetColorGrading().Should().Be((1.2f, 0.8f, new Color(255, 240, 220)));
+                E3D.GetVignette().Should().Be((1f, 0.6f), "the vignette goes to black at most");
+                E3D.IsFxaaEnabled().Should().BeTrue();
+                E3D.GetDepthOfField().Should().Be((12f, 4f, 0.1f), "the blur is a tenth of the picture at most");
+                E3D.GetMotionBlur().Should().Be((0.5f, true));
+                E3D.GetBloom().Should().Be((0.6f, 1.5f));
+            }
+            Read();
+
+            // The window shows them in a frame and changes none.
+            app.BeginFrame();
+            E3D.DrawPostProcessWindow();
+            app.EndFrame();
+            Read();
+        }
+        finally
+        {
+            E3D.UseApp(null);
+            app.Shutdown();
+        }
+    }
 }
