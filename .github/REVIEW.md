@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ee85866f`, the game's smelting with its save and its window, `ab9cd9b7`, the game's
+Reviewed up to `9a3e2e2a`, the batch of Verdicts 54 and 55 and item 25, on `bb3202e4`, a one-line
+commit of 18:39 ignoring `/Voxel-Sandbox` with the three marks and no sentence, which fails N 7.2
+and goes on its list as the owner's own, as `5d88a601` did, in the commit that carries this file.
+`9a3e2e2a`: `test.yml` restores the Mesa shader cache on the Linux and Windows jobs with the cache
+action's restore before the suite and saves it right after the suite under `if: always()`, the key
+and the restore keys as before, so a failed suite leaves the shaders it compiled; the Windows step
+runs the suite with `--timeout-minutes 60` and the reason beside it, BUILDING.md saying Windows' 60
+and why; `AppLeakTests`' series carries the resident memory after every ten apps under the heap's
+line, the bound at 50; the macOS examples job left `test.yml` for `examples.yml` behind the whole
+run's input with its runner, caches, MoltenVK and artifact as they were, the pack job still needing
+the examples workflow, and the three workflows' head comments, the macOS job's comment and
+BUILDING.md's capture and release paragraphs saying what a push runs and what the pack run adds. The
+strict build clean, the four workflows parsing, the leak tests 3 of 3 here, NormTests 15 of 16 with
+N 7.2 on `bb3202e4` alone. Right. Item 25 is done at `9a3e2e2a`; Verdicts 54 and 55 have their
+changes and settle on the runs, the push's Windows suite cold under 60 minutes and saving the cache,
+the pack run's warm under 36. Next the list's commit, then item 3, subsurface scattering's first
+batch.
+
+Before it, `ee85866f` came, the game's smelting with its save and its window, `ab9cd9b7`, the game's
 culling, and `2a14ab13`. Item 24, the seam's teeth, by a cause the item had not named: the glow
 lights' march's cone already gives a penumbra as wide as the light, and the step was the way out of
 a surface after the march, which ended at the step that left the surface, so a way grazing the
@@ -79,41 +97,6 @@ ASKS.md carried with the game's item 9 measure and its item 8 line. The page at 
 run is green on every job too, its examples job in nine minutes, the second whole green run with the
 longer screen rays, the Windows tests' 33 m 44 s watched as said. Next item 24, the glow lights'
 penumbra, under way with the seam room reproduced on a flat world.
-
-Before it, `6c9284a7` came, the game's hostile mobs, and `314b9d48`, the game's commit following
-item 9, and `feec07a2`, item 9: colors written in place by `UpdateMeshBuffer` reach the bounce and
-the reference in the frame after; the store keeps the meshes whose colors were written and the field
-takes them each frame, a still one among them pooled again with its colors as they are, and in each
-built cascade not built again that frame the paint pass runs over its triangles alone against the
-words the cascade's last build kept, which each build copies aside, about a megabyte a cascade,
-writing the colors the passes read so no distance is found again; the ray scene writes the new
-colors into the mesh's corners, which its structure does not read. A test colors a slab white with a
-white wall on it, writes it red in place, and reads the reference trace it red and the wall's red
-over green at 1.230 in the frame against 1.240 in the reference, within 2%, where without the ray
-scene's half the reference traces white and without the field's half the wall's bounce stays white;
-the light guide and RENDERING.md say it. The suite 1,703; lavapipe 410 with 10 skipped and no
-validation error; the glowstone room lost no device in eight runs. Right, the paint alone run again
-from the words a build keeps, rather than the build, and both halves proven by leaving each out. The
-Reply is read and removed, and the game's entry on colors written in place leaves ASKS.md with it,
-the game's session asked for the item's measure in its room, the floor and wall after a relight
-against the reference at eight bounces and a relit section's cost against an upload's. Item 9 is
-done. The game followed at `314b9d48`, a commit of its own to its chunk renderer and README, its
-relight reaching the bounce since, as the entry asked. The page at 07:51: `e424550c`'s run has every
-test job green, Linux in 14 minutes, macOS in 13 and Windows in 29 m 56 s, six minutes past the
-third build's 23 m 44 s with the longer screen rays and the suite's growth since, within the limit
-and watched on `6f4c98bb`'s run, whose Linux and macOS tests are green and whose Windows tests run;
-the captures and the games' steps run on both. BevyCSharp's `eb82688b` is green on all three. Item
-8, measured at 08:00 before a commit: the opaque pipeline without the discard saves nothing on the
-development machine's GPU, which tests depth early under a discard, the hidden land's 0.35 ms being
-the geometry of 289 columns of sections inside the frustum, so the patch goes in for the devices
-that gain and the cost is culling's, the game's section flood fill first, its item text saying so.
-The page at 08:23: `e424550c`'s run is green on every job, its examples job in nine minutes, the
-first whole green run with the longer screen rays; `6f4c98bb`'s Windows tests took 33 m 44 s on the
-same engine code and tests where `e424550c`'s took 29 m 56 s, four minutes of the runner's own
-variance on top of the six the suite grew by since the third build, within the limit and watched, a
-verdict if a run passes 36; its other test jobs are green and the games' steps run. The game
-committed its hostile mobs at `6c9284a7`, arrows and explosions with 140 lines of tests. Next item
-24, the glow lights' penumbra, then item 8's commit.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1047,15 +1030,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     step that left the surface, so a way grazing an edge counted half a cell under it; ended where
     it left, the rise in 20 pixels is 5 to 7% where 22 to 24 and no teeth remain.
 
-25. **The macOS captures move to the pack run (Decision 38).** The macOS examples job of `test.yml`,
-    every example captured on the macOS runner's GPU through MoltenVK and checked to draw without a
-    validation error, runs on every push and is the longest job by far, 53 to 56 minutes where the
-    suites take 17 to 38, and a push's Linux examples job captures every example on lavapipe
-    already. It moves to where the soak, the storm and the measure against raylib run, the pack run
-    alone: the job leaves `test.yml` for `examples.yml` behind `inputs.whole`, with its runner, its
-    caches, MoltenVK and its artifact as they are, the pack job still needing the examples workflow,
-    and the workflows' head comments and BUILDING.md saying what a push runs and what a pack run
-    adds. In the engine's session's batch with Verdicts 54 and 55.
+25. **The macOS captures move to the pack run (Decision 38); done at `9a3e2e2a`.** The macOS
+    examples job of `test.yml`, every example captured on the macOS runner's GPU through MoltenVK
+    and checked to draw without a validation error, runs on every push and is the longest job by
+    far, 53 to 56 minutes where the suites take 17 to 38, and a push's Linux examples job captures
+    every example on lavapipe already. It moves to where the soak, the storm and the measure against
+    raylib run, the pack run alone: the job leaves `test.yml` for `examples.yml` behind
+    `inputs.whole`, with its runner, its caches, MoltenVK and its artifact as they are, the pack job
+    still needing the examples workflow, and the workflows' head comments and BUILDING.md saying
+    what a push runs and what a pack run adds. In the engine's session's batch with Verdicts 54 and
+    55.
 
 ## Verdicts
 
@@ -1085,7 +1069,8 @@ are open.
     rerun by namespace the test passed on Windows under a cold shader cache (Verdict 55), the first
     pass since the failure, so of the three steps the first alone is taken with Verdict 55's batch,
     the series in the message, and the bound stands; the Linux series and the allowance wait on a
-    second failure. Settled at two green Windows suites, the push's and the pack run's.
+    second failure. Settled at two green Windows suites, the push's and the pack run's. The series
+    is in the message at `9a3e2e2a`.
 
 55. **The Windows suite of the pack run on `ee85866f` runs past 36 minutes.** The suite's step stood
     at 36.6 minutes and running at 17:43, where the push's run of the same code took 22.3 an hour
@@ -1115,7 +1100,7 @@ are open.
     Windows suite's limit at 60 minutes, `--timeout-minutes 60` on its step with the reason beside
     it, so a cold suite passes and saves the cache, the hang limit of five minutes a test still
     catching a hang. Settled when the Windows suite passes on the push and the pack run after it
-    runs warm, under 36 minutes.
+    runs warm, under 36 minutes. Both are at `9a3e2e2a`.
 
 ## Decisions
 
