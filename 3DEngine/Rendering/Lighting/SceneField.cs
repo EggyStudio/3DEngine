@@ -181,9 +181,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         device.RecordSceneFieldClose(commands, _field);
     }
 
-    // The meshes drawn into the window this frame that cast shadows, or where the window draws
-    // none those drawn into the render targets, each with whether it is skinned, whose posed shape
-    // no vertices on the CPU hold.
+    // The meshes drawn into the window this frame that cast shadows and bounce light, or where the
+    // window draws none those drawn into the render targets, each with whether it is skinned, whose
+    // posed shape no vertices on the CPU hold.
     private void Gather(RenderWorld renderWorld, bool windowAlone = true)
     {
         _drawn.Clear();
@@ -202,7 +202,8 @@ internal sealed class SceneFieldRenderer : IDisposable
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
         {
-            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points
+                || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             _meshOf[vertices] = draw.Mesh;
             var one = ModelRenderer.Instance.Of(in draw);
@@ -214,7 +215,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         foreach (var group in draws.Groups)
         {
             var template = group.Template;
-            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || template.Points
+            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || !template.BouncesLight || template.Points
                 || !store.TryGetData(template.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             _meshOf[vertices] = template.Mesh;

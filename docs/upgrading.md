@@ -215,6 +215,11 @@ guide that shows it.
   texture coordinate, as
   [A vertex stream of the program's own](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)
   shows.
+- **A mesh the light that bounces leaves out.** `ModelMaterial.BouncesLight`, true by default,
+  set false for a mesh that moves in most frames, as a game's animal, which casts its shadows and
+  is lit as before while the scene's field and the light that bounces leave it out, as
+  [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
+  shows.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
   meshes through, so a render texture shadows the lights it sees, as
   [Shadows](materials-light-and-shadows.md#shadows) shows.

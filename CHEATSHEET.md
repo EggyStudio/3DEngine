@@ -682,7 +682,9 @@ a `Texture`, so `model.Materials[0].Texture = texture;` textures a mesh, with `M
 `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an `OcclusionMap` with its
 `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below its `AlphaCutoff`, or
 `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets, `CastsShadows` (true
-by default), false for a glow that leaves no shadow, and a `SubsurfaceRadius` in world units with
+by default), false for a glow that leaves no shadow, `BouncesLight` (true by default), false for a
+mesh that moves in most frames, as an animal, which casts its shadow and is left out of the light
+that bounces, and a `SubsurfaceRadius` in world units with
 its `SubsurfaceColor`, how far each color travels under skin, wax or marble before it leaves, which
 the window's frame spreads, and a `SubsurfaceThickness`, how thick its parts are at most for the
 light from behind, as a glTF file's `KHR_materials_volume` says. Models are drawn unlit, as raylib

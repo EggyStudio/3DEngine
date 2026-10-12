@@ -10,16 +10,39 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f7971f62`, two commits of the game's: `495fde19`, mobs after Minecraft's, pigs,
-cows, sheep, chickens and villagers, each a kind with its pieces, a renderer drawing them instanced
-with shadows, a pathfinder, herds placed by the generator and the village's own, their save in the
-world's file, commands to spawn, still and kill them, the body moved from the player to the entities
-and 224 lines of tests of them; `f7971f62`, items, an inventory, drops that fall and are picked up,
-loot from blocks and mobs, a hotbar and an inventory window, a game mode, a box mesh of their own
-and 170 lines of tests; the game's README says both. Read as the game's own, their engine cost the
-mobs' entry in ASKS.md of 01:52, item 23. The engine's next batch, f's filter offset, is in the tree
-uncommitted, the Cornell box's reference frame among its files, so its commit is read for what the
-frame moved by.
+Reviewed up to `a25edfa7`. Item 2's part f, the screen's filter offset: a screen probe stands on the
+middle of the half-sized depth's texel under its tile's middle, a pixel past that middle, and the
+filter found the frame before's light by the tiles' middles, so a still view's blend took a pixel's
+share of the probes to its right and below every frame, a sixteenth of a tile at Low, a twelfth at
+Medium and an eighth at High; the four probes of the frame before are weighed by where each stands,
+the pixel a probe stands on worked out as the probe pass places it, with a test at each quality that
+the probes at a wall's right and bottom edges against the sky take four fifths of their light from
+the frame before where they stood, 1.8 where 1.75, 1.73 and 1.70. The bounce rooms read the thin
+room and the Cornell box 0.2 to 0.5 points of their light further from their references and the
+window's room and the carried lamp 0.3 to 0.6 nearer, the 27 cases summed 4.006 where 4.001; read
+for the filter's width, wider weights take the thin room further still and narrower nearer with the
+sum at 3.968, the carried lamp 0.5 to 1.0 points nearer and the grazing floor at Medium 0.7 further,
+so the drift and not the width had held the thin room nearer, the width is left as it is, and a
+narrower filter stands as a thing to take, weighed against the probes' noise in the tests of the
+slide and the settling. The Cornell box's reference frame is drawn again, its floor and blocks
+having read 10 levels under it since `88673244`'s glow lights and the bounce's fixes, the GPU's
+frame 1.7% apart and lavapipe's 4.7% of the 5% allowed and 5.2% with this change. The suite 1,698;
+lavapipe 407 passed and 9 skipped with no validation error; the glowstone room lost no device in
+eight runs. Right, the drift found by its direction and sized by its quality, the width tested
+before it was blamed, and the reference redrawn with the reason said. The Reply is read and removed.
+Part f is done; next item 23's first part, nearly written, then item 22, item 23's stamp, h's
+blotches and teeth by the owner's eye, item 10, item 9 and item 8.
+
+Before it, `495fde19` and `f7971f62` came, two commits of the game's: `495fde19`, mobs after
+Minecraft's, pigs, cows, sheep, chickens and villagers, each a kind with its pieces, a renderer
+drawing them instanced with shadows, a pathfinder, herds placed by the generator and the village's
+own, their save in the world's file, commands to spawn, still and kill them, the body moved from the
+player to the entities and 224 lines of tests of them; `f7971f62`, items, an inventory, drops that
+fall and are picked up, loot from blocks and mobs, a hotbar and an inventory window, a game mode, a
+box mesh of their own and 170 lines of tests; the game's README says both. Read as the game's own,
+their engine cost the mobs' entry in ASKS.md of 01:52, item 23. The engine's next batch, f's filter
+offset, is in the tree uncommitted, the Cornell box's reference frame among its files, so its commit
+is read for what the frame moved by.
 
 Before it, `82b40646` came, item 2's pillar, read to its cause: the probe's path-traced reference
 counted the glow of a light the bounce carries where a path first met it, which the probe's rays
@@ -55,30 +78,6 @@ once, the cheaper stamp after item 22. Next f's filter offset, read as the scree
 half a depth texel past their tiles' middles so the history is read a sixteenth of a tile off, then
 the thin room against the filter's width, then item 23's flag, item 22, item 23's stamp, h's
 blotches and teeth by the owner's eye, item 10, item 9 and item 8.
-
-Before it, `86fba7ad` came, item 21: the store's handoff gives a mesh of positions alone no streams,
-so `GpuMeshes` makes it no colors and no second texture coordinates, the colors kept in the store
-where the light field's tint, the glow lights and the bounce reference read them, the overload's
-remark and the guide's paragraph saying that a stage reading `COLOR0` or `TEXCOORD1` on such a mesh
-reads white and zero; a store test that the colors stay for the readers and the upload carries no
-stream buffers, stage 2's Vulkan fact unchanged, the suite 1,694. Right, one line where the upload
-is handed over and nothing the readers see changed. Item 21 is done and measured by the game, read
-at 01:15, on `86fba7ad`'s engine from a clean worktree, a third column in its entry: the vertex
-bytes on the device 39.56 MB in 2,732 buffers on the land where 87.07 before the stream and 63.24
-after it, and 6.16 MB on the flat world where 13.62 and 9.82, so a section uploads 45% of what it
-did, positions and packed bytes in two buffers, as meant; the frame on the land 20.5 ms with another
-process on the GPU during the read, the flat world's 4.1 to 4.3, and the relight 0.33 to 0.36 s, the
-mesher's own, so the bytes saved since `b275f738` change the frame little and the time came from the
-stream itself. The bounce around the pillar, read so far with nothing changed: at pixels the bounce
-alone is 0.71 to 0.95 of the reference with the pillar and 1.01 to 1.07 without; at the probe
-nearest the pillar, the light that bounces again off and the references of one bounce, by direction,
-the floor half a block in front of the lamps' face brings 0.40 of the reference with the pillar or
-without it, and hits taking the box's faces' halves or no march at all change nothing, so it is not
-the march, the field's normal tilting where the box meets the floor being the next suspect; and with
-the pillar the rays that meet its south face bring nothing against 0.01 to 0.05 in the reference, a
-face that cannot see the lamps, so those paths of the reference bounce off the floor first, and how
-the reference's probe counts its bounces is read before the engine is blamed. Next those two checks,
-then h's blotches and teeth by the owner's eye, f's filter offset, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1172,22 +1171,14 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 2, f's filter offset. A screen probe stands on the middle of the half-sized depth's texel
-under its tile's middle, a pixel past that middle, and the filter found the frame before's light by
-the tiles' middles, so a still view's blend took a pixel's share of the probes to its right and
-below every frame, a sixteenth of a tile at `Low`, a twelfth at `Medium` and an eighth at `High`.
-The four probes of the frame before are now weighed by where each stands, with a test that reads
-the alpha of the probes at a wall's right and bottom edges against the sky, 1.75, 1.73 and 1.70
-before and 1.8 now. The bounce rooms read the thin room and the Cornell box 0.2 to 0.5 points of
-their light further from their references and the window's room and the carried lamp 0.3 to 0.6
-nearer, the 27 cases summed 4.006 where 4.001. Read for the filter's width, the weights spread
-wider took the thin room further still, 0.0922 and 0.0925 at `High` where 0.0916, and the sum to
-4.027 and 4.039, and narrower brought it to 0.0905 and the sum to 3.968, the carried lamp 0.5 to
-1.0 points nearer and the grazing floor at `Medium` 0.7 further. So the drift, and not the width,
-had held the thin room nearer, and the width is left as it is; a narrower filter is there to take,
-weighed against the probes' noise in the tests of the slide and the settling. The Cornell box's
-reference frame is drawn again. Its floor and blocks read 10 levels under it on `HEAD` on both
-devices, the glow lights and the bounce's fixes since `88673244`, the GPU's frame 1.7% apart and
-lavapipe's 4.7% where 5% is allowed, and 5.2% on lavapipe with this change. Drawn again, the suite
-passes, 1,698, and lavapipe 407 with 9 skipped and no validation error, and the game's glowstone
-room lost no device in eight runs.
+Item 23, the first part. `ModelMaterial.BouncesLight`, true unless set, so every scene is as it
+was. A mesh drawn with it false casts its shadows and is lit as any other, and the field leaves it
+out where it gathers the window's meshes, as it leaves out one that casts no shadow, so the glow
+lights and the ray scene the reference traces, which read that list, leave it out too. It is said in
+the materials guide beside `CastsShadows` and in the field's section with the walking animal as its
+case, in CHEATSHEET.md, in the upgrading guide's Added list and in RENDERING.md, with a test that a
+cube with it off a unit over a floor throws its shadow under the sun while the field holds the floor
+alone and nothing where the cube stands. A mesh entity's `Material` has neither switch, as before.
+The suite passes, 1,699, lavapipe 408 with 9 skipped and no validation error, and the guide's
+blocks build on the package. The game's mobs are the game's to set, and its session is asked to
+measure again with them so.

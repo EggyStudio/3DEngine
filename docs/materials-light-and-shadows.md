@@ -69,7 +69,9 @@ is by default, and the threshold, 1 unless given, is how bright a pixel has to b
 surface lit no brighter than white stays sharp. Text and shapes drawn after `EndMode3D` go on top
 untouched. `shaders_bloom` runs it, with B turning it off and on. A glowing orb or a bulb casts a
 shadow like any surface unless its material's `CastsShadows` is false, as `games/Summit`'s orbs'
-are.
+are. A material's `BouncesLight`, true unless set, says whether the light that bounces holds the
+surface, and a mesh with it false casts its shadow all the same, as
+[The scene as a distance field](#the-scene-as-a-distance-field) says.
 
 ```csharp
 SetBloom(0.8f);
@@ -365,7 +367,20 @@ shadows a character gives the light that bounces are its limbs' as boxes, and a 
 bend a box for each of up to eight parts its triangles are cut into, so a table or a car is not one
 block. Three of raylib's dancing robots in `shaders_cornell_box` are 147 boxes in 540 bricks of four
 cells, which the GPU stamps and paints in 0.06 ms and the CPU places in 0.45, in the Release build,
-where it stamped them unpainted in 0.05 ms. A cascade is built again where the camera has gone past
+where it stamped them unpainted in 0.05 ms. A mesh that moves in most frames and matters little to
+the light around it, as a game's animal, is left out with its material's `BouncesLight` set false,
+so it casts its shadows and is lit as before while the field, the glow lights and the light that
+bounces hold nothing of it, since a voxel game's walking animal of four to six pieces cost the
+field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a piece a frame.
+
+<!-- compiled with:
+Model pig = default;
+-->
+```csharp
+pig.Materials[0].BouncesLight = false;
+```
+
+A cascade is built again where the camera has gone past
 it or a mesh came or went, as many a frame as the third argument says, one by default, the finest
 first. In `shaders_scene_field` on the development machine's laptop GPU, a frame that stamps its
 moving crate takes 0.014 ms on the GPU and building the finest cascade 0.25 ms, and the occlusion

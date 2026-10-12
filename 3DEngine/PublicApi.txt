@@ -2204,6 +2204,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   Texture2D NormalMap { get; set; }
   Texture2D OcclusionMap { get; set; }
   Texture2D Texture { get; set; }
+  bool BouncesLight { get; set; }
   bool CastsShadows { get; set; }
   bool DoubleSided { get; set; }
   bool Equals(ModelMaterial other)

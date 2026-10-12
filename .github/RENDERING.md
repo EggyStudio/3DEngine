@@ -597,7 +597,12 @@ away (`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what t
 box each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures
 near the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
 bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of
-the CPU in the Release build, as their meshes' 57 boxes were.
+the CPU in the Release build, as their meshes' 57 boxes were. A mesh whose material's
+`BouncesLight` is false is left out of the field as one that casts no shadow is, and so out of the
+glow lights and the ray scene the bounce's reference traces, while it casts its shadows, since the
+voxel game's walking animals, four to six pieces each, cost the field 16 to 28 microseconds of the
+CPU and 13 to 15 of the GPU a piece a frame, 17 of them taking the CPU's share from 0.8 ms to 2.9
+and the GPU's from nothing to 1.0.
 
 Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
 it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a

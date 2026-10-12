@@ -7,10 +7,10 @@ namespace Engine.Tests.Rendering;
 /// <summary>
 /// The scene's distance field: where its cascades lie and what each frame builds and stamps, on
 /// the CPU, and the distances the GPU builds read back against those to the meshes they were built
-/// from.
+/// from, with in <c>SceneFieldTests.Materials.cs</c> the meshes a material leaves out of it.
 /// </summary>
 [Collection("E3D")]
-public sealed class SceneFieldTests : IDisposable
+public sealed partial class SceneFieldTests : IDisposable
 {
     public void Dispose()
     {
