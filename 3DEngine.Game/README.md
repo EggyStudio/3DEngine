@@ -209,8 +209,9 @@ have had theirs placed, so a herd or a village's villagers are placed once.
 Each piece of a mob, its head, body, legs and a chicken's wings, is a few boxes after Minecraft's
 models, one mesh of colored vertices drawn instanced for every mob of its kind, its legs swinging as
 it walks. Mobs are drawn within 64 blocks, as Minecraft draws its entities, through the engine's own
-shader, so the haze is not on them. They cast shadows, which puts them in the scene's distance field
-too, so the light that bounces takes their colors, a white robe beside a pig turning pink.
+shader, so the haze is not on them. They cast shadows and bounce no light, their materials'
+`BouncesLight` off, which leaves them out of the scene's distance field, so a pig's pink does not
+reach the grass.
 
 ## Creative and survival
 
@@ -318,8 +319,7 @@ and the engine's culling of each pass, so the render distance sets much of the f
 8 by default and up to 16 in the settings window, whose first lines give the frame's time, draws and
 triangles.
 
-A mob standing still costs next to nothing, but each piece of one that walks is a moving mesh, which
-the scene's distance field stamps as a box each frame. Over seed 1's first village with the hills at
-8 columns, the 17 mobs drawn walking cost the field 2.1 ms of the CPU and 1.0 ms of the GPU a frame,
-and a crowd of 76 cost 4.0 and 3.9 ms, the field stamping 256 boxes at most, so the farthest pieces
-of a larger crowd are left out of it.
+A mob's pieces bounce no light, so the scene's distance field leaves them out. Each piece of a
+walking mob would otherwise be a moving mesh the field stamps as a box every frame, which over seed
+1's first village with the hills at 8 columns cost the field 2.1 ms of the CPU and 1.0 ms of the GPU
+a frame for the 17 mobs drawn walking, and 4.0 and 3.9 ms for a crowd of 76.
