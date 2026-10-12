@@ -187,6 +187,72 @@ public sealed class AnimatedModelDrawsTests : IDisposable
         _app.World.Resource<AnimatedModelDraws>().ModelCount.Should().Be(0);
     }
 
+    [Fact]
+    public void A_Hull_Made_For_An_Animated_Entity_Is_Shaped_As_Its_Model_Was_Posed()
+    {
+        // Two arms, one played to the end of its bend, its forearm out toward -X at the elbow's
+        // height, and one held at rest. Each body is made once from its model as it was last posed,
+        // as a body made from a posed model through the flat API is, so a ray down beside the
+        // shoulder meets the bent arm's forearm and passes the straight one.
+        using var physics = new PhysicsWorld(new PhysicsSettings());
+        _app.World.InsertResource(physics);
+        var bent = Spawn(new AnimatedModel(Arm), Vector3.Zero);
+        var straight = Spawn(new AnimatedModel(Arm, speed: 0), new Vector3(5, 0, 0));
+        foreach (var entity in new[] { bent, straight })
+        {
+            _ecs.Add(entity, Collider.ConvexHull);
+            _ecs.Add(entity, RigidBody.Kinematic);
+        }
+
+        PhysicsBodies.Run(_app.World);
+        _ecs.Has<PhysicsBody>(bent).Should().BeFalse("its file is loaded the first frame it is drawn, and the body waits for it");
+        Frame();
+        Frame(0.5);
+        Frame(0.5);
+        PhysicsBodies.Run(_app.World);
+
+        _ecs.Has<PhysicsBody>(bent).Should().BeTrue();
+        _ecs.Has<PhysicsBody>(straight).Should().BeTrue();
+        physics.Raycast(new Vector3(-0.8f, 5, 0), -Vector3.UnitY, 10, out var hit).Should().BeTrue("the bent arm's forearm lies under the ray");
+        hit.Point.Y.Should().BeInRange(0.9f, 1.3f, "the forearm is out at the elbow's height, a unit up");
+        physics.Raycast(new Vector3(4.2f, 5, 0), -Vector3.UnitY, 10, out _).Should().BeFalse("the straight arm stands 0.2 either side of its shoulder");
+
+        // The straight arm bent by a jump to its clip's end keeps its body as it was made, and a
+        // body taken away is made again from the pose then.
+        _ecs.GetRef<AnimatedModel>(straight).Time = 1;
+        Frame();
+        PhysicsBodies.Run(_app.World);
+        physics.Raycast(new Vector3(4.2f, 5, 0), -Vector3.UnitY, 10, out _).Should().BeFalse("a body is shaped once, as it was posed when made");
+        _ecs.Remove<PhysicsBody>(straight);
+        PhysicsBodies.Run(_app.World);
+        physics.Raycast(new Vector3(4.2f, 5, 0), -Vector3.UnitY, 10, out hit).Should().BeTrue("made again, it is shaped as the arm is posed now");
+        hit.Point.Y.Should().BeInRange(0.9f, 1.3f);
+    }
+
+    [Fact]
+    public void A_Collider_On_An_Animated_Entity_Whose_File_Gives_No_Meshes_Is_Refused_Once_With_The_Reason()
+    {
+        // The collider waits while the file is not loaded, as one over a model loading under its
+        // entity does, and is refused with the reason once the file has given nothing.
+        using var physics = new PhysicsWorld(new PhysicsSettings());
+        _app.World.InsertResource(physics);
+        var hero = Spawn(new AnimatedModel("no/such/model.gltf"), Vector3.Zero);
+        _ecs.Add(hero, Collider.ConvexHull);
+        _ecs.Add(hero, RigidBody.Dynamic());
+        var before = ConsoleLog.Written;
+        int Warned() => ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before)))
+            .Count(l => l.Level == LogLevel.Warning && l.Text.Contains($"entity {hero} is drawn by its AnimatedModel"));
+
+        PhysicsBodies.Run(_app.World);
+        Warned().Should().Be(0, "nothing has tried the file yet");
+        Frame(0.1);
+        PhysicsBodies.Run(_app.World);
+        PhysicsBodies.Run(_app.World);
+
+        _ecs.Has<PhysicsBody>(hero).Should().BeFalse();
+        Warned().Should().Be(1, "it is said once, and the entity is not tried again");
+    }
+
     // The arm with a second clip, "rest", which holds the elbow straight for a second, in a
     // buffer of its own beside the file's.
     private string TwoClips()

@@ -54,9 +54,9 @@ internal static class PhysicsBodies
             if (collider.Shape == ColliderShape.Mesh)
             {
                 // Made once the meshes are there, which a model loading under the entity is not yet.
-                if (TrianglesUnder(ecs, entity, placed) is not { } triangles)
+                if (TrianglesUnder(world, ecs, entity, placed) is not { } triangles)
                 {
-                    NoneComing(ecs, entity, collider);
+                    NoneComing(world, ecs, entity, collider);
                     continue;
                 }
                 body = physics.CreateStaticMesh(position, triangles.Vertices, triangles.Indices, entityId: entity);
@@ -64,9 +64,9 @@ internal static class PhysicsBodies
             }
             else if (collider.Shape == ColliderShape.ConvexHull)
             {
-                if (TrianglesUnder(ecs, entity, placed) is not { } triangles)
+                if (TrianglesUnder(world, ecs, entity, placed) is not { } triangles)
                 {
-                    NoneComing(ecs, entity, collider);
+                    NoneComing(world, ecs, entity, collider);
                     continue;
                 }
                 // The triangles come placed about the entity and turned with it, and the hull is
@@ -164,31 +164,41 @@ internal static class PhysicsBodies
         return physics.CreateDistanceJoint(a, b, point, other, MathF.Min(MathF.Max(0, joint.MinDistance), maximum), maximum);
     }
 
-    // The triangles of the meshes of an entity and its descendants, turned and scaled into the world
-    // about the entity's place, which the body is made at, or null when there are none. A triangle
-    // collides from the side its corners go around clockwise, so a mesh's are turned over.
-    // An entity drawn by its AnimatedModel is drawn from a model of its own that the world holds no
-    // meshes of, so the triangles a mesh or a hull collider waits for never come where nothing under
-    // the entity may bring them. It is refused once with the reason, where it waited unsaid.
-    private static void NoneComing(EcsWorld ecs, int entity, Collider collider)
+    // An entity drawn by its AnimatedModel alone whose file gave no meshes, so the triangles a mesh
+    // or a hull collider waits for never come. It is refused once with the reason, where it waited
+    // unsaid. One whose file is not loaded yet waits, as a model loading under an entity does.
+    private static void NoneComing(World world, EcsWorld ecs, int entity, Collider collider)
     {
         if (!ecs.Has<AnimatedModel>(entity) || ecs.ChildrenOf(entity).Count > 0) return;
-        Log.Category("Engine.Physics").Warn($"Collider: entity {entity} is drawn by its AnimatedModel, which gives the world no meshes, " +
-            $"so its {collider.Shape} collider has no triangles and it has no body. A capsule or a box is shaped by its size.");
+        if (!world.TryGetResource<AnimatedModelDraws>(out var animated) || !world.TryGetResource<MeshStore>(out var meshes)) return;
+        animated.TryPosedTriangles(ecs, meshes, entity, out _, out var never);
+        if (!never) return;
+        Log.Category("Engine.Physics").Warn($"Collider: entity {entity} is drawn by its AnimatedModel, whose file gives no meshes, " +
+            $"so its {collider.Shape} collider has no triangles and it has no body.");
         ecs.Add(entity, new NoBody());
     }
 
-    private static (Vector3[] Vertices, int[] Indices)? TrianglesUnder(EcsWorld ecs, int entity, Matrix4x4 world)
+    // The triangles of the meshes of an entity and its descendants, turned and scaled into the world
+    // about the entity's place, which the body is made at, or null when there are none. A triangle
+    // collides from the side its corners go around clockwise, so a mesh's are turned over. An
+    // entity an AnimatedModel draws gives the triangles of its model as it was last posed.
+    private static (Vector3[] Vertices, int[] Indices)? TrianglesUnder(World ecsWorld, EcsWorld ecs, int entity, Matrix4x4 world)
     {
         var vertices = new List<Vector3>();
         var at = world.Translation;
+        ecsWorld.TryGetResource<AnimatedModelDraws>(out var animated);
+        ecsWorld.TryGetResource<MeshStore>(out var meshes);
         var pending = new Stack<int>();
         pending.Push(entity);
         while (pending.Count > 0)
         {
             var next = pending.Pop();
             foreach (var child in ecs.ChildrenOf(next)) pending.Push(child);
-            if (!ecs.TryGet<Mesh>(next, out var mesh) || mesh.Positions is not { Length: >= 3 } positions) continue;
+            Vector3[] positions;
+            if (ecs.TryGet<Mesh>(next, out var mesh) && mesh.Positions is { Length: >= 3 } own) positions = own;
+            else if (animated is not null && meshes is not null && ecs.Has<AnimatedModel>(next)
+                && animated.TryPosedTriangles(ecs, meshes, next, out var posed, out _)) positions = posed;
+            else continue;
             var placed = TransformPropagation.ComposedWorldMatrix(ecs, next);
             for (int i = 0; i + 2 < positions.Length; i += 3)
             {

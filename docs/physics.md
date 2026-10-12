@@ -106,8 +106,9 @@ DrawModel(cone, Vector3.Zero, 1, new Color(80, 130, 220));
 ```
 
 In the ECS, `Collider.ConvexHull` beside a `RigidBody` makes the same from the entity's meshes and
-those below it. An `AnimatedModel` puts no meshes in the world, so an entity it draws is given a
-capsule or a box, and a mesh or a hull on it is refused with a warning saying so.
+those below it. An entity an `AnimatedModel` draws gives its model's meshes as the clip last posed
+them, so its body is shaped as it stood when the body was made, and keeps that shape until the
+entity's `PhysicsBody` is removed and the body made again (see the animation guide).
 
 ## Pushing and moving
 

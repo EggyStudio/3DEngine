@@ -66,6 +66,42 @@ internal sealed class AnimatedModelDraws
     /// <summary>How many files are loaded for those models, each once however many entities draw it.</summary>
     public int FileCount => _files.Values.Count(f => f.Model is not null);
 
+    /// <summary>
+    /// The triangles of the model <paramref name="entity"/> plays, three vertices each, in the
+    /// entity's own space as the model was last posed, posed from the same joints as its wires, for
+    /// a body made from them.
+    /// </summary>
+    /// <param name="ecs">The entities' world.</param>
+    /// <param name="meshes">The store the model's meshes are kept in.</param>
+    /// <param name="entity">The entity with the <see cref="AnimatedModel"/>.</param>
+    /// <param name="triangles">The triangles, or none.</param>
+    /// <param name="never">Whether none will come, the entity's file having given no meshes, where false means it is not loaded yet.</param>
+    /// <returns>Whether there are triangles.</returns>
+    internal bool TryPosedTriangles(EcsWorld ecs, MeshStore meshes, int entity, out Vector3[] triangles, out bool never)
+    {
+        triangles = [];
+        never = false;
+        if (!_playing.TryGetValue(entity, out var playing) || playing.Generation != ecs.GetGeneration(entity)) return false;
+        if (playing.Model is not { } model)
+        {
+            never = true;
+            return false;
+        }
+
+        var points = new List<Vector3>();
+        for (int index = 0; index < model.Meshes.Length; index++)
+        {
+            if (!meshes.TryGetData(model.Meshes[index].Id, out var vertices, out var indices)) continue;
+            var posed = E3D.Posed(model, index, vertices);
+            if (indices.Length == 0)
+                foreach (var vertex in posed) points.Add(Vector3.Transform(vertex.Position, model.Transform));
+            else
+                foreach (var i in indices) points.Add(Vector3.Transform(posed[i].Position, model.Transform));
+        }
+        triangles = [.. points];
+        return triangles.Length >= 3;
+    }
+
     /// <summary>The system, for <see cref="Stage.Render"/>, in the app the flat API runs against.</summary>
     public static void Run(World world) => Run(world, null);
 

@@ -105,9 +105,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   joints. An entity plays a file's clips through `AnimatedModel`, which loads a file once and gives
   each entity a copy with skinned meshes of its own, and poses and draws it through the flat API,
   made to run against the entity's app while it does, and a file with clips a level places through
-  `ModelRef` plays its first on a loop through one. What is missing is the copy's meshes in the
-  world, so an entity an `AnimatedModel` draws is given a capsule or a box, and a mesh or a hull
-  collider on it is refused with a warning.
+  `ModelRef` plays its first on a loop through one. The copy's meshes are the entity's in the
+  world, so a mesh or a hull collider shapes a body from them as the clip last posed them, made
+  once and kept so until the entity's `PhysicsBody` is removed. What is missing is a body that
+  follows the pose by itself, which no game has asked for.
 - **Text is shaped in emoji and Arabic, and ordered right to left.** A coverage font loaded from a file is baked again at a size it
   is drawn at a quarter or more past its own, eight sizes at most, and one loaded as `FontType.Sdf`
   stays sharp at any size, its characters past U+FFFF as their outlines. A font has Latin-1 or the

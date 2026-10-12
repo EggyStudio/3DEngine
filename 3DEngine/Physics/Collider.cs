@@ -41,10 +41,15 @@ public struct Collider
     public static Collider Capsule(float radius, float height) => new() { Shape = ColliderShape.Capsule, Radius = radius, Height = height };
 
     /// <summary>The shape of the meshes the entity and its descendants show.</summary>
-    /// <remarks>An <see cref="AnimatedModel"/> shows no meshes the world holds, so an entity it alone draws is refused this, with a warning, and given a capsule or a box.</remarks>
+    /// <remarks>
+    /// An entity an <see cref="AnimatedModel"/> draws gives its model's meshes as they were last
+    /// posed, once its file has loaded, and the body keeps that shape as the clip plays on until
+    /// its <see cref="PhysicsBody"/> is removed and it is made again. A file that gives no meshes is
+    /// refused, with a warning.
+    /// </remarks>
     public static Collider Mesh => new() { Shape = ColliderShape.Mesh };
 
     /// <summary>The convex hull of the meshes the entity and its descendants show.</summary>
-    /// <remarks>An entity an <see cref="AnimatedModel"/> alone draws is refused this, as it is <see cref="Mesh"/>.</remarks>
+    /// <remarks>An entity an <see cref="AnimatedModel"/> draws gives its model's meshes as they were last posed, as for <see cref="Mesh"/>.</remarks>
     public static Collider ConvexHull => new() { Shape = ColliderShape.ConvexHull };
 }

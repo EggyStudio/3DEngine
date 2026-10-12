@@ -18,6 +18,12 @@ namespace Engine;
 /// has a speed of 0 and stands still, so <see cref="AnimatedModel(string, string, float, float)"/>
 /// is the one to make.
 /// </para>
+/// <para>
+/// The model's meshes are the entity's in the world as the clip last posed them, so a
+/// <see cref="Collider.Mesh"/> or <see cref="Collider.ConvexHull"/> beside a
+/// <see cref="RigidBody"/> shapes a body from them once the file has loaded, and the body keeps
+/// that shape until the entity's <see cref="PhysicsBody"/> is removed and it is made again.
+/// </para>
 /// </remarks>
 [SceneComponent]
 public struct AnimatedModel

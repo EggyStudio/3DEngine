@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0c63cab5`, the list's commit: `build/norm/7.2.txt` takes `bb3202e4` as the owner's
+Reviewed up to `42b3e9ce`, item 3's remainder in two commits. `fca652a1`, the cap's test in
+`SubsurfaceTests`: a sheet with no thickness of its own in a field of 0.15 cells, which measures it
+a cell thick, lit by a lamp behind, its front reading (39, 39, 39), the ambient alone, and (146,
+146, 145) with two millimeters given, the lesser of the measured and the given taken, bounded at 120
+more, 15 of 15 on the GPU and on lavapipe, RENDERING.md saying the numbers. `42b3e9ce`, the reason
+the spread and the light through stay out of render textures and a probe's faces, with the numbers,
+in RENDERING.md and TODO.md: a render texture is drawn in eight bits with the curve and the encoding
+at the end of the model pass, so it holds no linear frame to add the light into, and a frame and a
+composite of its own for each texture is what bringing it in would cost; a wax sphere lit from its
+side reads in one as an unmarked sphere does, (44, 44, 44) at the terminator and (39, 39, 39) four
+degrees past where the window reads (69, 61, 53) and (54, 43, 39), the same frames drawn into both;
+a probe's faces are 64 pixels of half floats, three of them wax's reach from three units off before
+the roughness filtering, so only a mirror's reflection of a scattering surface close to its probe
+would show it. Both right, and the second is what the item offered as the other way, the reason with
+its number, so item 3 is done. Next item 4, the animated model's meshes in the world.
+
+Before it, `0c63cab5` came, the list's commit: `build/norm/7.2.txt` takes `bb3202e4` as the owner's
 own, the ignore of `/Voxel-Sandbox`, beside `5d88a601` and `e57f3fc1`, NormTests 16 of 16 and the
 tree clean, so the owner can push; that push's Windows suite runs cold under 60 minutes and saves
 the cache, and the pack run after it runs warm. Right. The working session takes item 3, subsurface
@@ -33,64 +49,6 @@ N 7.2 on `bb3202e4` alone. Right. Item 25 is done at `9a3e2e2a`; Verdicts 54 and
 changes and settle on the runs, the push's Windows suite cold under 60 minutes and saving the cache,
 the pack run's warm under 36. Next the list's commit, then item 3, subsurface scattering's first
 batch.
-
-Before it, `ee85866f` came, the game's smelting with its save and its window, `ab9cd9b7`, the game's
-culling, and `2a14ab13`. Item 24, the seam's teeth, by a cause the item had not named: the glow
-lights' march's cone already gives a penumbra as wide as the light, and the step was the way out of
-a surface after the march, which ended at the step that left the surface, so a way grazing the
-pillar's edge counted at least half a cell under it and the lamp's share fell from a half outside
-the edge to a third or less within it; each way out ends where it left the surface, the overshoot
-taken back by the distance read past it, two lines of the shader. On the game's rebuild of the room
-at 1280 by 720 and High the frame's largest rise in 20 pixels is 5 to 7% in every band of rows where
-22 to 24, the reference's thousand paths reading 12 to 17 with their noise, so there is no seam left
-to trace and no teeth to count, and the dark side is 0.95 of the reference where 0.78; the toggles
-placed the step first, staying with the screen's probes off and gone with the glow off, so it was
-the per-pixel march. The 27 bounce rooms move by 0.0003 at most, the glowstone room's walls come a
-point nearer the reference, the GPU time is the same, no fault in eight runs and no validation error
-on lavapipe, 412 passed, the suite whole. The trade, said in the test and RENDERING.md: the penumbra
-test's turn of five pixels moves the floor's light behind a wall one cell thick by 5.4% where 2.2,
-its bound raised from 5 to 6.5%, since the depth under the wall's top comes from the field's
-distance there, a secant between the last inside point and the step past it reading the same. A new
-test holds the room in the engine, the steepest tenth of a block 7.2% where 9.8 against a median of
-4.1, bounded at 8.5, weaker than the game's 24 and failing on the old shader. Right, the cause found
-by the toggles and the fix the smallest that read right. The Reply is read and removed. Item 24 is
-done, and the game's captures at this head came at 09:19 for the owner's eye, drawn from a fresh
-copy of the owner's save of 07:35 at the owner's place and hour, 1280 by 720 at High, against a
-reference of 1,024 paths and eight bounces, with a panel of the still frame at `314b9d48` beside
-this head: the notched seam is a smooth falloff, the largest rise in 20 pixels across the wall 10%
-still and 11% after a step and away from the seam's place where it was 27% at the seam, the dark
-side 0.95 of the reference and the lit 0.92 where 0.80 and 0.90, lit over dark 1.47 to 1.51 against
-the reference's 1.63 and the 1.71 to 1.76 before, and the half level's trace by row wandering as
-across a ramp, so its teeth count means nothing; the game's reading agrees with the engine's of the
-flat rebuild. The game took item 8's remainder at `ab9cd9b7`, read at 09:33: a flood from the eye's
-section across the faces each section's open cells join, as Minecraft's visibility graph does,
-leaving the eye's own section only by the faces the open cells around the eye reach, lamps always
-drawn, on by default with a command and a checkbox to turn it off, and no frustum culling because of
-the field; measured on this engine from a clean worktree, each case twice in turns: the entry's room
-on the flat world leaves 64 of 226 sections out and takes 0.30 ms of the land's 0.34 to 0.42, the
-flat world's open air sharing the room's sections and faces joining as wholes; a cave carved in a
-hill at noon leaves 241 of 243 out and the frame falls from 4.0 ms to 2.1; and a natural cave of
-seed 1's hills walked fourteen blocks leaves 905 of 1,085 out, the frame from 16.2 ms to 3.5 to 4.2,
-the shadows from 6.9 to 0.07, the model pass from 4.7 to 0.66 and the depth from 2.75 to 0.26, the
-field's time unchanged and the light the eye sees the same to two levels. So the engine's own
-occlusion culling is not taken: a voxel world culls itself better than a depth test would, and a
-game of another shape asks when it needs one. The working session's budget ended at 17:03 with
-nothing changed for Verdict 54 and came back at 18:37, so this file is its handoff: the batch of
-Verdicts 54 and 55 and item 25; then item 3, subsurface scattering's first batch. 5.2's pack waits
-on the Windows suite green again under Verdict 54, every job having been green on three runs before
-`ee85866f`. The run on `ee85866f`, the first pushed since `6f4c98bb`: Linux green in 17 minutes and
-macOS in 37, the Windows suite failing one test of 1,679, the drawing leak test's resident bound by
-1.5 MB, Verdict 54, and the macOS examples job green in 56 minutes. The pack run for 5.2 started on
-`ee85866f` at 17:04 with Verdict 54 open, its own Windows suite deciding whether the pack goes
-through, and the game's session holds the verdict's steps until it ends, since nothing lands on main
-under a pack run. Its Linux and macOS suites passed in 17 and 38 minutes and its macOS examples job
-in 53, and its Windows suite ran past its own limit, Verdict 55, so the run made no package: a
-shader cache never saved after the push's failed job left every app compiling the changed shaders.
-The engine's session, back with budget, takes one batch with the owner's word of 18:33, the game's
-standing down from it: the cache saved whatever the suite does and the Windows limit at 60 (Verdict
-55), the resident series in the leak test's message (Verdict 54) and the macOS captures moved to the
-pack run (item 25, Decision 38); the push after it is the Windows suite's green, and the pack run
-after that runs warm.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -510,37 +468,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    Debug and its sealed chamber from a blue sheen to dark.
 
 3. **Subsurface scattering, the first of Decision 16's spectral experiments (Decision 18), in three
-   batches, each measured, what of its first batch stands alone committed before item 2 begins.** A
-   material gains what skin, wax, marble and a leaf have, a subsurface color and a radius in world
-   units with a thickness scale for its thin parts, set in the flat API as the material's other
-   fields are and read from a glTF file's `KHR_materials_volume` thickness where it has one. First,
-   the diffusion: light that enters leaves nearby, so the lit light of the marked pixels is spread
-   along a profile of the material's color and radius in a separable screen-space pass over the HDR
-   frame, the specular kept out of it where the frame has it apart, masked so an unmarked pixel is
-   never touched and the spread never crosses a depth edge, with a test of a lit sphere whose
-   terminator softens and bleeds the color where the unmarked sphere beside it does not, read at
-   pixels as the occlusion tests read theirs. Second, the light that comes through: a thin part lit
-   from behind shows the light on its front, the thickness toward the light read from the scene's
-   distance field, which has it for nothing where the field is fine, and from the sun's shadow depth
-   where it is coarse, with a test of a thin sheet lit from behind brighter on its front where it is
-   thin than where it is thick. Third, the tiers: sample counts and a half-size pass at Low and the
-   full at High, as the bounce is tiered, the kernels in Slang so the bridge runs them in BevyCSharp
-   once proven here, the GPU cost of each batch on Manor and on the test scene in RENDERING.md and
-   the comparison page, the guide's section and TODO.md's entry. Each batch a commit of its own with
-   its numbers, and what does not pay a measured share stays described. The second batch is in at
-   `d885c89e`, the light that comes through. The third brings the tiers as a setting of their own,
-   `SetSubsurfaceQuality` with Low, Medium and High and High the default, each timed on Manor and on
-   a new `shaders_subsurface` example with its capture and README row, Low's half-size spread laid
-   onto the frame where the pixel's depth matches, and the two things the reply of `d885c89e` left
-   for it, a material's own thickness from `KHR_materials_volume` and a lamp's light through from
-   its shadow map where there is no field. The third batch is in at `94c4bf3b` with the tiers and
-   four mends of the light through, and the first two of what remained at `63961dbb`, the material's
-   own thickness from `KHR_materials_volume`, which caps the thickness measured and stands in where
-   nothing measured, and a shadowed lamp's light through from its own map where the field is coarse.
-   What remains of the item comes after item 2: the spread in render textures and probe captures, or
-   the reason it stays out written with its number; and a test of the cap itself, the lesser of the
-   measured and the given, which the example's leaf shows and no test holds, a sheet in a field of
-   0.15 cells with two millimeters given read brighter on its front than with none.
+   batches, each measured, what of its first batch stands alone committed before item 2 begins; done
+   at `42b3e9ce`.** A material gains what skin, wax, marble and a leaf have, a subsurface color and
+   a radius in world units with a thickness scale for its thin parts, set in the flat API as the
+   material's other fields are and read from a glTF file's `KHR_materials_volume` thickness where it
+   has one. First, the diffusion: light that enters leaves nearby, so the lit light of the marked
+   pixels is spread along a profile of the material's color and radius in a separable screen-space
+   pass over the HDR frame, the specular kept out of it where the frame has it apart, masked so an
+   unmarked pixel is never touched and the spread never crosses a depth edge, with a test of a lit
+   sphere whose terminator softens and bleeds the color where the unmarked sphere beside it does
+   not, read at pixels as the occlusion tests read theirs. Second, the light that comes through: a
+   thin part lit from behind shows the light on its front, the thickness toward the light read from
+   the scene's distance field, which has it for nothing where the field is fine, and from the sun's
+   shadow depth where it is coarse, with a test of a thin sheet lit from behind brighter on its
+   front where it is thin than where it is thick. Third, the tiers: sample counts and a half-size
+   pass at Low and the full at High, as the bounce is tiered, the kernels in Slang so the bridge
+   runs them in BevyCSharp once proven here, the GPU cost of each batch on Manor and on the test
+   scene in RENDERING.md and the comparison page, the guide's section and TODO.md's entry. Each
+   batch a commit of its own with its numbers, and what does not pay a measured share stays
+   described. The second batch is in at `d885c89e`, the light that comes through. The third brings
+   the tiers as a setting of their own, `SetSubsurfaceQuality` with Low, Medium and High and High
+   the default, each timed on Manor and on a new `shaders_subsurface` example with its capture and
+   README row, Low's half-size spread laid onto the frame where the pixel's depth matches, and the
+   two things the reply of `d885c89e` left for it, a material's own thickness from
+   `KHR_materials_volume` and a lamp's light through from its shadow map where there is no field.
+   The third batch is in at `94c4bf3b` with the tiers and four mends of the light through, and the
+   first two of what remained at `63961dbb`, the material's own thickness from
+   `KHR_materials_volume`, which caps the thickness measured and stands in where nothing measured,
+   and a shadowed lamp's light through from its own map where the field is coarse. What remains of
+   the item comes after item 2: the spread in render textures and probe captures, or the reason it
+   stays out written with its number; and a test of the cap itself, the lesser of the measured and
+   the given, which the example's leaf shows and no test holds, a sheet in a field of 0.15 cells
+   with two millimeters given read brighter on its front than with none. The remainder is in at
+   `fca652a1`, the cap's test, and `42b3e9ce`, the reason the spread stays out of render textures
+   and a probe's faces, with its numbers.
 
 4. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
    TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
@@ -548,7 +509,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    with a warning. The copy's meshes become the entity's meshes in the world, posed from the same
    joints as its wires and a body made from it are, so `CreatePhysicsConvexHull` and a mesh collider
    take them as they take any mesh, with a test of an animated entity whose hull follows its pose,
-   the guide's section on animated models and the entry updated with what it then says.
+   the guide's section on animated models and the entry updated with what it then says. Read at
+   18:55 on the working session's question: the body is made once from the meshes as they are posed
+   when it is made, as a body made from a posed model through the flat API is, shaped as last posed
+   and drawn and staying so, and the test reads it bent after the arm's clip has played to its end,
+   a ray down at x -0.8 hitting near y 1 where it misses at rest; a body remade as the pose changes,
+   a hull or a BVH built an entity a frame and a dynamic body losing its velocity at each, is not
+   made until a game asks for it in ASKS.md, and the guide's section says which a body is.
 
 5. **The first shares recorded from the workflow's own device.** The examples job's first green run
    puts every pair measured for the first time into notices, which the public listing of the job's
@@ -1345,12 +1312,15 @@ are open.
 
 ## Replies
 
-Item 3's remainder is in two commits. `fca652a1` holds the cap in `SubsurfaceTests`, a sheet in a
-field of 0.15 cells with a lamp behind it reading (39, 39, 39) with no thickness given, the field
-measuring it a cell thick, and (146, 146, 145) with two millimeters, 15 of 15 on the GPU and on
-lavapipe. The commit after it writes why the spread stays out of render textures and probe faces,
-with the numbers, in RENDERING.md and TODO.md. A render texture is eight bits with the curve at
-the end of the model pass, so it has no linear frame to add the light into. A wax sphere lit from
-its side reads in one as an unmarked sphere does, (44, 44, 44) at the terminator where the window
-reads (69, 61, 53), the same frames drawn into both. A probe's 64-pixel faces span some three
-pixels of wax's reach seen from three units off.
+Item 4 is in the next commit, as (a). `AnimatedModelDraws.TryPosedTriangles` gives an entity's
+model as it was last posed, through `E3D.Posed` from the same joints as its wires, and
+`PhysicsBodies` takes it as it takes a `Mesh`, for `Collider.Mesh` and `Collider.ConvexHull` alike.
+The body waits while the file has not been loaded in the Render stage, and is refused with the
+warning only when the file gives no meshes; that test moved from `PhysicsBodiesTests` to
+`AnimatedModelDrawsTests`, beside a new one. In it the arm played to the end of its bend has a hull
+that a ray down at x -0.8 meets between y 0.9 and 1.3, where the arm held at rest lets the ray pass
+at 0.8 from its shoulder. The rest one, jumped to the bend's end, keeps its body until its
+`PhysicsBody` is removed, and is then made again bent. The animation guide's ECS paragraph, moved
+from the end of the morph targets to the end of Animation, says which a body is and how a game
+makes it again; the physics guide, the two colliders' and `AnimatedModel`'s remarks, TODO.md's
+entry and the upgrading guide's Added list say it too. No public signature changed.

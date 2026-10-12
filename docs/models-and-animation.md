@@ -220,6 +220,15 @@ UpdateModelAnimationLayer(hero, run, time, jump, 0, "ArmL", wave);
 The morph targets the layered clip moves follow it too, by the same weight, so a face's
 expression played on the head bone changes the face while the body keeps the first clip's.
 
+In the ECS an `AnimatedModel` component plays a clip on an entity by itself, which the
+`ecs_animated_models` example shows with five arms of one file, each at its own speed. Its model's
+meshes are the entity's in the world as the clip last posed them, so `Collider.ConvexHull` or
+`Collider.Mesh` beside a `RigidBody` shapes a body from them once the file has loaded. The body is
+made once and keeps that shape as the clip plays on, as a body made from a posed model through the
+flat API does. Where the shape must follow the pose, as for a door that swings or an arm a ray must
+hit where it is now, removing the entity's `PhysicsBody` has the body made again from the pose of
+that frame.
+
 ## Morph targets
 
 A mesh can carry morph targets, shapes its vertices are moved toward by a weight from 0 to 1, as
@@ -239,9 +248,6 @@ UpdateModelAnimationAt(strip, pulse, time);
 `SetModelMorphWeight(strip, "Raise", 0.5f)` sets a target's weight by its name. The GPU moves the
 vertices toward their targets before the skeleton poses them, so a skinned face smiles as its
 head turns. `build/make-morph-gltf.py` writes the strip.
-
-In the ECS an `AnimatedModel` component plays a clip on an entity by itself, which the
-`ecs_animated_models` example shows with five arms of one file, each at its own speed.
 
 ## A sky around the world
 

@@ -224,6 +224,10 @@ guide that shows it.
   `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom` read what each
   effect's setter left, and `DrawPostProcessWindow` shows and sets every one in an ImGui window, as
   [Effects over the frame](materials-light-and-shadows.md#effects-over-the-frame) shows.
+- **An animated entity's body.** `Collider.Mesh` and `Collider.ConvexHull` on an entity an
+  `AnimatedModel` draws shape its body from the model as the clip last posed it, where they were
+  refused with a warning, as
+  [Models and animation](models-and-animation.md#animation) shows.
 - **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
   meshes through, so a render texture shadows the lights it sees, as
   [Shadows](materials-light-and-shadows.md#shadows) shows.
