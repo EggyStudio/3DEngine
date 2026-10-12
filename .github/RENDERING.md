@@ -1497,7 +1497,19 @@ the light's own box, and inside a surface the share read by stepping out of it a
 normal and, where the field's slope there leans across the way, across it toward the nearest face,
 the nearer way out kept, once after the march at the step that lay deepest inside, and at each step
 bounded by the way to the nearest face, which the way out is no shorter than, the march ending by
-its own condition where the bound leaves nothing. Read at each step by a loop inside the march's
+its own condition where the bound leaves nothing. Each way out ends where it left the surface, the
+step that overshot taken back by the distance read past it, so the depth under an edge goes to
+nothing as the way grazes it and meets the share outside. Ended at the step's end, a way that
+grazed an edge was at least half a cell under it, and in the voxel game's room of a lamp of four
+glowstones beside a pillar of two columns, the wall behind the pillar rose by 22 to 24% of its light
+in 20 pixels in every band of rows, the step's place moving by up to 17 pixels at the pillar's top
+and foot, where a path-traced reference of 1,024 paths rises smoothly. The frame now rises by 5 to 7%
+in any 20 pixels there, the dark side 0.95 of the reference where 0.78, the 27 bounce rooms within
+0.0003 of their shares, the glowstone room's walls a point nearer the reference, and the bounce's and
+the model pass's GPU time the same (`GlowPillarTests`). The cost is a penumbra that follows the
+probes' points more behind a wall one cell thick, whose depth under its top is read from the field's
+distance there, a turn of five pixels moving the floor's light behind it by 5.4% where 2.2%
+(`GlowPenumbraTests`). Read at each step by a loop inside the march's
 own, or the march left by a break inside a wall, it lost the RTX 4070's device in a closed room with
 a lamp inside seen from outside, an MMU fault through the constant cache (Xid 31) for which the
 validation layer's GPU-assisted checks found no read out of range, and a test holds the room

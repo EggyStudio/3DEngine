@@ -10,9 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6c9284a7`, the game's hostile mobs, and `314b9d48`, the game's commit following item
-9, and `feec07a2`, item 9: colors written in place by `UpdateMeshBuffer` reach the bounce and the
-reference in the frame after; the store keeps the meshes whose colors were written and the field
+Reviewed up to `c81eca54`. Item 8 as decided: an opaque material's batches draw with pipelines that
+set specialization constant 0, which folds the alpha test's discard away, the batches split by the
+material's alpha mode and the pipeline description carrying the constant, with a Vulkan fact drawing
+an opaque and a masked copy of one quad with one texture in one frame, the opaque whole and the
+masked cut, where they joined one batch before; RENDERING.md says it saves nothing on the
+development machine's GPU and why, and that the macOS job's profile is its first reading on a tiler.
+Right, the measure said and the patch kept for the devices that gain. The Reply is read and removed,
+ASKS.md carried with the game's item 9 measure and its item 8 line. The page at 08:55: `6f4c98bb`'s
+run is green on every job too, its examples job in nine minutes, the second whole green run with the
+longer screen rays, the Windows tests' 33 m 44 s watched as said. Next item 24, the glow lights'
+penumbra, under way with the seam room reproduced on a flat world.
+
+Before it, `6c9284a7` came, the game's hostile mobs, and `314b9d48`, the game's commit following
+item 9, and `feec07a2`, item 9: colors written in place by `UpdateMeshBuffer` reach the bounce and
+the reference in the frame after; the store keeps the meshes whose colors were written and the field
 takes them each frame, a still one among them pooled again with its colors as they are, and in each
 built cascade not built again that frame the paint pass runs over its triangles alone against the
 words the cascade's last build kept, which each build copies aside, about a megabyte a cascade,
@@ -89,40 +101,6 @@ screen rays, is read next. The game opened the post-processing window from its V
 `6f4c98bb`, item 10's last piece, and took the mobs' entry out of ASKS.md as done. Next item 9,
 colors written in place reaching the bounce, which the working session has taken, then item 24, the
 glow lights' penumbra, then item 8.
-
-Before it, `e424550c` came, item 22's first part: the screen's probes' rays reach twice as far as
-the world's probes are apart where a ray ends in the finest cascade, and as far as before past it;
-the wall behind the pillar at x 7 reads 0.79 of the reference where 0.68 and 1.01 without the pillar
-where 1.05, a gap of 22 points where 15 was asked, every other point within 13, the 27 cases summed
-3.778 where 4.006 and the corridor 3 to 9% under where 17, the bounce rooms' bounds set again 15%
-over the new reads. Doubled everywhere the reach let two leaks in, which the suite and lavapipe
-caught: a ray that went behind the depth and then off the picture was handed to the field past the
-wall it had gone behind and lit a closed room with the lamp outside it at 92 levels where 8 at most,
-so such a ray is handed over from the last point it stood in front of the depth, which the
-reflections' trace shares; and a closed room near the field's side behind the eye took 0.0037 of the
-sky where 0.0007, 0.0015 with the reach bounded to the finest cascade, under the test's 0.002. The
-strip loses nothing by its own measure, its per-pixel difference 0.22 where 0.27 to 0.29 and its
-room 4% over at 800 by 450 where 10, its signed mean going under because its over-bright ceiling
-came down; the view that loses is the carried lamp's, 6% under where 3, where the world's own rays
-read 8 and 16% under the reference at two of three probes, mostly in red, so hits on the red wall
-its lamp lights are shaded short and the longer rays take more of them, a thing for the second part.
-The pass costs 0.05 to 0.07 ms more at High in three of the rooms' views, 0.06 to 0.14 in the
-corridor and 0.08 to 0.15 in the glowstone room, each the least of eight readings beside another
-session's use of the GPU, and RENDERING.md says the trade with these numbers. The suite 1,700, one
-transient unknown error from the driver in a particles test that passed twice alone with no fault in
-the kernel's log, lavapipe 410 with 9 skipped and no validation error, the glowstone room losing no
-device in eight runs. Right, the leaks found by the suite and closed at their cause, the reach
-bounded to where it helps, and the strip read by its own measure before it was called a loss. The
-Reply is read and removed. The second part is held to 3.778, the sum since the leaks' remedies, and
-its first candidate is the working session's: pass over a probe of cascade 1 whose ray met a surface
-before its interval rather than read it dark, so for the rays past the pillar's edge the one such
-probe whose ray reaches the north wall within its interval carries the light the reference has,
-measured by the gap at x 7 and the sum, and read against the Cornell box's ceiling the dark reading
-guards. The second part was read ray by ray at 06:50 and closed with nothing kept, the item's text
-saying why: the gap at 22 is the probes' resolution around a one-unit gap, one ray a texel past a
-thin edge, and a finer cell is the knob a game has for it. Item 22 is done. Next item 10, the
-post-processing window, which the working session has taken, then h's blotches and teeth by the
-owner's eye on the penumbra pictures against the head of today, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -601,36 +579,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    being the point of each.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
-   land costs geometry, not fragments.** The model pass discards a fragment for its alpha cutoff, so
-   the GPU's early depth test is off for every material and a fragment behind a wall is lit before
-   the depth test throws it away: in the game's room the land outside, all of it behind the walls,
-   costs the pass 0.6 ms, 1.42 ms at eight columns against 0.83 at two, and drawing the walls first
-   saves nothing, 0.05 ms worse (ASKS.md, 2026-10-11). Either an opaque pipeline without the discard
-   for materials whose alpha mode cuts nothing out, the masked and blended keeping theirs, so the
-   early test rejects a hidden fragment before it is shaded, or a depth pass ahead of the model pass
-   that every opaque draw writes, which costs a pass of its own and pays only where the shading is
-   heavy; the first is tried first, since it adds no pass, and the second measured against it where
-   the first leaves most of the cost. Measured by the model pass on the game's room at eight columns
-   against two, with the desktop quiet, and on Manor and Wick, with the pipelines' count; a test
-   holds the room's land to a share of the pass. Taken after item 2's parts f and c and before item
-   3's remainder. Measured at 08:00 before a commit, the first way built, a specialization constant
-   the alpha test reads, set by the pipelines of batches whose material is opaque, the batches split
-   by it and the discard folded away, read on the entry's room on a flat world by the model pass's
-   time, the least of three readings after 400 frames, old and new in turns twice with the desktop
-   at nothing: with the glow off 1.145 and 1.161 ms at eight columns against 1.149 and 1.129, 0.80
-   at two either way, and with it on 2.44 and 2.49 against 2.34 and 2.43; the hidden land's share is
-   0.34 to 0.42 ms in every case, the glow lights' march per fragment on or off, so the old build
-   rejected those fragments before shading them already, the development machine's GPU testing depth
-   early under a discard and deferring the write alone, which is also why drawing the walls first
-   saved nothing. The cost is the vertex and raster work of 289 columns of sections against 25, all
-   inside the frustum, which a depth pass would add a pass to and not remove. The patch goes in all
-   the same, 257 lines, since a device that turns the early test off under a discard, lavapipe and
-   the tilers among them, gains what this one does not, measured on the macOS job's profile where it
-   prints one and said in RENDERING.md with the reason; and what removes the cost is culling the
-   sections the eye cannot see, the game's own flood fill over its sections through their open
-   faces, as Minecraft's visibility graph does, which is the game's to build on what the engine has,
-   said under its entry, and an occlusion culling in the engine from the frame before's depth, left
-   until the game's culling is measured and falls short.
+   land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
+   its alpha cutoff, so the GPU's early depth test is off for every material and a fragment behind a
+   wall is lit before the depth test throws it away: in the game's room the land outside, all of it
+   behind the walls, costs the pass 0.6 ms, 1.42 ms at eight columns against 0.83 at two, and
+   drawing the walls first saves nothing, 0.05 ms worse (ASKS.md, 2026-10-11). Either an opaque
+   pipeline without the discard for materials whose alpha mode cuts nothing out, the masked and
+   blended keeping theirs, so the early test rejects a hidden fragment before it is shaded, or a
+   depth pass ahead of the model pass that every opaque draw writes, which costs a pass of its own
+   and pays only where the shading is heavy; the first is tried first, since it adds no pass, and
+   the second measured against it where the first leaves most of the cost. Measured by the model
+   pass on the game's room at eight columns against two, with the desktop quiet, and on Manor and
+   Wick, with the pipelines' count; a test holds the room's land to a share of the pass. Taken after
+   item 2's parts f and c and before item 3's remainder. Measured at 08:00 before a commit, the
+   first way built, a specialization constant the alpha test reads, set by the pipelines of batches
+   whose material is opaque, the batches split by it and the discard folded away, read on the
+   entry's room on a flat world by the model pass's time, the least of three readings after 400
+   frames, old and new in turns twice with the desktop at nothing: with the glow off 1.145 and 1.161
+   ms at eight columns against 1.149 and 1.129, 0.80 at two either way, and with it on 2.44 and 2.49
+   against 2.34 and 2.43; the hidden land's share is 0.34 to 0.42 ms in every case, the glow lights'
+   march per fragment on or off, so the old build rejected those fragments before shading them
+   already, the development machine's GPU testing depth early under a discard and deferring the
+   write alone, which is also why drawing the walls first saved nothing. The cost is the vertex and
+   raster work of 289 columns of sections against 25, all inside the frustum, which a depth pass
+   would add a pass to and not remove. The patch goes in all the same, 257 lines, since a device
+   that turns the early test off under a discard, lavapipe and the tilers among them, gains what
+   this one does not, measured on the macOS job's profile where it prints one and said in
+   RENDERING.md with the reason; and what removes the cost is culling the sections the eye cannot
+   see, the game's own flood fill over its sections through their open faces, as Minecraft's
+   visibility graph does, which is the game's to build on what the engine has, said under its entry,
+   and an occlusion culling in the engine from the frame before's depth, left until the game's
+   culling is measured and falls short.
 
 9. **A color stream written in place reaches the bounce, done at `feec07a2`.** The field paints a
    mesh's vertex colors as it stamps it and the ray scene packs them into its corners, both keyed by
@@ -1298,8 +1277,15 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 8 is in the commit after `314b9d48`. An opaque material's batches draw with pipelines that set
-specialization constant 0, which folds `alphaTested`'s discard away, and a test draws an opaque and
-a masked copy of one quad in one frame, the one whole and the other cut. It saves nothing on the RTX
-4070, as measured before, and RENDERING.md says so with the reason; the macOS job's profile will be
-its first reading on a tiler.
+Item 24 is in the next commit. The seam was not the march's cone, which already gives a penumbra as
+wide as the light, but its way out of a surface after the march, which ended at the step that left
+the surface, so a way that grazed the pillar's edge counted at least half a cell under it, and the
+share fell from a half outside the edge to a third or less just inside. Each way out now ends where
+it left the surface, the overshoot taken back by the distance read past it. On the game session's
+rebuild of the room, the frame's largest rise in 20 pixels is 5 to 7% in every band of rows where 22
+to 24%, so there is no seam left to trace for teeth, and the dark side is 0.95 of the reference where
+0.78. The 27 bounce rooms move by 0.0003 at most, the glowstone room's walls come a point nearer the
+reference, the GPU time is the same, and Xids are none in eight runs. The trade is
+`GlowPenumbraTests`' turn of five pixels, which moves the floor's light behind a wall one cell thick
+by 5.4% where 2.2%, its bound raised from 5% to 6.5% with the reason. The owner's eye on the picture
+waits for the game session's captures at the commit.

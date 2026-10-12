@@ -328,7 +328,11 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     // face, the nearer way out kept. Along p's normal alone, a march passing a twentieth of a block
     // inside the side of a block floating over the floor stepped up through the whole block, and
     // the floor under it took 0.29 of the light a reference gives it, where 0.96 with the way
-    // across.
+    // across. Each way out ends where it left the surface, the step that overshot taken back by the
+    // distance read past it: ended at the step's end, a way that grazed an edge was at least half a
+    // cell under it, and a lamp's light past a pillar in the voxel game fell by a fifth in 20
+    // pixels on the wall behind, toothed where the steps crossed the pillar's ends, where a
+    // path-traced reference rises smoothly.
     if (deepest < 0.0 && seen > 0.0)
     {
         float step = info.cascades[deepIn].originAndCell.w;
@@ -349,7 +353,10 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
             {
                 float inside = fieldDistanceIn(field, info, deepIn, deepAt + n * under);
                 if (inside >= 0.0)
+                {
                     outUnder = true;
+                    under = max(under - inside, 0.0);
+                }
                 else
                     under += max(-inside, step * 0.5);
             }
@@ -357,7 +364,10 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
             {
                 float inside = fieldDistanceIn(field, info, deepIn, deepAt + aside * beside);
                 if (inside >= 0.0)
+                {
                     outBeside = true;
+                    beside = max(beside - inside, 0.0);
+                }
                 else
                     beside += max(-inside, step * 0.5);
             }
