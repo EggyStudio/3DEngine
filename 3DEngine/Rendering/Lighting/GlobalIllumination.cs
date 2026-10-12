@@ -292,7 +292,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
             intervals[c] = (c == 0 ? 0 : spacing, 4 * spacing);
         }
-        _screenReach = ProbeSpacing * fieldSettings.CellSize;
+        // The screen's probes' rays reach twice as far as the world's probes are apart before they
+        // take the light from beyond from them, where they end in the finest cascade
+        // (gi_screen.slang), so a wall two units before a pillar sees the pillar and the floor lit
+        // around it itself where those probes, standing at the pillar's dark face, saw the face
+        // alone. Reaching as far as the probes are apart, the wall behind a pillar beside a lamp
+        // read 0.68 of a path-traced reference's bounce where it read 1.05 without the pillar, and
+        // reaching twice as far 0.79 and 1.01; three and four times as far read the wall past the
+        // pillar up to 1.75.
+        _screenReach = 2 * ProbeSpacing * fieldSettings.CellSize;
 
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;
         _black ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);

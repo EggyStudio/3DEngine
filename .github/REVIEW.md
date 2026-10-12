@@ -10,7 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f889a559`, a commit of the game's, recipes, ores in the generator, loot and drops
+Reviewed up to `8f685115`, a commit of the game's, the player's vitals, health and hunger with their
+tests, on the head-up display, hurt by falls and kept in the save, and `089ac771`, item 23's second
+part: a mesh that moved within the last 1,024 frames settles into the still field only after
+standing that long, where every mesh settled after eight, the count chosen by the game's animals'
+stands of one to eight seconds, up to 960 frames at 120 a second, 480 having a cascade built every
+fourth frame and 1,024 one in fifty, those of figures that stood from the first frame and settled
+before they walked; mobility is a copy's, so a still copy of a moving mesh settles after eight as
+the red wall's test holds, where mobility by the vertices had failed it. The plan reads a frame by
+place where a mesh in the same place of the order only moved, counting the frames of those not yet
+still alone, where it read every mesh into a dictionary once any moved, compares meshes in place and
+hashes them by their vertices and translation, keeps the bricks it stamps as lists, sorts the shapes
+on packed keys, moves a box by its middle and extents and copies the bricks' runs whole. In the
+reproduction of the village, 400 meshes and 76 figures of five pieces walking 90 frames and standing
+45, the field takes 1.19 ms of the CPU in Debug where 2.69, 4.0 microseconds a box, 0.66 in Release,
+2.3 a box, and 0.18 ms of the GPU where 6.2; at 17, 0.56 and 0.14. Two tests, a figure walking among
+still meshes read by place with no cascade built again where it stops, and a still copy of a walking
+crate's mesh settling after eight frames read by place and read whole, the by-place test running
+past the long count; RENDERING.md's paragraph says the numbers and why. The suite 1,701; lavapipe
+410 with 9 skipped and no validation error. Right, the settle made the figure's own by its motion
+rather than every mesh's, and the plan's order kept rather than rebuilt where only a matrix moved.
+The Reply is read and removed. The game measured its village on `089ac771` against `f889a559` with
+the mobs' `BouncesLight` on, read at 04:33, a paragraph and table in its entry: 75 to 78 walking
+mobs cost the field 2.31 to 2.42 ms of CPU and 0.16 to 0.29 of GPU where 5.07 and 3.81, 16 or 17
+walking 1.54 to 1.64 and 0.29 to 0.58 where 3.64 and 0.40, standing mobs 1.96 to 2.25 until the
+1,024 frames pass, about 6 microseconds of CPU and 1 of GPU a box in the game's Debug build; so the
+GPU mark of half a millisecond is met and the CPU mark of 2 is missed by a third in Debug, which the
+engine's reproduction puts under in Release, and the 256-box cap still leaves a crowd's farthest
+pieces out of the field. Item 23 is done so, its remainder the cap and the Debug third, neither
+taken while the game keeps its mobs out of the field by the switch, as it does. Item 22, measured
+both ways at 05:05 and chosen: the screen's rays at twice the reach take the pillar's gap from 37
+points to 22 and the 27 cases' sum from 4.006 to 3.739, the corridor from 17% under to 2 to 9, at
+0.03 to 0.13 ms of the GPU, while the gather weight moves the gap by four points alone, so the reach
+is taken for the rooms' gain with its marks missed and said, and the probe's face toward the pillar,
+read 21% low, is the item's second part. Then h's blotches and teeth by the owner's eye, item 10,
+item 9 and item 8.
+
+Before it, `f889a559` came, a commit of the game's, recipes, ores in the generator, loot and drops
 grown, the inventory window with item icons and the hotbar and head-up display with them. Item 22,
 measured by the working session and not taken, its Reply read and removed: the merge tracing from
 where the lower ray ended to where the upper probe's interval begins, along the same way where that
@@ -57,29 +93,6 @@ where the upper probe's interval begins along the same way, wherever that probe'
 early, shades the hit as a probe ray's hit is shaded, and passes the probe over where the trace
 meets nothing; then item 23's stamp, h's blotches and teeth by the owner's eye, item 10, item 9 and
 item 8.
-
-Before it, `a25edfa7` came, item 2's part f, the screen's filter offset: a screen probe stands on
-the middle of the half-sized depth's texel under its tile's middle, a pixel past that middle, and
-the filter found the frame before's light by the tiles' middles, so a still view's blend took a
-pixel's share of the probes to its right and below every frame, a sixteenth of a tile at Low, a
-twelfth at Medium and an eighth at High; the four probes of the frame before are weighed by where
-each stands, the pixel a probe stands on worked out as the probe pass places it, with a test at each
-quality that the probes at a wall's right and bottom edges against the sky take four fifths of their
-light from the frame before where they stood, 1.8 where 1.75, 1.73 and 1.70. The bounce rooms read
-the thin room and the Cornell box 0.2 to 0.5 points of their light further from their references and
-the window's room and the carried lamp 0.3 to 0.6 nearer, the 27 cases summed 4.006 where 4.001;
-read for the filter's width, wider weights take the thin room further still and narrower nearer with
-the sum at 3.968, the carried lamp 0.5 to 1.0 points nearer and the grazing floor at Medium 0.7
-further, so the drift and not the width had held the thin room nearer, the width is left as it is,
-and a narrower filter stands as a thing to take, weighed against the probes' noise in the tests of
-the slide and the settling. The Cornell box's reference frame is drawn again, its floor and blocks
-having read 10 levels under it since `88673244`'s glow lights and the bounce's fixes, the GPU's
-frame 1.7% apart and lavapipe's 4.7% of the 5% allowed and 5.2% with this change. The suite 1,698;
-lavapipe 407 passed and 9 skipped with no validation error; the glowstone room lost no device in
-eight runs. Right, the drift found by its direction and sized by its quality, the width tested
-before it was blamed, and the reference redrawn with the reason said. The Reply is read and removed.
-Part f is done; next item 23's first part, nearly written, then item 22, item 23's stamp, h's
-blotches and teeth by the owner's eye, item 10, item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -894,21 +907,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and leaves it at 34 while taking the 27 bounce-room cases from 4.006 to 4.298 of summed error.
     The gather sees the eight probes around a surface by a traced bit each and weighs them by how
     near they stand and whether they face it, and the probes at the pillar's dark face pass both,
-    their light being right for where they stand and wrong for the wall. First step, the screen's
-    probes' rays: each traces the near light as far as the first cascade's probes stand apart, two
-    units, and stops at the pillar's distance, so the wall's own rays never meet the pillar and the
-    world's probes answer for it; a ray that meets nothing within the spacing goes on to twice it
-    before it takes the world's probes, so a wall two units before an occluder sees the occluder as
-    the wall does and takes the probes for the open ways alone, measured by the gap at x 7 with and
-    without the pillar, the 27 cases' sum, which must not rise above 4.006, and the screen pass's
-    GPU time in the bounce rooms and the glowstone room, kept where the gap closes within 15 points
-    at a cost under a tenth of a millisecond at High. Where it does not, the fallback: a weight in
-    the gather for the share of a surface's own half of the sphere a probe shares, read from the
-    probes' depth as the walled-in finding reads it, measured the same way. After item 23's second
-    part.
+    their light being right for where they stand and wrong for the wall. Measured both ways at 05:05
+    and chosen so. The screen's probes' rays to twice the first spacing take the gap at x 7 from 37
+    points to 22, 0.79 with the pillar and 1.01 without, x 7.5 from 35 to 21 and every other point
+    within 13, doubled depth steps changing nothing and three or four spacings overshooting to 1.75
+    of the reference at x 9.5; the 27 cases sum to 3.739 where 4.006, the corridor from 17% under to
+    2 to 9%, the strip falling to 7 to 9% under where it held within 2, and the carried lamp to 7.5%
+    under where 5; the GPU's cost at High in the bounce rooms 0.03 to 0.06 ms in most views and 0.11
+    to 0.13 in the corridor. The gather weight, each probe's reach along the surface's normal and
+    four leaning ways against its distance, moves x 7 from 0.68 to 0.72 alone and to 0.80 with the
+    reach, and with the screen's probes off the gap stands at 0.54 to 0.56, so the probes at the
+    pillar's face are not the gap's main cause and the weight is not taken. The reach at two
+    spacings is taken for the rooms' gain, the marks of 15 points and a tenth of a millisecond
+    missed and said: the gap at 22, the corridor's cost at 0.13, the strip and the lamp a few points
+    further under, written in RENDERING.md as the trade, the glowstone room's GPU time read before
+    the commit, and the strip read for why the longer rays take from it. What remains is the probe
+    beside the wall reading its face toward the pillar 21% low, of which the merge's dark reading
+    was half, which is the item's second part: that face's shortfall read ray by ray against the
+    reference and mended where the cause is the engine's, measured by the gap at x 7 and the 27
+    cases' sum, which must not rise above 3.739. The first part next, the second after it.
 
 23. **A mesh casts the sun's shadow and stays out of the light field, and a moving mesh's stamp
-    costs less; the first part done at `6a36b2b5`.** The game's entry of 2026-10-12 in ASKS.md: its
+    costs less; done at `6a36b2b5` and `089ac771`.** The game's entry of 2026-10-12 in ASKS.md: its
     mobs, four to six pieces each drawn with `DrawMeshInstanced` at matrices that change as they
     walk, casting shadows, are stamped by the field as boxes in every frame they move, 17 walking
     mobs taking `cpu.scene_field` from 0.8 ms to 2.9 and `gpu.scene_field` from nothing to 1.0, 76
@@ -940,8 +960,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     milliseconds of GPU against half a microsecond a frame for its box. Measured in the reproduction
     and then by the game in its village with 17 and 76 mobs with `BouncesLight` on, 76 walking and
     pausing to cost the field under 0.5 ms of GPU and under 2 of CPU. Grouping a mob's pieces as one
-    box is not needed. The first part is done at `6a36b2b5`, the game measuring with it; the second
-    next.
+    box is not needed. Done at `6a36b2b5` and `089ac771`, the game measuring its village with the
+    bounce on after.
 
 ## Verdicts
 
@@ -1191,24 +1211,28 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 23, the second part, measured first in a reproduction of the village, a land of 400 meshes
-of 512 triangles and figures of five pieces drawn instanced, walking 90 frames and standing 45.
-Most of the game's cost was cascades built again, since a piece that stood eight frames settled
-into the field and left it when it walked on, each time marking the cascades around it, so 17
-figures had one built every second frame and 76 every frame, 3.6 and 6.2 ms of the GPU, where the
-stamp itself costs half a microsecond a box. A mesh that moved within the last 1,024 frames now
-settles only after standing that long, a still copy of the same mesh after eight, as the red wall's
-test holds, the count chosen by the game's animals' stands of one to eight seconds, up to 960
-frames at 120 a second, which had a cascade built every fourth frame with 480 and one in fifty with
-1,024, those of figures that stood from the first frame and settled before they walked. The plan
-reads a frame by place where a mesh in the same place of the order moved, counting the frames of
-those not yet still in the order alone, where it read every mesh into a dictionary, compares meshes
-in place and hashes them by their vertices and translation, keeps the bricks it stamps as lists
-rather than reading every brick of every cascade, sorts the shapes on packed keys, moves a box by
-its middle and extents, and copies the bricks' runs whole. At 76 figures the field takes 1.19 ms of
-the CPU in a Debug build where it took 2.69, 4.0 microseconds a box, 0.66 ms in Release, 2.3 a box,
-and 0.18 ms of the GPU where 6.2; at 17, 0.56 and 0.14 ms. Two unit tests hold a figure walking
-among still meshes read by place with no cascade built again where it stops, and a still copy of a
-walking crate's mesh settling after eight frames read by place and read whole, and the by-place
-test runs past the longer count. The game is asked to measure its village with 17 and 76 with
-`BouncesLight` on.
+Item 22, its first part. The screen's probes' rays reach twice as far as the world's probes are
+apart where a ray ends in the finest cascade, and as far as before past it. The wall behind the
+pillar at x 7 reads 0.79 of the reference's bounce where 0.68, and 1.01 without the pillar where
+1.05, a gap of 22 points where 15 was asked, at x 7.5 21, every other point within 13. The 27 cases
+sum 3.778 where 4.006, the corridor 3 to 9% under where 17%, and `BounceRoomsTests`' bounds are set
+again 15% over the new reads. Doubled everywhere, the reach let two leaks in, which the suite and
+lavapipe both caught: a ray that went behind the depth and then off the picture was handed to the
+field past the wall it had gone behind, lighting a closed room with the lamp outside it 92 levels
+where 8 at most, so such a ray is now handed to the field from the last point it stood in front of
+the depth, which the reflections' trace shares; and a closed room near the field's side behind the
+eye took 0.0037 of the sky where 0.0007, which the coarser cascades and the probes beside that side
+let in, 0.0015 with the reach bounded to the finest cascade, under the test's 0.002. The strip
+loses nothing by its own measure, its per-pixel difference 0.22 to 0.23 where 0.27 to 0.29, its
+mean going under because its over-bright ceiling came down, and at 800 by 450 its room reads 4%
+over where 10%, its ceiling 5% where 32%. The view that loses is the carried lamp's, 0.11 to 0.12
+where 0.10 to 0.12, 6% under at 800 by 450 where 3%, and `gi.probe` reads the world's own rays
+there 8 and 16% under the reference at two of three probes, mostly in red, so rays meeting the red
+wall its lamp lights are shaded short, which the longer screen rays take more of. The pass costs
+0.05 to 0.07 ms more in three of the rooms' views at `High`, 0.06 to 0.14 in the corridor's and
+0.08 to 0.15 in the glowstone room, each the least of eight readings, interleaved beside another
+session's use of the GPU. RENDERING.md says the trade with these numbers. The suite passes, 1,700,
+with one transient `ErrorUnknown` from the driver in a particles test that passed twice on its own
+with no fault in the kernel's log, lavapipe 410 with 9 skipped and no validation error, and the
+glowstone room lost no device in eight runs. Since the leaks' remedies the 27 cases sum 3.778, so
+the second part is held to that sum rather than 3.739.

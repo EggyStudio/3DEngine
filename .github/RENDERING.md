@@ -712,9 +712,27 @@ ms of the GPU and its bounce from 1.26 to 1.32 in a Release build, and the Corne
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
 occlusion pass draws, which it draws for the probes alone where the occlusion and contact shadows
-are off. It sends 16 rays over the hemisphere around the surface's normal, stepped through the depth
-while on the screen and through the field from where they leave it, and a ray that meets nothing in
-the interval takes the world's first cascade, or past it the second, blended between the eight
+are off. It sends 16 rays over the hemisphere around the surface's normal, twice as far as the
+world's probes are apart where a ray ends in the finest cascade and as far as they are apart past
+it, stepped through the depth while on the screen and through the field from where they leave it.
+Reaching as far as the probes are apart, a wall two units before a pillar beside a lamp took the
+light past that from the probes standing at the pillar's dark face, and its bounce read 0.68 of a
+path-traced reference's where 1.05 without the pillar, and reaching twice as far 0.79 and 1.01, a
+gap of 22 points where 37; the bounce rooms' 27 cases sum 3.778 where 4.006, the corridor 3 to 9%
+under where 17%, the strip's room at 800 by 450 4% over where 10%, and the carried lamp's room 3
+points further under, 6% at 800 by 450, the world's own rays there meeting the red wall its lamp
+lights 8 to 16% under the reference too. Reaching twice as far everywhere, a closed room near the
+field's side behind the eye took 0.0037 of the sky's light where 0.0007, which the coarser cascades
+and the probes beside that side let in, and 0.0015 bounded so; and a ray that went behind the depth
+and then off the picture was handed to the field where it went off, past the wall it had gone
+behind, which lit a closed room with the lamp outside it 92 levels where 8 at most, so such a ray is
+handed to the field from the last point it stood in front of the depth (`traceScreen` in
+`gi.slang`). The pass costs 0.05 to 0.07 ms more in the rooms' views at `High`, 0.06 to 0.14 in the
+corridor's and 0.08 to 0.15 in the voxel game's room of glowstone, the least of eight readings each
+beside another program's use of the GPU. Three and four times as far read the wall past the pillar
+up to 1.75 of the reference, and a weight in the probes' blend for how much of the surface's half of
+the sphere each shares, by its reach, moved the wall 0.01 to 0.04. A ray that meets nothing in its
+reach takes the world's first cascade, or past it the second, blended between the eight
 probes around the surface that a trace from a cell in front of it reaches, each probe's light along
 the ray blended between the four texels of its octahedron around the ray's way, across the square's
 edges as the octahedron folds (`folded` in `gi_screen.slang`). A 5 by 5 filter blends each probe

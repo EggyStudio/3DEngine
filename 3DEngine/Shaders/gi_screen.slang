@@ -1,14 +1,14 @@
 // The first cascade of the light that bounces, on the window's screen, a thread a probe. A probe
 // stands on the surface the window's depth holds at the middle of each tile of pixels, and sends a
-// ray along each texel of a hemisphere of directions around the surface's normal across the first
-// interval, as far as the world's probes are apart. A ray is stepped through the depth while it is
-// on the screen and through the scene's distance field from where it leaves it, and one that meets
-// a surface brings back the light the surface sends along it. One that meets nothing brings back
-// the light from beyond, the world's first cascade merged, blended between the world's probes around
-// this one. The rays are summed into the light arriving at the probe's surface, which the model
-// pass blends between the probes around each pixel that stand on a surface like the pixel's. A
-// probe on no surface, or outside the world's first cascade, holds nothing, and the model pass
-// reads the world's probes there.
+// ray along each texel of a hemisphere of directions around the surface's normal twice as far as
+// the world's probes are apart (GlobalIlluminationRenderer). A ray is stepped through the depth
+// while it is on the screen and through the scene's distance field from where it leaves it, and one
+// that meets a surface brings back the light the surface sends along it. One that meets nothing
+// brings back the light from beyond, the world's first cascade merged, blended between the world's
+// probes around this one. The rays are summed into the light arriving at the probe's surface,
+// which the model pass blends between the probes around each pixel that stand on a surface like
+// the pixel's. A probe on no surface, or outside the world's first cascade, holds nothing, and the
+// model pass reads the world's probes there.
 import gi;
 import scenefield;
 
@@ -378,11 +378,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // What the surface sends on without the light that bounced, which the screen's probes
             // keep no account of.
             float3 own;
-            if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
+            // Twice as far as the world's probes are apart where the ray ends in the finest cascade,
+            // and as far as they are apart past it, since nearer the field's side behind the eye the
+            // coarser cascades and the probes beside that side let a closed room there take 0.0037
+            // of the sky's light where it took 0.0007, and 0.0015 so (CascadeEdgeTests).
+            float farthest = fieldCascade(fieldInfo, start + way * length, 1.0) == 0 ? length : length * 0.5;
+            if (traceScreen(depth, camera(), start, way, farthest, 12, hit, leftAt))
                 light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
             else
             {
-                float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
+                float t = leftAt < farthest ? traceField(sceneField, fieldInfo, start, way, leftAt, farthest) : -1.0;
                 light = t >= 0.0
                     ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(p, around, n, way, seen).rgb;

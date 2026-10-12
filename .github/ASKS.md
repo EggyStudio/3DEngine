@@ -196,6 +196,26 @@ a pig's pink does not reach the grass, the trade the game takes for a crowd.
 | 77 walking | On | 256, 846 | 5.78 ms | 4.56 ms | 30.1 ms |
 | 76 or 77 walking | Off | 0 | 0.78 to 0.81 ms | 0.006 to 0.010 ms | 21.5 to 21.7 ms |
 
+With the mobs' `BouncesLight` turned on for the measure, `089ac771`'s engine, where a mesh that
+moved settles into the field only after standing 1,024 frames, reads against `f889a559`'s, the
+commit before it, each from a clean worktree in the same scene, twice and once in turns within the
+same half hour. A BevyCSharp example took 17 to 36% of the GPU through the runs and a dotnet process
+25% between two, so the GPU's lines swing with them. At 75 to 78 walking the field reads 2.31 to
+2.42 ms of the CPU and 0.16 to 0.29 of the GPU, under the review's mark of 0.5 for the GPU and over
+its 2 for the CPU by a third of a millisecond, 1.5 to 1.7 ms over the field with no mobs, about 6
+microseconds of the CPU a box and 1 of the GPU. The boxes are still held to 256, so the farthest of
+a crowd's pieces stay out of the field. Standing, the mobs are stamped as walking ones are until
+their 1,024 frames pass, 1.18 to 1.36 ms of the CPU at 16 or 17 and 1.96 to 2.25 at 75 to 78.
+
+| Mobs walking, `BouncesLight` on | Engine | Boxes, bricks | `cpu.scene_field` | `gpu.scene_field` |
+|---|---|---|---|---|
+| None | `f889a559` | 0 | 0.99 ms | 0.004 ms |
+| None | `089ac771` | 0 | 0.73 to 0.78 ms | 0.004 ms |
+| 15 | `f889a559` | 64, 604 | 3.64 ms | 0.40 ms |
+| 16 or 17 | `089ac771` | 82 to 88, 815 to 847 | 1.54 to 1.64 ms | 0.29 to 0.58 ms |
+| 74 | `f889a559` | 256, 905 | 5.07 ms | 3.81 ms |
+| 75 to 78 | `089ac771` | 256, 927 to 929 | 2.31 to 2.42 ms | 0.16 to 0.29 ms |
+
 Review: item 23 of REVIEW.md, 2026-10-12; first a material's second switch beside `CastsShadows`,
 `BouncesLight`, true by default, which drawn false casts the shadows and leaves the mesh out of the
 field, after f's filter offset, the game measuring its village again with its mobs so; then the

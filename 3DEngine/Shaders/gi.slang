@@ -182,12 +182,17 @@ bool onScreen<P : IPicture>(P depth, ScreenCamera camera, float3 q, out float4 a
 // more finely spaced near p, as a world position, or false and how far it went where it left the
 // picture or met nothing on it. A point behind the depth counts as on the surface while it is
 // within two steps of it, or a quarter of a unit, so a ray passing behind a thing in front does
-// not stop there, and the step it met the surface in is halved five times to find where.
+// not stop there, and the step it met the surface in is halved five times to find where. A ray
+// that passed behind the depth so and then went off the picture is left at the last point it stood
+// in front of it, for the field to find what it passed behind, since left where it went off it
+// stood past a wall it had gone behind, and the field's trace from there lit a closed room with the
+// lamp outside it, 92 levels where 8 at most, once the screen's probes' rays reached twice as far.
 public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
 {
     hit = p;
     left = length;
     float before = 0.0;
+    float behindFrom = -1.0;
     for (int i = 0; i < steps; i++)
     {
         float s = float(i + 1) / float(steps);
@@ -196,7 +201,7 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
         float4 at;
         if (!onScreen(depth, camera, q, at))
         {
-            left = t;
+            left = behindFrom >= 0.0 ? behindFrom : t;
             return false;
         }
         if (at.w < 1.0 && at.z > at.w)
@@ -221,6 +226,8 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
                 hit = screenWorld(camera, at.xy, at.w);
                 return true;
             }
+            if (behindFrom < 0.0)
+                behindFrom = before;
         }
         before = t;
     }
