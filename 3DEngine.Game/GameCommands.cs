@@ -29,7 +29,7 @@ public static class GameCommands
         return $"feet at {at.X:0.00}, {at.Y:0.00}, {at.Z:0.00} in {game.World.BiomeAt((int)MathF.Floor(at.X), (int)MathF.Floor(at.Z))?.Name ?? "nowhere loaded"}, facing {player.Heading:0} and pitched {player.Pitch * 180 / MathF.PI:0}, "
             + $"{(player.Flying ? "flying" : player.Body.OnGround ? "on the ground" : "in the air")}, {target}; "
             + $"{game.World.ColumnCount} columns, {game.Streamer.Pending} generating, {game.World.Loaded.Count} sections to mesh; "
-            + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
+            + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps, {renderer.Culled} culled; "
             + $"{game.Mobs.All.Count} mobs loaded, {game.MobRenderer.Drawn} drawn in {game.MobRenderer.Draws} draws; "
             + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, "
             + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, {game.Mode.ToString().ToLowerInvariant()}, "
@@ -324,6 +324,14 @@ public static class GameCommands
         if (!kind.Equals("all", StringComparison.OrdinalIgnoreCase) && (found = MobKinds.Find(kind)) is null)
             return $"no mob is called {kind}, which is {string.Join(", ", MobKinds.All.Select(k => k.Name))} or all";
         return $"{game.Mobs.Clear(found)} mobs taken away";
+    }
+
+    [Command("voxel.cull", "Leaves the sections the eye cannot see through open cells undrawn, or draws every one: voxel.cull <on>")]
+    internal static string Cull(bool on)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        game.Renderer.Cull = on;
+        return on ? "the sections the eye cannot see are left undrawn" : "every section within the render distance is drawn";
     }
 
     [Command("voxel.gi", "Sets the light that bounces to a quality, off, low, medium or high: voxel.gi <quality>")]

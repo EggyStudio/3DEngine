@@ -16,6 +16,12 @@ public sealed class Section
     /// <summary>How many of its blocks are not air, so an empty section is skipped by the mesher.</summary>
     public int Filled { get; private set; }
 
+    /// <summary>A count of its block changes, which the faces its open cells join are worked out again by.</summary>
+    public int Version { get; private set; }
+
+    /// <summary>Which pairs of its faces its open cells join, and the <see cref="Version"/> they were worked out at, which <see cref="Visibility"/> keeps.</summary>
+    internal (ulong Joins, int Version) Visibility = (0, -1);
+
     public static int Index(int x, int y, int z) => (y << 8) | (z << 4) | x;
 
     public BlockId Get(int x, int y, int z) => (BlockId)Blocks[Index(x, y, z)];
@@ -26,6 +32,7 @@ public sealed class Section
         if (slot == (ushort)block) return;
         Filled += (slot == 0 ? 1 : 0) - (block == BlockId.Air ? 1 : 0);
         slot = (ushort)block;
+        Version++;
     }
 
     public int SkyLight(int index) => Light[index] >> 4;

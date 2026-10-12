@@ -608,7 +608,7 @@ public sealed class VoxelGame : IDisposable
         ClearBackground(Sky.Horizon);
         BeginMode3D(Player.Camera);
         DrawSkybox();
-        Renderer.Draw(Player.Eye, RenderDistance);
+        Renderer.Draw(World, Player.Eye, RenderDistance);
         MobRenderer.Draw(Mobs.All, Player.Eye);
         DropRenderer.Draw(Drops.All, Player.Eye, GetTime());
         DrawArrows();

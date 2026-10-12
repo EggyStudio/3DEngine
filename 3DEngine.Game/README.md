@@ -325,9 +325,15 @@ its own, and the glowing piece of a torch, a lantern or an end rod as that cube 
 cube of one surface in one instanced draw, because a material's light is one for its whole draw and
 a section's one material gives off none.
 
-Sections are drawn by their distance from the player and are not culled to the view, because a
-mesh left out of a frame leaves the field, and the light it gave or the shadow it cast in the
-bounce goes with it until it settles again.
+Sections are drawn by their distance from the player and by what the eye can see, as Minecraft's
+visibility graph has it: each section knows which of its six faces its open cells join, and a flood
+from the eye's section passes into the next only across faces so joined, never turning back, so the
+land under the ground and behind a cave's or a closed room's walls is left out. From the eye's own
+section it leaves by the faces the open cells around the eye reach. `voxel.cull` and the settings
+window turn it off. Sections are not culled to the view's frustum, because a mesh left out of a
+frame leaves the field, and the light it gave or the shadow it cast in the bounce goes with it until
+it settles again, where the land the flood leaves out lies behind walls the field holds, so a cave
+lit by a glowstone looks the same either way.
 
 ## Light levels and corners
 
@@ -388,10 +394,13 @@ respawns, spiders that climb walls, and a bow and armor for the player.
 
 ## What it costs
 
-Every section within the render distance is drawn each frame, through the scene field's gather
-and the engine's culling of each pass, so the render distance sets much of the frame's cost. It is
-8 by default and up to 16 in the settings window, whose first lines give the frame's time, draws and
-triangles.
+Every section within the render distance that the eye can see is drawn each frame, through the scene
+field's gather and the engine's culling of each pass, so the render distance sets much of the
+frame's cost. It is 8 by default and up to 16 in the settings window, whose first lines give the
+frame's time, draws and triangles. Leaving the unseen sections out matters most underground: in a
+cave of seed 1's hills it leaves 905 of 1,085 sections undrawn and takes the frame from 16 ms to 4,
+the sun's shadows from 6.9 ms to 0.07, and in a closed room on a flat world it takes 0.3 ms off the
+window's passes.
 
 A mob's pieces bounce no light, so the scene's distance field leaves them out. Each piece of a
 walking mob would otherwise be a moving mesh the field stamps as a box every frame, which over seed

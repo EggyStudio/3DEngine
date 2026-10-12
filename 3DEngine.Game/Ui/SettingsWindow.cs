@@ -150,6 +150,8 @@ public sealed class SettingsWindow
         if (ImGui.Combo("Mode", ref mode, Modes, Modes.Length)) game.Mode = (GameMode)mode;
         var still = game.Mobs.Still;
         if (ImGui.Checkbox("Mobs stand still", ref still)) game.Mobs.Still = still;
+        var cull = game.Renderer.Cull;
+        if (ImGui.Checkbox($"Leave unseen sections undrawn, {game.Renderer.Culled} now###cull", ref cull)) game.Renderer.Cull = cull;
         ImGui.TextUnformatted(game.Save is { } save ? $"Saved in {save.Folder} every 30 seconds" : "Transient, not saved");
         if (game.Save is not null && ImGui.Button("Save now")) game.SaveWorld();
         ImGui.Combo("Kind", ref _worldType, Worlds, Worlds.Length);

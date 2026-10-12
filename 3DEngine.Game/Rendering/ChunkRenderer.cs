@@ -24,11 +24,12 @@ namespace Engine.Game;
 /// <para>
 /// A material's light is one for its whole draw, so a block that gives off light is a cube drawn
 /// on its own, and the flame of a torch or the glass of a lantern a cube scaled to it, copies of one
-/// mesh in one instanced draw for each surface. Sections are drawn by
-/// distance alone and not culled to the view, since a mesh left out of a frame leaves the field
-/// and the light it gave or blocked goes with it until it settles again. Every section within the
-/// render distance is drawn each frame, through the field's gather and each pass's culling, so the
-/// render distance sets much of the frame's cost, which <see cref="Draws"/> counts.
+/// mesh in one instanced draw for each surface. Sections are drawn by distance and by what the eye
+/// can see through open cells, and not culled to the view's frustum, since a mesh left out of a
+/// frame leaves the field and the light it gave or blocked goes with it until it settles again.
+/// Every section within the render distance that the eye can see is drawn each frame, through the
+/// field's gather and each pass's culling, so the render distance sets much of the frame's cost,
+/// which <see cref="Draws"/> counts.
 /// </para>
 /// </remarks>
 public sealed class ChunkRenderer : IDisposable
@@ -128,6 +129,24 @@ public sealed class ChunkRenderer : IDisposable
             BuildLamps();
         }
     }
+
+    private readonly Visibility _visibility = new();
+
+    /// <summary>
+    /// Whether the sections the eye cannot see through open cells are left undrawn, as
+    /// <see cref="Visibility"/> floods them, the lamps' cubes drawn all the same.
+    /// </summary>
+    /// <remarks>
+    /// A section left undrawn also leaves the sun's shadows and the scene's distance field, since a
+    /// draw goes to every pass, and the field builds its cascades again as sections come into sight
+    /// and go out of it. The land the flood leaves out lies behind walls the drawn sections hold, the
+    /// walls of a cave or a closed room, so the eye sees the same light either way, a cave lit by a
+    /// glowstone within 2 of 255 in every pixel, and a cave in a hill stays dark at noon.
+    /// </remarks>
+    public bool Cull { get; set; } = true;
+
+    /// <summary>Sections the last <see cref="Draw"/> left out as unseen.</summary>
+    public int Culled { get; private set; }
 
     /// <summary>Draw calls the last <see cref="Draw"/> made, each instanced draw of lamps counted once.</summary>
     public int Draws { get; private set; }
@@ -233,12 +252,16 @@ public sealed class ChunkRenderer : IDisposable
         foreach (var key in _sections.Keys.ToList()) Forget(key);
     }
 
-    /// <summary>Draws the sections whose column lies within <paramref name="renderDistance"/> columns of the eye's, and the lamps in them.</summary>
-    public void Draw(Vector3 eye, int renderDistance)
+    /// <summary>
+    /// Draws the sections whose column lies within <paramref name="renderDistance"/> columns of the
+    /// eye's, those the eye can see where <see cref="Cull"/> is set, and the lamps in them all.
+    /// </summary>
+    public void Draw(VoxelWorld world, Vector3 eye, int renderDistance)
     {
         int cx = (int)MathF.Floor(eye.X) >> Section.Shift, cz = (int)MathF.Floor(eye.Z) >> Section.Shift;
         var reach = renderDistance * renderDistance + renderDistance;
-        int draws = 0, triangles = 0, lamps = 0;
+        int draws = 0, triangles = 0, lamps = 0, culled = 0;
+        if (Cull) _visibility.Flood(world, eye, renderDistance);
         foreach (var list in _emitterDraws) list.Clear();
         _seeThrough.Clear();
 
@@ -246,6 +269,12 @@ public sealed class ChunkRenderer : IDisposable
         {
             int dx = key.X - cx, dz = key.Z - cz;
             if (dx * dx + dz * dz > reach) continue;
+            foreach (var (surface, at) in entry.Emitters) _emitterDraws[surface].Add(at);
+            if (Cull && !_visibility.Sees(key))
+            {
+                culled++;
+                continue;
+            }
             if (entry.Solid.Mesh.IsValid)
             {
                 DrawMesh(entry.Solid.Mesh, _terrain, entry.Transform);
@@ -253,7 +282,6 @@ public sealed class ChunkRenderer : IDisposable
                 triangles += entry.Solid.Mesh.TriangleCount;
             }
             if (entry.SeeThrough.Mesh.IsValid) _seeThrough.Add((Vector3.DistanceSquared(entry.Middle, eye), entry));
-            foreach (var (surface, at) in entry.Emitters) _emitterDraws[surface].Add(at);
         }
 
         // See-through sections farthest first, so each blends over what lies behind it. The faces
@@ -275,7 +303,7 @@ public sealed class ChunkRenderer : IDisposable
             triangles += _cube.TriangleCount * list.Count;
             lamps += list.Count;
         }
-        (Draws, Triangles, Lamps) = (draws, triangles, lamps);
+        (Draws, Triangles, Lamps, Culled) = (draws, triangles, lamps, culled);
     }
 
     public void Dispose()
