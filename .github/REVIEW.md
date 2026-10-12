@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `42b3e9ce`, item 3's remainder in two commits. `fca652a1`, the cap's test in
+Reviewed up to `82b23f8c`, item 4 as read: an `AnimatedModel` entity's copy, as it was last posed
+through the same joints as its wires, gives `PhysicsBodies` its triangles, so a mesh and a hull
+collider shape a body from it as from any mesh, made once and kept until the entity's body is
+removed; the body waits while the file loads in the Render stage and is refused with the warning
+only when the file gives no meshes, that test moved beside a new one in `AnimatedModelDrawsTests`,
+where the arm played to the end of its bend has a hull a ray down at x -0.8 meets between y 0.9 and
+1.3 and the arm at rest lets the ray pass, and a rest arm jumped to the bend keeps its body until
+the body is removed and is then made again bent; the animation guide's ECS paragraph, the physics
+guide, the colliders' and `AnimatedModel`'s remarks, TODO.md's entry and the upgrading guide say
+which a body is and how a game makes it again, and no public signature changed. The whole suite
+1,707 of 1,707, NormTests 16 of 16, the strict build clean and the guides' blocks building on the
+package. Right, and item 4 is done. Both working sessions have stopped on the owner's word at 19:03
+with the trees clean and six commits unpushed since `ee85866f`; the push's Windows suite runs cold
+under 60 minutes and saves the cache, the pack run after a green push runs warm and settles Verdicts
+54 and 55, and item 6, the three packages bumped, follows the pack.
+
+Before it, `42b3e9ce` came, item 3's remainder in two commits. `fca652a1`, the cap's test in
 `SubsurfaceTests`: a sheet with no thickness of its own in a field of 0.15 cells, which measures it
 a cell thick, lit by a lamp behind, its front reading (39, 39, 39), the ambient alone, and (146,
 146, 145) with two millimeters given, the lesser of the measured and the given taken, bounded at 120
@@ -31,24 +47,6 @@ own, the ignore of `/Voxel-Sandbox`, beside `5d88a601` and `e57f3fc1`, NormTests
 tree clean, so the owner can push; that push's Windows suite runs cold under 60 minutes and saves
 the cache, and the pack run after it runs warm. Right. The working session takes item 3, subsurface
 scattering's first batch.
-
-Before it, `9a3e2e2a` came, the batch of Verdicts 54 and 55 and item 25, on `bb3202e4`, a one-line
-commit of 18:39 ignoring `/Voxel-Sandbox` with the three marks and no sentence, which fails N 7.2
-and goes on its list as the owner's own, as `5d88a601` did, in the commit that carries this file.
-`9a3e2e2a`: `test.yml` restores the Mesa shader cache on the Linux and Windows jobs with the cache
-action's restore before the suite and saves it right after the suite under `if: always()`, the key
-and the restore keys as before, so a failed suite leaves the shaders it compiled; the Windows step
-runs the suite with `--timeout-minutes 60` and the reason beside it, BUILDING.md saying Windows' 60
-and why; `AppLeakTests`' series carries the resident memory after every ten apps under the heap's
-line, the bound at 50; the macOS examples job left `test.yml` for `examples.yml` behind the whole
-run's input with its runner, caches, MoltenVK and artifact as they were, the pack job still needing
-the examples workflow, and the three workflows' head comments, the macOS job's comment and
-BUILDING.md's capture and release paragraphs saying what a push runs and what the pack run adds. The
-strict build clean, the four workflows parsing, the leak tests 3 of 3 here, NormTests 15 of 16 with
-N 7.2 on `bb3202e4` alone. Right. Item 25 is done at `9a3e2e2a`; Verdicts 54 and 55 have their
-changes and settle on the runs, the push's Windows suite cold under 60 minutes and saving the cache,
-the pack run's warm under 36. Next the list's commit, then item 3, subsurface scattering's first
-batch.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -503,19 +501,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    `fca652a1`, the cap's test, and `42b3e9ce`, the reason the spread stays out of render textures
    and a probe's faces, with its numbers.
 
-4. **The animated model's meshes in the world (Decision 21), after subsurface scattering.**
-   TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its copy's meshes
-   out of the world, so it is given a capsule or a box and a mesh or hull collider on it is refused
-   with a warning. The copy's meshes become the entity's meshes in the world, posed from the same
-   joints as its wires and a body made from it are, so `CreatePhysicsConvexHull` and a mesh collider
-   take them as they take any mesh, with a test of an animated entity whose hull follows its pose,
-   the guide's section on animated models and the entry updated with what it then says. Read at
-   18:55 on the working session's question: the body is made once from the meshes as they are posed
-   when it is made, as a body made from a posed model through the flat API is, shaped as last posed
-   and drawn and staying so, and the test reads it bent after the arm's clip has played to its end,
-   a ray down at x -0.8 hitting near y 1 where it misses at rest; a body remade as the pose changes,
-   a hull or a BVH built an entity a frame and a dynamic body losing its velocity at each, is not
-   made until a game asks for it in ASKS.md, and the guide's section says which a body is.
+4. **The animated model's meshes in the world (Decision 21), after subsurface scattering; done at
+   `82b23f8c`.** TODO.md's "Models are partial" says an entity an `AnimatedModel` draws keeps its
+   copy's meshes out of the world, so it is given a capsule or a box and a mesh or hull collider on
+   it is refused with a warning. The copy's meshes become the entity's meshes in the world, posed
+   from the same joints as its wires and a body made from it are, so `CreatePhysicsConvexHull` and a
+   mesh collider take them as they take any mesh, with a test of an animated entity whose hull
+   follows its pose, the guide's section on animated models and the entry updated with what it then
+   says. Read at 18:55 on the working session's question: the body is made once from the meshes as
+   they are posed when it is made, as a body made from a posed model through the flat API is, shaped
+   as last posed and drawn and staying so, and the test reads it bent after the arm's clip has
+   played to its end, a ray down at x -0.8 hitting near y 1 where it misses at rest; a body remade
+   as the pose changes, a hull or a BVH built an entity a frame and a dynamic body losing its
+   velocity at each, is not made until a game asks for it in ASKS.md, and the guide's section says
+   which a body is.
 
 5. **The first shares recorded from the workflow's own device.** The examples job's first green run
    puts every pair measured for the first time into notices, which the public listing of the job's
@@ -1311,16 +1310,3 @@ are open.
     made, at the cost of sitting on main until the next pack run. Item 25 carries it.
 
 ## Replies
-
-Item 4 is in the next commit, as (a). `AnimatedModelDraws.TryPosedTriangles` gives an entity's
-model as it was last posed, through `E3D.Posed` from the same joints as its wires, and
-`PhysicsBodies` takes it as it takes a `Mesh`, for `Collider.Mesh` and `Collider.ConvexHull` alike.
-The body waits while the file has not been loaded in the Render stage, and is refused with the
-warning only when the file gives no meshes; that test moved from `PhysicsBodiesTests` to
-`AnimatedModelDrawsTests`, beside a new one. In it the arm played to the end of its bend has a hull
-that a ray down at x -0.8 meets between y 0.9 and 1.3, where the arm held at rest lets the ray pass
-at 0.8 from its shoulder. The rest one, jumped to the bend's end, keeps its body until its
-`PhysicsBody` is removed, and is then made again bent. The animation guide's ECS paragraph, moved
-from the end of the morph targets to the end of Animation, says which a body is and how a game
-makes it again; the physics guide, the two colliders' and `AnimatedModel`'s remarks, TODO.md's
-entry and the upgrading guide's Added list say it too. No public signature changed.
