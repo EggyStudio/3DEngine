@@ -32,7 +32,8 @@ public static class GameCommands
             + $"{renderer.Sections} sections, {renderer.Draws} draws, {renderer.Triangles} triangles, {renderer.Lamps} lamps; "
             + $"{game.Mobs.All.Count} mobs loaded, {game.MobRenderer.Drawn} drawn in {game.MobRenderer.Draws} draws; "
             + $"hour {game.Sky.Hour:0.00}, light {game.Light.Quality}, render distance {game.RenderDistance}, world {game.World.Generator.Name} of seed {game.World.Generator.Seed}, "
-            + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, holding {Blocks.Get(game.Hotbar.Current).Key}";
+            + $"{(game.Save is { } save ? $"saved in {save.Name}" : "transient")}, {game.Mode.ToString().ToLowerInvariant()}, "
+            + $"holding {(game.Hotbar.Current is { } held ? $"{held.Count} {held.Item.Key}" : "nothing")}, {game.Drops.All.Count} stacks on the ground";
     }
 
     [Command("voxel.tp", "Puts the player's feet at a place: voxel.tp <x> <y> <z>")]
@@ -155,13 +156,50 @@ public static class GameCommands
         return $"{game.RenderDistance} columns are drawn around the player";
     }
 
-    [Command("voxel.select", "Puts a block in the hotbar's chosen slot: voxel.select <block>")]
-    internal static string Select(string block)
+    [Command("voxel.select", "Puts an item, a block or a thing of its own, in the hotbar's chosen slot, one in creative mode and a full stack in survival: voxel.select <item>")]
+    internal static string Select(string item)
     {
         if (Game is not { } game) return "no world is loaded";
-        if (!Blocks.TryFind(block, out var id) || id == BlockId.Air) return $"no block is called {block}, and voxel.blocks lists them";
-        game.Hotbar.Slots[game.Hotbar.Selected] = Blocks.Get(id).Item;
-        return $"slot {game.Hotbar.Selected + 1} holds {Blocks.Get(Blocks.Get(id).Item).Key}";
+        if (Items.Find(item) is not { } found) return $"no item is called {item}, and voxel.items lists them";
+        var count = game.Mode == GameMode.Creative ? 1 : found.MostInStack;
+        game.Inventory.Slots[game.Hotbar.Selected] = new ItemStack(found, count);
+        return $"slot {game.Hotbar.Selected + 1} holds {count} {found.Key}";
+    }
+
+    [Command("voxel.give", "Puts so many of an item into the inventory, as a stack picked up goes: voxel.give <item> [count]")]
+    internal static string Give(string item, int count = 1)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (Items.Find(item) is not { } found) return $"no item is called {item}, and voxel.items lists them";
+        var left = game.Inventory.Add(found, Math.Max(1, count));
+        return $"{Math.Max(1, count) - left} {found.Key} put in{(left > 0 ? $", {left} did not fit" : "")}";
+    }
+
+    [Command("voxel.inventory", "Each slot of the inventory that holds something, the hotbar's 1 to 9 and the rest's 10 to 36")]
+    internal static string ListInventory()
+    {
+        if (Game is not { } game) return "no world is loaded";
+        var held = game.Inventory.Slots.Select((s, i) => s is { } stack ? $"{i + 1} {stack.Count} {stack.Item.Key}" : null).Where(s => s is not null).ToList();
+        return held.Count == 0 ? "the inventory is empty" : string.Join(", ", held);
+    }
+
+    [Command("voxel.items", "Every item's name, the blocks' and the things' of their own, which voxel.select and voxel.give take")]
+    internal static string ListItems() => string.Join(", ", Items.All.Select(i => i.Key));
+
+    [Command("voxel.mode", "Plays in creative or survival mode: voxel.mode <creative|survival>")]
+    internal static string SetMode(string mode)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        if (!Enum.TryParse<GameMode>(mode, ignoreCase: true, out var chosen)) return $"no mode is called {mode}, which is creative or survival";
+        game.Mode = chosen;
+        return $"the player plays in {chosen.ToString().ToLowerInvariant()} mode";
+    }
+
+    [Command("voxel.throw", "Throws one of the chosen slot's items ahead, or its whole stack, as Q and Control with Q do: voxel.throw [all]")]
+    internal static string Throw(bool all = false)
+    {
+        if (Game is not { } game) return "no world is loaded";
+        return game.Throw(all) ? $"thrown, {game.Drops.All.Count} stacks on the ground" : "the chosen slot is empty";
     }
 
     [Command("voxel.clouds", "Shows or hides the clouds: voxel.clouds <on|off>")]
@@ -172,13 +210,13 @@ public static class GameCommands
         return on ? $"the clouds are drawn, {game.Clouds.Faces} faces" : "the clouds are hidden";
     }
 
-    [Command("voxel.break", "Breaks the block the crosshair rests on, as a left click does")]
+    [Command("voxel.break", "Breaks the block the crosshair rests on at once, dropping what it leaves in survival, as a left click does")]
     internal static string Break() =>
         Game is not { } game ? "no world is loaded" : game.Break() ? "the block is broken" : "no block within reach can be broken";
 
-    [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, as a right click does")]
+    [Command("voxel.place", "Places the hotbar's chosen block against the face the crosshair rests on, using one up in survival, or opens or shuts a door, as a right click does")]
     internal static string Place() =>
-        Game is not { } game ? "no world is loaded" : game.Place(game.Hotbar.Current) is not BlockId.Air and var placed ? $"{Blocks.Get(placed).Key} is placed" : "no block can be placed there";
+        Game is not { } game ? "no world is loaded" : game.Use() is not BlockId.Air and var placed ? $"{Blocks.Get(placed).Key} is placed" : "nothing can be placed there";
 
     [Command("voxel.mobs", "How many mobs of each kind are loaded and kept, and the nearest few, each with its number, where it stands, what it does and its health: voxel.mobs [count]")]
     internal static string ListMobs(int count = 5)

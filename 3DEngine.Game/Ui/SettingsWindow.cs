@@ -12,6 +12,7 @@ public sealed class SettingsWindow
 {
     private static readonly string[] Qualities = Enum.GetNames<GlobalIllumination>();
     private static readonly string[] Worlds = Generators.Kinds;
+    private static readonly string[] Modes = Enum.GetNames<GameMode>();
 
     private int _worldType;
     private int _seed = 1;
@@ -129,6 +130,8 @@ public sealed class SettingsWindow
         if (ImGui.Checkbox($"Clouds, {game.Clouds.Faces} faces###clouds", ref clouds)) game.Clouds.Shown = clouds;
         var distance = game.RenderDistance;
         if (ImGui.SliderInt("Render distance", ref distance, 2, 16)) game.RenderDistance = distance;
+        var mode = (int)game.Mode;
+        if (ImGui.Combo("Mode", ref mode, Modes, Modes.Length)) game.Mode = (GameMode)mode;
         var still = game.Mobs.Still;
         if (ImGui.Checkbox("Mobs stand still", ref still)) game.Mobs.Still = still;
         ImGui.TextUnformatted(game.Save is { } save ? $"Saved in {save.Folder} every 30 seconds" : "Transient, not saved");

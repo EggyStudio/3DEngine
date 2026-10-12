@@ -1,12 +1,13 @@
 # 3DEngine.Game
 
-A voxel game in the manner of Minecraft, and the ground floor of a larger one. Its first use is
-to test the light that bounces (Radiance Cascades over the scene's distance field) with blocks that
+A voxel game in the manner of Minecraft, and the ground floor of a larger one. Its first use is to
+test the light that bounces (Radiance Cascades over the scene's distance field) with blocks that
 give off light. It holds an endless world of colored blocks in columns of 16 by 16 by 128, animals
 that graze it and villagers in its villages, a first-person player with Minecraft's sizes and
-speeds, building and breaking with an outline on the block looked at, Minecraft's light levels with
-smooth lighting and shaded corners, a sky whose sun crosses it under drifting clouds, and an ImGui
-window of the light's settings.
+speeds, building and breaking with an outline on the block looked at, in creative mode or in
+survival with an inventory and the items blocks and mobs drop, Minecraft's light levels with smooth
+lighting and shaded corners, a sky whose sun crosses it under drifting clouds, and an ImGui window
+of the light's settings.
 
 It sits beside the examples rather than under `games/`, built on the engine's project instead of
 its package, so a change to the light that bounces is played on the next build.
@@ -21,9 +22,9 @@ dotnet test 3DEngine.Game.Tests                         # its light, meshes, mob
 
 A world is saved under `~/.local/share/3DEngine.Game/saves` on Linux, and the matching local
 application data folder elsewhere, in a folder named by its kind and seed, `overworld-1` or
-`flat-7`, unless `--world` names it. It is saved every 30 seconds, on opening another world and
-on quitting, and opened where it was left. `--transient` keeps nothing on disk, as a test run
-driven by `./e3d` should, so it leaves the saves as they were.
+`flat-7`, unless `--world` names it. Its mode and inventory are saved with it. It is saved every 30
+seconds, on opening another world and on quitting, and opened where it was left. `--transient` keeps
+nothing on disk, as a test run driven by `./e3d` should, so it leaves the saves as they were.
 
 ## Controls
 
@@ -31,14 +32,15 @@ driven by `./e3d` should, so it leaves the saves as they were.
 |---|---|
 | Mouse | Look |
 | W, A, S, D | Walk |
-| Space | Jump, or rise while flying or swimming. Pressed twice quickly, start or stop flying |
+| Space | Jump, or rise while flying or swimming. Twice quickly in creative, start or stop flying |
 | Left Shift | Sneak, which keeps the player from walking off an edge, or sink while flying |
 | Left Control | Sprint |
-| Left button | Hit the mob looked at, or break the block looked at, four a second while held |
+| Left button | Hit the mob looked at or break the block, at once in creative, slowly in survival |
 | Right button | Place the chosen block against the face looked at, or open or shut a door |
-| Middle button | Pick the block looked at into the hotbar |
+| Middle button | Pick the block looked at into the hotbar, in survival from the inventory |
 | 1 to 9, wheel | Choose a slot of the hotbar |
-| E | The blocks, to put any of them in the chosen slot |
+| E | In creative every item, to put any of them in the chosen slot, and in survival the inventory |
+| Q | Throw one of the chosen slot's items, or with Left Control its stack |
 | F3 | The settings window: what the frame holds and costs, the light, the sky and the world |
 | G | The next quality of the light that bounces, Off after High |
 | F1 | Hide the crosshair, the hotbar and the outline |
@@ -69,13 +71,15 @@ begins another of a kind and seed, `voxel.save` saves at once, and `voxel.blocks
 by number and name. `voxel.mobs` counts the mobs and lists the nearest, `voxel.spawn` places one
 where the crosshair rests, `voxel.attack` hits the one it rests on as the left button does,
 `voxel.still` stops them where they stand for a capture, and `voxel.kill` takes them away.
-`voxel.gi`, `voxel.field` and `voxel.shadows` set the light that bounces, the scene's distance field
-and the sun's shadows, and `voxel.hud` hides what is drawn over the world for a capture. Three
-measure the light: `voxel.flicker` records each frame's change in the picture around a turn or a
-step into a file, with the first frame after it, the settled one and their difference beside it,
-`voxel.ring` reads the last frame's light around a circle on the ground by angle, and `voxel.depth`
-says how far the block under a pixel is. The engine's own `gi.*` and `field.*` commands show and
-measure the light that bounces.
+`voxel.mode` plays in creative or survival mode, `voxel.select` puts an item in the chosen slot,
+`voxel.give` puts items in the inventory, `voxel.inventory` lists what it holds, `voxel.items` lists
+every item, and `voxel.throw` throws as Q does. `voxel.gi`, `voxel.field` and `voxel.shadows` set
+the light that bounces, the scene's distance field and the sun's shadows, and `voxel.hud` hides what
+is drawn over the world for a capture. Three measure the light: `voxel.flicker` records each frame's
+change in the picture around a turn or a step into a file, with the first frame after it, the
+settled one and their difference beside it, `voxel.ring` reads the last frame's light around a
+circle on the ground by angle, and `voxel.depth` says how far the block under a pixel is. The
+engine's own `gi.*` and `field.*` commands show and measure the light that bounces.
 
 ## Biomes
 
@@ -208,6 +212,29 @@ it walks. Mobs are drawn within 64 blocks, as Minecraft draws its entities, thro
 shader, so the haze is not on them. They cast shadows, which puts them in the scene's distance field
 too, so the light that bounces takes their colors, a white robe beside a pig turning pink.
 
+## Creative and survival
+
+A world plays in creative mode, as a test of the light needs, or in survival, which `voxel.mode` and
+the settings window choose and the save keeps. In creative every item is to hand through E, a block
+breaks at once and drops nothing, placing a block uses nothing up, and Space pressed twice flies. In
+survival there is no flight, and a block takes its hardness times one and a half seconds to break
+with the button held, darkening as it goes, as by hand in Minecraft, and then drops what it leaves:
+grass, farmland and a path their dirt, stone its cobblestone, wheat its wheat and seeds, leaves,
+glass and ice nothing, and any other block itself. A torch or a lantern that falls with the block it
+held to drops too, and placing a block uses one up. There are no tools yet, so stone breaks by hand
+in two and a quarter seconds and drops its cobblestone, where Minecraft's asks for a pickaxe.
+
+The inventory holds 36 slots of up to 64 of an item, the hotbar its first nine. E opens it in
+survival, where a left click takes up a stack, puts it down, joins it to a stack of its item or
+swaps the two, and a right click takes up half a stack or puts down one of it. Q throws one of the
+chosen slot's items and Control with Q its stack. A stack on the ground falls, slides to a stop and
+turns slowly, and is picked up once the player comes within a block of it, half a second after it
+fell or two after it was thrown, joining stacks of its item in the inventory first. Two stacks of an
+item lying together join, and a stack is gone after five minutes. The stacks on the ground are not
+saved with the world. A mob drops its loot as it dies, in either mode: a pig porkchops, a cow
+leather and beef, a sheep a block of wool of its coat's color and mutton, and a chicken feathers and
+its meat.
+
 ## How the world is drawn
 
 A section of 16 blocks a side is one mesh in one white material, each corner of a face its position
@@ -282,7 +309,7 @@ Textures, and leaves seen through, which are solid. The corners stairs make wher
 slabs and stairs that keep light out, as Minecraft's do. Greedy meshing. Light that passes through
 leaves at a cost, as Minecraft's does. Structures read from files rather than built in code.
 Villagers that trade, sleep in beds or work their farms, and animals that breed or follow food.
-Hostile mobs, items, an inventory and survival.
+Tools and crafting, health, hunger and food, and hostile mobs.
 
 ## What it costs
 

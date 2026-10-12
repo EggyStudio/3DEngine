@@ -63,43 +63,12 @@ public sealed class MobRenderer : IDisposable
     /// <summary>Mobs the last <see cref="Draw"/> drew.</summary>
     public int Drawn { get; private set; }
 
-    // The corners of a box's six faces, +x, -x, +y, -y, +z and -z, as fractions of its size, each
-    // face's two triangles turning counterclockwise seen from outside.
-    private static readonly Vector3[][] Corners =
-    [
-        [new(1, 0, 0), new(1, 1, 0), new(1, 1, 1), new(1, 0, 1)],
-        [new(0, 0, 0), new(0, 0, 1), new(0, 1, 1), new(0, 1, 0)],
-        [new(0, 1, 0), new(0, 1, 1), new(1, 1, 1), new(1, 1, 0)],
-        [new(0, 0, 0), new(1, 0, 0), new(1, 0, 1), new(0, 0, 1)],
-        [new(0, 0, 1), new(1, 0, 1), new(1, 1, 1), new(0, 1, 1)],
-        [new(0, 0, 0), new(0, 1, 0), new(1, 1, 0), new(1, 0, 0)],
-    ];
-
-    private static readonly Vector3[] Normals = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
-
-    private static readonly Vector2[] Uvs = [new(0, 1), new(0, 0), new(1, 0), new(1, 1)];
-
     // A piece's boxes as one mesh in blocks, its own boxes in a variant's color.
     private static ModelMesh Build(ModelPart part, Color variant)
     {
-        var vertices = new List<ModelVertex>();
-        var colors = new List<Color>();
-        var indices = new List<uint>();
-        foreach (var box in part.Boxes)
-        {
-            Vector3 min = box.Min / 16, size = (box.Max - box.Min) / 16;
-            for (int face = 0; face < 6; face++)
-            {
-                var first = (uint)vertices.Count;
-                for (int i = 0; i < 4; i++)
-                {
-                    vertices.Add(new ModelVertex(min + Corners[face][i] * size, Normals[face], Uvs[i]));
-                    colors.Add(box.Color ?? variant);
-                }
-                indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
-            }
-        }
-        return UploadMesh([.. vertices], [.. indices], [.. colors], null);
+        var mesh = new BoxMesh();
+        foreach (var box in part.Boxes) mesh.Add(box.Min / 16, box.Max / 16, box.Color ?? variant);
+        return mesh.Upload();
     }
 
     /// <summary>Draws the mobs within reach of the eye. Called inside <c>BeginMode3D</c>.</summary>

@@ -136,6 +136,12 @@ public enum BlockId : ushort
     Water6,
     Water7,
     FallingWater,
+    WhiteWool,
+    LightGrayWool,
+    GrayWool,
+    BlackWool,
+    BrownWool,
+    PinkWool,
 }
 
 /// <summary>How a block meets light, the player and the faces beside it.</summary>
@@ -343,6 +349,12 @@ public static class Blocks
             Same(BlockId.Water6, "water_6", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
             Same(BlockId.Water7, "water_7", "Flowing Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
             Same(BlockId.FallingWater, "falling_water", "Falling Water", Surfaces.Water, kind: BlockKind.Water) with { HeldAs = BlockId.Water },
+            Same(BlockId.WhiteWool, "white_wool", "White Wool", Surfaces.WhiteWool),
+            Same(BlockId.LightGrayWool, "light_gray_wool", "Light Gray Wool", Surfaces.LightGrayWool),
+            Same(BlockId.GrayWool, "gray_wool", "Gray Wool", Surfaces.GrayWool),
+            Same(BlockId.BlackWool, "black_wool", "Black Wool", Surfaces.BlackWool),
+            Same(BlockId.BrownWool, "brown_wool", "Brown Wool", Surfaces.BrownWool),
+            Same(BlockId.PinkWool, "pink_wool", "Pink Wool", Surfaces.PinkWool),
         ];
         for (int i = 0; i < all.Length; i++)
             if ((int)all[i].Id != i) throw new InvalidOperationException($"Block {all[i].Key} is listed at {i} but numbered {(int)all[i].Id}.");

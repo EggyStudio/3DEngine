@@ -35,6 +35,9 @@ public sealed class FirstPersonController
 
     public bool Flying { get; set; }
 
+    /// <summary>Whether two presses of Space start flying, as in creative mode and not in survival.</summary>
+    public bool MayFly { get; set; } = true;
+
     public bool Sprinting { get; private set; }
 
     public bool Sneaking { get; private set; }
@@ -90,7 +93,7 @@ public sealed class FirstPersonController
             if (IsKeyPressed(Key.Space))
             {
                 // Two presses of Space in quick succession start or stop flying, as in creative mode.
-                if (GetTime() - _lastSpace < DoubleTap)
+                if (MayFly && GetTime() - _lastSpace < DoubleTap)
                 {
                     Flying = !Flying;
                     Body.Velocity.Y = 0;

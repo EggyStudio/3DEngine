@@ -28,6 +28,9 @@ public sealed class VoxelWorld
     /// <summary>Sections whose faces' shading changed, by light or by a block beside a corner, which keep their faces and take new colors.</summary>
     public HashSet<SectionKey> Reshaded { get; } = [];
 
+    /// <summary>Blocks smaller than their cell that fell as the block they held to went, where and which, for the game to drop as items and clear.</summary>
+    public List<(int X, int Y, int Z, BlockId Block)> Fallen { get; } = [];
+
     /// <summary>Sections a column's arrival left to mesh, which are meshed a few at a time, nearest first.</summary>
     public HashSet<SectionKey> Loaded { get; } = [];
 
@@ -144,7 +147,10 @@ public sealed class VoxelWorld
             int nx = x + Lighting.Dx[d], ny = y + Lighting.Dy[d], nz = z + Lighting.Dz[d];
             if (Blocks.Get(GetBlock(nx, ny, nz)).Shape is { Falls: true, Support: var (sx, sy, sz) } shape
                 && (nx + sx, ny + sy, nz + sz) == (x, y, z) && !Blocks.Holds(block, shape.Facing))
-                SetBlock(nx, ny, nz, BlockId.Air);
+            {
+                var fell = GetBlock(nx, ny, nz);
+                if (SetBlock(nx, ny, nz, BlockId.Air)) Fallen.Add((nx, ny, nz, fell));
+            }
         }
         return true;
     }

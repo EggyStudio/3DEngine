@@ -41,6 +41,9 @@ public sealed class Mobs
     /// <summary>Whether the mobs stand still and think nothing, as for a capture.</summary>
     public bool Still { get; set; }
 
+    /// <summary>Mobs that died and were taken away, for the game to drop what they leave and clear.</summary>
+    public List<Mob> Died { get; } = [];
+
     /// <summary>Mobs kept by columns not loaded.</summary>
     public int Kept => _kept.Values.Sum(l => l.Count);
 
@@ -111,6 +114,8 @@ public sealed class Mobs
             mob.Update(world, playerEye, hour, seconds);
         }
         Push(player, seconds);
+        foreach (var mob in _mobs)
+            if (mob.Gone) Died.Add(mob);
         _mobs.RemoveAll(m => m.Gone);
     }
 

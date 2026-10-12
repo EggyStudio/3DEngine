@@ -19,8 +19,10 @@ public sealed class VoxelGame : IDisposable
     private const float SaveSeconds = 30;
 
     private readonly bool _transient;
+    private readonly Random _random = new();
     private float _breakWait, _placeWait, _sinceSave;
     private bool _captured, _swallowClick;
+    private GameMode _mode;
 
     /// <summary>
     /// Opens the world saved under <paramref name="name"/>, or under its kind and seed when no name is
@@ -31,6 +33,7 @@ public sealed class VoxelGame : IDisposable
     public VoxelGame(string kind, int seed, string? name, bool transient)
     {
         _transient = transient;
+        Hotbar = new Hotbar(Inventory);
         Renderer = new ChunkRenderer();
         Sky = new Sky(10);
         Light.ApplyAll();
@@ -44,6 +47,13 @@ public sealed class VoxelGame : IDisposable
     public Mobs Mobs { get; private set; } = null!;
 
     public MobRenderer MobRenderer { get; } = new();
+
+    /// <summary>The stacks of items lying in the world.</summary>
+    public ItemDrops Drops { get; } = new();
+
+    public DropRenderer DropRenderer { get; } = new();
+
+    public Inventory Inventory { get; } = new();
 
     public ChunkStreamer Streamer { get; private set; } = null!;
 
@@ -60,7 +70,27 @@ public sealed class VoxelGame : IDisposable
 
     public LightSettings Light { get; } = new();
 
-    public Hotbar Hotbar { get; } = new();
+    public Hotbar Hotbar { get; }
+
+    public InventoryWindow InventoryWindow { get; } = new();
+
+    /// <summary>How the player plays, which in survival stops flight and makes blocks take time to break and drop items.</summary>
+    public GameMode Mode
+    {
+        get => _mode;
+        set
+        {
+            _mode = value;
+            Player.MayFly = value == GameMode.Creative;
+            if (value == GameMode.Survival) Player.Flying = false;
+            (BreakingAt, BreakProgress) = (null, 0);
+        }
+    }
+
+    /// <summary>The block being broken in survival, and how far from 0 to 1, as of this frame.</summary>
+    public (int X, int Y, int Z)? BreakingAt { get; private set; }
+
+    public float BreakProgress { get; private set; }
 
     public SettingsWindow Settings { get; } = new();
 
@@ -83,7 +113,8 @@ public sealed class VoxelGame : IDisposable
     /// <summary>Whether the world fades into the sky's color toward the render distance, as Minecraft's fog hides where the world ends.</summary>
     public bool Fog { get; set; } = true;
 
-    public bool PickerOpen { get; private set; }
+    /// <summary>Whether the window E opens is open, the inventory in survival and every item in creative.</summary>
+    public bool InventoryOpen { get; private set; }
 
     /// <summary>A recording of the picture's change around a motion, which <c>voxel.flicker</c> starts, read a frame at a time.</summary>
     public FlickerRun? Flicker { get; set; }
@@ -107,6 +138,13 @@ public sealed class VoxelGame : IDisposable
         World = new VoxelWorld(generator);
         var (kept, placed) = Save?.ReadMobs() ?? ([], []);
         Mobs = new Mobs(kept, placed);
+        Drops.Clear();
+        // The mode and the inventory are the world's own, a new world's in creative with its hotbar of blocks.
+        Mode = Enum.TryParse<GameMode>(info?.Mode, ignoreCase: true, out var mode) ? mode : GameMode.Creative;
+        Inventory.Clear();
+        if (info?.Inventory is { } slots) Inventory.Load(slots);
+        else if (Mode == GameMode.Creative) Hotbar.FillCreative();
+        Hotbar.Selected = Math.Clamp(info?.Selected ?? 0, 0, Hotbar.Size - 1);
         // The old streamer's workers finish into its own queue, which nothing reads again.
         Streamer = new ChunkStreamer(World, Renderer, Mobs, Save);
         Clouds.Follow(generator.Seed);
@@ -136,7 +174,8 @@ public sealed class VoxelGame : IDisposable
         Save.WriteMobs(Mobs.Columns());
         var at = Player.Body.Position;
         Save.WriteInfo(new WorldInfo(World.Generator.Name, World.Generator.Seed, at.X, at.Y, at.Z,
-            Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)]));
+            Player.Heading, Player.Pitch * 180 / MathF.PI, Player.Flying, Sky.Hour, [.. Blocks.All.Select(b => b.Key)],
+            Mode.ToString().ToLowerInvariant(), Inventory.Save(), Hotbar.Selected));
         _sinceSave = 0;
     }
 
@@ -169,12 +208,41 @@ public sealed class VoxelGame : IDisposable
         Mobs.Update(World, Player.Body, Player.Eye, Sky.Hour, seconds);
         Aim();
         if (_captured && !_swallowClick) Interact(seconds);
+        else (BreakingAt, BreakProgress) = (null, 0);
+        if (_captured && keys && IsKeyPressed(Key.Q)) Throw(IsKeyDown(Key.LeftControl));
+        LeaveDrops();
+        Drops.Update(World, Player.Body, Inventory, seconds);
 
         Sky.Update(seconds);
         World.Fluids.Update(seconds);
         Clouds.Update(seconds);
         Streamer.Update(Player.Body.Position, RenderDistance);
         Renderer.Update(World, Player.Eye, MeshBudgetMs);
+    }
+
+    // What the mobs that died and, in survival, the blocks that fell with the block they held to leave
+    // on the ground.
+    private void LeaveDrops()
+    {
+        foreach (var mob in Mobs.Died)
+            foreach (var (item, count) in Loot.Of(mob, _random))
+                Drops.Spawn(item, count, mob.Body.Position + new Vector3(0, 0.25f, 0), new Vector3(0, 3, 0));
+        Mobs.Died.Clear();
+        if (Mode == GameMode.Survival)
+            foreach (var (x, y, z, block) in World.Fallen)
+                foreach (var (item, count) in Loot.Of(block, _random))
+                    Drops.Pop(item, count, x, y, z);
+        World.Fallen.Clear();
+    }
+
+    /// <summary>Throws one of the chosen slot's items ahead of the player, or its whole stack, as Q and Control with Q do.</summary>
+    public bool Throw(bool all)
+    {
+        if (Hotbar.Current is not { } stack) return false;
+        var count = Inventory.Take(Hotbar.Selected, all ? stack.Count : 1);
+        var look = Vector3.Normalize(Player.Look);
+        Drops.Spawn(stack.Item, count, Player.Eye - new Vector3(0, 0.3f, 0) + look * 0.3f, look * 6 + new Vector3(0, 1, 0), ItemDrops.ThrownDelay);
+        return true;
     }
 
     // The block and the mob the crosshair rests on, a mob before a block hiding it.
@@ -193,18 +261,19 @@ public sealed class VoxelGame : IDisposable
     {
         if (IsKeyPressed(Key.Escape))
         {
-            if (PickerOpen) PickerOpen = false;
+            if (InventoryOpen) CloseInventory();
             Capture(!_captured);
         }
         if (IsKeyPressed(Key.E))
         {
-            PickerOpen = !PickerOpen;
-            Capture(!PickerOpen && !Settings.Open);
+            if (InventoryOpen) CloseInventory();
+            else InventoryOpen = true;
+            Capture(!InventoryOpen && !Settings.Open);
         }
         if (IsKeyPressed(Key.F3))
         {
             Settings.Open = !Settings.Open;
-            Capture(!Settings.Open && !PickerOpen);
+            Capture(!Settings.Open && !InventoryOpen);
         }
         if (IsKeyPressed(Key.F1)) HudHidden = !HudHidden;
         if (IsKeyPressed(Key.G)) Light.NextQuality();
@@ -217,6 +286,15 @@ public sealed class VoxelGame : IDisposable
         else EnableCursor();
     }
 
+    // Closes the window E opens, the stack held in it going back into the inventory and what does
+    // not fit thrown.
+    private void CloseInventory()
+    {
+        InventoryOpen = false;
+        if (InventoryWindow.Close(Inventory) is { } left)
+            Drops.Spawn(left.Item, left.Count, Player.Eye - new Vector3(0, 0.3f, 0), Vector3.Normalize(Player.Look) * 3, ItemDrops.ThrownDelay);
+    }
+
     private void Interact(float seconds)
     {
         _breakWait -= seconds;
@@ -224,28 +302,70 @@ public sealed class VoxelGame : IDisposable
         if (IsMouseButtonPressed(MouseButton.Left)) _breakWait = 0;
         if (IsMouseButtonPressed(MouseButton.Right)) _placeWait = 0;
 
-        if (IsMouseButtonDown(MouseButton.Left) && _breakWait <= 0)
+        if (Mode == GameMode.Creative && IsMouseButtonDown(MouseButton.Left) && _breakWait <= 0)
         {
             _breakWait = Repeat;
             if (!Attack()) Break();
         }
+        if (Mode == GameMode.Survival) Dig(seconds);
         if (IsMouseButtonDown(MouseButton.Right) && _placeWait <= 0)
         {
             _placeWait = Repeat;
-            Place(Hotbar.Current);
+            Use();
         }
         if (IsMouseButtonPressed(MouseButton.Middle) && Target is { } hit)
-            Hotbar.Pick(Blocks.Get(World.GetBlock(hit.X, hit.Y, hit.Z)).Item);
+            Hotbar.Pick(Items.Of(World.GetBlock(hit.X, hit.Y, hit.Z)), Mode == GameMode.Creative);
+    }
+
+    // In survival a click hits a mob, and holding the button on a block breaks it over the time its
+    // hardness takes, from the start again where the crosshair leaves it, and waits a quarter
+    // second before the next, as Minecraft's does.
+    private void Dig(float seconds)
+    {
+        if (!IsMouseButtonDown(MouseButton.Left))
+        {
+            (BreakingAt, BreakProgress) = (null, 0);
+            return;
+        }
+        if (IsMouseButtonPressed(MouseButton.Left) && Attack() || TargetMob is not null || _breakWait > 0) return;
+        if (Target is not { } hit || !Blocks.Get(World.GetBlock(hit.X, hit.Y, hit.Z)).Breakable)
+        {
+            (BreakingAt, BreakProgress) = (null, 0);
+            return;
+        }
+        if (BreakingAt != (hit.X, hit.Y, hit.Z)) (BreakingAt, BreakProgress) = ((hit.X, hit.Y, hit.Z), 0);
+        var time = Loot.BreakSeconds(World.GetBlock(hit.X, hit.Y, hit.Z));
+        BreakProgress += time <= 0 ? 1 : seconds / time;
+        if (BreakProgress < 1) return;
+        Break();
+        (BreakingAt, BreakProgress, _breakWait) = (null, 0, Repeat);
+    }
+
+    /// <summary>
+    /// Opens or shuts the door the crosshair rests on, or places the chosen slot's block against the
+    /// face it rests on, using one up in survival, as a right click does.
+    /// </summary>
+    /// <returns>The block placed or the door's half turned, or air where nothing happened.</returns>
+    public BlockId Use()
+    {
+        var toggles = Target is { } door && Blocks.Get(World.GetBlock(door.X, door.Y, door.Z)).Toggled is not null;
+        var placed = Place(Hotbar.CurrentBlock);
+        if (Mode == GameMode.Survival && !toggles && placed != BlockId.Air) Inventory.Take(Hotbar.Selected);
+        return placed;
     }
 
     /// <summary>Hits the mob the crosshair rests on, unless it is still red from the last hit.</summary>
     public bool Attack() => TargetMob is { } mob && mob.Hit(Player.Body.Position, HandDamage);
 
-    /// <summary>Breaks the block the crosshair rests on, unless it cannot be broken.</summary>
+    /// <summary>Breaks the block the crosshair rests on at once, unless it cannot be broken, dropping what it leaves in survival.</summary>
     public bool Break()
     {
-        if (Target is not { } hit || !Blocks.Get(World.GetBlock(hit.X, hit.Y, hit.Z)).Breakable) return false;
-        return World.SetBlock(hit.X, hit.Y, hit.Z, BlockId.Air);
+        if (Target is not { } hit) return false;
+        var block = World.GetBlock(hit.X, hit.Y, hit.Z);
+        if (!Blocks.Get(block).Breakable || !World.SetBlock(hit.X, hit.Y, hit.Z, BlockId.Air)) return false;
+        if (Mode == GameMode.Survival)
+            foreach (var (item, count) in Loot.Of(block, _random)) Drops.Pop(item, count, hit.X, hit.Y, hit.Z);
+        return true;
     }
 
     /// <summary>
@@ -310,8 +430,13 @@ public sealed class VoxelGame : IDisposable
         DrawSkybox();
         Renderer.Draw(Player.Eye, RenderDistance);
         MobRenderer.Draw(Mobs.All, Player.Eye);
+        DropRenderer.Draw(Drops.All, Player.Eye, GetTime());
         Clouds.Draw(Player.Eye, RenderDistance, Sky.Horizon);
-        if (Target is { } hit && !HudHidden) Hud.DrawOutline(hit, World.ShapeAt(hit.X, hit.Y, hit.Z));
+        if (Target is { } hit && !HudHidden)
+        {
+            Hud.DrawOutline(hit, World.ShapeAt(hit.X, hit.Y, hit.Z));
+            if (BreakingAt == (hit.X, hit.Y, hit.Z)) Hud.DrawBreaking(hit, World.ShapeAt(hit.X, hit.Y, hit.Z), BreakProgress);
+        }
         EndMode3D();
 
         // Under water the view is tinted blue, as Minecraft's is.
@@ -320,41 +445,15 @@ public sealed class VoxelGame : IDisposable
         {
             Hud.DrawCrosshair();
             Hud.DrawHotbar(Hotbar);
-            if (!Settings.Open) Hud.DrawHelp(Light.Quality);
+            if (!Settings.Open) Hud.DrawHelp(Light.Quality, Mode);
         }
         Settings.Draw(this);
-        if (PickerOpen) DrawPicker();
-        EndDrawing();
-    }
-
-    // Every block as a swatch, which puts it in the chosen slot of the hotbar when clicked.
-    private void DrawPicker()
-    {
-        var center = ImGui.GetMainViewport().GetCenter();
-        ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
-        var open = true;
-        if (ImGui.Begin("Blocks", ref open, ImGuiWindowFlags.AlwaysAutoResize))
+        if (InventoryOpen && !(Mode == GameMode.Survival ? InventoryWindow.DrawSurvival(Inventory, Hotbar.Selected) : InventoryWindow.DrawCreative(Hotbar)))
         {
-            var column = 0;
-            foreach (var block in Blocks.All)
-            {
-                // A block placed in more than one way is shown once, as the block held to place it.
-                if (block.Id == BlockId.Air || block.Item != block.Id) continue;
-                var swatch = block.Swatch;
-                if (ImGui.ColorButton(block.Name, new Vector4(swatch.R, swatch.G, swatch.B, 255) / 255, ImGuiColorEditFlags.NoTooltip, new Vector2(40, 40)))
-                    Hotbar.Slots[Hotbar.Selected] = block.Id;
-                if (ImGui.IsItemHovered()) ImGui.SetTooltip(block.Name);
-                if (++column % 6 != 0) ImGui.SameLine();
-            }
-            ImGui.NewLine();
-            ImGui.TextUnformatted($"Chosen slot: {Hotbar.Selected + 1}, {Blocks.Get(Hotbar.Current).Name}");
-        }
-        ImGui.End();
-        if (!open)
-        {
-            PickerOpen = false;
+            CloseInventory();
             Capture(!Settings.Open);
         }
+        EndDrawing();
     }
 
     public void Dispose()
@@ -362,6 +461,7 @@ public sealed class VoxelGame : IDisposable
         SaveWorld();
         Renderer.Dispose();
         MobRenderer.Dispose();
+        DropRenderer.Dispose();
         Clouds.Dispose();
     }
 }
