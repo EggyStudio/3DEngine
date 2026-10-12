@@ -56,6 +56,13 @@ lit. The game draws in its own order meanwhile, its render distance a setting.
 Review: item 8 of REVIEW.md, 2026-10-11; an opaque pipeline without the discard for materials that
 cut nothing out, tried before a depth pass, after item 2's parts f and c.
 
+Review: item 8 measured, 2026-10-12; the hidden land costs the pass its geometry and not its
+fragments, the device testing depth early under the discard already, 0.34 to 0.42 ms of vertex and
+raster work for 289 columns of sections inside the frustum, so the opaque pipeline goes in for the
+devices that gain and the land's cost is the game's to remove by culling the sections the eye cannot
+see, a flood fill through the sections' open faces from the eye's as Minecraft's visibility graph
+does, measured on this room; an occlusion culling in the engine waits on that measure.
+
 ### 2026-10-11, the voxel game in `3DEngine.Game`: colors written in place miss the bounce
 
 On `3c7fe822`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
@@ -83,9 +90,9 @@ the far wall for the glowstone, and 5% and 20% for an end rod in its place, the 
 white room. The end rod's step is gone at `3105e73e`, the largest drop toward it along rows 370 to
 460 of the frame 0.6% of the light where 8.5%.
 
-The engine lacks the field's colors and the ray-traced scene's following a color stream written in
-place, as the model pass's do. The game keeps writing colors in place meanwhile, since uploading a
-section anew on each change of light would have the field build it again.
+The field's colors and the ray-traced scene's follow a color stream written in place since
+`feec07a2`, and the game writes its sections' colors in place with their packed bytes on each change
+of light, measured below.
 
 The vertex stream of the game's own, at `b275f738` against the commit before it, each built from a
 clean worktree on `3ec1fdb3`'s engine, and `b275f738`'s game again on `86fba7ad`'s engine, each
@@ -118,6 +125,43 @@ bytes a vertex in two buffers, as expected. The passes that read positions alone
 and the shadows, take half to a third of their time with the stream, and the frame on the land half
 or near it; the bytes saved since change the frame little, and the relight is the mesher's work and
 is unchanged.
+
+On `feec07a2`'s engine, where colors written into a mesh in place reach the field and the ray-traced
+scene in the frame after, the game writes a relit section's colors at 3 beside its packed bytes.
+Read against the same build writing the packed bytes alone, each from a clean worktree, in this
+entry's room with `voxel.shade off off` as the relight before the glowstone, a hidden window of 1280
+by 720 at High. The floor is `gi.compare`'s region `white block 2, top` and the far wall `white
+block 4, side facing +z`, each the red of its mean linear light, the other two in proportion, beside
+a reference of 1024 paths and 8 bounces traced 300 frames after the lamp and again after the four
+blocks have each section upload anew.
+
+| Read | Floor, frame and reference | Far wall, the same | Section 1's floor, reference |
+|---|---|---|---|
+| Packed bytes alone, 300 and 2,100 frames | 0.098, 0.099 | 0.034, 0.002 | 0.002 |
+| Packed bytes alone, after the uploads | 0.129, 0.128 | 0.072, 0.073 | 0.108 |
+| Colors written as well, 300 and 2,100 frames | 0.129, 0.128 | 0.072, 0.073 | 0.108 |
+| Colors written as well, after the uploads | 0.129, 0.128 | 0.072, 0.073 | 0.108 |
+
+With the colors written the frame and the reference read from the relight what an upload gives them,
+within 1% of each other, and no section of the reference stays black. The cost, in the same room lit
+and settled, of one section relit in place, section 1, 0, -1 shaded again alone with the light
+levels flipped through `./e3d eval` and its faces kept, against one uploaded anew, a block set or
+cleared at 19, 5, -13 in it, each read by `./e3d command profile` from a reset just before to a read
+two frames after, about four frames, five of each in turns with five of nothing, in two runs. The
+desktop's gnome-shell took 34 to 44% of the GPU through the first run and up to 19% through the
+second, so the lines are ranges over both, lowest to highest, and their medians, in milliseconds,
+the field's `scene_field` and the bounce's `global_illumination` on the CPU and on the GPU.
+
+| Frames of | Field, CPU | Field, GPU | Bounce, CPU | Bounce, GPU |
+|---|---|---|---|---|
+| Nothing | 0.126-0.243, 0.164 | 0.003-0.004 | 0.373-0.976, 0.475 | 1.539-1.653, 1.579 |
+| A relight | 0.135-0.308, 0.164 | 0.004 | 0.363-1.317, 0.466 | 1.557-1.927, 1.577 |
+| An upload | 0.156-0.675, 0.190 | 0.017-0.023 | 0.429-0.550, 0.482 | 1.555-1.589, 1.577 |
+
+A relit section reads as a frame of nothing on every line, its repainting under what the profile
+tells apart, where an upload's field reads 0.015 ms of the GPU more over the frames, near 0.06 in
+all, and the first upload of each run 0.4 to 0.5 ms of the CPU more. Over 1,200 frames after each
+kind the lines read alike, the field 226 meshes still and none stamped.
 
 Review: item 9 of REVIEW.md, 2026-10-11; a write to a color stream marks the mesh's colors stale,
 the field repainting its cells' colors and the ray scene its corners in the frame after, before item

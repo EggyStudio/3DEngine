@@ -10,7 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6f4c98bb`, the game's commit opening the post-processing window from its Voxel
+Reviewed up to `6c9284a7`, the game's hostile mobs, and `314b9d48`, the game's commit following item
+9, and `feec07a2`, item 9: colors written in place by `UpdateMeshBuffer` reach the bounce and the
+reference in the frame after; the store keeps the meshes whose colors were written and the field
+takes them each frame, a still one among them pooled again with its colors as they are, and in each
+built cascade not built again that frame the paint pass runs over its triangles alone against the
+words the cascade's last build kept, which each build copies aside, about a megabyte a cascade,
+writing the colors the passes read so no distance is found again; the ray scene writes the new
+colors into the mesh's corners, which its structure does not read. A test colors a slab white with a
+white wall on it, writes it red in place, and reads the reference trace it red and the wall's red
+over green at 1.230 in the frame against 1.240 in the reference, within 2%, where without the ray
+scene's half the reference traces white and without the field's half the wall's bounce stays white;
+the light guide and RENDERING.md say it. The suite 1,703; lavapipe 410 with 10 skipped and no
+validation error; the glowstone room lost no device in eight runs. Right, the paint alone run again
+from the words a build keeps, rather than the build, and both halves proven by leaving each out. The
+Reply is read and removed, and the game's entry on colors written in place leaves ASKS.md with it,
+the game's session asked for the item's measure in its room, the floor and wall after a relight
+against the reference at eight bounces and a relit section's cost against an upload's. Item 9 is
+done. The game followed at `314b9d48`, a commit of its own to its chunk renderer and README, its
+relight reaching the bounce since, as the entry asked. The page at 07:51: `e424550c`'s run has every
+test job green, Linux in 14 minutes, macOS in 13 and Windows in 29 m 56 s, six minutes past the
+third build's 23 m 44 s with the longer screen rays and the suite's growth since, within the limit
+and watched on `6f4c98bb`'s run, whose Linux and macOS tests are green and whose Windows tests run;
+the captures and the games' steps run on both. BevyCSharp's `eb82688b` is green on all three. Item
+8, measured at 08:00 before a commit: the opaque pipeline without the discard saves nothing on the
+development machine's GPU, which tests depth early under a discard, the hidden land's 0.35 ms being
+the geometry of 289 columns of sections inside the frustum, so the patch goes in for the devices
+that gain and the cost is culling's, the game's section flood fill first, its item text saying so.
+The page at 08:23: `e424550c`'s run is green on every job, its examples job in nine minutes, the
+first whole green run with the longer screen rays; `6f4c98bb`'s Windows tests took 33 m 44 s on the
+same engine code and tests where `e424550c`'s took 29 m 56 s, four minutes of the runner's own
+variance on top of the six the suite grew by since the third build, within the limit and watched, a
+verdict if a run passes 36; its other test jobs are green and the games' steps run. The game
+committed its hostile mobs at `6c9284a7`, arrows and explosions with 140 lines of tests. Next item
+24, the glow lights' penumbra, then item 8's commit.
+
+Before it, `6f4c98bb` came, the game's commit opening the post-processing window from its Voxel
 window, and `c54d64eb`, item 10: each effect over the frame is read back beside its setter, the
 tonemap, the exposure and the one that follows the scene, the grading, the vignette, FXAA, the depth
 of field, the motion blur and the bloom, those of several values a tuple named as the setter's
@@ -88,42 +123,6 @@ saying why: the gap at 22 is the probes' resolution around a one-unit gap, one r
 thin edge, and a finer cell is the knob a game has for it. Item 22 is done. Next item 10, the
 post-processing window, which the working session has taken, then h's blotches and teeth by the
 owner's eye on the penumbra pictures against the head of today, item 9 and item 8.
-
-Before it, `8f685115` came, a commit of the game's, the player's vitals, health and hunger with
-their tests, on the head-up display, hurt by falls and kept in the save, and `089ac771`, item 23's
-second part: a mesh that moved within the last 1,024 frames settles into the still field only after
-standing that long, where every mesh settled after eight, the count chosen by the game's animals'
-stands of one to eight seconds, up to 960 frames at 120 a second, 480 having a cascade built every
-fourth frame and 1,024 one in fifty, those of figures that stood from the first frame and settled
-before they walked; mobility is a copy's, so a still copy of a moving mesh settles after eight as
-the red wall's test holds, where mobility by the vertices had failed it. The plan reads a frame by
-place where a mesh in the same place of the order only moved, counting the frames of those not yet
-still alone, where it read every mesh into a dictionary once any moved, compares meshes in place and
-hashes them by their vertices and translation, keeps the bricks it stamps as lists, sorts the shapes
-on packed keys, moves a box by its middle and extents and copies the bricks' runs whole. In the
-reproduction of the village, 400 meshes and 76 figures of five pieces walking 90 frames and standing
-45, the field takes 1.19 ms of the CPU in Debug where 2.69, 4.0 microseconds a box, 0.66 in Release,
-2.3 a box, and 0.18 ms of the GPU where 6.2; at 17, 0.56 and 0.14. Two tests, a figure walking among
-still meshes read by place with no cascade built again where it stops, and a still copy of a walking
-crate's mesh settling after eight frames read by place and read whole, the by-place test running
-past the long count; RENDERING.md's paragraph says the numbers and why. The suite 1,701; lavapipe
-410 with 9 skipped and no validation error. Right, the settle made the figure's own by its motion
-rather than every mesh's, and the plan's order kept rather than rebuilt where only a matrix moved.
-The Reply is read and removed. The game measured its village on `089ac771` against `f889a559` with
-the mobs' `BouncesLight` on, read at 04:33, a paragraph and table in its entry: 75 to 78 walking
-mobs cost the field 2.31 to 2.42 ms of CPU and 0.16 to 0.29 of GPU where 5.07 and 3.81, 16 or 17
-walking 1.54 to 1.64 and 0.29 to 0.58 where 3.64 and 0.40, standing mobs 1.96 to 2.25 until the
-1,024 frames pass, about 6 microseconds of CPU and 1 of GPU a box in the game's Debug build; so the
-GPU mark of half a millisecond is met and the CPU mark of 2 is missed by a third in Debug, which the
-engine's reproduction puts under in Release, and the 256-box cap still leaves a crowd's farthest
-pieces out of the field. Item 23 is done so, its remainder the cap and the Debug third, neither
-taken while the game keeps its mobs out of the field by the switch, as it does. Item 22, measured
-both ways at 05:05 and chosen: the screen's rays at twice the reach take the pillar's gap from 37
-points to 22 and the 27 cases' sum from 4.006 to 3.739, the corridor from 17% under to 2 to 9, at
-0.03 to 0.13 ms of the GPU, while the gather weight moves the gap by four points alone, so the reach
-is taken for the rooms' gain with its marks missed and said, and the probe's face toward the pillar,
-read 21% low, is the item's second part. Then h's blotches and teeth by the owner's eye, item 10,
-item 9 and item 8.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -601,36 +600,56 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
    being the point of each.
 
-8. **An opaque material's hidden fragments are rejected before they are lit.** The model pass
-   discards a fragment for its alpha cutoff, so the GPU's early depth test is off for every material
-   and a fragment behind a wall is lit before the depth test throws it away: in the game's room the
-   land outside, all of it behind the walls, costs the pass 0.6 ms, 1.42 ms at eight columns against
-   0.83 at two, and drawing the walls first saves nothing, 0.05 ms worse (ASKS.md, 2026-10-11).
-   Either an opaque pipeline without the discard for materials whose alpha mode cuts nothing out,
-   the masked and blended keeping theirs, so the early test rejects a hidden fragment before it is
-   shaded, or a depth pass ahead of the model pass that every opaque draw writes, which costs a pass
-   of its own and pays only where the shading is heavy; the first is tried first, since it adds no
-   pass, and the second measured against it where the first leaves most of the cost. Measured by the
-   model pass on the game's room at eight columns against two, with the desktop quiet, and on Manor
-   and Wick, with the pipelines' count; a test holds the room's land to a share of the pass. Taken
-   after item 2's parts f and c and before item 3's remainder.
+8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
+   land costs geometry, not fragments.** The model pass discards a fragment for its alpha cutoff, so
+   the GPU's early depth test is off for every material and a fragment behind a wall is lit before
+   the depth test throws it away: in the game's room the land outside, all of it behind the walls,
+   costs the pass 0.6 ms, 1.42 ms at eight columns against 0.83 at two, and drawing the walls first
+   saves nothing, 0.05 ms worse (ASKS.md, 2026-10-11). Either an opaque pipeline without the discard
+   for materials whose alpha mode cuts nothing out, the masked and blended keeping theirs, so the
+   early test rejects a hidden fragment before it is shaded, or a depth pass ahead of the model pass
+   that every opaque draw writes, which costs a pass of its own and pays only where the shading is
+   heavy; the first is tried first, since it adds no pass, and the second measured against it where
+   the first leaves most of the cost. Measured by the model pass on the game's room at eight columns
+   against two, with the desktop quiet, and on Manor and Wick, with the pipelines' count; a test
+   holds the room's land to a share of the pass. Taken after item 2's parts f and c and before item
+   3's remainder. Measured at 08:00 before a commit, the first way built, a specialization constant
+   the alpha test reads, set by the pipelines of batches whose material is opaque, the batches split
+   by it and the discard folded away, read on the entry's room on a flat world by the model pass's
+   time, the least of three readings after 400 frames, old and new in turns twice with the desktop
+   at nothing: with the glow off 1.145 and 1.161 ms at eight columns against 1.149 and 1.129, 0.80
+   at two either way, and with it on 2.44 and 2.49 against 2.34 and 2.43; the hidden land's share is
+   0.34 to 0.42 ms in every case, the glow lights' march per fragment on or off, so the old build
+   rejected those fragments before shading them already, the development machine's GPU testing depth
+   early under a discard and deferring the write alone, which is also why drawing the walls first
+   saved nothing. The cost is the vertex and raster work of 289 columns of sections against 25, all
+   inside the frustum, which a depth pass would add a pass to and not remove. The patch goes in all
+   the same, 257 lines, since a device that turns the early test off under a discard, lavapipe and
+   the tilers among them, gains what this one does not, measured on the macOS job's profile where it
+   prints one and said in RENDERING.md with the reason; and what removes the cost is culling the
+   sections the eye cannot see, the game's own flood fill over its sections through their open
+   faces, as Minecraft's visibility graph does, which is the game's to build on what the engine has,
+   said under its entry, and an occlusion culling in the engine from the frame before's depth, left
+   until the game's culling is measured and falls short.
 
-9. **A color stream written in place reaches the bounce.** The field paints a mesh's vertex colors
-   as it stamps it and the ray scene packs them into its corners, both keyed by the mesh's vertices,
-   so colors written in place by `UpdateMeshBuffer`, which the model pass draws at once, leave the
-   bounce and the reference on the colors of the mesh's last upload: in the game's white room relit
-   by its light levels, the frame's floor read 0.099 and its far wall 0.035 for 2,100 frames, and
-   0.130 and 0.072 once each section uploaded anew with the same blocks and light, the reference's
-   wall 0.002 and 0.043 with whole sections black in its picture, so a lamp placed in a dark room
-   bounces off walls as dark as they were until a block changes in their section (ASKS.md,
-   2026-10-11). A write to a color stream marks the mesh's colors stale, and in the frame after the
-   field repaints the colors of the cells it holds for the mesh without rebuilding their distances
-   and the ray scene rewrites its corners' values, so a relight costs less than an upload, which
-   would have the field build the mesh again. Measured on the game's room, the floor and the wall
-   after a relight against the reference at eight bounces, and a relit section's cost against an
-   upload's; a test writes a colored slab's colors in place and holds the bounce to the reference
-   within the colored slab's 1%. Taken after item 2's parts f and c and before item 8, since a wrong
-   bounce weighs more than its 0.6 ms.
+9. **A color stream written in place reaches the bounce, done at `feec07a2`.** The field paints a
+   mesh's vertex colors as it stamps it and the ray scene packs them into its corners, both keyed by
+   the mesh's vertices, so colors written in place by `UpdateMeshBuffer`, which the model pass draws
+   at once, leave the bounce and the reference on the colors of the mesh's last upload: in the
+   game's white room relit by its light levels, the frame's floor read 0.099 and its far wall 0.035
+   for 2,100 frames, and 0.130 and 0.072 once each section uploaded anew with the same blocks and
+   light, the reference's wall 0.002 and 0.043 with whole sections black in its picture, so a lamp
+   placed in a dark room bounces off walls as dark as they were until a block changes in their
+   section (ASKS.md, 2026-10-11). A write to a color stream marks the mesh's colors stale, and in
+   the frame after the field repaints the colors of the cells it holds for the mesh without
+   rebuilding their distances and the ray scene rewrites its corners' values, so a relight costs
+   less than an upload, which would have the field build the mesh again. Measured on the game's
+   room, the floor and the wall after a relight against the reference at eight bounces, and a relit
+   section's cost against an upload's; a test writes a colored slab's colors in place and holds the
+   bounce to the reference within the colored slab's 1%. Taken after item 2's parts f and c and
+   before item 8, since a wrong bounce weighs more than its 0.6 ms. Done at `feec07a2`: the
+   recolored meshes repainted in the built cascades from the words each build keeps, the ray scene's
+   corners rewritten, the red bounce within 2% of the reference.
 
 10. **A post-processing window in the overlay, which a game opens as it opens its performance window
     (Decision 28), done at `c54d64eb`.** The owner asked on 2026-10-11 for a tab of the ImGui
@@ -1279,18 +1298,8 @@ Verdicts 1 to 53 are settled, the last three, the soak, the measure and the pict
 
 ## Replies
 
-Item 9. Colors written in place now reach the bounce and the reference in the frame after. The
-store keeps the meshes whose colors `UpdateMeshBuffer` wrote (`MeshStore.TakeRecolored`), and each
-frame the field takes them: a still mesh among them is pooled again with its colors as they now
-are, and in each built cascade not built again that frame the paint pass runs over its triangles
-alone against the words the cascade's last build kept, which each build now copies aside, a
-megabyte a cascade, writing the colors the passes read directly, so no distance is found again;
-the ray scene writes the new colors into the mesh's corners, which its structure does not read. A
-test colors a slab white in its vertices with a white wall standing on it, writes its colors red in
-place, and reads the reference trace the slab red and the wall's red over green at 1.230 in the
-frame against 1.240 in the reference, held within 2%; without the ray scene's half the reference
-traces the slab white, and without the field's half the wall's bounce stays white, 1.0. The suite
-passes, 1,703, lavapipe 410 with 10 skipped and no validation error, and the glowstone room lost
-no device in eight runs. The game's room, its floor and wall after a relight against the
-reference at eight bounces and a relit section's cost against an upload's, is asked of the game's
-session.
+Item 8 is in the commit after `314b9d48`. An opaque material's batches draw with pipelines that set
+specialization constant 0, which folds `alphaTested`'s discard away, and a test draws an opaque and
+a masked copy of one quad in one frame, the one whole and the other cut. It saves nothing on the RTX
+4070, as measured before, and RENDERING.md says so with the reason; the macOS job's profile will be
+its first reading on a tiler.

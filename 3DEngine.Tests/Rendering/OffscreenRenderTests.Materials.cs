@@ -323,6 +323,43 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
+    public void An_Opaque_And_A_Masked_Copy_Of_One_Mesh_Draw_Apart_The_Opaque_Whole_And_The_Masked_Cut()
+    {
+        // Two copies of one quad with one texture, which joined one batch before the opaque one's
+        // pipeline folded its alpha test away. Drawn in one batch now, the masked copy would lose
+        // its holes or the opaque one gain them.
+        Open(64, 64);
+        var texture = LoadTextureFromImage(new Image([255, 255, 255, 60, 255, 255, 255, 200], 2, 1));
+        SetTextureFilter(texture, TextureFilter.Point);
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var wall = LoadModelFromMesh(GenMeshCube(4, 4, 0.1f));
+        var quad = GenMeshPlane(1.2f, 1.2f, 1, 1);
+        var opaque = LoadModelFromMesh(quad);
+        var masked = LoadModelFromMesh(quad);
+        opaque.Materials[0] = new ModelMaterial(new Color(0, 0, 255), texture) { AlphaMode = MaterialAlphaMode.Opaque };
+        masked.Materials[0] = new ModelMaterial(new Color(0, 0, 255), texture) { AlphaMode = MaterialAlphaMode.Mask };
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(opaque, new Vector3(-0.9f, 0, 0.5f), Vector3.UnitX, 90, Vector3.One, Color.White);
+            DrawModelEx(masked, new Vector3(0.9f, 0, 0.5f), Vector3.UnitX, 90, Vector3.One, Color.White);
+            DrawModel(wall, new Vector3(0, 0, -1), 1, new Color(255, 0, 0));
+            EndMode3D();
+        });
+
+        foreach (var (x, blue, what) in new[] { (11, true, "the opaque copy's clear half"), (21, true, "the opaque copy's other half"), (42, false, "the masked copy's hole"), (52, true, "the masked copy's solid half") })
+        {
+            var color = GetImageColor(image, x, 32);
+            (blue ? color.B > 40 && color.R < 10 : color.R > 40 && color.B < 10).Should().BeTrue($"{what} reads {(blue ? "blue" : "the red wall")}, not {color}");
+        }
+        // The two copies share their mesh, which unloading one frees.
+        UnloadModel(opaque);
+        UnloadModel(wall);
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void A_Blended_Surface_Mixes_A_Textures_Alpha_With_What_Is_Behind()
     {
         Open(64, 64);

@@ -40,6 +40,9 @@ internal enum CompareOp
 /// <param name="Blend">How the colors combine when <paramref name="BlendEnabled"/> is <c>true</c>, raylib's blend modes.</param>
 /// <param name="Points">Whether triangles are drawn as a point at each corner, where the device can, as rlgl's point mode draws them.</param>
 /// <param name="Factors">The factors and equations the custom blend modes combine by.</param>
+/// <param name="Solid">Whether the fragment stage's specialization constant 0 is set, which the
+/// model pass's shaders read as a material that cuts nothing out, so their alpha test folds away
+/// and the device's early depth test rejects a hidden fragment before it is shaded.</param>
 internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -57,7 +60,8 @@ internal readonly record struct GraphicsPipelineDesc(
     PrimitiveTopology Topology = PrimitiveTopology.TriangleList,
     BlendMode Blend = BlendMode.Alpha,
     bool Points = false,
-    BlendFactors Factors = default);
+    BlendFactors Factors = default,
+    bool Solid = false);
 
 /// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
 internal enum CullMode

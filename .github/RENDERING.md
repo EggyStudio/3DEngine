@@ -230,6 +230,18 @@ show through. The mode reaches the fragment stage in the instance's emission `w`
 opaque, the cutoff for mask, zero for blend), read by `alphaTested`. A tint with alpha on a model
 whose file says opaque blends it, as raylib's tint fades a model.
 
+An opaque material's batches are kept apart from the others, and their pipelines set the fragment
+stage's specialization constant 0, `solidMaterial`, which folds `alphaTested`'s discard away. A
+stage that can discard lets a device turn its early depth test off, as lavapipe and the tiling
+GPUs do, so a fragment behind a wall would be lit before the test threw it away. The development
+machine's RTX 4070 tests depth early under a discard and defers only the write, so the fold saves
+nothing there: in the voxel game's closed room on a flat world, the land outside behind the walls
+cost the model pass 0.34 to 0.42 ms at eight columns against two before and after, with the glow
+lights' march per fragment on or off. That cost is the vertex and raster work of 289 columns of
+sections against 25, all inside the frustum, which a depth pass ahead of the model pass would add
+to rather than remove. Culling the sections the eye cannot see removes it, the game's own flood
+fill through its sections' open faces first.
+
 The pipeline blends by alpha and writes depth, so a draw that lets what is behind it show must
 come after that. A draw is translucent when it blends and its color has alpha below 255 or its
 base color texture has a pixel neither clear nor solid (`TextureStore.IsTranslucent`, found when

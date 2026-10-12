@@ -120,13 +120,19 @@ internal sealed unsafe partial class GraphicsDevice
             module = vs.Module,
             pName = entryName
         };
+        // Constant 0 of the fragment stage, set for a material that cuts nothing out. A stage that
+        // declares no such constant ignores it.
+        uint solid = 1;
+        var solidEntry = new VkSpecializationMapEntry { constantID = 0, offset = 0, size = sizeof(uint) };
+        var solidInfo = new VkSpecializationInfo { mapEntryCount = 1, pMapEntries = &solidEntry, dataSize = sizeof(uint), pData = &solid };
         // A pipeline with no fragment stage writes depth only.
         if (fs is not null)
             stages[1] = new VkPipelineShaderStageCreateInfo
             {
                 stage = VkShaderStageFlags.Fragment,
                 module = fs.Module,
-                pName = entryName
+                pName = entryName,
+                pSpecializationInfo = desc.Solid ? &solidInfo : null
             };
 
         // The vertex input, from the bindings and attributes given when there are any.

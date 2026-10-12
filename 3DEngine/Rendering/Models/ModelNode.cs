@@ -118,6 +118,8 @@ internal sealed partial class ModelRenderer : IDisposable
         public bool Points;
         public bool Blend;
         public bool Depth;
+        // Whether its draws' material cuts nothing out, so its pipeline's alpha test is folded away.
+        public bool Solid;
         // World to clip space, pushed for the call, the camera's that its draws were recorded through.
         public Matrix4x4 ViewProjection;
         // The pixels its draws are kept to, or null for the whole target.
@@ -151,7 +153,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly IShader?[] _fragmentShaders = new IShader?[3], _streamsFragmentShaders = new IShader?[3];
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, bool Positions), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, bool Positions, bool Solid), IPipeline> _pipelines = [];
 
     // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
@@ -250,7 +252,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
 
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
     // instances are and the blocks they are culled by, made once a frame by whichever of its
@@ -354,7 +356,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0)> _custom = [];
     // A program's shader's fragment stage with its color held to an eight-bit frame's, for the HDR frame.
     private readonly Dictionary<int, IShader> _heldFragments = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, bool Positions), IPipeline> _customPipelines = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, bool Positions, bool Solid), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -472,8 +474,8 @@ internal sealed partial class ModelRenderer : IDisposable
                 Logger.Warn("A mesh uploaded from its positions alone is drawn with the model pass's own shader, which lights it by a zero normal. " +
                             "A shader of the program's own gives it the normal its stream packs.");
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build, positions)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed, positions);
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build, positions, batch.Solid)
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed, positions, batch.Solid);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -606,7 +608,7 @@ internal sealed partial class ModelRenderer : IDisposable
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
-        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true, true), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4), Scissor: (ScissorRect?)null);
+        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true, true, false), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4), Scissor: (ScissorRect?)null);
         var lastBatch = -1;
         for (int i = 0; i < draws.Length; i++)
         {
@@ -656,12 +658,12 @@ internal sealed partial class ModelRenderer : IDisposable
     // Marks a translucent draw until the opaque batches are made.
     private const int Translucent = -2;
 
-    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
         ScissorRect? scissor, Vector4 subsurface = default, float thickness = 0)
     {
         _batches.Add(new Batch
         {
-            Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Shadow = shadow, ViewProjection = viewProjection,
+            Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Solid = faces.Solid, Shadow = shadow, ViewProjection = viewProjection,
             Scissor = scissor, Subsurface = subsurface, Thickness = thickness,
             Count = custom >= 0 ? 1u : 0u,
         });
@@ -671,7 +673,7 @@ internal sealed partial class ModelRenderer : IDisposable
     // A draw's parts' thickness where it scatters, so draws that differ only where nothing scatters share a batch.
     private static float ThicknessOf(in ModelDraw draw) => draw.Subsurface.W > 0 ? draw.SubsurfaceThickness : 0;
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness) key)
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
             _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface, key.Thickness);

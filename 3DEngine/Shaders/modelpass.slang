@@ -389,12 +389,21 @@ public float4 baseColor(ModelStreamsOutput input)
     return baseColor(input.base) * input.vertexColor;
 }
 
+// Set by the pipeline of a batch whose material cuts nothing out, which folds alphaTested's discard
+// away: a stage that can discard keeps the GPU's early depth test off, so every fragment behind a
+// wall was lit before the depth test threw it away, and the land outside the voxel game's room cost
+// its model pass 0.6 ms.
+[vk::constant_id(0)]
+public const bool solidMaterial = false;
+
 // The color as the material's alpha mode means it. Alpha is ignored for an opaque material, cut
 // out below the cutoff for a masked one and solid above it, and kept for a blended one, whose
 // clear parts are cut out so they leave the depth buffer alone. The mode rides in the
 // instance's emission w.
 public float4 alphaTested(float4 color, ModelVertexOutput input)
 {
+    if (solidMaterial)
+        return float4(color.rgb, 1.0);
     float cutoff = input.emission.w;
     if (cutoff < 0.0)
         return float4(color.rgb, 1.0);

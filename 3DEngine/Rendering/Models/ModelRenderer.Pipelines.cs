@@ -24,30 +24,32 @@ internal enum ModelBuild
 
 internal sealed partial class ModelRenderer
 {
-    // Which faces of a draw are left out, whether it is drawn as points, blended and writes its
-    // depth: no faces for a double-sided material or a pass that culls nothing, and otherwise the
-    // back or the front ones.
-    private static (CullMode Cull, bool Points, bool Blend, bool Depth) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
-        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend, draw.DepthWrite);
+    // Which faces of a draw are left out, whether it is drawn as points, blended, writes its depth
+    // and cuts nothing out: no faces for a double-sided material or a pass that culls nothing, and
+    // otherwise the back or the front ones.
+    private static (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
+        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend, draw.DepthWrite,
+            draw.AlphaMode == MaterialAlphaMode.Opaque);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
     // front ones out, filled or as points, blended or written as they are, writing its depth or
     // not, through model_streams.slang for a mesh with streams, with the build given where it was
-    // made and the whole where it was not, and reading positions alone for a mesh uploaded so.
+    // made and the whole where it was not, reading positions alone for a mesh uploaded so, and
+    // with its alpha test folded away for a material that cuts nothing out.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, bool positions = false)
+        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, bool positions = false, bool solid = false)
     {
         var (spvs, shaders) = streams == Streams.None ? (_fragmentSpvs, _fragmentShaders) : (_streamsFragmentSpvs, _streamsFragmentShaders);
         if (spvs[(int)build] is null) build = ModelBuild.Whole;
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions), out var made)) return made;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions, solid), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         var vertex = streams == Streams.None
             ? _vertexShader
             : _streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv));
         var fragment = shaders[(int)build] ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, spvs[(int)build]!));
-        return _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull,
-            points: points, blend: blend, streams: streams, depth: depth, positions: positions);
+        return _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions, solid)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull,
+            points: points, blend: blend, streams: streams, depth: depth, positions: positions, solid: solid);
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does, its
@@ -55,9 +57,9 @@ internal sealed partial class ModelRenderer
     // mesh gives it.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
         CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false,
-        StreamFeed? feed = null, bool positions = false)
+        StreamFeed? feed = null, bool positions = false, bool solid = false)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed, positions), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
         var fragment = held
@@ -68,10 +70,10 @@ internal sealed partial class ModelRenderer
         // stage that reads less than the instance's every row would leave unread, each by its
         // semantic where the reflection names them and otherwise at the location it reads.
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
-        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held, feed, positions)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
+        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
             blend: blend, streams: streams, depth: depth, inputs: own ? ShaderProgram.InputLocationSet(vertex) : null,
-            named: own ? program.VertexInputs : [], shaderName: program.Name, feed: feed, positions: positions);
+            named: own ? program.VertexInputs : [], shaderName: program.Name, feed: feed, positions: positions, solid: solid);
     }
 
     // A material's own shader's stages, whether it reads a mesh's colors and second texture
@@ -293,7 +295,7 @@ internal sealed partial class ModelRenderer
     // The attributes a pipeline of the pass is fed, the stage's inputs placed by their semantics
     // where it names them, with a warning once for a stage that reads one no stream gives.
     private VertexInputAttributeDesc[] Placed(int rows, Streams streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? inputs, string? shaderName,
-        StreamFeed? feed = null, bool positions = false)
+        StreamFeed? feed = null, bool positions = false, bool solid = false)
     {
         VertexStream[] given =
         [
@@ -326,7 +328,7 @@ internal sealed partial class ModelRenderer
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null, StreamFeed? feed = null, bool positions = false)
+        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -338,6 +340,7 @@ internal sealed partial class ModelRenderer
             BlendEnabled: blend,
             Cull: cull,
             Points: points,
+            Solid: solid,
             // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats
             // from location 3 in ModelInstance's order. With streams, its colors at binding 2 and
             // location 9 and its second texture coordinates at binding 3 and location 10, each a
