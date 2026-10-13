@@ -327,7 +327,7 @@ jobs:
           ./e3d command frames.wait 5 --quiet
           boxed=$(./e3d command tactics.status)
           click 6 5
-          ./e3d command frames.wait 300 --quiet
+          ./e3d command frames.wait 300 --quiet --timeout 600
           ordered=$(./e3d command tactics.status)
           printf '%s\n' "$start" "$picked" "$walked" "$boxed" "$ordered"
           ./e3d command tactics.save --quiet

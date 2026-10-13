@@ -10,7 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `82b23f8c`, item 4 as read: an `AnimatedModel` entity's copy, as it was last posed
+Reviewed up to `9b54221b`, the owner's commit of 2026-10-12 19:43 carrying this file's pass of
+`82b23f8c`, with the three marks and no sentence, so it goes on N 7.2's list as `bb3202e4` did. The
+runs of the evening, read on 2026-10-13: the pushes of `0c63cab5`, `fca652a1` and `82b23f8c` and the
+pack run on `82b23f8c` all passed their Windows suites, 1,656 of 1,656 at the head in 46 minutes
+with the cache saved after it, so Verdict 54 is settled on four green suites and Verdict 55 on its
+cause mended and its limit holding, the suite's time on a Windows runner varying two-fold between
+runs with the same code. The pack made no package, its examples job failing in the strategy game's
+step, and the push's examples job failed in the puzzle game's: Verdicts 56 and 57, the first a wait
+without a timeout and the pack's one blocker, the second a game's process ending in its startup with
+nothing logged. The macOS suite of `0c63cab5` failed once and passed on the three runs after, left
+as a run superseded within four minutes. Next the two lines of Verdict 56 and the list's, in one
+commit, the push, and the pack run; then item 6, the three packages bumped.
+
+Before it, `82b23f8c` came, item 4 as read: an `AnimatedModel` entity's copy, as it was last posed
 through the same joints as its wires, gives `PhysicsBodies` its triangles, so a mesh and a hull
 collider shape a body from it as from any mesh, made once and kept until the entity's body is
 removed; the body waits while the file loads in the Render stage and is refused with the warning
@@ -41,12 +54,6 @@ a probe's faces are 64 pixels of half floats, three of them wax's reach from thr
 the roughness filtering, so only a mirror's reflection of a scattering surface close to its probe
 would show it. Both right, and the second is what the item offered as the other way, the reason with
 its number, so item 3 is done. Next item 4, the animated model's meshes in the world.
-
-Before it, `0c63cab5` came, the list's commit: `build/norm/7.2.txt` takes `bb3202e4` as the owner's
-own, the ignore of `/Voxel-Sandbox`, beside `5d88a601` and `e57f3fc1`, NormTests 16 of 16 and the
-tree clean, so the owner can push; that push's Windows suite runs cold under 60 minutes and saves
-the cache, and the pack run after it runs warm. Right. The working session takes item 3, subsurface
-scattering's first batch.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1003,64 +1010,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 1 to 53 are settled, the last three, the soak, the measure and the picture script, on
-`fdf27346`'s examples job on 2026-10-12, and their numbers are not given again. Verdicts 54 and 55
-are open.
+Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
+suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
+and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 and 57 are open.
 
-54. **The Windows suite of `ee85866f` fails the drawing leak test's resident bound by 1.5 MB.** The
-    hundred drawing apps of `AppLeakTests`, its line 369, 100 apps in 108 seconds on lavapipe, asks
-    the resident memory after the last app to stand less than 50 MB over the twentieth's and found
-    51.5, with the GC's heap flat at 38 MB from the twentieth app on, no Vulkan object alive after
-    the last app beside the twentieth, and the threads between 23 and 26; the other 1,653 passed in
-    22 minutes, and the same test under the same bound passed on Linux and macOS on the same commit,
-    as it passed on Windows on `6f4c98bb`. So the growth is host memory on Windows alone, 0.6 MB an
-    app over eighty apps, which the heap and the device objects do not hold, and the bound stood
-    close to it. Three steps, given to the game's session at 17:20 while the engine's session was
-    out of budget and taken by the engine's at 18:37: the test's message carries the resident series
-    it writes every ten apps beside the heap's and the threads', so a failure says whether the
-    growth is steady, an allocation an app makes and its closing does not give back, or a step; the
-    drawing variant run here under a bounded scope for its series on Linux, which tells the two
-    causes apart, the driver's allocator on lavapipe's Windows build, where Linux grows well under
-    the bound and the drawing variant's bound then takes an allowance stated from both numbers with
-    the plain variant at line 311 keeping 50, or a real and recent growth, where Linux is near the
-    bound too and the cause is in the engine's changes between `6f4c98bb` and `ee85866f`, the
-    field's buffers and the mesh store of items 21 to 24, host memory an app's end does not free;
-    and the commit carrying the working tree's REVIEW.md, SHARED.md and ASKS.md. In the pack run's
-    rerun by namespace the test passed on Windows under a cold shader cache (Verdict 55), the first
-    pass since the failure, so of the three steps the first alone is taken with Verdict 55's batch,
-    the series in the message, and the bound stands; the Linux series and the allowance wait on a
-    second failure. Settled at two green Windows suites, the push's and the pack run's. The series
-    is in the message at `9a3e2e2a`.
+56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
+    On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
+    opening and, after the order at tile 6 5, asked `frames.wait 300` with no `--timeout`, so the
+    client gave up at its 30 seconds while the game, on lavapipe under the validation layer, was
+    still running the 300 frames, and the step ended with exit code 6; Tactics.log holds no line at
+    a warning or worse, so the game was well and the client was impatient. Manor's and the rally's
+    steps give their long waits `--timeout 600`, and line 330 of `examples.yml` is the one wait of
+    100 frames or more without it. One thing: `--timeout 600` on that wait, and the pack run after
+    the push. Settled when the pack run's examples job passes the step.
 
-55. **The Windows suite of the pack run on `ee85866f` runs past 36 minutes.** The suite's step stood
-    at 36.6 minutes and running at 17:43, where the push's run of the same code took 22.3 an hour
-    before and the two runs watched earlier took 29.9 and 33.7, the suite's own limit being 40
-    minutes (`build/test.py`, `--timeout-minutes`), past which it ends and counts what it did not
-    reach as lost to its time, and a test that hangs being cut and lost at 5. So by 17:47 the step
-    ends either way, and its page says which: a suite that ran whole and slow names the runner, a
-    Windows machine slower than the push's, since nothing in the code changed between the two runs;
-    one that ended at its limit or lost tests to hangs names them, and those are the ones to read,
-    the leak tests first, whose hundred apps keep to a budget of their own past the fiftieth. The
-    step ended at 18:29 after 82 minutes, failed: the suite was lost at its limit of 40 minutes,
-    1,179 MB at most, the last test to end the closed room's walls at every heading of
-    `CascadeEdgeTests` at 38:29 and the next app starting, and the script then ran the suite again
-    as seventeen processes, one a namespace, which took the other 42 minutes and passed every test,
-    1,654 with 25 skipped, the Rendering process alone 36 minutes and the drawing leak test among
-    the passes, so no test failed and the time was the whole cause. The cause of the time: the
-    Windows job's Mesa shader cache, `build/mesa-cache` keyed by the shaders' hash and restored by
-    prefix, is saved by `actions/cache`'s post step, which runs only when the job passed; the push's
-    Windows job failed on Verdict 54, so the cache of the shaders items 21 to 24 changed was never
-    saved, the pack run restored the older one by prefix, and every app of the suite compiled the
-    changed shaders again, 3.7 seconds an app where 0.84 by the workflow's own measure, which
-    doubled the suite from 22 minutes past 40. The pack run's job failed too, so the next Windows
-    run is as cold, and a cold suite cannot pass within 40 minutes, a circle only a change breaks.
-    Two things, in the engine's session's batch with Verdict 54: the Mesa cache restored by
-    `actions/cache/restore` and saved by `actions/cache/save` under `if: always()`, keyed as today,
-    on Windows and on Linux alike, so a failed suite still leaves the shaders it compiled; and the
-    Windows suite's limit at 60 minutes, `--timeout-minutes 60` on its step with the reason beside
-    it, so a cold suite passes and saves the cache, the hang limit of five minutes a test still
-    catching a hang. Settled when the Windows suite passes on the push and the pack run after it
-    runs warm, under 36 minutes. Both are at `9a3e2e2a`.
+57. **Slide's process ends in its startup on the push's examples job, with nothing logged.** On the
+    push of `82b23f8c`, the puzzle games' step opened Slide offscreen and asked `frames.wait 10`,
+    and the client found the session unreachable, the process having ended after accepting the
+    connection; its log ends at the renderer's resize complete, 1.09 seconds in, three offscreen
+    images of 480 by 270 made, no exception and no warning, so the process died outside managed code
+    or was killed. The pack run's examples job failed before the puzzle step, so the step has run
+    once on this code. Read on the next push: if Slide dies again, the step keeps a dump as the test
+    job does and the dump names the thread, and the game is run here on lavapipe with the validation
+    layer to the same point; if it passes, this was once. Settled when the puzzle step passes on two
+    pushes.
 
 ## Decisions
 
