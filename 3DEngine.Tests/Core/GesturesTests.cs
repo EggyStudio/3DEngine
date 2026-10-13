@@ -82,6 +82,39 @@ public class GesturesTests
         Run(slow, [.. frames])[^1].Should().Be(Gesture.None);
     }
 
+    [Theory]
+    [InlineData(0.25, false)]
+    [InlineData(1.0 / 60, true)]
+    public void A_Drag_The_Console_Makes_Over_Ten_Frames_Swipes_At_A_Sixtieth_A_Frame_And_Not_At_A_Quarter(double frameSeconds, bool swipes)
+    {
+        // A swipe is a drag let go faster than 0.2 of the window a second, timed on the app's
+        // clock. On a device slow enough that the console's drag of ten frames took two seconds, its
+        // clock reading about a quarter of a second a frame, a drag up a fifth of the window slid
+        // nothing in the puzzle game, where the frame time time.frame sets counts each frame as a
+        // sixtieth, as at 60 frames a second. Here the drag is 0.06 of the window.
+        var app = new App(Config.Default with { Headless = true, FrameSeconds = frameSeconds });
+        app.AddPlugin(new TimePlugin());
+        app.AddPlugin(new InputPlugin());
+        var input = app.World.Resource<Input>();
+        var height = app.World.Resource<Config>().WindowData.Height;
+        var synthetic = new SyntheticInput();
+        SyntheticInput.Move(input, 100, height / 2);
+
+        var seen = new List<Gesture>();
+        for (ulong frame = 0; frame < 16; frame++)
+        {
+            if (frame == 1) synthetic.Drag(input, MouseButton.Left, 0, -(int)(height * 0.06f), frame, 10);
+            synthetic.Update(input, frame);
+            input.ApplyQueued();
+            app.BeginFrame();
+            seen.Add(app.World.Resource<Gestures>().Current);
+            app.EndFrame();
+        }
+        app.Shutdown();
+
+        seen.Contains(Gesture.SwipeUp).Should().Be(swipes, $"the gestures were {string.Join(", ", seen)}");
+    }
+
     [Fact]
     public void Two_Fingers_Moving_Apart_Pinch_Out_And_Together_Pinch_In()
     {

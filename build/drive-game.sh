@@ -57,9 +57,17 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Where a game that dies in native code leaves its dump, Windows' own in the job, which names
-# each dump after the program's file.
-dumps="${E3D_DUMPS:-3DEngine.Tests/TestResults/dumps}"
+# Where a game that dies in native code leaves its dump. On Windows it is the system's own, set in
+# the job, which names each dump after the program's file. Elsewhere it is the .NET runtime's, asked
+# for here, into captures, which the examples job keeps, since Slide's process ended once in its
+# startup on Linux with nothing in its log and no dump to say which thread it died on.
+if [ "$system" = Windows ]; then
+  dumps="${E3D_DUMPS:-3DEngine.Tests/TestResults/dumps}"
+else
+  dumps="${E3D_DUMPS:-captures/dumps}"
+  mkdir -p "$dumps"
+  export DOTNET_DbgEnableMiniDump=1 DOTNET_DbgMiniDumpType=2 DOTNET_DbgMiniDumpName="$PWD/$dumps/%e.%p.dmp"
+fi
 
 # The game's process, read from the open's answer, and on Windows a watcher that holds it and writes
 # its exit code once it ends, since e3d started it through cmd.exe and nothing else waits on it.
@@ -347,7 +355,11 @@ case "$game" in
   Slide)
     # A tap in the window's middle starts a game, a quick drag up or down swipes the tiles, a
     # double click takes the move back as a double tap, a finger held a second and a half starts
-    # again, and the autopilot plays until no move is left.
+    # again, and the autopilot plays until no move is left. A gesture is timed on the game's
+    # clock, a swipe a drag let go faster than 0.2 of the window a second and a double tap two
+    # taps within 0.3 seconds, so each frame is made a sixtieth of a second first: where a device
+    # drew the drag's ten frames in two seconds, the swipe slid nothing.
+    cmd time.frame 0.0166667
     cmd input.click 240 135
     cmd frames.wait 10
     cmd input.drag Left 0 -120 10

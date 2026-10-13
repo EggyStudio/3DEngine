@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9b54221b`, the owner's commit of 2026-10-12 19:43 carrying this file's pass of
+Reviewed up to `cc473437`, Verdict 56's line and the list's: the strategy game's wait of 300 frames
+after the order at tile 6 5 carries `--timeout 600` as Manor's and the rally's do, the file parsing,
+and `build/norm/7.2.txt` takes `9b54221b` as the owner's own under `bb3202e4`, NormTests 16 of 16
+and the tree clean. Right. The working session has stopped on the owner's word. The push and the
+pack run of `cc473437` on 2026-10-13 both failed, each on one job and each on a different thing: the
+push's Windows job in its games' step, Slide stopping serving after its startup while its process
+lived, the third shape of Verdict 57 after Linux's exit and macOS's swipe that slid nothing, so the
+verdict is Slide's on every system; and the pack run's macOS suite lost to a crash in MoltenVK's
+pipeline creation, Verdict 58, its rerun by namespace passing every test. The suites themselves were
+green on all three: Windows 22 minutes this time where 46 the day before on the same code, Linux 11,
+macOS 15. Linux's job is the shortest because it runs the suite alone, the games and the native
+publish being the examples job's there, while the Windows and macOS jobs play every game and publish
+after their suites, and because a Windows runner's speed varies two-fold between runs. Next: the
+pack run's failed jobs re-run, which is the owner's; Slide read by a working session under Verdict
+57; then item 6.
+
+Before it, `9b54221b` came, the owner's commit of 2026-10-12 19:43 carrying this file's pass of
 `82b23f8c`, with the three marks and no sentence, so it goes on N 7.2's list as `bb3202e4` did. The
 runs of the evening, read on 2026-10-13: the pushes of `0c63cab5`, `fca652a1` and `82b23f8c` and the
 pack run on `82b23f8c` all passed their Windows suites, 1,656 of 1,656 at the head in 46 minutes
@@ -38,22 +54,6 @@ package. Right, and item 4 is done. Both working sessions have stopped on the ow
 with the trees clean and six commits unpushed since `ee85866f`; the push's Windows suite runs cold
 under 60 minutes and saves the cache, the pack run after a green push runs warm and settles Verdicts
 54 and 55, and item 6, the three packages bumped, follows the pack.
-
-Before it, `42b3e9ce` came, item 3's remainder in two commits. `fca652a1`, the cap's test in
-`SubsurfaceTests`: a sheet with no thickness of its own in a field of 0.15 cells, which measures it
-a cell thick, lit by a lamp behind, its front reading (39, 39, 39), the ambient alone, and (146,
-146, 145) with two millimeters given, the lesser of the measured and the given taken, bounded at 120
-more, 15 of 15 on the GPU and on lavapipe, RENDERING.md saying the numbers. `42b3e9ce`, the reason
-the spread and the light through stay out of render textures and a probe's faces, with the numbers,
-in RENDERING.md and TODO.md: a render texture is drawn in eight bits with the curve and the encoding
-at the end of the model pass, so it holds no linear frame to add the light into, and a frame and a
-composite of its own for each texture is what bringing it in would cost; a wax sphere lit from its
-side reads in one as an unmarked sphere does, (44, 44, 44) at the terminator and (39, 39, 39) four
-degrees past where the window reads (69, 61, 53) and (54, 43, 39), the same frames drawn into both;
-a probe's faces are 64 pixels of half floats, three of them wax's reach from three units off before
-the roughness filtering, so only a mirror's reflection of a scattering surface close to its probe
-would show it. Both right, and the second is what the item offered as the other way, the reason with
-its number, so item 3 is done. Next item 4, the animated model's meshes in the world.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1013,7 +1013,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56 and 57 are open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56, 57 and 58 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1031,10 +1031,31 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     connection; its log ends at the renderer's resize complete, 1.09 seconds in, three offscreen
     images of 480 by 270 made, no exception and no warning, so the process died outside managed code
     or was killed. The pack run's examples job failed before the puzzle step, so the step has run
-    once on this code. Read on the next push: if Slide dies again, the step keeps a dump as the test
-    job does and the dump names the thread, and the game is run here on lavapipe with the validation
-    layer to the same point; if it passes, this was once. Settled when the puzzle step passes on two
-    pushes.
+    once on this code. On the push of `cc473437` the Windows job's games' step found Slide's session
+    gone at `input.touch`, the process still running, so it had stopped serving, its log ending at
+    the same resize complete 1.27 seconds in; and on the push of `0c63cab5` the macOS job's step
+    found a swipe up or down sliding no tile, the board unchanged, the log ending there too. Three
+    systems, three shapes, one game, and the puzzle step passed on `fca652a1`'s push between them,
+    so it is a race in Slide's own startup or in the touch drive and not a system's. Slide is the
+    flat API alone, `InitWindow` then a 128-pixel font, four sounds and the best score's file loaded
+    before its loop, so the CLI server serves while no frame runs yet, and the step's first command
+    meets a game that has not begun drawing. One thing for a working session: open Slide offscreen
+    here twenty times with `frames.wait 10` straight after the open, as the step does, and on a
+    stall dump the live process to see which thread holds it; then read the touch drive's swipe
+    against `GetGestureDetected` for the frames it needs. Settled when the cause is named and the
+    puzzle step passes on two pushes.
+
+58. **The macOS suite of the pack run is lost to a crash in MoltenVK's pipeline creation.** On the
+    pack run of `cc473437`, 2026-10-13, the suite crashed after 1 minute 38 seconds with 1,392
+    passed, a bus error on a runtime thread inside `vkCreateGraphicsPipelines`, reached from the
+    model renderer's pipeline for the bloom's scene draw during `SceneFieldTests`' particles
+    bouncing off a wall behind the camera, the dump written and read; the script's rerun by
+    namespace passed every test, 1,640 with 25 skipped in 15 minutes, and the macOS suite passed on
+    the push of the same code an hour earlier and on the four runs before. So the crash is the
+    driver's, Metal compiling a pipeline under MoltenVK on the runner, seen once, and the job fails
+    as a lost suite should. Read on the next macOS runs: a second crash in the same call names which
+    pipeline and what the suite held, 1,202 MB here; one crash stays a note. Settled at two green
+    macOS suites.
 
 ## Decisions
 

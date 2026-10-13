@@ -112,7 +112,10 @@ internal static class CliSessionFile
     /// An app replaces its file around each command it answers, and a listing of the directory made
     /// while the new file is moved over the old can leave the name out, which reported a serving
     /// app as gone about once in a hundred commands. The names of two listings are taken together,
-    /// with a file still being written counted under the name it is moved to.
+    /// with a file still being written counted under the name it is moved to. On Windows the file
+    /// cannot be opened for the moment the move takes, so a read that fails is tried again a few
+    /// times 10 ms apart: read once, it found no session for the puzzle game while it served, its
+    /// process alive, about once a run of its drive.
     /// </remarks>
     public static IReadOnlyList<CliSession> All()
     {
@@ -120,9 +123,24 @@ internal static class CliSessionFile
         static IEnumerable<string> Names() => System.IO.Directory.GetFiles(Directory, "*.json*")
             .Select(name => name.EndsWith(".json.tmp", StringComparison.Ordinal) ? name[..^".tmp".Length] : name)
             .Where(name => name.EndsWith(".json", StringComparison.Ordinal));
-        var found = Names().Union(Names()).Select(Read).OfType<CliSession>().ToList();
+        var found = Names().Union(Names()).Select(ReadAgain).OfType<CliSession>().ToList();
         found.Sort((left, right) => right.Started.CompareTo(left.Started));
         return found;
+    }
+
+    /// <summary>The wait between reads of a file that cannot be read, which a test makes the moment it lets the file go.</summary>
+    internal static Action Pause { get; set; } = static () => Thread.Sleep(10);
+
+    // A session file read, and read again a few times 10 ms apart where it cannot be read, as a file
+    // being moved over cannot on Windows for a moment.
+    private static CliSession? ReadAgain(string path)
+    {
+        for (int attempt = 0; ; attempt++)
+        {
+            var session = Read(path);
+            if (session is not null || attempt == 4) return session;
+            Pause();
+        }
     }
 
     /// <summary>Deletes the file for <paramref name="pid"/>.</summary>

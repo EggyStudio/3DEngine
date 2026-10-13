@@ -56,6 +56,37 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void A_Session_File_That_Cannot_Be_Opened_For_A_Moment_Is_Read_Once_It_Can()
+    {
+        // On Windows a file being moved over by the app's heartbeat cannot be opened for the moment
+        // the move takes, and a command that read it then found no session for a game still
+        // serving, about once a run of the puzzle's drive. The file is held here as the move holds
+        // it, and let go in the wait before the read is tried again.
+        var (previous, pause) = (CliSessionFile.Directory, CliSessionFile.Pause);
+        CliSessionFile.Directory = _folder.Path;
+        try
+        {
+            var session = new CliSession(Environment.ProcessId, 4242, "token", "/project", "Game", "Title", "hidden",
+                Stamp, true, "ready", 12, Stamp);
+            CliSessionFile.Write(session);
+            var held = new FileStream(CliSessionFile.PathFor(session.Pid), FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            var waited = 0;
+            CliSessionFile.Pause = () =>
+            {
+                waited++;
+                held.Dispose();
+            };
+
+            CliSessionFile.All().Should().ContainSingle("the file is read again once it can be opened").Which.Port.Should().Be(4242);
+            waited.Should().Be(1, "the first read found the file held");
+        }
+        finally
+        {
+            (CliSessionFile.Directory, CliSessionFile.Pause) = (previous, pause);
+        }
+    }
+
+    [Fact]
     public void A_Served_Program_That_Closes_Before_It_Is_Ready_Says_So_At_Warning()
     {
         // A program that ends of its own in its startup, as one whose loop ends at once does, which
