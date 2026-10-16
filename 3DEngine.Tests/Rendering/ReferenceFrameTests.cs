@@ -50,19 +50,22 @@ public sealed partial class ReferenceFrameTests : IDisposable
     }
 
     // Draws frames until the first one's capture has been written, as OffscreenRenderTests does,
-    // after settle frames for what takes a frame or more to appear, as a probe's capture or a
-    // scene's models do.
+    // once every model the scene places has loaded and what the test waits on is ready, as a
+    // probe's capture, and then settle frames for what takes a frame or more to appear. Summit's
+    // island, loaded on the asset server's workers, was captured gray on a runner slow that minute
+    // after a settle of ten frames alone.
     private Image Capture(Action draw, int settle = 0, Func<bool>? ready = null)
     {
         // A capture taken earlier in the test is written over, rather than mistaken for this one.
         var path = Path.Combine(_folder.Path, "frame.png");
         File.Delete(path);
-        for (int frame = 0; frame < 120 && ready is not null && !ready(); frame++)
+        for (int frame = 0; frame < 1200 && !(IsSceneLoaded() && (ready?.Invoke() ?? true)); frame++)
         {
             BeginDrawing();
             draw();
             EndDrawing();
         }
+        IsSceneLoaded().Should().BeTrue("every model the scene places has loaded before its frame is captured");
         for (int frame = 0; frame < settle; frame++)
         {
             BeginDrawing();
@@ -723,6 +726,7 @@ public sealed partial class ReferenceFrameTests : IDisposable
         Open(320, 180);
         Tests.Scenes.SummitComponents.Register();
         LoadScene("resources/level.json");
+        IsSceneLoaded().Should().BeFalse("the level's prefabs and models load on the asset server's workers and are spawned in a frame, which the capture waits for");
         CreateDirectionalLight(new Vector3(-0.5f, -1, -0.35f), new Color(255, 244, 225), 1.6f, castsShadows: true);
         CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);
         SetShadowDistance(60);

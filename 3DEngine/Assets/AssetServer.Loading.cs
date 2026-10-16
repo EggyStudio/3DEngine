@@ -121,6 +121,9 @@ public sealed partial class AssetServer
         return typedAsset;
     }
 
+    /// <summary>Whether any asset is still being loaded.</summary>
+    internal bool AnyLoading => _states.Values.Any(state => state == LoadState.Loading);
+
     /// <summary>Gets the current load state of an asset.</summary>
     /// <param name="id">The asset ID to query.</param>
     /// <returns>The current <see cref="LoadState"/>.</returns>

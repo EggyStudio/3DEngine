@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `cc473437`, Verdict 56's line and the list's: the strategy game's wait of 300 frames
+Reviewed up to `b3895bd4`, Verdict 57 read and two of its three shapes mended. Slide never stalled
+here, twenty opens with the wait straight after on the GPU and on lavapipe under the validation
+layer and six whole drives on two cores, each answered in half a second, so the three shapes are
+three causes. The swipe that slid nothing on macOS: a swipe is a drag released faster than a fifth
+of the window a second on the game's wall clock, and the drive's drag of 120 pixels over ten frames
+is a plain drag on any device under five frames a second, reproduced on lavapipe held to a fifth of
+a core, 2.0 seconds and nothing slid, twice; the drive's Slide case sets `time.frame` to a sixtieth
+before its gestures, as the double tap's 0.3 seconds and the hold's second are timed the same way,
+two drives on the throttled core then passing, and `GesturesTests` holds a theory where the
+console's ten-frame drag swipes at a sixtieth a frame and not at a quarter. The session gone on
+Windows while the process ran: every command reads each session file and a game replaces its file
+every thirty frames by a move, which Windows will not open while under way, so the read answered
+nothing and the command said no session of a live game, the listing's race already handled and the
+read's not; `CliSession` reads a file that fails again up to four more times ten milliseconds apart,
+and `CliTests` holds the file shut and lets it go in the first pause, failing before the mend. The
+process ending on Linux with nothing logged: not reproduced and its cause unknown, so the drive asks
+the runtime for a dump off Windows, type 2 into the captures' dumps folder the examples job uploads,
+a fault sent to Slide here leaving its dump of 34 threads readable, and the next death names its
+thread. BUILDING.md's drive paragraph says the frame time and the dumps; the whole suite 1,710 of
+1,710, NormTests 16 of 16, the strict build clean. Right. The push and the pack run of `b3895bd4` on
+2026-10-13 failed too, and on 2026-10-16 the owner stopped development on both engines until every
+job is green on every push and pack (Decision 39): the Windows suite failed the drawing leak test's
+resident bound on both runs, and its series, in the message since `9a3e2e2a`, shows why it fails on
+one run and passes on the next, the baseline read at the twentieth app sitting before the heap
+census taken there, whose own footprint of some 60 MB then counts as growth, Verdict 59; the pack
+run's macOS suite failed Summit's reference frame, the whole frame gray where the reference is lit,
+a capture after a fixed settle of ten frames with nothing asked of the scene's readiness, Verdict
+60. Verdicts 56, 57 and 58 stand as they are. Next the two mends, then pushes until three in a row
+are green with the pack after them, and only then item 6.
+
+Before it, `cc473437` came, Verdict 56's line and the list's: the strategy game's wait of 300 frames
 after the order at tile 6 5 carries `--timeout 600` as Manor's and the rally's do, the file parsing,
 and `build/norm/7.2.txt` takes `9b54221b` as the owner's own under `bb3202e4`, NormTests 16 of 16
 and the tree clean. Right. The working session has stopped on the owner's word. The push and the
@@ -38,22 +68,6 @@ without a timeout and the pack's one blocker, the second a game's process ending
 nothing logged. The macOS suite of `0c63cab5` failed once and passed on the three runs after, left
 as a run superseded within four minutes. Next the two lines of Verdict 56 and the list's, in one
 commit, the push, and the pack run; then item 6, the three packages bumped.
-
-Before it, `82b23f8c` came, item 4 as read: an `AnimatedModel` entity's copy, as it was last posed
-through the same joints as its wires, gives `PhysicsBodies` its triangles, so a mesh and a hull
-collider shape a body from it as from any mesh, made once and kept until the entity's body is
-removed; the body waits while the file loads in the Render stage and is refused with the warning
-only when the file gives no meshes, that test moved beside a new one in `AnimatedModelDrawsTests`,
-where the arm played to the end of its bend has a hull a ray down at x -0.8 meets between y 0.9 and
-1.3 and the arm at rest lets the ray pass, and a rest arm jumped to the bend keeps its body until
-the body is removed and is then made again bent; the animation guide's ECS paragraph, the physics
-guide, the colliders' and `AnimatedModel`'s remarks, TODO.md's entry and the upgrading guide say
-which a body is and how a game makes it again, and no public signature changed. The whole suite
-1,707 of 1,707, NormTests 16 of 16, the strict build clean and the guides' blocks building on the
-package. Right, and item 4 is done. Both working sessions have stopped on the owner's word at 19:03
-with the trees clean and six commits unpushed since `ee85866f`; the push's Windows suite runs cold
-under 60 minutes and saves the cache, the pack run after a green push runs warm and settles Verdicts
-54 and 55, and item 6, the three packages bumped, follows the pack.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1013,7 +1027,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56, 57 and 58 are open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 60 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1039,11 +1053,14 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     so it is a race in Slide's own startup or in the touch drive and not a system's. Slide is the
     flat API alone, `InitWindow` then a 128-pixel font, four sounds and the best score's file loaded
     before its loop, so the CLI server serves while no frame runs yet, and the step's first command
-    meets a game that has not begun drawing. One thing for a working session: open Slide offscreen
-    here twenty times with `frames.wait 10` straight after the open, as the step does, and on a
-    stall dump the live process to see which thread holds it; then read the touch drive's swipe
-    against `GetGestureDetected` for the frames it needs. Settled when the cause is named and the
-    puzzle step passes on two pushes.
+    meets a game that has not begun drawing. Read and mended at `b3895bd4`, two of the three: the
+    macOS swipe was the drive's drag read as a plain drag on a device under five frames a second,
+    the game's gestures timed on its wall clock, and the drive sets a sixtieth a frame before its
+    gestures; the Windows session gone was a read of a session file while the game replaced it,
+    which Windows refuses, answered as no session, and the read tries again up to four times ten
+    milliseconds apart; the Linux exit is not reproduced, and the drive asks the runtime for a dump
+    off Windows so the next death names its thread. Settled when the puzzle step passes on two
+    pushes and no Linux death comes, or the death's dump names its cause and that is mended.
 
 58. **The macOS suite of the pack run is lost to a crash in MoltenVK's pipeline creation.** On the
     pack run of `cc473437`, 2026-10-13, the suite crashed after 1 minute 38 seconds with 1,392
@@ -1056,6 +1073,36 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     as a lost suite should. Read on the next macOS runs: a second crash in the same call names which
     pipeline and what the suite held, 1,202 MB here; one crash stays a note. Settled at two green
     macOS suites.
+
+59. **The drawing leak test's resident baseline is read before the heap census of the same app, so
+    the census' footprint counts as growth.** The Windows suite failed the test's resident bound on
+    the pack run of `9a3e2e2a` and on both runs of `b3895bd4`, having passed it on the five runs
+    between, and the series the message carries since `9a3e2e2a` is the same each time: 10 apps 303
+    to 312 MB, 20 apps 235 to 247, 30 apps 300 to 313, then a rise of some 20 MB to the hundredth,
+    322 to 335. The twentieth app's figure is the low one because the resident memory is read before
+    the collections, and the census of the twentieth app, `dotnet-gcdump` attached to the process,
+    comes after the read and leaves its own footprint of some 60 MB in the working set for the rest
+    of the run, so the difference of the last against the twentieth holds the census and the creep
+    together, 75 to 88 against a bound of 50, and whether it passes depends on how much the census
+    happens to cost on that runner. The heap is flat at 38 MB and no device object outlives its app,
+    so no leak is in it. One thing: the baseline is the resident memory read after the census, the
+    thirtieth app's or the twentieth's read again once the census is taken, said in the test's
+    comment, and the message says both figures; the bound stays at 50 for the creep alone, which the
+    series puts at 20 to 35 MB over eighty apps, and a creep near the bound is then a reading of its
+    own. Settled at three green Windows suites in a row.
+
+60. **Summit's reference frame was captured gray on macOS.** On the pack run of `b3895bd4`,
+    2026-10-13, `ReferenceFrameTests`' frame of Summit differed from its reference in 77% of its
+    pixels, gray from top to bottom, (83, 91, 79) in the bottom third against the reference's lit
+    (186, 237, 161), every pixel of the lower two thirds apart, and the same test passed on the push
+    an hour before and on every run since the reference came. The test loads the level and captures
+    after a fixed settle of ten frames, with no `ready` of its own where the probe's capture waits
+    on `IsReflectionProbeReady`, so a runner slower that minute captured the island before its
+    meshes, its field or its light were ready to draw. One thing: the capture waits on the scene's
+    readiness, every mesh uploaded, every pipeline made and the field settled, through a predicate
+    the engine already answers for its pictures, with the settle after it, and the same for every
+    reference frame captured after a fixed settle alone; the failing frame, kept under the results'
+    reference-failures, is read where it was uploaded. Settled at three green macOS suites in a row.
 
 ## Decisions
 
@@ -1303,5 +1350,11 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     pack run, beside the soak, the storm and the measure against raylib, which run only there, so a
     push answers in the suites' time and a GPU-only regression is still caught before a package is
     made, at the cost of sitting on main until the next pack run. Item 25 carries it.
+
+39. **No development on either engine until every job is green on every push and pack.** On
+    2026-10-16 the owner, after four pushes and four pack runs in a row failing each on a different
+    job while the code stood still, stopped development on both engines: the working sessions mend
+    what the verdicts name and nothing else, every push must be green on every job, three in a row,
+    and the pack run after them, before an item is taken again, on BevyCSharp as on 3DEngine.
 
 ## Replies

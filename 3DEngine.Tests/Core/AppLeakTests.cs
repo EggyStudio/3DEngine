@@ -28,7 +28,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // twentieth app to the last where a census of the heap could be taken, and the threads the
     // process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
-        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, string? Grown, string Threads, string? DeviceObjectsGrown = null)
+        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null)
     {
         // How far the heap's floor rose, the least of the readings from the twentieth app on in the
         // first half against the least in the second, the twentieth to the fiftieth against the
@@ -53,6 +53,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // and its closing does not give back, or a step taken once.
         public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
             $"the resident memory after every ten in MB, {Residents}{Environment.NewLine}" +
+            (ResidentBeforeCensus is { } before
+                ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
+                : "") +
             (Grown is null ? "" : $"grown from the twentieth app to the last, {Grown}{Environment.NewLine}") +
             $"the Vulkan objects alive after the last app beside the twentieth, {DeviceObjectsGrown ?? "none more"}{Environment.NewLine}" +
             $"the threads after every ten apps, {Threads}{Environment.NewLine}";
@@ -88,6 +91,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     private Cycled Cycle(Config config, Func<App, App>? plugins = null, bool heapEveryTen = false)
     {
         double residentAt20 = 0, heapAt20 = 0;
+        double? residentBeforeCensus = null;
         var handlesAt20 = 0;
         var handlesEveryTen = new List<string>();
         // How long the app before took, which says on a runner where a hundred apps' time goes.
@@ -168,11 +172,18 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (i == 20) objectsAt20 = objects;
             if (!heapEveryTen && i != 20 && !last) continue;
             // The census of the twentieth app is taken before its heap is read, so what it keeps
-            // is in both readings and not in what the test compares, and the last's after.
+            // is in both readings and not in what the test compares, and the last's after. The
+            // resident memory is read again once it is taken, and that is the baseline the last
+            // reading is held to: dotnet-gcdump attached to the process leaves some 60 MB in its
+            // working set for the rest of the run, and read before it, the baseline put the census
+            // and the creep over eighty apps together, 75 to 88 MB against the bound of 50 on
+            // Windows' runners, where the creep alone was 20 to 35.
             if (HeapCensus.Available && i == 20)
             {
                 (censusAt20, var failure) = HeapCensus.Take();
                 if (failure is not null) grown = $"no census, {failure}";
+                residentBeforeCensus = resident;
+                resident = Environment.WorkingSet / 1e6;
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -191,7 +202,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             {
                 Console.WriteLine($"[leak test] {i} apps in {spent.Elapsed.TotalSeconds:0} seconds{took}");
                 output.WriteLine($"{i} apps in {spent.Elapsed.TotalSeconds:0} seconds");
-                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), grown,
+                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), residentBeforeCensus, grown,
                     string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!));
             }
         }

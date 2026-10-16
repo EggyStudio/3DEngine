@@ -37,6 +37,22 @@ public static partial class E3D
         }
     }
 
+    // Whether nothing a scene places still waits for its file: no prefab or model an entity names
+    // that has not been asked for, which the next frame asks for, no asset the server is loading,
+    // and none loaded and not yet spawned, so a picture taken once it holds shows every model.
+    // Models load on the asset server's workers, and a reference frame of Summit taken after a
+    // settle of ten frames alone came gray on a runner slow that minute, its island not yet loaded.
+    internal static bool IsSceneLoaded()
+    {
+        if (World.TryGetResource<AssetServer>(out var server) && server.AnyLoading) return false;
+        if (!World.TryGetResource<EcsWorld>(out var ecs)) return true;
+        if (ecs.Count<SpawnSceneRequest>() > 0) return false;
+        foreach (var _ in ecs.Query<SceneRef>().Without<SceneRefSpawned>()) return false;
+        foreach (var (_, model) in ecs.Query<ModelRef>().Without<ModelRefSpawned>())
+            if (!string.IsNullOrEmpty(model.Path)) return false;
+        return true;
+    }
+
     /// <summary>Saves every entity of the ECS that a scene did not spawn, or only <paramref name="entities"/>, to a scene file.</summary>
     /// <remarks>A handle to an entity despawned since it was taken is left out.</remarks>
     public static void SaveScene(string fileName, IEnumerable<Entity>? entities = null)
