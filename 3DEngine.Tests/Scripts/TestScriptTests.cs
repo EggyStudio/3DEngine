@@ -136,10 +136,14 @@ public sealed class TestScriptTests : IDisposable
     [InlineData("die-unsaid", "lost to a crash")]
     public void A_Lost_Process_Is_Said_First_And_The_Suite_Runs_Again_In_Parts(string mode, string said)
     {
-        // dotnet-dump's stand-in reads the minidump a death leaves.
+        // dotnet-dump's stand-in reads the minidump a death leaves. The growing stand-in passes the
+        // memory limit in about a second here, and on a slow macOS runner it held 196 MB of the 200
+        // when the six seconds the hang is given ran out, so the page said the time limit. It is
+        // given a minute, so the memory limit comes first on any runner.
+        var minutes = mode == "grow" ? "1" : "0.1";
         var (exit, log) = Script(new Dictionary<string, string> { ["E3D_DOTNET_DUMP"] = $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_dump_standin.py" },
             mode, "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
-            "--results", _folder.Path, "--timeout-minutes", "0.1", "--memory-mb", "200");
+            "--results", _folder.Path, "--timeout-minutes", minutes, "--memory-mb", "200");
 
         exit.Should().Be(1, "a process was lost");
         var page = File.ReadAllLines(_folder.File("digest.md"));

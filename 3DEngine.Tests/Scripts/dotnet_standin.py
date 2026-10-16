@@ -47,11 +47,14 @@ def main():
             time.sleep(600)
         elif mode == "grow":
             # 200 MB a second, up to a gigabyte, so a system where the script cannot read it
-            # takes no more before the time limit ends it.
+            # takes no more before the time limit ends it. Each step copies random bytes, since
+            # macOS can compress a page of one byte repeated when memory is short, and a compressed
+            # page is left out of the resident size the script reads.
             held = []
+            block = os.urandom(10 * 1024 * 1024)
             while True:
                 if len(held) < 100:
-                    held.append(b"x" * (10 * 1024 * 1024))
+                    held.append(bytearray(block))
                 time.sleep(0.05)
         elif mode in ("die", "die-unsaid"):
             # How far a test had got, and the minidump the runtime leaves where it is asked to.

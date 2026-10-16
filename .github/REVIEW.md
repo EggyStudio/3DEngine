@@ -10,7 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b3895bd4`, Verdict 57 read and two of its three shapes mended. Slide never stalled
+Reviewed up to `ddb40469`, Verdicts 59 and 60 mended and nothing else, as Decision 39 asks. The
+drawing leak test reads the resident memory again right after the twentieth app's heap census and
+holds the last app to that reading, the bound at 50 for the creep alone with the comment saying why,
+the message gaining the twentieth's figure before the census and after, 314.6 and 311.2 MB here with
+the census tool named, and nothing changing where no census runs. The reference frames wait on the
+scene: `E3D.IsSceneLoaded`, internal, is false while a scene or model an entity names has not been
+asked for, while the asset server holds anything loading or while a spawn request waits, and the
+capture draws until it holds and the test's own ready with it, 1,200 frames at most, asserts it and
+then settles; Summit's test asserts it false right after the level loads, since the level's six
+scenes and its model are asked for in the next frame, which is what a slow runner captured. The
+whole suite 1,710 of 1,710, NormTests 16 of 16, the strict build clean, all 29 reference frames on
+lavapipe under the validation layer with no VUID. Right. The push of `ddb40469` on 2026-10-16: the
+three suites green, Windows 1,659 of 1,659 in 29 minutes with the leak test's new baseline, macOS in
+40 and Linux in 14, and the examples job green in 7 minutes with its puzzle step, so the push is
+whole green, the first of Decision 39's three, and Verdict 57 has one of its two. The pack run
+started at 21:39: Linux green in 17 minutes, the macOS suite failing one test of 1,668, the script
+test's grow mode losing its stand-in to the time limit before the memory limit on a slow runner,
+Verdict 61, and Windows running at 22:27; the examples job, Verdict 56's, needs every suite, so the
+owner re-runs the failed jobs when Windows ends.
+
+Before it, `b3895bd4` came, Verdict 57 read and two of its three shapes mended. Slide never stalled
 here, twenty opens with the wait straight after on the GPU and on lavapipe under the validation
 layer and six whole drives on two cores, each answered in half a second, so the three shapes are
 three causes. The swipe that slid nothing on macOS: a swipe is a drag released faster than a fifth
@@ -55,19 +75,6 @@ publish being the examples job's there, while the Windows and macOS jobs play ev
 after their suites, and because a Windows runner's speed varies two-fold between runs. Next: the
 pack run's failed jobs re-run, which is the owner's; Slide read by a working session under Verdict
 57; then item 6.
-
-Before it, `9b54221b` came, the owner's commit of 2026-10-12 19:43 carrying this file's pass of
-`82b23f8c`, with the three marks and no sentence, so it goes on N 7.2's list as `bb3202e4` did. The
-runs of the evening, read on 2026-10-13: the pushes of `0c63cab5`, `fca652a1` and `82b23f8c` and the
-pack run on `82b23f8c` all passed their Windows suites, 1,656 of 1,656 at the head in 46 minutes
-with the cache saved after it, so Verdict 54 is settled on four green suites and Verdict 55 on its
-cause mended and its limit holding, the suite's time on a Windows runner varying two-fold between
-runs with the same code. The pack made no package, its examples job failing in the strategy game's
-step, and the push's examples job failed in the puzzle game's: Verdicts 56 and 57, the first a wait
-without a timeout and the pack's one blocker, the second a game's process ending in its startup with
-nothing logged. The macOS suite of `0c63cab5` failed once and passed on the three runs after, left
-as a run superseded within four minutes. Next the two lines of Verdict 56 and the list's, in one
-commit, the push, and the pack run; then item 6, the three packages bumped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1027,7 +1034,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 60 are open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 61 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1060,7 +1067,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     which Windows refuses, answered as no session, and the read tries again up to four times ten
     milliseconds apart; the Linux exit is not reproduced, and the drive asks the runtime for a dump
     off Windows so the next death names its thread. Settled when the puzzle step passes on two
-    pushes and no Linux death comes, or the death's dump names its cause and that is mended.
+    pushes and no Linux death comes, or the death's dump names its cause and that is mended. One
+    push's puzzle step green of two, `ddb40469`'s, with no Linux death.
 
 58. **The macOS suite of the pack run is lost to a crash in MoltenVK's pipeline creation.** On the
     pack run of `cc473437`, 2026-10-13, the suite crashed after 1 minute 38 seconds with 1,392
@@ -1072,7 +1080,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     driver's, Metal compiling a pipeline under MoltenVK on the runner, seen once, and the job fails
     as a lost suite should. Read on the next macOS runs: a second crash in the same call names which
     pipeline and what the suite held, 1,202 MB here; one crash stays a note. Settled at two green
-    macOS suites.
+    macOS suites. One green macOS suite of two, the push of `ddb40469`.
 
 59. **The drawing leak test's resident baseline is read before the heap census of the same app, so
     the census' footprint counts as growth.** The Windows suite failed the test's resident bound on
@@ -1089,7 +1097,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     thirtieth app's or the twentieth's read again once the census is taken, said in the test's
     comment, and the message says both figures; the bound stays at 50 for the creep alone, which the
     series puts at 20 to 35 MB over eighty apps, and a creep near the bound is then a reading of its
-    own. Settled at three green Windows suites in a row.
+    own. Settled at three green Windows suites in a row. Mended at `ddb40469`, the baseline read
+    after the census. One green Windows suite of three, the push of `ddb40469`, the test passing
+    with the baseline after the census.
 
 60. **Summit's reference frame was captured gray on macOS.** On the pack run of `b3895bd4`,
     2026-10-13, `ReferenceFrameTests`' frame of Summit differed from its reference in 77% of its
@@ -1103,6 +1113,20 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     the engine already answers for its pictures, with the settle after it, and the same for every
     reference frame captured after a fixed settle alone; the failing frame, kept under the results'
     reference-failures, is read where it was uploaded. Settled at three green macOS suites in a row.
+    Mended at `ddb40469`, every reference frame waiting on `E3D.IsSceneLoaded` and its own ready
+    before its settle. One green macOS suite of three, the push of `ddb40469`.
+
+61. **The script test's grow mode races its own two limits on a slow runner.** On the pack run of
+    `ddb40469`, 2026-10-16, the macOS suite failed
+    `TestScriptTests.A_Lost_Process_Is_Said_First_And_The_Suite_Runs_Again_In_Parts` in its grow
+    mode: the test runs `build/test.py` on a stand-in that grows, with `--timeout-minutes 0.1` and
+    `--memory-mb 200`, and expects the page to say the suite ended at its memory limit, and the page
+    said it ended at its time limit after 6 seconds holding 196 MB, so the stand-in on that runner
+    grew to within 4 MB of the memory limit when the six seconds ran out; the hang mode beside it
+    passed, as did the other 1,641 tests, and the test has passed on every run before. One thing:
+    the two limits are set so the memory limit comes first on any runner, the stand-in growing in
+    larger steps or the test's time limit at a minute, and the test's comment says the race. Settled
+    at two green macOS suites.
 
 ## Decisions
 
