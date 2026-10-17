@@ -9,8 +9,8 @@ public static class ModelsSkybox
     {
         InitWindow(800, 450, "[models] skybox");
 
-        // An equirectangular sky made here, so the example needs no file: the top half a sky
-        // with a sun, the bottom half the ground. A photo or a .hdr file loads the same way.
+        // An equirectangular sky made here, so the example needs no file, the top half a sky
+        // with a sun and the bottom half the ground. A photo or a .hdr file loads the same way.
         var sky = GenImageColor(1024, 512, Color.Blank);
         ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
             0, 0, Color.White);

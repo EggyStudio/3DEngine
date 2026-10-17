@@ -634,7 +634,7 @@ internal sealed class TrackerPlayer
                 UpdateFrequency(ch);
                 break;
             case 6:
-                // A pattern loop: E60 marks its start, and E6x plays back to it x times.
+                // A pattern loop, whose start E60 marks and which E6x plays back to x times.
                 if (low == 0) ch.LoopRow = _row;
                 else if (ch.LoopCount == low)
                 {

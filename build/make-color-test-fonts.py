@@ -417,7 +417,7 @@ mark_base = mark_attachment([(above, -500, 650), (below, -500, -100), (above, -5
 mark_ligature = ligature_attachment([(above, -500, 650), (below, -500, -100), (above, -500, 650)], [4, 15, 16], [13, 14],
                                     [[[(700, 950), (700, -50)], [(200, 950), (200, -50)]]] * 2, 2)
 mark_mark = mark_attachment([(above, -500, 650)], [4], [16], [[(-500, 850)]], 1)
-# The pairs: alef then beh by their glyphs, alef's final glyph then beh by their classes, each
+# The pairs, alef then beh by their glyphs and alef's final glyph then beh by their classes, each
 # moving the first, as a font moves the glyph before a pair read right to left.
 pair_glyphs = (struct.pack(">HHHHHH", 1, 12, 0x05, 0, 1, 12 + len(cover([2]))) + cover([2])
                + struct.pack(">HHhh", 1, 1, 200, 200))

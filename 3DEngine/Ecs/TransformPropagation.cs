@@ -7,11 +7,11 @@ namespace Engine;
 /// </summary>
 internal static class TransformPropagation
 {
-    /// <summary>A transform as a matrix: scale, then rotation, then translation.</summary>
+    /// <summary>A transform as a matrix, scale, then rotation, then translation.</summary>
     /// <remarks>
     /// Built as the product comes out rather than by multiplying three matrices, since every mesh
-    /// entity without a parent has its matrix made this way each frame: the rotation's rows, each
-    /// scaled by its axis, and the position as the last row.
+    /// entity without a parent has its matrix made this way each frame, the rotation's rows each
+    /// scaled by its axis and the position as the last row.
     /// </remarks>
     public static System.Numerics.Matrix4x4 ToMatrix(in Transform t)
     {

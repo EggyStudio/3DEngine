@@ -1,5 +1,5 @@
-// raylib's predator.fs, written in Slang: the picture's brightness as a heat map, blue to yellow
-// to red.
+// raylib's predator.fs, written in Slang. It draws the picture's brightness as a heat map, blue to
+// yellow to red.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

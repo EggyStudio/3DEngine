@@ -1,5 +1,6 @@
-// raylib's outline_hull.vs and outline_hull.fs, written in Slang for the model pass: the model
-// pushed out along its normals and drawn dark, for an outline where its front faces are culled.
+// raylib's outline_hull.vs and outline_hull.fs, written in Slang for the model pass. It draws the
+// model pushed out along its normals and drawn dark, for an outline where its front faces are
+// culled.
 import modelpass;
 
 uniform float outlineThickness;

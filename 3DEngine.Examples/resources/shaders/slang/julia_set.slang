@@ -1,5 +1,5 @@
-// raylib's julia_set.fs, written in Slang: the Julia set of z^2 + c, each point colored by how soon
-// it leaves the circle of radius 2.
+// raylib's julia_set.fs, written in Slang. It draws the Julia set of z^2 + c, each point colored by
+// how soon it leaves the circle of radius 2.
 import engine;
 
 uniform float2 c;               // c.x the real part, c.y the imaginary

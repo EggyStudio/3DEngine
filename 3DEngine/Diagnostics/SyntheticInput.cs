@@ -4,10 +4,10 @@ using ImGuiNET;
 namespace Engine;
 
 /// <summary>
-/// Input the console injects: keys and mouse buttons held for a number of frames, the pointer
-/// moved, the wheel turned. It is written into the same <see cref="Input"/> resource the window's
-/// events are, and mouse input is also handed to ImGui, so a game and its ImGui windows see it as
-/// they would see a person.
+/// Input the console injects, keys and mouse buttons held for a number of frames, the pointer
+/// moved and the wheel turned. It is written into the same <see cref="Input"/> resource the
+/// window's events are, and mouse input is also handed to ImGui, so a game and its ImGui windows
+/// see it as they would see a person.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,7 +24,7 @@ namespace Engine;
 /// </remarks>
 internal sealed class SyntheticInput
 {
-    // Changes due at a later frame: releases, and the steps of a drag.
+    // Changes due at a later frame, releases and the steps of a drag.
     private readonly List<(ulong Frame, Action<Input> Release)> _releases = [];
 
     /// <summary>Releases, and makes the other changes, due by <paramref name="frame"/>.</summary>
@@ -62,7 +62,8 @@ internal sealed class SyntheticInput
 
     /// <summary>
     /// The gamepad at <paramref name="index"/>, with console pads made up to it where fewer are
-    /// connected, so a second player's pad is driven as the first's is, or null past the fourth.
+    /// connected, so a second player's pad is controlled as the first's is, or null past the
+    /// fourth.
     /// </summary>
     public static GamepadState? Pad(Input input, int index)
     {
@@ -184,7 +185,7 @@ internal sealed class SyntheticInput
     }
 }
 
-/// <summary>The console commands that drive input.</summary>
+/// <summary>The console commands that simulate input.</summary>
 internal static class InputCommands
 {
     private static (Input Input, SyntheticInput Synthetic, ulong Frame) Parts()

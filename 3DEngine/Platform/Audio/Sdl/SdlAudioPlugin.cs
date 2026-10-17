@@ -46,8 +46,8 @@ internal sealed class SdlAudioPlugin : IPlugin
     }
 
     /// <summary>
-    /// Whether a run of <paramref name="config"/> plays to SDL's dummy driver: one that shows no
-    /// window, hidden, offscreen or headless, unless it asks for the device.
+    /// Whether a run of <paramref name="config"/> plays to SDL's dummy driver, as one that shows
+    /// no window, hidden, offscreen or headless, does unless it asks for the device.
     /// </summary>
     internal static bool Silent(Config config) => (config.Hidden || config.Offscreen || config.Headless) && !config.AudibleWithoutWindow;
 }

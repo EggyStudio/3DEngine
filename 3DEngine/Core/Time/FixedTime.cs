@@ -1,8 +1,8 @@
 namespace Engine;
 
 /// <summary>
-/// The fixed timestep <see cref="Stage.FixedUpdate"/> runs at: how long a step is, and how much
-/// frame time is waiting to be stepped through.
+/// The fixed timestep <see cref="Stage.FixedUpdate"/> runs at, which says how long a step is and
+/// how much frame time is waiting to be stepped through.
 /// </summary>
 /// <remarks>
 /// <para>

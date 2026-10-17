@@ -1,46 +1,53 @@
 # Style
 
-Conventions for prose in this repository: code comments, XML documentation, log and exception
-messages, MSBuild and YAML comments, shader comments, and Markdown. They exist so that the codebase
-reads consistently regardless of who wrote a given file.
+Conventions for prose in this repository, which cover code comments, XML documentation, log and
+exception messages, the answers of console commands, MSBuild, YAML and script comments, shader
+comments, and Markdown. They exist so that the codebase reads consistently regardless of who wrote a
+given file.
 
 ## Punctuation
 
 Em dashes and en dashes are not used. Neither `—` nor `–`, in any file.
 
 The spaced hyphen ` - ` is not sentence punctuation. Replace it according to the relationship
-between the clauses:
+between the clauses.
 
 | instead of | write |
 |---|---|
 | `the world is borrowed - only on the main thread` | `the world is borrowed, only on the main thread` |
 | `it is two thoughts - here is the second` | `it is two thoughts. Here is the second` |
 | `not uploaded yet - only meshes are - so this fails` | `not uploaded yet (only meshes are), so this fails` |
-| `driven from elsewhere - a menu, a test` | `driven from elsewhere: a menu, a test` |
+| `called from elsewhere - a menu, a test` | `called from elsewhere, such as a menu or a test` |
 
-A comma continues a clause, a full stop separates two statements, parentheses enclose an aside,
-and a colon introduces a list.
+A comma continues a clause, a full stop separates two statements, and parentheses enclose an
+aside.
 
 Hyphens within words (`backend-agnostic`), arithmetic operators (`count - 1`) and the names of
 characters (`the minus key`) are unaffected.
 
-The colon introduces a list or labels what follows. It is not a joint between two clauses, and a
-statement followed by its reason is two sentences or one sentence with `because` in it. Used as a
-joint it becomes a tic, because every paragraph then acquires the same shape and the reader stops
-reading the mark as anything at all.
+A running sentence holds no colon. A colon stands at the end of a sentence that introduces a
+bulleted list, a code block or a command set below it, and after a label in a table. Inside a
+sentence it appends an elaboration or a list that a sentence of its own, or the same sentence
+recast, says plainly, and once every paragraph takes that shape the reader stops reading the mark
+as anything at all.
 
-The test is the text after the mark. The colon is for a list, or a phrase naming the thing just
-mentioned. A clause that could stand on its own and explains what precedes it is a joint, whatever
-it is about, so `a tag is cheap: it costs nothing to store` is wrong where
-`a tag is cheap, because it costs nothing to store` is right.
+The test is the text after the mark. A bulleted list, a code block or a command set below the
+sentence is correct. Text that continues the sentence is a joint, whatever it says, so
+`a tag is cheap: it costs nothing to store` is wrong where
+`a tag is cheap, because it costs nothing to store` is right, and a list appended after the mark is
+folded into the sentence or given a sentence of its own.
 
 | instead of | write |
 |---|---|
 | `the wheel never moves the panel: rolling over a list hands it to whatever holds it` | `the wheel never moves the panel, because rolling over a list hands it to whatever holds it` |
 | `a click is the engine's to answer: it raycasts the scene` | `a click is the engine's to answer. It raycasts the scene` |
 | `three files, because they are edited by different hands: the first is` | `three files, because they are edited by different hands. The first is` |
-| `it offers three: a menu, a button, a key` | unchanged, because a list follows |
+| `it offers three: a menu, a button, a key` | `it offers a menu, a button and a key` |
+| `makes the program the README opens with: a window with a turning cube` | `makes the program the README opens with, a window with a turning cube` |
+| `Exit codes: 0 ok, 2 bad arguments` | `The exit code is 0 for success and 2 for bad arguments` |
 | `**What is not here.** Despawning is not recorded` | unchanged, because the mark labels rather than joins |
+| `// xyz: the eye. w: the distance in focus.` over a vector's components | unchanged, because each mark labels a component |
+| `Usage:` on a line of its own over a command | unchanged, because a command follows |
 
 ## Section banners
 
@@ -89,7 +96,7 @@ A summary says what the member does or what the value means, in a sentence, and 
 section holds the reasoning or the trap. The gaps the rule found were of three kinds, each with
 its answer.
 
-- An enum member whose name seems to say it all. The summary says what the name does not: a
+- An enum member whose name seems to say it all. The summary says what the name does not. A
   `Key` is a place on the keyboard, so `Key.W` is "The key where a US layout has W", which types
   Z on a French one.
 - A second constructor or overload. Its summary says what its extra parameter decides, rather
@@ -107,12 +114,12 @@ Prose is factual and plain.
 Headings and rule names are descriptive rather than metaphorical or aphoristic. Use "Comments",
 not "Comments earn their place".
 
-Marketing register is not used. This includes the rhetorical triple:
+Marketing register is not used, and neither is the rhetorical triple.
 
 > No registration call, no partial-class list, no startup boilerplate. Add the package, write
 > behaviors, compile, run.
 
-State what the software does instead:
+State what the software does instead.
 
 > Behaviors are discovered at compile time, so a consuming project needs no registration code.
 
@@ -121,11 +128,11 @@ The words `simply`, `just`, `powerful` and `blazing` are not used, nor are excla
 "easy to get subtly wrong", where it tells the reader something they need.
 
 Antithesis is not used for emphasis. A claim paired with the negation of something nobody
-proposed reads as a slogan, and the negated half carries nothing:
+proposed reads as a slogan, and the negated half carries nothing.
 
 > Discovery is generated, not scanned.
 
-State the claim on its own:
+State the claim on its own.
 
 > Registration happens at assembly load.
 
@@ -154,6 +161,25 @@ every explanation can be forced into that shape. Code and features do not want t
 
 The same applies to `what X does is Y`, `the point is that`, and `the reason is that`, which delay
 the statement they introduce.
+
+## Register
+
+Prose uses the technical and generic term for a thing, the engine's own where it has one, and no
+figure of speech or casual paraphrase in its place. A paraphrase reads as an explanation the first
+time and as a mannerism after, and a reader who knows the term translates it back each time.
+
+| instead of | write |
+|---|---|
+| `the light that bounces`, `the bounce` | `global illumination`, or `radiance cascades` where the technique is meant and `indirect light` where its effect is |
+| `a panel that gives off light`, `a glowing panel` | `an emissive panel` |
+| `drives a running program`, `driving a session` | `controls a running program through the command line`, `scripting a session` |
+| `a drive of the puzzle` | `a scripted run of the puzzle` |
+
+A name in the code keeps its spelling, such as `DrawBounceWindow`, `ModelMaterial.BouncesLight`,
+`GlowLights` and `build/drive-game.sh`, since renaming it reaches the public API, the workflows or
+the tests, and so does a name from Minecraft, such as glowstone. A word in its own technical sense
+keeps it, as a motor drives a joint or a vehicle's wheels, the main loop drives the frame, and a
+ray is traced to its first or second bounce.
 
 ## Self-reference
 
@@ -189,22 +215,23 @@ Prose refers only to what a reader of the repository can open. An ignored direct
 exists on one machine, a private branch or an internal ticket tells them nothing.
 
 `.ref/` is ignored by git, so it is not cited. Where something in it informed a decision, state
-the decision and the reasoning, which is the part worth keeping:
+the decision and the reasoning, which is the part worth keeping.
 
 | instead of | write |
 |---|---|
 | `.ref/raylib has a version to follow. Its shape:` | `One flat function per operation, so that no handle has to be set up first:` |
 | `as the reference engine does it` | describe the approach |
 
-Public sources are citable: a package on nuget.org, a type in a dependency, an upstream issue, the
-raylib cheatsheet on raylib.com. So is anything checked in, by repository-relative path.
+Public sources are citable, such as a package on nuget.org, a type in a dependency, an upstream
+issue or the raylib cheatsheet on raylib.com. So is anything checked in, by repository-relative
+path.
 
 ## Spelling
 
-American spelling, everywhere, in prose as well as in code: `behavior`, `color`, `center`,
-`gray`, `meter`, `neighbor`, `initialize`, `serialize`, `canceled`, `modeled`, `toward`. The public
-API is spelled that way, and so are .NET, Vulkan, SDL and raylib, and a word spelled one way in a
-type name and another in the sentence describing it reads as two words.
+American spelling is used everywhere, in prose as well as in code, as in `behavior`, `color`,
+`center`, `gray`, `meter`, `neighbor`, `initialize`, `serialize`, `canceled`, `modeled` and
+`toward`. The public API is spelled that way, and so are .NET, Vulkan, SDL and raylib, and a word
+spelled one way in a type name and another in the sentence describing it reads as two words.
 
 A name that comes from outside is kept as it is, such as .NET's `StringMarshalling`, a file name in
 a third-party icon set, or the text of a license.
@@ -212,9 +239,10 @@ a third-party icon set, or the text of a license.
 ## Scope
 
 - `//` and `///` in C#, and `//` in Slang shaders
-- exception messages, log output and `GITHUB_STEP_SUMMARY` content
+- exception messages, log output, the answers of console commands and `GITHUB_STEP_SUMMARY`
+  content
 - MSBuild `<!-- -->` comments and analyzer `messageFormat` strings
-- YAML comments under `.github/workflows`
+- YAML comments under `.github/workflows`, and comments in the scripts under `build/`
 - `README.md`, `CHEATSHEET.md`, `AGENTS.md`, every Markdown file under `.github/` and `docs/`, and
   this file
 
@@ -227,9 +255,14 @@ grep -rn "[—–]" --include=*.cs --include=*.slang --include=*.md --include=*.
 # Spaced hyphens in comments and strings.
 grep -rn "^\s*\(///\|//\) .* - \|\"[^\"]* - [^\"]*\"" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"
 
-# Colons joining two clauses in a comment. A list or a label after the mark is correct, so the
-# hits are read rather than counted.
-grep -rn "^\s*\(///\|//\) .*[a-z]: [a-z]" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"
+# Colons inside a running sentence, in comments and scripts and in the prose of the Markdown files
+# outside their code. A label is correct, so the hits are read rather than counted.
+git grep -n -E "^\s*(///|//|#) .*[a-z)\`]: " -- '*.cs' '*.slang' '*.sh' '*.yml' '*.py'
+awk 'FNR == 1 { code = 0 } /^ *```/ { code = !code; next } !code && /[a-z)`]: /' $(git ls-files '*.md')
+
+# The casual paraphrases the register replaces. Names in the code and words in their own technical
+# sense are left, so each hit is read.
+git grep -n -i -E "light that bounces|the bounce|bounc(e|es|ing) (no )?light|give[sn]? off|gave off|light-giving|glowing|\bdriv(e|en|es|ing)\b" -- ':!.github/REVIEW.md'
 
 # Padded section banners.
 grep -rn "// -- .*--" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"

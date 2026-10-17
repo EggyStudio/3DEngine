@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Answers the four operations the CLI asks for: ping, status, list and run.</summary>
+/// <summary>Answers the four operations the CLI asks for, ping, status, list and run.</summary>
 internal static class CliDispatch
 {
     public static ulong Frame(World world) => world.TryGetResource<Time>(out var time) ? time.FrameCount : 0;

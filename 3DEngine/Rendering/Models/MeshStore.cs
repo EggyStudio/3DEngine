@@ -16,7 +16,7 @@ namespace Engine;
 internal sealed class MeshStore
 {
     /// <summary>
-    /// A mesh waiting to be uploaded, or what of it is written in place: its vertices where
+    /// A mesh waiting to be uploaded, or what of it is written in place, its vertices where
     /// <paramref name="VerticesOnly"/> is set, its stream of the program's own where
     /// <paramref name="CustomOnly"/> is, or both where both are.
     /// </summary>

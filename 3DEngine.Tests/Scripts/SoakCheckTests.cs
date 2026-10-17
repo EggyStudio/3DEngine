@@ -88,7 +88,7 @@ public sealed class SoakCheckTests : IDisposable
     public void A_Streaming_Games_Buffers_Are_Bounded_By_The_Most_Its_Whole_Walk_Holds()
     {
         // Manor on lavapipe at a core, two turns in two minutes, its walk entering the house in the
-        // second half with nothing leaking: its buffers' least climbs past the first half's bound
+        // second half with nothing leaking. Its buffers' least climbs past the first half's bound
         // and stays under the most a whole walk holds, 162. The same climb in a game that streams
         // nothing fails, and so does Manor's past its whole walk.
         string Buffers(string name, params int[] buffers)

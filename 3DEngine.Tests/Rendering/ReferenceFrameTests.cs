@@ -129,7 +129,7 @@ public sealed partial class ReferenceFrameTests : IDisposable
 
     // The frame against its reference over the kinds of surface the reference shows, so a page with
     // no pictures says which surface a device draws apart and which way, as gi.compare says it
-    // for the light that bounces: a pixel the reference holds red, green or blue most of by half
+    // for global illumination. A pixel the reference holds red, green or blue most of by half
     // again is of that color's surface, and the rest, gray and white, by the third of the picture
     // they lie in, the top's a ceiling's and the bottom's a floor's where a room is drawn; each kind
     // of a fiftieth of the picture or more, with how many of its pixels differ and its means.
@@ -283,7 +283,7 @@ public sealed partial class ReferenceFrameTests : IDisposable
     {
         Open(256, 160);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.6f)), Color.White, 1);
-        // A checker for color, ridges across for the normal map, a stripe of light given off, and
+        // A checker for color, ridges across for the normal map, an emissive stripe, and
         // rough and smooth halves, each made here so the scene needs no file.
         var checker = LoadTextureFromImage(GenImageChecked(64, 64, 8, 8, Color.White, new Color(90, 90, 90)));
         var ridges = GenImageColor(64, 64, new Color(128, 128, 255));
@@ -569,8 +569,8 @@ public sealed partial class ReferenceFrameTests : IDisposable
     [NeedsVulkanFact]
     public void Particles_Match_Their_Reference()
     {
-        // Two still clouds given off at once over a lit floor, through bloom: an unlit one that
-        // glows past white and adds its light, and a lit one laid over by alpha that takes the
+        // Two still clouds emitted at once over a lit floor, through bloom, an unlit one that
+        // shines past white and adds its light and a lit one laid over by alpha that takes the
         // lamp's. Still, so the frame is the same however long its frames took.
         Open(256, 160);
         SetBloom(0.6f);

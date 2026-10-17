@@ -39,7 +39,7 @@ public class E3DDisplayTests
 
         SetClipboardText("Wordfall: 120 points, café");
 
-        GetClipboardText().Should().Be("Wordfall: 120 points, café", "a game driven offscreen copies its result and reads it back");
+        GetClipboardText().Should().Be("Wordfall: 120 points, café", "a game scripted offscreen copies its result and reads it back");
     }
 
     [Fact]

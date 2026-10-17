@@ -10,11 +10,11 @@ public static class ShadersReflections
         InitWindow(800, 450, "[shaders] reflections");
 
         // A hall with a polished floor, a chrome ball and a brushed gold one, three colored pillars
-        // and a glowing strip on the back wall, under a low sun. Where light bounces, a glossy
-        // surface traces its reflection through the window's depth and the scene's distance field,
-        // so the floor reflects the pillars and the balls each other, and a rough one reflects the
-        // sky as before. G steps through the qualities, Off first, and Up and Down make the floor
-        // smoother or rougher.
+        // and an emissive strip on the back wall, under a low sun. Where global illumination is on,
+        // a glossy surface traces its reflection through the window's depth and the scene's
+        // distance field, so the floor reflects the pillars and the balls each other, and a rough
+        // one reflects the sky as before. G steps through the qualities, Off first, and Up and Down
+        // make the floor smoother or rougher.
         SetSceneField(3, 0.2f, 2);
         var quality = GlobalIllumination.High;
         SetGlobalIllumination(quality);
@@ -63,7 +63,7 @@ public static class ShadersReflections
             DrawModel(gold, new Vector3(1.4f, 0.6f, 0.8f), 1, Color.White);
             EndMode3D();
 
-            DrawText($"Light that bounces: {quality}. G changes it.", 10, 10, 20, Color.RayWhite);
+            DrawText($"Global illumination: {quality}. G changes it.", 10, 10, 20, Color.RayWhite);
             DrawText($"Floor roughness {floor.Materials[0].Roughness:0.00}. Up and Down change it.", 10, 36, 20, Color.RayWhite);
             DrawFPS(10, 420);
             EndDrawing();

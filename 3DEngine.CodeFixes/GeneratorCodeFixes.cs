@@ -10,7 +10,7 @@ namespace Engine.CodeFixes;
 
 /// <summary>
 /// The fixes an editor offers for the behavior and command generators' diagnostics, where the right
-/// change is clear from the diagnostic alone: a stage method given the context it takes, one stage
+/// change is clear from the diagnostic alone, a stage method given the context it takes, one stage
 /// kept of several, and a command made static or reachable.
 /// </summary>
 /// <remarks>

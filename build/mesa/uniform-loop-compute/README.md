@@ -15,7 +15,7 @@ fragment stage, so it is best filed as a second reproduction on this issue.
 podman run --rm -v "$PWD":/repro:ro,Z ubuntu:24.04 /repro/run.sh
 ```
 
-Measured on 2026-10-08:
+Measured on 2026-10-08.
 
 | lavapipe | `comp.glsl` |
 |---|---|

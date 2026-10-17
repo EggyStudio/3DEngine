@@ -19,7 +19,7 @@ SetExitKey(Key.Null);
 const float Tile = 2;
 const string SaveFile = "tactics-save.json";
 
-// -- The pieces: tiles, trees, and a model for each kind of unit
+// -- The pieces, tiles, trees, and a model for each kind of unit
 
 var block = LoadModelFromMesh(GenMeshCube(Tile * 0.96f, 0.4f, Tile * 0.96f));
 var trunk = LoadModelFromMesh(GenMeshCylinder(0.12f, 0.5f, 8));
@@ -199,8 +199,9 @@ while (!WindowShouldClose() && !TacticsCommands.Quit)
     }
     else if (screen == Screen.Play && Controls(board.Turn) && orders.Count == 0)
     {
-        // -- The player's turn: pick units, a tile to walk to, an enemy to strike. A press and
-        // release in one place is a click, and a drag between them a box round the units to pick.
+        // -- The player's turn, to pick units, a tile to walk to and an enemy to strike. A press
+        // and release in one place is a click, and a drag between them a box round the units to
+        // pick.
         var mouse = GetMousePosition();
         var shift = IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift);
         if (IsMouseButtonPressed(MouseButton.Left) && !ImGui.GetIO().WantCaptureMouse) boxFrom = mouse;
@@ -227,7 +228,7 @@ while (!WindowShouldClose() && !TacticsCommands.Quit)
     }
     else if (screen == Screen.Play)
     {
-        // -- The computer's turn: one unit at a time, a moment apart.
+        // -- The computer's turn, one unit at a time, a moment apart.
         thinking += dt;
         if (thinking > 0.25f)
         {
@@ -244,7 +245,7 @@ while (!WindowShouldClose() && !TacticsCommands.Quit)
         }
     }
 
-    // What a click on a tile asks of the units picked: its own unit picked, or added with shift; an
+    // What a click on a tile asks of the units picked, its own unit picked, or added with shift; an
     // enemy struck by each that can, those out of range walking near enough first; or an empty tile
     // walked to, by the one picked alone, or as near as each of several can come.
     void Order((int X, int Z) tile, bool adding)

@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// The effects over the frame, each set alone and read from chosen pixels of a frame drawn
-/// offscreen: exposure, the curves, grading, the vignette and FXAA.
+/// offscreen, exposure, the curves, grading, the vignette and FXAA.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]

@@ -62,10 +62,10 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
 
     /// <summary>
     /// The names a built-in shader is compiled with beside its plain build where it mentions them,
-    /// each for a capability some devices lack or a frame that needs less: <c>RAY_QUERY</c> for the
+    /// each for a capability some devices lack or a frame that needs less, <c>RAY_QUERY</c> for the
     /// GPU's own ray tracing, <c>NO_GLOW_LIGHTS</c> for the model pass's build for a frame with no
     /// glow lights, which leaves half its fragment stage out, and <c>NO_BOUNCE</c> for its build for
-    /// a frame where no light bounces, which leaves the bounce and the glow lights out.
+    /// a frame without global illumination, which leaves it and the glow lights out.
     /// </summary>
     /// <remarks>
     /// A build's names are given in this order, since the cache keys a build by them as given.
@@ -74,8 +74,8 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
 
     /// <summary>
     /// The <see cref="Variants"/> built alone and never with another, since each leaves out all
-    /// the others would change: the model pass traces rays and marches to the glow lights only
-    /// where light bounces.
+    /// the others would change, as the model pass traces rays and marches to the glow lights only
+    /// where global illumination is on.
     /// </summary>
     internal static readonly string[] Alone = ["NO_BOUNCE"];
 
@@ -158,7 +158,7 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
                 && System.Text.Encoding.UTF8.GetString(bytes).Contains(name, StringComparison.Ordinal)));
 
     /// <summary>
-    /// The builds of <paramref name="source"/> beside its plain one: each set of the <see
+    /// The builds of <paramref name="source"/> beside its plain one, each set of the <see
     /// cref="Variants"/> it mentions, its names in their order, and each it mentions of those
     /// built <see cref="Alone"/> by itself.
     /// </summary>

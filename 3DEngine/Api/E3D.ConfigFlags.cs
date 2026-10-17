@@ -16,7 +16,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// How many samples a pixel of the next window is drawn with: 1 for none, or 2, 4 or 8, rounded
+    /// How many samples a pixel of the next window is drawn with, 1 for none or 2, 4 or 8, rounded
     /// down to what the device can do. The engine draws with 4 unless asked.
     /// </summary>
     public static void SetConfigSamples(int samples) => _configSamples = Math.Clamp(samples, 1, 8);
@@ -46,8 +46,8 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Turns flags on for the open window: fullscreen, borderless windowed, resizable, undecorated,
-    /// hidden, minimized, maximized, topmost, unfocused, always run or vsync.
+    /// Turns flags on for the open window, among fullscreen, borderless windowed, resizable,
+    /// undecorated, hidden, minimized, maximized, topmost, unfocused, always run and vsync.
     /// </summary>
     /// <remarks>
     /// Vsync changes with the next frame, which makes the swapchain again with the present mode for

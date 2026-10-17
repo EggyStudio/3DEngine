@@ -49,7 +49,7 @@ internal readonly record struct StorageBufferBinding(IBuffer Buffer, uint Bindin
 /// <param name="Sampler">The sampler defining filtering and addressing modes.</param>
 /// <param name="Binding">Shader binding slot index.</param>
 /// <param name="Type">
-/// How the shader declares the binding: both as a combined image sampler, the image alone as a
+/// How the shader declares the binding, both as a combined image sampler, the image alone as a
 /// <see cref="DescriptorType.SampledImage"/>, or the sampler alone as a <see cref="DescriptorType.Sampler"/>.
 /// </param>
 internal readonly record struct CombinedImageSamplerBinding(IImageView ImageView, ISampler Sampler, uint Binding,

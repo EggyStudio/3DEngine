@@ -4,15 +4,15 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>
-/// The small surfaces that give off light, which the bounce carries as lights of their own rather
-/// than by the rays that meet them: which they are, and their boxes as <c>glow.slang</c>'s
-/// <c>GlowLight</c> reads them in the bounce's lights.
+/// The small emissive surfaces, which global illumination carries as lights of their own rather
+/// than by the rays that meet them, which they are and their boxes as <c>glow.slang</c>'s
+/// <c>GlowLight</c> reads them in the lights of global illumination.
 /// </summary>
 /// <remarks>
 /// <para>
 /// A probe's rays meet a small emitter seldom and take it for a whole texel of the sky where they
 /// do, and the world's probes stand above a floor at their spacing, so the faces a floor reads see
-/// none of a lamp lying on it: a glowing block on a floor lit the floor beside it through the
+/// none of a lamp lying on it. An emissive block on a floor lit the floor beside it through the
 /// screen probes' sixteen rays alone, in eight lobes where some rays met it, to the two blocks
 /// they reach, and from no farther. Carried as a light, its light reaches a surface in closed form
 /// from the faces of its box, which a path-traced floor beside a block reads to within 3%.
@@ -23,8 +23,8 @@ namespace Engine;
 /// levels of how much of it it sees, a soft shadow from the field's distances; a pixel no screen
 /// probe stands on a surface like its own marches to the four brightest itself, once each, as do
 /// the pixels past the screen's probes. A probe's ray's hit takes the two brightest, so the walls a
-/// lamp lights bounce it on. Emitters square to the axes that touch and give off the same light
-/// are one light, so a stack of glowing blocks is not four lights each hidden by the others. The
+/// lamp lights reflect its light on. Emitters square to the axes that touch and emit the same light
+/// are one light, so a stack of emissive blocks is not four lights each hidden by the others. The
 /// field marks the cells such an emitter paints, so a ray that meets it does not take its light a
 /// second time; a reflection keeps it.
 /// </para>
@@ -42,10 +42,10 @@ internal static class GlowLights
     /// <summary>How many carried emitters are lights at most, the nearest the eye, as <c>MostGlowLights</c> in <c>glow.slang</c>.</summary>
     public const int Most = 64;
 
-    /// <summary>The bytes of a light: its middle and reach, its three half sides and its light.</summary>
+    /// <summary>The bytes of a light, its middle and reach, its three half sides and its light.</summary>
     public const int Bytes = 80;
 
-    /// <summary>Where the lights start in the bounce's lights, after the sun, the sky, the lamps and the cascades' corners, their count first.</summary>
+    /// <summary>Where the lights start in the lights of global illumination, after the sun, the sky, the lamps and the cascades' corners, their count first.</summary>
     public const int Offset = 64 + 16 * 64 + 4 * 16;
 
     /// <summary>The bytes the count and the lights take.</summary>
@@ -55,7 +55,7 @@ internal static class GlowLights
     // light is let go, over a quarter of the box's surface as the box's mean face seen from afar.
     private const float Faint = 0.02f;
 
-    /// <summary>Whether an instance that gives off <paramref name="emission"/> is carried as a light, its box in the world no longer than twice the first cascade's spacing.</summary>
+    /// <summary>Whether an instance emitting <paramref name="emission"/> is carried as a light, its box in the world no longer than twice the first cascade's spacing.</summary>
     public static bool Carries(Vector3 emission, SceneFieldPlan.Box box, Matrix4x4 world, float firstCell)
     {
         if (emission is { X: <= 0, Y: <= 0, Z: <= 0 }) return false;
@@ -65,7 +65,7 @@ internal static class GlowLights
         return longest <= 2 * GlobalIlluminationRenderer.ProbeSpacing * firstCell;
     }
 
-    /// <summary>A light as it is written: the middle of its box, half its side along each of the box's axes, its light and its surface over its box's.</summary>
+    /// <summary>A light as it is written, the middle of its box, half its side along each of the box's axes, its light and its surface over its box's.</summary>
     internal readonly record struct Light(Vector3 Middle, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Glow, float Share);
 
     /// <summary>
@@ -110,14 +110,14 @@ internal static class GlowLights
     }
 
     /// <summary>
-    /// The lights the carried emitters among <paramref name="drawn"/> make: one for each, or for
-    /// each group of boxes square to the world's axes that touch and give off the same light, one
+    /// The lights the carried emitters among <paramref name="drawn"/> make, one for each, or, for
+    /// each group of boxes square to the world's axes that touch and emit the same light, one
     /// for the group, its box around them all and its share of that box's surface what of theirs no
     /// other covers.
     /// </summary>
     /// <remarks>
-    /// Four glowing blocks stacked two by two were four lights, each marched to through the others
-    /// and each giving off from the faces the others cover, so the stack threw a ring of light that
+    /// Four emissive blocks stacked two by two were four lights, each marched to through the others
+    /// and each emitting from the faces the others cover, so the stack threw a ring of light that
     /// came and went around it. As one light of a box two blocks wide its light is the stack's.
     /// </remarks>
     internal static List<Light> Gather(IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> drawn, float firstCell,

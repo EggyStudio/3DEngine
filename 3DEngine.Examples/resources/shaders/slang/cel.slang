@@ -1,5 +1,6 @@
-// raylib's cel.vs and cel.fs, written in Slang for the model pass: the light falling on each point
-// rounded down to one of a few bands, as a cartoon is shaded, over the model's texture and color.
+// raylib's cel.vs and cel.fs, written in Slang for the model pass. It draws the light falling on
+// each point rounded down to one of a few bands, as a cartoon is shaded, over the model's texture
+// and color.
 import modelpass;
 
 // raylib's Light, under a name apart from the model pass's own

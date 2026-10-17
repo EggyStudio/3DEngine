@@ -161,7 +161,7 @@ public class SlangCompilerTests : IDisposable
         var lights = program.LayoutOf(1);
         lights.Select(b => b.Binding).Should().Equal([.. Enumerable.Range(0, 20 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b), 31u, 32u, 33u, 34u, 35u],
             "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes, the occlusion, the probes' and the environment's irradiance, "
-            + "the light that bounced in the world's probes, the field they lie in, and the screen's probes and their surfaces, "
+            + "the indirect light in the world's probes, the field they lie in, and the screen's probes and their surfaces, "
             + "what a reflection is traced through, the field, its colors and light, the lights, the window's depth, and its frame before and that frame's depth, "
             + "the two samplers the set's images are read through, and past the device's rays the probes' reach, their share of the sky "
             + "and the glow lights' light on the window's surfaces and their normals");
@@ -271,7 +271,7 @@ public class SlangCompilerTests : IDisposable
     [Fact]
     public void The_Model_Pass_Is_Built_For_Each_Set_Of_What_It_Names_And_Without_The_Bounce_Alone()
     {
-        // A frame where no light bounces draws with the build that leaves the bounce out, which
+        // A frame without global illumination draws with the build that leaves it out, which
         // traces no rays and marches to no glow light, so it is made with neither.
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         var model = File.ReadAllText(Path.Combine(shaders, "model.slang"));

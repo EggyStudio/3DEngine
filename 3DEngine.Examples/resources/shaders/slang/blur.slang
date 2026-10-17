@@ -1,4 +1,4 @@
-// raylib's blur.fs, written in Slang: the picture blurred along a diagonal by a Gaussian.
+// raylib's blur.fs, written in Slang. It draws the picture blurred along a diagonal by a Gaussian.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

@@ -1,5 +1,5 @@
-// raylib's outline.fs, written in Slang: a texture with a line around its opaque parts, found
-// where any of four texels a step away has alpha.
+// raylib's outline.fs, written in Slang. It draws a texture with a line around its opaque parts,
+// found where any of four texels a step away has alpha.
 import engine;
 
 uniform float2 textureSize;

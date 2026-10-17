@@ -34,7 +34,7 @@ public class SdlAudioBackendTests
     public void A_Machine_With_No_Audio_Device_Is_Warned_Of_Once_A_Process()
     {
         // A message of its own, since the probe for a device and other tests open audio in this process too.
-        var message = $"SdlAudioBackend: SDL_OpenAudioDevice failed: 'no device {Guid.NewGuid():N}', so the backend is disabled.";
+        var message = $"SdlAudioBackend: SDL_OpenAudioDevice failed with 'no device {Guid.NewGuid():N}', so the backend is disabled.";
         var heard = new Heard();
         var logger = Log.Factory.CreateLogger("Engine.Sound.Sdl").UseProvider(heard);
         try

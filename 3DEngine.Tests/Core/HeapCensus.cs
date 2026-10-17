@@ -20,7 +20,7 @@ internal sealed partial class HeapCensus
     private static readonly string? Tool =
         Environment.GetEnvironmentVariable("E3D_GCDUMP") is { Length: > 0 } path && File.Exists(path) ? path : null;
 
-    // A line of the report: an object's size, the count, the type with the band of sizes a large
+    // A line of the report, an object's size, the count, the type with the band of sizes a large
     // object falls in, and its assembly.
     [GeneratedRegex(@"^\s*([\d,]+)\s+([\d,]+)\s+(.+?)(?:\s+\(Bytes > [^)]*\))?\s+\[[^\]]*\]\s*$")]
     private static partial Regex Row();

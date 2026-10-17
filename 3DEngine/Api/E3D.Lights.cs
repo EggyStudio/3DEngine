@@ -75,8 +75,9 @@ public static partial class E3D
     /// light's faces are a quarter of it.
     /// </summary>
     /// <remarks>
-    /// A game's shadow quality setting: 4096 sharpens shadows at four times the memory and drawing
-    /// of 2048, and 1024 is cheaper and softer. The map is made again at the new size the next frame.
+    /// It is a game's shadow quality setting. A size of 4096 sharpens shadows at four times the
+    /// memory and drawing of 2048, and 1024 is cheaper and softer. The map is made again at the new
+    /// size the next frame.
     /// </remarks>
     public static void SetShadowMapSize(int size) =>
         World.GetOrInsertResource(() => new ShadowSettings()).TileSize =
@@ -134,9 +135,9 @@ public static partial class E3D
     /// <para>
     /// A mesh drawn in the same place for eight frames is built into the cascades around it from
     /// its triangles on the GPU, and one that moves is stamped each frame as boxes rather than its
-    /// triangles, in its color and giving off none of its light: a skinned mesh a box for each
-    /// joint around the vertices it holds,
-    /// posed, so a character's shadows in the light that bounces are those of its limbs as boxes,
+    /// triangles, in its color and with none of its emission. A skinned mesh is a box for each
+    /// joint around the vertices it holds, posed, so a character's shadows in global illumination
+    /// are those of its limbs as boxes,
     /// and one that does not bend a box for each of up to eight parts its triangles are cut into. A
     /// cascade is built again where the camera has gone past it or a mesh came or went,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
@@ -153,8 +154,8 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Lets light bounce between the surfaces of the window's scene at <paramref name="quality"/>,
-    /// or none with <see cref="GlobalIllumination.Off"/>, which it is by default, the light a
+    /// Works out global illumination in the window's scene at <paramref name="quality"/>, or none
+    /// with <see cref="GlobalIllumination.Off"/>, which it is by default, the light a
     /// surface sends on lighting the surfaces around it, so a red wall tints the floor beside it and
     /// a room lit by the sun through a window is lit inside.
     /// </summary>
@@ -165,8 +166,8 @@ public static partial class E3D
     /// works out each frame. Nothing is baked, so every light and every mesh may move. The light a
     /// surface sends on is its material's color, its texture's average, times the sun's light where
     /// the field lets it through, the point and spot lights', each that casts shadows where the field
-    /// lets it through too, and what bounced to it the
-    /// frame before, with the light it gives off, so an emissive mesh lights its room.
+    /// lets it through too, and the indirect light that
+    /// reached it the frame before, with its emission, so an emissive mesh lights its room.
     /// </para>
     /// <para>
     /// It stands in for the diffuse share of the light from all around, the environment map's, a
@@ -183,22 +184,22 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Draws what the light that bounces holds in an ImGui window of its own, which a program shows
-    /// while its light is worked on: how much it traces and the memory that takes, a view of its
-    /// probes drawn over the window, its parts each to be left out, and a path-traced reference of
-    /// the view with the frame's error over each region against it.
+    /// Draws what global illumination holds in an ImGui window of its own, which a program shows
+    /// while its light is worked on, with how much it traces and the memory that takes, a view of
+    /// its probes drawn over the window, its parts each to be left out, and a path-traced reference
+    /// of the view with the frame's error over each region against it.
     /// </summary>
     /// <remarks>
     /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is. The views
     /// and parts are those <c>gi.show</c> and <c>gi.toggle</c> set, and the reference is traced as
-    /// <c>gi.reference</c> traces it, through the device's rays, which light bouncing at
-    /// <see cref="GlobalIllumination.High"/> holds the meshes for.
+    /// <c>gi.reference</c> traces it, through the device's rays, which global illumination
+    /// at <see cref="GlobalIllumination.High"/> holds the meshes for.
     /// </remarks>
     public static void DrawBounceWindow()
     {
         if (!TryRes<GlobalIlluminationSettings>(out var settings)) return;
         ImGuiNET.ImGui.SetNextWindowSize(new Vector2(480, 560), ImGuiNET.ImGuiCond.FirstUseEver);
-        if (!ImGuiNET.ImGui.Begin("Light that bounces"))
+        if (!ImGuiNET.ImGui.Begin("Global illumination"))
         {
             ImGuiNET.ImGui.End();
             return;
@@ -225,9 +226,9 @@ public static partial class E3D
         var merge = !settings.MergeOff;
         if (ImGuiNET.ImGui.Checkbox("The merge of the cascades", ref merge)) settings.MergeOff = !merge;
         var again = !settings.AgainOff;
-        if (ImGuiNET.ImGui.Checkbox("The light that bounces again", ref again)) settings.AgainOff = !again;
+        if (ImGuiNET.ImGui.Checkbox("The light past the first bounce", ref again)) settings.AgainOff = !again;
         var follow = !settings.FollowOff;
-        if (ImGuiNET.ImGui.Checkbox("The bounce following a light out", ref follow)) settings.FollowOff = !follow;
+        if (ImGuiNET.ImGui.Checkbox("Indirect light following a light out", ref follow)) settings.FollowOff = !follow;
         var glow = !settings.GlowOff;
         if (ImGuiNET.ImGui.Checkbox("The glow lights", ref glow)) settings.GlowOff = !glow;
         var alone = settings.Alone >= 0;
@@ -276,7 +277,7 @@ public static partial class E3D
         ImGuiNET.ImGui.End();
     }
 
-    // The bounce window's reference, its paths a pixel, what its last button said and its last comparison.
+    // The global illumination window's reference, its paths a pixel, what its last button said and its last comparison.
     private static string _bouncePath = "bounce-reference.png";
     private static int _bounceSamples = 256;
     private static string? _bounceSaid;

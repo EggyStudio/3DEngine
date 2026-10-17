@@ -62,7 +62,7 @@ public static class ConsoleCommands
         {
             // The stack goes to the log file, and the answer stays one line a person reads.
             Logger.Error($"Command '{name}' failed.", error);
-            return $"{name} failed: {error.Message}";
+            return $"{name} failed. {error.Message}";
         }
     }
 

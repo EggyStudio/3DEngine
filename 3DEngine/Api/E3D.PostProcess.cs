@@ -4,7 +4,7 @@ public static partial class E3D
 {
     /// <summary>
     /// Spreads light brighter than <paramref name="threshold"/> into the pixels around it, as a
-    /// bright light glows through a lens, adding <paramref name="intensity"/> of it to the frame, or
+    /// bright light spreads through a lens, adding <paramref name="intensity"/> of it to the frame, or
     /// turns bloom off with an intensity of 0, which it is by default.
     /// </summary>
     /// <remarks>
@@ -77,7 +77,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Chooses the curve that brings the scene's light past 1 under it: the engine's own, which
+    /// Chooses the curve that brings the scene's light past 1 under it, the engine's own, which
     /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the
     /// eight Bevy offers, drawn as Bevy draws them.
     /// </summary>
@@ -130,8 +130,8 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Turns FXAA on or off, which smooths the jagged edges multisampling leaves: those inside a
-    /// surface, as a sharp highlight's or a texture's, and of lines thinner than a pixel.
+    /// Turns FXAA on or off, which smooths the jagged edges multisampling leaves, those inside a
+    /// surface, as a sharp highlight's or a texture's, and those of lines thinner than a pixel.
     /// </summary>
     public static void SetFxaa(bool enabled) => Effects.Fxaa = enabled;
 
@@ -210,9 +210,9 @@ public static partial class E3D
 
     /// <summary>
     /// Draws the effects over the frame in an ImGui window of its own, each shown as it is set and set
-    /// at once as it is changed, so the picture is tuned while it is looked at: the curve, the
-    /// exposure and the one that follows the scene, the grading, the vignette, FXAA, the depth of
-    /// field, motion blur and bloom.
+    /// at once as it is changed, so the picture is tuned while it is looked at. They are the
+    /// curve, the exposure and the one that follows the scene, the grading, the vignette, FXAA, the
+    /// depth of field, motion blur and bloom.
     /// </summary>
     /// <remarks>
     /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is. Each control

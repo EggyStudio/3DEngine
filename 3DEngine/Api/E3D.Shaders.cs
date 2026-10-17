@@ -69,7 +69,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {
-            ApiLogger.Warn($"LoadShader: '{name}' did not compile: {ex.Message}");
+            ApiLogger.Warn($"LoadShader: '{name}' did not compile. {ex.Message}");
             return default;
         }
     }

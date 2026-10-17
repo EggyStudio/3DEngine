@@ -3,11 +3,11 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-/// <summary>How much of the light that bounces between surfaces is worked out, from none to the full set of cascades.</summary>
+/// <summary>How much global illumination is worked out, from none to the full set of cascades.</summary>
 /// <seealso cref="E3D.SetGlobalIllumination"/>
 public enum GlobalIllumination
 {
-    /// <summary>No light bounces, as raylib draws a scene.</summary>
+    /// <summary>No global illumination, as raylib draws a scene.</summary>
     Off,
 
     /// <summary>Two cascades of probes, 64 directions each, for a slow GPU.</summary>
@@ -20,7 +20,7 @@ public enum GlobalIllumination
     High,
 }
 
-/// <summary>How much light bounces as the program set it, a world resource the renderer reads each frame.</summary>
+/// <summary>How much global illumination the program set, a world resource the renderer reads each frame.</summary>
 internal sealed class GlobalIlluminationSettings
 {
     /// <summary>The quality, <see cref="GlobalIllumination.Off"/> for none.</summary>
@@ -41,18 +41,18 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as <c>gi.toggle merge off</c> sets it.</summary>
     public bool MergeOff { get; set; }
 
-    /// <summary>Whether the surfaces the rays meet take none of the light that bounced to them the frame before, so light bounces once, as <c>gi.toggle again off</c> sets it.</summary>
+    /// <summary>Whether the surfaces the rays meet take none of the indirect light that reached them the frame before, so light makes one bounce, as <c>gi.toggle again off</c> sets it.</summary>
     public bool AgainOff { get; set; }
 
     /// <summary>
-    /// Whether the world's probes take the whole of the light that bounced the frame before however
-    /// their own light falls, so the light that bounced on from a light that went out fades over
+    /// Whether the world's probes take the whole of the indirect light of the frame before however
+    /// their own light falls, so the indirect light from a light that went out fades over
     /// the frames each bounce takes, as <c>gi.toggle follow off</c> sets it.
     /// </summary>
     public bool FollowOff { get; set; }
 
     /// <summary>
-    /// Whether the small surfaces that give off light the bounce carries as lights give none, their
+    /// Whether the small emissive surfaces global illumination carries as lights give none, their
     /// light lost to the rays all the same, as <c>gi.toggle glow off</c> sets it, so what the glow
     /// lights give and cost can be read (<see cref="GlowLights"/>).
     /// </summary>
@@ -75,9 +75,9 @@ internal sealed class GlobalIlluminationSettings
 }
 
 /// <summary>
-/// The probes the model pass reads the window's bounced light from this frame, over the field they
+/// The probes the model pass reads the window's indirect light from this frame, over the field they
 /// were traced through, and the screen's probes, which it reads first where one stands near, with
-/// what a glossy surface traces its reflection through: the window's depth, its scene the frame
+/// what a glossy surface traces its reflection through, the window's depth, its scene the frame
 /// before where one was kept, its meshes for the device's ray tracing where it traces rays, and how
 /// many glow lights the frame's lights hold, without which the model pass draws with its build that
 /// leaves them out.
@@ -86,8 +86,8 @@ internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField
     WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null, int GlowLights = 0);
 
 /// <summary>
-/// What the model pass reads each render target's bounced light from this frame, by the target's
-/// texture id: the world's probes with the target's own screen probes, stood on its own depth,
+/// What the model pass reads each render target's indirect light from this frame, by the target's
+/// texture id, the world's probes with the target's own screen probes, stood on its own depth,
 /// where it draws meshes through a camera of its own.
 /// </summary>
 internal sealed class TargetIllumination
@@ -97,8 +97,8 @@ internal sealed class TargetIllumination
 }
 
 /// <summary>
-/// The light that bounces between surfaces, as cascades of light probes over the scene's distance
-/// field (Radiance Cascades), traced, merged and gathered on the GPU each frame
+/// Global illumination, as cascades of light probes over the scene's distance field (Radiance
+/// Cascades), traced, merged and gathered on the GPU each frame
 /// (<see cref="GraphicsDevice.RecordGlobalIllumination"/>), which the model pass adds to the
 /// window's light from all around.
 /// </summary>
@@ -113,12 +113,12 @@ internal sealed class TargetIllumination
 /// across space and quickly across directions, is sampled as it changes.
 /// </para>
 /// <para>
-/// A ray that meets a surface brings back the light the surface sends along it: its color, which
+/// A ray that meets a surface brings back the light the surface sends along it, its color, which
 /// the field paints, times the sun's light where the field lets the sun through to it, the point
-/// and spot lights', each that casts shadows where the field lets it through too, and the light
-/// that bounced to it the frame before, so light
-/// bounces again each frame, with the light it gives off. A ray of the last cascade that meets
-/// nothing brings back the environment map's light, or the ambient lights' where there is none.
+/// and spot lights', each that casts shadows where the field lets it through too, and the indirect
+/// light that reached it the frame before, so each frame adds a bounce, with its emission. A ray of
+/// the last cascade that meets nothing brings back the environment map's light, or the ambient
+/// lights' where there is none.
 /// </para>
 /// </remarks>
 internal sealed class GlobalIlluminationRenderer : IDisposable
@@ -209,7 +209,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
     /// <summary>
     /// How far from its tile's middle each screen probe marches to the glow lights from in frame
-    /// <paramref name="frame"/>, in pixels, the same for every probe: the middles of the tile's four
+    /// <paramref name="frame"/>, in pixels, the same for every probe, the middles of the tile's four
     /// by four cells in the order of Bayer's matrix, sixteen frames a round, so a round visits each
     /// cell once and each frame's cell lies far from the last.
     /// </summary>
@@ -236,8 +236,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     };
 
     /// <summary>
-    /// How many cascades of probes the window's light bounces through this frame, which the window's
-    /// lighting buffer tells the model pass, 0 where light does not bounce.
+    /// How many cascades of probes global illumination traces for the window this frame, which the
+    /// window's lighting buffer tells the model pass, 0 where global illumination is off.
     /// </summary>
     internal static int CascadesIn(RenderWorld renderWorld) =>
         renderWorld.TryGet<GlobalIlluminationSettings>() is { Quality: not GlobalIllumination.Off } settings
@@ -361,7 +361,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // The window's meshes for the device's ray tracing, which a reflection the field misses is
         // traced through, at the top quality where the device and the model pass trace rays, a
         // skinned mesh, whose posed shape no vertices on the CPU hold, left out, and each marked
-        // where the bounce carries it as a glow light, for a probe's reference.
+        // where global illumination carries it as a glow light, for a probe's reference.
         if (quality == GlobalIllumination.High && device.CanQueryRays && renderWorld.TryGet<ModelRenderer>() is { TracesRays: true }
             && !renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff
             && renderWorld.TryGet<SceneFieldRenderer>() is { } fields)
@@ -418,14 +418,14 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }
 
-    // A view's buffer for the screen's probes, as gi_screen.slang reads it: its camera both ways
-    // and its eye, the probes' tile and how many lie across and down, the first interval's half, the
-    // world's probes, their spacing and cascades, the depth's size and the view's, its camera and
-    // eye the frame before where the probes were placed then, how far from their tiles' middles the
-    // probes march to the glow lights from, how many glow lights there are with the places whose
-    // light the frame before had there, and the field's cascades built this frame as meshes came or
-    // went within them with the box around those meshes. The matrices lie as they do in memory, which
-    // the shaders, reading them column-major, multiply a point by as the CPU does.
+    // A view's buffer for the screen's probes, as gi_screen.slang reads it, with its camera both
+    // ways and its eye, the probes' tile and how many lie across and down, the first interval's
+    // half, the world's probes, their spacing and cascades, the depth's size and the view's, its
+    // camera and eye the frame before where the probes were placed then, how far from their tiles'
+    // middles the probes march to the glow lights from, how many glow lights there are with the
+    // places whose light the frame before had there, and the field's cascades built this frame as
+    // meshes came or went within them with the box around those meshes. The matrices lie as they do
+    // in memory, which the shaders, reading them column-major, multiply a point by as the CPU does.
     private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
         Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last)
     {
@@ -472,7 +472,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         HistoryViewProjection = window.ViewProjection;
     }
 
-    // The lights as gi.slang's GiLights: the sun, the first directional light, the shadowed one
+    // The lights as gi.slang's GiLights, the sun, the first directional light, the shadowed one
     // where it is one; the light from all around a ray meets where it meets nothing; and the point
     // and spot lights, sixteen at most.
     private byte[] Lights(RenderWorld renderWorld, bool environment)
@@ -558,7 +558,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     }
 }
 
-/// <summary>Render graph node that traces the light that bounces, after the scene's distance field is built and before the passes that light the window.</summary>
+/// <summary>Render graph node that traces global illumination, after the scene's distance field is built and before the passes that light the window.</summary>
 internal sealed class GlobalIlluminationNode : INode
 {
     /// <inheritdoc />

@@ -45,7 +45,7 @@ public struct Boxes
         var sky = ctx.Ecs.Spawn();
         ctx.Ecs.Add(sky, Light.Ambient(new Vector3(0.6f, 0.7f, 0.9f), 0.25f));
 
-        // The ground: a static body and a flat box mesh 20 units wide.
+        // The ground, a static body and a flat box mesh 20 units wide.
         var ground = ctx.Ecs.Spawn();
         ctx.Physics.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 0.5f, 10), entityId: ground);
         ctx.Ecs.Add(ground, new Mesh(Cube));

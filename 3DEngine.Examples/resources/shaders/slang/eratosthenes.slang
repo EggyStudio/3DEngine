@@ -1,6 +1,6 @@
-// raylib's eratosthenes.fs, written in Slang: the sieve of Eratosthenes, by ProfJski. Each box of a
-// grid is a whole number, white when it is prime, and otherwise colored by the smallest number that
-// divides it.
+// raylib's eratosthenes.fs, written in Slang. It draws the sieve of Eratosthenes, by ProfJski. Each
+// box of a grid is a whole number, white when it is prime, and otherwise colored by the smallest
+// number that divides it.
 import engine;
 
 float4 Colorizer(float counter, float maxSize)

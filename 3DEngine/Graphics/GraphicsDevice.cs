@@ -9,7 +9,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Initialization follows a 6-step pipeline: Vulkan instance → surface → physical device selection →
+/// Initialization follows a 6-step pipeline, Vulkan instance → surface → physical device selection →
 /// logical device → swapchain resources → synchronization objects. The device supports triple-buffering
 /// with <see cref="MaxFramesInFlight"/> frames in flight.
 /// </para>

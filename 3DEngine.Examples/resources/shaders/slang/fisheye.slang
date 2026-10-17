@@ -1,4 +1,5 @@
-// raylib's fisheye.fs, written in Slang: the picture as a lens of 178 degrees would take it.
+// raylib's fisheye.fs, written in Slang. It draws the picture as a lens of 178 degrees would take
+// it.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

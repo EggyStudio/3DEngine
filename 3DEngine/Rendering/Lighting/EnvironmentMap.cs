@@ -114,7 +114,7 @@ internal sealed class EnvironmentMap
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {
-            throw new ArgumentException($"Not a Radiance image: {ex.Message}", nameof(file), ex);
+            throw new ArgumentException($"Not a Radiance image. {ex.Message}", nameof(file), ex);
         }
 
         var linear = new Vector3[image.Width * image.Height];

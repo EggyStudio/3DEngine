@@ -1,7 +1,7 @@
 using Engine.Cli;
 
-// The command line an agent uses on this repository: find a running app, ask what it can do,
-// drive it, capture what it draws, and stop it. Every answer is one envelope and one exit code.
+// The command line an agent uses on this repository to find a running app, ask what it can do,
+// control it, capture what it draws, and stop it. Every answer is one envelope and one exit code.
 
 // Written as UTF-8 on every system, where Windows' console would write the code page it uses, so a
 // script reading an answer, as a game's word with an accent, reads the characters the app sent.

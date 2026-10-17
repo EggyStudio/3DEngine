@@ -12,7 +12,7 @@ public static class ScenesLevel
         var ecs = world.Resource<EcsWorld>();
         var file = Path.Combine(AppContext.BaseDirectory, "level.json");
 
-        // A level made in code the first time: a camera, two lights and three models from a file.
+        // A level made in code the first time, a camera, two lights and three models from a file.
         Build(ecs);
         SceneFile.Save(ecs, file);
         var message = $"Saved {Path.GetFileName(file)}. R reloads it, S saves it again, D despawns everything.";

@@ -5,8 +5,8 @@ namespace Engine;
 
 /// <summary>
 /// Subsurface scattering over the window's frame, the light that enters skin, wax, marble or a
-/// leaf leaving it nearby: the window's meshes whose material has a subsurface radius drawn again
-/// into two images of the window's size, their diffuse light and their profile
+/// leaf leaving it nearby, made of the window's meshes whose material has a subsurface radius drawn
+/// again into two images of the window's size, their diffuse light and their profile
 /// (<see cref="ModelRenderer.DrawSubsurface"/>), and that light spread across and then down by
 /// <c>subsurface_blur.slang</c>, the pass down adding the change to the decoded frame before the
 /// window's particles are drawn over it.
@@ -50,7 +50,7 @@ internal sealed class SubsurfaceRenderer : IDisposable
     private long _frame;
 
     // What is made for one size of the window, one depth of the scene and whether the marked
-    // surfaces are drawn at half the window's size: the marked meshes' diffuse light, profile and
+    // surfaces are drawn at half the window's size, the marked meshes' diffuse light, profile and
     // light that comes through, the light spread across, and the sets the two spreads read through.
     private sealed class Sized(Extent2D extent, bool half, IImageView depth, RenderTarget marked, RenderTarget across, IDescriptorSet acrossSet,
         IDescriptorSet downSet) : IDisposable

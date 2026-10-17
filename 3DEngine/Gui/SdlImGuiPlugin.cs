@@ -68,7 +68,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad | ImGuiConfigFlags.DockingEnable;
         ImGui.StyleColorsDark();
 
-        // A window never shown, as a run ./e3d or a test drives, neither reads nor writes
+        // A window never shown, as a run that ./e3d or a test scripts, neither reads nor writes
         // imgui.ini, so each starts from the program's own layout whatever an earlier run left
         // there, and a shown window keeps ImGui's own, which brings a player's layout back.
         var cfg = app.World.Resource<Config>();

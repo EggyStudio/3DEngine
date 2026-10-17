@@ -137,7 +137,7 @@ internal sealed class ParentFollowers
             }
             else
             {
-                // Still, or moved in the steps themselves: aimed at where it is.
+                // Still, or moved in the steps themselves, it is aimed at where it is.
                 (follower.Velocity, follower.Spin, follower.ByFrame) = (Vector3.Zero, Vector3.Zero, false);
             }
             (follower.Place, follower.Turn, follower.Since) = (place, turn, -behind);

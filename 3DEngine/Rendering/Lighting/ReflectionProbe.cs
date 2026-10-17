@@ -111,7 +111,7 @@ internal sealed class ReflectionProbes
     /// <summary>How many times a probe is captured for one placement, each with the one before bound.</summary>
     public const int Passes = 2;
 
-    /// <summary>One light as it reached a probe's box: its entity, kind, color times intensity, place, aim and range.</summary>
+    /// <summary>One light as it reached a probe's box, its entity, kind, color times intensity, place, aim and range.</summary>
     public readonly record struct LitBy(int Entity, LightKind Kind, Vector3 Light, Vector3 Position, Vector3 Forward, float Range);
 
     /// <summary>A capture filtered on the GPU, and what it was captured as.</summary>
@@ -186,8 +186,8 @@ internal sealed class ReflectionProbes
         return all;
     }
 
-    // Whether a light reaches a box: a directional or ambient one always, and a point or spot one
-    // within its range of the box's nearest point.
+    // Whether a light reaches a box, as a directional or ambient one always does and a point or
+    // spot one does within its range of the box's nearest point.
     private static bool Reaches(in LitBy light, Vector3 center, Vector3 halfSize)
     {
         if (light.Kind is LightKind.Directional or LightKind.Ambient) return true;
@@ -196,7 +196,7 @@ internal sealed class ReflectionProbes
         return outside <= (light.Range > 0 ? light.Range : 10);
     }
 
-    // Whether the lights reaching a box changed past what a capture would show: one added or gone, a
+    // Whether the lights reaching a box changed past what a capture would show, with one added or gone, a
     // light's color times intensity a quarter brighter or dimmer, its color turned, or it moved a
     // quarter of a unit or turned past eleven degrees. A lamp flickering about its light keeps
     // within that and asks for nothing.

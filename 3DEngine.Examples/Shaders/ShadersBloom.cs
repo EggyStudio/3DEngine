@@ -9,7 +9,7 @@ public static class ShadersBloom
     {
         InitWindow(800, 450, "[shaders] bloom");
 
-        // Glowing orbs brighter than white over a dim floor, which bloom spreads into the dark
+        // Emissive orbs brighter than white over a dim floor, which bloom spreads into the dark
         // around them, and a white cube lit by a lamp, which stays sharp. B turns bloom off and on,
         // and the other effects over the frame have a key each.
         SetBloom(0.8f);
@@ -21,7 +21,7 @@ public static class ShadersBloom
         var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
         var cube = LoadModelFromMesh(GenMeshCube(1.2f, 1.2f, 1.2f));
         var orb = LoadModelFromMesh(GenMeshSphere(0.45f, 32, 32));
-        Color[] glows = [new Color(255, 120, 40), new Color(60, 200, 255), new Color(255, 60, 200)];
+        Color[] emissive = [new Color(255, 120, 40), new Color(60, 200, 255), new Color(255, 60, 200)];
         var camera = new Camera3D(new Vector3(0, 3.5f, 8), new Vector3(0, 0.8f, 0), Vector3.UnitY, 45);
         var orbit = 0f;
         var t = 0f;
@@ -50,15 +50,15 @@ public static class ShadersBloom
             BeginMode3D(camera);
             DrawModel(ground, Vector3.Zero, 1, new Color(70, 70, 80));
             DrawModel(cube, new Vector3(0, 0.6f, 0), 1, Color.White);
-            for (int i = 0; i < glows.Length; i++)
+            for (int i = 0; i < emissive.Length; i++)
             {
-                var angle = t * 0.5f + i * MathF.Tau / glows.Length;
-                orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = glows[i], EmissiveIntensity = 4 };
+                var angle = t * 0.5f + i * MathF.Tau / emissive.Length;
+                orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = emissive[i], EmissiveIntensity = 4 };
                 DrawModel(orb, new Vector3(MathF.Cos(angle) * 2.8f, 1.2f + MathF.Sin(t + i) * 0.3f, MathF.Sin(angle) * 2.8f), 1, Color.White);
             }
             EndMode3D();
 
-            DrawText(bloom ? "Bloom on: light past white glows. B turns it off." : "Bloom off. B turns it on.", 10, 10, 20, Color.RayWhite);
+            DrawText(bloom ? "Bloom on, so light past white spreads. B turns it off." : "Bloom off. B turns it on.", 10, 10, 20, Color.RayWhite);
             DrawText($"T curve {curve}, V vignette {(vignette ? "on" : "off")}, G grading {(graded ? "on" : "off")}, " +
                      $"F FXAA {(fxaa ? "on" : "off")}, E exposure {(bright ? 1.8f : 1)}", 10, 36, 16, Color.LightGray);
             DrawText($"D depth of field {(focus ? "on" : "off")}, M motion blur {(blur ? "on, the camera swinging" : "off")}", 10, 56, 16, Color.LightGray);

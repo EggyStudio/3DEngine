@@ -1,7 +1,7 @@
-// raylib's hybrid_raster.fs, written in Slang: the color drawn, with its blue written as its depth,
-// since a shader that writes depth for some of a pass is written for all. raylib's has written the
-// blue since its review of the example (6820ff61, 2025), where it wrote the pixel's own depth
-// before, which the screenshot beside the example still shows.
+// raylib's hybrid_raster.fs, written in Slang. It writes the color drawn, with its blue written as
+// its depth, since a shader that writes depth for some of a pass is written for all. raylib's has
+// written the blue since its review of the example (6820ff61, 2025), where it wrote the pixel's own
+// depth before, which the screenshot beside the example still shows.
 import engine;
 
 struct HybridRasterOutput

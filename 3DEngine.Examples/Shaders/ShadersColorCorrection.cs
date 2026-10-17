@@ -85,7 +85,7 @@ public static class ShadersColorCorrection
                 DrawText("Press [1] - [4] to Change Picture", 600, 230, 8, Color.Gray);
                 DrawText("Press [R] to Reset Values", 600, 250, 8, Color.Gray);
 
-                // raygui's controls, as ImGui's, where raygui places them: its toggle group as four
+                // raygui's controls, as ImGui's, where raygui places them, its toggle group as four
                 // buttons, the one picked staying down, and its sliders each named on its left.
                 // The window reaches left of the panel, so the names before the sliders are not
                 // cut off, ImGui's font being wider than raygui's.

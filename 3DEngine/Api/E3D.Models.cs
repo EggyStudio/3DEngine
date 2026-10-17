@@ -329,7 +329,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {
-            ApiLogger.Warn($"LoadModel: '{fileName}' embeds a texture ({texturePath}, {embedded.FormatHint}) that could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadModel: '{fileName}' embeds a texture ({texturePath}, {embedded.FormatHint}) that could not be decoded. {ex.Message}");
             return default;
         }
     }
@@ -526,7 +526,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Sets one of a material's maps by raylib's name for it: the color for <see cref="MaterialMapIndex.Albedo"/>,
+    /// Sets one of a material's maps by raylib's name for it, the color for <see cref="MaterialMapIndex.Albedo"/>
     /// and the normal, metallic-roughness, emissive or occlusion map for the others it has.
     /// </summary>
     public static void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture)
@@ -551,7 +551,7 @@ public static partial class E3D
 
     /// <summary>
     /// Sets how finely the light under a surface, a material's <see cref="ModelMaterial.SubsurfaceRadius"/>,
-    /// is spread over the window's frame: at half the window's size with nine taps each way for a
+    /// is spread over the window's frame, at half the window's size with nine taps each way for a
     /// slow GPU, at its size with nine, or with seventeen, as by default.
     /// </summary>
     public static void SetSubsurfaceQuality(SubsurfaceQuality quality) =>

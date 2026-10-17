@@ -465,7 +465,7 @@ internal sealed class TrueTypeFont
     }
 
     // A glyph's bitmap from CBDT, its PNG decoded and scaled from its strike's size to scale's,
-    // placed by its metrics: small (format 17), big (18), or the index's (19).
+    // placed by its metrics, small (format 17), big (18) or the index's (19).
     private (byte[] Rgba, int Width, int Height, int Left, int Top)? Bitmap(int glyph, float scale)
     {
         var pixelsPerEm = scale * UnitsPerEm;

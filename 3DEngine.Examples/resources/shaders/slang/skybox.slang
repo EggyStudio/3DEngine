@@ -1,6 +1,6 @@
-// raylib's skybox.vs and skybox.fs, written in Slang for the model pass: a cube around the camera,
-// turned with the view and never moved by it, colored by the cube texture in the direction of
-// each point. The cube is named cubemap here, since environmentMap is the model pass's own.
+// raylib's skybox.vs and skybox.fs, written in Slang for the model pass. It draws a cube around the
+// camera, turned with the view and never moved by it, colored by the cube texture in the direction
+// of each point. The cube is named cubemap here, since environmentMap is the model pass's own.
 import modelpass;
 
 uniform SamplerCube cubemap;

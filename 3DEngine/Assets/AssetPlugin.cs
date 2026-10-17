@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Plugin that sets up the asset pipeline: registers the <see cref="AssetServer"/> resource,
+/// Plugin that sets up the asset pipeline, registering the <see cref="AssetServer"/> resource,
 /// default <see cref="FileAssetReader"/> source, built-in loaders, and per-frame processing systems.
 /// </summary>
 /// <remarks>

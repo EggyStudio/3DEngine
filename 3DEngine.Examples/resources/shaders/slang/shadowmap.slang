@@ -1,6 +1,6 @@
-// raylib's shadowmap.vs and shadowmap.fs, written in Slang for the model pass: one directional light
-// and its highlight, darkened where the depths the light sees, which the program draws into a render
-// texture first, say something nearer the light is in the way.
+// raylib's shadowmap.vs and shadowmap.fs, written in Slang for the model pass. It shades with one
+// directional light and its highlight, darkened where the depths the light sees, which the program
+// draws into a render texture first, say something nearer the light is in the way.
 import modelpass;
 
 // Input lighting values

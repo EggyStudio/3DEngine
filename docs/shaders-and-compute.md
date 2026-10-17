@@ -203,10 +203,10 @@ was before the stage moved it.
 ## A vertex stream of the program's own
 
 A mesh may carry one stream of the program's own beside its position, normal and texture
-coordinates, a value each vertex holds that the mesh's own streams do not say: a voxel's face and
-texture packed into four bytes, a blend weight, a wind phase. It is a `MeshStream` of one of five
-formats, `UInt`, `UInt2`, `Float`, `Float4` and `UNorm8x4`, four bytes read as 0 to 1, given to
-`UploadMesh` beside the colors and second texture coordinates, and written in place by
+coordinates, a value each vertex holds that the mesh's own streams do not say, such as a voxel's
+face and texture packed into four bytes, a blend weight or a wind phase. It is a `MeshStream` of one
+of five formats, `UInt`, `UInt2`, `Float`, `Float4` and `UNorm8x4`, four bytes read as 0 to 1, given
+to `UploadMesh` beside the colors and second texture coordinates, and written in place by
 `UpdateMeshBuffer` at `MeshStreamBuffer`, which writes the stream alone and uploads nothing else of
 the mesh again:
 
@@ -227,9 +227,10 @@ UpdateMeshBuffer(town, MeshStreamBuffer, packed.AsSpan(), 0);
 A vertex stage of the program's own reads it as `CUSTOM0`, of a Slang type of the format's class,
 `uint` or `uint2` for a stream of integers and a float type for the rest, since Vulkan reads an
 attribute of one class into an input of the other as nothing it defines. Bytes packed for the
-shader are a `UInt` and not a `Float`: a float's bits are read as a float, so a value whose bits 23
-to 30 are all set is not a number and one whose are all clear is a number so small a GPU may read
-it as zero. The stage unpacks them into what it hands on, here the color the fragment stage lights:
+shader are a `UInt` and not a `Float`, because a float's bits are read as a float, so a value whose
+bits 23 to 30 are all set is not a number and one whose are all clear is a number so small a GPU may
+read it as zero. The stage unpacks them into what it hands on, here the color the fragment stage
+lights:
 
 ```slang
 static const float3 Palette[4] = { float3(0.9, 0.3, 0.2), float3(0.2, 0.7, 0.4), float3(0.2, 0.5, 0.9), float3(0.9, 0.8, 0.3) };
@@ -249,14 +250,14 @@ The model pass's own shader does not read the stream, and a stage that reads it 
 without one reads zero, so one shader serves meshes with the stream and without it.
 
 The stream is a vertex stream rather than a `ShaderBuffer` read by the vertex's index, since it
-travels with the mesh: uploaded once with its positions and triangles and read by every draw of
+travels with the mesh, uploaded once with its positions and triangles and read by every draw of
 the mesh with nothing more bound, where a buffer is bound to the shader, so a few thousand chunks
 of a world would each need a `SetShaderValueBuffer` before their draw, or one buffer of them all
 with each chunk's offset carried into the shader. The GPU fetches the stream by the vertex's index
 as it fetches the position, where a buffer is read by `SV_VertexID` by hand, with an offset for
 each copy of an instanced draw; the fetch costs about the same either way, so what is gained is in
-how it is bound. A buffer stays the way for what is not one a vertex: a palette or an atlas's table
-every chunk shares, a chunk's own constants, or what a compute pass reads too.
+how it is bound. A buffer stays the way for what is not one a vertex, such as a palette or an
+atlas's table every chunk shares, a chunk's own constants, or what a compute pass reads too.
 
 A mesh whose normal and texture coordinate its stream packs, as a voxel world's chunk does, is
 uploaded from its positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a
@@ -413,5 +414,5 @@ texture's first level, and the dispatch makes the smaller levels again from it.
 - The game [`games/Sumo`](../games/Sumo/Program.cs), whose marbles, crowd and floor are drawn by
   shaders of its own and whose floor a compute shader paints each frame
 - The cheatsheet's [Shaders](../CHEATSHEET.md#shaders) and [Compute](../CHEATSHEET.md#compute)
-- Previous: [Light that bounces](global-illumination.md)
+- Previous: [Global illumination](global-illumination.md)
 - Next: [Audio](audio.md)

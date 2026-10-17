@@ -134,7 +134,7 @@ public static class ShapesKaleidoscope
         CloseWindow();
     }
 
-    // raygui's button: an ImGui window of its own, without padding or a background, holding a button
+    // raygui's button, an ImGui window of its own, without padding or a background, holding a button
     // as large as the rectangle.
     private static bool Button(Rectangle bounds, string text)
     {

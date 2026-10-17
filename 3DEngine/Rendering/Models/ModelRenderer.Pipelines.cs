@@ -6,26 +6,26 @@ namespace Engine;
 
 /// <summary>
 /// Which build of the model pass draws a frame, each leaving out what a frame may not hold, which
-/// lavapipe compiles as it first draws with each pipeline: the whole, the one without the glow
-/// lights' marches, half the fragment stage, and the one without the bounce and the traced
-/// reflection besides, a fifth of it.
+/// lavapipe compiles as it first draws with each pipeline, the whole, the one without the glow
+/// lights' marches, half the fragment stage, and the one without global illumination and the
+/// traced reflection besides, a fifth of it.
 /// </summary>
 internal enum ModelBuild
 {
     /// <summary>The whole, for a frame with glow lights.</summary>
     Whole,
 
-    /// <summary>Without the glow lights, for a frame where light bounces with none (<c>NO_GLOW_LIGHTS</c>).</summary>
+    /// <summary>Without the glow lights, for a frame with global illumination and none of them (<c>NO_GLOW_LIGHTS</c>).</summary>
     Lampless,
 
-    /// <summary>Without the bounce, the traced reflection and the glow lights, for a frame where no light bounces (<c>NO_BOUNCE</c>).</summary>
+    /// <summary>Without global illumination, the traced reflection and the glow lights, for a frame without it (<c>NO_BOUNCE</c>).</summary>
     Unbounced,
 }
 
 internal sealed partial class ModelRenderer
 {
     // Which faces of a draw are left out, whether it is drawn as points, blended, writes its depth
-    // and cuts nothing out: no faces for a double-sided material or a pass that culls nothing, and
+    // and cuts nothing out, no faces for a double-sided material or a pass that culls nothing and
     // otherwise the back or the front ones.
     private static (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
         (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend, draw.DepthWrite,
@@ -224,8 +224,8 @@ internal sealed partial class ModelRenderer
         return new UniformBufferBinding(_noUniforms, 0, 0, 16);
     }
 
-    // A descriptor set for one draw with a shader of its own: its uniform values in this frame's
-    // buffer at binding 0, and its texture at binding 1.
+    // A descriptor set for one draw with a shader of its own, its uniform values in this frame's
+    // buffer at binding 0 and its texture at binding 1.
     private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, ModelDraw draw, ShaderProgram program)
     {
         var own = program.OwnTextures(PassTextures);
@@ -287,7 +287,7 @@ internal sealed partial class ModelRenderer
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 
-    // The model pass's streams by the semantics its shaders name them by: the mesh's vertex, the
+    // The model pass's streams by the semantics its shaders name them by, the mesh's vertex, the
     // instance's rows from location 3 in ModelInstance's order, and with streams the mesh's colors
     // and second texture coordinates.
     private static readonly string[] InstanceRows = ["INSTANCE_WORLDX0", "INSTANCE_WORLDY0", "INSTANCE_WORLDZ0", "INSTANCE_COLOR0", "INSTANCE_EMISSION0", "INSTANCE_FACTORS0"];

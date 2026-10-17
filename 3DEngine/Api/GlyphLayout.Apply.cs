@@ -46,7 +46,7 @@ internal abstract partial class GlyphLayout
     /// </summary>
     private protected abstract int? ApplySubtable(int type, int sub, List<ShapedGlyph> run, int at, (int Value, int MarkSet) flags);
 
-    // A contextual or chained contextual subtable: the rule that matches at a place, if one does, its
+    // A contextual or chained contextual subtable, the rule that matches at a place, if one does, its
     // records applied to the places of its input, giving the place after the input.
     private int? Context(int type, int sub, List<ShapedGlyph> run, int at, int depth, (int Value, int MarkSet) flags)
     {

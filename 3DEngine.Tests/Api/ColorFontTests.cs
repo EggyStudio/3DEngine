@@ -70,7 +70,7 @@ public sealed class ColorFontTests : IDisposable
         font.HasColor(glyph).Should().BeTrue();
         font.HasColor(font.GlyphIndex('A')).Should().BeFalse("a glyph with no layers has no color of its own");
 
-        // The square, 800 units across, at a tenth of a pixel a unit: 80 pixels, red then blue.
+        // The square, 800 units across, at a tenth of a pixel a unit, 80 pixels, red then blue.
         var (rgba, width, height, left, top) = font.Color(glyph, 0.1f)!.Value;
         (width, height, left, top).Should().Be((80, 80, 10, -80));
         Pixel(rgba, width, 20, 40).Should().Be(new Color(255, 0, 0, 255), "the left layer is red");

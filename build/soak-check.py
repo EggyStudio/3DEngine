@@ -1,20 +1,20 @@
 # Reads what build/soak.sh wrote and fails when something a program holds climbs without leveling
 # off, or when a game could not be played through. The first quarter of the readings, while the
-# program loads and fills its caches, is left out, and the rest is cut in two halves: the least a
-# value fell to in the second half may pass the least it fell to in the first by a little, the slack
-# each kind of value is given, and no more. A leak raises a value's least as well as its most, where
-# a level streamed in and let go swings between them, as Manor's buffers go from 96 to 158 and back
-# as its walk passes from the grounds into the house, so the least tells the one from the other
+# program loads and fills its caches, is left out, and the rest is cut in two halves, and the least
+# a value fell to in the second half may pass the least it fell to in the first by a little, the
+# slack each kind of value is given, and no more. A leak raises a value's least as well as its most,
+# where a level streamed in and let go swings between them, as Manor's buffers go from 96 to 158 and
+# back as its walk passes from the grounds into the house, so the least tells the one from the other
 # where both halves see the level. A game that streams its level gives the most a whole walk through
 # it holds of such a value, which bounds the value in place of the first half's least.
 #
 #   python3 build/soak-check.py build/soak/<name>.csv [...] [--sessions DIR]
 #
 # Each game that fails is named with what failed and its numbers, and under GitHub Actions in an
-# error annotation as well, which a reader not signed in sees (NORM.md, N 6.7): the value that
-# climbed, from the least of the first half to the least of the second against the bound, or the
-# command that ended its soak with its exit code, which build/soak.sh writes beside the readings as
-# <name>.failed, and the last warnings of the game's own log under build/sessions, or the folder
+# error annotation as well, which a reader not signed in sees (NORM.md, N 6.7), with the value
+# that climbed, from the least of the first half to the least of the second against the bound, or
+# the command that ended its soak with its exit code, which build/soak.sh writes beside the readings
+# as <name>.failed, and the last warnings of the game's own log under build/sessions, or the folder
 # --sessions gives. The process's resident memory at the first reading kept and at the last is
 # said beside them, and not judged, since a driver's caches move it.
 import os
@@ -33,7 +33,7 @@ if "--sessions" in arguments:
     del arguments[at:at + 2]
 LOG_LINES = 3
 
-# How far past the first half's least each value's least in the second may go: a share of it and a
+# How far past the first half's least each value's least in the second may go, a share of it and a
 # fixed amount.
 SLACK = {
     "heap": (0.15, 2 << 20),

@@ -1,5 +1,5 @@
-// What the light that bounces holds, drawn over the window to be looked at (gi.show,
-// DrawBounceWindow): the screen's probes as tiles over the picture, each a dot of its light; the
+// What global illumination holds, drawn over the window to be looked at (gi.show,
+// DrawBounceWindow), the screen's probes as tiles over the picture, each a dot of its light; the
 // screen's probes' light, as their rays brought it and as filtered, a block a probe; how much of
 // each probe's light the frame before's gave, red for none to green for the most; a cascade of the
 // world's probes, its rays' light or its merge, each layer of probes a square of their
@@ -11,7 +11,7 @@ import fullscreen;
 
 struct ViewPush
 {
-    // x: the view, as BounceView numbers it: 1 the tiles, 2 the screen's light, 3 filtered, 4 the
+    // x: the view, as BounceView numbers it, 1 the tiles, 2 the screen's light, 3 filtered, 4 the
     // frame before's share, 5 a cascade's rays, 6 its merge, 8 the difference. y: a cascade's
     // probes along each side. z: its octahedron's texels along each side. w: unused.
     uint4 mode;

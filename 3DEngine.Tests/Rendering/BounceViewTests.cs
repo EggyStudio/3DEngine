@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The views of what the light that bounces holds (<see cref="BounceViewRenderer"/>) and the parts
+/// The views of what global illumination holds (<see cref="BounceViewRenderer"/>) and the parts
 /// of it that may be left out, drawn offscreen at Low, which a device without ray queries traces.
 /// </summary>
 [Collection("E3D")]
@@ -70,13 +70,13 @@ public sealed class BounceViewTests : IDisposable
             Apart(without, plain).Should().BeGreaterThan(least, $"leaving {part} out changes the frame");
         }
         // The sky lost with the merge changes the frame most, by 14.5 of 255 as this test measured
-        // it on the development machine's GPU, the light that bounces again 2.3, the first
+        // it on the development machine's GPU, the light past the first bounce 2.3, the first
         // cascade's light lost 2.2, the screen's probes 0.58 and their filter 0.11.
         LeftOut("the merge", () => settings.MergeOff = true, () => settings.MergeOff = false, 5);
         LeftOut("every cascade but the last", () => settings.Alone = 1, () => settings.Alone = -1, 0.5f);
         LeftOut("the screen's probes", () => settings.ScreenOff = true, () => settings.ScreenOff = false, 0.2f);
         LeftOut("the screen's filter", () => settings.FilterOff = true, () => settings.FilterOff = false, 0.03f);
-        LeftOut("the light that bounces again", () => settings.AgainOff = true, () => settings.AgainOff = false, 0.5f);
+        LeftOut("the light past the first bounce", () => settings.AgainOff = true, () => settings.AgainOff = false, 0.5f);
         UnloadModel(slab);
     }
 

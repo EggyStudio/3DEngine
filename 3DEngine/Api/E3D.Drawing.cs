@@ -286,7 +286,7 @@ public static partial class E3D
         return Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1);
     }
 
-    // The size of what is being drawn into: the render target inside BeginTextureMode, the window otherwise.
+    // The size of what is being drawn into, the render target inside BeginTextureMode and the window otherwise.
     private static (int Width, int Height) DrawingSize() =>
         _target.IsValid ? (_target.Texture.Width, _target.Texture.Height) : (GetScreenWidth(), GetScreenHeight());
 }

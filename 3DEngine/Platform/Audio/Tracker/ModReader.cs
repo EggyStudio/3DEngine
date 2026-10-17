@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>Reads a ProTracker module (<c>.mod</c>), or one of the trackers that wrote the same layout, into a <see cref="TrackerModule"/>.</summary>
 /// <remarks>
 /// <para>
-/// The mark at byte 1080 says how many channels the patterns hold: <c>M.K.</c> and its kin four,
+/// The mark at byte 1080 says how many channels the patterns hold, <c>M.K.</c> and its kin four,
 /// <c>6CHN</c> and <c>8CHN</c> as many as they say, <c>16CH</c> and the like up to 32. A file with
 /// no mark there is an older Soundtracker module of 15 samples and four channels.
 /// </para>

@@ -17,7 +17,7 @@ public enum Tonemap
     /// <summary>
     /// The engine's own and the default, which leaves a color alone up to 0.9 and bends the
     /// brightest channel toward 1 past it, keeping the hue. A frame with no light, sky, reflection
-    /// probe, light that bounces, particle, bloom or exposure has nothing past white to bend, and
+    /// probe, global illumination, particle, bloom or exposure has nothing past white to bend, and
     /// is cut at 1 instead, so white stays white as raylib draws it.
     /// </summary>
     Engine,

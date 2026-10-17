@@ -11,7 +11,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Each file is Bevy's own, its one level's Zstandard supercompression swapped for zlib's by
-/// <c>build/bevy-luts.py</c>, so .NET reads it with nothing of its own: a cube of texels, x fastest,
+/// <c>build/bevy-luts.py</c>, so .NET reads it with nothing of its own. It is a cube of texels, x fastest,
 /// then y, then z, in half-float RGBA or in RGB9E5 as Bevy has it.
 /// </remarks>
 internal static class TonemapTables

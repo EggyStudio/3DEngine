@@ -1,5 +1,6 @@
-// raylib's distortion.fs, written in Slang: each half of a stereo picture bent as a head-mounted
-// display's lens bends it, red, green and blue each by its own amount, and black past the lens.
+// raylib's distortion.fs, written in Slang. It draws each half of a stereo picture bent as a
+// head-mounted display's lens bends it, red, green and blue each by its own amount, and black past
+// the lens.
 import engine;
 
 uniform float2 leftLensCenter;

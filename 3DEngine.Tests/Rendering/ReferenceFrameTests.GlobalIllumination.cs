@@ -3,7 +3,7 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// The frames of the light that bounces: the Cornell box of shaders_cornell_box, Manor's library
+// The frames of global illumination, the Cornell box of shaders_cornell_box, Manor's library
 // lit by the afternoon sun through its windows, and the glossy hall of shaders_reflections.
 public sealed partial class ReferenceFrameTests
 {
@@ -35,10 +35,10 @@ public sealed partial class ReferenceFrameTests
             DrawModelEx(panel, new Vector3(0, 4.97f, 0), Vector3.UnitY, 0, new Vector3(1.6f, 0.06f, 1.6f), Color.White);
             EndMode3D();
         }, settle: SceneFieldPlan.SettleFrames + 10);
-        // The bounce's rays meet the box's edges and the lamp's bright patch on the ceiling at
-        // grazing angles, where a hit rounds one way on one device's compiler and the other on
-        // another's, and sixteen rays a probe carry each such ray's light far. The Windows job's
-        // lavapipe drew 3.3% of the pixels apart from this reference at c4f248fd, where the
+        // The rays of global illumination meet the box's edges and the lamp's bright patch on the
+        // ceiling at grazing angles, where a hit rounds one way on one device's compiler and the
+        // other on another's, and sixteen rays a probe carry each such ray's light far. The Windows
+        // job's lavapipe drew 3.3% of the pixels apart from this reference at c4f248fd, where the
         // Linux job's drew 1.3%, so the frame allows 5%.
         Matches(frame, "cornell_box", 0.05);
         UnloadModel(slab);
@@ -87,8 +87,8 @@ public sealed partial class ReferenceFrameTests
     [NeedsVulkanFact]
     public void Glossy_Surfaces_Reflecting_Through_The_Field_Match_Their_Reference()
     {
-        // The hall of shaders_reflections at High: a polished floor, a chrome ball and a gold one,
-        // three pillars and a glowing strip, under a low sun and a sky.
+        // The hall of shaders_reflections at High, a polished floor, a chrome ball and a gold one,
+        // three pillars and an emissive strip, under a low sun and a sky.
         Open(256, 160);
         SetSceneField(3, 0.2f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
@@ -134,7 +134,7 @@ public sealed partial class ReferenceFrameTests
     {
         // games/Wick's house drawn by the game's own House.cs at the quality the game starts at, the
         // lamp held in the doorway out of the first room and the wick of the room beyond burning, so
-        // the light on the far sides of the doorway's walls is light that bounced there.
+        // the light on the far sides of the doorway's walls is indirect light.
         Open(256, 160);
         var house = Wick.House.Load("resources/wick/house.txt");
         Wick.House.Light(GlobalIllumination.Low);

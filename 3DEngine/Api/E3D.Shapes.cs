@@ -654,7 +654,7 @@ public static partial class E3D
 
     private static float Cross(Vector2 a, Vector2 b) => a.X * b.Y - a.Y * b.X;
 
-    // An outline's end drawn outside its edge: a strip along the edge from a point on it out to the
+    // An outline's end drawn outside its edge, a strip along the edge from a point on it out to the
     // line of the arc's last piece, the edge's corner on the arc and the point before it on the arc
     // giving that line, kept on the edge's half of the slice.
     private static void FillEnd(Vector2 center, Vector2 from, Vector2 corner, Vector2 before, Vector2 inward, float thick,
@@ -716,7 +716,7 @@ public static partial class E3D
     // The pieces raylib draws every whole circle and ellipse in, one each ten degrees, whatever its size.
     private const int CirclePieces = 36;
 
-    // The pieces of an arc: as many as asked, or where that is fewer than one a quarter turn, as many
+    // The pieces of an arc, as many as asked, or, where that is fewer than one a quarter turn, as many
     // as keep the arc within half a pixel of the circle, as raylib picks them.
     private static int ArcPieces(float radius, float sweep, int segments)
     {
@@ -726,7 +726,7 @@ public static partial class E3D
         return smooth > 0 ? smooth : Math.Max(least, 1);
     }
 
-    // The pieces of each corner of a rounded rectangle: as many as asked, or at none, as many as keep
+    // The pieces of each corner of a rounded rectangle, as many as asked, or, at none, as many as keep
     // the corner within half a pixel of the circle, as raylib picks them.
     private static int CornerPieces(float radius, int segments)
     {

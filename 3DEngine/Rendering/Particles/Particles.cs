@@ -6,7 +6,7 @@ namespace Engine;
 /// <summary>The frame's emitters as the renderer sees them, with the window's camera and the seconds the frame covers.</summary>
 internal sealed class RenderParticles
 {
-    /// <summary>Each emitter by its entity, with its settings, where it is, and the burst it gives off this frame.</summary>
+    /// <summary>Each emitter by its entity, with its settings, where it is, and the burst it emits this frame.</summary>
     public List<(int Entity, ParticleEmitter Emitter, Vector3 Position, int Burst)> Emitters { get; } = [];
 
     /// <summary>The seconds since the frame before, which the particles are stepped by.</summary>
@@ -24,7 +24,7 @@ internal sealed class RenderParticles
 
 /// <summary>
 /// Copies every <see cref="ParticleEmitter"/> into <see cref="RenderParticles"/>, placed by its
-/// entity's world matrix, and clears the burst each one asked for, which is given off once.
+/// entity's world matrix, and clears the burst each one asked for, which is emitted once.
 /// </summary>
 internal sealed class ParticleExtract : IExtractSystem
 {
@@ -58,15 +58,15 @@ internal sealed class ParticleExtract : IExtractSystem
 }
 
 /// <summary>
-/// The GPU side of the particles: a buffer for each emitter, stepped each frame by a compute
-/// dispatch recorded before the window's passes, and the pass that draws them after its meshes.
+/// The GPU side of the particles, a buffer for each emitter stepped each frame by a compute
+/// dispatch recorded before the window's passes and the pass that draws them after its meshes.
 /// </summary>
 /// <remarks>
 /// An emitter's buffer is made the first frame it is seen and again when its
 /// <see cref="ParticleEmitter.MaxParticles"/> changes, and one whose entity is gone, or replaced,
 /// is destroyed <see cref="GpuTextures.RetireFrames"/> frames later, once no frame in flight reads
 /// it. The births of a frame are its share of the rate, carried from frame to frame so a rate
-/// below the frame rate still gives off its particles, and its burst, in a run of slots after the
+/// below the frame rate still emits its particles, and its burst, in a run of slots after the
 /// last frame's, so the oldest particles are the ones replaced.
 /// </remarks>
 internal sealed class ParticleRenderer : IDisposable

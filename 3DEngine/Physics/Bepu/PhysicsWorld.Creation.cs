@@ -6,7 +6,7 @@ using BepuBox = BepuPhysics.Collidables.Box;
 
 namespace Engine;
 
-/// <summary>Body and static collider creation: dynamic, kinematic, and static factories for every supported shape.</summary>
+/// <summary>Body and static collider creation, with dynamic, kinematic, and static factories for every supported shape.</summary>
 public sealed partial class PhysicsWorld
 {
     /// <summary>Wraps a shape index in a <see cref="CollidableDescription"/> with the engine's default speculative margin.</summary>

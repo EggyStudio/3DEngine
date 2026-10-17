@@ -1,4 +1,4 @@
-// Manor, a first-person walk through an estate: a house of six rooms and the grounds round it, in
+// Manor, a first-person walk through an estate, a house of six rooms and the grounds round it, in
 // which six lanterns are to be found. The estate is a grid of cells, each a prefab of models, lights,
 // a reflection probe and particles, spawned as the player nears and let go behind. Its doors swing
 // on hinges, opened by sensors as the player comes to them, and the whole of it, menus and settings
@@ -49,7 +49,7 @@ SetAutoExposure(true, 0.5f, 2.5f, 1.2f);
 SetVignette(0.25f);
 SetFxaa(true);
 
-// -- The lanterns to find, each a brass frame round a glow, with a light of its own
+// -- The lanterns to find, each a brass frame round an emissive sphere, with a light of its own
 
 var frame = LoadModelFromMesh(GenMeshCube(0.26f, 0.05f, 0.26f));
 frame.Materials[0] = new ModelMaterial(new Color(200, 160, 80)) { Metallic = 1, Roughness = 0.25f };
@@ -194,7 +194,7 @@ while (!WindowShouldClose() && !ManorCommands.Quit)
         }
     }
 
-    // -- What the player passes through: the lanterns' sensors and the doors'.
+    // -- What the player passes through, the lanterns' sensors and the doors'.
     foreach (var contact in GetPhysicsContacts())
     {
         if (contact.BodyA != player && contact.BodyB != player) continue;
@@ -395,7 +395,7 @@ void SettingsMenu(Vector2 button)
 
 public enum Screen { Title, Play, Pause, Settings, Finished }
 
-/// <summary>A door: a panel on a hinge to a post, a sensor round its doorway, and the motor that swings it.</summary>
+/// <summary>A door, a panel on a hinge to a post, a sensor round its doorway, and the motor that swings it.</summary>
 public sealed class Door
 {
     public enum Event { None, Opened, Shut }

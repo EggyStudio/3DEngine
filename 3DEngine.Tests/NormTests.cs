@@ -182,8 +182,8 @@ public sealed partial class NormTests
     public void N_4_7()
     {
         // Each place a document or a comment names who decided, by file and the line its words
-        // begin on: every Markdown file but the sessions' own, the pages a game's author reads for
-        // a pointer to REVIEW.md as well, and the comments of every source, shader, script,
+        // begin on, in every Markdown file but the sessions' own, the pages a game's author reads
+        // for a pointer to REVIEW.md as well, and the comments of every source, shader, script,
         // manifest and workflow.
         var authors = Files("docs/", ".md").Prepend("CHEATSHEET.md").Prepend("README.md").ToHashSet(StringComparer.Ordinal);
         var found = new List<string>();

@@ -1,4 +1,4 @@
-// The first cascade of the light that bounces, on the window's screen, a thread a probe. A probe
+// The first cascade of global illumination, on the window's screen, a thread a probe. A probe
 // stands on the surface the window's depth holds at the middle of each tile of pixels, and sends a
 // ray along each texel of a hemisphere of directions around the surface's normal twice as far as
 // the world's probes are apart (GlobalIlluminationRenderer). A ray is stepped through the depth
@@ -92,7 +92,7 @@ float3 worldAt(float2 uv, float d)
     return screenWorld(camera(), uv, d);
 }
 
-// The way the surface at p runs along an axis of the depth, `texel` long: toward the side whose
+// The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
 // next two texels go on in a line from p, so a probe at the foot of a wall takes its floor's way
 // and not the way up the wall, and away from the depth's edge. Toward the nearer texel, a floor
 // seen at a slant took the wall's, and its probe, its normal tilted, saw a lamp past the wall that
@@ -163,7 +163,7 @@ uint probesSeen(float3 p, uint c, float3 normal, float cell)
 }
 
 // The texel of a cascade's octahedron of `texels` along each side at t, which may lie a texel past
-// the square's edge: across an edge the octahedron folds onto the same edge mirrored, and past a
+// the square's edge. Across an edge the octahedron folds onto the same edge mirrored, and past a
 // corner onto the corner across from it, so a ray near the edge is blended with the texels beside it
 // on the sphere.
 int2 folded(int2 t, int texels)
@@ -276,17 +276,17 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
     // so the model pass reads the light of at most eight at a probe. Every light marched to by its
     // faces and read at each pixel, a room of 64 lamps at 1280 by 720 on the development machine's
-    // GPU cost the bounce 5.3 ms and the model pass 2.3 more than none, where so they cost 1.8 and
-    // 0.3. Past a sixteenth the bounce cost a room of sixteen lamps eleven blocks square 0.89 ms,
-    // where past an eighth 0.68. A light falls to the probes' sum at one probe and not the next
-    // where it is far from being the brightest, where its light changes little from probe to probe;
-    // split by the light's distance from the probe instead, two of a block's half diagonals, the
-    // floor beside a lamp read 0.80 of the path-traced reference where the split fell, a probe's
-    // own light standing in for the pixel's on the far side alone. The glow lights take the
-    // surface's normal from its way along each axis of the depth, which holds at a wall's foot
-    // where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor beside
-    // it saw a lamp past the wall that the floor does not. The light that bounces keeps the nearer
-    // texel's, which put the thin room 0.3 to 0.9% nearer its path-traced reference.
+    // GPU cost global illumination 5.3 ms and the model pass 2.3 more than none, where so they cost
+    // 1.8 and 0.3. Past a sixteenth global illumination cost a room of sixteen lamps eleven blocks
+    // square 0.89 ms, where past an eighth 0.68. A light falls to the probes' sum at one probe and
+    // not the next where it is far from being the brightest, where its light changes little from
+    // probe to probe; split by the light's distance from the probe instead, two of a block's half
+    // diagonals, the floor beside a lamp read 0.80 of the path-traced reference where the split
+    // fell, a probe's own light standing in for the pixel's on the far side alone. The glow lights
+    // take the surface's normal from its way along each axis of the depth, which holds at a wall's
+    // foot where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor
+    // beside it saw a lamp past the wall that the floor does not. Global illumination keeps the
+    // nearer texel's, which put the thin room 0.3 to 0.9% nearer its path-traced reference.
     float3 gn = normalize(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))));
     if (dot(gn, view.eye.xyz - p) < 0.0)
         gn = -gn;
@@ -375,7 +375,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 light;
             float3 hit;
             float leftAt;
-            // What the surface sends on without the light that bounced, which the screen's probes
+            // What the surface sends on without the indirect light, which the screen's probes
             // keep no account of.
             float3 own;
             // Twice as far as the world's probes are apart where the ray ends in the finest cascade,

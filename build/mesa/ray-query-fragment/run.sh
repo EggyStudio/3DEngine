@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the reproduction and draws each fragment shader with it on lavapipe: frag.glsl, and
+# Builds the reproduction and draws each fragment shader with it on lavapipe, frag.glsl and
 # frag.spvasm, the module spirv-reduce cut 3DEngine's model pass down to. Run in Ubuntu 24.04, as
 #
 #   podman run --rm -v "$PWD":/repro:ro,Z ubuntu:24.04 /repro/run.sh

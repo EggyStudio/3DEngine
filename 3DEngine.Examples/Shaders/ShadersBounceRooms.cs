@@ -26,16 +26,16 @@ public static class ShadersBounceRooms
     {
         InitWindow(800, 450, "[shaders] bounce rooms");
 
-        // The cases the light that bounces finds hardest, a room each, forty units apart so no
-        // room's lamps or field reach another, and a camera fixed on each, which 1 to 8 pick: the
+        // The cases global illumination finds hardest, a room each, forty units apart so no room's
+        // lamps or field reach another, and a camera fixed on each, which 1 to 8 pick. They are the
         // Cornell box, a room of thin walls with a lamp outside it, a corridor lit from its open
         // end, a room the sun lights through a window, white blocks beside red walls one, three and
         // six units off, a small bright strip in a dark room, a floor seen at a grazing angle, and
-        // a room whose lamp L carries and whose wall M moves, and a glowing block on a floor in the
-        // dark, which the bounce carries as a light of its own. G steps through the qualities, Tab
-        // shows the window of what the bounce holds, its views, its parts and a reference to
-        // measure it by, and `./e3d command gi.reference` traces each view's reference, which
-        // `gi.compare` reads it by.
+        // a room whose lamp L carries and whose wall M moves, and an emissive block on a floor in
+        // the dark, which global illumination carries as a light of its own. G steps through the
+        // qualities, Tab shows the window of what global illumination holds, its views, its parts
+        // and a reference to measure it by, and `./e3d command gi.reference` traces each view's
+        // reference, which `gi.compare` reads it by.
         SetSceneField(3, 0.15f, 2);
         var quality = GlobalIllumination.High;
         SetGlobalIllumination(quality);
@@ -78,7 +78,7 @@ public static class ShadersBounceRooms
             ("a small bright strip", new Camera3D(new Vector3(200, 1.4f, 2.3f), new Vector3(200, 1.3f, -2.5f), Vector3.UnitY, 65)),
             ("a floor at a grazing angle", new Camera3D(new Vector3(234.5f, 0.35f, 5.5f), new Vector3(245, 0.15f, -5), Vector3.UnitY, 60)),
             ("a lamp carried, a wall moved", new Camera3D(new Vector3(282.6f, 1.7f, 2.6f), new Vector3(278.5f, 1, -1.5f), Vector3.UnitY, 65)),
-            ("a glowing block on a floor", new Camera3D(new Vector3(320, 2.6f, 3.2f), new Vector3(320, 0, -0.3f), Vector3.UnitY, 60)),
+            ("an emissive block on a floor", new Camera3D(new Vector3(320, 2.6f, 3.2f), new Vector3(320, 0, -0.3f), Vector3.UnitY, 60)),
         ];
         var view = 0;
         var window = false;
@@ -145,7 +145,7 @@ public static class ShadersBounceRooms
                 Box(slab, new Vector3(160.5f + apart[i] + 0.15f, 1.5f, z), new Vector3(0.3f, 3, 2.5f), red);
             }
 
-            // A dark room with a thin strip on its back wall that gives off light of its own.
+            // A dark room with a thin emissive strip on its back wall.
             Room(slab, new Vector3(200, 0, 0), new Vector3(5, 3, 5), 0.3f, white);
             Box(strip, new Vector3(200, 1.5f, -2.45f), new Vector3(2, 0.06f, 0.06f), Color.White);
 
@@ -158,7 +158,7 @@ public static class ShadersBounceRooms
             Box(slab, new Vector3(moved ? 281.5f : 280, 1.25f, -1), new Vector3(0.2f, 2.5f, 2.5f), green);
             DrawSphere(spots[spot], 0.08f, new Color(255, 230, 200));
 
-            // A closed room in the dark, its floor white and its walls and ceiling dim, a glowing
+            // A closed room in the dark, its floor white and its walls and ceiling dim, an emissive
             // block on the floor in its middle with a low wall beside it that throws a shadow, and
             // four more stacked two by two.
             Box(slab, new Vector3(320, -0.15f, 0), new Vector3(8.6f, 0.3f, 8.6f), white);
@@ -173,8 +173,8 @@ public static class ShadersBounceRooms
                 Box(lamp, new Vector3(317.7f + (i & 1) * 0.6f, 0.3f, -2.1f + (i >> 1) * 0.6f), new Vector3(0.6f, 0.6f, 0.6f), new Color(230, 190, 110));
             EndMode3D();
 
-            DrawText($"{view + 1}: {views[view].Name}. Light that bounces: {quality}.", 10, 10, 20, Color.RayWhite);
-            DrawText("1 to 9 change the view, G the quality, L carries the lamp, M moves the wall and Tab shows the bounce's window.", 10, 36, 10, Color.LightGray);
+            DrawText($"{view + 1}: {views[view].Name}. Global illumination: {quality}.", 10, 10, 20, Color.RayWhite);
+            DrawText("1 to 9 change the view, G the quality, L carries the lamp, M moves the wall and Tab shows the global illumination window.", 10, 36, 10, Color.LightGray);
             DrawFPS(10, 420);
             if (window) DrawBounceWindow();
             EndDrawing();

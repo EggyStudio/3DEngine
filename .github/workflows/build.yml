@@ -12,7 +12,7 @@
 # package, plays Slide and soaks it, builds the first game's steps and checks the tables against
 # raylib.
 #
-# The pack run adds what a push leaves out: every example captured on Linux for the gallery and
+# The pack run adds what a push leaves out, every example captured on Linux for the gallery and
 # measured against raylib's program (captures), every example captured on the macOS runner's GPU
 # (captures-macos), every game played, captured, soaked and resized from the package and the README
 # followed on Linux (games), and the other eleven games played on Windows and macOS.
@@ -79,7 +79,7 @@ jobs:
 
       # Mesa's cache of the shaders lavapipe compiles, named in the workspace and kept from run to
       # run. lavapipe compiles a pipeline's variants as it first draws with them, and every app of the
-      # suite opens a device of its own, so with no cache each app compiled them again: on a host's
+      # suite opens a device of its own, so with no cache each app compiled them again. On a host's
       # lavapipe four apps in one process took 3.7 seconds each with Mesa's cache off and 0.84 with
       # it, a pipeline cache of the engine's own sparing none of it, since lavapipe keeps its
       # variants out of one. It is restored here and saved after the suite whatever the suite does,
@@ -264,7 +264,7 @@ jobs:
 
       # In the pack run every game from the same package is played through ./e3d, as every game is
       # on Linux, each asserting its walk or its win, so a game's input, its sound and the session
-      # ./e3d drives are tried on this system too. A game that fails says why in an error of its own,
+      # ./e3d controls are tried on this system too. A game that fails says why in an error of its own,
       # naming the system, and the rest are played still. Each has twelve minutes, twice Manor's walk
       # on four cores of lavapipe, past which it is stopped and its error says how far it got, so a
       # slow device names the game it is slow at, where the job's time otherwise ran out with the
@@ -658,7 +658,7 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx
 
-      # Each example opened with no window, driven where it waits for input, run until its scene
+      # Each example opened with no window, given input where it waits for some, run until its scene
       # has settled and its frame rate is measured, captured and closed (build/capture-example.sh),
       # then its session log checked for validation errors, every example captured before the step
       # fails and a capture that fails saying why in its error (build/capture-examples.sh).
@@ -835,7 +835,7 @@ jobs:
             exit 1
           fi
 
-      # The 3D platformer from the same package: its level of prefabs loads, Enter starts it once
+      # The 3D platformer from the same package, whose level of prefabs loads, Enter starts it once
       # the level's meshes are solid, and the player runs up the steps.
       - name: Build and play the 3D platformer from the package
         env:
@@ -855,8 +855,8 @@ jobs:
             exit 1
           fi
 
-      # The game written in the ECS from the same package: Enter starts it, the first wave is
-      # fought until creatures fall, its script is changed while it runs and compiled again, and
+      # The game written in the ECS from the same package, in which Enter starts it, the first wave
+      # is fought until creatures fall, its script is changed while it runs and compiled again, and
       # what a frame costs is kept beside the captures.
       - name: Build and play the arena game from the package
         env:
@@ -919,7 +919,7 @@ jobs:
             exit 1
           fi
 
-      # The first-person walk from the same package, played with the pad alone: Settings picked
+      # The first-person walk from the same package, played with the pad alone, with Settings picked
       # from the title, vertical sync turned off and kept in the settings file, back to the title,
       # and a walk begun, which the autopilot finishes through the doors, the rooms and the yard,
       # its cells streamed in and let go on the way.
@@ -968,7 +968,7 @@ jobs:
             exit 1
           fi
 
-      # The strategy board from the same package: a unit picked and walked by clicks the mouse
+      # The strategy board from the same package, with a unit picked and walked by clicks the mouse
       # makes through the ray picking, the whole side picked by a box dragged round it and ordered
       # across the board together, the other side hidden in fog at the start, a match saved and
       # taken up again, and the computer playing both sides to the end.
@@ -1165,8 +1165,8 @@ jobs:
 
       # The house lit by a lamp, by build/drive-game.sh as Windows and macOS play it, its walk and
       # the autopilot's way out asserted, and then captured with the lamp in a doorway, the room
-      # beyond lit by light that bounced there.
-      - name: Build and play the house of light that bounces from the package
+      # beyond lit by indirect light.
+      - name: Build and play the house lit by global illumination from the package
         run: |
           build/drive-game.sh Wick
           ./e3d open games/Wick/bin/Debug/net10.0/Wick --offscreen --quiet

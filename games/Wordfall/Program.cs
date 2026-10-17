@@ -356,7 +356,7 @@ public sealed class Voice
     public Shape Shape;
 }
 
-// A word on its way down: its path, how far along it is from 0 to 1, how fast, and how much of it
+// A word on its way down, its path, how far along it is from 0 to 1, how fast, and how much of it
 // is typed.
 public sealed class Falling(string word, Vector2[] path, float speed)
 {

@@ -40,7 +40,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>
-    /// A character's body: an upright capsule <paramref name="height"/> tall with its feet at
+    /// A character's body, an upright capsule <paramref name="height"/> tall with its feet at
     /// <paramref name="feet"/>. Before every step it is walked toward the velocity
     /// <see cref="MoveCharacter"/> last gave it. It slides along what it meets, since its contacts
     /// have no friction, rides over an edge lower than about half its radius on the round of its
@@ -145,7 +145,7 @@ public sealed partial class PhysicsWorld
         _charactersChanged = true;
     }
 
-    // Before a step of dt: finds each character's ground, and sets its velocity to walk where it
+    // Before a step of dt, finds each character's ground, and sets its velocity to walk where it
     // was asked to, along that ground, with the step's pull of gravity along a slope it may stand
     // on taken out beforehand, since the integrator adds it during the step. The rays and what
     // follows from them only read the simulation, so a crowd is worked out on several threads, each
@@ -292,7 +292,7 @@ public sealed partial class PhysicsWorld
         }
     }
 
-    // Most of a crowd stands on a floor: the flat top of a static box with no turn, as
+    // Most of a crowd stands on a floor, the flat top of a static box with no turn, as
     // CreateGroundPlane makes. One query of the broad phase over the room the ground rays and the
     // step ray take finds that in place of the rays. A ray tests only what the broad phase's bounds
     // put along it, and every ray lies inside the room, so what the query does not find no ray

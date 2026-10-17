@@ -21,7 +21,7 @@ namespace Engine.Tests.Core;
 [Trait("Category", "Integration")]
 public sealed class AppLeakTests(ITestOutputHelper output)
 {
-    // What the apps left, how many there were and how long they took: the process's resident
+    // What the apps left, how many there were and how long they took, the process's resident
     // memory and the GC's heap after the twentieth and after the last, in megabytes, and the series
     // a failure is read by on a machine no one here has, the resident memory after every tenth app,
     // the heap after every tenth where it is collected that often, the types that grew from the
@@ -174,10 +174,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // The census of the twentieth app is taken before its heap is read, so what it keeps
             // is in both readings and not in what the test compares, and the last's after. The
             // resident memory is read again once it is taken, and that is the baseline the last
-            // reading is held to: dotnet-gcdump attached to the process leaves some 60 MB in its
-            // working set for the rest of the run, and read before it, the baseline put the census
-            // and the creep over eighty apps together, 75 to 88 MB against the bound of 50 on
-            // Windows' runners, where the creep alone was 20 to 35.
+            // reading is held to, since dotnet-gcdump attached to the process leaves some 60 MB in
+            // its working set for the rest of the run, and read before it, the baseline put the
+            // census and the creep over eighty apps together, 75 to 88 MB against the bound of 50
+            // on Windows' runners, where the creep alone was 20 to 35.
             if (HeapCensus.Available && i == 20)
             {
                 (censusAt20, var failure) = HeapCensus.Take();

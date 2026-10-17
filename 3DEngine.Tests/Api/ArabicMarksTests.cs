@@ -5,7 +5,7 @@ namespace Engine.Tests.Api;
 
 /// <summary>
 /// Arabic's marks and pairs placed by the GPOS table of <c>arabic-marks.ttf</c>, which
-/// <c>build/make-color-test-fonts.py</c> writes: fatha, kasra and shadda put on the anchors of their
+/// <c>build/make-color-test-fonts.py</c> writes, with fatha, kasra and shadda put on the anchors of their
 /// letters, on each letter of lam-alef and on each other, and pairs of letters kerned, and letters
 /// joined by the cursive attachment of <c>arabic-cursive.ttf</c>, each place expected the one
 /// HarfBuzz gives the glyph in the same font, at 100 pixels a tenth of its units.

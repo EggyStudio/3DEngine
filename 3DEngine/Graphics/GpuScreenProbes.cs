@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The window's screen probes: the light arriving at each probe's surface and the surface's normal
+/// The window's screen probes, the light arriving at each probe's surface and the surface's normal
 /// and distance from the eye, an image of each, a texel a probe, and the buffer of the view they
 /// were placed through.
 /// </summary>
@@ -69,8 +69,8 @@ internal sealed class GpuScreenProbes : IDisposable
 
     /// <summary>
     /// How much of each glow light each probe's surface sees past what the field holds between, a
-    /// byte a light in the places the bounce's lights are written in, sixteen words of them, and
-    /// three of the light of those too faint to be marched to by their faces, which
+    /// byte a light in the places the lights of global illumination are written in, sixteen words
+    /// of them, and three of the light of those too faint to be marched to by their faces, which
     /// <c>gi_screen_glow.slang</c> takes each point's from the probes around it.
     /// </summary>
     public IBuffer GlowSeen { get; }
@@ -101,7 +101,7 @@ internal sealed class GpuScreenProbes : IDisposable
 
 /// <summary>
 /// The glow lights' light on a view's surfaces as <c>gi_screen_glow.slang</c> leaves it, a texel of
-/// the view's depth each, half the view's size: the share each point takes of the near lights'
+/// the view's depth each, half the view's size, the share each point takes of the near lights'
 /// rough light, the far lights' light, how far the frames' light has strayed from the blend and how
 /// many frames it holds, this frame's, which the model pass reads with each texel's normal, and the
 /// frame before's, copied after each frame.

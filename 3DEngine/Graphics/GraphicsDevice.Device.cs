@@ -185,7 +185,7 @@ internal sealed unsafe partial class GraphicsDevice
         DeviceObjects.Made(DeviceObjects.Kind.Device);
         Logger.Debug($"VkDevice created (handle=0x{_device.Handle:X}).");
 
-        // Made directly for the same reason as the instance's table: GetApi's cache outlives the device.
+        // Made directly for the same reason as the instance's table, since GetApi's cache outlives the device.
         _deviceApi = new VkDeviceApi(_instanceApi, _device);
         var (samplers, images) = StageLimits;
         Logger.Info($"A shader stage may read {samplers} samplers and {images} images.");

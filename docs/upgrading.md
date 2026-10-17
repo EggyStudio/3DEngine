@@ -43,7 +43,7 @@ A model shader of the program's own returns its color sRGB-encoded with bloom or
 over the frame on, as it does with every effect off and in a render texture, where 5.1 read it as
 linear light while an effect was on. A shader that returns what `lit`, `unlit` or `toDisplay`
 gives, as the guide's do, draws as it did. One that returned a linear color of its own for an
-effect, light past white to glow, returns `toDisplay(light)` in its place.
+effect, light past white to bloom, returns `toDisplay(light)` in its place.
 
 `Tonemap.Reinhard` is Bevy's Reinhard, each channel over one plus itself, where 5.1's took the
 color over one plus its luminance, which is `Tonemap.ReinhardLuminance` now. A gray is drawn the
@@ -162,17 +162,17 @@ guide that shows it.
   size and budget for an app made from a `Config`, as
   [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
   shows.
-- **Light that bounces.** `SetGlobalIllumination` with `GlobalIllumination.Low`, `Medium` or
-  `High` traces the light that bounces between surfaces each frame through that field, nothing
+- **Global illumination.** `SetGlobalIllumination` with `GlobalIllumination.Low`, `Medium` or
+  `High` traces the indirect light between surfaces each frame through that field, nothing
   baked, so every light and mesh may move, and `GlobalIllumination.Off`, the default, leaves it
   out. `Config.GlobalIllumination` sets it for an app made from a `Config`, as
-  [Light that bounces](global-illumination.md) shows with each quality's
+  [Global illumination](global-illumination.md) shows with each quality's
   cost. `DrawBounceWindow` shows its probes, leaves its parts out one at a time and measures the
   frame against a path-traced reference, in an ImGui window of its own.
-- **Glossy surfaces reflect.** Where light bounces, a surface with a roughness under 0.5 traces its
-  reflection through the window's depth and on through the field, and at `High` on a GPU that
-  traces rays itself, where the field misses, against the meshes' own triangles. Render textures
-  and reflection probes' captures take the light that bounced, in the same guide.
+- **Glossy surfaces reflect.** Where global illumination is on, a surface with a roughness under 0.5
+  traces its reflection through the window's depth and on through the field, and at `High` on a GPU
+  that traces rays itself, where the field misses, against the meshes' own triangles. Render
+  textures and reflection probes' captures take indirect light, in the same guide.
 - **Text shaped.** A line in a script written right to left is drawn in the order it is read,
   Arabic's letters join, with their marks put on them, their pairs kerned and Nastaliq's letters
   joined along the word by the font's own tables, and a letter and the mark after it are drawn as
@@ -215,9 +215,9 @@ guide that shows it.
   texture coordinate, as
   [A vertex stream of the program's own](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)
   shows.
-- **A mesh the light that bounces leaves out.** `ModelMaterial.BouncesLight`, true by default,
+- **A mesh global illumination leaves out.** `ModelMaterial.BouncesLight`, true by default,
   set false for a mesh that moves in most frames, as a game's animal, which casts its shadows and
-  is lit as before while the scene's field and the light that bounces leave it out, as
+  is lit as before while the scene's field and global illumination leave it out, as
   [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
   shows.
 - **Effects read and tuned.** `GetTonemap`, `GetExposure`, `GetAutoExposure`, `GetColorGrading`,

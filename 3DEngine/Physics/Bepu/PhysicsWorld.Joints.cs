@@ -16,7 +16,7 @@ public sealed partial class PhysicsWorld
     // Stiff enough to read as rigid at the default step, and critically damped so it does not ring.
     private static readonly SpringSettings JointSpring = new(30, 1);
 
-    // What a hinge needs to be limited or driven: its bodies, its axis on the first, the frames its
+    // What a hinge needs to be limited or driven, its bodies, its axis on the first, the frames its
     // angle is measured in, zero as they were placed when it was made, and its limit and motor.
     private sealed class HingeParts
     {
@@ -34,7 +34,7 @@ public sealed partial class PhysicsWorld
     // The bodies each joint holds, which do not collide with each other.
     private readonly JoinedPairs _joined = new();
 
-    // What a ball joint needs to be limited: its bodies and the limits set on it.
+    // What a ball joint needs to be limited, its bodies and the limits set on it.
     private sealed class BallParts
     {
         public required BodyHandle A;
@@ -211,7 +211,7 @@ public sealed partial class PhysicsWorld
         return Quaternion.Normalize(new Quaternion(Vector3.Cross(from, to), 1 + dot));
     }
 
-    // A slider's constraints past the one that keeps it on its line: what keeps the bodies from
+    // A slider's constraints past the one that keeps it on its line, what keeps the bodies from
     // turning against each other, and its limits and motor, each replaced as it is set again.
     private sealed class SliderParts
     {

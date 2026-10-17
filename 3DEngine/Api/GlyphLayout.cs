@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 namespace Engine;
 
 /// <summary>
-/// What a font's GSUB and GPOS tables share: the scripts, their features and the lookups those
+/// What a font's GSUB and GPOS tables share, the scripts, their features and the lookups those
 /// apply, read into plans, and the glyph classes of the font's GDEF table that a lookup's flags
 /// name, which <see cref="GlyphSubstitution"/> and <see cref="GlyphPositioning"/> apply to a run.
 /// </summary>
@@ -50,7 +50,7 @@ internal abstract partial class GlyphLayout
     }
 
     // The lookup type of a contextual subtable, the chained one's the next and the extension's the
-    // one after: 5, 6 and 7 in GSUB, 7, 8 and 9 in GPOS.
+    // one after, 5, 6 and 7 in GSUB and 7, 8 and 9 in GPOS.
     private protected abstract int ContextType { get; }
 
     /// <summary>
@@ -151,7 +151,7 @@ internal abstract partial class GlyphLayout
         return (flags, (flags & 0x10) != 0 ? U16(table + 6 + U16(table + 4) * 2) : 0);
     }
 
-    // Whether a lookup of these flags passes over a glyph, by its class in the GDEF table: a base,
+    // Whether a lookup of these flags passes over a glyph, by its class in the GDEF table, a base,
     // a ligature or a mark it ignores, or a mark of another attachment class or outside its set.
     private protected bool Skips((int Value, int MarkSet) flags, int glyph)
     {

@@ -26,7 +26,7 @@ public class MeshEntityDrawsTests
         return (world, ecs);
     }
 
-    // What the frame drew for mesh entities, as draws: each opaque entity's instance with its
+    // What the frame drew for mesh entities, as draws, each opaque entity's instance with its
     // group's template, its world matrix read back from the instance's rows and its color encoded
     // to sRGB again, then the translucent draws in the order recorded.
     private static List<ModelDraw> Drawn(World world)

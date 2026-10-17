@@ -1,5 +1,5 @@
-// raylib's gol_render.glsl, written in Slang: the grid gol.slang steps, white for a living cell and
-// black for a dead one, read straight from its buffer.
+// raylib's gol_render.glsl, written in Slang. It draws the grid gol.slang steps, white for a living
+// cell and black for a dead one, read straight from its buffer.
 import engine;
 
 #define GOL_WIDTH 768

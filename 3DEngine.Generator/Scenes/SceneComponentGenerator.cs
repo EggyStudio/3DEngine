@@ -12,7 +12,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Every public instance field that is not read-only is written by name when its type is one a
-/// scene file holds: <c>bool</c>, the whole and real number types, <c>string</c>, an enum (by
+/// scene file holds, <c>bool</c>, the whole and real number types, <c>string</c>, an enum (by
 /// name), <c>Vector2</c>, <c>Vector3</c>, <c>Vector4</c>, <c>Quaternion</c>, <c>Matrix4x4</c>,
 /// <c>Color</c>, <c>Entity</c> (by scene id), <c>Handle&lt;T&gt;</c> (by asset path), a nullable
 /// of one of those, or an array of one, as a mesh's positions are. Other fields are left out, so a

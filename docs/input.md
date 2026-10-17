@@ -6,7 +6,7 @@ where it updates, before it draws, and needs no events or callbacks.
 
 ## Keys
 
-A key is held, went down this frame, or came up this frame, and each has its own question:
+A key is held, went down this frame, or came up this frame, and each has its own question.
 
 | Call | True |
 |---|---|
@@ -127,7 +127,7 @@ state:
 ```csharp
 if (!IsGamepadAvailable(0))
 {
-    DrawText("Connect a gamepad, or drive one with: e3d command input.button 0 RightFaceDown 30", 40, 200, 20, Color.Gray);
+    DrawText("Connect a gamepad, or script one with e3d command input.button 0 RightFaceDown 30", 40, 200, 20, Color.Gray);
     EndDrawing();
     continue;
 }
@@ -230,12 +230,12 @@ void Spawn(BehaviorContext context, int count) { }
 if (ctx.Input.KeyPressed(Key.Space)) Spawn(ctx, 100);
 ```
 
-## Driving input from outside
+## Scripting input from outside
 
 `./e3d command input.key W 30` holds W for thirty frames in a running program, and the other
 `input.*` commands click, drag, type, touch and press gamepad buttons, which is how a program is
 tested without a person at it. The `core_input_gamepad` example is captured that way, with a pad
-that is not there. The [Driving a program with e3d](driving-with-e3d.md) page covers it.
+that is not there. The [command line](command-line.md) page covers it.
 
 ## Recording and playing input
 

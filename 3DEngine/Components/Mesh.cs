@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>A mesh component: triangles in the entity's own space, three vertices each.</summary>
+/// <summary>A mesh component, triangles in the entity's own space, three vertices each.</summary>
 /// <remarks>
 /// <para>
 /// Drawn with its <see cref="Material"/> through each entity with a <see cref="Camera"/>,

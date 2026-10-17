@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-/// <summary>What <see cref="BounceViewRenderer"/> draws of the light that bounces, as <c>gi.show</c> names it.</summary>
+/// <summary>What <see cref="BounceViewRenderer"/> draws of global illumination, as <c>gi.show</c> names it.</summary>
 internal enum BounceView
 {
     /// <summary>Nothing, the window as it is.</summary>
@@ -35,9 +35,9 @@ internal enum BounceView
 }
 
 /// <summary>
-/// Draws what the light that bounces holds where <see cref="GlobalIlluminationSettings.Shown"/>
-/// names a view: a cascade's probes as cubes into the window's scene
-/// (<c>gi_probes.slang</c>, <see cref="DrawProbes"/>), and every other view over the window after
+/// Draws what global illumination holds where <see cref="GlobalIlluminationSettings.Shown"/>
+/// names a view, a cascade's probes as cubes into the window's scene
+/// (<c>gi_probes.slang</c>, <see cref="DrawProbes"/>) and every other view over the window after
 /// its shapes and before ImGui (<c>gi_view.slang</c>, <see cref="Draw"/>), as the
 /// <c>gi.show</c> command and <see cref="E3D.DrawBounceWindow"/> set it.
 /// </summary>
@@ -91,8 +91,8 @@ internal sealed class BounceViewRenderer : IDisposable
 
     /// <summary>
     /// Draws the view shown into the window's open pass, where one is shown that is drawn over the
-    /// window and light bounces this frame; the screen's views where the window has screen probes,
-    /// and the difference where a reference of the window's size was given.
+    /// window and global illumination is on this frame; the screen's views where the window has
+    /// screen probes, and the difference where a reference of the window's size was given.
     /// </summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
     {
@@ -151,7 +151,7 @@ internal sealed class BounceViewRenderer : IDisposable
 
     /// <summary>
     /// Draws the cascade shown's probes as cubes into <paramref name="pass"/>, the window's scene,
-    /// where <see cref="BounceView.Probes"/> is shown and light bounces this frame.
+    /// where <see cref="BounceView.Probes"/> is shown and global illumination is on this frame.
     /// </summary>
     public void DrawProbes(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld)
     {
@@ -216,7 +216,7 @@ internal sealed class BounceViewRenderer : IDisposable
         }
         var size = new Extent2D((uint)given.Width, (uint)given.Height);
         var image = device.CreateImage(new ImageDesc(size, ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.TransferDst));
-        device.Name(image, "Light that bounces, the reference shown");
+        device.Name(image, "Global illumination, the reference shown");
         device.UploadTexture2D(image, MemoryMarshal.AsBytes(texels.AsSpan()), size.Width, size.Height, 8);
         var view = device.CreateImageView(image);
         _reference = (given.Version, image, view);
@@ -256,7 +256,7 @@ internal sealed class BounceViewRenderer : IDisposable
     }
 }
 
-/// <summary>Render graph node that draws the view of the light that bounces asked for over the window.</summary>
+/// <summary>Render graph node that draws the view of global illumination asked for over the window.</summary>
 internal sealed class BounceViewNode : INode
 {
     /// <inheritdoc />

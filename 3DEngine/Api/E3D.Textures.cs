@@ -30,7 +30,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
         {
-            ApiLogger.Warn($"LoadImage: '{fileName}' could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadImage: '{fileName}' could not be decoded. {ex.Message}");
             return default;
         }
     }
@@ -502,7 +502,7 @@ public static partial class E3D
 
     private static Vector3 SafeNormalize(Vector3 v) => v.LengthSquared() > 0 ? Vector3.Normalize(v) : Vector3.Zero;
 
-    // Finds a file the way a program run from anywhere expects: as given (relative to the working
+    // Finds a file the way a program run from anywhere expects, as given (relative to the working
     // directory), then beside the program, then under source/ beside it, where content items land.
     private static string? ResolveFile(string fileName)
     {

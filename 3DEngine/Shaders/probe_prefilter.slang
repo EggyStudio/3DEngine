@@ -1,5 +1,5 @@
 // A level of a reflection probe's cube, its capture as a surface of the level's roughness
-// reflects it, as EnvironmentMap prefilters an environment: the first level a mirror's, read
+// reflects it, as EnvironmentMap prefilters an environment, the first level a mirror's, read
 // blurred to the solid angle its texel covers, and each level after by GGX importance sampling
 // on a Hammersley set around the direction it is looked up by, each sample read from the level
 // of the gathered cube its own solid angle blurs over, as Brian Karis's split sum takes it.

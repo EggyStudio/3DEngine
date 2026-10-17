@@ -1,5 +1,5 @@
 // The window's meshes whose material scatters light under its surface, drawn again after the scene
-// into three images of the window's size, one sample a pixel: the light each pixel scatters
+// into three images of the window's size, one sample a pixel, holding the light each pixel scatters
 // diffusely, as the model pass worked it out, with 1 in alpha, the material's profile, the share
 // of its radius each of red, green and blue travels under the surface, and the radius, and the
 // light that comes through the surface from a light behind it.
@@ -62,7 +62,7 @@ float nearestDepth(float2 uv, float2 texel, float2 low, float2 high, int layer, 
 }
 
 // How far a lamp's light crosses a mesh to reach world from behind, from the depth of the face its
-// map holds nearest the lamp along the way from it, through the face's view-projection: from the
+// map holds nearest the lamp along the way from it, through the face's view-projection. From the
 // lamp a point's clip coordinates are the lamp's plus its distance times the way's, so the depth
 // read gives the distance at which the way met the face in one division, whatever the near and
 // far planes the face was drawn with.
@@ -77,7 +77,7 @@ float lampThickness(float4x4 viewProjection, float3 lamp, float3 world, float de
 
 // How thick the mesh is from a point on its surface facing n toward a light along l, the way the
 // light crosses it to reach the point from behind, or -1 where nothing here can say. A light that
-// casts shadows says it from its own shadow map: the sun's the depth from the face the map holds
+// casts shadows says it from its own shadow map, the sun's the depth from the face the map holds
 // nearest the sun to the point, and a spot or point light's the distance from the face its map
 // holds nearest the lamp, its spot slot or point slot given, -1 for none. For a lamp with no map
 // the scene's distance field says it, where its finest cascade holds the point and its cells are

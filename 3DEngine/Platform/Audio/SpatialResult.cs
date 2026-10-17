@@ -32,7 +32,7 @@ public readonly record struct SpatialResult
     /// <summary>Stereo pan in <c>[-1, +1]</c>: -1 = full left, 0 = center, +1 = full right.</summary>
     public float Pan { get; init; }
 
-    /// <summary>Pass-through (no spatial change): all gains <c>1</c>, pan centered.</summary>
+    /// <summary>Pass-through (no spatial change), with all gains <c>1</c> and pan centered.</summary>
     public static SpatialResult Pass => new()
     {
         VolumeAttenuation = 1f,

@@ -4,15 +4,15 @@ namespace Engine;
 
 /// <summary>
 /// Unicode's canonical compositions of a character and the mark after it into the one character
-/// for both, as NFC composes them: e and a combining acute into é, and Hangul's letters into their
-/// syllables.
+/// for both, as NFC composes them, such as e and a combining acute into é, and Hangul's letters
+/// into their syllables.
 /// </summary>
 internal static class UnicodeCompositions
 {
     /// <summary>The character <paramref name="first"/> and <paramref name="second"/> compose into, or null where they compose into none.</summary>
     public static int? Of(int first, int second)
     {
-        // Hangul's syllables, by Unicode's formula: a leading consonant and a vowel, then that
+        // Hangul's syllables, by Unicode's formula, a leading consonant and a vowel, then that
         // syllable and a trailing consonant.
         if (first is >= 0x1100 and < 0x1113 && second is >= 0x1161 and < 0x1176)
             return 0xAC00 + ((first - 0x1100) * 21 + second - 0x1161) * 28;

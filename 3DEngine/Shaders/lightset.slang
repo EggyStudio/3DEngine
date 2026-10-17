@@ -1,13 +1,13 @@
-// The model pass's lights' descriptor set: the lights and the shadow maps that cut them, the
-// environment map and the reflection probes, the occlusion, and where light bounces the probes it
-// bounced into and what a glossy surface traces its reflection through. Imported by lights, which
+// The model pass's lights' descriptor set, the lights and the shadow maps that cut them, the
+// environment map and the reflection probes, the occlusion, and where global illumination is on its
+// probes and what a glossy surface traces its reflection through. Imported by lights, which
 // reads it, and passed on by modelpass to every shader that imports modelpass.
 module lightset;
 
 import scenefield;
 import gi;
 
-// One light, packed by LightingUboPacker: position and kind, direction and range, color times
+// One light, packed by LightingUboPacker as position and kind, direction and range, color times
 // intensity, and the cosines of a spot's inner and outer angles.
 public struct Light
 {
@@ -17,7 +17,7 @@ public struct Light
     public float4 cone;
 };
 
-// One reflection probe, as ProbeUboEntry holds it: the middle of its box, where it was captured
+// One reflection probe, as ProbeUboEntry holds it, the middle of its box, where it was captured
 // from, and its intensity, and half the box's size and its cube's last mip. Its irradiance is in
 // the buffer of its slot, which the GPU writes as it filters the capture.
 public struct Probe
@@ -66,8 +66,8 @@ public struct Lighting
     // directional light is darkened by its green channel, the sun's contact shadows through the
     // scene's distance field.
     public float4 ambientOcclusion;
-    // 1 in x when the view's light from all around is the light that bounced, read from
-    // bouncedLight, in every view where light bounces. y: the probes' spacing in cells of the
+    // 1 in x when the view's light from all around is indirect light, read from bouncedLight,
+    // in every view where global illumination is on. y: the probes' spacing in cells of the
     // field. z: the probes along each side of a cascade. w: how many cascades.
     public float4 indirect;
     // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
@@ -139,7 +139,7 @@ public StructuredBuffer<float4> probeIrradiance3;
 [[vk::binding(14, 1)]]
 public StructuredBuffer<float4> environmentIrradianceBuffer;
 
-// The light that bounced to each probe, six faces a probe, every cascade, as gi_ambient.slang
+// The indirect light reaching each probe, six faces a probe, every cascade, as gi_ambient.slang
 // gathers it, and where the scene's distance field it was traced through lies, which the probes
 // lie in, or a field of nothing where light does not bounce.
 [[vk::binding(15, 1)]]
@@ -154,7 +154,7 @@ public ConstantBuffer<SceneFieldInfo> bouncedField;
 [[vk::binding(31, 1)]]
 public Texture3D bouncedReach;
 
-// The share of each probe's faces that sees the sky, laid out as the light that bounced is, which
+// The share of each probe's faces that sees the sky, laid out as the indirect light is, which
 // the environment's reflection is weighed by, or the field's image where light does not bounce.
 [[vk::binding(32, 1)]]
 public Texture3D bouncedSky;
@@ -183,9 +183,9 @@ public Texture2D screenGlowNormal;
 [[vk::binding(35, 1)]]
 public Texture2D screenGlowFar;
 
-// The scene's distance field, its surfaces' colors and the light they give off, and the lights
+// The scene's distance field, its surfaces' colors and emission, and the lights
 // that light them, which a reflection is traced through past the window's depth and shaded from,
-// or a field of nothing where light does not bounce.
+// or a field of nothing where global illumination is off.
 [[vk::binding(19, 1)]]
 public Texture3D reflectField;
 
@@ -222,8 +222,8 @@ public SamplerState lightLinear;
 public SamplerState lightNearest;
 
 #if defined(RAY_QUERY)
-// Where the device traces rays: the window's meshes as its ray tracing sees them, each drawn copy's
-// color, light given off and where its mesh's corners lie, and every mesh's corners in its own
+// Where the device traces rays, the window's meshes as its ray tracing sees them, each drawn copy's
+// color, emission and where its mesh's corners lie, and every mesh's corners in its own
 // space, which a reflection the scene's distance field misses is traced and shaded through.
 [[vk::binding(28, 1)]]
 public RaytracingAccelerationStructure rayScene;
@@ -232,7 +232,7 @@ public struct RaySurface
 {
     // rgb: the copy's color, linear.
     public float4 color;
-    // rgb: the light it gives off, linear.
+    // rgb: its emission, linear.
     public float4 emission;
     // x: its mesh's first corner in rayCorners. y, z: its roughness's and metallic's bits, which
     // gi_reference.slang reads. w: unused.

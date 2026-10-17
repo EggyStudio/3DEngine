@@ -25,7 +25,7 @@ machine, with the command that measures it again.
   cascades and from spot and point lights, an environment map lighting from all around, reflection
   probes for the inside of a room, bloom over a frame that holds light past white, instancing,
   compute shaders, particles a compute shader steps, a distance field of the scene that ambient
-  occlusion, the sun's contact shadows and particles read, light that bounces and glossy
+  occlusion, the sun's contact shadows and particles read, global illumination and glossy
   reflections traced through it, and light that scatters under skin, wax and marble and comes
   through their thin parts.
   [Materials, light and shadows](materials-light-and-shadows.md) and
@@ -48,9 +48,9 @@ machine, with the command that measures it again.
   colors by `LoadFontEx`, where raylib's fonts are coverage alone, and a sequence the font joins, a family, a
   flag or a skin tone, drawn as its one picture, where raylib draws its characters apart.
   [Text and fonts](text-and-fonts.md).
-- **A program driven from the terminal.** `./e3d` asks a running program what is in its world,
-  presses its keys and captures its frames, in a window never shown.
-  [Driving a program with e3d](driving-with-e3d.md).
+- **A program controlled from the command line.** `./e3d` asks a running program what is in its
+  world, presses its keys and captures its frames, in a window never shown.
+  [The command line](command-line.md).
 - **Native builds.** A game publishes as one native executable through .NET's native AOT,
   `games/Slide` at 14 MB ([BUILDING.md](../.github/BUILDING.md#shipping-a-game)).
 
@@ -108,7 +108,7 @@ here, with the reason.
 | `rlEnablePointMode` | OpenGL's polygon mode set to points, which a shape takes if rlgl draws its batch before point mode ends | Models drawn as points, and shapes filled | raylib's examples draw models so, and a shape there is points or filled by when rlgl next draws its batch |
 | `GetGlyphIndex` | A glyph's index into the font's `glyphs` and `recs` arrays, which a program reads its advance, offset and atlas rectangle from | Not carried, a font keeping its glyphs by code point, and `GetGlyphInfo` and `GetGlyphAtlasRec` take the code point, its `Glyph` holding the offset, size, atlas coordinates and advance | ImGui's atlas, which the flat API's text and ImGui share, keeps its glyphs by code point |
 | The normals of a glTF mesh under a node that scales it | Turned by the node and as long as one over its scale, 39.37 for a file in inches scaled to meters, so a shader that pushes a vertex along its normal pushes it that much further, as `shaders_cel_shading`'s outline does | Turned by the node and of unit length | A normal is a direction, so lighting and a shader read the same whatever unit a file was made in |
-| A model drawn when the program has made no light | Unlit, its texture and color as they are | Unlit as raylib's, with the light its material gives off added | An emissive material, as a glTF file's lamp, glows before any light is made, as it does under them |
+| A model drawn when the program has made no light | Unlit, its texture and color as they are | Unlit as raylib's, with its material's emission added | An emissive material, as a glTF file's lamp, shows its emission before any light is made, as it does under them |
 | `LoadShader` | A vertex and a fragment file of GLSL, either null for the default | One Slang file, its fragment stage drawing with the engine's vertex stage when it has no vertex stage of its own | Slang compiles to the SPIR-V that Vulkan reads, and one file holds both stages |
 | `IsModelAnimationValid` | Whether the clip has as many bones as the model | Whether it has as many, each under the same parent, and each of the same name where the clip names its bones | A clip of another skeleton with as many bones would move the model's bones by the wrong ones, and an IQM file of clips alone names none |
 | `GenTextureMipmaps` on a render texture | Mip levels made from what it holds | One level kept, the call leaving it as it is | Its image is the attachment drawing writes into, made with one level, and levels made from it once would go stale as it is drawn into again |
@@ -232,7 +232,7 @@ Taken on 2026-10-04 on the development machine, a laptop with an Intel Core i9-1
 GPU (driver 615.71.09, Linux 7.2). raylib at commit `30fa673` (after 5.5) built in C with `-O2` and
 its SDL3 backend, drawing through OpenGL 3.3, and this engine's Release build drawing through
 Vulkan. Both run in a hidden 800 by 450 window with no frame rate cap, and search for the most that
-holds 60 frames a second with the same steps (`StressRamp`): growing by half until a frame passes a
+holds 60 frames a second with the same steps (`StressRamp`), growing by half until a frame passes a
 sixtieth of a second, then halving the gap to within about 3 percent.
 
 | | raylib | 3DEngine |
@@ -254,7 +254,7 @@ The scene's distance field, which raylib has nothing like, was timed on the same
 2026-10-07 in `shaders_scene_field` offscreen at 800 by 450, from `./e3d command profile`. A frame
 that stamps its moving crate spends 0.014 ms of the GPU on it, a frame that builds its finest
 cascade 0.25 ms (`./e3d command field.rebuild 400` builds one every frame), and the occlusion pass
-takes 0.073 ms with the field where it took 0.036 without. The light that bounces takes 0.37 ms of
+takes 0.073 ms with the field where it took 0.036 without. Global illumination takes 0.37 ms of
 the GPU at `Low`, 0.49 at `Medium` and 0.69 at `High` in `shaders_cornell_box`, measured on
 2026-10-10 the same way with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`), and the
 guide's table has the memory each takes. The light under a surface takes `hdr_scene` 0.25, 0.67

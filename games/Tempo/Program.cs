@@ -69,7 +69,7 @@ var sparks = Enumerable.Range(0, 4).Select(lane => CreateParticleEmitter(new Vec
 
 var camera = new Camera3D(new Vector3(0, 6, 9.5f), new Vector3(0, 0, -9), Vector3.UnitY, 45);
 
-// -- What is kept between runs: the best score, and how late the player hears the music.
+// -- What is kept between runs, the best score and how late the player hears the music.
 
 var best = FileExists(Run.BestFile) && int.TryParse(LoadFileText(Run.BestFile), out var savedBest) ? savedBest : 0;
 var offsetMs = FileExists(Run.OffsetFile) && int.TryParse(LoadFileText(Run.OffsetFile), out var savedOffset) ? savedOffset : 0;
@@ -163,7 +163,7 @@ while (!WindowShouldClose())
                            $"combo {run.Combo} longest {run.Longest} score {run.Score} judged {run.Judged}/{chart.Count} " +
                            $"error {run.MeanError * 1000:0} ms best {best}";
 
-    // -- Drawing: the road and its notes, the lights beside it, and the score over them.
+    // -- Drawing, the road and its notes, the lights beside it, and the score over them.
 
     BeginDrawing();
     ClearBackground(new Color(14, 10, 28));
@@ -341,7 +341,7 @@ public sealed class Chart
     }
 }
 
-/// <summary>A song being played: the song's time, each note's grade, and the score.</summary>
+/// <summary>A song being played, with the song's time, each note's grade, and the score.</summary>
 public sealed class Run(Chart chart)
 {
     public const string BestFile = "tempo-best.txt", OffsetFile = "tempo-offset.txt";

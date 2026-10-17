@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// The par_shapes library's meshes as far as raylib makes its spheres, hemispheres, cylinders,
-/// cones, tori and knots from them: a surface over a grid, a texture coordinate of the grid at each
+/// cones, tori and knots from them, a surface over a grid, a texture coordinate of the grid at each
 /// point, normals averaged across the seams, and par_shapes' scale, turn, move and merge, so a
 /// texture lies on them as it does on raylib's.
 /// </summary>

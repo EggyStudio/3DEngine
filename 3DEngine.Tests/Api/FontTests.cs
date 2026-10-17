@@ -174,8 +174,8 @@ public class FontTests
         E3D.UseApp(app);
         try
         {
-            // Magenta all round, a gap of 2 before the glyphs and 1 above their row: an A three
-            // pixels wide, a gap of 2, and a B four wide, both five high.
+            // Magenta all round, a gap of 2 before the glyphs and 1 above their row, then an A
+            // three pixels wide, a gap of 2, and a B four wide, both five high.
             var image = E3D.GenImageColor(16, 7, Color.Magenta);
             E3D.ImageDrawRectangle(ref image, 2, 1, 3, 5, Color.White);
             E3D.ImageDrawRectangle(ref image, 7, 1, 4, 5, Color.White);

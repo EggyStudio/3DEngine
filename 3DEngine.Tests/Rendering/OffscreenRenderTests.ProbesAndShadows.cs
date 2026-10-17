@@ -142,7 +142,7 @@ public sealed partial class OffscreenRenderTests
     public void A_Probe_Keeps_Light_Many_Times_Brighter_Than_A_Frame_Shows()
     {
         Open(64, 64);
-        // A dark room whose wall at +X gives off twelve times white light, far past what a byte
+        // A dark room whose wall at +X emits twelve times white light, far past what a byte
         // after the tonemap holds.
         CreatePointLight(new Vector3(0, 0, 0), Color.White, 0.1f);
         var wall = LoadModelFromMesh(GenMeshCube(0.2f, 6, 6));
@@ -167,7 +167,7 @@ public sealed partial class OffscreenRenderTests
         }
         IsReflectionProbeReady(probe).Should().BeTrue();
 
-        // The first mip's +X face, a mirror's view of the glowing wall.
+        // The first mip's +X face, a mirror's view of the emissive wall.
         var (texels, size) = ProbeFaces();
         var bright = (float)texels[(size * size / 2 + size / 2) * 4];
         bright.Should().BeGreaterThan(8, "a capture in half floats holds the light as it was drawn, where eight bits at a quarter exposure held 6.4 at most");
@@ -209,7 +209,7 @@ public sealed partial class OffscreenRenderTests
         var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(6, 6, 6));
         for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++) Draw(1);
         IsReflectionProbeReady(probe).Should().BeTrue();
-        Wall().X.Should().BeGreaterThan(Wall().Z, "the wall glows red");
+        Wall().X.Should().BeGreaterThan(Wall().Z, "the wall is emissive red");
 
         Glow(Color.Blue);
         Draw(30);
@@ -221,7 +221,7 @@ public sealed partial class OffscreenRenderTests
             Draw(1);
             IsReflectionProbeReady(probe).Should().BeTrue("a probe ready for its placement stays ready while it is refreshed");
         }
-        Wall().Z.Should().BeGreaterThan(Wall().X, "the refresh captured the wall as it glows now");
+        Wall().Z.Should().BeGreaterThan(Wall().X, "the refresh captured the wall in its new color");
         UnloadReflectionProbe(probe);
         UnloadModel(wall);
         UnloadModel(room);

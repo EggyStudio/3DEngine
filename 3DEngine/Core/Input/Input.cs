@@ -96,7 +96,7 @@ public sealed class Input
     /// <summary>Characters typed this frame via text input events.</summary>
     internal ReadOnlySpan<char> TextInput => CollectionsMarshal.AsSpan(_textInput);
 
-    // What raylib's GetCharPressed and GetKeyPressed hand out one at a time: the characters
+    // What raylib's GetCharPressed and GetKeyPressed hand out one at a time, the characters
     // typed and the keys pressed this frame, in order, each taken once.
     private readonly Queue<int> _charQueue = [];
     private readonly List<string> _dropped = [];

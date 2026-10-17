@@ -6,8 +6,8 @@
 // size of 0 and is passed over.
 module scenefield;
 
-// A 3D image a pass reads the field, its colors or the bounced light through: sampled between
-// texels at a level, or a texel loaded as it is. A pass that binds its images with their samplers
+// A 3D image a pass reads the field, its colors or the indirect light through, sampled between
+// texels at a level or a texel loaded as it is. A pass that binds its images with their samplers
 // passes them as they are, and the model pass, which binds its images apart from a few samplers
 // they share, since a stage may have no more than sixteen samplers on Metal, passes a SplitVolume.
 public interface IVolume
@@ -66,7 +66,7 @@ public bool fieldOn(SceneFieldInfo info)
 // distances fades to what it gives where the field holds nothing (fieldHold).
 public static const float FieldBand = 8.0;
 
-// The cells an outer band ends short of the eye on a side the eye stands near (bandHold): the half
+// The cells an outer band ends short of the eye on a side the eye stands near (bandHold), the half
 // of a probes' spacing a surface facing the eye is leaned toward it by as the probes are read for
 // it, four cells, and two more.
 public static const float EyeClear = 6.0;
@@ -90,12 +90,12 @@ public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float
     return min(min(held.x, held.y), held.z);
 }
 
-// How much of what the field holds at p a pass takes: all of it inside the field's cascades,
+// How much of what the field holds at p a pass takes, all of it inside the field's cascades,
 // falling to none across the outer band (FieldBand) of the coarsest one built, kept clear of the
 // eye (bandHold), and none past it, so a pass that reads the field to its edge, as the occlusion
 // from it, the sun's contact shadows or a glow light's march, fades there rather than stepping.
 // Taken from the last cascade whether built or not, it read none while the last was not built, and
-// a turn of five pixels moved the floor's light across a glowing block's penumbra by 16% where 3%
+// a turn of five pixels moved the floor's light across an emissive block's penumbra by 16% where 3%
 // (GlowPenumbraTests).
 public float fieldHold(SceneFieldInfo info, float3 p)
 {

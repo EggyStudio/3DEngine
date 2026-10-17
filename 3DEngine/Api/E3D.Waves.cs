@@ -16,7 +16,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException)
         {
-            ApiLogger.Warn($"LoadWaveFromMemory: the {fileType} bytes could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadWaveFromMemory: the {fileType} bytes could not be decoded. {ex.Message}");
             return new Wave();
         }
     }
@@ -61,7 +61,7 @@ public static partial class E3D
     {
         if (!IsWaveValid(wave) || sampleRate <= 0 || channels <= 0) return;
 
-        // Each frame of the source mixed to the channels asked for: averaged down to one, the
+        // Each frame of the source mixed to the channels asked for, averaged down to one, the
         // first spread across more, and channel by channel otherwise.
         var frames = wave.FrameCount;
         var mixed = new float[frames * channels];
@@ -130,7 +130,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"ExportWave: '{fileName}' could not be written: {ex.Message}");
+            ApiLogger.Warn($"ExportWave: '{fileName}' could not be written. {ex.Message}");
             return false;
         }
     }

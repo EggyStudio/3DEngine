@@ -1,7 +1,7 @@
-// raylib's lighting_instancing.vs and lighting.fs, written in Slang for the model pass: up to four
-// lights, each a point or a direction, Phong's highlight on each, and a little ambient light, all
-// corrected for gamma at the end. The pass moves each copy of a mesh drawn instanced by its own
-// transform, as lighting_instancing.vs moves it.
+// raylib's lighting_instancing.vs and lighting.fs, written in Slang for the model pass. It shades
+// with up to four lights, each a point or a direction, Phong's highlight on each, and a little
+// ambient light, all corrected for gamma at the end. The pass moves each copy of a mesh drawn
+// instanced by its own transform, as lighting_instancing.vs moves it.
 import modelpass;
 
 static const int MAX_LIGHTS = 4;

@@ -206,7 +206,7 @@ public static partial class E3D
         Physics.CreateKinematicBox(position, size / 2);
 
     /// <summary>
-    /// A vehicle: a box of <paramref name="size"/> facing -Z, held up on raycast wheels as springs
+    /// A vehicle, a box of <paramref name="size"/> facing -Z, held up on raycast wheels as springs
     /// and driven by <see cref="SetPhysicsVehicleInput"/>, every step pushing it as
     /// <paramref name="settings"/> says, a car of about 1000 kg unless set.
     /// </summary>
@@ -214,7 +214,7 @@ public static partial class E3D
     public static PhysicsBody CreatePhysicsVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null) =>
         Physics.CreateVehicle(position, size, mass, settings);
 
-    /// <summary>Drives a vehicle until told otherwise: throttle and steering from -1 to 1, reverse and right being negative.</summary>
+    /// <summary>Drives a vehicle until told otherwise, with throttle and steering from -1 to 1, reverse and right being negative.</summary>
     public static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false) =>
         Physics.SetVehicleInput(vehicle, throttle, steer, brake);
 

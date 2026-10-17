@@ -105,7 +105,7 @@ public static class TexturesPortalWindow
                     // Solid backing wall, only ever seen if looking at the archway from behind
                     DrawCube(new Vector3(0.0f, 2.0f, -0.05f), 3.1f, 4.1f, 0.05f, Color.Maroon);
 
-                    // The portal opening itself: a plain quad textured with the Dimension B
+                    // The portal opening itself, a plain quad textured with the Dimension B
                     // render, filling the archway exactly, so nothing "leaks" outside its shape.
                     // A render texture is stored the right way up, so its top row is at 0 down
                     // where raylib's is at 1.

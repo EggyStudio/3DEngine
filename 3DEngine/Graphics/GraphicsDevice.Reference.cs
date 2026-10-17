@@ -5,7 +5,7 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// A path-traced reference of the window's picture: each pixel's light, linear, red, green and blue
+/// A path-traced reference of the window's picture, each pixel's light, linear, red, green and blue
 /// a pixel with rows from the top, and what its first ray met, a copy's index in the ray scene times
 /// eight and the axis its face turns toward most (+x, -x, +y, -y, +z, -z), plus one, or 0 for nothing.
 /// </summary>
@@ -25,7 +25,7 @@ internal sealed unsafe partial class GraphicsDevice
         public Vector4 Probe;
     }
 
-    /// <summary>The bytes of gi_reference.slang's lights: four rows, then sixteen lamps of four rows each.</summary>
+    /// <summary>The bytes of gi_reference.slang's lights, four rows and then sixteen lamps of four rows each.</summary>
     internal const int ReferenceLightsBytes = 64 + 16 * 64;
 
     /// <summary>
@@ -40,7 +40,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// waited for, so no submission runs long enough for a driver to take the device for lost. With
     /// <paramref name="probe"/> the paths start at that point instead, a texel of the
     /// <paramref name="width"/> by <paramref name="height"/> image a texel of a probe's octahedron,
-    /// and every face they meet is lit as the light that bounces lights one, which gives the light
+    /// and every face they meet is lit as global illumination lights one, which gives the light
     /// arriving at a probe from each way.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The device traces no rays.</exception>
@@ -162,7 +162,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // The reference's set: the scene's top-level structure, its copies and its corners, the sums
+    // The reference's set, the scene's top-level structure, its copies and its corners, the sums
     // and the regions, the lights and the environment.
     private void WriteReferenceSet(VkDescriptorSet set, GpuRayScene scene, VkImageView sums, VkImageView regions, VulkanBuffer lights,
         IImageView environment, ISampler sampler)

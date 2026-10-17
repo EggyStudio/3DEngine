@@ -78,7 +78,7 @@ internal sealed class CompactFontOutlines
         return 0;
     }
 
-    // An INDEX at a place: its count, the size of its offsets, and where its data begins.
+    // An INDEX at a place, with its count, the size of its offsets, and where its data begins.
     private static (int Start, int Count, int OffSize, int Data) Index(byte[] data, int at)
     {
         int count = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(at));
@@ -155,7 +155,7 @@ internal sealed class CompactFontOutlines
         return lines;
     }
 
-    // A charstring's running state: its stack, the pen, the contour it draws and the stems counted.
+    // A charstring's running state, its stack, the pen, the contour it draws and the stems counted.
     private sealed class Charstring(List<(Vector2, Vector2)> lines, (int Start, int Count, int OffSize, int Data) locals)
     {
         public readonly List<(Vector2 A, Vector2 B)> Lines = lines;

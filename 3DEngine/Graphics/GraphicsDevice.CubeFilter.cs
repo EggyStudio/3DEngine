@@ -4,8 +4,8 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// A cube of half-float linear light a compute shader writes: a reflection probe's capture or an
-/// environment map, prefiltered by roughness down its mips, with its irradiance as nine spherical
+/// A cube of half-float linear light a compute shader writes, a reflection probe's capture or an
+/// environment map prefiltered by roughness down its mips, with its irradiance as nine spherical
 /// harmonic coefficients in a storage buffer, or the sky's cube of one level.
 /// </summary>
 /// <remarks>
@@ -97,7 +97,7 @@ internal sealed unsafe partial class GraphicsDevice
     private ISampler? _filterSampler;
     private ISampler? _equirectangularSampler;
 
-    // One compute stage the filter records: its pipeline, layout and the set layout of its bindings.
+    // One compute stage the filter records, its pipeline, layout and the set layout of its bindings.
     private readonly record struct ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout);
 
     /// <summary>Whether the filter's shaders have been given, so probes can be captured and environments filtered.</summary>
@@ -320,7 +320,7 @@ internal sealed unsafe partial class GraphicsDevice
         return source;
     }
 
-    // One recording of the filter: its descriptor pool, which every dispatch's set comes from, and
+    // One recording of the filter, its descriptor pool, which every dispatch's set comes from, and
     // what else it holds until no frame in flight reads it.
     private sealed class FilterRun : IDisposable
     {

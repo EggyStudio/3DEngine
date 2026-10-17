@@ -30,7 +30,7 @@ void Build(EcsWorld level) { }
 int Clear(EcsWorld level) => 0;
 -->
 ```csharp
-// A level made in code the first time: a camera, two lights and three models from a file.
+// A level made in code the first time, a camera, two lights and three models from a file.
 Build(ecs);
 SceneFile.Save(ecs, file);
 // ...
@@ -221,9 +221,9 @@ held are given back once it is gone, so a level edited over and over while it ru
 
 ## A level streamed in
 
-A level larger than memory should hold is placed a piece at a time: an entity with a `SceneRef`
-spawned for each part of the level as the player comes near, and despawned with what is under it
-once they are far, so only the near parts are drawn and simulated.
+A level larger than memory should hold is placed a piece at a time, an entity with a
+`SceneRef` spawned for each part of the level as the player comes near, and despawned with what is
+under it once they are far, so only the near parts are drawn and simulated.
 
 <!-- compiled with:
 EcsWorld ecs = null!;
@@ -239,7 +239,7 @@ ecs.Add(cell, new Transform(new Vector3(x * CellSize, 0, z * CellSize)));
 ecs.DespawnRecursive(cell);
 ```
 
-What a level loads through its references is let go once no entity uses it: a model once no
+What a level loads through its references is let go once no entity uses it, a model once no
 `ModelRef` names it, a texture once no spawned material names it, and a scene file's parsed copy
 once no copy of it is left. Each waits `AssetRelease.Grace` seconds first, ten unless set, so a
 room left and entered again is not read again. The meshes go from the GPU in the first frame no
@@ -261,4 +261,4 @@ a running game is kept.
 - The cheatsheet's [Scenes](../CHEATSHEET.md#scenes)
 - [ARCHITECTURE.md](../.github/ARCHITECTURE.md#scene-files), on the format
 - Previous: [States](states.md)
-- Next: [Driving a program with e3d](driving-with-e3d.md)
+- Next: [The command line](command-line.md)

@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The positions a font's GPOS table gives a run of glyphs, by a plan of its features: the marks of
+/// The positions a font's GPOS table gives a run of glyphs, by a plan of its features, the marks of
 /// a script that writes its vowels above and below its letters, as Arabic's harakat, put on the
 /// letter they follow by the anchors the font gives both, and pairs of letters moved apart or
 /// together, as kerning does.
@@ -9,7 +9,7 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A plan's lookups are applied in the order the table lists them, each over the whole run, as
-/// <see cref="GlyphSubstitution"/>'s are: single and pair adjustments, a pair's in both its formats,
+/// <see cref="GlyphSubstitution"/>'s are, single and pair adjustments, a pair's in both its formats,
 /// and marks put on a base, on a ligature's component and on another mark, and the contextual and
 /// chained contextual positionings, reached directly or through an extension. A value record's
 /// placements and its horizontal advance are taken and its device tables left aside, so a font of
@@ -17,7 +17,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A cursive attachment joins a letter's exit to the entry of the next one the lookup does not pass
-/// over, as Nastaliq is written, read right to left, as the runs of Arabic it positions are: the
+/// over, as Nastaliq is written, read right to left, as the runs of Arabic it positions are. The
 /// glyph before gives up its advance past its exit and this one's advance ends at its entry, and
 /// across the line the glyph the lookup's right-to-left flag makes the child, the first where it is
 /// set, is moved to meet the other and carried with it (<see cref="ShapedGlyph.Cursive"/>), as
@@ -174,7 +174,7 @@ internal sealed class GlyphPositioning : GlyphLayout
         run[next] = run[next] with { Y = -run[glyph].Y, Cursive = -chain };
     }
 
-    // A mark put on the glyph it follows: on the base or the ligature before it, passing over the
+    // A mark put on the glyph it follows, on the base or the ligature before it, passing over the
     // marks between, or on the mark right before it, by the anchor of the mark's class there, which
     // the mark's own anchor is put on.
     private int? Attach(int type, int sub, int mark, List<ShapedGlyph> run, int at, (int Value, int MarkSet) flags)
@@ -218,7 +218,7 @@ internal sealed class GlyphPositioning : GlyphLayout
     // subtable's coverage of its marks.
     private bool IsMarkOf(int glyph, int sub) => IsMark(glyph) || !HasGlyphClasses && Coverage(sub + U16(sub + 2), glyph) is not null;
 
-    // Whether two marks are on the same glyph, as HarfBuzz judges it: neither inside a ligature, or
+    // Whether two marks are on the same glyph, as HarfBuzz judges it, neither inside a ligature, or
     // both on one component of the same one, or either a ligature of marks itself.
     private static bool OnSameGlyph(ShapedGlyph mark, ShapedGlyph before) =>
         mark.Ligature == before.Ligature
@@ -229,7 +229,7 @@ internal sealed class GlyphPositioning : GlyphLayout
     // the later two left aside.
     private (int X, int Y) Anchor(int table) => (S16(table + 2), S16(table + 4));
 
-    // A glyph moved by a value record of a format: its placement across and up and its advance
+    // A glyph moved by a value record of a format, its placement across and up and its advance
     // across, the advance up of vertical text and the device tables passed over.
     private ShapedGlyph Moved(ShapedGlyph glyph, int format, int values)
     {

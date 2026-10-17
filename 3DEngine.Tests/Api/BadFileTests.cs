@@ -5,8 +5,9 @@ namespace Engine.Tests.Api;
 
 /// <summary>
 /// Every loader given a file that is missing, empty, cut short or random bytes, which answers as
-/// DESIGN.md §6 says a failed load does: a warning naming the file, a resource that reports itself
-/// invalid or empty, and no exception. A loader added later is a row of <see cref="Loaders"/>.
+/// DESIGN.md §6 says a failed load does, with a warning naming the file, a resource that reports
+/// itself invalid or empty, and no exception. A loader added later is a row of <see
+/// cref="Loaders"/>.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -77,8 +78,8 @@ public sealed class BadFileTests : IDisposable
         ("LoadFileData", ".bin", "3DEngine.Examples/resources/coin.wav", f => LoadFileData(f) is not null, ["missing"]),
     ];
 
-    // The four bad files of a kind: none, nothing in it, the first third of a good one, and bytes
-    // with no meaning, the same each run.
+    // The four bad files of a kind, none, one with nothing in it, the first third of a good one,
+    // and bytes with no meaning, the same each run.
     private IEnumerable<(string Kind, string Path)> BadFiles(string extension, string good)
     {
         var bytes = File.ReadAllBytes(Repo(good));

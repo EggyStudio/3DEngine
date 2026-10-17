@@ -112,7 +112,7 @@ public sealed partial class OffscreenRenderTests
 
         foreach (var image in new[] { unlit, dark })
         {
-            Linear(GetImageColor(image, 32, 32).R).Should().BeApproximately(0.5f, 0.03f, "a black cube gives off half of red's light");
+            Linear(GetImageColor(image, 32, 32).R).Should().BeApproximately(0.5f, 0.03f, "a black cube emits half of red's light");
             GetImageColor(image, 32, 32).G.Should().BeLessThan(5);
         }
         UnloadModel(cube);

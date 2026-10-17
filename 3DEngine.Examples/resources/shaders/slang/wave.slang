@@ -1,4 +1,5 @@
-// raylib's wave.fs, written in Slang: the texture sampled where a moving wave pushes each point.
+// raylib's wave.fs, written in Slang. It draws the texture sampled where a moving wave pushes each
+// point.
 import engine;
 
 uniform float seconds;

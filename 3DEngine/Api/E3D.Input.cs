@@ -77,8 +77,8 @@ public static partial class E3D
     /// <summary>Whether <paramref name="button"/> is not held.</summary>
     public static bool IsMouseButtonUp(MouseButton button) => !Input.MouseDown(button);
 
-    // -- Touch, as raylib has it: with no finger down, a held left mouse button stands in for one,
-    // so a program written for touch runs with a mouse.
+    // -- Touch, as raylib has it, where with no finger down a held left mouse button stands in for
+    // one, so a program written for touch runs with a mouse.
 
     /// <summary>How many fingers are on the screen, or 1 while the left mouse button is held with none.</summary>
     public static int GetTouchPointCount() =>
@@ -312,7 +312,7 @@ public static partial class E3D
     public static bool IsGamepadMotionAvailable(int gamepad) => Input.Gamepad(gamepad)?.HasMotion ?? false;
 
     /// <summary>
-    /// How fast a gamepad turns about its own axes, in radians a second: x across it, y up out of
+    /// How fast a gamepad turns about its own axes, in radians a second, x across it, y up out of
     /// it and z toward the player, as SDL reports it, or zero for a pad without a gyro.
     /// </summary>
     public static Vector3 GetGamepadGyro(int gamepad) => Input.Gamepad(gamepad)?.Gyro ?? Vector3.Zero;

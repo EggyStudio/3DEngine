@@ -157,7 +157,7 @@ for wall, floor in ROOMS.values():
     wall()
     floor()
 
-# -- Models: boxes and quads with texture coordinates taken from where they are, so a texture
+# -- Models, boxes and quads with texture coordinates taken from where they are, so a texture
 #    repeats across a wall at the same scale whatever the wall's size
 
 FACES = [((1,0,0),(0,0,-1),(0,1,0)), ((-1,0,0),(0,0,1),(0,1,0)), ((0,1,0),(1,0,0),(0,0,-1)),
@@ -240,7 +240,7 @@ def wall(model, material, axis, fixed, a0, a1, t0, t1, height, gaps, tile=2.0):
         at = center + width / 2
     put(at, a1, 0, height)
 
-# -- The house: six rooms of 16 by 16 meters in two columns and three rows, from x -16 to 16 and z
+# -- The house, six rooms of 16 by 16 meters in two columns and three rows, from x -16 to 16 and z
 #    -32 to 16. The game's Level class places them by the same numbers.
 
 CELL, HEIGHT, DOOR_W, DOOR_H = 16, 4.8, 2.4, 3.0
@@ -404,7 +404,7 @@ save("path-ew", lambda m: m.box("gravel", (-8, 0, -2), (8, 0.03, 2), 2), {"grave
 save("path-cross", lambda m: (m.box("gravel", (-2, 0, -8), (2, 0.03, 8), 2), m.box("gravel", (-8, 0.001, -2), (-2, 0.031, 2), 2),
     m.box("gravel", (2, 0.001, -2), (8, 0.031, 2), 2)), {"gravel": tex("gravel")})
 
-# -- Sounds, synthesized: a short chime for a lantern, a creak for a door, steps, and the music
+# -- Sounds, synthesized, a short chime for a lantern, a creak for a door, steps, and the music
 
 RATE = 22050
 

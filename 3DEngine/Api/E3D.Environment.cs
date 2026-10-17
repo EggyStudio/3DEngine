@@ -42,7 +42,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is ArgumentException or IOException)
         {
-            ApiLogger.Warn($"SetEnvironmentMap: '{fileName}' could not be read: {ex.Message}");
+            ApiLogger.Warn($"SetEnvironmentMap: '{fileName}' could not be read. {ex.Message}");
             return false;
         }
     }

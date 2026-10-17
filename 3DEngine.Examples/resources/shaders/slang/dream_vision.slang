@@ -1,4 +1,5 @@
-// raylib's dream_vision.fs, written in Slang: the picture smeared along a diagonal and made gray.
+// raylib's dream_vision.fs, written in Slang. It draws the picture smeared along a diagonal and
+// made gray.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

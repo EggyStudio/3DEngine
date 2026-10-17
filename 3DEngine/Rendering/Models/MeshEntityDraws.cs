@@ -81,7 +81,7 @@ internal sealed class MeshEntityDraws
         public int Look;
     }
 
-    // Each mesh and material entities are drawn with, built once: the draw with the world matrix
+    // Each mesh and material entities are drawn with, built once, the draw with the world matrix
     // and camera left to the frame, the instance with the material's factors, and the group it is
     // written into. Entities share a few, so the comparison each makes a frame reads one already in
     // the cache, where a draw and a material kept for each entity cost a frame several misses each.
@@ -116,7 +116,7 @@ internal sealed class MeshEntityDraws
     private const int ChunkSize = 4096;
     private Chunk[] _chunks = [];
 
-    // What a chunk gathers apart from the others: the positions arrays it drew, the mesh of the
+    // What a chunk gathers apart from the others, the positions arrays it drew, the mesh of the
     // entity before, its translucent draws placed in the world, the entities it left for after,
     // and its instances, a buffer for each group. The buffers and their counts are the chunk's
     // own, since threads counting into objects that lie side by side wait on each other's writes
@@ -590,8 +590,8 @@ internal sealed class MeshEntityDraws
     private static float LinearToSrgb(float c) =>
         c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
 
-    // The cameras mesh entities are drawn through: the first without a render texture, into the
-    // window, then each with one, into it, whose target is cleared to its background unless the
+    // The cameras mesh entities are drawn through, the first without a render texture into the
+    // window, then each with one into it, whose target is cleared to its background unless the
     // program clears it itself.
     internal static List<(Matrix4x4 ViewProjection, Vector3 Eye, int Target)> Cameras(World world, EcsWorld ecs)
     {

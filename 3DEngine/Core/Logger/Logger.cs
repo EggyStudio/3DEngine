@@ -69,7 +69,7 @@ public sealed class Logger : ILogger
 
         // The console log the CLI reads (log.tail).
         if (level >= LogLevel.Info)
-            ConsoleLog.Write(level, exception is null ? $"[{_category}] {message}" : $"[{_category}] {message}: {exception.Message}");
+            ConsoleLog.Write(level, exception is null ? $"[{_category}] {message}" : $"[{_category}] {message.TrimEnd('.')}. {exception.Message}");
 
         if (level >= LogLevel.Error) Engine.Log.RaiseErrorLogged(_category, message, exception);
 

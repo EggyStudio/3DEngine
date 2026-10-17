@@ -26,7 +26,7 @@ public static partial class E3D
         return new ParticleEmitterHandle(Ecs.Handle(entity));
     }
 
-    /// <summary>Moves an emitter, where its next particles start, those already given off going on as they were.</summary>
+    /// <summary>Moves an emitter, where its next particles start, those already emitted going on as they were.</summary>
     public static void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position)
     {
         if (Resolve(emitter) is { } entity) Ecs.GetRef<Transform>(entity).Position = position;
@@ -48,7 +48,7 @@ public static partial class E3D
         if (Resolve(emitter) is { } entity) Ecs.GetRef<ParticleEmitter>(entity).Emitting = emitting;
     }
 
-    /// <summary>Gives off <paramref name="count"/> particles at once in the next frame, as an explosion or a hit does.</summary>
+    /// <summary>Emits <paramref name="count"/> particles at once in the next frame, as an explosion or a hit does.</summary>
     public static void EmitParticles(ParticleEmitterHandle emitter, int count)
     {
         if (Resolve(emitter) is { } entity && count > 0) Ecs.GetRef<ParticleEmitter>(entity).Burst += count;

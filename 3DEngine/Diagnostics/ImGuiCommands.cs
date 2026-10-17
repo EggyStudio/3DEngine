@@ -68,7 +68,7 @@ internal static class ImGuiCommands
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
                 {
-                    answer = $"viewport {viewport}'s frame could not be written to {full}: {error.Message}";
+                    answer = $"viewport {viewport}'s frame could not be written to {full}. {error.Message}";
                 }
             });
         }

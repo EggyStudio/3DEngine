@@ -326,8 +326,8 @@ internal sealed unsafe partial class GraphicsDevice
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
-    // A texture's descriptor as its binding is declared: the image and the sampler, the image
-    // alone, or the sampler alone, since Vulkan reads only what the type names.
+    // A texture's descriptor as its binding is declared, the image and the sampler, the image
+    // alone or the sampler alone, since Vulkan reads only what the type names.
     private static VkDescriptorImageInfo ImageInfo(DescriptorType type, VkImageView view, VkSampler sampler, VkImageLayout layout) => type switch
     {
         DescriptorType.SampledImage => new VkDescriptorImageInfo { imageView = view, imageLayout = layout },

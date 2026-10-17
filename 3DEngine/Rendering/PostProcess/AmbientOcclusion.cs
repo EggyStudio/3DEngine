@@ -25,7 +25,7 @@ internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 
 /// <summary>
 /// The depth of the window's meshes that cast shadows at half the window's size this frame, which
-/// the occlusion is worked out from and the light that bounces places its screen's probes on.
+/// the occlusion is worked out from and global illumination places its screen's probes on.
 /// </summary>
 internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D Extent);
 
@@ -44,10 +44,10 @@ internal sealed class TargetOcclusion
 }
 
 /// <summary>
-/// The window's ambient occlusion: the depth of its meshes drawn at half the window's size ahead of
-/// its pass, the occlusion worked out from it, and two passes that blur it along each axis without
-/// crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment and
-/// probe light by it, and not the light of lights, which reaches a corner as well as a wall.
+/// The window's ambient occlusion, made of the depth of its meshes drawn at half the window's size
+/// ahead of its pass, the occlusion worked out from it, and two passes that blur it along each axis
+/// without crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment
+/// and probe light by it, and not the light of lights, which reaches a corner as well as a wall.
 /// Where the scene's distance field is built, the occlusion pass also reads the occlusion from it
 /// and traces the sun's light through it, the share that arrives in the image's green channel,
 /// which the model pass multiplies the shadowed directional light by, so the pass runs for the
@@ -92,7 +92,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
-    // What is made for one size of the window: the depth, the occlusion and the image between the
+    // What is made for one size of the window, the depth, the occlusion and the image between the
     // blurs, and the set each of the three passes reads through.
     private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
         IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown) : IDisposable
@@ -184,7 +184,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     /// Works out the window's occlusion as <see cref="AmbientOcclusionSettings"/> say, and the sun's
     /// contact shadows where the scene's distance field is built, from the depth
     /// <see cref="DrawDepth"/> drew, setting <see cref="AmbientOcclusionImage"/> for the model pass,
-    /// or removes it where both are off, as when the light that bounces alone reads the depth.
+    /// or removes it where both are off, as when global illumination alone reads the depth.
     /// </summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
     {

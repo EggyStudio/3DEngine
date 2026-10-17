@@ -1,4 +1,5 @@
-// raylib's scanlines.fs, written in Slang: the picture behind green lines, as an old screen's.
+// raylib's scanlines.fs, written in Slang. It draws the picture behind green lines, as an old
+// screen's.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

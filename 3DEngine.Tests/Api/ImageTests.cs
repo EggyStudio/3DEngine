@@ -437,7 +437,7 @@ public sealed class ImageTests : IDisposable
     [Fact]
     public void A_Raw_File_Is_Read_After_Its_Header_In_The_Format_Given()
     {
-        // Two pixels of R5G6B5 after a header of three bytes: full red, and half green with full blue
+        // Two pixels of R5G6B5 after a header of three bytes, full red and then half green with full blue
         var path = Path.Combine(_folder.Path, "pixels.raw");
         File.WriteAllBytes(path, [9, 9, 9, 0x00, 0xF8, 0x1F, 0x04]);
 

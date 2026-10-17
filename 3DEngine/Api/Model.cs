@@ -7,7 +7,7 @@ namespace Engine;
 /// <summary>Meshes with their materials, loaded from a file or made from a mesh, drawn as one.</summary>
 /// <remarks>
 /// <para>
-/// The fields are raylib's: <see cref="Meshes"/>, <see cref="Materials"/>, and
+/// The fields are raylib's, <see cref="Meshes"/>, <see cref="Materials"/>, and
 /// <see cref="MeshMaterial"/>, which gives the material index of each mesh. A program changes a
 /// material by assigning to <see cref="Materials"/>, as in
 /// <c>model.Materials[0].Texture = texture;</c>.

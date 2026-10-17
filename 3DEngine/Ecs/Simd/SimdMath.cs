@@ -19,7 +19,7 @@ namespace Engine;
 /// var span = ecs.GetSpan&lt;Velocity&gt;();
 /// // Velocity being { float X, float Y }, it is cast to flat floats with a stride of 2
 /// var floats = MemoryMarshal.Cast&lt;Velocity, float&gt;(span.Components);
-/// // Add -9.81*dt to every Y (odd indices): use ScaleAndOffset on a strided view,
+/// // Add -9.81*dt to every Y (odd indices) with ScaleAndOffset on a strided view,
 /// // or iterate in bulk with the span APIs.
 ///
 /// // Simpler: scale all floats in a component by a factor
@@ -28,7 +28,7 @@ namespace Engine;
 /// </example>
 internal static class SimdMath
 {
-    /// <summary>Adds <paramref name="value"/> to every element: <c>data[i] += value</c>.</summary>
+    /// <summary>Adds <paramref name="value"/> to every element, as <c>data[i] += value</c>.</summary>
     /// <param name="data">The float span to modify in-place.</param>
     /// <param name="value">The scalar value to add.</param>
     public static void Add(Span<float> data, float value)

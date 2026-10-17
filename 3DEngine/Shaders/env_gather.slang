@@ -20,7 +20,7 @@ struct GatherPush
 
 static const float Pi = 3.14159265;
 
-// Where a direction falls in the image: longitude across from the back, latitude down from the
+// Where a direction falls in the image, longitude across from the back and latitude down from the
 // top, as EnvironmentMap decodes it.
 float2 equirectangular(float3 d)
 {

@@ -4,7 +4,7 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// The light probes of the light that bounces on the GPU: for each cascade an image of what each
+/// The light probes of global illumination on the GPU, for each cascade an image of what each
 /// probe's rays brought back and one of that merged with the cascades above, a tile of octahedron
 /// texels a probe, and for every cascade the six faces of the light each probe receives, which the
 /// model pass reads, with a uniform buffer of the lights the rays' surfaces are lit by.
@@ -12,7 +12,7 @@ namespace Engine;
 /// <remarks>
 /// The images of rays, merges and distances stay in the general layout, written and read by the
 /// probes' work alone. The faces and the reach wait to be sampled between frames, which the next
-/// frame's rays read as the light that bounced and how far each probe sees, and go to the general
+/// frame's rays read as indirect light and how far each probe sees, and go to the general
 /// layout while they are gathered again.
 /// </remarks>
 internal sealed class GpuIllumination : IDisposable
@@ -98,12 +98,12 @@ internal sealed class GpuIllumination : IDisposable
 
     internal VkImage Skies { get; }
 
-    // What each workgroup of a probe's rays brought back straight from the sun, the lights and what
-    // gives off light, and the luminance of all they brought back, four a probe, every cascade.
+    // What each workgroup of a probe's rays brought back straight from the sun, the lights and
+    // emissive surfaces, and the luminance of all they brought back, four a probe, every cascade.
     internal VkImageView Partial { get; }
 
     // Each probe's own light and the luminance of all its rays brought, two frames side by side,
-    // the share of the light that bounced each probe's next rays take, and where the trace moved
+    // the share of the indirect light each probe's next rays take, and where the trace moved
     // each probe to, every cascade.
     internal VkImageView Held { get; }
 
@@ -216,7 +216,7 @@ internal sealed unsafe partial class GraphicsDevice
         // reflection shows as it did before the probes know better.
         var open = new VkClearColorValue(1f, 0f, 0f, 0f);
         _deviceApi.vkCmdClearColorImage(cmd, skies, VkImageLayout.General, &open, 1, &whole);
-        // No probe's own light known yet, and every probe taking the whole of the light that bounced.
+        // No probe's own light known yet, and every probe taking the whole of the indirect light.
         var unknown = new VkClearColorValue(1f, 1f, 1f, -1f);
         _deviceApi.vkCmdClearColorImage(cmd, held, VkImageLayout.General, &unknown, 1, &whole);
         // Every probe sees every way until its rays have first been traced.
@@ -313,7 +313,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Records a frame of the probes' work after the field's: the lights written, each cascade's
+    /// Records a frame of the probes' work after the field's, the lights written, each cascade's
     /// rays traced, the cascades merged from the last to the first, and each probe's faces
     /// gathered, left ready for the model pass to sample.
     /// </summary>
@@ -331,8 +331,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="frame">The frame's number, whose parity says which of the two frames of each probe's own light is this one's.</param>
     /// <param name="lying">
     /// Whether each cascade lies where it lay the frame before, so a probe's own light and its share
-    /// of the light that bounced the frame before are its own, or none where the light that bounced
-    /// is taken whole however a probe's own light falls.
+    /// of the indirect light of the frame before are its own, or none where the indirect light is
+    /// taken whole however a probe's own light falls.
     /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
@@ -513,7 +513,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Records the screen probes' work after the world's probes are merged: the view written, each
+    /// Records the screen probes' work after the world's probes are merged, the view written, each
     /// probe placed on the window's depth and its rays traced and summed, left ready for the model
     /// pass to sample.
     /// </summary>
@@ -693,7 +693,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // One frame's recording of the probes' work: the descriptor pool its sets come from, freed once
+    // One frame's recording of the probes' work, the descriptor pool its sets come from, freed once
     // no frame in flight reads them.
     private sealed class ProbeRun : IDisposable
     {

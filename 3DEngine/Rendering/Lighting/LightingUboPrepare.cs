@@ -64,7 +64,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null) windowUbo.AmbientOcclusion.Y = 1;
-        // And its light from all around the light that bounced, which the probes hold.
+        // And its light from all around the indirect light the probes hold.
         if (GlobalIlluminationRenderer.CascadesIn(renderWorld) is > 0 and var cascades)
         {
             windowUbo.Indirect = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.ProbeSpacing,
@@ -93,10 +93,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // The window's light left linear, as a reflection probe's half-float faces hold it. A probe
         // whose map is of an earlier placement or of lights since changed gives no light to a
         // capture, so a lamp switched off does not go on lighting its room through the room's own
-        // reflection, and a probe's second pass bounces the light of its first.
+        // reflection, and a probe's second pass carries on the light of its first.
         var capture = ubo;
         capture.Output.X = 1;
-        // A probe's faces take the light that bounced from the world's probes, as a render target does.
+        // A probe's faces take the indirect light from the world's probes, as a render target does.
         capture.Indirect = windowUbo.Indirect;
         if (renderWorld.TryGet<BoundProbes>() is { } boundForCapture)
             for (int i = 0; i < boundForCapture.Slots.Count; i++)
@@ -116,7 +116,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 var own = shared.GetValueOrDefault(target);
                 var targetUbo = unshadowed;
                 if (own is not null) Apply(ref targetUbo, own);
-                // And the light that bounced, read from screen probes of the target's own where it
+                // And the indirect light, read from screen probes of the target's own where it
                 // draws through a camera of its own, as the window's, and its glossy surfaces
                 // reflecting the probes and the environment alone, since a reflection is traced
                 // through the window's depth.
@@ -208,7 +208,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         ubo.PointShadow = new System.Numerics.Vector4(2 * ShadowFit.PointFaceSlack / shadow.PointFaceSize, points.Count, ShadowFit.FullPointLights, 0);
     }
 
-    // The lights that cast shadows this frame: the first directional one, and the first spot and
+    // The lights that cast shadows this frame, the first directional one and the first spot and
     // point lights, the spots fitted already, since only the cascades depend on a camera.
     private sealed record ShadowCasters(System.Numerics.Vector3? Sun, int SunIndex, float Distance, int TileSize,
         List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points)
@@ -235,11 +235,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     /// </summary>
     internal const float SharedTexelGrowth = 1.25f;
 
-    // Each view's shadow, by its target's id, 0 for the window's: the views in the order given,
-    // each joining the first group whose first cascade fitted to all of it and the view is no more
-    // than SharedTexelGrowth as wide in its texels as any member's own, or a group of its own, and
-    // each group given one shadow, which is drawn once for all of them where they are drawn one
-    // after another. With no sun every view's shadow is the same and all share it.
+    // Each view's shadow, by its target's id, 0 for the window's, the views taken in the order
+    // given, each joining the first group whose first cascade fitted to all of it and the view is
+    // no more than SharedTexelGrowth as wide in its texels as any member's own, or a group of its
+    // own, and each group given one shadow, which is drawn once for all of them where they are
+    // drawn one after another. With no sun every view's shadow is the same and all share it.
     private static Dictionary<int, FrameShadow?> SharedShadows(ShadowCasters casters, List<(int View, System.Numerics.Matrix4x4 Camera)> cameras)
     {
         var groups = new List<List<(int View, System.Numerics.Matrix4x4 Camera, float Own)>>();
@@ -332,7 +332,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     /// <summary>
-    /// The candidates in the order they matter to the view, best first: a light whose reach the
+    /// The candidates in the order they matter to the view, best first, a light whose reach the
     /// camera sees before one behind it, then the one whose light reaching the eye is greatest,
     /// its brightness over one plus the square of how far its reach is from the eye, then the one
     /// whose reach comes nearest.
@@ -347,7 +347,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         Rank(lights, candidates, [(eye, camera)], distance);
 
     /// <summary>
-    /// The candidates in the order they matter to any of <paramref name="views"/>, best first: a
+    /// The candidates in the order they matter to any of <paramref name="views"/>, best first, a
     /// light some camera sees before one none does, then the one whose light reaching an eye,
     /// weighed by the share of that view's picture its reach covers, is greatest, then the one
     /// whose reach comes nearest an eye, so a render target looking where the window does not has
@@ -392,7 +392,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
     /// <summary>
     /// The share of a view's picture, 0 to 1, that a light's reach of <paramref name="radius"/>
-    /// around <paramref name="center"/> covers: the box around it put through
+    /// around <paramref name="center"/> covers, the box around it put through
     /// <paramref name="camera"/> and held within the picture, the whole picture where the box
     /// reaches round past the eye.
     /// </summary>

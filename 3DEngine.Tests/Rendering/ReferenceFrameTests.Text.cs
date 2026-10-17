@@ -3,7 +3,7 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// The frames of text: a font from a file, color glyphs, text read right to left, and Arabic joined.
+// The frames of text, a font from a file, color glyphs, text read right to left, and Arabic joined.
 public sealed partial class ReferenceFrameTests
 {
     [NeedsVulkanFact]
@@ -26,7 +26,7 @@ public sealed partial class ReferenceFrameTests
     [NeedsVulkanFact]
     public void Color_Text_Matches_Its_Reference()
     {
-        // The test fonts' color glyphs drawn as text: paints of a gradient and a moved square
+        // The test fonts' color glyphs drawn as text, paints of a gradient and a moved square
         // (COLR version 1), a sequence the bitmap font joins into its yellow glyph beside the sun
         // alone, and layers with a letter of no color, tinted.
         Open(256, 96);
@@ -51,9 +51,9 @@ public sealed partial class ReferenceFrameTests
     [NeedsVulkanFact]
     public void Text_Read_Right_To_Left_Matches_Its_Reference()
     {
-        // The test font's letters, bars of three heights, so their order is seen: a line of Hebrew
-        // alone, a run of it in a line read left to right, a number in it, brackets turned in it,
-        // and a mark kept on its letter.
+        // The test font's letters, bars of three heights, so their order is seen, with a line of
+        // Hebrew alone, a run of it in a line read left to right, a number in it, brackets turned
+        // in it, and a mark kept on its letter.
         Open(256, 160);
         var font = LoadFontEx(Path.Combine(AppContext.BaseDirectory, "Api", "rtl.ttf"), 20, LoadCodepoints("\u05D0\u05D1\u05D2\u05B8 12()a"));
 
@@ -74,9 +74,9 @@ public sealed partial class ReferenceFrameTests
     public void Arabic_Joined_Matches_Its_Reference()
     {
         // The test fonts' beh, alef and lam, bars with ticks of their own whose final, medial and
-        // initial glyphs are narrower: three behs joined, beh before alef, lam joined to alef alone
-        // and after a letter, the joined lam and alef carrying a mark, and the same words in the font
-        // drawn by the presentation forms it maps.
+        // initial glyphs are narrower, in three behs joined, beh before alef, lam joined to alef
+        // alone and after a letter, the joined lam and alef carrying a mark, and the same words in
+        // the font drawn by the presentation forms it maps.
         Open(256, 160);
         string Font(string name) => Path.Combine(AppContext.BaseDirectory, "Api", name);
         const string Letters = "\u0628\u0627\u0644\u064E ";
@@ -99,7 +99,7 @@ public sealed partial class ReferenceFrameTests
     [NeedsVulkanFact]
     public void Arabic_Marks_Match_Their_Reference()
     {
-        // The test font with positions: fatha, kasra and shadda put on beh by their anchors, fatha on
+        // The test font with positions, fatha, kasra and shadda put on beh by their anchors, fatha on
         // shadda over it, fatha on lam's stem of lam-alef and kasra under alef's, alef kerned away
         // from beh and lam raised before beh, and the same marks in the font with no positions,
         // drawn after their letters at their own places.

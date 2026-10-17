@@ -31,7 +31,7 @@ internal static class CliClient
         catch (Exception error) when (error is SocketException or IOException)
         {
             return CliJson.Fail(operation, "SESSION_UNREACHABLE",
-                $"Could not reach {session.Name} ({session.Pid}) on port {session.Port}: {error.Message}. It may have exited.");
+                $"Could not reach {session.Name} ({session.Pid}) on port {session.Port}. {error.Message}. It may have exited.");
         }
     }
 

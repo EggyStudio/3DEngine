@@ -1,7 +1,7 @@
-// raylib's hybrid_raymarch.fs, written in Slang: a scene raymarched for each pixel of a rectangle
-// covering the target, iq's horseshoe and six-way cut hollow sphere over a checkered floor, each
-// pixel's depth written from how far its ray went, so shapes rasterized after are hidden behind
-// the raymarched ones and in front of them as their own depth says.
+// raylib's hybrid_raymarch.fs, written in Slang. It draws a scene raymarched for each pixel of a
+// rectangle covering the target, iq's horseshoe and six-way cut hollow sphere over a checkered
+// floor, each pixel's depth written from how far its ray went, so shapes rasterized after are
+// hidden behind the raymarched ones and in front of them as their own depth says.
 import engine;
 
 // Custom Input Uniform

@@ -1,4 +1,4 @@
-// What a pass over a whole image needs: a triangle that covers it with no vertex buffer, and a
+// What a pass over a whole image needs, a triangle that covers it with no vertex buffer and a
 // tent filter that reads an image at a smaller size than it is drawn at without its texels showing.
 module fullscreen;
 

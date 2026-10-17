@@ -31,7 +31,7 @@ The package carries three tables of Bevy's (https://github.com/bevyengine/bevy),
 `source/shaders/tonemapping`, and `composite.slang` works out four of Bevy's curves as that crate's
 `tonemapping_shared.wgsl` does, under the same licenses. The tables are carried as Bevy has them,
 their supercompression swapped from Zstandard to zlib by `build/bevy-luts.py`, with Bevy's
-`info.txt`, which says how each was made, and Bevy credits them and the curves to these authors:
+`info.txt`, which says how each was made, and Bevy credits them and the curves to these authors.
 
 | Table or curve | By | Source |
 |---|---|---|

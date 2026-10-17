@@ -53,14 +53,14 @@ internal sealed class FlacSoundDecoder : ISoundDecoder
         }
         catch (Exception ex) when (ex is InvalidDataException or EndOfStreamException or OverflowException)
         {
-            throw new InvalidDataException($"FlacSoundDecoder: '{sourcePath}' is not a FLAC file this reader decodes: {ex.Message}", ex);
+            throw new InvalidDataException($"FlacSoundDecoder: '{sourcePath}' is not a FLAC file this reader decodes. {ex.Message}", ex);
         }
     }
 }
 
 /// <summary>
 /// Reads a FLAC stream a frame at a time into interleaved float samples, as the format's
-/// specification lays it out (RFC 9639): fixed and linear-predictive subframes, Rice-coded
+/// specification lays it out (RFC 9639), with fixed and linear-predictive subframes, Rice-coded
 /// residuals, and the stereo decorrelations.
 /// </summary>
 /// <remarks>

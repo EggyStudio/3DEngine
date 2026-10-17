@@ -198,8 +198,8 @@ internal sealed class SceneFieldRenderer : IDisposable
     // Each built cascade not built again this frame and the still copies within its reach of the
     // meshes whose colors were written in place, which are pooled again with their colors as they
     // now are and paint again the cells they are nearest, as a voxel game's section lit again by its
-    // light levels is, where the field kept the colors of the mesh's last upload and the light that
-    // bounced off a relit room took its walls as dark as they had been.
+    // light levels is, where the field kept the colors of the mesh's last upload and the indirect
+    // light in a relit room took its walls as dark as they had been.
     private List<(int Cascade, Vector3 Origin, float Cell, List<SceneFieldPlan.Instance> Instances)> Repaints(SceneFieldPlan plan)
     {
         _recolored.Clear();
@@ -227,9 +227,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         return repaints;
     }
 
-    // The meshes drawn into the window this frame that cast shadows and bounce light, or where the
-    // window draws none those drawn into the render targets, each with whether it is skinned, whose
-    // posed shape no vertices on the CPU hold.
+    // The meshes drawn into the window this frame that cast shadows and take part in global
+    // illumination, or where the window draws none those drawn into the render targets, each with
+    // whether it is skinned, whose posed shape no vertices on the CPU hold.
     private void Gather(RenderWorld renderWorld, bool windowAlone = true)
     {
         _drawn.Clear();
@@ -506,7 +506,7 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
 
     // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, with how
-    // many there are, how many triangles they have in all, and whether one gives off light and is
+    // many there are, how many triangles they have in all, and whether one is emissive and
     // thinner than a cell of the build, which field_splat.slang lends the light of.
     private (IBuffer Buffer, int Count, int Triangles, bool ThinGlow) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances, float cell)
     {
@@ -523,7 +523,8 @@ internal sealed class SceneFieldRenderer : IDisposable
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count, instance.DoubleSided ? 1u : 0u, (uint)triangles);
             var thinnest = Thinnest(instance);
-            // An emitter the bounce carries as a glow light marks its cells and lends none.
+            // An emitter global illumination carries as a glow light marks its cells and lends
+            // none.
             var carried = GlowLights.Carries(e, BoundsOf(instance.Vertices), w, _plan!.CellSize);
             thinGlow |= !carried && thinnest > 0 && thinnest < cell;
             ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, carried ? 2 : 1, e.X, e.Y, e.Z, thinnest];
@@ -535,9 +536,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         return (buffer, written, triangles, thinGlow);
     }
 
-    // How thin an instance that gives off light is, its mesh's bounds along each of its own axes
+    // How thin an emissive instance is, its mesh's bounds along each of its own axes
     // scaled by its world matrix, the least of them, which field_splat.slang lends the light of
-    // where it is under a cell, or 0 for one that gives off none.
+    // where it is under a cell, or 0 for one that emits nothing.
     private float Thinnest(SceneFieldPlan.Instance instance)
     {
         if (instance.Emission is { X: <= 0, Y: <= 0, Z: <= 0 }) return 0;

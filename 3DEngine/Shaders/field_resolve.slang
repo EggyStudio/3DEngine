@@ -1,7 +1,7 @@
 // Turns the codes field_splat.slang left in one cascade's cells into distances in world units,
 // below zero behind a face and within half a cell of a double-sided one or a wall thinner than a
 // cell, and writes them into the cascade's place in the field the meshes alone
-// make and in the field the passes read, with the color and the light given off it painted, a
+// make and in the field the passes read, with the color and the emission it painted, a
 // thread a cell.
 
 [[vk::binding(0, 0)]]
@@ -13,7 +13,7 @@ RWTexture3D<float> stillField;
 [[vk::binding(2, 0)]] [format("r16f")]
 RWTexture3D<float> field;
 
-// The color and light given off of each cell's nearest surface, as field_splat.slang painted them,
+// The color and emission of each cell's nearest surface, as field_splat.slang painted them,
 // and the images they go into, the color's alpha 1 where a surface painted the cell and 0 where
 // none did, so a read blending cells divides by it.
 [[vk::binding(3, 0)]]
@@ -36,8 +36,8 @@ StructuredBuffer<uint> behind;
 [[vk::binding(8, 0)]] [format("rgba8")]
 RWTexture3D<float4> stillPaint;
 
-// What emitters thinner than a cell lend each cell, as field_splat.slang left it: the most light
-// any gives off, red, green and blue in 256ths, and the area of their faces near the cell seen
+// What emitters thinner than a cell lend each cell, as field_splat.slang left it, the most light
+// any emits, red, green and blue in 256ths, and the area of their faces near the cell seen
 // along x, y and z, in 1024ths of a cell's face.
 [[vk::binding(9, 0)]]
 StructuredBuffer<uint> emitted;
@@ -116,8 +116,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         lent = light * min(max(seen.x, max(seen.y, seen.z)), 1.0);
     }
     // The larger of the two, since an emitter that painted the cell its own already gives it its
-    // whole light, as a glowing panel under a ceiling does. Alpha is 1 where the light is an
-    // emitter's the bounce carries as a glow light, which a probe's ray leaves out.
+    // whole light, as an emissive panel under a ceiling does. Alpha is 1 where the light is an
+    // emitter's that global illumination carries as a glow light, which a probe's ray leaves out.
     float3 painted = float3(unpackHalves(light.x), unpackHalves(light.y).x);
     glowField[at] = float4(max(painted, lent), any(lent > painted) ? 0.0 : unpackHalves(light.y).y);
 }

@@ -1,5 +1,5 @@
-// raylib's depth_render.fs, written in Slang: a target's depth, near to far as black to white,
-// brought from the projection's curve toward a straight line.
+// raylib's depth_render.fs, written in Slang. It draws a target's depth, near to far as black to
+// white, brought from the projection's curve toward a straight line.
 import engine;
 
 Sampler2D depthTexture;

@@ -126,7 +126,7 @@ for (int x = 0; x < 64; x++)
 var terrain = LoadModelFromMesh(GenMeshHeightmap(heights, new Vector3(12, 3, 12)));
 terrain.Materials[0].Texture = LoadTextureFromImage(GenImageGradientLinear(64, 64, 0, Color.DarkGreen, Color.Lime));
 
-// A maze: white pixels are walls.
+// A maze whose white pixels are walls.
 var plan = GenImageColor(9, 9, Color.Black);
 ImageDrawRectangleLines(ref plan, 0, 0, 9, 9, Color.White);
 ImageDrawLine(ref plan, 2, 2, 6, 2, Color.White);
@@ -139,9 +139,9 @@ world units. A heightmap is usually a grayscale PNG loaded with `LoadImage`, as 
 program.
 
 A cubicmap's block stands centered on its pixel's place, as raylib's does, and each face takes a
-quarter of the texture, laid out as raylib's `cubicmap_atlas.png` is: the walls' sides from the top
-half, the floor from the bottom right. An open cell has a roof as well, which faces down, so it is
-the ceiling from inside the maze and hides nothing from above.
+quarter of the texture, laid out as raylib's `cubicmap_atlas.png` is, the walls' sides from the top
+half and the floor from the bottom right. An open cell has a roof as well, which faces down, so it
+is the ceiling from inside the maze and hides nothing from above.
 
 ## Animation
 
@@ -260,8 +260,8 @@ paints its sky so it needs no file:
 Camera3D camera = default;
 -->
 ```csharp
-// An equirectangular sky made here, so the example needs no file: the top half a sky
-// with a sun, the bottom half the ground. A photo or a .hdr file loads the same way.
+// An equirectangular sky made here, so the example needs no file, the top half a sky
+// with a sun and the bottom half the ground. A photo or a .hdr file loads the same way.
 var sky = GenImageColor(1024, 512, Color.Blank);
 ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
     0, 0, Color.White);

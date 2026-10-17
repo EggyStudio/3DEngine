@@ -11,7 +11,7 @@ import scenefield;
 // planes alone, which stand inside them and hold nothing, and none from the row in front.
 public static const float Lean = 0.5;
 
-// The cells of a cascade's outer band, a probes' spacing, across which the light that bounced fades
+// The cells of a cascade's outer band, a probes' spacing, across which the indirect light fades
 // from its probes to the next cascade's, and from the last cascade's to the light from beyond it
 // (bouncedHold). Read from one cascade alone, the light stepped where each ended, a canyon's floor
 // under a sky with no sun by 14, 10 and 15% from one row of pixels to the next at the second's, the
@@ -19,8 +19,8 @@ public static const float Lean = 0.5;
 // sky's light at the last's.
 public static const float CascadeBand = 8.0;
 
-// How much of the light that bounced a point p takes from cascade c rather than the next: all of
-// it inside, falling to none across c's outer band (CascadeBand), kept clear of the eye
+// How much of the indirect light a point p takes from cascade c rather than the next, all of it
+// inside, falling to none across c's outer band (CascadeBand), kept clear of the eye
 // (bandHold), past the cell fieldCascade keeps.
 public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 {
@@ -29,7 +29,7 @@ public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 }
 
 // How much of the light from all around a surface at p facing n the probes of the cascades up to
-// `upTo` give rather than what lies past them: all of it inside the coarsest of them built, falling
+// `upTo` give rather than what lies past them, all of it inside the coarsest of them built, falling
 // to none across its outer band (CascadeBand), kept clear of the eye (bandHold), and none past it.
 // The point is taken leaned off the surface as the probes are read for it (Lean), so a floor on the
 // box's lower side, its probes half a spacing over it, lies half a spacing inside, or as the surface
@@ -37,8 +37,8 @@ public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 // behind it, which may stand 1.6 cells behind the eye, and a pillar's face a block before the eye
 // leaned past that side, held nothing, and took the sky's light whole at three headings of a turn
 // in the voxel game's cave. Read from cascade `upTo` whether built or not, a closed room's floor in the
-// frames before its last cascade was built took the ambient light unhidden in the bounce's place,
-// 9.4 times the light it settles at.
+// frames before its last cascade was built took the ambient light unhidden in the place of global
+// illumination, 9.4 times the light it settles at.
 public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, int upTo)
 {
     int c = fieldCoarsestBuilt(info, upTo);

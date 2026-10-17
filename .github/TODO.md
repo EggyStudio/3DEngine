@@ -1,8 +1,8 @@
 # TODO
 
-Work outstanding on 3DEngine, in the order it blocks making a game: a window
-and a frame a program drives with plain calls, something on screen, content loaded from files, an
-interface, behavior, and shipping the result.
+Work outstanding on 3DEngine, in the order it blocks making a game, which runs from a window and a
+frame a program drives with plain calls through something on screen, content loaded from files, an
+interface and behavior to shipping the result.
 
 The ECS, the schedule and the behavior generator exist and are tested, and every area of the flat
 API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth. Lighting has
@@ -21,20 +21,20 @@ removed from this file, and an item that is partly done is rewritten around what
   the pass copies into its ring on several threads, and each view draws the blocks of 64 instances
   it sees. `models_stress` without its arms held 410,266 on 2026-10-06 (`E3D_STRESS_ARMS=0`, the
   Release build opened offscreen and `./e3d command profile` read once the search ended, as
-  RENDERING.md §6 runs it), in a frame of 17.7 ms: the program's loop turning every entity through
-  `GetRef` 8.4 ms, `MeshEntityDraws` 5.4 ms, the first pass, the shadows', copying the instances
-  into the ring and boxing their blocks 3.2 ms, and the GPU 4.9 ms for the model pass. Two changes
-  would take more of it, and neither pays for its reach at a count no raylib-style game nears.
-  `MeshEntityDraws` writing straight into the renderer's mapped ring, across the two worlds and
-  after a pass counting each group, would save the copy's read and about 1.5 ms, since most of the
-  copy is the write into write-combined memory, which stays. An instance of a 3x4 world matrix and
-  an index into a kept table of materials, in place of 96 bytes with its color, emission and
+  RENDERING.md §6 runs it), in a frame of 17.7 ms, of which the program's loop turning every entity
+  through `GetRef` took 8.4 ms, `MeshEntityDraws` 5.4 ms, the first pass, the shadows', copying the
+  instances into the ring and boxing their blocks 3.2 ms, and the GPU 4.9 ms for the model pass. Two
+  changes would take more of it, and neither pays for its reach at a count no raylib-style game
+  nears. `MeshEntityDraws` writing straight into the renderer's mapped ring, across the two worlds
+  and after a pass counting each group, would save the copy's read and about 1.5 ms, since most of
+  the copy is the write into write-combined memory, which stays. An instance of a 3x4 world matrix
+  and an index into a kept table of materials, in place of 96 bytes with its color, emission and
   factors, would halve what the gather writes and the copy moves, about 2.5 to 3 ms, and changes the
   model pass's instance layout and every vertex stage of a program's own that reads an instance's
   color. A chunk of 4096 entities none of which changed keeps the instances it gathered the frame
   before, so 400,000 standing still take 2.4 ms in place of 6.0. Every instance is still copied into
   the ring each frame, a block no pass draws with them, and one entity moving gathers its whole
-  chunk again, and neither pays to change: `./e3d command models.blocks` finds no block left undrawn
+  chunk again, and neither pays to change. `./e3d command models.blocks` finds no block left undrawn
   in `models_stress`, whose camera keeps the grid in view, in Manor's hall and grounds or in Summit,
   which put 172 and 11 instances in groups, a copy of a few microseconds; and with one entity moving
   (`E3D_STRESS_MOVING=1`, `E3D_STRESS_COUNT` holding the count, on 2026-10-09), `MeshEntityDraws`
@@ -58,23 +58,23 @@ removed from this file, and an item that is partly done is rewritten around what
 
 - **A build that compiles as it runs stalls on a thing's first use.** `games/Manor` streams its
   estate in as cells of prefabs, and its walk's worst frame offscreen was 47 ms, read with
-  `profile.slowest`. Four causes were found and moved off the frame: a stage's batch of tiny systems
+  `profile.slowest`. Four causes were found and moved off the frame, a stage's batch of tiny systems
   waiting on the thread pool behind the loads (up to 47 ms), each model file read with Assimp on the
   main thread to look for clips (8 to 10 ms), each texture upload waiting for the frames in flight
   (20 ms for a cell's textures), and a probe's readback waiting for its whole frame (8 to 24 ms). A
   frame's texture uploads go to the queue in one submit, and a probe's faces are recorded one a
   frame. On 2026-10-06 the autopilot walked the route for a minute offscreen
-  (`input.button 0 RightFaceDown 2`, then `manor.autopilot true`, `profile.slowest` read every ten seconds):
-  the native build's worst frame was 18 ms, and the build `dotnet run` makes 57 ms, its slow frames
-  holding 23 to 27 ms of the runtime compiling the code of a thing's first use, the first probe
-  capture's and the first point shadows' among them. Natively the first frame shown takes 30 ms, and
-  the first texture's memory, 11 ms, is taken before it. What is left belongs to the compiler a
-  player's build does not have. Packing the engine compiled ahead (ReadyToRun) for each of its six
-  systems was measured on 2026-10-06: the package 14.9 MB where it is 1.3 MB, and Manor run from
-  its project on Linux ending its startup stage at 0.44 s where it does at 0.58 and its slowest of
-  the first sixty frames 140 ms where it is 205. The package stays the smaller, since a game's
-  author compiles the engine ahead with their own game by publishing it with `PublishReadyToRun`
-  or NativeAOT, which gains the same however the package is made.
+  (`input.button 0 RightFaceDown 2`, then `manor.autopilot true`, `profile.slowest` read every ten
+  seconds). The native build's worst frame was 18 ms, and the build `dotnet run` makes 57 ms, its
+  slow frames holding 23 to 27 ms of the runtime compiling the code of a thing's first use, the
+  first probe capture's and the first point shadows' among them. Natively the first frame shown
+  takes 30 ms, and the first texture's memory, 11 ms, is taken before it. What is left belongs to
+  the compiler a player's build does not have. Packing the engine compiled ahead (ReadyToRun) for
+  each of its six systems was measured on 2026-10-06, the package 14.9 MB where it is 1.3 MB, and
+  Manor run from its project on Linux ending its startup stage at 0.44 s where it does at 0.58 and
+  its slowest of the first sixty frames 140 ms where it is 205. The package stays the smaller, since
+  a game's author compiles the engine ahead with their own game by publishing it with
+  `PublishReadyToRun` or NativeAOT, which gains the same however the package is made.
 
 ### The flat API
 
@@ -147,42 +147,43 @@ physics, text and fonts, audio, audio streams and waves, and files
   meshes through cameras near enough share one set of cascades drawn once, and the point and spot
   lights are chosen for every view the frame draws meshes through, a light any camera sees first.
 
-- **Light bounces and glossy surfaces reflect.** The scene's distance field (`SetSceneField`), the
-  light that bounces through it (`SetGlobalIllumination`), Radiance Cascades of world probes with
-  probes on the screen for the near light, glossy reflections traced through the window's depth and
-  the field, and at `High` the GPU's own rays for what the field misses are built (RENDERING.md §4).
-  A device that draws on its CPU traces no rays, since lavapipe crashes in a fragment shader that
-  reads a uniform buffer in a loop after a ray query, on Mesa 25.2, 26.2 and main, whose
-  reproduction and the text of an issue for Mesa's tracker are in `build/mesa/ray-query-fragment`,
-  so CI tests the ray-query path nowhere and the laptop's RTX 4070 alone draws it. The bounce
-  itself traces through the field alone, with no ray query. Lavapipe also crashes, reading a null
-  pointer the same way, where `directLight`'s loop over the lamps stands ahead of its sun's branch,
-  in the model pass and in the bounce's compute passes alike, a uniform buffer read in a loop in a
-  branch some invocations skip, very likely the same fault, whose reproduction and issue text are
-  in `build/mesa/uniform-loop-compute`, so that code is kept in the shape lavapipe draws. In the bounce a point or spot light that casts shadows lights a surface only
-  where the field lets it through, a probe's ray that meets a surface before its interval is
-  blocked, and the world's probes take bounced light from the probes they see, so a closed room is
-  dark to a lamp outside it, and a reflection is lit by those lamps the same way, or through the
-  GPU's rays at `High`. The screen's probes blend every probe around what they meet, a skinned or
-  moving mesh is boxes of its color,
-  of its joints or of its parts, that give off none of its light, and the screen's probes, blended
-  with the frame before's, hold that within the spread of this frame's light, so they follow a
-  changing light within the frame. A render texture that draws meshes through a camera has screen
-  probes of its own, as the window's, in the same frame, probe captures take the bounce from the
-  world's probes alone, and where the window draws no mesh the field follows the first render
-  texture's camera. Against path-traced references of `shaders_bounce_rooms`' eight views, held by
-  `BounceRoomsTests` where the GPU traces rays, a view's pixels differ from its reference by 0.02
-  of its light among the red walls to 0.5 in the strip's room at each quality. What is left
-  (RENDERING.md §4): a corridor narrower than the second cascade's probe spacing, whose probes
-  stand in its walls, carries no light along it from past the first cascade's reach, 21% under;
-  a small bright strip's room reads a quarter under, its light within a few of a probe's
-  directions; the Cornell box reads 9% over, which the loop's gain, its walls' share, does not
-  account for; and light that newly comes takes some ten frames to build its bounces, one a frame.
+- **Indirect light is traced and glossy surfaces reflect.** The scene's distance field
+  (`SetSceneField`), global illumination through it (`SetGlobalIllumination`), Radiance Cascades of
+  world probes with probes on the screen for the near light, glossy reflections traced through the
+  window's depth and the field, and at `High` the GPU's own rays for what the field misses are built
+  (RENDERING.md §4). A device that draws on its CPU traces no rays, since lavapipe crashes in a
+  fragment shader that reads a uniform buffer in a loop after a ray query, on Mesa 25.2, 26.2 and
+  main, whose reproduction and the text of an issue for Mesa's tracker are in
+  `build/mesa/ray-query-fragment`, so CI tests the ray-query path nowhere and the laptop's RTX 4070
+  alone draws it. Global illumination itself traces through the field alone, with no ray query.
+  Lavapipe also crashes, reading a null pointer the same way, where `directLight`'s loop over the
+  lamps stands ahead of its sun's branch, in the model pass and in the compute passes of global
+  illumination alike, a uniform buffer read in a loop in a branch some invocations skip, very likely
+  the same fault, whose reproduction and issue text are in `build/mesa/uniform-loop-compute`, so
+  that code is kept in the shape lavapipe draws. In global illumination a point or spot light that
+  casts shadows lights a surface only where the field lets it through, a probe's ray that meets a
+  surface before its interval is blocked, and the world's probes take indirect light from the probes
+  they see, so a closed room is dark to a lamp outside it, and a reflection is lit by those lamps
+  the same way, or through the GPU's rays at `High`. The screen's probes blend every probe around
+  what they meet, a skinned or moving mesh is boxes of its color, of its joints or of its parts,
+  that carry none of its emission, and the screen's probes, blended with the frame before's, hold
+  that within the spread of this frame's light, so they follow a changing light within the frame. A
+  render texture that draws meshes through a camera has screen probes of its own, as the window's,
+  in the same frame, probe captures take global illumination from the world's probes alone, and
+  where the window draws no mesh the field follows the first render texture's camera. Against
+  path-traced references of `shaders_bounce_rooms`' eight views, held by `BounceRoomsTests` where
+  the GPU traces rays, a view's pixels differ from its reference by 0.02 of its light among the red
+  walls to 0.5 in the strip's room at each quality. Four things are left (RENDERING.md §4). A
+  corridor narrower than the second cascade's probe spacing, whose probes stand in its walls,
+  carries no light along it from past the first cascade's reach, 21% under; a small bright strip's
+  room reads a quarter under, its light within a few of a probe's directions; the Cornell box reads
+  9% over, which the loop's gain, its walls' share, does not account for; and light that newly comes
+  takes some ten frames to build its bounces, one a frame.
 
-- **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
+- **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` emits
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera
   after the meshes, into the window, into each render texture meshes are drawn into and into a
-  reflection probe's capture, lit or giving off their own light, with a rate, a burst, a life, a
+  reflection probe's capture, lit or emissive, with a rate, a burst, a life, a
   velocity in a cone, gravity, drag, a size and color that change over each life, a sheet's frames
   played through, cut or blended, and bouncing off or ending at the scene's distance field where it
   is built and holds the particle, and at the window's depth of the meshes that cast shadows
@@ -333,7 +334,7 @@ through SDL, which has been checked against the state it fills and not with a pa
   skeleton, text in a font from a file, color emoji text from paints, from bitmaps joined into one
   glyph and from layers, text read right to left, Arabic joined and with its marks on its letters,
   a texture a compute shader wrote, the scene's distance field over a scene and lighting it, the
-  Cornell box, Manor's library and the hall of reflections lit by light that bounces, a frame of
+  Cornell box, Manor's library and the hall of reflections lit by global illumination, a frame of
   Summit's level and a room of Wick's house. Audio and input have no frame to compare and are
   tested by their values.
 

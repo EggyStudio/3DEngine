@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// Commands that resize, minimize, restore and move the window, or, in an offscreen run, the
-/// images the device draws into, so the path a resize takes is driven from <c>./e3d</c> with no
+/// images the device draws into, so the path a resize takes is scripted from <c>./e3d</c> with no
 /// desktop to drag a window on.
 /// </summary>
 internal static class WindowCommands

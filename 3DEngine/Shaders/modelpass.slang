@@ -53,8 +53,8 @@ public struct ModelInstance
     public float4 factors : INSTANCE_FACTORS;
 };
 
-// What a call is drawn through, world to clip space, as System.Numerics lays it out: the camera's
-// in the model pass, and the light's in the shadow pass.
+// What a call is drawn through, world to clip space, as System.Numerics lays it out, the camera's
+// in the model pass and the light's in the shadow pass.
 public struct ModelPush
 {
     public float4x4 viewProjection;
@@ -75,8 +75,8 @@ public Sampler2D normalMap;
 [[vk::binding(3, 0)]]
 public Sampler2D metallicRoughnessMap;
 
-// The light the material gives off, as a color multiplying its emission, decoded from sRGB as it
-// is sampled. White when it has none.
+// A color multiplying the material's emission, decoded from sRGB as it is sampled. White when it
+// has none.
 [[vk::binding(4, 0)]]
 public Sampler2D emissiveMap;
 
@@ -85,7 +85,7 @@ public Sampler2D emissiveMap;
 [[vk::binding(5, 0)]]
 public Sampler2D occlusionMap;
 
-// The light the material gives off at this point, linear, which no light entity is needed for.
+// The material's emission at this point, linear, which no light entity is needed for.
 public float3 emitted(ModelVertexOutput input)
 {
     return materialEmission(input) * emissiveMap.Sample(input.uv).rgb;
@@ -114,8 +114,8 @@ public float materialNormalScale(ModelVertexOutput input) { return input.factors
 public float materialOcclusionStrength(ModelVertexOutput input) { return input.factors.w; }
 public float3 materialEmission(ModelVertexOutput input) { return input.emission.xyz; }
 
-// The four screen probes around the pixel a fragment is at, as screenProbesHere finds them: where
-// each is, how much each counts for the light that bounced, 0 for one that holds no light or stands
+// The four screen probes around the pixel a fragment is at, as screenProbesHere finds them, where
+// each is, how much each counts for indirect light, 0 for one that holds no light or stands
 // on no surface like the pixel's; how much for the glow lights, the same but for the light, since
 // every probe on a surface holds them; and how much by how near it is alone, 0 for one on no surface.
 public struct ScreenProbesHere
@@ -171,7 +171,7 @@ public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
     return probes;
 }
 
-// The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
+// The indirect light reaching the pixel a fragment is at, irradiance over pi, blended between the
 // four screen probes around it that stand on a surface like its own. Or -1 where none does.
 public float3 screenBounced(ScreenProbesHere probes)
 {
@@ -184,18 +184,18 @@ public float3 screenBounced(ScreenProbesHere probes)
 }
 
 // The light the glow lights send a pixel straight, irradiance over pi, as gi_screen_glow.slang left
-// it on the two by two texels of the window's depth around the pixel: the share each texel takes of
+// it on the two by two texels of the window's depth around the pixel, the share each texel takes of
 // the rough light of the glow light that gives it the most of it near it (glowLightRough,
 // glowLightNear), worked out here at the pixel with the pixel's own normal, and the other lights'
 // light as it is. Each texel weighed by how near it is, how alike its normal is to the fragment's,
 // and how near its point's distance from the eye is to the distance the fragment's own plane lies
 // at there, found from how the fragment's point moves from pixel to pixel, as screenProbesHere
 // weighs the probes. Weighed by the distance alone, the floor's texels at a lamp's foot, as far
-// from the eye as the lamp's face, lent the face the floor's light, and the glowing blocks' room
+// from the eye as the lamp's face, lent the face the floor's light, and the emissive blocks' room
 // read 1.1% further from its path-traced reference. A pixel whose like texels no probe around
 // holds, as a sliver of floor seen between two lamps, marches to the lights' middles itself, and
-// one where the screen's probes are not read to their faces' halves, as a probe does (glowLights):
-// marched to the halves, the slivers above the near lamps of a room of sixteen cost the model pass
+// one where the screen's probes are not read to their faces' halves, as a probe does (glowLights).
+// Marched to the halves, the slivers above the near lamps of a room of sixteen cost the model pass
 // 0.3 ms at 1280 by 720, 271 pixels holding up the groups they ran in. A pixel no texel around
 // holds a point like its own, as along a thin mesh the half-sized depth missed, takes the texels
 // around on any surface by how near each is, since marching from those few pixels, as from a pixel
@@ -314,7 +314,7 @@ public struct ModelVertexOutput
 };
 
 // What a mesh with a color or a second texture coordinate at each vertex gives the fragment stage
-// beside what every mesh does: the color in linear color, white where the mesh has none, and the
+// beside what every mesh does, the color in linear color, white where the mesh has none, and the
 // coordinate, zero where it has none. model_streams.slang draws with it, and a shader of the
 // program's own reads it by taking this in place of ModelVertexOutput, whose fields are in base.
 // A mesh without either is drawn without it, so its vertices carry no more to the fragment stage.
@@ -464,9 +464,9 @@ public float3 unlit(float3 albedo)
     return lighting.output.y > 0.0 ? linearToSrgbPastWhite(albedo) : linearToSrgb(albedo);
 }
 
-// The light a surface sends toward the eye at a point, linear, in two shares: what it scatters
+// The light a surface sends toward the eye at a point, linear, in two shares, what it scatters
 // diffusely, which subsurface scattering spreads under a surface, and what it reflects, which
-// stays where it is. Neither holds the light the material gives off.
+// stays where it is. Neither holds the material's emission.
 public struct LitLight
 {
     public float3 diffuse;
@@ -475,7 +475,7 @@ public struct LitLight
 
 // A linear color lit at this point by each light reflected by the material's metallic-roughness
 // model, the shadowed light cut by its shadow map and the light from all around darkened by its
-// occlusion map, with the light that bounced where light bounces, in its two shares.
+// occlusion map, with indirect light where global illumination is on, in its two shares.
 public LitLight litLight(float3 albedo, ModelVertexOutput input)
 {
     LitLight light;
@@ -498,9 +498,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     float3 v = normalize(input.toEye);
     float nv = max(dot(n, v), 1e-4);
 
-    // The light that bounced, where light bounces and a cascade of probes holds the point, which
-    // stands in for the diffuse share of the light from all around, the environment's, a probe's
-    // and the ambient lights', its rays having met that light where they met nothing.
+    // The indirect light, where global illumination is on and a cascade of probes holds the point,
+    // which stands in for the diffuse share of the light from all around, the environment's, a
+    // probe's and the ambient lights', its rays having met that light where they met nothing.
     float3 bouncedHere = float3(-1.0);
     bool screen = Bouncing && lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
     ScreenProbesHere probes = screenProbesHere(input, normalize(input.normal));
@@ -520,7 +520,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         }
     }
     bool bounces = bouncedHere.x >= 0.0;
-    // Across the last cascade's outer band the light that bounced fades to the light from beyond
+    // Across the last cascade's outer band the indirect light fades to the light from beyond
     // the probes, the environment's and the ambient lights' unhidden, which past it takes its place
     // whole (bouncedHold), so the near does not step into the far where the probes end.
     float held = bounces ? bouncedHold(bouncedField, input.world, n, lighting.indirect.y, lighting.indirect.w) : 0.0;
@@ -533,9 +533,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     if (Glowing && lighting.indirect.x > 0.0)
         light.diffuse += diffuseColor * glowLightsHere(input, n, screen);
 
-    // A glossy surface's reflection traced through the scene where light bounces, which takes the
-    // place of the probe's and the environment's as far as it met a surface and fades back to
-    // them as the surface grows rough.
+    // A glossy surface's reflection traced through the scene where global illumination is on, which
+    // takes the place of the probe's and the environment's as far as it met a surface and fades
+    // back to them as the surface grows rough.
     float4 traced = tracedReflection(input.world, n, reflect(-v, n), roughness, input.world + input.toEye);
     float gloss = traced.a * (1.0 - smoothstep(lighting.reflection.y * 0.5, lighting.reflection.y, roughness));
     float3 specularShare = ambientReflected(f0, roughness, nv);
@@ -560,9 +560,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = environmentIrradiance(n) * (1.0 - held);
         float strength = lighting.environment.x * occlusion;
-        // Where light bounces, by the share of the sky the probes around the surface see along its
-        // mirror direction, so a room sealed from the sky reflects none of it, where the occlusion
-        // alone left a rough wall in a sealed cave a blue sheen.
+        // Where global illumination is on, by the share of the sky the probes around the surface
+        // see along its mirror direction, so a room sealed from the sky reflects none of it, where
+        // the occlusion alone left a rough wall in a sealed cave a blue sheen.
         float sky = bounces ? lerp(1.0, skySeen(input.world, n, reflect(-v, n)), held) : 1.0;
         light.diffuse += strength * diffuseColor * around;
         light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
@@ -595,17 +595,17 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     return light;
 }
 
-// Whether a point is drawn unlit, as raylib draws a model before a program makes a light: with no
-// light, no environment, no probe and no light that bounces.
+// Whether a point is drawn unlit, as raylib draws a model before a program makes a light, with no
+// light, no environment, no probe and no global illumination.
 public bool drawnUnlit(ModelVertexOutput input)
 {
     return lighting.count == 0 && lighting.environment.z <= 0.0 && lighting.indirect.x <= 0.0 && probeAt(input.world) < 0;
 }
 
 // A linear color lit at this point, given sRGB-encoded for the frame, its two shares of light
-// with the light the material gives off, through the tonemap and the encoding. With no light and
+// with the material's emission, through the tonemap and the encoding. With no light and
 // no environment it is the color unlit, as raylib draws a model before a program makes a light,
-// with the light the material gives off added.
+// with the material's emission added.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     if (drawnUnlit(input))

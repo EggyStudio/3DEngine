@@ -1,7 +1,8 @@
-// raylib's deferred_shading.vs and deferred_shading.fs, written in Slang: each pixel lit by up to
-// four point lights from the position, normal, color and specular strength a G-buffer holds, with
-// a little ambient light. It writes the G-buffer's depth as well, which raylib's example copies
-// into the window's after it draws, so shapes drawn later are hidden behind the scene.
+// raylib's deferred_shading.vs and deferred_shading.fs, written in Slang. It draws each pixel lit
+// by up to four point lights from the position, normal, color and specular strength a G-buffer
+// holds, with a little ambient light. It writes the G-buffer's depth as well, which raylib's
+// example copies into the window's after it draws, so shapes drawn later are hidden behind the
+// scene.
 import engine;
 
 Sampler2D gPosition;

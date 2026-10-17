@@ -345,7 +345,7 @@ speed and force.
 
 ## A vehicle
 
-`CreatePhysicsVehicle` makes a car: a box held up by four wheels, each a ray cast down from the
+`CreatePhysicsVehicle` makes a car, a box held up by four wheels, each a ray cast down from the
 body that pushes it up as a spring and a damper, grips the ground sideways up to what presses it,
 and drives or brakes along the way it points. `SetPhysicsVehicleInput` drives it from the keys or
 a pad, and the wheels are worked out on the physics' fixed steps, so it drives the same however

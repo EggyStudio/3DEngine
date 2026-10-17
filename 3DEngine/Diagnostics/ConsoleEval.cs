@@ -42,7 +42,7 @@ internal static class ConsoleEval
     private static readonly CSharpParseOptions Parsing = new(LanguageVersion.Latest);
     private static int _generation;
 
-    // What every fragment is compiled beside: the usings an example's file has, with the implicit
+    // What every fragment is compiled beside, the usings an example's file has, with the implicit
     // ones of a .NET project, and the running program by name, set before the fragment runs.
     private const string Scope = """
         global using System;
@@ -136,7 +136,7 @@ internal static class ConsoleEval
         return compilation.ReplaceSyntaxTree(fragment, CSharpSyntaxTree.ParseText(answered, Parsing, "<eval>"));
     }
 
-    // What a fragment compiles against: the platform's assemblies and every other the process has
+    // What a fragment compiles against, the platform's assemblies and every other the process has
     // loaded from a file, the engine and the game among them.
     [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "An assembly with no file has an empty Location and is left out.")]
     private static List<MetadataReference> References()

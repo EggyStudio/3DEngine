@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>
 /// Intent component: "spawn the scene behind <see cref="Handle"/> into the world as soon
 /// as the asset finishes loading, then remove me." Add this to a freshly spawned entity
-/// (typically alongside the request itself) and let <see cref="SceneSpawnSystem"/> drive
+/// (typically alongside the request itself) and let <see cref="SceneSpawnSystem"/> do
 /// the rest.
 /// </summary>
 /// <remarks>

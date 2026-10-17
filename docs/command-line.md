@@ -1,6 +1,6 @@
-# Driving a program with e3d
+# The command line
 
-`e3d` talks to a running program from a terminal: it asks what is in the world, presses keys,
+`e3d` talks to a running program from a terminal. It asks what is in the world, presses keys,
 captures frames and reads the log, while the program runs in a window or with none. It is how a
 change is checked without sitting at the game, how a script tests a game, and how an AI agent
 working on one sees what it does.
@@ -52,8 +52,8 @@ engine's own, which read and change the ECS:
 ./e3d command memory.buffers 20                     # the GPU's buffers by where each was made
 ```
 
-`memory` answers with what the program holds, as name and number pairs: the managed heap, the
-process's resident memory, the GPU's buffers, images, descriptor sets, pipelines and memory, the
+`memory` answers with what the program holds, as name and number pairs for the managed heap,
+the process's resident memory, the GPU's buffers, images, descriptor sets, pipelines and memory, the
 entities with the range of their ids, and the assets the asset server knows, which a level streamed
 in climbs by until what it leaves behind is let go. Read at intervals while a game is played, as
 `build/soak.sh` does, a value that keeps climbing is a leak. `memory.buffers` names what the GPU's
@@ -83,23 +83,23 @@ display (BUILDING.md, Timing a program).
 Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
 window as the field holds the scene, `-1` none, `field.state` says where each cascade lies and how
 many meshes are in it, and `field.rebuild 400` builds a cascade every frame for four hundred frames,
-so `profile` gives what a build costs. Where light bounces, `gi.state` says the quality, the cascades
-of probes and their rays, the screen's probes, the reflections, and the GPU memory each takes,
-`gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses through
-([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces rays
-`gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel, `gi.reference
-once.png 1024 1` one of light bouncing once, and `gi.compare ref.png` gives the light of each wall,
-floor and block in the frame against it, with a picture of the difference and the frame's own light
-beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point against a reference of the light
-arriving at it from each way: where its rays met a surface, merged with the cascades above, and on
-each of its six faces. `gi.show` draws what the light holds over the window: `tiles`,
+so `profile` gives what a build costs. Where global illumination is on, `gi.state` says the quality,
+the cascades of probes and their rays, the screen's probes, the reflections, and the GPU memory each
+takes, `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses
+through ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces
+rays `gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel,
+`gi.reference once.png 1024 1` one of a single bounce, and `gi.compare ref.png` gives the light of
+each wall, floor and block in the frame against it, with a picture of the difference and the frame's
+own light beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point against a reference of
+the light arriving at it from each way, where its rays met a surface, merged with the cascades
+above, and on each of its six faces. `gi.show` draws what the light holds over the window, `tiles`,
 `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and `probes 1` the
 second cascade's, `difference ref.png` the frame against a reference, and `none` the window again.
 `gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and `screen` do
-their parts and `again` the light that bounces again from the frame before's probes, so light
-bounces once, `follow` the probes taking the light that bounced at the share their own light kept,
-so what a light switched off bounced fades over the frames each bounce takes, `glow` the small
-surfaces that give off light carried as lights, whose light the rays leave out all the same, so
+their parts and `again` the light past the first bounce from the frame before's probes, so light
+bounces once, `follow` the probes taking the indirect light at the share their own light kept,
+so the indirect light of a light switched off fades over the frames each bounce takes, `glow` the
+small emissive surfaces carried as lights, whose light the rays leave out all the same, so
 what they give can be seen and timed, `gi.toggle cascade 2` keeps the third cascade's light alone,
 and `on` or `-1` puts each back.
 
@@ -127,7 +127,7 @@ through the engine itself, so they reach a hidden or offscreen program that no d
 `input.key` and `input.click` answer once the input is released, so a `shot` after them sees what
 it did. `input.button` and `input.axis` make pads up to the one they name where fewer are
 connected, four at most, which is how the `core_input_gamepad` example is captured with no pad on
-the machine and `games/Sumo`'s second player is driven on pad 1. `./e3d command frames.wait
+the machine and `games/Sumo`'s second player is controlled on pad 1. `./e3d command frames.wait
 60` waits for sixty frames, for a scene to settle before it is captured. An answer is waited for up
 to 30 seconds, and `--timeout 600` waits longer, both in the terminal and in the program, as a long
 wait on a device that draws slowly needs.
@@ -202,7 +202,7 @@ serving and `6` when the command failed. A script checks a game this way:
 ```
 
 The repository's own captures of the examples are taken by `build/capture-example.sh` in the
-same way. An AI agent working on a game drives it through the same commands, which
+same way. An AI agent working on a game controls it through the same commands, which
 [`.github/E3D.md`](../.github/E3D.md) teaches.
 
 The socket listens on 127.0.0.1 alone, and each request carries a token from a session file only
@@ -213,6 +213,7 @@ own.
 
 - [E3D.md](../.github/E3D.md), with every command and the failure modes
 - [BUILDING.md](../.github/BUILDING.md), on the flags and building the command line
-- [`build/capture-example.sh`](../build/capture-example.sh), a script that drives every example
+- [`build/capture-example.sh`](../build/capture-example.sh), a script that captures every example
+  through the command line
 - Previous: [Scenes](scenes.md)
 - Next: [Shipping a game](shipping-a-game.md)

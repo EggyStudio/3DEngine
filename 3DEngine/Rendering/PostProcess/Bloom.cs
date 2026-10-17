@@ -28,7 +28,7 @@ internal sealed class BloomSettings
 internal sealed record BloomFrame(int Split);
 
 /// <summary>
-/// The HDR frame and its bloom: a half-float target the window's scene is drawn into every frame it
+/// The HDR frame and its bloom, a half-float target the window's scene is drawn into every frame it
 /// shows one, a chain of half-float levels down to a thirty-second of the window that spread its
 /// brightest light, and the pass that adds them and tonemaps the result into the window.
 /// </summary>
@@ -37,8 +37,9 @@ internal sealed record BloomFrame(int Split);
 /// The scene holds its light sRGB-encoded and carried on past 1, as the model pass and the 2D passes
 /// write it, so its blending and multisampling are done on encoded light as raylib's are and a
 /// program's shader returns its color encoded wherever it draws. The composite decodes it, and
-/// where bloom, an exposure that follows the scene, the lens passes or the reflections of light
-/// that bounces read the scene, a pass decodes it once into an image of linear light they all read.
+/// where bloom, an exposure that follows the scene, the lens passes or the traced reflections of
+/// global illumination read the scene, a pass decodes it once into an image of linear light they
+/// all read.
 /// </para>
 /// <para>
 /// The target and the levels are made at the window's size the first frame the window shows a
@@ -150,7 +151,7 @@ internal sealed class BloomRenderer : IDisposable
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
-    // What is made for one size of the window: the HDR target, the levels, and the sets each pass
+    // What is made for one size of the window, the HDR target, the levels, and the sets each pass
     // reads its source through.
     private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet?[] down, IDescriptorSet[] up,
         int depthGeneration) : IDisposable
@@ -230,7 +231,7 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// The window's scene decoded to linear light by the last frame that read its light, or null
-    /// where none has, which a measure of the light that bounces reads back.
+    /// where none has, which a measure of global illumination reads back.
     /// </summary>
     internal RenderTarget? Decoded => _sized?.Linear;
 
@@ -250,7 +251,7 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Whether a pass besides the composite reads the scene's light this frame, bloom, an exposure
-    /// that follows the scene, the depth of field or motion blur, or light bouncing, whose
+    /// that follows the scene, the depth of field or motion blur, or global illumination, whose
     /// reflections read the scene of the frame before, or the window draws particles, which are
     /// drawn over it, or a mesh that scatters light under its surface, which is spread in it, so
     /// the scene is decoded for them once.
@@ -262,8 +263,8 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Whether the engine's curve bends the scene's light past its knee this frame, as it does
-    /// wherever light past white may come about: a light, a sky, a reflection probe, light that
-    /// bounces, particles, bloom or an exposure. A scene with none of these is drawn as raylib draws
+    /// wherever light past white may come about, with a light, a sky, a reflection probe, global
+    /// illumination, particles, bloom or an exposure. A scene with none of these is drawn as raylib draws
     /// one, its colors as they are, and the curve gives way to a clamp, which leaves every color at
     /// or under white as it is.
     /// </summary>
@@ -297,7 +298,7 @@ internal sealed class BloomRenderer : IDisposable
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         renderWorld.TryGet<ModelRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, held: true);
-        // A cascade of the light that bounces' probes, where a command asks, hidden by the meshes as one is.
+        // A cascade of the probes of global illumination, where a command asks, hidden by the meshes as one is.
         renderWorld.TryGet<BounceViewRenderer>()?.DrawProbes(pass, target.RenderPass, renderContext, renderWorld);
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, end: split, held: true);
         return true;

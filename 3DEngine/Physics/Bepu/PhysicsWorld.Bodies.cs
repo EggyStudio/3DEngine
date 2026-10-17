@@ -4,7 +4,7 @@ using BepuPhysics.Collidables;
 
 namespace Engine;
 
-/// <summary>Per-body operations: existence, pose, velocity, impulses, sleep state, destruction.</summary>
+/// <summary>Per-body operations, for existence, pose, velocity, impulses, sleep state and destruction.</summary>
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />

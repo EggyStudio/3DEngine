@@ -1,8 +1,8 @@
 // Dispatches comp.spv, a compute shader of 64 invocations a group, over four groups, with a uniform
-// buffer of lights at binding 4 of set 0, as 3DEngine's light bounce reads them, and a 3D storage
-// image of half floats at binding 5, to report a crash of lavapipe's. A uniform buffer at binding 1
-// and 32 bytes of push constants, which the bounce's pass has and the shader does not read, are
-// kept as the pass lays them out.
+// buffer of lights at binding 4 of set 0, as 3DEngine's global illumination reads them, and a 3D
+// storage image of half floats at binding 5, to report a crash of lavapipe's. A uniform buffer at
+// binding 1 and 32 bytes of push constants, which the pass of global illumination has and the
+// shader does not read, are kept as the pass lays them out.
 //
 //   cc comp.c -o comp -lvulkan && ./comp
 #include <stdio.h>
@@ -83,8 +83,9 @@ int main(void)
     VkQueue queue;
     vkGetDeviceQueue(device, 0, 0, &queue);
 
-    // The lights as the bounce reads them: a count in the first vector's x, then sixteen lamps of
-    // three vectors each, the count one, so a loop over them that starts past it never runs.
+    // The lights as global illumination reads them, a count in the first vector's x and then
+    // sixteen lamps of three vectors each, the count one, so a loop over them that starts past it
+    // never runs.
     enum { LightsSize = 16 + 16 * 48 };
     Buffer lights = makeBuffer(LightsSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     ((float *)lights.mapped)[0] = 1;

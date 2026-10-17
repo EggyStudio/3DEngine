@@ -56,7 +56,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (!HasWindowSurfaces) throw new InvalidOperationException("A device drawing offscreen presents to no window.");
         if (!SDL.VulkanCreateSurface(window, (nint)_instance.Handle, IntPtr.Zero, out var handle))
-            throw new InvalidOperationException($"SDL.VulkanCreateSurface failed: {SDL.GetError()}");
+            throw new InvalidOperationException($"SDL.VulkanCreateSurface failed. {SDL.GetError()}");
         var surface = new WindowSurface { Window = window, Surface = new VkSurfaceKHR((ulong)handle) };
         _instanceApi.vkGetPhysicalDeviceSurfaceSupportKHR(_physicalDevice, _presentQueueFamily, surface.Surface, out VkBool32 supported).CheckResult();
         if (!supported)

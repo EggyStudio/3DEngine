@@ -1,9 +1,9 @@
-// A path-traced reference of the window's picture, which the light that bounces is measured
-// against: from each pixel, paths through the window's meshes as the device's ray tracing holds
-// them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, and the
-// light it gives off. The first hit is lit as the model pass lights one, each light's diffuse share
+// A path-traced reference of the window's picture, which global illumination is measured against.
+// From each pixel it traces paths through the window's meshes as the device's ray tracing holds
+// them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, and its
+// emission. The first hit is lit as the model pass lights one, each light's diffuse share
 // past what its face reflects and its specular share by the material's roughness and metallic, and
-// every hit after it as the light that bounces lights one, its color times what arrives. A light
+// every hit after it as global illumination lights one, its color times what arrives. A light
 // that casts shadows reaches a hit only where a ray toward it gets through, as the shadow maps and
 // the field let it. A path goes on in a direction drawn by the cosine about the face's normal, ends
 // at what Russian roulette draws after its third bounce, and brings back the sky, the environment
@@ -11,15 +11,15 @@
 // them, the light a white diffuse surface facing one returns, so a surface's diffuse light is its
 // color times what arrives, with no pi. Each pass adds its samples to an image of sums, the count
 // in alpha, and its first sample of each pixel, through the pixel's middle, writes what it met into
-// the image of regions: the copy's index times eight and the axis its face turns toward most, plus
+// the image of regions, the copy's index times eight and the axis its face turns toward most, plus
 // one, or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
-// octahedron, its paths leaving the probe's middle through it and every face they meet lit as the
-// light that bounces lights one, so the image is the light arriving at the probe from each way, as
-// its rays and the merge of the cascades above should bring it. The light a glow light the bounce
-// carries gives off is left out where such a path first meets it, as the probe's rays leave it out,
-// since it reaches a surface as a light rather than through the probes; counted, the rays of twelve
-// probes around four glowing blocks read 44 to 70% under it at one bounce, where left out they read
-// within 12% of it, all but the dimmest.
+// octahedron, its paths leaving the probe's middle through it and every face they meet lit as
+// global illumination lights one, so the image is the light arriving at the probe from each way, as
+// its rays and the merge of the cascades above should bring it. The emission of a glow light global
+// illumination carries is left out where such a path first meets it, as the probe's rays leave it
+// out, since it reaches a surface as a light rather than through the probes; counted, the rays of
+// twelve probes around four emissive blocks read 44 to 70% under it at one bounce, where left out
+// they read within 12% of it, all but the dimmest.
 
 import color;
 
@@ -30,7 +30,7 @@ struct RaySurface
 {
     // rgb: the copy's color, linear.
     float4 color;
-    // rgb: the light it gives off, linear. w: 1 where the bounce carries it as a glow light.
+    // rgb: its emission, linear. w: 1 where global illumination carries it as a glow light.
     float4 emission;
     // x: its mesh's first corner in corners. y: its roughness's bits. z: its metallic's bits.
     uint4 corners;
@@ -166,7 +166,7 @@ float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, o
 }
 
 // The light the sun and the lamps send back from p on a face of a color, toward v where the face is
-// the path's first, lit as the model pass lights it, and as the light that bounces lights a face
+// the path's first, lit as the model pass lights it, and as global illumination lights a face
 // otherwise.
 float3 direct(float3 p, float3 n, float3 color, float3 v, bool first, float roughness, float metallic)
 {
@@ -233,7 +233,8 @@ float3 fromOctahedron(float2 uv)
 }
 
 // The light one path brings back from origin along way, and what its first ray met. From the
-// camera the first face is lit as the model pass lights one, and from a probe as the bounce does.
+// camera the first face is lit as the model pass lights one, and from a probe as global
+// illumination does.
 float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out uint region)
 {
     float3 throughput = float3(1.0);
@@ -282,8 +283,8 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float3 given = fromProbe && bounce == 0u && surface.emission.w > 0.5 ? float3(0.0) : surface.emission.rgb;
         light += throughput * (given + direct(p, n, color, -way, first, roughness, metallic));
 
-        // The diffuse share goes on, the first face's past its metal, as the light that bounces to
-        // a pixel lights it.
+        // The diffuse share goes on, the first face's past its metal, as the indirect light
+        // reaching a pixel lights it.
         throughput *= first ? color * (1.0 - metallic) : color;
         if (bounce >= 3u)
         {

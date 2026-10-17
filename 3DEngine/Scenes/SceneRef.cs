@@ -6,7 +6,7 @@ namespace Engine;
 
 /// <summary>
 /// A scene file an entity holds a copy of, spawned under the entity so its <see cref="Transform"/>
-/// places it, as a prefab: a door, a lamp post or a room made once and placed many times.
+/// places it, as a prefab, such as a door, a lamp post or a room made once and placed many times.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -147,7 +147,7 @@ internal static class SceneRefSystem
         }
         catch (Exception ex) when (ex is InvalidDataException or JsonException or IOException)
         {
-            Logger.Warn($"SceneRef: '{path}' cannot be read: {ex.Message}");
+            Logger.Warn($"SceneRef: '{path}' cannot be read. {ex.Message}");
             return;
         }
 

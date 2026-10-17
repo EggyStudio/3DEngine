@@ -216,7 +216,7 @@ internal sealed class FileWatcher : IDisposable
         }
         catch (Exception ex)
         {
-            Logger.Error($"FileWatcher callback error: {ex.Message}", ex);
+            Logger.Error($"FileWatcher callback error. {ex.Message}", ex);
         }
     }
 

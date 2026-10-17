@@ -18,7 +18,7 @@ namespace Engine;
 /// </remarks>
 internal sealed class TextureStore
 {
-    /// <summary>A change waiting to reach a texture's GPU objects: new pixels, a new filter or wrap, or both.</summary>
+    /// <summary>A change waiting to reach a texture's GPU objects, new pixels, a new filter or wrap, or both.</summary>
     /// <param name="Id">The texture's id.</param>
     /// <param name="Rgba">Four bytes per pixel, rows from the top, or <c>null</c> when only the filter changed.</param>
     /// <param name="Width">Width in pixels.</param>
@@ -273,7 +273,7 @@ internal sealed class TextureStore
 
     /// <summary>
     /// The pixels a texture will hold once what is queued for it reaches the GPU, when the queue
-    /// holds the whole texture: its last whole upload, with the rectangles queued after it laid
+    /// holds the whole texture, its last whole upload with the rectangles queued after it laid
     /// over a copy. Null when nothing whole is queued, as for a texture already on the GPU or a
     /// render target.
     /// </summary>

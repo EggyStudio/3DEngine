@@ -79,7 +79,7 @@ internal static class PhysicsBodies
                 }
                 catch (ArgumentException ex)
                 {
-                    Log.Category("Engine.Physics").Warn($"Collider: entity {entity}'s meshes make no convex hull, so it has no body: {ex.Message}");
+                    Log.Category("Engine.Physics").Warn($"Collider: entity {entity}'s meshes make no convex hull, so it has no body. {ex.Message}");
                     ecs.Add(entity, new NoBody());
                     continue;
                 }
@@ -151,7 +151,7 @@ internal static class PhysicsBodies
             }
             catch (ArgumentException ex)
             {
-                Log.Category("Engine.Physics").Warn($"Joint: entity {entity} cannot be made: {ex.Message}");
+                Log.Category("Engine.Physics").Warn($"Joint: entity {entity} cannot be made. {ex.Message}");
                 ecs.Add(entity, PhysicsJoint.None);
             }
         }

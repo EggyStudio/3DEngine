@@ -47,7 +47,7 @@ internal static unsafe class SdlImGuiViewports
     /// <summary>Whether ImGui is given windows of its own here, which needs a driver SDL can place a window on.</summary>
     internal static bool Installed { get; private set; }
 
-    /// <summary>Whether ImGui takes windows out of the main one: installed, and turned on by the program.</summary>
+    /// <summary>Whether ImGui takes windows out of the main one, which it does once installed and turned on by the program.</summary>
     internal static bool Enabled => Installed && ImGui.GetCurrentContext() != IntPtr.Zero
                                               && (ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0;
 
@@ -242,7 +242,7 @@ internal static unsafe class SdlImGuiViewports
             var window = SDL.CreateWindow("No Title Yet", Math.Max(1, (int)viewport.Size.X), Math.Max(1, (int)viewport.Size.Y), flags);
             if (window == 0)
             {
-                Logger.Warn($"An ImGui viewport's window could not be made: {SDL.GetError()}");
+                Logger.Warn($"An ImGui viewport's window could not be made. {SDL.GetError()}");
                 return;
             }
             SDL.SetWindowPosition(window, (int)viewport.Pos.X, (int)viewport.Pos.Y);
@@ -253,7 +253,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Making an ImGui viewport's window failed: {error}");
+            Logger.Error($"Making an ImGui viewport's window failed. {error}");
         }
     }
 
@@ -269,7 +269,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Closing an ImGui viewport's window failed: {error}");
+            Logger.Error($"Closing an ImGui viewport's window failed. {error}");
         }
     }
 
@@ -284,7 +284,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Showing an ImGui viewport's window failed: {error}");
+            Logger.Error($"Showing an ImGui viewport's window failed. {error}");
         }
     }
 
@@ -292,7 +292,7 @@ internal static unsafe class SdlImGuiViewports
     private static void SetWindowPos(ImGuiViewport* native, Vector2 position)
     {
         try { SDL.SetWindowPosition(WindowOf(native), (int)position.X, (int)position.Y); }
-        catch (Exception error) { Logger.Error($"Moving an ImGui viewport's window failed: {error}"); }
+        catch (Exception error) { Logger.Error($"Moving an ImGui viewport's window failed. {error}"); }
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -306,7 +306,7 @@ internal static unsafe class SdlImGuiViewports
         catch (Exception error)
         {
             *position = Vector2.Zero;
-            Logger.Error($"Reading where an ImGui viewport's window is failed: {error}");
+            Logger.Error($"Reading where an ImGui viewport's window is failed. {error}");
         }
     }
 
@@ -314,7 +314,7 @@ internal static unsafe class SdlImGuiViewports
     private static void SetWindowSize(ImGuiViewport* native, Vector2 size)
     {
         try { SDL.SetWindowSize(WindowOf(native), Math.Max(1, (int)size.X), Math.Max(1, (int)size.Y)); }
-        catch (Exception error) { Logger.Error($"Sizing an ImGui viewport's window failed: {error}"); }
+        catch (Exception error) { Logger.Error($"Sizing an ImGui viewport's window failed. {error}"); }
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -328,7 +328,7 @@ internal static unsafe class SdlImGuiViewports
         catch (Exception error)
         {
             *size = Vector2.Zero;
-            Logger.Error($"Reading an ImGui viewport's window's size failed: {error}");
+            Logger.Error($"Reading an ImGui viewport's window's size failed. {error}");
         }
     }
 
@@ -336,7 +336,7 @@ internal static unsafe class SdlImGuiViewports
     private static void SetWindowFocus(ImGuiViewport* native)
     {
         try { SDL.RaiseWindow(WindowOf(native)); }
-        catch (Exception error) { Logger.Error($"Focusing an ImGui viewport's window failed: {error}"); }
+        catch (Exception error) { Logger.Error($"Focusing an ImGui viewport's window failed. {error}"); }
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -357,14 +357,14 @@ internal static unsafe class SdlImGuiViewports
     private static void SetWindowTitle(ImGuiViewport* native, byte* title)
     {
         try { SDL.SetWindowTitle(WindowOf(native), Marshal.PtrToStringUTF8((nint)title) ?? ""); }
-        catch (Exception error) { Logger.Error($"Naming an ImGui viewport's window failed: {error}"); }
+        catch (Exception error) { Logger.Error($"Naming an ImGui viewport's window failed. {error}"); }
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void SetWindowAlpha(ImGuiViewport* native, float alpha)
     {
         try { SDL.SetWindowOpacity(WindowOf(native), alpha); }
-        catch (Exception error) { Logger.Error($"Setting an ImGui viewport's window's opacity failed: {error}"); }
+        catch (Exception error) { Logger.Error($"Setting an ImGui viewport's window's opacity failed. {error}"); }
     }
 
     // -- The renderer's callbacks
@@ -378,7 +378,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Making an ImGui viewport's swapchain failed: {error}");
+            Logger.Error($"Making an ImGui viewport's swapchain failed. {error}");
         }
     }
 
@@ -395,7 +395,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (InvalidOperationException error)
         {
-            Logger.Warn($"An ImGui viewport's window is left undrawn, since its swapchain could not be made: {error.Message}");
+            Logger.Warn($"An ImGui viewport's window is left undrawn, since its swapchain could not be made. {error.Message}");
         }
     }
 
@@ -412,7 +412,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Destroying an ImGui viewport's swapchain failed: {error}");
+            Logger.Error($"Destroying an ImGui viewport's swapchain failed. {error}");
         }
     }
 
@@ -426,7 +426,7 @@ internal static unsafe class SdlImGuiViewports
         }
         catch (Exception error)
         {
-            Logger.Error($"Resizing an ImGui viewport's swapchain failed: {error}");
+            Logger.Error($"Resizing an ImGui viewport's swapchain failed. {error}");
         }
     }
 }

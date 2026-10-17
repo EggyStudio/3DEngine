@@ -175,7 +175,7 @@ program place its windows, so there ImGui's windows stay inside the game's.
 
 ## Without a window on the screen
 
-Every program built on the engine takes the same flags, so one can run where nothing is shown:
+Every program built on the engine takes the same flags, so one can run where nothing is shown.
 
 | Flag | Runs |
 |---|---|
@@ -188,7 +188,7 @@ Every program built on the engine takes the same flags, so one can run where not
 `TakeScreenshot("frame.png")` writes the frame being drawn to a file once it is presented, and
 `LoadImageFromScreen()` gives the last frame presented as an image, which `core_screen_recording`
 writes into an animated GIF every few frames. Frames are kept for it from its first call on, so the
-first call gives the window in its clear color. The `e3d` tool in the repository drives a running
+first call gives the window in its clear color. The `e3d` tool in the repository controls a running
 program from the terminal, which is how the examples' pictures are taken.
 
 ## The app underneath

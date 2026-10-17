@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The scene's distance field: where its cascades lie and what each frame builds and stamps, on
+/// The scene's distance field, where its cascades lie and what each frame builds and stamps, on
 /// the CPU, and the distances the GPU builds read back against those to the meshes they were built
 /// from, with in <c>SceneFieldTests.Materials.cs</c> the meshes a material leaves out of it.
 /// </summary>
@@ -430,7 +430,7 @@ public sealed partial class SceneFieldTests : IDisposable
         var distances = device.ReadSceneField(fields.Field!);
         var (albedo, _) = device.ReadSceneFieldColors(fields.Field!);
 
-        // Each cell near the surface by its side: red by the left box, green by the right.
+        // Each cell near the surface by its side, red by the left box and green by the right.
         var origin = fields.Plan.BuiltOrigin(0)!.Value;
         const int size = SceneFieldPlan.Resolution;
         int reds = 0, greens = 0;
@@ -524,15 +524,15 @@ public sealed partial class SceneFieldTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Sheet_Thinner_Than_A_Cell_On_A_Wall_Gives_Off_Its_Whole_Light_Where_It_Lies()
+    public void An_Emissive_Sheet_Thinner_Than_A_Cell_On_A_Wall_Emits_Its_Whole_Light_Where_It_Lies()
     {
         // A sheet 0.02 thick flat on a wall, under cells of 0.15, so the cells inside the wall
         // behind it, which the field blends with those in front where it is read at the sheet, are
-        // painted by the wall, nearer them, and give off what the sheet lends them. Lent to the
+        // painted by the wall, nearer them, and emit what the sheet lends them. Lent to the
         // cells within half a cell at a share of its thickness over the cell, the face read 1.27 of
         // the sheet's 2, as this test measured on the development machine's GPU. The sheet is wider
-        // than twice the probes' spacing, so the bounce leaves it to the rays and does not carry it
-        // as a glow light, whose cells lend nothing.
+        // than twice the probes' spacing, so global illumination leaves it to the rays and does not
+        // carry it as a glow light, whose cells lend nothing.
         var config = Config.Default.WithWindow("scene field sheet", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f);
@@ -559,7 +559,7 @@ public sealed partial class SceneFieldTests : IDisposable
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.15f;
 
-        // The light the field gives off at a point, blended between the eight cells around it as
+        // The field's emission at a point, blended between the eight cells around it as
         // the passes sample it.
         float Red(Vector3 point)
         {
@@ -581,7 +581,7 @@ public sealed partial class SceneFieldTests : IDisposable
         for (float y = 1.1f; y <= 1.9f; y += 0.05f)
             for (float x = -0.4f; x <= 0.4f; x += 0.05f)
                 reads.Add(Red(new Vector3(x, y, 0.02f)));
-        reads.Average().Should().BeGreaterThan(1.8f, $"the field gives off the sheet's light of 2 where it lies, the least {reads.Min():0.00}");
+        reads.Average().Should().BeGreaterThan(1.8f, $"the field emits the sheet's light of 2 where it lies, the least {reads.Min():0.00}");
         UnloadModel(wall);
         UnloadModel(sheet);
     }
@@ -599,7 +599,7 @@ public sealed partial class SceneFieldTests : IDisposable
         var crate = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var camera = new Camera3D(new Vector3(8, 6, 7), new Vector3(0, 1, 0), Vector3.UnitY, 45);
 
-        // Where a sign is easily got wrong: a wall turned a right angle, whose side's plane runs
+        // Where a sign is easily got wrong, a wall turned a right angle, whose side's plane runs
         // through cells above it, the rims of pillars, crates on the ground and on each other, and
         // the edges of the ground, an open mesh.
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)

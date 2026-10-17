@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// What a console command runs against: the world lent for the length of the call, and the ways a
+/// What a console command runs against, the world lent for the length of the call and the ways a
 /// command can fail with a code or answer later.
 /// </summary>
 /// <remarks>

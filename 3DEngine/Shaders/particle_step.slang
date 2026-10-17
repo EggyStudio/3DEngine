@@ -96,7 +96,7 @@ float3 surfaceAt(float2 uv, float depth)
     return world.xyz / world.w;
 }
 
-// Where a particle moving from was to now meets the depth of the scene: the surface behind it at
+// Where a particle moving from was to now meets the depth of the scene, the surface behind it at
 // its pixel, its normal facing the camera, and how far behind the surface's plane the particle is,
 // or false where it did not cross that plane from the camera's side this step. A particle that
 // was already behind the surface, as one passing behind a post, crosses nothing.
@@ -138,11 +138,11 @@ bool meets(float3 was, float3 now, out float3 surface, out float3 normal, out fl
     return dot(was - surface, normal) >= 0.0 && behind > 0.0;
 }
 
-// Where a particle moving from was to now meets a surface of the scene's distance field: the
+// Where a particle moving from was to now meets a surface of the scene's distance field, the
 // move stepped by the distance each point along it holds, until a point comes within a hundredth
 // of a unit of a surface, its nearest point on that surface, the field's slope there as its
 // normal, and how far behind the surface's plane now is. A particle that starts inside a mesh, as
-// one given off within one, meets nothing, so it is not held there.
+// one emitted within one, meets nothing, so it is not held there.
 bool meetsField(float3 was, float3 now, out float3 surface, out float3 normal, out float behind)
 {
     surface = now;

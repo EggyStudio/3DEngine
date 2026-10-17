@@ -5,7 +5,7 @@
 // still meshes make. A brick reads the shapes of its own run alone, so a frame's cost grows with
 // the shapes of each brick and not with every shape the frame stamps. Each cell is painted the color
 // of the nearer surface, the still meshes' or a box's, as the build paints a cell its nearest
-// triangle's, so light that bounces off a moving mesh takes its color, and a cell a box painted
+// triangle's, so indirect light from a moving mesh takes its color, and a cell a box painted
 // takes the still meshes' color again once the box has left.
 import scenefield;
 

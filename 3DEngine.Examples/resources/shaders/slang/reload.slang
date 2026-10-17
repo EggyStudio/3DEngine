@@ -1,6 +1,6 @@
-// raylib's reload.fs, written in Slang: a background that shifts with time and a circle at the
-// pointer. Edit this file in the program's output folder while the example runs, and a click, or
-// every frame with automatic reloading on, compiles it again.
+// raylib's reload.fs, written in Slang. It draws a background that shifts with time and a circle at
+// the pointer. Edit this file in the program's output folder while the example runs, and a click,
+// or every frame with automatic reloading on, compiles it again.
 import engine;
 
 uniform float2 resolution;      // The view's size in pixels

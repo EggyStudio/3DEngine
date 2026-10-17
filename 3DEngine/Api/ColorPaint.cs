@@ -5,7 +5,7 @@ namespace Engine;
 
 /// <summary>
 /// The color glyphs of a font's COLR table in version 1, each a graph of paints drawn into an image
-/// the size of its clip box: layers laid over each other, an outline filling what is under it with a
+/// the size of its clip box, made of layers laid over each other, an outline filling what is under it with a
 /// solid color or a linear, radial or sweep gradient, transforms moving what is under them, another
 /// color glyph drawn in place, and two paints composited by a mode.
 /// </summary>
@@ -230,7 +230,8 @@ internal sealed class ColorPaint
         return layer;
     }
 
-    // A color line's stops in order, and how it extends past them: 0 pad, 1 repeat, 2 reflect.
+    // A color line's stops in order, and how it extends past them, 0 to pad, 1 to repeat and 2 to
+    // reflect.
     private (int Extend, (float Offset, Vector4 Color)[] Stops) ColorLine(int at, bool variable)
     {
         int extend = _data[at], count = U16(at + 1), size = variable ? 10 : 6;

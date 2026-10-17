@@ -1,5 +1,5 @@
-// raylib's fft.fs, written in Slang: a bar for each of the spectrum's 512 bins, as tall as the
-// bin's amplitude in the red of a texture a pixel high.
+// raylib's fft.fs, written in Slang. It draws a bar for each of the spectrum's 512 bins, as tall as
+// the bin's amplitude in the red of a texture a pixel high.
 import engine;
 
 uniform float2 iResolution;

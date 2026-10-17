@@ -93,7 +93,7 @@ internal static class DistanceField
         }
     }
 
-    // The one-dimensional transform: the lower envelope of a parabola rooted at each sample, read
+    // The one-dimensional transform, the lower envelope of a parabola rooted at each sample, read
     // back at every sample. Samples at infinity root no parabola.
     private static void Transform(float[] f, int n, float[] d, int[] v, float[] z)
     {

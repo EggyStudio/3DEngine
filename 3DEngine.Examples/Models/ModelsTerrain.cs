@@ -27,7 +27,7 @@ public static class ModelsTerrain
         var terrain = LoadModelFromMesh(GenMeshHeightmap(heights, new Vector3(12, 3, 12)));
         terrain.Materials[0].Texture = LoadTextureFromImage(GenImageGradientLinear(64, 64, 0, Color.DarkGreen, Color.Lime));
 
-        // A maze: white pixels are walls.
+        // A maze whose white pixels are walls.
         var plan = GenImageColor(9, 9, Color.Black);
         ImageDrawRectangleLines(ref plan, 0, 0, 9, 9, Color.White);
         ImageDrawLine(ref plan, 2, 2, 6, 2, Color.White);

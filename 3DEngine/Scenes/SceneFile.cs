@@ -16,7 +16,7 @@ internal struct SceneId
 }
 
 /// <summary>
-/// Saves entities to a JSON scene file and loads them back: each with its id, name, parent,
+/// Saves entities to a JSON scene file and loads them back, each with its id, name, parent,
 /// model and the components registered with <see cref="SceneComponents"/>.
 /// </summary>
 /// <remarks>

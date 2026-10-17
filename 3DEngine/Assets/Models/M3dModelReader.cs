@@ -29,7 +29,7 @@ namespace Engine;
 
 /// <summary>
 /// Reads a Model 3D file (<c>.m3d</c>) as raylib's <c>LoadM3D</c> and <c>LoadModelAnimationsM3D</c>
-/// read one: a mesh for each run of faces of one material into a scene, and its actions into poses
+/// read one, a mesh for each run of faces of one material into a scene and its actions into poses
 /// of every bone at every 17 milliseconds of each.
 /// </summary>
 /// <remarks>
@@ -267,7 +267,7 @@ internal static class M3dModelReader
         var normals = new Vector3[corners];
         var uvs = new Vector2[corners];
 
-        // raylib's colors: white where a mesh has no material, and where it has one, a buffer of
+        // raylib's colors, white where a mesh has no material and, where it has one, a buffer of
         // them only if a vertex of it has no color, which then stays clear black.
         bool anyUncolored = false;
         for (int f = first; f < end; f++)
@@ -331,7 +331,7 @@ internal static class M3dModelReader
         return node;
     }
 
-    // raylib's reading of a material: its diffuse, emissive, roughness and metalness, and the maps it
+    // raylib's reading of a material, its diffuse, emissive, roughness and metalness, and the maps it
     // names, which this engine's material has.
     private static SceneMaterialPayload MaterialPayload(File3D file, Scene scene, Material material, string path)
     {
@@ -361,7 +361,7 @@ internal static class M3dModelReader
         };
     }
 
-    // A texture by name: the file's own asset of that name, embedded in the scene, or a file beside
+    // A texture by name, the file's own asset of that name, embedded in the scene, or a file beside
     // the model, a name without an extension taken as a PNG.
     private static SceneTextureRef? Texture(File3D file, Scene scene, string? name)
     {
@@ -403,7 +403,7 @@ internal static class M3dModelReader
             }
             catch (InvalidDataException ex)
             {
-                throw new InvalidOperationException($"its compressed body could not be read: {ex.Message}");
+                throw new InvalidOperationException($"its compressed body could not be read. {ex.Message}");
             }
             if (raw.Length < 4 || !raw.AsSpan(0, 4).SequenceEqual("HEAD"u8)) throw new InvalidOperationException("its body does not begin with a header");
         }

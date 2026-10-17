@@ -6,10 +6,10 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The path-traced reference the light that bounces is measured by (<see cref="BounceReference"/>),
-/// held to a picture whose light is known: inside a closed box whose walls all give off the same
-/// light and reflect the same share of what reaches them, every wall shows the light it gives off
-/// over one less that share, the sum of every bounce.
+/// The path-traced reference global illumination is measured by (<see cref="BounceReference"/>),
+/// held to a picture whose light is known. Inside a closed box whose walls are equally emissive and
+/// reflect the same share of what reaches them, every wall shows its emission over one less that
+/// share, the sum of every bounce.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -25,33 +25,33 @@ public sealed class BounceReferenceTests : IDisposable
     }
 
     [NeedsRayQueryFact]
-    public void Inside_A_Closed_Glowing_Box_The_Reference_Shows_Its_Light_Over_One_Less_Its_Color()
+    public void Inside_A_Closed_Emissive_Box_The_Reference_Shows_Its_Light_Over_One_Less_Its_Color()
     {
-        var share = GlowingBox();
+        var share = EmissiveBox();
         var path = Path.Combine(_folder.Path, "box.png");
         var said = BounceReference.Trace(GetApp().World, path, 256);
         said.Should().StartWith("traced 160 by 120", "the window's meshes are held for the device's rays at High");
         var mean = ReadPfm(path + ".pfm").Average();
         var expected = 1 / (1 - share);
-        mean.Should().BeApproximately(expected, expected * 0.02f, $"every bounce sums to the light given off over one less the share reflected, {expected:0.000}");
+        mean.Should().BeApproximately(expected, expected * 0.02f, $"every bounce sums to the emission over one less the share reflected, {expected:0.000}");
     }
 
     [NeedsRayQueryFact]
-    public void In_The_Glowing_Box_Light_That_Never_Bounces_Shows_The_Walls_Own_And_Light_That_Bounces_Once_Adds_Their_Color()
+    public void In_The_Emissive_Box_No_Bounce_Shows_The_Walls_Own_Light_And_One_Bounce_Adds_Their_Color()
     {
-        var share = GlowingBox();
+        var share = EmissiveBox();
         var never = Path.Combine(_folder.Path, "never.png");
         BounceReference.Trace(GetApp().World, never, 16, bounces: 0).Should().StartWith("traced");
-        ReadPfm(never + ".pfm").Average().Should().BeApproximately(1, 0.01f, "each wall shows the light it gives off and nothing that reached it");
+        ReadPfm(never + ".pfm").Average().Should().BeApproximately(1, 0.01f, "each wall shows its emission and nothing that reached it");
         var once = Path.Combine(_folder.Path, "once.png");
-        BounceReference.Trace(GetApp().World, once, 256, bounces: 1).Should().Contain("light bouncing once");
+        BounceReference.Trace(GetApp().World, once, 256, bounces: 1).Should().Contain("one bounce");
         ReadPfm(once + ".pfm").Average().Should().BeApproximately(1 + share, (1 + share) * 0.02f, "and the walls' light, reflected once, on top");
     }
 
     [NeedsRayQueryFact]
-    public void A_Probe_Inside_The_Glowing_Box_Has_Its_Light_Over_One_Less_Its_Color_Arriving_From_Every_Way()
+    public void A_Probe_Inside_The_Emissive_Box_Has_Its_Light_Over_One_Less_Its_Color_Arriving_From_Every_Way()
     {
-        var share = GlowingBox();
+        var share = EmissiveBox();
         var probe = BounceReference.MeasureProbe(GetApp().World, Vector3.Zero, 256, -1, 0, out var why);
         probe.Should().NotBeNull(why);
         var expected = 1 / (1 - share);
@@ -63,13 +63,14 @@ public sealed class BounceReferenceTests : IDisposable
     }
 
     [NeedsRayQueryFact]
-    public void A_Probe_Beside_A_Block_The_Bounce_Carries_As_A_Light_Reads_None_Of_Its_Glow_In_The_Reference()
+    public void A_Probe_Beside_A_Block_Carried_As_A_Glow_Light_Reads_None_Of_Its_Emission_In_The_Reference()
     {
-        // A glowing block two units on a side, which the bounce carries as a light, alone under a
-        // black sky. The probe's rays leave its glow out where they meet it, since the light reaches
+        // An emissive block two units on a side, which global illumination carries as a light, alone
+        // under a black sky. The probe's rays leave its emission out where they meet it, since the light reaches
         // a surface as a glow light rather than through the probes, and the reference leaves it out
-        // as they do, where it counted it and read the rays of the probes around four glowing
-        // blocks 44 to 70% under; a reference of the window's picture still shows the block's glow.
+        // as they do, where it counted it and read the rays of the probes around four emissive
+        // blocks 44 to 70% under; a reference of the window's picture still shows the block's
+        // emission.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
@@ -99,8 +100,9 @@ public sealed class BounceReferenceTests : IDisposable
     }
 
     // A closed box of walls of sRGB 188, which reflect half the light that reaches them in linear
-    // light, each giving off 1, drawn until light bouncing at High has settled, the share returned.
-    private static float GlowingBox()
+    // light, each emitting 1, drawn until global illumination at High has settled, the share
+    // returned.
+    private static float EmissiveBox()
     {
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -130,7 +132,7 @@ public sealed class BounceReferenceTests : IDisposable
     [NeedsRayQueryFact]
     public void A_Lone_Slab_Under_A_Lamp_Reads_In_The_Frame_As_In_The_Reference()
     {
-        // Nothing for light to bounce from and a black sky, so the frame's light is the model
+        // Nothing to reflect light and a black sky, so the frame's light is the model
         // pass's own, which the reference's first face is lit as, specular and all.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -207,7 +209,7 @@ public sealed class BounceReferenceTests : IDisposable
         // A slab colored white in its vertices with a white wall standing on it under a lamp, then
         // its colors written red in place, as a voxel game lights a section again by its light
         // levels. The field kept the colors of the slab's last upload and the ray scene its corners',
-        // so the light that bounced off the slab onto the wall stayed white, and so did the slab in
+        // so the indirect light from the slab onto the wall stayed white, and so did the slab in
         // the reference.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

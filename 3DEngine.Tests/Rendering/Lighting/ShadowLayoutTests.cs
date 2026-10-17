@@ -88,8 +88,8 @@ public class ShadowLayoutTests
     [Fact]
     public void The_Light_Lighting_Most_Of_The_Picture_Keeps_Its_Shadows_Past_The_Limit()
     {
-        // Thirteen shadowed point lights, one past the twelve that cast shadows: twelve bright ones
-        // with a reach of 1 in a corner of the view, and a dimmer lamp whose reach of 10 lights a
+        // Thirteen shadowed point lights, one past the twelve that cast shadows, twelve bright ones
+        // with a reach of 1 in a corner of the view and a dimmer lamp whose reach of 10 lights a
         // wall across it. The corner's lights reach the eye some five times as bright, and cover a
         // tenth of the picture between them where the lamp covers it whole.
         var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY) * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);

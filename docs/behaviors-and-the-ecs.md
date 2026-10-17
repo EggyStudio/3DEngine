@@ -45,7 +45,7 @@ any program that references the engine.
 
 ## Stages
 
-A frame runs its stages in order, and a method's attribute says which it runs in:
+A frame runs its stages in order, and a method's attribute says which it runs in.
 
 | Attribute | Runs |
 |---|---|
@@ -131,8 +131,8 @@ ctx.Cmd.Spawn((entity, world) => world.Add(entity, ball));
 
 ## Components a method uses
 
-A method names the entity's other components after its context: `ref` for one it writes and `in`
-for one it reads. It then runs only for entities that have them all. The `ecs_mesh_entities`
+A method names the entity's other components after its context, `ref` for one it writes and
+`in` for one it reads. It then runs only for entities that have them all. The `ecs_mesh_entities`
 example turns its cube through its `Transform`:
 
 ```csharp
@@ -172,7 +172,7 @@ public void Move(BehaviorContext ctx, ref CharacterController controller, in Phy
 
 ## Filters and conditions
 
-Attributes narrow which entities a method visits, and whether it runs at all:
+Attributes narrow which entities a method visits, and whether it runs at all.
 
 | Attribute | The method |
 |---|---|
@@ -285,7 +285,7 @@ DrawText($"{ecs.Count<Ball>()} balls. Space adds a hundred.", 10, 10, 20, Color.
 with its id. An id is the frame's own, and a program keeping an entity across frames keeps the
 `Entity` handle `ecs.Handle(id)` gives, which knows when the entity it names is gone.
 
-A behavior reaches the rest of the engine through its context: `ctx.Input` for input,
+A behavior reaches the rest of the engine through its context, `ctx.Input` for input,
 `ctx.Physics` for the physics world, `ctx.Res<T>()` for any resource of the world, and the flat
 functions themselves, which work inside behaviors of the app `InitWindow` built.
 

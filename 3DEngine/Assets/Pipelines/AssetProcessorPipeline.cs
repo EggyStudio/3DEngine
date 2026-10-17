@@ -5,7 +5,7 @@ namespace Engine;
 
 
 /// <summary>
-/// Orchestrates offline/background asset processing: reads source assets, runs them through
+/// Orchestrates offline/background asset processing, which reads source assets, runs them through
 /// registered <see cref="IAssetProcessor"/>s, and writes optimized outputs to a processed directory.
 /// </summary>
 /// <remarks>
@@ -104,7 +104,7 @@ internal sealed class AssetProcessorPipeline
 
             if (!result.Success)
             {
-                Logger.Error($"Processing failed: {relativePath}: {result.Error}");
+                Logger.Error($"Processing failed: {relativePath}. {result.Error}");
                 continue;
             }
 
@@ -163,7 +163,7 @@ internal sealed class AssetProcessorPipeline
 
         if (!result.Success)
         {
-            Logger.Error($"Processing failed: {relativePath}: {result.Error}");
+            Logger.Error($"Processing failed: {relativePath}. {result.Error}");
             return false;
         }
 
@@ -213,7 +213,7 @@ internal sealed class AssetProcessorPipeline
         }
         catch (Exception ex)
         {
-            Logger.Warn($"Failed to read processing cache: {ex.Message}");
+            Logger.Warn($"Failed to read processing cache. {ex.Message}");
             return new ProcessingCache();
         }
     }

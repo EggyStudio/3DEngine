@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Encodes a capture as WebP for the README's gallery: a lit 3D scene at quality 85, and flat color,
+# Encodes a capture as WebP for the README's gallery, a lit 3D scene at quality 85 and flat color,
 # 2D shapes or text losslessly, which keeps their edges exact and is the smaller of the two for
 # them. ImageMagick encodes it where it was built with WebP, and cwebp where it was not. Given a
 # size, the picture is scaled until it fills that size and cut to it, from the middle or from the

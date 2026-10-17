@@ -32,7 +32,8 @@ internal sealed class HdrSceneNode : INode
         // The window's particles laid over by alpha sorted from its camera again where a render
         // texture's sort came after the window's, ahead of the pass they are drawn in.
         renderWorld.TryGet<ParticleRenderer>()?.SortFor(renderContext, renderWorld, 0);
-        // The scene's light, kept for the reflections of the frame after where light bounces.
+        // The scene's light, kept for the reflections of the frame after where global illumination
+        // is on.
         if (BloomRenderer.ReadsLight(renderWorld) && bloom.Decode(renderContext, renderWorld) is { } light)
             renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
         else renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();

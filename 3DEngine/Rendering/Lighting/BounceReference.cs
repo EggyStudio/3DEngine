@@ -6,8 +6,8 @@ using System.Text;
 namespace Engine;
 
 /// <summary>
-/// The measure of the light that bounces: a path-traced reference of the window's picture
-/// (<c>gi_reference.slang</c>, <see cref="GraphicsDevice.TraceReference"/>), and the window's own
+/// The measure of global illumination, a path-traced reference of the window's picture
+/// (<c>gi_reference.slang</c>, <see cref="GraphicsDevice.TraceReference"/>) and the window's own
 /// linear light compared with it over named regions of the view, as <c>gi.reference</c> and
 /// <c>gi.compare</c> run them.
 /// </summary>
@@ -16,16 +16,16 @@ namespace Engine;
 /// A reference is written as a PNG of its light as the window draws it with
 /// <c>SetTonemap(Tonemap.None)</c>, with its linear light beside it in a PFM file and what each
 /// pixel shows in a regions file, a copy of the ray scene and the face it turns, and the regions'
-/// names in a text file. A region is named by what it is in a room: the top of a slab lying flat is
+/// names in a text file. A region is named by what it is in a room. The top of a slab lying flat is
 /// a floor and its underside a ceiling, a standing slab is a wall by its color and the way it faces,
-/// and anything thicker is a block by its order and the face seen, a glowing one said to glow.
+/// and anything thicker is a block by its order and the face seen, an emissive one said to be so.
 /// </para>
 /// <para>
 /// The reference traces the window's meshes as the device's ray tracing holds them, at
-/// <see cref="GlobalIllumination.High"/> on a GPU that traces rays: each copy's color times its
-/// texture's average and its mesh's vertices' colors at the hit, blended as the model pass blends
-/// them, and the light it gives off, its first face lit as the model pass lights one
-/// and every face after as the light that bounces does, the sun as the first directional light, and
+/// <see cref="GlobalIllumination.High"/> on a GPU that traces rays, with each copy's color times
+/// its texture's average and its mesh's vertices' colors at the hit, blended as the model pass
+/// blends them, and its emission, its first face lit as the model pass lights one
+/// and every face after as global illumination does, the sun as the first directional light, and
 /// the sky as the environment map or the ambient lights.
 /// </para>
 /// </remarks>
@@ -59,12 +59,12 @@ internal static class BounceReference
         WriteRegions(full + ".regions", traced);
         var names = Names(scene.Copies, traced.Regions);
         File.WriteAllLines(full + ".regions.txt", names.OrderBy(n => n.Key).Select(n => $"{n.Key}\t{n.Value}"));
-        var bounced = bounces < 0 ? "" : bounces == 1 ? ", light bouncing once" : $", light bouncing {bounces} times";
+        var bounced = bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces";
         return $"traced {traced.Width} by {traced.Height} at {samples} paths a pixel{bounced} in {seconds:0.0} s, {scene.Count} copies, " +
                $"{names.Count} regions, into {full} with its .pfm, .regions and .regions.txt";
     }
 
-    // What a reference is traced with: the device, the render world, the window's meshes for the
+    // What a reference is traced with, the device, the render world, the window's meshes for the
     // device's rays and the compiled tracer.
     private sealed record Tracer(GraphicsDevice Device, RenderWorld Render, GpuRayScene Scene, ShaderProgram Program)
     {
@@ -90,7 +90,7 @@ internal static class BounceReference
         else if (!device.CanQueryRays)
             why = "the device traces no rays, which the reference is traced through";
         else if (renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Rays is not { } scene)
-            why = "the window's meshes are not held for the device's rays, which light bouncing at High on a GPU that traces rays holds them for";
+            why = "the window's meshes are not held for the device's rays, which global illumination at High on a GPU that traces rays holds them for";
         else if (!world.TryGetResource<AssetServer>(out var assets))
             why = "there is no asset server to compile gi_reference.slang";
         else
@@ -99,8 +99,8 @@ internal static class BounceReference
     }
 
     /// <summary>
-    /// The light arriving at a probe as the probe holds it and as a reference has it: where the probe
-    /// sits and how many ways it has; where its own rays met a surface, how many ways, how many of
+    /// The light arriving at a probe as the probe holds it and as a reference has it, with where the
+    /// probe sits and how many ways it has; where its own rays met a surface, how many ways, how many of
     /// them before their interval began, and the mean light they brought against the reference's
     /// along the same ways; over every way, the mean light merged with the cascades above against
     /// the reference's; and for each face, +x, -x, +y, -y, +z and -z, the light the model pass reads,
@@ -113,14 +113,14 @@ internal static class BounceReference
     /// The light arriving at the probe of <paramref name="cascade"/> nearest <paramref name="point"/>
     /// against a reference of it, <paramref name="samples"/> paths a way bouncing
     /// <paramref name="bounces"/> times at most, or until Russian roulette ends them where that is
-    /// negative: where the probe's own rays met a surface, the light they brought against the
-    /// reference's along the same ways, which holds the trace to it; over every way, the light merged
-    /// with the cascades above against the reference's, which holds the merge; and each face's light
-    /// gathered from the merge against the reference's, which holds the gather.
+    /// negative, giving, where the probe's own rays met a surface, the light they brought against
+    /// the reference's along the same ways, which holds the trace to it; over every way, the light
+    /// merged with the cascades above against the reference's, which holds the merge; and each
+    /// face's light gathered from the merge against the reference's, which holds the gather.
     /// </summary>
     /// <remarks>
-    /// The reference leaves out the light a glow light the bounce carries gives off where a path first
-    /// meets it, as the probe's rays do, since that light reaches a surface as a light of its own
+    /// The reference leaves out the emission of a glow light global illumination carries where a path
+    /// first meets it, as the probe's rays do, since that light reaches a surface as a light of its own
     /// (<see cref="GlowLights"/>) rather than through the probes.
     /// </remarks>
     public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
@@ -133,7 +133,7 @@ internal static class BounceReference
         var lines = new List<string>
         {
             string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {probe.Cascade} at {m.X:0.##},{m.Y:0.##},{m.Z:0.##}, {probe.Ways} ways, the reference {samples} paths a way") +
-            (bounces < 0 ? "" : bounces == 1 ? ", light bouncing once" : $", light bouncing {bounces} times"),
+            (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces"),
             (probe.Hits == 0 ? "none of its own rays met a surface"
                 : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}")
             + (probe.Early > 0 ? $", {probe.Early} of them before their interval began" : ""),
@@ -152,7 +152,7 @@ internal static class BounceReference
         if (Prepare(world, out why) is not { } tracer) return null;
         if (tracer.Render.TryGet<GlobalIlluminationRenderer>()?.Probes is not { } gi || tracer.Render.TryGet<SceneFieldRenderer>()?.Plan is not { } plan)
         {
-            why = "no light bounces";
+            why = "global illumination is off";
             return null;
         }
         var c = Math.Clamp(cascade, 0, gi.Cascades - 1);
@@ -251,7 +251,7 @@ internal static class BounceReference
         return d;
     }
 
-    /// <summary>One region of the view as <see cref="Measure"/> reads it: its name, its pixels, and the mean light the reference and the frame give it, linear, with the mean of each pixel's difference.</summary>
+    /// <summary>One region of the view as <see cref="Measure"/> reads it, its name, its pixels, and the mean light the reference and the frame give it, linear, with the mean of each pixel's difference.</summary>
     internal sealed record RegionLight(string Name, int Pixels, Vector3 Reference, Vector3 Frame, Vector3 Absolute)
     {
         /// <summary>The frame's light less the reference's as a share of the reference's, by luminance.</summary>
@@ -295,7 +295,7 @@ internal static class BounceReference
         if (!world.TryGetResource<Renderer>(out var renderer) || renderer.Context.Graphics is not GraphicsDevice device
             || renderer.RenderWorld.TryGet<BloomRenderer>()?.Decoded is not { } decoded)
         {
-            why = "the window's scene is not decoded to linear light, which light bouncing has it decoded for";
+            why = "the window's scene is not decoded to linear light, which global illumination has it decoded for";
             return null;
         }
         var (width, height, reference) = ReadPfm(full + ".pfm");
@@ -353,7 +353,7 @@ internal static class BounceReference
 
     private static float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
 
-    // The lights as gi_reference.slang's ReferenceLights: the sun, the first directional light, and
+    // The lights as gi_reference.slang's ReferenceLights, the sun, the first directional light, and
     // whether it casts shadows; the sky, the environment map's intensity where there is one and the
     // ambient lights' sum where there is not; and the point and spot lights, sixteen at most.
     private static byte[] Lights(RenderWorld render, bool environment)
@@ -411,11 +411,11 @@ internal static class BounceReference
             var sides = new[] { size.X, size.Y, size.Z };
             var order = sides.Select((s, i) => (s, i)).OrderBy(p => p.s).ToArray();
             var flat = order[0].s < 0.2f * order[1].s;
-            var glow = instance.Emission.LengthSquared() > 0 ? "glowing " : "";
+            var glow = instance.Emission.LengthSquared() > 0 ? "emissive " : "";
             var color = ColorWord(instance.Color);
             string name;
             if (flat && order[0].i == 1 && axis is 2 or 3)
-                name = glow.Length > 0 ? $"glowing {color} panel's {(axis == 2 ? "top" : "underside")}" : axis == 2 ? $"{color} floor" : $"{color} ceiling";
+                name = glow.Length > 0 ? $"emissive {color} panel's {(axis == 2 ? "top" : "underside")}" : axis == 2 ? $"{color} floor" : $"{color} ceiling";
             else if (flat && order[0].i != 1 && axis / 2 == order[0].i)
                 name = $"{glow}{color} wall facing {Axes[axis]}";
             else if (flat)
@@ -450,7 +450,8 @@ internal static class BounceReference
         return (min, max);
     }
 
-    // A linear color's word: white, gray or black where its channels are alike, its hue otherwise.
+    // A linear color's word, white, gray or black where its channels are alike and its hue
+    // otherwise.
     private static string ColorWord(Vector3 c)
     {
         var (high, low) = (MathF.Max(c.X, MathF.Max(c.Y, c.Z)), MathF.Min(c.X, MathF.Min(c.Y, c.Z)));
@@ -476,8 +477,8 @@ internal static class BounceReference
         PngWriter.Write(path, rgba, traced.Width, traced.Height);
     }
 
-    // A PFM file of the linear light: its header, then three little-endian floats a pixel with rows
-    // from the bottom, as the format has them.
+    // A PFM file of the linear light, its header and then three little-endian floats a pixel with
+    // rows from the bottom, as the format has them.
     private static void WritePfm(string path, TracedReference traced)
     {
         using var file = File.Create(path);

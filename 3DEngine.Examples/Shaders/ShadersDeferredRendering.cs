@@ -213,7 +213,7 @@ public static class ShadersDeferredRendering
     }
 
     // C's rand, unseeded, as glibc makes it, so the cubes stand where raylib's example built on
-    // Linux puts them: 344 values from a seed of 1, each after the first 31 the sum of the ones 31
+    // Linux puts them, 344 values from a seed of 1, each after the first 31 the sum of the ones 31
     // and 3 before it, given without its lowest bit.
     private static readonly List<uint> _rand = Seeded();
 

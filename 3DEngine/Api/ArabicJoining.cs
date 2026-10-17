@@ -3,9 +3,9 @@ using System.Globalization;
 namespace Engine;
 
 /// <summary>
-/// How the letters of Arabic join: each character's joining type, the form a letter takes by the
-/// letters beside it, and the presentation forms Unicode encodes for those forms, which a font with
-/// no substitutions of its own for Arabic is drawn with.
+/// How the letters of Arabic join, with each character's joining type, the form a letter takes by
+/// the letters beside it, and the presentation forms Unicode encodes for those forms, which a font
+/// with no substitutions of its own for Arabic is drawn with.
 /// </summary>
 /// <remarks>
 /// The joining types are Unicode 16's (ArabicShaping.txt) for the Arabic script's blocks, U+0600 to

@@ -4,7 +4,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Api;
 
 /// <summary>
-/// Arabic's letters joined by the forms they take by the letters beside them: by the substitutions
+/// Arabic's letters joined by the forms they take by the letters beside them, by the substitutions
 /// of <c>arabic.ttf</c>, whose final, medial and initial glyphs of beh are 6, 7 and 8, alef's final
 /// 9, and lam with alef 13 alone and 14 joined to the letter before, and by the presentation forms
 /// <c>arabic-forms.ttf</c> maps, which <c>build/make-color-test-fonts.py</c> writes. The glyphs

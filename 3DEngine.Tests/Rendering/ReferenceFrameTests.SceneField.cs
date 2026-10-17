@@ -3,7 +3,7 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// The frames of the scene's distance field: a scene its occlusion and the sun's contact shadows
+// The frames of the scene's distance field, a scene its occlusion and the sun's contact shadows
 // are read from, and its first cascade drawn as it holds that scene.
 public sealed partial class ReferenceFrameTests
 {

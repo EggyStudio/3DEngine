@@ -4,9 +4,9 @@ namespace Engine;
 
 public static partial class E3D
 {
-    // -- rlgl, raylib's layer under its shapes: vertices given one at a time, and the matrix stack
-    // that moves them. The functions raylib's examples call are carried under rlgl's names. The
-    // vertices go into the frame's draw list, as every shape's do, so rlgl's batch, its buffers
+    // -- rlgl, raylib's layer under its shapes, with vertices given one at a time and the matrix
+    // stack that moves them. The functions raylib's examples call are carried under rlgl's names.
+    // The vertices go into the frame's draw list, as every shape's do, so rlgl's batch, its buffers
     // and its OpenGL state have nothing to do.
 
     // The matrix rlgl moves each vertex by, its stack, and the corners given since the last primitive.
@@ -225,10 +225,10 @@ public static partial class E3D
     /// </summary>
     public static bool rlCheckRenderBatchLimit(int vertexCount) => false;
 
-    // Whether faces are culled: as the engine leaves them, until a program turns culling on or off,
-    // then as it set. Shapes drawn inside BeginMode3D leave out their back faces, as rlgl's do from
-    // the start, so a cube is hollow seen from within, 2D shapes draw both faces, and a model the
-    // faces its material says.
+    // Whether faces are culled, as the engine leaves them until a program turns culling on or off
+    // and then as it set. Shapes drawn inside BeginMode3D leave out their back faces, as rlgl's do
+    // from the start, so a cube is hollow seen from within, 2D shapes draw both faces, and a model
+    // the faces its material says.
     private enum RlCulling { Unset, Enabled, Disabled }
     private static RlCulling _rlCulling;
     private static bool _rl3D;
@@ -331,7 +331,7 @@ public static partial class E3D
                 DepthWrite = _rlDepthMask,
             };
 
-    // The factors the custom blend modes combine by, as rlgl keeps them: one set for
+    // The factors the custom blend modes combine by, as rlgl keeps them, one set for
     // BlendMode.Custom, the color's and the alpha's alike, and one for BlendMode.CustomSeparate.
     private static BlendFactors _rlBlendFactors = BlendFactors.Default;
     private static BlendFactors _rlBlendFactorsSeparate = BlendFactors.Default;

@@ -1,5 +1,5 @@
-// raylib's cubes_panning.fs, written in Slang: a grid of squares that pans and turns a quarter in
-// each second, drawn over whatever texture is given, which only carries the coordinates.
+// raylib's cubes_panning.fs, written in Slang. It draws a grid of squares that pans and turns a
+// quarter in each second, drawn over whatever texture is given, which only carries the coordinates.
 import engine;
 
 static const float PI = 3.14159265358979323846;

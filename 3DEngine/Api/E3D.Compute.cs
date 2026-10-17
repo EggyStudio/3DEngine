@@ -4,7 +4,7 @@ namespace Engine;
 
 public static partial class E3D
 {
-    // -- Compute shaders, as raylib's rlgl has them: a Slang file with a function marked
+    // -- Compute shaders, as raylib's rlgl has them, which are a Slang file with a function marked
     // [shader("compute")] and [numthreads(...)], storage buffers it reads and writes, and a dispatch
     // over groups of its threads.
     //

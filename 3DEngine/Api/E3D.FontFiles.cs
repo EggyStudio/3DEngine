@@ -6,7 +6,7 @@ public static partial class E3D
 {
     /// <summary>
     /// Why bytes are not a TrueType or OpenType font the atlas builder can read safely, or null when
-    /// they are: a signature it knows, a table directory and every table inside the bytes, and the
+    /// they hold a signature it knows, a table directory and every table inside the bytes, and the
     /// tables an outline font has.
     /// </summary>
     internal static string? FontProblem(ReadOnlySpan<byte> data)

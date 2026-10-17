@@ -1,6 +1,6 @@
-// Hopper, a small platformer: run and jump across a level of tiles, gather its coins, and beat the
-// high score. Written against the engine's package with what its README and cheatsheet offer, as
-// a 2D game outside this repository would be.
+// Hopper, a small platformer in which the player runs and jumps across a level of tiles, gathers
+// its coins and beats the high score. Written against the engine's package with what its README and
+// cheatsheet offer, as a 2D game outside this repository would be.
 using System.Numerics;
 using Engine;
 using static Engine.E3D;
@@ -11,7 +11,8 @@ InitWindow(960, 540, "Hopper");
 InitAudioDevice();
 SetTargetFPS(60);
 
-// The level, a character a tile: # grass, = dirt, B brick, o a coin, P where the player begins.
+// The level, a character a tile, with # grass, = dirt, B brick, o a coin and P where the player
+// begins.
 string[] map =
 [
     "                                                            ",
@@ -126,7 +127,7 @@ while (!WindowShouldClose())
         velocity.Y = 0;
     }
 
-    // Fallen out of the level: back to the start.
+    // Fallen out of the level, the player goes back to the start.
     if (player.Y > levelHeight + 64)
     {
         player = player with { X = start.X + 3, Y = start.Y };

@@ -8,8 +8,8 @@ internal static class Sessions
     public static IReadOnlyList<CliSession> Live() => [.. CliSessionFile.All().Where(session => session.Running)];
 
     /// <summary>
-    /// The one session that matches the flags, or <c>null</c> with a refusal saying why: none is
-    /// serving, or several are and the flags do not say which.
+    /// The one session that matches the flags, or <c>null</c> with a refusal saying why, as when
+    /// none is serving, or several are and the flags do not say which.
     /// </summary>
     public static CliSession? Pick(Options options, string command, out string refusal)
     {

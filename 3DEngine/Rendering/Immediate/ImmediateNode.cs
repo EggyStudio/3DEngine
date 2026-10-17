@@ -31,7 +31,7 @@ internal sealed class ImmediateRenderer : IDisposable
 {
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
-    // The push block: the transform, then the four float4 values a custom shader reads.
+    // The push block, the transform and then the four float4 values a custom shader reads.
     [StructLayout(LayoutKind.Sequential)]
     private struct Push
     {

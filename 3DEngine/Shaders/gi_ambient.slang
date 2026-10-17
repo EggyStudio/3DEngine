@@ -10,13 +10,13 @@
 // weighs a probe by.
 //
 // The first face's thread also adds up the light the probe's rays brought straight from the sun,
-// the lights and what gives off light, its own light, and all they brought, as the trace summed
-// them a workgroup at a time, and sets the share of the
-// light that bounced the probe's next rays take (gi_trace.slang): where its own light is a quarter
-// of all it brings or more and fell by a fifth or more against the frame before's, the share it
-// kept, channel by channel, so the light that bounced on from light that went out goes with it
-// rather than fading over the frames each bounce takes; where its own light is less, a mark that
-// the probe is judged by the probes around it (gi_trace.slang).
+// the lights and emissive surfaces, its own light, and all they brought, as the trace summed them a
+// workgroup at a time, and sets the share of the indirect light the probe's next rays take
+// (gi_trace.slang). Where its own light is a quarter of all it brings or more and fell by a fifth
+// or more against the frame before's, that is the share it kept, channel by channel, so the
+// indirect light from light that went out goes with it rather than fading over the frames each
+// bounce takes; where its own light is less, it is a mark that the probe is judged by the probes
+// around it (gi_trace.slang).
 import gi;
 
 [[vk::binding(0, 0)]]
@@ -35,13 +35,14 @@ Texture3D<float> distances;
 [[vk::binding(3, 0)]] [format("r16f")]
 RWTexture3D<float> reach;
 
-// What each workgroup of a probe's rays brought back straight from the sun, the lights and what
-// gives off light, and the luminance of all they brought back, summed, as gi_trace.slang wrote it.
+// What each workgroup of a probe's rays brought back straight from the sun, the lights and
+// emissive surfaces, and the luminance of all they brought back, summed, as gi_trace.slang wrote
+// it.
 [[vk::binding(4, 0)]]
 Texture3D<float4> partial;
 
 // Each probe's own light and the luminance of all its rays brought, the frames of each parity side
-// by side, after them the share of the light that bounced each probe's next rays take, a negative
+// by side, after them the share of the indirect light each probe's next rays take, a negative
 // one where the probe is judged by the probes around it, with in w a 1 where its rays met more
 // faces from behind than from in front, and after that where the trace moved each probe to, every
 // cascade.
@@ -73,7 +74,7 @@ ConstantBuffer<AmbientPush> push;
 static const float3 Axes[6] = { float3(1, 0, 0), float3(-1, 0, 0), float3(0, 1, 0), float3(0, -1, 0), float3(0, 0, 1), float3(0, 0, -1) };
 
 // Adds up the probe's own light and all its rays brought, over the shares of the sphere its texels
-// span, and sets the share of the light that bounced its next rays take, and whether the probe
+// span, and sets the share of the indirect light its next rays take, and whether the probe
 // stands inside a solid.
 void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
 {

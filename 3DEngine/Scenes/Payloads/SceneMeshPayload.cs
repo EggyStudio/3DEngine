@@ -67,7 +67,7 @@ internal sealed class SceneMeshPayload
 
     /// <summary>
     /// Per-vertex tangents aligned with <see cref="Positions"/> using the glTF / MikkTSpace
-    /// convention: <c>xyz</c> is the tangent direction, <c>w</c> is the bitangent sign
+    /// convention, where <c>xyz</c> is the tangent direction and <c>w</c> is the bitangent sign
     /// (±1) used to recover <c>bitangent = sign * cross(normal, tangent)</c>. <c>null</c>
     /// if not authored / not derivable.
     /// </summary>

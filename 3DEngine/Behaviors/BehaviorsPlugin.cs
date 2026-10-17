@@ -90,7 +90,7 @@ internal sealed class BehaviorsPlugin : IPlugin
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ =>
             {
                 try { compiler.Dispose(); }
-                catch (Exception ex) { Logger.Warn($"RuntimeBehaviorCompiler dispose failed: {ex.Message}"); }
+                catch (Exception ex) { Logger.Warn($"RuntimeBehaviorCompiler dispose failed. {ex.Message}"); }
             }, "BehaviorsPlugin.DisposeCompiler").MainThreadOnly());
         }
     }

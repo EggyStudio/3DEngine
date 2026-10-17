@@ -2,8 +2,8 @@ namespace Engine;
 
 /// <summary>
 /// Central application object holding the <see cref="World"/> and execution <see cref="Schedule"/>.
-/// Supports plugin composition: add plugins, register systems, insert resources,
-/// then call <see cref="Run"/> to enter the main loop.
+/// Supports plugin composition, where a program adds plugins, registers systems and inserts
+/// resources, then calls <see cref="Run"/> to enter the main loop.
 /// </summary>
 /// <remarks>
 /// <para>

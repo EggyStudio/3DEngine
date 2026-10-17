@@ -48,7 +48,7 @@ public sealed class BloomTests : IDisposable
     }
 
     // A sphere giving off four times white's light in the middle of a black frame.
-    private Action GlowingSphere(Model sphere, Action? after = null) => () =>
+    private Action EmissiveSphere(Model sphere, Action? after = null) => () =>
     {
         ClearBackground(Color.Black);
         BeginMode3D(_camera);
@@ -70,9 +70,9 @@ public sealed class BloomTests : IDisposable
         Open();
         var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
 
-        var off = Capture(GlowingSphere(sphere), "off");
+        var off = Capture(EmissiveSphere(sphere), "off");
         SetBloom(1);
-        var on = Capture(GlowingSphere(sphere), "on");
+        var on = Capture(EmissiveSphere(sphere), "on");
 
         // The sphere is about 28 pixels across, so 20 from its middle is a little past its edge, in the black.
         Brightness(off, 80, 60).Should().BeGreaterThan(200, "the sphere is drawn in the middle");
@@ -88,7 +88,7 @@ public sealed class BloomTests : IDisposable
         SetBloom(1);
         var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
 
-        var frame = Capture(GlowingSphere(sphere, () =>
+        var frame = Capture(EmissiveSphere(sphere, () =>
         {
             DrawRectangle(90, 50, 30, 20, new Color(200, 100, 50));
             DrawText("UI", 4, 4, 20, new Color(250, 250, 250));
@@ -128,7 +128,7 @@ public sealed class BloomTests : IDisposable
         Open();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(0.4f, -1, -0.5f)), Color.White, 1, castsShadows: true);
         var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
-        var draw = GlowingSphere(sphere, () => DrawText("UI", 4, 4, 20, Color.RayWhite));
+        var draw = EmissiveSphere(sphere, () => DrawText("UI", 4, 4, 20, Color.RayWhite));
 
         var before = Capture(draw, "before");
         SetBloom(1);
@@ -146,7 +146,7 @@ public sealed class BloomTests : IDisposable
     public void Shapes_Drawn_With_Depth_Meet_The_Scenes_Depth()
     {
         // A model and shapes drawn with depth in one scene, at four samples, so the HDR frame draws
-        // into the window's own multisampled depth: a bar behind the model hidden where the model
+        // into the window's own multisampled depth, a bar behind the model hidden where the model
         // stands before it and seen past its sides, and a cube before the model covering it.
         Open();
         var block = LoadModelFromMesh(GenMeshCube(2, 2, 2));

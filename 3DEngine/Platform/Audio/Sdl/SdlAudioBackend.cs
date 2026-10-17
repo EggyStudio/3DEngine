@@ -119,7 +119,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             {
                 _postmixHandle = GCHandle.Alloc(this);
                 if (!SetAudioPostmixCallback(_device, &Postmix, GCHandle.ToIntPtr(_postmixHandle)))
-                    Logger.Warn($"SdlAudioBackend: SDL_SetAudioPostmixCallback failed: '{SDL.GetError()}', so the mixed processors do not run.");
+                    Logger.Warn($"SdlAudioBackend: SDL_SetAudioPostmixCallback failed with '{SDL.GetError()}', so the mixed processors do not run.");
             }
             else if (processors.Length == 0 && _postmixHandle.IsAllocated)
                 StopPostmix();
@@ -245,7 +245,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         {
             if (!SDL.InitSubSystem(SDL.InitFlags.Audio))
             {
-                failure = $"SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}'";
+                failure = $"SDL_InitSubSystem(Audio) failed with '{SDL.GetError()}'";
                 return false;
             }
             _ownsAudioSubsystem = true;
@@ -261,7 +261,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         _device = SDL.OpenAudioDevice(SDL.AudioDeviceDefaultPlayback, in desired);
         if (_device == 0)
         {
-            failure = $"SDL_OpenAudioDevice failed: '{SDL.GetError()}'";
+            failure = $"SDL_OpenAudioDevice failed with '{SDL.GetError()}'";
             if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
             return false;
         }
@@ -334,9 +334,9 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                 // Route each stream to a single device channel; pan is then a pure gain split.
                 // Note: SDL3-CS exposes this as nint (raw bool pointer-style return); 0 = failure.
                 if (SDL.SetAudioStreamOutputChannelMap(streamL, LeftOnlyMap, LeftOnlyMap.Length) == 0)
-                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(L) failed: {SDL.GetError()}");
+                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(L) failed. {SDL.GetError()}");
                 if (SDL.SetAudioStreamOutputChannelMap(streamR, RightOnlyMap, RightOnlyMap.Length) == 0)
-                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(R) failed: {SDL.GetError()}");
+                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(R) failed. {SDL.GetError()}");
             }
 
             // The pin is now held by the streams made above, and the count rises by one, since
@@ -418,12 +418,12 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         var stream = SDL.CreateAudioStream(in source, in destination);
         if (stream == IntPtr.Zero)
         {
-            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for a stream voice: {SDL.GetError()}");
+            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for a stream voice. {SDL.GetError()}");
             return IntPtr.Zero;
         }
         if (!SDL.BindAudioStream(_device, stream))
         {
-            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for a stream voice: {SDL.GetError()}");
+            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for a stream voice. {SDL.GetError()}");
             SDL.DestroyAudioStream(stream);
             return IntPtr.Zero;
         }
@@ -467,18 +467,18 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         var stream = SDL.CreateAudioStream(in srcSpec, in dstSpec);
         if (stream == IntPtr.Zero)
         {
-            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for '{sourcePath}': {SDL.GetError()}");
+            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for '{sourcePath}'. {SDL.GetError()}");
             return IntPtr.Zero;
         }
         if (!SDL.BindAudioStream(_device, stream))
         {
-            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for '{sourcePath}': {SDL.GetError()}");
+            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for '{sourcePath}'. {SDL.GetError()}");
             SDL.DestroyAudioStream(stream);
             return IntPtr.Zero;
         }
         if (!SDL.PutAudioStreamData(stream, pin.AddrOfPinnedObject(), byteCount))
         {
-            Logger.Warn($"SdlAudioBackend: PutAudioStreamData failed for '{sourcePath}': {SDL.GetError()}");
+            Logger.Warn($"SdlAudioBackend: PutAudioStreamData failed for '{sourcePath}'. {SDL.GetError()}");
             SDL.DestroyAudioStream(stream);
             return IntPtr.Zero;
         }
@@ -572,7 +572,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     /// <inheritdoc />
     public void SetListenerPosition(Vector3 position)
     {
-        // Same rationale as SetVoicePosition: no built-in 3D in SDL audio.
+        // Same rationale as SetVoicePosition, since SDL audio has no built-in 3D.
     }
 
     /// <inheritdoc />
@@ -627,13 +627,13 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             if (stream == IntPtr.Zero) continue;
             if (!bound) SDL.UnbindAudioStream(stream);
             else if (!SDL.BindAudioStream(_device, stream))
-                Logger.Warn($"SdlAudioBackend: BindAudioStream failed resuming a voice: {SDL.GetError()}");
+                Logger.Warn($"SdlAudioBackend: BindAudioStream failed resuming a voice. {SDL.GetError()}");
         }
     }
 
     /// <summary>
     /// Splits <paramref name="volume"/> across the L/R streams using a constant-power
-    /// pan law: <c>leftGain = sqrt(0.5 * (1 - pan))</c>, <c>rightGain = sqrt(0.5 * (1 + pan))</c>.
+    /// pan law, <c>leftGain = sqrt(0.5 * (1 - pan))</c>, <c>rightGain = sqrt(0.5 * (1 + pan))</c>.
     /// At <c>pan = 0</c> both sides receive <c>~0.707 * volume</c>; at the extremes one
     /// side receives the full <c>volume</c> and the other is silent. For non-spatial
     /// voices (no R stream) the L stream receives the whole <paramref name="volume"/>.

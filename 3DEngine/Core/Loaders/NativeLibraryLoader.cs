@@ -387,7 +387,7 @@ internal sealed class NativeLibraryLoader
             }
             catch (Exception ex)
             {
-                _onWarn?.Invoke($"Failed to create symlink {linkPath} → {candidate}: {ex.Message}");
+                _onWarn?.Invoke($"Failed to create symlink {linkPath} → {candidate}. {ex.Message}");
             }
         }
 

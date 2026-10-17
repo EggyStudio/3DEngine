@@ -64,7 +64,7 @@ public readonly record struct AssetPath
         return new AssetPath(combined[..hash], combined[(hash + 1)..]);
     }
 
-    /// <summary>Returns the canonical string form: <c>"path/to/file.ext"</c> or <c>"path/to/file.ext#Label"</c>.</summary>
+    /// <summary>Returns the canonical string form, <c>"path/to/file.ext"</c> or <c>"path/to/file.ext#Label"</c>.</summary>
     public override string ToString() => Label is null ? Path : $"{Path}#{Label}";
 
     /// <summary>Returns this path without the label (file-level only).</summary>

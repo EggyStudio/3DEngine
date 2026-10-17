@@ -10,8 +10,8 @@ public sealed partial class OffscreenRenderTests
     public void A_Stream_Of_The_Programs_Own_Feeds_Its_Vertex_Stage_And_A_Mesh_Without_One_Reads_Zero()
     {
         // One shader whose vertex stage colors each vertex from four packed bytes, red, green and
-        // blue a byte each, through two planes seen from above: the left carries them, and the right
-        // has no stream and reads zero, black over the white it is drawn on. The vertex color is
+        // blue a byte each, through two planes seen from above, the left carrying them and the right
+        // having no stream and reading zero, black over the white it is drawn on. The vertex color is
         // taken as sRGB and decoded, as a mesh's colors are, so the fragment stage encodes it back.
         Open(64, 32);
         var shader = LoadShaderFromMemory("""
@@ -56,7 +56,7 @@ public sealed partial class OffscreenRenderTests
     public void A_Mesh_Of_Positions_Alone_Is_Drawn_From_Its_Stream_And_Casts_Its_Shadow()
     {
         // A quad of positions alone, its color packed in four bytes a vertex, floating over a white
-        // floor under a light from the side, seen from above: the quad shows its packed color, the
+        // floor under a light from the side, seen from above. The quad shows its packed color, the
         // floor under its shadow is darker than beside it, so its shadow is drawn from twelve bytes
         // a vertex, and the GPU holds no more of it than those.
         Open(64, 32);

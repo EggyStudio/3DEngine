@@ -1,6 +1,6 @@
-// raylib's grayscale.fs, written in Slang for the model pass: the model's color, gray by NTSC's
-// weights and unlit, as raylib's default model shader draws. raylib draws a model with the same
-// shader as 2D, and here a model's shader imports the model pass, so it is a file of its own.
+// raylib's grayscale.fs, written in Slang for the model pass. It draws the model's color, gray by
+// NTSC's weights and unlit, as raylib's default model shader draws. raylib draws a model with the
+// same shader as 2D, and here a model's shader imports the model pass, so it is a file of its own.
 import modelpass;
 
 [shader("fragment")]

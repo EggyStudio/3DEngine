@@ -9,7 +9,7 @@ public static class ShadersParticles
     {
         InitWindow(800, 450, "[shaders] particles");
 
-        // A campfire at night: flames that glow through bloom, puffs of smoke that rise, slow and
+        // A campfire at night, with flames that bloom, puffs of smoke that rise, slow and
         // spread, lit by the fire's lamp and the moon, and sparks that leap from it on Space and
         // bounce off the ground and the stones. Each is an emitter whose particles a compute shader
         // steps.
@@ -79,7 +79,7 @@ public static class ShadersParticles
             StartSize = 0.07f,
             EndSize = 0.04f,
             StartColor = new Color(255, 220, 140),
-            // Still glowing a little as they die, so they are seen landing and hopping.
+            // Still a little emissive as they die, so they are seen landing and hopping.
             EndColor = new Color(255, 70, 10, 110),
             Intensity = 6,
             Collision = ParticleCollision.Bounce,

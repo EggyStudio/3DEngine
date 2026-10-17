@@ -22,7 +22,7 @@ internal struct LightUboEntry
 }
 
 /// <summary>
-/// CPU mirror of the lighting UBO the model pass reads (<c>modelpass.slang</c>): a count, the
+/// CPU mirror of the lighting UBO the model pass reads (<c>modelpass.slang</c>), a count, the
 /// shadowed light and its cascades' world to map transforms, then a fixed-size array of
 /// <see cref="LightUboEntry"/>.
 /// </summary>
@@ -85,7 +85,7 @@ internal struct LightingUbo
     public Vector4 AmbientOcclusion;
 
     /// <summary>
-    /// x: 1 when the view's light from all around is the light that bounced, read from the probes
+    /// x: 1 when the view's light from all around is indirect light, read from the probes
     /// bound beside the buffer, the window's, a render target's and a probe capture's alike. y: the
     /// probes' spacing in cells. z: the probes along each side of a cascade. w: how many cascades.
     /// </summary>

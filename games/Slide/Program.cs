@@ -48,7 +48,7 @@ for (int p = 1; p < Kinds; p++)
 CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.5f)), Color.White, 1.4f, castsShadows: true);
 SetAmbientLight(new Color(190, 180, 170), 0.55f);
 
-// -- Sounds, made as waves: a rustle for a slide, a pop for a merge, its first fifth cut off a copy
+// -- Sounds, made as waves, a rustle for a slide, a pop for a merge, its first fifth cut off a copy
 // for a tap, and a falling note when the board fills, converted to another rate and to stereo.
 
 const int Rate = 22050;
@@ -322,7 +322,7 @@ static Color Darker(Color color) => new((byte)(color.R * 0.85f), (byte)(color.G 
 
 public enum Screen { Title, Play, Over }
 
-// A tile: its power of two, where it slides from and to, and how long since it was made and since
+// A tile, its power of two, where it slides from and to, and how long since it was made and since
 // it last merged, negative while the slide that brings it is still under way.
 public sealed class Piece(int power, Vector2 at)
 {

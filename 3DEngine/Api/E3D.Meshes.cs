@@ -56,10 +56,11 @@ public static partial class E3D
     /// them from the stream, the model pass's own lighting it by a zero normal, which is warned of
     /// once where it draws one. Its shadow is cast by its positions as any mesh's is, and the
     /// light field, the glow lights, picking and bodies read its positions with zero normals. Its
-    /// colors are kept for the light field's tint, the glow lights and the bounce's reference, and
-    /// the GPU is given none, so a shader that reads <c>COLOR0</c> or <c>TEXCOORD1</c> on such a mesh
-    /// reads white and zero. Its positions are written in place by <see cref="UpdateMeshBuffer{T}"/>
-    /// at 0, it takes no skin, and the pass that scatters light under a surface leaves it out.
+    /// colors are kept for the light field's tint, the glow lights and the global illumination
+    /// reference, and the GPU is given none, so a shader that reads <c>COLOR0</c> or
+    /// <c>TEXCOORD1</c> on such a mesh reads white and zero. Its positions are written in place by
+    /// <see cref="UpdateMeshBuffer{T}"/> at 0, it takes no skin, and the pass that scatters light
+    /// under a surface leaves it out.
     /// </remarks>
     /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or the stream or colors are not one a vertex.</exception>
     public static ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)
@@ -94,7 +95,7 @@ public static partial class E3D
 
     /// <summary>
     /// Writes <paramref name="data"/> into one of a mesh's arrays, starting <paramref name="offset"/>
-    /// bytes in, by raylib's index for it: 0 its positions, 1 its texture coordinates and 2 its
+    /// bytes in, by raylib's index for it, 0 its positions, 1 its texture coordinates and 2 its
     /// normals, as floats, 3 its colors, four bytes each, and 5 its second texture coordinates, or
     /// at <see cref="MeshStreamBuffer"/> its stream of the program's own, in the stream's format.
     /// </summary>

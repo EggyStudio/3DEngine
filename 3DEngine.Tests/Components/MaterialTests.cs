@@ -5,7 +5,7 @@ using Xunit;
 namespace Engine.Tests.Components;
 
 /// <summary>
-/// Tests for the PBR <see cref="Material"/> component: factor defaults, texture-handle
+/// Tests for the PBR <see cref="Material"/> component, its factor defaults, texture-handle
 /// slot defaults, and the back-compat "albedo only" constructor.
 /// </summary>
 [Trait("Category", "Unit")]

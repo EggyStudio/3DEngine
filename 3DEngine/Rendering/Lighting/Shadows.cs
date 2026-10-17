@@ -179,7 +179,7 @@ internal static class ShadowFit
     /// <summary>
     /// The square of the spot tile a spot light's shadow is drawn into, by its slot among
     /// <paramref name="count"/> shadowed spot lights, the slots ranked by how much the light matters
-    /// to the view: the whole tile for one, a quarter each for up to four, and past four a quarter
+    /// to the view, the whole tile for one, a quarter each for up to four, and past four a quarter
     /// each for the first two and a sixteenth each for the rest, in the tile's lower half.
     /// </summary>
     public static (int X, int Y, int Size) SpotTileArea(int slot, int count, int tileSize = TileSize)
@@ -223,11 +223,11 @@ internal static class ShadowFit
     /// <summary>How many of them, the ones that matter most, draw each face into a layer of its own at <see cref="PointFaceSize"/>.</summary>
     public const int FullPointLights = 4;
 
-    /// <summary>The layers of the point lights' map: six for each full light, then the rest's faces at half the size, four to a layer.</summary>
+    /// <summary>The layers of the point lights' map, six for each full light and then the rest's faces at half the size, four to a layer.</summary>
     public const int PointLayers = FullPointLights * 6 + (MaxPointLights - FullPointLights) * 6 / 4;
 
     /// <summary>
-    /// Where a point light's face is drawn in the point map, by its slot: a layer of its own for the
+    /// Where a point light's face is drawn in the point map, by its slot, a layer of its own for the
     /// first <see cref="FullPointLights"/>, and for the rest a quarter of a layer after theirs, at
     /// half the size, so a level of a dozen lamps shadows each.
     /// </summary>

@@ -1,6 +1,6 @@
-// raylib's voxel_lighting.vs and voxel_lighting.fs, written in Slang for the model pass: up to four
-// lights over each voxel's color, the mesh's color at each vertex, Phong's highlight on each and a
-// little ambient light, corrected for gamma at the end.
+// raylib's voxel_lighting.vs and voxel_lighting.fs, written in Slang for the model pass. It shades
+// with up to four lights over each voxel's color, the mesh's color at each vertex, Phong's
+// highlight on each and a little ambient light, corrected for gamma at the end.
 import modelpass;
 
 static const int MAX_LIGHTS = 4;

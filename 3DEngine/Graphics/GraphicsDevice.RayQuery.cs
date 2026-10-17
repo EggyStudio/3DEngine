@@ -39,16 +39,16 @@ internal sealed unsafe class AddressedBuffer : IDisposable
 /// <param name="Mesh">What its mesh is known by, the vertices it was drawn with.</param>
 /// <param name="World">Its mesh's space to the world.</param>
 /// <param name="Color">Its color, linear.</param>
-/// <param name="Emission">The light it gives off, linear.</param>
+/// <param name="Emission">Its emission, linear.</param>
 /// <param name="Roughness">Its material's roughness, which a path traced reference lights its face by.</param>
 /// <param name="Metallic">Its material's metallic.</param>
-/// <param name="Carried">Whether the bounce carries it as a glow light, whose light a probe's rays leave out where they meet it, as a probe's reference does.</param>
+/// <param name="Carried">Whether global illumination carries it as a glow light, whose light a probe's rays leave out where they meet it, as a probe's reference does.</param>
 internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0, bool Carried = false);
 
 /// <summary>
-/// The window's meshes as the device's ray tracing sees them: a bottom-level acceleration structure
+/// The window's meshes as the device's ray tracing sees them, a bottom-level acceleration structure
 /// of each mesh's triangles, built the first frame the mesh is drawn, and a top-level one of every
-/// drawn copy, built again each frame, with each copy's color and light given off and each mesh's
+/// drawn copy, built again each frame, with each copy's color and emission and each mesh's
 /// corners, which a reflection the scene's distance field misses is traced and shaded with.
 /// </summary>
 /// <remarks>
@@ -78,7 +78,7 @@ internal sealed class GpuRayScene : IDisposable
     /// <summary>The frame's copies in the order the top-level structure holds them, a copy's index there its place here.</summary>
     public IReadOnlyList<RayInstance> Copies { get; internal set; } = [];
 
-    /// <summary>The bytes the scene holds on the device: the meshes' structures and corners, the top-level structure and its scratch, and the ring of copies.</summary>
+    /// <summary>The bytes the scene holds on the device, the meshes' structures and corners, the top-level structure and its scratch, and the ring of copies.</summary>
     public long Bytes =>
         Meshes.Values.Sum(mesh => (long)mesh.Storage.Size) + (long)(Corners?.Size ?? 0) + (long)(TopStorage?.Size ?? 0) + (long)(TopScratch?.Size ?? 0)
         + Instances.Sum(buffer => (long)(buffer?.Size ?? 0)) + Surfaces.Sum(buffer => (long)(buffer?.Size ?? 0));
@@ -89,7 +89,7 @@ internal sealed class GpuRayScene : IDisposable
 
 internal sealed unsafe partial class GraphicsDevice
 {
-    // An instance record as the top-level build reads it: the copy's 3 by 4 transform, its index
+    // An instance record as the top-level build reads it, the copy's 3 by 4 transform, its index
     // and mask, its flags, and its mesh's structure.
     [StructLayout(LayoutKind.Sequential)]
     private struct InstanceRecord
@@ -194,7 +194,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Records the frame's meshes for the device's ray tracing: the structure of each mesh in
+    /// Records the frame's meshes for the device's ray tracing, the structure of each mesh in
     /// <paramref name="instances"/> not yet built, from the corners <paramref name="cornersOf"/>
     /// gives, three a triangle in its own space, with each corner's color <paramref name="colorsOf"/>
     /// gives, three sRGB bytes, or white where it gives none, then the top-level structure of every

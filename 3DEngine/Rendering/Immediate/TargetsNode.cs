@@ -14,8 +14,8 @@ namespace Engine;
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
 /// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Its depth at half
 /// its size and its ambient occlusion are worked out before it as the window's are
-/// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where light bounces its screen probes
-/// are traced on that depth, after the frame's world probes
+/// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where global illumination is on its
+/// screen probes are traced on that depth, after the frame's world probes
 /// (<see cref="GlobalIlluminationRenderer.DrawTarget"/>), and its particles laid over by alpha are
 /// sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).
 /// </remarks>

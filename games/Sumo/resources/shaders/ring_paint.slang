@@ -1,5 +1,5 @@
-// Paints the ring's floor each frame, a thread a texel: packed clay, the straw circle near its edge
-// and the two lines the players start behind, with a ripple running out from each bump of the
+// Paints the ring's floor each frame, a thread a texel, with packed clay, the straw circle near its
+// edge and the two lines the players start behind, with a ripple running out from each bump of the
 // marbles. The alpha carries how strong the ripples are there, which ring.slang lights.
 uniform float time;
 // Half the width of the square of the world the texture covers, and the ring's radius, in units.

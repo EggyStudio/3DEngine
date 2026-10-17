@@ -1,5 +1,5 @@
-// raylib's gol_transfert.glsl, written in Slang: the squares the mouse drew, each brought to life
-// or cleared on the grid by a thread of its own.
+// raylib's gol_transfert.glsl, written in Slang. It applies the squares the mouse drew, each
+// brought to life or cleared on the grid by a thread of its own.
 
 #define GOL_WIDTH 768
 #define MAX_BUFFERED_TRANSFERTS 48

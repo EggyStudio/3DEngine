@@ -11,7 +11,7 @@ namespace Engine;
 /// <remarks>
 /// The surface follows glTF's metallic-roughness model, which every format Assimp reads is mapped
 /// onto. It shows under light entities. A world with none draws the color and the texture unlit,
-/// as raylib does, with the light the material gives off. The color and the texture are sRGB, as
+/// as raylib does, with the material's emission. The color and the texture are sRGB, as
 /// raylib's colors are, and the model pass decodes them to light them in linear space. The maps
 /// are linear.
 /// </remarks>
@@ -51,11 +51,11 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// </summary>
     public bool DoubleSided { get; set; }
 
-    /// <summary>Whether the surface casts shadows, true unless set, false for a glow, a light's bulb or an effect that would darken what is under it.</summary>
+    /// <summary>Whether the surface casts shadows, true unless set, false for an emissive mesh, a light's bulb or an effect that would darken what is under it.</summary>
     public bool CastsShadows { get; set; } = true;
 
     /// <summary>
-    /// Whether the light that bounces holds the surface, true unless set, so it sends on the light
+    /// Whether global illumination holds the surface, true unless set, so it sends on the light
     /// that reaches it and stands in the way of the light behind it, false for a mesh that moves
     /// often and matters little to the light around it, as a game's animals and people.
     /// </summary>
@@ -63,12 +63,13 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// The scene's field stamps a mesh again in each frame it moves, which a voxel game's walking
     /// animal, four to six pieces, cost 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a
     /// piece a frame. A mesh with this false casts its shadows and is lit as any other, and the field,
-    /// the glow lights and the bounce's path-traced reference leave it out, so no light bounces off
-    /// it and none is held back by it. A surface that casts no shadow is left out of them already.
+    /// the glow lights and the path-traced reference of global illumination leave it out, so it
+    /// reflects no indirect light and holds none back. A surface that casts no shadow is left out
+    /// of them already.
     /// </remarks>
     public bool BouncesLight { get; set; } = true;
 
-    /// <summary>The color of the light the surface gives off whatever lights it, black for none.</summary>
+    /// <summary>The color the surface emits whatever lights it, black for none.</summary>
     public Color Emissive { get; set; } = Color.Black;
 
     /// <summary>How bright <see cref="Emissive"/> is, 1 for the color as it is and more for a light that blooms past white.</summary>

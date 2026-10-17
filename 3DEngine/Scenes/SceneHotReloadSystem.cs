@@ -92,7 +92,7 @@ internal static class SceneHotReloadSystem
             {
                 // The entities despawned leave no tracking entry behind.
                 tracking.Remove(evt.Id, out _);
-                Logger.Error($"SceneHotReloadSystem: re-spawn failed for '{asset.SourcePath}': {ex.Message}");
+                Logger.Error($"SceneHotReloadSystem: re-spawn failed for '{asset.SourcePath}'. {ex.Message}");
             }
         }
     }

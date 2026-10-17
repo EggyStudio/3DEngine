@@ -6,8 +6,8 @@ namespace Engine;
 /// <summary>
 /// Translates a backend-agnostic <see cref="Scene"/> snapshot into ECS entities and
 /// components. Encapsulates the spawn-time policy described on
-/// <see cref="Scene"/>: apply the scene's basis change + unit scale once at the root,
-/// recurse with parent-multiplied world matrices, and turn payload bags into runtime
+/// <see cref="Scene"/>, which applies the scene's basis change and unit scale once at the root,
+/// recurses with parent-multiplied world matrices, and turns payload bags into runtime
 /// components (mesh / material / camera).
 /// </summary>
 /// <remarks>

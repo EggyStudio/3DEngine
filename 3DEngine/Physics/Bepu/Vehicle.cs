@@ -4,7 +4,7 @@ using BepuPhysics;
 namespace Engine;
 
 /// <summary>
-/// How a vehicle rides and drives: its wheels and their springs, its engine, brakes, grip and
+/// How a vehicle rides and drives, with its wheels and their springs, its engine, brakes, grip and
 /// steering, and the air it moves through. The defaults are a car of about 1000 kg.
 /// </summary>
 /// <remarks>

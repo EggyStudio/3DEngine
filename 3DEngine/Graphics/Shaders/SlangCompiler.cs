@@ -525,9 +525,9 @@ internal static partial class SlangCompiler
 
     /// <summary>
     /// Every file <paramref name="source"/> imports or includes from <paramref name="importDirectory"/>,
-    /// followed through their own imports, each once, in the order they are first reached: its path
-    /// from the directory with forward slashes, and its bytes, or <c>null</c> for one not found,
-    /// whose name still counts.
+    /// followed through their own imports, each once, in the order they are first reached, each
+    /// with its path from the directory with forward slashes and its bytes, or <c>null</c> for one
+    /// not found, whose name still counts.
     /// </summary>
     /// <remarks>
     /// A name is looked for beside the file that names it first and in the import directory after,
@@ -638,7 +638,7 @@ internal readonly record struct ShaderInput(string Semantic, int Location, bool 
 /// <summary>A descriptor a shader declares, by its name, its set, its binding in the set and its kind.</summary>
 internal readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);
 
-/// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
+/// <summary>A uniform a shader declares at the top level, and where it sits in its constant buffer, in bytes.</summary>
 internal readonly record struct ShaderUniform(string Name, int Offset, int Size);
 
 /// <summary>

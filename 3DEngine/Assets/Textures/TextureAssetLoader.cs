@@ -69,7 +69,7 @@ internal sealed class TextureAssetLoader : IAssetLoader<TextureAsset>
         catch (Exception ex)
         {
             return AssetLoadResult<TextureAsset>.Fail(
-                $"TextureAssetLoader: decode failed for '{context.Path}': {ex.Message}");
+                $"TextureAssetLoader: decode failed for '{context.Path}'. {ex.Message}");
         }
     }
 

@@ -179,7 +179,7 @@ public static partial class E3D
         return (u, Vector3.Cross(a, u));
     }
 
-    /// <summary>Draws a capsule: a cylinder from <paramref name="startPos"/> to <paramref name="endPos"/> with a half sphere on each end.</summary>
+    /// <summary>Draws a capsule, a cylinder from <paramref name="startPos"/> to <paramref name="endPos"/> with a half sphere on each end.</summary>
     public static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
     {
         foreach (var (a, b, c, d) in CapsuleQuads(startPos, endPos, radius, slices, rings)) DrawList.Quad(a, b, c, d, color);
@@ -195,7 +195,7 @@ public static partial class E3D
         }
     }
 
-    // The capsule's surface as quads: the half sphere at each end in rings, and the side between.
+    // The capsule's surface as quads, the half sphere at each end in rings and the side between.
     private static IEnumerable<(Vector3, Vector3, Vector3, Vector3)> CapsuleQuads(Vector3 start, Vector3 end, float radius, int slices, int rings)
     {
         slices = Math.Max(3, slices);

@@ -6,7 +6,7 @@ namespace Engine;
 
 internal sealed partial class ModelRenderer
 {
-    // The lights of this frame as one view sees them, the window's at 0, as a descriptor set: one
+    // The lights of this frame as one view sees them, the window's at 0, as a descriptor set, one
     // of the sets of this frame's slot of a ring, a slot per frame in flight so a set the GPU may
     // still read is never written, or a set over an empty buffer when there are no lights and no
     // environment, which the shader reads as "draw unlit". Binding 0 holds the view's
@@ -77,7 +77,7 @@ internal sealed partial class ModelRenderer
                 : renderWorld.TryGet<TargetOcclusion>()?.Images.GetValueOrDefault(target)) is { } occlusion
             ? Lit(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : Lit(white, whiteSampler, AmbientOcclusionBinding));
-        // And the light that bounced: the window's with its screen's probes and what its glossy
+        // And the indirect light, the window's with its screen's probes and what its glossy
         // surfaces trace through, a render target's with screen probes of its own where it draws
         // meshes through a camera, and a probe capture's from the world's probes alone, which no
         // camera places, all of this frame's.
@@ -146,8 +146,8 @@ internal sealed partial class ModelRenderer
     // The bindings of the lights' set by number, as the model pass declares each.
     private Dictionary<uint, DescriptorType>? _lightsTypes;
 
-    // A texture or sampler of the lights' set written as the model pass declares its binding: the
-    // image alone where the image is read through the set's shared samplers, and the sampler alone
+    // A texture or sampler of the lights' set written as the model pass declares its binding, the
+    // image alone where the image is read through the set's shared samplers and the sampler alone
     // for one of those, since a stage may have no more than sixteen samplers on Metal.
     private CombinedImageSamplerBinding Lit(IImageView view, ISampler sampler, uint binding)
     {
@@ -159,20 +159,20 @@ internal sealed partial class ModelRenderer
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
 
-    // Where modelpass.slang binds the probes' bounced light and the field they lie in, the
+    // Where modelpass.slang binds the probes' indirect light and the field they lie in, the
     // screen's probes' light and surfaces, the probes' reach and sky, and the glow lights' light
     // on the window's surfaces, their normals and the far lights' light.
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18,
         BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35;
 
-    // Where it binds what a glossy surface's reflection is traced through and shaded from: the
+    // Where it binds what a glossy surface's reflection is traced through and shaded from, the
     // field, its colors and light, the lights, the window's depth, and its scene and depth the
     // frame before.
     private const uint ReflectFieldBinding = 19, ReflectAlbedoBinding = 20, ReflectGlowBinding = 21, ReflectLightsBinding = 22,
         ReflectDepthBinding = 23, ReflectHistoryBinding = 24, ReflectHistoryDepthBinding = 25;
 
     // A field of one cell and no cascade, screen probes of one probe holding nothing and lights of
-    // none, bound where no light bounces, since the set must hold them.
+    // none, bound where global illumination is off, since the set must hold them.
     private GpuSceneField? _noBounce;
     private GpuScreenProbes? _noScreen;
     private IBuffer? _noGiLights;
@@ -259,7 +259,7 @@ internal sealed partial class ModelRenderer
 
     private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(_materialBindings);
 
-    // What the particle pass borrows of this one, whose lighting it shares: the two layouts, a
+    // What the particle pass borrows of this one, whose lighting it shares, the two layouts, a
     // material whose base color is a texture, white for none, and the lights of the window or of a
     // render target. A material is found by its texture's id within a frame, so the frame's sets
     // are begun here as the model pass begins them, since in a frame that draws particles and no
@@ -285,7 +285,7 @@ internal sealed partial class ModelRenderer
 
     /// <summary>
     /// Filters the environment map on the GPU in the frame that first sees it, before any pass
-    /// samples it: its image uploaded with its mips, resampled into a cube prefiltered by
+    /// samples it, its image uploaded with its mips, resampled into a cube prefiltered by
     /// roughness with its irradiance, and into the sky's cube
     /// (<see cref="GraphicsDevice.RecordEnvironmentFilter"/>). The cubes it replaces are kept until
     /// no frame in flight reads them.
@@ -408,7 +408,7 @@ internal sealed partial class ModelRenderer
     /// <summary>The width in texels of each face of a probe's prefiltered cube.</summary>
     internal const int ProbeMapSize = 32;
 
-    // A probe's capture under way: its faces drawn so far, a face a frame.
+    // A probe's capture under way, its faces drawn so far, a face a frame.
     private sealed class ProbeCapture(ReflectionProbes.Probe probe, (Vector3 Position, Vector3 Size, int Capture) wanted, Matrix4x4[] viewProjections)
     {
         public ReflectionProbes.Probe Probe { get; } = probe;

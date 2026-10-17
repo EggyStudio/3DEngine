@@ -496,7 +496,7 @@ void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vect
 ```
 
 An `Image` is RGBA bytes in memory. The `Image*` functions change the image passed by `ref`, as
-raylib's take a pointer: shapes replace the pixels they cover, alpha included, and an image drawn
+raylib's take a pointer. Shapes replace the pixels they cover, alpha included, and an image drawn
 into another by `ImageDrawImage` or its kin blends by the source's alpha. A changed image reaches the screen through `LoadTextureFromImage`
 or `UpdateTexture`.
 
@@ -541,8 +541,8 @@ float4 fragmentMain(VertexOutput input) : SV_Target
 }
 ```
 
-Inside `BeginShaderMode`, a shader applies to the immediate pass: shapes, textures, text and
-render textures drawn as textures. A model takes one through its material,
+Inside `BeginShaderMode`, a shader applies to the immediate pass, to shapes, textures, text
+and render textures drawn as textures. A model takes one through its material,
 `model.Materials[0].Shader = shader;`, and such a shader imports `modelpass` instead, which gives
 it `ModelVertexOutput` (position, normal, world position, uv), `baseColor(input)` and
 `lit(color, input)`, the model pass's own lighting, and `ModelStreamsOutput` in its place adds the
@@ -682,9 +682,9 @@ a `Texture`, so `model.Materials[0].Texture = texture;` textures a mesh, with `M
 `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an `OcclusionMap` with its
 `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below its `AlphaCutoff`, or
 `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets, `CastsShadows` (true
-by default), false for a glow that leaves no shadow, `BouncesLight` (true by default), false for a
-mesh that moves in most frames, as an animal, which casts its shadow and is left out of the light
-that bounces, and a `SubsurfaceRadius` in world units with
+by default), false for an emissive mesh that leaves no shadow, `BouncesLight` (true by default),
+false for a mesh that moves in most frames, as an animal, which casts its shadow and is left out of
+global illumination, and a `SubsurfaceRadius` in world units with
 its `SubsurfaceColor`, how far each color travels under skin, wax or marble before it leaves, which
 the window's frame spreads, and a `SubsurfaceThickness`, how thick its parts are at most for the
 light from behind, as a glTF file's `KHR_materials_volume` says. Models are drawn unlit, as raylib
@@ -744,13 +744,13 @@ void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Re
 void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Turn its shadows on or off
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
-void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold glows into its surroundings, 0 for off
+void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold spreads into its surroundings, 0 for off
 (float Intensity, float Threshold) GetBloom();                             // The bloom as it was set
 void SetExposure(float exposure);                                          // Scale the scene's light before its curve (1)
 float GetExposure();                                                       // The exposure as it was set
 void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2); // The exposure follows the scene, as an eye adapts
 (bool Enabled, float Min, float Max, float Speed) GetAutoExposure();       // Whether it follows, and its bounds and speed
-void SetTonemap(Tonemap curve);                                            // The curve light past 1 is brought under it by: Engine, Aces, Clamp, or Bevy's None, Reinhard, ReinhardLuminance, AcesFitted, AgX, SomewhatBoring, TonyMcMapface or BlenderFilmic
+void SetTonemap(Tonemap curve);                                            // The curve that brings light past 1 under it, Engine, Aces, Clamp, or Bevy's None, Reinhard, ReinhardLuminance, AcesFitted, AgX, SomewhatBoring, TonyMcMapface or BlenderFilmic
 Tonemap GetTonemap();                                                      // The curve as it was set
 void SetColorGrading(float contrast, float saturation, Color tint);        // Grade the scene's color, 1, 1 and white for as it is
 (float Contrast, float Saturation, Color Tint) GetColorGrading();          // The grading as it was set
@@ -778,11 +778,11 @@ With no lights, models are drawn unlit, their color and texture as they are, as 
 Lights are `Light` entities in the ECS, so lights made here and light entities of a program's own
 light the same models.
 
-## Light that bounces
+## Global illumination
 
 ```csharp
-void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1); // A distance field of the scene the bounce, the occlusion, the sun and particles read, 0 for off
-void SetGlobalIllumination(GlobalIllumination quality);                   // Light that bounces between surfaces by radiance cascades, Off, Low, Medium or High
+void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1); // A distance field of the scene that global illumination, the occlusion, the sun and particles read, 0 for off
+void SetGlobalIllumination(GlobalIllumination quality);                   // Global illumination by radiance cascades, Off, Low, Medium or High
 void DrawBounceWindow();                                                   // Its probes, parts and a reference to measure it by, in an ImGui window
 ```
 
@@ -796,7 +796,7 @@ void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position)
 void SetParticleEmitter(ParticleEmitterHandle emitter, ParticleEmitter settings); // Give it new rate, life, velocity, gravity, sizes or colors
 ParticleEmitter GetParticleEmitter(ParticleEmitterHandle emitter);       // Its settings, to change one with `with`
 void SetParticleEmitterActive(ParticleEmitterHandle emitter, bool emitting); // Start or stop its stream
-void EmitParticles(ParticleEmitterHandle emitter, int count);            // Give off that many at once, as a hit or an explosion
+void EmitParticles(ParticleEmitterHandle emitter, int count);            // Emit that many at once, as a hit or an explosion
 void UnloadParticleEmitter(ParticleEmitterHandle emitter);               // Remove it and its particles
 ```
 
@@ -1025,7 +1025,7 @@ void UnloadDroppedFiles();                               // Forget them, for the
 ## Colors
 
 `Color(byte r, byte g, byte b, byte a = 255)`, with `Fade(alpha)` and `ToVector4()`, and raylib's
-named colors: `LightGray`, `Gray`, `DarkGray`, `Yellow`, `Gold`, `Orange`, `Pink`, `Red`, `Maroon`,
+named colors, `LightGray`, `Gray`, `DarkGray`, `Yellow`, `Gold`, `Orange`, `Pink`, `Red`, `Maroon`,
 `Green`, `Lime`, `DarkGreen`, `SkyBlue`, `Blue`, `DarkBlue`, `Purple`, `Violet`, `DarkPurple`,
 `Beige`, `Brown`, `DarkBrown`, `White`, `Black`, `Blank`, `Magenta`, `RayWhite`.
 

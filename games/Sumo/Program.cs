@@ -66,7 +66,7 @@ void Ripple(Vector3 at, float strength)
     UpdateShaderBuffer<Vector4>(bumpBuffer, bumps, 0);
 }
 
-// -- The players: their colors, their marbles and the shader that draws them, and their labels.
+// -- The players, their colors, their marbles and the shader that draws them, and their labels.
 
 Color[] colors = [new(230, 60, 70), new(60, 120, 240)];
 Color[] swirls = [new(255, 225, 205), new(205, 230, 255)];
@@ -176,7 +176,7 @@ while (!WindowShouldClose())
     bool Pressed(GamepadButton button) => IsGamepadButtonPressed(0, button) || IsGamepadButtonPressed(1, button);
     var start = IsKeyPressed(Key.Enter) || Pressed(GamepadButton.MiddleRight) || Pressed(GamepadButton.RightFaceDown);
 
-    // -- The screens: the title, the count before a round, play, a point scored, a pause and the win.
+    // -- The screens, the title, the count before a round, play, a point scored, a pause and the win.
     switch (screen)
     {
         case Screen.Title when start:
@@ -274,7 +274,7 @@ while (!WindowShouldClose())
         _ => $"{screen} round {round} score {score[0]} {score[1]} p1 {positions[0].X:0.00} {positions[0].Y:0.00} {positions[0].Z:0.00} p2 {positions[1].X:0.00} {positions[1].Y:0.00} {positions[1].Z:0.00}",
     };
 
-    // -- Drawing: each player's view into its render texture, then both side by side.
+    // -- Drawing, each player's view into its render texture and then both side by side.
 
     var (width, height) = (Math.Max(1, GetScreenWidth() / 2), Math.Max(1, GetScreenHeight()));
     if (width != viewWidth || height != viewHeight)
@@ -304,7 +304,7 @@ while (!WindowShouldClose())
         for (int p = 0; p < 2; p++) DrawBillboard(cameras[i], labels[p], positions[p] + new Vector3(0, 1.5f, 0), 0.8f, Color.White);
         EndMode3D();
 
-        // The half's own corner: whose it is, and the dash filling up again.
+        // The half's own corner, showing whose it is and the dash filling up again.
         DrawTextEx(font, $"Player {i + 1}", new Vector2(16, 12), 28, 0, colors[i]);
         var charge = 1 - Math.Clamp(cooldown[i] / DashWait, 0, 1);
         DrawRectangle(16, 48, 120, 10, new Color(0, 0, 0, 110));
@@ -354,7 +354,7 @@ while (!WindowShouldClose())
     SetShaderValue(painter, paintTime, (float)GetTime());
     ComputeShaderDispatch(painter, PaintSize / 8, PaintSize / 8, 1);
 
-    // -- Play: each marble pushed by its player or the autopilot, dashes, and a fall scoring.
+    // -- Play, each marble pushed by its player or the autopilot, dashes, and a fall scoring.
     void Play()
     {
         for (int i = 0; i < 2; i++)

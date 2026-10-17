@@ -3,7 +3,7 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// An emitter of particles at its entity's place, as smoke, sparks or dust: a stream of small
+/// An emitter of particles at its entity's place, as smoke, sparks or dust, a stream of small
 /// squares that face the camera, born at a rate, moving and falling, and changing size and color
 /// over their lives, slowed by the air, simulated on the GPU and drawn into the window and render textures.
 /// </summary>
@@ -18,7 +18,7 @@ namespace Engine;
 /// is the one replaced.
 /// </para>
 /// <para>
-/// An unlit particle gives off its color times <see cref="Intensity"/>, which blooms where it
+/// An unlit particle emits its color times <see cref="Intensity"/>, which blooms where it
 /// passes 1, and a lit one is lit by the scene's lights as a rough surface facing the camera.
 /// Particles are drawn after the window's meshes, with depth tested and not written, through the
 /// window's camera, and into a render texture after its meshes, through the camera of its first
@@ -81,7 +81,7 @@ public struct ParticleEmitter
     /// <summary>Its color and alpha at the end of its life, transparent for one that fades out.</summary>
     public Color EndColor;
 
-    /// <summary>What an unlit particle's color is multiplied by, past 1 for one that glows through bloom.</summary>
+    /// <summary>What an unlit particle's color is multiplied by, past 1 for one that blooms.</summary>
     public float Intensity;
 
     /// <summary>Whether the scene's lights light it, rather than it giving off its own color.</summary>
@@ -116,7 +116,7 @@ public struct ParticleEmitter
     /// </summary>
     public bool BlendFrames;
 
-    /// <summary>Particles to give off at once in the next frame, beside the rate, which drawing them clears.</summary>
+    /// <summary>Particles to emit at once in the next frame, beside the rate, which drawing them clears.</summary>
     public int Burst;
 
     /// <summary>
@@ -136,7 +136,7 @@ public struct ParticleEmitter
     public float Bounce;
 
     /// <summary>
-    /// A small white fountain: 500 particles, 50 a second, living two seconds, rising at 3 units
+    /// A small white fountain of 500 particles, 50 a second, living two seconds, rising at 3 units
     /// a second within 20 degrees of up and falling back, shrinking from 0.2 to 0.05 and fading out.
     /// </summary>
     public static ParticleEmitter Default => new()

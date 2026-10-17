@@ -1,10 +1,10 @@
-# Driving a running 3DEngine app with e3d
+# Controlling a running 3DEngine app with e3d
 
 ## Check for a live session first
 
-**Before asking anything about a running app, run `./e3d status`.** If a session answers, drive
-it. A round trip against a running app is a frame. Starting one per question is a second of
-startup and a guess about which frame to look at.
+**Before asking anything about a running app, run `./e3d status`.** If a session answers, send
+it the commands. A round trip against a running app is a frame. Starting one per question is a
+second of startup and a guess about which frame to look at.
 
 ```bash
 ./e3d status                                  # what is serving, and whether it answers
@@ -23,20 +23,20 @@ If nothing is serving, start one and wait for it to be ready:
 ```
 
 `open` returns once the app has written that it is ready, so the next command is answered.
-`--hidden` or `--offscreen` is the default choice for an agent: everything renders and `shot`
-works, and nothing appears on the desktop. `--offscreen` needs no display server, so it also works
-over SSH, in a container or on a locked session, and a software Vulkan device (lavapipe) is
+`--hidden` or `--offscreen` is the default choice for an agent, since everything renders and
+`shot` works, and nothing appears on the desktop. `--offscreen` needs no display server, so it also
+works over SSH, in a container or on a locked session, and a software Vulkan device (lavapipe) is
 enough. A run with no window has no window events, so input arrives only through `input.*`.
 `--headless` is for logic, because there is nothing to capture.
 
 Any program built on the engine takes the same flags (`--serve`, `--headless`, `--offscreen`,
 `--hidden`, `--frames N`) or the variables `E3D_SERVE`, `E3D_HEADLESS`, `E3D_OFFSCREEN`,
-`E3D_HIDDEN`, `E3D_FRAMES`, so a game outside the examples is driven by running it with
+`E3D_HIDDEN`, `E3D_FRAMES`, so a game outside the examples is controlled by running it with
 `--serve`.
 
 ## The catalog is the API
 
-`./e3d list` is authoritative. The ones every app has:
+`./e3d list` is authoritative. Every app has the ones below.
 
 | command | does |
 |---|---|
@@ -109,11 +109,11 @@ Every verb prints a readable answer, or with `--json` one envelope:
 {"success": true, "command": "command", "data": {"command": "entity.count", "result": "100", "frame": 94}, "errors": [], "warnings": []}
 ```
 
-Exit codes: `0` ok, `2` bad arguments or an unknown command, `4` nothing to talk to (no session,
-or no renderer for a capture), `6` the command failed. A failure carries a code in `errors[0].code`
-(`NO_SESSION`, `AMBIGUOUS_SESSION`, `UNKNOWN_COMMAND`, `NO_RENDERER`, `TIMEOUT`). Without `--json`
-an error is a line `error [CODE] message` on standard error, so `status=$(./e3d command ...)` takes
-no error into the variable and the error still shows.
+The exit code is `0` for success, `2` for bad arguments or an unknown command, `4` for nothing to
+talk to (no session, or no renderer for a capture) and `6` for a command that failed. A failure
+carries a code in `errors[0].code` (`NO_SESSION`, `AMBIGUOUS_SESSION`, `UNKNOWN_COMMAND`,
+`NO_RENDERER`, `TIMEOUT`). Without `--json` an error is a line `error [CODE] message` on standard
+error, so `status=$(./e3d command ...)` takes no error into the variable and the error still shows.
 
 ## More than one app
 

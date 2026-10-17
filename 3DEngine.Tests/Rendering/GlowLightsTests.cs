@@ -6,9 +6,9 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The small surfaces that give off light, which the bounce carries as lights of their own
-/// (<see cref="GlowLights"/>): which are carried, how they are written for the shaders, and a
-/// glowing block on a floor lighting the floor around it as a path-traced reference does, with no
+/// The small emissive surfaces, which global illumination carries as lights of their own
+/// (<see cref="GlowLights"/>), with which are carried, how they are written for the shaders, and an
+/// emissive block on a floor lighting the floor around it as a path-traced reference does, with no
 /// lobes and from far off as from near.
 /// </summary>
 [Collection("E3D")]
@@ -33,7 +33,7 @@ public sealed class GlowLightsTests : IDisposable
         GlowLights.Carries(glow, unit, Matrix4x4.CreateScale(4, 0.1f, 0.1f), 0.25f).Should().BeTrue("a strip four blocks long is no longer");
         GlowLights.Carries(glow, unit, Matrix4x4.CreateScale(4.5f, 0.1f, 0.1f), 0.25f).Should().BeFalse("a strip longer is left to the probes' rays");
         GlowLights.Carries(glow, unit, Matrix4x4.Identity, 0.05f).Should().BeFalse("at a finer cell the probes stand close enough to see the block");
-        GlowLights.Carries(Vector3.Zero, unit, Matrix4x4.Identity, 0.25f).Should().BeFalse("a surface that gives off no light is no light");
+        GlowLights.Carries(Vector3.Zero, unit, Matrix4x4.Identity, 0.25f).Should().BeFalse("a surface that emits no light is no light");
     }
 
     [Fact]
@@ -64,8 +64,8 @@ public sealed class GlowLightsTests : IDisposable
     [Trait("Category", "Unit")]
     public void Touching_Emitters_That_Give_Off_The_Same_Light_Are_One_Light()
     {
-        // Four blocks stacked two by two, a fifth beside them giving off another light and a sixth
-        // apart: the four are one light of the stack's box, the faces they press together left out
+        // Four blocks stacked two by two, a fifth beside them emitting another light and a sixth
+        // apart. The four are one light of the stack's box, the faces they press together left out
         // of its surface, which is then the whole of its box's.
         var vertices = new ModelVertex[] { new() { Position = new Vector3(-0.5f) }, new() { Position = new Vector3(0.5f) } };
         var (glow, other) = (new Vector3(4, 2, 1), new Vector3(1, 2, 4));
@@ -102,7 +102,7 @@ public sealed class GlowLightsTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Rods_Light_On_The_Floor_Falls_With_No_Step()
+    public void An_Emissive_Rods_Light_On_The_Floor_Falls_With_No_Step()
     {
         // The rod's light stepped by 7 to 9% on a curve around it where its faces' closed form gave
         // way to points at four of its half diagonals, a face fifteen sixteenths long read as one
@@ -124,11 +124,11 @@ public sealed class GlowLightsTests : IDisposable
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.Medium)]
     [InlineData(GlobalIllumination.High)]
-    public void A_Glowing_Block_Lights_The_Floor_Around_It_As_A_Path_Traced_Reference_Does(GlobalIllumination quality)
+    public void An_Emissive_Block_Lights_The_Floor_Around_It_As_A_Path_Traced_Reference_Does(GlobalIllumination quality)
     {
         // The world's probes stand above the floor at their spacing, so the faces the floor reads
         // see none of a block lying on it, and the block's light reached the floor through the
-        // screen probes' sixteen rays alone: 0.077 two blocks out and nothing past two and a half,
+        // screen probes' sixteen rays alone, 0.077 two blocks out and nothing past two and a half,
         // and at High eight lobes around the ring, its eighth harmonic 0.17 of its light at two
         // blocks and 0.35 at two and a half, where the rays met the block at some angles and not
         // others. Carried as a light whose penumbra counted the floor and the block's own faces as
@@ -148,12 +148,12 @@ public sealed class GlowLightsTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Blocks_Pool_Reads_The_Same_From_Forty_Blocks_Off_As_From_Five()
+    public void An_Emissive_Blocks_Pool_Reads_The_Same_From_Forty_Blocks_Off_As_From_Five()
     {
         // From forty blocks the floor around the block lies in the cascades whose probes stand
         // eight and sixteen blocks apart and no screen probe's ray reaches it, so its pool was
-        // gone from the bounce, as the voxel game found it; the model pass lights such a pixel
-        // from the light itself.
+        // gone from global illumination, as the voxel game found it; the model pass lights such a
+        // pixel from the light itself.
         // From forty blocks a pixel is a fifth of a block wide, so the rings are read from two blocks
         // out, where the light changes little across a pixel.
         var near = Rings(GlobalIllumination.High, 5);
@@ -164,9 +164,9 @@ public sealed class GlowLightsTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
+    public void An_Emissive_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
     {
-        // The voxel game's case: a glowstone set in a closed room of white blocks, eleven by six by
+        // The voxel game's case, a glowstone set in a closed room of white blocks, eleven by six by
         // eleven inside, the eye twenty blocks off outside, lost the device on the development
         // machine's GPU within a few frames in three runs of five, an MMU fault through the
         // constant cache (Xid 31), while the world probes' rays met the walls and marched through
@@ -217,7 +217,7 @@ public sealed class GlowLightsTests : IDisposable
     [Trait("Category", "Render")]
     public void A_Row_Of_Lamps_Lights_The_Floor_Under_A_Block_Floating_Below_It_As_Beside_It()
     {
-        // The voxel game's room: three glowing blocks touching in a row under the ceiling, one light,
+        // The voxel game's room, three emissive blocks touching in a row under the ceiling, one light,
         // and a white block floating two under the middle one, the floor three under the block, a
         // path-traced reference reading the floor under the block 0.98 of the floor beside it. The
         // row's face was marched to two points on its middle line, both behind the block from the
@@ -279,10 +279,11 @@ public sealed class GlowLightsTests : IDisposable
         share.Should().BeGreaterThan(0.8, "the floor under the block takes the row's light past it, as the reference's does");
     }
 
-    // The share of four glowing blocks' light, two by two on a floor and one light, that a pale wall
+    // The share of four emissive blocks' light, two by two on a floor and one light, that a pale wall
     // two blocks south sees past a pillar from floor to ceiling a block east of them, at points of the
     // wall's face along x at a height of two blocks, everything but the wall nearly black so little
-    // light bounces, as BounceReference traced the frame with 4096 paths a pixel at 640 by 360.
+    // indirect light comes back, as BounceReference traced the frame with 4096 paths a pixel at 640
+    // by 360.
     private static readonly (float X, double Share)[] PillarTraced =
         [(7.5f, 0.814), (8.5f, 0.541), (9.5f, 0.386), (10.5f, 0.304), (11.5f, 0.265)];
 

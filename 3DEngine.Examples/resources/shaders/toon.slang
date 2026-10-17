@@ -1,5 +1,5 @@
-// Shades a model in flat bands, as a cartoon is, with a rim of light around its edge. Its uniforms
-// are set by name from the program: how many bands, the rim's color, and where the viewer is.
+// Shades a model in flat bands, as a cartoon is, with a rim of light around its edge. Its uniforms,
+// set by name from the program, are how many bands, the rim's color, and where the viewer is.
 import modelpass;
 
 uniform float bands;

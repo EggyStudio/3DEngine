@@ -1,7 +1,7 @@
-// Wick, a puzzle in a dark house: the player carries a lamp through rooms no other light reaches,
-// lights every wick on the way and leaves by the door. The lamp casts shadows, so its light stops
-// at a wall and reaches round a corner or through a doorway only as light that bounces, and the
-// pits in the polished floors show only where some light falls on them. Written against the
+// Wick, a puzzle in a dark house, where the player carries a lamp through rooms no other light
+// reaches, lights every wick on the way and leaves by the door. The lamp casts shadows, so its
+// light stops at a wall and reaches round a corner or through a doorway only as indirect light, and
+// the pits in the polished floors show only where some light falls on them. Written against the
 // engine's package, as a game outside this repository would be.
 using System.Numerics;
 using Engine;
@@ -27,7 +27,7 @@ var glass = LoadModelFromMesh(GenMeshSphere(0.1f, 10, 10));
 glass.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 200, 130), EmissiveIntensity = 8, CastsShadows = false };
 var lamp = House.Lamp(Vector3.Zero);
 
-// -- Sounds, made as waves: a flare as a wick catches, a falling note into a pit, a chord as the door opens
+// -- Sounds, made as waves, a flare as a wick catches, a falling note into a pit, a chord as the door opens
 
 const int Rate = 22050;
 Wave Make(float seconds, Func<float, float> sample) => new()

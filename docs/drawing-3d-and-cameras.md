@@ -63,7 +63,7 @@ section. Models loaded from files and meshes the program generates are drawn the
 ## Moving the camera
 
 `UpdateCamera` moves a camera from the keyboard, the mouse and the first gamepad as raylib's does,
-in one of its modes:
+in one of its modes.
 
 | Mode | Moves |
 |---|---|
@@ -98,7 +98,7 @@ while (!WindowShouldClose())
 ```
 
 The movements `UpdateCamera` is made of are functions of their own, as raylib's rcamera has them,
-for a camera a program moves by amounts it works out: `CameraMoveForward`, `CameraMoveRight` and
+for a camera a program moves by amounts it works out. `CameraMoveForward`, `CameraMoveRight` and
 `CameraMoveUp` move it with its target, `CameraMoveToTarget` nearer or farther, and `CameraYaw`,
 `CameraPitch` and `CameraRoll` turn it by radians, about itself or about its target.
 `UpdateCameraPro` does several at once from amounts in degrees.
@@ -231,11 +231,11 @@ once, through the camera.
 
 ## Particles
 
-Smoke, sparks, dust and fire are particles: small squares facing the camera, given off by an
-emitter, moving and falling, and changing size and color over their lives. `CreateParticleEmitter`
+Smoke, sparks, dust and fire are particles, small squares facing the camera that an emitter sends
+out, moving and falling, and changing size and color over their lives. `CreateParticleEmitter`
 places one, from a `ParticleEmitter` that says how, and its particles are simulated on the GPU and
 drawn after the frame's models with no drawing call. The `shaders_particles` example's campfire is
-three emitters, and its flames glow through bloom, since an unlit particle gives off its color times
+three emitters, and its flames spread through bloom, since an unlit particle emits its color times
 its intensity:
 
 ```csharp

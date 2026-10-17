@@ -102,7 +102,7 @@ public static partial class E3D
             return;
         }
 
-        // The presentation forms: each letter as the form it takes where the font has it, and lam
+        // The presentation forms, each letter as the form it takes where the font has it and lam
         // with the alef after it as their one joined form, the alef's marks staying after it.
         for (int i = 0; i < codepoints.Length; i++)
         {

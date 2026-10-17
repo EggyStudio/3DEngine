@@ -53,7 +53,7 @@ CloseWindow();
 ```
 
 Names follow raylib where raylib has the operation, so somebody who has written a raylib program
-can guess the call, and the cheatsheet reads the same way:
+can guess the call, and the cheatsheet reads the same way.
 
 | prefix | meaning |
 |---|---|
@@ -63,7 +63,7 @@ can guess the call, and the cheatsheet reads the same way:
 | `Draw` | record something for the current frame |
 | `Is`, `Get` and `Set` | ask about or change a piece of state |
 
-The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
+The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`.
 
 | file | covers |
 |---|---|
@@ -84,7 +84,7 @@ structs holding an id, so nothing in the API needs a class hierarchy to be under
 ## 2. The frame
 
 `InitWindow` builds an `App` with the default plugins. The loop the program writes then drives
-the app one frame at a time, through `App.BeginFrame` and `App.EndFrame`:
+the app one frame at a time, through `App.BeginFrame` and `App.EndFrame`.
 
 | call | what runs |
 |---|---|
@@ -211,7 +211,7 @@ own frame, so they cost one function each and ship only if the game keeps them.
 ## 8. Dependencies
 
 A dependency is taken when it does a basic job completely and is maintained, and nothing beyond
-that is added. The set is:
+that is added. The set is in the table below.
 
 | package | used for |
 |---|---|
@@ -228,10 +228,11 @@ that is added. The set is:
 | Microsoft.CodeAnalysis.CSharp | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
-Data is carried where it is the thing itself and not a library: Bevy's three tonemapping tables,
-which `build/bevy-luts.py` brings from Bevy's crate under the licenses THIRD-PARTY-NOTICES.md
-names, so a picture tonemapped through them is the one Bevy draws. They are read with what .NET
-has, their supercompression swapped from Zstandard to zlib, so no decoder is taken for them.
+Data is carried where it is the thing itself and not a library, such as Bevy's three tonemapping
+tables, which `build/bevy-luts.py` brings from Bevy's crate under the licenses
+THIRD-PARTY-NOTICES.md names, so a picture tonemapped through them is the one Bevy draws. They are
+read with what .NET has, their supercompression swapped from Zstandard to zlib, so no decoder is
+taken for them.
 
 Scene description formats, material graph languages, embedded browsers, web servers, spatial
 audio middleware and an editor are left out. Each brings more surface than the engine has users
@@ -255,13 +256,14 @@ is always the API.
 
 ## 11. What is public
 
-A type is public when a program reaches it: the flat API and what its functions take and give,
-the ECS's components, resources and attributes a behavior names, the scene and asset types a level
-or a loader is built from, and what the code the generators write into a game calls. The renderer,
-the device, the platform's backends, the loaders and the plugins inside `DefaultPlugins` are the
-engine's own and internal, since each public type is a promise a game may come to rely on from
-5.0 on. `3DEngine/PublicApi.txt` lists what is public, the tests and the `e3d` client see the rest
-through `InternalsVisibleTo`, and a type made public again is a change to that file read as one.
+A type is public when a program reaches it. That covers the flat API and what its functions take and
+give, the ECS's components, resources and attributes a behavior names, the scene and asset types a
+level or a loader is built from, and what the code the generators write into a game calls. The
+renderer, the device, the platform's backends, the loaders and the plugins inside `DefaultPlugins`
+are the engine's own and internal, since each public type is a promise a game may come to rely on
+from 5.0 on. `3DEngine/PublicApi.txt` lists what is public, the tests and the `e3d` client see the
+rest through `InternalsVisibleTo`, and a type made public again is a change to that file read as
+one.
 
 Where two public names are near, the name says which is which. A type beginning `Physics` names a
 handle the physics world gives or takes, or a result of it (`PhysicsBody`, `PhysicsJoint`,

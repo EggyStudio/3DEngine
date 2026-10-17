@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `534a1c2b`, item 26 and nothing else, as Decision 42 asks: `test.yml` and
+Reviewed up to `2a02ba3e`, Verdict 62 mended and nothing else, in a commit of its own before item
+29's sweep. The name was never empty in the engine's hands. `CreateGraphicsPipeline` made the entry
+point's bytes with `Encoding.UTF8.GetBytes`, a fresh array with no terminator, wrapped in Vortice's
+`VkUtf8ReadOnlyString`, which holds a span and becomes a raw pointer when `pName` is set with
+nothing pinned, so a collection between that and the driver's read moved the array and the driver
+read the old place, zeroed by what was allocated over it, as an empty name; `CreateInstance` had the
+same pattern for the application's name, and the compute pipelines were safe on the `"main"u8`
+literal, which never moves. Both names are written null-terminated with `stackalloc`, which nothing
+moves before the call, `CreateShader` refuses an empty or blank entry point naming the stage and the
+bytecode's size, and the frame's debug labels were pinned with `fixed` already.
+`PipelineEntryNameTests` makes twenty pipelines while another thread forces compacting collections
+with allocations between; on the working machine's GPU with the old line it failed five runs of five
+in half a second with `VK_ERROR_UNKNOWN`, and with the mend passed three of three, and on lavapipe
+under the validation layer in the container it and `GlobalIlluminationTests` ran 36 green with no
+validation line, the lamp's room among them. The two Linux jobs that passed and failed on one commit
+ran the same steps within seconds of each other, and the failure needs no difference between them,
+since it depends on a collection landing in that window. Verdict 58's crash inside
+`vkCreateGraphicsPipelines` under MoltenVK, seen once and never again, reads as this fault too, a
+pointer into moved memory the driver followed. Checked besides: the strict build, the whole suite
+1,712 of 1,712, `NormTests` and `DocumentLinkTests` 20 of 20. Right. The pack run of `534a1c2b`
+ended at 16:25 with Windows and macOS green, every one of the twelve games played on each, and the
+examples, captures and games jobs skipped behind Linux's failure. Next the owner's push, then a pack
+run, which is Decision 42's gate.
+
+Before it, `534a1c2b` came, item 26 and nothing else, as Decision 42 asks: `test.yml` and
 `examples.yml` folded into `build.yml`, which runs on a push and a pull request and is called by
 `pack.yml` with its one boolean input, and `pack.yml` running `build` then `pack` with the version
 read in it. The push's jobs are `linux`, `windows`, `macos`, `digest` and `examples` (needing
@@ -51,28 +75,6 @@ On 2026-10-17 the owner ordered two workflows an engine and the voxel game's mov
 repository, Decisions 40 to 42 and items 26 to 28; the rework is the first work on both engines, and
 a green push and a green pack run under the new workflows are Decision 39's gate before features
 resume.
-
-Before it, `fc5fdc97` came, Verdict 61 mended and nothing else: the script test's grow mode runs
-with a minute's time limit where the hang mode keeps its six seconds, so the memory limit comes
-first on any runner, the test's comment saying the race, the stand-in passing 200 MB in a second
-here and the macOS runner holding 196 when the six seconds ran out; and the stand-in grows in copies
-of a random block of 10 MB where it repeated one byte, since macOS can compress a page of one byte
-repeated when memory is short and leave it out of the resident size the script reads, a guard said
-in its comment and not a cause seen. Reproduced with the stand-in held to a fiftieth of a core: six
-seconds ended at the time limit holding 50 MB, a minute at the memory limit after 42 seconds holding
-220. The whole suite 1,710 of 1,710 through the script, NormTests 16 of 16, the strict build clean.
-Right. The pack run of `ddb40469` ended at 22:54 failed on its macOS suite alone, Verdict 61's:
-Windows green, 1,659 of 1,659 in 45 minutes with its games played, and Linux green, the examples and
-pack jobs skipped, so Verdict 56's step is unread until the owner re-runs the failed jobs or packs
-again. The push of `fc5fdc97` ran whole green on 2026-10-17, the second of Decision 39's three:
-Linux in 17 minutes, macOS in 41, Windows in 75, of which the suite took 46 and the games played
-from the package 20, and the examples job in 9. Its suites settled Verdicts 57, 58, 59 and 61, the
-pack run's macOS suite the second green for 61, and brought Verdict 60 to two of three. The pack run
-on it, started at 08:54, ran its three suites green, Windows in 74 minutes again, since the shader
-cache the push's Windows job saved at its end came after the pack run's job began, so the first job
-to restore it is the next; its examples jobs passed, the Linux one in 81 minutes with the strategy
-game's step, which settled Verdict 56, and the macOS captures in 58, so the pack run passed whole at
-11:31.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1232,7 +1234,10 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     shader is compiled or loaded, with the shader named, rather than a validation error at the
     pipeline; and the suite's Linux job read for what differs between the push run and the pack run
     of one commit, the Mesa cache restored from the other run's job among it. Settled at three green
-    Linux suites in a row after the mend.
+    Linux suites in a row after the mend. Mended at `2a02ba3e`: the entry point's and the
+    application's names handed to Vulkan null-terminated on the stack where unpinned arrays were, an
+    empty entry point refused where the shader is made, and a test making pipelines under forced
+    compacting collections.
 
 ## Decisions
 
@@ -1530,6 +1535,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     follows the rule.
 
 ## Replies
+
+
 
 
 

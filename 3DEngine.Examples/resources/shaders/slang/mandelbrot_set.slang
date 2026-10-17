@@ -1,5 +1,5 @@
-// raylib's mandelbrot_set.fs, written in Slang: the Mandelbrot set, each point colored by how many
-// steps of z^2 + c it takes to leave.
+// raylib's mandelbrot_set.fs, written in Slang. It draws the Mandelbrot set, each point colored by
+// how many steps of z^2 + c it takes to leave.
 import engine;
 
 static const float PI = 3.1415926535897932384626433832795;

@@ -51,7 +51,7 @@ public static class ModelsTesseractView
                 p.X = rotXW.X;
                 p.W = rotXW.Y;
 
-                // Seen from (0, 0, 0, 3): the ray to the corner carried on until W is 0
+                // Seen from (0, 0, 0, 3), the ray to the corner carried on until W is 0
                 float c = 3.0f/(3.0f - p.W);
                 p.X = c*p.X;
                 p.Y = c*p.Y;

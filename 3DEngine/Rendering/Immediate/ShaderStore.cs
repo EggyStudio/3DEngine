@@ -20,8 +20,8 @@ internal readonly record struct ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2,
 }
 
 /// <summary>
-/// The custom shaders the flat API has loaded, by id: their compiled stages, and the ids that have
-/// been unloaded, until <see cref="ImmediateRenderer"/> retires their pipelines.
+/// The custom shaders the flat API has loaded, by id, with their compiled stages, and the ids that
+/// have been unloaded, until <see cref="ImmediateRenderer"/> retires their pipelines.
 /// </summary>
 /// <remarks>Id 0 is never given out, so a default shader handle draws with the engine's own stages.</remarks>
 internal sealed class ShaderStore

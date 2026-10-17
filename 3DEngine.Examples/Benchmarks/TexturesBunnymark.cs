@@ -7,7 +7,7 @@ using static Engine.E3D;
 namespace Engine.Examples;
 
 /// <summary>
-/// raylib's bunnymark: a hundred bunnies added at the mouse while its button is held, bouncing
+/// raylib's bunnymark, a hundred bunnies added at the mouse while its button is held, bouncing
 /// around the window. With <c>--stress</c> it is the benchmark build/raylib-bench/run.sh measures,
 /// as many sprites as a frame holds at 60 frames a second, found by <see cref="StressRamp"/>, and
 /// <c>e3d command profile</c> reports where the time goes.
@@ -104,7 +104,7 @@ public static class TexturesBunnymark
         CloseWindow();
     }
 
-    // The benchmark: textured sprites bouncing around the window, as many as a frame holds at 60
+    // The benchmark, textured sprites bouncing around the window, as many as a frame holds at 60
     // frames a second, a fixed step a frame as the measured raylib program's are.
     private static void RunStress()
     {

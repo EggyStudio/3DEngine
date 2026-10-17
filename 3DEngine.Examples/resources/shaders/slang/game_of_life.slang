@@ -1,5 +1,5 @@
-// raylib's game_of_life.fs, written in Slang: one generation of Conway's Game of Life, a black
-// pixel alive and any other dead, from the world drawn across the whole target.
+// raylib's game_of_life.fs, written in Slang. It works out one generation of Conway's Game of Life,
+// a black pixel alive and any other dead, from the world drawn across the whole target.
 import engine;
 
 // Input size in pixels of the textures

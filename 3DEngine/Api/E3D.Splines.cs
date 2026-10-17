@@ -5,7 +5,7 @@ namespace Engine;
 
 public static partial class E3D
 {
-    // -- Splines, as raylib's: each curve segment cut into 24 pieces, and the whole drawn as one
+    // -- Splines, as raylib's, each curve segment cut into 24 pieces and the whole drawn as one
     // strip thick pixels wide whose joints are mitered, so a thick curve has no gaps or overlaps.
 
     private const int SplineSegmentDivisions = 24;

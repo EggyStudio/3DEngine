@@ -26,7 +26,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"LoadFileText: '{fileName}' could not be read: {ex.Message}");
+            ApiLogger.Warn($"LoadFileText: '{fileName}' could not be read. {ex.Message}");
             return null;
         }
     }
@@ -47,7 +47,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"SaveFileText: '{fileName}' could not be written: {ex.Message}");
+            ApiLogger.Warn($"SaveFileText: '{fileName}' could not be written. {ex.Message}");
             return false;
         }
     }
@@ -67,7 +67,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"LoadFileData: '{fileName}' could not be read: {ex.Message}");
+            ApiLogger.Warn($"LoadFileData: '{fileName}' could not be read. {ex.Message}");
             return null;
         }
     }
@@ -89,7 +89,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"SaveFileData: '{fileName}' could not be written: {ex.Message}");
+            ApiLogger.Warn($"SaveFileData: '{fileName}' could not be written. {ex.Message}");
             return false;
         }
     }
@@ -122,7 +122,7 @@ public static partial class E3D
             ApiLogger.Warn($"OpenURL: '{url}' is not an http or https address, so it is not opened.");
             return;
         }
-        if (!SDL3.SDL.OpenURL(uri.AbsoluteUri)) ApiLogger.Warn($"OpenURL: '{url}' could not be opened: {SDL3.SDL.GetError()}");
+        if (!SDL3.SDL.OpenURL(uri.AbsoluteUri)) ApiLogger.Warn($"OpenURL: '{url}' could not be opened. {SDL3.SDL.GetError()}");
     }
 
     /// <summary>Holds the program for a number of seconds, as a loading screen's pause does.</summary>

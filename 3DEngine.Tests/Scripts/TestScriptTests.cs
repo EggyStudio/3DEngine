@@ -67,7 +67,7 @@ public sealed class TestScriptTests : IDisposable
         File.Exists(_folder.File("digest.json")).Should().BeTrue();
 
         // As a run on GitHub gives them, where the annotations are all a reader who is not signed
-        // in sees: ten errors, each a cause whole, and a notice with the head and the repeated lines.
+        // in sees, ten errors, each a cause whole, and a notice with the head and the repeated lines.
         var (_, annotated) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") }, "--read", _folder.Path);
         var lines = Lines(annotated);
         var errors = lines.Where(line => line.StartsWith("::error ", StringComparison.Ordinal)).ToList();

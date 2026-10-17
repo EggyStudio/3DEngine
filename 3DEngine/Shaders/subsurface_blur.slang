@@ -1,5 +1,5 @@
 // Subsurface scattering over the window's frame, the light that enters a surface leaving it
-// nearby, as Jimenez's separable screen-space scattering spreads it: the diffuse light of the
+// nearby, as Jimenez's separable screen-space scattering spreads it. The diffuse light of the
 // pixels subsurface.slang marked is spread across, then down, each of red, green and blue by a
 // Gaussian whose width is its share of the material's radius over three, so a channel that travels
 // farther blurs farther, and the pass down adds the spread light in place of the light that was

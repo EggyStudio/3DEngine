@@ -18,7 +18,7 @@ public sealed class SceneRefTests : IDisposable
         return world;
     }
 
-    // A lamp: a post with a light on top, saved as a scene file of its own.
+    // A lamp, a post with a light on top, saved as a scene file of its own.
     private string Lamp()
     {
         var ecs = new EcsWorld();

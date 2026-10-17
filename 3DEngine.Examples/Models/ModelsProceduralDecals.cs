@@ -183,7 +183,7 @@ public static class ModelsProceduralDecals
         CloseWindow();
     }
 
-    // raygui's button, as ImGui's: a window of its own, without padding or a background, holding a
+    // raygui's button, as ImGui's, a window of its own, without padding or a background, holding a
     // button as large as the rectangle, at raygui's text size of 10. Its id is the rectangle's place,
     // since the label changes.
     private static bool GuiButton(Rectangle bounds, string text)

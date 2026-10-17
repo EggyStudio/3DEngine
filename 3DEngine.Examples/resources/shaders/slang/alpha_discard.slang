@@ -1,5 +1,5 @@
-// raylib's alpha_discard.fs, written in Slang: a texel with no alpha is discarded rather than drawn
-// clear, so the depth it would write does not hide what is drawn behind it after.
+// raylib's alpha_discard.fs, written in Slang, in which a texel with no alpha is discarded rather
+// than drawn clear, so the depth it would write does not hide what is drawn behind it after.
 import engine;
 
 [shader("fragment")]

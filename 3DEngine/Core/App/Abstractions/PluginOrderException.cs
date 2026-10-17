@@ -18,7 +18,7 @@ internal sealed class PluginOrderException : InvalidOperationException
     /// <summary>Name of the plugin whose build was attempted.</summary>
     public string RequiringPlugin { get; }
 
-    /// <summary>Name of the missing dependency: a plugin type name or a resource type name.</summary>
+    /// <summary>Name of the missing dependency, a plugin type name or a resource type name.</summary>
     public string MissingDependency { get; }
 
     /// <summary>Optional hint identifying the plugin that should have been added first.</summary>

@@ -35,6 +35,6 @@ internal static class StageOrder
     /// <summary>Per-frame stages only (First → … → Last), excluding Startup and Cleanup.</summary>
     public static ReadOnlySpan<Stage> FrameStages() => Frame;
 
-    /// <summary>The stages <see cref="App.EndFrame"/> runs: <see cref="Stage.PostUpdate"/> through <see cref="Stage.Last"/>.</summary>
+    /// <summary>The stages <see cref="App.EndFrame"/> runs, <see cref="Stage.PostUpdate"/> through <see cref="Stage.Last"/>.</summary>
     public static ReadOnlySpan<Stage> EndFrameStages() => AfterDrawing;
 }

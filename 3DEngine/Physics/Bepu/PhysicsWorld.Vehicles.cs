@@ -3,7 +3,7 @@ using BepuPhysics;
 
 namespace Engine;
 
-/// <summary>Vehicles: bodies held up and driven by raycast wheels before every step.</summary>
+/// <summary>Vehicles, bodies held up and driven by raycast wheels before every step.</summary>
 public sealed partial class PhysicsWorld
 {
     private sealed class VehicleState
@@ -19,7 +19,7 @@ public sealed partial class PhysicsWorld
     private readonly Dictionary<int, VehicleState> _vehicles = [];
 
     /// <summary>
-    /// A vehicle: a box of <paramref name="size"/> and <paramref name="mass"/> held up and driven by
+    /// A vehicle, a box of <paramref name="size"/> and <paramref name="mass"/> held up and driven by
     /// raycast wheels, facing -Z, which every step pushes as <paramref name="settings"/> says.
     /// </summary>
     internal PhysicsBody CreateVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null, int entityId = 0)
@@ -41,7 +41,7 @@ public sealed partial class PhysicsWorld
         new(-half.X + 0.05f, -half.Y * 0.5f, half.Z * 0.71f), new(half.X - 0.05f, -half.Y * 0.5f, half.Z * 0.71f),
     ];
 
-    /// <summary>Sets what drives a vehicle from the next step on: throttle and steering from -1 to 1, reverse and right being negative.</summary>
+    /// <summary>Sets what drives a vehicle from the next step on, throttle and steering from -1 to 1, reverse and right being negative.</summary>
     internal void SetVehicleInput(PhysicsBody body, float throttle, float steer, bool brake)
     {
         if (!_vehicles.TryGetValue(body.Handle, out var vehicle)) return;

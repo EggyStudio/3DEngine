@@ -1,4 +1,4 @@
-// raylib's sobel.fs, written in Slang: the picture's edges, by Sobel's kernels.
+// raylib's sobel.fs, written in Slang. It draws the picture's edges, by Sobel's kernels.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

@@ -84,7 +84,7 @@ public static class ShadersLightsBloom
                     DrawModel(floor, new Vector3(0.0f, 0.0f, 0.0f), 1.0f, Color.DarkGray);
                     DrawGrid(10, 1.0f);
 
-                    // Glowing bulbs mark each light's position
+                    // Emissive bulbs mark each light's position
                     for (int i = 0; i < MAX_LIGHTS; i++)
                     {
                         Color bulbColor = new(

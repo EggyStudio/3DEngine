@@ -121,11 +121,12 @@ var emoji = LoadFontEx("resources/fonts/NotoColorEmoji.ttf", 48, LoadCodepoints(
 DrawTextEx(emoji, Faces, new Vector2(20, 20), 48, 4, Color.White);
 ```
 
-A sequence a color font joins into one picture is drawn as that picture: a family from its people
-and the joiners between them, a flag from two regional indicators, a skin tone from a person and a
-modifier, a keycap from a digit and its marks. The font's own substitutions join them, its GSUB
-table's `ccmp` feature, applied to each run of emoji in the text, and the pictures they can make of
-the characters a font is loaded with are baked with it, so `LoadCodepoints` of the text is enough:
+A sequence a color font joins into one picture is drawn as that picture, such as a family from its
+people and the joiners between them, a flag from two regional indicators, a skin tone from a person
+and a modifier, a keycap from a digit and its marks. The font's own substitutions join them, its
+GSUB table's `ccmp` feature, applied to each run of emoji in the text, and the pictures they can
+make of the characters a font is loaded with are baked with it, so `LoadCodepoints` of the text is
+enough:
 
 ```csharp
 const string Sequences = "👨‍👩‍👧 🇯🇵 👍🏽 1️⃣ 🏳️‍🌈";

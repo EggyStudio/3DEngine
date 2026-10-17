@@ -1,4 +1,4 @@
-// Color conversions every pass that writes the frame agrees on: sRGB's transfer functions and the
+// Color conversions every pass that writes the frame agrees on, sRGB's transfer functions and the
 // tonemap that brings light past 1 under it. modelpass exports them to model shaders, and the
 // composite that brings the window's HDR frame into the window uses the same ones, so a render
 // texture's scene looks as the window's does.

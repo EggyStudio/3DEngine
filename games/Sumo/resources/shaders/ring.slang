@@ -1,7 +1,7 @@
 // The ring's clay, its color the texture ring_paint.slang paints each frame, read by where a point
 // of the ring is rather than by the mesh's own coordinates, so the floor's square lies over the
-// ring however the cylinder maps it. The sides below the floor are darker, and a ripple glows a
-// little beside being lit.
+// ring however the cylinder maps it. The sides below the floor are darker, and a ripple is a
+// little emissive beside being lit.
 import modelpass;
 
 // The painted floor, and the half width of the square of the world it covers, centered on the ring.

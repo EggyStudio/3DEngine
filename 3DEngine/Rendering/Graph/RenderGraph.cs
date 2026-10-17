@@ -32,7 +32,7 @@ internal sealed class RenderGraph : IDisposable
     /// <summary>Returns whether a node with the given label exists in the graph.</summary>
     public bool ContainsNode(string label) => _nodes.ContainsKey(label);
 
-    /// <summary>Adds an ordering-only edge: <paramref name="from"/> must execute before <paramref name="to"/>.</summary>
+    /// <summary>Adds an ordering-only edge, so <paramref name="from"/> executes before <paramref name="to"/>.</summary>
     public void AddNodeEdge(string from, string to)
     {
         if (!_nodes.ContainsKey(from)) throw new ArgumentException($"Node '{from}' not found.", nameof(from));

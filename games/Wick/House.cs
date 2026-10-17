@@ -7,7 +7,7 @@ using static Engine.E3D;
 namespace Wick;
 
 /// <summary>
-/// The house: a grid of cells two meters across, each a wall, a floor, a pit, a wick or the door,
+/// The house, a grid of cells two meters across, each a wall, a floor, a pit, a wick or the door,
 /// from a map in which <c>#</c> is a wall, <c>.</c> a floor, <c>d</c> a doorway, <c>o</c> a pit,
 /// <c>w</c> a wick to light, <c>S</c> where the player starts and <c>E</c> the door out.
 /// </summary>
@@ -76,8 +76,8 @@ public sealed class House
     public bool IsPit((int X, int Z) cell) => At(cell) == 'o';
 
     /// <summary>
-    /// Turns on what lights the house: the scene's distance field over the whole house and the
-    /// light that bounces through it, and no light from all around, so a room no lamp reaches is
+    /// Turns on what lights the house, the scene's distance field over the whole house and global
+    /// illumination through it, and no light from all around, so a room no lamp reaches is
     /// dark.
     /// </summary>
     public static void Light(GlobalIllumination quality)
@@ -90,7 +90,7 @@ public sealed class House
 
     /// <summary>
     /// The lamp a player carries, warm and casting shadows, so its light stops at a wall and goes
-    /// round a corner only as light that bounces.
+    /// round a corner only as indirect light.
     /// </summary>
     public static LightHandle Lamp(Vector3 at) => CreatePointLight(at, new Color(255, 196, 130), 7, range: 12, castsShadows: true);
 
@@ -106,9 +106,9 @@ public sealed class House
     }
 
     /// <summary>
-    /// Draws the house between <c>BeginMode3D</c> and <c>EndMode3D</c>: its walls, its floors,
+    /// Draws the house between <c>BeginMode3D</c> and <c>EndMode3D</c>, its walls, its floors,
     /// polished so they reflect the light on them, a candle at each wick, its flame where
-    /// <paramref name="lit"/> says, and the door, glowing once <paramref name="open"/>.
+    /// <paramref name="lit"/> says, and the door, emissive once <paramref name="open"/>.
     /// </summary>
     public void Draw(IReadOnlyList<bool> lit, bool open)
     {
@@ -136,7 +136,7 @@ public sealed class House
             if (lit[i]) DrawModel(pieces.Flame, at + new Vector3(0, 0.55f, 0), 1, Color.White);
         }
 
-        // The door, a slab in a brass frame, its slab glowing the way out once open.
+        // The door, a slab in a brass frame, its slab emissive, showing the way out once open.
         var door = Center(Door);
         DrawModelEx(open ? pieces.Open : pieces.Shut, door + new Vector3(0, 0.02f, 0), Vector3.UnitY, 0, new Vector3(1.2f, 0.06f, 1.2f), Color.White);
         foreach (var (dx, dz, w, d) in new[] { (0f, -0.65f, 1.4f, 0.1f), (0f, 0.65f, 1.4f, 0.1f), (-0.65f, 0f, 0.1f, 1.4f), (0.65f, 0f, 0.1f, 1.4f) })

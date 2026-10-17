@@ -17,12 +17,12 @@
 // below its rim inside. The nearest face a cell lies straight behind is kept apart, for a wall
 // thinner than a cell, which may have no cell's middle inside it. A cell no triangle comes within the band of
 // keeps the word it was cleared to, the band's distance in front. A second dispatch over the same triangles
-// paints each cell the color and the light given off of a triangle whose word is the one the cell
-// kept, its nearest surface, which light that bounces is read from, its instance's color times its
+// paints each cell the color and the emission of a triangle whose word is the one the cell
+// kept, its nearest surface, which global illumination is read from, its instance's color times its
 // vertices' colors blended at the cell's nearest point, as the model pass blends them across a face.
 // A fourth paints again the cells a mesh whose colors were written is nearest, its instances alone,
 // against the words its cascade's build kept, into the images the passes read, so colors written
-// in place reach the light that bounces without the distances found again.
+// in place reach global illumination without the distances found again.
 
 import color;
 
@@ -36,10 +36,10 @@ struct FieldInstance
     // inside, as a double-sided one, whose cells are all in front. w: the first of its triangles
     // counted over every instance before it.
     uint4 triangles;
-    // rgb: the surface's color, linear, its material's times its texture's average. w: 2 where the
-    // bounce carries the light it gives off as a glow light, 1 elsewhere.
+    // rgb: the surface's color, linear, its material's times its texture's average. w: 2 where
+    // global illumination carries its emission as a glow light, 1 elsewhere.
     float4 color;
-    // rgb: the light the surface gives off, linear. w: where it gives off light, its thinnest
+    // rgb: the surface's emission, linear. w: where it is emissive, its thinnest
     // extent in world units, its mesh's bounds along each of its own axes scaled into the world.
     float4 emission;
 };
@@ -70,8 +70,8 @@ RWStructuredBuffer<uint2> glow;
 [[vk::binding(5, 0)]]
 RWStructuredBuffer<uint> behind;
 
-// What the emitters thinner than a cell lend each cell they lie near, six words a cell: the most
-// light any of them gives off, red, green and blue in 256ths, and the area of their faces near the
+// What the emitters thinner than a cell lend each cell they lie near, six words a cell, the most
+// light any of them emits, red, green and blue in 256ths, and the area of their faces near the
 // cell seen along x, y and z, in 1024ths of a cell's face, which field_resolve.slang reads.
 [[vk::binding(6, 0)]]
 RWStructuredBuffer<uint> emitted;
@@ -252,13 +252,13 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     GroupMemoryBarrierWithGroupSync();
     FieldInstance instance = instances[triangleInstance];
     // An emitter thinner than a cell paints no cell its own where a surface behind it is nearer
-    // the cells' middles, as a bright strip on a wall, so its light was in the field nowhere and lit
-    // nothing that bounces. It lends the cells within half a cell of it its light, with the area of
+    // the cells' middles, as a bright strip on a wall, so its light was in the field nowhere and
+    // added nothing to global illumination. It lends the cells within half a cell of it its light, with the area of
     // its faces near each, which the resolve turns into the share of a cell's face it covers, so a
     // strip 0.06 wide lends cells of 0.15 two fifths of its light and a sheet as thin lends its
     // whole light, where a share of its thickness over the cell lent a sheet 0.02 thick a seventh.
-    // An emitter the bounce carries as a glow light lends nothing, its light reaching the cells'
-    // surfaces as a light's does.
+    // An emitter global illumination carries as a glow light lends nothing, its light reaching the
+    // cells' surfaces as a light's does.
     float thickness = instance.emission.w;
     bool carried = instance.color.w > 1.5;
     if (push.groups.y == 2u && (carried || !(thickness > 0.0 && thickness < push.originAndCell.w && any(instance.emission.rgb > 0.0))))

@@ -32,16 +32,17 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
         {
-            ApiLogger.Warn($"LoadScene: '{fileName}' could not be read: {ex.Message}");
+            ApiLogger.Warn($"LoadScene: '{fileName}' could not be read. {ex.Message}");
             return [];
         }
     }
 
-    // Whether nothing a scene places still waits for its file: no prefab or model an entity names
-    // that has not been asked for, which the next frame asks for, no asset the server is loading,
-    // and none loaded and not yet spawned, so a picture taken once it holds shows every model.
-    // Models load on the asset server's workers, and a reference frame of Summit taken after a
-    // settle of ten frames alone came gray on a runner slow that minute, its island not yet loaded.
+    // Whether nothing a scene places still waits for its file, with no prefab or model an entity
+    // names that has not been asked for, which the next frame asks for, no asset the server is
+    // loading, and none loaded and not yet spawned, so a picture taken once it holds shows every
+    // model. Models load on the asset server's workers, and a reference frame of Summit taken after
+    // a settle of ten frames alone came gray on a runner slow that minute, its island not yet
+    // loaded.
     internal static bool IsSceneLoaded()
     {
         if (World.TryGetResource<AssetServer>(out var server) && server.AnyLoading) return false;

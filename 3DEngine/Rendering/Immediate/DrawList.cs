@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-/// <summary>One vertex of the immediate pass: a position, a texture coordinate and a color, 24 bytes.</summary>
+/// <summary>One vertex of the immediate pass, a position, a texture coordinate and a color in 24 bytes.</summary>
 [StructLayout(LayoutKind.Sequential)]
 internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Color Color);
 

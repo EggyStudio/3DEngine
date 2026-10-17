@@ -261,9 +261,9 @@ internal sealed unsafe partial class GraphicsDevice
         _ => format,
     };
 
-    // Whether a target's format can be a storage image on this device, asked once a format: most
-    // desktop GPUs store eight-bit BGRA, the window's, and some do not, and every device stores
-    // eight-bit RGBA and the float formats.
+    // Whether a target's format can be a storage image on this device, asked once a format, since
+    // most desktop GPUs store eight-bit BGRA, the window's, and some do not, and every device
+    // stores eight-bit RGBA and the float formats.
     private readonly Dictionary<VkFormat, bool> _storesTargets = [];
 
     // Set by a test, so every target is written through a stand-in on a device that stores them.
@@ -286,7 +286,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>
     /// Makes the image a compute shader writes in place of a render target's image the device
-    /// cannot store to: the same size, of eight bits a channel in RGBA order, or of half or full
+    /// cannot store to, the same size, of eight bits a channel in RGBA order, or of half or full
     /// floats as the target is, formats every device stores. <see cref="Dispatch"/> fills it from
     /// the target before the shader runs, so a shader that reads the target reads what it holds,
     /// and copies it into the target after, each channel into its own, whatever order the target

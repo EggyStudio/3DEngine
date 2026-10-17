@@ -196,7 +196,7 @@ public static partial class E3D
         // right name and the wrong bytes reaches, so any is caught and the frame goes on.
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ApiLogger.Warn($"LoadSound: '{fileName}' could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadSound: '{fileName}' could not be decoded. {ex.Message}");
             return EmptySound(fileName);
         }
     }
@@ -338,7 +338,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ApiLogger.Warn($"LoadMusicStream: '{fileName}' could not be opened: {ex.Message}");
+            ApiLogger.Warn($"LoadMusicStream: '{fileName}' could not be opened. {ex.Message}");
             return new Music(null);
         }
     }
@@ -359,7 +359,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)
         {
-            ApiLogger.Warn($"LoadMusicStreamFromMemory: the {fileType} bytes could not be opened: {ex.Message}");
+            ApiLogger.Warn($"LoadMusicStreamFromMemory: the {fileType} bytes could not be opened. {ex.Message}");
             return new Music(null);
         }
     }
@@ -418,8 +418,8 @@ public static partial class E3D
             var read = decoder.Read(buffer);
             if (read == 0)
             {
-                // The end of the piece: round again when it loops, otherwise let what is queued
-                // play out.
+                // At the end of the piece, round again when it loops, and otherwise let what is
+                // queued play out.
                 if (!music.Looping)
                 {
                     music.Ended = true;
@@ -467,7 +467,7 @@ public static partial class E3D
         if (paused) PauseMusicStream(music);
     }
 
-    /// <summary>Whether a piece of music is playing: started, not paused, and not run out.</summary>
+    /// <summary>Whether a piece of music is playing, which is started, not paused and not run out.</summary>
     public static bool IsMusicStreamPlaying(Music music) =>
         music.Voice.IsValid && !music.Paused && !(music.Ended && Audio() is { } audio && audio.QueuedFrames(music.Voice) == 0);
 

@@ -84,7 +84,7 @@ public sealed class AudioServer : IDisposable
     /// Global linear gain multiplier folded into every voice's per-frame output volume
     /// by <see cref="Tick"/>. <c>1.0</c> = unity (default). Set by
     /// <see cref="AudioListenerSystem"/> from the active <see cref="AudioListener.MasterVolume"/>
-    /// each frame, but can also be driven directly (e.g. options menu, mute toggle).
+    /// each frame, but can also be set directly (e.g. options menu, mute toggle).
     /// Negative or NaN values are clamped to <c>0</c>.
     /// </summary>
     public float MasterVolume

@@ -232,7 +232,7 @@ public sealed partial class Schedule
     // name, since a type a script defines would keep the script's load context from unloading.
     private readonly Dictionary<(Stage Stage, string System, string Exception), long> _thrown = [];
 
-    // Logs an exception a system threw: whole the first time that system throws that type in that
+    // Logs an exception a system threw, whole the first time that system throws that type in that
     // stage, and after that a line at the 10th, the 100th, the 1,000th and so on. The whole line
     // names the assembly the system's code is in, so a system that reached an app it was not
     // written for, as a probe one test compiled once did, says where it came from.
@@ -249,7 +249,7 @@ public sealed partial class Schedule
         if (count == 1)
             Logger.Error($"System '{system}' from {desc.System.Method.Module.Assembly.GetName().Name} threw in stage {stage}", ex);
         else if (IsPowerOfTen(count))
-            Logger.Error($"System '{system}' has thrown {ex.GetType().Name} in stage {stage} {count:N0} times, the last: {ex.Message}");
+            Logger.Error($"System '{system}' has thrown {ex.GetType().Name} in stage {stage} {count:N0} times. The last says {ex.Message}");
     }
 
     private static bool IsPowerOfTen(long count)

@@ -157,7 +157,7 @@ public sealed partial class OffscreenRenderTests
         var ecs = GetApp().World.Resource<EcsWorld>();
         SpawnWallAndCamera(ecs);
 
-        // An orange light four times over: (4, 2, 1), which a plain clamp turns white.
+        // An orange light four times over, (4, 2, 1), which a plain clamp turns white.
         var lamp = ecs.Spawn();
         ecs.Add(lamp, Light.Ambient(new Vector3(1f, 0.5f, 0.25f), 4f));
         var image = Capture(() => ClearBackground(Color.Black), "orange");

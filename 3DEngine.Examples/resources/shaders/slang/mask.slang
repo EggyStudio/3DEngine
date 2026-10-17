@@ -1,5 +1,5 @@
-// raylib's mask.fs, written in Slang for a model: the texture where a moving mask is bright, and
-// nothing where it is dark, unlit, as raylib's default model shader draws.
+// raylib's mask.fs, written in Slang for a model. It draws the texture where a moving mask is
+// bright, and nothing where it is dark, unlit, as raylib's default model shader draws.
 import modelpass;
 
 Sampler2D mask;

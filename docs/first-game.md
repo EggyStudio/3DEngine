@@ -224,7 +224,7 @@ are and the box each crate fills, keeping the coins it started with for when it 
 
 <!-- step 09 -->
 ```csharp
-// The level: where the coins and the crates are, read from a scene file.
+// The level, where the coins and the crates are, read from a scene file.
 var coinsAtStart = new List<Vector3>();
 var crates = new List<BoundingBox>();
 var ecs = GetApp().World.Resource<EcsWorld>();
@@ -333,7 +333,7 @@ away. [Shipping a game](shipping-a-game.md) says what a publish leaves out and w
 
 ## Where next
 
-The [guide](../README.md#guide) takes each area further: [Input](input.md) for a gamepad,
+The [guide](../README.md#guide) takes each area further, [Input](input.md) for a gamepad,
 [Audio](audio.md) for music, [Scenes](scenes.md) for levels inside levels, and
 [Behaviors and the ECS](behaviors-and-the-ecs.md) for a game whose coins are behaviors, as the
 `dotnet new 3dengine-ecs` template starts one.

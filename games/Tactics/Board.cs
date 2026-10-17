@@ -28,7 +28,7 @@ public sealed class Unit
 }
 
 /// <summary>
-/// The board and its rules: the terrain, the units, whose turn it is, what each side can see, how far
+/// The board and its rules, the terrain, the units, whose turn it is, what each side can see, how far
 /// a unit can go and by which way, what an attack does, the opponent's moves, and a match written to
 /// a file and read back.
 /// </summary>
@@ -164,7 +164,7 @@ public sealed class Board
     }
 
     /// <summary>
-    /// Every tile a side's units can see: those within each unit's sight, one further from a hill,
+    /// Every tile a side's units can see, those within each unit's sight, one further from a hill,
     /// that no woods stand between. A unit sees into woods and not past them.
     /// </summary>
     public HashSet<(int X, int Z)> Seen(Side side)
@@ -279,10 +279,10 @@ public sealed class Board
     }
 
     /// <summary>
-    /// What the opponent does with one unit, knowing only what its side sees: strike the weakest
-    /// enemy in sight and in range, or else walk as far along the cheapest way toward the nearest
-    /// enemy in sight as it can this turn and strike from there. With none in sight it heads for
-    /// the edge the other side started from, to find them.
+    /// What the opponent does with one unit, knowing only what its side sees. It strikes the
+    /// weakest enemy in sight and in range, or else walks as far along the cheapest way toward the
+    /// nearest enemy in sight as it can this turn and strikes from there. With none in sight it
+    /// heads for the edge the other side started from, to find them.
     /// </summary>
     public (List<(int X, int Z)> Path, Unit? Target) Plan(Unit unit)
     {

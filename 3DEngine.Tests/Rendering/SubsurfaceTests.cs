@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// Subsurface scattering, read from chosen pixels of frames drawn offscreen: two white spheres lit
+/// Subsurface scattering, read from chosen pixels of frames drawn offscreen, two white spheres lit
 /// from the side, the left one's material scattering light under its surface, red farthest,
 /// whose line between lit and shadowed softens and reddens where the right one's, unmarked, is
 /// left as it was; and slabs lit from behind, a thin one that scatters showing the light on its
@@ -103,8 +103,8 @@ public sealed class SubsurfaceTests : IDisposable
     [InlineData("spot light through its map")]
     public void A_Thin_Slab_Lit_From_Behind_Shows_The_Light_On_Its_Front_Where_A_Thick_One_Barely_Does(string light)
     {
-        // Three white slabs a unit square facing the camera, lit only from behind: a thin one and a
-        // thick one whose material scatters over 0.3, and a thin one that does not. Behind them a
+        // Three white slabs a unit square facing the camera, lit only from behind, a thin one and a
+        // thick one whose material scatters over 0.3 and a thin one that does not. Behind them a
         // lamp whose light's way through each is measured in the scene's distance field, or the
         // sun, a point light or a spot light that casts shadows with no field, whose own shadow map
         // measures it. The thin one's front reads (141, 65, 41) by the lamp through the field,
@@ -170,7 +170,7 @@ public sealed class SubsurfaceTests : IDisposable
     {
         // A sheet facing the camera with a lamp behind it and no scene's field to measure how thick
         // it is toward the lamp, so no light comes through it, until its material says it is five
-        // centimeters thick, as an ear is: its front reads (39, 39, 39), the ambient light alone,
+        // centimeters thick, as an ear is. Its front reads (39, 39, 39), the ambient light alone,
         // and (138, 96, 62) with the thickness, as this test measured on the development machine's
         // GPU.
         Open();
@@ -324,8 +324,8 @@ public sealed class SubsurfaceTests : IDisposable
     {
         // The sun from the right and a little in front, as shaders_subsurface's, and great circles
         // through the light's pole turned about its axis from 45 degrees one way to 45 the other,
-        // each read from the terminator into the shadow until the light falls to the ambient's: the
-        // angle it falls there at is the edge of the light past the terminator, which a zig-zag
+        // each read from the terminator into the shadow until the light falls to the ambient's, and
+        // the angle it falls there at is the edge of the light past the terminator, which a zig-zag
         // sets apart from the mean of its neighbors' on either side, where the camera's view of the
         // sphere bends it slowly. Skin's edge, its light through read from the sun's map texel by
         // texel, ran 99.25 to 102.75 degrees and stood 0.41 of a degree from its neighbors' mean on

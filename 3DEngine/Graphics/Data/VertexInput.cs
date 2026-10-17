@@ -59,7 +59,7 @@ internal readonly record struct VertexInputAttributeDesc(uint Location, uint Bin
 internal readonly record struct VertexStream(string Semantic, VertexInputAttributeDesc Attribute)
 {
     /// <summary>
-    /// The attributes a vertex stage is fed: each stream the stage names by its semantic, at the
+    /// The attributes a vertex stage is fed, each stream the stage names by its semantic, at the
     /// location Slang gave it, where <paramref name="named"/> holds the stage's inputs, and where it
     /// holds none, each stream at its own location, those the stage reads where
     /// <paramref name="read"/> says which.

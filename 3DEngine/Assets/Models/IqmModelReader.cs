@@ -6,7 +6,7 @@ namespace Engine;
 
 /// <summary>
 /// Reads an Inter-Quake Model (<c>.iqm</c>, version 2) as raylib's <c>LoadIQM</c> and
-/// <c>LoadModelAnimationsIQM</c> read one: its meshes with their skin into a scene, and its clips
+/// <c>LoadModelAnimationsIQM</c> read one, its meshes with their skin into a scene and its clips
 /// into poses of every bone at each of the file's frames.
 /// </summary>
 /// <remarks>

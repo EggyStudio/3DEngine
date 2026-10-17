@@ -8,7 +8,7 @@ namespace Engine.Tests.Package;
 
 /// <summary>
 /// The newest engine package in build/package, as <c>build/pack.sh</c> made it, opened and read for
-/// what a game built on it needs: the engine, its generator, its documentation, its compiled
+/// what a game built on it needs, the engine, its generator, its documentation, its compiled
 /// shaders, its readme, license, notices and release notes, and a native library from its
 /// dependencies for each system it runs on. The pack workflow runs these before a package is offered.
 /// </summary>

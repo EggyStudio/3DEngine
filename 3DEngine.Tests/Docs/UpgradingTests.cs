@@ -59,7 +59,7 @@ public sealed partial class UpgradingTests
     [NeedsHistoryFact(FiveOne, "from which docs/upgrading.md counts the names added")]
     public void Every_Name_The_Public_Surface_Gained_Since_5_1_Is_On_The_Upgrading_Page()
     {
-        // The other way from the names lost: a type 5.1 lacked is named by itself, and a member
+        // The other way from the names lost, a type 5.1 lacked is named by itself, and a member
         // whose name its type lacked by its name, a call whose arguments were reordered or retyped
         // keeping a name 5.1 had and being no name added.
         var root = Api.CheatsheetTests.RepoRoot();
@@ -167,7 +167,7 @@ public sealed partial class UpgradingTests
         return types;
     }
 
-    // A member's name: before its arguments for a method or a constructor, before its value for an
+    // A member's name, before its arguments for a method or a constructor, before its value for an
     // enum's member, before its accessors for a property, and last for a field.
     private static string MemberName(string line)
     {

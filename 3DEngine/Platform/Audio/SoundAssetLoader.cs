@@ -41,7 +41,7 @@ internal sealed class SoundAssetLoader : IAssetLoader<Sound>
         catch (Exception ex)
         {
             return AssetLoadResult<Sound>.Fail(
-                $"SoundAssetLoader: decode failed for '{context.Path}': {ex.Message}");
+                $"SoundAssetLoader: decode failed for '{context.Path}'. {ex.Message}");
         }
     }
 }

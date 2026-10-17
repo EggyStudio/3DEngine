@@ -5,8 +5,8 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// A glowing block on a floor with a wall half its height beside it, and the floor's light read
-/// along a line across the wall's shadow: the penumbra the screen's probes give holds still as the
+/// An emissive block on a floor with a wall half its height beside it, and the floor's light read
+/// along a line across the wall's shadow. The penumbra the screen's probes give holds still as the
 /// view turns and frame to frame, follows a lamp placed or a wall taken away within a round of
 /// the probes' points, and with no screen probe the pixel's own marches keep the shadow.
 /// </summary>
@@ -103,9 +103,10 @@ public sealed class GlowPenumbraTests : IDisposable
     public void Each_Frame_Draws_With_The_Build_That_Leaves_Out_What_It_Does_Not_Hold()
     {
         // The model pass's fragment stage is 253,212 bytes of SPIR-V whole, 124,660 without the
-        // glow lights' marches and 55,228 without the bounce as well, which lavapipe compiles as it
-        // first draws with each pipeline. Each frame takes its build by its own glow lights and
-        // bounce, so the lamp shows in the frame it is placed in, as the test of a lamp placed reads.
+        // glow lights' marches and 55,228 without global illumination as well, which lavapipe
+        // compiles as it first draws with each pipeline. Each frame takes its build by its own glow
+        // lights and global illumination, so the lamp shows in the frame it is placed in, as the
+        // test of a lamp placed reads.
         using var scene = new Scene(screenOff: false);
         var models = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<ModelRenderer>()!;
         scene.Lamp = false;
@@ -119,7 +120,7 @@ public sealed class GlowPenumbraTests : IDisposable
         models.Drew.Should().Be(ModelBuild.Lampless, "the lamp taken away leaves none");
         SetGlobalIllumination(GlobalIllumination.Off);
         scene.Frames(1);
-        models.Drew.Should().Be(ModelBuild.Unbounced, "no light bounces");
+        models.Drew.Should().Be(ModelBuild.Unbounced, "global illumination is off");
     }
 
     // How far a line strays from another on average, as a share of the light at each point, the

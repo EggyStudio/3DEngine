@@ -1,4 +1,4 @@
-// raylib's grayscale.fs, written in Slang: the color drawn, gray by NTSC's weights.
+// raylib's grayscale.fs, written in Slang. It turns the color drawn gray by NTSC's weights.
 import engine;
 
 [shader("fragment")]

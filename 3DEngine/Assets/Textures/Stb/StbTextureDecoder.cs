@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// <see cref="ITextureDecoder"/> backed by <c>StbImageSharp</c>, a managed port of
-/// <c>stb_image.h</c>, which reads the textures model files usually name: PNG, JPEG, BMP,
+/// <c>stb_image.h</c>, which reads the textures model files usually name, PNG, JPEG, BMP,
 /// TGA, PSD, GIF, HDR (Radiance), PIC and PNM, PPM and PGM.
 /// </summary>
 /// <remarks>
@@ -108,7 +108,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
                     ?? throw new InvalidOperationException(
                         $"StbTextureDecoder: ImageResultFloat.FromStream returned null for '{context.Path}'.");
 
-        // Pack float[] into byte[] without copying semantics: BlockCopy preserves the
+        // Pack float[] into byte[] without copying semantics, since BlockCopy preserves the
         // little-endian IEEE-754 layout the GPU expects for Rgba32F.
         var bytes = new byte[image.Data.Length * sizeof(float)];
         Buffer.BlockCopy(image.Data, 0, bytes, 0, bytes.Length);

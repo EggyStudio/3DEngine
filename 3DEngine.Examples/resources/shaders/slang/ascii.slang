@@ -1,5 +1,5 @@
-// raylib's ascii.fs, written in Slang: the picture in cells, each a character as bright as the cell.
-// The character set is from https://www.shadertoy.com/view/lssGDj.
+// raylib's ascii.fs, written in Slang. It draws the picture in cells, each a character as bright as
+// the cell. The character set is from https://www.shadertoy.com/view/lssGDj.
 import engine;
 
 uniform float2 resolution;

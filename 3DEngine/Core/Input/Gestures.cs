@@ -3,8 +3,8 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// Recognizes raylib's gestures from the fingers on the screen, frame by frame: taps, double taps,
-/// holds, drags, swipes and pinches.
+/// Recognizes raylib's gestures, taps, double taps, holds, drags, swipes and pinches, from the
+/// fingers on the screen, frame by frame.
 /// </summary>
 /// <remarks>
 /// Positions are fractions of the window, from 0 to 1 across and down, as raylib's are, so the

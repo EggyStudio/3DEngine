@@ -61,9 +61,9 @@ internal sealed class SdlWindow
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad))
         {
             var err = SDL.GetError();
-            logger.Error($"SDL initialization failed: {err}");
+            logger.Error($"SDL initialization failed. {err}");
             SDL.LogError(SDL.LogCategory.System, $"SDL could not initialize: {err}");
-            throw new InvalidOperationException($"SDL init failed: {err}");
+            throw new InvalidOperationException($"SDL init failed. {err}");
         }
         logger.Info("SDL3 initialized successfully.");
 
@@ -74,9 +74,9 @@ internal sealed class SdlWindow
             if (window == IntPtr.Zero)
             {
                 var err = SDL.GetError();
-                logger.Error($"Vulkan window creation failed: {err}");
+                logger.Error($"Vulkan window creation failed. {err}");
                 SDL.LogError(SDL.LogCategory.Application, $"Error creating Vulkan window: {err}");
-                throw new InvalidOperationException($"SDL Vulkan window creation failed: {err}");
+                throw new InvalidOperationException($"SDL Vulkan window creation failed. {err}");
             }
             Window = window;
             Renderer = IntPtr.Zero; // no SDL renderer in Vulkan mode
@@ -88,9 +88,9 @@ internal sealed class SdlWindow
             if (!SDL.CreateWindowAndRenderer(title, width, height, flags | SDL.WindowFlags.Resizable | SDL.WindowFlags.Hidden, out var window, out var renderer))
             {
                 var err = SDL.GetError();
-                logger.Error($"Window/renderer creation failed: {err}");
+                logger.Error($"Window/renderer creation failed. {err}");
                 SDL.LogError(SDL.LogCategory.Application, $"Error creating window and renderer: {err}");
-                throw new InvalidOperationException($"SDL window/renderer creation failed: {err}");
+                throw new InvalidOperationException($"SDL window/renderer creation failed. {err}");
             }
             Window = window;
             Renderer = renderer;

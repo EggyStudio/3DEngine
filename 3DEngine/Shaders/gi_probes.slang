@@ -2,7 +2,7 @@
 // (gi.show probes), each face the light the probe gathers from that side over pi, what a white
 // surface facing that way would return, and a probe inside a mesh left out. The cubes are drawn a
 // call for the cascade, an instance a probe and thirty-six corners a cube, from the probes' faces
-// as the light that bounces left them, hidden by the scene as any mesh is.
+// as global illumination left them, hidden by the scene as any mesh is.
 import color;
 import scenefield;
 

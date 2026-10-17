@@ -7,7 +7,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The rooms of <c>shaders_bounce_rooms</c> at each quality of the light that bounces against
+/// The rooms of <c>shaders_bounce_rooms</c> at each quality of global illumination against
 /// references path-traced through the GPU's rays, each view's frame held within its measured
 /// difference from its reference.
 /// </summary>
@@ -36,7 +36,7 @@ public sealed class BounceRoomsTests : IDisposable
     // where the views read 0.12 to 0.14 of their light apart from their references in the Cornell
     // box, 0.09 in the thin room, 0.20 to 0.24 in the corridor, 0.27 to 0.30 in the window's, 0.02
     // among the red walls, 0.22 in the strip's, 0.11 to 0.12 on the grazing floor, 0.11 to 0.12 in
-    // the carried lamp's and 0.05 to 0.06 around the glowing blocks, the screen's probes' rays
+    // the carried lamp's and 0.05 to 0.06 around the emissive blocks, the screen's probes' rays
     // reaching twice as far as the world's probes are apart, which took the corridor from 0.26, the
     // strip's from 0.27 to 0.29 and the carried lamp's from 0.10 to 0.12, and since the small
     // emitters are lights of their own (GlowLights), where the strip's read 0.45 to 0.47. The

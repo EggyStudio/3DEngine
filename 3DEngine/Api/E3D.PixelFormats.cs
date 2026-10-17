@@ -3,7 +3,7 @@ namespace Engine;
 public static partial class E3D
 {
     // -- Pixel formats. An image holds four bytes a pixel, and a format is read into them, as the
-    // GPU reads raylib's textures of the format: a channel of fewer bits spread across 0 to 255, a
+    // GPU reads raylib's textures of the format, a channel of fewer bits spread across 0 to 255, a
     // format of one channel read as red, gray as all three, and one without alpha opaque.
 
     /// <summary>
@@ -48,7 +48,7 @@ public static partial class E3D
 
     /// <summary>
     /// Keeps of each pixel what <paramref name="newFormat"/> keeps, as raylib's <c>ImageFormat</c>
-    /// converts an image to it: gray for the gray formats, fewer levels of each channel for the
+    /// converts an image to it, gray for the gray formats, fewer levels of each channel for the
     /// formats of fewer bits, no alpha for those without it, and red alone for those of one channel.
     /// </summary>
     /// <remarks>

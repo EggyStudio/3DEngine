@@ -178,7 +178,7 @@ public static partial class E3D
             var display = SDL.GetDisplayForWindow(w);
             if (!SDL.GetClosestFullscreenDisplayMode(display, mode.Width, mode.Height, mode.RefreshRate, false, out var closest))
             {
-                ApiLogger.Warn($"SetWindowFullscreenMode: the monitor has no mode near {mode.Width}x{mode.Height}: {SDL.GetError()}");
+                ApiLogger.Warn($"SetWindowFullscreenMode: the monitor has no mode near {mode.Width}x{mode.Height}. {SDL.GetError()}");
                 return;
             }
             SDL.SetWindowFullscreenMode(w, closest);
@@ -282,7 +282,7 @@ public static partial class E3D
             var surface = SDL.CreateSurfaceFrom(image.Width, image.Height, SDL.PixelFormat.ABGR8888, (IntPtr)pixels, image.Width * 4);
             if (surface == IntPtr.Zero)
             {
-                ApiLogger.Warn($"SetWindowIcon: the image could not be made a surface: {SDL.GetError()}");
+                ApiLogger.Warn($"SetWindowIcon: the image could not be made a surface. {SDL.GetError()}");
                 return;
             }
             SDL.SetWindowIcon(w, surface);
@@ -311,7 +311,7 @@ public static partial class E3D
             }
             if (surfaces.Count == 0)
             {
-                ApiLogger.Warn($"SetWindowIcons: no image could be made a surface: {SDL.GetError()}");
+                ApiLogger.Warn($"SetWindowIcons: no image could be made a surface. {SDL.GetError()}");
                 return;
             }
             for (int i = 1; i < surfaces.Count; i++) SDL.AddSurfaceAlternateImage(surfaces[0], surfaces[i]);
@@ -349,7 +349,8 @@ public static partial class E3D
     /// <summary>Puts text on the system clipboard.</summary>
     /// <remarks>
     /// A run with no window, offscreen or headless, has no system clipboard, and keeps the text as
-    /// its own, so what a program copies it pastes again, as a game driven offscreen by e3d does.
+    /// its own, so what a program copies it pastes again, as a game scripted offscreen through e3d
+    /// does.
     /// </remarks>
     public static void SetClipboardText(string text)
     {

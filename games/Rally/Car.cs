@@ -3,7 +3,7 @@ using Engine;
 using static Engine.E3D;
 
 /// <summary>
-/// The car: the engine's vehicle, one box held up by four raycast wheels, with what the race needs
+/// The car, the engine's vehicle, one box held up by four raycast wheels, with what the race needs
 /// beside it, its reset, the way an autopilot drives it and how long it has been stuck.
 /// </summary>
 public sealed class Car

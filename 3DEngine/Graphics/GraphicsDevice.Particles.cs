@@ -4,7 +4,7 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// The GPU side of one particle emitter: a storage buffer of its particles, which a compute
+/// The GPU side of one particle emitter, a storage buffer of its particles, which a compute
 /// dispatch steps each frame and the particle pass draws from, and the set the dispatch reads it
 /// through.
 /// </summary>
@@ -128,7 +128,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _particleSetLayout = setLayout;
 
-        // The second set: the scene's depth and the view it was drawn through, and the scene's
+        // The second set, the scene's depth and the view it was drawn through, and the scene's
         // distance field and where its cascades lie.
         var viewBindings = stackalloc VkDescriptorSetLayoutBinding[4];
         viewBindings[0] = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
@@ -319,7 +319,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
 
-        // As particle_sort.slang has them: a workgroup's threads, and the keys it sorts in shared memory.
+        // As particle_sort.slang has them, a workgroup's threads and the keys it sorts in shared memory.
         const uint Threads = 256, Block = 512;
         void Dispatch(uint j, uint k, uint mode, uint groups)
         {

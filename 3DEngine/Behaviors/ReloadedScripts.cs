@@ -80,9 +80,9 @@ internal static class ReloadedScripts
         return new Carried(components, resources, dropped);
     }
 
-    // The value as the target type has it, or null where it cannot be: a value of a type the last
-    // generation declared made again, an array or a list element by element, anything else as it
-    // is where the target holds it.
+    // The value as the target type has it, or null where it cannot be, a value of a type the last
+    // generation declared made again, an array or a list element by element, and anything else as
+    // it is where the target holds it.
     [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = ScriptTypes)]
     [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = ScriptTypes)]
     [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = ScriptTypes)]

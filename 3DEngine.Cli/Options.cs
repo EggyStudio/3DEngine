@@ -71,7 +71,7 @@ internal static class Help
     public static int Print()
     {
         Console.WriteLine("""
-            e3d drives a running 3DEngine app from the terminal.
+            e3d controls a running 3DEngine app from the terminal.
 
               e3d status                     what is serving
               e3d open <example> [flags]     start an example serving, and wait until it answers

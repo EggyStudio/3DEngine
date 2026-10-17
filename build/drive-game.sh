@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Plays a game from the package through ./e3d, offscreen and under the validation layer, as the
 # Linux jobs play it, and asserts its walk or its win, so a game's input, its sound and the session
-# ./e3d drives are tried on the system it runs on. The build workflow runs it on Windows and macOS
+# ./e3d controls are tried on the system it runs on. The build workflow runs it on Windows and macOS
 # after build/play-game.sh, which packs the engine, for Slide on a push and for every game in the
 # pack run, and once more for one game with window as the second argument, which opens the game in a
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
@@ -96,7 +96,7 @@ meaning() {
     0xE0434352) echo ", a .NET exception no one caught" ;;
   esac
 }
-# Where the session went: whether the game's process still runs, and, ended, its exit code and the
+# Where the session went, whether the game's process still runs and, ended, its exit code and the
 # description of the last crash of it Windows logged, the faulting module and the exception's code
 # for a native one and the exception for a managed one. Git's bash would turn the Windows tools'
 # arguments that begin with a slash into paths, which MSYS2_ARG_CONV_EXCL stops.
@@ -358,8 +358,8 @@ case "$game" in
     # double click takes the move back as a double tap, a finger held a second and a half starts
     # again, and the autopilot plays until no move is left. A gesture is timed on the game's
     # clock, a swipe a drag let go faster than 0.2 of the window a second and a double tap two
-    # taps within 0.3 seconds, so each frame is made a sixtieth of a second first: where a device
-    # drew the drag's ten frames in two seconds, the swipe slid nothing.
+    # taps within 0.3 seconds, so each frame is made a sixtieth of a second first, since where a
+    # device drew the drag's ten frames in two seconds, the swipe slid nothing.
     cmd time.frame 0.0166667
     cmd input.click 240 135
     cmd frames.wait 10

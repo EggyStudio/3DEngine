@@ -111,7 +111,7 @@ again makes each section upload its mesh anew, the room's blocks and light as be
 frames on the floor reads 0.130, 0.081 and 0.027 and the wall 0.072, 0.047 and 0.016, a third
 brighter and twice as bright, and stays so. The reference does the same: its far wall reads 0.002
 before the uploads and 0.043 after, and whole sections are black in its picture where the room was
-dark at their last upload. The light that bounces and the reference keep a mesh's colors from its
+dark at their last upload. Global illumination and the reference keep a mesh's colors from its
 last upload and take none that `UpdateMeshBuffer` writes, while the model pass draws the new ones.
 The game writes colors in place whenever a block's light changes, so a lamp placed in a dark room
 bounces off walls as dark as they were before it, until a block changes in their section.

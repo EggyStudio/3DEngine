@@ -5,10 +5,10 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// The scene's distance field on the GPU: two images of half floats, each its cascades one after
+/// The scene's distance field on the GPU, two images of half floats, each its cascades one after
 /// another along z, the field the still meshes make, which a build writes, and the field the
 /// passes read, that one with the shapes of the meshes that moved stamped into it, the color and
-/// the light given off of each cell's nearest still surface in two images more, and a uniform
+/// the emission of each cell's nearest still surface in two images more, and a uniform
 /// buffer saying where each cascade lies, which a frame writes before any pass reads it.
 /// </summary>
 /// <remarks>
@@ -72,7 +72,7 @@ internal sealed class GpuSceneField : IDisposable
     /// </summary>
     public IImageView AlbedoView { get; }
 
-    /// <summary>The light each cell's nearest still surface gives off, linear, laid out as <see cref="View"/> is.</summary>
+    /// <summary>The emission of each cell's nearest still surface, linear, laid out as <see cref="View"/> is.</summary>
     public IImageView GlowView { get; }
 
     internal IBuffer Albedo { get; }
@@ -229,7 +229,7 @@ internal sealed unsafe partial class GraphicsDevice
         var glowOwner = new VulkanImage(this, glowImage, glowMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
         Name(albedoOwner, "Scene distance field colors");
-        Name(glowOwner, "Scene distance field light given off");
+        Name(glowOwner, "Scene distance field emission");
         return new GpuSceneField(cascades, (int)size, new VulkanImageView(this, owner, fieldView), sampler, info, cells,
             still, stillView, field, fieldView, () =>
             {
@@ -356,7 +356,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="origin">The cascade's corner.</param>
     /// <param name="cell">The width of its cells.</param>
     /// <param name="band">How many cells from a surface the distances are exact.</param>
-    /// <param name="thinGlow">Whether an instance gives off light and is thinner than a cell, whose light the cells near it are lent.</param>
+    /// <param name="thinGlow">Whether an instance is emissive and thinner than a cell, whose light the cells near it are lent.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false)
@@ -556,8 +556,8 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// The colors of the cells' nearest surfaces, four floats a cell from 0 to 1, and the light
-    /// they give off, four a cell, laid out as <see cref="ReadSceneField"/> lays the distances.
+    /// The colors of the cells' nearest surfaces, four floats a cell from 0 to 1, and their
+    /// emission, four a cell, laid out as <see cref="ReadSceneField"/> lays the distances.
     /// </summary>
     internal (float[] Albedo, float[] Glow) ReadSceneFieldColors(GpuSceneField field)
     {
@@ -601,7 +601,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // One recording of the field's work: the descriptor pool its sets come from, freed once no
+    // One recording of the field's work, the descriptor pool its sets come from, freed once no
     // frame in flight reads them.
     private sealed class FieldRun : IDisposable
     {

@@ -14,8 +14,8 @@ public static partial class E3D
 
     /// <summary>
     /// Draws the frame profile in an ImGui window of its own, which a program shows while it is
-    /// worked on: the frame and its work, the program's own values, and each group of averages,
-    /// largest first, which <c>e3d command profile</c> reports too.
+    /// worked on, with the frame and its work, the program's own values, and each group of
+    /// averages, largest first, which <c>e3d command profile</c> reports too.
     /// </summary>
     /// <remarks>Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is.</remarks>
     public static void DrawProfileWindow()

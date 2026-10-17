@@ -64,7 +64,7 @@ internal sealed partial class ModelRenderer : IDisposable
         public Vector4 WorldX, WorldY, WorldZ;
         /// <summary>The material's color, linear.</summary>
         public Vector4 Color;
-        /// <summary>The light the material gives off, linear, in xyz.</summary>
+        /// <summary>The material's emission, linear, in xyz.</summary>
         public Vector4 Emission;
         /// <summary>Metallic, roughness, normal scale and occlusion strength.</summary>
         public Vector4 Factors;
@@ -124,7 +124,7 @@ internal sealed partial class ModelRenderer : IDisposable
         public Matrix4x4 ViewProjection;
         // The pixels its draws are kept to, or null for the whole target.
         public ScissorRect? Scissor;
-        // What the shadow pass draws it with: nothing, a solid shadow, or one its material cuts out.
+        // What the shadow pass draws it with, nothing, a solid shadow or one its material cuts out.
         public ShadowKind Shadow;
         // The shares of the radius each color travels under the surface and the radius, where its
         // draws scatter light under it (ModelDraw.Subsurface), or zero, a batch holding one alone.
@@ -155,14 +155,14 @@ internal sealed partial class ModelRenderer : IDisposable
     // can differ in format.
     private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, bool Positions, bool Solid), IPipeline> _pipelines = [];
 
-    // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
+    // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices, not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
     // buffer of one default element, for a shader of the program's own that reads them on a mesh
     // without them. The pass's own pipeline reads them only for a mesh that has them, so a mesh
     // without them draws through model.slang, reading its vertices alone.
     private enum Streams : byte { None, PerVertex, Default }
 
-    // How a pipeline feeds CUSTOM0 at binding 5 to a shader of the program's own that reads it: a
+    // How a pipeline feeds CUSTOM0 at binding 5 to a shader of the program's own that reads it, a
     // vertex at a time from the mesh's stream of the program's own, in its format, or once from
     // sixteen bytes of zeros in a format of the input's class, since Vulkan reads an attribute of
     // one class into an input of the other as nothing it defines.
@@ -358,7 +358,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly Dictionary<int, IShader> _heldFragments = [];
     private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, bool Positions, bool Solid), IPipeline> _customPipelines = [];
 
-    // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
+    // Descriptor sets for draws with a shader of their own, a list per frame slot handed out in
     // order each frame and kept for the next time the slot comes round.
     private const int SetRingFrames = GpuTextures.RetireFrames;
     private readonly List<IDescriptorSet>[] _drawSets = Enumerable.Range(0, SetRingFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
@@ -377,7 +377,7 @@ internal sealed partial class ModelRenderer : IDisposable
     /// <param name="streams">The compiled <c>model_streams.slang</c>, for a mesh with a color or a second texture coordinate at each vertex, or none where every mesh is drawn with <c>model.slang</c>.</param>
     /// <param name="subsurface">The compiled <c>subsurface.slang</c>, which draws the window's meshes that scatter light under their surface again for <see cref="SubsurfaceRenderer"/>, or none where no light scatters.</param>
     /// <param name="lampless"><c>model.slang</c> and <c>model_streams.slang</c> compiled with <c>NO_GLOW_LIGHTS</c>, as <paramref name="model"/> and <paramref name="streams"/> were otherwise, which draw a frame with no glow lights (<see cref="ModelBuild.Lampless"/>), or none where such a frame draws whole.</param>
-    /// <param name="unbounced">The same compiled with <c>NO_BOUNCE</c>, which draw a frame where no light bounces (<see cref="ModelBuild.Unbounced"/>).</param>
+    /// <param name="unbounced">The same compiled with <c>NO_BOUNCE</c>, which draw a frame without global illumination (<see cref="ModelBuild.Unbounced"/>).</param>
     public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null, ShaderProgram? subsurface = null,
         (ShaderProgram? Model, ShaderProgram? Streams) lampless = default, (ShaderProgram? Model, ShaderProgram? Streams) unbounced = default)
     {
@@ -432,10 +432,10 @@ internal sealed partial class ModelRenderer : IDisposable
         var (batches, ring, offset, blocks) = (view.Batches, view.Ring, view.Offset, view.Blocks);
 
         // A frame draws with the build that leaves out what it does not hold, which shades it as
-        // the whole does: the bounce and the glow lights where no light bounces, which every
-        // view's lighting then says (LightingUboPrepare), and the glow lights' marches where light
-        // bounces with a count of none. The window and every target read the frame's one set of
-        // lights, so the window's count holds for each.
+        // the whole does, leaving out global illumination and the glow lights where global
+        // illumination is off, which every view's lighting then says (LightingUboPrepare), and the
+        // glow lights' marches where it is on with a count of none. The window and every target
+        // read the frame's one set of lights, so the window's count holds for each.
         var build = GlobalIlluminationRenderer.CascadesIn(renderWorld) == 0 ? ModelBuild.Unbounced
             : renderWorld.TryGet<IlluminationBinding>() is { GlowLights: > 0 } ? ModelBuild.Whole : ModelBuild.Lampless;
         Drew = _fragmentSpvs[(int)build] is null ? ModelBuild.Whole : build;

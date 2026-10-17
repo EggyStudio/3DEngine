@@ -1,5 +1,5 @@
-// raylib's palette_switch.fs, written in Slang: each pixel's red, as an index, takes its color from
-// the palette.
+// raylib's palette_switch.fs, written in Slang, in which each pixel's red, as an index, takes its
+// color from the palette.
 import engine;
 
 static const int MAX_INDEXED_COLORS = 8;

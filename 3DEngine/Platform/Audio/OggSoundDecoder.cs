@@ -50,7 +50,7 @@ internal sealed class OggSoundDecoder : ISoundDecoder
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or EndOfStreamException)
         {
-            throw new InvalidDataException($"OggSoundDecoder: '{sourcePath}' is not an Ogg Vorbis file: {ex.Message}", ex);
+            throw new InvalidDataException($"OggSoundDecoder: '{sourcePath}' is not an Ogg Vorbis file. {ex.Message}", ex);
         }
     }
 }

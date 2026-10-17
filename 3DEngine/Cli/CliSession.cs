@@ -114,8 +114,8 @@ internal static class CliSessionFile
     /// app as gone about once in a hundred commands. The names of two listings are taken together,
     /// with a file still being written counted under the name it is moved to. On Windows the file
     /// cannot be opened for the moment the move takes, so a read that fails is tried again a few
-    /// times 10 ms apart: read once, it found no session for the puzzle game while it served, its
-    /// process alive, about once a run of its drive.
+    /// times 10 ms apart, since read once it found no session for the puzzle game while it served,
+    /// its process alive, about once a scripted run.
     /// </remarks>
     public static IReadOnlyList<CliSession> All()
     {

@@ -3,8 +3,9 @@ using System.Reflection;
 namespace Engine;
 
 /// <summary>
-/// Serves the <c>e3d</c> command line when <see cref="Config.Serve"/> is set: a loopback socket
-/// answering console commands between frames, and a session file that tells <c>e3d</c> where it is.
+/// Serves the <c>e3d</c> command line when <see cref="Config.Serve"/> is set, with a loopback
+/// socket answering console commands between frames and a session file that tells <c>e3d</c> where
+/// it is.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -42,7 +43,7 @@ internal sealed class CliPlugin : IPlugin
         ConsoleLog.TeeConsole();
         _server = new CliServer(_queue, app.World.GetOrInsertResource(static () => new AppThreads()));
         CliSessionFile.Write(Describe(app, "starting", 0));
-        Console.WriteLine($"[e3d] serving on 127.0.0.1:{_server.Port}. Drive it with e3d status, e3d list, e3d command <name>.");
+        Console.WriteLine($"[e3d] serving on 127.0.0.1:{_server.Port}. Control it with e3d status, e3d list and e3d command <name>.");
 
         // Ready once a frame has run, because nothing can be asked before there is a frame to answer in.
         app.AddSystem(Stage.Startup, new SystemDescriptor(world =>

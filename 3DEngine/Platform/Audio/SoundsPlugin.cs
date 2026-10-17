@@ -1,8 +1,8 @@
 namespace Engine;
 
 /// <summary>
-/// Backend-agnostic sound plugin. Mirrors <see cref="TexturesPlugin"/>:
-/// installs the <see cref="SoundDecoderRegistry"/>, registers the built-in
+/// Backend-agnostic sound plugin. Mirrors <see cref="TexturesPlugin"/>.
+/// It installs the <see cref="SoundDecoderRegistry"/>, registers the built-in
 /// <see cref="WavSoundDecoder"/>, wires the shared <see cref="SoundAssetLoader"/>
 /// with the <see cref="AssetServer"/>, inserts the <see cref="AudioServer"/>
 /// (with a <see cref="NullAudioBackend"/> until a backend plugin replaces it),
@@ -11,7 +11,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The sound model here is the same on every platform: the <see cref="Sound"/> asset, the
+/// The sound model here is the same on every platform, the <see cref="Sound"/> asset, the
 /// <see cref="ISoundDecoder"/> registry with its WAV, Ogg Vorbis, MP3 and FLAC decoders, the loader,
 /// and the <see cref="AudioServer"/>. Playback is <see cref="SdlAudioPlugin"/>'s, which this plugin
 /// adds, and which leaves the server silent rather than failing where there is no audio device.

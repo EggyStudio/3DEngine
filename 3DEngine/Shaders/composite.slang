@@ -74,7 +74,7 @@ float boringCurve(float v)
     return 1.0 - exp(-v);
 }
 
-// Tomasz Stachowiak's somewhat boring display transform: the luminance bent and the color scaled
+// Tomasz Stachowiak's somewhat boring display transform, the luminance bent and the color scaled
 // with it, mixed toward each channel bent alone as the color grows saturated, and desaturated as
 // it grows bright.
 float3 somewhatBoring(float3 c)

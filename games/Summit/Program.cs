@@ -1,5 +1,5 @@
 // Summit, a small 3D platformer. The player runs and jumps from the island up to the house on the
-// summit, collecting the glowing orbs on the way, over a carousel turned by a motor and a bridge
+// summit, collecting the emissive orbs on the way, over a carousel turned by a motor and a bridge
 // hung on ropes. Written against the engine's package with what its cheatsheet and guide offer, as a game
 // outside this repository would be.
 //
@@ -42,7 +42,7 @@ CreatePhysicsDistanceJoint(beam, bridge, new Vector3(7.5f, 9, -27), new Vector3(
 // A lift from the bridge's far side up to the house, moved by the program.
 var lift = CreatePhysicsKinematicBox(new Vector3(12, 3, -31), new Vector3(3, 0.4f, 3));
 
-// -- Light outdoors and in, the sky, and what glows
+// -- Light outdoors and in, the sky, and what is emissive
 
 CreateDirectionalLight(new Vector3(-0.5f, -1, -0.35f), new Color(255, 244, 225), 1.6f, castsShadows: true);
 CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);
@@ -62,7 +62,7 @@ var clips = LoadModelAnimations("resources/hero.gltf");
 ModelAnimation Clip(string name) => clips.First(c => c.Name == name);
 var (idle, run, jump) = (Clip("idle"), Clip("run"), Clip("jump"));
 var orb = LoadModelFromMesh(GenMeshSphere(0.3f, 16, 16));
-// A glow casts no shadow, which would darken the ground under each orb.
+// An emissive orb casts no shadow, which would darken the ground under it.
 orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 200, 90), EmissiveIntensity = 5, CastsShadows = false };
 var ball = LoadModelFromMesh(GenMeshSphere(0.5f, 32, 32));
 ball.Materials[0] = new ModelMaterial(new Color(230, 190, 110)) { Metallic = 1, Roughness = 0.15f };
@@ -179,7 +179,7 @@ while (!WindowShouldClose())
     var liftAt = GetPhysicsBodyPosition(lift);
     SetPhysicsBodyVelocity(lift, screen == Screen.Play ? new Vector3(0, (liftY - liftAt.Y) * 8, 0) : Vector3.Zero);
 
-    // An orb is collected by touching it, and the house's glowing floor ends the run once all are.
+    // An orb is collected by touching it, and the house's emissive floor ends the run once all are.
     foreach (var contact in GetPhysicsContacts())
     {
         if (contact.BodyA != player && contact.BodyB != player) continue;

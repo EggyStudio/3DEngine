@@ -2,7 +2,7 @@ using ImGuiNET;
 
 namespace Engine;
 
-/// <summary>HUD overlay showing real-time performance metrics: FPS, frame time, and 1-second peak.</summary>
+/// <summary>HUD overlay showing real-time performance metrics, FPS, frame time, and 1-second peak.</summary>
 /// <remarks>
 /// Renders into an ImGui <c>"Performance"</c> window.  The peak FPS counter resets every second
 /// based on <see cref="Time.ElapsedSeconds"/>. Hidden until F2 is pressed.

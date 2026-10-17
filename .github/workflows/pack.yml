@@ -6,9 +6,9 @@
 # packages to nuget.org when asked to. Nothing is packed unless every job of the build passes, so no
 # package is made before its games are proven on it.
 #
-# The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
-# commits since that file last changed. The package and its symbols are kept as the run's artifact
-# either way, so a pack can be checked, or uploaded by hand, before one is pushed.
+# The version is build/version.sh's, the major and minor in build/version.txt and, as the patch,
+# the commits since that file last changed. The package and its symbols are kept as the run's
+# artifact either way, so a pack can be checked, or uploaded by hand, before one is pushed.
 name: pack
 
 on:
@@ -63,7 +63,7 @@ jobs:
 
       - run: build/pack.sh "${{ steps.version.outputs.version }}"
 
-      # What the package holds, read from the .nupkg before it is offered: the engine, its
+      # What the package holds, read from the .nupkg before it is offered, the engine, its
       # generator, documentation, compiled shaders, readme, license, notices and release notes,
       # and its dependencies' native libraries for each system BUILDING.md claims.
       - name: Check what the package holds

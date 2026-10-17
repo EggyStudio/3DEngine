@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>Frame-based input state (keys, mouse, deltas) derived from SDL events.</summary>
 /// <remarks>
-/// Maintains three key sets per frame: <em>down</em> (held this frame), <em>pressed</em>
+/// Maintains three key sets per frame, <em>down</em> (held this frame), <em>pressed</em>
 /// (transitioned to down this frame), and <em>released</em> (transitioned to up this frame).
 /// Call <see cref="BeginFrame"/> at the start of each frame to clear transient state, then
 /// <see cref="Process"/> for each SDL event, and optionally <see cref="EndFrame"/> at the end.

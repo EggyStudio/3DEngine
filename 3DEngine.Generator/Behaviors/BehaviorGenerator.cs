@@ -697,7 +697,7 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// The call that adds a declared state: a sub-state for an enum with [SubStateOf], a computed
+    /// The call that adds a declared state, a sub-state for an enum with [SubStateOf], a computed
     /// state for a method with [ComputedState], or null with the reason reported.
     /// </summary>
     private static string? StateRegistration(ISymbol symbol, SourceProductionContext spc)

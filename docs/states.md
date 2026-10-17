@@ -1,8 +1,8 @@
 # States
 
-A game moves between screens and modes: a title, playing, paused, a game over. A state is an enum
-the engine keeps, with the value the game is in, and behaviors run, start and stop by it, so code
-for the title screen does not have to ask on every line whether the title is showing.
+A game moves between screens and modes, such as a title, playing, paused and a game over. A state is
+an enum the engine keeps, with the value the game is in, and behaviors run, start and stop by it, so
+code for the title screen does not have to ask on every line whether the title is showing.
 
 ## A state and its moves
 
@@ -18,7 +18,7 @@ public enum Screen { Title, Playing, Paused }
 GetApp().AddState(Screen.Title);
 ```
 
-The flat API has the same calls: `AddState(Screen.Title)` adds it, `GetState<Screen>()` gives the
+The flat API has the same calls. `AddState(Screen.Title)` adds it, `GetState<Screen>()` gives the
 value it is in, `IsState(Screen.Paused)` asks whether it is at one, and `SetState(Screen.Playing)`
 moves it. The example reads and moves the state from its loop through the world's resources,
 which those calls reach as well:
@@ -65,7 +65,7 @@ else
 
 ## Behaviors that follow a state
 
-A behavior's method runs by a state with an attribute:
+A behavior's method runs by a state with an attribute.
 
 | Attribute | Runs |
 |---|---|

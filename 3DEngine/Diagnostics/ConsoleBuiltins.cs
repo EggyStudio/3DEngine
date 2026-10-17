@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Engine;
 
-/// <summary>The console commands every app has: the app, frames, the log, entities, resources and the schedule.</summary>
+/// <summary>The console commands every app has, for the app, frames, the log, entities, resources and the schedule.</summary>
 internal static class ConsoleBuiltins
 {
     // Why the console's reading of components by reflection is safe where a build is trimmed (N 2.5).
@@ -325,7 +325,7 @@ internal static class ConsoleBuiltins
         return engine.Count == 1 ? engine : found;
     }
 
-    // A component as a new one should start: its static Default or Identity when it has one, else
+    // A component as a new one should start, its static Default or Identity when it has one, else
     // a constructor whose parameters all have defaults, else the zero value. Several components
     // are wrong at zero (a Transform of scale zero, a Material that is transparent black).
     [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = ByReflection)]
@@ -388,7 +388,7 @@ internal static class ConsoleBuiltins
         return $"{type.Name} {Describe(boxed)}";
     }
 
-    // Reads a word as the field's type: numbers, flags, text, enums by name, vectors, quaternions
+    // Reads a word as the field's type, numbers, flags, text, enums by name, vectors, quaternions
     // and colors as comma-separated numbers, and an array as its items split by semicolons, each
     // read as the element type, so a mesh's positions are 0,1,0;-1,-1,0;1,-1,0.
     [UnconditionalSuppressMessage("AOT", "IL3050",

@@ -1,4 +1,4 @@
-// What the stages that filter a reflection probe's capture share: the way a cube texel looks, as
+// What the stages that filter a reflection probe's capture share, the way a cube texel looks, as
 // Vulkan's cube lookup has it, the solid angle a texel covers, and the nine spherical harmonics of
 // bands 0 to 2 in the order the model pass evaluates them (Y00, Y1-1, Y10, Y11, Y2-2, Y2-1, Y20,
 // Y21, Y22).

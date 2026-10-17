@@ -118,7 +118,7 @@ melody = {0: ("A", 3), 4: ("C", 3), 8: ("E", 3), 12: ("A", 3), 16: ("G", 3), 20:
 PATTERNS = [
     # An intro of hats, then the kick from halfway.
     pattern(list(range(32, 64, 4)), [], eighth_hats, {}, 4),
-    # The groove: the kick on each beat, the snare on two and four, the hats and the bass.
+    # The groove, the kick on each beat, the snare on two and four, the hats and the bass.
     pattern(beats, [4, 12, 20, 28, 36, 44, 52, 60], eighth_hats, bassline, 4),
     # The lead over it.
     pattern(beats, [4, 12, 20, 28, 36, 44, 52, 60], offbeat_hats, melody, 5),

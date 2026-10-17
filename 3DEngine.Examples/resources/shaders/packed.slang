@@ -11,7 +11,7 @@ static const float3 Normals[6] = {
 };
 static const float2 Corners[4] = { float2(0, 1), float2(1, 1), float2(1, 0), float2(0, 0) };
 
-// Each tile's two colors, its ground and its speckle: grass, dirt, stone and snow.
+// Each tile's two colors, its ground and its speckle, for grass, dirt, stone and snow.
 static const float3 Grounds[4] = { float3(0.20, 0.45, 0.12), float3(0.36, 0.24, 0.13), float3(0.38, 0.38, 0.40), float3(0.85, 0.88, 0.92) };
 static const float3 Speckles[4] = { float3(0.30, 0.58, 0.18), float3(0.28, 0.18, 0.10), float3(0.30, 0.30, 0.32), float3(0.72, 0.76, 0.82) };
 

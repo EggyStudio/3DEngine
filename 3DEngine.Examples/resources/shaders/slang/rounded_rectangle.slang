@@ -1,5 +1,6 @@
-// raylib's rounded_rectangle.fs, written in Slang: a rectangle with rounded corners, its shadow and
-// its border, by signed distance. raylib's base.vs is the engine's own vertex stage here.
+// raylib's rounded_rectangle.fs, written in Slang. It draws a rectangle with rounded corners, its
+// shadow and its border, by signed distance. raylib's base.vs is the engine's own vertex stage
+// here.
 //
 // The rounded rectangle's distance is Iñigo Quilez's
 // (https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm), as inobelar wrote it

@@ -9,14 +9,14 @@ public static class ShadersSubsurface
     {
         InitWindow(800, 450, "[shaders] subsurface");
 
-        // Light under the surface: in front, spheres of wax, skin and marble lit by a low sun from
-        // the right, whose line between lit and shadowed softens and takes the color that travels
-        // farthest, beside a plain sphere; behind, a leaf and a slab of wax lit only by a lamp
-        // behind them, the light coming through the thin leaf and barely through the thick slab.
-        // The lamp's way through the slab is measured in the scene's distance field, which holds the
-        // leaf, drawn as one sheet, a cell thick, so the leaf's material says how thin it is, as a
-        // glTF file's KHR_materials_volume does. S turns the scattering off and on, and Q steps
-        // through its qualities.
+        // Light under the surface. In front are spheres of wax, skin and marble lit by a low sun
+        // from the right, whose line between lit and shadowed softens and takes the color that
+        // travels farthest, beside a plain sphere, and behind are a leaf and a slab of wax lit only
+        // by a lamp behind them, the light coming through the thin leaf and barely through the
+        // thick slab. The lamp's way through the slab is measured in the scene's distance field,
+        // which holds the leaf, drawn as one sheet, a cell thick, so the leaf's material says how
+        // thin it is, as a glTF file's KHR_materials_volume does. S turns the scattering off and
+        // on, and Q steps through its qualities.
         SetSceneField(2, 0.15f, 2);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, -0.5f, -0.35f)), new Color(255, 244, 228), 1.6f, castsShadows: true);
         CreatePointLight(new Vector3(0, 1.4f, -3.4f), new Color(255, 210, 150), 6, range: 8);

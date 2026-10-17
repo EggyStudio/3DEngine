@@ -1,4 +1,5 @@
-// raylib's gol.glsl, written in Slang: one step of Conway's Game of Life, each thread a cell.
+// raylib's gol.glsl, written in Slang. It runs one step of Conway's Game of Life, each thread a
+// cell.
 
 #define GOL_WIDTH 768
 

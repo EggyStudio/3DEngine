@@ -1,5 +1,5 @@
-// raylib's color_correction.fs, written in Slang: contrast, brightness and saturation, each from
-// -100 to 100.
+// raylib's color_correction.fs, written in Slang. It sets contrast, brightness and saturation, each
+// from -100 to 100.
 import engine;
 
 uniform float contrast;

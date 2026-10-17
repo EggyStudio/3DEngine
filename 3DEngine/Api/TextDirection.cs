@@ -60,7 +60,7 @@ internal static class TextDirection
     }
 
     /// <summary>
-    /// A line's grapheme clusters: where each starts in the line, the line's code points, the index of
+    /// A line's grapheme clusters, where each starts in the line, the line's code points, the index of
     /// each cluster's first code point among them, and each cluster's level, its first code point's.
     /// </summary>
     internal sealed record LineClusters(string Line, int[] Starts, int[] Codepoints, int[] First, byte[] Levels)
@@ -259,7 +259,7 @@ internal static class TextDirection
         }
 
         var category = c <= 0x10FFFF ? CharUnicodeInfo.GetUnicodeCategory(c) : UnicodeCategory.OtherNotAssigned;
-        // The scripts written right to left, their marks and controls apart: Hebrew, NKo, Samaritan,
+        // The scripts written right to left, their marks and controls apart, Hebrew, NKo, Samaritan,
         // Mandaic and the historic scripts of the first plane read as Hebrew does, and Arabic,
         // Syriac and Thaana as Arabic does, with their presentation forms.
         var arabic = c is (>= 0x0600 and <= 0x07BF) or (>= 0x0860 and <= 0x08FF) or (>= 0xFB50 and <= 0xFDCF) or (>= 0xFDF0 and <= 0xFDFF)

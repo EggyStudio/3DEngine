@@ -1,8 +1,8 @@
 namespace Engine;
 
 /// <summary>
-/// Immutable application configuration: window properties, startup command, and graphics backend.
-/// Use <c>with</c> expressions or the fluent <c>With*</c> methods to derive variants.
+/// Immutable application configuration, holding window properties, startup command, and graphics
+/// backend. Use <c>with</c> expressions or the fluent <c>With*</c> methods to derive variants.
 /// </summary>
 /// <example>
 /// <code>
@@ -81,7 +81,7 @@ public sealed record Config
 
     /// <summary>
     /// How many samples a pixel of the window and of a render target is drawn with, to smooth the
-    /// stair steps along triangle edges: 1 for none, or 2, 4 or 8, rounded down to what the device
+    /// stair steps along triangle edges, 1 for none or 2, 4 or 8, rounded down to what the device
     /// can do. Defaults to 4, which every desktop device supports.
     /// </summary>
     public int Samples { get; init; } = 4;
@@ -134,7 +134,7 @@ public sealed record Config
     public SceneFieldConfig SceneField { get; init; } = new();
 
     /// <summary>
-    /// How much light bounces between surfaces when the app starts, none by default, which turns
+    /// How much global illumination the app starts with, none by default, which turns
     /// the scene's distance field on at four cascades where <see cref="SceneField"/> has none.
     /// </summary>
     public GlobalIllumination GlobalIllumination { get; init; }

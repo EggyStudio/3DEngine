@@ -125,7 +125,7 @@ public class PluginDependencyTests : IDisposable
     [Fact]
     public void AddPlugins_Sorts_By_Order_So_Foundation_Builds_First()
     {
-        // Listed in the "wrong" order on purpose: consumer first, foundation second.
+        // Listed in the "wrong" order on purpose, consumer first and foundation second.
         var consumer = new DefaultOrderPlugin();
         var foundation = new FoundationPlugin();
         var group = new TestGroup([consumer, foundation]);

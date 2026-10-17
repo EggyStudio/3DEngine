@@ -1,6 +1,6 @@
-// How the model pass reads its lights' set: each light's arrival and the shadow maps that cut it,
-// the metallic-roughness model's specular, the probes and the environment, and the light that
-// bounced and a glossy surface's traced reflection. Imported by modelpass alone, so a shader that
+// How the model pass reads its lights' set, each light's arrival and the shadow maps that cut it,
+// the metallic-roughness model's specular, the probes and the environment, and global illumination
+// and a glossy surface's traced reflection. Imported by modelpass alone, so a shader that
 // imports modelpass sees the set and not these.
 module lights;
 
@@ -9,12 +9,12 @@ import scenefield;
 import gi;
 import color;
 
-// Whether this build of the model pass reads the light that bounces and a glossy surface's traced
+// Whether this build of the model pass reads global illumination and a glossy surface's traced
 // reflection, which it leaves out where it is compiled with NO_BOUNCE, as ModelRenderer draws a
-// frame where no light bounces, and whether it shades the glow lights, which it leaves out where it
-// is compiled with NO_GLOW_LIGHTS or NO_BOUNCE, as it draws a frame that has none. Their marches
-// are half of its fragment stage, the bounce most of the rest, and lavapipe compiles each
-// pipeline's variants as it first draws with them.
+// frame without global illumination, and whether it shades the glow lights, which it leaves out
+// where it is compiled with NO_GLOW_LIGHTS or NO_BOUNCE, as it draws a frame that has none. Their
+// marches are half of its fragment stage, global illumination most of the rest, and lavapipe
+// compiles each pipeline's variants as it first draws with them.
 #if defined(NO_BOUNCE)
 public static const bool Bouncing = false;
 #else
@@ -32,9 +32,9 @@ public static const int Point = 1;
 public static const int Spot = 2;
 public static const int Ambient = 3;
 
-// Light arriving at a point with a normal from one light: Lambert's cosine, divided by the square
-// of the distance for a point or a spot, brought smoothly to nothing at its range, and cut to a
-// spot's cone.
+// Light arriving at a point with a normal from one light, by Lambert's cosine, divided by the
+// square of the distance for a point or a spot, brought smoothly to nothing at its range, and cut
+// to a spot's cone.
 public float3 arriving(Light light, float3 world, float3 n)
 {
     int kind = int(light.positionAndKind.w);
@@ -113,7 +113,7 @@ public float lightReaching(float3 world, float3 n)
     return 1.0;
 }
 
-// Where the shadowed spot light in slot (counted from 0) lies in the map: the last tile is the
+// Where the shadowed spot light in slot (counted from 0) lies in the map. The last tile is the
 // map's lower right quarter, split by rank as ShadowFit.SpotTileArea splits it, whole for one light,
 // quarters for up to four, and past four quarters for the first two and sixteenths in its lower
 // half for the rest.
@@ -135,7 +135,7 @@ public void spotTile(int slot, out float2 origin, out float size)
 }
 
 // The face of the shadowed point light in slot (counted from 0) that a point the way away from the
-// light lies furthest along the axis of, and where it lies in the point map: the lights that matter
+// light lies furthest along the axis of, and where it lies in the point map. The lights that matter
 // most have a layer to each face, and the rest a quarter of one at half the size, as
 // ShadowFit.PointFaceArea lays them out, with texels twice as wide.
 public int pointFace(float3 away, int slot, out int layer, out float2 origin, out float scale)
@@ -337,16 +337,16 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
     return f0 * ab.x + ab.y;
 }
 
-// How much of the light that bounced to a surface at p facing n the screen's probes give rather than
-// the world's, which they take the light from beyond their rays from: all of it inside the world's
-// second cascade, or its first where light bounces through one, falling to none across its outer
-// band (CascadeBand in gi.slang).
+// How much of the indirect light reaching a surface at p facing n the screen's probes give rather
+// than the world's, which they take the light from beyond their rays from, all of it inside the
+// world's second cascade, or its first where global illumination has one, falling to none across
+// its outer band (CascadeBand in gi.slang).
 public float screenHold(float3 p, float3 n)
 {
     return probesHold(bouncedField, p, n, lighting.indirect.y, min(1, int(lighting.indirect.w) - 1));
 }
 
-// The light that bounced to a surface at p facing n, irradiance over pi, from the world's probes
+// The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes
 // around it as gi.slang blends them, or -1 where no cascade of probes holds p.
 public float3 bounced(float3 p, float3 n)
 {
@@ -374,12 +374,12 @@ public float skySeen(float3 p, float3 n, float3 r)
 }
 
 // The light a glossy surface at p facing n reflects along r, traced through the window's depth and
-// past it through the scene's distance field, with in a how much of it is known: 1 where a ray met
+// past it through the scene's distance field, with in a how much of it is known, 1 where a ray met
 // a surface, faded at the picture's edge where the frame before's picture gives its light, and 0
 // where the ray met nothing, or the surface is too rough to trace for, where the probes and the
 // environment reflect alone. A surface met on the screen reflects the light the frame before
 // showed where it was, and one past the picture or hidden from it its color times the light
-// reaching it, as the light that bounces shades a hit.
+// reaching it, as global illumination shades a hit.
 public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, float3 eye)
 {
     if (!Bouncing || lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
@@ -457,11 +457,10 @@ bool rayBlocked(float3 p, float3 way, float reach = 1e4)
 }
 
 // The light the first of the window's meshes a ray from p along way meets sends back along it,
-// through the device's ray tracing: the copy's color over pi times the sun's light where a second
+// through the device's ray tracing, the copy's color over pi times the sun's light where a second
 // ray toward the sun gets through, the lamps', each that casts shadows where a ray toward it gets
-// through, and the light that bounced to it where a
-// cascade of probes holds it or the light from all around where none does, with the light it gives
-// off, and a 1, or a 0 where it meets none.
+// through, and the indirect light reaching it where a cascade of probes holds it or the light from
+// all around where none does, with its emission, and a 1, or a 0 where it meets none.
 float4 rayReflection(float3 p, float3 way)
 {
     RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
@@ -511,10 +510,10 @@ float4 rayReflection(float3 p, float3 way)
     float3 l = reflectLights.sunDirection.xyz;
     if (reflectLights.sunDirection.w > 0.5 && dot(n, l) > 0.0 && !rayBlocked(hit + n * 0.01, l))
         arrived += reflectLights.sunColor.rgb * dot(n, l);
-    // The lamps and the sun as the light reaching the face, beside the bounced light and the sky,
+    // The lamps and the sun as the light reaching the face, beside the indirect light and the sky,
     // as shadeHit takes them.
     arrived *= Pi;
-    // The light that bounced fading to the sky's across the last cascade's outer band, as the
+    // The indirect light fading to the sky's across the last cascade's outer band, as the
     // model pass takes it (bouncedHold).
     float held = bouncedHold(bouncedField, hit, n, lighting.indirect.y, lighting.indirect.w);
     if (held > 0.0)

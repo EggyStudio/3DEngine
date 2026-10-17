@@ -15,17 +15,17 @@
 // when such a ray was blocked dark here too. Blocked, this cascade's faces lacked every surface
 // nearer its probes than the interval's start, which a Cornell box probe of the second cascade
 // read 63% short of a path-traced reference, and every surface past the first cascade's reach
-// that read those faces for the light bounced to it.
+// that read those faces for the indirect light reaching it.
 //
 // A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved off it along the
 // field's normal before its rays leave, as DDGI moves its probes, so the probes in the plane of a
 // wall or a ceiling stand in the room before it, and where it stands is left for the merge and the
 // gather, which writes it into the probe's faces for every pass that reads them.
 //
-// A probe takes the light that bounced to the surfaces its rays meet at the share the gather left
+// A probe takes the indirect light reaching the surfaces its rays meet at the share the gather left
 // it, other than the whole the frame after the light its rays bring straight from the sun, the
-// lights and what gives off light fell by a fifth or rose by a quarter, so the light that bounced
-// on from light that went out goes with it rather than over the frames each bounce takes to fade.
+// lights and emissive surfaces fell by a fifth or rose by a quarter, so the indirect light from
+// light that went out goes with it rather than over the frames each bounce takes to fade.
 import gi;
 import scenefield;
 
@@ -44,7 +44,7 @@ Sampler3D fieldGlow;
 [[vk::binding(4, 0)]]
 ConstantBuffer<GiLights> lights;
 
-// What each ray brought back: rgb the light, a 1 where it met nothing and lets what lies beyond
+// What each ray brought back, rgb the light, a 1 where it met nothing and lets what lies beyond
 // through, a half where it met a surface before its interval began, 0 where it met one inside it,
 // and a quarter where a ray of the last cascade met nothing and brought the sky's light, which the
 // merge takes as it takes 0 and counts as the sky the probe sees.
@@ -52,7 +52,7 @@ ConstantBuffer<GiLights> lights;
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> radiance;
 
-// The light that bounced to each probe the frame before, as gi_ambient.slang left it, for the
+// The indirect light reaching each probe the frame before, as gi_ambient.slang left it, for the
 // light a surface sends on from it.
 [[vk::binding(6, 0)]]
 Sampler3D bounced;
@@ -68,14 +68,14 @@ SamplerCube environment;
 RWTexture3D<float> distances;
 
 // Each probe's own light as gi_ambient.slang left it, the frame before's and the one before that
-// side by side, the share of the light that bounced each probe takes, and where this trace moved
+// side by side, the share of the indirect light each probe takes, and where this trace moved
 // each probe to, its move in its spacing with w 1 where it stands outside every mesh, every
 // cascade.
 [[vk::binding(9, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
 // What each workgroup of a probe's rays, 64 of them, brought back straight from the sun, the lights
-// and what gives off light, summed, with in a the luminance of all they brought back, each ray
+// and emissive surfaces, summed, with in a the luminance of all they brought back, each ray
 // weighed by the share of the sphere its texel spans, four workgroups a probe at most, which
 // gi_ambient.slang sums a probe at a time.
 [[vk::binding(10, 0)]] [format("rgba32f")]
@@ -103,10 +103,10 @@ groupshared float4 place;
 groupshared bool walledIn;
 
 // The field's layout with each cascade at the corner it lay at the frame before, where the faces of
-// the light that bounced, which the rays read, were gathered. Read at this frame's corners, a
+// the indirect light, which the rays read, were gathered. Read at this frame's corners, a
 // cascade that moved with the eye read each probe's faces from the probe a step or more beside it,
-// and the light bouncing again, fed from those faces each frame, took ten frames and more to find
-// itself again after a turn moved every cascade.
+// and the light past the first bounce, fed from those faces each frame, took ten frames and more to
+// find itself again after a turn moved every cascade.
 SceneFieldInfo gatheredAt()
 {
     SceneFieldInfo then = fieldInfo;
@@ -115,7 +115,7 @@ SceneFieldInfo gatheredAt()
     return then;
 }
 
-// Where the probe whose spot in the grid is at stands: moved off a surface nearer than Clearance of
+// Where the probe whose spot in the grid is at stands, moved off a surface nearer than Clearance of
 // the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
 // its move in its spacing, with w 1 where it then stands outside every mesh.
 float4 placed(float3 at, float apart)
@@ -138,13 +138,13 @@ float4 placed(float3 at, float apart)
 groupshared float3 nearNow[32];
 groupshared float3 nearBefore[32];
 
-// The share of the light that bounced the probe at `at` of cascade c takes: the one the gather
-// left it, or for a probe its own light lights too little of to judge by, the share the own light
+// The share of the indirect light the probe at `at` of cascade c takes, the one the gather left
+// it, or for a probe its own light lights too little of to judge by, the share the own light
 // of the 27 probes of its cascade within one of it kept of the frame before's, so a room that goes
-// dark takes the light its walls bounced with it, and a lamp in a room far off, judged by every
-// probe's own light, does not dim or brighten the passages lit by bounce alone with it. Each of the
-// first 27 rays of the probe's workgroup reads one probe, and every ray of the group reaches the
-// sum, the share being the probe's.
+// dark takes its walls' indirect light with it, and a lamp in a room far off, judged by every
+// probe's own light, does not dim or brighten the passages lit by indirect light alone with it.
+// Each of the first 27 rays of the probe's workgroup reads one probe, and every ray of the group
+// reaches the sum, the share being the probe's.
 float3 kept(uint3 at, int c, int probes, uint lane)
 {
     if (push.follow.x == 0u)
@@ -239,7 +239,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         reached = t >= 0.0 ? t : push.interval.y;
         if (t >= 0.0)
         {
-            // The light that bounced to the hit from the probes a march reaches, so the probes'
+            // The indirect light reaching the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
             light = float4(shadeProbeHit(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bounced, origin + way * t,
                 float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);

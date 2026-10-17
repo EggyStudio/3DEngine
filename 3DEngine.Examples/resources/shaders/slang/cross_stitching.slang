@@ -1,4 +1,5 @@
-// raylib's cross_stitching.fs, written in Slang: the picture as stitches on a grid of six pixels.
+// raylib's cross_stitching.fs, written in Slang. It draws the picture as stitches on a grid of six
+// pixels.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

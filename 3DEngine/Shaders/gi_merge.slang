@@ -6,11 +6,11 @@
 // one a surface hides from this probe, as a probe above a ceiling is hidden from one under it, is
 // passed over in the blend, and a probe inside a mesh holds nothing itself, its alpha 0 where every
 // other's is 1. A ray of the cascade above that met a surface before its interval began keeps that
-// surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark: the
-// surface lies nearer that probe than this one's ray reaches, so the light it sees there is not the
-// light along this ray, and taken it read a ceiling beside a lamp for one two units off, up to 26
-// times too bright in a Cornell box. The bilinear fix, tracing from this probe toward each probe
-// above, would take its place.
+// surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark,
+// since the surface lies nearer that probe than this one's ray reaches, so the light it sees there
+// is not the light along this ray, and taken it read a ceiling beside a lamp for one two units off,
+// up to 26 times too bright in a Cornell box. The bilinear fix, tracing from this probe toward each
+// probe above, would take its place.
 import gi;
 import scenefield;
 

@@ -19,7 +19,7 @@ internal static class Repo
         }
     }
 
-    /// <summary>Where a launched app's output goes: <c>build/sessions/&lt;name&gt;.log</c>.</summary>
+    /// <summary>Where a launched app's output goes, <c>build/sessions/&lt;name&gt;.log</c>.</summary>
     public static string LogFor(string name) => Path.Combine(Root ?? Path.GetTempPath(), "build", "sessions", $"{name}.log");
 
     private static string? Find(string start)
@@ -79,7 +79,7 @@ internal static class Launch
         }
         catch (Exception error) when (error is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
         {
-            return Output.Refuse(options, "open", "LAUNCH_FAILED", $"{example} could not be started: {error.Message}");
+            return Output.Refuse(options, "open", "LAUNCH_FAILED", $"{example} could not be started. {error.Message}");
         }
 
         using var program = new Started(started, binary, launched);
@@ -280,7 +280,7 @@ internal static class Launch
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {
-            return $"({path} could not be read: {error.Message})";
+            return $"({path} could not be read. {error.Message})";
         }
     }
 }

@@ -250,7 +250,7 @@ public sealed partial class E3DPhysicsTests : IDisposable
         ecs.Add(crate, RigidBody.Dynamic());
         Frames(30);
 
-        // A level started again: the carrier put back a few units away, which the program says, or
+        // A level started again, the carrier put back a few units away, which the program says, or
         // farther than PhysicsSettings.PlaceBeyond, which says it alone.
         RunUntil(() =>
         {

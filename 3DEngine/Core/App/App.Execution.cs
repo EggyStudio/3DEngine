@@ -6,8 +6,8 @@ public sealed partial class App
     private bool _shutDown;
 
     /// <summary>
-    /// Runs the application: <see cref="Startup"/>, then <see cref="Frame"/> for as long as the
-    /// <see cref="IMainLoopDriver"/> keeps looping, then <see cref="Shutdown"/>.
+    /// Runs the application, calling <see cref="Startup"/>, then <see cref="Frame"/> for as long as
+    /// the <see cref="IMainLoopDriver"/> keeps looping, then <see cref="Shutdown"/>.
     /// </summary>
     /// <remarks>
     /// The main loop is driven by the <see cref="IMainLoopDriver"/> resource, which a window plugin

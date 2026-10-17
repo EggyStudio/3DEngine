@@ -211,7 +211,7 @@ public sealed class E3DAnimationTests : IDisposable
     [Fact]
     public void A_Bone_Named_As_A_Mesh_Node_Before_It_Is_Found_As_The_Bone()
     {
-        // As raylib's robot has it: a mesh and a bone each named Head, the mesh first.
+        // As raylib's robot has it, a mesh and a bone each named Head, the mesh first.
         var mesh = new SceneNode { Name = "Head" };
         mesh.Components.Add(new SceneMeshPayload { Positions = [], Indices = [] });
         var bone = new SceneNode { Name = "Head" };

@@ -127,7 +127,7 @@ public partial class DocumentLinkTests
         return headings.Contains(anchor) ? null : "no such heading";
     }
 
-    // GitHub's anchor for a heading: lower case, with spaces as hyphens and punctuation dropped.
+    // GitHub's anchor for a heading, lower case, with spaces as hyphens and punctuation dropped.
     private static string Slug(string heading) =>
         new(heading.ToLowerInvariant().Replace(' ', '-').Where(c => char.IsLetterOrDigit(c) || c is '-' or '_').ToArray());
 

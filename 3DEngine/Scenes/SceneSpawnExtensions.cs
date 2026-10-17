@@ -61,7 +61,7 @@ internal static class SceneSpawnExtensions
         cmd.Spawn((id, ecs) => ecs.Add(id, new SpawnSceneRequest { Handle = handle, Settings = settings }));
 
     /// <summary>
-    /// One-call helper: loads <paramref name="path"/> through the <see cref="AssetServer"/>
+    /// One-call helper that loads <paramref name="path"/> through the <see cref="AssetServer"/>
     /// and queues a deferred spawn-on-load. Returns the load handle so callers can poll
     /// load state, attach to hot-reload events, or use it to look up the spawn record in
     /// <see cref="SpawnedScenes"/>.
@@ -82,7 +82,7 @@ internal static class SceneSpawnExtensions
 
     /// <summary>
     /// One-call helper for systems that hold a <see cref="World"/> and an
-    /// <see cref="EcsCommands"/> directly (no <see cref="BehaviorContext"/>): loads the
+    /// <see cref="EcsCommands"/> directly (no <see cref="BehaviorContext"/>), which loads the
     /// scene and queues the spawn-on-load request.
     /// </summary>
     public static Handle<SceneAsset> SpawnScene(this World world, EcsCommands cmd, string path, SceneSpawnSettings? settings = null)

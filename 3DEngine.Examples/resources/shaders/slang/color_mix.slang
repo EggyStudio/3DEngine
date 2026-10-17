@@ -1,4 +1,5 @@
-// raylib's color_mix.fs, written in Slang: two textures mixed across a soft line at the divider.
+// raylib's color_mix.fs, written in Slang. It draws two textures mixed across a soft line at the
+// divider.
 import engine;
 
 Sampler2D texture1;

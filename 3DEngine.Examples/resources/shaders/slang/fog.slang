@@ -1,5 +1,5 @@
-// raylib's lighting.vs and fog.fs, written in Slang for the model pass: raylib's lights, as
-// shaders_basic_lighting has them, over the model's texture, then a fog that thickens with the
+// raylib's lighting.vs and fog.fs, written in Slang for the model pass. It draws raylib's lights,
+// as shaders_basic_lighting has them, over the model's texture, then a fog that thickens with the
 // distance from the camera.
 import modelpass;
 

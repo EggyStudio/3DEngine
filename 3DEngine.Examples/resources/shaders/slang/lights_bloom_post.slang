@@ -1,5 +1,5 @@
-// raylib's lights_bloom_post.fs, written in Slang: what is brighter than 0.75 in any channel
-// blurred over its neighbors and added back, then tone mapped by Reinhard's curve.
+// raylib's lights_bloom_post.fs, written in Slang. It draws what is brighter than 0.75 in any
+// channel blurred over its neighbors and added back, then tone mapped by Reinhard's curve.
 import engine;
 
 [shader("fragment")]
@@ -22,7 +22,7 @@ float4 fragmentMain(VertexOutput input) : SV_Target
     }
     bloom /= 25.0;
 
-    // Combine original with the bloom glow, then Reinhard tone-map back to [0, 1]
+    // Combine original with the bloom, then Reinhard tone-map back to [0, 1]
     float3 hdr = color.rgb + bloom.rgb*1.2;
     float3 ldr = hdr/(hdr + float3(1.0));
 

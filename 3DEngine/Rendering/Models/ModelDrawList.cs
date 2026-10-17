@@ -17,7 +17,7 @@ namespace Engine;
 /// <param name="NormalMap">The <see cref="TextureStore"/> id of a tangent-space normal map, or 0 for none.</param>
 /// <param name="NormalScale">How strongly the normal map bends the surface.</param>
 /// <param name="MetallicRoughnessMap">The <see cref="TextureStore"/> id of a map with roughness in green and metallic in blue, or 0 for none.</param>
-/// <param name="Emission">The light the surface gives off, linear, which may pass 1.</param>
+/// <param name="Emission">The surface's emission, linear, which may pass 1.</param>
 /// <param name="EmissiveMap">The <see cref="TextureStore"/> id of an sRGB map multiplying <paramref name="Emission"/>, or 0 for none.</param>
 /// <param name="OcclusionMap">The <see cref="TextureStore"/> id of a map whose red darkens the light from all around, or 0 for none.</param>
 /// <param name="OcclusionStrength">How strongly the occlusion map darkens, from 0 to 1.</param>
@@ -35,7 +35,7 @@ namespace Engine;
 /// <param name="SubsurfaceShares">How far each of red, green and blue travels under the surface, as a share of <paramref name="SubsurfaceRadius"/>.</param>
 /// <param name="SubsurfaceRadius">How far, in world units, light that enters the surface travels under it before it leaves, or 0 for none.</param>
 /// <param name="SubsurfaceThickness">How thick, in world units, the light from behind finds the surface's part at most, or 0 to measure it alone.</param>
-/// <param name="BouncesLight">Whether the scene's field, the glow lights and the bounce's reference hold the mesh, which a mesh that moves often is left out of.</param>
+/// <param name="BouncesLight">Whether the scene's field, the glow lights and the global illumination reference hold the mesh, which a mesh that moves often is left out of.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
@@ -52,7 +52,7 @@ internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 V
 
     /// <summary>
     /// The shares of the radius each color travels under the surface in xyz and the radius in w,
-    /// where light scatters under it: an opaque or masked surface of the model pass's own shader
+    /// where light scatters under it, an opaque or masked surface of the model pass's own shader
     /// with a radius above 0. Zero otherwise.
     /// </summary>
     public Vector4 Subsurface => SubsurfaceRadius > 0 && !IsTranslucent && Shader == 0
@@ -192,7 +192,7 @@ internal sealed class InstanceGroup
 {
     private readonly List<(ModelRenderer.Instance[] Items, int Count)> _segments = [];
 
-    /// <summary>What every instance shares: the mesh, the maps, the sides, the alpha mode and the camera. Its world matrix and factors are unused.</summary>
+    /// <summary>What every instance shares, the mesh, the maps, the sides, the alpha mode and the camera. Its world matrix and factors are unused.</summary>
     public ModelDraw Template;
 
     /// <summary>

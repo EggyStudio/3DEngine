@@ -147,7 +147,7 @@ internal sealed class RendererContext : IDisposable
         }
     }
 
-    /// <summary>Begins a new render frame: acquires a swapchain image, uploads camera data, populates SwapchainTarget,
+    /// <summary>Begins a new render frame, which acquires a swapchain image, uploads camera data, populates SwapchainTarget,
     /// and returns a <see cref="RenderContext"/> for GPU commands.</summary>
     /// <param name="world">The render world containing camera and clear color data.</param>
     /// <returns>A tuple of the render context, the frame context, and the acquired image index.</returns>

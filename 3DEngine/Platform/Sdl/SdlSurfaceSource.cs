@@ -25,7 +25,7 @@ internal sealed class SdlSurfaceSource : ISurfaceSource
     {
         var names = SDL.VulkanGetInstanceExtensions(out var count);
         if (names is null || count == 0)
-            throw new InvalidOperationException($"SDL.VulkanGetInstanceExtensions failed: {SDL.GetError()}");
+            throw new InvalidOperationException($"SDL.VulkanGetInstanceExtensions failed. {SDL.GetError()}");
         return names;
     }
 
@@ -34,7 +34,7 @@ internal sealed class SdlSurfaceSource : ISurfaceSource
     public nint CreateSurfaceHandle(nint instanceHandle)
     {
         if (!SDL.VulkanCreateSurface(_sdl.Window, instanceHandle, IntPtr.Zero, out var surface))
-            throw new InvalidOperationException($"SDL.VulkanCreateSurface failed: {SDL.GetError()}");
+            throw new InvalidOperationException($"SDL.VulkanCreateSurface failed. {SDL.GetError()}");
         return surface;
     }
     

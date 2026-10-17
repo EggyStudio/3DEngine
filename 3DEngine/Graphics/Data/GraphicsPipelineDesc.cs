@@ -26,7 +26,7 @@ internal enum CompareOp
 /// <param name="VertexShader">The compiled vertex shader.</param>
 /// <param name="FragmentShader">The compiled fragment shader, or <c>null</c> for a pipeline that writes depth only, into a depth-only pass such as a <see cref="ShadowMap"/>'s.</param>
 /// <param name="BlendEnabled">Whether alpha blending is enabled.</param>
-/// <param name="Cull">Which faces are left out by their winding: none, the back ones, or the front ones.</param>
+/// <param name="Cull">Which faces are left out by their winding, none, the back ones or the front ones.</param>
 /// <param name="VertexBindings">Optional vertex buffer binding descriptions.</param>
 /// <param name="VertexAttributes">Optional vertex attribute descriptions.</param>
 /// <param name="PushConstantRanges">Optional push constant range descriptions.</param>

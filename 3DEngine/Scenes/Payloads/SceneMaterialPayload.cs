@@ -20,7 +20,7 @@ namespace Engine;
 /// that bind the same material share a single ECS material entry.
 /// </para>
 /// <para>
-/// <b>Texture loading is out of scope</b> for this payload: <see cref="SceneTextureRef"/>
+/// <b>Texture loading is out of scope</b> for this payload, since <see cref="SceneTextureRef"/>
 /// only carries the resolved asset path and the sampling parameters. A separate texture
 /// loader / asset pipeline turns those into GPU resources.
 /// </para>

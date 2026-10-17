@@ -32,7 +32,7 @@ sphere above is drawn four ways in a frame.
 ## Maps
 
 A material from a file usually carries maps, images that vary the surface across it. A program
-sets them on a material of its own the same way:
+sets them on a material of its own the same way.
 
 | Property | Holds |
 |---|---|
@@ -40,7 +40,7 @@ sets them on a material of its own the same way:
 | `NormalMap` and `NormalScale` | Bumps that light falls across, tangent space with up toward the top of the image |
 | `MetallicRoughnessMap` | Roughness in green and metallic in blue, as glTF packs them, multiplying the two values |
 | `OcclusionMap` and `OcclusionStrength` | Creases, darkening the light from all around |
-| `EmissiveMap` | Where the surface gives off its `Emissive` color |
+| `EmissiveMap` | Where the surface emits its `Emissive` color |
 
 ```csharp
 var crate = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -50,9 +50,9 @@ crate.Materials[0].NormalMap = LoadTexture("resources/crate_normal.png");
 
 A default texture in a map's place means none.
 
-## Glowing and see-through surfaces
+## Emissive and see-through surfaces
 
-`Emissive` is the color of the light a surface gives off whatever lights it, as a screen, a lamp's
+`Emissive` is the color a surface emits whatever lights it, as a screen, a lamp's
 bulb or lava, with `EmissiveIntensity` to brighten it. It shows with no light at all, and lights
 nothing else, so a lamp is an emissive model with a light placed inside it.
 
@@ -64,12 +64,12 @@ lamp.Materials[0] = new ModelMaterial(Color.White) { Emissive = new Color(255, 2
 ```
 
 Light past white shows as white until bloom spreads it into the pixels around it, as a bright
-light glows through a lens. `SetBloom(intensity, threshold)` turns it on, 0 turns it off, which it
-is by default, and the threshold, 1 unless given, is how bright a pixel has to be to glow, so a
+light spreads through a lens. `SetBloom(intensity, threshold)` turns it on, 0 turns it off, which it
+is by default, and the threshold, 1 unless given, is how bright a pixel has to be to bloom, so a
 surface lit no brighter than white stays sharp. Text and shapes drawn after `EndMode3D` go on top
-untouched. `shaders_bloom` runs it, with B turning it off and on. A glowing orb or a bulb casts a
+untouched. `shaders_bloom` runs it, with B turning it off and on. An emissive orb or a bulb casts a
 shadow like any surface unless its material's `CastsShadows` is false, as `games/Summit`'s orbs'
-are. A material's `BouncesLight`, true unless set, says whether the light that bounces holds the
+are. A material's `BouncesLight`, true unless set, says whether global illumination holds the
 surface, and a mesh with it false casts its shadow all the same, as
 [The scene as a distance field](#the-scene-as-a-distance-field) says.
 
@@ -77,7 +77,7 @@ surface, and a mesh with it false casts its shadow all the same, as
 SetBloom(0.8f);
 ```
 
-A material's `AlphaMode` says what the alpha of its color and texture does:
+A material's `AlphaMode` says what the alpha of its color and texture does.
 
 | Mode | Draws |
 |---|---|
@@ -111,17 +111,17 @@ farthest. The thickness toward a light is read from the light's own shadow map w
 shadows, the sun's, a spot light's or a point light's, and toward a lamp with none from the scene's
 distance field where `SetSceneField` builds one with cells half the material's reach, three times
 its radius, or finer. `SubsurfaceThickness` says how thick the material's parts are at most, in
-world units, which caps what the field or the map measured and stands in where neither can say: a
-leaf drawn as one sheet, which the field holds a cell thick, and a lamp that casts no shadow where
-the field is coarse. A glTF file's `KHR_materials_volume` thickness sets it. A pixel of any other
-surface is left as it was, and the light does not cross from a near surface to one behind it. A
-render texture and a reflection probe's faces draw the surface without it, and so does a material
+world units, which caps what the field or the map measured and stands in where neither can say, as
+for a leaf drawn as one sheet, which the field holds a cell thick, and a lamp that casts no shadow
+where the field is coarse. A glTF file's `KHR_materials_volume` thickness sets it. A pixel of any
+other surface is left as it was, and the light does not cross from a near surface to one behind it.
+A render texture and a reflection probe's faces draw the surface without it, and so does a material
 with a shader of its own or one laid over by alpha. `SetSubsurfaceQuality` sets how finely it is
 spread, and `shaders_subsurface` shows wax, skin, marble and a leaf, S turning it off and Q stepping
 through the qualities. On the development machine's laptop GPU, with the frame rate unlimited, the
 HDR frame's pass in `games/Manor` at 1280 by 720, every one of its 172 materials scattering over 5
 cm, takes this, as `./e3d command profile` gives `hdr_scene`, and `shaders_subsurface` some 0.1 ms
-more than with none at each:
+more than with none at each.
 
 | Quality | Spread | `hdr_scene` |
 |---|---|---|
@@ -144,9 +144,9 @@ result untouched.
 
 That frame and its pass cost some 0.02 to 0.035 ms of the development machine's laptop GPU with
 every effect off, as `./e3d command profile` gives the GPU's time for `hdr_scene` and `main_pass`
-with the frame rate unlimited: 0.082 ms where the models drawn straight into the window took 0.047
+with the frame rate unlimited, 0.082 ms where the models drawn straight into the window took 0.047
 in `shaders_bloom` with its bloom off at 800 by 450. Bloom's chain adds about 0.03 ms (`bloom`).
-Bloom, an exposure that follows the scene, the depth of field, motion blur, light that bounces and
+Bloom, an exposure that follows the scene, the depth of field, motion blur, global illumination and
 particles read the scene's light, and the frame is decoded for them once, about 0.02 ms more. The
 frame takes 44 bytes a pixel of the GPU's memory at four samples, drawing into the window's own
 multisampled depth, 16 MB at 800 by 450 and 91 MB at 1920 by 1080, where `nvidia-smi` gave
@@ -157,7 +157,7 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 |---|---|
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
 | `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
-| `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it: the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
+| `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
@@ -165,7 +165,7 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetMotionBlur(0.5f)` | Smears the picture along the way the camera moved since the frame before, as a film camera's shutter does |
 
 The eight curves Bevy offers are choices too, named as Bevy names them and drawn as Bevy draws them,
-so a picture tonemapped here is the one a Bevy game draws:
+so a picture tonemapped here is the one a Bevy game draws.
 
 | Curve | Draws |
 |---|---|
@@ -240,7 +240,7 @@ var (contrast, saturation, tint) = GetColorGrading();
 ## Lights
 
 A world with no lights draws its models unlit, their color and texture as they are, as raylib
-draws them, with the light a material gives off. The first light a program makes turns lighting
+draws them, with a material's emission. The first light a program makes turns lighting
 on, and a scene that should look lit from the start makes one, often a sun and a little light
 from all around:
 
@@ -249,7 +249,7 @@ CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
 SetAmbientLight(Color.White, 0.35f);
 ```
 
-There are four kinds:
+There are four kinds.
 
 | Call | Lights |
 |---|---|
@@ -294,7 +294,7 @@ shadows cast theirs too, a point light's all around it, those a camera sees firs
 render texture's, and then those whose light reaches a camera brightest, weighed by how much of its
 picture each lights, so a level of a dozen torches shadows each and a lamp lighting a wall across
 the view keeps its shadows over a brighter one lighting a corner. The ones that matter most get the
-sharpest shadows: past four, the first two spot lights and the first four point lights keep their
+sharpest shadows. Past four, the first two spot lights and the first four point lights keep their
 texels, and the rest share theirs at half the width.
 
 A render texture that draws models through a camera of its own, as each half of a split screen,
@@ -306,8 +306,8 @@ quarter wider than each view's own, so each reads its shadows as it would alone.
 differing from itself drawn alone at a quarter of a percent of its pixels, along its shadows' edges.
 
 `SetShadowMapSize` sets how many texels wide each tile of the shadow map is, 2048 unless set, which
-is the shadow quality a game's settings offer: 4096 sharpens every shadow at four times the memory,
-and 1024 softens them for a slower machine.
+is the shadow quality a game's settings offer. A size of 4096 sharpens every shadow at four times
+the memory, and 1024 softens them for a slower machine.
 
 Shapes drawn with `DrawCube` and the others cast no shadow, and models do. The shadow map example
 draws its lamp as a shape for that reason, since a model around the lamp would shadow everything
@@ -372,23 +372,23 @@ The field is cascades of 64 cells a side, each twice as coarse and as wide as th
 four cascades of 0.25 reach 16 units across in the first and 128 in the last. A double-sided mesh,
 as a model from an OBJ file is, has no inside and is held half a cell thick on either side, and a
 closed wall thinner than a cell, which may have no cell's middle inside it, is held the same about
-its middle, so a wall or a floor thinner than a cell still stops what is traced through the field. A
-mesh that gives off light and is thinner than a cell, as a glowing strip on a wall, lends its light
-to the cells near it, a share as large as the part of a cell it covers, so it lights its room
-through the light that bounces. An open mesh, as a ground plane, is inside only below its faces and
-not past its rim. A mesh drawn in the same place for eight frames is built into the cascades around
-it from its triangles, and one that moves is stamped each frame as boxes rather than its triangles,
-painted its color, so a red figure bounces red light, though the light it gives off does not bounce:
-a skinned model a box for each joint around the vertices it holds, as its pose puts them, so the
-shadows a character gives the light that bounces are its limbs' as boxes, and a model that does not
-bend a box for each of up to eight parts its triangles are cut into, so a table or a car is not one
-block. Three of raylib's dancing robots in `shaders_cornell_box` are 147 boxes in 540 bricks of four
-cells, which the GPU stamps and paints in 0.06 ms and the CPU places in 0.45, in the Release build,
-where it stamped them unpainted in 0.05 ms. A mesh that moves in most frames and matters little to
-the light around it, as a game's animal, is left out with its material's `BouncesLight` set false,
-so it casts its shadows and is lit as before while the field, the glow lights and the light that
-bounces hold nothing of it, since a voxel game's walking animal of four to six pieces cost the
-field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a piece a frame.
+its middle, so a wall or a floor thinner than a cell still stops what is traced through the field.
+An emissive mesh thinner than a cell, as a strip on a wall, lends its light to the cells near it, a
+share as large as the part of a cell it covers, so it lights its room through global illumination.
+An open mesh, as a ground plane, is inside only below its faces and not past its rim. A mesh drawn
+in the same place for eight frames is built into the cascades around it from its triangles, and one
+that moves is stamped each frame as boxes rather than its triangles, painted its color, so a red
+figure reflects red light, though its emission reaches no other surface. A skinned model is a box
+for each joint around the vertices it holds, as its pose puts them, so the shadows a character casts
+in global illumination are its limbs' as boxes, and a model that does not bend a box for each of up
+to eight parts its triangles are cut into, so a table or a car is not one block. Three of raylib's
+dancing robots in `shaders_cornell_box` are 147 boxes in 540 bricks of four cells, which the GPU
+stamps and paints in 0.06 ms and the CPU places in 0.45, in the Release build, where it stamped them
+unpainted in 0.05 ms. A mesh that moves in most frames and matters little to the light around it, as
+a game's animal, is left out with its material's `BouncesLight` set false, so it casts its shadows
+and is lit as before while the field, the glow lights and global illumination hold nothing of it,
+since a voxel game's walking animal of four to six pieces cost the field 16 to 28 microseconds of
+the CPU and 13 to 15 of the GPU a piece a frame.
 
 <!-- compiled with:
 Model pig = default;
@@ -407,21 +407,21 @@ the open rims took a cascade's build there from 0.44 ms to 0.46 in the Release b
 `field.rebuild 4000`. `Config.SceneField` sets the same for an app made from a `Config`, and
 `./e3d command field.show 0` draws the first cascade over the window as the field holds the scene.
 
-## Light that bounces
+## Global illumination
 
-Light that reaches a surface leaves it again, tinted by its color, and lights what it falls on next,
-so a red wall tints the floor beside it and a room the sun shines into through a window is lit
-inside, away from the patch on its floor. `SetGlobalIllumination` works that light out each frame by
-radiance cascades traced through the scene's distance field, with nothing baked, so every light and
-mesh may move and a surface that gives off light lights its room:
+Global illumination adds the light each surface reflects onto the others, tinted by its color, so a
+red wall tints the floor beside it and a room the sun shines into through a window is lit inside,
+away from the patch on its floor. `SetGlobalIllumination` works it out each frame by radiance
+cascades traced through the scene's distance field, with nothing baked, so every light and mesh may
+move and an emissive surface lights its room:
 
 ```csharp
 SetGlobalIllumination(GlobalIllumination.Medium);
 ```
 
-[Light that bounces](global-illumination.md) says how it works, what each quality costs, how a
-small glowing surface lights what is around it as a lamp would, how a glossy surface traces its
-reflection, where the bounce falls short, and how a scene's light is read against a path-traced
+[Global illumination](global-illumination.md) says how it works, what each quality costs, how a
+small emissive surface lights what is around it as a lamp would, how a glossy surface traces its
+reflection, where it falls short, and how a scene's light is read against a path-traced
 reference, with `DrawBounceWindow` and the `gi` commands.
 
 ## Rooms that reflect themselves
@@ -437,7 +437,7 @@ var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));
 A reflection is looked up where it leaves the box, so the room's walls hold still as the camera
 moves. Put the box's middle in the open, away from the room's objects, since what stands there fills
 the capture. A probe captures again by itself when a light reaching its box is switched on or off,
-moved, or brightened or dimmed by a quarter or more, so a lamp put out leaves no glow in the room's
+moved, or brightened or dimmed by a quarter or more, so a lamp put out leaves no light in the room's
 reflections and one flickering about its light costs nothing. `UpdateReflectionProbe` captures it
 again after the room's meshes change, and `SetReflectionProbeRefresh(probe, 0.5f)` has it captured
 again half a second after each capture, so a door opening in the room or a thing moving through it
@@ -479,8 +479,8 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - [`games/Wick`](../games/Wick/Program.cs), a game lit by a lamp the player carries through dark
-  rooms, its light reaching round corners and through doorways only as light that bounces
+  rooms, its light reaching round corners and through doorways only as indirect light
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and
   [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Models and animation](models-and-animation.md)
-- Next: [Light that bounces](global-illumination.md)
+- Next: [Global illumination](global-illumination.md)

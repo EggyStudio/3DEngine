@@ -259,7 +259,7 @@ public static partial class E3D
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             frames = 0;
-            ApiLogger.Warn($"LoadImageAnim: '{fileName}' could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadImageAnim: '{fileName}' could not be decoded. {ex.Message}");
             return default;
         }
     }
@@ -274,7 +274,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ApiLogger.Warn($"LoadImageAnimFromMemory: the {fileType} data could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadImageAnimFromMemory: the {fileType} data could not be decoded. {ex.Message}");
             return default;
         }
     }
@@ -290,7 +290,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ApiLogger.Warn($"LoadImageFromMemory: the {fileType} data could not be decoded: {ex.Message}");
+            ApiLogger.Warn($"LoadImageFromMemory: the {fileType} data could not be decoded. {ex.Message}");
             return default;
         }
     }
@@ -419,7 +419,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"ExportImage: '{fileName}' could not be written: {ex.Message}");
+            ApiLogger.Warn($"ExportImage: '{fileName}' could not be written. {ex.Message}");
             return false;
         }
     }

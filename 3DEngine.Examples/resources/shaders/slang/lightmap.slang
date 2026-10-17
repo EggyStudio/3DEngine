@@ -1,5 +1,6 @@
-// raylib's lightmap.vs and lightmap.fs, written in Slang for the model pass: the material's texture
-// at the mesh's texture coordinate times the lightmap, its metalness map, at the second.
+// raylib's lightmap.vs and lightmap.fs, written in Slang for the model pass. It draws the
+// material's texture at the mesh's texture coordinate times the lightmap, its metalness map, at the
+// second.
 import modelpass;
 
 [shader("fragment")]

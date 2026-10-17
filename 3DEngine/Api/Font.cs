@@ -76,7 +76,7 @@ public sealed class Font
     }
 
     /// <summary>
-    /// How a font shapes Arabic: by its reader's substitutions under the <c>arab</c> script, the
+    /// How a font shapes Arabic, by its reader's substitutions under the <c>arab</c> script, the
     /// forms they make past the letters' own baked with it, and its positions where
     /// <see cref="Positions"/> is set, or, where <see cref="Plan"/> is null, by the presentation
     /// forms Unicode encodes, which it maps and was baked with.
@@ -111,7 +111,7 @@ public sealed class Font
     internal IEnumerable<Font> Bakes => _larger.Values;
 
     /// <summary>
-    /// The bake text <paramref name="fontSize"/> pixels high is drawn from: this font, or one baked
+    /// The bake text <paramref name="fontSize"/> pixels high is drawn from, this font or one baked
     /// from its file at the size, rounded up to four pixels, when that is a quarter or more past
     /// this one's.
     /// </summary>

@@ -44,7 +44,7 @@ internal static class SceneSpawnSystem
         world.TryGetResource<MaterialLibrary>(out var materialLibrary);
         world.TryGetResource<AssetRelease>(out var release);
 
-        // Snapshot first: SceneSpawner.Spawn mutates the world (Spawn + Add), and
+        // A snapshot first, since SceneSpawner.Spawn mutates the world (Spawn + Add), and
         // EcsWorld.Query yields live references; iterating a stale snapshot keeps the
         // semantics simple.
         List<(int Entity, SpawnSceneRequest Request)>? pending = null;
@@ -96,7 +96,7 @@ internal static class SceneSpawnSystem
             }
             catch (Exception ex)
             {
-                Logger.Error($"SceneSpawnSystem: spawn failed for '{asset.SourcePath}': {ex.Message}");
+                Logger.Error($"SceneSpawnSystem: spawn failed for '{asset.SourcePath}'. {ex.Message}");
             }
 
             // The request is removed even on failure, so a broken asset is not tried

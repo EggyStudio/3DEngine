@@ -85,7 +85,7 @@ static const float GlowRound = 16.0;
 static const float GlowStill = 1.0 / 32.0;
 static const float GlowMoving = 1.0 / 8.0;
 
-// How far this frame's light may lie from the blend before the blend is dropped: a share past the
+// How far this frame's light may lie from the blend before the blend is dropped, a share past the
 // furthest the frames' light has lain from it, and a share of the light past that. The furthest is
 // let go by GlowLetGo a frame, three quarters of it held over a round, so the furthest a round's
 // points lie, met once a round, stays within GlowDeviations of it. Let go by a thirty-second a
@@ -109,7 +109,7 @@ float3 pointAt(float2 uv, float2 step)
     return worldAt(at, depth.SampleLevel(at, 0).r);
 }
 
-// The way the surface at p runs along an axis of the depth, `texel` long: toward the side whose
+// The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
 // next two texels go on in a line from p, so a texel at the foot of a wall takes its floor's way and
 // not the way up the wall, and away from the depth's edge. Toward the nearer texel, as
 // gi_screen.slang found a probe's, a floor seen at a slant took the wall's, and its texels along a
@@ -124,7 +124,7 @@ float3 wayAlong(float2 uv, float3 p, float2 texel)
     return aheadIn && (!behindIn || dot(aheadMiss, aheadMiss) <= dot(behindMiss, behindMiss)) ? ahead - p : p - behind;
 }
 
-// Where a probe marched to the glow lights from this frame, in the view's share: the depth's texel
+// Where a probe marched to the glow lights from this frame, in the view's share, the depth's texel
 // under its tile's middle moved by the frame's jitter, as gi_screen.slang found it.
 float2 marchedFrom(int2 probe)
 {
@@ -160,7 +160,7 @@ float probeLike(int2 at, float2 uv, float3 p, float3 n, float alike, out int fir
     return pow(saturate(dot(n, surface.xyz)), 8.0) * exp(-off * off - between * between);
 }
 
-// The light the glow lights send p facing n this frame, irradiance: each by as much of it as the
+// The light the glow lights send p facing n this frame, irradiance, each by as much of it as the
 // probes around see, blended by weight, the dominant light's as near p as it is (glowLightNear)
 // given back and the rest in far with the fainter lights' light the probes summed.
 float3 glowFromProbes(float3 p, float3 n, int4 first, float4 weight, float total, int dominant, out float3 far)
@@ -288,8 +288,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // point's, the point is marked for the model pass's pixels on it to march to the lights' faces'
     // halves themselves, as a probe does. Taken from the probes on any surface by how near each is,
     // the floor along a wall's foot took the light its top saw, and marched from here, the march's
-    // code in this pass cost the bounce 0.15 to 0.26 ms more in a room of sixteen lamps, few as its
-    // texels are.
+    // code in this pass cost global illumination 0.15 to 0.26 ms more in a room of sixteen lamps,
+    // few as its texels are.
     float2 g = (uv - marchedFrom(int2(0))) * view.sizes.zw / view.grid.x;
     int2 base = int2(floor(g));
     float2 f = g - float2(base);

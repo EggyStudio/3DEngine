@@ -4,7 +4,7 @@ namespace Engine;
 /// <remarks>The faces are +X, -X, +Y, -Y, +Z and -Z, in that order along a line.</remarks>
 public enum CubemapLayout
 {
-    /// <summary>Found from the image's shape: a line six faces long, or a cross four faces by three or three by four.</summary>
+    /// <summary>Found from the image's shape, a line six faces long or a cross four faces by three or three by four.</summary>
     AutoDetect,
     /// <summary>The six faces one under the next.</summary>
     LineVertical,

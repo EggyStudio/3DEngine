@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The flat API: every operation a program needs as one static method, in the manner of raylib.
+/// The flat API, every operation a program needs as one static method, in the manner of raylib.
 /// Import it with <c>using static Engine.E3D;</c>.
 /// </summary>
 /// <remarks>

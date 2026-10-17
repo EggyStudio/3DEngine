@@ -59,7 +59,7 @@ internal sealed class AssimpModelLoader : IAssetLoader<SceneAsset>
         }
         catch (Exception ex)
         {
-            return AssetLoadResult<SceneAsset>.Fail($"Assimp model load failed for '{context.Path}': {ex.Message}");
+            return AssetLoadResult<SceneAsset>.Fail($"Assimp model load failed for '{context.Path}'. {ex.Message}");
         }
     }
 

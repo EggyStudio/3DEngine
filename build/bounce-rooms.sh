@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Measures the light that bounces on shaders_bounce_rooms: for each of its eight views, a capture,
-# path-traced references made at High through the GPU's rays, the frame of each quality compared
-# with each region by region, and a probe in the room's middle against a reference of the light
-# arriving at it, into a folder.
+# Measures global illumination on shaders_bounce_rooms, taking for each of its eight views a
+# capture, path-traced references made at High through the GPU's rays, the frame of each quality
+# compared with each region by region, and a probe in the room's middle against a reference of the
+# light arriving at it, into a folder.
 #
 #   build/bounce-rooms.sh <folder> [samples] [qualities] [bounces]
 #
 # The reference takes 1024 paths a pixel unless given, the qualities are Low, Medium and High
 # unless given, as "High" alone, and the references are traced with every bounce unless given, as
-# "1 2 all" for light bouncing once, twice and until each path ends. Each view's files are
+# "1 2 all" for one bounce, two and every bounce until each path ends. Each view's files are
 # view-<n>.png, its references view-<n>-reference-<bounces>.png with the files gi.reference writes
 # beside each, view-<n>-<quality>-<bounces>.txt, what gi.compare said, with each reference's
 # difference picture the last quality's, and view-<n>-High-probe.txt, what gi.probe said with every

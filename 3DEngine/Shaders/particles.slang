@@ -3,8 +3,8 @@
 // shrinks and changes color from birth to death by the share of its life gone, and is round, with
 // an edge that fades out, or the emitter's texture, the material's base color, tinted, whole or a
 // frame of a sheet played through over its life. A lit one is lit as a rough surface facing the camera by the model
-// pass's own lighting, and an unlit one gives off its color times the emitter's brightness, so it
-// glows through bloom where that is past 1. A dead particle's square is drawn at a point, which
+// pass's own lighting, and an unlit one emits its color times the emitter's brightness, so it
+// blooms where that is past 1. A dead particle's square is drawn at a point, which
 // covers no pixel.
 import modelpass;
 
@@ -18,7 +18,7 @@ static const uint Header = 4;
 
 static const float2 corners[6] = { float2(-1, -1), float2(1, -1), float2(1, 1), float2(-1, -1), float2(1, 1), float2(-1, 1) };
 
-// How the emitter is drawn, which Particles.cs packs into the look's last value: bit 0 lit, bit 1
+// How the emitter is drawn, which Particles.cs packs into the look's last value as bit 0 lit, bit 1
 // textured, then the texture's columns and rows of frames, less one, eight bits each, and bit 18
 // whether a sheet's frames blend.
 bool isLit(float4 look) { return (uint(look.w) & 1u) != 0u; }

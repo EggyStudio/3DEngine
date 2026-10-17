@@ -27,7 +27,7 @@ internal static class Screenshots
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
                 {
-                    done?.Invoke($"The capture could not be written to {path}: {error.Message}");
+                    done?.Invoke($"The capture could not be written to {path}. {error.Message}");
                 }
             });
             return null;

@@ -204,7 +204,7 @@ internal sealed class AppWindowPlugin : IPlugin
         // reach neither ImGui's fields nor GetCharPressed without this. On a desktop it changes
         // nothing else. On a touch device it would raise the on-screen keyboard.
         if (!SDL.StartTextInput(window.Sdl.Window))
-            logger.Warn($"AppWindowPlugin: StartTextInput failed, so typed text will not arrive: {SDL.GetError()}");
+            logger.Warn($"AppWindowPlugin: StartTextInput failed, so typed text will not arrive. {SDL.GetError()}");
 
         app.World.InsertResource(window);
         app.World.InsertResource<IMainLoopDriver>(new SdlMainLoopDriver(window));

@@ -4,7 +4,7 @@ namespace Engine;
 
 public static partial class E3D
 {
-    // -- Images: alpha, filters, turning, and shapes drawn by their points, as raylib's
+    // -- Images, their alpha, filters, turning, and shapes drawn by their points, as raylib's
 
     /// <summary>Makes a square gradient, <paramref name="inner"/> at the center to <paramref name="outer"/> at the edges, holding the inner color for the first <paramref name="density"/> part.</summary>
     public static Image GenImageGradientSquare(int width, int height, float density, Color inner, Color outer)

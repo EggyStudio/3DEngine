@@ -342,8 +342,8 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has: as many,
-    /// each under the same parent, and each by the same name where the clip names its bones.
+    /// Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has, as many,
+    /// each under the same parent and each by the same name where the clip names its bones.
     /// </summary>
     /// <remarks>
     /// raylib compares the counts alone. A clip of another skeleton with as many bones would move
@@ -402,7 +402,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or Assimp.AssimpException)
         {
-            ApiLogger.Warn($"{caller}: '{fileName}' could not be read: {ex.Message}");
+            ApiLogger.Warn($"{caller}: '{fileName}' could not be read. {ex.Message}");
             return null;
         }
     }

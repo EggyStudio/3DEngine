@@ -11,7 +11,7 @@ build/spirv-tools/merge-blocks/run.sh                      # the spirv-reduce on
 build/spirv-tools/merge-blocks/run.sh path/to/spirv-reduce # another build
 ```
 
-Measured with `run.sh` on 2026-10-08:
+Measured with `run.sh` on 2026-10-08.
 
 | spirv-reduce | Exit |
 |---|---|

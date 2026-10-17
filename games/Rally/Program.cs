@@ -12,7 +12,7 @@ SetTargetFPS(60);
 SetBloom(0.25f);
 SetExposure(1.1f);
 
-// -- The course: hills from noise with a road around them, and eight gates along the road.
+// -- The course, hills from noise with a road around them, and eight gates along the road.
 
 var heights = GenImagePerlinNoise(Course.Pixels, Course.Pixels, 40, 40, 2.5f);
 var colors = GenImageColor(Course.Pixels, Course.Pixels, Color.Green);
@@ -119,7 +119,7 @@ while (!WindowShouldClose())
                 race.Next++;
                 if (race.Next % Course.Gates != 1 || race.Next == 1) { PlaySound(checkpoint); continue; }
 
-                // Through the first gate again, a lap: its time, the best kept, its ghost kept with it.
+                // Through the first gate again, a lap is done, its time and the best kept, and its ghost kept with it.
                 race.Laps.Add(race.LapTime);
                 if (best == 0 || race.LapTime < best)
                 {
@@ -291,7 +291,7 @@ void DrawHud()
 
 public enum Screen { Menu, Countdown, Race, Finished }
 
-/// <summary>A race under way: the countdown, the gates passed, the laps and the poses of this lap, kept as a ghost when it is the best.</summary>
+/// <summary>A race under way, with the countdown, the gates passed, the laps and the poses of this lap, kept as a ghost when it is the best.</summary>
 public sealed class Race
 {
     public const int LapsToRun = 3;
@@ -318,7 +318,7 @@ public sealed class Race
     }
 }
 
-/// <summary>The course's shape: the road, a loop around the middle of the hills, and its gates.</summary>
+/// <summary>The course's shape, the road, a loop around the middle of the hills, and its gates.</summary>
 public static class Course
 {
     public const int Pixels = 256;

@@ -1,7 +1,7 @@
-// raylib's normalmap.vs and normalmap.fs, written in Slang for the model pass: one white point
-// light and its highlight, over a surface bent by the material's normal map or left flat. raylib
-// builds the map's frame from the mesh's tangents, and the pass works it out at each pixel instead,
-// in surfaceNormal, as it does for every material with a normal map.
+// raylib's normalmap.vs and normalmap.fs, written in Slang for the model pass. It shades with one
+// white point light and its highlight, over a surface bent by the material's normal map or left
+// flat. raylib builds the map's frame from the mesh's tangents, and the pass works it out at each
+// pixel instead, in surfaceNormal, as it does for every material with a normal map.
 import modelpass;
 
 uniform float3 viewPos;

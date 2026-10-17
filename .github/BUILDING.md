@@ -25,19 +25,19 @@ with unless Mesa's cache holds them, 3.7 seconds an app where 0.84, and a cache 
 failed job doubled the suite there from 22 minutes past 40. The build workflow restores that cache
 before the suite and saves it after, whether the suite passed or not. The script writes what the
 suite prints to `3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines,
-also written to `TestResults/digest.md`: the counts, the failures by cause, the most frequent first,
-each with its message, its first frames and some of its tests, and the lines the output repeated
-most. A process that is lost, by a crash, a hang, its time or its memory, is said first on the page,
-with the tests it was in and its last lines, and the suite runs again in parts, a process for each
-area of thirty tests or more and one for the rest, so a part that is lost costs only its own tests.
-`python3 build/test.py Rendering` runs one part, and `--parts` all of them.
+also written to `TestResults/digest.md`, which holds the counts, the failures by cause, the most
+frequent first, each with its message, its first frames and some of its tests, and the lines the
+output repeated most. A process that is lost, by a crash, a hang, its time or its memory, is said
+first on the page, with the tests it was in and its last lines, and the suite runs again in parts, a
+process for each area of thirty tests or more and one for the rest, so a part that is lost costs
+only its own tests. `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in
 `build/nvidia-cache`, of 2 GiB, through `__GL_SHADER_DISK_CACHE_PATH` and
 `__GL_SHADER_DISK_CACHE_SIZE`, where either is not already set, and makes the folder, since the
 driver makes none. The driver keeps its cache in the user's folder at 128 MiB, and a cache at that
-size keeps no pipeline new to it, so each app the suite makes compiled each of its pipelines again:
-on the development machine the suite took 12.6 to 13 minutes so, 7.2 with a cache of its own, and
+size keeps no pipeline new to it, so each app the suite makes compiled each of its pipelines again.
+On the development machine the suite took 12.6 to 13 minutes so, 7.2 with a cache of its own, and
 26 with none. Two runs of four with the cache at its size, and one with a folder the driver could
 not write in, failed a test each with `VK_ERROR_UNKNOWN` from a pipeline's creation, which fourteen
 runs with a cache of its own or none did not. `dotnet test` run directly takes the user's.
@@ -54,7 +54,7 @@ build/               fetch-slang.sh, and the compiler it downloads under tools/
 
 ## Running without a window
 
-Every program built on the engine reads these flags, or the variables beside them:
+Every program built on the engine reads these flags, or the variables beside them.
 
 | flag | variable | effect |
 |---|---|---|
@@ -68,10 +68,10 @@ Every program built on the engine reads these flags, or the variables beside the
 | `--seed N` | `E3D_SEED=N` | the random generator is seeded with N as the window opens, in place of the clock |
 
 `./e3d open <example>` starts an example with `--serve` and any of the others, and [E3D.md](E3D.md)
-covers driving it.
+covers controlling it.
 
 `build/capture-example.sh <example> <png|webp> [--hidden|--offscreen]` captures an example as the
-README shows it: it gives the examples that wait for input their input (a gamepad, Enter, typed
+README shows it. It gives the examples that wait for input their input (a gamepad, Enter, typed
 text, taps and swipes), runs it until its scene has settled and its frame rate is measured, and
 captures it. `build/capture-examples.sh <folder> <webp|png> [example...]` captures every example
 with it, or those named, checking each to draw with no error from the validation layer and naming
@@ -101,10 +101,10 @@ half of the run past its least in the first by more than a little, as a leak doe
 streamed in and let go does not, or a game could not be played through, naming the game, what
 climbed with its numbers or the command that ended its soak, and the process's resident memory. A
 game that streams its level is held instead to the most a whole walk through it holds, since a slow
-device's two minutes see part of the level in each half and its least climbs with the world: Manor's
-buffers, a vertex and an index buffer for each mesh its cells show, 158 at most on the RTX 4070 and
-162 on lavapipe. The pack run plays every game for two minutes at once this way, and a push Slide
-alone, and a ten-minute run of each holds level on the desktop.
+device's two minutes see part of the level in each half and its least climbs with the world, as
+Manor's buffers do, a vertex and an index buffer for each mesh its cells show, 158 at most on the
+RTX 4070 and 162 on lavapipe. The pack run plays every game for two minutes at once this way, and a
+push Slide alone, and a ten-minute run of each holds level on the desktop.
 
 `build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under
@@ -189,7 +189,7 @@ played on Windows and macOS. Only once every job passes does it pack with `build
 and keep the package as the run's artifact, and with its "publish" box ticked it pushes the package
 to nuget.org through the `NUGET_API_KEY` secret. A push runs the three systems' tests, Slide played
 on each, and the Linux `examples` job, and leaves the rest to the pack run. The version is
-`build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
+`build/version.sh`'s, the major and minor written in `build/version.txt` and, as the patch, the
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `5.0` to `5.1` starts it again at `5.1.0`.
 
@@ -213,7 +213,7 @@ A pack made locally without a version is a version of its own, `0.1.0-preview.` 
 since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
 the version it chose before. `games/Slide` is such a game, built this way in CI, and
-`./e3d open games/Slide/bin/Debug/net10.0/Slide` drives it as it does the examples.
+`./e3d open games/Slide/bin/Debug/net10.0/Slide` controls it as it does the examples.
 
 ### A program on a local package
 
@@ -328,9 +328,9 @@ draws it the same way, a failure named in an error annotation with the compiler'
 own lines. On Windows and macOS `build/drive-game.sh <game>` then plays Slide through `./e3d` on a
 push, and each of the twelve games in the pack run, offscreen at 480 by 270, as the Linux jobs play
 them, each asserting its walk or its win, so a game's input, its sound and the session `./e3d`
-drives are tried there, and a game that fails says why in an error annotation naming the system.
-Slide's gestures are timed on the game's clock, so its drive sets each frame to a sixtieth of a
-second (`time.frame`) before it swipes, and a device that draws slowly sees the swipe it would see
+controls are tried there, and a game that fails says why in an error annotation naming the system.
+Slide's gestures are timed on the game's clock, so its scripted run sets each frame to a sixtieth of
+a second (`time.frame`) before it swipes, and a device that draws slowly sees the swipe it would see
 at 60 frames a second. A game that dies leaves a dump, Windows' own on Windows and the .NET
 runtime's in `captures/dumps` elsewhere, which the error names. Each game has twelve minutes there
 (`DRIVE_MINUTES`), past which it is stopped and its error says how far it got by its last status,

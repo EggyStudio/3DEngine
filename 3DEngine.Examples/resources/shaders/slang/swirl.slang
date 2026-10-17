@@ -1,4 +1,4 @@
-// raylib's swirl.fs, written in Slang: the texture turned in a swirl about a center.
+// raylib's swirl.fs, written in Slang. It draws the texture turned in a swirl about a center.
 import engine;
 
 // The size the texture is drawn at, which raylib's shader takes as given

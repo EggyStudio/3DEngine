@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Standard set of engine plugins as a sortable <see cref="IPluginGroup"/>: window,
+/// Standard set of engine plugins as a sortable <see cref="IPluginGroup"/>, with window,
 /// input, ECS, behaviors, ImGui and the renderer among them.
 /// </summary>
 /// <remarks>

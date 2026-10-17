@@ -1,4 +1,4 @@
-// raylib's textures_bunnymark with the search 3DEngine's StressRamp makes: the count grows by half
+// raylib's textures_bunnymark with the search 3DEngine's StressRamp makes. The count grows by half
 // until a frame takes longer than a sixtieth of a second, then the distance between the last count
 // that held and the first that did not halves until they are within about 3 percent.
 #include "raylib.h"

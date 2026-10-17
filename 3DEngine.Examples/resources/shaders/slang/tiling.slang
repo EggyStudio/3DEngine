@@ -1,5 +1,5 @@
-// raylib's tiling.fs, written in Slang for a model: the material's texture repeated across each
-// face, unlit, as raylib's default model shader draws.
+// raylib's tiling.fs, written in Slang for a model. It draws the material's texture repeated across
+// each face, unlit, as raylib's default model shader draws.
 import modelpass;
 
 uniform float2 tiling;

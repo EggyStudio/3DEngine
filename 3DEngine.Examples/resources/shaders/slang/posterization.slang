@@ -1,4 +1,5 @@
-// raylib's posterization.fs, written in Slang: the picture cut down to eight shades a channel.
+// raylib's posterization.fs, written in Slang. It draws the picture cut down to eight shades a
+// channel.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

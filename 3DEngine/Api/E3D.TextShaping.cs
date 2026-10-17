@@ -38,7 +38,7 @@ public static partial class E3D
         }
     }
 
-    // The plan of a font's features for Arabic, in HarfBuzz's stages: composing and the local forms
+    // The plan of a font's features for Arabic, in HarfBuzz's stages, composing and the local forms
     // at every glyph, the isolated, final, medial and initial forms each at the letters in that
     // position, the required ligatures, the contextual alternates, then the marks' positional forms
     // and the ligatures a text font makes, or null where the font has none of the four forms.
@@ -48,7 +48,7 @@ public static partial class E3D
                 [("medi", (byte)ArabicJoining.Form.Medial)], [("init", (byte)ArabicJoining.Form.Initial)], [("rlig", 0)], [("rclt", 0), ("calt", 0)],
                 [("mset", 0), ("liga", 0), ("clig", 0)]);
 
-    // The plan of a font's positions for Arabic: the marks above and below put on their letters and
+    // The plan of a font's positions for Arabic, the marks above and below put on their letters and
     // on each other, the distances and the kerning between letters, and each letter joined to the
     // next by its exit and that one's entry, all at every glyph.
     private static GlyphLayout.Plan? ArabicPositions(GlyphPositioning table) =>

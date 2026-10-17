@@ -5,11 +5,11 @@ program opens a window, draws each frame with plain static calls, and draws ImGu
 An ECS with source-generated behaviors runs underneath for programs that grow into it.
 [.github/DESIGN.md](.github/DESIGN.md) sets out the API's rules and is read before adding to it.
 
-## Driving the engine with `./e3d`
+## Controlling the engine with `./e3d`
 
 `./e3d` talks to a running app over a local socket. **Before asking anything about a running
-program (what is in its world, what a key does, what it looks like), check `./e3d status` and drive
-the live session instead of launching a process per question.**
+program (what is in its world, what a key does, what it looks like), check `./e3d status` and send
+the live session commands instead of launching a process per question.**
 
 ```bash
 ./e3d status                          # is anything serving?
@@ -22,7 +22,7 @@ the live session instead of launching a process per question.**
 ```
 
 The workflow, the commands and the failure modes are in [.github/E3D.md](.github/E3D.md). Read it
-before driving a session.
+before scripting a session.
 
 ## Documents
 
@@ -31,7 +31,7 @@ before driving a session.
 | [.github/DESIGN.md](.github/DESIGN.md) | The flat API, the frame, immediate drawing, the dependency policy |
 | [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
 | [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
-| [.github/E3D.md](.github/E3D.md) | Driving a running app through `./e3d`: the workflow, every command and the failure modes |
+| [.github/E3D.md](.github/E3D.md) | Controlling a running app through `./e3d`, with the workflow, every command and the failure modes |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
@@ -87,10 +87,10 @@ pushed.
 | `3DEngine.CodeFixes` | The fixes an editor offers for the generators' diagnostics, apart because they need Roslyn's workspace layer |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
 | `3DEngine/Diagnostics` | `[Command]` and the console catalog, the log ring, built-in and input commands, `PngWriter` |
-| `3DEngine/Cli` | The server side of `./e3d`: socket, request queue, session files, `CliPlugin` |
+| `3DEngine/Cli` | The server side of `./e3d`, with its socket, request queue, session files and `CliPlugin` |
 | `3DEngine.Cli` | The `e3d` client, which `./e3d` builds and runs |
 | `3DEngine.Examples` | raylib-style example programs, run by name |
-| `3DEngine.Game` | A voxel game in the manner of Minecraft, built on the engine's project, where emissive blocks test the light that bounces |
+| `3DEngine.Game` | A voxel game in the manner of Minecraft, built on the engine's project, where emissive blocks test global illumination |
 | `3DEngine.Game.Tests` | The voxel game's tests of its light, meshes, bodies, saves and generation, which need no window or GPU |
 | `docs` | The guides a program's author reads, one to an area of the flat API, and the comparison with raylib |
 | `games` | Games built on the engine's package as an outside project would be, and `FirstGame`, which `docs/first-game.md` builds in steps |

@@ -1,6 +1,6 @@
-// raylib's lights_bloom.vs and lights_bloom.fs, written in Slang for the model pass: eight colored
-// point lights, each fading with distance, lighting the surface with Blinn-Phong's highlight, the
-// light left as it adds up for the post pass to bloom and tone map.
+// raylib's lights_bloom.vs and lights_bloom.fs, written in Slang for the model pass. It shades
+// the surface by eight colored point lights, each fading with distance, with Blinn-Phong's
+// highlight, the light left as it adds up for the post pass to bloom and tone map.
 import modelpass;
 
 // Input uniform values

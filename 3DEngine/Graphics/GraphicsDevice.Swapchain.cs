@@ -84,8 +84,8 @@ internal sealed unsafe partial class GraphicsDevice
         CreateFrameResources();
     }
 
-    // What every frame image needs, from a swapchain or not: views, depth, the attachments a pass
-    // draws into, and the command buffers.
+    // What every frame image needs, from a swapchain or not, its views, depth, the attachments a
+    // pass draws into, and the command buffers.
     private void CreateFrameResources()
     {
         Logger.Debug("Creating image views for swapchain images...");
@@ -177,7 +177,7 @@ internal sealed unsafe partial class GraphicsDevice
         _msaaColorView = default;
     }
 
-    /// <summary>The samples a frame is drawn with: <see cref="RequestedSamples"/> rounded down to what the device can multisample color and depth at.</summary>
+    /// <summary>The samples a frame is drawn with, <see cref="RequestedSamples"/> rounded down to what the device can multisample color and depth at.</summary>
     private VkSampleCountFlags ChooseSamples(int requested)
     {
         _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var props);
@@ -189,7 +189,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Makes the frame images of a run with no window: one per frame in flight, in the format a
+    /// Makes the frame images of a run with no window, one per frame in flight, in the format a
     /// swapchain usually offers, drawable and copyable, so the passes and captures treat them as
     /// a swapchain's.
     /// </summary>
@@ -259,7 +259,7 @@ internal sealed unsafe partial class GraphicsDevice
         return formats[0];
     }
 
-    /// <summary>Selects the preferred present mode: Mailbox &gt; Immediate &gt; FIFO.</summary>
+    /// <summary>Selects the preferred present mode, Mailbox over Immediate over FIFO.</summary>
     private VkPresentModeKHR ChoosePresentMode(VkPresentModeKHR[] modes)
     {
         // FIFO waits for the display's refresh, and every device has it.

@@ -13,8 +13,8 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
         + "In a trimmed build a script naming what the trimmer cut fails to compile, with the compiler's own error.";
 
     /// <summary>
-    /// Full compilation cycle: enumerate sources -> compile with Roslyn -> load into a
-    /// fresh collectible <see cref="ScriptLoadContext"/> -> hand off to the domain
+    /// The full compilation cycle, which enumerates sources, compiles with Roslyn, loads into a
+    /// fresh collectible <see cref="ScriptLoadContext"/> and hands off to the domain
     /// <see cref="OnAssemblyLoaded"/> hook.
     /// </summary>
     /// <remarks>Held under <c>_compileLock</c> to serialize concurrent debounce + manual triggers.</remarks>
@@ -74,7 +74,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
                 result.Errors.Add(new RuntimeCompilationError
                 {
                     FileName = Path.GetFileName(file),
-                    Message = $"Failed to read: {ex.Message}",
+                    Message = $"Failed to read. {ex.Message}",
                 });
             }
         }

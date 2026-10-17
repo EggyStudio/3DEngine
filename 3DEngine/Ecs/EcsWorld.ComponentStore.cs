@@ -210,7 +210,7 @@ public sealed partial class EcsWorld
         public T[] ComponentsArray => _set.ComponentsArray;
     }
 
-    /// <summary>A read-only span view of a component type: its entities and their components, aligned.</summary>
+    /// <summary>A read-only span view of a component type, its entities and their components, aligned.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     public readonly ref struct ReadOnlyComponentSpan<T>
     {

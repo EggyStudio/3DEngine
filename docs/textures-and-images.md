@@ -28,7 +28,7 @@ UnloadTexture(checker);
 ```
 
 The color a texture is drawn with multiplies its pixels, so `Color.White` draws it as it is and
-another color tints it. The four drawing calls go from simple to complete:
+another color tints it. The four drawing calls go from simple to complete.
 
 | Call | Draws |
 |---|---|
@@ -43,7 +43,7 @@ their middle.
 
 ## Filtering and wrapping
 
-A texture drawn larger or smaller than its size is filtered. `SetTextureFilter` picks how:
+A texture drawn larger or smaller than its size is filtered. `SetTextureFilter` picks how.
 
 | Filter | Suits |
 |---|---|

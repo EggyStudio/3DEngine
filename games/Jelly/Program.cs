@@ -24,7 +24,7 @@ coinModel.Materials[0] = coinModel.Materials[0] with { Color = new Color(250, 19
 CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.2f)), Color.White, 1.5f, castsShadows: true);
 SetAmbientLight(new Color(160, 180, 230), 0.5f);
 
-// -- The runs: the one under way, the input recorded of it, and the best kept in a file with the
+// -- The runs, the one under way, the input recorded of it, and the best kept in a file with the
 // seed its course came from and how far it went.
 
 const string BestFile = "jelly-best.rae", BestOfFile = "jelly-best.txt";
@@ -302,7 +302,7 @@ public sealed class Run(int seed)
     }
 
     // The autopilot looks a little ahead in its lane and the others, and does what clears the
-    // nearest obstacle: a jump over a barrier, a slide under a bar, and another lane round a block.
+    // nearest obstacle, a jump over a barrier, a slide under a bar or another lane round a block.
     public (bool Left, bool Right, bool Jump, bool Slide) Pilot()
     {
         Obstacle? Ahead(int lane) => Obstacles.Where(o => o.Lane == lane && o.Z > Z - 0.5f && o.Z < Z + 9).OrderBy(o => o.Z).Cast<Obstacle?>().FirstOrDefault();

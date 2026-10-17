@@ -210,9 +210,10 @@ public sealed class CascadeEdgeTests : IDisposable
     public void A_Closed_Rooms_Floor_Stays_Hidden_From_An_Ambient_Light_Before_The_Last_Cascade_Is_Built()
     {
         // The field built a cascade a frame, its last comes in the fourth. Held by the last cascade
-        // whether built or not, the floor took the ambient light unhidden in the bounce's place and
-        // read 9.4 times the light it settles at in the three frames before; held by the coarsest
-        // cascade built, 0.54, 0.54 and 1.46 times it, the bounce gathered over fewer cascades.
+        // whether built or not, the floor took the ambient light unhidden in the place of global
+        // illumination and read 9.4 times the light it settles at in the three frames before; held
+        // by the coarsest cascade built, 0.54, 0.54 and 1.46 times it, global illumination gathered
+        // over fewer cascades.
         var config = Config.Default.WithWindow("closed room", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 1);

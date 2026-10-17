@@ -20,8 +20,8 @@ def tone(freq, seconds, volume=0.5, shape=lambda t: 1):
 random.seed(5)
 decay = lambda t: (1 - t) ** 2
 
-# An engine's drone, a second long and looping cleanly: a low fundamental, its firing pulses and
-# a little roughness, every frequency a whole number of cycles in the second.
+# An engine's drone, a second long and looping cleanly, made of a low fundamental, its firing pulses
+# and a little roughness, every frequency a whole number of cycles in the second.
 engine = []
 for k in range(RATE):
     t = k / RATE

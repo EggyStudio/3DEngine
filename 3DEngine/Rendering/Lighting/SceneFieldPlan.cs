@@ -6,9 +6,9 @@ namespace Engine;
 
 /// <summary>
 /// What the scene's distance field is built from each frame and where, worked out on the CPU from
-/// the meshes drawn into the window that cast shadows: where each cascade lies around the eye,
-/// which cascades are built again this frame and from which still meshes, and which meshes are
-/// stamped as boxes because they moved.
+/// the meshes drawn into the window that cast shadows, which says where each cascade lies around
+/// the eye, which cascades are built again this frame and from which still meshes, and which meshes
+/// are stamped as boxes because they moved.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -87,8 +87,8 @@ internal sealed class SceneFieldPlan
     public const float Lead = 0.35f;
 
     /// <summary>
-    /// A mesh drawn this frame: its id, the vertices it has, where it is drawn, whether it has an
-    /// inside, its surface's color and the light it gives off, linear, which the field paints its
+    /// A mesh drawn this frame, its id, the vertices it has, where it is drawn, whether it has an
+    /// inside, its surface's color and emission, linear, which the field paints its
     /// cells with, and its material's roughness and metallic, which a path traced reference lights
     /// it by.
     /// </summary>
@@ -96,7 +96,7 @@ internal sealed class SceneFieldPlan
         Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0);
 
     /// <summary>
-    /// A part of a mesh stamped as a box of its own: the box around the part's vertices at rest in
+    /// A part of a mesh stamped as a box of its own, the box around the part's vertices at rest in
     /// the mesh's own space, and where the part's pose moves that space to, a joint's matrix for a
     /// skinned mesh's limb and none for a part of a mesh that does not bend.
     /// </summary>
@@ -147,14 +147,15 @@ internal sealed class SceneFieldPlan
     }
 
     /// <summary>
-    /// A cascade built this frame: which, its corner, its cells' width, the still meshes that come
-    /// within its band, and the box around the meshes that came or went within it since it was last
-    /// built, the whole cascade at its first build, or null where nothing did, as where the eye moved it.
+    /// A cascade built this frame, which it is, its corner, its cells' width, the still meshes that
+    /// come within its band, and the box around the meshes that came or went within it since it was
+    /// last built, the whole cascade at its first build, or null where nothing did, as where the
+    /// eye moved it.
     /// </summary>
     internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null);
 
     /// <summary>
-    /// A mesh stamped as a box: from the world into its own space, the box's middle and half
+    /// A mesh stamped as a box, from the world into its own space, the box's middle and half
     /// extents there, the least scale from there to the world, and the mesh's color in linear light.
     /// </summary>
     internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default);

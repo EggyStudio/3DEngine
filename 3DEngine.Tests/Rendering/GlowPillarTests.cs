@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The voxel game's room where a lamp's shadow showed a seam: a lamp of four glowstones beside a
+/// The voxel game's room where a lamp's shadow showed a seam, a lamp of four glowstones beside a
 /// pillar of two columns joined above, and the red wall behind, whose light past the pillar is read
 /// along a line across the pillar's shadow.
 /// </summary>

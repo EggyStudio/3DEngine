@@ -52,9 +52,9 @@ A shader of the game's own is compiled ahead into the same `source/.slang-cache`
 
 ## Before shipping
 
-`./e3d open` runs the published executable as it runs an example, so a game is driven and captured
-from the terminal the same way, and CI builds each game from a freshly made package, and its pack
-run plays each with the validation layer on, as `.github/workflows/build.yml` shows.
+`./e3d open` runs the published executable as it runs an example, so a game is controlled and
+captured from the terminal the same way, and CI builds each game from a freshly made package, and
+its pack run plays each with the validation layer on, as `.github/workflows/build.yml` shows.
 
 ## See also
 
@@ -62,4 +62,4 @@ run plays each with the validation layer on, as `.github/workflows/build.yml` sh
   [`games/Slide`](../games/Slide/Program.cs) and [`games/Hopper`](../games/Hopper/Program.cs)
 - [BUILDING.md](../.github/BUILDING.md#shipping-a-game), on the package, publishing and what a
   native build leaves out
-- Previous: [Driving a program with e3d](driving-with-e3d.md)
+- Previous: [The command line](command-line.md)

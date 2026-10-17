@@ -103,7 +103,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Makes a torus standing on the XY plane, as raylib's does: a ring of radius
+    /// Makes a torus standing on the XY plane, as raylib's does, a ring of radius
     /// <paramref name="size"/> / 2 and a tube <paramref name="radius"/> of that thick, so 0.25
     /// makes a tube a quarter of the ring's radius.
     /// </summary>
@@ -129,7 +129,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Makes a trefoil knot as raylib's does: par_shapes' knot, about 0.8 across from its center
+    /// Makes a trefoil knot as raylib's does, par_shapes' knot, about 0.8 across from its center
     /// and a tube of <paramref name="radius"/> / 10, scaled by <paramref name="size"/>.
     /// </summary>
     /// <remarks>
@@ -168,7 +168,7 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Makes terrain from an image: a grid with a vertex per pixel, raised by the pixel's
+    /// Makes terrain from an image, a grid with a vertex per pixel raised by the pixel's
     /// brightness, from the origin to <paramref name="size"/>, where black is at y 0 and white at
     /// <c>size.Y</c>.
     /// </summary>
@@ -206,14 +206,14 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Makes a maze from an image as raylib's does: a block of <paramref name="cubeSize"/> for every
+    /// Makes a maze from an image as raylib's does, a block of <paramref name="cubeSize"/> for every
     /// white pixel, centered on the pixel's place, so pixel (x, y) stands at x by y times the size,
     /// and a floor and a roof over every black pixel.
     /// </summary>
     /// <remarks>
     /// A block has its top and bottom and the sides that face a black pixel or the map's edge, and
     /// a pixel of any other color makes nothing. Each face takes a quarter of a texture laid out as
-    /// raylib's atlas is: the right and front sides the top left, the left and back sides the top
+    /// raylib's atlas is, the right and front sides the top left, the left and back sides the top
     /// right, a block's top and an open cell's roof the bottom left, and a block's bottom and the
     /// floor the bottom right. The roofs face down, so from above they are culled and from inside
     /// the maze they are its ceiling, as a material is single-sided unless set.
@@ -236,7 +236,7 @@ public static partial class E3D
         var top = new Vector4(0.0f, 0.5f, 0.5f, 0.5f);
         var bottom = new Vector4(0.5f, 0.5f, 0.5f, 0.5f);
 
-        // A corner of a quarter: 0 its left or top, 1 its right or bottom.
+        // A corner of a quarter, 0 its left or top and 1 its right or bottom.
         static Vector2 At(Vector4 rect, int u, int v) => new(rect.X + u * rect.Z, rect.Y + v * rect.W);
 
         // Two triangles of raylib's, their corners and texture coordinates in its order
@@ -347,7 +347,7 @@ public static partial class E3D
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ApiLogger.Warn($"ExportMesh: '{fileName}' could not be written: {ex.Message}");
+            ApiLogger.Warn($"ExportMesh: '{fileName}' could not be written. {ex.Message}");
             return false;
         }
     }

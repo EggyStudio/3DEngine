@@ -1,7 +1,7 @@
-// raylib's gbuffer.vs and gbuffer.fs, written in Slang for the model pass: each pixel's position
-// and normal in the world, and its color with its specular strength, into the three textures of
-// a G-buffer. raylib's diffuseTexture and specularTexture are both left on the first texture unit,
-// so both read the material's own texture, as they do here.
+// raylib's gbuffer.vs and gbuffer.fs, written in Slang for the model pass. It writes each pixel's
+// position and normal in the world, and its color with its specular strength, into the three
+// textures of a G-buffer. raylib's diffuseTexture and specularTexture are both left on the first
+// texture unit, so both read the material's own texture, as they do here.
 import modelpass;
 
 struct GBufferOutput

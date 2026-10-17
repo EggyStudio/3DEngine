@@ -14,7 +14,7 @@ namespace Engine;
 internal sealed class GpuTextures : IDisposable
 {
     /// <summary>
-    /// Frames a retired object is kept for: one more than the device's frames in flight, so a frame
+    /// Frames a retired object is kept for, one more than the device's frames in flight, so a frame
     /// that was recording when the object was retired has also finished.
     /// </summary>
     public const int RetireFrames = 4;

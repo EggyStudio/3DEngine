@@ -17,7 +17,7 @@ public sealed partial class AssetServer
             if (!completed.Success)
             {
                 _states[completed.Id] = LoadState.Failed;
-                Logger.Error($"Asset load failed: {completed.Path}: {completed.Error}");
+                Logger.Error($"Asset load failed: {completed.Path}. {completed.Error}");
                 continue;
             }
 

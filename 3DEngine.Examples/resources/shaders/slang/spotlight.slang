@@ -1,5 +1,5 @@
-// raylib's spotlight.fs, written in Slang: darkness over the screen, clear in a few spots and fading
-// out around them, and dim rather than dark over its right half.
+// raylib's spotlight.fs, written in Slang. It draws darkness over the screen, clear in a few spots
+// and fading out around them, and dim rather than dark over its right half.
 import engine;
 
 static const int MAX_SPOTS = 3;

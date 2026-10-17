@@ -10,15 +10,15 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
-    public void The_Light_That_Bounced_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out(GlobalIllumination quality)
+    public void The_Indirect_Light_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out(GlobalIllumination quality)
     {
-        // The room a glowing panel lights by bouncing alone, drawn into a render texture read each
-        // frame after the panel goes dark. Each frame the probes' rays take the light that bounced
-        // to what they meet the frame before, so it went on bouncing after the panel, its room
+        // The room an emissive panel lights by indirect light alone, drawn into a render texture
+        // read each frame after the panel goes dark. Each frame the probes' rays take the indirect
+        // light reaching what they meet the frame before, so it went on after the panel, its room
         // under a level 30 frames on at Low and 28 at High, and 45 at Low once surfaces weighed
         // their probes off themselves, as this test measured on the development machine's GPU,
         // where it goes the frame after the own light of the probes around each falls, under a
-        // level 2 frames on, the room's probes lit more by the panel's light bounced than by the
+        // level 2 frames on, the room's probes lit more by the panel's indirect light than by the
         // panel.
         Open();
         SetGlobalIllumination(quality);
@@ -50,16 +50,16 @@ public sealed partial class GlobalIlluminationTests
             return Mean(LoadImageFromTexture(target.Texture), 0, 0, 160, 96).X;
         }
 
-        var glowing = Drawn(8, SceneFieldPlan.SettleFrames + 30);
+        var emitting = Drawn(8, SceneFieldPlan.SettleFrames + 30);
         var after = Enumerable.Range(0, 6).Select(_ => Drawn(0, 1)).ToList();
-        glowing.Should().BeGreaterThan(100, "the panel lights its room by bouncing");
+        emitting.Should().BeGreaterThan(100, "the panel lights its room through indirect light");
         after.FindIndex(level => level < 1).Should().BeLessThanOrEqualTo(2,
-            $"the light that bounced goes with the panel, the room reading {string.Join(", ", after.Select(level => $"{level:0.0}"))} the frames after");
+            $"the indirect light goes with the panel, the room reading {string.Join(", ", after.Select(level => $"{level:0.0}"))} the frames after");
 
         // Taken whole, it lingers.
         GetApp().World.Resource<GlobalIlluminationSettings>().FollowOff = true;
         Drawn(8, 30);
-        Drawn(0, 2).Should().BeGreaterThan(100, "where the probes take the whole of the light that bounced, it bounces on");
+        Drawn(0, 2).Should().BeGreaterThan(100, "where the probes take the whole of the indirect light, it goes on");
         UnloadRenderTexture(target);
         UnloadModel(slab);
         UnloadModel(panel);
@@ -69,12 +69,12 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
-    public void A_Lamp_Put_Out_In_A_Room_Apart_Leaves_A_Corridor_Lit_By_Bounce_Alone_As_It_Was(GlobalIllumination quality)
+    public void A_Lamp_Put_Out_In_A_Room_Apart_Leaves_A_Corridor_Lit_By_Indirect_Light_Alone_As_It_Was(GlobalIllumination quality)
     {
         // A lit room with a corridor out of it that turns a corner, the camera down the turned leg,
-        // which only light that bounced around the corner reaches, and a second lit room apart,
+        // which only indirect light around the corner reaches, and a second lit room apart,
         // whose lamp, bright enough to hold some half of every probe's own light, goes out at frame
-        // 0. A probe lit mostly by light that bounced is judged by the probes around it, so the
+        // 0. A probe lit mostly by indirect light is judged by the probes around it, so the
         // corridor keeps its light to the tenth of a level; judged by every probe's own light, it
         // dimmed with the far room's lamp by 3.3 and 3.7% 3 frames on, as this test measured on the
         // development machine's GPU.
@@ -125,7 +125,7 @@ public sealed partial class GlobalIlluminationTests
         UseApp(null);
 
         var reads = shots.Select(path => Mean(LoadImage(path), 0, 0, 160, 96).X).ToList();
-        reads[0].Should().BeGreaterThan(40, "the corridor is lit by the light that bounced around its corner");
+        reads[0].Should().BeGreaterThan(40, "the corridor is lit by indirect light around its corner");
         reads.Skip(1).Min().Should().BeGreaterThan(reads[0] * 0.985f,
             $"and keeps it as the far room goes dark, reading {string.Join(", ", reads.Select(level => $"{level:0.0}"))} from the frame before");
     }
@@ -134,12 +134,12 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
-    public void A_Lamp_Carried_Away_Takes_The_Light_It_Bounced_With_It(GlobalIllumination quality)
+    public void A_Lamp_Carried_Away_Takes_Its_Indirect_Light_With_It(GlobalIllumination quality)
     {
         // A room split by an inner wall, its lamp carried from one side to the other at frame 0,
         // each frame after against the frame 90 on, the light left where the lamp was, the picture
         // brighter than it settles, under half of it 4 frames on. Taken whole, as the probes took
-        // the light that bounced before, it kept nine tenths of it 4 frames on, where each probe on
+        // the indirect light before, it kept nine tenths of it 4 frames on, where each probe on
         // the lamp's old side taking it at the share its own light kept leaves 0.17 at Low and
         // 0.22 at High, as this test measured on the development machine's GPU.
         Open();
@@ -191,14 +191,14 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void The_Light_That_Bounces_Follows_A_Lamp_Brought_Into_The_Room_Within_Two_Frames()
+    public void Indirect_Light_Follows_A_Lamp_Brought_Into_The_Room_Within_Two_Frames()
     {
         // The red wall and the block of the test above, the lamp held out of its reach and brought
         // in at frame 30, the camera between the two looking at the block's side facing the wall,
         // which only the wall's light reaches, so the screen's probes stand on it. The side is read
         // each frame from frame 28, and the frames after 30 it takes to come and stay within a
-        // tenth of the way from its light before to its light at frame 59 are how far the bounce
-        // lags the lamp, seven where each frame blended a fifth of its light.
+        // tenth of the way from its light before to its light at frame 59 are how far global
+        // illumination lags the lamp, seven where each frame blended a fifth of its light.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         var lamp = CreatePointLight(new Vector3(0.5f, 60, 0.8f), Color.White, 6, range: 10);
@@ -230,20 +230,20 @@ public sealed partial class GlobalIlluminationTests
         (after - before).Should().BeGreaterThan(20, $"the lamp brought in lights the wall, whose light reaches the side, {before:0} to {after:0}");
         var lag = side.First(read => read.Frame >= 30 && side.Where(later => later.Frame >= read.Frame)
             .All(later => Math.Abs(later.Red - after) <= 0.1 * (after - before))).Frame - 30;
-        lag.Should().BeLessThanOrEqualTo(2, $"the bounce follows the lamp, the side reading {string.Join(", ", side.Select(read => $"{read.Red:0}"))} from frame 28");
+        lag.Should().BeLessThanOrEqualTo(2, $"global illumination follows the lamp, the side reading {string.Join(", ", side.Select(read => $"{read.Red:0}"))} from frame 28");
     }
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void The_Light_That_Bounces_Holds_Still_As_The_Camera_Slides()
+    public void Global_Illumination_Holds_Still_As_The_Camera_Slides()
     {
         // A Cornell box the camera slides through a hundredth of a unit a frame, along x either way,
-        // up, ahead and askew, the picture's change from frame to frame with light bouncing set
-        // against its change with none. The screen's probes stand on whatever surface each tile's
-        // middle shows, so as the camera slides they slide over the surfaces and their light
+        // up, ahead and askew, the picture's change from frame to frame with global illumination
+        // set against its change with none. The screen's probes stand on whatever surface each
+        // tile's middle shows, so as the camera slides they slide over the surfaces and their light
         // changes with them, which blending each with the frame before's where its surface was
-        // holds still. One slide's change differs from the next's by as much as the bounce adds, so
-        // the change is read over the five.
+        // holds still. One slide's change differs from the next's by as much as global illumination
+        // adds, so the change is read over the five.
         var slide = Vector3.UnitX;
         double Change(GlobalIllumination quality, bool held = true)
         {
@@ -290,12 +290,12 @@ public sealed partial class GlobalIlluminationTests
             return changes.Average();
         }
 
-        // What the bounce adds to the change, held by the frame before's light and not: 0.33 levels
-        // a frame of 1.61 on the development machine's GPU, as this test measured them, while each
-        // ray of a screen probe took the world's probes' light from the one texel of their
-        // octahedron it fell in, so a ray near a texel's border flipped to the next as its probe
-        // slid; read between the four texels around it, -0.03 of 0.03, the slide's own change and
-        // the bounce's alike.
+        // What global illumination adds to the change, held by the frame before's light and not,
+        // 0.33 levels a frame of 1.61 on the development machine's GPU, as this test measured them,
+        // while each ray of a screen probe took the world's probes' light from the one texel of
+        // their octahedron it fell in, so a ray near a texel's border flipped to the next as its
+        // probe slid; read between the four texels around it, -0.03 of 0.03, the slide's own change
+        // and that of global illumination alike.
         var (adds, unhelds) = (new List<double>(), new List<double>());
         foreach (var way in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ, new Vector3(0.7f, 0.3f, -0.6f) })
         {
@@ -305,7 +305,7 @@ public sealed partial class GlobalIlluminationTests
             unhelds.Add(Change(GlobalIllumination.Low, held: false) - still);
         }
         adds.Average().Should().BeLessThan(0.15,
-            $"the bounce's light does not crawl as the camera slides, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) and unheld {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
+            $"indirect light does not crawl as the camera slides, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) and unheld {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
     }
 
     [NeedsVulkanTheory]
@@ -322,7 +322,7 @@ public sealed partial class GlobalIlluminationTests
         // share of the probes to its right and below, and a probe at the wall's right or bottom
         // edge, whose neighbor there stands on the sky, took more of its light from this frame than
         // the fifth it takes, which its alpha reads, one more than the share the frame before's
-        // light gave: 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8.
+        // light gave, 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8.
         Open();
         SetGlobalIllumination(quality);
         CreatePointLight(new Vector3(0, 0, 2), new Color(255, 236, 210), 6, range: 8);
@@ -357,19 +357,19 @@ public sealed partial class GlobalIlluminationTests
     public void The_Light_That_Bounces_Settles_By_The_Fifth_Frame_After_A_Walk_Or_A_Turn(bool turn)
     {
         // The voxel game's room at night, 11 blocks by 6 by 11 inside, white with a red wall and a
-        // green one, lit by one glowing block on its floor, the bounce at High through the game's
-        // field of four cascades of a quarter block, the camera walking four blocks ahead over 20
-        // frames or turning a quarter in one, and the picture's change from each frame to the next
-        // read after. The screen's probes' rays read the world's probes' light from the texel each
-        // fell in, which flipped for a ray near a texel's border as the camera moved and the frame
-        // before's light averaged, so it drifted for a dozen frames after; and the world's probes'
-        // rays read the light that bounced the frame before at their cascade's new corner once it
-        // moved with the eye, as every cascade does in a turn, each probe taking the faces of a
-        // probe a step or more beside it, so the light bouncing again found itself over ten frames
-        // and more. The fifth frame after the walk changed 0.19 levels and after the turn 0.84, as
-        // this test measured on the development machine's GPU, and read between the texels and at
-        // the corners gathered at, 0.07 and 0.06; the texels alone leave the turn at 0.69, and the
-        // corners alone the walk at 0.19.
+        // green one, lit by one emissive block on its floor, global illumination at High through
+        // the game's field of four cascades of a quarter block, the camera walking four blocks
+        // ahead over 20 frames or turning a quarter in one, and the picture's change from each
+        // frame to the next read after. The screen's probes' rays read the world's probes' light
+        // from the texel each fell in, which flipped for a ray near a texel's border as the camera
+        // moved and the frame before's light averaged, so it drifted for a dozen frames after; and
+        // the world's probes' rays read the indirect light of the frame before at their cascade's
+        // new corner once it moved with the eye, as every cascade does in a turn, each probe taking
+        // the faces of a probe a step or more beside it, so the light past the first bounce found
+        // itself over ten frames and more. The fifth frame after the walk changed 0.19 levels and
+        // after the turn 0.84, as this test measured on the development machine's GPU, and read
+        // between the texels and at the corners gathered at, 0.07 and 0.06; the texels alone leave
+        // the turn at 0.69, and the corners alone the walk at 0.19.
         var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -426,14 +426,14 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Mesh_Replaced_Beside_A_Lamp_Keeps_The_Light_That_Bounces_While_Its_Replacement_Settles()
+    public void A_Mesh_Replaced_Beside_A_Lamp_Keeps_Its_Indirect_Light_While_Its_Replacement_Settles()
     {
-        // Three walls around a lamp drawn apart, which lights them by bouncing alone, the walls one
-        // mesh replaced at frame 60 by one of four, the fourth a block beside the lamp, as a game's
-        // section is meshed again when a block is placed. The walls left the field at once and
-        // their replacement stood in as a few boxes until it settled, the wall reading 116 before
-        // and 69 six frames after and the floor 85 and 60, as this test measured on the development
-        // machine's GPU; kept in the field until the replacement settles, neither fell.
+        // Three walls around a lamp drawn apart, which lights them by indirect light alone, the
+        // walls one mesh replaced at frame 60 by one of four, the fourth a block beside the lamp,
+        // as a game's section is meshed again when a block is placed. The walls left the field at
+        // once and their replacement stood in as a few boxes until it settled, the wall reading 116
+        // before and 69 six frames after and the floor 85 and 60, as this test measured on the
+        // development machine's GPU; kept in the field until the replacement settles, neither fell.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
         SetAmbientLight(Color.Black, 0);
@@ -471,7 +471,7 @@ public sealed partial class GlobalIlluminationTests
 
         for (int frame = 0; frame < 59; frame++) Drawn(before);
         var lit = Drawn(before);
-        lit.Wall.Should().BeGreaterThan(60, "the lamp lights the wall by bouncing");
+        lit.Wall.Should().BeGreaterThan(60, "the lamp lights the wall through indirect light");
         var edited = Enumerable.Range(0, SceneFieldPlan.SettleFrames + 4).Select(_ => Drawn(after)).ToList();
         foreach (var (wall, ground) in edited)
         {

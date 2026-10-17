@@ -97,7 +97,7 @@ public class GeneratorAttributeTests
             }
         }
 
-        // The entity's other components as parameters: ref to write one, which marks it changed,
+        // The entity's other components as parameters, ref to write one, which marks it changed,
         // and in to read one, which does not. A parameter is also a filter.
         public struct Velocity { public float X; }
 

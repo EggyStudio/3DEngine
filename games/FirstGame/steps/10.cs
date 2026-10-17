@@ -23,7 +23,7 @@ for (int i = 0; i < samples.Length; i++)
 }
 var ding = LoadSoundFromWave(new Wave { Samples = samples, SampleRate = 44100, Channels = 1 });
 
-// The level: where the coins and the crates are, read from a scene file.
+// The level, where the coins and the crates are, read from a scene file.
 var coinsAtStart = new List<Vector3>();
 var crates = new List<BoundingBox>();
 var ecs = GetApp().World.Resource<EcsWorld>();

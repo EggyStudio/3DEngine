@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     Buffer readback = makeBuffer(Size * Size * 4, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
 
     // The scene at the binding asked for in the set asked for, every set before it empty, and
-    // beside it at binding 22 a uniform buffer of lights as the engine's model pass reads them: a
+    // beside it at binding 22 a uniform buffer of lights as the engine's model pass reads them, a
     // sun's direction and color, the light from all around, a count, and sixteen lamps.
     VkDescriptorSetLayoutBinding sceneBindings[3] = {
         { .binding = binding, .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, .descriptorCount = 1,
@@ -221,8 +221,8 @@ int main(int argc, char **argv)
     VkDescriptorSetLayoutCreateInfo emptyInfo = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
     VkDescriptorSetLayoutCreateInfo sceneInfo = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, .bindingCount = 3,
         .pBindings = sceneBindings };
-    // And at binding 29 the surfaces the engine's copies are drawn with, each a color, a light it
-    // gives off and where its corners begin, 48 bytes, the one copy's green light.
+    // And at binding 29 the surfaces the engine's copies are drawn with, each a color, an
+    // emission and where its corners begin, 48 bytes, the one copy's green light.
     Buffer surfaces = makeBuffer(4 * 48, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     memset(surfaces.mapped, 0, 4 * 48);
     ((float *)surfaces.mapped)[5] = 1;

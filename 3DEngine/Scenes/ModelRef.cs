@@ -50,7 +50,7 @@ internal static class ModelRefSystem
             }
             catch (InvalidOperationException ex)
             {
-                Log.Category("Engine.Scenes").Warn($"ModelRef: '{path}' cannot be loaded: {ex.Message}");
+                Log.Category("Engine.Scenes").Warn($"ModelRef: '{path}' cannot be loaded. {ex.Message}");
             }
         }
     }

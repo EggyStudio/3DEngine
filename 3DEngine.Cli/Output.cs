@@ -15,7 +15,7 @@ internal static class Output
         }
         catch (JsonException error)
         {
-            Console.Error.WriteLine($"e3d: the answer was not JSON: {error.Message}");
+            Console.Error.WriteLine($"e3d: the answer was not JSON. {error.Message}");
             return Exit.General;
         }
 

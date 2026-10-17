@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace Engine;
 
 /// <summary>
-/// Orchestrates the rendering pipeline: extract → graph execution (update → auto-barrier → run per node).
+/// Orchestrates the rendering pipeline, extract → graph execution (update → auto-barrier → run per node).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -67,9 +67,9 @@ internal sealed class Renderer : IDisposable
         if (Context.Graphics is GraphicsDevice { CanQueryRays: true } && Build("model.slang", ["RAY_QUERY"], "The model pass traces no rays") is { } traced)
             (model, rays) = (traced, ["RAY_QUERY"]);
         // And its builds for a frame that needs less, which lavapipe compiles as it first draws
-        // with each pipeline: one for a frame with no glow lights, which leaves their marches out,
-        // half the fragment stage, and one for a frame where no light bounces, which leaves the
-        // bounce out with them and traces no rays.
+        // with each pipeline, one for a frame with no glow lights, which leaves their marches out,
+        // half the fragment stage, and one for a frame without global illumination, which leaves
+        // it out with them and traces no rays.
         const string Whole = "The model pass draws such a frame whole";
         var lampless = Context.Graphics is GraphicsDevice
             ? (Build("model.slang", [.. rays, "NO_GLOW_LIGHTS"], Whole), Build("model_streams.slang", ["NO_GLOW_LIGHTS"], Whole))
@@ -120,7 +120,7 @@ internal sealed class Renderer : IDisposable
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then the scene's field, the window's
-        // occlusion and the light that bounces, then render targets, each drawing the shadow map for
+        // occlusion and global illumination, then render targets, each drawing the shadow map for
         // its own camera and tracing its own screen probes before its pass, then the window's
         // shadow, so the window's passes can sample the targets and the map as the window's camera
         // needs it.
@@ -146,7 +146,7 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("model_batches", "window_depth");
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
         Graph.AddNodeEdge("window_depth", "ambient_occlusion");
-        // The light that bounces, traced through the field before every pass that lights a view, the
+        // Global illumination, traced through the field before every pass that lights a view, the
         // render targets' screen probes with each target after it.
         Graph.AddNode("global_illumination", new GlobalIlluminationNode());
         Graph.AddNodeEdge("ambient_occlusion", "global_illumination");
@@ -170,7 +170,7 @@ internal sealed class Renderer : IDisposable
         // A cascade of the scene's distance field drawn over the window, where a command asks.
         Graph.AddNode("scene_field_view", new SceneFieldViewNode());
         Graph.AddNodeEdge("immediate", "scene_field_view");
-        // And what the light that bounces holds, where a command or its window asks.
+        // And what global illumination holds, where a command or its window asks.
         Graph.AddNode("bounce_view", new BounceViewNode());
         Graph.AddNodeEdge("scene_field_view", "bounce_view");
         Logger.Debug("Default MainPassNode added to render graph.");
@@ -195,7 +195,7 @@ internal sealed class Renderer : IDisposable
         }
         catch (Exception e) when (e is InvalidOperationException or IOException)
         {
-            Logger.Warn($"{otherwise}, its build with {string.Join(" and ", defines)} not made: {e.Message}");
+            Logger.Warn($"{otherwise}, its build with {string.Join(" and ", defines)} not made. {e.Message}");
             return null;
         }
     }
@@ -208,7 +208,7 @@ internal sealed class Renderer : IDisposable
     /// <param name="sys">The prepare system to add.</param>
     public void AddPrepareSystem(IPrepareSystem sys) => _prepareSystems.Add(sys);
 
-    /// <summary>Executes one full render frame: extract → begin frame → prepare → graph execution → end frame.</summary>
+    /// <summary>Executes one full render frame, extract → begin frame → prepare → graph execution → end frame.</summary>
     /// <param name="world">The game world to read data from during the extract phase.</param>
     public void RenderFrame(World world)
     {
@@ -259,7 +259,7 @@ internal sealed class Renderer : IDisposable
         return elapsed;
     }
 
-    /// <summary>Executes the render graph: per node calls Update → auto-barrier → Run. Ends the active swapchain pass after all nodes.</summary>
+    /// <summary>Executes the render graph, calling Update → auto-barrier → Run per node. Ends the active swapchain pass after all nodes.</summary>
     private void ExecuteGraph(RenderContext renderCtx, int inFlightIndex)
     {
         var orderedNodes = Graph.TopologicalOrder();

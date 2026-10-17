@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// The same fields as <see cref="Light"/>, which the model pass reads. A reader maps what
-/// its format has onto them: Assimp's directional, point, spot and ambient lights map directly, and
+/// its format has onto them. Assimp's directional, point, spot and ambient lights map directly, and
 /// an area light becomes a point light, which is the nearest thing the model pass draws.
 /// </remarks>
 internal sealed class SceneLightPayload

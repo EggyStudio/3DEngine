@@ -3,13 +3,13 @@ namespace Engine;
 /// <summary>
 /// Convenience helpers that collapse the standard "load a <see cref="TextureAsset"/> through
 /// the <see cref="AssetServer"/>" boilerplate into single calls. Mirrors
-/// <see cref="SceneSpawnExtensions"/>: the lower-level building blocks remain available
+/// <see cref="SceneSpawnExtensions"/>, where the lower-level building blocks remain available
 /// for callers who need fine-grained control.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Color-space hints</b> are forwarded to <see cref="TextureAssetLoader"/> via the
-/// sub-asset label channel: <c>"srgb"</c> for base-color / emissive maps, <c>"linear"</c>
+/// sub-asset label channel, <c>"srgb"</c> for base-color / emissive maps and <c>"linear"</c>
 /// for normal / metallic-roughness / occlusion maps. Combine with <c>"mips"</c> to
 /// request a generated mip chain (e.g. <c>"srgb|mips"</c>).
 /// </para>

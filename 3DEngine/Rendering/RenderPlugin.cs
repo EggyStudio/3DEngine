@@ -84,7 +84,7 @@ internal sealed class RenderPlugin : IPlugin
 
         app.World.InitResource<DrawList>();
         app.World.InitResource<ModelDrawList>();
-        // The scene's distance field and the light that bounces the app starts with, which
+        // The scene's distance field and global illumination the app starts with, which
         // SetSceneField and SetGlobalIllumination change later.
         if (cfg.SceneField.Cascades > 0 || cfg.GlobalIllumination != GlobalIllumination.Off)
             app.World.InsertResource(new SceneFieldSettings
@@ -239,7 +239,7 @@ internal sealed class RenderPlugin : IPlugin
         }
         catch (Exception ex) when (ex is InvalidOperationException or Vortice.Vulkan.VkException or DllNotFoundException)
         {
-            Logger.Warn($"RenderPlugin: Offscreen rendering could not start, so nothing is drawn: {ex.Message}");
+            Logger.Warn($"RenderPlugin: Offscreen rendering could not start, so nothing is drawn. {ex.Message}");
         }
     }
 }

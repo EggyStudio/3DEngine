@@ -27,7 +27,7 @@ public static partial class E3D
         _sdfShaderFailed = false;
     }
 
-    /// <summary>The engine's default font: ProggyClean at 13 pixels, point filtered so it scales as pixels.</summary>
+    /// <summary>The engine's default font, ProggyClean at 13 pixels, point filtered so it scales as pixels.</summary>
     public static Font GetFontDefault()
     {
         if (_defaultFont is { } font && IsTextureValid(font.Texture)) return font;
@@ -72,7 +72,7 @@ public static partial class E3D
         _ => LoadFontEx(fileName, 32),
     };
 
-    // A font AngelCode's BMFont wrote in its text form: a line of the sizes common to every page, a
+    // A font AngelCode's BMFont wrote in its text form, a line of the sizes common to every page, a
     // line naming each page's image, beside the file, and a line for each character, where it is in
     // its page and where it sits from the pen. The pages are stacked into one atlas, as raylib
     // stacks them, its height the line height, and a page of gray alone is the glyphs' coverage,
@@ -197,8 +197,8 @@ public static partial class E3D
         }
         bool Key(int x, int y) => x >= image.Width || y >= image.Height || GetImageColor(image, x, y) == key;
 
-        // The first pixel that is not the key gives the gaps: its column the space between glyphs,
-        // its row the space between rows.
+        // The first pixel that is not the key gives the gaps, its column the space between glyphs
+        // and its row the space between rows.
         int spacing = -1, lineSpacing = -1;
         for (int y = 0; y < image.Height && spacing < 0; y++)
             for (int x = 0; x < image.Width; x++)
@@ -265,7 +265,7 @@ public static partial class E3D
         return path;
     }
 
-    // A font baked at fontSize with the characters asked for: those past U+FFFF, which the atlas
+    // A font baked at fontSize with the characters asked for, those past U+FFFF, which the atlas
     // builder cannot name, and those a color font holds in color, which it would bake in gray,
     // drawn by the engine's own TrueType reader from data into the same atlas, and the rest by the
     // builder through add, given a size and the pinned ranges. The builder bakes at least a space,
@@ -396,7 +396,7 @@ public static partial class E3D
     /// </para>
     /// <para>
     /// A color font's colored characters, emoji, are drawn by the reader in their colors, whichever
-    /// plane they are in: from its bitmaps, as Twemoji holds them, scaled from the size nearest
+    /// plane they are in, from its bitmaps, as Twemoji holds them, scaled from the size nearest
     /// above, from its layers, as Segoe UI Emoji holds them, or from its paints of gradients and
     /// transforms, as Noto Color Emoji holds them. A font of bitmaps alone, or one with none of the
     /// other characters asked for, is baked by the reader whole. Text drawn in white shows them as
@@ -647,7 +647,7 @@ public static partial class E3D
     /// </summary>
     public static void SetTextLineSpacing(int spacing) => _textLineSpacing = (_app, spacing);
 
-    // How far down a newline moves, at a size: the size and the set spacing, or the font's own height.
+    // How far down a newline moves, at a size, the size and the set spacing or the font's own height.
     private static float LineAdvance(Font font, float fontSize) =>
         _textLineSpacing is { } set && ReferenceEquals(set.App, _app) ? fontSize + set.Spacing : font.LineHeight * (fontSize / font.BaseSize);
 

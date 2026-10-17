@@ -6,8 +6,8 @@ namespace Engine;
 
 internal sealed partial class ModelRenderer
 {
-    // The boxes of a segment's blocks, each around the spheres its instances' meshes fill: the
-    // mesh's sphere moved by the world matrix, its radius grown by the matrix's largest scale.
+    // The boxes of a segment's blocks, each around the spheres its instances' meshes fill, the
+    // mesh's sphere moved by the world matrix and its radius grown by the matrix's largest scale.
     private static void Bound(Instance[] items, int count, int at, (Vector3 Center, float Radius) sphere, Block[] blocks, int firstBlock)
     {
         for (int start = 0, b = firstBlock; start < count; start += BlockSize, b++)
@@ -35,7 +35,7 @@ internal sealed partial class ModelRenderer
         }
     }
 
-    // Grows a block to hold a mesh's box placed by a world matrix: the box's middle placed, and
+    // Grows a block to hold a mesh's box placed by a world matrix, the box's middle placed and
     // each half width the sum of the box's half widths along the matrix's rows (Arvo), so a mesh
     // moved without turning keeps a box as tight as its own.
     private static void Enclose(ref Block block, in Matrix4x4 world, Vector3 min, Vector3 max)

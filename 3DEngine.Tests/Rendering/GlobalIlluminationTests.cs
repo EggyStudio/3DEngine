@@ -5,9 +5,9 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The light that bounces: how many cascades and directions each quality traces, and frames drawn
-/// offscreen in which a red wall tints the block beside it, a glowing panel lights its room, and
-/// glossy surfaces reflect what is on the screen and what is behind the camera, with in
+/// Global illumination, with how many cascades and directions each quality traces, and frames
+/// drawn offscreen in which a red wall tints the block beside it, an emissive panel lights its
+/// room, and glossy surfaces reflect what is on the screen and what is behind the camera, with in
 /// <c>GlobalIlluminationTests.Frames.cs</c> how the light holds still and follows its lights over frames.
 /// </summary>
 [Collection("E3D")]
@@ -34,7 +34,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
 
         var world = new RenderWorld();
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "nothing asked for light to bounce");
+        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "nothing asked for global illumination");
         world.Set(new GlobalIlluminationSettings { Quality = GlobalIllumination.High });
         GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "and there is no field to trace it through");
         world.Set(new SceneFieldSettings { Cascades = 3 });
@@ -45,7 +45,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Asking_For_Light_To_Bounce_Turns_The_Field_On_Where_It_Was_Off()
+    public void Asking_For_Global_Illumination_Turns_The_Field_On_Where_It_Was_Off()
     {
         UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
         SetGlobalIllumination(GlobalIllumination.Medium);
@@ -62,8 +62,8 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         SetSceneField(2, 0.15f, 2);
     }
 
-    // Draws frames until the field has settled and been built and the light has bounced a few
-    // times, the last of them captured, through the camera given or one looking at the middle.
+    // Draws frames until the field has settled and been built and the light has made a few
+    // bounces, the last of them captured, through the camera given or one looking at the middle.
     private Image Capture(Action draw, Camera3D? camera = null)
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
@@ -125,7 +125,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
     [Trait("Category", "Render")]
     public void A_Floor_Seen_At_A_Slant_Takes_The_Light_Of_The_Screens_Probes_Along_Its_Slope()
     {
-        // A wide floor lit only by the light that bounces, from a dim sky and a glowing wall at its
+        // A wide floor lit only by indirect light, from a dim sky and an emissive wall at its
         // far end, the camera low over it, so each row of the screen's probes stands further off
         // than the one below. Weighed by how alike their distances from the eye were, the probes
         // around a pixel of the floor by the wall lay too far apart for any to count, the pixel
@@ -188,7 +188,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Strip_Thinner_Than_A_Cell_Lights_Its_Room()
+    public void An_Emissive_Strip_Thinner_Than_A_Cell_Lights_Its_Room()
     {
         // A closed room lit by nothing but a strip on its back wall 0.06 thick, under the field's
         // cells of 0.15, which painted no cell its own, the wall nearer every cell's middle, so its
@@ -210,7 +210,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         }, new Camera3D(new Vector3(0, 1.4f, 2.3f), new Vector3(0, 1.2f, -2.5f), Vector3.UnitY, 65)), 0, 60, 160, 36);
         // The floor reads 131 levels where it read none, as this test measured on the development
         // machine's GPU.
-        room.X.Should().BeGreaterThan(40, $"the strip's light, lent to the cells near it, reaches the floor by bouncing, {room}");
+        room.X.Should().BeGreaterThan(40, $"the strip's light, lent to the cells near it, reaches the floor as indirect light, {room}");
         UnloadModel(slab);
         UnloadModel(strip);
     }
@@ -277,15 +277,15 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Panel_Lights_Its_Room_With_No_Light_In_It()
+    public void An_Emissive_Panel_Lights_Its_Room_With_No_Light_In_It()
     {
         Open();
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         panel.Materials[0].Emissive = Color.White;
         panel.Materials[0].EmissiveIntensity = 8;
-        // A room of floor, back wall and walls, and a panel on the ceiling that gives off light,
-        // with no light entity, so whatever lights the floor bounced off the panel's light.
+        // A room of floor, back wall and walls, and an emissive panel on the ceiling,
+        // with no light entity, so whatever lights the floor is the panel's indirect light.
         void Draw()
         {
             DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(4, 0.3f, 4), Color.White);
@@ -296,17 +296,17 @@ public sealed partial class GlobalIlluminationTests : IDisposable
             DrawModelEx(panel, new Vector3(0, 2.97f, 0), Vector3.UnitY, 0, new Vector3(1.2f, 0.06f, 1.2f), Color.White);
         }
 
-        // With light bouncing a scene is lit only by what lights it, where a scene with no light at
-        // all is drawn in its own colors, so the panel dark is the frame to set against.
+        // With global illumination a scene is lit only by what lights it, where a scene with no
+        // light at all is drawn in its own colors, so the panel dark is the frame to set against.
         SetGlobalIllumination(GlobalIllumination.Low);
-        var glowing = Capture(Draw);
+        var emitting = Capture(Draw);
         panel.Materials[0].EmissiveIntensity = 0;
         var dark = Capture(Draw);
 
         // The floor at the room's middle, near the bottom of the picture.
-        var lit = Mean(glowing, 60, 80, 40, 8);
+        var lit = Mean(emitting, 60, 80, 40, 8);
         var unlit = Mean(dark, 60, 80, 40, 8);
-        lit.X.Should().BeGreaterThan(unlit.X + 40, $"the panel's light reaches the floor by bouncing, {lit} against {unlit}");
+        lit.X.Should().BeGreaterThan(unlit.X + 40, $"the panel's light reaches the floor as indirect light, {lit} against {unlit}");
         UnloadModel(slab);
         UnloadModel(panel);
     }
@@ -318,8 +318,8 @@ public sealed partial class GlobalIlluminationTests : IDisposable
     public void A_Ceiling_In_A_Plane_Of_Probes_Takes_The_Light_Of_The_Probes_Below_It(GlobalIllumination quality)
     {
         // A closed room six units square and three high whose ceiling and walls lie in planes of
-        // the first cascade's probes, 1.2 apart from 0.6 at cells of 0.15, lit by a glowing panel
-        // on its floor, so the ceiling, seen from below, is lit by the light that bounces alone.
+        // the first cascade's probes, 1.2 apart from 0.6 at cells of 0.15, lit by an emissive panel
+        // on its floor, so the ceiling, seen from below, is lit by indirect light alone.
         // Weighed at the ceiling itself, its probes were those in its plane, inside the ceiling,
         // which hold nothing, and it read 9.8 levels at Low and 13.3 at High, where weighed half
         // their spacing below it, the row of probes in the room taking its weight, it reads 191
@@ -397,11 +397,11 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Glowing_Panel_Lights_Its_Room_In_A_Render_Texture_Too()
+    public void An_Emissive_Panel_Lights_Its_Room_In_A_Render_Texture_Too()
     {
-        // The room the panel lights by bouncing alone, drawn into a render texture, which drew it
-        // in its own colors as a scene with no light at all, the panel's light or none, and built
-        // no field, the window drawing no mesh.
+        // The room the panel lights by indirect light alone, drawn into a render texture, which
+        // drew it in its own colors as a scene with no light at all, the panel's light or none, and
+        // built no field, the window drawing no mesh.
         Open();
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -434,12 +434,12 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         }
 
         SetGlobalIllumination(GlobalIllumination.Low);
-        var glowing = Mean(Drawn(8, SceneFieldPlan.SettleFrames + 10), 0, 0, 160, 96);
-        // The light that bounced from the panel goes with it the frame after the own light of the
-        // probes around each falls (The_Light_That_Bounced_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out).
+        var emitting = Mean(Drawn(8, SceneFieldPlan.SettleFrames + 10), 0, 0, 160, 96);
+        // The panel's indirect light goes with it the frame after the own light of the probes around
+        // each falls (The_Indirect_Light_Goes_Within_Two_Frames_Of_The_Light_That_Went_Out).
         var dark = Mean(Drawn(0, 4), 0, 0, 160, 96);
 
-        glowing.X.Should().BeGreaterThan(dark.X + 20, $"the panel's light reaches the room in the texture by bouncing, {glowing} against {dark}");
+        emitting.X.Should().BeGreaterThan(dark.X + 20, $"the panel's light reaches the room in the texture as indirect light, {emitting} against {dark}");
         dark.X.Should().BeLessThan(20, $"and with the panel dark nothing lights it, {dark}");
         UnloadRenderTexture(target);
         UnloadModel(slab);
@@ -448,7 +448,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Room_Drawn_Into_A_Render_Texture_Bounces_Its_Light_As_The_Window_Does()
+    public void A_Room_Drawn_Into_A_Render_Texture_Takes_Global_Illumination_As_The_Window_Does()
     {
         // The red wall and the block, drawn into the window and then into a render texture of the
         // window's size shown over the window, the block's side, which only the wall's light
@@ -494,7 +494,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Polished_Floor_Reflects_A_Red_Block_On_It_Through_The_Window_Where_Light_Bounces()
+    public void A_Polished_Floor_Reflects_A_Red_Block_On_It_Through_The_Window_Where_Global_Illumination_Is_On()
     {
         Open();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.5f)), Color.White, 2);
@@ -568,7 +568,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Lamp_That_Casts_Shadows_Bounces_No_Light_Into_A_Room_Its_Walls_Close_It_Out_Of()
+    public void A_Lamp_That_Casts_Shadows_Sends_No_Indirect_Light_Into_A_Room_Its_Walls_Close_It_Out_Of()
     {
         // A closed room of slabs 0.6 thick, the camera inside facing a wall, and a lamp that casts
         // shadows over its roof or under its floor, so none of its light reaches inside. The
@@ -595,7 +595,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
             SetGlobalIllumination(GlobalIllumination.Medium);
             var room = Mean(Capture(Draw, new Camera3D(new Vector3(0, 1.5f, 1.5f), new Vector3(0, 1.5f, -2), Vector3.UnitY, 70)), 20, 16, 120, 64);
 
-            room.Length().Should().BeLessThan(8, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
+            room.Length().Should().BeLessThan(8, $"none of the lamp's light at {lampY} up reaches the room, direct or indirect, {room}");
             UnloadModel(slab);
             CloseWindow();
             UseApp(null);

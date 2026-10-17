@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// One scene drawn into two render textures side by side, as a split screen draws it: views whose
+/// One scene drawn into two render textures side by side, as a split screen draws it. Views whose
 /// cameras stand near share one set of the sun's cascades, drawn once, and each reads its shadows
 /// as it does drawn alone, and views far apart keep their own.
 /// </summary>

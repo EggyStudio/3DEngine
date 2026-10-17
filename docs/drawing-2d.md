@@ -34,7 +34,7 @@ DrawLine(18, 42, screenWidth - 18, 42, Color.Black);
 ```
 
 Most shapes come as a filled call and a `Lines` call for the outline. Past those, the flat API has
-raylib's whole set: rectangles that are rounded, turned (`DrawRectanglePro`) or blended between
+raylib's whole set, with rectangles that are rounded, turned (`DrawRectanglePro`) or blended between
 corner colors, polygons, rings and arcs, ellipses, lines of a width (`DrawLineEx`) and strips and
 fans of triangles. Angles are in degrees, clockwise on the screen from the right.
 

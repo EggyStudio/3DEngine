@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// Ambient occlusion, read from chosen pixels of frames drawn offscreen: a cube on a floor lit by
+/// Ambient occlusion, read from chosen pixels of frames drawn offscreen, a cube on a floor lit by
 /// ambient light and a weak sun, in the corner of two walls, whose floor darkens beside the cube's
 /// foot and in the corner and nowhere far from them, in the window and in a render texture alike,
 /// and the frame's passes for it, which the profile names one by one.
@@ -155,8 +155,8 @@ public sealed class AmbientOcclusionTests : IDisposable
         renderer.RenderWorld.TryGet<WindowDepth>().Should().NotBeNull("the occlusion reads the depth");
         renderer.RenderWorld.TryGet<AmbientOcclusionImage>().Should().NotBeNull();
 
-        // With nothing to read it, no field for the sun's contact shadows and no light bouncing,
-        // neither is drawn.
+        // With nothing to read it, no field for the sun's contact shadows and no global
+        // illumination, neither is drawn.
         SetAmbientOcclusion(0);
         Capture(floor, cube);
         renderer.RenderWorld.TryGet<WindowDepth>().Should().BeNull("nothing reads the depth");

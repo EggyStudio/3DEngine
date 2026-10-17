@@ -28,7 +28,7 @@ both. `DefaultPlugins` is the set a windowed program uses, sorted by `IPlugin.Or
 foundations (logging, the window, assets) build before what depends on them, and a plugin that
 names a missing dependency fails with `PluginOrderException`.
 
-A frame is nine stages:
+A frame is nine stages.
 
 | stage | runs |
 |---|---|
@@ -77,7 +77,7 @@ A state is an enum the game moves between, added with `app.AddState(Screen.Title
 `app.OnEnter(value, system)` and `app.OnExit(value, system)` register systems that run once on a
 transition, `app.OnTransition(from, to, system)` one that runs on a move from one value to a
 particular other, and `BehaviorConditions.InState(value)` is a run condition. Moves are queued and
-applied once a frame, after `PreUpdate`, by `StateTransitions`: the old value's exit systems run,
+applied once a frame, after `PreUpdate`, by `StateTransitions`. The old value's exit systems run,
 then the systems of that particular move, then the new value's enter systems, in the order they
 were added, and the commands they queued
 apply at once so `Update` sees what they spawned. The first value is entered on the first frame.
@@ -90,7 +90,7 @@ point, and its exit systems run and it goes away when the parent leaves, before 
 exit systems. `app.AddComputedState<InGame, Screen>(compute)` adds a state worked out from another
 after each of its moves, with no state where `compute` gives null, and moves it with its own exit
 and enter systems only when its value changes. Either may have no `State<T>`, which `InState` reads
-as false. Either can be declared instead of added: `[SubStateOf(Screen.Playing)]` on an enum makes
+as false. Either can be declared instead of added. `[SubStateOf(Screen.Playing)]` on an enum makes
 it a sub-state entered at its first member or at `Initial`, and `[ComputedState]` on a static method
 from the source enum to the computed one, nullable, makes the method its `compute`. The generated
 registration adds them before the behaviors.
@@ -103,9 +103,9 @@ clear.
 
 ## The ECS
 
-`EcsWorld` is a resource. Each component type has a sparse set: an array from entity to dense
-index, and dense arrays of entities, components and change ticks, so iterating one component is a
-walk over a contiguous array and adding or removing is constant time. Entities are `int` ids,
+`EcsWorld` is a resource. Each component type has a sparse set, made of an array from entity to
+dense index and dense arrays of entities, components and change ticks, so iterating one component is
+a walk over a contiguous array and adding or removing is constant time. Entities are `int` ids,
 reused from a free list, each with a generation that a despawn bumps. An `Entity` handle
 (`ecs.Handle(id)`) carries the generation, so a reference kept across frames can tell, through
 `TryResolve` or `IsAlive`, that its entity is gone even when a new one has its id.
@@ -164,11 +164,11 @@ register the method on a state transition. A method with the wrong signature, tw
 a `[RunIf]` naming nothing usable, a state attribute whose argument is not an enum value or a filter
 naming a type no entity can have (an interface, a static class, an open generic) is reported on the
 method (E3D001 to E3D005) and left out of what is generated, and so is a parameter after the context
-that cannot be a component: taken by value or `out`, not a struct, the behavior itself, a type
+that cannot be a component, one taken by value or `out`, not a struct, the behavior itself, a type
 taken twice, or any on a static method (E3D008). A field holding a reference other than
 a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
 state declaration that cannot be registered is reported on the enum or method (E3D007).
-`3DEngine.CodeFixes` offers an editor's fixes where the change is clear: a stage method given its
+`3DEngine.CodeFixes` offers an editor's fixes where the change is clear, a stage method given its
 `BehaviorContext` first, keeping the parameters taken by `ref` or `in` (E3D001), one stage kept of several (E3D002), and a command made static (E3D100)
 or internal (E3D101). `BehaviorContext` resolves the ECS, commands, time and input when it is made,
 and `ctx.Physics` only when it is read, so behaviors run without `PhysicsPlugin`. The generated
@@ -194,8 +194,8 @@ and `SceneSpawner` turns it into entities, under the entity whose `SpawnSceneReq
 
 ## Scene files
 
-A level is a JSON scene file that `SceneFile` writes from the ECS and reads back: per entity its
-`SceneId` (given on first save, so a rename keeps references), name, parent, and components. A
+A level is a JSON scene file that `SceneFile` writes from the ECS and reads back, holding per entity
+its `SceneId` (given on first save, so a rename keeps references), name, parent, and components. A
 component type is saved when it is marked `[SceneComponent]` or is a `[Behavior]`, and
 `SceneComponentGenerator` writes the code that saves its public fields (numbers, strings, enums,
 vectors, colors, entity references by id, asset handles by path, and arrays of them, as a `Mesh`'s
@@ -231,14 +231,14 @@ for its texture, uploading a mesh's arrays to `MeshStore` the first time and cop
 base color, normal and metallic-roughness textures from the asset store into `TextureStore` once
 loaded.
 
-The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass:
+The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass.
 
 | node | draws |
 |---|---|
-| `targets` | every render target sent drawing this frame: its models, then its shapes, each into its own pass |
+| `targets` | every render target sent drawing this frame, its models and then its shapes, each into its own pass |
 | `main_pass` | begins the window's pass, clearing it |
-| `models` | the frame's `ModelDrawList`: every mesh `DrawModel` and `DrawMesh` recorded and every mesh entity, through `model.slang` |
-| `immediate` | the frame's `DrawList`: every shape and texture the flat API recorded, through `immediate.slang` |
+| `models` | the frame's `ModelDrawList`, every mesh `DrawModel` and `DrawMesh` recorded and every mesh entity, through `model.slang` |
+| `immediate` | the frame's `DrawList`, every shape and texture the flat API recorded, through `immediate.slang` |
 | `imgui` | Dear ImGui's draw data, through `imgui.slang` |
 
 The draw list batches consecutive shapes with the same topology, transform, depth mode and
@@ -273,7 +273,7 @@ image into a host buffer (`GraphicsDevice.RequestCapture`) and write it with `Pn
 command line and the environment into `Config` when the `App` is made. A headless run has no
 `AppWindow`. `HeadlessLoopDriver` paces its frames, the renderer stays uninitialized, and ImGui
 ends its own frame. An offscreen run is a headless one whose renderer is initialized against an
-`OffscreenSurface`: the device makes no surface and no swapchain, draws each frame into one of
+`OffscreenSurface`. The device makes no surface and no swapchain, draws each frame into one of
 its own images in the swapchain's usual format, presents nothing, and captures from it as from a
 swapchain image.
 

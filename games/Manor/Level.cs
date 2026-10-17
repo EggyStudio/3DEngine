@@ -3,7 +3,7 @@ using Engine;
 using static Engine.E3D;
 
 /// <summary>
-/// The estate: a grid of 8 by 8 cells 16 meters across, each a prefab streamed in as the player
+/// The estate, a grid of 8 by 8 cells 16 meters across, each a prefab streamed in as the player
 /// nears, round a house of six rooms, with the doors on hinges and the lanterns to find.
 /// </summary>
 public static class Level
@@ -47,7 +47,7 @@ public static class Level
 
     public static readonly Vector3 Start = new(-8, 0, 56);
 
-    /// <summary>The doors on hinges: where the hinge is, which way the closed door runs from it, and a name.</summary>
+    /// <summary>The doors on hinges, with where the hinge is, which way the closed door runs from it, and a name.</summary>
     public static readonly (string Name, Vector3 Hinge, Vector3 Along)[] Doors =
     [
         ("front door", new(-9.2f, 0, 16.1f), Vector3.UnitX),
@@ -148,7 +148,8 @@ public static class LevelBuilder
             placed.Clear();
         }
 
-        // -- The estate, always there: the ground, the wall round it and the house from outside.
+        // -- The estate that is always there, the ground, the wall round it and the house from
+        // outside.
         Piece("ground", Vector3.Zero);
         Piece("boundary", Vector3.Zero);
         Piece("shell", Vector3.Zero);

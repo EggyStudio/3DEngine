@@ -38,7 +38,7 @@ A scene is lit by global illumination worked out in real time by radiance cascad
 leaves every surface it reaches lighting what it falls on next, tinted by its color, each frame and
 with nothing baked. A lamp carried through a cave lights it round its corners, a red wall tints the
 floor beside it, and every light and mesh of a game may move.
-[Light that bounces](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md)
+[Global illumination](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md)
 says how, and what it costs.
 
 ```csharp
@@ -71,7 +71,7 @@ needs. [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESI
 - [A program of your own](#a-program-of-your-own)
 - [Examples](#examples)
 - [Guide](#guide)
-- [Driving a running app](#driving-a-running-app)
+- [Controlling a running app](#controlling-a-running-app)
 - [Building](#building)
 - [Status](#status)
 - [Documents](#documents)
@@ -192,8 +192,8 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Textures and images](https://github.com/EggyStudio/3DEngine/blob/main/docs/textures-and-images.md) | Loading and drawing textures, filtering, editing images, sprites and many sprites |
 | [Text and fonts](https://github.com/EggyStudio/3DEngine/blob/main/docs/text-and-fonts.md) | The default font, fonts from files, other scripts, typed text and distance field fonts |
 | [Models and animation](https://github.com/EggyStudio/3DEngine/blob/main/docs/models-and-animation.md) | Loading and generating models, terrain, skeletal animation, layered clips, morph targets, a sky and instancing |
-| [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, glowing and see-through surfaces, bloom and effects over the frame, lights and shadows, light that bounces, reflection probes |
-| [Light that bounces](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md) | Global illumination by radiance cascades, the scene's field and the probes, glowing surfaces as lights, the qualities and their cost, and the tools that read it against a reference |
+| [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, emissive and see-through surfaces, bloom and effects over the frame, lights and shadows, global illumination, reflection probes |
+| [Global illumination](https://github.com/EggyStudio/3DEngine/blob/main/docs/global-illumination.md) | Radiance cascades, the scene's field and the probes, emissive surfaces as lights, the qualities and their cost, and the tools that read it against a reference |
 | [Shaders and compute](https://github.com/EggyStudio/3DEngine/blob/main/docs/shaders-and-compute.md) | Slang shaders for 2D drawing and models, post processing, compute shaders, their buffers and the textures they write |
 | [Audio](https://github.com/EggyStudio/3DEngine/blob/main/docs/audio.md) | Sounds, streamed music, volume, pitch and pan, and sound placed in a 3D world |
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
@@ -201,14 +201,14 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
 | [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
 | [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
-| [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log, commands of its own and C# typed at it |
+| [The command line](https://github.com/EggyStudio/3DEngine/blob/main/docs/command-line.md) | Asking a running program about its world, input, captures, the log, commands of its own and C# typed at it |
 | [Shipping a game](https://github.com/EggyStudio/3DEngine/blob/main/docs/shipping-a-game.md) | A game of its own on the package, and one native executable a player runs |
 | [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md) | What is the same as raylib, what this engine adds, what it costs, and what was measured |
 | [Moving from 5.1 to 6.0](https://github.com/EggyStudio/3DEngine/blob/main/docs/upgrading.md) | What a game written for 5.1 writes for 6.0, name by name, raylib's names for keys, buttons and log levels among them |
 
-## Driving a running app
+## Controlling a running app
 
-`./e3d` drives any program built on the engine from a terminal, which is how changes are checked
+`./e3d` controls any program built on the engine from a terminal, which is how changes are checked
 without opening a visible window:
 
 ```bash
@@ -239,10 +239,10 @@ dotnet test 3DEngine.Tests
 
 ## Status
 
-Early, and used for small games. The flat API carries most of raylib's: the window and input,
+Early, and used for small games. The flat API carries most of raylib's API, the window and input,
 2D and 3D shapes, images and textures, models through Assimp with skeletal animation, sounds, music,
 audio streams, text in fonts, render targets, Slang shaders for shapes and models, compute shaders,
-lights with shadows, an environment map and reflection probes, light that bounces and glossy
+lights with shadows, an environment map and reflection probes, global illumination and glossy
 reflections, physics, states and scenes, with ImGui in the same frame. The ECS, the
 scheduler and behaviors run underneath, and a game ships as one native executable through native
 AOT. What is missing:

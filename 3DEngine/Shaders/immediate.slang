@@ -1,4 +1,4 @@
-// Draws the lines and triangles the flat API's Draw calls record: each vertex's color times the
+// Draws the lines and triangles the flat API's Draw calls record, each vertex's color times the
 // batch's texture, which is a white pixel for untextured shapes. A shader loaded with LoadShader
 // replaces fragmentMain, and vertexMain when it has one, for the draws inside BeginShaderMode.
 import engine;

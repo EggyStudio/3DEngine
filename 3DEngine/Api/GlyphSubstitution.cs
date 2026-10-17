@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The substitutions a font's GSUB table makes, by plans of its features: its <c>ccmp</c> feature,
+/// The substitutions a font's GSUB table makes, by plans of its features, its <c>ccmp</c> feature,
 /// which joins a sequence of emoji into the one picture it stands for (a family from its people and
 /// the joiners between them, a flag from two regional indicators, a skin tone from a person and a
 /// modifier, a keycap from a digit and its marks), and the features of a script that joins its
@@ -11,7 +11,7 @@ namespace Engine;
 /// <para>
 /// A plan's lookups are applied in the order the table lists them, each over the whole run of
 /// glyphs from its start, as a shaper applies them, a lookup of a feature that names positions
-/// only at the glyphs its mask takes: single, multiple and ligature substitutions, and the
+/// only at the glyphs its mask takes, single, multiple and ligature substitutions, and the
 /// contextual and chained contextual ones in each of their three formats, which apply others at
 /// places of the run they match, reached directly or through an extension. An alternate or a
 /// reverse chained substitution is not made.

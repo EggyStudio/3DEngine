@@ -9,9 +9,9 @@ namespace Engine;
 
 /// <summary>
 /// Runtime Roslyn compiler for hot-reloadable <c>[Behavior]</c> structs. Mirrors the shell hot-reload
-/// pipeline: watches a directory tree, recompiles on change, loads the result into an isolated
-/// collectible <see cref="System.Runtime.Loader.AssemblyLoadContext"/>, and registers the behaviors
-/// into the live <see cref="App"/>.
+/// pipeline, which watches a directory tree, recompiles on change, loads the result into an
+/// isolated collectible <see cref="System.Runtime.Loader.AssemblyLoadContext"/>, and registers the
+/// behaviors into the live <see cref="App"/>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -118,7 +118,7 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
             result.Errors.Add(new RuntimeCompilationError
             {
                 FileName = "BehaviorGenerator",
-                Message = $"Failed to instantiate BehaviorGenerator at runtime: {ex.Message}",
+                Message = $"Failed to instantiate BehaviorGenerator at runtime. {ex.Message}",
             });
             return compilation;
         }
@@ -157,7 +157,7 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     }
 
     /// <summary>
-    /// Swaps in the generation compiled since the last call, if any: the prior generation's systems
+    /// Swaps in the generation compiled since the last call, if any, the prior generation's systems
     /// out, the new one's in, and the prior generation's components and resources carried onto the
     /// new one's types. Called on the main thread before the first frame and between frames.
     /// </summary>

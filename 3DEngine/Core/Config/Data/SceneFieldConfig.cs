@@ -1,9 +1,9 @@
 namespace Engine;
 
 /// <summary>
-/// The scene's distance field an app starts with: how many cascades it has around the camera,
-/// none by default, how wide a cell of the finest is, and how many cascades are built again a
-/// frame at most.
+/// The scene's distance field an app starts with, which says how many cascades it has around the
+/// camera, none by default, how wide a cell of the finest is, and how many cascades are built again
+/// a frame at most.
 /// </summary>
 /// <remarks>
 /// <see cref="E3D.SetSceneField"/> changes it while the app runs. Each cascade is 64 cells a

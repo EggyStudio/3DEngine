@@ -50,7 +50,7 @@ public sealed class ParticleTests : IDisposable
         return LoadImage(path);
     }
 
-    // A cloud of still particles around the middle of the picture, given off at once, laid over
+    // A cloud of still particles around the middle of the picture, emitted at once, laid over
     // each other by alpha so a dense one keeps its color where added light would turn white.
     private static ParticleEmitter Cloud(Color color) => ParticleEmitter.Default with
     {
@@ -78,7 +78,7 @@ public sealed class ParticleTests : IDisposable
         EmitParticles(emitter, 400);
         var after = GetImageColor(Capture(3), 80, 60);
 
-        Sum(before).Should().Be(0, "an emitter not emitting gives off nothing");
+        Sum(before).Should().Be(0, "an emitter not emitting shows nothing");
         ((int)after.R).Should().BeGreaterThan(after.G + 60, $"the burst draws red particles over the middle, not {after}");
     }
 
@@ -160,7 +160,7 @@ public sealed class ParticleTests : IDisposable
         var color = GetImageColor(Capture(3), 80, 60);
 
         ((int)color.G).Should().BeGreaterThan(color.R + 60, $"the entity's burst is drawn green, not {color}");
-        ecs.GetReadOnly<ParticleEmitter>(entity).Burst.Should().Be(0, "a burst is given off once");
+        ecs.GetReadOnly<ParticleEmitter>(entity).Burst.Should().Be(0, "a burst is emitted once");
     }
 
     [NeedsVulkanFact]
@@ -373,8 +373,8 @@ public sealed class ParticleTests : IDisposable
 
     // The stream of the test below, blue as it is born at the back and red as it ages toward the
     // front, drawn into two render textures from either end of it, each shown in a half of the
-    // window: each lays the particles over far to near from its own camera, so the one at the front
-    // shows the red in front and the one behind the blue.
+    // window, and each lays the particles over far to near from its own camera, so the one at the
+    // front shows the red in front and the one behind the blue.
     [NeedsVulkanFact]
     public void One_Cloud_Drawn_Into_Two_Views_From_Either_Side_Is_Laid_Over_In_Each_Ones_Order()
     {

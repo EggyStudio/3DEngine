@@ -67,7 +67,7 @@ internal sealed class AssimpFiles(Func<string, Stream?> open) : A.IOSystem
     public void ThrowIfFailed()
     {
         if (_failure is not null)
-            throw new IOException($"'{_failed}' could not be read: {_failure.Message}", _failure);
+            throw new IOException($"'{_failed}' could not be read. {_failure.Message}", _failure);
     }
 
     private void Fail(string name, Exception ex)

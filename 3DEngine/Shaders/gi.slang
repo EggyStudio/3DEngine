@@ -1,8 +1,8 @@
-// What the passes of light that bounces share: directions laid out on an octahedron, rays traced
-// through the scene's distance field, and the light a surface the field holds sends back along a
-// ray, its color times the light that reaches it, the sun's where the field lets the sun through,
-// the lamps', each that casts shadows where the field lets it through too, and the light that
-// bounced to it the frame before, with the light it gives off.
+// What the passes of global illumination share, which are directions laid out on an octahedron,
+// rays traced through the scene's distance field, and the light a surface the field holds sends
+// back along a ray, its color times the light that reaches it, the sun's where the field lets the
+// sun through, the lamps', each that casts shadows where the field lets it through too, and the
+// indirect light that reached it the frame before, with its emission.
 module gi;
 
 import scenefield;
@@ -38,7 +38,7 @@ public float3 fromOctahedron(float2 uv)
     return normalize(octahedronPoint(uv));
 }
 
-// How much of the sphere a texel of the square spans at uv, against the others: one over the cube
+// How much of the sphere a texel of the square spans at uv, against the others, one over the cube
 // of its octahedron point's distance from the middle, as a patch of the octahedron there covers its
 // area over that cube. The texels near the octahedron's corners span the least, those at the
 // middles of its faces the most, near three times as much.
@@ -48,7 +48,7 @@ public float octahedronShare(float2 uv)
     return 1.0 / (l * l * l);
 }
 
-// The lights the bounced light is lit by, as the renderer writes them each frame, each laid out
+// The lights the indirect light is lit by, as the renderer writes them each frame, each laid out
 // as the model pass's light is.
 public struct GiLight
 {
@@ -71,7 +71,7 @@ public struct GiLights
     // rgb: the light from all around where a ray reaches nothing, linear, or with w 1 what the
     // environment map is multiplied by, its intensity, where the map stands in for it.
     public float4 sky;
-    // x: how many lights. y: the frame's number. z: how strongly the light that bounced the frame
+    // x: how many lights. y: the frame's number. z: how strongly the indirect light of the frame
     // before is added. w: unused.
     public float4 counts;
     public GiLight lights[16];
@@ -270,7 +270,7 @@ public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p
     return painted.a > 0.05 ? painted.rgb / painted.a : float3(0.5);
 }
 
-// The light the field's surfaces give off at p, blended as their colors are.
+// The emission of the field's surfaces at p, blended as their colors are.
 public float3 surfaceGlow<V : IVolume>(V glow, V albedo, SceneFieldInfo info, float3 p)
 {
     int c = fieldCascade(info, p, 1.0);
@@ -284,10 +284,11 @@ public float3 surfaceGlow<V : IVolume>(V glow, V albedo, SceneFieldInfo info, fl
     return coverage > 0.05 ? glow.sampleAt(uvw, 0).rgb / coverage : float3(0.0);
 }
 
-// The light the field's surfaces give off at p as surfaceGlow blends it, less that of the surfaces
-// the bounce carries as glow lights, whose cells say so in the glow's alpha, so a probe's ray that
-// meets one does not take its light a second time. Near such a cell the eight cells around p are
-// blended by hand, each carried one's light left out, since the blend of them all mixes the two.
+// The emission of the field's surfaces at p as surfaceGlow blends it, less that of the surfaces
+// global illumination carries as glow lights, whose cells say so in the glow's alpha, so a probe's
+// ray that meets one does not take its light a second time. Near such a cell the eight cells around
+// p are blended by hand, each carried one's light left out, since the blend of them all mixes the
+// two.
 public float3 surfaceGlowUncarried<V : IVolume>(V glow, V albedo, SceneFieldInfo info, float3 p)
 {
     int c = fieldCascade(info, p, 1.0);
@@ -355,7 +356,7 @@ public float3 directLight<V : IVolume>(V field, SceneFieldInfo info, GiLights li
 }
 
 // How much a probe at probe counts toward the light at a surface at p facing n, besides how near
-// it is: more the more squarely it stands in front of the surface, as DDGI weighs its probes.
+// it is, more the more squarely it stands in front of the surface, as DDGI weighs its probes.
 public float probeFacing(float3 p, float3 n, float3 probe)
 {
     float3 toward = probe - p;
@@ -390,7 +391,7 @@ public static const int ReachTexels = 8;
 public static const float Clearance = 0.1;
 public static const float MostMoved = 0.45;
 
-// What a probe's faces carry in alpha, read as a face of each axis: whether the probe holds light,
+// What a probe's faces carry in alpha, read as a face of each axis, whether the probe holds light,
 // 0 where it stands inside a mesh, and where it does, two more than its move along the axis in its
 // spacing, which gi_ambient.slang writes from the place gi_trace.slang moved it to.
 public float faceHolds(float alpha)
@@ -403,13 +404,13 @@ public float faceMove(float alpha)
     return alpha > 0.5 ? alpha - 2.0 : 0.0;
 }
 
-// How much of the frame before's own light a probe's may keep before the light that bounced is
-// taken at the share it kept: a fall by a fifth or more, which a light switched off or carried
+// How much of the frame before's own light a probe's may keep before the indirect light is
+// taken at the share it kept, a fall by a fifth or more, which a light switched off or carried
 // away gives and the field's cells settling after a camera moves do not, and a rise by a quarter
-// or more, its inverse, so a light that flickers moves the light it bounces down and up alike.
+// or more, its inverse, so a light that flickers moves its indirect light down and up alike.
 public static const float Falls = 0.8;
 
-// The most a probe's light that bounced is raised by in a frame its own light rose by much, so a
+// The most a probe's indirect light is raised by in a frame its own light rose by much, so a
 // probe its own light barely lit before gains no more than four times its bounce at once.
 public static const float Rises = 4.0;
 
@@ -419,7 +420,7 @@ public float luminance(float3 c)
     return dot(c, float3(0.2126, 0.7152, 0.0722));
 }
 
-// The share of the light that bounced a probe takes the frame after its own light went from
+// The share of the indirect light a probe takes the frame after its own light went from
 // before to now, the same share as its own light kept where that fell or rose by much, and the
 // whole of it otherwise.
 public float3 followed(float3 now, float3 before)
@@ -429,13 +430,13 @@ public float3 followed(float3 now, float3 before)
 }
 
 // How much of the light a probe's rays bring back must come straight from the sun, the lights and
-// what gives off light for the probe to be judged by its own light, a quarter, where a probe lit
-// mostly by light that bounced, as one down a corridor from a lit room, is judged by the own light
+// emissive surfaces for the probe to be judged by its own light, a quarter, where a probe lit
+// mostly by indirect light, as one down a corridor from a lit room, is judged by the own light
 // of the probes around it summed, since its own light is too little of its light to say what went
 // out.
 public static const float OwnShare = 0.25;
 
-// How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n: 1
+// How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n, 1
 // where p, taken three tenths of the probes' spacing off the surface along n, lies nearer the probe
 // than its rays reached that way the frame before, falling to 0 over half the spacing past it, as
 // DDGI weighs its probes by the distances they traced. Taken off the surface, the point comes
@@ -454,10 +455,10 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
     return saturate((reached + slack - d) / slack);
 }
 
-// The light that bounced to a surface at p facing n, irradiance, from the finest cascade of probes
-// that holds it, fading to the next cascade's across its outer band (cascadeHold) where that one is
-// built, or none where no cascade of probes holds p. The two cascades are read in a loop kept from
-// unrolling, so a shader holds one read of a cascade.
+// The indirect light reaching a surface at p facing n, irradiance, from the finest cascade of
+// probes that holds it, fading to the next cascade's across its outer band (cascadeHold) where that
+// one is built, or none where no cascade of probes holds p. The two cascades are read in a loop
+// kept from unrolling, so a shader holds one read of a cascade.
 public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0);
@@ -475,9 +476,9 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
     return light;
 }
 
-// The light that bounced to a surface at p facing n, irradiance, from the faces of the eight probes
-// of cascade c around it that the probes reach, each weighed by how near it is, how squarely it
-// stands in front of the surface and how much of it it sees (probeSees), a probe inside a mesh
+// The indirect light reaching a surface at p facing n, irradiance, from the faces of the eight
+// probes of cascade c around it that the probes reach, each weighed by how near it is, how squarely
+// it stands in front of the surface and how much of it it sees (probeSees), a probe inside a mesh
 // passed over, the three faces n looks toward weighed by the square of n along each. A probe it does
 // not see keeps a twentieth of its weight, as one behind its plane keeps a little, since cut to
 // nothing a pixel left with one or two probes around it seen took their light alone and a Cornell
@@ -559,10 +560,10 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
     return weights > 1e-5 ? sum / weights : 1.0;
 }
 
-// The light that bounced to a surface at p facing n, as bouncedAt gives it, from those of the eight
-// probes around it the surface sees: in front of its plane, with nothing the field holds between,
-// so a probe under a floor or beyond a wall lends the light it sees there to no surface on this
-// side. A probe behind the plane is passed over with no march, since the surface itself stands
+// The indirect light reaching a surface at p facing n, as bouncedAt gives it, from those of the
+// eight probes around it the surface sees, in front of its plane with nothing the field holds
+// between, so a probe under a floor or beyond a wall lends the light it sees there to no surface on
+// this side. A probe behind the plane is passed over with no march, since the surface itself stands
 // between, where bouncedAt lends it a little, which the blend raised to all of it wherever every
 // probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
 // bouncedAt. The faces are read where the probes stood as gathered says, the frame before's corners
@@ -640,14 +641,14 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 }
 
 // The light the glow lights send a surface at p facing n, irradiance, each that reaches p by as
-// much of it as p sees: by glowLightSeen's one march to its middle, as a probe's ray's hit reads
+// much of it as p sees, by glowLightSeen's one march to its middle, as a probe's ray's hit reads
 // them, or with halves by glowLightShown's marches to its faces' halves, as the screen's probes and
 // a pixel no screen probe holds read them, since the one march, from a cell and a half off the
 // surface, sees over a wall half as high as a lamp and lit the floor behind it whole. The marches
 // are the cost, so the brightest at p, as many as `marches`, four at most, are kept with their
 // light as the lights are read and only they are marched, a fainter light giving nothing. One way
 // through for every count, the lights read and the kept ones marched in loops kept from unrolling,
-// so a shader holds one march and one closed form of it: a second way for few lights, and both in
+// so a shader holds one march and one closed form of it. A second way for few lights, and both in
 // each of the model pass's two shadings of a reflection's hit, made its compile on lavapipe 0.68 s
 // longer for each app. A light gives nothing to its own surface, which a hit finds within half a
 // cell of its box (glowLightOn). Where the field does not hold p, every light unhidden.
@@ -702,19 +703,19 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 
 // The light a surface the field holds at p sends back along a probe's ray that met it, as shadeHit
 // gives it, with the lamps that cast shadows hidden where the field stands between, so a lamp's
-// light does not bounce off the far side of a wall, and where seen is set the light that bounced to
-// it from the probes it sees alone (bouncedSeenAt). The world's probes set it, since every
+// light is not reflected off the far side of a wall, and where seen is set the indirect light
+// reaching it from the probes it sees alone (bouncedSeenAt). The world's probes set it, since every
 // surface's light comes to them. The screen's probes, whose rays are many and short, do not,
-// because marching to the probes at each of their hits cost 0.10 to 0.15 ms of the bounce's 0.3 to
-// 0.4 on the development machine's GPU in shaders_cornell_box, and a closed room under a lamp held
-// 3 levels of its light without it, where it held 247 before either. Weighed by the probes' reach
-// instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let 42.9 levels of a
-// lamp under a closed room's floor into it where the marches hold it to 2.5. The model pass's
-// reflections call shadeHit, which hides the lamps as this does and marches to no probe. The light
-// that bounced is taken at kept's share of it, from the faces where gathered says the probes stood,
-// and own holds the light the surface sends on of what reaches it straight from the sun, the lights
-// and the two brightest glow lights, with the light it gives off but a glow light's, which a world
-// probe weighs the frame before's light by (gi_ambient.slang).
+// because marching to the probes at each of their hits cost 0.10 to 0.15 ms of global
+// illumination's 0.3 to 0.4 on the development machine's GPU in shaders_cornell_box, and a closed
+// room under a lamp held 3 levels of its light without it, where it held 247 before either. Weighed
+// by the probes' reach instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let
+// 42.9 levels of a lamp under a closed room's floor into it where the marches hold it to 2.5. The
+// model pass's reflections call shadeHit, which hides the lamps as this does and marches to no
+// probe. The indirect light is taken at kept's share of it, from the faces where gathered says the
+// probes stood, and own holds the light the surface sends on of what reaches it straight from the
+// sun, the lights and the two brightest glow lights, with its emission but a glow light's, which a
+// world probe weighs the frame before's light by (gi_ambient.slang).
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes, V reach,
     float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
@@ -727,12 +728,12 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }
 
-// The light a surface the field holds at p sends back along a ray that met it: its color over pi
-// times the light that reaches it, the sun's and the lights', the lamps that cast shadows hidden
-// where the field stands between as the probes have them, and, at the share given, the light that
-// bounced to it the frame before, with the light it gives off. The sun and the lights are given as
+// The light a surface the field holds at p sends back along a ray that met it, its color over
+// pi times the light that reaches it, the sun's and the lights', the lamps that cast shadows hidden
+// where the field stands between as the probes have them, and, at the share given, the indirect
+// light that reached it the frame before, with its emission. The sun and the lights are given as
 // the model pass has them, the light a white surface facing one returns, which is the light
-// reaching it over pi, so they are taken times pi beside the bounced light, which the probes hold
+// reaching it over pi, so they are taken times pi beside the indirect light, which the probes hold
 // as the light reaching a face; read as they are, a lit surface sent on a pi-th of its light,
 // which left the probes' hits 48 to 75% under a path-traced reference. hiddenLampLight's loop after
 // directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'

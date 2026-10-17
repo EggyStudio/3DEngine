@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// Walks an entity's character body (made with <see cref="PhysicsWorld.CreateCharacter"/> and kept
-/// on the entity as its <see cref="PhysicsBody"/>): the physics step reads the wanted velocity,
+/// on the entity as its <see cref="PhysicsBody"/>). The physics step reads the wanted velocity,
 /// steepest slope, jump, step height and height from it before stepping, and writes back whether
 /// it stands on ground.
 /// </summary>

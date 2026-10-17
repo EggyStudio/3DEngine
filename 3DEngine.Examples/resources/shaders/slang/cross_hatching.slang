@@ -1,5 +1,5 @@
-// raylib's cross_hatching.fs, written in Slang: lines across the picture, more of them where it is
-// darker.
+// raylib's cross_hatching.fs, written in Slang. It draws lines across the picture, more of them
+// where it is darker.
 import engine;
 
 // raylib draws its render texture turned upright, so its texture coordinate's y runs up the

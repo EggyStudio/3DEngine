@@ -60,7 +60,7 @@ public sealed class CliTests : IDisposable
     {
         // On Windows a file being moved over by the app's heartbeat cannot be opened for the moment
         // the move takes, and a command that read it then found no session for a game still
-        // serving, about once a run of the puzzle's drive. The file is held here as the move holds
+        // serving, about once a scripted run of the puzzle. The file is held here as the move holds
         // it, and let go in the wait before the read is tried again.
         var (previous, pause) = (CliSessionFile.Directory, CliSessionFile.Pause);
         CliSessionFile.Directory = _folder.Path;
