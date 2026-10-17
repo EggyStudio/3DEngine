@@ -377,12 +377,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind() => Draw();
 
     // The same hundred apps beside a Vulkan instance the test holds open throughout, so the loader
-    // keeps the driver it loaded for it. On Windows the loader unloads the driver, lavapipe with
-    // LLVM inside it, with the last instance and loads it again for the next app, where Linux keeps
-    // a library with unique symbols loaded, and the private bytes climbed 1.1 MB an app there with
-    // the heap flat and no Vulkan object alive (REVIEW.md, Verdict 64). Where this passes and the
-    // test above fails, the climb is the driver's loading, and the test above holds its instance as
-    // this one does; where both fail, the climb is the engine's own native allocations for each app.
+    // keeps the driver it loaded for it, lavapipe with LLVM inside it, where otherwise it lets the
+    // driver go with each app's instance and loads it again for the next. On Windows the private
+    // bytes climbed 1.1 MB an app with the heap flat and no Vulkan object alive (REVIEW.md, Verdict
+    // 64). Where this passes and the test above fails, the climb is the driver's loading, and the
+    // test above holds its instance as this one does. Where both fail, the climb is the engine's
+    // own native allocations for each app.
     [NeedsVulkanFact]
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Beside_A_Held_Instance_Leaves_Nothing_Behind()
     {
