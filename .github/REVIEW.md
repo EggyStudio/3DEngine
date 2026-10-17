@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2a9dbdcb`, Verdict 63's two asks done and nothing else, 11 files.
+Reviewed up to `704952c5`, Verdict 63's three asks and Verdict 64's ask done at `c08343d5` and one
+comment's width and wording at `704952c5`, 11 files. Every cache of Mesa's shaders, the Linux and
+Windows suites', the examples', the captures' and the games' with their fallbacks, is keyed by the
+processor, `build/processor.sh` printing its model as a word and a checksum of its flags, from
+`lscpu` on Linux and `Win32_Processor`'s name, identifier and description on Windows, written to
+`GITHUB_ENV` before each cache step, so no runner restores another kind's code and the first runs
+compile cold; `build/open-game.sh` opens an example by its name as `e3d open` does, handing the
+opening to `e3d open` on Windows, and `capture-example.sh`, `capture-examples.sh` and `storm.sh` go
+through it, a failed capture's error carrying the ending line and gdb's lines; the ending line says
+whether `gfni` stands among the flags and what Mesa's cache counted, every program running under
+`MESA_SHADER_CACHE_SHOW_STATS=1`, the count printed as a device is destroyed and so by a program
+that ends and not by one that dies, which the line then says; and the leak test prints the
+collector's committed bytes in brackets beside the private bytes and runs its hundred drawing apps
+once more inside a bare Vulkan instance it holds through Vortice, the test project allowing unsafe
+blocks for it, both runs asserting the same bounds so the next Windows suite says which holds.
+Checked on the working machine were the strict build, the whole suite 1,715 of 1,715, and the
+scripts', norm and link tests 56 of 56; on Linux there the held run took 48 seconds against 64
+without, so the loader lets lavapipe go and loads it again at each app on Linux too, its resident
+set showing no climb from it. Right. The owner pushed it at 00:37 on 2026-10-18 and started the pack
+run with it. At 01:07 both runs' Linux suites and both examples jobs are green, Slide played through
+twice on caches compiled cold for the runner's own processor, the first two puzzle steps toward
+Verdict 63's three; both macOS suites are red on the new held-instance twin of the leak test, whose
+bare Vulkan instance MoltenVK's loader refuses (Verdict 64); the Windows suites, the games job and
+the two capture jobs are running. Decision 42's gate holds; items 27 and 28 wait for it.
+
+Before it, `2a9dbdcb` came, Verdict 63's two asks done and nothing else, 11 files.
 `build/open-game.sh` opens a program on Linux and macOS as `e3d open` does, from the checkout with
 `--serve` and its output in its session log, ready once a `frames.wait 0` is answered within a
 minute, under a shell that waits on it and writes how it ended to `<name>.ended`, the exit code or
@@ -62,44 +87,6 @@ its examples job red at Slide's death and its games job red at Summit's, both re
 where the instruments name the first fact, exit code 132, an illegal instruction, with the kernel's
 lines showing no kill; its Windows and macOS suites and the two capture jobs are running. Decision
 42's gate holds; items 27 and 28 wait for it.
-
-Before it, `683e6e9d` came, item 29 done and nothing else, 452 files. STYLE.md has the Register
-section and the colon rule after the game repository's, with the engine's pairs, the emissive panel,
-controlling a running program and a scripted run of the puzzle, a name in the code keeping its
-spelling (`DrawBounceWindow`, `BouncesLight`, `GlowLights`, `build/drive-game.sh`, the `-driven`
-captures) and a word in its technical sense keeping it (a motor or a vehicle's wheels drive, the
-main loop drives the frame, a counted bounce), and its checks read Markdown prose with awk and run
-the register's pattern through `git grep`. The sweep took the README, the cheatsheet, every guide,
-every Markdown under `.github` but the reviewer's four, the comments of the library, the shaders,
-the tests, the examples, the games, the scripts and the workflows, and the printed sentences;
-`docs/driving-with-e3d.md` is `docs/command-line.md`, titled for the command line, every link
-following, the cheatsheet's and the materials guide's sections and the global-illumination guide's
-title read Global illumination and its glowing surfaces read emissive; the window of
-`DrawBounceWindow` is titled Global illumination, every `ApiLogger` warning and the core logger put
-an exception after a full stop, the schedule's repeated-throw line reads the same way with
-`ScheduleTests` following, `gi.toggle` and `gi.state` answer in the register, `BounceReference`
-counts its bounces, test names went to the register, and four examples' on-screen text changed with
-their pictures taken again, the Cornell box's differing in its line of text alone. AGENTS.md took
-six edits the owner approved in that session, its heading, two lines of its paragraph and three
-rows. The sample read says the same things in the rule's register and loses no fact; the three hits
-left in the reviewer's files are reworded here. Checked on the working machine: the strict build,
-the whole suite 1,712 of 1,712, `NormTests` and `DocumentLinkTests` 20 of 20, `build/pack.sh`, and
-`build/docs-on-package.py` building all 148 of the guides' blocks on the package. Right. The owner
-pushed `2a02ba3e` at 16:31, before this commit, and its run ended at 17:33 with the three suites
-green, Linux in 17 minutes, macOS in 24 and Windows in 39 where it took 56 the push before, its Mesa
-cache restored at last from the job that saved it, the Linux suite the first of three toward Verdict
-62, and the examples job red after five minutes at Slide's build and play, Verdict 63. The owner
-pushed `683e6e9d` at 19:47 and started the pack run a minute after. The push run ended at 20:33
-whole green, the first under the new workflow, Linux in 11 minutes, macOS in 23, Windows in 46 and
-the examples job in 7 with Slide played, and its Linux suite is the third green in a row since
-Verdict 62's mend, which settles it. The pack run's Linux and macOS suites passed, and three of its
-jobs are red and the two capture jobs passed, the run ending at 21:00. The Windows suite failed on
-the hundred-app leak test's resident figure (Verdict 64), the examples job on Slide's death after a
-gesture, as on `2a02ba3e` (Verdict 63, continued, with what the page's signature excludes), and the
-games job on the soaks of Swarm and Manor (Verdict 65), and the pack job did not run, so Decision
-42's gate is not met. At 20:34 the owner read the game's README's opening and widened Decision 43 to
-likenesses and figures of speech, item 29 open again for them. Next the three verdicts' mends and
-item 29, their push, and a pack run whole green; items 27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1410,7 +1397,15 @@ are open.
     processor made, which is right whichever reading holds; and the examples open through the
     wrapper as the games do, so a capture's death says its code and its instruction. If the deaths
     go on with the caches keyed so, the generator is on the runner and the second reading holds, to
-    be taken up then. Settled as before.
+    be taken up then. Settled as before. The three asks are done at `c08343d5`, every Mesa cache
+    keyed by the processor's model and flags through `build/processor.sh`, the examples opened
+    through `build/open-game.sh` with a capture's death saying its code and instruction, and the
+    ending line saying whether `gfni` is among the flags and what Mesa's cache counted where the
+    program ended of itself. The next runs compile cold and say which reading holds. On the push and
+    the pack run of `704952c5`, 2026-10-18, the first with every Mesa cache keyed by the processor
+    and so compiled cold, both examples jobs played Slide through, in 9 minutes each, two green
+    puzzle steps toward the three, and the first evidence for the cache reading; the games and
+    captures jobs of the pack run are read when they end.
 
 64. **The hundred-app leak test reads the working set on Windows, which the system trims, so its
     baseline fell in a trough and the test failed with nothing leaking.** On the pack run of
@@ -1448,7 +1443,19 @@ are open.
     its own held open throughout, so the ICD stays loaded; if the climb goes with it, the cost is
     the driver's load and the test holds that instance, saying why, and if it stays, the engine's
     native allocations are read app by app for what is not freed. Settled at three green Windows
-    suites in a row after the mend.
+    suites in a row after the mend. Done at `c08343d5`, the collector's committed bytes printed
+    beside the private bytes and the hundred apps run once more inside a held Vulkan instance, both
+    runs under the same bounds; on Linux the held run took 48 seconds against 64, so the loader
+    reloads lavapipe at each app there too. The next Windows suite says whose the climb is. On the
+    push and the pack run of `704952c5`, 2026-10-18, the macOS suite failed the new twin at its
+    first line, `vkCreateInstance` answering `ErrorIncompatibleDriver`, since MoltenVK's loader
+    lists itself as a portability driver and gives an instance only to a caller that asks for the
+    portability enumeration extension with its flag, as the engine's instance does, and the bare
+    instance asked for nothing; the hundred apps without it passed there as before. One thing more.
+    The twin's instance is made as the engine's is, `VK_KHR_portability_enumeration` with
+    `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` where the loader offers the extension, so the
+    twin runs on the three systems; the Windows suites of these runs, still running, say whose the
+    climb is.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
