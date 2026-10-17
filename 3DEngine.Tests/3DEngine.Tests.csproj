@@ -6,6 +6,9 @@
         <AssemblyName>Engine.Tests</AssemblyName>
         <RootNamespace>Engine.Tests</RootNamespace>
         <IsPackable>false</IsPackable>
+        <!-- AppLeakTests makes a Vulkan instance of its own through Vortice, whose create-info
+             structs take pointers. -->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

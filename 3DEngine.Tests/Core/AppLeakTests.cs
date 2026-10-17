@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FluentAssertions;
+using Vortice.Vulkan;
 using Xunit.Abstractions;
 
 namespace Engine.Tests.Core;
@@ -52,7 +53,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // The resident memory's series says whether a growth is steady, an allocation each app makes
         // and its closing does not give back, or a step taken once.
         public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
-            $"{ResidentName} after every ten in MB, {Residents}{Environment.NewLine}" +
+            $"{ResidentName} after every ten in MB, what the collector held committed in brackets, {Residents}{Environment.NewLine}" +
             (ResidentBeforeCensus is { } before
                 ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
                 : "") +
@@ -163,8 +164,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // only to a finalizer is held until a full collection comes, which a program that
             // allocates little on the GC's heap may not see for hundreds of apps.
             var resident = Resident();
-            residents.Add($"{i}: {resident:0.0}");
-            output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
+            // What the collector holds committed, read beside it, so a climb of the process's own is
+            // told from the collector's regions, which it gives back over time rather than at once.
+            var committed = GC.GetGCMemoryInfo().TotalCommittedBytes / 1e6;
+            residents.Add($"{i}: {resident:0.0} ({committed:0.0})");
+            output.WriteLine($"{i,3} apps: resident {resident:0} MB, the collector committing {committed:0} MB, {GC.CollectionCount(2)} full collections");
             // The Vulkan objects every device made and none destroyed, which a closed app's device
             // should leave none of, so a native growth is told from the driver's own.
             var objects = DeviceObjects.Now();
@@ -370,7 +374,40 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     }
 
     [NeedsVulkanFact]
-    public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()
+    public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind() => Draw();
+
+    // The same hundred apps beside a Vulkan instance the test holds open throughout, so the loader
+    // keeps the driver it loaded for it. On Windows the loader unloads the driver, lavapipe with
+    // LLVM inside it, with the last instance and loads it again for the next app, where Linux keeps
+    // a library with unique symbols loaded, and the private bytes climbed 1.1 MB an app there with
+    // the heap flat and no Vulkan object alive (REVIEW.md, Verdict 64). Where this passes and the
+    // test above fails, the climb is the driver's loading, and the test above holds its instance as
+    // this one does; where both fail, the climb is the engine's own native allocations for each app.
+    [NeedsVulkanFact]
+    public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Beside_A_Held_Instance_Leaves_Nothing_Behind()
+    {
+        using var held = new HeldInstance();
+        Draw();
+    }
+
+    // A Vulkan instance with nothing enabled, made through the loader the engine's devices use.
+    private sealed unsafe class HeldInstance : IDisposable
+    {
+        private readonly VkInstanceApi _api;
+
+        public HeldInstance()
+        {
+            Vulkan.vkInitialize().CheckResult();
+            VkApplicationInfo application = new() { apiVersion = VkVersion.Version_1_3 };
+            VkInstanceCreateInfo info = new() { pApplicationInfo = &application };
+            Vulkan.vkCreateInstance(&info, null, out var instance).CheckResult();
+            _api = new VkInstanceApi(instance);
+        }
+
+        public void Dispose() => _api.vkDestroyInstance();
+    }
+
+    private void Draw()
     {
         var config = Config.Default.WithWindow("leak", 64, 64) with { Headless = true, Offscreen = true };
         // The heap read every ten apps, as the headless test reads it, so a failure says whether it

@@ -77,6 +77,10 @@ jobs:
           path: build/tools/vulkan-layer
           key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
 
+      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
+      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
+      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
+
       # Mesa's cache of the shaders lavapipe compiles, named in the workspace and kept from run to
       # run. lavapipe compiles a pipeline's variants as it first draws with them, and every app of the
       # suite opens a device of its own, so with no cache each app compiled them again. On a host's
@@ -88,8 +92,8 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
-          restore-keys: mesa-${{ runner.os }}-
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          restore-keys: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: |
@@ -121,7 +125,7 @@ jobs:
         if: always()
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
 
 
       # The page, from every run, for the digest job below.
@@ -165,14 +169,18 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
+      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
+      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
+      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
+
       # Mesa's cache of the shaders lavapipe compiles, restored here and saved after the suite as the
       # Linux job keeps it. The suite's apps here drew a frame in 3.8 seconds where four apps on a
       # host's lavapipe took 3.7 each with Mesa's cache off and 0.84 with it.
       - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
-          restore-keys: mesa-${{ runner.os }}-
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          restore-keys: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       # The Vulkan loader from LunarG's runtime, the validation layer from its SDK, and lavapipe
       # from Mesa's Windows build, pointed at by the loader's variables rather than installed.
@@ -238,7 +246,7 @@ jobs:
         if: always()
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
 
 
       - name: Build a game from the package and draw it under the validation layer
@@ -507,13 +515,17 @@ jobs:
           path: build/tools/vulkan-layer
           key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
 
+      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
+      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
+      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
+
       # Mesa's cache of the shaders lavapipe compiles, as the Linux job keeps it, since every program
       # played opens a device of its own.
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-examples-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
-          restore-keys: mesa-examples-${{ runner.os }}-
+          key: mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          restore-keys: mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       # clang and zlib's headers, which the native compiler links with, and gdb, which reads the core
       # a game that dies leaves (build/open-game.sh). The kernel writes cores to a file under captures,
@@ -638,15 +650,19 @@ jobs:
           path: build/tools/vulkan-layer
           key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
 
+      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
+      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
+      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
+
       # Mesa's cache of the shaders lavapipe compiles, a key of its own beside the examples job's,
       # which it starts from the first time, since every capture opens a device of its own.
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-captures-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-captures-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
           restore-keys: |
-            mesa-captures-${{ runner.os }}-
-            mesa-examples-${{ runner.os }}-
+            mesa-captures-${{ runner.os }}-${{ env.PROCESSOR }}-
+            mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       # Mesa's OpenGL beside its Vulkan, which raylib's own programs draw through for the measure
       # against them, Pillow, which compares the pictures, and cwebp, which encodes the captures.
@@ -793,15 +809,19 @@ jobs:
           path: build/tools/vulkan-layer
           key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
 
+      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
+      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
+      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
+
       # Mesa's cache of the shaders lavapipe compiles, a key of its own beside the examples job's,
       # which it starts from the first time, since every game played opens a device of its own.
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-games-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-games-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
           restore-keys: |
-            mesa-games-${{ runner.os }}-
-            mesa-examples-${{ runner.os }}-
+            mesa-games-${{ runner.os }}-${{ env.PROCESSOR }}-
+            mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       # cwebp, which encodes the games' captures, and gdb, which reads the core a game that dies
       # leaves (build/open-game.sh). The kernel writes cores to a file under captures, where the

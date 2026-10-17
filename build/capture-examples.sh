@@ -84,6 +84,11 @@ it wrote no picture"
     logged=$(grep -a -E '\[(WARN |ERROR|FATAL)\]' "build/sessions/$example.log" 2>/dev/null | tail -n 3 | sed 's/^\[[^]]*\] //' | cut -c1-300)
     why="exit code $code: $(printf '%s' "$said" | tail -n 1 | cut -c1-300)"
     [ -n "$logged" ] && why="$why%0AIts last lines at a warning or worse:%0A${logged//$'\n'/%0A}"
+    # How its process ended, where it has, as build/open-game.sh's shell wrote it, with what gdb read
+    # from a core it left, its percent signs escaped for the workflow command.
+    ended=$(build/open-game.sh --ended "$example" | cut -c1-300)
+    ended=${ended//%/%25}
+    [ -n "$ended" ] && why="$why%0A$example, ${ended//$'\n'/%0A}"
     echo "::error title=$example on $system::$example: the capture failed, $why"
     failed=1
     ./e3d stop --quiet || true

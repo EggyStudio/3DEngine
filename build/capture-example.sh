@@ -19,7 +19,9 @@ out="$2"
 mode="${3:---offscreen}"
 cd "$(dirname "$0")/.."
 
-./e3d open "$example" "$mode" --quiet
+# Opened by build/open-game.sh, which writes how the example ended, so a capture that dies says its
+# exit code and, on Linux, the instruction it died on.
+build/open-game.sh "$example" "$mode"
 
 # Examples that show a start screen or nothing until they are given input. CAPTURE_NO_INPUT leaves
 # each as it starts, as build/raylib-bench/compare.py measures them against raylib's programs, which

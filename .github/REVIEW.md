@@ -10,7 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7b2486a5`, Verdicts 63 to 65 mended and item 29 done, 64 files. Every way the main
+Reviewed up to `2a9dbdcb`, Verdict 63's two asks done and nothing else, 11 files.
+`build/open-game.sh` opens a program on Linux and macOS as `e3d open` does, from the checkout with
+`--serve` and its output in its session log, ready once a `frames.wait 0` is answered within a
+minute, under a shell that waits on it and writes how it ended to `<name>.ended`, the exit code or
+the signal with its meaning, 132 an illegal instruction among them, and on Linux the processor;
+every opening on Linux prints the processor's model and flags; the shell allows cores, and a death
+that left one where the kernel's pattern names a file has gdb read the faulting thread, thirty
+frames and four instructions at its program counter, appended to the file, the core then deleted
+since it holds every page the process touched; `--ended` prints the file once gdb is done. The
+examples and games jobs install gdb and set the kernel's core pattern to a file under `captures`,
+where the runner's pipes to a disabled apport. Every game a Linux or macOS job opens goes through
+the script, the games job's twelve direct openings, the soak's and the storm's, and a death is said
+where the step fails, by `build/drive-game.sh`, by `step.py` for a step with no error of its own, by
+`soak-check.py` and by `storm.sh`, with gdb's lines first and then the kernel's and the memory on
+Linux. Tried on the working machine, a script that sent itself SIGILL named the code and the
+processor, Slide sent SIGKILL mid-step was named by the step's page, gdb's reading was tried on a
+real `ud2` core in an Ubuntu 24.04 container, and Slide, Jelly with its reopening, a soak and a
+storm played through the script; the whole path to a core could not run there, that machine's
+pattern piping cores to systemd. Checked there were the strict build, the whole suite 1,714 of 1,714
+and `ScriptTests` and `StepScriptTests`. Right. The owner pushed it at 22:43, and its push run's
+examples job died at Slide at 23:05 with the instruments speaking, exit code 132 on an AMD EPYC 7763
+and gdb's instruction `vgf2p8affineqb`, a GFNI instruction that processor lacks, in code with no
+symbol on a thread other than the main one, read under Verdict 63; its Linux and macOS suites are
+green, and its Windows suite ended red at 23:32 on the leak test's climb once more, 725 MB to 843
+over the hundred apps. The runs of `7b2486a5` ended, the push red on the Windows suite alone, the
+hundred-app leak test's private bytes climbing 1.1 MB an app (Verdict 64, the mend having found a
+climb the working set hid), the pack red on the Windows suite the same way, on the examples and
+games jobs (Verdict 63) and on the captures job, where ten examples died the same death while 228 of
+256 drew (Verdict 63), its macOS suite and its macOS captures green. Decision 42's gate holds; items
+27 and 28 wait for it.
+
+Before it, `7b2486a5` came, Verdicts 63 to 65 mended and item 29 done, 64 files. Every way the main
 loop ends logs its reason, `app.quit` the process that asked, `CloseWindow` its call and
 `ProcessExit` the exit code last, E3D.md saying a log that stops without them ended in a kill or a
 fault; `build/drive-game.sh` starts a game on Linux and macOS under a shell that writes its wait
@@ -69,30 +100,6 @@ games job on the soaks of Swarm and Manor (Verdict 65), and the pack job did not
 42's gate is not met. At 20:34 the owner read the game's README's opening and widened Decision 43 to
 likenesses and figures of speech, item 29 open again for them. Next the three verdicts' mends and
 item 29, their push, and a pack run whole green; items 27 and 28 wait for it.
-
-Before it, `2a02ba3e` came, Verdict 62 mended and nothing else, in a commit of its own before item
-29's sweep. The name was never empty in the engine's hands. `CreateGraphicsPipeline` made the entry
-point's bytes with `Encoding.UTF8.GetBytes`, a fresh array with no terminator, wrapped in Vortice's
-`VkUtf8ReadOnlyString`, which holds a span and becomes a raw pointer when `pName` is set with
-nothing pinned, so a collection between that and the driver's read moved the array and the driver
-read the old place, zeroed by what was allocated over it, as an empty name; `CreateInstance` had the
-same pattern for the application's name, and the compute pipelines were safe on the `"main"u8`
-literal, which never moves. Both names are written null-terminated with `stackalloc`, which nothing
-moves before the call, `CreateShader` refuses an empty or blank entry point naming the stage and the
-bytecode's size, and the frame's debug labels were pinned with `fixed` already.
-`PipelineEntryNameTests` makes twenty pipelines while another thread forces compacting collections
-with allocations between; on the working machine's GPU with the old line it failed five runs of five
-in half a second with `VK_ERROR_UNKNOWN`, and with the mend passed three of three, and on lavapipe
-under the validation layer in the container it and `GlobalIlluminationTests` ran 36 green with no
-validation line, the lamp's room among them. The two Linux jobs that passed and failed on one commit
-ran the same steps within seconds of each other, and the failure needs no difference between them,
-since it depends on a collection landing in that window. Verdict 58's crash inside
-`vkCreateGraphicsPipelines` under MoltenVK, seen once and never again, reads as this fault too, a
-pointer into moved memory the driver followed. Checked besides: the strict build, the whole suite
-1,712 of 1,712, `NormTests` and `DocumentLinkTests` 20 of 20. Right. The pack run of `534a1c2b`
-ended at 16:25 with Windows and macOS green, every one of the twelve games played on each, and the
-examples, captures and games jobs skipped behind Linux's failure. Next the owner's push, then a pack
-run, which is Decision 42's gate.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1368,7 +1375,42 @@ are open.
     on a death, so the runs say which processors die. The game steps of the games job that open a
     game through `e3d open` directly, Summit's among them, open it as `build/drive-game.sh` does,
     through the wrapper that writes the wait status, so their deaths say their code too. Settled as
-    before.
+    before. The two asks are done at `2a9dbdcb`, `build/open-game.sh` opening every game a Linux or
+    macOS job plays under a shell that writes how it ended and, on Linux, prints the processor at
+    each opening and has gdb read the core a death leaves, which the drive, the step's page, the
+    soak check and the storm say; an outside `kill -ILL` was found not to end a .NET game, the
+    runtime's handler taking a signal another process sends, so the runner's SIGILL was a faulting
+    instruction of the process's own. The next death names it. Settled as before. On the push of
+    `2a9dbdcb`, 2026-10-17, the examples job died at Slide at 23:05 and the instruments spoke. The
+    process ended with exit code 132 on an AMD EPYC 7763, and gdb read the core, the faulting thread
+    one other than the main thread, its frames without a symbol and its return address zero, and the
+    instruction at its program counter `vgf2p8affineqb $0x0,%xmm4,%xmm3,%xmm3`, followed by
+    `vpandn`, a store of a 256-bit register to the frame at 0x520 and `vpcmpgtb`. `vgf2p8affineqb`
+    is a GFNI instruction, a Galois-field affine transformation, which LLVM emits for a shift of a
+    vector of bytes where the target has GFNI, and which Zen 3, the EPYC 7763, has not, Zen 4 and
+    Intel's Ice Lake having it; code with no symbol and a frame of that shape is what lavapipe's
+    compiled shaders look like, so a shader was compiled for a processor with GFNI and run on one
+    without. Two readings. The code was made on another runner and reached this one through Mesa's
+    shader cache, which the jobs restore from any earlier run's save (`restore-keys:
+    mesa-examples-Linux-`), Mesa keying the cache on its own capability bits, which have no GFNI
+    bit, so two processors of one family whose bits agree share the cache; or LLVM on this runner
+    was told the processor has GFNI, by its CPUID under the hypervisor, and compiled for it there.
+    The captures job of the pack run of `7b2486a5` had ten of 256 examples die the same death,
+    `models_heightmap_rendering`, `models_first_person_maze`, `models_cubicmap_rendering`,
+    `models_stress`, `models_reflection_probe`, `models_skybox`, `models_terrain`,
+    `models_mesh_generation`, `physics_boxes` and `textures_mipmaps`, every one drawing textures
+    with mipmaps, while 228 drew, said with no exit code since the examples open by name through
+    `e3d open`. Three things tell the readings apart and mend the first. The death's error says
+    whether `gfni` stands among the processor's flags, from the line every opening prints, and
+    whether Mesa's cache served the variant, `MESA_SHADER_CACHE_SHOW_STATS=1` printing the hits and
+    misses at exit into the log; every cache of Mesa's shaders the workflow keeps, the Linux and
+    Windows suites', the examples', the captures' and the games', is keyed by the processor's model
+    name and a hash of its flags, read by a step before the cache step into `GITHUB_ENV` (`lscpu` on
+    Linux, `Get-CimInstance Win32_Processor` on Windows), so no runner restores code another kind of
+    processor made, which is right whichever reading holds; and the examples open through the
+    wrapper as the games do, so a capture's death says its code and its instruction. If the deaths
+    go on with the caches keyed so, the generator is on the runner and the second reading holds, to
+    be taken up then. Settled as before.
 
 64. **The hundred-app leak test reads the working set on Windows, which the system trims, so its
     baseline fell in a trough and the test failed with nothing leaking.** On the pack run of
@@ -1388,7 +1430,25 @@ are open.
     gives on the Windows suites, under N 3.5. Settled at three green Windows suites in a row after
     the mend. Mended at `7b2486a5`, the test reading `Process.PrivateMemorySize64` on Windows and
     the working set elsewhere, the series naming its figure, the bound of 50 kept since no
-    measurement here calls for another, to be read against the Windows suites' new series.
+    measurement here calls for another, to be read against the Windows suites' new series. On the
+    push and the pack run of `7b2486a5`, 2026-10-17, the Windows suite failed the test again with
+    the private bytes read, and the figure climbs where the working set swung, 740 MB at the tenth
+    app to 849 at the hundredth on the push and 724 to 836 on the pack, 1.1 MB an app from the
+    fortieth on with no fall, the heap flat at 38 MB, no Vulkan object alive and the threads 24
+    throughout, so the mend found what the trimmed figure hid, 110 MB of commit charge that a
+    hundred apps leave behind on Windows and the Linux suite's resident set does not show. Whose it
+    is comes first. On Windows the Vulkan loader unloads the ICD, lavapipe's with LLVM inside, at
+    the last instance's destruction and loads it again for the next app, where Linux's `dlclose`
+    leaves a library with unique symbols in place, so what LLVM and Mesa allocate at load and never
+    free would be paid a hundred times on Windows alone; the collector's committed regions, which it
+    gives back over time rather than at once, are another; the engine's own per-app native
+    allocations, the ImGui context, SDL's init and quit and the Slang session, a third. One thing.
+    The test prints beside the private bytes the collector's committed bytes
+    (`GCMemoryInfo.TotalCommittedBytes`) and runs the hundred apps once with one Vulkan instance of
+    its own held open throughout, so the ICD stays loaded; if the climb goes with it, the cost is
+    the driver's load and the test holds that instance, saying why, and if it stays, the engine's
+    native allocations are read app by app for what is not freed. Settled at three green Windows
+    suites in a row after the mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on

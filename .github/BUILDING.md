@@ -23,14 +23,17 @@ and so do the render tests without a Vulkan device, each with its reason in the 
 raises to 60 minutes (`--timeout-minutes 60`), since lavapipe compiles the shaders each app draws
 with unless Mesa's cache holds them, 3.7 seconds an app where 0.84, and a cache left unsaved by a
 failed job doubled the suite there from 22 minutes past 40. The build workflow restores that cache
-before the suite and saves it after, whether the suite passed or not. The script writes what the
-suite prints to `3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines,
-also written to `TestResults/digest.md`, which holds the counts, the failures by cause, the most
-frequent first, each with its message, its first frames and some of its tests, and the lines the
-output repeated most. A process that is lost, by a crash, a hang, its time or its memory, is said
-first on the page, with the tests it was in and its last lines, and the suite runs again in parts, a
-process for each area of thirty tests or more and one for the rest, so a part that is lost costs
-only its own tests. `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
+before the suite and saves it after, whether the suite passed or not, keyed by the processor's model
+and a checksum of its flags (`build/processor.sh`), since lavapipe compiles for the instructions of
+the processor it runs on, and a runner of one kind that restored code another kind made died on an
+instruction its processor lacks. The script writes what the suite prints to
+`3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines, also written to
+`TestResults/digest.md`, which holds the counts, the failures by cause, the most frequent first,
+each with its message, its first frames and some of its tests, and the lines the output repeated
+most. A process that is lost, by a crash, a hang, its time or its memory, is said first on the page,
+with the tests it was in and its last lines, and the suite runs again in parts, a process for each
+area of thirty tests or more and one for the rest, so a part that is lost costs only its own tests.
+`python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in
 `build/nvidia-cache`, of 2 GiB, through `__GL_SHADER_DISK_CACHE_PATH` and
@@ -336,28 +339,30 @@ Slide's gestures are timed on the game's clock, so its scripted run sets each fr
 a second (`time.frame`) before it swipes, and a device that draws slowly sees the swipe it would see
 at 60 frames a second. A game that dies leaves a dump, Windows' own on Windows and the .NET
 runtime's in `captures/dumps` elsewhere where the runtime writes one, which the error names. On
-Linux and macOS a game is opened by `build/open-game.sh`, as the Linux jobs open every game, under a
-shell that waits on it and writes how it ended, its exit code or signal. On Linux each opening
-prints the processor's model and flags, and gdb reads the core a game that dies leaves, the faulting
-thread's frames and the instruction at its program counter, which the error carries. Each game has
-twelve minutes there (`DRIVE_MINUTES`), past which it is stopped and its error says how far it got
-by its last status, and Slide is played once more in a window on the runner's desktop
-(`build/drive-game.sh Slide window`) with four minutes, so SDL's window and the swapchain are tried
-on both systems. They then follow the README in a new project (`build/readme-walk.sh`) and build and
-run every step of the first game (`build/first-game.sh`) from the same package, as a newcomer on
-either system does. Each job runs its tests through `build/test.py`, whose page ends the step's log
-and is the job's summary. Each cause is also an error annotation with its whole entry, and a notice
-has the page's head and the lines repeated most, since a reader who is not signed in to GitHub reads
-a run's annotations and nothing else, so a red run says what failed to whoever opens it. A last job,
-`digest`, puts the three pages into one, each cause with the systems it was seen on. Each job has a
-time limit. Each builds with `-warnaserror`, so a warning fails the commit that wrote it, and a
-warning that is right to keep is turned off where it arises, with its reason. A Vulkan instance asks
-for portability devices where the loader offers them, and a device of the portability subset, as
-MoltenVK is, has the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in
-`E3D_GCDUMP`, with which `AppLeakTests` counts the heap's objects by type after its twentieth app
-and its hundredth, so a failure there names the types that grew. The Linux job fetches the commit
-the 5.1 package was packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name
-the public surface lost since.
+Linux and macOS a game is opened by `build/open-game.sh`, as the Linux jobs open every game and
+every example, under a shell that waits on it and writes how it ended, its exit code or signal. On
+Linux each opening prints the processor's model and flags, the line saying how a game ended says
+whether `gfni` is among them and what Mesa's shader cache served (`MESA_SHADER_CACHE_SHOW_STATS`),
+and gdb reads the core a game that dies leaves, the faulting thread's frames and the instruction at
+its program counter, which the error carries. Each game has twelve minutes there (`DRIVE_MINUTES`),
+past which it is stopped and its error says how far it got by its last status, and Slide is played
+once more in a window on the runner's desktop (`build/drive-game.sh Slide window`) with four
+minutes, so SDL's window and the swapchain are tried on both systems. They then follow the README in
+a new project (`build/readme-walk.sh`) and build and run every step of the first game
+(`build/first-game.sh`) from the same package, as a newcomer on either system does. Each job runs
+its tests through `build/test.py`, whose page ends the step's log and is the job's summary. Each
+cause is also an error annotation with its whole entry, and a notice has the page's head and the
+lines repeated most, since a reader who is not signed in to GitHub reads a run's annotations and
+nothing else, so a red run says what failed to whoever opens it. A last job, `digest`, puts the
+three pages into one, each cause with the systems it was seen on. Each job has a time limit. Each
+builds with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is right
+to keep is turned off where it arises, with its reason. A Vulkan instance asks for portability
+devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
+the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with
+which `AppLeakTests` counts the heap's objects by type after its twentieth app and its hundredth, so
+a failure there names the types that grew. The Linux job fetches the commit the 5.1 package was
+packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name the public surface
+lost since.
 
 On Linux, the `examples` job, which runs after the Linux tests on every push and in the pack run,
 then checks the package as a player and a reader meet it. It packs the engine, publishes Slide

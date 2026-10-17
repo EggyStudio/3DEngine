@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# Opens a program on the engine as ./e3d open does on Linux and macOS, from the checkout, serving,
-# with its output in build/sessions/<name>.log, and returns once it answers a command. A shell
-# starts it and waits on it, since e3d open's shell is replaced by the program and e3d ends once it
-# serves, which leaves no process to read how it ended, and the shell writes that once it does,
-# its exit code or 128 and the number of the signal that ended it. On Linux every opening prints
-# the processor's model and flags, so a run says which processors a death came on, the program may
-# dump core, and where it dies leaving a core where the kernel's core_pattern names a file, the
-# shell reads the faulting thread's native frames and the instruction at its program counter from
-# it with gdb.
+# Opens a program on the engine, or an example by its name, as ./e3d open does, from the checkout,
+# serving, with its output in build/sessions/<name>.log, and returns once it answers a command. On
+# Linux and macOS a shell starts it and waits on it, since e3d open's shell is replaced by the
+# program and e3d ends once it serves, which leaves no process to read how it ended, and the shell
+# writes that once it does, its exit code or 128 and the number of the signal that ended it. On
+# Linux every opening prints the processor's model and flags, so a run says which processors a
+# death came on, and the line saying how the program ended says whether gfni, which LLVM emits for
+# a shift of a vector of bytes where the processor has it, is among those flags, and what Mesa's
+# shader cache served, which Mesa prints as a device is destroyed (MESA_SHADER_CACHE_SHOW_STATS).
+# The program may dump core there, and where it dies leaving a core where the kernel's core_pattern
+# names a file, the shell reads the faulting thread's native frames and the instruction at its
+# program counter from it with gdb. On Windows it opens the program through ./e3d open, which
+# build/drive-game.sh watches with a watcher of its own.
 #
-#   build/open-game.sh <program> [--offscreen|--hidden|...]
-#   build/open-game.sh --ended <program or its name>
+#   build/open-game.sh <program or example> [--offscreen|--hidden|...]
+#   build/open-game.sh --ended <program or example>
 #
 # Beside the log, under build/sessions, it writes these.
 #   - <name>.pid, the program's process id, once it is started.
@@ -18,7 +22,7 @@
 #     <name>.reading stands while gdb reads.
 # Given --ended, it prints how the program last opened here ended, once its shell has written it
 # and gdb has read any core, and nothing while the program still runs, which build/drive-game.sh,
-# build/storm.sh and build/step.py ask where a game fails.
+# build/storm.sh, build/capture-examples.sh and build/step.py ask where a program fails.
 set -euo pipefail
 
 if [ "${1:-}" = --ended ]; then
@@ -34,15 +38,33 @@ if [ "${1:-}" = --ended ]; then
   exit 0
 fi
 
-program="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+# A program by its path, or an example by its name, which the examples program runs, as e3d open
+# takes either and names the log after the example.
+given="$1"
 shift
+arguments=()
+if [ -f "$given" ] || [ -f "$given.exe" ]; then
+  program="$(cd "$(dirname "$given")" && pwd)/$(basename "$given")"
+  name=$(basename "$given")
+else
+  case "$given" in */*) echo "There is no program '$given'." >&2; exit 1 ;; esac
+  program=""
+  name="$given"
+  arguments=("$given")
+fi
 cd "$(dirname "$0")/.."
 case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*) echo "On Windows ./e3d open starts a program, and build/drive-game.sh watches it." >&2; exit 2 ;;
+  MINGW*|MSYS*|CYGWIN*) exec ./e3d open "${program:-$given}" "$@" --quiet ;;
 esac
+if [ -z "$program" ]; then
+  program="$PWD/3DEngine.Examples/bin/Debug/net10.0/3DEngine.Examples"
+  if [ ! -x "$program" ]; then
+    echo "The examples are not built. Run 'dotnet build 3DEngine.slnx' first." >&2
+    exit 1
+  fi
+fi
 linux=no
 [ "$(uname -s)" = Linux ] && linux=yes
-name=$(basename "$program")
 sessions=build/sessions
 mkdir -p "$sessions"
 log="$sessions/$name.log"
@@ -52,14 +74,22 @@ reading="$sessions/$name.reading"
 rm -f "$pidfile" "$ended" "$reading"
 
 processor=""
+gfni=""
 if [ "$linux" = yes ]; then
   processor=$(LC_ALL=C lscpu | sed -n 's/^Model name: *//p' | head -n 1)
-  echo "$name opens on $processor, whose flags are $(LC_ALL=C lscpu | sed -n 's/^Flags: *//p' | head -n 1)"
+  flags=$(LC_ALL=C lscpu | sed -n 's/^Flags: *//p' | head -n 1)
+  echo "$name opens on $processor, whose flags are $flags"
+  case " $flags " in
+    *" gfni "*) gfni=", gfni among its flags" ;;
+    *) gfni=", gfni not among its flags" ;;
+  esac
 fi
 
-# How the program ended, from its wait status, with the processor on Linux.
+# How the program ended, from its wait status, with the processor on Linux and the hits and misses
+# Mesa's shader cache printed, which a process that died before its device was destroyed printed
+# none of.
 said() {
-  local what=""
+  local what="" stats="" counted=""
   case "$2" in
     0) what=", of its own" ;;
     132) what=", SIGILL, an illegal instruction, one the processor lacks or a trap a compiler wrote" ;;
@@ -71,7 +101,13 @@ said() {
     143) what=", SIGTERM" ;;
     129|13[0-9]|14[0-9]|15[0-9]) what=", signal $(( $2 - 128 ))" ;;
   esac
-  echo "its process $1 ended with exit code $2$what${processor:+, on $processor}"
+  stats=$(grep -a -o 'hits = [0-9]*, misses = [0-9]*' "$log" 2> /dev/null | tail -n 1 || true)
+  if [ -n "$stats" ]; then
+    counted=", Mesa's shader cache counting $stats"
+  elif [ "$linux" = yes ] && [ "$2" != 0 ]; then
+    counted=", Mesa having printed no count of its shader cache, which it prints as a device is destroyed"
+  fi
+  echo "its process $1 ended with exit code $2$what${processor:+, on $processor$gfni}$counted"
 }
 
 # The core a process left, where the kernel's core_pattern names a file and not a program it pipes
@@ -112,7 +148,7 @@ read_core() {
 # the line finds the marker with it.
 (
   if [ "$linux" = yes ]; then ulimit -c unlimited 2> /dev/null || true; fi
-  "$program" "$@" --serve < /dev/null > "$log" 2>&1 &
+  MESA_SHADER_CACHE_SHOW_STATS=1 "$program" ${arguments[@]+"${arguments[@]}"} "$@" --serve < /dev/null > "$log" 2>&1 &
   child="$!"
   echo "$child" > "$pidfile"
   status=0

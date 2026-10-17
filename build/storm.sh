@@ -14,16 +14,11 @@ out="$2"
 mode="${3:---offscreen}"
 cd "$(dirname "$0")/.."
 
-# Storms run one program at a time, so the calls need not name its session. A program given by
-# its path is opened by build/open-game.sh, which writes how it ended, said here where the storm
-# fails, and an example by its name through ./e3d open.
+# Storms run one program at a time, so the calls need not name its session. A program or an example
+# is opened by build/open-game.sh, which writes how it ended, said here where the storm fails.
 session=()
-if [ -f "$program" ]; then
-  ENGINE_VULKAN_VALIDATION=1 build/open-game.sh "$program" "$mode"
-else
-  ENGINE_VULKAN_VALIDATION=1 ./e3d open "$program" "$mode" --quiet
-fi
-trap 'status=$?; if [ "$status" != 0 ] && [ -f "$program" ]; then build/open-game.sh --ended "$program"; fi; ./e3d stop "${session[@]}" --quiet || true' EXIT
+ENGINE_VULKAN_VALIDATION=1 build/open-game.sh "$program" "$mode"
+trap 'status=$?; if [ "$status" != 0 ]; then build/open-game.sh --ended "$program"; fi; ./e3d stop "${session[@]}" --quiet || true' EXIT
 cmd() { ./e3d command "$@" "${session[@]}" --quiet --timeout 600; }
 
 cmd frames.wait 30
