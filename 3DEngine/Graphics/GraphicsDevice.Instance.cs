@@ -27,7 +27,12 @@ internal sealed unsafe partial class GraphicsDevice
         ValidationActive = _validationEnabled;
         Logger.Info($"Validation layers: {(_validationEnabled ? "ENABLED" : "DISABLED")}");
 
-        VkUtf8ReadOnlyString appNameUtf8 = Encoding.UTF8.GetBytes(appName);
+        // The program's name, null-terminated on the stack, which no collection moves before the
+        // instance is made, as a pointer into an array of its bytes would be moved by one.
+        var appNameLength = Encoding.UTF8.GetByteCount(appName);
+        byte* appNameUtf8 = stackalloc byte[appNameLength + 1];
+        Encoding.UTF8.GetBytes(appName, new Span<byte>(appNameUtf8, appNameLength));
+        appNameUtf8[appNameLength] = 0;
         VkUtf8ReadOnlyString engineNameUtf8 = "3DEngine"u8;
 
         VkApplicationInfo appInfo = new()

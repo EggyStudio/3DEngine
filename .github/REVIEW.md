@@ -10,7 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2206a2f4`, the review's record alone, `.github/REVIEW.md` and nothing else,
+Reviewed up to `534a1c2b`, item 26 and nothing else, as Decision 42 asks: `test.yml` and
+`examples.yml` folded into `build.yml`, which runs on a push and a pull request and is called by
+`pack.yml` with its one boolean input, and `pack.yml` running `build` then `pack` with the version
+read in it. The push's jobs are `linux`, `windows`, `macos`, `digest` and `examples` (needing
+`linux`, 90 minutes), and the pack run adds `captures`, `captures-macos` and `games` behind `if: ${{
+inputs.pack }}`, each needing `linux`, and the eleven other games on Windows and macOS behind the
+same, Slide's own step behind its negation, the two suites' limits `${{ inputs.pack && 180 || 100
+}}` and `${{ inputs.pack && 120 || 75 }}`. Four things beyond the item's letter, each right and said
+in its comment: the concurrency group is `build-${{ inputs.pack && 'pack-' || '' }}${{ github.ref
+}}` with `cancel-in-progress: ${{ !inputs.pack }}`, since a called run takes its caller's ref and
+one group would let a push and a pack run cancel each other; the raylib measure fails its job
+directly, nothing following it in `captures`; each Linux job installs what its steps use and keeps a
+Mesa cache of its own, the pack-only ones starting from the examples job's; and the pack-only jobs
+wait on `linux`, which costs the pack run no wall time beside its suites. The documents and scripts
+that named the old files or jobs read right: BUILDING.md's release and systems paragraphs, TODO.md,
+the shipping and raylib guides, the README, `step.py`, `drive-game.sh`, `capture-examples.sh`,
+`compare.py`, the measured table and the two test comments; `ScriptTests` reads `build.yml`, so
+`captures-macos`'s scripts join N 6.6's scan. The actions' versions are the old files' own. Checked
+on the working machine: `ScriptTests` and `NormTests` 45 of 45, actionlint clean on both files, the
+strict build clean, the whole suite 1,710 of 1,710, and a search for the old names finding this file
+alone. Right. The push run of `534a1c2b` was whole green at 14:19: Linux in 17 minutes, macOS in 24,
+Windows in 56, the examples job in 9 after Linux, and the three pack-only jobs skipped; its macOS
+suite was the third green in a row for Verdict 60, which settled, so no verdict is open. Item 26 is
+done when the pack run shows every job green and the package's artifact, which is Decision 42's gate
+for this engine. The owner started the pack run on `534a1c2b` at 15:18 and said at 15:19 that the
+register sweep, item 29, is done beside it. At 15:35 the pack run's Linux suite failed one test,
+Verdict 62, with Windows and macOS still playing their games, so Decision 42's gate waits for the
+mend and a pack run after it.
+
+Before it, `2206a2f4` came, the review's record alone, `.github/REVIEW.md` and nothing else,
 committed so the runs of `fc5fdc97` stand where the next reader finds them. Right. A push of it
 starts no run: `build.yml` runs on a push only where a path outside `.github/**.md` changed, its
 `paths` list at line 12, and has no `workflow_dispatch`, so a commit of documents cannot be Decision
@@ -44,26 +73,6 @@ cache the push's Windows job saved at its end came after the pack run's job bega
 to restore it is the next; its examples jobs passed, the Linux one in 81 minutes with the strategy
 game's step, which settled Verdict 56, and the macOS captures in 58, so the pack run passed whole at
 11:31.
-
-Before it, `ddb40469` came, Verdicts 59 and 60 mended and nothing else, as Decision 39 asks. The
-drawing leak test reads the resident memory again right after the twentieth app's heap census and
-holds the last app to that reading, the bound at 50 for the creep alone with the comment saying why,
-the message gaining the twentieth's figure before the census and after, 314.6 and 311.2 MB here with
-the census tool named, and nothing changing where no census runs. The reference frames wait on the
-scene: `E3D.IsSceneLoaded`, internal, is false while a scene or model an entity names has not been
-asked for, while the asset server holds anything loading or while a spawn request waits, and the
-capture draws until it holds and the test's own ready with it, 1,200 frames at most, asserts it and
-then settles; Summit's test asserts it false right after the level loads, since the level's six
-scenes and its model are asked for in the next frame, which is what a slow runner captured. The
-whole suite 1,710 of 1,710, NormTests 16 of 16, the strict build clean, all 29 reference frames on
-lavapipe under the validation layer with no VUID. Right. The push of `ddb40469` on 2026-10-16: the
-three suites green, Windows 1,659 of 1,659 in 29 minutes with the leak test's new baseline, macOS in
-40 and Linux in 14, and the examples job green in 7 minutes with its puzzle step, so the push is
-whole green, the first of Decision 39's three, and Verdict 57 has one of its two. The pack run
-started at 21:39: Linux green in 17 minutes, the macOS suite failing one test of 1,668, the script
-test's grow mode losing its stand-in to the time limit before the memory limit on a slow runner,
-Verdict 61, and Windows running at 22:27; the examples job, Verdict 56's, needs every suite, so the
-owner re-runs the failed jobs when Windows ends.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -111,63 +120,64 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    40-minute limit with nothing finished and the leak test lost at app 26 with 10.6 seconds a frame
    (Verdict 48), its examples job skipped; the run of the game's `9e9074dc` reads the same, Windows
    red in 87 minutes with 364 without a result and a frame of 11.9 seconds, its Linux job green in
-   15 minutes where 8 before, macOS and the captures green, the examples job skipped; the drive
-   script says since `e50fd247` whether a game's process lives when a command finds no session, and
-   its exit code and Windows' crash event when it ended. The run of `b1e86aef`, with `214feb11`'s
-   mend, is green on Linux in 12 m 9 s, 1,633 passed and 15 skipped, on macOS in 34 minutes and on
-   the macOS captures, 255 of 255 in 3,335 s, and on Windows whole in 68 minutes, 1,626 passed and
-   22 skipped in 39 m 21 s of tests, the leak test's frame 3.8 s (Verdict 48), its digest green and
-   its examples job begun at 10:42 (Verdict 30); the run of `e477bc1e` is green on Linux in 12 m 28
-   s, 1,635 passed, 1,750 MB at most where 1,631, on macOS, on the macOS captures and on Windows
-   whole in 69 minutes, its examples job red by the measure alone as well, two pairs over, the
-   billboard and the depth writing, the two loading examples holding this time; `b1e86aef`'s
-   examples job is red by the measure alone, four pairs over their recorded share, the soak and the
-   package's steps skipped after it (Verdict 49), so Verdict 30 is unread. The page showed the leak
-   test's progress line as its first of 198, `app 2`, where the line named its app all along; the
-   page shows the last of a repeated line since `88673244`. Verdicts 40 and 44 are carried out
-   there, the leak test following four apps through every plugin's making, a failing frame written
-   where the job uploads it with each surface's means, and four references drawn again after a drift
-   of up to 2.16% on the RTX 4070 itself; the runs since read the references green and the leak test
-   red. The examples job runs when Windows and macOS are both green in one run, which they are since
-   `817f7fd4`. When every job is green the owner is told, since 5.2 is due (Decision 19). With the
-   batch that next touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a
-   theory whose names are cut to the same as one counted apart, which its page reads as one today
-   (SHARED.md). The game's tests are its own repository's since Decision 41. The engine's own
-   despawn of what a state scopes is read against a soak of the world's entity indices across many
-   transitions, which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way
-   (SHARED.md), with the batch that next touches states. The owner pushed everything through
-   `ffa3ec48` by 18:33; the runs of `aa9fe773` and `e28064f7` are green on Linux in 17 and 13
-   minutes and red on Windows after 87 minutes, the Rendering group and the suite at their 40-minute
-   limit with 377 tests without a result and the leak test's frame at 4.3 s (Verdict 48), and on
-   `e28064f7` the leak test's resident memory 92 MB past its bound (Verdict 51); the macOS job of
-   `aa9fe773` is red by its first game's step, the WebP script wanting ImageMagick the runner lacks
-   (Verdict 52), its tests green, and `e28064f7`'s macOS job green; the macOS captures of `aa9fe773`
-   green; the runs of `ea9a23cd` and `ffa3ec48` wait in the queue. Each push's run is read by the
-   reviewing session, and a failure it names comes first here. 2. **What the owner saw on 2026-10-10
-   (Decision 27), before item 3's remainder.** The owner looked at `shaders_subsurface` and at the
-   voxel game and found four things, each measured before it is changed, each a commit of its own
-   with its numbers before and after and a test that holds the measure, the voxel game's read
-   through the testbed at eight columns, and the game's session asked to write what it measures of
-   them in ASKS.md. The game's session measured b, c and d on the game and wrote them in ASKS.md
-   with captures under `.github/assets/asks`, which go in with that file. The owner looked again at
-   17:20 on the tree: the bounce stable in motion, the lamp's lobes gone at a cell of 0.125, and a
-   lamp's light at a distance aliased at its border and gone farther off, so b closes with its
-   commit, d gains its lever and e is added. At 23:40 the owner looked at `98a1edca` and found the
-   bounce awesome and the screen's probes its one unsteady part, which is part f. At 10:05 on
-   2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's light enter it by the
-   heading alone, which is part g and comes first (Decision 28). At 10:55 the owner looked at the
-   tree with g's mend and found it right at every heading and tier but one window at High, and found
-   the indirect light noisy and spotted where a penumbra is wide, which is part h. The apparatus
-   first: `BounceReference` traces a mesh's flat color times its texture's average and not the
-   vertex colors the field and the model pass read, so the game's rooms of white concrete, one white
-   material with each block's color in its vertices, read a third brighter in the reference than in
-   the frame and the comparison cannot tell the bounce's error from the color's (ASKS.md,
-   2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`, blended by the hit's
-   barycentrics as the model pass blends them, a colored slab within 1% where 0.58 apart, with a
-   test. The order of work: h, with Verdict 49's steps that run whether the measure holds, then
-   Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then item 10, item 9 and
-   item 8, the others being done; the game's session measured g and h in the game and wrote them in
-   ASKS.md, as it measured d at both cells and e along the distance, and reads g on `64fd2f14`.
+   15 minutes where 8 before, macOS and the captures green, the examples job skipped; the scripted
+   play script says since `e50fd247` whether a game's process lives when a command finds no session,
+   and its exit code and Windows' crash event when it ended. The run of `b1e86aef`, with
+   `214feb11`'s mend, is green on Linux in 12 m 9 s, 1,633 passed and 15 skipped, on macOS in 34
+   minutes and on the macOS captures, 255 of 255 in 3,335 s, and on Windows whole in 68 minutes,
+   1,626 passed and 22 skipped in 39 m 21 s of tests, the leak test's frame 3.8 s (Verdict 48), its
+   digest green and its examples job begun at 10:42 (Verdict 30); the run of `e477bc1e` is green on
+   Linux in 12 m 28 s, 1,635 passed, 1,750 MB at most where 1,631, on macOS, on the macOS captures
+   and on Windows whole in 69 minutes, its examples job red by the measure alone as well, two pairs
+   over, the billboard and the depth writing, the two loading examples holding this time;
+   `b1e86aef`'s examples job is red by the measure alone, four pairs over their recorded share, the
+   soak and the package's steps skipped after it (Verdict 49), so Verdict 30 is unread. The page
+   showed the leak test's progress line as its first of 198, `app 2`, where the line named its app
+   all along; the page shows the last of a repeated line since `88673244`. Verdicts 40 and 44 are
+   carried out there, the leak test following four apps through every plugin's making, a failing
+   frame written where the job uploads it with each surface's means, and four references drawn again
+   after a drift of up to 2.16% on the RTX 4070 itself; the runs since read the references green and
+   the leak test red. The examples job runs when Windows and macOS are both green in one run, which
+   they are since `817f7fd4`. When every job is green the owner is told, since 5.2 is due (Decision
+   19). With the batch that next touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the
+   two cases of a theory whose names are cut to the same as one counted apart, which its page reads
+   as one today (SHARED.md). The game's tests are its own repository's since Decision 41. The
+   engine's own despawn of what a state scopes is read against a soak of the world's entity indices
+   across many transitions, which in BevyCSharp found Bevy 0.20.0 losing every index it despawned
+   that way (SHARED.md), with the batch that next touches states. The owner pushed everything
+   through `ffa3ec48` by 18:33; the runs of `aa9fe773` and `e28064f7` are green on Linux in 17 and
+   13 minutes and red on Windows after 87 minutes, the Rendering group and the suite at their
+   40-minute limit with 377 tests without a result and the leak test's frame at 4.3 s (Verdict 48),
+   and on `e28064f7` the leak test's resident memory 92 MB past its bound (Verdict 51); the macOS
+   job of `aa9fe773` is red by its first game's step, the WebP script wanting ImageMagick the runner
+   lacks (Verdict 52), its tests green, and `e28064f7`'s macOS job green; the macOS captures of
+   `aa9fe773` green; the runs of `ea9a23cd` and `ffa3ec48` wait in the queue. Each push's run is
+   read by the reviewing session, and a failure it names comes first here. 2. **What the owner saw
+   on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked at
+   `shaders_subsurface` and at the voxel game and found four things, each measured before it is
+   changed, each a commit of its own with its numbers before and after and a test that holds the
+   measure, the voxel game's read through the testbed at eight columns, and the game's session asked
+   to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
+   and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
+   The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's lobes gone
+   at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
+   so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
+   `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
+   part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's
+   light enter it by the heading alone, which is part g and comes first (Decision 28). At 10:55 the
+   owner looked at the tree with g's mend and found it right at every heading and tier but one
+   window at High, and found the indirect light noisy and spotted where a penumbra is wide, which is
+   part h. The apparatus first: `BounceReference` traces a mesh's flat color times its texture's
+   average and not the vertex colors the field and the model pass read, so the game's rooms of white
+   concrete, one white material with each block's color in its vertices, read a third brighter in
+   the reference than in the frame and the comparison cannot tell the bounce's error from the
+   color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`,
+   blended by the hit's barycentrics as the model pass blends them, a colored slab within 1% where
+   0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run whether the
+   measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then
+   item 10, item 9 and item 8, the others being done; the game's session measured g and h in the
+   game and wrote them in ASKS.md, as it measured d at both cells and e along the distance, and
+   reads g on `64fd2f14`.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -709,15 +719,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     `.claude` folder and long subfolders holding nothing else being unwanted. The document becomes
     `.github/E3D.md`, beside the other documents a session reads, its skill header, the name, the
     description and the allowed tools, dropped since it means nothing outside that folder, its body
-    as it is; AGENTS.md's paragraph on driving the engine and its documents table name the new
-    place, which the owner's ask is the word for, as do BUILDING.md, STYLE.md's line on the skills,
-    the README's line on the commands, the two links in `docs/driving-with-e3d.md` and the
-    workflow's path filters, which drop `.claude`; the folder goes with the move, and `.claude/`
-    joins `.gitignore` so the tool's own lock file there never enters the tree. A batch of its own,
-    taken when the owner types the ask in the working session, which changes AGENTS.md, the ignore
-    file and the tool's own folder only on the owner's word given there and has asked the owner for
-    it, a right the reviewing session holds. Done at `7a69c936` on the owner's word typed there:
-    `.github/E3D.md`, every reference moved, the folder gone and ignored.
+    as it is; AGENTS.md's paragraph on controlling the engine from the command line and its
+    documents table name the new place, which the owner's ask is the word for, as do BUILDING.md,
+    STYLE.md's line on the skills, the README's line on the commands, the two links in
+    `docs/driving-with-e3d.md` and the workflow's path filters, which drop `.claude`; the folder
+    goes with the move, and `.claude/` joins `.gitignore` so the tool's own lock file there never
+    enters the tree. A batch of its own, taken when the owner types the ask in the working session,
+    which changes AGENTS.md, the ignore file and the tool's own folder only on the owner's word
+    given there and has asked the owner for it, a right the reviewing session holds. Done at
+    `7a69c936` on the owner's word typed there: `.github/E3D.md`, every reference moved, the folder
+    gone and ignored.
 
 13. **`games/Pusher` is gone, done at `ffa3ec48` (Decision 31).** The owner asked on 2026-10-11 at
     17:18, finding it ugly and of no use. The folder goes with its capture under
@@ -774,7 +785,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 17. **The radiance cascades said in the README and in a guide page of their own (Decision 33)., done
     at `2172090b`.** The owner asked on 2026-10-11 at 17:40. The README's prose says in a sentence
     or two that the engine lights its scenes with real-time global illumination by radiance
-    cascades, light that bounces from every surface, with a line on what that brings a game, and the
+    cascades, the indirect light of every surface, with a line on what that brings a game, and the
     guide table gains the page's row after the materials guide's. The page,
     `docs/global-illumination.md` or a name the working session finds better, is for somebody using
     the engine and goes into the detail the materials guide, which holds the bounce in fifty-three
@@ -1015,16 +1026,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     what a push runs and what a pack run adds. In the engine's session's batch with Verdicts 54 and
     55.
 
-26. **Two workflows an engine, `build.yml` on a push and `pack.yml` by hand (Decision 40).**
-    `test.yml` and `examples.yml` fold into `build.yml`, which has `push`, `pull_request` and
-    `workflow_call` with one input, `pack`: the jobs `linux`, `windows`, `macos`, `digest`,
-    `examples` (needs `linux`, 90 minutes, the push half of today's examples job, `step.py` given
-    `--workflow .github/workflows/build.yml`), and pack-only `captures` (the Linux captures and the
-    raylib measure, 150), `captures-macos` (today's `macos-examples`, 160) and `games` (the twelve
-    games played, soaked and stormed from the package and the README walked, 150); the Windows and
-    macOS jobs keep Slide played offscreen, native and in a window, the README walk and the first
-    game on every push, and play the other eleven in the pack run alone behind `if: ${{ inputs.pack
-    }}`, Decision 35 on every system, their limits `${{ inputs.pack && 180 || 100 }}` and `${{
+26. **Two workflows an engine, `build.yml` on a push and `pack.yml` by hand (Decision 40), committed
+    at `534a1c2b`; done when its push run and pack run are green.** `test.yml` and `examples.yml`
+    fold into `build.yml`, which has `push`, `pull_request` and `workflow_call` with one input,
+    `pack`: the jobs `linux`, `windows`, `macos`, `digest`, `examples` (needs `linux`, 90 minutes,
+    the push half of today's examples job, `step.py` given `--workflow
+    .github/workflows/build.yml`), and pack-only `captures` (the Linux captures and the raylib
+    measure, 150), `captures-macos` (today's `macos-examples`, 160) and `games` (the twelve games
+    played, soaked and stormed from the package and the README walked, 150); the Windows and macOS
+    jobs keep Slide played offscreen, native and in a window, the README walk and the first game on
+    every push, and play the other eleven in the pack run alone behind `if: ${{ inputs.pack }}`,
+    Decision 35 on every system, their limits `${{ inputs.pack && 180 || 100 }}` and `${{
     inputs.pack && 120 || 75 }}`. `pack.yml` keeps `workflow_dispatch` with `publish` and runs
     `build` (uses `build.yml` with `pack: true`) then `pack` (needs `build`, 30 minutes, today's
     pack job whole, the version read in it). Both files: `permissions: contents: read`, concurrency
@@ -1053,26 +1065,54 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     some 150 lines, `OreCommands.cs` with `ore.status`, `ore.autopilot`, `ore.warp` and `ore.night`,
     a README in the games' form): a 48 by 48 landscape from an inline value noise, heights 1 to 12,
     grass, dirt, stone and ore, its faces against the air meshed into positions, normals and vertex
-    colors of a plain mesh, since the light that bounces reads a mesh's colors, the ore faces in a
+    colors of a plain mesh, since global illumination reads a mesh's colors, the ore faces in a
     second mesh with `Emissive` and `EmissiveIntensity`, the ground a static physics model, a
     first-person character through `CreatePhysicsCharacter`, `MovePhysicsCharacter` and
     `JumpPhysicsCharacter` with mouse look as Manor's, `SetSceneField(4, 0.5f, 2)` and
     `SetGlobalIllumination(GlobalIllumination.High)` with G stepping the quality as Wick does,
     `DrawBounceWindow` while B is held, a sun and N for night. It joins the lists of `build.yml`
-    (the build-all, soak and storm lists and the Windows and macOS drive loops), gets a
+    (the build-all, soak and storm lists and the Windows and macOS play loops), gets a
     `build/drive-game.sh` case (a walk, a jump, a capture), a `build/soak.sh` case, a capture step
     in the `games` job and `.github/assets/examples/ore.webp` through `build/examples-table.py`,
     thirteen games where twelve, BUILDING.md's count and the guide's see-also. The name is the
     owner's, Ore unless told otherwise. Checked by `NormTests`, `build/drive-game.sh Ore`, the soak
     and the storm, and the pack run playing it on three systems.
 
+29. **The register: STYLE.md's rule and the sweep (Decision 43), under way on the owner's word of
+    15:19, beside item 26's pack run.** STYLE.md gains a section, Register: prose uses the technical
+    and generic term, the engine's own where it has one, and no figure of speech or casual
+    paraphrase, with the pairs the owner named and their replacements: the light that bounces
+    becomes global illumination, radiance cascades where the technique is meant and indirect light
+    where the effect is; gives off light and glowing become emissive; driving a running program
+    becomes controlling or scripting it through the command line, and a drive a scripted run or a
+    course. The colon joins it: STYLE.md's rule, which allows a colon before a list, tightens so
+    that a running sentence holds none, the sentence recast or split where one appended an
+    elaboration or a list, as in "makes the program the README opens with: a window with a turning
+    cube"; a colon stands before a bulleted list, a code block or a command, and as a label in a
+    table, and STYLE.md's check of colons joining clauses reads prose lines of Markdown as well as
+    comments. The sweep covers README.md, `docs/`, AGENTS.md, every Markdown under `.github`, the
+    comments of the code, the scripts and the workflows, and the sentences a program prints; 72
+    files hold the first pair some 170 times, 20 documents the drive words some 80 times, and a
+    rough count finds a colon inside a sentence on some 230 prose lines of the documents and 375
+    comment lines of the library and the examples. `docs/driving-with-e3d.md` becomes
+    `docs/command-line.md`, titled for the command line, its links following, which
+    `DocumentLinkTests` holds; job and script names stay as identifiers (`build/drive-game.sh`, the
+    captures named `-driven`) with their comments reworded, since their renames reach workflows and
+    tests. The REVIEW.md, NORM.md and SHARED.md lines are the reviewer's and are swept already.
+    Checked by `NormTests`, `DocumentLinkTests` and `git grep -i` for the pairs finding the
+    channel's history alone. One commit. The game's repository did this first at its `b87e386`, and
+    its STYLE.md's Register section and colon rule, with their checks, are the text to take, with
+    the engine's examples in place of the game's. Two things it found of the engine's:
+    `DrawBounceWindow` titles its window "Light that bounces", which becomes "Global illumination",
+    and the API logger's warnings put the exception after a colon, which becomes a full stop.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 59 and 61 are settled on the runs of
-`fc5fdc97` on 2026-10-17, said under each. Verdict 60 is open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 61 are settled on the runs of
+`fc5fdc97` and `534a1c2b` on 2026-10-17, said under each. Verdict 62 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1096,15 +1136,15 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     the same resize complete 1.27 seconds in; and on the push of `0c63cab5` the macOS job's step
     found a swipe up or down sliding no tile, the board unchanged, the log ending there too. Three
     systems, three shapes, one game, and the puzzle step passed on `fca652a1`'s push between them,
-    so it is a race in Slide's own startup or in the touch drive and not a system's. Slide is the
+    so it is a race in Slide's own startup or in the scripted touch and not a system's. Slide is the
     flat API alone, `InitWindow` then a 128-pixel font, four sounds and the best score's file loaded
     before its loop, so the CLI server serves while no frame runs yet, and the step's first command
     meets a game that has not begun drawing. Read and mended at `b3895bd4`, two of the three: the
-    macOS swipe was the drive's drag read as a plain drag on a device under five frames a second,
-    the game's gestures timed on its wall clock, and the drive sets a sixtieth a frame before its
+    macOS swipe was the script's drag read as a plain drag on a device under five frames a second,
+    the game's gestures timed on its wall clock, and the script sets a sixtieth a frame before its
     gestures; the Windows session gone was a read of a session file while the game replaced it,
     which Windows refuses, answered as no session, and the read tries again up to four times ten
-    milliseconds apart; the Linux exit is not reproduced, and the drive asks the runtime for a dump
+    milliseconds apart; the Linux exit is not reproduced, and the script asks the runtime for a dump
     off Windows so the next death names its thread. Settled when the puzzle step passes on two
     pushes and no Linux death comes, or the death's dump names its cause and that is mended. One
     push's puzzle step green of two, `ddb40469`'s, with no Linux death. The pack run's Windows job
@@ -1160,7 +1200,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     Mended at `ddb40469`, every reference frame waiting on `E3D.IsSceneLoaded` and its own ready
     before its settle. One green macOS suite of three, the push of `ddb40469`. Two green macOS
     suites of three in a row, the push and the pack run of `fc5fdc97` on 2026-10-17; the pack run of
-    `ddb40469` between them was lost at Verdict 61's test, its reference frames unread.
+    `ddb40469` between them was lost at Verdict 61's test, its reference frames unread. Settled on
+    the push of `534a1c2b`, 2026-10-17, the third green macOS suite in a row.
 
 61. **The script test's grow mode races its own two limits on a slow runner.** On the pack run of
     `ddb40469`, 2026-10-16, the macOS suite failed
@@ -1175,6 +1216,23 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     at two green macOS suites. Mended at `fc5fdc97`, the grow mode given a minute and the stand-in
     growing in random blocks. Settled on the runs of `fc5fdc97`, 2026-10-17, the push's and the pack
     run's macOS suites green.
+
+62. **A graphics pipeline is made with an empty entry point name, and a lamp's light leaks into a
+    closed room.** On the pack run of `534a1c2b`, 2026-10-17, the Linux suite failed one test of the
+    1,684 run, the `GlobalIlluminationTests` fact that a lamp casting shadows bounces no light into
+    a room whose walls close it out, twice over: the room read 232 where under 8 was asked, and
+    under N 3.7 the engine logged five validation errors, `vkCreateGraphicsPipelines` given `pName
+    ""` for a vertex stage whose module's one entry point is `main`. The push run of the same commit
+    passed the suite on Linux two hours earlier and every suite since `fc5fdc97` passed the test, so
+    the name is empty on some runs and not others, which is a read of the entry point's name that
+    can come back empty, from a shader's reflection or a cache's entry, before or while the pipeline
+    is made; a pipeline with no vertex entry draws nothing, so the lamp's shadow pipeline missing is
+    what let its light into the room. Two things: where the engine takes the entry point's name
+    from, read for what returns an empty string and when, and an empty name made a failure where the
+    shader is compiled or loaded, with the shader named, rather than a validation error at the
+    pipeline; and the suite's Linux job read for what differs between the push run and the pack run
+    of one commit, the Mesa cache restored from the other run's job among it. Settled at three green
+    Linux suites in a row after the mend.
 
 ## Decisions
 
@@ -1298,12 +1356,12 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     being the one gap a game is likely to meet.
 
 22. **The bounce's quality comes before subsurface scattering goes on.** The owner chose it on
-    2026-10-09, judging the light that bounces on the Cornell box and on Wick as not yet the best
-    and naming banding, light across edges, a bounce too soft and wide, and one too dim at a
-    distance; a path-traced reference the engine draws itself is the measure, over Bevy's Solari in
-    BevyCSharp and over the eye alone, a level of the hard cases is made since no project checks the
-    bounce, and a debug window with gizmos and texture views shows it; subsurface scattering's first
-    batch is committed as far as it stands alone and goes on after.
+    2026-10-09, judging global illumination on the Cornell box and on Wick as not yet the best and
+    naming banding, light across edges, a bounce too soft and wide, and one too dim at a distance; a
+    path-traced reference the engine draws itself is the measure, over Bevy's Solari in BevyCSharp
+    and over the eye alone, a level of the hard cases is made since no project checks the bounce,
+    and a debug window with gizmos and texture views shows it; subsurface scattering's first batch
+    is committed as far as it stands alone and goes on after.
 
 23. **No document or comment a reader sees names the owner or a session.** The owner ordered it on
     2026-10-09 after DESIGN.md's NLayer row said who admitted the crate and when; N 4.7 reaches
@@ -1450,9 +1508,31 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     repository has a REVIEW.md and a NORM.md of its own.
 
 42. **Decision 39's gate is the new workflows.** The owner chose on 2026-10-17 that the rework of
-    item 26 starts that day as the first work on both engines, and that the green lights Decision 39 asks
-    are then asked of the new workflows: a green push and a green pack run under them on each engine
-    before engine and game features resume. Until then the working sessions mend what verdicts name
-    and do item 26, and in BevyCSharp item 23, alone.
+    item 26 starts that day as the first work on both engines, and that the green lights Decision 39
+    asks are then asked of the new workflows: a green push and a green pack run under them on each
+    engine before engine and game features resume. Until then the working sessions mend what
+    verdicts name and do item 26, and in BevyCSharp item 23, alone; on 2026-10-17 at 15:19 the owner
+    added the register sweep (item 29, BevyCSharp's 25) to what may be done before the gate, since
+    it touches prose and no behavior.
+
+43. **Prose is technical and generic.** The owner said on 2026-10-17 that phrasings such as "the
+    light that bounces" and "how to drive the game" read as casual and do not fit. A feature is
+    named by its technical term, the engine's own where it has one, and never by a figure of speech
+    or a paraphrase: global illumination, and radiance cascades for the technique, where the light
+    bounced; emissive where a block gave off light; a running program controlled or scripted through
+    the command line where it was driven, and a scripted run or a course where a drive. The owner
+    added at 14:37 that the colon is overused, an elaboration or a list appended to a sentence after
+    one where a sentence would do, in documents, comments and logs alike, which STYLE.md should have
+    covered; its rule tightens so that a running sentence holds no colon. STYLE.md carries both
+    rules with these pairs in each repository, every document, comment and message a reader sees is
+    swept (items 29 here, 25 in BevyCSharp, 4 in Voxel-Sandbox), and an identifier keeps its name
+    unless the rename is cheap and the thing is new, as the game's `build/drive.sh` is; a new name
+    follows the rule.
 
 ## Replies
+
+
+
+
+
+

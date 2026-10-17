@@ -315,7 +315,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.7 | checked, `FailOnLoggedErrors` | checked, `FailOnLoggedErrors` |
 | N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
-| N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
+| N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` run by a test of the suite, outside links by hand (item 24) |
 | N 4.4 | checked, `build/readme-walk.sh` in both workflows and `FirstGameTests` | checked, `build/readme-walk.sh` in the pack workflow |
 | N 4.5 | checked, `NormTests`, 20 left out | checked, `NormTests` |
 | N 4.6 | by review | by review |

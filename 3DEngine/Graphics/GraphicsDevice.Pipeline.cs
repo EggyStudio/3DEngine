@@ -88,6 +88,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// <inheritdoc />
     public IShader CreateShader(ShaderDesc desc)
     {
+        // A pipeline names its stages' entry point by this name, so an empty one fails here, where
+        // the shader is, and not at the pipeline, which the validation layer refuses and which
+        // draws nothing.
+        if (string.IsNullOrWhiteSpace(desc.EntryPoint))
+            throw new ArgumentException($"A {desc.Stage} shader of {desc.Bytecode.Length} bytes was given no entry point name.", nameof(desc));
         fixed (byte* codePtr = desc.Bytecode.Span)
         {
             VkShaderModuleCreateInfo info = new()
@@ -111,7 +116,15 @@ internal sealed unsafe partial class GraphicsDevice
         var fs = (VulkanShader?)desc.FragmentShader;
         bool depthOnly = pass.DepthOnly;
 
-        VkUtf8ReadOnlyString entryName = Encoding.UTF8.GetBytes(desc.VertexShader.Description.EntryPoint);
+        // The entry point's name, null-terminated on the stack, which no collection moves before the
+        // driver reads it. Read through a pointer into an array of its bytes, the name was wherever
+        // the array had been when a collection moved it before the pipeline was made, and the
+        // validation layer saw an empty name and the pipeline drew nothing, on one run in many.
+        var entryPoint = desc.VertexShader.Description.EntryPoint;
+        var entryLength = Encoding.UTF8.GetByteCount(entryPoint);
+        byte* entryName = stackalloc byte[entryLength + 1];
+        Encoding.UTF8.GetBytes(entryPoint, new Span<byte>(entryName, entryLength));
+        entryName[entryLength] = 0;
 
         VkPipelineShaderStageCreateInfo* stages = stackalloc VkPipelineShaderStageCreateInfo[2];
         stages[0] = new VkPipelineShaderStageCreateInfo

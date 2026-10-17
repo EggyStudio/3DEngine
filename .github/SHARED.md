@@ -3,7 +3,7 @@
 What BevyCSharp and 3DEngine have in common, and which of the two has solved what. The engines
 are built differently, one over Bevy through a bridge and one on its own Vulkan renderer, and they
 answer many of the same questions: how a behavior is written, what the ECS offers it, how states,
-physics, scenes and saves work, how a running app is driven from a terminal, and how the project
+physics, scenes and saves work, how a running app is controlled from a terminal, and how the project
 is tested, packed and versioned. An answer one of them finds is offered to the other as an idea,
 and each implements it in its own way.
 
@@ -25,7 +25,7 @@ Shared areas:
 - physics over BepuPhysics: bodies, colliders, joints, contacts, characters
 - scene files, saves, data in files, and files that outlive a renamed type
 - input, including what a script injects
-- the command-line tool that drives a running app (`bcs`, `e3d`)
+- the command-line tool that controls a running app (`bcs`, `e3d`)
 - tests, the games built from the package, measurement, CI, packing and the version
 - the rules for prose and commits
 
@@ -127,7 +127,7 @@ table also answers whether the two agree.
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
 | Every menu played with a gamepad alone, settings and key bindings kept in a file | to check, with Courtyard | has (`games/Manor`, `4161a8c5`) |
-| Gamepads | taken at `7f87a47`, with a pretended pad a script drives | has |
+| Gamepads | taken at `7f87a47`, with a pretended pad a script controls | has |
 | A gamepad's gyro, accelerometer, touchpad and light | blocked at gilrs 0.11.2, which reads none of them, the touchpad's click reaching `bevy_gilrs` as a button it drops; a second reader of the pads, SDL's or hidapi's, waits for the owner's word | has (`73ce6326`) |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
@@ -135,8 +135,8 @@ table also answers whether the two agree.
 | Files dropped on the window reach the program, and a command pretends a drop | has the messages, `input.drop` taken at `678d860` | has (`input.drop`, `eca234f9`) |
 | A command line that starts a program through `cmd.exe /c start` on Windows gives cmd.exe the line as written, since a line added to `ArgumentList` has each inner quote escaped with a backslash that cmd.exe keeps, so `start` takes the escaped title for the program | taken at `a753c57`, the Windows job opening the sample through `bcs` | taken at `1c848a20` (`e3d`), found by Verdict 33 |
 | A command line writes its answers as UTF-8 on every system, so a word with an accent read on Windows is the word the game sent | to check, `bcs` writing the console's code page there | has (`e60ba729`) |
-| A click command takes a count, so a double tap is driven within the game's double-click time | has (`daa653ad`, `input.click <x> <y> [count]`, four at most) | has (`a9ff8c1b`) |
-| Console pads are made up to the index a command names, four at most, so a second player is driven | has (`64bb30aa`, four at most, each named by its place) | has (`2b5b0873`) |
+| A click command takes a count, so a double tap is scripted within the game's double-click time | has (`daa653ad`, `input.click <x> <y> [count]`, four at most) | has (`a9ff8c1b`) |
+| Console pads are made up to the index a command names, four at most, so a second player is scripted | has (`64bb30aa`, four at most, each named by its place) | has (`2b5b0873`) |
 | A command's parameter with a default may be left off, shown in brackets in its usage | taken at `678d860`, `[name]` in the usage and `optional` in the schema | has (`a3d56597`) |
 | C# typed at a running app | has in the editor (`eval`) | has (`e3d eval`, `075c5b3c`), compiled against the running program and run between frames |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
@@ -185,7 +185,7 @@ table also answers whether the two agree.
 | A test in which the engine logs an error fails unless it says it expects that error | has (`FailOnLoggedErrors`, `76cdb9a`), whose survey found three faults | has (`FailOnLoggedErrors`, `99b9c97d`), an error laid to its test by the app that logged it, which found a physics world disposed twice |
 | A system that throws in every frame is logged in full once and counted after | has (`76cdb9a`, `SystemExceptionTests`), a Rust panic in a system to join that path after Bevy 0.20, which hands it to a fallback error handler | has (`c35472ba`), by stage, system and type, with a line at each power of ten and the totals as the app closes |
 | The suite run once with the schedule's order shuffled by a seed, so a test that leaned on an order nothing asked for is found | has (`379f59a4`, `BCS_SCHEDULE_SHUFFLE_SEED` over every schedule of the app and its render world, said in BUILDING.md) | to consider |
-| The light that bounces measured against a path-traced reference the engine draws itself through its ray queries, its light compared per region named by what each pixel's first ray met, with a window and commands showing the probes, their textures and the frame against the reference, each part left out by a toggle | to consider, for Bevy's probes and Solari as it draws them | has (`0a43cf1a`, `575f5f66`, `a9f9c56d`), the shaders plain Slang |
+| Global illumination measured against a path-traced reference the engine draws itself through its ray queries, its light compared per region named by what each pixel's first ray met, with a window and commands showing the probes, their textures and the frame against the reference, each part left out by a toggle | to consider, for Bevy's probes and Solari as it draws them | has (`0a43cf1a`, `575f5f66`, `a9f9c56d`), the shaders plain Slang |
 | The test host's C allocator held to two arenas on glibc, since a GPU driver starts threads for every app and each thread's arena keeps what the app freed, some ten megabytes an offscreen app, so a suite of many apps stays under its cap | has (`4acec927`, `suite.runsettings`, thirty apps growing 18 MB where they grew 317) | has (the Linux job's `MALLOC_ARENA_MAX=2`, the hundred-app test's 160 MB held) |
 | The build's caches, the compiler's targets of every profile and the container's, each with a bound a script holds them to before every build and said in BUILDING.md, its incremental state let go first and the whole only when that is not enough, since unbounded they filled the machine's home disk on 2026-10-10 and a capture was lost to it | has (`9d2f7e31`, `build/trim-caches.sh`, 171 GB given back) | to consider, its Mesa build and test outputs small today |
 | A compute shader's march that leaves a wall's inside by a loop nested in it or by a `break`, inlined into a pass that runs it at many hits, lost an NVIDIA device with an MMU fault through the constant cache (Xid 31) that the validation layer's GPU-assisted checks found no read out of range for and lavapipe never met; the march ends by its own condition, its inner quantity read once after it, and a loss is counted by the kernel's Xids for the run's own process, since the app's log names only a loss that comes before the run ends; the checks are run on a loss first, since they name a real read out of range where there is one | to meet where Slang is written to SPIR-V for a compute pass | has met it (`34f39fcb`, `0f5cdbcf`, `glow.slang`), the checks naming `field_stamp`'s read 12 bytes past its buffer on the way |
@@ -213,7 +213,7 @@ table also answers whether the two agree.
 | Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, the cheatsheet at the root beside the README, `.github/` for somebody working on it | taken at `a0b1fa3`, 24 pages | has (`df8f633e`, 15 pages), the README being the model |
 | The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | taken at `a0b1fa3` | has (`c8cce1ce`) |
 | A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
-| Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
+| Every link in the README and the guide into the repository followed by a test of the suite, with no request made, and outside links by hand | taken at `a0b1fa3` as a workflow job, into the suite with item 24 (Decision 36, 2026-10-17) | has (`DocumentLinkTests`, `07c15314`) |
 | Every C# block of the guides built on the packed package by the workflow, a fragment after the lines a comment before it gives, a block marked not compiled left out with its reason, an error said at the page's line | taken at `bc90a7a`, `build/docs-on-package.py` with this library's usings, 192 of 193 blocks on its first run | has (`build/docs-on-package.py`, `a4f31573`), three faults found in 138 blocks on its first run |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
