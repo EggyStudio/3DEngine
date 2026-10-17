@@ -74,7 +74,7 @@ internal static class CliDispatch
         CliError? failure;
         ulong? held;
         Func<string?>? pending;
-        using (ConsoleHost.Lend(world, app))
+        using (ConsoleHost.Lend(world, app, request.Caller))
         {
             answer = ConsoleCommands.Run(line);
             failure = ConsoleHost.Failure;

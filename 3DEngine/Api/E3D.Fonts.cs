@@ -695,8 +695,9 @@ public static partial class E3D
             ApiLogger.Warn($"LoadFontFromMemory: the {fileData.Length} bytes are not a font the engine reads, {problem}. Using the default font.");
             return GetFontDefault();
         }
-        // The atlas is told the bytes are not its own to free, and they stay pinned with the ranges
-        // until the bake is done, since it reads both as it builds.
+        // The atlas is told the bytes are not its own, so it copies them as the font is added,
+        // while they are pinned, and the ranges stay pinned until the bake is done, since it reads
+        // them as it builds.
         return LoadAsked("LoadFontFromMemory", $"{fileData.Length} bytes", fileData, fontSize, codepoints ?? [.. Enumerable.Range(0x20, 0xE0)],
             (size, ranges) => atlas =>
             {

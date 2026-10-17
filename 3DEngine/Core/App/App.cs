@@ -52,6 +52,11 @@ public sealed partial class App : IDisposable
     private ulong _frameCount;
     private bool _disposed;
 
+    // Whether the process's exit is logged, which the first app asks for. A process that ends of its
+    // own, by returning from its entry point, by Environment.Exit or on SIGTERM, logs its exit code
+    // last, so a log that stops without that line ended in a kill or a fault no handler ran for.
+    private static int _exitLogged;
+
     /// <summary>
     /// Initializes a new <see cref="App"/> instance, configuring the file logger, startup banner,
     /// and inserting the <see cref="Config"/> and <see cref="ScheduleDiagnostics"/> resources into the <see cref="World"/>.
@@ -80,6 +85,8 @@ public sealed partial class App : IDisposable
         FileLoggerProvider.Initialize(logPath);
 
         Log.PrintStartupBanner();
+        if (Interlocked.Exchange(ref _exitLogged, 1) == 0)
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => Logger.Info($"The process exits with code {Environment.ExitCode}.");
         Logger.Info("Creating App instance...");
 
         var cfg = RunMode.Apply(config ?? Config.Default);

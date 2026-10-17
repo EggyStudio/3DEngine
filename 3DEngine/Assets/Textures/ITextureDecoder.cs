@@ -102,7 +102,7 @@ internal sealed class TextureDecoderRegistry
     public ITextureDecoder? FindDecoderByFormat(string formatId)
         => _byFormat.TryGetValue(formatId, out var d) ? d : null;
 
-    /// <summary>All currently registered extensions (for <see cref="TextureAssetLoader"/> wiring).</summary>
+    /// <summary>All currently registered extensions (read by <see cref="TextureAssetLoader"/>).</summary>
     public IReadOnlyCollection<string> Extensions => _byExtension.Keys;
 
     /// <summary>All currently registered decoders.</summary>

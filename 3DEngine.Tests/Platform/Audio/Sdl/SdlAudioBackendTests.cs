@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace Engine.Tests.Audio.Sdl;
 
 /// <summary>
-/// Tests for the SDL3 audio backend wiring. CI hosts typically lack an audio device,
+/// Tests for the SDL3 audio backend's setup. CI hosts typically lack an audio device,
 /// so the tests assert the backend's fail-soft contract. It installs on the
 /// <see cref="AudioServer"/>, leaves <see cref="IAudioBackend.IsInitialized"/> at
 /// <c>false</c> when no device is available, and turns every subsequent method call

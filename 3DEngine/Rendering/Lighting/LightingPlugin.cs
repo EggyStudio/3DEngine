@@ -1,11 +1,11 @@
 namespace Engine;
 
 /// <summary>
-/// Wires the lighting subsystem. It schedules <see cref="LightSpawnSystem"/> in
+/// Sets up the lighting. It schedules <see cref="LightSpawnSystem"/> in
 /// <see cref="Stage.PreUpdate"/> (after <c>SceneSpawnSystem</c>) so payloads attached by
-/// <see cref="SceneSpawner"/> become first-class <see cref="Light"/> components on the
-/// same frame, and registers <see cref="LightExtract"/> with the <see cref="Renderer"/>
-/// so those lights are surfaced to the render world each frame.
+/// <see cref="SceneSpawner"/> become <see cref="Light"/> components on the same frame, as
+/// lights spawned in code are, and registers <see cref="LightExtract"/> with the
+/// <see cref="Renderer"/> so those lights are surfaced to the render world each frame.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -44,7 +44,7 @@ internal sealed class LightingPlugin : IPlugin
         {
             renderer.AddExtractSystem(new LightExtract());
             // Pack RenderLights into a per-frame UBO and publish it as
-            // FrameLightingBinding so material pipelines can wire it into their
+            // FrameLightingBinding so material pipelines can bind it in their
             // descriptor sets at draw time.
             renderer.AddPrepareSystem(new LightingUboPrepare());
             Logger.Info("LightingPlugin: LightExtract + LightingUboPrepare registered with the Renderer.");

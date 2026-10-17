@@ -55,6 +55,8 @@ cleanup() {
   : > "$finished"
   if [ -n "$restore" ]; then eval "$restore"; fi
   ./e3d stop --quiet > /dev/null 2>&1 || true
+  # A game started here that never served has no session for the stop to find.
+  if [ "$system" != Windows ] && [ -n "$pid" ] && ! ended; then kill "$pid" 2> /dev/null || true; fi
 }
 trap cleanup EXIT
 
@@ -70,50 +72,97 @@ else
   export DOTNET_DbgEnableMiniDump=1 DOTNET_DbgMiniDumpType=2 DOTNET_DbgMiniDumpName="$PWD/$dumps/%e.%p.dmp"
 fi
 
-# The game's process, read from the open's answer, and on Windows a watcher that holds it and writes
-# its exit code once it ends, since e3d started it through cmd.exe and nothing else waits on it.
-# Where a command then finds no session, the error says whether the process still runs, so it
-# stopped serving, or how it ended, which its log's tail does not say of a crash in native code.
+# The game's process, and how it ended once it has. On Windows e3d opens it through cmd.exe, and a
+# watcher holds it and writes its exit code once it ends, since nothing else waits on it. On Linux
+# and macOS e3d's shell is replaced by the game and e3d ends once the game serves, which leaves no
+# process to read how it ended, so the game is started here instead, by a shell that waits on it and
+# writes its wait status, the exit code or 128 and the number of the signal that ended it. Where a
+# command then finds no session, the error says whether the process still runs, so it stopped
+# serving, or how it ended, which its log's tail does not say of a kill or a crash in native code.
+# Each opening has files of its own, so a line the last one's shell writes late is not read as this
+# one's.
 pid=""
-exited="captures/$name-exit.txt"
-watch() {
-  pid=$(perl -MJSON::PP -0777 -ne 'my $answer = eval { decode_json($_) } or exit; print $answer->{data}{pid} // ""' "$opened")
-  rm -f "$exited"
-  if [ "$system" = Windows ] && [ -n "$pid" ]; then
-    powershell.exe -NoProfile -NonInteractive -Command \
-      "\$p = Get-Process -Id $pid -ErrorAction Stop; \$null = \$p.Handle; \$p.WaitForExit(); '0x{0:X8}' -f \$p.ExitCode" \
-      < /dev/null > "$exited" 2> /dev/null &
+opened="captures/$name-opened.json"
+openings=0
+died=""
+start() {
+  openings=$(( openings + 1 ))
+  exited="captures/$name-exit-$openings.txt"
+  local started="captures/$name-pid-$openings.txt"
+  rm -f "$exited" "$started"
+  pid=""
+  if [ "$system" = Windows ]; then
+    # The path without the .exe a Windows build gives it, which ./e3d finds. Its answer goes to a
+    # file and is read from there, since the game is started holding every handle e3d holds, a pipe
+    # around it among them, and $(...) would wait on that pipe until the game ends.
+    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --json > "$opened" || return 1
+    pid=$(perl -MJSON::PP -0777 -ne 'my $answer = eval { decode_json($_) } or exit; print $answer->{data}{pid} // ""' "$opened")
+    if [ -n "$pid" ]; then
+      powershell.exe -NoProfile -NonInteractive -Command \
+        "\$p = Get-Process -Id $pid -ErrorAction Stop; \$null = \$p.Handle; \$p.WaitForExit(); '0x{0:X8}' -f \$p.ExitCode" \
+        < /dev/null > "$exited" 2> /dev/null &
+    fi
+    return 0
   fi
+  # Started as e3d open starts it, from the checkout, serving, with its output in its log. The shell
+  # holds none of the step's output, which the step reads until every process holding it has ended.
+  mkdir -p "$(dirname "$log")"
+  (
+    ENGINE_VULKAN_VALIDATION=1 "$folder/$game" ${shown[@]+"${shown[@]}"} --serve < /dev/null > "$log" 2>&1 &
+    echo $! > "$started"
+    status=0
+    wait $! || status=$?
+    echo "$status" > "$exited"
+  ) < /dev/null > /dev/null 2>&1 3>&- &
+  for _ in $(seq 1 50); do [ -s "$started" ] && break; sleep 0.1; done
+  pid=$(cat "$started" 2> /dev/null || true)
+  [ -n "$pid" ] || return 1
+  # It serves once a command is answered, which its first frame does, and is given the minute e3d
+  # open gives a game.
+  local until=$(( SECONDS + 60 ))
+  while [ "$SECONDS" -lt "$until" ]; do
+    ./e3d command --session "$pid" frames.wait 0 --quiet --timeout 10 > /dev/null 2>&1 && return 0
+    [ -s "$exited" ] && return 1
+    sleep 0.5
+  done
+  return 1
 }
-# What an exit code on Windows means, as e3d names it where a game ends before it serves.
+# What an exit code means, as e3d names it where a game ends before it serves, on Windows its
+# NTSTATUS and elsewhere 128 and the signal's number for a game a signal ended.
 meaning() {
   case "$1" in
-    0x00000000) echo ", of its own" ;;
+    0|0x00000000) echo ", of its own" ;;
     0xC0000005) echo ", an access violation" ;;
     0xC00000FD) echo ", a stack overflow" ;;
     0xC0000409) echo ", a fail-fast, as .NET's on a fatal error" ;;
     0xC0000374) echo ", a corrupted heap" ;;
     0xE0434352) echo ", a .NET exception no one caught" ;;
+    134) echo ", SIGABRT, as .NET's abort on a fatal error" ;;
+    137) echo ", SIGKILL, as the kernel's out-of-memory killer or a kill sends" ;;
+    139) echo ", SIGSEGV, a fault in native code" ;;
+    143) echo ", SIGTERM" ;;
+    129|13[0-9]|14[0-9]|15[0-9]) echo ", signal $(( $1 - 128 ))" ;;
   esac
 }
-# Where the session went, whether the game's process still runs and, ended, its exit code and the
-# description of the last crash of it Windows logged, the faulting module and the exception's code
-# for a native one and the exception for a managed one. Git's bash would turn the Windows tools'
-# arguments that begin with a slash into paths, which MSYS2_ARG_CONV_EXCL stops.
-whereabouts() {
-  [ -n "$pid" ] || { echo "its process not known"; return; }
-  local alive=no code="" logged=""
+# Whether the game's process has ended. Git's bash would turn the Windows tools' arguments that
+# begin with a slash into paths, which MSYS2_ARG_CONV_EXCL stops. A process killed and not yet
+# reaped is a zombie, which ps marks Z and kill -0 still finds.
+ended() {
   if [ "$system" = Windows ]; then
-    MSYS2_ARG_CONV_EXCL='*' tasklist.exe /FI "PID eq $pid" /NH 2> /dev/null | grep -q " $pid " && alive=yes
+    ! MSYS2_ARG_CONV_EXCL='*' tasklist.exe /FI "PID eq $pid" /NH 2> /dev/null | grep -q " $pid "
   else
-    # A process killed and not yet reaped is a zombie, which ps marks Z and kill -0 still finds.
-    case "$(ps -o stat= -p "$pid" 2> /dev/null)" in Z*|"") ;; *) alive=yes ;; esac
+    case "$(ps -o stat= -p "$pid" 2> /dev/null)" in Z*|"") return 0 ;; *) return 1 ;; esac
   fi
-  if [ "$alive" = yes ]; then echo "its process $pid still runs, so it stopped serving"; return; fi
+}
+# How the game's process ended, its exit code and, on Windows, the description of the last crash of
+# it Windows logged, the faulting module and the exception's code for a native one and the
+# exception for a managed one.
+how() {
+  local code="" logged=""
+  # The watcher or the shell writes its line a moment after the process ends.
+  for _ in 1 2 3 4 5 6 7 8 9 10; do [ -s "$exited" ] && break; sleep 0.5; done
+  [ -s "$exited" ] && code=$(tr -d '\r\n' < "$exited")
   if [ "$system" = Windows ]; then
-    # The watcher writes its line a moment after the process ends.
-    for _ in 1 2 3 4 5 6 7 8 9 10; do [ -s "$exited" ] && break; sleep 0.5; done
-    [ -s "$exited" ] && code=$(tr -d '\r\n' < "$exited")
     logged=$(MSYS2_ARG_CONV_EXCL='*' wevtutil.exe qe Application "/q:*[System[(EventID=1000 or EventID=1026)]]" /c:5 /rd:true /f:text 2> /dev/null \
       | tr -d '\r' | awk -v exe="$(printf '%s' "$game" | tr '[:upper:]' '[:lower:]').exe" '
           /^Event\[/ { if (found) exit; text = ""; inside = 0; next }
@@ -123,17 +172,38 @@ whereabouts() {
   fi
   echo "its process $pid ended${code:+ with exit code $code$(meaning "$code")}${logged:+, and Windows logged: $logged}"
 }
+# Where the session went, whether the game's process still runs and, ended, how.
+whereabouts() {
+  [ -n "$pid" ] || { echo "its process not known"; return; }
+  if ended; then how; else echo "its process $pid still runs, so it stopped serving"; fi
+}
+# Lines as one workflow command carries them, each percent sign and line's end escaped.
+escaped() { printf '%s\n' "$1" | sed 's/%/%25/g' | awk 'NR > 1 { printf "%%0A" } { printf "%s", $0 }'; }
 
 fail() {
   # The budget's error has been said, and the command its stop ended says nothing more.
   [ -e "$expired" ] && exit 1
   # The log's last lines whatever their level, since a game that died in native code logged no
   # warning, and the dumps it left. The game's output and its errors both go to its log.
-  local ending="" left="" gone=""
+  local ending="" left="" gone="" kernel="" memory="" more=""
   [ -f "$log" ] && ending=$(tail -n 3 "$log" | tr -s '\r\n' '  ' | sed 's/ *$//; s/\.$//')
   [ -d "$dumps" ] && left=$(ls "$dumps" 2> /dev/null | grep -i "^$game" | tr '\n' ' ' | sed 's/ *$//' || true)
-  grep -qE 'NO_SESSION|SESSION_UNREACHABLE' "$said" 2> /dev/null && gone=$(whereabouts)
-  echo "::error title=$heading::$game: $1${gone:+, and $gone}.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
+  if grep -qE 'NO_SESSION|SESSION_UNREACHABLE' "$said" 2> /dev/null; then
+    gone=$(whereabouts)
+    if [ -n "$pid" ] && ended; then died=yes; fi
+  fi
+  # A game that died on Linux adds the kernel's last lines, which name what the out-of-memory killer
+  # chose or a fault the kernel saw, and the processes holding the most memory as it failed, said
+  # on the step's output as well. The runner's sudo asks no password, and elsewhere dmesg is tried
+  # as the user.
+  if [ "$died" = yes ] && [ "$system" = Linux ]; then
+    kernel=$( { sudo -n dmesg 2> /dev/null || dmesg 2> /dev/null || true; } | tail -n 30)
+    [ -n "$kernel" ] || kernel="(none, since dmesg could not be read)"
+    memory=$(ps -eo pid,rss,etime,args --sort=-rss 2> /dev/null | head | cut -c1-200 || true)
+    printf "The kernel's last lines:\n%s\nThe processes holding the most memory, in kilobytes:\n%s\n" "$kernel" "$memory" >&3
+    more="%0A%0AThe kernel's last lines:%0A$(escaped "$kernel")%0A%0AThe processes holding the most memory, in kilobytes:%0A$(escaped "$memory")"
+  fi
+  echo "::error title=$heading::$game: $1${gone:+, and $gone}.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}$more" >&3
   exit 1
 }
 # A command e3d refuses fails with its code and sentence, which it writes to standard error, kept in
@@ -155,6 +225,10 @@ moved() {
 
 dotnet restore "games/$game" --force-evaluate > /dev/null || fail "did not restore"
 dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from the package"
+# The servers the builds before the game leave running, MSBuild's nodes and the compiler's, are shut
+# down before it is played, since on a runner they hold memory the game and lavapipe need, and a game
+# the kernel kills for memory says nothing in its log.
+dotnet build-server shutdown > /dev/null 2>&1 || true
 folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
   "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt"
@@ -171,14 +245,15 @@ rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-setting
   ./e3d stop --quiet > /dev/null 2>&1 || true
 ) &
 
-# The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
-# opening it refuses says e3d's code and sentence and the last lines of the log it names, read
-# from the path it gives, which perl reads from the answer on every system the job runs on. The
-# answer goes to a file and is read from there, since on Windows the game is started holding every
-# handle e3d holds, a pipe around it among them, and $(...) would wait on that pipe until the game
-# ends.
-opened="captures/$name-opened.json"
-if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --json > "$opened"; then
+# An opening that fails says why. On Linux and macOS that is how the game's process ended, or that
+# it still runs and has not served. On Windows e3d's answer is kept, so an opening it refuses says
+# e3d's code and sentence and the last lines of the log it names, read from the path it gives,
+# which perl reads from the answer.
+if ! start; then
+  if [ "$system" != Windows ]; then
+    if [ -n "$pid" ] && ended; then died=yes; fail "did not open, since $(how)"; fi
+    fail "did not serve within a minute of starting${pid:+, its process $pid still running}"
+  fi
   answer=$(cat "$opened")
   said=$(printf '%s' "$answer" | perl -MJSON::PP -0777 -ne '
     my $answer = eval { decode_json($_) } or do { s/\s+/ /g; print length ? "an answer that is not JSON, $_\n" : "nothing\n"; exit };
@@ -194,7 +269,6 @@ if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
-watch
 cmd window.size 480 270
 cmd frames.wait 30
 
@@ -415,8 +489,7 @@ case "$game" in
     echo "$ran / $watched"
     [ "${watched% watched *}" = "$ending" ] || fail "the run watched again ended elsewhere, $ending then $watched"
     ./e3d stop --quiet
-    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --json > "$opened" || fail "did not open again"
-    watch
+    start || fail "did not open again${pid:+, and $(whereabouts)}"
     cmd window.size 480 270
     cmd frames.wait 10
     cmd input.key B 2

@@ -17,7 +17,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Changes are queued on <see cref="Input"/> and made when the loop next processes events, where a
-/// real key arrives, so a raylib-style loop that reads <c>IsKeyPressed</c> before
+/// real key arrives, so a program's own loop that reads <c>IsKeyPressed</c> before
 /// <c>BeginDrawing</c> sees a press in the frame it is made for. A held key is released the same
 /// way after the last frame it was held for.
 /// </para>

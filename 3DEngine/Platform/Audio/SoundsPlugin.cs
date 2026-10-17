@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>
 /// Backend-agnostic sound plugin. Mirrors <see cref="TexturesPlugin"/>.
 /// It installs the <see cref="SoundDecoderRegistry"/>, registers the built-in
-/// <see cref="WavSoundDecoder"/>, wires the shared <see cref="SoundAssetLoader"/>
+/// <see cref="WavSoundDecoder"/>, registers the shared <see cref="SoundAssetLoader"/>
 /// with the <see cref="AssetServer"/>, inserts the <see cref="AudioServer"/>
 /// (with a <see cref="NullAudioBackend"/> until a backend plugin replaces it),
 /// and schedules the per-frame <see cref="AudioListenerSystem"/> +
@@ -17,7 +17,7 @@ namespace Engine;
 /// adds, and which leaves the server silent rather than failing where there is no audio device.
 /// </para>
 /// <para>
-/// <b>Wiring:</b> add <i>after</i> <see cref="AssetPlugin"/>;
+/// <b>Order:</b> add <i>after</i> <see cref="AssetPlugin"/>;
 /// <see cref="DefaultPlugins"/> brings this up automatically. The plugin re-syncs the
 /// shared <see cref="SoundAssetLoader"/> with the <see cref="AssetServer"/> after
 /// every backend has registered its decoders so the loader's

@@ -20,6 +20,9 @@ internal static class ConsoleHost
     /// <summary>The app whose world is lent, for its schedule, or <c>null</c> between commands.</summary>
     public static App? App { get; private set; }
 
+    /// <summary>Which process sent the running command, as its client describes itself, or <c>null</c> where none said.</summary>
+    public static string? Caller { get; private set; }
+
     internal static CliError? Failure { get; private set; }
 
     internal static ulong? Held { get; private set; }
@@ -46,22 +49,28 @@ internal static class ConsoleHost
     /// <summary>Answers later: <paramref name="poll"/> is asked once a frame until it returns an answer.</summary>
     public static void Later(Func<string?> poll) => Pending = poll ?? throw new ArgumentNullException(nameof(poll));
 
-    /// <summary>Lends <paramref name="world"/>, and the app it belongs to, to the commands run until the scope is disposed.</summary>
-    public static Scope Lend(World world, App? app = null) => new(world, app);
+    /// <summary>
+    /// Lends <paramref name="world"/>, and the app it belongs to, to the commands run until the scope
+    /// is disposed, with the process that sent them where it is known.
+    /// </summary>
+    public static Scope Lend(World world, App? app = null, string? caller = null) => new(world, app, caller);
 
     /// <summary>The span a world is lent for.</summary>
     public readonly struct Scope : IDisposable
     {
         private readonly World? _previous;
         private readonly App? _previousApp;
+        private readonly string? _previousCaller;
 
-        internal Scope(World world, App? app)
+        internal Scope(World world, App? app, string? caller)
         {
             ArgumentNullException.ThrowIfNull(world);
             _previous = World;
             _previousApp = App;
+            _previousCaller = Caller;
             World = world;
             App = app;
+            Caller = caller;
             Failure = null;
             Held = null;
             Pending = null;
@@ -72,6 +81,7 @@ internal static class ConsoleHost
         {
             World = _previous;
             App = _previousApp;
+            Caller = _previousCaller;
         }
     }
 }

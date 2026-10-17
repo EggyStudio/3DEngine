@@ -221,8 +221,8 @@ internal sealed partial class AssimpModelReader
             }
         }
 
-        // Per-vertex weights are renormalized, since source files in the wild rarely sum exactly
-        // to 1.
+        // Per-vertex weights are renormalized, since exporters write weights that rarely sum
+        // exactly to 1.
         for (int v = 0; v < vc; v++)
         {
             float sum = wts[v * 4] + wts[v * 4 + 1] + wts[v * 4 + 2] + wts[v * 4 + 3];

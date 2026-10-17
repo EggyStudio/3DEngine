@@ -242,11 +242,11 @@ The graph has five nodes. The first draws into render targets, and the rest into
 | `imgui` | Dear ImGui's draw data, through `imgui.slang` |
 
 The draw list batches consecutive shapes with the same topology, transform, depth mode and
-texture, so a scene of shapes is a handful of draw calls. Each batch's transform is a push
-constant and its texture the descriptor set. `TextureStore` and `MeshStore` queue the textures and
-meshes the flat API loads, and two prepare systems (`GpuTexturesPrepare`, `GpuMeshesPrepare`)
-upload them before the graph runs, keep their GPU objects for both passes, and destroy an unloaded
-one only after the frames in flight that might read it have finished.
+texture, so a scene of shapes takes a draw call for each change among them. Each batch's transform
+is a push constant and its texture the descriptor set. `TextureStore` and `MeshStore` queue the
+textures and meshes the flat API loads, and two prepare systems (`GpuTexturesPrepare`,
+`GpuMeshesPrepare`) upload them before the graph runs, keep their GPU objects for both passes, and
+destroy an unloaded one only after the frames in flight that might read it have finished.
 
 `GraphicsDevice` is Vulkan 1.3 over Vortice.Vulkan with dynamic rendering, three frames in
 flight and a depth buffer. `NullGraphicsDevice` stands in for it in tests. Shaders are Slang,

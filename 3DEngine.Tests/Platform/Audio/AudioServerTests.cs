@@ -241,7 +241,7 @@ public class AudioServerTests
         var backend = new RecordingBackend();
         server.SetBackend(backend);
 
-        // Two voices: one non-spatial (no spatial processor wired anyway), one spatial.
+        // Two voices, one non-spatial (no spatial processor is set anyway) and one spatial.
         server.Play(MakeSound("a.wav"), new AudioVoiceParams { Volume = 1f });
         server.PlaySpatial(MakeSound("b.wav"), new Vector3(5, 0, 0), new AudioVoiceParams { Volume = 0.5f });
 

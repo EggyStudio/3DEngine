@@ -3,13 +3,16 @@ using System.Collections.Concurrent;
 namespace Engine;
 
 /// <summary>A request the socket thread received, waiting for the main thread to answer it.</summary>
-internal sealed class CliRequest(string operation, string? line, string? id)
+internal sealed class CliRequest(string operation, string? line, string? id, string? caller = null)
 {
     private readonly TaskCompletionSource<string> _answer = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public string Operation { get; } = operation;
     public string? Line { get; } = line;
     public string? Id { get; } = id;
+
+    /// <summary>Which process sent the request, as the client describes itself, or <c>null</c> where it did not say.</summary>
+    public string? Caller { get; } = caller;
     public Task<string> Answer => _answer.Task;
 
     /// <summary>The command a held request ran, for the envelope it is answered with.</summary>
@@ -59,7 +62,7 @@ internal sealed class CliQueue
             {
                 string? answer;
                 CliError? failure;
-                using (ConsoleHost.Lend(world, app))
+                using (ConsoleHost.Lend(world, app, request.Caller))
                 {
                     answer = poll();
                     failure = ConsoleHost.Failure;

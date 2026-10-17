@@ -14,7 +14,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// This is the central data container shared across all systems. Use <see cref="InsertResource{T}"/>
-/// to store singleton-style resources and <see cref="Resource{T}"/> to retrieve them.
+/// to store resources, one of each type, and <see cref="Resource{T}"/> to retrieve them.
 /// </para>
 /// </remarks>
 /// <example>

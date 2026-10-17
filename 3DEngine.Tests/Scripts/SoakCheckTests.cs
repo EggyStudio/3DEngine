@@ -105,6 +105,37 @@ public sealed class SoakCheckTests : IDisposable
         Check(Buffers("manor", [.. walk.Select((count, i) => i < 7 ? count : count + 40)])).Exit.Should().Be(1, "past the most its whole walk holds");
     }
 
+    [NeedsPythonFact]
+    public void Manors_And_Swarms_Climbs_On_The_Pack_Run_Are_Bounded_By_What_A_Whole_Walk_Or_Turn_Holds()
+    {
+        // The least of each half on the pack run of 683e6e9d, where nothing leaked. Manor's walk
+        // entered rooms the first half never reached, its images going from 81 to 90, its descriptor
+        // sets from 82 to 95, its entity ids from 399 to 478 and its assets from 81 to 95, and
+        // Swarm's turns on a slow device reached later waves, its entity ids, the most alive at
+        // once, going from 108 to 130. Each passes under what a whole walk or turn holds and fails
+        // past it, and the same climb in a game with neither fails.
+        string Walked(string name, (int Images, int Sets, int Ids, int Assets) before, (int Images, int Sets, int Ids, int Assets) after)
+        {
+            var path = _folder.File(name + ".csv");
+            File.WriteAllLines(path, Enumerable.Range(0, 8).Select(i =>
+            {
+                var (images, sets, ids, assets) = i < 5 ? before : after;
+                return $"{10 * i} managed {50 << 20} heap {100 << 20} gen2 {i} resident {400L << 20} entities 300 entityIds {ids} " +
+                       $"assets {assets} buffers 150 images {images} descriptorSets {sets}";
+            }));
+            return path;
+        }
+
+        Check(Walked("manor", (81, 82, 399, 81), (90, 95, 478, 95))).Exit.Should().Be(0, "the rooms the second half reached are the level's");
+        Check(Walked("manor", (81, 82, 399, 81), (110, 82, 399, 81))).Exit.Should().Be(1, "images past what a whole walk holds");
+        Check(Walked("manor", (81, 82, 399, 81), (81, 115, 399, 81))).Exit.Should().Be(1, "descriptor sets past what a whole walk holds");
+        Check(Walked("manor", (81, 82, 399, 81), (81, 82, 620, 81))).Exit.Should().Be(1, "entity ids past what a whole walk holds");
+        Check(Walked("manor", (81, 82, 399, 81), (81, 82, 399, 115))).Exit.Should().Be(1, "assets past what a whole walk holds");
+        Check(Walked("swarm", (81, 82, 108, 81), (81, 82, 130, 81))).Exit.Should().Be(0, "a later wave holds more at once");
+        Check(Walked("swarm", (81, 82, 108, 81), (81, 82, 190, 81))).Exit.Should().Be(1, "entity ids past what a whole turn holds");
+        Check(Walked("slide", (81, 82, 108, 81), (81, 82, 130, 81))).Exit.Should().Be(1, "a game with no whole walk or turn to grow into");
+    }
+
     private (int Exit, string Log) Check(params string[] readings)
     {
         var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = _folder.Path, RedirectStandardOutput = true, RedirectStandardError = true });

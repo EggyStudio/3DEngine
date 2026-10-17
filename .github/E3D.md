@@ -127,6 +127,11 @@ When several are serving, a verb refuses with `AMBIGUOUS_SESSION` and lists them
 - `e3d open` failing with `NOT_BUILT` means `dotnet build 3DEngine.slnx` has not run.
 - `e3d open` failing with `NOT_READY` prints the tail of the app's log, which lives in
   `build/sessions/<example>.log`. A shader error, a missing asset or a crash is there.
+- A session that ends while it is asked something answers `SESSION_UNREACHABLE`, and its log says
+  how it ended. Every way its main loop ends logs a line naming it, the exit key, the window's
+  close, the automation's close or `app.quit` with the e3d process that sent it (on Linux with the
+  process that started that one), `CloseWindow` logs that it was called, and the process logs its
+  exit code last. A log that stops with none of these ended in a kill or a fault no handler ran for.
 
 ## Building and testing
 

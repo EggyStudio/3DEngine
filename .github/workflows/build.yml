@@ -1194,7 +1194,7 @@ jobs:
           cp build/soak/*.csv captures/
           python3 build/soak-check.py build/soak/*.csv
 
-      # Each game and a handful of examples resized, minimized and restored while they draw, under
+      # Each game and five examples resized, minimized and restored while they draw, under
       # the validation layer, then captured at the size last asked for (build/storm.sh).
       - name: Resize each game and some examples while they draw
         run: |

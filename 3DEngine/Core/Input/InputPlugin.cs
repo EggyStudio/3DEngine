@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Registers the <see cref="Input"/> resource and wires up the platform input backend.</summary>
+/// <summary>Registers the <see cref="Input"/> resource and starts the platform input backend.</summary>
 /// <remarks>
 /// During <see cref="IPlugin.Build"/>, this plugin initializes the <see cref="Input"/> resource,
 /// looks up the optional <see cref="IInputBackend"/> resource from the world, and registers a
@@ -25,7 +25,7 @@ internal sealed class InputPlugin : IPlugin
 
         if (app.World.TryGetResource<IInputBackend>(out var backend))
         {
-            Logger.Info($"InputPlugin: Wiring input backend: {backend.GetType().Name}");
+            Logger.Info($"InputPlugin: Initializing the input backend {backend.GetType().Name}.");
             backend.Initialize(app, input);
         }
         else

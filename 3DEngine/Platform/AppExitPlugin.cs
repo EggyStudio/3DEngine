@@ -21,9 +21,9 @@ internal sealed class AppExitPlugin : IPlugin
         // When the window signals quit, raise the Requested flag. A headless run has no window.
         if (app.World.TryGetResource<AppWindow>(out var window))
         {
-            window.QuitEvent += () =>
+            window.QuitEvent += why =>
             {
-                Logger.Info("Quit event received, so the app exits.");
+                Logger.Info($"The app exits, since {why}.");
                 app.World.Resource<AppExit>().Requested = true;
             };
         }

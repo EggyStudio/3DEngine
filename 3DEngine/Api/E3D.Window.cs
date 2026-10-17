@@ -42,6 +42,7 @@ public static partial class E3D
     {
         if (_app is not null)
         {
+            ApiLogger.Info("CloseWindow was called, so the app shuts down.");
             ForgetDefaultFonts();
             ForgetCompute();
         }
@@ -172,10 +173,18 @@ public static partial class E3D
         _sizeBeforeEvents = (GetScreenWidth(), GetScreenHeight());
 
         if (!Res<IMainLoopDriver>().PumpEvents())
-            _shouldClose = true;
+            SetShouldClose("the main loop's driver says the app was asked to close");
         if (_exitKey != Key.Null && Res<Input>().KeyPressed(_exitKey))
-            _shouldClose = true;
+            SetShouldClose($"the exit key, {_exitKey}, was pressed");
         _resized = (GetScreenWidth(), GetScreenHeight()) != _sizeBeforeEvents;
+    }
+
+    // Has WindowShouldClose return true from here on, and logs why the first time, so every way the
+    // main loop ends leaves a line, and a log that stops with none ended in a kill or a fault.
+    private static void SetShouldClose(string why)
+    {
+        if (!_shouldClose) ApiLogger.Info($"WindowShouldClose returns true from here on, since {why}.");
+        _shouldClose = true;
     }
 
     // Sleeps through most of what is left of the frame and spins through the last millisecond,

@@ -168,12 +168,25 @@ Prose uses the technical and generic term for a thing, the engine's own where it
 figure of speech or casual paraphrase in its place. A paraphrase reads as an explanation the first
 time and as a mannerism after, and a reader who knows the term translates it back each time.
 
+A likeness is not a description and a figure of speech is not a term, so a thing is said by what it
+is and does. Another product is named only where a rule or a number is taken from it, as the flat
+API's names are taken from raylib's functions and the draw list's batching from its rlgl layer. A
+description holds no plan, so no line says what a thing is the start of or grows toward.
+
 | instead of | write |
 |---|---|
 | `the light that bounces`, `the bounce` | `global illumination`, or `radiance cascades` where the technique is meant and `indirect light` where its effect is |
 | `a panel that gives off light`, `a glowing panel` | `an emissive panel` |
 | `drives a running program`, `driving a session` | `controls a running program through the command line`, `scripting a session` |
 | `a drive of the puzzle` | `a scripted run of the puzzle` |
+| `A voxel game in the manner of Minecraft, and the ground floor of a larger one` | `A voxel game set in an endless generated world whose blocks are placed and broken, with its light, its water, its mobs and the items they drop` |
+| `Raylib's design over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors` | `A program draws each frame with static calls named as raylib's functions are, over an ECS with a schedule of stages, and is scripted with behaviors compiled while it runs` |
+
+The idioms in the manner of, the ground floor of, out of the box, under the hood, at a glance, a
+handful of, a great deal of, in the wild, on the fly, for free, first-class, a hair apart, the
+plumbing, wiring a part up and a long way are replaced in the same way, each by the term or the
+number it stands for. A word in its literal sense stays, as the wires `DrawCubeWires` draws do and
+curves joined end to end.
 
 A name in the code keeps its spelling, such as `DrawBounceWindow`, `ModelMaterial.BouncesLight`,
 `GlowLights` and `build/drive-game.sh`, since renaming it reaches the public API, the workflows or
@@ -263,6 +276,10 @@ awk 'FNR == 1 { code = 0 } /^ *```/ { code = !code; next } !code && /[a-z)`]: /'
 # The casual paraphrases the register replaces. Names in the code and words in their own technical
 # sense are left, so each hit is read.
 git grep -n -i -E "light that bounces|the bounce|bounc(e|es|ing) (no )?light|give[sn]? off|gave off|light-giving|glowing|\bdriv(e|en|es|ing)\b" -- ':!.github/REVIEW.md'
+
+# The likenesses and idioms the register replaces. A word in its literal sense is left, so each hit
+# is read.
+git grep -n -i -E "in the manner of|ground floor|out of the box|under the hood|at a glance|a handful of|a great deal of|in the wild|on the fly|for free|first-class|a hair (apart|in front)|plumbing|\bwir(e|es|ed|ing) (up|into)\b|a long way|[a-z]-style\b" -- ':!.github/REVIEW.md'
 
 # Padded section banners.
 grep -rn "// -- .*--" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"

@@ -44,7 +44,7 @@ namespace Engine;
 /// <seealso cref="TextureLoadExtensions"/>
 internal static class ModelLoadExtensions
 {
-    // -- Loading shortcuts (SceneAsset under the hood, "Model" naming for clarity)
+    // -- Loading shortcuts, each loading a SceneAsset by a name that says it is a model
 
     /// <summary>Loads a model file as a <see cref="SceneAsset"/>. Shorthand for <c>server.Load&lt;SceneAsset&gt;(path)</c>.</summary>
     public static Handle<SceneAsset> LoadModel(this AssetServer server, string path) =>

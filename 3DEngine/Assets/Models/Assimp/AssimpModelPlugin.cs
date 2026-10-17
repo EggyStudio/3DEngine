@@ -15,7 +15,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Order:</b> add <i>after</i> <see cref="ScenesPlugin"/> and <see cref="AssetPlugin"/>;
-/// <see cref="ModelsPlugin"/> wires this up.
+/// <see cref="ModelsPlugin"/> adds this.
 /// </para>
 /// </remarks>
 /// <seealso cref="ModelsPlugin"/>

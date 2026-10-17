@@ -52,7 +52,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // The resident memory's series says whether a growth is steady, an allocation each app makes
         // and its closing does not give back, or a step taken once.
         public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
-            $"the resident memory after every ten in MB, {Residents}{Environment.NewLine}" +
+            $"{ResidentName} after every ten in MB, {Residents}{Environment.NewLine}" +
             (ResidentBeforeCensus is { } before
                 ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
                 : "") +
@@ -162,7 +162,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // Resident memory is read before any collection, since memory a closed app gives back
             // only to a finalizer is held until a full collection comes, which a program that
             // allocates little on the GC's heap may not see for hundreds of apps.
-            var resident = Environment.WorkingSet / 1e6;
+            var resident = Resident();
             residents.Add($"{i}: {resident:0.0}");
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
             // The Vulkan objects every device made and none destroyed, which a closed app's device
@@ -183,7 +183,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 (censusAt20, var failure) = HeapCensus.Take();
                 if (failure is not null) grown = $"no census, {failure}";
                 residentBeforeCensus = resident;
-                resident = Environment.WorkingSet / 1e6;
+                resident = Resident();
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -208,6 +208,23 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
         throw new InvalidOperationException("unreachable");
     }
+
+    // The process's memory in megabytes, as the bound reads it. On Windows it is the private bytes
+    // the process has committed, its commit charge, which GetProcessMemoryInfo answers, and not its
+    // working set, which Windows trims when it likes. On a runner the drawing test's working set
+    // swung 60 to 90 MB between neighboring readings with the heap flat and no Vulkan object alive,
+    // and a twentieth reading that fell in a trough failed the bound with nothing kept. BevyCSharp's
+    // memory guard reads the same figure for the same reason. Elsewhere it is the resident set,
+    // which the system trims only when memory runs short.
+    private static double Resident()
+    {
+        if (!OperatingSystem.IsWindows()) return Environment.WorkingSet / 1e6;
+        using var process = Process.GetCurrentProcess();
+        return process.PrivateMemorySize64 / 1e6;
+    }
+
+    // What Resident reads, by its name on this system, for the series a failure is read by.
+    private static string ResidentName => OperatingSystem.IsWindows() ? "the private bytes committed" : "the resident memory";
 
     // An app's handles at each step of its life, read where its log says the step was taken, each
     // step's change from the one before written as it comes and kept for a failure's message.

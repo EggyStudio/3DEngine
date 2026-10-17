@@ -271,7 +271,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     bool3 edges = bool3(((ca.w >> 24) & 1u) != 0u, ((cb.w >> 24) & 1u) != 0u, ((cc.w >> 24) & 1u) != 0u);
     float3 face = cross(b - a, c - a);
     // A triangle of next to no area beside its longest side, as a sphere's last row has at a pole
-    // whose corners the rounding of sin(pi) leaves a hair apart, has a face turned whichever way
+    // whose corners the rounding of sin(pi) leaves apart, has a face turned whichever way
     // that rounding took it, which, at a distance the triangles around it share, said cells
     // outside lay behind it and turned them inside. It holds no surface its neighbors do not, and
     // is passed over.

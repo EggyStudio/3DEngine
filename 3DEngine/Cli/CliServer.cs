@@ -103,7 +103,7 @@ internal sealed class CliServer : IDisposable
     private string Handle(string line)
     {
         string operation;
-        string? command, id, token;
+        string? command, id, token, caller;
         var patience = Patience;
         try
         {
@@ -113,6 +113,7 @@ internal sealed class CliServer : IDisposable
             command = root.TryGetProperty("line", out var body) ? body.GetString() : null;
             id = root.TryGetProperty("id", out var given) ? given.GetString() : null;
             token = root.TryGetProperty("token", out var carried) ? carried.GetString() : null;
+            caller = root.TryGetProperty("caller", out var sender) ? sender.GetString() : null;
             if (root.TryGetProperty("seconds", out var seconds) && seconds.TryGetDouble(out var wait) && wait > 0)
                 patience = TimeSpan.FromSeconds(Math.Min(wait, 24 * 60 * 60));
         }
@@ -127,7 +128,7 @@ internal sealed class CliServer : IDisposable
         if (token is null || !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(token), Encoding.UTF8.GetBytes(Token)))
             return CliJson.Fail(operation, "BAD_TOKEN", "The token did not match this session's. It is in the session file 'e3d status' reads.", id);
 
-        var request = new CliRequest(operation, command, id);
+        var request = new CliRequest(operation, command, id, caller);
         _queue.Add(request);
 
         return request.Answer.Wait(patience)

@@ -62,8 +62,8 @@ public interface IPlugin
     IReadOnlyCollection<Type> Dependencies => Array.Empty<Type>();
 
     /// <summary>
-    /// Unity-style execution order. <b>Lower values run first.</b> Default is
-    /// <see cref="PluginOrder.Default"/> (0). Foundational plugins that other plugins
+    /// The order this plugin is built in among the others. <b>Lower values run first.</b> Default
+    /// is <see cref="PluginOrder.Default"/> (0). Foundational plugins that other plugins
     /// implicitly rely on (e.g. <c>AssetPlugin</c>) should set a negative value such as
     /// <see cref="PluginOrder.Foundation"/> so they always build first when added as part
     /// of an <see cref="IPluginGroup"/>, and the plugins that use them need not declare them

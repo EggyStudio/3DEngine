@@ -10,7 +10,45 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2a02ba3e`, Verdict 62 mended and nothing else, in a commit of its own before item
+Reviewed up to `683e6e9d`, item 29 done and nothing else, 452 files. STYLE.md has the Register
+section and the colon rule after the game repository's, with the engine's pairs, the emissive panel,
+controlling a running program and a scripted run of the puzzle, a name in the code keeping its
+spelling (`DrawBounceWindow`, `BouncesLight`, `GlowLights`, `build/drive-game.sh`, the `-driven`
+captures) and a word in its technical sense keeping it (a motor or a vehicle's wheels drive, the
+main loop drives the frame, a counted bounce), and its checks read Markdown prose with awk and run
+the register's pattern through `git grep`. The sweep took the README, the cheatsheet, every guide,
+every Markdown under `.github` but the reviewer's four, the comments of the library, the shaders,
+the tests, the examples, the games, the scripts and the workflows, and the printed sentences;
+`docs/driving-with-e3d.md` is `docs/command-line.md`, titled for the command line, every link
+following, the cheatsheet's and the materials guide's sections and the global-illumination guide's
+title read Global illumination and its glowing surfaces read emissive; the window of
+`DrawBounceWindow` is titled Global illumination, every `ApiLogger` warning and the core logger put
+an exception after a full stop, the schedule's repeated-throw line reads the same way with
+`ScheduleTests` following, `gi.toggle` and `gi.state` answer in the register, `BounceReference`
+counts its bounces, test names went to the register, and four examples' on-screen text changed with
+their pictures taken again, the Cornell box's differing in its line of text alone. AGENTS.md took
+six edits the owner approved in that session, its heading, two lines of its paragraph and three
+rows. The sample read says the same things in the rule's register and loses no fact; the three hits
+left in the reviewer's files are reworded here. Checked on the working machine: the strict build,
+the whole suite 1,712 of 1,712, `NormTests` and `DocumentLinkTests` 20 of 20, `build/pack.sh`, and
+`build/docs-on-package.py` building all 148 of the guides' blocks on the package. Right. The owner
+pushed `2a02ba3e` at 16:31, before this commit, and its run ended at 17:33 with the three suites
+green, Linux in 17 minutes, macOS in 24 and Windows in 39 where it took 56 the push before, its Mesa
+cache restored at last from the job that saved it, the Linux suite the first of three toward Verdict
+62, and the examples job red after five minutes at Slide's build and play, Verdict 63. The owner
+pushed `683e6e9d` at 19:47 and started the pack run a minute after. The push run ended at 20:33
+whole green, the first under the new workflow, Linux in 11 minutes, macOS in 23, Windows in 46 and
+the examples job in 7 with Slide played, and its Linux suite is the third green in a row since
+Verdict 62's mend, which settles it. The pack run's Linux and macOS suites passed, and at 20:50
+three of its jobs are red with the two capture jobs still running. The Windows suite failed on the
+hundred-app leak test's resident figure (Verdict 64), the examples job on Slide's death after a
+gesture, as on `2a02ba3e` (Verdict 63, continued, with what the page's signature excludes), and the
+games job on the soaks of Swarm and Manor (Verdict 65), and the pack job did not run, so Decision
+42's gate is not met. At 20:34 the owner read the game's README's opening and widened Decision 43 to
+likenesses and figures of speech, item 29 open again for them. Next the three verdicts' mends and
+item 29, their push, and a pack run whole green; items 27 and 28 wait for it.
+
+Before it, `2a02ba3e` came, Verdict 62 mended and nothing else, in a commit of its own before item
 29's sweep. The name was never empty in the engine's hands. `CreateGraphicsPipeline` made the entry
 point's bytes with `Encoding.UTF8.GetBytes`, a fresh array with no terminator, wrapped in Vortice's
 `VkUtf8ReadOnlyString`, which holds a span and becomes a raw pointer when `pName` is set with
@@ -62,19 +100,6 @@ for this engine. The owner started the pack run on `534a1c2b` at 15:18 and said 
 register sweep, item 29, is done beside it. At 15:35 the pack run's Linux suite failed one test,
 Verdict 62, with Windows and macOS still playing their games, so Decision 42's gate waits for the
 mend and a pack run after it.
-
-Before it, `2206a2f4` came, the review's record alone, `.github/REVIEW.md` and nothing else,
-committed so the runs of `fc5fdc97` stand where the next reader finds them. Right. A push of it
-starts no run: `build.yml` runs on a push only where a path outside `.github/**.md` changed, its
-`paths` list at line 12, and has no `workflow_dispatch`, so a commit of documents cannot be Decision
-39's third push, and nothing on this engine is left to mend. Two ways, the owner's to choose: every
-job of the push run of `fc5fdc97` run again from its page, a second attempt on the same code, which
-is the test of consistency the decision asks and counts as the third if whole green, the pack run of
-`fc5fdc97` already green after it; or the two green pushes and the green pack run taken as enough.
-On 2026-10-17 the owner ordered two workflows an engine and the voxel game's move to its own
-repository, Decisions 40 to 42 and items 26 to 28; the rework is the first work on both engines, and
-a green push and a green pack run under the new workflows are Decision 39's gate before features
-resume.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1080,41 +1105,52 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     owner's, Ore unless told otherwise. Checked by `NormTests`, `build/drive-game.sh Ore`, the soak
     and the storm, and the pack run playing it on three systems.
 
-29. **The register: STYLE.md's rule and the sweep (Decision 43), under way on the owner's word of
-    15:19, beside item 26's pack run.** STYLE.md gains a section, Register: prose uses the technical
-    and generic term, the engine's own where it has one, and no figure of speech or casual
-    paraphrase, with the pairs the owner named and their replacements: the light that bounces
-    becomes global illumination, radiance cascades where the technique is meant and indirect light
-    where the effect is; gives off light and glowing become emissive; driving a running program
-    becomes controlling or scripting it through the command line, and a drive a scripted run or a
-    course. The colon joins it: STYLE.md's rule, which allows a colon before a list, tightens so
-    that a running sentence holds none, the sentence recast or split where one appended an
-    elaboration or a list, as in "makes the program the README opens with: a window with a turning
-    cube"; a colon stands before a bulleted list, a code block or a command, and as a label in a
-    table, and STYLE.md's check of colons joining clauses reads prose lines of Markdown as well as
-    comments. The sweep covers README.md, `docs/`, AGENTS.md, every Markdown under `.github`, the
-    comments of the code, the scripts and the workflows, and the sentences a program prints; 72
-    files hold the first pair some 170 times, 20 documents the drive words some 80 times, and a
-    rough count finds a colon inside a sentence on some 230 prose lines of the documents and 375
-    comment lines of the library and the examples. `docs/driving-with-e3d.md` becomes
-    `docs/command-line.md`, titled for the command line, its links following, which
-    `DocumentLinkTests` holds; job and script names stay as identifiers (`build/drive-game.sh`, the
-    captures named `-driven`) with their comments reworded, since their renames reach workflows and
-    tests. The REVIEW.md, NORM.md and SHARED.md lines are the reviewer's and are swept already.
-    Checked by `NormTests`, `DocumentLinkTests` and `git grep -i` for the pairs finding the
-    channel's history alone. One commit. The game's repository did this first at its `b87e386`, and
-    its STYLE.md's Register section and colon rule, with their checks, are the text to take, with
-    the engine's examples in place of the game's. Two things it found of the engine's:
-    `DrawBounceWindow` titles its window "Light that bounces", which becomes "Global illumination",
-    and the API logger's warnings put the exception after a colon, which becomes a full stop.
+29. **The register: STYLE.md's rule and the sweep (Decision 43), done at `683e6e9d`, open again for
+    the figures Decision 43 adds.** STYLE.md gains a section, Register: prose uses the technical and
+    generic term, the engine's own where it has one, and no figure of speech or casual paraphrase,
+    with the pairs the owner named and their replacements: the light that bounces becomes global
+    illumination, radiance cascades where the technique is meant and indirect light where the effect
+    is; gives off light and glowing become emissive; driving a running program becomes controlling
+    or scripting it through the command line, and a drive a scripted run or a course. The colon
+    joins it: STYLE.md's rule, which allows a colon before a list, tightens so that a running
+    sentence holds none, the sentence recast or split where one appended an elaboration or a list,
+    as in "makes the program the README opens with: a window with a turning cube"; a colon stands
+    before a bulleted list, a code block or a command, and as a label in a table, and STYLE.md's
+    check of colons joining clauses reads prose lines of Markdown as well as comments. The sweep
+    covers README.md, `docs/`, AGENTS.md, every Markdown under `.github`, the comments of the code,
+    the scripts and the workflows, and the sentences a program prints; 72 files hold the first pair
+    some 170 times, 20 documents the drive words some 80 times, and a rough count finds a colon
+    inside a sentence on some 230 prose lines of the documents and 375 comment lines of the library
+    and the examples. `docs/driving-with-e3d.md` becomes `docs/command-line.md`, titled for the
+    command line, its links following, which `DocumentLinkTests` holds; job and script names stay as
+    identifiers (`build/drive-game.sh`, the captures named `-driven`) with their comments reworded,
+    since their renames reach workflows and tests. The REVIEW.md, NORM.md and SHARED.md lines are
+    the reviewer's and are swept already. Checked by `NormTests`, `DocumentLinkTests` and `git grep
+    -i` for the pairs finding the channel's history alone. One commit. The game's repository did
+    this first at its `b87e386`, and its STYLE.md's Register section and colon rule, with their
+    checks, are the text to take, with the engine's examples in place of the game's. Two things it
+    found of the engine's: `DrawBounceWindow` titles its window "Light that bounces", which becomes
+    "Global illumination", and the API logger's warnings put the exception after a colon, which
+    becomes a full stop. Open again on 2026-10-17 at 20:34 for the figures Decision 43 adds, a
+    likeness in place of a description and an idiom in place of a term. In the manner of raylib
+    stands in `3DEngine/Api/E3D.cs:4`, `.github/DESIGN.md:116` and `3DEngine.Examples/Program.cs:3`;
+    out of the box in `3DEngine/Assets/Textures/TexturesPlugin.cs:61`; under the hood in
+    `3DEngine/Assets/Models/ModelLoadExtensions.cs:47`; in the wild in
+    `3DEngine/Assets/Models/Assimp/AssimpModelReader.Meshes.cs:224`; a great deal of in
+    `3DEngine.Examples/Shaders/ShadersMandelbrotSet.cs:87`; a handful of in
+    `.github/ARCHITECTURE.md:245`, `.github/TODO.md:227` and `build.yml:1197`; and whatever a sweep
+    for such figures finds beside them, STYLE.md's Register section carrying the rule with the
+    owner's example. `AGENTS.md:93` and the game's files leave with item 27, and the reviewer's line
+    in NORM.md is reworded here. Done when committed.
 
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 61 are settled on the runs of
-`fc5fdc97` and `534a1c2b` on 2026-10-17, said under each. Verdict 62 is open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
+`fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, said under each. Verdicts 63 to 65
+are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1237,7 +1273,99 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     Linux suites in a row after the mend. Mended at `2a02ba3e`: the entry point's and the
     application's names handed to Vulkan null-terminated on the stack where unpinned arrays were, an
     empty entry point refused where the shader is made, and a test making pipelines under forced
-    compacting collections.
+    compacting collections. Settled on the Linux suites of the push of `2a02ba3e` and of the push
+    and the pack run of `683e6e9d`, 2026-10-17, three green in a row after the mend.
+
+63. **Slide's process ends in its startup on the Linux examples job, after the swapchain's resize,
+    with nothing logged.** On the push of `2a02ba3e`, 2026-10-17, the examples job failed at Slide's
+    build and play in its fifth minute: `frames.wait 10` ended with 4, the session accepting the
+    connection and saying nothing, its process ended, and the log's last lines the offscreen frames
+    made at 480 by 270, the swapchain resized and the resize complete, as Verdict 57's Linux death
+    ended on `88673244` and `c6579710` and never again through the runs since, which settled 57 on
+    two green puzzle steps. The death leaves a dump since `b3895bd4`, the runtime's under
+    `captures/dumps`, which the job uploads in `example-captures`, and that artifact needs a
+    signed-in download. Verdict 62 found a pointer into unpinned managed memory handed to Vulkan,
+    which a collection moved before the driver read it; a process that dies with nothing logged in
+    the frames after the swapchain is made is what another such handoff does, so it is the first
+    suspect. Two things: the dump read, its faulting thread and frame named here; and every handoff
+    of managed memory to a native call read for its pinning, the span-to-pointer conversions
+    Vortice's types make, SDL's calls given strings or arrays, the audio and input paths, with a
+    test under forced compacting collections where one is found unpinned, as
+    `PipelineEntryNameTests` is. Settled when the dump's cause is mended and the puzzle step passes
+    on three pushes in a row. Read the same day without the dump: every `fixed` block of the Vulkan
+    device, every create-info pointer, the native callbacks, SDL's icons, audio and strings,
+    Assimp's file callbacks and ImGui's fonts hold their memory pinned or copied for as long as the
+    native side reads it, the font bake from memory proven so under forced compacting collections of
+    every generation, so no second handoff of Verdict 62's kind stands; and forty openings of Slide
+    on lavapipe under the validation layer, each as `build/drive-game.sh` opens it, died in none,
+    which leaves the dump to name the thread, SDL's audio thread the first suspect since the first
+    sound plays at the opening click. On the pack run of `683e6e9d`, 2026-10-17, the examples job
+    failed the same way in its fifth minute, `frames.wait 10` after a gesture ending with 4, the
+    process ended and the log ending at the resize, where the push run of the same commit an hour
+    before played Slide through, so the death is two of the four examples jobs under the new
+    workflow, each after the click or the drag that plays the first sound, and two of them passed.
+    What the page says excludes more than it names. The error names a dump when one is left and
+    named none, so the runtime's crash path was not taken, which `DOTNET_DbgEnableMiniDump` takes
+    for a fault on any thread, managed or not, saying so on standard error on the way, and the log
+    holds that stream since `e3d open` sends both to it; a managed exception no one caught would
+    have printed its lines there as well, and every end of the main loop that logs, the quit event
+    and `AppExitPlugin`'s exit, logged nothing. What is left is a kill from outside the process,
+    `SIGKILL` from the kernel's out-of-memory killer or from a `Kill`, twelve `dotnet build` runs
+    having left their MSBuild nodes and compiler server alive in the step; a fault whose handler
+    could not run, a stack overflow on a thread the runtime does not own, SDL's audio thread or
+    lavapipe's rasterizer threads; or an end the engine takes without a line, the automation's
+    window close, the main-loop driver's pump returning false and `CloseWindow` itself, which log
+    nothing. So the artifact's dumps hold nothing, and the dump is asked no more. Three things in
+    its place, each cheap. Every way the main loop ends logs one line naming it, the exit key, the
+    driver's pump, the automation's close, `app.quit` with its caller and the quit event,
+    `CloseWindow` logs that it was reached and `ProcessExit` the exit code, so a silent log means a
+    kill. `build/drive-game.sh` on Linux and macOS opens the program through a wrapper that waits on
+    it and writes its wait status, so `whereabouts` says the exit code or the signal there as it
+    does on Windows, 137 for the kernel's kill, 139 for a fault and 0 for an end of its own. And a
+    death on Linux adds to the error the kernel's last lines (`sudo dmesg | tail -n 30`, which the
+    runner allows) and the processes holding the most memory (`ps -eo pid,rss,etime,args --sort=-rss
+    | head`), and the step shuts the build servers down (`dotnet build-server shutdown`) after the
+    twelve builds and before Slide is played. Settled as before, the cause mended and three green
+    puzzle steps in a row.
+
+64. **The hundred-app leak test reads the working set on Windows, which the system trims, so its
+    baseline fell in a trough and the test failed with nothing leaking.** On the pack run of
+    `683e6e9d`, 2026-10-17, the Windows suite failed one of the 1,661 tests it ran, `AppLeakTests`'
+    hundred offscreen apps that draw, the resident memory at the last app 320.5 MB against 230.4 at
+    the twentieth, 90 over the 50 allowed, while the heap stood at 38 MB from the tenth app to the
+    hundredth, no Vulkan object was alive after the last and the threads were 23 to 25 throughout;
+    the push run's Windows suite of the same commit, an hour before, passed it. The ten readings run
+    291, 230, 290, 299, 296, 311, 315, 313, 254 and 321, swinging 60 to 90 MB between neighbors with
+    no climb, and the figure is `Environment.WorkingSet` (AppLeakTests.cs:165, 186), the working set
+    Windows trims when it likes, which the drawing leak test's resident bound met on 2026-10-12 and
+    BevyCSharp's memory guard met in its Verdict 14, mended there by reading the private bytes
+    committed, which Windows cannot trim. The mend is one thing. The test's resident figure on
+    Windows becomes the private bytes, `Process.PrivateMemorySize64`, the commit charge
+    `GetProcessMemoryInfo` answers, with the reason in the test's comment, the figure Linux and
+    macOS read staying; and whether the bound of 50 stands is said with the series the new figure
+    gives on the Windows suites, under N 3.5. Settled at three green Windows suites in a row after
+    the mend.
+
+65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
+    run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
+    lavapipe at once, failed two. Manor's images climbed at their least from 81 to 90 past a bound
+    of 87, its descriptor sets from 82 to 95 past 90, its entity ids from 399 to 478 past 448 and
+    its assets from 81 to 95 past 93, its resident memory 548 MB at the first reading kept and 573
+    at the last; Swarm's entity ids climbed from 108 to 130 past 128, its resident memory 460 then
+    462. The check's own comment says what Manor does, its walk on the runner's four cores entering
+    rooms the first half never reached, so the least climbs with the world, and the WHOLE table
+    gives its buffers the most a whole walk holds, 162, and nothing else, where the images, the
+    descriptor sets, the entity ids and the assets of a streamed level climb for the same reason.
+    Swarm's soak sets wave 3 at every turn, so a count that still climbs across turns is what a turn
+    leaves behind, drops, projectiles or the effects of the dead, 22 ids in two minutes, or the
+    wave's own size varying from turn to turn. Two things follow. Manor's four figures are measured
+    over a whole walk on the development machine's GPU and on lavapipe, as the buffers were, and
+    written into WHOLE with the command that measured them (N 3.6), or the soak's course walks the
+    level whole before the readings judged begin. Swarm is read for what a turn at wave 3 leaves
+    alive after the next turn's reset, a leak of entities mended where one is found, and otherwise
+    its entity ids given the most a turn holds in WHOLE the same way; the soak passed on the pack
+    run of `fc5fdc97`, so the climb depends on how far the device gets in two minutes. Settled when
+    the games job's soak passes on a pack run.
 
 ## Decisions
 
@@ -1532,9 +1660,22 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     rules with these pairs in each repository, every document, comment and message a reader sees is
     swept (items 29 here, 25 in BevyCSharp, 4 in Voxel-Sandbox), and an identifier keeps its name
     unless the rename is cheap and the thing is new, as the game's `build/drive.sh` is; a new name
-    follows the rule.
+    follows the rule. On 2026-10-17 at 20:34 the owner read the game's README's opening, "A voxel
+    game in the manner of Minecraft, and the ground floor of a larger one", and asked that no
+    phrasing of the kind stand either. A likeness is not a description and a figure of speech is not
+    a term, so a thing is said by what it is and does, another product is named only where a rule or
+    a number is taken from it, as the game's sizes, speeds and light levels are, and a plan is not
+    written into a description. The idioms the three repositories hold go with it, in the manner of,
+    the ground floor of, out of the box, under the hood, at a glance, a handful of, in the wild, a
+    great deal of, the knob, the plumbing and a long way among them, items 29 here, 25 in BevyCSharp
+    and 5 in Voxel-Sandbox; a word in its literal sense stays, a box a joint leaves or a road to a
+    signpost.
 
 ## Replies
+
+
+
+
 
 
 

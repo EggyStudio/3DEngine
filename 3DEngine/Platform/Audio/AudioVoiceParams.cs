@@ -8,7 +8,7 @@ namespace Engine;
 /// <remarks>
 /// <see cref="Position"/> being non-null marks the voice as <i>spatial</i>: the backend
 /// is expected to apply 3D distance attenuation, panning, and (when an
-/// <see cref="ISpatialAudioProcessor"/> is wired) HRTF / occlusion. Null position
+/// <see cref="ISpatialAudioProcessor"/> is set) HRTF / occlusion. Null position
 /// requests a 2D mix at the supplied <see cref="Volume"/>.
 /// </remarks>
 public readonly record struct AudioVoiceParams

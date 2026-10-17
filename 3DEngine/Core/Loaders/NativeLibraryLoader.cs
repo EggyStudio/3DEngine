@@ -55,7 +55,7 @@ internal sealed class NativeLibraryLoader
             _                  => RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()
         };
 
-    /// <summary>NuGet-style runtime identifier, e.g. <c>"linux-x64"</c>, <c>"win-x64"</c>, <c>"osx-arm64"</c>.</summary>
+    /// <summary>NuGet's runtime identifier, e.g. <c>"linux-x64"</c>, <c>"win-x64"</c>, <c>"osx-arm64"</c>.</summary>
     public static string RuntimeIdentifier { get; } = $"{PlatformName}-{ArchitectureName}";
 
     /// <summary>Platform native library extension including the leading dot.</summary>

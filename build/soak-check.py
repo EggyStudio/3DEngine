@@ -50,16 +50,26 @@ SLACK = {
 }
 
 
-# The most a game that streams its level holds of a value over a whole walk through it, which bounds
-# the second half's least with the same slack in place of the first half's. On a device that plays
-# two turns in the soak's two minutes, as the workflow's runner drawing every game at once on four
-# cores does, the walk enters rooms the first half never reached and the least climbs with the
-# world, as Manor's buffers did from 133 to 149 on lavapipe at a core with nothing leaking. Its
+# The most a game holds of a value over a whole walk through its level or a whole turn of its soak,
+# which bounds the second half's least with the same slack in place of the first half's. On a device
+# that plays two turns in the soak's two minutes, as the workflow's runner drawing every game at
+# once on four cores does, Manor's walk enters rooms the first half never reached and the least
+# climbs with the world, as its buffers did from 133 to 149 on lavapipe at a core and its images,
+# descriptor sets, entity ids and assets on the pack run of 683e6e9d, with nothing leaking. Its
 # buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
 # grounds and at most 158 in the house over a whole walk on the development machine's GPU and 162 on
-# lavapipe, which the device's census named (`memory.buffers`).
+# lavapipe, which the device's census named (`memory.buffers`). The other four are the most two
+# whole walks of its autopilot held at 320 by 180 on both devices, read by `memory.collect` every 60
+# frames, the second walk holding no more than the first. Swarm's soak sets wave 3 at each turn, and
+# a turn leaves nothing alive past the next one's reset, 27 entities after each of thirty, but a
+# frame on a slower device counts more of the game's time, up to the quarter second Time clamps it
+# to, so a turn of 300 frames reaches waves 4 to 6 there and holds more entities at once, and their
+# ids, which count the most ever alive at once, climb with it. Thirty turns with every frame
+# counting that quarter second (`time.frame 0.25`) held 152 ids at most on the GPU and 151 on
+# lavapipe.
 WHOLE = {
-    "manor": {"buffers": 162},
+    "manor": {"buffers": 162, "images": 92, "descriptorSets": 95, "entityIds": 539, "assets": 96},
+    "swarm": {"entityIds": 152},
 }
 
 

@@ -54,7 +54,7 @@ internal sealed class SoundDecoderRegistry
     public ISoundDecoder? FindDecoderByFormat(string formatId)
         => _byFormat.TryGetValue(formatId, out var d) ? d : null;
 
-    /// <summary>All currently registered extensions (for <see cref="SoundAssetLoader"/> wiring).</summary>
+    /// <summary>All currently registered extensions (read by <see cref="SoundAssetLoader"/>).</summary>
     public IReadOnlyCollection<string> Extensions => _byExtension.Keys;
 
     /// <summary>All currently registered decoders.</summary>

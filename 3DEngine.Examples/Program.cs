@@ -1,6 +1,6 @@
 using Engine.Examples;
 
-// Each example is a program of its own, in the manner of raylib's examples, and this file picks
+// Each example is a program of its own, named as raylib names its examples, and this file picks
 // one by name: dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 var examples = new Dictionary<string, Action>
 {

@@ -24,24 +24,24 @@ removed from this file, and an item that is partly done is rewritten around what
   RENDERING.md §6 runs it), in a frame of 17.7 ms, of which the program's loop turning every entity
   through `GetRef` took 8.4 ms, `MeshEntityDraws` 5.4 ms, the first pass, the shadows', copying the
   instances into the ring and boxing their blocks 3.2 ms, and the GPU 4.9 ms for the model pass. Two
-  changes would take more of it, and neither pays for its reach at a count no raylib-style game
-  nears. `MeshEntityDraws` writing straight into the renderer's mapped ring, across the two worlds
-  and after a pass counting each group, would save the copy's read and about 1.5 ms, since most of
-  the copy is the write into write-combined memory, which stays. An instance of a 3x4 world matrix
-  and an index into a kept table of materials, in place of 96 bytes with its color, emission and
-  factors, would halve what the gather writes and the copy moves, about 2.5 to 3 ms, and changes the
-  model pass's instance layout and every vertex stage of a program's own that reads an instance's
-  color. A chunk of 4096 entities none of which changed keeps the instances it gathered the frame
-  before, so 400,000 standing still take 2.4 ms in place of 6.0. Every instance is still copied into
-  the ring each frame, a block no pass draws with them, and one entity moving gathers its whole
-  chunk again, and neither pays to change. `./e3d command models.blocks` finds no block left undrawn
-  in `models_stress`, whose camera keeps the grid in view, in Manor's hall and grounds or in Summit,
-  which put 172 and 11 instances in groups, a copy of a few microseconds; and with one entity moving
-  (`E3D_STRESS_MOVING=1`, `E3D_STRESS_COUNT` holding the count, on 2026-10-09), `MeshEntityDraws`
-  takes 1.850 ms at 410,266 against 1.852 with none moving and 5.87 with all, and 0.15 to 0.18 ms at
-  a game's 3,000 whichever move. A frame holds about 243,000 sprites, each `DrawTexture` about 48
-  nanoseconds with the example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is
-  shared between the three.
+  changes would take more of it, and neither saves enough for the code it changes at a count no game
+  of flat calls nears. `MeshEntityDraws` writing straight into the renderer's mapped ring, across
+  the two worlds and after a pass counting each group, would save the copy's read and about 1.5 ms,
+  since most of the copy is the write into write-combined memory, which stays. An instance of a 3x4
+  world matrix and an index into a kept table of materials, in place of 96 bytes with its color,
+  emission and factors, would halve what the gather writes and the copy moves, about 2.5 to 3 ms,
+  and changes the model pass's instance layout and every vertex stage of a program's own that reads
+  an instance's color. A chunk of 4096 entities none of which changed keeps the instances it
+  gathered the frame before, so 400,000 standing still take 2.4 ms in place of 6.0. Every instance
+  is still copied into the ring each frame, a block no pass draws with them, and one entity moving
+  gathers its whole chunk again, and neither pays to change. `./e3d command models.blocks` finds no
+  block left undrawn in `models_stress`, whose camera keeps the grid in view, in Manor's hall and
+  grounds or in Summit, which put 172 and 11 instances in groups, a copy of a few microseconds; and
+  with one entity moving (`E3D_STRESS_MOVING=1`, `E3D_STRESS_COUNT` holding the count, on
+  2026-10-09), `MeshEntityDraws` takes 1.850 ms at 410,266 against 1.852 with none moving and 5.87
+  with all, and 0.15 to 0.18 ms at a game's 3,000 whichever move. A frame holds about 243,000
+  sprites, each `DrawTexture` about 48 nanoseconds with the example's loop, the upload 3.0 ms and
+  the GPU 6.3 ms, so what is left is shared between the three.
 
 - **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
   500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the
@@ -224,8 +224,8 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 Passes are drawn by dynamic rendering and barriers are synchronization2's, on Vulkan 1.3. Buffers and
 textures are carved out of blocks of 64 MiB a memory type, ten thousand buffers and three thousand
-textures in a handful of allocations, and render targets, cube maps and the frame's images keep an
-allocation each.
+textures in as many allocations as the blocks they fill, and render targets, cube maps and the
+frame's images keep an allocation each.
 
 ## Interface
 

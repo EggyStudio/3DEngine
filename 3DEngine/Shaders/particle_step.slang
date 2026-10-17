@@ -240,8 +240,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             slots[at + 1] = float4(0, 0, 0, 0);
             return;
         }
-        // The speed into the surface turned back by the share kept, and the speed along it kept,
-        // the particle lifted back out to the surface's plane where it went through, a hair in front.
+        // The speed into the surface turned back by the share kept and the speed along it kept,
+        // the particle lifted back out to the surface's plane where it went through, to 0.01 in
+        // front of it.
         float bounce = float((push.counts.z >> 23u) & 255u) / 255.0;
         float into = dot(moved, normal);
         if (into < 0.0)

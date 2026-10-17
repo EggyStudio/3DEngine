@@ -102,8 +102,8 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     protected override CSharpCompilation RunGenerators(CSharpCompilation compilation, BehaviorCompilationResult result)
     {
         // Re-run BehaviorGenerator (the same incremental generator that runs at engine compile time)
-        // against the user's hot-loaded sources so [Behavior] structs get their per-stage system code
-        // and the [GeneratedBehaviorRegistration] entry-point for free.
+        // against the user's hot-loaded sources so [Behavior] structs get the per-stage system code
+        // and the [GeneratedBehaviorRegistration] entry point the engine's build gives them.
         // The scene generator runs too, so a behavior compiled here is saved in a scene file as
         // one compiled with the program is.
         ISourceGenerator generator;

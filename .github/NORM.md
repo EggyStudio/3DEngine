@@ -167,11 +167,11 @@ that names those dashes, or carries the followed engine's own words or another's
 the tree, a vendored crate the annex names, is left out.
 
 **N 4.2 A document is in the place of its reader.** The README is for somebody deciding and has at
-most 320 lines of prose, the rows of its gallery of pictures not counted, since a picture a row is
-read at a glance where a line of prose is read, `docs/` has a page an area for somebody using the
-engine, each listed in the README, the cheatsheet is at the root, and `.github/` is for somebody
-working on the engine. A test counts the README's lines outside its tables' rows and finds every
-page of `docs/` among its links.
+most 320 lines of prose, the rows of its gallery of pictures not counted, since a row of pictures is
+read in the time a line of prose is, `docs/` has a page an area for somebody using the engine, each
+listed in the README, the cheatsheet is at the root, and `.github/` is for somebody working on the
+engine. A test counts the README's lines outside its tables' rows and finds every page of `docs/`
+among its links.
 
 **N 4.3 Every link in the README, the cheatsheet and `docs/` leads somewhere, and a link in the
 README or the cheatsheet is a full address.** The README is the package's page too, where a

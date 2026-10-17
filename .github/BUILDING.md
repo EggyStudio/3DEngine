@@ -103,8 +103,11 @@ climbed with its numbers or the command that ended its soak, and the process's r
 game that streams its level is held instead to the most a whole walk through it holds, since a slow
 device's two minutes see part of the level in each half and its least climbs with the world, as
 Manor's buffers do, a vertex and an index buffer for each mesh its cells show, 158 at most on the
-RTX 4070 and 162 on lavapipe. The pack run plays every game for two minutes at once this way, and a
-push Slide alone, and a ten-minute run of each holds level on the desktop.
+RTX 4070 and 162 on lavapipe, and its images, descriptor sets, entity ids and assets. Swarm's entity
+ids are held to the most a turn holds with every frame counting the quarter second the clock holds a
+slow device's frame to, since a turn there reaches later waves. The pack run plays every game for
+two minutes at once this way, and a push Slide alone, and a ten-minute run of each holds level on
+the desktop.
 
 `build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under

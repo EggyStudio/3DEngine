@@ -93,10 +93,10 @@ the app one frame at a time, through `App.BeginFrame` and `App.EndFrame`.
 | `EndDrawing` | `PostUpdate`, `Render` and `Last`, which apply deferred commands, render what was recorded and present, then waits for the target frame time |
 | `CloseWindow` | `Cleanup`, then disposes the app |
 
-So the frame a raylib-style loop sees and the frame an ECS system sees are the same frame, and a
-program can mix the two. `Startup` waits for the first frame, so plugins and behaviors added between
-`InitWindow` and the loop take part in it. `App.Run()` drives the same steps for a program that
-hands the loop to the engine.
+So the frame a program's own loop of flat calls sees and the frame an ECS system sees are the same
+frame, and a program can mix the two. `Startup` waits for the first frame, so plugins and behaviors
+added between `InitWindow` and the loop take part in it. `App.Run()` drives the same steps for a
+program that hands the loop to the engine.
 
 A frame's time is held to one clamp, `Time.MaxDeltaSeconds`, a quarter of a second, and
 `FixedUpdate` runs once for each whole step of it, at most fifteen of a sixtieth, dropping
@@ -113,7 +113,7 @@ no clock is read, so a test counts frames and a capture of something moving repe
 
 A `Draw` call records something into the frame's draw list and returns. Nothing it records
 outlives the frame, so a cube drawn in one frame and not the next is gone. Shapes are batched into
-lines and triangles of position and color, in the manner of raylib's rlgl layer, and drawn by one
+lines and triangles of position and color, as raylib's rlgl layer batches them, and drawn by one
 pass after the meshes the ECS holds and before ImGui.
 
 `BeginMode3D(camera)` sets the view the following calls draw through, with depth testing, and

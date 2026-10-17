@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Invokes the source-generated behavior registrations to wire systems into the app.</summary>
+/// <summary>Invokes the source-generated behavior registrations to add systems to the app.</summary>
 /// <remarks>
 /// Each assembly with behaviors adds its generated registration to <see cref="GeneratedBehaviors"/>
 /// from a module initializer as it loads, and each is invoked here with the <see cref="App"/>, so

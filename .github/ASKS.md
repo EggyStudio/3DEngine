@@ -95,7 +95,7 @@ devices that gain and the land's cost is the game's to remove by culling the sec
 see, a flood fill through the sections' open faces from the eye's as Minecraft's visibility graph
 does, measured on this room; an occlusion culling in the engine waits on that measure.
 
-### 2026-10-11, the voxel game in `3DEngine.Game`: colors written in place miss the bounce
+### 2026-10-11, the voxel game in `3DEngine.Game`: colors written in place miss global illumination
 
 On `3c7fe822`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
 white_concrete` on a flat world) built at hour 23, the game's light levels and corners then turned
@@ -182,8 +182,8 @@ cleared at 19, 5, -13 in it, each read by `./e3d command profile` from a reset b
 a read two frames after it, about four frames, five of each in turns with five of nothing, in two
 runs. The desktop's gnome-shell took 34 to 44% of the GPU through the first run and up to 19%
 through the second, so the lines are ranges over both, lowest to highest, and their medians, in
-milliseconds, the field's `scene_field` and the bounce's `global_illumination` on the CPU and on the
-GPU.
+milliseconds, the field's `scene_field` and the indirect light's `global_illumination` on the CPU
+and on the GPU.
 
 | Frames of | Field, CPU | Field, GPU | Bounce, CPU | Bounce, GPU |
 |---|---|---|---|---|

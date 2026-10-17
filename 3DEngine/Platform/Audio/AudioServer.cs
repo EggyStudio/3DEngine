@@ -22,7 +22,7 @@ namespace Engine;
 /// <para>
 /// <b>Backend swap:</b> backends are hot-swappable via <see cref="SetBackend"/>; the
 /// previous backend is stopped and disposed. The default is <see cref="NullAudioBackend"/>
-/// so all calls are safe before any real backend is wired.
+/// so all calls are safe before any real backend is set.
 /// </para>
 /// </remarks>
 public sealed class AudioServer : IDisposable
@@ -47,7 +47,7 @@ public sealed class AudioServer : IDisposable
         get { lock (_lock) return _backend; }
     }
 
-    /// <summary>Optional spatial post-processor. Returns <c>null</c> when none is wired.</summary>
+    /// <summary>Optional spatial post-processor. Returns <c>null</c> when none is set.</summary>
     public ISpatialAudioProcessor? Spatial
     {
         get { lock (_lock) return _spatial; }

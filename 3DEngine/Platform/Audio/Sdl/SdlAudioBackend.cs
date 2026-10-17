@@ -24,7 +24,7 @@ namespace Engine;
 /// <b>Voice model:</b> one <c>SDL_AudioStream</c> per voice, bound to the single
 /// logical playback device opened during <see cref="Initialize"/>. SDL converts each
 /// stream's source format (mono / stereo, native sample rate) to the device's mix
-/// format on the fly. The <see cref="AudioServer"/>'s int voice id maps to the stream
+/// format as it plays. The <see cref="AudioServer"/>'s int voice id maps to the stream
 /// pointer through an internal table; <c>0</c> always means "invalid".
 /// </para>
 /// <para>
@@ -332,7 +332,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                     return 0;
                 }
                 // Route each stream to a single device channel; pan is then a pure gain split.
-                // Note: SDL3-CS exposes this as nint (raw bool pointer-style return); 0 = failure.
+                // SDL3-CS returns SDL's bool here as an nint, 0 for failure.
                 if (SDL.SetAudioStreamOutputChannelMap(streamL, LeftOnlyMap, LeftOnlyMap.Length) == 0)
                     Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(L) failed. {SDL.GetError()}");
                 if (SDL.SetAudioStreamOutputChannelMap(streamR, RightOnlyMap, RightOnlyMap.Length) == 0)

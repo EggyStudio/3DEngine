@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Composition-root plugin that wires the Vulkan renderer to the platform window.
+/// The plugin that creates the Vulkan renderer for the platform window.
 /// Creates the <see cref="Renderer"/>, registers extract/prepare systems,
 /// initializes the Vulkan graphics context, and handles debounced resize.
 /// </summary>
@@ -71,7 +71,7 @@ internal sealed class RenderPlugin : IPlugin
             : new ClearColor(0.45f, 0.55f, 0.60f, 1.00f)); // blue-ish for SDL
         Logger.Info($"Clear color set (R={color.R:F2}, G={color.G:F2}, B={color.B:F2}, A={color.A:F2}) for {cfg.Graphics} backend.");
 
-        Logger.Info("RenderPlugin: Creating Renderer and wiring extract/prepare systems...");
+        Logger.Info("RenderPlugin: Creating Renderer and adding its extract/prepare systems...");
         var renderer = new Renderer(new RendererContext());
         renderer.AddExtractSystem(new ClearColorExtract());
         renderer.AddExtractSystem(new DrawListExtract());

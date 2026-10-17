@@ -13,7 +13,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Order:</b> add <i>after</i> <see cref="ScenesPlugin"/> and <see cref="AssetPlugin"/>;
-/// <see cref="DefaultPlugins"/> wires this up. Standalone consumers can opt in:
+/// <see cref="DefaultPlugins"/> adds this. Standalone consumers can opt in:
 /// <code>
 /// app.AddPlugin(new ScenesPlugin())
 ///    .AddPlugin(new ModelsPlugin());
@@ -29,7 +29,7 @@ internal sealed class ModelsPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("ModelsPlugin: Wiring model-import backends...");
+        Logger.Info("ModelsPlugin: Registering model-import backends...");
 
         app.AddPlugin(new AssimpModelPlugin());
 

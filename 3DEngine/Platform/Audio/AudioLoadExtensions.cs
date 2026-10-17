@@ -12,7 +12,7 @@ namespace Engine;
 /// <para>
 /// <b>Async-safe:</b> all <c>PlaySound</c> / <c>PlaySpatialSound</c> overloads return
 /// immediately with a valid <see cref="AudioSource"/> ticket even when the asset is
-/// still streaming in. <see cref="AudioServer.ResolvePending"/> finishes the wiring on
+/// still streaming in. <see cref="AudioServer.ResolvePending"/> starts the voice on
 /// the first frame the asset becomes available.
 /// </para>
 /// </remarks>

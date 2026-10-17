@@ -204,7 +204,7 @@ public static partial class E3D
                 if (TryRes<Gestures>(out var gestures)) gestures.Current = (Gesture)p0;
                 break;
             case AutomationEventType.WindowClose:
-                _shouldClose = true;
+                SetShouldClose("the automation event list being played closes the window");
                 break;
             case AutomationEventType.WindowMaximize:
                 MaximizeWindow();

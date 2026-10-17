@@ -84,7 +84,8 @@ public static class ShadersMandelbrotSet
 
             if (IsKeyPressed(Key.F1)) showControls = !showControls;
 
-            // More steps cost a great deal of time.
+            // Each step up multiplies the iterations of every pixel, and the frame's time with
+            // them, by 1.4.
             if (IsKeyPressed(Key.Up))
             {
                 maxIterationsMultiplier *= 1.4f;

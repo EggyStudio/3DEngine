@@ -47,8 +47,33 @@ internal static class CliClient
             writer.WriteString("token", token);
             if (line is not null) writer.WriteString("line", line);
             writer.WriteNumber("seconds", seconds);
+            writer.WriteString("caller", Caller.Value);
             writer.WriteEndObject();
         }
         return Encoding.UTF8.GetString(buffer.ToArray());
     }
+
+    // Which process sends the requests, for the app's log, which names the one that asked it to quit.
+    // Linux's /proc also says the process that started this one and its command line, as the script
+    // that ran e3d, so a game a script closed says which script it was.
+    private static readonly Lazy<string> Caller = new(() =>
+    {
+        var caller = $"e3d, process {Environment.ProcessId}";
+        if (!OperatingSystem.IsLinux()) return caller;
+        try
+        {
+            // The parent's id follows the state, after the command's name in parentheses, which may
+            // hold spaces of its own.
+            var stat = File.ReadAllText("/proc/self/stat");
+            var fields = stat[(stat.LastIndexOf(')') + 1)..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (fields.Length < 2 || !int.TryParse(fields[1], out var parent)) return caller;
+            var command = File.ReadAllText($"/proc/{parent}/cmdline").Replace('\0', ' ').Trim();
+            if (command.Length > 200) command = command[..200];
+            return $"{caller}, started by process {parent}{(command.Length > 0 ? $", {command}" : "")}";
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return caller;
+        }
+    });
 }

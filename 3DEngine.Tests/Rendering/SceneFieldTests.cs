@@ -477,7 +477,7 @@ public sealed partial class SceneFieldTests : IDisposable
     public void A_Sphere_Holds_Its_Distances_On_Every_Side_Its_Poles_Too(int rings)
     {
         // GenMeshSphere's last row of triangles meets its pole at corners the rounding of sin(pi)
-        // leaves a hair apart, so some there have next to no area and a face turned any way; taken
+        // leaves apart, so some there have next to no area and a face turned any way; taken
         // as faces, they turned the cells outside the pole inside, 143 of the 1662 within half a
         // unit of the sphere at 16 rings and 97 at 48, their distances 0.86 to 0.90 off, as this
         // test measured on the development machine's GPU.

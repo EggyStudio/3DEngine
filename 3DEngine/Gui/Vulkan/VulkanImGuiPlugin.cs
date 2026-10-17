@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Plugin that wires ImGui rendering into the Vulkan render graph.
+/// Plugin that adds ImGui's rendering to the Vulkan render graph.
 /// Only activates when the graphics backend is Vulkan.
 /// </summary>
 /// <remarks>

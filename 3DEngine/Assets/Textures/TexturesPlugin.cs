@@ -26,10 +26,10 @@ namespace Engine;
 ///   </description></item>
 /// </list>
 /// <para>
-/// <b>Wiring:</b> add <i>after</i> <see cref="AssetPlugin"/>; <see cref="DefaultPlugins"/>
+/// <b>Order:</b> add <i>after</i> <see cref="AssetPlugin"/>; <see cref="DefaultPlugins"/>
 /// brings this up automatically. The plugin re-registers
 /// <see cref="TextureAssetLoader"/> with the <see cref="AssetServer"/> after the bundled
-/// backends are wired so that the loader's
+/// backends are registered so that the loader's
 /// <see cref="TextureAssetLoader.Extensions"/> array reflects every extension the active
 /// backends advertise.
 /// </para>
@@ -58,7 +58,8 @@ internal sealed class TexturesPlugin : IPlugin
         var registry = new TextureDecoderRegistry();
         app.World.InsertResource(registry);
 
-        // Bring up the default backends so consumers get StbImageSharp coverage out of the box.
+        // Adds the default decoder, StbImageSharp's, so an app loads textures with no plugin of its
+        // own.
         app.AddPlugin(new StbTexturesPlugin());
 
         // After backends register their decoders, register one shared loader for all

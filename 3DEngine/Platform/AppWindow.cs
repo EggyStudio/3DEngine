@@ -24,8 +24,8 @@ internal sealed class AppWindow
     /// <summary>Raised when this window is resized.</summary>
     public event ResizeEventHandler? ResizeEvent;
 
-    /// <summary>Raised when an SDL Quit or this window is closed.</summary>
-    public event Action? QuitEvent;
+    /// <summary>Raised when an SDL Quit or this window is closed, with what asked, for the log.</summary>
+    public event Action<string>? QuitEvent;
 
     /// <summary>Raised for every SDL event polled; allows input systems to consume events.</summary>
     public event Action<SDL.Event>? SDLEvent;
@@ -137,13 +137,13 @@ internal sealed class AppWindow
 
             if (evtType == SDL.EventType.Quit)
             {
-                QuitEvent?.Invoke();
+                QuitEvent?.Invoke("SDL sent its quit event");
                 running = false;
             }
             if (evtType == SDL.EventType.WindowCloseRequested
                 && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
             {
-                QuitEvent?.Invoke();
+                QuitEvent?.Invoke("the window was asked to close, by its close button or the system");
                 running = false;
             }
             // A minimized window draws nothing, and one restored is resized, which builds its
