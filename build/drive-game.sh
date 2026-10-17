@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Plays a game from the package through ./e3d, offscreen and under the validation layer, as the
-# examples job plays it on Linux, and asserts its walk or its win, so a game's
-# input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
-# runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine,
-# and once more for one game with window as the second argument, which opens the game in a window
-# on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried there.
+# Linux jobs play it, and asserts its walk or its win, so a game's input, its sound and the session
+# ./e3d drives are tried on the system it runs on. The build workflow runs it on Windows and macOS
+# after build/play-game.sh, which packs the engine, for Slide on a push and for every game in the
+# pack run, and once more for one game with window as the second argument, which opens the game in a
+# window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
+# there.
 #
 #   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick> [offscreen|window]
 #
@@ -59,7 +60,7 @@ trap cleanup EXIT
 
 # Where a game that dies in native code leaves its dump. On Windows it is the system's own, set in
 # the job, which names each dump after the program's file. Elsewhere it is the .NET runtime's, asked
-# for here, into captures, which the examples job keeps, since Slide's process ended once in its
+# for here, into captures, which each job keeps, since Slide's process ended once in its
 # startup on Linux with nothing in its log and no dump to say which thread it died on.
 if [ "$system" = Windows ]; then
   dumps="${E3D_DUMPS:-3DEngine.Tests/TestResults/dumps}"

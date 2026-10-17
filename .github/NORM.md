@@ -18,10 +18,10 @@ is its own design, which the annexes point to.
 | the package | The library as packed for NuGet, with its natives |
 | the followed engine | The engine whose way of working a library follows, Bevy for BevyCSharp and raylib for 3DEngine |
 | an example | A program in the examples project, opened by name |
-| a capture | The picture the workflow takes of an example or a game |
+| a capture | The picture the pack workflow takes of an example or a game |
 | a game | A project under `games/`, built from the package |
-| a testbed | A game beside the engine, built on its project rather than the package, so a change plays on the next build; it is a game to every rule but N 5.3 |
-| the workflow | What GitHub runs on a push |
+| the workflow | The build workflow, which GitHub runs on a push, and the pack workflow, run by hand; a rule names the one it means, and one that names neither means both |
+| the pack run | A run of the pack workflow, which runs the build workflow's jobs whole, the ones a push skips among them, and packs after them |
 | a batch | One finished piece of work, which is one commit |
 | the working session | The session that writes an engine |
 | the reviewing session | The session that reads both engines and writes REVIEW.md, SHARED.md and this file |
@@ -102,14 +102,14 @@ nothing of what broke. By review.
 
 **N 2.5 The library reflects on nothing at runtime that a generator can register, and a game
 published native runs in the workflow.** A game published trimmed or native keeps only what the
-compiler can see is used. The workflow publishes a game native and plays it.
+compiler can see is used. The pack workflow publishes a game native and plays it.
 
 **N 2.6 A file that is missing, empty, cut short or not what its name says is answered with a
 message that names it, and no exception or panic leaves the engine for it.** A game reads files
 its players and its artists made. One test gives every loader each kind of bad file, as a table.
 
-**N 2.7 An example compiles on the package alone.** A picture in the README opens an example as
-the way to do a thing, so what it calls has to be what a game can call. The workflow builds
+**N 2.7 An example compiles on the package alone.** A picture in the README opens an example as the
+way to do a thing, so what it calls has to be what a game can call. The pack workflow builds
 examples in a project of their own on the packed package.
 
 **N 2.8 Every package the library references is in the engine's list of packages with what it is
@@ -179,8 +179,8 @@ relative link goes nowhere. A check follows each link, one into the repository a
 checkout with no request made.
 
 **N 4.4 Code a document tells a reader to write is built by the workflow.** A tutorial stops
-compiling the day the API moves unless something builds it. The workflow follows the README's
-first program in a new project, and a page of steps is held to programs the workflow builds.
+compiling the day the API moves unless something builds it. The pack workflow follows the README's
+first program in a new project, and a page of steps is held to programs the pack workflow builds.
 
 **N 4.5 A capture is a WebP file at the size of the followed engine's window, and a picture of an
 example in the README opens that example's source.** One size down the gallery, small files, and
@@ -207,20 +207,17 @@ name.
 ## 5 Examples and games
 
 **N 5.1 An example has the followed engine's name for it where that engine has one, is opened by
-name, and has a capture the workflow takes.** The name says which of the followed engine's
-examples it answers, and the capture shows it still draws. The workflow captures every example.
+name, and has a capture the pack workflow takes.** The name says which of the followed engine's
+examples it answers, and the capture shows it still draws. The pack workflow captures every example.
 
 **N 5.2 Every example of the followed engine is a row of a table that a script writes from that
 engine's own list.** How much of the followed engine a library carries is counted and not
 guessed. The workflow runs the script and fails when what it writes differs from the table
 checked in.
 
-**N 5.3 A game is built from the packed package and played by the workflow.** A game built on the
-project itself does not find what the package leaves out. The workflow packs, builds a game on the
-package and plays it with no display. A testbed is built on the engine's project instead, so the
-engine's session and the session making it play a change before it is packed; the workflow builds it
-with the solution and need not play it, since what it finds is the engine's and goes to ASKS.md, and
-it is no proof of the package.
+**N 5.3 A game is built from the packed package and played by the pack workflow.** A game built on
+the project itself does not find what the package leaves out. The pack workflow packs, builds a game
+on the package and plays it with no display.
 
 ## 6 Build and package
 
@@ -230,7 +227,7 @@ the next one. The workflow builds with warnings as errors.
 **N 6.2 The tests run on every desktop system the package ships for on every push, and what draws
 runs under a validation layer where the device has one.** Path separators, file locking, file events
 and the names of native libraries differ between the three, a Mac's GPU draws through Metal, and a
-validation layer finds what a forgiving driver lets pass. The workflow.
+validation layer finds what a forgiving driver lets pass. The build workflow.
 
 **N 6.3 A package is made by a workflow run by hand, from a commit whose tests passed, numbered by
 `build/version.txt` and the count of commits since it changed.** The owner sets the major and the
@@ -303,9 +300,9 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
 | N 2.4 | by review | by review |
-| N 2.5 | checked, `build/play-native.sh` in the workflow | checked, `build/play-native.sh` in the workflow |
+| N 2.5 | checked, `build/play-native.sh` in both workflows | checked, `build/play-native.sh` in the pack workflow |
 | N 2.6 | checked, `BadFileTests` | checked, `BadFileTests` |
-| N 2.7 | checked, `build/examples-on-package.sh` in the workflow | checked, `build/examples-on-package.sh` in the workflow |
+| N 2.7 | checked, `build/examples-on-package.sh` in both workflows | checked, `build/examples-on-package.sh` in the pack workflow |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
 | N 2.9 | checked, `FileHandleTests` | checked, `FileHandleTests` |
 | N 2.10 | checked, `NormTests` | checked, `NormTests` |
@@ -319,15 +316,15 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
-| N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
+| N 4.4 | checked, `build/readme-walk.sh` in both workflows and `FirstGameTests` | checked, `build/readme-walk.sh` in the pack workflow |
 | N 4.5 | checked, `NormTests`, 20 left out | checked, `NormTests` |
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
-| N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
+| N 5.1 | checked, the pack workflow's capture of every example | checked, the pack workflow's capture of every example |
 | N 5.2 | checked, `NormTests.N_5_2` before a commit and `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
-| N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
+| N 5.3 | checked, the pack workflow's games | checked, the pack workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
-| N 6.2 | checked, `test.yml` | checked, `test.yml`, the macOS job green at `156d2ce` |
+| N 6.2 | checked, `build.yml` | checked, `build.yml`, the macOS job green at `156d2ce` |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |

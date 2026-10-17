@@ -57,7 +57,7 @@ machine, with the command that measures it again.
 ## What it costs
 
 - **Desktop only.** raylib runs on the web, on phones and on small boards such as the Raspberry
-  Pi. This engine runs on Linux, Windows and macOS (through MoltenVK), and CI draws only on Linux.
+  Pi. This engine runs on Linux, Windows and macOS (through MoltenVK), and CI draws on all three.
 - **A runtime or a larger binary.** A program needs the .NET runtime, or is published native at
   about 11 MB, where raylib's bunnymark links statically into under 1 MB beside SDL.
 - **Vulkan.** A GPU and driver with Vulkan 1.3 are needed, where raylib draws through OpenGL 3.3,

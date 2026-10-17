@@ -3,16 +3,17 @@
 
     build/step.py SCRIPT [--workflow FILE] [--sessions DIR]
 
-The examples job (examples.yml) runs each of its steps through this, as the shell GitHub runs a
-step's script in (`shell: python3 build/step.py {0} --workflow .github/workflows/examples.yml`, the
-file named since a called workflow's run names its caller's). The script runs as GitHub's own bash
-runs one, under `bash -e`, so the first command that fails ends it, and what it prints is passed on
-as it comes. A step that fails and prints no `::error::` of its own is given one, which names the
-step, the command that failed with its line and exit code, the step's last lines, and the last lines
-at a warning or worse of each session log under build/sessions written while it ran, as the test
-page names its causes (NORM.md, N 6.7). Before it, a command such as `status=$(./e3d command ...)`
-ended a step with `Process completed with exit code 4` and nothing else, its error taken into the
-variable.
+The Linux jobs on the package in build.yml, examples, captures and games, run each of their steps
+through this, as the shell GitHub runs a step's script in
+(`shell: python3 build/step.py {0} --workflow .github/workflows/build.yml`, the file named since the
+pack run calls it and a called workflow's run names its caller's). The script runs as GitHub's own
+bash runs one, under `bash -e`, so the first command that fails ends it, and what it prints is
+passed on as it comes. A step that fails and prints no `::error::` of its own is given one, which
+names the step, the command that failed with its line and exit code, the step's last lines, and the
+last lines at a warning or worse of each session log under build/sessions written while it ran, as
+the test page names its causes (NORM.md, N 6.7). Before it, a command such as `status=$(./e3d
+command ...)` ended a step with `Process completed with exit code 4` and nothing else, its error
+taken into the variable.
 
 The step is named as the workflow names it, found by its script in the workflow file, which is the
 one GITHUB_WORKFLOW_REF names or the one --workflow gives. It exits with the script's exit code.

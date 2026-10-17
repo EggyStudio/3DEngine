@@ -5,9 +5,9 @@
 # lacks a tool, which stops every capture. A capture that fails says
 # why in its error, as the test page names its causes (N 6.7): the script's exit code and its own
 # last line, and the last lines the example logged at a warning or worse, since an annotation is
-# all a reader not signed in sees. The examples job runs it in the pack run for the README's
-# gallery, and the test workflow's macOS captures job for pictures kept as its artifact and compared
-# with nothing. It runs in the bash macOS ships too. Examples named after the format are captured
+# all a reader not signed in sees. The pack run's captures job runs it for the README's gallery, and
+# its captures-macos job for pictures kept as its artifact and compared with nothing. It runs in the
+# bash macOS ships too. Examples named after the format are captured
 # alone.
 #
 # An example whose capture takes more than CAPTURE_SECONDS, 300 unless set, is stopped and fails

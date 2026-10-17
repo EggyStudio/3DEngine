@@ -10,29 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fc5fdc97`, Verdict 61 mended and nothing else: the script test's grow mode runs with
-a minute's time limit where the hang mode keeps its six seconds, so the memory limit comes first on
-any runner, the test's comment saying the race, the stand-in passing 200 MB in a second here and the
-macOS runner holding 196 when the six seconds ran out; and the stand-in grows in copies of a random
-block of 10 MB where it repeated one byte, since macOS can compress a page of one byte repeated when
-memory is short and leave it out of the resident size the script reads, a guard said in its comment
-and not a cause seen. Reproduced with the stand-in held to a fiftieth of a core: six seconds ended
-at the time limit holding 50 MB, a minute at the memory limit after 42 seconds holding 220. The
-whole suite 1,710 of 1,710 through the script, NormTests 16 of 16, the strict build clean. Right.
-The pack run of `ddb40469` ended at 22:54 failed on its macOS suite alone, Verdict 61's: Windows
-green, 1,659 of 1,659 in 45 minutes with its games played, and Linux green, the examples and pack
-jobs skipped, so Verdict 56's step is unread until the owner re-runs the failed jobs or packs again.
-The push of `fc5fdc97` ran whole green on 2026-10-17, the second of Decision 39's three: Linux in 17
-minutes, macOS in 41, Windows in 75, of which the suite took 46 and the games played from the
-package 20, and the examples job in 9. Its suites settled Verdicts 57, 58, 59 and 61, the pack run's
-macOS suite the second green for 61, and brought Verdict 60 to two of three. The pack run on it,
-started at 08:54, ran its three suites green, Windows in 74 minutes again, since the shader cache
-the push's Windows job saved at its end came after the pack run's job began, so the first job to
-restore it is the next; its examples jobs passed, the Linux one in 81 minutes with the strategy
+Reviewed up to `2206a2f4`, the review's record alone, `.github/REVIEW.md` and nothing else,
+committed so the runs of `fc5fdc97` stand where the next reader finds them. Right. A push of it
+starts no run: `build.yml` runs on a push only where a path outside `.github/**.md` changed, its
+`paths` list at line 12, and has no `workflow_dispatch`, so a commit of documents cannot be Decision
+39's third push, and nothing on this engine is left to mend. Two ways, the owner's to choose: every
+job of the push run of `fc5fdc97` run again from its page, a second attempt on the same code, which
+is the test of consistency the decision asks and counts as the third if whole green, the pack run of
+`fc5fdc97` already green after it; or the two green pushes and the green pack run taken as enough.
+On 2026-10-17 the owner ordered two workflows an engine and the voxel game's move to its own
+repository, Decisions 40 to 42 and items 26 to 28; the rework is the first work on both engines, and
+a green push and a green pack run under the new workflows are Decision 39's gate before features
+resume.
+
+Before it, `fc5fdc97` came, Verdict 61 mended and nothing else: the script test's grow mode runs
+with a minute's time limit where the hang mode keeps its six seconds, so the memory limit comes
+first on any runner, the test's comment saying the race, the stand-in passing 200 MB in a second
+here and the macOS runner holding 196 when the six seconds ran out; and the stand-in grows in copies
+of a random block of 10 MB where it repeated one byte, since macOS can compress a page of one byte
+repeated when memory is short and leave it out of the resident size the script reads, a guard said
+in its comment and not a cause seen. Reproduced with the stand-in held to a fiftieth of a core: six
+seconds ended at the time limit holding 50 MB, a minute at the memory limit after 42 seconds holding
+220. The whole suite 1,710 of 1,710 through the script, NormTests 16 of 16, the strict build clean.
+Right. The pack run of `ddb40469` ended at 22:54 failed on its macOS suite alone, Verdict 61's:
+Windows green, 1,659 of 1,659 in 45 minutes with its games played, and Linux green, the examples and
+pack jobs skipped, so Verdict 56's step is unread until the owner re-runs the failed jobs or packs
+again. The push of `fc5fdc97` ran whole green on 2026-10-17, the second of Decision 39's three:
+Linux in 17 minutes, macOS in 41, Windows in 75, of which the suite took 46 and the games played
+from the package 20, and the examples job in 9. Its suites settled Verdicts 57, 58, 59 and 61, the
+pack run's macOS suite the second green for 61, and brought Verdict 60 to two of three. The pack run
+on it, started at 08:54, ran its three suites green, Windows in 74 minutes again, since the shader
+cache the push's Windows job saved at its end came after the pack run's job began, so the first job
+to restore it is the next; its examples jobs passed, the Linux one in 81 minutes with the strategy
 game's step, which settled Verdict 56, and the macOS captures in 58, so the pack run passed whole at
-11:31. Next a commit of the review's record alone, the third push; its run green makes Decision 39's
-three, and the pack run after it closes the decision for this engine, unless the owner takes this
-pack run as that one.
+11:31.
 
 Before it, `ddb40469` came, Verdicts 59 and 60 mended and nothing else, as Decision 39 asks. The
 drawing leak test reads the resident memory again right after the twentieth app's heap census and
@@ -53,36 +64,6 @@ started at 21:39: Linux green in 17 minutes, the macOS suite failing one test of
 test's grow mode losing its stand-in to the time limit before the memory limit on a slow runner,
 Verdict 61, and Windows running at 22:27; the examples job, Verdict 56's, needs every suite, so the
 owner re-runs the failed jobs when Windows ends.
-
-Before it, `b3895bd4` came, Verdict 57 read and two of its three shapes mended. Slide never stalled
-here, twenty opens with the wait straight after on the GPU and on lavapipe under the validation
-layer and six whole drives on two cores, each answered in half a second, so the three shapes are
-three causes. The swipe that slid nothing on macOS: a swipe is a drag released faster than a fifth
-of the window a second on the game's wall clock, and the drive's drag of 120 pixels over ten frames
-is a plain drag on any device under five frames a second, reproduced on lavapipe held to a fifth of
-a core, 2.0 seconds and nothing slid, twice; the drive's Slide case sets `time.frame` to a sixtieth
-before its gestures, as the double tap's 0.3 seconds and the hold's second are timed the same way,
-two drives on the throttled core then passing, and `GesturesTests` holds a theory where the
-console's ten-frame drag swipes at a sixtieth a frame and not at a quarter. The session gone on
-Windows while the process ran: every command reads each session file and a game replaces its file
-every thirty frames by a move, which Windows will not open while under way, so the read answered
-nothing and the command said no session of a live game, the listing's race already handled and the
-read's not; `CliSession` reads a file that fails again up to four more times ten milliseconds apart,
-and `CliTests` holds the file shut and lets it go in the first pause, failing before the mend. The
-process ending on Linux with nothing logged: not reproduced and its cause unknown, so the drive asks
-the runtime for a dump off Windows, type 2 into the captures' dumps folder the examples job uploads,
-a fault sent to Slide here leaving its dump of 34 threads readable, and the next death names its
-thread. BUILDING.md's drive paragraph says the frame time and the dumps; the whole suite 1,710 of
-1,710, NormTests 16 of 16, the strict build clean. Right. The push and the pack run of `b3895bd4` on
-2026-10-13 failed too, and on 2026-10-16 the owner stopped development on both engines until every
-job is green on every push and pack (Decision 39): the Windows suite failed the drawing leak test's
-resident bound on both runs, and its series, in the message since `9a3e2e2a`, shows why it fails on
-one run and passes on the next, the baseline read at the twentieth app sitting before the heap
-census taken there, whose own footprint of some 60 MB then counts as growth, Verdict 59; the pack
-run's macOS suite failed Summit's reference frame, the whole frame gray where the reference is lit,
-a capture after a fixed settle of ten frames with nothing asked of the scene's readiness, Verdict
-60. Verdicts 56, 57 and 58 stand as they are. Next the two mends, then pushes until three in a row
-are green with the pack after them, and only then item 6.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -151,9 +132,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    `817f7fd4`. When every job is green the owner is told, since 5.2 is due (Decision 19). With the
    batch that next touches `build/test.py`, it takes from BevyCSharp's `1f68fde8` the two cases of a
    theory whose names are cut to the same as one counted apart, which its page reads as one today
-   (SHARED.md), and runs the game's `3DEngine.Game.Tests`, 22 tests of its light, meshes, body,
-   saves and generation that need no window, beside its own through its `--project`, counted on the
-   page apart from the engine's and reddening the run as the engine's do (ASKS.md). The engine's own
+   (SHARED.md). The game's tests are its own repository's since Decision 41. The engine's own
    despawn of what a state scopes is read against a soak of the world's entity indices across many
    transitions, which in BevyCSharp found Bevy 0.20.0 losing every index it despawned that way
    (SHARED.md), with the batch that next touches states. The owner pushed everything through
@@ -164,32 +143,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    `aa9fe773` is red by its first game's step, the WebP script wanting ImageMagick the runner lacks
    (Verdict 52), its tests green, and `e28064f7`'s macOS job green; the macOS captures of `aa9fe773`
    green; the runs of `ea9a23cd` and `ffa3ec48` wait in the queue. Each push's run is read by the
-   reviewing session, and a failure it names comes first here.
-2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
-   at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
-   changed, each a commit of its own with its numbers before and after and a test that holds the
-   measure, the voxel game's read through the testbed at eight columns, and the game's session asked
-   to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
-   and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
-   The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's lobes gone
-   at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
-   so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
-   `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
-   part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's
-   light enter it by the heading alone, which is part g and comes first (Decision 28). At 10:55 the
-   owner looked at the tree with g's mend and found it right at every heading and tier but one
-   window at High, and found the indirect light noisy and spotted where a penumbra is wide, which is
-   part h. The apparatus first: `BounceReference` traces a mesh's flat color times its texture's
-   average and not the vertex colors the field and the model pass read, so the game's rooms of white
-   concrete, one white material with each block's color in its vertices, read a third brighter in
-   the reference than in the frame and the comparison cannot tell the bounce's error from the
-   color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`,
-   blended by the hit's barycentrics as the model pass blends them, a colored slab within 1% where
-   0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run whether the
-   measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then
-   item 10, item 9 and item 8, the others being done; the game's session measured g and h in the
-   game and wrote them in ASKS.md, as it measured d at both cells and e along the distance, and
-   reads g on `64fd2f14`.
+   reviewing session, and a failure it names comes first here. 2. **What the owner saw on 2026-10-10
+   (Decision 27), before item 3's remainder.** The owner looked at `shaders_subsurface` and at the
+   voxel game and found four things, each measured before it is changed, each a commit of its own
+   with its numbers before and after and a test that holds the measure, the voxel game's read
+   through the testbed at eight columns, and the game's session asked to write what it measures of
+   them in ASKS.md. The game's session measured b, c and d on the game and wrote them in ASKS.md
+   with captures under `.github/assets/asks`, which go in with that file. The owner looked again at
+   17:20 on the tree: the bounce stable in motion, the lamp's lobes gone at a cell of 0.125, and a
+   lamp's light at a distance aliased at its border and gone farther off, so b closes with its
+   commit, d gains its lever and e is added. At 23:40 the owner looked at `98a1edca` and found the
+   bounce awesome and the screen's probes its one unsteady part, which is part f. At 10:05 on
+   2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's light enter it by the
+   heading alone, which is part g and comes first (Decision 28). At 10:55 the owner looked at the
+   tree with g's mend and found it right at every heading and tier but one window at High, and found
+   the indirect light noisy and spotted where a penumbra is wide, which is part h. The apparatus
+   first: `BounceReference` traces a mesh's flat color times its texture's average and not the
+   vertex colors the field and the model pass read, so the game's rooms of white concrete, one white
+   material with each block's color in its vertices, read a third brighter in the reference than in
+   the frame and the comparison cannot tell the bounce's error from the color's (ASKS.md,
+   2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`, blended by the hit's
+   barycentrics as the model pass blends them, a colored slab within 1% where 0.58 apart, with a
+   test. The order of work: h, with Verdict 49's steps that run whether the measure holds, then
+   Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then item 10, item 9 and
+   item 8, the others being done; the game's session measured g and h in the game and wrote them in
+   ASKS.md, as it measured d at both cells and e along the distance, and reads g on `64fd2f14`.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -1037,6 +1015,57 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     what a push runs and what a pack run adds. In the engine's session's batch with Verdicts 54 and
     55.
 
+26. **Two workflows an engine, `build.yml` on a push and `pack.yml` by hand (Decision 40).**
+    `test.yml` and `examples.yml` fold into `build.yml`, which has `push`, `pull_request` and
+    `workflow_call` with one input, `pack`: the jobs `linux`, `windows`, `macos`, `digest`,
+    `examples` (needs `linux`, 90 minutes, the push half of today's examples job, `step.py` given
+    `--workflow .github/workflows/build.yml`), and pack-only `captures` (the Linux captures and the
+    raylib measure, 150), `captures-macos` (today's `macos-examples`, 160) and `games` (the twelve
+    games played, soaked and stormed from the package and the README walked, 150); the Windows and
+    macOS jobs keep Slide played offscreen, native and in a window, the README walk and the first
+    game on every push, and play the other eleven in the pack run alone behind `if: ${{ inputs.pack
+    }}`, Decision 35 on every system, their limits `${{ inputs.pack && 180 || 100 }}` and `${{
+    inputs.pack && 120 || 75 }}`. `pack.yml` keeps `workflow_dispatch` with `publish` and runs
+    `build` (uses `build.yml` with `pack: true`) then `pack` (needs `build`, 30 minutes, today's
+    pack job whole, the version read in it). Both files: `permissions: contents: read`, concurrency
+    `build-${{ github.ref }}` cancelling in progress and `pack-${{ github.ref }}` not, the paths
+    filter as today, a head comment saying what a push runs and what the pack run adds, a time limit
+    on every job with its reason (N 6.8). Every line naming the old files changes:
+    `build/step.py:6-7`, `ScriptTests.cs:99, 103` (`build.yml`, so `captures-macos` joins N 6.6's
+    scan), `.github/BUILDING.md:25, 81-82, 182-191, 315-316, 335-341, 354-359`,
+    `.github/TODO.md:352`, `docs/shipping-a-game.md:56-57`, `docs/compared-with-raylib.md:60`,
+    `README.md:256-258`. Checked by `ScriptTests` and `NormTests`, a push run green with the three
+    pack-only jobs skipped and the Windows job near 55 minutes, and a pack run green with its
+    package, which are Decision 39's gate (Decision 42). The norm's and SHARED.md's lines are the
+    reviewer's and ride with the commit.
+
+27. **The voxel game leaves for its own repository (Decision 41), after item 26's gate and the
+    game's first green build there.** One commit: `3DEngine.Game/` and `3DEngine.Game.Tests/`
+    removed, `3DEngine.slnx:12-13` with them, `AGENTS.md:93-94` (the `games` row covers every game;
+    the owner's word under N 7.4 is Decision 41), `docs/global-illumination.md:42, 130` and
+    `docs/materials-light-and-shadows.md:390` citing a voxel game built on the engine,
+    Voxel-Sandbox, with the numbers as measured, `.github/RENDERING.md:2140` saying where the game
+    lives; the tests' comments, `.gitignore:83` and the asks' captures stay. Checked by the strict
+    build, `NormTests` and `grep -rn "3DEngine\.Game"` finding only the channel's files.
+
+28. **A tiny sample, `games/Ore`, after item 27: a voxel landscape, a character and the light that
+    bounces.** A game like the others (`Ore.csproj` and `nuget.config` as Wick's, a `Program.cs` of
+    some 150 lines, `OreCommands.cs` with `ore.status`, `ore.autopilot`, `ore.warp` and `ore.night`,
+    a README in the games' form): a 48 by 48 landscape from an inline value noise, heights 1 to 12,
+    grass, dirt, stone and ore, its faces against the air meshed into positions, normals and vertex
+    colors of a plain mesh, since the light that bounces reads a mesh's colors, the ore faces in a
+    second mesh with `Emissive` and `EmissiveIntensity`, the ground a static physics model, a
+    first-person character through `CreatePhysicsCharacter`, `MovePhysicsCharacter` and
+    `JumpPhysicsCharacter` with mouse look as Manor's, `SetSceneField(4, 0.5f, 2)` and
+    `SetGlobalIllumination(GlobalIllumination.High)` with G stepping the quality as Wick does,
+    `DrawBounceWindow` while B is held, a sun and N for night. It joins the lists of `build.yml`
+    (the build-all, soak and storm lists and the Windows and macOS drive loops), gets a
+    `build/drive-game.sh` case (a walk, a jump, a capture), a `build/soak.sh` case, a capture step
+    in the `games` job and `.github/assets/examples/ore.webp` through `build/examples-table.py`,
+    thirteen games where twelve, BUILDING.md's count and the guide's see-also. The name is the
+    owner's, Ore unless told otherwise. Checked by `NormTests`, `build/drive-game.sh Ore`, the soak
+    and the storm, and the pack run playing it on three systems.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -1309,7 +1338,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     owner's word, and the engine's session writes nothing in it. ASKS.md and AGENTS.md's bullet and
     row on it are the reviewing session's and are committed with whichever batch comes next, as
     REVIEW.md is; a game's own files, `3DEngine.Game` and the solution's line among them, are the
-    game's session's to commit.
+    game's session's to commit. Since 2026-10-17 (Decision 41) the game lives in its own repository,
+    Voxel-Sandbox, and its session writes its entries here still, headed by that name; the game's
+    files are its repository's.
 
 27. **The owner's eye on 2026-10-10 opens item 2 again, four things seen.** The owner looked at
     `shaders_subsurface` and the voxel game in the afternoon and said what they saw: a dark ring
@@ -1399,5 +1430,29 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     job while the code stood still, stopped development on both engines: the working sessions mend
     what the verdicts name and nothing else, every push must be green on every job, three in a row,
     and the pack run after them, before an item is taken again, on BevyCSharp as on 3DEngine.
+
+40. **Two workflows an engine, build and pack, the same shape in both.** The owner found on
+    2026-10-17 that the two engines' workflow sets differed, five files in BevyCSharp and four here
+    with graphs that looked unlike each other, and ordered each engine down to two: a build workflow
+    on an ordinary push and a pack workflow by hand, consistent between them, the pack run keeping
+    every check that ran only there. Written as item 26 here and item 23 in BevyCSharp, where the
+    tester zips and the scene packs stop being workflows and become runs on the owner's machine. The
+    norm's "the workflow" names both, and a rule the one it means.
+
+41. **The voxel game moves to its own repository, Voxel-Sandbox, and a tiny sample stays under
+    `games/`.** The owner, having uploaded the engine's package 5.2.43, ordered on 2026-10-17 that
+    `3DEngine.Game` go to the Voxel-Sandbox repository checked out under this one, replacing the old
+    game there in place, committed the same way as the engines with the same `AGENTS.md`, `.github`
+    files and two workflows, on the published package; the owner chose the old game replaced rather
+    than kept beside, and the sample under `games/` rather than the project reborn. The game's
+    session makes the move; the engine's session removes the projects after it (item 27) and writes
+    the sample (item 28); the game's session keeps writing ASKS.md here (Decision 26); the game's
+    repository has a REVIEW.md and a NORM.md of its own.
+
+42. **Decision 39's gate is the new workflows.** The owner chose on 2026-10-17 that the rework of
+    item 26 starts that day as the first work on both engines, and that the green lights Decision 39 asks
+    are then asked of the new workflows: a green push and a green pack run under them on each engine
+    before engine and game features resume. Until then the working sessions mend what verdicts name
+    and do item 26, and in BevyCSharp item 23, alone.
 
 ## Replies

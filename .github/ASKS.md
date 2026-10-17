@@ -28,6 +28,9 @@ hand before each of its commits.
 
 Review: item 1 of REVIEW.md, 2026-10-10; `build/test.py` runs the game's project beside its own with
 the batch that next touches it, its count apart on the page.
+Review: on 2026-10-17 the game moves to its own repository (REVIEW.md Decision 41), whose build
+workflow runs these tests on every push; item 1's clause on `build/test.py` running them here is
+dropped.
 
 ### 2026-10-11, the voxel game in `3DEngine.Game`: land behind a wall is lit in any order
 

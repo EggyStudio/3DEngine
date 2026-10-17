@@ -22,7 +22,7 @@ and so do the render tests without a Vulkan device, each with its reason in the 
 `build/test.py` runs the suite as one process held to 40 minutes and 4 GB, which the Windows job
 raises to 60 minutes (`--timeout-minutes 60`), since lavapipe compiles the shaders each app draws
 with unless Mesa's cache holds them, 3.7 seconds an app where 0.84, and a cache left unsaved by a
-failed job doubled the suite there from 22 minutes past 40. The test workflow restores that cache
+failed job doubled the suite there from 22 minutes past 40. The build workflow restores that cache
 before the suite and saves it after, whether the suite passed or not. The script writes what the
 suite prints to `3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines,
 also written to `TestResults/digest.md`: the counts, the failures by cause, the most frequent first,
@@ -79,8 +79,9 @@ any that did not in an error annotation. An example whose capture takes past `CA
 unless set, is stopped and fails alone, `CAPTURE_MINUTES` ends the run where it is set, naming the
 last example reached, and the script ends with a notice of how many drew and in how long, each
 example's seconds written to `times.tsv` beside the pictures. The pack run runs it on Linux for the
-gallery, and in a macOS job of its own in `examples.yml` for PNGs kept as that job's artifact, and a
-new or changed example's capture in `.github/assets/examples` is taken with `capture-example.sh`.
+gallery, in the build workflow's `captures` job, and on macOS in `captures-macos` for PNGs kept as
+that job's artifact, and a new or changed example's capture in `.github/assets/examples` is taken
+with `capture-example.sh`.
 The gallery's captures are WebP at the size their window is drawn, raylib's 800 by 450 for an
 example, which `build/webp.sh` encodes at quality 85 for a lit 3D scene and losslessly for flat
 color, 2D shapes or text, with ImageMagick or with `cwebp` from the `webp` package. A capture of
@@ -121,7 +122,7 @@ it and the example here to the same frame, and writes the share of pixels apart 
 `3DEngine.Examples/measured.tsv`, which the table shows. raylib's programs draw through SDL's
 offscreen driver with OpenGL, which Mesa gives on a machine with no GPU (`libegl1`, `libegl-mesa0`
 and `libgl1-mesa-dri` on Ubuntu), and the pictures are compared with Pillow (`python3-pil`). The
-pack run's examples job measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the
+pack run's captures job measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the
 shares its own device recorded, and fails where one stands more than a point above its share,
 leaving out a pair whose line in `triage.tsv` marks it as moving by the clock or the device. A pair
 it measures for the first time is listed in the run's summary, to be recorded in that file. A run
@@ -179,19 +180,18 @@ from a local pack points a `nuget.config` at the folder, which maps `3DEngine` t
 taken in its place, and `dotnet add package` is given the version, since without one it takes the
 newest version nuget.org lists before the mapping applies.
 
-A release is made by the `pack` workflow, run from the Actions tab on GitHub. It runs the tests on
-Linux, Windows and macOS through `test.yml`, the same workflow `build.yml` runs on each push, and
-only once all three pass packs with `build/pack.sh <version>` and keeps the package as the run's
-artifact. With its "publish" box ticked it pushes the package to nuget.org through the
-`NUGET_API_KEY` secret. Before the pack it runs the examples job whole (`examples.yml`), which a
-push runs in part: every example captured for the gallery and measured against raylib's program,
-every game played, captured, soaked and resized, and the README followed on Linux, and every example
-captured on the macOS runner's GPU in a job of its own, and it packs only once both jobs pass too. A
-push runs the three systems' tests and the Linux examples job in part, and leaves the macOS
-captures, the longest job at 53 to 56 minutes, to the pack run. The version is `build/version.sh`'s:
-the major and minor written in `build/version.txt`, and as the patch the number of commits since
-that file last changed, so each commit counts the patch up by one and changing `5.0` to `5.1` starts
-it again at `5.1.0`.
+A release is made by the `pack` workflow (`pack.yml`), run from the Actions tab on GitHub. It runs
+the build workflow (`build.yml`), the one each push runs, with its `pack` input set, which adds to
+what a push runs every example captured for the gallery and measured against raylib's program
+(`captures`), every game played, captured, soaked and resized and the README followed on Linux
+(`games`), every example captured on the macOS runner's GPU (`captures-macos`), and every game
+played on Windows and macOS. Only once every job passes does it pack with `build/pack.sh <version>`
+and keep the package as the run's artifact, and with its "publish" box ticked it pushes the package
+to nuget.org through the `NUGET_API_KEY` secret. A push runs the three systems' tests, Slide played
+on each, and the Linux `examples` job, and leaves the rest to the pack run. The version is
+`build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
+number of commits since that file last changed, so each commit counts the patch up by one and
+changing `5.0` to `5.1` starts it again at `5.1.0`.
 
 The package's release notes are those same commits, each one's sentence a line and the newest
 first, which `build/pack.sh` reads from the history into `build/artifacts/release-notes.txt` and
@@ -312,51 +312,52 @@ run from anywhere in the checkout finds it.
 Each is meant on x64 and arm64, for which the package's dependencies carry SDL3, Dear ImGui and
 Assimp natively, and `PackageContentsTests` fails a package where one of them is missing.
 
-Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
-`build.yml` runs for every push, builds and tests it on all three. Ubuntu 24.04, named rather than
-the newest so lavapipe changes only in a commit, draws on lavapipe, under the validation layer of
-LunarG's SDK at the version `build/fetch-validation-layer.sh` pins, since Ubuntu's own predates an
-extension lavapipe offers. Windows draws on lavapipe too, from Mesa's Windows build, with LunarG's
-loader and validation layer, and macOS draws on its GPU through MoltenVK, with the loader and the
-layer from Homebrew. On each the render tests and the reference frames run under the validation
-layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
-does not start rather than letting them skip, and `build/play-game.sh Slide` builds a game from the
+Linux is where the engine is developed and tested, and `.github/workflows/build.yml`, which runs for
+every push, builds and tests it on all three. Ubuntu 24.04, named rather than the newest so lavapipe
+changes only in a commit, draws on lavapipe, under the validation layer of LunarG's SDK at the
+version `build/fetch-validation-layer.sh` pins, since Ubuntu's own predates an extension lavapipe
+offers. Windows draws on lavapipe too, from Mesa's Windows build, with LunarG's loader and
+validation layer, and macOS draws on its GPU through MoltenVK, with the loader and the layer from
+Homebrew. On each the render tests and the reference frames run under the validation layer,
+`E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer does
+not start rather than letting them skip, and `build/play-game.sh Slide` builds a game from the
 package and draws 300 frames of it offscreen, failing on an error the layer reports.
 `build/play-native.sh Slide` then publishes it native from the package, linked by the runner's own
 toolchain, Visual Studio's on Windows and Xcode's on macOS, as the examples job does on Linux, and
 draws it the same way, a failure named in an error annotation with the compiler's or the linker's
-own lines. On Windows and macOS `build/drive-game.sh <game>` then plays each of the twelve games
-through `./e3d`, offscreen at 480 by 270, as the examples job plays them on Linux, each asserting
-its walk or its win, so a game's input, its sound and the session `./e3d` drives are tried there,
-and a game that fails says why in an error annotation naming the system. Slide's gestures are timed
-on the game's clock, so its drive sets each frame to a sixtieth of a second (`time.frame`) before it
-swipes, and a device that draws slowly sees the swipe it would see at 60 frames a second. A game
-that dies leaves a dump, Windows' own on Windows and the .NET runtime's in `captures/dumps`
-elsewhere, which the error names. Each game has twelve minutes there (`DRIVE_MINUTES`), past which
-it is stopped and its error says how far it got by its last status, and Slide is played once more in
-a window on the runner's desktop (`build/drive-game.sh Slide window`) with four minutes, so SDL's
-window and the swapchain are tried on both systems. They then follow the README in a new project
-(`build/readme-walk.sh`) and build and run every step of the first game (`build/first-game.sh`) from
-the same package, as a newcomer on either system does. Each job runs its tests through
-`build/test.py`, whose page ends the step's log and is the job's summary. Each cause is also an
-error annotation with its whole entry, and a notice has the page's head and the lines repeated most,
-since a reader who is not signed in to GitHub reads a run's annotations and nothing else, so a red
-run says what failed to whoever opens it. A last job, `digest`, puts the three pages into one, each
-cause with the systems it was seen on. Each job has a time limit. Each builds with `-warnaserror`,
-so a warning fails the commit that wrote it, and a warning that is right to keep is turned off where
-it arises, with its reason. A Vulkan instance asks for portability devices where the loader offers
-them, and a device of the portability subset, as MoltenVK is, has the subset enabled. On macOS the
-job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with which `AppLeakTests` counts the
-heap's objects by type after its twentieth app and its hundredth, so a failure there names the types
-that grew. The Linux job fetches the commit the 5.1 package was packed from, alone, so
-`UpgradingTests` holds `docs/upgrading.md` to every name the public surface lost since.
+own lines. On Windows and macOS `build/drive-game.sh <game>` then plays Slide through `./e3d` on a
+push, and each of the twelve games in the pack run, offscreen at 480 by 270, as the Linux jobs play
+them, each asserting its walk or its win, so a game's input, its sound and the session `./e3d`
+drives are tried there, and a game that fails says why in an error annotation naming the system.
+Slide's gestures are timed on the game's clock, so its drive sets each frame to a sixtieth of a
+second (`time.frame`) before it swipes, and a device that draws slowly sees the swipe it would see
+at 60 frames a second. A game that dies leaves a dump, Windows' own on Windows and the .NET
+runtime's in `captures/dumps` elsewhere, which the error names. Each game has twelve minutes there
+(`DRIVE_MINUTES`), past which it is stopped and its error says how far it got by its last status,
+and Slide is played once more in a window on the runner's desktop (`build/drive-game.sh Slide
+window`) with four minutes, so SDL's window and the swapchain are tried on both systems. They then
+follow the README in a new project (`build/readme-walk.sh`) and build and run every step of the
+first game (`build/first-game.sh`) from the same package, as a newcomer on either system does. Each
+job runs its tests through `build/test.py`, whose page ends the step's log and is the job's summary.
+Each cause is also an error annotation with its whole entry, and a notice has the page's head and
+the lines repeated most, since a reader who is not signed in to GitHub reads a run's annotations and
+nothing else, so a red run says what failed to whoever opens it. A last job, `digest`, puts the
+three pages into one, each cause with the systems it was seen on. Each job has a time limit. Each
+builds with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is right
+to keep is turned off where it arises, with its reason. A Vulkan instance asks for portability
+devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
+the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with
+which `AppLeakTests` counts the heap's objects by type after its twentieth app and its hundredth, so
+a failure there names the types that grew. The Linux job fetches the commit the 5.1 package was
+packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name the public surface
+lost since.
 
-On Linux, the examples job (`examples.yml`), which `build.yml` runs after the tests on every push
-and the `pack` run runs whole, then checks the package as a player and a reader meet it. On a push
-it packs the engine, publishes Slide native and draws it, builds the examples, the guides' code and
-every game on the package, plays Slide through `./e3d` and soaks it, builds the first game's steps
-and checks the tables against raylib; the captures, the measure against raylib, every game played,
-soaked and resized and the README's walk are the pack run's.
+On Linux, the `examples` job, which runs after the Linux tests on every push and in the pack run,
+then checks the package as a player and a reader meet it. It packs the engine, publishes Slide
+native and draws it, builds the examples, the guides' code and every game on the package, plays
+Slide through `./e3d` and soaks it, builds the first game's steps and checks the tables against
+raylib. In the pack run the `captures` job captures every example and measures it against raylib,
+and the `games` job plays, captures, soaks and resizes every game and follows the README.
 `build/play-native.sh Slide` publishes a game as native code from the package and draws 300
 frames of it under the layer, so a type the library reaches by reflection that the native
 compiler left out fails there. The native compiler needs clang and zlib's headers, which the
@@ -368,7 +369,7 @@ method after the lines a `<!-- compiled with: -->` comment right above its fence
 what it takes from the page around it, and a block a `<!-- not compiled: ... -->` comment marks,
 with its reason, is left out, so a block that calls what the surface no longer has fails the run
 with its page and line. `docs/first-game.md` is built step by step by `build/first-game.sh`
-instead. Each step of that job runs its script
+instead. Each step of those three jobs runs its script
 through `build/step.py`, as GitHub's bash would run it, and a step that fails without an error of
 its own is given one, naming the step, the command that failed with its exit code, the step's last
 lines and the last lines at a warning or worse of each session log it wrote.

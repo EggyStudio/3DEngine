@@ -26,7 +26,7 @@ drew a frame and draws none, or where its pictures came to differ in size. A run
 where they cannot start, records nothing and fails, saying why the first drew none. A pair with no share recorded is measured and recorded for the
 first time, and one triage.tsv marks as moving, by the clock or the device, is left out, with its
 reason. Where the file holds no share at all, as before its first run is recorded, what would fail
-is said and the run does not fail. The examples job runs every pair so in the pack run, against
+is said and the run does not fail. The captures job runs every pair so in the pack run, against
 3DEngine.Examples/measured-ci.tsv, the shares its own device recorded, so two machines' drivers are
 never compared with each other. Under GitHub Actions the pairs measured for the first time are
 notices as well, at most ten, which a reader not signed in sees where the run's summary and its

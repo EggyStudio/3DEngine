@@ -96,11 +96,11 @@ public sealed partial class ScriptTests
         }
     }
 
-    // The shell scripts the jobs of test.yml that run on Windows or macOS name, and those each of
+    // The shell scripts the jobs of build.yml that run on Windows or macOS name, and those each of
     // them names in turn, by path from the root.
     private static SortedSet<string> ScriptsRunElsewhere()
     {
-        var workflow = File.ReadAllText(Path.Combine(Root, ".github", "workflows", "test.yml"));
+        var workflow = File.ReadAllText(Path.Combine(Root, ".github", "workflows", "build.yml"));
         var jobs = Regex.Split(workflow, @"^  [\w-]+:\n", RegexOptions.Multiline);
         var pending = new Stack<string>(jobs
             .Where(job => Regex.IsMatch(job, @"^\s+runs-on:\s*(windows|macos)", RegexOptions.Multiline))

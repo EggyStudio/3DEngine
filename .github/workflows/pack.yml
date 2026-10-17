@@ -1,10 +1,10 @@
-# Tests the engine on Linux, Windows and macOS (test.yml), then packs it and its `dotnet new`
-# templates, when run from the Actions tab ("Run workflow"), and pushes both packages to nuget.org
-# when asked to. Before the pack the examples jobs run whole (examples.yml): every example
-# captured for the gallery and measured against raylib's program, every game played, captured,
-# soaked and resized, the README followed, and every example captured on the macOS runner's GPU,
-# which a push leaves to this run. Nothing is packed unless every test job and both examples jobs
-# pass, so no package is made before its games are proven on it.
+# Run by hand from the Actions tab ("Run workflow"). It runs the build workflow whole (build.yml, with
+# pack set), which adds to what a push runs every example captured on Linux for the gallery and
+# measured against raylib's program, every game played, captured, soaked and resized and the README
+# followed on Linux, every example captured on the macOS runner's GPU, and every game played on
+# Windows and macOS. Then it packs the engine and its `dotnet new` templates, and pushes both
+# packages to nuget.org when asked to. Nothing is packed unless every job of the build passes, so no
+# package is made before its games are proven on it.
 #
 # The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
 # commits since that file last changed. The package and its symbols are kept as the run's artifact
@@ -19,19 +19,27 @@ on:
         type: boolean
         default: false
 
-jobs:
-  test:
-    uses: ./.github/workflows/test.yml
+permissions:
+  contents: read
 
-  examples:
-    needs: test
-    uses: ./.github/workflows/examples.yml
+# A second pack run on a branch waits for the first rather than cancelling it, since a pack run cut
+# short leaves no package and may be pushing one to nuget.org.
+concurrency:
+  group: pack-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
     with:
-      whole: true
+      pack: true
 
   pack:
-    needs: [test, examples]
+    needs: build
     runs-on: ubuntu-24.04
+    # It took 3 minutes on the pack run of fc5fdc97, the engine built in Release, packed and its
+    # contents checked, so 30 ends a push to nuget.org that stalls.
+    timeout-minutes: 30
     steps:
       # The whole history, since the patch counts commits.
       - uses: actions/checkout@v7
