@@ -515,10 +515,14 @@ jobs:
           key: mesa-examples-${{ runner.os }}-${{ hashFiles('3DEngine/Shaders/**') }}
           restore-keys: mesa-examples-${{ runner.os }}-
 
-      # clang and zlib's headers, which the native compiler links with.
+      # clang and zlib's headers, which the native compiler links with, and gdb, which reads the core
+      # a game that dies leaves (build/open-game.sh). The kernel writes cores to a file under captures,
+      # where the runner's pattern pipes them to apport, which is off.
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: |
-          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 clang zlib1g-dev
+          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 clang zlib1g-dev gdb
+          mkdir -p captures/cores
+          sudo sysctl -w kernel.core_pattern="$PWD/captures/cores/core.%p"
           build/fetch-validation-layer.sh
           echo "VK_LAYER_PATH=$PWD/build/tools/vulkan-layer/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
           echo "MESA_SHADER_CACHE_DIR=$PWD/build/mesa-cache" >> "$GITHUB_ENV"
@@ -799,10 +803,14 @@ jobs:
             mesa-games-${{ runner.os }}-
             mesa-examples-${{ runner.os }}-
 
-      # cwebp, which encodes the games' captures.
+      # cwebp, which encodes the games' captures, and gdb, which reads the core a game that dies
+      # leaves (build/open-game.sh). The kernel writes cores to a file under captures, where the
+      # runner's pattern pipes them to apport, which is off.
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: |
-          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 webp
+          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 webp gdb
+          mkdir -p captures/cores
+          sudo sysctl -w kernel.core_pattern="$PWD/captures/cores/core.%p"
           build/fetch-validation-layer.sh
           echo "VK_LAYER_PATH=$PWD/build/tools/vulkan-layer/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
           echo "MESA_SHADER_CACHE_DIR=$PWD/build/mesa-cache" >> "$GITHUB_ENV"
@@ -823,7 +831,7 @@ jobs:
         run: |
           dotnet restore games/Hopper --force-evaluate
           dotnet build games/Hopper --no-restore
-          ./e3d open games/Hopper/bin/Debug/net10.0/Hopper --offscreen --quiet
+          build/open-game.sh games/Hopper/bin/Debug/net10.0/Hopper --offscreen
           ./e3d command input.key Right 40 --quiet
           ./e3d command input.button 0 RightFaceDown 2 --quiet
           ./e3d command input.key Right 120 --quiet
@@ -843,7 +851,7 @@ jobs:
         run: |
           dotnet restore games/Summit --force-evaluate
           dotnet build games/Summit --no-restore
-          ./e3d open games/Summit/bin/Debug/net10.0/Summit --offscreen --quiet
+          build/open-game.sh games/Summit/bin/Debug/net10.0/Summit --offscreen
           ./e3d command frames.wait 60 --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 120 --quiet
@@ -864,7 +872,7 @@ jobs:
         run: |
           dotnet restore games/Swarm --force-evaluate
           dotnet build games/Swarm --no-restore
-          ./e3d open games/Swarm/bin/Debug/net10.0/Swarm --offscreen --quiet
+          build/open-game.sh games/Swarm/bin/Debug/net10.0/Swarm --offscreen
           ./e3d command swarm.invulnerable true --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 600 --quiet --timeout 600
@@ -896,7 +904,7 @@ jobs:
         run: |
           dotnet restore games/Rally --force-evaluate
           dotnet build games/Rally --no-restore
-          ./e3d open games/Rally/bin/Debug/net10.0/Rally --offscreen --quiet
+          build/open-game.sh games/Rally/bin/Debug/net10.0/Rally --offscreen
           ./e3d command frames.wait 60 --quiet
           ./e3d command rally.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
@@ -930,7 +938,7 @@ jobs:
           dotnet restore games/Manor --force-evaluate
           dotnet build games/Manor --no-restore
           rm -f games/Manor/bin/Debug/net10.0/manor-settings.txt
-          ./e3d open games/Manor/bin/Debug/net10.0/Manor --offscreen --quiet
+          build/open-game.sh games/Manor/bin/Debug/net10.0/Manor --offscreen
           ./e3d command frames.wait 60 --quiet
           # Each press held a frame, since ImGui moves again along a direction held a fifth of a
           # second, which two frames pass on a runner drawing the title under five a second, and a
@@ -979,7 +987,7 @@ jobs:
           dotnet restore games/Tactics --force-evaluate
           dotnet build games/Tactics --no-restore
           rm -f games/Tactics/bin/Debug/net10.0/tactics-save.json
-          ./e3d open games/Tactics/bin/Debug/net10.0/Tactics --offscreen --quiet
+          build/open-game.sh games/Tactics/bin/Debug/net10.0/Tactics --offscreen
           ./e3d command frames.wait 30 --quiet
           ./e3d command tactics.new 7 --quiet
           ./e3d command frames.wait 10 --quiet
@@ -1044,7 +1052,7 @@ jobs:
           dotnet restore games/Tempo --force-evaluate
           dotnet build games/Tempo --no-restore
           rm -f games/Tempo/bin/Debug/net10.0/tempo-best.txt games/Tempo/bin/Debug/net10.0/tempo-offset.txt
-          ./e3d open games/Tempo/bin/Debug/net10.0/Tempo --offscreen --quiet
+          build/open-game.sh games/Tempo/bin/Debug/net10.0/Tempo --offscreen
           ./e3d command frames.wait 30 --quiet
           ./e3d command tempo.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
@@ -1081,7 +1089,7 @@ jobs:
         run: |
           dotnet restore games/Sumo --force-evaluate
           dotnet build games/Sumo --no-restore
-          ./e3d open games/Sumo/bin/Debug/net10.0/Sumo --offscreen --quiet
+          build/open-game.sh games/Sumo/bin/Debug/net10.0/Sumo --offscreen
           ./e3d command frames.wait 30 --quiet
           ./e3d command input.button 1 RightFaceDown 2 --quiet
           ./e3d command frames.wait 200 --quiet --timeout 600
@@ -1123,7 +1131,7 @@ jobs:
       - name: Build and play the typing game from the package
         run: |
           build/drive-game.sh Wordfall
-          ./e3d open games/Wordfall/bin/Debug/net10.0/Wordfall --offscreen --quiet
+          build/open-game.sh games/Wordfall/bin/Debug/net10.0/Wordfall --offscreen
           ./e3d command wordfall.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 900 --quiet --timeout 600
@@ -1137,7 +1145,7 @@ jobs:
       - name: Build and play the puzzle of gestures from the package
         run: |
           build/drive-game.sh Slide
-          ./e3d open games/Slide/bin/Debug/net10.0/Slide --offscreen --quiet
+          build/open-game.sh games/Slide/bin/Debug/net10.0/Slide --offscreen
           ./e3d command slide.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 400 --quiet --timeout 600
@@ -1155,7 +1163,7 @@ jobs:
       - name: Build and play the runner from the package
         run: |
           build/drive-game.sh Jelly
-          ./e3d open games/Jelly/bin/Debug/net10.0/Jelly --offscreen --quiet
+          build/open-game.sh games/Jelly/bin/Debug/net10.0/Jelly --offscreen
           ./e3d command jelly.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 600 --quiet --timeout 600
@@ -1169,7 +1177,7 @@ jobs:
       - name: Build and play the house lit by global illumination from the package
         run: |
           build/drive-game.sh Wick
-          ./e3d open games/Wick/bin/Debug/net10.0/Wick --offscreen --quiet
+          build/open-game.sh games/Wick/bin/Debug/net10.0/Wick --offscreen
           ./e3d command wick.warp 12.4 4 --quiet
           ./e3d command frames.wait 120 --quiet --timeout 600
           ./e3d shot captures/wick.png --quiet

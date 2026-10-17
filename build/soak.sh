@@ -26,7 +26,7 @@ trap '[ -e "build/soak/$name.failed" ] || echo "$? $(basename "$program") $BASH_
 
 # Every call names the session, so several games are played at once.
 session=(--name "$(basename "$program")")
-./e3d open "$program" "$mode" --quiet
+build/open-game.sh "$program" "$mode"
 trap './e3d stop "${session[@]}" --quiet || true' EXIT
 wait_frames() { ./e3d command frames.wait "$1" "${session[@]}" --quiet --timeout 600; }
 key() { ./e3d command input.key "$1" "$2" "${session[@]}" --quiet --timeout 600; }

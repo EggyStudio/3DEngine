@@ -11,9 +11,10 @@ bash runs one, under `bash -e`, so the first command that fails ends it, and wha
 passed on as it comes. A step that fails and prints no `::error::` of its own is given one, which
 names the step, the command that failed with its line and exit code, the step's last lines, and the
 last lines at a warning or worse of each session log under build/sessions written while it ran, as
-the test page names its causes (NORM.md, N 6.7). Before it, a command such as `status=$(./e3d
-command ...)` ended a step with `Process completed with exit code 4` and nothing else, its error
-taken into the variable.
+the test page names its causes (NORM.md, N 6.7), and how each program build/open-game.sh opened in
+the step ended where it has, its exit code or signal and what gdb read from a core it left. Before
+it, a command such as `status=$(./e3d command ...)` ended a step with `Process completed with exit
+code 4` and nothing else, its error taken into the variable.
 
 The step is named as the workflow names it, found by its script in the workflow file, which is the
 one GITHUB_WORKFLOW_REF names or the one --workflow gives. It exits with the script's exit code.
@@ -134,15 +135,74 @@ def session_lines(sessions, since):
     return found
 
 
-def failure(name, code, last, commands, logs):
-    """The error's title and lines: what failed and with what code, the step's last lines, and the
-    session logs' last lines at a warning or worse."""
+def alive(pid):
+    """Whether a process runs, a zombie counting as ended."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    try:
+        with open(f"/proc/{pid}/stat", encoding="utf-8", errors="replace") as f:
+            return f.read().rsplit(")", 1)[-1].split()[0] != "Z"
+    except (OSError, IndexError):
+        return True
+
+
+def endings(sessions, since):
+    """How each program build/open-game.sh opened since the time given ended, where it has, the lines
+    its shell wrote, the first naming the process, and what gdb read from a core it left, once gdb
+    is done, which the program's <name>.reading marker standing says it is not."""
+    found = []
+    try:
+        names = sorted(os.listdir(sessions))
+    except OSError:
+        return found
+    for name in names:
+        path = os.path.join(sessions, name)
+        if not name.endswith(".pid") or os.path.getmtime(path) < since:
+            continue
+        program = name[:-len(".pid")]
+        try:
+            with open(path, encoding="utf-8") as f:
+                pid = int(f.read().strip())
+        except (OSError, ValueError):
+            continue
+        if alive(pid):
+            continue
+        ended = os.path.join(sessions, program + ".ended")
+        reading = os.path.join(sessions, program + ".reading")
+
+        def told():
+            try:
+                with open(ended, encoding="utf-8", errors="replace") as f:
+                    lines = f.read().splitlines()
+            except OSError:
+                return None
+            return lines if lines and lines[0].startswith(f"its process {pid} ") else None
+
+        for wait, ready in ((5, lambda: told() is not None), (120, lambda: not os.path.exists(reading))):
+            deadline = time.time() + wait
+            while not ready() and time.time() < deadline:
+                time.sleep(0.5)
+        if said := told():
+            found.append((program, said))
+    return found
+
+
+def failure(name, code, last, commands, logs, ended=()):
+    """The error's title and lines: what failed and with what code, how the programs it opened ended,
+    the step's last lines, and the session logs' last lines at a warning or worse."""
     title = f"{name}: exit code {code}"
     # The command that ended the step is the last that failed with its code; one that failed inside
     # a substitution whose value was used does not end it.
     ending = next((c for c in reversed(commands) if c[0] == str(code)), None)
     lines = [f"`{ending[2].strip()}` on line {ending[1]} of the step ended with exit code {code}." if ending
              else f"The step ended with exit code {code} by its own exit, no command failing."]
+    for program, said in ended:
+        lines.append(f"{program}, {said[0]}.")
+        lines += ["    " + line for line in said[1:]]
     if last:
         lines += ["Its last lines:"] + ["    " + line for line in last]
     for log, logged in logs:
@@ -169,7 +229,7 @@ def main():
 
     workflow = workflow_file(args.workflow)
     name = (step_name(text, workflow) if workflow else None) or f"The step beginning `{text.strip().splitlines()[0] if text.strip() else ''}`"
-    title, lines = failure(name, code, last, commands, session_lines(args.sessions, started))
+    title, lines = failure(name, code, last, commands, session_lines(args.sessions, started), endings(args.sessions, started))
     print(f"{title}\n" + "\n".join(lines), flush=True)
     annotate("error", title, lines)
     summarize([f"### {title}", ""] + [line if line.startswith("    ") else line + "  " for line in lines])

@@ -33,7 +33,7 @@ Not shared:
 
 - rendering, which is Bevy's in BevyCSharp and the engine's own in 3DEngine
 - the editor, which BevyCSharp has and 3DEngine has decided against
-- the flat raylib-style API, which is 3DEngine's alone
+- the flat API of static calls, which is 3DEngine's alone
 
 ## The ledger
 

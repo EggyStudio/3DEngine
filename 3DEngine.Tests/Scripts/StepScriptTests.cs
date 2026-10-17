@@ -161,6 +161,31 @@ public sealed class StepScriptTests : IDisposable
 
     // Runs build/step.py on the script, as GitHub runs it, against the workflow above and the
     // folder's session logs, and returns its exit code, what it printed and the summary it wrote.
+    [NeedsPythonAndBashFact]
+    public void A_Step_Whose_Game_Died_Says_How_It_Ended_And_What_Gdb_Read_From_Its_Core()
+    {
+        // As build/open-game.sh leaves them for a game that died, its process id and the lines its
+        // shell wrote, the first naming the process, and for another game a line that names another
+        // process, as one an earlier opening wrote late, which is not this opening's.
+        File.WriteAllText(_folder.File("died.sh"), """
+            sh -c 'exit 0' & gone="$!"
+            wait "$gone"
+            echo "$gone" > sessions/Summit.pid
+            printf 'its process %s ended with exit code 132, SIGILL, an illegal instruction, on AMD EPYC 7763 64-Core Processor\n' "$gone" > sessions/Summit.ended
+            printf '#0  0x00007f6ffce9a000 in ?? () from /lib/x86_64-linux-gnu/libLLVM-17.so.1\n=> 0x7f6ffce9a000:\tud2\n' >> sessions/Summit.ended
+            echo "$gone" > sessions/Hopper.pid
+            echo "its process 1 ended with exit code 0, of its own" > sessions/Hopper.ended
+            status=$(sh -c 'echo "error [SESSION_UNREACHABLE] Summit accepted the connection and then said nothing." >&2; exit 4')
+            """);
+        var (exit, log, _) = Step(_folder.File("died.sh"));
+
+        exit.Should().Be(4);
+        var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
+        error.Should().MatchRegex(@"%0ASummit, its process \d+ ended with exit code 132, SIGILL, an illegal instruction, on AMD EPYC 7763 64-Core Processor\.%0A", "the game's death is said with its signal and the processor")
+            .And.Contain("%0A    #0  0x00007f6ffce9a000 in ?? () from /lib/x86_64-linux-gnu/libLLVM-17.so.1%0A    => 0x7f6ffce9a000:\tud2", "and what gdb read from its core")
+            .And.NotContain("Hopper", "a line naming another process is not this opening's");
+    }
+
     private (int Exit, string Log, string Summary) Step(string script)
     {
         File.WriteAllText(_folder.File("build.yml"), Workflow);

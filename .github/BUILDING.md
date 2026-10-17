@@ -335,25 +335,29 @@ controls are tried there, and a game that fails says why in an error annotation 
 Slide's gestures are timed on the game's clock, so its scripted run sets each frame to a sixtieth of
 a second (`time.frame`) before it swipes, and a device that draws slowly sees the swipe it would see
 at 60 frames a second. A game that dies leaves a dump, Windows' own on Windows and the .NET
-runtime's in `captures/dumps` elsewhere, which the error names. Each game has twelve minutes there
-(`DRIVE_MINUTES`), past which it is stopped and its error says how far it got by its last status,
-and Slide is played once more in a window on the runner's desktop (`build/drive-game.sh Slide
-window`) with four minutes, so SDL's window and the swapchain are tried on both systems. They then
-follow the README in a new project (`build/readme-walk.sh`) and build and run every step of the
-first game (`build/first-game.sh`) from the same package, as a newcomer on either system does. Each
-job runs its tests through `build/test.py`, whose page ends the step's log and is the job's summary.
-Each cause is also an error annotation with its whole entry, and a notice has the page's head and
-the lines repeated most, since a reader who is not signed in to GitHub reads a run's annotations and
-nothing else, so a red run says what failed to whoever opens it. A last job, `digest`, puts the
-three pages into one, each cause with the systems it was seen on. Each job has a time limit. Each
-builds with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is right
-to keep is turned off where it arises, with its reason. A Vulkan instance asks for portability
-devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
-the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with
-which `AppLeakTests` counts the heap's objects by type after its twentieth app and its hundredth, so
-a failure there names the types that grew. The Linux job fetches the commit the 5.1 package was
-packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name the public surface
-lost since.
+runtime's in `captures/dumps` elsewhere where the runtime writes one, which the error names. On
+Linux and macOS a game is opened by `build/open-game.sh`, as the Linux jobs open every game, under a
+shell that waits on it and writes how it ended, its exit code or signal. On Linux each opening
+prints the processor's model and flags, and gdb reads the core a game that dies leaves, the faulting
+thread's frames and the instruction at its program counter, which the error carries. Each game has
+twelve minutes there (`DRIVE_MINUTES`), past which it is stopped and its error says how far it got
+by its last status, and Slide is played once more in a window on the runner's desktop
+(`build/drive-game.sh Slide window`) with four minutes, so SDL's window and the swapchain are tried
+on both systems. They then follow the README in a new project (`build/readme-walk.sh`) and build and
+run every step of the first game (`build/first-game.sh`) from the same package, as a newcomer on
+either system does. Each job runs its tests through `build/test.py`, whose page ends the step's log
+and is the job's summary. Each cause is also an error annotation with its whole entry, and a notice
+has the page's head and the lines repeated most, since a reader who is not signed in to GitHub reads
+a run's annotations and nothing else, so a red run says what failed to whoever opens it. A last job,
+`digest`, puts the three pages into one, each cause with the systems it was seen on. Each job has a
+time limit. Each builds with `-warnaserror`, so a warning fails the commit that wrote it, and a
+warning that is right to keep is turned off where it arises, with its reason. A Vulkan instance asks
+for portability devices where the loader offers them, and a device of the portability subset, as
+MoltenVK is, has the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in
+`E3D_GCDUMP`, with which `AppLeakTests` counts the heap's objects by type after its twentieth app
+and its hundredth, so a failure there names the types that grew. The Linux job fetches the commit
+the 5.1 package was packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name
+the public surface lost since.
 
 On Linux, the `examples` job, which runs after the Linux tests on every push and in the pack run,
 then checks the package as a player and a reader meet it. It packs the engine, publishes Slide

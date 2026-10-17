@@ -11,12 +11,13 @@
 #   python3 build/soak-check.py build/soak/<name>.csv [...] [--sessions DIR]
 #
 # Each game that fails is named with what failed and its numbers, and under GitHub Actions in an
-# error annotation as well, which a reader not signed in sees (NORM.md, N 6.7), with the value
-# that climbed, from the least of the first half to the least of the second against the bound, or
-# the command that ended its soak with its exit code, which build/soak.sh writes beside the readings
-# as <name>.failed, and the last warnings of the game's own log under build/sessions, or the folder
-# --sessions gives. The process's resident memory at the first reading kept and at the last is
-# said beside them, and not judged, since a driver's caches move it.
+# error annotation as well, which a reader not signed in sees (NORM.md, N 6.7), with the value that
+# climbed, from the least of the first half to the least of the second against the bound, or the
+# command that ended its soak with its exit code, which build/soak.sh writes beside the readings as
+# <name>.failed, how the game ended where build/open-game.sh's shell wrote it, and the last warnings
+# of the game's own log under build/sessions, or the folder --sessions gives. The process's resident
+# memory at the first reading kept and at the last is said beside them, and not judged, since a
+# driver's caches move it.
 import os
 import sys
 
@@ -104,6 +105,16 @@ def warnings(program):
     return found[-LOG_LINES:]
 
 
+def how(program):
+    """How a program build/open-game.sh opened ended, its exit code or signal and what gdb read from
+    a core it left, as its shell wrote it beside the program's log."""
+    path = os.path.join(SESSIONS, program + ".ended")
+    if not program or not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8", errors="replace") as text:
+        return [line.rstrip() for line in text][:40]
+
+
 def megabytes(count):
     return f"{count / (1 << 20):.0f} MB"
 
@@ -116,7 +127,7 @@ for path in arguments:
     if (stop := ended(path)) is not None:
         code, program, command = stop
         problems.append(f"{name} could not be played through, `{command}` ending with {code}")
-        problems += [f"  {line}" for line in warnings(program)]
+        problems += [f"  {line}" for line in how(program) + warnings(program)]
     if len(rows) < 6:
         problems.append(f"{name}: {len(rows)} readings, too few to judge")
     else:
