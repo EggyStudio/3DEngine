@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ddb40469`, Verdicts 59 and 60 mended and nothing else, as Decision 39 asks. The
+Reviewed up to `fc5fdc97`, Verdict 61 mended and nothing else: the script test's grow mode runs with
+a minute's time limit where the hang mode keeps its six seconds, so the memory limit comes first on
+any runner, the test's comment saying the race, the stand-in passing 200 MB in a second here and the
+macOS runner holding 196 when the six seconds ran out; and the stand-in grows in copies of a random
+block of 10 MB where it repeated one byte, since macOS can compress a page of one byte repeated when
+memory is short and leave it out of the resident size the script reads, a guard said in its comment
+and not a cause seen. Reproduced with the stand-in held to a fiftieth of a core: six seconds ended
+at the time limit holding 50 MB, a minute at the memory limit after 42 seconds holding 220. The
+whole suite 1,710 of 1,710 through the script, NormTests 16 of 16, the strict build clean. Right.
+The pack run of `ddb40469` ended at 22:54 failed on its macOS suite alone, Verdict 61's: Windows
+green, 1,659 of 1,659 in 45 minutes with its games played, and Linux green, the examples and pack
+jobs skipped, so Verdict 56's step is unread until the owner re-runs the failed jobs or packs again.
+The push of `fc5fdc97` ran whole green on 2026-10-17, the second of Decision 39's three: Linux in 17
+minutes, macOS in 41, Windows in 75, of which the suite took 46 and the games played from the
+package 20, and the examples job in 9. Its suites settled Verdicts 57, 58, 59 and 61, the pack run's
+macOS suite the second green for 61, and brought Verdict 60 to two of three. The pack run on it,
+started at 08:54, ran its three suites green, Windows in 74 minutes again, since the shader cache
+the push's Windows job saved at its end came after the pack run's job began, so the first job to
+restore it is the next; its examples jobs passed, the Linux one in 81 minutes with the strategy
+game's step, which settled Verdict 56, and the macOS captures in 58, so the pack run passed whole at
+11:31. Next a commit of the review's record alone, the third push; its run green makes Decision 39's
+three, and the pack run after it closes the decision for this engine, unless the owner takes this
+pack run as that one.
+
+Before it, `ddb40469` came, Verdicts 59 and 60 mended and nothing else, as Decision 39 asks. The
 drawing leak test reads the resident memory again right after the twentieth app's heap census and
 holds the last app to that reading, the bound at 50 for the creep alone with the comment saying why,
 the message gaining the twentieth's figure before the census and after, 314.6 and 311.2 MB here with
@@ -59,22 +83,6 @@ run's macOS suite failed Summit's reference frame, the whole frame gray where th
 a capture after a fixed settle of ten frames with nothing asked of the scene's readiness, Verdict
 60. Verdicts 56, 57 and 58 stand as they are. Next the two mends, then pushes until three in a row
 are green with the pack after them, and only then item 6.
-
-Before it, `cc473437` came, Verdict 56's line and the list's: the strategy game's wait of 300 frames
-after the order at tile 6 5 carries `--timeout 600` as Manor's and the rally's do, the file parsing,
-and `build/norm/7.2.txt` takes `9b54221b` as the owner's own under `bb3202e4`, NormTests 16 of 16
-and the tree clean. Right. The working session has stopped on the owner's word. The push and the
-pack run of `cc473437` on 2026-10-13 both failed, each on one job and each on a different thing: the
-push's Windows job in its games' step, Slide stopping serving after its startup while its process
-lived, the third shape of Verdict 57 after Linux's exit and macOS's swipe that slid nothing, so the
-verdict is Slide's on every system; and the pack run's macOS suite lost to a crash in MoltenVK's
-pipeline creation, Verdict 58, its rerun by namespace passing every test. The suites themselves were
-green on all three: Windows 22 minutes this time where 46 the day before on the same code, Linux 11,
-macOS 15. Linux's job is the shortest because it runs the suite alone, the games and the native
-publish being the examples job's there, while the Windows and macOS jobs play every game and publish
-after their suites, and because a Windows runner's speed varies two-fold between runs. Next: the
-pack run's failed jobs re-run, which is the owner's; Slide read by a working session under Verdict
-57; then item 6.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1034,7 +1042,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
-`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 61 are open.
+`9a3e2e2a`; their numbers are not given again. Verdicts 56 to 59 and 61 are settled on the runs of
+`fc5fdc97` on 2026-10-17, said under each. Verdict 60 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1044,7 +1053,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     a warning or worse, so the game was well and the client was impatient. Manor's and the rally's
     steps give their long waits `--timeout 600`, and line 330 of `examples.yml` is the one wait of
     100 frames or more without it. One thing: `--timeout 600` on that wait, and the pack run after
-    the push. Settled when the pack run's examples job passes the step.
+    the push. Settled when the pack run's examples job passes the step. Settled on the pack run of
+    `fc5fdc97`, 2026-10-17, the examples job passing the strategy game's step.
 
 57. **Slide's process ends in its startup on the push's examples job, with nothing logged.** On the
     push of `82b23f8c`, the puzzle games' step opened Slide offscreen and asked `frames.wait 10`,
@@ -1068,7 +1078,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     milliseconds apart; the Linux exit is not reproduced, and the drive asks the runtime for a dump
     off Windows so the next death names its thread. Settled when the puzzle step passes on two
     pushes and no Linux death comes, or the death's dump names its cause and that is mended. One
-    push's puzzle step green of two, `ddb40469`'s, with no Linux death.
+    push's puzzle step green of two, `ddb40469`'s, with no Linux death. The pack run's Windows job
+    played every game green too. Settled on the push of `fc5fdc97`, 2026-10-17, the second puzzle
+    step green with no Linux death.
 
 58. **The macOS suite of the pack run is lost to a crash in MoltenVK's pipeline creation.** On the
     pack run of `cc473437`, 2026-10-13, the suite crashed after 1 minute 38 seconds with 1,392
@@ -1080,7 +1092,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     driver's, Metal compiling a pipeline under MoltenVK on the runner, seen once, and the job fails
     as a lost suite should. Read on the next macOS runs: a second crash in the same call names which
     pipeline and what the suite held, 1,202 MB here; one crash stays a note. Settled at two green
-    macOS suites. One green macOS suite of two, the push of `ddb40469`.
+    macOS suites. One green macOS suite of two, the push of `ddb40469`. Settled on the push of
+    `fc5fdc97`, 2026-10-17, the second green macOS suite, the pack run's a third.
 
 59. **The drawing leak test's resident baseline is read before the heap census of the same app, so
     the census' footprint counts as growth.** The Windows suite failed the test's resident bound on
@@ -1099,7 +1112,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     series puts at 20 to 35 MB over eighty apps, and a creep near the bound is then a reading of its
     own. Settled at three green Windows suites in a row. Mended at `ddb40469`, the baseline read
     after the census. One green Windows suite of three, the push of `ddb40469`, the test passing
-    with the baseline after the census.
+    with the baseline after the census. Two green Windows suites of three, the pack run of
+    `ddb40469` the second. Settled on the push of `fc5fdc97`, 2026-10-17, the third green Windows
+    suite in a row, the pack run's a fourth.
 
 60. **Summit's reference frame was captured gray on macOS.** On the pack run of `b3895bd4`,
     2026-10-13, `ReferenceFrameTests`' frame of Summit differed from its reference in 77% of its
@@ -1114,7 +1129,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     reference frame captured after a fixed settle alone; the failing frame, kept under the results'
     reference-failures, is read where it was uploaded. Settled at three green macOS suites in a row.
     Mended at `ddb40469`, every reference frame waiting on `E3D.IsSceneLoaded` and its own ready
-    before its settle. One green macOS suite of three, the push of `ddb40469`.
+    before its settle. One green macOS suite of three, the push of `ddb40469`. Two green macOS
+    suites of three in a row, the push and the pack run of `fc5fdc97` on 2026-10-17; the pack run of
+    `ddb40469` between them was lost at Verdict 61's test, its reference frames unread.
 
 61. **The script test's grow mode races its own two limits on a slow runner.** On the pack run of
     `ddb40469`, 2026-10-16, the macOS suite failed
@@ -1126,7 +1143,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     passed, as did the other 1,641 tests, and the test has passed on every run before. One thing:
     the two limits are set so the memory limit comes first on any runner, the stand-in growing in
     larger steps or the test's time limit at a minute, and the test's comment says the race. Settled
-    at two green macOS suites.
+    at two green macOS suites. Mended at `fc5fdc97`, the grow mode given a minute and the stand-in
+    growing in random blocks. Settled on the runs of `fc5fdc97`, 2026-10-17, the push's and the pack
+    run's macOS suites green.
 
 ## Decisions
 
