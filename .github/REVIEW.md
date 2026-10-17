@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `704952c5`, Verdict 63's three asks and Verdict 64's ask done at `c08343d5` and one
+Reviewed up to `d6b08853`, Verdict 64's macOS twin mended and nothing else, 2 files. The leak test's
+held instance asks the loader for its extensions through `vkEnumerateInstanceExtensionProperties`,
+as the engine's `IsInstanceExtensionAvailable` asks, and where `VK_KHR_portability_enumeration` is
+listed asks for it with `EnumeratePortabilityKHR`, as the engine's instance does
+(`GraphicsDevice.Instance.cs:58-73`), with no surface and no debug messenger, the comment saying
+what MoltenVK's loader answered the bare instance. Checked on the working machine, whose loader
+lists the extension too, were the strict build and the whole suite, 1,715 passed, the twin among
+them in 50 seconds. Right. The runs of `704952c5` went on. The push run ended at 01:28 red on macOS,
+the bare twin, and on Windows, where both leak tests failed, the held twin climbing as the plain one
+does, so the climb is the process's own and not the driver's reload (Verdict 64); the pack run's
+Windows suite failed the same way, its games job passed at 01:32 with every game played and the soak
+of twelve passing, which settles Verdict 65 and makes Slide's play the third green puzzle step on
+cold caches, and its two capture jobs are running at 01:34, the Linux one the last place the death
+showed. Decision 42's gate holds; items 27 and 28 wait for the next pack run, after `d6b08853` and
+Verdict 64's mend.
+
+Before it, `704952c5` came, Verdict 63's three asks and Verdict 64's ask done at `c08343d5` and one
 comment's width and wording at `704952c5`, 11 files. Every cache of Mesa's shaders, the Linux and
 Windows suites', the examples', the captures' and the games' with their fallbacks, is keyed by the
 processor, `build/processor.sh` printing its model as a word and a checksum of its flags, from
@@ -65,28 +81,6 @@ climb the working set hid), the pack red on the Windows suite the same way, on t
 games jobs (Verdict 63) and on the captures job, where ten examples died the same death while 228 of
 256 drew (Verdict 63), its macOS suite and its macOS captures green. Decision 42's gate holds; items
 27 and 28 wait for it.
-
-Before it, `7b2486a5` came, Verdicts 63 to 65 mended and item 29 done, 64 files. Every way the main
-loop ends logs its reason, `app.quit` the process that asked, `CloseWindow` its call and
-`ProcessExit` the exit code last, E3D.md saying a log that stops without them ended in a kill or a
-fault; `build/drive-game.sh` starts a game on Linux and macOS under a shell that writes its wait
-status, names the signal, adds the kernel's last lines and the biggest processes to a death on Linux
-and shuts the build servers down after its build; the leak test reads the private bytes on Windows;
-the soak check's whole-walk table takes Manor's four figures and Swarm's entity ids as measured; and
-the likenesses and idioms are gone from the prose, the ten places named and what the sweep found
-beside them, on the fly, for free, first-class, the -style likenesses and the figurative wire up,
-with two AGENTS.md lines the owner approved in the working session, STYLE.md's Register section
-carrying the rule, the example rows and a search for the idioms. Said under each verdict and the
-item. Checked on the working machine were the strict build, the whole suite 1,713 of 1,713, one more
-for the soak check, `NormTests`, `DocumentLinkTests`, `SoakCheckTests`, `ScriptTests` and
-`CheatsheetTests`, and `build/pack.sh`; the lavapipe container was not run, the shaders' and the
-renderer's changes being comments. Right. The reviewer's SHARED.md likeness is reworded here. The
-owner pushed it at 21:37 and started the pack run at 21:41. At 22:13 the push run's Linux and macOS
-suites and its examples job are green with Windows running, and the pack run's Linux suite is green,
-its examples job red at Slide's death and its games job red at Summit's, both read under Verdict 63,
-where the instruments name the first fact, exit code 132, an illegal instruction, with the kernel's
-lines showing no kill; its Windows and macOS suites and the two capture jobs are running. Decision
-42's gate holds; items 27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1142,8 +1136,8 @@ Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bou
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
-`fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, said under each. Verdicts 63 to 65
-are open.
+`fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 65 on the pack run of
+`704952c5` on 2026-10-18, said under each. Verdicts 63 and 64 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1405,7 +1399,11 @@ are open.
     the pack run of `704952c5`, 2026-10-18, the first with every Mesa cache keyed by the processor
     and so compiled cold, both examples jobs played Slide through, in 9 minutes each, two green
     puzzle steps toward the three, and the first evidence for the cache reading; the games and
-    captures jobs of the pack run are read when they end.
+    captures jobs of the pack run are read when they end. The pack run's games job passed at 01:32
+    the same day, every game played on cold caches, Slide among them, the third green puzzle step in
+    a row; the captures job, where ten examples died on `7b2486a5`, is read when it ends, and its
+    passing settles this verdict with the cache reading as the cause, the mend being the keyed
+    caches.
 
 64. **The hundred-app leak test reads the working set on Windows, which the system trims, so its
     baseline fell in a trough and the test failed with nothing leaking.** On the pack run of
@@ -1455,7 +1453,19 @@ are open.
     The twin's instance is made as the engine's is, `VK_KHR_portability_enumeration` with
     `VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR` where the loader offers the extension, so the
     twin runs on the three systems; the Windows suites of these runs, still running, say whose the
-    climb is.
+    climb is. The twin's instance is made as the engine's at `d6b08853`, the portability extension
+    and flag asked where the loader lists them. On the push and the pack run of `704952c5`,
+    2026-10-18, the Windows suite failed both runs of the hundred apps, the plain and the held, each
+    climbing alike, 725 MB at the tenth app to 828 at the hundredth and 729 to 823, the collector
+    holding 84 to 87 MB committed throughout and the heap 38, so the climb is neither the
+    collector's nor the driver's load, which the held instance kept, and is the process's own native
+    memory, about 1 MB an app, on Windows alone. One thing more. The test reads the private bytes at
+    each stage of one app's life, after SDL's init, the instance, the device, the first frame, the
+    close and SDL's quit, averaged over the hundred, so the stage whose bytes do not come back names
+    the leak, SDL's Windows backend, the audio device, the loader's layers or the engine's own
+    allocations, and that allocation is then found and freed, or, where it is a library's and not
+    the engine's, bounded with its cost said. Settled at three green Windows suites in a row after
+    the mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1486,7 +1496,9 @@ are open.
     entities, so nothing leaks; `SoakCheckTests` holds the run's numbers passing, each figure
     failing past its bound and the same climb failing for a game without a whole-walk entry, and
     BUILDING.md's soak paragraph says so. On the pack run of `7b2486a5` the games job ended at
-    Summit's death (Verdict 63) before the soak ran, so the mend is unproven there.
+    Summit's death (Verdict 63) before the soak ran, so the mend is unproven there. Settled on the
+    pack run of `704952c5`, 2026-10-18, the games job passing with the soak of the twelve games,
+    Manor's and Swarm's figures within what a whole walk or turn holds.
 
 ## Decisions
 

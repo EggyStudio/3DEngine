@@ -31,7 +31,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // twentieth app to the last where a census of the heap could be taken, and the threads the
     // process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
-        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null)
+        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null,
+        string? Stages = null)
     {
         // How far the heap's floor rose, the least of the readings from the twentieth app on in the
         // first half against the least in the second, the twentieth to the fiftieth against the
@@ -55,7 +56,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // The resident memory's series says whether a growth is steady, an allocation each app makes
         // and its closing does not give back, or a step taken once.
         public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
-            $"{ResidentName} after every ten in MB, what the collector held committed in brackets, {Residents}{Environment.NewLine}" +
+            $"{ResidentName} after every ten in MB, what the collector held committed in brackets, and on Windows what the process's heaps " +
+            $"held allocated of what they committed and how many there were, {Residents}{Environment.NewLine}" +
+            $"{ResidentName} each step of an app's life took in MB, {Stages ?? "not read"}{Environment.NewLine}" +
             (ResidentBeforeCensus is { } before
                 ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
                 : "") +
@@ -81,8 +84,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     private const int HandleAllowance = 200;
 
     // The steps the driver's threads are opened and given back at, whose Thread handles the hold
-    // allows for each app past the twentieth.
-    private static readonly HashSet<string> DriverSteps = ["instance made", "device made", "drawn", "device gone"];
+    // allows for each app past the twentieth. The device's making and its disposal are each split
+    // into several steps, so the memory each step takes is named, and every one of them is the
+    // driver's as the step it was split from was.
+    private static readonly HashSet<string> DriverSteps =
+    [
+        "before the instance", "instance made", "physical device chosen", "device made", "drawn",
+        "cleaned up to the device", "VkDevice destroyed", "instance destroyed", "device gone",
+    ];
 
     // Makes and closes an app of the given config a hundred times, or as many tens of them past
     // fifty as the budget allows. The first twenty warm the pools and the threads that stay for the
@@ -104,6 +113,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // its closing, read over several apps since what one app kept swung from 2 to 5 between
         // runs on Windows.
         var steps = new Dictionary<int, Steps>();
+        // The memory each step of an app's life took, read for every app past the twentieth.
+        var stages = new Stages();
         // The most Thread handles a followed app kept through the driver's steps, which the hold
         // allows for each app past the twentieth.
         var driverThreads = 0;
@@ -123,7 +134,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // toward a limit showing before the death.
             Console.WriteLine($"[leak test] app {i} of at most 100, after the last {Held()}{took}");
             var clock = Stopwatch.StartNew();
-            var followed = i is 21 or 31 or 41 or 51 ? steps[i] = new Steps(i) : null;
+            var followed = i is 21 or 31 or 41 or 51 ? steps[i] = new Steps(i, stages) : i > 20 ? new Steps(i, stages, handles: false) : null;
             followed?.Follow();
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
@@ -169,7 +180,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // What the collector holds committed, read beside it, so a climb of the process's own is
             // told from the collector's regions, which it gives back over time rather than at once.
             var committed = GC.GetGCMemoryInfo().TotalCommittedBytes / 1e6;
-            residents.Add($"{i}: {resident:0.0} ({committed:0.0})");
+            residents.Add($"{i}: {resident:0.0} ({committed:0.0}{ProcessHeaps()})");
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, the collector committing {committed:0} MB, {GC.CollectionCount(2)} full collections");
             // The Vulkan objects every device made and none destroyed, which a closed app's device
             // should leave none of, so a native growth is told from the driver's own.
@@ -207,9 +218,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (last)
             {
                 Console.WriteLine($"[leak test] {i} apps in {spent.Elapsed.TotalSeconds:0} seconds{took}");
+                Console.WriteLine($"[leak test] {ResidentName} each step of an app's life took in MB, {stages}");
                 output.WriteLine($"{i} apps in {spent.Elapsed.TotalSeconds:0} seconds");
+                output.WriteLine($"{ResidentName} each step of an app's life took in MB, {stages}");
                 return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), residentBeforeCensus, grown,
-                    string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!));
+                    string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!), stages.ToString());
             }
         }
         throw new InvalidOperationException("unreachable");
@@ -222,19 +235,77 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // and a twentieth reading that fell in a trough failed the bound with nothing kept. BevyCSharp's
     // memory guard reads the same figure for the same reason. Elsewhere it is the resident set,
     // which the system trims only when memory runs short.
+    // It is asked of the system directly, which allocates nothing, since it is read at every step of
+    // every app, and Process's figure is read from a snapshot of every process on the machine.
     private static double Resident()
     {
         if (!OperatingSystem.IsWindows()) return Environment.WorkingSet / 1e6;
-        using var process = Process.GetCurrentProcess();
-        return process.PrivateMemorySize64 / 1e6;
+        var counters = new MemoryCounters { Size = (uint)Marshal.SizeOf<MemoryCounters>() };
+        return GetProcessMemoryInfo(new IntPtr(-1), ref counters, counters.Size) ? counters.PrivateUsage / 1e6 : 0;
     }
+
+    // PROCESS_MEMORY_COUNTERS_EX, whose last field is the private bytes.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MemoryCounters
+    {
+        public uint Size, PageFaultCount;
+        public nuint PeakWorkingSetSize, WorkingSetSize, QuotaPeakPagedPoolUsage, QuotaPagedPoolUsage, QuotaPeakNonPagedPoolUsage,
+            QuotaNonPagedPoolUsage, PagefileUsage, PeakPagefileUsage, PrivateUsage;
+    }
+
+    [DllImport("kernel32.dll", EntryPoint = "K32GetProcessMemoryInfo")]
+    private static extern bool GetProcessMemoryInfo(IntPtr process, ref MemoryCounters counters, uint size);
+
+    // On Windows, what the process's heaps hold allocated of what they have committed, in MB, and
+    // how many heaps there are, as a reading's text, and nothing elsewhere. Every native library's
+    // malloc takes from them, the C runtime's, SDL's, the loader's and lavapipe's, and the collector
+    // and the code LLVM compiles do not. So a climb they hold allocated is blocks no one freed, one
+    // they hold committed and not allocated is freed memory a heap keeps, and one outside them is
+    // memory taken from the system directly, such as compiled code or a thread's stack.
+    private static string ProcessHeaps()
+    {
+        if (!OperatingSystem.IsWindows()) return "";
+        try
+        {
+            var heaps = new IntPtr[256];
+            var count = (int)GetProcessHeaps((uint)heaps.Length, heaps);
+            double allocated = 0, committed = 0;
+            for (int h = 0; h < Math.Min(count, heaps.Length); h++)
+            {
+                var summary = new HeapSummaryData { Size = (uint)Marshal.SizeOf<HeapSummaryData>() };
+                if (!HeapSummary(heaps[h], 0, ref summary)) continue;
+                allocated += summary.Allocated / 1e6;
+                committed += summary.Committed / 1e6;
+            }
+            return $", heaps {allocated:0.0} of {committed:0.0} in {count}";
+        }
+        catch (EntryPointNotFoundException)
+        {
+            return ", heaps not read";
+        }
+    }
+
+    // HEAP_SUMMARY.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct HeapSummaryData
+    {
+        public uint Size;
+        public nuint Allocated, Committed, Reserved, MaxReserve;
+    }
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetProcessHeaps(uint count, [Out] IntPtr[] heaps);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool HeapSummary(IntPtr heap, uint flags, ref HeapSummaryData summary);
 
     // What Resident reads, by its name on this system, for the series a failure is read by.
     private static string ResidentName => OperatingSystem.IsWindows() ? "the private bytes committed" : "the resident memory";
 
-    // An app's handles at each step of its life, read where its log says the step was taken, each
-    // step's change from the one before written as it comes and kept for a failure's message.
-    private sealed class Steps(int app)
+    // An app's memory at each step of its life, read where its log says the step was taken and added
+    // to the stages, and with handles, its handles at each step, each step's change from the one
+    // before written as it comes and kept for a failure's message.
+    private sealed class Steps(int app, Stages stages, bool handles = true)
     {
         // The lines that mark a step, by how each begins, and the step's name. Between the device's
         // making and ImGui's every plugin the app builds is a step of its own, by the line that says
@@ -250,6 +321,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             ("SdlImGuiPlugin: Creating ImGui context", "before ImGui"), ("ImGui initialized", "ImGui made"), ("Startup stage complete", "started"),
             ("ImGui font atlas uploaded", "ImGui's atlas uploaded"), ("ImGui pipeline created", "ImGui's pipeline made"),
             ("Running the Cleanup stage", "closing"), ("Graphics device disposed", "device gone"), ("Cleanup stage complete", "closed"),
+            // The device's making and disposal split finer, so the loader's reading of its layers and
+            // drivers as the instance is made, the driver's listing of its devices as one is chosen,
+            // and the instance's destruction after the device's each have a step, and SDL's start and
+            // quit where a window is made.
+            ("Step 1/6: Creating Vulkan instance", "before the instance"), ("Step 3/6: Physical device selected", "physical device chosen"),
+            ("Disposing graphics device", "cleaned up to the device"), ("VkDevice destroyed", "VkDevice destroyed"),
+            ("VkInstance destroyed", "instance destroyed"), ("SDL3 initialized successfully", "SDL started"),
+            ("SDL window destroyed and SDL subsystems shut down", "SDL quit"),
         ];
 
         private const string Built = "Plugin built: ";
@@ -260,14 +339,19 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // step's and those the app kept are named.
         private Dictionary<string, int> _kindsFirst = [], _kindsLast = [];
         private int _driverThreads;
+        private double _memory;
 
         // The Thread handles the driver's steps opened and did not give back, none below zero.
         public int DriverThreads => Math.Max(0, _driverThreads);
 
         public void Follow()
         {
-            _first = _last = Handles();
-            _kindsFirst = _kindsLast = HandleCensus.Now();
+            if (handles)
+            {
+                _first = _last = Handles();
+                _kindsFirst = _kindsLast = HandleCensus.Now();
+            }
+            _memory = Resident();
             Logger.Heard = (_, _, message) =>
             {
                 foreach (var (line, step) in Marks)
@@ -279,6 +363,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 
         public void Mark(string step)
         {
+            var memory = Resident();
+            stages.Add(step, memory - _memory);
+            _memory = memory;
+            if (!handles) return;
             var now = Handles();
             var taken = $"{step} {now - _last:+0;-0;0}";
             // On Windows, the kinds the step changed, so the step that opens a thread's handle and
@@ -307,6 +395,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             GC.WaitForPendingFinalizers();
             GC.Collect();
             Mark("ended");
+            stages.Ended();
+            if (!handles) return;
             _taken.Add($"{_last - _first:+0;-0;0} kept");
             if (OperatingSystem.IsWindows())
             {
@@ -317,6 +407,43 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
 
         public override string ToString() => $"app {app}: {(_taken.Count == 0 ? "not read" : string.Join(", ", _taken))}";
+    }
+
+    // What each step of an app's life took of the process's memory, as Resident reads it, summed
+    // over every app past the twentieth and averaged, in the order the steps first came, so a failure
+    // names the step whose memory the closing does not give back. On Windows each drawing app kept
+    // some 1 MB, with the collector's memory and the heap flat, beside a held instance as without
+    // one (REVIEW.md, Verdict 64). A step that took less than 0.05 MB an app either way is counted
+    // among the rest, so the line names the steps that matter.
+    private sealed class Stages
+    {
+        private readonly List<string> _order = [];
+        private readonly Dictionary<string, double> _taken = [];
+        private int _apps;
+
+        public void Add(string step, double megabytes)
+        {
+            lock (_taken)
+            {
+                if (!_taken.TryGetValue(step, out var sum)) _order.Add(step);
+                _taken[step] = sum + megabytes;
+            }
+        }
+
+        public void Ended() => Interlocked.Increment(ref _apps);
+
+        public override string ToString()
+        {
+            lock (_taken)
+            {
+                if (_apps == 0) return "not read";
+                var each = _order.Select(step => (Step: step, Taken: _taken[step] / _apps)).ToList();
+                var named = each.Where(e => Math.Abs(e.Taken) >= 0.05).Select(e => $"{e.Step} {e.Taken:+0.00;-0.00}");
+                var rest = each.Where(e => Math.Abs(e.Taken) < 0.05).Sum(e => e.Taken);
+                return $"averaged over the {_apps} apps after the twentieth, {string.Join(", ", named)}, the rest {rest:+0.00;-0.00}, " +
+                    $"{each.Sum(e => e.Taken):+0.00;-0.00} kept";
+            }
+        }
     }
 
     private static int Handles()
