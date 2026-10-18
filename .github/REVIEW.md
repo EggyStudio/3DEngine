@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `29eb2eca`, item 31 done and nothing else, 10 files. What the owner saw was read
+Reviewed up to `f5035acd`, item 32 done and nothing else, 21 files. `ParticleEmitter.Local` keeps an
+emitter's particles in its entity's space, the step run with the origin at zero and the velocity and
+gravity turned with the entity, the draw placing each particle by the entity's world matrix with its
+size in world units, collision not read for such an emitter since the depth and the field are the
+world's; `ParticleEmitter.Points` holds particles the program places in that space, standing at the
+start size in the start color and living until the array no longer holds them, apart from the births
+the maximum counts, which scene files hold as the arrays they already read; and
+`SetParticleEmitterRotation` stands beside the position's call in the flat API. The particle header
+grows from four values of four floats to eight, three of them the rows of the matrix a particle is
+placed by, the identity in the world and the entity's for a local emitter, written before the step
+with barriers on both sides, the placed points a second buffer an emitter made again when the
+array's contents change, its header written each frame and no dispatch stepping it, and an alpha
+emitter sorts each buffer from the eye in the space its particles are kept in. Two particle tests
+hold a local burst turning with its parent beside a world burst that stays, and a placed point
+keeping its place through the parent's turn and going when the points are null, 18 passing under the
+required layer on the GPU and on lavapipe; `ecs_parented_particles` shows a sky turning about a
+tilted axis with 1,500 placed stars and a comet whose tail is born in the sky's space, captured
+lossless and in the README and EXAMPLES.md; the drawing guide's particles section gains a paragraph
+and a compiled sample, RENDERING.md's passage the header and the placed buffer, and CHEATSHEET.md,
+PublicApi.txt and upgrading.md the three names. Checked were the strict build and the whole suite,
+1,718 passed after upgrading.md gained the names. Right. The game's stars move to these when a
+package brings them. Next items 33 and 34, which one package should carry to the game, then item
+30's parts, and Verdict 70's third green macOS suite.
+
+Before it, `29eb2eca` came, item 31 done and nothing else, 10 files. What the owner saw was read
 first: a missing picture draws nothing and the example has no stand-in for a missing file, so the
 controller of the engine's making was raylib's own generic branch, shapes drawn for a pad whose name
 holds none of its aliases, which the README's capture reached with a pad named Console gamepad and a
@@ -53,47 +77,6 @@ that are to turn with the sky and the particles that cannot, which is item 32, a
 particles live in its entity's space and particles placed by the program, after item 31 and before
 item 30's parts. Next item 31's commit, item 32, then item 30's parts one a commit in the order
 below, the owner's eye welcome on the order, and Verdict 70's third green macOS suite.
-
-Before it, `a12206af` came, Verdict 70's reading and mend and nothing else, two tests and the
-logger. The holders of a system's exception were read. The schedule's catch keeps nothing, the
-exception caught into a local and the thrown systems keyed by the type's full name; the engine's
-logger keeps text, the console and file providers writing the exception's string and the N 3.7
-listener its type's name and message, the object leaving the logger only to providers added by
-`UseProvider`; and the thread's last thrown exception is no holder on this runtime, a probe outside
-the repository showing a collectible type's exception held while the catching frame stood and let go
-once that method returned, which the schedule's invoke does after its catch. Of the providers,
-`ScheduleTests`' listener sat on the process's `Engine.Schedule` logger and kept the exception
-object of every line logged there while its test ran, the script's first throw in another test's app
-among them, the two collections running beside each other, which a scratch provider of the same
-shape reproduced on Linux, the generation outliving its collections with the provider named, a cause
-that fits the failure and is not proven to be the one on macOS. The listener keeps the exception's
-type name and its test compares names, the comment giving the reason and naming the verdict; the
-logger gains an internal list of its providers; and the unload test judges whether the generation
-lives and, where it does, names what may hold it, the app's systems whose code is in the
-generation's load context, the process's list of generated behaviors where it holds one, and the
-providers on the schedule's logger by type. Checked on the working machine were the strict build and
-the whole suite, 1,716 passed, with the scratch removed. Right. The push run of `5a2d7df3` ended at
-20:20 red on its macOS suite alone, its Windows suite green with the twin saying its figure and the
-handles within the census's allowance, the first green Windows suite for Verdicts 64 and 68; the
-pack run's macOS suite and games job passed by 20:30, the macOS suite the third green one with the
-live heap floor, which settles Verdict 69, with its Windows suite and captures jobs still running;
-and the owner pushed `a12206af` at 20:23, its push run in progress. By 20:52 the push run of
-`a12206af` had its Linux and macOS suites and examples job green by 20:49, the macOS suite the first
-of three for Verdict 70 with the mend in, its Windows suite running; the pack run of `5a2d7df3`'s
-captures jobs passed, the measure holding on every pair on an AMD EPYC 7763 64-Core without gfni,
-which settles Verdict 67; and the owner started the pack run of `a12206af` at 20:34, queued behind
-`5a2d7df3`'s, whose Windows suite was still playing the games. The pack run of `5a2d7df3` ended at
-21:04 whole green with its package, its Windows suite green with the thirteen games played, and the
-push run of `a12206af` ended at 21:13 whole green, its Windows suite the third green one in a row
-with the leak tests' mends in, after `5a2d7df3`'s push and pack, which settles Verdicts 64 and 68;
-the pack run of `a12206af` started its suites at 21:04. By 21:47 that pack run's Linux and macOS
-suites and examples job had passed, the macOS suite the second green one of three for Verdict 70,
-with its Windows suite, games and captures jobs running. That pack run ended at 22:16 whole green
-with its package, the third of the day. At 22:25 the owner resumed development on both engines and
-the voxel game (Decision 44), this engine's week being the radiance cascades, whose light does not
-yet look as good as it can (item 30), and beside it the examples' pictures where one of the engine's
-own stands in for raylib's, the gamepad example's controller first (item 31). Next item 30's
-reading, item 31, and one more green macOS suite for Verdict 70, the one verdict open.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1204,9 +1187,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on the Xbox picture, the capture taken again, and the sweep finding no other stand-in.
 
 32. **Particles that live in their emitter's space and stand where the program puts them, for the
-    game's stars (ASKS.md, 2026-10-18).** The voxel game's stars are fixed points on a sky that
-    turns with the hour, asked for as a particle effect parented to the sun's and the moon's places
-    (its item 6), and the package's particles cannot be that: `Particles.Run`
+    game's stars (ASKS.md, 2026-10-18), done at `f5035acd`.** The voxel game's stars are fixed
+    points on a sky that turns with the hour, asked for as a particle effect parented to the sun's
+    and the moon's places (its item 6), and the package's particles cannot be that: `Particles.Run`
     (`3DEngine/Rendering/Particles/Particles.cs:52`) takes the translation of the emitter's world
     matrix alone, so its rotation and its parent's turn reach no particle, each starts at a random
     point within the radius and is stepped on the GPU in world space, keeping its place in the world
@@ -1219,7 +1202,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     turn, and the particles' guide says both; the game moves its stars to them when a package brings
     them, and `ASKS.md`'s entry carries the item's number. After item 31 and before item 30's parts,
     being a day's work that the game's item waits on, the owner's eye welcome on the order. One
-    commit.
+    commit. Done at `f5035acd` on 2026-10-18, `Local` and `Points` on the emitter with the
+    rotation's call in the flat API, two tests, an example of a turning sky and the guides; the game
+    takes it from the next package.
 
 33. **A setting turns the sun's contact shadows off, or leaves them out where the shadow map holds
     the point (ASKS.md, 2026-10-18).** The voxel game draws its sun's shadows stepped along the

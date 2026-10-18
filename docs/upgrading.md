@@ -252,3 +252,8 @@ guide that shows it.
   parent's, `ParticleEmitter.Points` places particles of the program's own at points in that space,
   standing until the array no longer holds them, and `SetParticleEmitterRotation` turns an emitter
   made through the flat API, as [Particles](drawing-3d-and-cameras.md#particles) shows.
+- **The sun's contact shadows chosen.** `SetContactShadows` with `ContactShadows.On`, the default,
+  `ContactShadows.PastShadowMap` or `ContactShadows.Off` says where the sun's contact shadows through
+  the scene's distance field darken its light, so a shadow the map holds may keep its hard edge, as
+  [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
+  shows.

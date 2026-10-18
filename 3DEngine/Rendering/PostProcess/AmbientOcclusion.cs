@@ -129,7 +129,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     {
         if (renderWorld.TryGet<SceneFieldSettings>() is not { On: true } field || renderWorld.TryGet<FrameShadow>() is not { } shadow
             || renderWorld.TryGet<RenderLights>() is not { } lights || shadow.Light < 0 || shadow.Light >= lights.All.Count
-            || lights.All[shadow.Light].Kind != LightKind.Directional)
+            || lights.All[shadow.Light].Kind != LightKind.Directional || renderWorld.TryGet<ShadowSettings>()?.Contact == Engine.ContactShadows.Off)
             return null;
         return (-lights.All[shadow.Light].Direction, ContactCells * field.CellSize);
     }

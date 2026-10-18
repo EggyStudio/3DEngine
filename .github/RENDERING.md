@@ -647,6 +647,10 @@ it at four distances out to the radius, and traces the sun's light toward the su
 half out, darkened by how near a surface the ray passes as a share of how far along it is, its
 share in the occlusion image's green channel, which the model pass multiplies the shadowed
 directional light by, so the pass runs for the contact shadows alone where the occlusion is off.
+`SetContactShadows` leaves the trace out (`ContactShadows.Off`), or has the model pass take the
+contact shadow as little as the shadow map holds the point (`ContactShadows.PastShadowMap`, the
+lighting buffer's `ambientOcclusion.y` 2), the map's share from `lightReaching`, 1 within its
+cascades and falling to 0 across the last one's edge, so a shadow the map draws keeps its hard edge.
 `particle_step.slang` steps a colliding particle's move through the field where the field holds the
 place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
 the window as the field holds the scene, where `field.show` asks. A render texture drawn through a

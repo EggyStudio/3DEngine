@@ -38,6 +38,74 @@ public sealed class ModelShadowTests : IDisposable
         return LoadImage(path);
     }
 
+    // Draws frames until the scene's distance field has settled, then captures one.
+    private Image Settled(Action draw, string name)
+    {
+        var path = Path.Combine(_folder.Path, name + ".png");
+        var at = SceneFieldPlan.SettleFrames + 6;
+        for (int frame = 0; frame < at + 10 && !File.Exists(path); frame++)
+        {
+            BeginDrawing();
+            draw();
+            if (frame == at) TakeScreenshot(path);
+            EndDrawing();
+        }
+        File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
+        return LoadImage(path);
+    }
+
+    [NeedsVulkanFact]
+    public void With_Contact_Shadows_Off_A_Shadow_The_Map_Holds_Keeps_Its_Hard_Edge_With_The_Field_On()
+    {
+        var config = Config.Default.WithWindow("contact shadow test", 320, 180) with { Headless = true, Offscreen = true, Samples = 4 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        // A pillar a unit across under a low sun, its shadow running three units and more toward -x,
+        // with the scene's distance field on, which the contact shadows are traced through.
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, -0.45f, 0)), Color.White, 1, castsShadows: true);
+        SetSceneField(2, 0.25f, 2);
+        var floor = LoadModelFromMesh(GenMeshPlane(30, 30, 1, 1));
+        var pillar = LoadModelFromMesh(GenMeshCube(1, 3, 1));
+        var camera = new Camera3D(new Vector3(-3, 7, 4), new Vector3(-3, 0, 0), Vector3.UnitY, 45);
+        void Scene()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(floor, Vector3.Zero, 1, Color.White);
+            DrawModel(pillar, new Vector3(0, 1.5f, 0), 1, Color.White);
+            EndMode3D();
+        }
+        // The floor a fifth of a unit past the shadow's side, which the map leaves lit, inside the
+        // shadow, and far from it. On the RTX 4070 the floor past the side read 0.71 of the far
+        // floor's light with contact shadows on and 1.00 off or kept past the map, and inside the
+        // shadow, the map reaching none of it, 0 kept past the map and 169 of 255 off.
+        int Red(Image image, Vector3 at)
+        {
+            var pixel = GetWorldToScreen(at, camera);
+            return GetImageColor(image, (int)pixel.X, (int)pixel.Y).R;
+        }
+        float Beside(Image image) => Red(image, new Vector3(-3, 0, 0.7f)) / (float)Red(image, new Vector3(-3, 0, 2.5f));
+
+        var on = Settled(Scene, "on");
+        SetContactShadows(ContactShadows.Off);
+        var off = Settled(Scene, "off");
+        SetContactShadows(ContactShadows.PastShadowMap);
+        var past = Settled(Scene, "past");
+        // With the map reaching a unit past the camera, it holds none of the floor.
+        SetShadowDistance(1);
+        var pastBeyond = Settled(Scene, "past-beyond");
+        SetContactShadows(ContactShadows.Off);
+        var offBeyond = Settled(Scene, "off-beyond");
+
+        Beside(off).Should().BeGreaterThan(0.95f, "with contact shadows off the floor past the map's hard edge is lit as the floor far from it");
+        Beside(past).Should().BeGreaterThan(0.95f, "kept past the map's reach alone, they leave a shadow the map holds as it draws it");
+        Beside(on).Should().BeLessThan(Beside(off) - 0.05f, "the field's contact shadow softens the edge past the map's, which the setting takes away");
+        Red(pastBeyond, new Vector3(-3, 0, 0)).Should().BeLessThan(Red(offBeyond, new Vector3(-3, 0, 0)) - 40,
+            "past the map's reach they still shadow the ground the map no longer holds");
+        UnloadModel(floor);
+        UnloadModel(pillar);
+    }
+
     [NeedsVulkanFact]
     public void A_Material_That_Casts_No_Shadow_Leaves_The_Floor_Under_It_Lit()
     {

@@ -70,6 +70,19 @@ public static partial class E3D
         World.GetOrInsertResource(() => new ShadowSettings()).Distance = Math.Max(1, distance);
 
     /// <summary>
+    /// Sets where the sun's contact shadows through the scene's distance field darken its light,
+    /// everywhere the field reaches (<see cref="ContactShadows.On"/>, the default), past the shadow
+    /// map's reach alone, or nowhere.
+    /// </summary>
+    /// <remarks>
+    /// They are traced at half the window's size through the field's cells and blurred, so they
+    /// soften the edge of a shadow the map draws hard, past it by about the field's cell, which a
+    /// game of blocks with hard shadows leaves out where the map holds a point.
+    /// </remarks>
+    public static void SetContactShadows(ContactShadows contactShadows) =>
+        World.GetOrInsertResource(() => new ShadowSettings()).Contact = contactShadows;
+
+    /// <summary>
     /// Sets how many texels wide each tile of the shadow map is, the sun's cascades and the spot
     /// lights each having one, rounded to a power of two from 256 to 4096 (2048 by default). A point
     /// light's faces are a quarter of it.

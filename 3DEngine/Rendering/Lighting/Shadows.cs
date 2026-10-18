@@ -40,6 +40,9 @@ internal sealed class ShadowSettings
     /// two tiles on a side, 2048 unless set. A point light's faces are a quarter of it.
     /// </summary>
     public int TileSize { get; set; } = ShadowFit.TileSize;
+
+    /// <summary>Where the sun's contact shadows through the scene's distance field darken its light, everywhere the field reaches unless set.</summary>
+    public ContactShadows Contact { get; set; }
 }
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>

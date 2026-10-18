@@ -743,6 +743,7 @@ void SetLightDirection(LightHandle light, Vector3 direction);              // Tu
 void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Recolor it
 void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Turn its shadows on or off
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
+void SetContactShadows(ContactShadows contactShadows);                     // Where the sun's contact shadows through the field darken it, On, PastShadowMap or Off
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
 void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold spreads into its surroundings, 0 for off
 (float Intensity, float Threshold) GetBloom();                             // The bloom as it was set

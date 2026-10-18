@@ -62,8 +62,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // The window's view is darkened by its occlusion, as a render target drawing meshes through
         // a camera is by its own.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
-        // And the sun's contact shadows through the scene's distance field, which that pass traces.
-        if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null) windowUbo.AmbientOcclusion.Y = 1;
+        // And the sun's contact shadows through the scene's distance field, which that pass traces,
+        // 2 where they are kept past the shadow map's reach alone.
+        if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null)
+            windowUbo.AmbientOcclusion.Y = renderWorld.TryGet<ShadowSettings>()?.Contact == ContactShadows.PastShadowMap ? 2 : 1;
         // And its light from all around the indirect light the probes hold.
         if (GlobalIlluminationRenderer.CascadesIn(renderWorld) is > 0 and var cascades)
         {

@@ -289,14 +289,16 @@ public float screenOcclusion(ModelVertexOutput input)
 }
 
 // The share of the sun's light its contact shadows through the scene's distance field let reach
-// the pixel a fragment is at, 1 where the view has none.
-public float sunContact(ModelVertexOutput input)
+// the pixel a fragment is at, 1 where the view has none. Where they are kept past the shadow map's
+// reach alone, ambientOcclusion.y 2, they reach a point as little as the map holds it.
+public float sunContact(ModelVertexOutput input, float held = 0.0)
 {
     if (lighting.ambientOcclusion.y <= 0.0)
         return 1.0;
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
-    return ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).g;
+    float contact = ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).g;
+    return lighting.ambientOcclusion.y > 1.5 ? lerp(contact, 1.0, held) : contact;
 }
 
 public struct ModelVertexOutput
@@ -580,7 +582,11 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         }
 
         if (i == lighting.shadowLight)
-            arrived *= lightReaching(input.world, normalize(input.normal)) * sunContact(input);
+        {
+            float held;
+            arrived *= lightReaching(input.world, normalize(input.normal), held);
+            arrived *= sunContact(input, held);
+        }
         else if (lamp.cone.z > 0.0 && int(lamp.positionAndKind.w) == Spot)
             arrived *= spotLightReaching(input.world, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
         else if (lamp.cone.z > 0.0)

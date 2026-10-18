@@ -93,6 +93,15 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
 // a step, and past the last cascade's band the shadow fades out rather than stopping at a line.
 public float lightReaching(float3 world, float3 n)
 {
+    float held;
+    return lightReaching(world, n, held);
+}
+
+// The same, with how much of the point the map holds, 1 within its cascades, falling to 0 across
+// the last one's edge as its shadow is let go there, and 0 past it.
+public float lightReaching(float3 world, float3 n, out float held)
+{
+    held = 0.0;
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
@@ -103,11 +112,14 @@ public float lightReaching(float3 world, float3 n)
         if (reached < 0.0)
             continue;
 
+        held = 1.0;
         float blend = saturate((edge - 0.8) / 0.2);
         if (blend <= 0.0)
             return reached;
         float nextEdge;
         float next = c + 1 < lighting.cascadeCount ? cascadeReached(c + 1, world, n, texel, nextEdge) : -1.0;
+        if (next < 0.0)
+            held = 1.0 - blend;
         return lerp(reached, next < 0.0 ? 1.0 : next, blend);
     }
     return 1.0;

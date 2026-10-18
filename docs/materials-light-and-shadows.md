@@ -364,7 +364,13 @@ Three things read it while it is on. Ambient occlusion, where `SetAmbientOcclusi
 also reads the field along each surface's normal and four ways leaning from it, so a wall out of
 the picture still darkens the floor beside it. The sun, the first directional light that casts
 shadows, casts soft contact shadows traced toward it through the field across 32 cells of the
-finest cascade, sharp where a caster meets what it falls on and softer farther off. And a particle
+finest cascade, sharp where a caster meets what it falls on and softer farther off. Traced at half
+the window's size through the field's cells and blurred, they also darken the ground past the hard
+edge of a shadow the map draws, by about a cell, an edge a game of blocks draws hard, a pillar a
+unit across under a low sun darkening the floor a fifth of a unit past its shadow's side to 0.71 of
+its light. `SetContactShadows(ContactShadows.PastShadowMap)` keeps them
+only past the shadow map's reach, where the map holds nothing and they still shadow the ground, and
+`ContactShadows.Off` leaves them out, the field on for the rest. And a particle
 emitter that collides meets the field wherever it holds the particle, behind things and off the
 screen, and the window's depth elsewhere.
 

@@ -487,6 +487,10 @@ readonly struct Engine.ContactEnded : IEquatable<ContactEnded>
   static bool op_Equality(ContactEnded left, ContactEnded right)
   static bool op_Inequality(ContactEnded left, ContactEnded right)
   void Deconstruct(out Entity A, out Entity B, out PhysicsBody BodyA, out PhysicsBody BodyB)
+enum Engine.ContactShadows : int
+  Off = 2
+  On = 0
+  PastShadowMap = 1
 readonly struct Engine.ContactStarted : IEquatable<ContactStarted>
   ContactStarted(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB, Vector3 Point = default, Vector3 Normal = default, float Speed = 0f)
   Entity A { get; init; }
@@ -1150,6 +1154,7 @@ static class Engine.E3D
   static void SetColorGrading(float contrast, float saturation, Color tint)
   static void SetConfigFlags(ConfigFlags flags)
   static void SetConfigSamples(int samples)
+  static void SetContactShadows(ContactShadows contactShadows)
   static void SetDepthOfField(float focusDistance, float focusRange, float blur)
   static void SetEnvironmentMap(Image equirectangular, float intensity = 1f)
   static void SetExitKey(Key key)
