@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -500,6 +500,31 @@ case "$game" in
     done
     echo "$status"
     case "$status" in Won*"lit 4 of 4 falls 0 "*) ;; *) fail "the autopilot did not light every wick and leave by the door, $status" ;; esac
+    ;;
+  Ore)
+    # Walked north from the middle of the landscape with the keys, a jump taken standing, held to
+    # how high it rose, which the status keeps past the landing on a device of any speed, and the
+    # landscape captured at night from a hill, the emissive ore its only light.
+    cmd input.key Enter 2
+    cmd frames.wait 10
+    before=$(ask ore.status)
+    cmd input.key W 60
+    after=$(ask ore.status)
+    echo "$before / $after"
+    distance=$(moved "$before" "$after" at)
+    awk -v d="$distance" 'BEGIN { exit !(d > 1) }' || fail "the player did not walk, $before then $after"
+    cmd frames.wait 30
+    cmd input.key Space 2
+    cmd frames.wait 60
+    jumped=$(ask ore.status)
+    echo "$jumped"
+    case "$jumped" in *"jumps 1 rise "*) ;; *) fail "the player did not jump, $jumped" ;; esac
+    rise=$(printf '%s\n' "$jumped" | sed -n 's/.* rise \([0-9.]*\) .*/\1/p')
+    awk -v r="$rise" 'BEGIN { exit !(r > 0.8) }' || fail "the jump did not rise a block's height, $jumped"
+    cmd ore.warp 20 30 -50
+    cmd ore.night true
+    cmd frames.wait 60
+    ./e3d shot "captures/$name-night.png" --quiet || true
     ;;
   *)
     fail "is not a game this script plays"

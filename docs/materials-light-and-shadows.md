@@ -481,6 +481,8 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - [`games/Wick`](../games/Wick/Program.cs), a game lit by a lamp the player carries through dark
   rooms, its light reaching round corners and through doorways only as indirect light
+- [`games/Ore`](../games/Ore/Program.cs), a voxel landscape whose mesh's vertex colors global
+  illumination reads, walked in the first person, its emissive ore the only light at night
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and
   [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Models and animation](models-and-animation.md)

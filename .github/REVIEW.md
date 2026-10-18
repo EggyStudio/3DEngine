@@ -10,9 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b40a788d`, item 27 done and nothing else, 83 files, 77 of them the two game projects
-removed with 12,176 lines. `3DEngine.Game` and `3DEngine.Game.Tests` leave with their two lines in
-the solution and the two rows of AGENTS.md; `docs/global-illumination.md:43` and `:132` and
+Reviewed up to `08b104dd`, Verdict 64's mend and nothing else, the leak tests and the device's
+instance. `GraphicsDevice.Instance.cs` gains an internal switch, `LeaveValidationOff`, under which
+an instance leaves the validation layer off in a Debug build as well, its remarks giving the reason,
+the loader unloading the layer with each instance and the layer's Windows build at 1.4.363.0 keeping
+about a megabyte each time through its own allocator, so a hundred apps under it measured the layer
+and not the engine; the public API is unchanged, and the Memory collection runs alone, so the static
+touches no other test. Both drawing leak tests set the switch around their hundred apps on every
+system, the comment holding the version, the measurement and the run on which the twin holding the
+layer passed beside the plain test, and saying that the test requiring the layer under
+`E3D_REQUIRE_VALIDATION` makes devices of its own, so the requirement does not count these apps; the
+held instance holds the driver alone again, so the plain test reads the engine and the driver's
+reloading and the twin the engine alone. A failure's message begins with the region kinds, then the
+followed apps' private data lines, each naming the steps whose allocations stood at the app's end
+and counting the others together, then the step line, then the series, within the page's limit; the
+step line's formats print a zero as 0.00. Checked on Linux with the pinned layer named and required,
+all 200 apps logging the layer disabled, the plain test 0.07 kept an app and the twin 0.01, both
+passing; the strict build and the whole suite, 1,716 passed. Right. The owner pushed `08b104dd` at
+15:08 on 2026-10-18 and started its pack run, queued behind `351cc461`'s, whose games and captures
+jobs passed by 15:27, the measure holding on every pair again (Verdict 67), with captures-macos
+still running and no pack job to come after its red Windows suite. Next item 28, the runs of
+`08b104dd`, whose Windows suites are the first of the three Verdict 64 needs, and the next failing
+measure's processor and pictures (Verdict 67).
+
+Before it, `b40a788d` came, item 27 done and nothing else, 83 files, 77 of them the two game
+projects removed with 12,176 lines. `3DEngine.Game` and `3DEngine.Game.Tests` leave with their two
+lines in the solution and the two rows of AGENTS.md; `docs/global-illumination.md:43` and `:132` and
 `docs/materials-light-and-shadows.md:391` cite Voxel-Sandbox by its repository with the numbers as
 measured, and `.github/RENDERING.md:2151` says the game draws its world there; the tests' comments,
 `.gitignore:83` and the asks' captures stay, and a grep for the old name finds the channel's files
@@ -42,36 +65,6 @@ climbing 98 MB of private data while the twin holding the validation layer loade
 names the layer's unload as the leak's owner (Verdict 64, the mend asked); the owner pushed
 `87cd9415` at 14:39, the pack run of `351cc461` still running. Next item 27, Verdict 64's mend,
 their push and runs, and the next failing measure's processor and pictures (Verdict 67).
-
-Before it, `351cc461` came, Verdict 64's held layer and the layer's pin on Windows and nothing else,
-the leak test, the workflow and BUILDING.md. The Windows suite runs the Debug build, whose instances
-enable the validation layer always, under `E3D_REQUIRE_VALIDATION`, so every app's instance there
-loads the layer and its destruction unloads it, and the held instance enabled no layer until this
-commit, which fits the two tests climbing alike; since this commit it enables
-`VK_LAYER_KHRONOS_validation` wherever `vkEnumerateInstanceLayerProperties` lists it, as the
-engine's Debug instances do, so the layer's library stays loaded through the hundred apps with its
-allocator's state, and the comment above the twin says the driver alone held changed nothing, why
-the layer is suspected and that the twin passing beside the plain test failing names the layer's
-unload. Read on Linux with the pinned layer, the plain test's instance takes 77.4 MB as it is made
-and gives 148.2 back as it is destroyed with 0.08 kept, and the held twin's two instance steps fall
-under 0.05 into the rest with 0.10 kept, so the held layer is the one each app's instance uses and
-nothing of it reloads. The Windows job takes LunarG's runtime components and SDK at 1.4.363.0, the
-version Linux pins and the latest today, from the SDK's versioned paths with `curl -fsSL --retry 3`,
-the files the size of the latest ones byte for byte, so the pin changes nothing in the next run and
-a change of layer comes in a commit thereafter, said in the step's comment and BUILDING.md. Checked
-on the working machine were the strict build and the whole suite, 1,716 passed. Right. Left for the
-suite's word, the plain test's bound read with the layer's unload out of it and the layer's leak
-said in the test with its version. The pack run of `4d5db9df` had by 13:49 its three suites,
-examples job and digest green, the Windows suite passing all 1,664 tests in 24 minutes, the two leak
-tests among them, the readings' swing having met the bound this once (Verdict 64), with the games
-and the two captures jobs running; the owner pushed `351cc461` at 13:46 and started its pack run,
-queued behind. By 14:07 that pack run's games job had passed and its captures job too, the measure
-holding on every pair, the one of Verdict 67 among them, 256 examples drawn in 21 minutes, with
-captures-macos still running and the pack job after it; the page of a measure that holds does not
-say the processor, which Verdict 67 asks as a notice. Next captures-macos and the pack job, which
-make that run whole green and Decision 42's gate met, the Windows suite of `351cc461`'s push run
-naming the step and the sizes with the held twin beside the plain test; items 27 and 28 wait for the
-gate.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1598,7 +1591,11 @@ are open.
     Settled at three green Windows suites in a row after the mend. On the pack run of `351cc461` the
     same day the Windows suite said the same, the plain test alone failing with 95 MB of private
     data kept and the layer's library absent at the readings, the twin passing, so the two samples
-    agree.
+    agree. Mended at `08b104dd`, both drawing leak tests making their hundred apps with the
+    validation layer off on every system through an internal switch of the device, the reason and
+    the figures in their comment, the held instance holding the driver alone again, and the
+    failure's message naming where a climb lies before its series within the page's limit; settled
+    at three green Windows suites in a row after it.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1695,7 +1692,10 @@ are open.
     page says which processor the pairs held on, and the pictures kept under `captures/measure` on
     this run are the holding side of the comparison the next failing run completes. Done at
     `87cd9415`, the processor a notice on every run before any pair is measured, the pairs measured
-    for the first time sharing the other nine notices.
+    for the first time sharing the other nine notices. On the pack run of `351cc461`, 2026-10-18,
+    the measure held on every pair again, so the pair has held on two pack runs and failed on two,
+    the processor said on neither of the holding ones, which `87cd9415`'s notice ends from the next
+    pack run on.
 
 ## Decisions
 

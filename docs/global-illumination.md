@@ -228,6 +228,8 @@ reference needs a GPU that traces rays.
   [`shaders_scene_field`](../3DEngine.Examples/Shaders/ShadersSceneField.cs)
 - [`games/Wick`](../games/Wick/Program.cs), a game lit by a lamp the player carries through dark
   rooms, its light reaching round corners and through doorways only as indirect light
+- [`games/Ore`](../games/Ore/Program.cs), a voxel landscape whose mesh's vertex colors global
+  illumination reads, walked in the first person, its emissive ore the only light at night
 - The cheatsheet's [Global illumination](../CHEATSHEET.md#global-illumination)
 - Previous: [Materials, light and shadows](materials-light-and-shadows.md)
 - Next: [Shaders and compute](shaders-and-compute.md)
