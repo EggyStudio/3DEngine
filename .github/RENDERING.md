@@ -1645,6 +1645,77 @@ holds what stands between, every point sees the lamps, and a texel under a shado
 some hundred frames, which the tests draw past. A frame with no glow light skips the pass, which
 cost a frame of an app of a cube 0.09 s on lavapipe at 320 by 180.
 
+**What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
+`shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
+in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its
+capture stands, by night and by day, were captured at the frames their captures take on the RTX 4070
+and on lavapipe (Mesa 26.2.2), and each frame at `High` was measured against a path-traced reference
+of 512 paths a pixel (`gi.reference`, `gi.compare`), whole and with each part of global illumination
+left out in turn (`gi.toggle`). Lavapipe draws each fault below as the GPU does, so each comes from
+the method and none from the device. Each picture is linear light drawn through the reference's
+curve, clamped and encoded as sRGB, the frame first and the reference last, from the frame's light
+that `gi.compare` writes beside its difference.
+
+- **a. The ore's light on the ground beside it in Ore.** By night the ground before the ore block at
+  the right lies in uneven patches with dark holes, where the reference's light falls off smoothly
+  from the block's foot. Over that ground the frame's blocks of 16 pixels read 0.03 to 1.74 of the
+  reference's light from the tenth percentile to the ninetieth, their mean 0.037 against 0.046, and
+  by day the same patches lie on the stone as a pink stain. The world probes give the ground none of
+  it, 0 with the screen probes left out, and the cliffs beside each ore lose the orange the
+  reference puts on them. The first cascade's probe nearest the ground there stands at 22, 10, 30, a
+  unit above it, and the block, a unit tall, sends its light to it level or from below, so the face
+  a floor facing up reads holds 0.000 where the reference's probe holds 0.028 (`gi.probe`). The
+  model pass reads the world probes only where no screen probe holds a pixel, so the screen probes
+  alone light that ground, 16 rays from the middle of each tile of 8 pixels finding the block or
+  missing it, and their 5 by 5 filter blends the tiles' steps into the patches (the middle picture,
+  the filter left out).
+  ![The ground beside Ore's ore by night, the frame, the frame without the screen probes' filter, and the reference](assets/cascades/ore-ground-cloud.webp)
+- **b. Corners without their darkening.** In the Cornell box the back wall at the red wall's corner
+  reads 0.76 of its light 50 pixels in, where the reference's reads 0.60, so the room looks flat at
+  its edges. With the screen probes left out it reads 0.58, so the screen probes lift it, each
+  tile's probe standing at its middle, up to 8 pixels off the corner, where more of the room lies
+  open to it than to the corner. The world probes alone darken the corner as the reference does and
+  draw faceted shapes along the ceiling's edge (the middle picture, drawn at half the light).
+  ![The Cornell box's back corner, the frame, the frame without the screen probes, and the reference](assets/cascades/cornell-corner.webp)
+- **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
+  the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
+  reference's, lighter at the lower left and darker at the upper right where the reference's face is
+  even. With the screen probes left out it reads 0.120, 4% under, so they put the excess on it.
+  Their rays toward the open side meet nothing within their reach and take the world's first cascade
+  along their way, and with the merge left out the face reads 17% over and without the light past
+  the first bounce 35% under.
+  ![The small block's front, the frame and the reference](assets/cascades/cornell-small-block-front.webp)
+- **d. A dark patch at the moved wall's foot.** In the carried lamp's room the floor at the green
+  wall's right foot falls by 9% over 50 pixels, from 0.144 to 0.131, where the reference's rises by
+  13%, from 0.156 to 0.176. It stays with the screen probes, the merge, the frame before and the
+  glow each left out, so the world probes' blend on the floor draws it.
+- **e. Patches across the far wall in that room.** The wall right of the moved one lies in blocks of
+  16 pixels from 0.84 to 1.14 of their mean ratio to the reference, and from 0.85 to 1.12 with the
+  screen probes left out, so the world probes' blend across the wall draws them too.
+  ![The carried lamp's room, the frame and the reference](assets/cascades/room-wall-foot-and-far-wall.webp)
+- **f. The lamp outside through the thin walls' corner.** Where the two thin walls meet, a tick a
+  few pixels long reads 3.25 times the wall beside it, where the reference reads 1.10, and with
+  global illumination off the room is dark and the tick gone. With the screen probes left out a
+  bright line runs the corner's length and along the walls' feet, 3.35 times the wall at the tick,
+  so the world probes there take the lamp's light from outside through the walls, and the screen
+  probes hide it but where a tile does not hold the corner's pixels.
+  ![The thin walls' corner, the frame, the frame without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
+
+Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
+wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
+foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's
+edge; the frame's tonemap draws the block's light of 2.6 orange where the reference's curve clamps
+it white, which leaves the floor beside it brighter than the block's color reads. No spokes show
+around either block seen from above. The bands down the rooms' walls in the 8-bit pictures are the
+steps of a smooth gradient, each column of 8 pixels of the thin walls' back wall lying 0.19% from
+its neighbors' mean as the reference's does, and the far wall of the carried lamp's room 1.12%
+against 1.08%. The dark ring along a sphere's terminator (REVIEW.md, Decision 27) belongs to
+subsurface scattering, which `shaders_subsurface` draws without global illumination, and its capture
+still shows a dark crescent inside the wax sphere's lit side. And `shaders_reflections`'s reference
+draws its mirror floor and its metal spheres as rough, so it judges the wall alone, 10% under; the
+noise of a wide penumbra shows in none of these frames apart from a's patches.
+![The wax sphere of shaders_subsurface, its terminator](assets/cascades/subsurface-terminator.webp)
+
 ## 5. Render targets and post processing
 
 The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,

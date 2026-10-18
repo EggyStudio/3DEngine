@@ -10,7 +10,48 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5a2d7df3`, Verdict 64's twin mend and nothing else, the leak test. The two drawing
+Reviewed up to `a12206af`, Verdict 70's reading and mend and nothing else, two tests and the logger.
+The holders of a system's exception were read. The schedule's catch keeps nothing, the exception
+caught into a local and the thrown systems keyed by the type's full name; the engine's logger keeps
+text, the console and file providers writing the exception's string and the N 3.7 listener its
+type's name and message, the object leaving the logger only to providers added by `UseProvider`; and
+the thread's last thrown exception is no holder on this runtime, a probe outside the repository
+showing a collectible type's exception held while the catching frame stood and let go once that
+method returned, which the schedule's invoke does after its catch. Of the providers,
+`ScheduleTests`' listener sat on the process's `Engine.Schedule` logger and kept the exception
+object of every line logged there while its test ran, the script's first throw in another test's app
+among them, the two collections running beside each other, which a scratch provider of the same
+shape reproduced on Linux, the generation outliving its collections with the provider named, a cause
+that fits the failure and is not proven to be the one on macOS. The listener keeps the exception's
+type name and its test compares names, the comment giving the reason and naming the verdict; the
+logger gains an internal list of its providers; and the unload test judges whether the generation
+lives and, where it does, names what may hold it, the app's systems whose code is in the
+generation's load context, the process's list of generated behaviors where it holds one, and the
+providers on the schedule's logger by type. Checked on the working machine were the strict build and
+the whole suite, 1,716 passed, with the scratch removed. Right. The push run of `5a2d7df3` ended at
+20:20 red on its macOS suite alone, its Windows suite green with the twin saying its figure and the
+handles within the census's allowance, the first green Windows suite for Verdicts 64 and 68; the
+pack run's macOS suite and games job passed by 20:30, the macOS suite the third green one with the
+live heap floor, which settles Verdict 69, with its Windows suite and captures jobs still running;
+and the owner pushed `a12206af` at 20:23, its push run in progress. By 20:52 the push run of
+`a12206af` had its Linux and macOS suites and examples job green by 20:49, the macOS suite the first
+of three for Verdict 70 with the mend in, its Windows suite running; the pack run of `5a2d7df3`'s
+captures jobs passed, the measure holding on every pair on an AMD EPYC 7763 64-Core without gfni,
+which settles Verdict 67; and the owner started the pack run of `a12206af` at 20:34, queued behind
+`5a2d7df3`'s, whose Windows suite was still playing the games. The pack run of `5a2d7df3` ended at
+21:04 whole green with its package, its Windows suite green with the thirteen games played, and the
+push run of `a12206af` ended at 21:13 whole green, its Windows suite the third green one in a row
+with the leak tests' mends in, after `5a2d7df3`'s push and pack, which settles Verdicts 64 and 68;
+the pack run of `a12206af` started its suites at 21:04. By 21:47 that pack run's Linux and macOS
+suites and examples job had passed, the macOS suite the second green one of three for Verdict 70,
+with its Windows suite, games and captures jobs running. That pack run ended at 22:16 whole green
+with its package, the third of the day. At 22:25 the owner resumed development on both engines and
+the voxel game (Decision 44), this engine's week being the radiance cascades, whose light does not
+yet look as good as it can (item 30), and beside it the examples' pictures where one of the engine's
+own stands in for raylib's, the gamepad example's controller first (item 31). Next item 30's
+reading, item 31, and one more green macOS suite for Verdict 70, the one verdict open.
+
+Before it, `5a2d7df3` came, Verdict 64's twin mend and nothing else, the leak test. The two drawing
 tests take the cycle's record back and judge the heap's floor and the Vulkan objects alike, the
 plain one judging its private bytes against 50 as before, and the twin holding the driver saying its
 own, a console line and the test's output giving how far the figure moved from the twentieth app to
@@ -71,30 +112,6 @@ Ore has been played on all three systems and item 28's last check is met, and th
 second green one for Verdict 69; its Windows suite and captures jobs were running. Next Verdict 64's
 mend, its push and runs, the pack run's Windows suite and measure (Verdict 67 on a 7763), and the
 rows of three green Windows and macOS suites.
-
-Before it, `32ce6f4e` came, Verdict 67's mend and nothing else, the measure's record.
-`3DEngine.Examples/measured-ci.tsv:71` gives `models_directional_billboard` three points of room in
-its third column over the 5.5 recorded, and the comment above it keeps its earlier reason and adds
-that the share follows the runner's processor, which lavapipe and Mesa's OpenGL compile their
-shaders for, within a point of 5.5 on an AMD EPYC 9V45 with gfni and 7.8 to 7.9 on an AMD EPYC 7763
-without, in the pack runs since `704952c5`, the page of `08b104dd`'s naming the 7763; no run is
-named as the 9V45's beyond what a page showed. `compare.py` reads the pair at 5.5 with a room of 3,
-passing 7.9 and failing 8.6 with the room said; `NormTests`, `DocumentLinkTests` and
-`StepScriptTests` passed and `examples-table.py` changed nothing, the data file alone having changed
-since the whole suite ran at `2e4187e3`. Right. The pack run of `08b104dd` ended at 16:50 red on its
-captures job alone, its Windows suite green with the twelve games played, the first green Windows
-suite since Verdict 64's mend and a pass of the handle bound beside it, so that run makes no package
-for the measure's pair alone; the owner pushed `32ce6f4e` at 16:49, its push run in progress. The
-owner started the pack run of `32ce6f4e` at 16:51. The push run ended at 17:24 red on its Windows
-suite alone, the plain leak test's handles passing their allowance by five at the 91st app, and the
-census named the kept handles, four unnamed threads an app started as the device is made and ended,
-lavapipe's (Verdict 68, the mend asked). The pack run's Linux suite, examples and games jobs passed
-by 17:34, the games job playing thirteen games on Linux, and its macOS suite failed at 17:07 the
-plain leak test's heap floor, 6.0 MB of rise read from one trough among flat readings (Verdict 69),
-so Ore went unplayed on macOS there, with its Windows suite and captures jobs still running. Next
-Verdicts 68 and 69's mends, their push and runs, a pack run playing thirteen games on three systems
-(item 28's last check) whose measure holds on either processor (Verdict 67), and Verdict 64's three
-green Windows suites.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1153,6 +1170,35 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     approved in the working session, and a word in its literal sense kept, wires drawn, curves end
     to end and motion back and forth.
 
+30. **The radiance cascades look as good as they can (Decision 44), the week's work, one part a
+    commit.** The owner said on 2026-10-18 at 22:25 that the light the cascades give does not yet
+    look as good as it can, and made it the week's focus; the owner's eye of 2026-10-10 and
+    2026-10-11 (Decisions 27 and 28) named what was wrong then and items 22 to 24 mended three
+    things since. First the reading, in a commit of its own: the examples that show the cascades and
+    `games/Ore` captured on the development machine's GPU and on lavapipe at the frames their
+    captures take, each thing that looks worse than it should named here as a part of this item with
+    its picture, what it should look like and where in the cascades it comes from, the dark
+    terminator rings, the spokes, the leaks, the noise of a wide penumbra and whatever else the
+    pictures show, and the reviewer orders the parts with the owner's eye. Then each part is mended
+    on its own, measured before and after and held by a test as Decision 27's were, the figures in
+    WHOLE or the tests' comments (N 3.5), the pictures taken again where they change. The voxel game
+    takes the mends through the package, so a pack run follows the parts that change the light.
+
+31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
+    first (Decision 44).** The owner said on 2026-10-18 at 22:25 that the gamepad example shows a
+    controller of the engine's own making where raylib's example shows its picture, and asked for
+    the right one, and for the other examples to be checked alike. `CoreInputGamepad.cs:25-26` loads
+    raylib's `ps3.png` and `xbox.png`, which `build/fetch-raylib-resources.sh` fetches for a capture
+    and a build copies beside the program, so what the owner saw is read first, the example run as
+    the owner runs it, with a controller and from the package, and the picture it shows found, a
+    stand-in drawn where the file is missing, a placeholder texture, or the capture's frame without
+    a controller; then the example shows raylib's pictures wherever it runs, shipped under the
+    examples' resources with raylib's license for them noted where the other fetched files' is, or
+    fetched where the example is built, as the file's license allows; and every example is read for
+    a picture of the engine's making standing where raylib's resource belongs, each replaced by the
+    resource raylib's example loads, listed here. One commit, the captures taken again where they
+    change.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -1160,8 +1206,9 @@ suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on fo
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
-`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64 and 67
-to 70 are open.
+`704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
+`1398ed24` and `5a2d7df3`, and 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18,
+said under each. Verdict 70 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1653,7 +1700,10 @@ to 70 are open.
     row of three green Windows suites counts from the mend's runs. Mended at `5a2d7df3`, the twin's
     private bytes said and not judged with the reason and the figures in its comment, the plain test
     judging as before, and a memory failure's message ordered with the series and the heaps first
-    within 3,500 characters; settled at three green Windows suites in a row after it.
+    within 3,500 characters; settled at three green Windows suites in a row after it. On the push of
+    `5a2d7df3`, 2026-10-18, the Windows suite passed whole with the mend in, the first of three.
+    Settled on the push and pack runs of `5a2d7df3` and the push run of `a12206af`, 2026-10-18,
+    three green Windows suites in a row with the layer off and the twin's figure said.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1773,7 +1823,10 @@ to 70 are open.
     and the 7763 without it is the side left; settled when the measure holds on a pack run on a
     7763, the page naming it. On the pack run of `1398ed24` the same day the measure held on every
     pair on AMD EPYC 9V74 80-Core, gfni among its flags, the page naming it, another holding run on
-    a kind with gfni; the 7763 is the side left.
+    a kind with gfni; the 7763 is the side left. Settled on the pack run of `5a2d7df3`, 2026-10-18,
+    the measure holding on every pair on an AMD EPYC 7763 without gfni, the page naming it, the pair
+    within its room of 3 on the kind that drew it 7.9 three times, as the kinds with gfni held
+    before.
 
 68. **The leak test's handle count passed its allowance by one at the 89th app on Windows, Thread
     handles of ended threads kept some four an app.** On the push of `4c6630a4`, 2026-10-18, the
@@ -1834,7 +1887,11 @@ to 70 are open.
     `32ce6f4e` the same day the Windows suite passed the handles by its twentieth baseline's chance,
     before the mend, a pass that counts for nothing toward the three. On the push of `1398ed24`,
     2026-10-18, the handle bound held on Windows with the census's allowance, both tests, the suite
-    red on the twin's memory bound (Verdict 64), so no green suite yet for the three.
+    red on the twin's memory bound (Verdict 64), so no green suite yet for the three. On the push of
+    `5a2d7df3`, 2026-10-18, the Windows suite passed whole, the handles within the census's
+    allowance, the first green Windows suite of three. Settled on the same three Windows suites, the
+    push and pack runs of `5a2d7df3` and the push run of `a12206af`, 2026-10-18, the handles within
+    the census's allowance on each.
 
 69. **The leak test's heap floor on macOS rose 6 MB from one trough among flat readings, and the
     figure carries the collector's leavings.** On the pack run of `32ce6f4e`, 2026-10-18, the macOS
@@ -1860,7 +1917,9 @@ to 70 are open.
     mend, one of three. On the pack run of `1398ed24` the same day the macOS suite passed whole
     again, the second of three. On the push of `5a2d7df3` the same day the leak tests held on macOS
     and the suite was red on another test (Verdict 70), so the row stands at two green macOS suites
-    until the next.
+    until the next. Settled on the push and pack runs of `1398ed24` and the pack run of `5a2d7df3`,
+    2026-10-18, three green macOS suites with the live heap floor, the push of `5a2d7df3` between
+    them red on another test with the leak tests holding.
 
 70. **A script generation whose system threw a type of its own stayed alive after twenty collections
     on macOS, once.** On the push of `5a2d7df3`, 2026-10-18, the macOS suite failed one test of
@@ -1880,7 +1939,18 @@ to 70 are open.
     is what remains, the test ends the hold before it judges, a frame or a thrown and caught
     exception of the test's own on the schedule's threads, with the reason in its comment; and where
     the generation still lives after the collections, the test says what holds it by name where it
-    can. Settled at three green macOS suites in a row after the mend.
+    can. Settled at three green macOS suites in a row after the mend. Read and mended at `a12206af`.
+    The schedule's catch keeps nothing and the engine's logger keeps text, and a probe showed the
+    thread's last thrown exception no holder on this runtime once the catching method has returned;
+    the one holder found was `ScheduleTests`' listener on the process's `Engine.Schedule` logger,
+    which kept the exception object of every line logged while its test ran in a collection beside
+    the unload test's, and a scratch provider of that shape kept a generation alive on Linux, a
+    cause that fits and is not proven the macOS one. The listener keeps the type's name, and the
+    unload test names what may hold a generation that outlives its collections, the app's systems in
+    its load context, the process's list of generated behaviors and the schedule logger's providers.
+    Settled at three green macOS suites in a row after it. On the push of `a12206af`, 2026-10-18,
+    the macOS suite passed whole with the mend in, the first green macOS suite of three. On the pack
+    run of `a12206af` the same day the macOS suite passed whole again, the second of three.
 
 ## Decisions
 
@@ -2189,6 +2259,15 @@ to 70 are open.
     great deal of, the knob, the plumbing and a long way among them, items 29 here, 25 in BevyCSharp
     and 5 in Voxel-Sandbox; a word in its literal sense stays, a box a joint leaves or a road to a
     signpost.
+
+44. **Development resumes on all three fronts, the radiance cascades first.** On 2026-10-18 at
+    22:25, with every run green and the pack run of `a12206af` whole green at 22:16 with its
+    package, the owner resumed development on both engines and the voxel game. For this engine the
+    week's focus is the radiance cascades, whose light does not yet look as good as it can (item
+    30), and beside it the examples whose pictures are of the engine's making where raylib's
+    resource belongs, the gamepad example's controller first (item 31). The voxel game takes the
+    cascades' mends through the engine's packages, after the engine's commits. Decision 39 stands
+    lifted (Decision 42), and the verdicts open are mended as they come.
 
 ## Replies
 
