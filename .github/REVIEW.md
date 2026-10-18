@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `91ec5de1`, Verdict 64's per-step readings done and nothing else, 2 files. The leak
+Reviewed up to `a41cc801`, Verdict 66's two mends done and nothing else, 7 files. `compare.py` says
+the pairs that fail as errors of its own and as lines of the job's summary, titled with how many
+pairs do not hold to the share recorded, one line a pair, past its room with the share measured, the
+share recorded and the room, no frame from raylib's program with the reason its capture's first line
+gives, pictures of two sizes, raylib's program no longer building or the capture failing, the lines
+shared out among as few errors as fit under 4,096 characters and at most ten, the last saying how
+many lines the log holds beyond them, and `step.py` then adds no error of its own to that step; the
+4,096 is `ANNOTATION_LENGTH` in `page.py`, and a walrus in the script's main that reused a name and
+overwrote a capture's reason is mended. `step.py`'s endings name only the programs that ended other
+than of their own, with gdb's lines, and those that still run, after the step's last lines and
+before the session logs' warnings, so a program that ended of its own costs the error nothing.
+`StepScriptTests` hold three pairs, one with room of its own, and 400 pairs in at most ten errors
+each under the limit and in order, and a step whose game died said after its last lines, a game that
+ended of its own left out and a sleeping process named as still running; BUILDING.md's sentence and
+the measure step's comment say the same. Checked on the working machine were the strict build and
+the whole suite, 1,716 passed. Right. The owner pushed the three commits since `704952c5` at 10:21
+on 2026-10-18 and started the pack run a minute after. By 11:14 the push run's Linux, macOS and
+examples jobs had passed, in 18, 25 and 9 minutes, and its Windows suite had failed the two
+hundred-app leak tests at 11:12, 48 minutes in, the private bytes climbing from 744 MB at the
+twentieth app to 816 at the hundredth with the heaps and the collector flat (Verdict 64, continued,
+the step line read); the pack run's Linux and macOS suites, examples job and digest passed, its
+Windows suite failed the same two tests at 10:48, and its captures, captures-macos and games jobs
+were still running, so Decision 42's gate is not met by this run and items 27 and 28 wait on. Next
+the reading Verdict 64 asks, its push, and a pack run whole green, whose measure names Verdict 66's
+pairs.
+
+Before it, `91ec5de1` came, Verdict 64's per-step readings done and nothing else, 2 files. The leak
 test reads the private bytes at each step of every app's life after the twentieth, marked by the
 lines the app logs as the handle steps were, and averages them, one line a test naming every step
 that took 0.05 MB or more an app in either direction, the rest summed and what each app kept last;
@@ -56,31 +82,6 @@ every game played and the soak of twelve passing, which settles Verdict 65 and m
 the third green puzzle step on cold caches, and its two capture jobs are running at 01:34, the Linux
 one the last place the death showed. Decision 42's gate holds; items 27 and 28 wait for the next
 pack run, after `d6b08853` and Verdict 64's mend.
-
-Before it, `704952c5` came, Verdict 63's three asks and Verdict 64's ask done at `c08343d5` and one
-comment's width and wording at `704952c5`, 11 files. Every cache of Mesa's shaders, the Linux and
-Windows suites', the examples', the captures' and the games' with their fallbacks, is keyed by the
-processor, `build/processor.sh` printing its model as a word and a checksum of its flags, from
-`lscpu` on Linux and `Win32_Processor`'s name, identifier and description on Windows, written to
-`GITHUB_ENV` before each cache step, so no runner restores another kind's code and the first runs
-compile cold; `build/open-game.sh` opens an example by its name as `e3d open` does, handing the
-opening to `e3d open` on Windows, and `capture-example.sh`, `capture-examples.sh` and `storm.sh` go
-through it, a failed capture's error carrying the ending line and gdb's lines; the ending line says
-whether `gfni` stands among the flags and what Mesa's cache counted, every program running under
-`MESA_SHADER_CACHE_SHOW_STATS=1`, the count printed as a device is destroyed and so by a program
-that ends and not by one that dies, which the line then says; and the leak test prints the
-collector's committed bytes in brackets beside the private bytes and runs its hundred drawing apps
-once more inside a bare Vulkan instance it holds through Vortice, the test project allowing unsafe
-blocks for it, both runs asserting the same bounds so the next Windows suite says which holds.
-Checked on the working machine were the strict build, the whole suite 1,715 of 1,715, and the
-scripts', norm and link tests 56 of 56; on Linux there the held run took 48 seconds against 64
-without, so the loader lets lavapipe go and loads it again at each app on Linux too, its resident
-set showing no climb from it. Right. The owner pushed it at 00:37 on 2026-10-18 and started the pack
-run with it. At 01:07 both runs' Linux suites and both examples jobs are green, Slide played through
-twice on caches compiled cold for the runner's own processor, the first two puzzle steps toward
-Verdict 63's three; both macOS suites are red on the new held-instance twin of the leak test, whose
-bare Vulkan instance MoltenVK's loader refuses (Verdict 64); the Windows suites, the games job and
-the two capture jobs are running. Decision 42's gate holds; items 27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1479,7 +1480,37 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     and on Windows the heaps' allocated and committed bytes beside the collector's; the headless
     apps initialize no SDL and open no audio device, so those two candidates are out and the loader
     with its layers and driver, the renderer's shaders and the engine's allocations remain. The next
-    Windows suite names the step.
+    Windows suite names the step. On the push and the pack run of `a41cc801`, 2026-10-18, the
+    Windows suite failed both hundred-app tests again, the private bytes 744 MB at the twentieth app
+    and 816 at the hundredth on the push run, 744 and 827 on the pack run, 0.9 and 1.0 MB an app,
+    the heap at 38 MB from the thirtieth app on, the collector committing 65 to 89 MB, no Vulkan
+    object alive, and, read for the first time, the process's heaps flat, 148 to 150 MB allocated of
+    385 to 394 committed in 8 heaps at every reading from the tenth app to the hundredth, so no
+    `malloc` in the process holds the climb, the C runtime's, the loader's, the layer's or
+    lavapipe's, and the collector does not. The step line says what an app's life takes and gives
+    back, averaged over the eighty, the instance 4.7 MB, the device 6.8, the renderer's shaders
+    100.5, the frames drawn 85.1, the device's destruction giving back 152.6, the instance's 31.2,
+    the close 2.1 and the end after a full collection 8.8, and it sums to 3.2 and 3.8 kept an app on
+    the two runs where the ten readings climb 0.9 and 1.0, so some 2.5 MB an app is given back
+    between an app's last reading and the next app's first, which no step holds, the stacks of the
+    app's threads that end after it, the tenth-app readings being taken once they have, or memory a
+    library frees late. The ten readings also swing, 679 at the fortieth app on the pack run and 714
+    at the eightieth on the push run against 745 to 790 around them, 60 to 100 MB with the heaps and
+    the collector flat, so a difference of two readings carries that much either way and the bound
+    of 50 is read through it. What is left is memory committed outside every heap, by `VirtualAlloc`
+    or a pagefile-backed section, and the process holds four kinds of it, the code and data LLVM
+    compiles for lavapipe's shaders, the runtime's own code and loader heaps, the stacks of threads,
+    and sections mapped. One thing more. On Windows the test sweeps the process's address space with
+    `VirtualQuery` at the twentieth and the hundredth app, summing the bytes committed by the
+    region's type, private, mapped or image, and by whether its protection is executable, with the
+    count of regions in each class, and says the classes on the series' line with each one's growth
+    from the twentieth to the hundredth, since LLVM's compiled code is private and executable, the
+    runtime's is mapped and executable under its double mapping, a thread's stack is private, not
+    executable and under a guard page, and data of either is private and not executable, so the
+    class that grew names the owner; and the step line's last reading is taken once the app's
+    threads are gone, as the tenth-app readings are, so its kept figure is the series'. What follows
+    the reading is said here when it is in. Settled at three green Windows suites in a row after the
+    mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1528,7 +1559,10 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     and the pairs no longer drawn; and `step.py` names only the programs that ended other than of
     their own or still run, after the command's last lines, so an ending with exit code 0 costs the
     page nothing. Settled when the measure's page names its pairs on a pack run, and the pairs are
-    then read for whether the runner's processor draws them otherwise.
+    then read for whether the runner's processor draws them otherwise. Mended at `a41cc801`, the
+    pairs said as the script's own errors with their shares and room, in at most ten under the
+    limit, and the step's page naming only the programs that ended other than of their own or still
+    run, after its last lines.
 
 ## Decisions
 

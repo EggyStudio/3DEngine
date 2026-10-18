@@ -380,9 +380,12 @@ under its MIT or Apache-2.0 license, a member of the bridge's workspace ported w
 refused at load with a message that says so.** A structure read with the wrong layout is memory
 read wrong. `NativeLoader` compares the two as the library loads.
 
-**B 2 After a change under `native/`, all three profiles compile, headless, render and editor.**
-Most of the bridge is behind a feature, and the smallest profile compiles paths the others leave
-out. By review, the workflow testing the headless and the render profile.
+**B 2 After a change under `native/`, all three profiles compile, headless, render and editor, and
+the suite's tests of what changed run on the headless profile.** Most of the bridge is behind a
+feature, and the smallest profile compiles paths the others leave out; the push's suite runs on it,
+so a branch a test takes on a headless build alone is taken on the working machine before the push,
+which BevyCSharp's Verdict 30 found when a component's refusal there was asserted and no longer
+came. By review, the workflow testing the headless and the render profile.
 
 **B 3 No panic crosses the C ABI.** A panic that unwinds into managed code ends the process with
 no message. Every entry point runs under the guard in `interop.rs`, and a test finds an

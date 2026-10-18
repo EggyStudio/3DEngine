@@ -32,7 +32,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
         IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null,
-        string? Stages = null)
+        string? Stages = null, string? Regions = null)
     {
         // How far the heap's floor rose, the least of the readings from the twentieth app on in the
         // first half against the least in the second, the twentieth to the fiftieth against the
@@ -59,6 +59,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             $"{ResidentName} after every ten in MB, what the collector held committed in brackets, and on Windows what the process's heaps " +
             $"held allocated of what they committed and how many there were, {Residents}{Environment.NewLine}" +
             $"{ResidentName} each step of an app's life took in MB, {Stages ?? "not read"}{Environment.NewLine}" +
+            (Regions is null ? "" : $"what the process held committed by the kind of region holding it, at the twentieth app and the last, {Regions}{Environment.NewLine}") +
             (ResidentBeforeCensus is { } before
                 ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
                 : "") +
@@ -119,6 +120,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // allows for each app past the twentieth.
         var driverThreads = 0;
         HeapCensus? censusAt20 = null;
+        Regions? regionsAt20 = null;
+        string? regionsGrown = null;
         IReadOnlyDictionary<DeviceObjects.Kind, long>? objectsAt20 = null;
         string? grown = null;
         var heaps = new List<string>();
@@ -202,6 +205,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 residentBeforeCensus = resident;
                 resident = Resident();
             }
+            // On Windows, the committed memory by the kind of region holding it, at the twentieth app
+            // beside its baseline and at the last beside its reading.
+            if (i == 20) regionsAt20 = Regions.Sweep();
+            if (last && regionsAt20 is not null) regionsGrown = Regions.Sweep()?.GrownSince(regionsAt20);
             GC.Collect();
             GC.WaitForPendingFinalizers();
             var heap = GC.GetTotalMemory(forceFullCollection: true) / 1e6;
@@ -221,8 +228,13 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 Console.WriteLine($"[leak test] {ResidentName} each step of an app's life took in MB, {stages}");
                 output.WriteLine($"{i} apps in {spent.Elapsed.TotalSeconds:0} seconds");
                 output.WriteLine($"{ResidentName} each step of an app's life took in MB, {stages}");
+                if (regionsGrown is not null)
+                {
+                    Console.WriteLine($"[leak test] the memory committed by the kind of region holding it, {regionsGrown}");
+                    output.WriteLine($"the memory committed by the kind of region holding it, {regionsGrown}");
+                }
                 return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), residentBeforeCensus, grown,
-                    string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!), stages.ToString());
+                    string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!), stages.ToString(), regionsGrown);
             }
         }
         throw new InvalidOperationException("unreachable");
@@ -340,6 +352,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         private Dictionary<string, int> _kindsFirst = [], _kindsLast = [];
         private int _driverThreads;
         private double _memory;
+        private int _threads;
 
         // The Thread handles the driver's steps opened and did not give back, none below zero.
         public int DriverThreads => Math.Max(0, _driverThreads);
@@ -351,7 +364,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 _first = _last = Handles();
                 _kindsFirst = _kindsLast = HandleCensus.Now();
             }
+            _threads = ThreadCount();
             _memory = Resident();
+            stages.Begun(_memory);
             Logger.Heard = (_, _, message) =>
             {
                 foreach (var (line, step) in Marks)
@@ -395,7 +410,15 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             GC.WaitForPendingFinalizers();
             GC.Collect();
             Mark("ended");
-            stages.Ended();
+            // The app's threads waited for, half a second at most, so the last reading is taken once
+            // they have ended and their stacks are given back. Read as the finalizers had run, each
+            // app on Windows kept 3.2 MB where the reading after every tenth app climbed by 0.9 an
+            // app, the rest given back after an app's last step and before the next app's first.
+            var waited = Stopwatch.StartNew();
+            while (ThreadCount() > _threads && waited.Elapsed < ThreadWait) Thread.Sleep(10);
+            if (ThreadCount() > _threads) stages.Outlived();
+            Mark("threads ended");
+            stages.Ended(_memory);
             if (!handles) return;
             _taken.Add($"{_last - _first:+0;-0;0} kept");
             if (OperatingSystem.IsWindows())
@@ -414,12 +437,15 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // names the step whose memory the closing does not give back. On Windows each drawing app kept
     // some 1 MB, with the collector's memory and the heap flat, beside a held instance as without
     // one (REVIEW.md, Verdict 64). A step that took less than 0.05 MB an app either way is counted
-    // among the rest, so the line names the steps that matter.
+    // among the rest, so the line names the steps that matter. What changes between one app's last
+    // reading and the next app's first is a step of its own, so the steps sum to the climb of the
+    // reading after every tenth app.
     private sealed class Stages
     {
         private readonly List<string> _order = [];
         private readonly Dictionary<string, double> _taken = [];
-        private int _apps;
+        private int _apps, _outlived;
+        private double? _ended;
 
         public void Add(string step, double megabytes)
         {
@@ -430,7 +456,20 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             }
         }
 
-        public void Ended() => Interlocked.Increment(ref _apps);
+        // The memory as an app begins, against the last reading of the app before.
+        public void Begun(double megabytes)
+        {
+            if (_ended is { } ended) Add("between apps", megabytes - ended);
+        }
+
+        public void Ended(double megabytes)
+        {
+            Interlocked.Increment(ref _apps);
+            _ended = megabytes;
+        }
+
+        // An app whose threads had not all ended by the wait's end.
+        public void Outlived() => Interlocked.Increment(ref _outlived);
 
         public override string ToString()
         {
@@ -440,10 +479,130 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 var each = _order.Select(step => (Step: step, Taken: _taken[step] / _apps)).ToList();
                 var named = each.Where(e => Math.Abs(e.Taken) >= 0.05).Select(e => $"{e.Step} {e.Taken:+0.00;-0.00}");
                 var rest = each.Where(e => Math.Abs(e.Taken) < 0.05).Sum(e => e.Taken);
+                var outlived = _outlived == 0 ? "" : $", the threads of {_outlived} apps still running {ThreadWait.TotalSeconds:0.#} seconds after their apps ended";
                 return $"averaged over the {_apps} apps after the twentieth, {string.Join(", ", named)}, the rest {rest:+0.00;-0.00}, " +
-                    $"{each.Sum(e => e.Taken):+0.00;-0.00} kept";
+                    $"{each.Sum(e => e.Taken):+0.00;-0.00} kept{outlived}";
             }
         }
+    }
+
+    // How long an app's threads are waited for once it has ended, which a thread already told to end
+    // takes far less than. On Linux the threads of two apps in eighty outlived a wait of two seconds,
+    // and on Windows, where an app takes four seconds, a wait of two for each would hold fifty apps
+    // past the five minutes build/test.py allows a test.
+    private static readonly TimeSpan ThreadWait = TimeSpan.FromSeconds(0.5);
+
+    // The process's threads. On Windows they are counted from a snapshot of the system's threads,
+    // which takes nothing of the collector's, since they are counted between two readings of an
+    // app's memory, where Process reads every process on the machine into objects.
+    private static int ThreadCount()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            using var process = Process.GetCurrentProcess();
+            return process.Threads.Count;
+        }
+        var snapshot = CreateToolhelp32Snapshot(SnapshotThreads, 0);
+        if (snapshot == new IntPtr(-1)) return -1;
+        try
+        {
+            var entry = new ThreadEntry { Size = (uint)Marshal.SizeOf<ThreadEntry>() };
+            var count = 0;
+            for (var more = Thread32First(snapshot, ref entry); more; more = Thread32Next(snapshot, ref entry))
+                if (entry.OwnerProcessId == (uint)Environment.ProcessId) count++;
+            return count;
+        }
+        finally
+        {
+            CloseHandle(snapshot);
+        }
+    }
+
+    private const uint SnapshotThreads = 0x4;
+
+    // THREADENTRY32.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct ThreadEntry
+    {
+        public uint Size, Usage, ThreadId, OwnerProcessId;
+        public int BasePriority, DeltaPriority;
+        public uint Flags;
+    }
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr CreateToolhelp32Snapshot(uint flags, uint process);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool Thread32First(IntPtr snapshot, ref ThreadEntry entry);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool Thread32Next(IntPtr snapshot, ref ThreadEntry entry);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool CloseHandle(IntPtr handle);
+
+    // The process's committed memory on 64-bit Windows by the kind of region holding it, private,
+    // mapped or a module's image, and by whether it is code, which may be executed, a thread's stack,
+    // a private allocation holding a guard page, or data, with the regions of each, swept with
+    // VirtualQuery. On Windows each drawing app kept some 1 MB that no heap and not the collector
+    // held (REVIEW.md, Verdict 64), and the kind that grows names its owner. The code LLVM compiles
+    // for lavapipe's shaders is private code, the runtime's compiled code is mapped code, since it
+    // maps each page twice so none is writable and executable at once, a thread's stack is a stack,
+    // and what LLVM or the runtime allocates for itself outside a heap is private data.
+    private sealed class Regions
+    {
+        private const uint Commit = 0x1000, Private = 0x20000, Mapped = 0x40000, Image = 0x1000000, Guard = 0x100, Executable = 0xF0;
+
+        private readonly Dictionary<string, (double Megabytes, int Count)> _kinds = new(StringComparer.Ordinal);
+
+        public static Regions? Sweep()
+        {
+            if (!OperatingSystem.IsWindows() || IntPtr.Size != 8) return null;
+            var regions = new List<MemoryBasicInformation>();
+            var size = (nuint)Marshal.SizeOf<MemoryBasicInformation>();
+            ulong address = 0;
+            while (VirtualQuery(new IntPtr((long)address), out var region, size) != 0)
+            {
+                regions.Add(region);
+                var next = (ulong)region.BaseAddress + region.RegionSize;
+                if (next <= address) break;
+                address = next;
+            }
+            var stacks = regions.Where(r => r.State == Commit && (r.Protect & Guard) != 0).Select(r => r.AllocationBase).ToHashSet();
+            var swept = new Regions();
+            foreach (var region in regions.Where(r => r.State == Commit))
+            {
+                var kind = region.Type switch { Private => "private", Mapped => "mapped", Image => "image", _ => "other" };
+                var what = (region.Protect & Executable) != 0 ? "code"
+                    : region.Type == Private && stacks.Contains(region.AllocationBase) ? "stacks" : "data";
+                var name = $"{kind} {what}";
+                var (megabytes, count) = swept._kinds.GetValueOrDefault(name);
+                swept._kinds[name] = (megabytes + region.RegionSize / 1e6, count + 1);
+            }
+            return swept;
+        }
+
+        // Each kind's megabytes and regions then and now, the kind that grew most first.
+        public string GrownSince(Regions before) =>
+            string.Join(", ", _kinds.Keys.Union(before._kinds.Keys)
+                .Select(name => (Name: name, Then: before._kinds.GetValueOrDefault(name), Now: _kinds.GetValueOrDefault(name)))
+                .OrderByDescending(k => k.Now.Megabytes - k.Then.Megabytes)
+                .Select(k => $"{k.Name} {k.Then.Megabytes:0.0} MB in {k.Then.Count} to {k.Now.Megabytes:0.0} in {k.Now.Count} " +
+                             $"({k.Now.Megabytes - k.Then.Megabytes:+0.0;-0.0;0.0})"));
+
+        // MEMORY_BASIC_INFORMATION.
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MemoryBasicInformation
+        {
+            public IntPtr BaseAddress, AllocationBase;
+            public uint AllocationProtect;
+            public ushort PartitionId;
+            public nuint RegionSize;
+            public uint State, Protect, Type;
+        }
+
+        [DllImport("kernel32.dll")]
+        private static extern nuint VirtualQuery(IntPtr address, out MemoryBasicInformation region, nuint length);
     }
 
     private static int Handles()
