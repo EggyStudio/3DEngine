@@ -85,13 +85,18 @@ public class ScheduleTests
         heavy.Select(d => parallel[d.Name]).Should().AllBeEquivalentTo(true, "systems of milliseconds each are shared among threads");
     }
 
-    // Hears what one category logs, from any thread, for as long as it is added.
+    // Hears what one category logs, from any thread, for as long as it is added. An exception is
+    // kept by its type's name, since the category is the process's, and the object of one a
+    // script's system threw in another test's app would keep the script's load context alive while
+    // this test ran, ScriptGenerationTests' generation among them, which runs in another collection
+    // beside this one. It is the one holder of a system's exception that kept the object when that
+    // test found its generation alive on 5a2d7df3's macOS run (REVIEW.md, Verdict 70).
     private sealed class Heard : ILoggerProvider
     {
-        public ConcurrentQueue<(LogLevel Level, string Message, Exception? Exception)> Lines { get; } = new();
+        public ConcurrentQueue<(LogLevel Level, string Message, string? Exception)> Lines { get; } = new();
 
         public void Log(LogLevel level, string category, string message, Exception? exception = null) =>
-            Lines.Enqueue((level, message, exception));
+            Lines.Enqueue((level, message, exception?.GetType().Name));
     }
 
     [Fact]
@@ -121,8 +126,8 @@ public class ScheduleTests
         }
 
         var lines = heard.Lines.Where(line => line.Message.Contains(name, StringComparison.Ordinal)).ToList();
-        lines.Where(line => line.Exception is not null).Select(line => line.Exception!.GetType())
-            .Should().Equal([typeof(InvalidOperationException), typeof(ArgumentException)], "each type's first is logged whole, once");
+        lines.Where(line => line.Exception is not null).Select(line => line.Exception)
+            .Should().Equal([nameof(InvalidOperationException), nameof(ArgumentException)], "each type's first is logged whole, once");
         lines.Select(line => line.Message[(line.Message.IndexOf(name, StringComparison.Ordinal) + name.Length)..]).Should().Equal(
             "' from Engine.Tests threw in stage Update",
             "' has thrown InvalidOperationException in stage Update 10 times. The last says frame 10 failed",

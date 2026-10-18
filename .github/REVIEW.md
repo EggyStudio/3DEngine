@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1398ed24`, the mends of Verdicts 68 and 69 and nothing else, the leak test, the
+Reviewed up to `5a2d7df3`, Verdict 64's twin mend and nothing else, the leak test. The two drawing
+tests take the cycle's record back and judge the heap's floor and the Vulkan objects alike, the
+plain one judging its private bytes against 50 as before, and the twin holding the driver saying its
+own, a console line and the test's output giving how far the figure moved from the twentieth app to
+the last, said and not judged, its comment saying that beyond the plain test it measures the driver
+kept loaded through the hundred apps, with `1398ed24`'s Windows figures, the plain within its 50 and
+the twin 59.7 MB with no allocation a followed app's steps added standing once the next app had
+ended, the growth inside allocations that stood before, the driver's state kept across apps or the
+readings' swing and none of the engine's. A failure's series puts the heap's live objects after
+every ten apps first, then the private bytes with the collector and the heaps in brackets, the
+regions, the steps, the census baseline, the grown types, the Vulkan objects and the threads, and
+the allocation lines last, cut so the message fits 3,500 characters, as the handle failure's is, so
+a Windows page carries the heaps, the series, the regions and the steps. Checked on the working
+machine were the strict build with no warning and the whole suite, 1,716 passed, before one word of
+the said line changed, rose to moved by, since Linux read a fall, and the leak, norm and document
+tests after, the twin saying 0.7 MB given back on Linux; the file is 767 lines. Right. The pack run
+of `1398ed24`'s captures job passed by 19:22, the measure holding on every pair on an AMD EPYC 9V74
+80-Core with gfni, the page naming it, the 7763 side of Verdict 67 still awaited. The pack run of
+`1398ed24` ended at 19:38 whole green with its package, its Windows suite green with the thirteen
+games played and the twin's bound met by that run's chance before the mend, which counts for
+nothing. The owner pushed `5a2d7df3` at 19:23 and started its pack run; the push run's Linux suite
+passed and its macOS suite failed at 19:39 one test of 1,649, the script generation's unload after a
+recompile, a generation whose system threw a type of its own still alive after twenty collections
+(Verdict 70), the leak tests holding there, its Windows suite and examples job running, and the pack
+run's suites running. Next Verdict 70's reading, the Windows suites as the first of three for
+Verdicts 64 and 68, the third green macOS suite for Verdict 69, the measure on a 7763 (Verdict 67)
+and the pack run of `5a2d7df3`.
+
+Before it, `1398ed24` came, the mends of Verdicts 68 and 69 and nothing else, the leak test, the
 handle census and the physics plugin. Each followed app's count of the driver's thread handles comes
 from the census at the app's end, the kept Thread handles whose thread ended unnamed and whose
 handle was opened at one of the driver's steps, the hold taking the most over the followed apps as
@@ -67,36 +95,6 @@ so Ore went unplayed on macOS there, with its Windows suite and captures jobs st
 Verdicts 68 and 69's mends, their push and runs, a pack run playing thirteen games on three systems
 (item 28's last check) whose measure holds on either processor (Verdict 67), and Verdict 64's three
 green Windows suites.
-
-Before it, `2e4187e3` came, the reading half of Verdict 68 and nothing else, the leak test, the
-handle census and the process's threads. The working machine reads no Thread handles, Linux having
-none, so there the test notes for each followed app the threads started and ended at each step by
-name from `/proc/self/task`, and on Windows `HandleCensus.Take` reads the handle table once for the
-counts by kind and the process's Thread handles, asking each handle's thread its id, whether it has
-ended and its name, so each step line says the threads whose handles it opened and the kept line
-names each kept handle's thread, ended or running, with the step that opened it; a handle failure's
-message puts the bound's line, the handles after every ten apps, what each followed app kept and the
-threads after every ten before the steps, cut to fit under the page's limit with the assertion's
-prefix and the test's name. Read on the working machine, the twenty-first app starts two pool
-workers and the GPU's three threads as the device is made, a file watcher at the behaviors plugin
-and three pool workers at the physics plugin, Bepu's dispatcher starting one fewer than its four,
-and ends them at the device's destruction, the instance's and the close, where the dispatcher is
-disposed; nothing starts at the lighting plugin or at startup there, where a pool on 32 cores needs
-no more threads, so the handles Windows keeps from those steps most likely belong to threads a
-four-core runner's pool or lavapipe starts there, the environment map's parallel prefilter, the
-asset server's workers and the schedule's parallel loop, which the run tells; and a heap census from
-the twentieth app to the hundredth grows no Thread object and no physics world, only reflection
-caches and strings, so nothing managed keeps an ended thread reachable, and what holds the Windows
-handles is the runtime's own thread bookkeeping, the pool or a native library. Checked were the
-strict build and the whole suite, 1,716 passed. Right. Seen beside it, the physics plugin warms up
-its world twice in two identical blocks, which goes with the mend. The pack run of `08b104dd` had by
-16:45 its games and captures-macos jobs green and its captures job red at 16:44 on the measure's
-same pair, 7.9 percent apart, the page naming the processor for the first time, an AMD EPYC 7763
-without gfni, so the pair fails on that kind and holds on the other (Verdict 67, the mend asked),
-with its Windows suite still playing the games and no package to come. Next the owner's push, its
-Windows suite naming the threads behind the kept handles, Verdicts 67 and 68's mends, a pack run
-playing thirteen games on three systems (item 28's last check) and Verdict 64's three green Windows
-suites.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1163,7 +1161,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
 `704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64 and 67
-to 69 are open.
+to 70 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1652,7 +1650,10 @@ to 69 are open.
     driver kept loaded, with this run's figures, the plain within 50 and the held 59.7 with nothing
     new standing; and a memory failure's message, as a handle failure's, puts the series after every
     ten apps and the heaps before the followed apps' allocation lines, within the page's limit. The
-    row of three green Windows suites counts from the mend's runs.
+    row of three green Windows suites counts from the mend's runs. Mended at `5a2d7df3`, the twin's
+    private bytes said and not judged with the reason and the figures in its comment, the plain test
+    judging as before, and a memory failure's message ordered with the series and the heaps first
+    within 3,500 characters; settled at three green Windows suites in a row after it.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1770,7 +1771,9 @@ to 69 are open.
     2026-10-18, the measure held on every pair on an AMD EPYC 9V74 with gfni, a third kind the fleet
     shows, the page naming it, the 256 examples drawn in 1,361 seconds, so the kinds with gfni hold
     and the 7763 without it is the side left; settled when the measure holds on a pack run on a
-    7763, the page naming it.
+    7763, the page naming it. On the pack run of `1398ed24` the same day the measure held on every
+    pair on AMD EPYC 9V74 80-Core, gfni among its flags, the page naming it, another holding run on
+    a kind with gfni; the 7763 is the side left.
 
 68. **The leak test's handle count passed its allowance by one at the 89th app on Windows, Thread
     handles of ended threads kept some four an app.** On the push of `4c6630a4`, 2026-10-18, the
@@ -1855,7 +1858,29 @@ to 69 are open.
     working machine; settled at three green macOS suites in a row after it. On the push of
     `1398ed24`, 2026-10-18, the macOS suite passed whole, the first green macOS suite after the
     mend, one of three. On the pack run of `1398ed24` the same day the macOS suite passed whole
-    again, the second of three.
+    again, the second of three. On the push of `5a2d7df3` the same day the leak tests held on macOS
+    and the suite was red on another test (Verdict 70), so the row stands at two green macOS suites
+    until the next.
+
+70. **A script generation whose system threw a type of its own stayed alive after twenty collections
+    on macOS, once.** On the push of `5a2d7df3`, 2026-10-18, the macOS suite failed one test of
+    1,649, `ScriptGenerationTests`' unload of the first generation after the script is compiled
+    again (`ScriptGenerationTests.cs:68`), the load context's weak reference alive after twenty
+    rounds of a collection and its finalizers, where the test had passed on every suite of the day
+    and on Linux in this run, the file unchanged since 2026-10-12. The generation's types are
+    reachable from something that lives past the recompile for a while and not always, which a weak
+    reference and twenty collections cannot shake, and three holders of a thrown exception fit that,
+    the thread that threw it, which keeps its last thrown exception until it throws again or ends,
+    the logger's entries where an entry holds the exception object and not its text until the queue
+    drains, and the schedule's catch where it keeps the exception past the frame; a static of the
+    engine would hold it on every run and does not. The mend is one thing, with its reading. The
+    holders of a system's exception are read, the schedule's catch, the logger's entries and the
+    thread's last thrown exception, and whichever keeps the object past the frame that logged it
+    drops it, the logger keeping text, the schedule keeping nothing, and where the thread's own hold
+    is what remains, the test ends the hold before it judges, a frame or a thrown and caught
+    exception of the test's own on the schedule's threads, with the reason in its comment; and where
+    the generation still lives after the collections, the test says what holds it by name where it
+    can. Settled at three green macOS suites in a row after the mend.
 
 ## Decisions
 

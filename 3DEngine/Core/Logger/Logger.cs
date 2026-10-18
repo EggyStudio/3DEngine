@@ -37,6 +37,9 @@ public sealed class Logger : ILogger
         return this;
     }
 
+    /// <summary>The providers <see cref="UseProvider"/> added, for a test that names what may keep what was logged.</summary>
+    internal IReadOnlyList<ILoggerProvider> Providers => Volatile.Read(ref _extraProviders);
+
     /// <summary>Removes a provider <see cref="UseProvider"/> added, for a test that hears a category for a while.</summary>
     internal Logger RemoveProvider(ILoggerProvider provider)
     {

@@ -60,17 +60,43 @@ public sealed class ScriptGenerationTests : IDisposable
             app.BeginFrame();
             app.EndFrame();
 
+            // The thread that threw needs no ending of its hold. On .NET 10 a thread lets go of an
+            // exception once the method that caught it has returned, as the schedule's Invoke does,
+            // which a probe read on Linux with a collectible type thrown and caught on a thread kept
+            // alive, the type kept while the catching frame stood and let go once it had returned
+            // (REVIEW.md, Verdict 70).
             for (int i = 0; i < 20 && first.IsAlive; i++)
             {
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
-            first.IsAlive.Should().BeFalse("nothing of the app holds the first generation's types, the one its system threw among them");
+            var alive = first.IsAlive;
+            alive.Should().BeFalse("nothing of the app holds the first generation's types, the one its system threw among them" +
+                                   (alive ? $", and what the test can name that may hold it, {Holders(app, first)}" : ""));
         }
         finally
         {
             app.Shutdown();
         }
+    }
+
+    // What may hold a generation that outlived the collections, by name, for the failure to say.
+    // The app's systems and the process's generated behaviors whose code is in it would be the
+    // engine's own leak, and the providers added to the schedule's logger are each given the
+    // exception a system threw and may keep it, as ScheduleTests' kept the object.
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static string Holders(App app, WeakReference generation)
+    {
+        if (generation.Target is not AssemblyLoadContext context) return "none, the generation having gone as this was read";
+        bool In(Delegate code) => AssemblyLoadContext.GetLoadContext(code.Method.Module.Assembly) == context;
+        var held = new List<string>();
+        if (app.Schedule.Systems().Where(system => In(system.System)).Select(system => system.Name).ToList() is { Count: > 0 } systems)
+            held.Add($"the app's systems {string.Join(", ", systems)}");
+        if (GeneratedBehaviors.All.Any(In))
+            held.Add("the process's list of generated behaviors");
+        if (Log.Factory.CreateLogger("Engine.Schedule").Providers is { Count: > 0 } providers)
+            held.Add($"the providers added to Engine.Schedule's logger, {string.Join(", ", providers.Select(provider => provider.GetType().FullName))}");
+        return held.Count == 0 ? "nothing the test can name" : string.Join("; ", held);
     }
 
     // The load context holding the assembly that defines the type, held weakly, from a method of
