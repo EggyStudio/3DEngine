@@ -99,6 +99,26 @@ internal static class ProcessMemory
         }
     }
 
+    // On Linux, the process's threads by their id with the name each was given, read from
+    // /proc/self/task, so a step that starts or ends threads says whose they are, and empty
+    // elsewhere, where Windows' Thread handles name them (HandleCensus).
+    public static Dictionary<int, string> ThreadNames()
+    {
+        var names = new Dictionary<int, string>();
+        if (!OperatingSystem.IsLinux()) return names;
+        try
+        {
+            foreach (var task in Directory.GetDirectories("/proc/self/task"))
+                if (int.TryParse(Path.GetFileName(task), out var id))
+                    try { names[id] = File.ReadAllText(Path.Combine(task, "comm")).TrimEnd('\n'); }
+                    catch (IOException) { }
+        }
+        catch (IOException)
+        {
+        }
+        return names;
+    }
+
     private const uint SnapshotThreads = 0x4;
 
     // THREADENTRY32.

@@ -10,7 +10,39 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `08b104dd`, Verdict 64's mend and nothing else, the leak tests and the device's
+Reviewed up to `4c6630a4`, item 28 done and nothing else, 15 files. `games/Ore` is a game like the
+others, its project and `nuget.config` Wick's less the resources it has none of; `Program.cs` of 151
+lines sets the scene field and global illumination at High with G stepping it as Wick does, draws
+the ground and the ore as two models from the land's meshes, the ore's material emissive at
+intensity 5, both static physics models under a shadow-casting sun, and walks a character through
+the physics character calls with mouse and right-stick look as Manor's, with a title, P to pause, N
+for night, the bounce window while B is held, and a fall off the edge putting the player back in the
+middle; `Land.cs` of 101 lines, apart as Wick's `House.cs` is, raises heights 1 to 12 from an inline
+value noise, grass over two of dirt over stone with ore at a hash under 0.12 in the stone, the one
+change from the item being bare stone from height 9 up, since the item's layers alone exposed 46 ore
+faces on the whole map and none in sight from the middle where the rocky tops expose some 120, and
+meshes the faces against the air into positions, normals and vertex colors by kind through
+`UploadMesh`; `OreCommands.cs` holds `ore.status`, `ore.autopilot`, `ore.warp` and `ore.night`; and
+the README is in the games' form. Ore joins the three play loops, the soak and storm lists and the
+games job of `build.yml`, with a step after Wick's driving it and capturing it at night,
+`drive-game.sh`'s case walks 60 frames held to a move over 1, jumps held to one jump and a rise over
+0.8, which the status keeps past the landing so a slow device reads the same, and shoots the night,
+`soak.sh`'s case runs the autopilot with N every third turn and G every fourth, and the README's
+cell, `ore.webp`, BUILDING.md's thirteen and both guides' see-also are written. Checked on the
+working machine were the drive on lavapipe under the pinned layer with no validation error and on
+the GPU, a two-minute soak passing every bound, the storm with no error, the strict build and the
+whole suite, 1,716 passed; on lavapipe at 480 by 270 a frame takes 155 ms at High and 76 at Low, so
+Ore is the slowest game in the runner's loops. Right. The owner pushed this commit at 15:51 on
+2026-10-18, which cancelled the push run of `08b104dd` a minute before its Windows suite ended; the
+push run of `4c6630a4` ended at 16:19 red on its Windows suite alone, Linux, macOS and the examples
+green, and there both memory bounds of the leak tests held with the layer off while one test failed
+on its handles, by one, 2,413 at the 89th app where 2,412 were allowed (Verdict 68). The pack run of
+`08b104dd` had its Linux and macOS suites and examples job green by 16:22, its Windows suite past
+the tests and into the twelve games, and its captures and games jobs running. Next Verdict 68's
+reading and mend, a pack run of `4c6630a4` playing thirteen games on three systems, item 28's last
+check, Verdict 64's three green Windows suites and the measure's processor (Verdict 67).
+
+Before it, `08b104dd` came, Verdict 64's mend and nothing else, the leak tests and the device's
 instance. `GraphicsDevice.Instance.cs` gains an internal switch, `LeaveValidationOff`, under which
 an instance leaves the validation layer off in a Debug build as well, its remarks giving the reason,
 the loader unloading the layer with each instance and the layer's Windows build at 1.4.363.0 keeping
@@ -46,25 +78,6 @@ library absent (Verdict 64, a second sample); the owner pushed this commit at 14
 the push run of `87cd9415` under the concurrency group, and the pack run of `351cc461` still runs
 its games and captures jobs. Next Verdict 64's mend, item 28, their push and runs, and the next
 failing measure's processor and pictures (Verdict 67).
-
-Before it, `87cd9415` came, Verdict 67's notice and nothing else. `compare.py` annotates the
-processor it measured on and whether gfni is among its flags as a notice on every run, before any
-pair is measured, so the page of a run that holds names the processor its pairs held on, and the
-pairs measured for the first time share the other nine notices GitHub shows, the script's test
-holding 215 pairs in nine, with the docstring and the measure step's comment saying so. Checked on
-the working machine were the strict build and the whole suite, 1,716 passed. Right. The pack run of
-`4d5db9df` ended at 14:14 on 2026-10-18 whole green with its package, captures-macos and the pack
-job passing after the rest, which with the push run of `683e6e9d` whole green the day before meets
-Decision 42's gate, so Decision 39 is lifted for this engine, item 26 is done, and items 27 then 28
-may start, the game's build having been green in its repository since 2026-10-17; the pack job's
-page carries the warnings of a stable package on prerelease dependencies, SDL3-CS and BepuPhysics,
-which every pack run's has. The two leak tests passed on that run by the readings' swing, and
-Verdict 64 stands open with its cause under confirmation. The push run of `351cc461` ended at 14:30
-red on its Windows suite alone, and there one test failed where two had, the plain hundred apps
-climbing 98 MB of private data while the twin holding the validation layer loaded passed, which
-names the layer's unload as the leak's owner (Verdict 64, the mend asked); the owner pushed
-`87cd9415` at 14:39, the pack run of `351cc461` still running. Next item 27, Verdict 64's mend,
-their push and runs, and the next failing measure's processor and pictures (Verdict 67).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1057,14 +1070,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     14:19. Done at `b40a788d` on 2026-10-18, the two projects, the solution's lines and AGENTS.md's
     rows gone, the guides and RENDERING.md citing the game's repository; item 28 is open from 15:05.
 
-28. **A tiny sample, `games/Ore`, after item 27: a voxel landscape, a character and the light that
-    bounces.** A game like the others (`Ore.csproj` and `nuget.config` as Wick's, a `Program.cs` of
-    some 150 lines, `OreCommands.cs` with `ore.status`, `ore.autopilot`, `ore.warp` and `ore.night`,
-    a README in the games' form): a 48 by 48 landscape from an inline value noise, heights 1 to 12,
-    grass, dirt, stone and ore, its faces against the air meshed into positions, normals and vertex
-    colors of a plain mesh, since global illumination reads a mesh's colors, the ore faces in a
-    second mesh with `Emissive` and `EmissiveIntensity`, the ground a static physics model, a
-    first-person character through `CreatePhysicsCharacter`, `MovePhysicsCharacter` and
+28. **A tiny sample, `games/Ore`, a voxel landscape, a character and the light that bounces, done at
+    `4c6630a4`.** A game like the others (`Ore.csproj` and `nuget.config` as Wick's, a `Program.cs`
+    of some 150 lines, `OreCommands.cs` with `ore.status`, `ore.autopilot`, `ore.warp` and
+    `ore.night`, a README in the games' form): a 48 by 48 landscape from an inline value noise,
+    heights 1 to 12, grass, dirt, stone and ore, its faces against the air meshed into positions,
+    normals and vertex colors of a plain mesh, since global illumination reads a mesh's colors, the
+    ore faces in a second mesh with `Emissive` and `EmissiveIntensity`, the ground a static physics
+    model, a first-person character through `CreatePhysicsCharacter`, `MovePhysicsCharacter` and
     `JumpPhysicsCharacter` with mouse look as Manor's, `SetSceneField(4, 0.5f, 2)` and
     `SetGlobalIllumination(GlobalIllumination.High)` with G stepping the quality as Wick does,
     `DrawBounceWindow` while B is held, a sun and N for night. It joins the lists of `build.yml`
@@ -1073,7 +1086,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     in the `games` job and `.github/assets/examples/ore.webp` through `build/examples-table.py`,
     thirteen games where twelve, BUILDING.md's count and the guide's see-also. The name is the
     owner's, Ore unless told otherwise. Checked by `NormTests`, `build/drive-game.sh Ore`, the soak
-    and the storm, and the pack run playing it on three systems.
+    and the storm, and the pack run playing it on three systems. Done at `4c6630a4` on 2026-10-18,
+    with one change said, bare stone from height 9 up so the hills show ore; its last check is the
+    pack run playing thirteen games on three systems.
 
 29. **The register: STYLE.md's rule and the sweep (Decision 43), done at `683e6e9d`, the figures
     Decision 43 adds at `7b2486a5`.** STYLE.md gains a section, Register: prose uses the technical
@@ -1126,8 +1141,8 @@ suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on fo
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
-`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64 and 67
-are open.
+`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64, 67 and
+68 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1595,7 +1610,9 @@ are open.
     validation layer off on every system through an internal switch of the device, the reason and
     the figures in their comment, the held instance holding the driver alone again, and the
     failure's message naming where a climb lies before its series within the page's limit; settled
-    at three green Windows suites in a row after it.
+    at three green Windows suites in a row after it. On the push of `4c6630a4`, 2026-10-18, both
+    memory bounds held on Windows with the layer off, the suite red on the handles of one test
+    (Verdict 68), so it is no green suite for the row.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1696,6 +1713,32 @@ are open.
     the measure held on every pair again, so the pair has held on two pack runs and failed on two,
     the processor said on neither of the holding ones, which `87cd9415`'s notice ends from the next
     pack run on.
+
+68. **The leak test's handle count passed its allowance by one at the 89th app on Windows, Thread
+    handles of ended threads kept some four an app.** On the push of `4c6630a4`, 2026-10-18, the
+    Windows suite failed one of the two hundred-app tests on its handles, 2,413 at the 89th app
+    where 2,143 stood at the twentieth and 2,412 were allowed, the allowance being 200 and one
+    Thread handle an app for the driver's (`AppLeakTests.cs:91, 167`), while both memory bounds held
+    with the layer off (Verdict 64); the pack run of `08b104dd` the same hour passed both tests on
+    Windows, so the count crosses the allowance on one run and not another, by a handle, the climb
+    being some four handles an app against the two and a half the allowance spreads over eighty. The
+    followed apps say where the handles go. The twenty-first kept 7, 5 Thread and 2 Event, its
+    Thread handles opened at `LightingPlugin built`, 1, `PhysicsPlugin built`, 3, and `started`, 3,
+    with `ended` giving 3 back and the driver's steps netting 1, so some four Thread handles an app
+    belong to threads started at those steps, the engine's or the driver's started lazily there,
+    which ended and whose handles stay, the process's threads standing at 23 to 25 throughout; the
+    count is read after a full collection with its finalizers and after the threads ended, so the
+    handles are held by something that lives, a `Thread` object kept after its thread's end or a
+    handle duplicated and not closed. The page lost the test's name and the series of handles after
+    every ten apps under its limit, the handles-by-step lines of four apps standing first in the
+    message. The mend is one thing, with its words. The threads started at the lighting plugin's
+    building and at startup, and whatever holds them after they end, are read on the working machine
+    with the census at each step, the reference kept to an ended thread dropped where one is and the
+    handle closed where one is duplicated, so a closed app keeps no Thread handle but the driver's;
+    the allowance stands, since what it absorbed was a climb and not a swing; and the handle
+    failure's message puts the series of handles after every ten apps and the kinds kept first, the
+    followed apps' steps after and cut to the limit. Settled at three green Windows suites in a row
+    after the mend.
 
 ## Decisions
 

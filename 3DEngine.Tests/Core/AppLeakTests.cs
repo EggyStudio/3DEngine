@@ -176,11 +176,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (followed is not null) driverThreads = Math.Max(driverThreads, followed.DriverThreads);
             if (i > 20)
                 handles.Should().BeLessThanOrEqualTo(handlesAt20 + HandleAllowance + driverThreads * (i - 20),
-                    $"a closed app gives back the handles it took, {i} apps leaving {handles} where 20 left {handlesAt20}, " +
-                    $"{driverThreads} Thread handles an app allowed as the driver's{Environment.NewLine}" +
-                    $"the handles by step, {string.Join("; ", steps.Values)}{Environment.NewLine}" +
-                    $"the handles after every ten apps, {string.Join(", ", handlesEveryTen)}{Environment.NewLine}" +
-                    $"the threads after every ten apps, {string.Join(", ", threads)}{Environment.NewLine}");
+                    HandlesFailure(i, handles, handlesAt20, driverThreads, handlesEveryTen, steps, threads));
             if (i % 10 != 0) continue;
             var last = i == 100 || i >= 50 && spent.Elapsed >= Budget;
             using (var process = System.Diagnostics.Process.GetCurrentProcess()) threads.Add($"{i}: {process.Threads.Count}");
@@ -258,6 +254,24 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // which the system trims only when memory runs short.
     private static double Resident() => OperatingSystem.IsWindows() ? ProcessMemory.PrivateBytes() : Environment.WorkingSet / 1e6;
 
+    // The handle bound's message. The counts after every ten apps and what each followed app kept,
+    // by kind and its Thread handles by the thread each refers to, come first, then the threads, then
+    // each followed app's steps, cut so the whole fits the 4,096 characters the test page keeps of a
+    // message, where on 4c6630a4's run the steps standing first pushed the series past it and the
+    // test's name with them (REVIEW.md, Verdict 68).
+    private static string HandlesFailure(int apps, int handles, int at20, int driverThreads, List<string> everyTen,
+        Dictionary<int, Steps> steps, List<string> threads)
+    {
+        var head = $"a closed app gives back the handles it took, {apps} apps leaving {handles} where 20 left {at20}, " +
+                   $"{driverThreads} Thread handles an app allowed as the driver's{Environment.NewLine}" +
+                   $"the handles after every ten apps, {string.Join(", ", everyTen)}{Environment.NewLine}" +
+                   $"what each followed app kept, {string.Join("; ", steps.Values.Select(s => s.Kept).OfType<string>())}{Environment.NewLine}" +
+                   $"the threads after every ten apps, {string.Join(", ", threads)}{Environment.NewLine}";
+        var bySteps = $"the handles by step, {string.Join("; ", steps.Values)}";
+        var room = Math.Max(1, 3500 - head.Length);
+        return head + (bySteps.Length <= room ? bySteps : bySteps[..(room - 1)] + "…") + Environment.NewLine;
+    }
+
     // What Resident reads, by its name on this system, for the series a failure is read by.
     private static string ResidentName => OperatingSystem.IsWindows() ? "the private bytes committed" : "the resident memory";
 
@@ -300,6 +314,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         private int _driverThreads;
         private double _memory;
         private int _threads;
+        // On Windows, the Thread handles as the app began and as its last step left them, each with
+        // the thread it refers to, and the step that opened each handle seen opened.
+        private Dictionary<IntPtr, HandleCensus.ThreadSeen> _threadsFirst = [], _threadsLast = [];
+        private readonly Dictionary<IntPtr, string> _openedAt = [];
+        // On Linux, the threads by id with their names as the last step left them.
+        private Dictionary<int, string> _namesLast = [];
         // On Windows, for an app whose handles are followed, the private data by the base of each
         // allocation as the last step left it, and the allocations each step added, by their base,
         // with the step and their kilobytes, then which of them stood at the app's end and once the
@@ -317,7 +337,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             if (handles)
             {
                 _first = _last = Handles();
-                _kindsFirst = _kindsLast = HandleCensus.Now();
+                (_kindsFirst, _threadsFirst) = HandleCensus.Take();
+                (_kindsLast, _threadsLast) = (_kindsFirst, _threadsFirst);
+                _namesLast = ProcessMemory.ThreadNames();
                 _data = ProcessRegions.PrivateData();
             }
             _threads = ProcessMemory.Threads();
@@ -353,10 +375,25 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // the one that closes it, or none, are named, and the driver's steps' Thread handles counted.
             if (OperatingSystem.IsWindows())
             {
-                var kinds = HandleCensus.Now();
+                var (kinds, threadHandles) = HandleCensus.Take();
                 if (HandleCensus.Change(_kindsLast, kinds) is { Length: > 0 } change) taken += $" ({change})";
                 if (DriverSteps.Contains(step)) _driverThreads += HandleCensus.ChangeOf(_kindsLast, kinds, "Thread");
-                _kindsLast = kinds;
+                // The threads whose handles the step opened, by name, so a step that starts threads
+                // says whose they are.
+                var opened = threadHandles.Where(t => !_threadsLast.ContainsKey(t.Key)).ToList();
+                foreach (var (handle, _) in opened) _openedAt[handle] = step;
+                if (opened.Count > 0) taken += $" [opened {Threads(opened.Select(t => t.Value))}]";
+                (_kindsLast, _threadsLast) = (kinds, threadHandles);
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                // The threads the step started and ended, by name, which Linux reads without handles.
+                var names = ProcessMemory.ThreadNames();
+                var started = names.Where(n => !_namesLast.ContainsKey(n.Key)).Select(n => n.Value).ToList();
+                var ended = _namesLast.Where(n => !names.ContainsKey(n.Key)).Select(n => n.Value).ToList();
+                if (started.Count > 0) taken += $" [started {Named(started)}]";
+                if (ended.Count > 0) taken += $" [ended {Named(ended)}]";
+                _namesLast = names;
             }
             _taken.Add(taken);
             Console.WriteLine($"[leak test] app {app}'s handles, {taken} to {now}");
@@ -389,11 +426,31 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             _taken.Add($"{_last - _first:+0;-0;0} kept");
             if (OperatingSystem.IsWindows())
             {
-                var kinds = HandleCensus.Change(_kindsFirst, HandleCensus.Now());
+                var (now, threadHandles) = HandleCensus.Take();
+                var kinds = HandleCensus.Change(_kindsFirst, now);
+                // The Thread handles the app kept, those it holds now that it did not as it began, or
+                // that refer to another thread, by the thread each refers to and the step that opened
+                // it, so a handle kept after its thread ended is told from a thread still running.
+                var kept = threadHandles.Where(t => !_threadsFirst.TryGetValue(t.Key, out var before) || before.Id != t.Value.Id)
+                    .GroupBy(t => (Step: _openedAt.GetValueOrDefault(t.Key, "a step not seen"), t.Value.Named))
+                    .Select(g => $"{g.Count()} {g.Key.Named}, opened at {g.Key.Step}")
+                    .ToList();
+                Kept = $"app {app} by kind {(kinds.Length == 0 ? "none" : kinds)}, its Thread handles {(kept.Count == 0 ? "none" : string.Join(", ", kept))}";
                 _taken.Add($"by kind {(kinds.Length == 0 ? "none" : kinds)}");
-                Console.WriteLine($"[leak test] app {app}'s handles kept by kind, {(kinds.Length == 0 ? "none" : kinds)}");
+                Console.WriteLine($"[leak test] {Kept}");
             }
         }
+
+        /// <summary>On Windows, what the app kept by kind, and its Thread handles by thread and the step that opened each.</summary>
+        public string? Kept { get; private set; }
+
+        // Names counted, as "3 '.NET TP Worker', 1 'dotnet'".
+        private static string Named(IEnumerable<string> names) =>
+            string.Join(", ", names.GroupBy(n => n).Select(g => $"{g.Count()} '{g.Key}'"));
+
+        // Threads by name and whether they have ended, as "3 unnamed running, 1 '.NET TP Worker' running".
+        private static string Threads(IEnumerable<HandleCensus.ThreadSeen> threads) =>
+            string.Join(", ", threads.GroupBy(t => t.Named).Select(g => $"{g.Count()} {g.Key}"));
 
         public override string ToString() => $"app {app}: {(_taken.Count == 0 ? "not read" : string.Join(", ", _taken))}";
 

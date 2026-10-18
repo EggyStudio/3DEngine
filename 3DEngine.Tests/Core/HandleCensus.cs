@@ -11,7 +11,9 @@ namespace Engine.Tests.Core;
 /// The table is a snapshot of every process's handles, a few MB on a runner, each entry naming its
 /// process, the handle and the index of its kind, and the kind's name is asked of one handle of
 /// each, its own process's, which never waits as asking a pipe's name can. A handle closed between
-/// the snapshot and the question leaves its kind named by its index.
+/// the snapshot and the question leaves its kind named by its index. A Thread handle is also asked
+/// which thread it is, its id and name, and whether the thread has ended, so a handle kept after its
+/// thread ended is told from a thread still running (REVIEW.md, Verdict 68).
 /// </remarks>
 internal static class HandleCensus
 {
@@ -30,11 +32,25 @@ internal static class HandleCensus
     [DllImport("ntdll.dll")]
     private static extern int NtQueryObject(IntPtr handle, int infoClass, IntPtr info, int length, out int returned);
 
+    /// <summary>A thread a Thread handle refers to, its id, its name, empty where it has none, and whether it has ended.</summary>
+    public readonly record struct ThreadSeen(uint Id, string Name, bool Ended)
+    {
+        /// <summary>Its name and whether it has ended, as "'.NET TP Worker' running" or "unnamed ended".</summary>
+        public string Named => $"{(Name.Length == 0 ? "unnamed" : $"'{Name}'")} {(Ended ? "ended" : "running")}";
+    }
+
     /// <summary>The process's handles by the name of their kind, none where the table cannot be read.</summary>
-    public static Dictionary<string, int> Now()
+    public static Dictionary<string, int> Now() => Take().Kinds;
+
+    /// <summary>
+    /// The process's handles by the name of their kind, and its Thread handles by their value with
+    /// the thread each refers to, both empty where the table cannot be read.
+    /// </summary>
+    public static (Dictionary<string, int> Kinds, Dictionary<IntPtr, ThreadSeen> Threads) Take()
     {
         var kinds = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (!OperatingSystem.IsWindows() || IntPtr.Size != 8) return kinds;
+        var threads = new Dictionary<IntPtr, ThreadSeen>();
+        if (!OperatingSystem.IsWindows() || IntPtr.Size != 8) return (kinds, threads);
         var length = 1 << 22;
         var table = IntPtr.Zero;
         try
@@ -48,13 +64,14 @@ internal static class HandleCensus
                 if (status == 0) break;
                 Marshal.FreeHGlobal(table);
                 table = IntPtr.Zero;
-                if (status != InfoLengthMismatch || tries == 6) return kinds;
+                if (status != InfoLengthMismatch || tries == 6) return (kinds, threads);
                 length = Math.Max(length * 2, returned + (1 << 16));
             }
             var count = Marshal.ReadInt64(table);
-            if (count < 0 || EntriesAt + count * EntrySize > length) return kinds;
+            if (count < 0 || EntriesAt + count * EntrySize > length) return (kinds, threads);
             var self = (long)Environment.ProcessId;
             var byKind = new Dictionary<int, (int Count, IntPtr Sample)>();
+            var handlesOf = new Dictionary<int, List<IntPtr>>();
             for (long i = 0; i < count; i++)
             {
                 var entry = IntPtr.Add(table, checked((int)(EntriesAt + i * EntrySize)));
@@ -62,19 +79,59 @@ internal static class HandleCensus
                 var kind = (ushort)Marshal.ReadInt16(entry, KindAt);
                 var handle = Marshal.ReadIntPtr(entry, HandleAt);
                 byKind[kind] = byKind.TryGetValue(kind, out var seen) ? (seen.Count + 1, seen.Sample) : (1, handle);
+                if (!handlesOf.TryGetValue(kind, out var handles)) handlesOf[kind] = handles = [];
+                handles.Add(handle);
             }
             foreach (var (kind, (n, sample)) in byKind)
             {
                 var name = NameOf(sample) ?? $"kind {kind}";
                 kinds[name] = kinds.GetValueOrDefault(name) + n;
+                if (name == "Thread")
+                    foreach (var handle in handlesOf[kind])
+                        threads[handle] = Describe(handle);
             }
         }
         finally
         {
             if (table != IntPtr.Zero) Marshal.FreeHGlobal(table);
         }
-        return kinds;
+        return (kinds, threads);
     }
+
+    // The thread a handle refers to. A handle without the right to be asked answers an id of 0, and
+    // a system without thread names an empty name.
+    private static ThreadSeen Describe(IntPtr handle)
+    {
+        var id = GetThreadId(handle);
+        var ended = GetExitCodeThread(handle, out var code) && code != StillActive;
+        var name = "";
+        try
+        {
+            if (GetThreadDescription(handle, out var description) >= 0 && description != IntPtr.Zero)
+            {
+                name = Marshal.PtrToStringUni(description) ?? "";
+                LocalFree(description);
+            }
+        }
+        catch (EntryPointNotFoundException)
+        {
+        }
+        return new ThreadSeen(id, name, ended);
+    }
+
+    private const uint StillActive = 259;
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetThreadId(IntPtr thread);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool GetExitCodeThread(IntPtr thread, out uint code);
+
+    [DllImport("kernel32.dll")]
+    private static extern int GetThreadDescription(IntPtr thread, out IntPtr description);
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr LocalFree(IntPtr memory);
 
     /// <summary>How many more handles of a kind the second reading holds than the first.</summary>
     public static int ChangeOf(Dictionary<string, int> before, Dictionary<string, int> after, string kind) =>
