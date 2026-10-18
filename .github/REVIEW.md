@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `351cc461`, Verdict 64's held layer and the layer's pin on Windows and nothing else,
+Reviewed up to `87cd9415`, Verdict 67's notice and nothing else. `compare.py` annotates the
+processor it measured on and whether gfni is among its flags as a notice on every run, before any
+pair is measured, so the page of a run that holds names the processor its pairs held on, and the
+pairs measured for the first time share the other nine notices GitHub shows, the script's test
+holding 215 pairs in nine, with the docstring and the measure step's comment saying so. Checked on
+the working machine were the strict build and the whole suite, 1,716 passed. Right. The pack run of
+`4d5db9df` ended at 14:14 on 2026-10-18 whole green with its package, captures-macos and the pack
+job passing after the rest, which with the push run of `683e6e9d` whole green the day before meets
+Decision 42's gate, so Decision 39 is lifted for this engine, item 26 is done, and items 27 then 28
+may start, the game's build having been green in its repository since 2026-10-17; the pack job's
+page carries the warnings of a stable package on prerelease dependencies, SDL3-CS and BepuPhysics,
+which every pack run's has. The two leak tests passed on that run by the readings' swing, and
+Verdict 64 stands open with its cause under confirmation. The push run of `351cc461` ended at 14:30
+red on its Windows suite alone, and there one test failed where two had, the plain hundred apps
+climbing 98 MB of private data while the twin holding the validation layer loaded passed, which
+names the layer's unload as the leak's owner (Verdict 64, the mend asked); the owner pushed
+`87cd9415` at 14:39, the pack run of `351cc461` still running. Next item 27, Verdict 64's mend,
+their push and runs, and the next failing measure's processor and pictures (Verdict 67).
+
+Before it, `351cc461` came, Verdict 64's held layer and the layer's pin on Windows and nothing else,
 the leak test, the workflow and BUILDING.md. The Windows suite runs the Debug build, whose instances
 enable the validation layer always, under `E3D_REQUIRE_VALIDATION`, so every app's instance there
 loads the layer and its destruction unloads it, and the held instance enabled no layer until this
@@ -65,34 +84,6 @@ continued, with what the layer's own allocator may be doing); its pack run was r
 Next the owner's push of this commit, its Windows suite naming the step and the sizes, and a pack
 run whole green, whose measure says its processor and keeps its pictures; items 27 and 28 wait for
 it.
-
-Before it, `4d5db9df` came, Verdict 67's instrument and reading and nothing else, the measure, the
-captures job and the script's test. `compare.py` says as it starts the processor it measures on and
-whether gfni is among its flags, read from `lscpu` as `open-game.sh` reads it, its errors begin with
-the same, and every run that measures writes a summary naming the processor with its pairs counted,
-those not holding and those measured for the first time; `--pictures` copies both pictures of every
-pair into a folder, which the captures job keeps under `captures/measure`, some 32 MB for the 221
-pairs, so a pair's frames are compared between two runs, which the pictures left in the bench's work
-folder never allowed, and the whole set stays, since the comparison needs the run on which a pair
-held as much as the one on which it failed. `StepScriptTests` pass a processor to the errors and
-read their first line. The pair was read on the working machine with both programs drawn as the job
-draws them, ours offscreen on lavapipe and raylib's on llvmpipe's GL, one Mesa under both; the 45
-frames from 196 to 949 are 0.5 to 0.6 percent apart, a span holding changes of direction and of the
-walk, so the frame taken does not move the share; the direction is the floor of the camera's angle
-in eighths of a turn plus a quarter, which changes at frames 118 and 213 and stands at 7 between
-them, where the capture's frame falls, so no boundary is near it; and the walk changes every 30
-frames alike in both programs. So the 5.5 recorded and the 7.9 measured are what the runners' Mesa
-draws, lavapipe and llvmpipe's GL on the fleet's processors, and the next two pack runs, one on each
-kind, with both pictures kept, say whether the processor moves the pair and which program's picture
-moved. Checked on the working machine were the strict build and the whole suite, 1,716 passed.
-Right. Of `0af1c9cd`'s runs, the push run ended at 12:25 red on its Windows suite alone, the two
-hundred-app tests failing as before, 741 MB at the twentieth app to 824 at the hundredth, and the
-pack run's Windows suite failed the same at 12:30, its games job green and its captures jobs still
-running at 12:47; the sweep names the kind, private data, 712 MB in some 2,900 regions at the
-twentieth app to 791 in 3,400 at the hundredth on both runs, every other kind flat, stacks and code
-among them (Verdict 64, continued, the next reading asked). The owner pushed `4d5db9df` at 12:27 and
-started its pack run. Next Verdict 64's reading, its push, and a pack run whole green, whose measure
-says its processor and keeps its pictures (Verdict 67); items 27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1047,29 +1038,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     55.
 
 26. **Two workflows an engine, `build.yml` on a push and `pack.yml` by hand (Decision 40), committed
-    at `534a1c2b`; done when its push run and pack run are green.** `test.yml` and `examples.yml`
-    fold into `build.yml`, which has `push`, `pull_request` and `workflow_call` with one input,
-    `pack`: the jobs `linux`, `windows`, `macos`, `digest`, `examples` (needs `linux`, 90 minutes,
-    the push half of today's examples job, `step.py` given `--workflow
-    .github/workflows/build.yml`), and pack-only `captures` (the Linux captures and the raylib
-    measure, 150), `captures-macos` (today's `macos-examples`, 160) and `games` (the twelve games
-    played, soaked and stormed from the package and the README walked, 150); the Windows and macOS
-    jobs keep Slide played offscreen, native and in a window, the README walk and the first game on
-    every push, and play the other eleven in the pack run alone behind `if: ${{ inputs.pack }}`,
-    Decision 35 on every system, their limits `${{ inputs.pack && 180 || 100 }}` and `${{
-    inputs.pack && 120 || 75 }}`. `pack.yml` keeps `workflow_dispatch` with `publish` and runs
-    `build` (uses `build.yml` with `pack: true`) then `pack` (needs `build`, 30 minutes, today's
-    pack job whole, the version read in it). Both files: `permissions: contents: read`, concurrency
-    `build-${{ github.ref }}` cancelling in progress and `pack-${{ github.ref }}` not, the paths
-    filter as today, a head comment saying what a push runs and what the pack run adds, a time limit
-    on every job with its reason (N 6.8). Every line naming the old files changes:
-    `build/step.py:6-7`, `ScriptTests.cs:99, 103` (`build.yml`, so `captures-macos` joins N 6.6's
-    scan), `.github/BUILDING.md:25, 81-82, 182-191, 315-316, 335-341, 354-359`,
+    at `534a1c2b`, done on 2026-10-18 with the pack run of `4d5db9df` whole green after the push run
+    of `683e6e9d`.** `test.yml` and `examples.yml` fold into `build.yml`, which has `push`,
+    `pull_request` and `workflow_call` with one input, `pack`: the jobs `linux`, `windows`, `macos`,
+    `digest`, `examples` (needs `linux`, 90 minutes, the push half of today's examples job,
+    `step.py` given `--workflow .github/workflows/build.yml`), and pack-only `captures` (the Linux
+    captures and the raylib measure, 150), `captures-macos` (today's `macos-examples`, 160) and
+    `games` (the twelve games played, soaked and stormed from the package and the README walked,
+    150); the Windows and macOS jobs keep Slide played offscreen, native and in a window, the README
+    walk and the first game on every push, and play the other eleven in the pack run alone behind
+    `if: ${{ inputs.pack }}`, Decision 35 on every system, their limits `${{ inputs.pack && 180 ||
+    100 }}` and `${{ inputs.pack && 120 || 75 }}`. `pack.yml` keeps `workflow_dispatch` with
+    `publish` and runs `build` (uses `build.yml` with `pack: true`) then `pack` (needs `build`, 30
+    minutes, today's pack job whole, the version read in it). Both files: `permissions: contents:
+    read`, concurrency `build-${{ github.ref }}` cancelling in progress and `pack-${{ github.ref }}`
+    not, the paths filter as today, a head comment saying what a push runs and what the pack run
+    adds, a time limit on every job with its reason (N 6.8). Every line naming the old files
+    changes: `build/step.py:6-7`, `ScriptTests.cs:99, 103` (`build.yml`, so `captures-macos` joins N
+    6.6's scan), `.github/BUILDING.md:25, 81-82, 182-191, 315-316, 335-341, 354-359`,
     `.github/TODO.md:352`, `docs/shipping-a-game.md:56-57`, `docs/compared-with-raylib.md:60`,
     `README.md:256-258`. Checked by `ScriptTests` and `NormTests`, a push run green with the three
     pack-only jobs skipped and the Windows job near 55 minutes, and a pack run green with its
     package, which are Decision 39's gate (Decision 42). The norm's and SHARED.md's lines are the
-    reviewer's and ride with the commit.
+    reviewer's and ride with the commit. Done on 2026-10-18, the push run of `683e6e9d` whole green
+    on 2026-10-17 and the pack run of `4d5db9df` whole green at 14:14 with its package, Decision
+    42's gate.
 
 27. **The voxel game leaves for its own repository (Decision 41), after item 26's gate and the
     game's first green build there.** One commit: `3DEngine.Game/` and `3DEngine.Game.Tests/`
@@ -1078,7 +1071,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     `docs/materials-light-and-shadows.md:390` citing a voxel game built on the engine,
     Voxel-Sandbox, with the numbers as measured, `.github/RENDERING.md:2140` saying where the game
     lives; the tests' comments, `.gitignore:83` and the asks' captures stay. Checked by the strict
-    build, `NormTests` and `grep -rn "3DEngine\.Game"` finding only the channel's files.
+    build, `NormTests` and `grep -rn "3DEngine\.Game"` finding only the channel's files. The gate
+    was met on 2026-10-18 (Decision 42) and the game's build has been green in its repository since
+    2026-10-17, so the item is open from 14:19.
 
 28. **A tiny sample, `games/Ore`, after item 27: a voxel landscape, a character and the light that
     bounces.** A game like the others (`Ore.csproj` and `nuget.config` as Wick's, a `Program.cs` of
@@ -1591,7 +1586,27 @@ are open.
     test with its version. On the pack run of `4d5db9df`, 2026-10-18, the Windows suite passed both
     tests, the first pass since the figure became the private bytes, by the readings' swing meeting
     the bound of 50 this once and by no mend; it counts for nothing toward the three green suites
-    the mend needs.
+    the mend needs. On the push of `351cc461`, 2026-10-18, the Windows suite failed one test of the
+    two. The twin holding an instance with the validation layer enabled passed, and the plain test
+    failed as before, its private bytes 737 MB at the twentieth app and 836 at the hundredth,
+    private data 709 MB in 2,836 regions to 807 in 3,319, 98 MB more, with the layer's library
+    absent at both readings, the image code 101 MB where the twin's readings hold 136 with the layer
+    loaded, so the failing test is the plain one. The layer's unload with each app's instance is the
+    leak, about a megabyte an app on Windows at 1.4.363.0, the layer's own allocator keeping what it
+    reserved when the loader lets the library go, and the engine keeps nothing, as the twin says.
+    The page lost the four per-step lines under its limit of 4,096 characters, the message ending in
+    the regions' line, so the step was not read and did not need to be; and the heaps' allocated
+    bytes climbed from 148 to 158 MB across the hundred apps on this run, 0.1 MB an app, where they
+    stood flat before, which the test watches once the layer is out of the figure. The mend is one
+    thing. The two leak tests run their hundred apps without the validation layer on every system, a
+    Debug instance leaving the layer off where a test asks it, with the reason in the test's
+    comment, the layer's Windows build at 1.4.363.0 keeping about a megabyte an app on its unload,
+    measured here, and the twin passing beside the plain test on this run; so the plain test
+    measures the engine and the driver's reload, as it was meant to, the twin the engine alone, and
+    `E3D_REQUIRE_VALIDATION` does not count them. Where a Debug instance cannot leave the layer off,
+    both tests hold the layer as the twin does. And the failure's message keeps the lines that name
+    the cause, the regions and the per-step lines, before the series, within the page's limit.
+    Settled at three green Windows suites in a row after the mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1686,7 +1701,9 @@ are open.
     summary, which need a sign-in, and to its errors alone. One thing more, small. The line
     "Measured on <model>, gfni ... its flags" is a notice as well, on every run, so a passing run's
     page says which processor the pairs held on, and the pictures kept under `captures/measure` on
-    this run are the holding side of the comparison the next failing run completes.
+    this run are the holding side of the comparison the next failing run completes. Done at
+    `87cd9415`, the processor a notice on every run before any pair is measured, the pairs measured
+    for the first time sharing the other nine notices.
 
 ## Decisions
 
@@ -1967,7 +1984,11 @@ are open.
     engine before engine and game features resume. Until then the working sessions mend what
     verdicts name and do item 26, and in BevyCSharp item 23, alone; on 2026-10-17 at 15:19 the owner
     added the register sweep (item 29, BevyCSharp's 25) to what may be done before the gate, since
-    it touches prose and no behavior.
+    it touches prose and no behavior. Met for this engine on 2026-10-18 at 14:14, the pack run of
+    `4d5db9df` whole green with its package after the push run of `683e6e9d` whole green the day
+    before, so Decision 39 is lifted for 3DEngine and development resumes with item 27 then 28, the
+    verdicts open, 64 and 67, mended as they come; the Windows leak tests passed on that run by
+    their readings' swing, said under Verdict 64, which stands open.
 
 43. **Prose is technical and generic.** The owner said on 2026-10-17 that phrasings such as "the
     light that bounces" and "how to drive the game" read as casual and do not fit. A feature is

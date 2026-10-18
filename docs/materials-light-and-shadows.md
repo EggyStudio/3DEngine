@@ -387,8 +387,9 @@ stamps and paints in 0.06 ms and the CPU places in 0.45, in the Release build, w
 unpainted in 0.05 ms. A mesh that moves in most frames and matters little to the light around it, as
 a game's animal, is left out with its material's `BouncesLight` set false, so it casts its shadows
 and is lit as before while the field, the glow lights and global illumination hold nothing of it,
-since a voxel game's walking animal of four to six pieces cost the field 16 to 28 microseconds of
-the CPU and 13 to 15 of the GPU a piece a frame.
+since a walking animal of four to six pieces in
+[Voxel-Sandbox](https://github.com/EggyStudio/Voxel-Sandbox), a voxel game built on the engine, cost
+the field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a piece a frame.
 
 <!-- compiled with:
 Model pig = default;

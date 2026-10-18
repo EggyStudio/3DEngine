@@ -2147,11 +2147,12 @@ The largest costs as they were measured, in order, each with what changed:
    translucent entities' sort and not a pass over every entity.
 8. **A plain draw was drawn whole by every view.** Item 6 culled the groups of mesh entities, and
    a `DrawMesh` or `DrawModel` was still drawn into the camera's pass, the occlusion's depth and
-   each cascade wherever it lay. The voxel game in `3DEngine.Game` draws its world as some 1,800
-   meshes a frame and cannot leave out the ones it does not see, since the scene's field gathers
-   the frame's draws and a mesh left out of a frame leaves it. On seed 1's hills at 1280 by 720,
-   standing at the spawn facing north at hour 10 with eight columns drawn around the player, the
-   frame took 25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the
+   each cascade wherever it lay. The voxel game built on the engine, which lives in its own
+   repository, [Voxel-Sandbox](https://github.com/EggyStudio/Voxel-Sandbox), draws its world as some
+   1,800 meshes a frame and cannot leave out the ones it does not see, since the scene's field
+   gathers the frame's draws and a mesh left out of a frame leaves it. On seed 1's hills at 1280 by
+   720, standing at the spawn facing north at hour 10 with eight columns drawn around the player,
+   the frame took 25.5 ms, the GPU 14.2 ms for the shadows, 4.9 for the scene and 4.8 for the
    occlusion's depth, over 9,181 calls, 1,836 in each of the camera's pass, the depth and the three
    cascades, averaged over 600 frames after `profile.reset` by `./e3d command profile` on an RTX
    4070 Laptop GPU, the Debug build.

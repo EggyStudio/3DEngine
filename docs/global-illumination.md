@@ -40,9 +40,9 @@ of its default cell, a quarter of a unit. `Config.GlobalIllumination` and `Confi
 both for an app made from a `Config`. Nothing else changes in a program. Its lights, materials and
 meshes are those it draws already, and a material's color, its texture's average and its mesh's
 vertex colors are the color the light leaves a surface with. Vertex colors written in place with
-`UpdateMeshBuffer`, as a voxel game lights a section again by its light levels, reach global
-illumination in the frame after, the field painting again the cells the mesh is nearest without
-building it again.
+`UpdateMeshBuffer`, as [Voxel-Sandbox](https://github.com/EggyStudio/Voxel-Sandbox), a voxel game
+built on the engine, lights a section again by its light levels, reach global illumination in the
+frame after, the field painting again the cells the mesh is nearest without building it again.
 
 ## Radiance cascades
 
@@ -129,7 +129,7 @@ would, with no light made for it. Its light reaches each surface from the faces 
 stands between throws a soft shadow, so an emissive block lights the floor it lies on as a
 path-traced reference does, within 5% from a block out to four, at every quality. Emissive blocks
 that touch, as a stack of them, are one light. The 64 such lights nearest the eye light so, each as
-far as it lights a surface by a fiftieth, 17 units for an emissive block of the voxel game's, and a
+far as it lights a surface by a fiftieth, 17 units for an emissive block of Voxel-Sandbox's, and a
 larger surface, as a panel across a ceiling, is left to the probes' rays, which meet it often
 enough. A frame with none of them pays nothing for them.
 
