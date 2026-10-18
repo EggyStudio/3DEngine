@@ -136,7 +136,7 @@ public sealed class StepScriptTests : IDisposable
     }
 
     [NeedsPythonFact]
-    public void The_Pairs_Measured_For_The_First_Time_Are_No_More_Than_Ten_Notices_Holding_Every_Pair()
+    public void The_Pairs_Measured_For_The_First_Time_Are_No_More_Than_Nine_Notices_Holding_Every_Pair()
     {
         var names = Enumerable.Range(0, 215).Select(i => $"shapes_example_{i}").ToArray();
         var program = "import compare\n"
@@ -154,8 +154,8 @@ public sealed class StepScriptTests : IDisposable
         python.ExitCode.Should().Be(0, errors.Result);
 
         var notices = TestScriptTests.Lines(output.Result).Where(line => line.StartsWith("::notice ", StringComparison.Ordinal)).ToList();
-        notices.Should().HaveCount(10, "GitHub shows ten notices of a step");
-        notices[0].Should().StartWith("::notice title=Measured for the first time%2C 1 of 10::shapes_example_0\t1.5%0A");
+        notices.Should().HaveCount(9, "GitHub shows ten notices of a step, one of them the processor's");
+        notices[0].Should().StartWith("::notice title=Measured for the first time%2C 1 of 9::shapes_example_0\t1.5%0A");
         var pairs = notices.SelectMany(line => line[(line.IndexOf("::", 9, StringComparison.Ordinal) + 2)..].Split("%0A")).ToList();
         pairs.Should().Equal(names.Select(name => $"{name}\t1.5"), "every pair is in one notice, in order");
     }

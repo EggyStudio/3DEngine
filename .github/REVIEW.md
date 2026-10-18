@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4827b705`, Verdict 64's per-step reading and nothing else, the leak test and a file
+Reviewed up to `351cc461`, Verdict 64's held layer and the layer's pin on Windows and nothing else,
+the leak test, the workflow and BUILDING.md. The Windows suite runs the Debug build, whose instances
+enable the validation layer always, under `E3D_REQUIRE_VALIDATION`, so every app's instance there
+loads the layer and its destruction unloads it, and the held instance enabled no layer until this
+commit, which fits the two tests climbing alike; since this commit it enables
+`VK_LAYER_KHRONOS_validation` wherever `vkEnumerateInstanceLayerProperties` lists it, as the
+engine's Debug instances do, so the layer's library stays loaded through the hundred apps with its
+allocator's state, and the comment above the twin says the driver alone held changed nothing, why
+the layer is suspected and that the twin passing beside the plain test failing names the layer's
+unload. Read on Linux with the pinned layer, the plain test's instance takes 77.4 MB as it is made
+and gives 148.2 back as it is destroyed with 0.08 kept, and the held twin's two instance steps fall
+under 0.05 into the rest with 0.10 kept, so the held layer is the one each app's instance uses and
+nothing of it reloads. The Windows job takes LunarG's runtime components and SDK at 1.4.363.0, the
+version Linux pins and the latest today, from the SDK's versioned paths with `curl -fsSL --retry 3`,
+the files the size of the latest ones byte for byte, so the pin changes nothing in the next run and
+a change of layer comes in a commit thereafter, said in the step's comment and BUILDING.md. Checked
+on the working machine were the strict build and the whole suite, 1,716 passed. Right. Left for the
+suite's word, the plain test's bound read with the layer's unload out of it and the layer's leak
+said in the test with its version. The pack run of `4d5db9df` had by 13:49 its three suites,
+examples job and digest green, the Windows suite passing all 1,664 tests in 24 minutes, the two leak
+tests among them, the readings' swing having met the bound this once (Verdict 64), with the games
+and the two captures jobs running; the owner pushed `351cc461` at 13:46 and started its pack run,
+queued behind. By 14:07 that pack run's games job had passed and its captures job too, the measure
+holding on every pair, the one of Verdict 67 among them, 256 examples drawn in 21 minutes, with
+captures-macos still running and the pack job after it; the page of a measure that holds does not
+say the processor, which Verdict 67 asks as a notice. Next captures-macos and the pack job, which
+make that run whole green and Decision 42's gate met, the Windows suite of `351cc461`'s push run
+naming the step and the sizes with the held twin beside the plain test; items 27 and 28 wait for the
+gate.
+
+Before it, `4827b705` came, Verdict 64's per-step reading and nothing else, the leak test and a file
 of its own for the Windows instruments. For the four apps the test follows, the twenty-first,
 thirty-first, forty-first and fifty-first, every step on 64-bit Windows sweeps the private data,
 committed private memory that is neither executable nor in an allocation holding a guard page, by
@@ -63,31 +93,6 @@ twentieth app to 791 in 3,400 at the hundredth on both runs, every other kind fl
 among them (Verdict 64, continued, the next reading asked). The owner pushed `4d5db9df` at 12:27 and
 started its pack run. Next Verdict 64's reading, its push, and a pack run whole green, whose measure
 says its processor and keeps its pictures (Verdict 67); items 27 and 28 wait for it.
-
-Before it, `0af1c9cd` came, Verdict 64's two readings and nothing else, the leak test and the norm's
-list of waits. On 64-bit Windows the test sweeps the address space with `VirtualQuery` at the
-twentieth app and the last, summing the committed regions by their type, private, mapped or a
-module's image, and by what they hold, code where the protection is executable, a stack where the
-allocation holds a guard page, data otherwise, and says each kind's megabytes and regions then and
-now on a line of the series, the kind grown most first, so the one that grew names its owner, LLVM's
-code for lavapipe's shaders private, the runtime's mapped under its double mapping, stacks and data
-by themselves. Before an app's last reading the test waits half a second at most for the process's
-threads to fall to the count the app began with, on Windows from a snapshot of the system's threads
-that allocates nothing managed, counting the apps whose threads outlast it, and what changes between
-one app's last reading and the next app's first is a step of its own, so the steps sum to the
-tenth-app readings' climb; the wait is listed in `build/norm/3.3.txt` with its reason, the file
-counted there already. The wait is shorter than asked, with the reason in the test, two apps in
-eighty on Linux outliving two seconds and a hundred waits of that length on Windows passing the five
-minutes a test has. Checked on the working machine were the strict build and the whole suite, 1,715
-passed and N 3.3 failing until the wait was listed, and on Linux the steps summed to 0.04 MB given
-back an app with 0.32 between apps, every app's threads met within the wait but two's; the sweep
-runs on Windows alone and has not run yet. Right. The pack run of `a41cc801` ended at 11:38 on
-2026-10-18, its captures-macos and games jobs green and its captures job red at 11:36 on the raylib
-measure alone, every one of the 256 examples drawn in 26 minutes and the page naming its pair,
-`models_directional_billboard` 7.9 percent apart where 5.5 is recorded with a room of 1 point, which
-settles Verdict 66 and opens Verdict 67; the pack job did not run. The owner pushed `0af1c9cd` at
-11:33 and started its pack run at 11:34, both running at 11:51. Next their Windows suites naming
-Verdict 64's kind, Verdict 67's mend, and a pack run whole green; items 27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1575,7 +1580,18 @@ are open.
     read with the layer's unload no longer in the figure, the layer's own leak said in the test's
     comment with its version; and the Windows suite takes the layer from LunarG's latest SDK
     (`build.yml:196`) where Linux pins 1.4.363.0 in `build/fetch-validation-layer.sh` so a change of
-    layer comes in a commit, so the Windows version is pinned alike in the same mend.
+    layer comes in a commit, so the Windows version is pinned alike in the same mend. Done at
+    `351cc461` so far as the suite has not spoken, the held instance enabling the validation layer
+    wherever the loader lists it, so the layer stays loaded through the hundred apps in the held
+    twin, and the Windows job pinned to the SDK's 1.4.363.0 as Linux is; on Linux the plain test's
+    instance takes 77.4 MB and gives 148.2 back with 0.08 kept an app, and the held twin's instance
+    steps fall under 0.05, so the held layer serves each app's instance. The next Windows suite says
+    the step and the sizes and whether the held twin passes beside the plain test, and then the
+    plain test's bound is read with the layer's unload out of it and the layer's leak said in the
+    test with its version. On the pack run of `4d5db9df`, 2026-10-18, the Windows suite passed both
+    tests, the first pass since the figure became the private bytes, by the readings' swing meeting
+    the bound of 50 this once and by no mend; it counts for nothing toward the three green suites
+    the mend needs.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1663,6 +1679,14 @@ are open.
     next two pack runs, one on each processor, say which program's picture moved and whether the
     processor moves it. On the pack run of `0af1c9cd`, 2026-10-18, the measure failed on the same
     pair alone, 7.8 percent apart, the page saying no processor yet; the runs of `4d5db9df` say it.
+    On the pack run of `4d5db9df`, 2026-10-18, the measure held on every pair, this one within its
+    room, the 256 examples drawn in 1,257 seconds where the two failing runs took 1,565 and 1,572,
+    so the pair holds on one runner and not on another, as a processor's drawing would have it; and
+    the page of a run that holds says no processor, since `compare.py` prints it to the log and the
+    summary, which need a sign-in, and to its errors alone. One thing more, small. The line
+    "Measured on <model>, gfni ... its flags" is a notice as well, on every run, so a passing run's
+    page says which processor the pairs held on, and the pictures kept under `captures/measure` on
+    this run are the holding side of the comparison the next failing run completes.
 
 ## Decisions
 

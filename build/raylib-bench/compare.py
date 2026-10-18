@@ -29,15 +29,17 @@ reason. Where the file holds no share at all, as before its first run is recorde
 is said and the run does not fail. The captures job runs every pair so in the pack run, against
 3DEngine.Examples/measured-ci.tsv, the shares its own device recorded, so two machines' drivers are
 never compared with each other. Under GitHub Actions the pairs measured for the first time are
-notices as well, at most ten, which a reader not signed in sees where the run's summary and its
+notices as well, at most nine, which a reader not signed in sees where the run's summary and its
 files need a sign-in, and the pairs that fail a run are errors and lines of the summary, each with
 the share measured, the share recorded and its room, or what it drew in place of a frame. Printed
-alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66). The
-summary also says the processor the run measured on and whether gfni is among its flags, with how
-many pairs were measured and how many failed, since both programs draw with code LLVM compiles for
-that processor and the runners are of two kinds, and a pair that held before each kind compiled its
-own failed on the two runs since (REVIEW.md, Verdict 67). --pictures copies both pictures of every pair into the folder given, which the captures
-job keeps with its captures, so a pair's frames are compared between two runs.
+alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66). A
+notice on every run, the tenth GitHub shows, and the summary say the processor the run measured on
+and whether gfni is among its flags, the summary with how many pairs were measured and how many
+failed, since both programs draw with code LLVM compiles for that processor and the runners are of
+two kinds, and a pair that held before each kind compiled its own failed on the two runs since and
+held on the next (REVIEW.md, Verdict 67). --pictures copies both pictures of every pair into the
+folder given, which the captures job keeps with its captures, so a pair's frames are compared
+between two runs.
 """
 import importlib.util
 import os
@@ -254,8 +256,8 @@ def nothing_drawn(blind, count):
 
 def notices(names, measured):
     """The pairs measured for the first time as notices, each name with its share, shared out among
-    as few notices as hold them and no more than GitHub shows."""
-    size = -(-len(names) // ANNOTATIONS)
+    as few notices as hold them and no more than GitHub shows beside the processor's."""
+    size = -(-len(names) // (ANNOTATIONS - 1))
     parts = [names[i:i + size] for i in range(0, len(names), size)] if names else []
     for index, part in enumerate(parts, 1):
         annotate("notice", f"Measured for the first time, {index} of {len(parts)}", [f"{name}\t{measured[name]}" for name in part])
@@ -292,6 +294,9 @@ def main():
     record, against, pictures = option("--record"), option("--against"), option("--pictures")
     where = processor()
     print(f"Measured on {where}.")
+    # A notice on every run, so the page of a run that holds says which processor its pairs held on,
+    # as a failing run's errors say where they failed.
+    annotate("notice", "The processor the measure ran on", [f"Measured on {where}."])
     commit = table.raylib_commit()
     source = table.raylib_source(commit, None)
     written = table.written_examples()
