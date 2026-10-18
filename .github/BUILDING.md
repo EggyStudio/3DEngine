@@ -323,8 +323,8 @@ every push, builds and tests it on all three. Ubuntu 24.04, named rather than th
 changes only in a commit, draws on lavapipe, under the validation layer of LunarG's SDK at the
 version `build/fetch-validation-layer.sh` pins, since Ubuntu's own predates an extension lavapipe
 offers. Windows draws on lavapipe too, from Mesa's Windows build, with LunarG's loader and
-validation layer, and macOS draws on its GPU through MoltenVK, with the loader and the layer from
-Homebrew. On each the render tests and the reference frames run under the validation layer,
+validation layer of the same version, pinned in the workflow, and macOS draws on its GPU through
+MoltenVK, with the loader and the layer from Homebrew. On each the render tests and the reference frames run under the validation layer,
 `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer does
 not start rather than letting them skip, and `build/play-game.sh Slide` builds a game from the
 package and draws 300 frames of it offscreen, failing on an error the layer reports.

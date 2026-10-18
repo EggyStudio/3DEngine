@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4d5db9df`, Verdict 67's instrument and reading and nothing else, the measure, the
+Reviewed up to `4827b705`, Verdict 64's per-step reading and nothing else, the leak test and a file
+of its own for the Windows instruments. For the four apps the test follows, the twenty-first,
+thirty-first, forty-first and fifty-first, every step on 64-bit Windows sweeps the private data,
+committed private memory that is neither executable nor in an allocation holding a guard page, by
+allocation rather than by region, the base of the allocation with the kilobytes committed in it,
+since the collector's commits fall within its one reservation and a region's count moves as
+committed pages split or join; an allocation absent at the step before is credited to the step that
+added it, and after the threads have ended the test notes which of them still stand, and again once
+the next app has ended. The series gets a line an app, the allocations standing once the next app
+had ended, by the step that added them with their count and their sizes grouped by kilobytes, the
+most common first, so a loader heap's 64 KB pieces or a section's odd sizes show. The instruments
+moved under N 1.3 to `ProcessMemory.cs` beside `HandleCensus.cs`, the private bytes, the heaps, the
+threads and the regions' sweep and private data, the walk shared, the test file at 641 lines and the
+new one at 213. The sweep at every step is a walk a mark, some 45 marks on each of four apps.
+Checked on the working machine were the strict build and the whole suite, 1,716 passed; Linux reads
+none of it, so the Windows suite is its first run. Right. One thing to read with it, said under the
+verdict, an allocation that stood before an app and grew within it is not among those added. The
+pack run of `0af1c9cd` ended at 12:53, its captures-macos job green and its captures job red on the
+measure's same pair, 7.8 percent apart (Verdict 67); the push run of `4d5db9df` ended at 13:17 red
+on its Windows suite alone, the two leak tests as before, its twentieth reading in a trough, 661 MB,
+which puts the swing of the readings in private data within standing allocations (Verdict 64,
+continued, with what the layer's own allocator may be doing); its pack run was running at 13:21.
+Next the owner's push of this commit, its Windows suite naming the step and the sizes, and a pack
+run whole green, whose measure says its processor and keeps its pictures; items 27 and 28 wait for
+it.
+
+Before it, `4d5db9df` came, Verdict 67's instrument and reading and nothing else, the measure, the
 captures job and the script's test. `compare.py` says as it starts the processor it measures on and
 whether gfni is among its flags, read from `lscpu` as `open-game.sh` reads it, its errors begin with
 the same, and every run that measures writes a summary naming the processor with its pairs counted,
@@ -62,32 +88,6 @@ measure alone, every one of the 256 examples drawn in 26 minutes and the page na
 settles Verdict 66 and opens Verdict 67; the pack job did not run. The owner pushed `0af1c9cd` at
 11:33 and started its pack run at 11:34, both running at 11:51. Next their Windows suites naming
 Verdict 64's kind, Verdict 67's mend, and a pack run whole green; items 27 and 28 wait for it.
-
-Before it, `a41cc801` came, Verdict 66's two mends done and nothing else, 7 files. `compare.py` says
-the pairs that fail as errors of its own and as lines of the job's summary, titled with how many
-pairs do not hold to the share recorded, one line a pair, past its room with the share measured, the
-share recorded and the room, no frame from raylib's program with the reason its capture's first line
-gives, pictures of two sizes, raylib's program no longer building or the capture failing, the lines
-shared out among as few errors as fit under 4,096 characters and at most ten, the last saying how
-many lines the log holds beyond them, and `step.py` then adds no error of its own to that step; the
-4,096 is `ANNOTATION_LENGTH` in `page.py`, and a walrus in the script's main that reused a name and
-overwrote a capture's reason is mended. `step.py`'s endings name only the programs that ended other
-than of their own, with gdb's lines, and those that still run, after the step's last lines and
-before the session logs' warnings, so a program that ended of its own costs the error nothing.
-`StepScriptTests` hold three pairs, one with room of its own, and 400 pairs in at most ten errors
-each under the limit and in order, and a step whose game died said after its last lines, a game that
-ended of its own left out and a sleeping process named as still running; BUILDING.md's sentence and
-the measure step's comment say the same. Checked on the working machine were the strict build and
-the whole suite, 1,716 passed. Right. The owner pushed the three commits since `704952c5` at 10:21
-on 2026-10-18 and started the pack run a minute after. By 11:14 the push run's Linux, macOS and
-examples jobs had passed, in 18, 25 and 9 minutes, and its Windows suite had failed the two
-hundred-app leak tests at 11:12, 48 minutes in, the private bytes climbing from 744 MB at the
-twentieth app to 816 at the hundredth with the heaps and the collector flat (Verdict 64, continued,
-the step line read); the pack run's Linux and macOS suites, examples job and digest passed, its
-Windows suite failed the same two tests at 10:48, and its captures, captures-macos and games jobs
-were still running, so Decision 42's gate is not met by this run and items 27 and 28 wait on. Next
-the reading Verdict 64 asks, its push, and a pack run whole green, whose measure names Verdict 66's
-pairs.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1549,7 +1549,33 @@ are open.
     and the sizes say the allocator, 64 KB pieces of a loader heap or the odd sizes of sections;
     where the step alone does not name it, a trace of `VirtualAlloc` with its stacks under Windows
     Performance Recorder on one app is the step after. Settled at three green Windows suites in a
-    row after the mend.
+    row after the mend. Done at `4827b705`, the sweep at every step of the four followed apps, by
+    allocation, each step's new allocations with their sizes and how many stand at the app's end and
+    after the next app, on the series an app a line. An allocation that stood before the app and
+    grew within it, as a reservation committing more of itself does, is not among those added, so
+    where the lines show few allocations added while the series climbs, the growth is inside
+    standing allocations and the reading then says the allocations whose committed kilobytes grew
+    over the app, by step. The next Windows suite names the step and the sizes. On the push of
+    `4d5db9df`, 2026-10-18, the Windows suite failed the two tests as before, and the twentieth
+    reading fell in a trough, 661 MB against 724 at the tenth and 746 at the thirtieth, so the
+    sweep's baseline was taken there, private data 630 MB in 3,522 regions at the twentieth and 793
+    in 3,303 at the hundredth, 162 MB more in 219 fewer regions, which says the swing of the
+    readings is private data as well, committed and given back within allocations that stand, the
+    regions joining as the holes fill. The heaps and the collector being flat, the swing and the
+    climb belong to an allocator of its own that reserves and commits by itself, and one such is in
+    the process on Windows alone. The Khronos validation layer's 64-bit Windows build links mimalloc
+    in place of the C runtime's malloc, by its `layers/CMakeLists.txt`, which says the other systems
+    do not for their instability under it, and the loader loads the layer with each app's instance
+    and unloads it with the instance's destruction, in the held twin as in the plain one, since the
+    held instance enables no layer; mimalloc reserves segments of megabytes, commits them in pieces
+    and gives pieces back on a delay, and a library unloaded takes none of that with it. So the
+    per-step lines are read for allocations added as the instance is made and standing after the
+    instance is destroyed, with mimalloc's sizes, and where they say so, the test holds the layer
+    loaded through the hundred apps, the held instance enabling it, and the plain test's bound is
+    read with the layer's unload no longer in the figure, the layer's own leak said in the test's
+    comment with its version; and the Windows suite takes the layer from LunarG's latest SDK
+    (`build.yml:196`) where Linux pins 1.4.363.0 in `build/fetch-validation-layer.sh` so a change of
+    layer comes in a commit, so the Windows version is pinned alike in the same mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1635,7 +1661,8 @@ are open.
     billboard's direction stands at 7 from frame 118 to 212 with the capture's frame among them, so
     nothing in the frame turns on rounding and the two shares are what the runners' Mesa draws. The
     next two pack runs, one on each processor, say which program's picture moved and whether the
-    processor moves it.
+    processor moves it. On the pack run of `0af1c9cd`, 2026-10-18, the measure failed on the same
+    pair alone, 7.8 percent apart, the page saying no processor yet; the runs of `4d5db9df` say it.
 
 ## Decisions
 

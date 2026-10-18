@@ -548,12 +548,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind() => Draw();
 
     // The same hundred apps beside a Vulkan instance the test holds open throughout, so the loader
-    // keeps the driver it loaded for it, lavapipe with LLVM inside it, where otherwise it lets the
-    // driver go with each app's instance and loads it again for the next. On Windows the private
-    // bytes climbed 1.1 MB an app with the heap flat and no Vulkan object alive (REVIEW.md, Verdict
-    // 64). Where this passes and the test above fails, the climb is the driver's loading, and the
-    // test above holds its instance as this one does. Where both fail, the climb is the engine's
-    // own native allocations for each app.
+    // keeps what it loaded for it, lavapipe with LLVM inside it and the validation layer, where
+    // otherwise it lets them go with each app's instance and loads them again for the next. On
+    // Windows the private bytes climbed 1 MB an app with the heaps and the collector flat, in private
+    // data the process took from the system directly (REVIEW.md, Verdict 64). Held without the
+    // layer, the climb was the same, so the driver's loading is not it. The layer's Windows build
+    // allocates through mimalloc, which takes its memory from the system in segments of its own and
+    // gives none of it back when the loader unloads the layer at an instance's destruction. Where
+    // this passes and the test above fails, the climb is the layer's unloading.
     [NeedsVulkanFact]
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Beside_A_Held_Instance_Leaves_Nothing_Behind()
     {
@@ -562,10 +564,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     }
 
     // A Vulkan instance made through the loader the engine's devices use, as the engine's instance
-    // is made but with no surface and no debug messages. MoltenVK on macOS is a portability driver,
-    // which the loader gives an instance only to a caller that asks for portability drivers, by the
-    // extension and the flag, where the loader offers them. An instance that asked for nothing was
-    // answered ErrorIncompatibleDriver there.
+    // is made but with no surface and no debug messages, with the validation layer wherever the
+    // loader offers it, as the engine's instances enable it in a Debug build, so the layer stays
+    // loaded with it. MoltenVK on macOS is a portability driver, which the loader gives an instance
+    // only to a caller that asks for portability drivers, by the extension and the flag, where the
+    // loader offers them. An instance that asked for nothing was answered ErrorIncompatibleDriver
+    // there.
     private sealed unsafe class HeldInstance : IDisposable
     {
         private readonly VkInstanceApi _api;
@@ -576,12 +580,15 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             var portability = Encoding.UTF8.GetString(Vulkan.VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME).TrimEnd('\0');
             var portable = Offered(portability);
             using var extensions = new VkStringArray(portable ? [portability] : new List<string>());
+            using var layers = new VkStringArray(LayerOffered(Validation) ? [Validation] : new List<string>());
             VkApplicationInfo application = new() { apiVersion = VkVersion.Version_1_3 };
             VkInstanceCreateInfo info = new()
             {
                 pApplicationInfo = &application,
                 enabledExtensionCount = extensions.Length,
                 ppEnabledExtensionNames = extensions,
+                enabledLayerCount = layers.Length,
+                ppEnabledLayerNames = layers,
                 flags = portable ? VkInstanceCreateFlags.EnumeratePortabilityKHR : VkInstanceCreateFlags.None,
             };
             Vulkan.vkCreateInstance(&info, null, out var instance).CheckResult();
@@ -589,6 +596,19 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
 
         public void Dispose() => _api.vkDestroyInstance();
+
+        private const string Validation = "VK_LAYER_KHRONOS_validation";
+
+        private static bool LayerOffered(string name)
+        {
+            if (Vulkan.vkEnumerateInstanceLayerProperties(out uint count) != VkResult.Success || count == 0) return false;
+            var properties = new VkLayerProperties[(int)count];
+            if (Vulkan.vkEnumerateInstanceLayerProperties(properties) != VkResult.Success) return false;
+            for (int i = 0; i < (int)count; i++)
+                fixed (byte* offered = properties[i].layerName)
+                    if (Marshal.PtrToStringUTF8((nint)offered) == name) return true;
+            return false;
+        }
 
         private static bool Offered(string name)
         {
