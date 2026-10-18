@@ -10,7 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `87cd9415`, Verdict 67's notice and nothing else. `compare.py` annotates the
+Reviewed up to `b40a788d`, item 27 done and nothing else, 83 files, 77 of them the two game projects
+removed with 12,176 lines. `3DEngine.Game` and `3DEngine.Game.Tests` leave with their two lines in
+the solution and the two rows of AGENTS.md; `docs/global-illumination.md:43` and `:132` and
+`docs/materials-light-and-shadows.md:391` cite Voxel-Sandbox by its repository with the numbers as
+measured, and `.github/RENDERING.md:2151` says the game draws its world there; the tests' comments,
+`.gitignore:83` and the asks' captures stay, and a grep for the old name finds the channel's files
+and the two templates' package identities, which are the game template's and not the game's. Right.
+The pack run of `351cc461`'s Windows suite failed at 14:50 the plain leak test alone, the twin
+holding the layer passing again, 95 MB of private data kept over the eighty apps with the layer's
+library absent (Verdict 64, a second sample); the owner pushed this commit at 14:55, which cancelled
+the push run of `87cd9415` under the concurrency group, and the pack run of `351cc461` still runs
+its games and captures jobs. Next Verdict 64's mend, item 28, their push and runs, and the next
+failing measure's processor and pictures (Verdict 67).
+
+Before it, `87cd9415` came, Verdict 67's notice and nothing else. `compare.py` annotates the
 processor it measured on and whether gfni is among its flags as a notice on every run, before any
 pair is measured, so the page of a run that holds names the processor its pairs held on, and the
 pairs measured for the first time share the other nine notices GitHub shows, the script's test
@@ -58,32 +72,6 @@ say the processor, which Verdict 67 asks as a notice. Next captures-macos and th
 make that run whole green and Decision 42's gate met, the Windows suite of `351cc461`'s push run
 naming the step and the sizes with the held twin beside the plain test; items 27 and 28 wait for the
 gate.
-
-Before it, `4827b705` came, Verdict 64's per-step reading and nothing else, the leak test and a file
-of its own for the Windows instruments. For the four apps the test follows, the twenty-first,
-thirty-first, forty-first and fifty-first, every step on 64-bit Windows sweeps the private data,
-committed private memory that is neither executable nor in an allocation holding a guard page, by
-allocation rather than by region, the base of the allocation with the kilobytes committed in it,
-since the collector's commits fall within its one reservation and a region's count moves as
-committed pages split or join; an allocation absent at the step before is credited to the step that
-added it, and after the threads have ended the test notes which of them still stand, and again once
-the next app has ended. The series gets a line an app, the allocations standing once the next app
-had ended, by the step that added them with their count and their sizes grouped by kilobytes, the
-most common first, so a loader heap's 64 KB pieces or a section's odd sizes show. The instruments
-moved under N 1.3 to `ProcessMemory.cs` beside `HandleCensus.cs`, the private bytes, the heaps, the
-threads and the regions' sweep and private data, the walk shared, the test file at 641 lines and the
-new one at 213. The sweep at every step is a walk a mark, some 45 marks on each of four apps.
-Checked on the working machine were the strict build and the whole suite, 1,716 passed; Linux reads
-none of it, so the Windows suite is its first run. Right. One thing to read with it, said under the
-verdict, an allocation that stood before an app and grew within it is not among those added. The
-pack run of `0af1c9cd` ended at 12:53, its captures-macos job green and its captures job red on the
-measure's same pair, 7.8 percent apart (Verdict 67); the push run of `4d5db9df` ended at 13:17 red
-on its Windows suite alone, the two leak tests as before, its twentieth reading in a trough, 661 MB,
-which puts the swing of the readings in private data within standing allocations (Verdict 64,
-continued, with what the layer's own allocator may be doing); its pack run was running at 13:21.
-Next the owner's push of this commit, its Windows suite naming the step and the sizes, and a pack
-run whole green, whose measure says its processor and keeps its pictures; items 27 and 28 wait for
-it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1064,16 +1052,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on 2026-10-17 and the pack run of `4d5db9df` whole green at 14:14 with its package, Decision
     42's gate.
 
-27. **The voxel game leaves for its own repository (Decision 41), after item 26's gate and the
-    game's first green build there.** One commit: `3DEngine.Game/` and `3DEngine.Game.Tests/`
-    removed, `3DEngine.slnx:12-13` with them, `AGENTS.md:93-94` (the `games` row covers every game;
-    the owner's word under N 7.4 is Decision 41), `docs/global-illumination.md:42, 130` and
-    `docs/materials-light-and-shadows.md:390` citing a voxel game built on the engine,
-    Voxel-Sandbox, with the numbers as measured, `.github/RENDERING.md:2140` saying where the game
-    lives; the tests' comments, `.gitignore:83` and the asks' captures stay. Checked by the strict
-    build, `NormTests` and `grep -rn "3DEngine\.Game"` finding only the channel's files. The gate
-    was met on 2026-10-18 (Decision 42) and the game's build has been green in its repository since
-    2026-10-17, so the item is open from 14:19.
+27. **The voxel game leaves for its own repository (Decision 41), done at `b40a788d`.** One commit:
+    `3DEngine.Game/` and `3DEngine.Game.Tests/` removed, `3DEngine.slnx:12-13` with them,
+    `AGENTS.md:93-94` (the `games` row covers every game; the owner's word under N 7.4 is Decision
+    41), `docs/global-illumination.md:42, 130` and `docs/materials-light-and-shadows.md:390` citing
+    a voxel game built on the engine, Voxel-Sandbox, with the numbers as measured,
+    `.github/RENDERING.md:2140` saying where the game lives; the tests' comments, `.gitignore:83`
+    and the asks' captures stay. Checked by the strict build, `NormTests` and `grep -rn
+    "3DEngine\.Game"` finding only the channel's files. The gate was met on 2026-10-18 (Decision 42)
+    and the game's build has been green in its repository since 2026-10-17, so the item is open from
+    14:19. Done at `b40a788d` on 2026-10-18, the two projects, the solution's lines and AGENTS.md's
+    rows gone, the guides and RENDERING.md citing the game's repository; item 28 is open from 15:05.
 
 28. **A tiny sample, `games/Ore`, after item 27: a voxel landscape, a character and the light that
     bounces.** A game like the others (`Ore.csproj` and `nuget.config` as Wick's, a `Program.cs` of
@@ -1606,7 +1595,10 @@ are open.
     `E3D_REQUIRE_VALIDATION` does not count them. Where a Debug instance cannot leave the layer off,
     both tests hold the layer as the twin does. And the failure's message keeps the lines that name
     the cause, the regions and the per-step lines, before the series, within the page's limit.
-    Settled at three green Windows suites in a row after the mend.
+    Settled at three green Windows suites in a row after the mend. On the pack run of `351cc461` the
+    same day the Windows suite said the same, the plain test alone failing with 95 MB of private
+    data kept and the layer's library absent at the readings, the twin passing, so the two samples
+    agree.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on

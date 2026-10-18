@@ -55,12 +55,17 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // the rest ran past.
         // The resident memory's series says whether a growth is steady, an allocation each app makes
         // and its closing does not give back, or a step taken once.
-        public string Series => $"{Environment.NewLine}{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
-            $"{ResidentName} after every ten in MB, what the collector held committed in brackets, and on Windows what the process's heaps " +
-            $"held allocated of what they committed and how many there were, {Residents}{Environment.NewLine}" +
-            $"{ResidentName} each step of an app's life took in MB, {Stages ?? "not read"}{Environment.NewLine}" +
+        // The lines that name where a climb lies come first, the kinds of region, the private data
+        // the followed apps' steps left and what each step took, since the test page keeps a
+        // message's first 4,096 characters, and on 351cc461's run the series before them pushed the
+        // steps' lines past it.
+        public string Series => Environment.NewLine +
             (Regions is null ? "" : $"what the process held committed by the kind of region holding it, at the twentieth app and the last, {Regions}{Environment.NewLine}") +
             (string.IsNullOrEmpty(Allocations) ? "" : $"the private data each step of a followed app added, by the base of its allocation, an app a line{Environment.NewLine}{Allocations}{Environment.NewLine}") +
+            $"{ResidentName} each step of an app's life took in MB, {Stages ?? "not read"}{Environment.NewLine}" +
+            $"{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
+            $"{ResidentName} after every ten in MB, what the collector held committed in brackets, and on Windows what the process's heaps " +
+            $"held allocated of what they committed and how many there were, {Residents}{Environment.NewLine}" +
             (ResidentBeforeCensus is { } before
                 ? $"the twentieth's {before:0.0} MB before its heap census and {ResidentAt20:0.0} after, the baseline{Environment.NewLine}"
                 : "") +
@@ -412,7 +417,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 if (_data is null) return null;
                 var standing = _afterNext ?? [];
                 var kept = _added.Where(a => standing.Contains(a.Key)).ToList();
-                var bySteps = _adding.Select(step =>
+                // The steps whose allocations stood at the app's end or after the next, each named,
+                // and the rest counted together, so four apps' lines fit the page.
+                var stood = _adding.Where(step => _added.Any(a => a.Value.Step == step && _atEnd?.Contains(a.Key) == true)).ToList();
+                var others = _added.Where(a => !stood.Contains(a.Value.Step)).ToList();
+                var bySteps = stood.Select(step =>
                 {
                     var added = _added.Where(a => a.Value.Step == step).ToList();
                     var sizes = string.Join(", ", added.GroupBy(a => Math.Round(a.Value.Kilobytes)).OrderByDescending(g => g.Count()).ThenBy(g => g.Key)
@@ -422,8 +431,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                     return $"{step} added {added.Count} ({sizes}), {atEnd} standing at the app's end, {after.Count} once the next had ended " +
                            $"({after.Sum(a => a.Value.Kilobytes):#,0} KB)";
                 });
+                var rest = $"{_adding.Count - stood.Count} other steps added {others.Count} of {others.Sum(a => a.Value.Kilobytes):#,0} KB, none standing at the app's end";
                 return $"app {app}, {kept.Count} allocations of {kept.Sum(a => a.Value.Kilobytes):#,0} KB standing once the next app had ended" +
-                       $"{(_afterNext is null ? ", which was not read" : "")}, by the step that added them, {string.Join("; ", bySteps)}";
+                       $"{(_afterNext is null ? ", which was not read" : "")}, by the step that added them, {string.Join("; ", bySteps.Append(rest))}";
             }
         }
     }
@@ -473,11 +483,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             {
                 if (_apps == 0) return "not read";
                 var each = _order.Select(step => (Step: step, Taken: _taken[step] / _apps)).ToList();
-                var named = each.Where(e => Math.Abs(e.Taken) >= 0.05).Select(e => $"{e.Step} {e.Taken:+0.00;-0.00}");
+                var named = each.Where(e => Math.Abs(e.Taken) >= 0.05).Select(e => $"{e.Step} {e.Taken:+0.00;-0.00;0.00}");
                 var rest = each.Where(e => Math.Abs(e.Taken) < 0.05).Sum(e => e.Taken);
                 var outlived = _outlived == 0 ? "" : $", the threads of {_outlived} apps still running {ThreadWait.TotalSeconds:0.#} seconds after their apps ended";
-                return $"averaged over the {_apps} apps after the twentieth, {string.Join(", ", named)}, the rest {rest:+0.00;-0.00}, " +
-                    $"{each.Sum(e => e.Taken):+0.00;-0.00} kept{outlived}";
+                return $"averaged over the {_apps} apps after the twentieth, {string.Join(", ", named)}, the rest {rest:+0.00;-0.00;0.00}, " +
+                    $"{each.Sum(e => e.Taken):+0.00;-0.00;0.00} kept{outlived}";
             }
         }
     }
@@ -548,14 +558,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind() => Draw();
 
     // The same hundred apps beside a Vulkan instance the test holds open throughout, so the loader
-    // keeps what it loaded for it, lavapipe with LLVM inside it and the validation layer, where
-    // otherwise it lets them go with each app's instance and loads them again for the next. On
-    // Windows the private bytes climbed 1 MB an app with the heaps and the collector flat, in private
-    // data the process took from the system directly (REVIEW.md, Verdict 64). Held without the
-    // layer, the climb was the same, so the driver's loading is not it. The layer's Windows build
-    // allocates through mimalloc, which takes its memory from the system in segments of its own and
-    // gives none of it back when the loader unloads the layer at an instance's destruction. Where
-    // this passes and the test above fails, the climb is the layer's unloading.
+    // keeps the driver it loaded for it, lavapipe with LLVM inside it, where otherwise it lets the
+    // driver go with each app's instance and loads it again for the next. The test above reads the
+    // engine and the driver's loading, this one the engine alone, both with the validation layer
+    // off, whose unloading with each app kept about a megabyte on Windows (Draw, below).
     [NeedsVulkanFact]
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Beside_A_Held_Instance_Leaves_Nothing_Behind()
     {
@@ -564,12 +570,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     }
 
     // A Vulkan instance made through the loader the engine's devices use, as the engine's instance
-    // is made but with no surface and no debug messages, with the validation layer wherever the
-    // loader offers it, as the engine's instances enable it in a Debug build, so the layer stays
-    // loaded with it. MoltenVK on macOS is a portability driver, which the loader gives an instance
-    // only to a caller that asks for portability drivers, by the extension and the flag, where the
-    // loader offers them. An instance that asked for nothing was answered ErrorIncompatibleDriver
-    // there.
+    // is made but with no surface, no debug messages and no layer, as the apps beside it are made.
+    // MoltenVK on macOS is a portability driver, which the loader gives an instance only to a caller
+    // that asks for portability drivers, by the extension and the flag, where the loader offers
+    // them. An instance that asked for nothing was answered ErrorIncompatibleDriver there.
     private sealed unsafe class HeldInstance : IDisposable
     {
         private readonly VkInstanceApi _api;
@@ -580,15 +584,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             var portability = Encoding.UTF8.GetString(Vulkan.VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME).TrimEnd('\0');
             var portable = Offered(portability);
             using var extensions = new VkStringArray(portable ? [portability] : new List<string>());
-            using var layers = new VkStringArray(LayerOffered(Validation) ? [Validation] : new List<string>());
             VkApplicationInfo application = new() { apiVersion = VkVersion.Version_1_3 };
             VkInstanceCreateInfo info = new()
             {
                 pApplicationInfo = &application,
                 enabledExtensionCount = extensions.Length,
                 ppEnabledExtensionNames = extensions,
-                enabledLayerCount = layers.Length,
-                ppEnabledLayerNames = layers,
                 flags = portable ? VkInstanceCreateFlags.EnumeratePortabilityKHR : VkInstanceCreateFlags.None,
             };
             Vulkan.vkCreateInstance(&info, null, out var instance).CheckResult();
@@ -596,19 +597,6 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
 
         public void Dispose() => _api.vkDestroyInstance();
-
-        private const string Validation = "VK_LAYER_KHRONOS_validation";
-
-        private static bool LayerOffered(string name)
-        {
-            if (Vulkan.vkEnumerateInstanceLayerProperties(out uint count) != VkResult.Success || count == 0) return false;
-            var properties = new VkLayerProperties[(int)count];
-            if (Vulkan.vkEnumerateInstanceLayerProperties(properties) != VkResult.Success) return false;
-            for (int i = 0; i < (int)count; i++)
-                fixed (byte* offered = properties[i].layerName)
-                    if (Marshal.PtrToStringUTF8((nint)offered) == name) return true;
-            return false;
-        }
 
         private static bool Offered(string name)
         {
@@ -622,9 +610,31 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
     }
 
+    // The apps are made with the validation layer off, in the Debug build as well, on every system,
+    // so the test reads the engine and the driver and not the layer. The loader loads the layer with
+    // each app's instance and unloads it as the instance is destroyed, and the layer's Windows build
+    // at 1.4.363.0 allocates through mimalloc, which keeps what it reserved when its library goes.
+    // Under it each app on Windows kept about a megabyte of private data the process took from the
+    // system directly, with the heaps and the collector flat, and on 351cc461's run the test beside
+    // an instance holding the layer loaded passed where this one, the layer let go with each app,
+    // failed (REVIEW.md, Verdict 64). The test that requires the layer under E3D_REQUIRE_VALIDATION
+    // makes devices of its own.
     private void Draw()
     {
         var config = Config.Default.WithWindow("leak", 64, 64) with { Headless = true, Offscreen = true };
+        GraphicsDevice.LeaveValidationOff = true;
+        try
+        {
+            DrawApps(config);
+        }
+        finally
+        {
+            GraphicsDevice.LeaveValidationOff = false;
+        }
+    }
+
+    private void DrawApps(Config config)
+    {
         // The heap read every ten apps, as the headless test reads it, so a failure says whether it
         // grew an app's worth at a time or in one step.
         var cycled = Cycle(config, heapEveryTen: true, plugins: app =>
