@@ -54,7 +54,7 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         var activePass = renderWorld.TryGet<ActiveSwapchainPass>();
         var swapchainTarget = renderWorld.TryGet<SwapchainTarget>();
         if (activePass is null || swapchainTarget is null) return;
-        Draw(renderContext, activePass.Pass, swapchainTarget.RenderPass, ImGui.GetDrawData(), activePass.Extent);
+        Draw(renderContext, renderWorld, activePass.Pass, swapchainTarget.RenderPass, ImGui.GetDrawData(), activePass.Extent);
     }
 
     /// <summary>
@@ -89,12 +89,13 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
             // Begun once the image is acquired, whatever is drawn, so the clear leaves it ready to present.
             using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
                 surface.Pass, surface.Framebuffer, surface.Size, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
-            Draw(renderContext, pass, surface.Pass, viewport.DrawData, surface.Size);
+            Draw(renderContext, renderWorld, pass, surface.Pass, viewport.DrawData, surface.Size);
         }
     }
 
     // Draws one viewport's draw data into the pass open on its window, which is of renderPass.
-    private unsafe void Draw(RenderContext renderContext, TrackedRenderPass pass, IRenderPass renderPass, ImDrawDataPtr drawData, Extent2D extent)
+    private unsafe void Draw(RenderContext renderContext, RenderWorld renderWorld, TrackedRenderPass pass, IRenderPass renderPass,
+        ImDrawDataPtr drawData, Extent2D extent)
     {
         if (!drawData.Valid || drawData.CmdListsCount == 0)
             return;
@@ -169,7 +170,11 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         pass.SetViewport(0, 0, fbWidth, fbHeight, 0, 1);
 
         pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, _fontDescriptorSet!);
+        // Each command is drawn with the texture it names, a program's through the set the
+        // immediate pass draws it by, whose layout is the font atlas's, and the font atlas where it
+        // names none, the set bound again only where it changes.
+        var textures = renderWorld.TryGet<GpuTextures>();
+        IDescriptorSet? bound = null;
 
         var projBytes = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in projection));
         pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, projBytes);
@@ -211,6 +216,11 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
                 uint sh = (uint)(clipMax.Y - sy);
 
                 if (sw == 0 || sh == 0) continue;
+
+                var set = textures is not null && ImGuiTextures.TextureOf(pcmd.TextureId, out var texture)
+                    ? textures.SetFor(gfx, texture)
+                    : _fontDescriptorSet!;
+                if (!ReferenceEquals(set, bound)) pass.SetBindGroup(pipeline, bound = set);
 
                 pass.SetScissor(sx, sy, sw, sh);
 

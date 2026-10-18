@@ -900,6 +900,7 @@ static class Engine.E3D
   static int SetGamepadMappings(string mappings)
   static int[] LoadCodepoints(string text)
   static int[] LoadRandomSequence(int count, int min, int max)
+  static nint GetImGuiTextureId(Texture2D texture)
   static nint GetWindowHandle()
   static string GetApplicationDirectory()
   static string GetClipboardText()

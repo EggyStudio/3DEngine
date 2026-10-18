@@ -10,13 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f5035acd`, item 32 done and nothing else, 21 files. `ParticleEmitter.Local` keeps an
-emitter's particles in its entity's space, the step run with the origin at zero and the velocity and
-gravity turned with the entity, the draw placing each particle by the entity's world matrix with its
-size in world units, collision not read for such an emitter since the depth and the field are the
-world's; `ParticleEmitter.Points` holds particles the program places in that space, standing at the
-start size in the start color and living until the array no longer holds them, apart from the births
-the maximum counts, which scene files hold as the arrays they already read; and
+Reviewed up to `a2df7bb4`, item 33 done and nothing else, 14 files. `SetContactShadows` stands
+beside the shadow distance in the flat API, stored on the shadow settings and reached as the
+distance is, taking a public enum in a file of its own (N 1.2) with three values, On, the default,
+PastShadowMap and Off: Off has the occlusion pass trace nothing toward the sun and the model pass
+read nothing; PastShadowMap writes a flag into the lighting buffer, `lights.slang` gains an overload
+giving how much of a point the shadow map holds, 1 within its cascades, the blend across the last
+one's edge and 0 past it, and the model pass lerps the contact shadow toward 1 by that hold, the
+two-argument form staying. A model shadow test raises a pillar under a low sun with the field on and
+reads the floor a fifth of a unit past the shadow's side, 0.71 of the far floor's light with contact
+shadows on and 1.00 with them off or past the map, and with the shadow distance at 1, the map
+holding none of the floor, the shadow's inside 0 past the map and 169 of 255 off, holding off and
+past-the-map above 0.95, on below off by 0.05, and past-the-map 40 under off past the map, the
+figures in its comment; the materials guide's distance-field section gives the reason and the two
+settings, RENDERING.md's paragraph, CHEATSHEET.md, PublicApi.txt and upgrading.md follow. Checked
+were the strict build and the whole suite, 1,719 passed, and the new test with the reference frames
+on lavapipe under the required layer. Right. The game turns its contact shadows off from the next
+package. Next item 34, the ImGui pass binding the set of a command's texture, then item 30's parts,
+and Verdict 70's third green macOS suite.
+
+Before it, `f5035acd` came, item 32 done and nothing else, 21 files. `ParticleEmitter.Local` keeps
+an emitter's particles in its entity's space, the step run with the origin at zero and the velocity
+and gravity turned with the entity, the draw placing each particle by the entity's world matrix with
+its size in world units, collision not read for such an emitter since the depth and the field are
+the world's; `ParticleEmitter.Points` holds particles the program places in that space, standing at
+the start size in the start color and living until the array no longer holds them, apart from the
+births the maximum counts, which scene files hold as the arrays they already read; and
 `SetParticleEmitterRotation` stands beside the position's call in the flat API. The particle header
 grows from four values of four floats to eight, three of them the rows of the matrix a particle is
 placed by, the identity in the world and the entity's for a local emitter, written before the step
@@ -56,27 +75,6 @@ never carried and the ground is left to the screen probes' rays. At 23:32 the ga
 came, an ImGui window that cannot draw a program's texture, which is item 34 after item 33. Next
 items 32, 33 and 34, which one package should carry to the game, then item 30's parts, and Verdict
 70's third green macOS suite.
-
-Before it, `4fa51a9c` came, item 30's reading and nothing else, a passage at the end of
-RENDERING.md's global illumination section with six pictures under `.github/assets/cascades/`. The
-examples that draw the cascades and `games/Ore` were captured at their captures' frames on the
-development machine's GPU and on lavapipe, each frame at High measured against a path-traced
-reference of 512 paths a pixel with `gi.compare`, whole and with each part of the method left out in
-turn, lavapipe drawing every fault as the GPU does, so each is the method's; the pictures draw frame
-and reference through the reference's curve. Six faults are placed in the cascades, the ore's light
-on Ore's ground in patches with holes where the world probes give it nothing and the screen probes'
-tiles are blended into patches, corners without their darkening where a tile's probe stands off the
-corner, the Cornell block's front 65 percent over where the screen probes' rays take the first
-cascade, a dark patch at a moved wall's foot and patches across the far wall from the world probes'
-blend, and a lamp leaking through a thin walls' corner as a tick, the world probes leaking it and
-the screen probes hiding it but at a tile's edge; and four things seen are not the cascades', the
-emissive halo the tonemap's, the wall bands the 8-bit steps of a smooth gradient, the terminator
-ring subsurface scattering's and the reflections' reference rough. The parts are taken into item 30
-in the reviewer's order. Right. At 23:02 the game's session wrote ASKS.md's fourth entry, the stars
-that are to turn with the sky and the particles that cannot, which is item 32, an emitter whose
-particles live in its entity's space and particles placed by the program, after item 31 and before
-item 30's parts. Next item 31's commit, item 32, then item 30's parts one a commit in the order
-below, the owner's eye welcome on the order, and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1207,21 +1205,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     takes it from the next package.
 
 33. **A setting turns the sun's contact shadows off, or leaves them out where the shadow map holds
-    the point (ASKS.md, 2026-10-18).** The voxel game draws its sun's shadows stepped along the
-    blocks' pixels (its item 7), and the sun's light at a point is the shadow map's share times the
-    contact shadow's (`modelpass.slang:583`), the contact shadow traced toward the sun through the
-    scene's distance field in the occlusion pass at half the window's size, out to 32 cells of the
-    finest cascade, blurred with the occlusion and read by the fragment's place in the window
-    (`modelpass.slang:293`, `ao.slang`), on wherever the field is built and the sun casts shadows
-    (`AmbientOcclusionRenderer.ContactShadows`), and off only with the field, which global
-    illumination needs; measured on a pillar one block across under a low sun, it darkens the grass
-    0.4 to 0.7 of a block past the hard edge. One thing. A setting of the lighting, reached from the
-    flat API and the entity API as the shadow distance is, turns the sun's contact shadows off, or
-    leaves them out where the shadow map holds the point and keeps them past its reach, with the
-    reason in the guide; a test holds a hard edge with them off and the field on; the game turns
+    the point (ASKS.md, 2026-10-18), done at `a2df7bb4`.** The voxel game draws its sun's shadows
+    stepped along the blocks' pixels (its item 7), and the sun's light at a point is the shadow
+    map's share times the contact shadow's (`modelpass.slang:583`), the contact shadow traced toward
+    the sun through the scene's distance field in the occlusion pass at half the window's size, out
+    to 32 cells of the finest cascade, blurred with the occlusion and read by the fragment's place
+    in the window (`modelpass.slang:293`, `ao.slang`), on wherever the field is built and the sun
+    casts shadows (`AmbientOcclusionRenderer.ContactShadows`), and off only with the field, which
+    global illumination needs; measured on a pillar one block across under a low sun, it darkens the
+    grass 0.4 to 0.7 of a block past the hard edge. One thing. A setting of the lighting, reached
+    from the flat API and the entity API as the shadow distance is, turns the sun's contact shadows
+    off, or leaves them out where the shadow map holds the point and keeps them past its reach, with
+    the reason in the guide; a test holds a hard edge with them off and the field on; the game turns
     them off when a package brings it. The far cascade's texel at the game's distance, 1.27 of a
     block's pixel where the near ones are 0.11 and 0.38, is the lesser thing the entry notes and no
-    item. After item 32. One commit.
+    item. After item 32. One commit. Done at `a2df7bb4` on 2026-10-18, `SetContactShadows` with On,
+    PastShadowMap and Off, a test holding a hard edge with the field on and the figures in its
+    comment, the guides following; the game takes it from the next package.
 
 34. **An ImGui draw command binds the texture it names, so a window draws a program's `Texture2D`
     (ASKS.md, 2026-10-18).** The voxel game draws its items' icons once into an atlas (its item 9),

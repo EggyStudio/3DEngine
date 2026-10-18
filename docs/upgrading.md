@@ -257,3 +257,6 @@ guide that shows it.
   the scene's distance field darken its light, so a shadow the map holds may keep its hard edge, as
   [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
   shows.
+- **A program's textures in ImGui.** `GetImGuiTextureId` gives a texture's id for `ImGui.Image`,
+  `ImGui.ImageButton` and a draw list's `AddImage`, which drew a part of the font atlas before, as
+  [ImGui in the same frame](window-and-frame.md#imgui-in-the-same-frame) shows.

@@ -477,6 +477,7 @@ Texture2D LoadTexture(string fileName);                                         
 Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture
 Texture2D LoadTextureCubemap(Image image, CubemapLayout layout);                       // A cube from six faces in a line or a cross, for a SamplerCube
 void UnloadTexture(Texture2D texture);                                                 // Free a texture
+IntPtr GetImGuiTextureId(Texture2D texture);                                           // The id ImGui.Image draws a texture by
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
 bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels);                 // Replace a rectangle of it, the rest kept

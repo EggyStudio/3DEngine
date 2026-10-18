@@ -156,6 +156,19 @@ ImGui.End();
 
 `DrawProfileWindow()` draws where each frame's time goes in a window of its own.
 
+A texture of the program's is drawn in an ImGui window by the id `GetImGuiTextureId` gives it,
+which `ImGui.Image`, `ImGui.ImageButton` and a draw list's `AddImage` take, and a part of it by its
+coordinates, as an inventory draws each item's icon from one atlas, with no rectangles of its own:
+
+<!-- compiled with:
+Texture2D icons = default;
+int slot = 0;
+-->
+```csharp
+var cell = new Vector2(slot % 8, slot / 8) / 8;
+ImGui.Image(GetImGuiTextureId(icons), new Vector2(32, 32), cell, cell + new Vector2(1f / 8));
+```
+
 ImGui keeps where its windows were moved, docked and sized in `imgui.ini` beside the program, so a
 player finds a layout as they left it. A run that shows no window, hidden, offscreen or headless, as
 `./e3d` and a test open one, neither reads nor writes the file, and starts from the program's own

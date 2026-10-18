@@ -88,7 +88,9 @@ internal sealed class SdlImGuiRenderer : IDisposable
                         };
                         SDL.SetRenderClipRect(_renderer, sdlRect);
 
-                        var texture = (nint)pcmd.TextureId;
+                        // A program's texture lives on the Vulkan device, which this renderer
+                        // does not draw through, so its command is drawn untextured.
+                        var texture = ImGuiTextures.TextureOf(pcmd.TextureId, out _) ? 0 : (nint)pcmd.TextureId;
 
                         int baseIdx = (int)pcmd.IdxOffset;
                         int baseVtx = (int)pcmd.VtxOffset;

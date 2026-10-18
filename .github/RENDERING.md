@@ -29,7 +29,9 @@ needs an offline toolchain beyond `slangc`.
      pass has ended, a node drawing into windows of its own does so in `AfterWindowPass`, as ImGui's
      does for its viewports, each window's swapchain image acquired as it is drawn, waited on and
      signaled by the frame's one submit and presented by its one present beside the main window's
-     (`GraphicsDevice.Windows`).
+     (`GraphicsDevice.Windows`). The ImGui node draws each command with the texture it names, a
+     program's through the set the immediate pass draws it by (`GpuTextures.SetFor`), by the id
+     `GetImGuiTextureId` gives (`ImGuiTextures`), and the font atlas where it names none.
 - **The immediate pass** (§2) draws the shapes and textures the flat API records.
 - **The model pass** (§3) draws the meshes `DrawModel` records and every mesh entity, which
   `MeshEntityDraws` records through each camera entity, lit by the light entities or, with

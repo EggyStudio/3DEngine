@@ -206,6 +206,17 @@ public static partial class E3D
     /// <summary>Whether <paramref name="texture"/> is loaded.</summary>
     public static bool IsTextureValid(Texture2D texture) => texture.IsValid && Textures.Contains(texture.Id);
 
+    /// <summary>
+    /// The id ImGui draws <paramref name="texture"/> by, for <c>ImGui.Image</c>, <c>ImGui.ImageButton</c>
+    /// and a draw list's <c>AddImage</c>, or none for a texture that is not loaded.
+    /// </summary>
+    /// <remarks>
+    /// ImGui draws it as <c>DrawTexture</c> does, its part from the coordinates given, and a texture
+    /// unloaded while ImGui still draws it draws white. Behaviors ask for it as the rest of the flat
+    /// API is asked, and the id holds for the texture's life.
+    /// </remarks>
+    public static IntPtr GetImGuiTextureId(Texture2D texture) => ImGuiTextures.IdOf(texture);
+
     /// <summary>Replaces a texture's pixels with an image of the same size.</summary>
     /// <returns>Whether the texture is loaded and the sizes matched.</returns>
     /// <remarks>
