@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0af1c9cd`, Verdict 64's two readings and nothing else, the leak test and the norm's
+Reviewed up to `4d5db9df`, Verdict 67's instrument and reading and nothing else, the measure, the
+captures job and the script's test. `compare.py` says as it starts the processor it measures on and
+whether gfni is among its flags, read from `lscpu` as `open-game.sh` reads it, its errors begin with
+the same, and every run that measures writes a summary naming the processor with its pairs counted,
+those not holding and those measured for the first time; `--pictures` copies both pictures of every
+pair into a folder, which the captures job keeps under `captures/measure`, some 32 MB for the 221
+pairs, so a pair's frames are compared between two runs, which the pictures left in the bench's work
+folder never allowed, and the whole set stays, since the comparison needs the run on which a pair
+held as much as the one on which it failed. `StepScriptTests` pass a processor to the errors and
+read their first line. The pair was read on the working machine with both programs drawn as the job
+draws them, ours offscreen on lavapipe and raylib's on llvmpipe's GL, one Mesa under both; the 45
+frames from 196 to 949 are 0.5 to 0.6 percent apart, a span holding changes of direction and of the
+walk, so the frame taken does not move the share; the direction is the floor of the camera's angle
+in eighths of a turn plus a quarter, which changes at frames 118 and 213 and stands at 7 between
+them, where the capture's frame falls, so no boundary is near it; and the walk changes every 30
+frames alike in both programs. So the 5.5 recorded and the 7.9 measured are what the runners' Mesa
+draws, lavapipe and llvmpipe's GL on the fleet's processors, and the next two pack runs, one on each
+kind, with both pictures kept, say whether the processor moves the pair and which program's picture
+moved. Checked on the working machine were the strict build and the whole suite, 1,716 passed.
+Right. Of `0af1c9cd`'s runs, the push run ended at 12:25 red on its Windows suite alone, the two
+hundred-app tests failing as before, 741 MB at the twentieth app to 824 at the hundredth, and the
+pack run's Windows suite failed the same at 12:30, its games job green and its captures jobs still
+running at 12:47; the sweep names the kind, private data, 712 MB in some 2,900 regions at the
+twentieth app to 791 in 3,400 at the hundredth on both runs, every other kind flat, stacks and code
+among them (Verdict 64, continued, the next reading asked). The owner pushed `4d5db9df` at 12:27 and
+started its pack run. Next Verdict 64's reading, its push, and a pack run whole green, whose measure
+says its processor and keeps its pictures (Verdict 67); items 27 and 28 wait for it.
+
+Before it, `0af1c9cd` came, Verdict 64's two readings and nothing else, the leak test and the norm's
 list of waits. On 64-bit Windows the test sweeps the address space with `VirtualQuery` at the
 twentieth app and the last, summing the committed regions by their type, private, mapped or a
 module's image, and by what they hold, code where the protection is executable, a stack where the
@@ -60,37 +88,6 @@ Windows suite failed the same two tests at 10:48, and its captures, captures-mac
 were still running, so Decision 42's gate is not met by this run and items 27 and 28 wait on. Next
 the reading Verdict 64 asks, its push, and a pack run whole green, whose measure names Verdict 66's
 pairs.
-
-Before it, `91ec5de1` came, Verdict 64's per-step readings done and nothing else, 2 files. The leak
-test reads the private bytes at each step of every app's life after the twentieth, marked by the
-lines the app logs as the handle steps were, and averages them, one line a test naming every step
-that took 0.05 MB or more an app in either direction, the rest summed and what each app kept last;
-the device's making and disposal are split into finer steps, before the instance, the instance made,
-the physical device chosen, the device made and ready, the renderer's shaders loaded, the plugins
-built, ImGui and the draw, then closing, the cleanup to the device, the VkDevice and the instance
-destroyed, the device gone, closed, shut down and ended after the finalizers, all in the handle
-test's span as before, with marks for SDL's start and quit that these headless apps never reach; on
-Windows every tenth reading adds what the process's heaps hold allocated of what they committed and
-how many there are (`GetProcessHeaps`, `HeapSummary`), beside the collector's committed memory, so a
-climb is told three ways, blocks no one freed, a heap keeping freed memory, or memory taken straight
-from the system as compiled code and stacks are, and `Resident` reads `PrivateUsage` through
-`K32GetProcessMemoryInfo` without allocating. One correction to the candidates, read from the code
-and right. The two drawing tests make headless apps, in which `AppWindowPlugin` returns before any
-window and so SDL is never initialized, and `DefaultPlugins` has no audio plugin, so SDL's Windows
-backend and the audio device are out, and what remains is the loader with its layers and driver, the
-renderer's shaders and the engine's own allocations. On the working machine's Linux the hundred apps
-took 70 seconds and the line read the instance +63.79 MB, the device +83.36, the renderer's shaders
-+143.21, the VkDevice destroyed -144.07, the instance destroyed -125.56 and +0.16 kept an app; the
-heap readings are Windows's and have run nowhere yet, a kernel lacking `HeapSummary` saying so in
-place of failing. Checked there were the strict build and the whole suite, 1,715 passed. Right. The
-pack run of `704952c5` ended at 01:50. Its macOS captures passed, and its Linux captures job drew
-all 256 examples on a cold cache, on an AMD EPYC 9V45 with `gfni` among its flags, the second kind
-of processor in the runner fleet and the kind whose compiled shaders carried the instruction, which
-settles Verdict 63 with the cache as the cause; the job then failed at the measure against raylib,
-whose page says nothing of which pairs failed, the step's page holding 21 lines of programs that
-ended of their own where GitHub's 4,096 characters ran out (Verdict 66). Decision 42's gate holds;
-items 27 and 28 wait for the next pack run, after `d6b08853`, `91ec5de1`, Verdict 64's mend and
-Verdict 66's.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1529,7 +1526,30 @@ are open.
     minutes a test is allowed, the apps whose threads outlast the wait counted on the line; and what
     changes between an app's last reading and the next app's first a step of its own, so the steps
     sum to the tenth-app readings' climb. On Linux the steps summed to 0.04 MB given back an app
-    with 0.32 between apps. The next Windows suite names the kind.
+    with 0.32 between apps. The next Windows suite names the kind. On the push and the pack run of
+    `0af1c9cd`, 2026-10-18, the Windows suite failed both tests again, 741 MB at the twentieth app
+    to 824 at the hundredth on each, and the two new readings agree with each other. The steps sum
+    to the series, 1.08 and 1.07 kept an app, with 2.3 and 2.2 given back between apps and the
+    threads of one or two apps in eighty outlasting the half second, so no step and no stack hides
+    the climb. The sweep names the kind. Private data grew from 712 MB in 2,901 regions at the
+    twentieth app to 792 in 3,367 at the hundredth on the push run and from 712 in 2,908 to 790 in
+    3,400 on the pack run, 80 MB in some 470 regions, six regions and a megabyte an app, 170 KB a
+    region on average; mapped data grew 0.7 and 2.8 MB, mapped code 0.2, and private stacks, 1.3 MB
+    in 50 regions, image data and image code, 86.7 and 136 MB, did not move, and private code is one
+    empty region at both readings, so LLVM's compiled code is gone when a reading is taken. The
+    climb is memory committed with `VirtualAlloc` for data and never given back, outside every heap,
+    not a stack, not code and not a module, by whoever allocates that way, LLVM and lavapipe for the
+    data of a compile or a scene, the runtime for its loader heaps and bookkeeping, the layer or the
+    loader, and on Windows alone, since Linux and macOS hold. One thing more. For the apps the test
+    follows, the twenty-first, thirty-first, forty-first and fifty-first, the sweep runs at every
+    step, and the test says the private data regions each step added, their count and their sizes,
+    and which of them still stand at the app's end and at the end of the app after it, by the step
+    that added them, so the step whose regions stay names the owner by what it does, the layer's
+    load at the instance, LLVM's compiles at the shaders and the frames, the physics at its plugin,
+    and the sizes say the allocator, 64 KB pieces of a loader heap or the odd sizes of sections;
+    where the step alone does not name it, a trace of `VirtualAlloc` with its stacks under Windows
+    Performance Recorder on one app is the step after. Settled at three green Windows suites in a
+    row after the mend.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1609,7 +1629,13 @@ are open.
     reason above it, or the frame taken moves off the boundary and the picture is taken again; and
     where it does not, raylib's frame is compared between the two runs for what Mesa drew otherwise.
     Settled when the measure holds on a pack run, and said here again where a run on the other
-    processor fails it.
+    processor fails it. Done at `4d5db9df`, the measure's errors and summary saying the processor
+    and its gfni flag and both pictures of every pair kept under `captures/measure`; and read on the
+    working machine, where the pair's 45 frames from 196 to 949 are 0.5 to 0.6 percent apart and the
+    billboard's direction stands at 7 from frame 118 to 212 with the capture's frame among them, so
+    nothing in the frame turns on rounding and the two shares are what the runners' Mesa draws. The
+    next two pack runs, one on each processor, say which program's picture moved and whether the
+    processor moves it.
 
 ## Decisions
 
