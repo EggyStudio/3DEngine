@@ -10,7 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a2df7bb4`, item 33 done and nothing else, 14 files. `SetContactShadows` stands
+Reviewed up to `c6914ab3`, item 34 done and nothing else, 11 files. `GetImGuiTextureId` gives a
+loaded texture an id for ImGui's image, image button and a draw list's image, the texture's id with
+bit 32 set and none for a texture not loaded, the font atlas staying ImGui's texture 1 so neither id
+is taken for the other, reached by behaviors as the rest of the flat API is; the ImGui node takes
+the render world and binds for each command the set the immediate pass draws that texture by, the
+font atlas's layout, so a texture unloaded while drawn draws white, and the atlas's set elsewhere, a
+set bound again only where it changes, in the main window and in viewports, the SDL fallback drawing
+such a command untextured. A test draws through the foreground list in an offscreen window a red
+texture read red, a two-color texture by its right half's coordinates read blue, and text after them
+with more than twenty lit pixels from the atlas, failing with the image black when the pass was made
+to bind the atlas for every command again and passing on lavapipe under the required layer beside
+the ImGui reference frame; the window guide's ImGui section gains a paragraph and a compiled sample
+drawing an icon by its cell of an atlas, RENDERING.md's frame order a sentence, CHEATSHEET.md,
+PublicApi.txt and upgrading.md their lines. Checked were the strict build and the whole suite, 1,720
+passed. Right. Items 32, 33 and 34 are in for one package, which the game's three second commits
+wait on. Toward item 30's part (a) the working session plans to carry a large emissive mesh's
+emissive parts as glow lights, one box a connected part, cached by vertex array, reading first how
+the field marks a carried emitter's cells, since the 64 nearest emitters alone are lights and a far
+ore marked in the field would lose its light. Next part (a), the owner's push of the six commits
+since `a12206af` and a pack run, and Verdict 70's third green macOS suite.
+
+Before it, `a2df7bb4` came, item 33 done and nothing else, 14 files. `SetContactShadows` stands
 beside the shadow distance in the flat API, stored on the shadow settings and reached as the
 distance is, taking a public enum in a file of its own (N 1.2) with three values, On, the default,
 PastShadowMap and Off: Off has the occlusion pass trace nothing toward the sun and the model pass
@@ -52,29 +73,6 @@ PublicApi.txt and upgrading.md the three names. Checked were the strict build an
 1,718 passed after upgrading.md gained the names. Right. The game's stars move to these when a
 package brings them. Next items 33 and 34, which one package should carry to the game, then item
 30's parts, and Verdict 70's third green macOS suite.
-
-Before it, `29eb2eca` came, item 31 done and nothing else, 10 files. What the owner saw was read
-first: a missing picture draws nothing and the example has no stand-in for a missing file, so the
-controller of the engine's making was raylib's own generic branch, shapes drawn for a pad whose name
-holds none of its aliases, which the README's capture reached with a pad named Console gamepad and a
-PlayStation pad reaches because SDL3 names it PS4 or PS5 Controller where raylib reads the system's
-Sony name. raylib's two pictures, `ps3.png` and `xbox.png` under CC0 at the pinned commit and byte
-for byte the fetched ones, are kept under the examples' resources and dropped from the fetched list,
-THIRD-PARTY-NOTICES.md naming them as the one exception to the files not kept here; the example
-reads SDL3's PlayStation names too and draws every other pad on the Xbox picture, SDL3 giving every
-pad that layout, the generic branch gone with the reason at the class's head; `triage.tsv`'s note
-and EXAMPLES.md follow and the capture is taken again, the Xbox picture with a stick, a trigger and
-a button shown. The sweep found all 220 examples loading every resource their raylib sources load
-but the compute example's shader written as Slang by design, and no other stand-in, so nothing else
-is listed. SHARED.md's row on the fetched files names the two kept pictures, the reviewer's. Checked
-were the strict build and the whole suite, 1,716 passed. Right. The game's second ASKS.md entry, the
-sun's contact shadows that cannot be turned off, is item 33, after item 32; and toward item 30's
-part (a) the working session read that `GlowLights.Carries` carries an emitter only where its box's
-longest side is within twice the first cascade's spacing, so Ore's one landscape-wide ore mesh is
-never carried and the ground is left to the screen probes' rays. At 23:32 the game's third entry
-came, an ImGui window that cannot draw a program's texture, which is item 34 after item 33. Next
-items 32, 33 and 34, which one package should carry to the game, then item 30's parts, and Verdict
-70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1224,17 +1222,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     comment, the guides following; the game takes it from the next package.
 
 34. **An ImGui draw command binds the texture it names, so a window draws a program's `Texture2D`
-    (ASKS.md, 2026-10-18).** The voxel game draws its items' icons once into an atlas (its item 9),
-    which its hotbar draws as a texture and its inventory window, drawn with ImGui, cannot:
-    `ImGuiRenderNode.Run` binds the font atlas's set once before its loop over the draw commands
-    (`3DEngine/Gui/Vulkan/ImGuiRenderNode.cs:172`) and draws every command with it, the command's
-    texture id read by none, so an image of a program's texture draws a part of the font atlas; the
-    game draws the icons' pixels as 11,087 rectangles meanwhile, half a millisecond a frame with the
-    window open. One thing. A `Texture2D` gives an ImGui texture id, through the flat API and the
-    entity API as the fonts are reached, and the ImGui pass binds a descriptor set for each
-    command's texture as ImGui's own Vulkan backend does, the font atlas's where a command names
-    none, with a test drawing a program's texture in an offscreen window and reading its pixels, and
-    the overlay guide saying it. After item 33. One commit.
+    (ASKS.md, 2026-10-18), done at `c6914ab3`.** The voxel game draws its items' icons once into an
+    atlas (its item 9), which its hotbar draws as a texture and its inventory window, drawn with
+    ImGui, cannot: `ImGuiRenderNode.Run` binds the font atlas's set once before its loop over the
+    draw commands (`3DEngine/Gui/Vulkan/ImGuiRenderNode.cs:172`) and draws every command with it,
+    the command's texture id read by none, so an image of a program's texture draws a part of the
+    font atlas; the game draws the icons' pixels as 11,087 rectangles meanwhile, half a millisecond
+    a frame with the window open. One thing. A `Texture2D` gives an ImGui texture id, through the
+    flat API and the entity API as the fonts are reached, and the ImGui pass binds a descriptor set
+    for each command's texture as ImGui's own Vulkan backend does, the font atlas's where a command
+    names none, with a test drawing a program's texture in an offscreen window and reading its
+    pixels, and the overlay guide saying it. After item 33. One commit. Done at `c6914ab3`,
+    `GetImGuiTextureId` and the pass binding each command's texture's set, a test reading the drawn
+    texture beside the atlas's text, the guides following; the game takes it from the next package.
 
 ## Verdicts
 

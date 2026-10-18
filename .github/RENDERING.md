@@ -1502,30 +1502,38 @@ cascade at 256 directions changed nothing.
 An emitter whose box is no longer than twice the first cascade's spacing is carried as a light, its
 box in the world, its emission and its mesh's surface over its box's, the 64 nearest the eye, each
 reaching as far as it lights a surface by a fiftieth; emitters square to the axes that touch and
-emit the same light are one light of the box around them, the faces they press together left out
-of its surface. Its light at a point is that of the faces of its box the point lies before, in
-closed form within four of its half diagonals, Lambert's sum over each face's edges clipped to the
-point's horizon by Heitz's fit of the arc, and past them each face as points, cut along its longer
-side into pieces about as long as its shorter, four at most, or a face about square into quarters,
-within 1.6% of the closed form there; as one point a face read 7% over it, a block's, and 11%, a
-rod's 2 by 15 by 2 sixteenths, which stepped the floor's light around the voxel game's end rod by 7
-to 9% where the forms met, and cut so the rod's floor reads a path-traced reference within 2% to 1.6
-blocks, past which its reach fades it, and bends nowhere (`GlowLightsTests`). How much of it a point
-sees is marched through the field, at each step the way's clearance from the nearest surface against
-the cone the light spans there, so a shadow's edge is as soft as the light is wide, as a distance
-field gives a penumbra, a surface counted only where it lies nearer than the point's own plane and
-the light's own box, and inside a surface the share read by stepping out of it along the point's
-normal and, where the field's slope there leans across the way, across it toward the nearest face,
-the nearer way out kept, once after the march at the step that lay deepest inside, and at each step
+emit the same light are one light of the box around them, the faces they press together left out of
+its surface. A mesh of many emitters, as Ore draws its ore, is cut into its parts, its triangles
+joined where they share a corner (`GlowLights.PartsOf`), and carried where each part is, a light
+each, naming the faces of its box its triangles lie on, two bits an axis packed with its share
+(`glowShare` and `glowFaces` in `glow.slang`), so a block showing its top and one side emits from
+those alone, where spread over six faces it lit the ground before its side by a third; a part flat
+as one face is a hundredth of its size thick about it. The field and the ray scene mark such a mesh
+whole, so its parts past the 64 nearest light nothing a probe carries to the ground around them,
+where taken whole the mesh lit it through the probes' rays; Ore holds 69, `gi.state` counting them.
+Its light at a point is that of the faces of its box the point lies before, in closed form within
+four of its half diagonals, Lambert's sum over each face's edges clipped to the point's horizon by
+Heitz's fit of the arc, and past them each face as points, cut along its longer side into pieces
+about as long as its shorter, four at most, or a face about square into quarters, within 1.6% of the
+closed form there; as one point a face read 7% over it, a block's, and 11%, a rod's 2 by 15 by 2
+sixteenths, which stepped the floor's light around the voxel game's end rod by 7 to 9% where the
+forms met, and cut so the rod's floor reads a path-traced reference within 2% to 1.6 blocks, past
+which its reach fades it, and bends nowhere (`GlowLightsTests`). How much of it a point sees is
+marched through the field, at each step the way's clearance from the nearest surface against the
+cone the light spans there, so a shadow's edge is as soft as the light is wide, as a distance field
+gives a penumbra, a surface counted only where it lies nearer than the point's own plane and the
+light's own box, and inside a surface the share read by stepping out of it along the point's normal
+and, where the field's slope there leans across the way, across it toward the nearest face, the
+nearer way out kept, once after the march at the step that lay deepest inside, and at each step
 bounded by the way to the nearest face, which the way out is no shorter than, the march ending by
 its own condition where the bound leaves nothing. Each way out ends where it left the surface, the
 step that overshot taken back by the distance read past it, so the depth under an edge goes to
-nothing as the way grazes it and meets the share outside. Ended at the step's end, a way that
-grazed an edge was at least half a cell under it, and in the voxel game's room of a lamp of four
-glowstones beside a pillar of two columns, the wall behind the pillar rose by 22 to 24% of its light
-in 20 pixels in every band of rows, the step's place moving by up to 17 pixels at the pillar's top
-and foot, where a path-traced reference of 1,024 paths rises smoothly. The frame now rises by 5 to 7%
-in any 20 pixels there, the dark side 0.95 of the reference where 0.78, the 27 cases of
+nothing as the way grazes it and meets the share outside. Ended at the step's end, a way that grazed
+an edge was at least half a cell under it, and in the voxel game's room of a lamp of four glowstones
+beside a pillar of two columns, the wall behind the pillar rose by 22 to 24% of its light in 20
+pixels in every band of rows, the step's place moving by up to 17 pixels at the pillar's top and
+foot, where a path-traced reference of 1,024 paths rises smoothly. The frame now rises by 5 to 7% in
+any 20 pixels there, the dark side 0.95 of the reference where 0.78, the 27 cases of
 `shaders_bounce_rooms` within 0.0003 of their shares, the glowstone room's walls a point nearer the
 reference, and the GPU time of global illumination and of the model pass the same
 (`GlowPillarTests`). The cost is a penumbra that follows the probes' points more behind a wall one
@@ -1597,17 +1605,17 @@ and inlined at each of the model pass's calls they made its compile on lavapipe 
 where it took 0.23 before them, and the Windows job's tests ran out their time; 0.32 so, the
 Rendering tests on lavapipe here 280 s where 261 before the glow lights. A frame with no glow lights
 draws with a build of the model pass that leaves them out (`NO_GLOW_LIGHTS`, read as `Glowing` in
-`lights.slang`), and a frame without global illumination with one that leaves it out and the
-traced reflection with it (`NO_BOUNCE`, read as `Bouncing`), picked each frame by the count the
-frame's lights hold and whether global illumination is on (`ModelBuild`). The fragment stage is
-253,212 bytes of SPIR-V whole, 124,660 without the glow lights and 55,228 without global
-illumination, each in a program's cache from `e3d shaders`, which compiles each set of the variants
-a shader names and `NO_BOUNCE` alone, since that build traces no rays. lavapipe compiles a
-pipeline's variants on a thread of its own as it first draws with them, and the device's last wait
-waits for them, so with Mesa's cache off an app that draws a lit cube without global illumination
-took 1.3 to 1.4 seconds after the first in one process, where it took 2.1 to 2.5 with the build
-without the glow lights and 3.9 to 4.1 whole, its last wait 0.8 to 0.9 seconds where 1.6 to 1.8 and
-2.9 to 3.1. A program's own model shader that imports `modelpass` is built whole.
+`lights.slang`), and a frame without global illumination with one that leaves it out and the traced
+reflection with it (`NO_BOUNCE`, read as `Bouncing`), picked each frame by the count the frame's
+lights hold and whether global illumination is on (`ModelBuild`). The fragment stage is 253,212
+bytes of SPIR-V whole, 124,660 without the glow lights and 55,228 without global illumination, each
+in a program's cache from `e3d shaders`, which compiles each set of the variants a shader names and
+`NO_BOUNCE` alone, since that build traces no rays. lavapipe compiles a pipeline's variants on a
+thread of its own as it first draws with them, and the device's last wait waits for them, so with
+Mesa's cache off an app that draws a lit cube without global illumination took 1.3 to 1.4 seconds
+after the first in one process, where it took 2.1 to 2.5 with the build without the glow lights and
+3.9 to 4.1 whole, its last wait 0.8 to 0.9 seconds where 1.6 to 1.8 and 2.9 to 3.1. A program's own
+model shader that imports `modelpass` is built whole.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the
@@ -1679,9 +1687,12 @@ that `gi.compare` writes beside its difference.
   a floor facing up reads holds 0.000 where the reference's probe holds 0.028 (`gi.probe`). The
   model pass reads the world probes only where no screen probe holds a pixel, so the screen probes
   alone light that ground, 16 rays from the middle of each tile of 8 pixels finding the block or
-  missing it, and their 5 by 5 filter blends the tiles' steps into the patches (the middle picture,
-  the filter left out).
-  ![The ground beside Ore's ore by night, the frame, the frame without the screen probes' filter, and the reference](assets/cascades/ore-ground-cloud.webp)
+  missing it, and their 5 by 5 filter blends the tiles' steps into the patches. Mended by carrying
+  such a mesh's parts as glow lights, each from the faces of its box it shows (above), the ground
+  reads 0.0446 of the reference's 0.0455, its blocks of 16 pixels 0.95 to 0.99 of the reference's
+  light, the cliffs beside the ore 0.111 of 0.112 where they read 0.093, and the whole frame 1%
+  under where 3% (the pictures, the frame before, the frame now and the reference).
+  ![The ground beside Ore's ore by night, the frame before the mend, the frame after it, and the reference](assets/cascades/ore-ground-cloud.webp)
 - **b. Corners without their darkening.** In the Cornell box the back wall at the red wall's corner
   reads 0.76 of its light 50 pixels in, where the reference's reads 0.60, so the room looks flat at
   its edges. With the screen probes left out it reads 0.58, so the screen probes lift it, each

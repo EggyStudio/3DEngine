@@ -141,6 +141,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The places the glow lights were written in, kept from frame to frame, and how many there were.
     private readonly GlowPlaces _glowPlaces = new();
     private int _glowCount;
+
+    /// <summary>How many emitters are carried as glow lights this frame, and how many of them, the nearest the eye, are lit.</summary>
+    internal (int Carried, int Lit) Glow => (_glowFound, _glowCount);
+
+    private int _glowFound;
     // The field's cascades built this frame as meshes came or went within them or for the first
     // time, a bit a cascade, and the box around what came or went, where the glow lights' young
     // blends start again.
@@ -370,7 +375,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             var copies = new List<RayInstance>(fields.Drawn.Count);
             foreach (var (instance, skinned) in fields.Drawn)
                 if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
-                    plan is not null && GlowLights.Carries(instance.Emission, fields.BoundsOf(instance.Vertices), instance.World, plan.CellSize)));
+                    plan is not null && fields.Carried(instance, plan.CellSize)));
             _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
                 mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));
         }
@@ -519,13 +524,14 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { GlowOff: true }
             && renderWorld.TryGet<SceneFieldRenderer>() is { Plan: { } plan, Eye: { } eye } field)
         {
-            GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf, _glowPlaces);
+            _glowFound = GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf,
+                _glowPlaces, field.GlowPartsOf);
             _glowCount = (int)MemoryMarshal.Cast<byte, float>(bytes.AsSpan(GlowLights.Offset, 4))[0];
         }
         else
         {
             _glowPlaces.Forget();
-            _glowCount = 0;
+            (_glowCount, _glowFound) = (0, 0);
         }
         return bytes;
     }

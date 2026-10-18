@@ -128,10 +128,14 @@ cascade's probes, 4 units at the field's cell of a quarter, lights what is aroun
 would, with no light made for it. Its light reaches each surface from the faces of its box, and what
 stands between throws a soft shadow, so an emissive block lights the floor it lies on as a
 path-traced reference does, within 5% from a block out to four, at every quality. Emissive blocks
-that touch, as a stack of them, are one light. The 64 such lights nearest the eye light so, each as
-far as it lights a surface by a fiftieth, 17 units for an emissive block of Voxel-Sandbox's, and a
-larger surface, as a panel across a ceiling, is left to the probes' rays, which meet it often
-enough. A frame with none of them pays nothing for them.
+that touch, as a stack of them, are one light. A mesh of many such surfaces, as a voxel game draws
+its blocks of a kind in one mesh, is cut into them, its triangles joined where they share a corner,
+each lighting from the faces of its box it shows, as a block sunk in the ground shows its top
+alone. The 64 such lights nearest the eye light so, each as far as it lights a surface by a
+fiftieth, 17 units for an emissive block of Voxel-Sandbox's, and a mesh of more parts than that
+lights the ground around none of the rest, which `gi.state` counts. A larger surface, as a panel
+across a ceiling, is left to the probes' rays, which meet it often enough. A frame with none of
+them pays nothing for them.
 
 ## The qualities and what they cost
 
@@ -207,7 +211,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 
 | Command | What it does |
 |---|---|
-| `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes |
+| `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, and how many small emitters are carried as lights |
 | `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
 | `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it |

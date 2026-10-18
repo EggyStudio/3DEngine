@@ -25,7 +25,7 @@ internal static class SceneFieldCommands
         return $"building {plan.Budget} of its {plan.Cascades} cascades each frame for {Math.Max(1, frames)} frames";
     }
 
-    [Command("gi.state", "How much global illumination is worked out, with the quality, the cascades of world probes and their rays, the screen's probes, the reflections, and the GPU memory each takes")]
+    [Command("gi.state", "How much global illumination is worked out, with the quality, the cascades of world probes and their rays, the screen's probes, the reflections, the GPU memory each takes, and the small emitters carried as lights")]
     internal static string IlluminationState() => IlluminationState(ConsoleHost.World!);
 
     // What gi.state says, which the global illumination window shows too.
@@ -67,6 +67,10 @@ internal static class SceneFieldCommands
                   + $"then the field, the frame before kept in {history:0.00} MB");
         if (gi.Rays is { } traced)
             lines.Add($"what the field misses through the device's rays, {traced.Count} copies of {traced.Meshes.Count} meshes in {traced.Bytes / 1024.0 / 1024.0:0.00} MB");
+        // The emitters carried as glow lights, of which the nearest the eye are lit and the rest
+        // light nothing a probe carries.
+        var (carried, lit) = gi.Glow;
+        lines.Add($"{carried} small emitters carried as lights, the {lit} nearest the eye lit");
         return string.Join("\n", lines);
     }
 

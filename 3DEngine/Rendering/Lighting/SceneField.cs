@@ -238,6 +238,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
         if (_bounds.Count > 4096) _bounds.Clear();
         if (_shares.Count > 4096) _shares.Clear();
+        if (_glowParts.Count > 4096) _glowParts.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
         _store = store;
         var textures = renderWorld.TryGet<TextureStore>();
@@ -306,6 +307,20 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
 
     private readonly Dictionary<ModelVertex[], float> _shares = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>The parts a mesh is cut into as glow lights (<see cref="GlowLights.PartsOf"/>), kept for its vertices.</summary>
+    internal IReadOnlyList<GlowLights.Part> GlowPartsOf(ModelVertex[] vertices)
+    {
+        if (!_glowParts.TryGetValue(vertices, out var parts))
+            _glowParts[vertices] = parts = GlowLights.PartsOf(CornersOf(vertices), BoundsOf(vertices), ShareOf(vertices));
+        return parts;
+    }
+
+    private readonly Dictionary<ModelVertex[], GlowLights.Part[]> _glowParts = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>Whether global illumination carries an instance as glow lights, which the field marks it for.</summary>
+    internal bool Carried(SceneFieldPlan.Instance instance, float firstCell) =>
+        instance.Emission is not { X: <= 0, Y: <= 0, Z: <= 0 } && GlowLights.Carries(instance.Emission, GlowPartsOf(instance.Vertices), instance.World, firstCell);
 
     // A skinned mesh's limbs as it was last posed, each joint's box at rest moved by the joint's
     // matrix, or null where its skin is not known, which stamps the box around all of it.
@@ -525,7 +540,7 @@ internal sealed class SceneFieldRenderer : IDisposable
             var thinnest = Thinnest(instance);
             // An emitter global illumination carries as a glow light marks its cells and lends
             // none.
-            var carried = GlowLights.Carries(e, BoundsOf(instance.Vertices), w, _plan!.CellSize);
+            var carried = Carried(instance, _plan!.CellSize);
             thinGlow |= !carried && thinnest > 0 && thinnest < cell;
             ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, carried ? 2 : 1, e.X, e.Y, e.Z, thinnest];
             MemoryMarshal.Cast<float, uint>(colors).CopyTo(record[16..]);
@@ -599,6 +614,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         _joints.Clear();
         _limbs.Clear();
         _parts.Clear();
+        _glowParts.Clear();
     }
 
     // Destroys what was let go once the frames in flight that might read it have finished.

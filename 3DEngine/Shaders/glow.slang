@@ -35,10 +35,27 @@ public struct GlowLight
     public float4 halfX;
     public float4 halfY;
     public float4 halfZ;
-    // rgb: its surface's emission, linear. w: its mesh's surface over its box's, which the light
-    // from the box's faces is scaled by, as a ball emits from half its box's.
+    // rgb: its surface's emission, linear. w: its mesh's surface over that of the faces of its box
+    // that emit, which their light is scaled by, as a ball emits from half its box's, below 2, and
+    // twice the faces that emit above it, a bit a face, as glowShare and glowFaces read them.
     public float4 glowAndShare;
 };
+
+// A glow light's surface over that of its box's faces that emit.
+public float glowShare(GlowLight light)
+{
+    float w = light.glowAndShare.w;
+    return w - 2.0 * floor(w * 0.5);
+}
+
+// Which faces of a glow light's box emit, a bit a face, two an axis of halfX, halfY and halfZ, the
+// side the axis points to the higher, every face where the light names none, as a block showing
+// all six does. A block of a voxel game showing its top and one side emits from those alone.
+public uint glowFaces(GlowLight light)
+{
+    uint faces = uint(floor(light.glowAndShare.w * 0.5));
+    return faces == 0u ? 63u : faces;
+}
 
 // The arc from a to b, both of length one, times the way the plane through them faces, over two
 // pi, one edge's term of Lambert's sum for the light a polygon sends a point, by Heitz's fit of
@@ -100,6 +117,7 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
     float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
     float3 offset = x - middle;
     bool near = dot(offset, offset) < 16.0 * (halves[0].w * halves[0].w + halves[1].w * halves[1].w + halves[2].w * halves[2].w);
+    uint faces = glowFaces(light);
     float sum = 0.0;
     [loop]
     for (int k = 0; k < 3; k++)
@@ -107,7 +125,7 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
         float3 h = halves[k].xyz;
         float side = dot(offset, h);
         float squared = halves[k].w * halves[k].w;
-        if (squared < 1e-12 || abs(side) <= squared)
+        if (squared < 1e-12 || abs(side) <= squared || (faces & (1u << uint(2 * k + (side > 0.0 ? 1 : 0)))) == 0u)
             continue;
         float3 face = middle + (side > 0.0 ? h : -h);
         float4 u = halves[(k + 1) % 3], v = halves[(k + 2) % 3];
@@ -140,20 +158,20 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
                 }
         }
     }
-    return light.glowAndShare.rgb * (sum * light.glowAndShare.w);
+    return light.glowAndShare.rgb * (sum * glowShare(light));
 }
 
-// The rough unhidden light reaching p facing n from a glow light, half its box's surface over
-// the square of p's distance from the box's nearest point, softened by twice its thinnest half side,
-// by how far its middle rises above p's plane. The window's glow light is kept as a share of it
-// (gi_screen_glow.slang), read from texels of half the window's size, and the model pass scales
-// that share by this at each pixel, so the light rises toward a lamp at each pixel as it does
-// across the lamp's own thickness. Taken from the texels whole, the room around an emissive strip
-// six hundredths of a block thick read 3.4 to 4% further from its path-traced reference at 160 by
-// 90 than with each pixel's own light; with this softened by the box's whole size, 3.4 to 3.5%, the
-// strip's two blocks of length keeping it flat across the strip's thickness; with this, 1.7 to
-// 2%, and at 1280 by 720 within 0.1%. None where p lies on the light's own surface, as
-// glowLightIrradiance gives.
+// The rough unhidden light reaching p facing n from a glow light, half the surface of its box's
+// faces that emit over the square of p's distance from the box's nearest point, softened by twice
+// its thinnest half side, by how far its middle rises above p's plane. The window's glow light is
+// kept as a share of it (gi_screen_glow.slang), read from texels of half the window's size, and the
+// model pass scales that share by this at each pixel, so the light rises toward a lamp at each
+// pixel as it does across the lamp's own thickness. Taken from the texels whole, the room around an
+// emissive strip six hundredths of a block thick read 3.4 to 4% further from its path-traced
+// reference at 160 by 90 than with each pixel's own light; with this softened by the box's whole
+// size, 3.4 to 3.5%, the strip's two blocks of length keeping it flat across the strip's thickness;
+// with this, 1.7 to 2%, and at 1280 by 720 within 0.1%. None where p lies on the light's own
+// surface, as glowLightIrradiance gives.
 public float3 glowLightRough(GlowLight light, float3 p, float3 n, float margin)
 {
     if (glowLightOn(light, p, n, margin))
@@ -174,8 +192,13 @@ public float3 glowLightRough(GlowLight light, float3 p, float3 n, float margin)
     }
     float distance2 = dot(beyond, beyond) + 4.0 * thin * thin;
     float rise = saturate((sqrt(size2) - dot(offset, n)) * rsqrt(dot(offset, offset) + size2));
-    float surface = 4.0 * (halves[0].w * halves[1].w + halves[1].w * halves[2].w + halves[2].w * halves[0].w);
-    return light.glowAndShare.rgb * (light.glowAndShare.w * surface * rise / distance2);
+    // Half the surface of the faces that emit, each face two half sides by two.
+    uint faces = glowFaces(light);
+    float surface = 0.0;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+        surface += 2.0 * halves[(k + 1) % 3].w * halves[(k + 2) % 3].w * float(((faces >> uint(2 * k)) & 1u) + ((faces >> uint(2 * k + 1)) & 1u));
+    return light.glowAndShare.rgb * (glowShare(light) * surface * rise / distance2);
 }
 
 // How near p lies to a glow light for its light to be drawn at each pixel, 1 within its box's half

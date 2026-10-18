@@ -82,6 +82,41 @@ public sealed class GlowLightsTests : IDisposable
         lights.Should().Contain(l => l.Middle == new Vector3(6.5f, 0.5f, 0.5f), "and so does one that touches none");
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Mesh_Of_Many_Blocks_Is_Cut_Into_Its_Parts_With_The_Faces_They_Show()
+    {
+        // A whole block at the middle and, ten off, a block whose top alone shows, as a block of
+        // ore sunk in the ground, in one mesh, as a voxel game draws its blocks of a kind.
+        var corners = new List<Vector3>();
+        void Face(Vector3 middle, Vector3 normal)
+        {
+            var side = MathF.Abs(normal.Y) > 0.5f ? Vector3.UnitX : Vector3.UnitY;
+            var up = Vector3.Cross(normal, side);
+            Vector3 At(float a, float b) => middle + (normal + side * a + up * b) * 0.5f;
+            var (p0, p1, p2, p3) = (At(-1, -1), At(1, -1), At(1, 1), At(-1, 1));
+            if (Vector3.Dot(Vector3.Cross(side, up), normal) > 0) corners.AddRange([p0, p1, p2, p0, p2, p3]);
+            else corners.AddRange([p0, p2, p1, p0, p3, p2]);
+        }
+        foreach (var normal in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ })
+            Face(Vector3.Zero, normal);
+        Face(new Vector3(10, 0, 0), Vector3.UnitY);
+        var box = new SceneFieldPlan.Box(new Vector3(-0.5f), new Vector3(10.5f, 0.5f, 0.5f));
+        var glow = new Vector3(4, 2, 1);
+
+        var parts = GlowLights.PartsOf([.. corners], box, 0.1f);
+
+        parts.Should().HaveCount(2);
+        var whole = parts.Single(p => p.Box.Min.X < 1);
+        whole.Faces.Should().Be(0, "a block showing all six faces emits from every face");
+        whole.Share.Should().BeApproximately(1, 1e-5f);
+        var sunk = parts.Single(p => p.Box.Min.X > 9);
+        sunk.Faces.Should().Be(1 << 3, "the sunk block emits from its top alone, the side y points to");
+        sunk.Share.Should().BeApproximately(1, 1e-5f, "its face is the whole of the box's face it lies on");
+        GlowLights.Carries(glow, parts, Matrix4x4.Identity, 0.25f).Should().BeTrue("each part is a block, though the mesh is eleven long");
+        GlowLights.Carries(glow, box, Matrix4x4.Identity, 0.25f).Should().BeFalse("taken whole it is too long");
+    }
+
     // The light on the floor around a block of the voxel game's glowstone, its glow 4 times
     // (255, 200, 120), lying on a gray floor of 200 at night, from 1.2 to 3.8 blocks from its middle
     // every fifth of a block, as BounceReference traced the frame with 16384 paths a pixel at 256 by
@@ -144,6 +179,24 @@ public sealed class GlowLightsTests : IDisposable
             Math.Abs(shares[i - 1] - 2 * shares[i] + shares[i + 1]).Should().BeLessThan(0.04,
                 $"the floor's light at {quality} falls off as the reference's, its shares of it {string.Join(", ", shares.Select(r => $"{r:0.000}"))} with no ring");
         light[2.6f].Lobes.Should().BeLessThan(0.05, $"at {quality} the ring two and a half blocks out has no eight lobes");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void An_Emissive_Block_That_Is_Part_Of_A_Mesh_Of_Many_Lights_The_Floor_As_A_Block_Alone_Does()
+    {
+        // A voxel game draws its blocks of a kind as one mesh, as Ore draws its ore, whose box
+        // stretches across the land, so the block here shares its mesh with another thirty blocks
+        // off. Taken whole the mesh was too long to carry, and the floor around the block took its
+        // light through the screen probes' rays alone, 1.04 to 1.53 of the reference's from 1.2 to
+        // 2.2 blocks out and 0.004 at 3.8, past their reach, as this test measured on the
+        // development machine's GPU. Cut into its two blocks and carried, it reads 0.978 to 0.988
+        // at every ring, the lobes 0.011.
+        var light = Rings(GlobalIllumination.High, 9, farBlock: new Vector3(30, 0, 0));
+        var shares = Traced.Select(t => light[t.Radius].Mean / t.Light).ToArray();
+        for (int i = 0; i < Traced.Length; i++)
+            shares[i].Should().BeApproximately(1, 0.06, $"the floor {Traced[i].Radius} blocks out reads as the reference, its shares {string.Join(", ", shares.Select(r => $"{r:0.000}"))}");
+        light[2.6f].Lobes.Should().BeLessThan(0.05, "the ring two and a half blocks out has no lobes");
     }
 
     [NeedsVulkanFact]
@@ -363,7 +416,9 @@ public sealed class GlowLightsTests : IDisposable
     // The floor's light, linear, around the block, or where `rod` is set a rod standing in its
     // place, seen straight down from `height` blocks above, the mean of 72 points on each ring of
     // `radii`, the reference's rings by default, and the eighth harmonic of them as a share of the mean.
-    private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height, bool rod = false, float[]? radii = null)
+    // With farBlock, the lamp is one mesh of the block and another block that far from it.
+    private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height, bool rod = false, float[]? radii = null,
+        Vector3? farBlock = null)
     {
         const int Size = 256;
         var config = Config.Default.WithWindow("glow test", Size, Size) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -372,7 +427,7 @@ public sealed class GlowLightsTests : IDisposable
         SetGlobalIllumination(quality);
         SetAmbientLight(Color.Black, 0);
         var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(farBlock is { } far ? Blocks(Vector3.Zero, far) : GenMeshCube(1, 1, 1));
         lamp.Materials[0].Emissive = new Color(255, 200, 120);
         lamp.Materials[0].EmissiveIntensity = 4;
         var middle = new Vector3(0.5f, 0, 0.5f);
@@ -422,5 +477,25 @@ public sealed class GlowLightsTests : IDisposable
         CloseWindow();
         UseApp(null);
         return rings;
+    }
+
+    // One mesh of unit blocks with these middles, four corners a face facing out.
+    private static ModelMesh Blocks(params Vector3[] middles)
+    {
+        var vertices = new List<ModelVertex>();
+        var indices = new List<uint>();
+        foreach (var middle in middles)
+            foreach (var normal in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ })
+            {
+                var side = MathF.Abs(normal.Y) > 0.5f ? Vector3.UnitX : Vector3.UnitY;
+                var up = Vector3.Cross(normal, side);
+                var first = (uint)vertices.Count;
+                foreach (var (a, b) in new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, 1f) })
+                    vertices.Add(new ModelVertex(middle + (normal + side * a + up * b) * 0.5f, normal, new Vector2((a + 1) / 2, (b + 1) / 2)));
+                // Counterclockwise seen from outside, whichever way side and up turn.
+                if (Vector3.Dot(Vector3.Cross(side, up), normal) > 0) indices.AddRange([first, first + 1, first + 2, first, first + 2, first + 3]);
+                else indices.AddRange([first, first + 2, first + 1, first, first + 3, first + 2]);
+            }
+        return UploadMesh([.. vertices], [.. indices]);
     }
 }
