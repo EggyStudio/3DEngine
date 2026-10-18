@@ -226,3 +226,67 @@ and packed bytes. When the game's own order allows.
 Review: item 21 of REVIEW.md, 2026-10-12; the colors of a mesh of positions alone serve the field
 alone and reach no buffer on the device, so a section is 20 bytes a vertex there, before the
 pillar's read; the land measured again after it.
+
+### 2026-10-18, the voxel game in `Voxel-Sandbox`: no particle keeps its place on a turning sky
+
+The game's stars are fixed points on a sky that turns with the hour about the axis from north to
+south, the sun on one side of it and the moon on the other, and are asked for as a particle effect
+parented to the sun's and the moon's places. Read on the 3DEngine 5.2.43 package, built from
+`fc5fdc97`. `CreateParticleEmitter` makes an entity with a `ParticleEmitter` and a `Transform`, and
+`Particles.Run` (`3DEngine/Rendering/Particles/Particles.cs:52`) takes the translation of its world
+matrix alone, so the emitter's rotation and its parent's turn reach no particle. A particle starts
+at a random point within `Radius` of that place and is stepped on the GPU in world space, so one
+already born keeps its place in the world as the emitter turns, and none starts where the program
+names. For the stars the engine lacks two things:
+
+- an emitter whose particles live in its entity's space, moving and turning with its transform and
+  its parent's, so a star field parented to the sky turns with it
+- particles placed at positions the program gives in that space, living until the program removes
+  them, so each star keeps its place from frame to frame and from run to run
+
+Meanwhile the game draws each star with `DrawBillboardPro` in `Sky.Draw`
+(`VoxelSandbox/Rendering/Sky.cs`), 500 fixed ways on the sky turned by one matrix a frame, of which
+those above the horizon, about half, are drawn. On a flat world in a hidden window of 1280 by 720 on
+the RTX 4070 Laptop GPU, facing the moon 25 degrees up, `./e3d command profile` over about a second
+read `program.drawing` at 2.08 and 1.82 ms at hour 20 with the stars and 1.76 and 1.77 ms at noon
+without them, and `gpu.immediate` at 0.000 ms in both. The billboards cost the frame little, and the
+entry asks for the stars to be the engine's particles rather than for time. The game moves them to
+particles once a package brings the parented emitter.
+
+Review: item 32 of REVIEW.md, 2026-10-18; an emitter whose particles live in its entity's space,
+moving and turning with its transform and its parent's, and particles placed where the program says
+and living until it removes them, after item 31 and before item 30's parts; the game moves its stars
+to it when a package brings it.
+
+### 2026-10-18, the voxel game in `Voxel-Sandbox`: the sun's contact shadows cannot be turned off
+
+The game draws the sun's shadows pixelated. Each point of a face takes its light at the middle of
+the block's pixel it lies in, a sixteenth of a block on a side, so a shadow's edge steps along the
+pixels (`VoxelSandbox/resources/shaders/terrain.slang`). Read on the 3DEngine 5.2.43 package, built
+from `fc5fdc97`, the sun's light at a point is the shadow map's share of it times the contact
+shadow's (`modelpass.slang:583`). The shadow map's share (`cascadeReached`, `lights.slang:73`)
+averages nine nearest comparisons a texel apart. At the game's shadow distance of 96 blocks the
+cascades end at 7.7, 28.8 and 96 blocks, and `ShadowFit.TryFit` for the game's view of 70 degrees at
+16 by 9 gives them texels of 0.0066, 0.024 and 0.079 blocks, 0.11, 0.38 and 1.27 of a block's pixel
+of 0.0625. In the two near cascades the nine comparisons span less than a block's pixel, so the
+stepped edge is as sharp as the pixel, and the look near the player needs neither a filter switch
+nor a texel size. Past 29 blocks the far cascade's texel, a little over a block's pixel, steps the
+edge by texels rather than by pixels, a lesser thing where a block's pixel is about a pixel of the
+window.
+
+The contact shadow (`sunContact`, `modelpass.slang:293`) is traced toward the sun through the
+scene's distance field in the occlusion pass (`ao.slang`) at half the window's size, out to 32
+cells of the finest cascade, 8 blocks at the game's cells of 0.25, blurred with the occlusion and
+read by the fragment's place in the window, so the game's snapped point does not reach it. It is on
+wherever the field is built and the sun casts shadows (`AmbientOcclusionRenderer.ContactShadows`),
+and the package turns it off only with the field, which global illumination needs. On a flat world
+in a hidden window of 1280 by 720 on the RTX 4070 Laptop GPU, a pillar of stone one block across and
+six high (`voxel.fill 0 4 -10 0 9 -10 stone`) under the sun of 8.30 (`voxel.time 8.5`), seen from
+above looking down 70 degrees, casts a hard shadow 208 pixels across a row of the frame. Beside it
+the contact shadow darkens the grass from 90 to 150 pixels past the hard edge, 0.4 to 0.7 of a
+block, a soft fringe along the stepped edge.
+
+The engine lacks a setting that turns the sun's contact shadows off, or leaves them out where the
+shadow map holds the point, so that a game keeps the field and global illumination with hard
+shadows. Meanwhile the game's shadows carry the fringe, and the game turns the contact shadows off
+once a package brings the setting.

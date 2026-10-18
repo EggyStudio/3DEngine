@@ -189,7 +189,7 @@ audio_amp_envelope	can	with ImGui in raygui's place
 audio_raw_stream	moves	its wave drawn from when the audio device last asked for samples
 audio_mixed_processor	moves	its volume history that of what the audio device has mixed
 audio_stream_effects	moves	its bar as far as the audio device has played
-core_input_gamepad	can	drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is
+core_input_gamepad	can	drawn on raylib's picture of an Xbox pad for every pad SDL3 does not name a PlayStation's, the console's pad here among them
 core_custom_frame_control	can	its text in ImGui's default font, as the comparison page says
 core_window_flags	can	its text in ImGui's default font, as the comparison page says
 core_highdpi_demo	can	its text in ImGui's default font, as the comparison page says

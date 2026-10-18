@@ -45,4 +45,6 @@ The examples in `3DEngine.Examples` that carry raylib's names are raylib's examp
 (https://github.com/raysan5/raylib/tree/master/examples, zlib) written again for the flat API, each
 naming its authors at its head, and are not in the package. The files of raylib's they load are
 fetched by `build/fetch-raylib-resources.sh` under the licenses its examples' `resources/LICENSE.md`
-files give, and are not kept in this repository.
+files give, and are not kept in this repository, but for raylib's two pictures of gamepads,
+`ps3.png` and `xbox.png` by Ramon Santamaria (@raysan5) under CC0, which are kept in
+`3DEngine.Examples/resources` so `core_input_gamepad` draws them wherever it is built.

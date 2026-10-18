@@ -10,14 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a12206af`, Verdict 70's reading and mend and nothing else, two tests and the logger.
-The holders of a system's exception were read. The schedule's catch keeps nothing, the exception
-caught into a local and the thrown systems keyed by the type's full name; the engine's logger keeps
-text, the console and file providers writing the exception's string and the N 3.7 listener its
-type's name and message, the object leaving the logger only to providers added by `UseProvider`; and
-the thread's last thrown exception is no holder on this runtime, a probe outside the repository
-showing a collectible type's exception held while the catching frame stood and let go once that
-method returned, which the schedule's invoke does after its catch. Of the providers,
+Reviewed up to `4fa51a9c`, item 30's reading and nothing else, a passage at the end of
+RENDERING.md's global illumination section with six pictures under `.github/assets/cascades/`. The
+examples that draw the cascades and `games/Ore` were captured at their captures' frames on the
+development machine's GPU and on lavapipe, each frame at High measured against a path-traced
+reference of 512 paths a pixel with `gi.compare`, whole and with each part of the method left out in
+turn, lavapipe drawing every fault as the GPU does, so each is the method's; the pictures draw frame
+and reference through the reference's curve. Six faults are placed in the cascades, the ore's light
+on Ore's ground in patches with holes where the world probes give it nothing and the screen probes'
+tiles are blended into patches, corners without their darkening where a tile's probe stands off the
+corner, the Cornell block's front 65 percent over where the screen probes' rays take the first
+cascade, a dark patch at a moved wall's foot and patches across the far wall from the world probes'
+blend, and a lamp leaking through a thin walls' corner as a tick, the world probes leaking it and
+the screen probes hiding it but at a tile's edge; and four things seen are not the cascades', the
+emissive halo the tonemap's, the wall bands the 8-bit steps of a smooth gradient, the terminator
+ring subsurface scattering's and the reflections' reference rough. The parts are taken into item 30
+in the reviewer's order. Right. At 23:02 the game's session wrote ASKS.md's fourth entry, the stars
+that are to turn with the sky and the particles that cannot, which is item 32, an emitter whose
+particles live in its entity's space and particles placed by the program, after item 31 and before
+item 30's parts. Next item 31's commit, item 32, then item 30's parts one a commit in the order
+below, the owner's eye welcome on the order, and Verdict 70's third green macOS suite.
+
+Before it, `a12206af` came, Verdict 70's reading and mend and nothing else, two tests and the
+logger. The holders of a system's exception were read. The schedule's catch keeps nothing, the
+exception caught into a local and the thrown systems keyed by the type's full name; the engine's
+logger keeps text, the console and file providers writing the exception's string and the N 3.7
+listener its type's name and message, the object leaving the logger only to providers added by
+`UseProvider`; and the thread's last thrown exception is no holder on this runtime, a probe outside
+the repository showing a collectible type's exception held while the catching frame stood and let go
+once that method returned, which the schedule's invoke does after its catch. Of the providers,
 `ScheduleTests`' listener sat on the process's `Engine.Schedule` logger and kept the exception
 object of every line logged there while its test ran, the script's first throw in another test's app
 among them, the two collections running beside each other, which a scratch provider of the same
@@ -78,40 +99,6 @@ recompile, a generation whose system threw a type of its own still alive after t
 run's suites running. Next Verdict 70's reading, the Windows suites as the first of three for
 Verdicts 64 and 68, the third green macOS suite for Verdict 69, the measure on a 7763 (Verdict 67)
 and the pack run of `5a2d7df3`.
-
-Before it, `1398ed24` came, the mends of Verdicts 68 and 69 and nothing else, the leak test, the
-handle census and the physics plugin. Each followed app's count of the driver's thread handles comes
-from the census at the app's end, the kept Thread handles whose thread ended unnamed and whose
-handle was opened at one of the driver's steps, the hold taking the most over the followed apps as
-before, the net of the Thread counts across the driver's steps gone with the census's unused
-difference, the allowance's comment naming lavapipe's Windows build, its nine unnamed threads
-started as the device is made, the four handles left open a handle a thread and the old net's 1
-against the census's 4, the allowance of 200 standing and Linux's count 0 as before; the physics
-plugin warms its solver once, the first block staying. The heap is read as the bytes a full blocking
-collection promoted after the collection, its finalizers and a collection again, the comment giving
-the reason and naming BevyCSharp's soak, the floor's bound of 5 kept and the series line saying the
-heap's live objects. Checked on the working machine were the strict build and the whole suite, 1,716
-passed, and the headless hundred-app test's live heap at 13.18 MB at ten apps and 13.30 to 13.31
-from the twentieth to the hundredth; the census-based allowance runs on Windows alone, so the next
-Windows suite is its first run. Right. The pack run of `32ce6f4e`'s captures job passed by 18:00,
-the measure holding on every pair on an AMD EPYC 9V74 with gfni, a third kind in the fleet beside
-the 9V45 and the 7763, the pair within its room, which is the gfni side of Verdict 67's settling,
-the 7763's awaited. The pack run of `32ce6f4e` ended at 18:12 red on its macOS suite alone, its
-Windows suite green with the thirteen games played, the handle bound met by that run's chance before
-the mend, and its captures-macos job green, so Ore has been played on Linux and Windows and macOS is
-left for item 28's check; the owner pushed `1398ed24` at 18:02, its push run in progress. By 18:46
-the push run's Linux and macOS suites and examples job had passed, the macOS suite the first green
-one with the live heap floor (Verdict 69), its Windows suite still running, and the owner had
-started the pack run of `1398ed24` at 18:15. The push run ended at 18:52 red on its Windows suite
-alone, where the handle bound held with the census's allowance and the plain hundred apps held their
-memory bound, and the twin holding the driver alone failed it by 9.7 MB, 59.7 of private data kept
-over eighty apps with no new allocation standing, the message cut before its series (Verdict 64,
-continued, the twin's figure to be said and not judged). The pack run's Linux and macOS suites,
-examples and games jobs had passed by 18:58, the macOS suite playing every game from the package, so
-Ore has been played on all three systems and item 28's last check is met, and the macOS suite is the
-second green one for Verdict 69; its Windows suite and captures jobs were running. Next Verdict 64's
-mend, its push and runs, the pack run's Windows suite and measure (Verdict 67 on a 7763), and the
-rows of three green Windows and macOS suites.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1182,7 +1169,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pictures show, and the reviewer orders the parts with the owner's eye. Then each part is mended
     on its own, measured before and after and held by a test as Decision 27's were, the figures in
     WHOLE or the tests' comments (N 3.5), the pictures taken again where they change. The voxel game
-    takes the mends through the package, so a pack run follows the parts that change the light.
+    takes the mends through the package, so a pack run follows the parts that change the light. Read
+    at `4fa51a9c` (RENDERING.md, "What the light looks like, read on 2026-10-18"), six parts, here
+    in the reviewer's order, the most seen first and the parts of one mechanism together, the
+    owner's eye to reorder: (a) Ore's ground beside the ore, the world probes giving it nothing
+    since the first cascade's probe stands a unit above the ground and the block's light reaches it
+    level or from below, the floor's upward face reading 0 against the reference's 0.028, so the
+    screen probes alone light it and their filter blends the tiles into patches, the cliffs losing
+    their orange alike; (f) the lamp outside leaking through the thin walls' corner, the world
+    probes taking its light through walls thinner than their spacing, which the screen probes hide
+    but at a tile's edge, a tick 3.25 times the wall; (b) and (c) the screen probes' placement, each
+    tile's probe at the tile's middle up to 8 pixels off a corner lifting it from 0.60 to 0.76, and
+    their rays toward the open side taking the first cascade along their way, the block's front 65
+    percent over; (d) and (e) the world probes' blend, a dark patch at the moved wall's foot falling
+    where the reference rises and patches of 0.84 to 1.14 across the far wall. Each part is mended
+    on its own, one commit, measured before and after with `gi.compare` against the reference at the
+    frame named and held by a test on that measure, the pictures of RENDERING.md's passage taken
+    again as they change; the four things seen that are not the cascades' stay as read, the
+    terminator's crescent being Decision 27's subsurface part.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44).** The owner said on 2026-10-18 at 22:25 that the gamepad example shows a
@@ -1198,6 +1202,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     a picture of the engine's making standing where raylib's resource belongs, each replaced by the
     resource raylib's example loads, listed here. One commit, the captures taken again where they
     change.
+
+32. **Particles that live in their emitter's space and stand where the program puts them, for the
+    game's stars (ASKS.md, 2026-10-18).** The voxel game's stars are fixed points on a sky that
+    turns with the hour, asked for as a particle effect parented to the sun's and the moon's places
+    (its item 6), and the package's particles cannot be that: `Particles.Run`
+    (`3DEngine/Rendering/Particles/Particles.cs:52`) takes the translation of the emitter's world
+    matrix alone, so its rotation and its parent's turn reach no particle, each starts at a random
+    point within the radius and is stepped on the GPU in world space, keeping its place in the world
+    as the emitter turns. Two things. An emitter may keep its particles in its entity's space, so
+    they move and turn with its transform and its parent's, the simulation's positions local and the
+    world matrix applied where they are drawn; and a program may place particles at positions it
+    gives in that space, living until it removes them, beside the random birth within a radius. Both
+    reach the flat API and the entity API as the emitter's other settings do, an example shows a
+    field of fixed points turning with a parent, a test holds a particle's place through a parent's
+    turn, and the particles' guide says both; the game moves its stars to them when a package brings
+    them, and `ASKS.md`'s entry carries the item's number. After item 31 and before item 30's parts,
+    being a day's work that the game's item waits on, the owner's eye welcome on the order. One
+    commit.
 
 ## Verdicts
 

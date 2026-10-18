@@ -8,10 +8,12 @@ namespace Engine.Examples;
 
 public static class CoreInputGamepad
 {
-    private const string XboxAlias1 = "xbox";
-    private const string XboxAlias2 = "x-box";
-    private const string PsAlias1 = "playstation";
-    private const string PsAlias2 = "sony";
+    // raylib reads the name a pad's system gives it, such as "Sony Interactive Entertainment Wireless
+    // Controller", where SDL3 names the same pad "PS4 Controller" or "PS5 Controller", so SDL3's names
+    // are read as well. SDL3 gives every other pad an Xbox controller's buttons, sticks and triggers,
+    // so each is drawn on raylib's picture of one, where raylib's example drew a pad it could not name
+    // with shapes of its own.
+    private static readonly string[] PsAliases = ["playstation", "sony", "ps3", "ps4", "ps5", "dualshock", "dualsense"];
 
     public static void Run()
     {
@@ -71,8 +73,7 @@ public static class CoreInputGamepad
                     if (leftTrigger < leftTriggerDeadzone) leftTrigger = -1.0f;
                     if (rightTrigger < rightTriggerDeadzone) rightTrigger = -1.0f;
 
-                    if (GetGamepadName(gamepad).ToLowerInvariant().Contains(XboxAlias1) ||
-                        GetGamepadName(gamepad).ToLowerInvariant().Contains(XboxAlias2))
+                    if (!PsAliases.Any(GetGamepadName(gamepad).ToLowerInvariant().Contains))
                     {
                         DrawTexture(texXboxPad, 0, 0, Color.DarkGray);
 
@@ -112,8 +113,7 @@ public static class CoreInputGamepad
                         DrawRectangle(170, 30, 15, (int)(((1 + leftTrigger)/2)*70), Color.Red);
                         DrawRectangle(604, 30, 15, (int)(((1 + rightTrigger)/2)*70), Color.Red);
                     }
-                    else if (GetGamepadName(gamepad).ToLowerInvariant().Contains(PsAlias1) ||
-                             GetGamepadName(gamepad).ToLowerInvariant().Contains(PsAlias2))
+                    else
                     {
                         DrawTexture(texPs3Pad, 0, 0, Color.DarkGray);
 
@@ -152,56 +152,6 @@ public static class CoreInputGamepad
                         DrawRectangle(611, 48, 15, 70, Color.Gray);
                         DrawRectangle(169, 48, 15, (int)(((1 + leftTrigger)/2)*70), Color.Red);
                         DrawRectangle(611, 48, 15, (int)(((1 + rightTrigger)/2)*70), Color.Red);
-                    }
-                    else
-                    {
-                        DrawRectangleRounded(new Rectangle(175, 110, 460, 220), 0.3f, 16, Color.DarkGray);
-
-                        DrawCircle(365, 170, 12, Color.RayWhite);
-                        DrawCircle(405, 170, 12, Color.RayWhite);
-                        DrawCircle(445, 170, 12, Color.RayWhite);
-                        DrawCircle(516, 191, 17, Color.RayWhite);
-                        DrawCircle(551, 227, 17, Color.RayWhite);
-                        DrawCircle(587, 191, 17, Color.RayWhite);
-                        DrawCircle(551, 155, 17, Color.RayWhite);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.MiddleLeft)) DrawCircle(365, 170, 10, Color.Red);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.Middle)) DrawCircle(405, 170, 10, Color.Green);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.MiddleRight)) DrawCircle(445, 170, 10, Color.Blue);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightFaceLeft)) DrawCircle(516, 191, 15, Color.Gold);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightFaceDown)) DrawCircle(551, 227, 15, Color.Blue);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightFaceRight)) DrawCircle(587, 191, 15, Color.Green);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightFaceUp)) DrawCircle(551, 155, 15, Color.Red);
-
-                        DrawRectangle(245, 145, 28, 88, Color.RayWhite);
-                        DrawRectangle(215, 174, 88, 29, Color.RayWhite);
-                        DrawRectangle(247, 147, 24, 84, Color.Black);
-                        DrawRectangle(217, 176, 84, 25, Color.Black);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftFaceUp)) DrawRectangle(247, 147, 24, 29, Color.Red);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftFaceDown)) DrawRectangle(247, 147 + 54, 24, 30, Color.Red);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftFaceLeft)) DrawRectangle(217, 176, 30, 25, Color.Red);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftFaceRight)) DrawRectangle(217 + 54, 176, 30, 25, Color.Red);
-
-                        DrawRectangleRounded(new Rectangle(215, 98, 100, 10), 0.5f, 16, Color.DarkGray);
-                        DrawRectangleRounded(new Rectangle(495, 98, 100, 10), 0.5f, 16, Color.DarkGray);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftTrigger1)) DrawRectangleRounded(new Rectangle(215, 98, 100, 10), 0.5f, 16, Color.Red);
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightTrigger1)) DrawRectangleRounded(new Rectangle(495, 98, 100, 10), 0.5f, 16, Color.Red);
-
-                        Color leftGamepadColor = Color.Black;
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.LeftThumb)) leftGamepadColor = Color.Red;
-                        DrawCircle(345, 260, 40, Color.Black);
-                        DrawCircle(345, 260, 35, Color.LightGray);
-                        DrawCircle(345 + (int)(leftStickX*20), 260 + (int)(leftStickY*20), 25, leftGamepadColor);
-
-                        Color rightGamepadColor = Color.Black;
-                        if (IsGamepadButtonDown(gamepad, GamepadButton.RightThumb)) rightGamepadColor = Color.Red;
-                        DrawCircle(465, 260, 40, Color.Black);
-                        DrawCircle(465, 260, 35, Color.LightGray);
-                        DrawCircle(465 + (int)(rightStickX*20), 260 + (int)(rightStickY*20), 25, rightGamepadColor);
-
-                        DrawRectangle(151, 110, 15, 70, Color.Gray);
-                        DrawRectangle(644, 110, 15, 70, Color.Gray);
-                        DrawRectangle(151, 110, 15, (int)(((1 + leftTrigger)/2)*70), Color.Red);
-                        DrawRectangle(644, 110, 15, (int)(((1 + rightTrigger)/2)*70), Color.Red);
                     }
 
                     DrawText($"DETECTED AXIS [{GetGamepadAxisCount(gamepad)}]:", 10, 50, 10, Color.Maroon);
