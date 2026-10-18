@@ -121,6 +121,44 @@ public sealed class BounceRoomsTests : IDisposable
         share.Should().BeLessThan(bound, $"view {view} at {quality} differs from its reference by {share:0.000} of its light");
     }
 
+    [NeedsVulkanFact]
+    public void The_Thin_Rooms_Corner_Takes_No_Light_From_The_Lamp_Outside()
+    {
+        // The thin room seen as shaders_bounce_rooms' capture sees it, where the right wall meets
+        // the front wall at the outside lamp's height. A pixel there that no screen probe on a
+        // surface like its own stands near read the world's probes, and one beyond the walls
+        // thinner than their spacing lent it the lamp's light, the corner's brightest 3.90 times the
+        // wall beside it at 800 by 450 on the development machine's GPU, where a path-traced
+        // reference reads the tick's pixels 1.10 of it. Read from the probes it sees through the
+        // field, it reads 1.09.
+        const int Wide = 800, High = 450;
+        var config = Config.Default.WithWindow("bounce rooms", Wide, High) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(Rooms.Views[1]);
+            rooms.Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var light = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        double At(int x, int y) => 0.2126 * light[(y * Wide + x) * 4] + 0.7152 * light[(y * Wide + x) * 4 + 1] + 0.0722 * light[(y * Wide + x) * 4 + 2];
+        double brightest = 0, beside = 0;
+        for (int y = 150; y < 260; y++)
+        {
+            for (int x = 676; x < 692; x++) brightest = Math.Max(brightest, At(x, y));
+            for (int x = 630; x < 660; x++) beside += At(x, y) / 30;
+        }
+        beside /= 110;
+        (brightest / beside).Should().BeLessThan(1.4, "the corner reads the wall's light, not the lamp's beyond the walls");
+    }
+
     // The references' folder beside this file.
     private static string Folder([System.Runtime.CompilerServices.CallerFilePath] string source = "") =>
         Path.Combine(Path.GetDirectoryName(source)!, "References", "bounce");

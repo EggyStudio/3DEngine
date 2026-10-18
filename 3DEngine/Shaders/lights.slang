@@ -368,6 +368,42 @@ public float3 bounced(float3 p, float3 n)
     return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
+// The indirect light reaching a surface at p facing n, irradiance over pi, from those of the world's
+// probes around it it sees with nothing the field holds between (bouncedSeenAt), or from them all as
+// bounced reads them where it sees none, or -1 where no cascade of probes holds p. A pixel no screen
+// probe on a surface like its own stands near, as where two walls meet, reads it, since a probe
+// beyond a wall thinner than the probes' spacing is seen by bounced's reach where the point it
+// judges from lies in the other wall's cells, and lent the thin room's corner the lamp's light
+// outside, 3.25 times the wall beside it where a path-traced reference reads 1.10, and 1.02 so.
+// Marched to its probes, faded across a cascade's outer band as bounced fades, it costs those
+// pixels' groups, 185 pixels of the room's 360,000 at 800 by 450, the model pass 0.07 ms on the
+// development machine's GPU, 0.31 where 0.24, and the Cornell box's 0.09, 0.27 where 0.18.
+public float3 bouncedSeen(float3 p, float3 n)
+{
+    int c = fieldCascade(bouncedField, p, 1.0);
+    int cascades = int(lighting.indirect.w);
+    if (c < 0 || c >= cascades)
+        return float3(-1.0);
+    // Faded to the next cascade across this one's outer band, as bouncedAt fades, since read from
+    // one cascade alone a far floor that no screen probe like it holds stepped by 10% where the
+    // third cascade ended (CascadeEdgeTests).
+    float own = c + 1 < cascades && bouncedField.cascades[c + 1].originAndCell.w > 0.0 ? cascadeHold(bouncedField, c, p) : 1.0;
+    float3 light = float3(0.0);
+    [loop]
+    for (int k = 0; k < 2; k++)
+    {
+        float share = k == 0 ? own : 1.0 - own;
+        if (share <= 0.0)
+            continue;
+        float4 seen = bouncedSeenSum(SplitVolume(reflectField, lightLinear), bouncedField, bouncedField, SplitVolume(bouncedLight, lightNearest), p, n,
+            lighting.indirect.z, lighting.indirect.y, c + k);
+        if (seen.w <= 1e-5)
+            return bounced(p, n);
+        light += seen.rgb / seen.w * share;
+    }
+    return light / 3.14159265;
+}
+
 // The light the glow lights send a surface at p facing n straight, irradiance over pi, which no
 // probe above a floor holds of a lamp lying on it, the four brightest at p marched to, with halves
 // by their faces' halves as the screen's probes march, or else to their middles (glowLightsAt in

@@ -10,7 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c6914ab3`, item 34 done and nothing else, 11 files. `GetImGuiTextureId` gives a
+Reviewed up to `de92a62b`, item 30's part (a) and nothing else, 11 files. A mesh of many small
+emitters is cut into its parts, its triangles joined where they share a corner quantized to a
+hundred-thousandth of the mesh's size, cached by vertex array, and carried as glow lights where
+every part fits the existing limit, a light each, touching parts merging as before, the field's mark
+and the ray scene's deciding alike; a part flat as one face, a block sunk in the ground showing its
+top alone, drew its own faces dark with dotted edges since the closed form skipped a flat box's thin
+axis and the screen-probe read went wrong, so such a part is a hundredth of its size thick about its
+face; and a light names which faces of its box emit, two bits an axis packed with its share, found
+from the triangles square to an axis lying on the box's face and mirrored for a mesh drawn from both
+sides, the closed form skipping faces that emit nothing and the rough light and the reach counting
+the emitting faces' surface, a full block naming every face so the existing emitters are unchanged,
+where a part showing a top and one side had spread its surface over six faces and lit the ground at
+a third. The field and the ray scene mark such a mesh whole, so its parts past the 64 nearest light
+nothing a probe carries to the ground around them, where whole the mesh lit it through the probes'
+rays, Ore holding 69, which `gi.state` counts and the glow lights' remarks, RENDERING.md and the
+guide say. Measured at Ore's capture frame against the reference of 512 paths, the ground beside the
+ore rose from 0.0371 to 0.0446 of the reference's 0.0455, its blocks of 16 pixels from 0.03 to 1.74
+to 0.95 to 0.99 of it, the cliffs from 0.0926 to 0.1112 of 0.1121, and every region from 3 percent
+under to 1. Two glow light tests, the rings of a lamp that is one mesh of its block and another 30
+off at High reading 0.978 to 0.988 of the path-traced table where they read 1.04 to 1.53 before, and
+a mesh of many blocks cut into its parts with the faces they show, a whole block naming every face
+and a sunk top its top alone; RENDERING.md's part (a) carries the figures with its picture retaken
+as the frame before, the frame after and the reference, Ore's picture retaken as the workflow takes
+it, and the carrying paragraph and the guide's emissive paragraph follow. Checked were the glow and
+bounce room tests on the GPU, the glow tests on lavapipe under the required layer, the strict build
+and the whole suite, 1,722 passed. Right. Next part (f), the owner's push of the seven commits since
+`a12206af` and a pack run, whose package the game waits on, and Verdict 70's third green macOS
+suite.
+
+Before it, `c6914ab3` came, item 34 done and nothing else, 11 files. `GetImGuiTextureId` gives a
 loaded texture an id for ImGui's image, image button and a draw list's image, the texture's id with
 bit 32 set and none for a texture not loaded, the font atlas staying ImGui's texture 1 so neither id
 is taken for the other, reached by behaviors as the rest of the flat API is; the ImGui node takes
@@ -49,30 +78,6 @@ were the strict build and the whole suite, 1,719 passed, and the new test with t
 on lavapipe under the required layer. Right. The game turns its contact shadows off from the next
 package. Next item 34, the ImGui pass binding the set of a command's texture, then item 30's parts,
 and Verdict 70's third green macOS suite.
-
-Before it, `f5035acd` came, item 32 done and nothing else, 21 files. `ParticleEmitter.Local` keeps
-an emitter's particles in its entity's space, the step run with the origin at zero and the velocity
-and gravity turned with the entity, the draw placing each particle by the entity's world matrix with
-its size in world units, collision not read for such an emitter since the depth and the field are
-the world's; `ParticleEmitter.Points` holds particles the program places in that space, standing at
-the start size in the start color and living until the array no longer holds them, apart from the
-births the maximum counts, which scene files hold as the arrays they already read; and
-`SetParticleEmitterRotation` stands beside the position's call in the flat API. The particle header
-grows from four values of four floats to eight, three of them the rows of the matrix a particle is
-placed by, the identity in the world and the entity's for a local emitter, written before the step
-with barriers on both sides, the placed points a second buffer an emitter made again when the
-array's contents change, its header written each frame and no dispatch stepping it, and an alpha
-emitter sorts each buffer from the eye in the space its particles are kept in. Two particle tests
-hold a local burst turning with its parent beside a world burst that stays, and a placed point
-keeping its place through the parent's turn and going when the points are null, 18 passing under the
-required layer on the GPU and on lavapipe; `ecs_parented_particles` shows a sky turning about a
-tilted axis with 1,500 placed stars and a comet whose tail is born in the sky's space, captured
-lossless and in the README and EXAMPLES.md; the drawing guide's particles section gains a paragraph
-and a compiled sample, RENDERING.md's passage the header and the placed buffer, and CHEATSHEET.md,
-PublicApi.txt and upgrading.md the three names. Checked were the strict build and the whole suite,
-1,718 passed after upgrading.md gained the names. Right. The game's stars move to these when a
-package brings them. Next items 33 and 34, which one package should carry to the game, then item
-30's parts, and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1163,7 +1168,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     terminator's crescent being Decision 27's subsurface part. Toward (a), read at `29eb2eca`:
     `GlowLights.Carries` (`GlowLights.cs:57`) carries an emitter only where its box's longest side
     is within twice the first cascade's spacing, so Ore's one landscape-wide ore mesh is never
-    carried and the ground beside each ore is left to the screen probes' sixteen rays a tile.
+    carried and the ground beside each ore is left to the screen probes' sixteen rays a tile. Part
+    (a) done at `de92a62b` on 2026-10-19, a mesh of many emitters cut into its parts and carried as
+    glow lights by the faces each shows, the ground beside Ore's ore within 2 percent of the
+    reference where it read 0.03 to 1.74 of it in patches, held by two glow light tests, the limit
+    of 64 lit emitters said; parts (f), (b) and (c), (d) and (e) follow.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

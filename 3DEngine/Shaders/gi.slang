@@ -574,6 +574,16 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
     int c = fieldCascade(gathered, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
+    float4 seen = bouncedSeenSum(field, info, gathered, cubes, p, n, probes, spacing, c);
+    return seen.w > 1e-5 ? seen.rgb / seen.w : float3(0.0);
+}
+
+// The sum bouncedSeenAt divides for cascade c, the light of the probes seen times their weights,
+// and the weights, which a reader that takes another light where no probe is seen, or blends two
+// cascades, tells apart from dark.
+public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
+    int c)
+{
     float4 oc = gathered.cascades[c].originAndCell;
     float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
@@ -605,7 +615,7 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
         sum += light * weight;
         weights += weight;
     }
-    return weights > 1e-5 ? sum / weights : float3(0.0);
+    return float4(sum, weights);
 }
 
 // The light the lamps that cast shadows would send a surface at p facing n but for what the field

@@ -516,7 +516,10 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) : 0.0;
         if (near < 1.0)
         {
-            float3 world = bounced(input.world, n);
+            // A pixel the screen's probes stand around on no surface like its own, as at a corner,
+            // reads the world's probes it sees through the field (bouncedSeen).
+            bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0;
+            float3 world = edge ? bouncedSeen(input.world, n) : bounced(input.world, n);
             if (world.x >= 0.0)
                 bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
         }

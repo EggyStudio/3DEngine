@@ -775,23 +775,24 @@ depth, found in the frame before through that frame's camera, which the view car
 probes then around it blended where each stood on a like surface, kept in two images the frame's
 blended light and surfaces are copied into after the filter. Each of the four is weighed by where it
 stands, the middle of the half-sized depth's texel under its tile's middle, a pixel past that
-middle; weighed by the tiles' middles, a still view's blend took a pixel's share of the probes to its
-right and below every frame, a sixteenth of a tile at `Low` and an eighth at `High`, which held the
-thin room and the Cornell box 0.2 to 0.5 points of their light nearer their path-traced references
-and the window's room and the carried lamp 0.3 to 0.6 further (`BounceRoomsTests`). The filter's
-weights spread wider took the thin room further from its reference still, and narrower nearer, so
-the drift had brought it there rather than the filter's width. A probe whose surface the frame before
-did not show, at the edge of the picture or behind what moved, takes this frame's light alone. The
-frame before's light is held first within twice the spread of this frame's light among the like
-probes around, each channel's standard deviation by the filter's own weights, so where a light
-changed the history is pulled to it, and where it holds still the history lies inside and keeps its
-calm. A block's side lit only by a wall's indirect light comes within a tenth of its new light in
-the frame a lamp is brought in, where it took seven frames without the hold. With the camera sliding
-a hundredth of a unit a frame through a Cornell box, global illumination adds −0.03 levels a frame
-to the picture's change and 0.03 without the history, at `Low` on the RTX 4070, where the slide
-alone changes 0.48, and on lavapipe −0.03 and 0.02 (`GlobalIlluminationTests`), the hold costing
-nothing that can be read in Wick's first doorway. The model pass blends the four probes around a
-pixel the same way, falls back to the world's probes where none is like it, and puts the result in
+middle; weighed by the tiles' middles, a still view's blend took a pixel's share of the probes to
+its right and below every frame, a sixteenth of a tile at `Low` and an eighth at `High`, which held
+the thin room and the Cornell box 0.2 to 0.5 points of their light nearer their path-traced
+references and the window's room and the carried lamp 0.3 to 0.6 further (`BounceRoomsTests`). The
+filter's weights spread wider took the thin room further from its reference still, and narrower
+nearer, so the drift had brought it there rather than the filter's width. A probe whose surface the
+frame before did not show, at the edge of the picture or behind what moved, takes this frame's light
+alone. The frame before's light is held first within twice the spread of this frame's light among
+the like probes around, each channel's standard deviation by the filter's own weights, so where a
+light changed the history is pulled to it, and where it holds still the history lies inside and
+keeps its calm. A block's side lit only by a wall's indirect light comes within a tenth of its new
+light in the frame a lamp is brought in, where it took seven frames without the hold. With the
+camera sliding a hundredth of a unit a frame through a Cornell box, global illumination adds −0.03
+levels a frame to the picture's change and 0.03 without the history, at `Low` on the RTX 4070, where
+the slide alone changes 0.48, and on lavapipe −0.03 and 0.02 (`GlobalIlluminationTests`), the hold
+costing nothing that can be read in Wick's first doorway. The model pass blends the four probes
+around a pixel the same way, falls back to the world's probes where none is like it, those it sees
+through the field (`bouncedSeen`, as the thin room's corner reads them), and puts the result in
 place of the diffuse light from all around, the environment map's, the ambient lights' and the
 reflection probes', which reaches a surface only through the rays that meet nothing.
 
@@ -1721,8 +1722,18 @@ that `gi.compare` writes beside its difference.
   global illumination off the room is dark and the tick gone. With the screen probes left out a
   bright line runs the corner's length and along the walls' feet, 3.35 times the wall at the tick,
   so the world probes there take the lamp's light from outside through the walls, and the screen
-  probes hide it but where a tile does not hold the corner's pixels.
-  ![The thin walls' corner, the frame, the frame without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
+  probes hide it but where a tile does not hold the corner's pixels. The tick lies where the right
+  wall meets the front wall at the lamp's height, a pixel no screen probe on a surface like its own
+  stands near, which read the world's probes as `bounced` does, and the point their reach judges it
+  from lies in the front wall's cells, so a probe beyond that wall reads as seen. Mended by reading
+  such a pixel's world probes through the field (`bouncedSeen` in `lights.slang`), the tick reads
+  1.02 of the wall beside it, faded across a cascade's outer band as `bounced` fades, at a cost to
+  the model pass of 0.07 ms in that room at 800 by 450, 0.31 where 0.24, from 185 pixels' groups,
+  and 0.09 in the Cornell box, 0.27 where 0.18. Where the world's probes alone light the corner,
+  past the screen's probes' reach, their band still reads 1.41 where the reference reads 0.96, the
+  probes' own rays taking the lamp's light through walls thinner than a cell (the pictures, the
+  frame before, the frame now, the frame now with the screen's probes left out, and the reference).
+  ![The thin walls' corner, the frame before the mend, the frame after it, the frame after it without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
