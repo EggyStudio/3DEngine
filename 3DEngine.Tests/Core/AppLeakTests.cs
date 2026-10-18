@@ -25,11 +25,11 @@ namespace Engine.Tests.Core;
 public sealed class AppLeakTests(ITestOutputHelper output)
 {
     // What the apps left, how many there were and how long they took, the process's resident
-    // memory and the GC's heap after the twentieth and after the last, in megabytes, and the series
-    // a failure is read by on a machine no one here has, the resident memory after every tenth app,
-    // the heap after every tenth where it is collected that often, the types that grew from the
-    // twentieth app to the last where a census of the heap could be taken, and the threads the
-    // process has after every tenth shutdown.
+    // memory and the GC's live heap after the twentieth and after the last, in megabytes, and the
+    // series a failure is read by on a machine no one here has, the resident memory after every
+    // tenth app, the heap after every tenth where it is collected that often, the types that grew
+    // from the twentieth app to the last where a census of the heap could be taken, and the threads
+    // the process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
         IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null,
         string? Stages = null, string? Regions = null, string? Allocations = null)
@@ -63,7 +63,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             (Regions is null ? "" : $"what the process held committed by the kind of region holding it, at the twentieth app and the last, {Regions}{Environment.NewLine}") +
             (string.IsNullOrEmpty(Allocations) ? "" : $"the private data each step of a followed app added, by the base of its allocation, an app a line{Environment.NewLine}{Allocations}{Environment.NewLine}") +
             $"{ResidentName} each step of an app's life took in MB, {Stages ?? "not read"}{Environment.NewLine}" +
-            $"{Apps} apps in {Seconds:0} seconds, the heap after every ten in MB, {Heaps}{Environment.NewLine}" +
+            $"{Apps} apps in {Seconds:0} seconds, the heap's live objects after every ten in MB, {Heaps}{Environment.NewLine}" +
             $"{ResidentName} after every ten in MB, what the collector held committed in brackets, and on Windows what the process's heaps " +
             $"held allocated of what they committed and how many there were, {Residents}{Environment.NewLine}" +
             (ResidentBeforeCensus is { } before
@@ -84,16 +84,19 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 
     // How many more handles than the twentieth app's the process may hold after a later one. On
     // Linux the count holds at the second app's to the hundredth, and on Windows it climbed by some
-    // ten an app, to 2527 by the 79th, which this fails near the fortieth. On Windows the Vulkan
-    // loader and lavapipe keep four or five Thread handles an app, opened as the instance and the
-    // device are made and the first frame drawn, none of them a thread the engine starts, which the
-    // census at each step of the followed apps shows and the hold allows on top of this.
+    // ten an app, to 2527 by the 79th, which this fails near the fortieth. On Windows lavapipe's
+    // build starts nine unnamed threads as the device is made and leaves the handles of four of
+    // them open after they end, a handle a thread, Mesa's leak and not the engine's, and the hold
+    // allows on top of this as many for each app past the twentieth as the census of the followed
+    // apps finds kept. Counted before by the net of the handle counts across the driver's steps,
+    // they came to 1 where the census showed 4, since the engine's own threads close their handles
+    // in those steps too (REVIEW.md, Verdict 68).
     private const int HandleAllowance = 200;
 
-    // The steps the driver's threads are opened and given back at, whose Thread handles the hold
-    // allows for each app past the twentieth. The device's making and its disposal are each split
-    // into several steps, so the memory each step takes is named, and every one of them is the
-    // driver's as the step it was split from was.
+    // The steps the driver opens its threads' handles at, whose handles kept of ended unnamed
+    // threads the hold allows for each app past the twentieth. The device's making and its disposal
+    // are each split into several steps, so the memory each step takes is named, and every one of
+    // them is the driver's as the step it was split from was.
     private static readonly HashSet<string> DriverSteps =
     [
         "before the instance", "instance made", "physical device chosen", "device made", "drawn",
@@ -122,8 +125,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var steps = new Dictionary<int, Steps>();
         // The memory each step of an app's life took, read for every app past the twentieth.
         var stages = new Stages();
-        // The most Thread handles a followed app kept through the driver's steps, which the hold
-        // allows for each app past the twentieth.
+        // The most Thread handles of ended unnamed threads, opened at the driver's steps, that a
+        // followed app kept, which the hold allows for each app past the twentieth.
         var driverThreads = 0;
         HeapCensus? censusAt20 = null;
         ProcessRegions? regionsAt20 = null;
@@ -213,9 +216,15 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // beside its baseline and at the last beside its reading.
             if (i == 20) regionsAt20 = ProcessRegions.Sweep();
             if (last && regionsAt20 is not null) regionsGrown = ProcessRegions.Sweep()?.GrownSince(regionsAt20);
+            // The heap read as the bytes the last full blocking collection kept, its live objects.
+            // GC.GetTotalMemory counts with them what the collector left on the heap where it did
+            // not compact, which on macOS swung by 6 MB between collections of the same live set,
+            // and on 32ce6f4e's run one trough of it among flat readings raised the floor by 6 MB
+            // (REVIEW.md, Verdict 69). BevyCSharp's soak judges the same figure.
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            var heap = GC.GetTotalMemory(forceFullCollection: true) / 1e6;
+            GC.Collect();
+            var heap = GC.GetGCMemoryInfo(GCKind.FullBlocking).PromotedBytes / 1e6;
             heaps.Add($"{i}: {heap:0.00}");
             everyTen.Add((i, heap));
             output.WriteLine($"{i,3} apps: heap {heap:0.00} MB");
@@ -311,7 +320,6 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // The handles by kind as the app began and at its last step, on Windows, against which each
         // step's and those the app kept are named.
         private Dictionary<string, int> _kindsFirst = [], _kindsLast = [];
-        private int _driverThreads;
         private double _memory;
         private int _threads;
         // On Windows, the Thread handles as the app began and as its last step left them, each with
@@ -329,8 +337,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         private readonly List<string> _adding = [];
         private HashSet<IntPtr>? _atEnd, _afterNext;
 
-        // The Thread handles the driver's steps opened and did not give back, none below zero.
-        public int DriverThreads => Math.Max(0, _driverThreads);
+        // On Windows, the Thread handles the app kept of ended unnamed threads, opened at the
+        // driver's steps, which lavapipe's build leaves open (HandleAllowance).
+        public int DriverThreads { get; private set; }
 
         public void Follow()
         {
@@ -372,12 +381,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             var now = Handles();
             var taken = $"{step} {now - _last:+0;-0;0}";
             // On Windows, the kinds the step changed, so the step that opens a thread's handle and
-            // the one that closes it, or none, are named, and the driver's steps' Thread handles counted.
+            // the one that closes it, or none, are named.
             if (OperatingSystem.IsWindows())
             {
                 var (kinds, threadHandles) = HandleCensus.Take();
                 if (HandleCensus.Change(_kindsLast, kinds) is { Length: > 0 } change) taken += $" ({change})";
-                if (DriverSteps.Contains(step)) _driverThreads += HandleCensus.ChangeOf(_kindsLast, kinds, "Thread");
                 // The threads whose handles the step opened, by name, so a step that starts threads
                 // says whose they are.
                 var opened = threadHandles.Where(t => !_threadsLast.ContainsKey(t.Key)).ToList();
@@ -431,8 +439,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 // The Thread handles the app kept, those it holds now that it did not as it began, or
                 // that refer to another thread, by the thread each refers to and the step that opened
                 // it, so a handle kept after its thread ended is told from a thread still running.
-                var kept = threadHandles.Where(t => !_threadsFirst.TryGetValue(t.Key, out var before) || before.Id != t.Value.Id)
-                    .GroupBy(t => (Step: _openedAt.GetValueOrDefault(t.Key, "a step not seen"), t.Value.Named))
+                var held = threadHandles.Where(t => !_threadsFirst.TryGetValue(t.Key, out var before) || before.Id != t.Value.Id)
+                    .Select(t => (Step: _openedAt.GetValueOrDefault(t.Key, "a step not seen"), Thread: t.Value))
+                    .ToList();
+                DriverThreads = held.Count(h => h.Thread.Ended && h.Thread.Name.Length == 0 && DriverSteps.Contains(h.Step));
+                var kept = held.GroupBy(h => (h.Step, h.Thread.Named))
                     .Select(g => $"{g.Count()} {g.Key.Named}, opened at {g.Key.Step}")
                     .ToList();
                 Kept = $"app {app} by kind {(kinds.Length == 0 ? "none" : kinds)}, its Thread handles {(kept.Count == 0 ? "none" : string.Join(", ", kept))}";

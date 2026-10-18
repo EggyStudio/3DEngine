@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2e4187e3`, the reading half of Verdict 68 and nothing else, the leak test, the
+Reviewed up to `32ce6f4e`, Verdict 67's mend and nothing else, the measure's record.
+`3DEngine.Examples/measured-ci.tsv:71` gives `models_directional_billboard` three points of room in
+its third column over the 5.5 recorded, and the comment above it keeps its earlier reason and adds
+that the share follows the runner's processor, which lavapipe and Mesa's OpenGL compile their
+shaders for, within a point of 5.5 on an AMD EPYC 9V45 with gfni and 7.8 to 7.9 on an AMD EPYC 7763
+without, in the pack runs since `704952c5`, the page of `08b104dd`'s naming the 7763; no run is
+named as the 9V45's beyond what a page showed. `compare.py` reads the pair at 5.5 with a room of 3,
+passing 7.9 and failing 8.6 with the room said; `NormTests`, `DocumentLinkTests` and
+`StepScriptTests` passed and `examples-table.py` changed nothing, the data file alone having changed
+since the whole suite ran at `2e4187e3`. Right. The pack run of `08b104dd` ended at 16:50 red on its
+captures job alone, its Windows suite green with the twelve games played, the first green Windows
+suite since Verdict 64's mend and a pass of the handle bound beside it, so that run makes no package
+for the measure's pair alone; the owner pushed `32ce6f4e` at 16:49, its push run in progress. The
+owner started the pack run of `32ce6f4e` at 16:51. The push run ended at 17:24 red on its Windows
+suite alone, the plain leak test's handles passing their allowance by five at the 91st app, and the
+census named the kept handles, four unnamed threads an app started as the device is made and ended,
+lavapipe's (Verdict 68, the mend asked). The pack run's Linux suite, examples and games jobs passed
+by 17:34, the games job playing thirteen games on Linux, and its macOS suite failed at 17:07 the
+plain leak test's heap floor, 6.0 MB of rise read from one trough among flat readings (Verdict 69),
+so Ore went unplayed on macOS there, with its Windows suite and captures jobs still running. Next
+Verdicts 68 and 69's mends, their push and runs, a pack run playing thirteen games on three systems
+(item 28's last check) whose measure holds on either processor (Verdict 67), and Verdict 64's three
+green Windows suites.
+
+Before it, `2e4187e3` came, the reading half of Verdict 68 and nothing else, the leak test, the
 handle census and the process's threads. The working machine reads no Thread handles, Linux having
 none, so there the test notes for each followed app the threads started and ended at each step by
 name from `/proc/self/task`, and on Windows `HandleCensus.Take` reads the handle table once for the
@@ -71,29 +95,6 @@ on its handles, by one, 2,413 at the 89th app where 2,412 were allowed (Verdict 
 the tests and into the twelve games, and its captures and games jobs running. Next Verdict 68's
 reading and mend, a pack run of `4c6630a4` playing thirteen games on three systems, item 28's last
 check, Verdict 64's three green Windows suites and the measure's processor (Verdict 67).
-
-Before it, `08b104dd` came, Verdict 64's mend and nothing else, the leak tests and the device's
-instance. `GraphicsDevice.Instance.cs` gains an internal switch, `LeaveValidationOff`, under which
-an instance leaves the validation layer off in a Debug build as well, its remarks giving the reason,
-the loader unloading the layer with each instance and the layer's Windows build at 1.4.363.0 keeping
-about a megabyte each time through its own allocator, so a hundred apps under it measured the layer
-and not the engine; the public API is unchanged, and the Memory collection runs alone, so the static
-touches no other test. Both drawing leak tests set the switch around their hundred apps on every
-system, the comment holding the version, the measurement and the run on which the twin holding the
-layer passed beside the plain test, and saying that the test requiring the layer under
-`E3D_REQUIRE_VALIDATION` makes devices of its own, so the requirement does not count these apps; the
-held instance holds the driver alone again, so the plain test reads the engine and the driver's
-reloading and the twin the engine alone. A failure's message begins with the region kinds, then the
-followed apps' private data lines, each naming the steps whose allocations stood at the app's end
-and counting the others together, then the step line, then the series, within the page's limit; the
-step line's formats print a zero as 0.00. Checked on Linux with the pinned layer named and required,
-all 200 apps logging the layer disabled, the plain test 0.07 kept an app and the twin 0.01, both
-passing; the strict build and the whole suite, 1,716 passed. Right. The owner pushed `08b104dd` at
-15:08 on 2026-10-18 and started its pack run, queued behind `351cc461`'s, whose games and captures
-jobs passed by 15:27, the measure holding on every pair again (Verdict 67), with captures-macos
-still running and no pack job to come after its red Windows suite. Next item 28, the runs of
-`08b104dd`, whose Windows suites are the first of the three Verdict 64 needs, and the next failing
-measure's processor and pictures (Verdict 67).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1157,8 +1158,8 @@ suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on fo
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
-`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64, 67 and
-68 are open.
+`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64 and 67
+to 69 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1628,7 +1629,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     failure's message naming where a climb lies before its series within the page's limit; settled
     at three green Windows suites in a row after it. On the push of `4c6630a4`, 2026-10-18, both
     memory bounds held on Windows with the layer off, the suite red on the handles of one test
-    (Verdict 68), so it is no green suite for the row.
+    (Verdict 68), so it is no green suite for the row. On the pack run of `08b104dd`, 2026-10-18,
+    the Windows suite passed whole, the first green Windows suite after the mend, one of three.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1740,7 +1742,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     5.5 recorded to hold the 7.9 the 7763 draws with slack, with the reason above it naming the two
     processors and their shares, as `compare.py` provides for a pair whose picture moves between
     runs. Settled when the measure holds on a pack run on each kind of processor, the page naming
-    it.
+    it. Mended at `32ce6f4e`, the pair given three points of room in the record's third column with
+    the two processors and their shares in the comment above it; settled when the measure holds on a
+    pack run on each kind of processor, the page naming it.
 
 68. **The leak test's handle count passed its allowance by one at the 89th app on Windows, Thread
     handles of ended threads kept some four an app.** On the push of `4c6630a4`, 2026-10-18, the
@@ -1777,7 +1781,44 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     whose they are; the mend follows it. Seen beside it, `PhysicsPlugin.cs:47-58` warms the physics
     world up in two identical blocks one after the other since `118b4adc`, the second returning at
     the warm-up's once-a-process guard and costing a pool item an app, and the second block goes
-    with the mend.
+    with the mend. On the push of `32ce6f4e`, 2026-10-18, the Windows suite failed the plain test's
+    handles again, 2,423 at the 91st app where 2,147 stood at the twentieth and 2,418 were allowed,
+    the handles after every ten apps climbing 2,147, 2,181, 2,218, 2,261, 2,298, 2,335, 2,376 and
+    2,416, some 3.8 an app, with the threads flat at 24 to 26, and the census named the kept
+    handles. Every followed app kept four Thread handles of unnamed threads that had ended, opened
+    at the device's making, where nine unnamed threads start, and the twenty-first kept one more,
+    the runtime's background collector's thread, running, opened at the lighting plugin and the
+    process's once. The nine are lavapipe's, which starts its rasterizer and compute threads with a
+    device and names none, where on Linux the device's making starts two named pool workers and the
+    GPU driver's three, and the handles of four of them stay open after the threads end, a handle a
+    thread, which is lavapipe's Windows build leaving its threads' handles unclosed, Mesa's leak and
+    not the engine's. The allowance counts the driver's thread handles by the net of the handle
+    counts across the driver's steps, which came to 1 where the census shows 4 kept, since the
+    engine's own threads' closings fall in those steps too. The mend is one thing, with the warm-up.
+    The allowance's count of the driver's thread handles an app is taken from the census, the kept
+    Thread handles of ended unnamed threads opened at the driver's steps in the followed apps, the
+    most over them, with the comment naming lavapipe's Windows build and the four; the allowance of
+    200 stands; and the second warm-up block of `PhysicsPlugin.cs` goes. Settled at three green
+    Windows suites in a row after the mend.
+
+69. **The leak test's heap floor on macOS rose 6 MB from one trough among flat readings, and the
+    figure carries the collector's leavings.** On the pack run of `32ce6f4e`, 2026-10-18, the macOS
+    suite failed the plain hundred-app test on its heap floor's rise, 6.02 MB where 5 is allowed,
+    the heap after every ten apps reading 79.19 at the twentieth, 77.22, 70.81 at the fortieth,
+    77.18, 77.25, 76.90, 76.88, 76.83 and 76.85 at the hundredth, so the least of the first half
+    fell in the one trough and the least of the second on the plateau, the heap otherwise flat and
+    2.3 MB lower at the end than at the twentieth, the resident memory falling from 840 MB to 768
+    and no Vulkan object alive; the suites of the day before this one passed it. The figure is
+    `GC.GetTotalMemory(true)` after a collection (`AppLeakTests.cs:218`), the bytes the heap holds
+    with the fragments the collector left where it did not compact, which on macOS swing by 6 MB
+    between collections of the same live set, as the floor's own comment says a census found 0.25 MB
+    more alive across such a swing, and the least of each half guards against a crest and a trough
+    of two readings and not against a trough alone. The mend is one thing. The heap is read as the
+    bytes a full blocking collection promoted, `GC.GetGCMemoryInfo(GCKind.FullBlocking)` after the
+    forced collection, the live set without the leavings, as BevyCSharp's soak reads its live
+    figure, and the floor's rise is judged on it with the bound of 5 kept until the series says
+    otherwise (N 3.5), the reason in the test's comment. Settled at three green macOS suites in a
+    row after the mend.
 
 ## Decisions
 
