@@ -692,7 +692,8 @@ jobs:
       # 3DEngine.Examples/measured-ci.tsv, so a change cannot quietly undo a picture brought to
       # raylib's, and two machines' drivers are never compared. A pair measured for the first time
       # is listed in the run's summary and in notices, at most ten, which a reader not signed in
-      # sees, to be recorded there, and until the file holds a share the step fails on none. One
+      # sees, to be recorded there, and until the file holds a share the step fails on none. A pair
+      # that fails is an error and a line of the summary, with its shares and its room. One
       # whose picture moves by the clock or the device is left out with the reason its line in
       # triage.tsv gives.
       - name: Measure every example against raylib's program

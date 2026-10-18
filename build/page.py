@@ -3,15 +3,18 @@
 A run's log and its summary need a reader signed in to GitHub, and its annotations do not, so a
 failure is said in an annotation as well as on the page, which is the job's summary (NORM.md, N 6.7).
 build/test.py writes the tests' page with these, build/step.py the error of a step that fails with
-nothing said, and build/raylib-bench/compare.py the shares it measured for the first time.
+nothing said, and build/raylib-bench/compare.py the shares it measured for the first time and the
+pairs that fail the shares recorded for them.
 """
 
 import os
 
 PAGE_LINES = 200
 LINE_WIDTH = 240
-# GitHub shows ten annotations of each kind from a step and leaves out the rest.
+# GitHub shows ten annotations of each kind from a step and leaves out the rest, and keeps an
+# annotation's first 4,096 characters, as the workflow command carries them, escapes and all.
 ANNOTATIONS = 10
+ANNOTATION_LENGTH = 4096
 
 
 def fit(lines):

@@ -30,7 +30,9 @@ is said and the run does not fail. The captures job runs every pair so in the pa
 3DEngine.Examples/measured-ci.tsv, the shares its own device recorded, so two machines' drivers are
 never compared with each other. Under GitHub Actions the pairs measured for the first time are
 notices as well, at most ten, which a reader not signed in sees where the run's summary and its
-files need a sign-in.
+files need a sign-in, and the pairs that fail a run are errors and lines of the summary, each with
+the share measured, the share recorded and its room, or what it drew in place of a frame. Printed
+alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66).
 """
 import importlib.util
 import os
@@ -51,7 +53,7 @@ SEED = 20261006
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.join(ROOT, "build"))
-from page import ANNOTATIONS, annotate
+from page import ANNOTATION_LENGTH, ANNOTATIONS, annotate, escape, fit, summarize
 
 _spec = importlib.util.spec_from_file_location("examples_table", os.path.join(ROOT, "build", "examples-table.py"))
 table = importlib.util.module_from_spec(_spec)
@@ -206,13 +208,21 @@ ROOM = 1.0
 ROOMS = {}
 
 
+def described(share):
+    """A share as a reader reads it, a word written in place of a share said in words."""
+    return {"none": "no frame from raylib's program", "size": "pictures of two sizes"}.get(share, f"{share}% apart")
+
+
 def held(name, share, recorded):
     """Why a pair's share fails the share recorded for it, or None where it holds."""
-    if recorded is None:
+    if recorded is None or share == recorded:
         return None
     if share in ("none", "size") or recorded in ("none", "size"):
-        return None if share == recorded else f"it was {recorded} and is {share}"
-    return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOMS.get(name, ROOM) else None
+        return f"{described(share)} where {described(recorded)} was recorded"
+    room = ROOMS.get(name, ROOM)
+    if float(share) <= float(recorded) + room:
+        return None
+    return f"{share}% apart where {recorded}% was recorded, past its room of {room:g} point{'' if room == 1 else 's'}"
 
 
 def nothing_drawn(blind, count):
@@ -230,6 +240,29 @@ def notices(names, measured):
     parts = [names[i:i + size] for i in range(0, len(names), size)] if names else []
     for index, part in enumerate(parts, 1):
         annotate("notice", f"Measured for the first time, {index} of {len(parts)}", [f"{name}\t{measured[name]}" for name in part])
+
+
+def errors(failures):
+    """The pairs that fail the shares recorded for them as errors under GitHub Actions and lines of the
+    job's summary, a pair a line, shared out among as few errors as hold them within the length GitHub
+    keeps and no more than it shows, the last saying how many lines are left out where they do not
+    fit."""
+    title = f"{len(failures)} pair(s) do not hold to the share recorded for them"
+    lines = fit([f"more than {ROOM:g} point above it, or past the room the record gives, or no longer drawn:"] + failures)
+    parts, part = [], []
+    for line in lines:
+        if part and len(escape("\n".join(part + [line]))) > ANNOTATION_LENGTH - 200:
+            parts.append(part)
+            part = []
+        part.append(line)
+    if part:
+        parts.append(part)
+    if len(parts) > ANNOTATIONS:
+        left = sum(len(p) for p in parts[ANNOTATIONS - 1:])
+        parts = parts[:ANNOTATIONS - 1] + [[f"{left} lines more, which the step's log holds"]]
+    for index, part in enumerate(parts, 1):
+        annotate("error", title if len(parts) == 1 else f"{title}, {index} of {len(parts)}", part)
+    summarize([f"### {title}", ""] + [lines[0] + "  "] + ["    " + line for line in lines[1:]])
 
 
 def main():
@@ -288,8 +321,9 @@ def main():
         if against:
             if name not in recorded:
                 first.append(name)
-            elif (why := held(name, measured[name], recorded[name])) is not None:
-                failures.append(f"{name}: {why}")
+            elif (broken := held(name, measured[name], recorded[name])) is not None:
+                # Where raylib's program drew none, why, which its exit code says first.
+                failures.append(f"{name}: {broken}" + (f", {why[0]}" if theirs is None and why else ""))
         if drew:
             write_measured(measured, record or MEASURED)
     if not drew and blind is not None:
@@ -311,6 +345,7 @@ def main():
         if against and not recorded:
             print(f"{against} holds no share yet, so the run does not fail until it is recorded.")
             return
+        errors(failures)
         sys.exit(1)
 
 

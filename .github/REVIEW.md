@@ -10,21 +10,52 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d6b08853`, Verdict 64's macOS twin mended and nothing else, 2 files. The leak test's
-held instance asks the loader for its extensions through `vkEnumerateInstanceExtensionProperties`,
-as the engine's `IsInstanceExtensionAvailable` asks, and where `VK_KHR_portability_enumeration` is
-listed asks for it with `EnumeratePortabilityKHR`, as the engine's instance does
-(`GraphicsDevice.Instance.cs:58-73`), with no surface and no debug messenger, the comment saying
-what MoltenVK's loader answered the bare instance. Checked on the working machine, whose loader
-lists the extension too, were the strict build and the whole suite, 1,715 passed, the twin among
-them in 50 seconds. Right. The runs of `704952c5` went on. The push run ended at 01:28 red on macOS,
-the bare twin, and on Windows, where both leak tests failed, the held twin climbing as the plain one
-does, so the climb is the process's own and not the driver's reload (Verdict 64); the pack run's
-Windows suite failed the same way, its games job passed at 01:32 with every game played and the soak
-of twelve passing, which settles Verdict 65 and makes Slide's play the third green puzzle step on
-cold caches, and its two capture jobs are running at 01:34, the Linux one the last place the death
-showed. Decision 42's gate holds; items 27 and 28 wait for the next pack run, after `d6b08853` and
-Verdict 64's mend.
+Reviewed up to `91ec5de1`, Verdict 64's per-step readings done and nothing else, 2 files. The leak
+test reads the private bytes at each step of every app's life after the twentieth, marked by the
+lines the app logs as the handle steps were, and averages them, one line a test naming every step
+that took 0.05 MB or more an app in either direction, the rest summed and what each app kept last;
+the device's making and disposal are split into finer steps, before the instance, the instance made,
+the physical device chosen, the device made and ready, the renderer's shaders loaded, the plugins
+built, ImGui and the draw, then closing, the cleanup to the device, the VkDevice and the instance
+destroyed, the device gone, closed, shut down and ended after the finalizers, all in the handle
+test's span as before, with marks for SDL's start and quit that these headless apps never reach; on
+Windows every tenth reading adds what the process's heaps hold allocated of what they committed and
+how many there are (`GetProcessHeaps`, `HeapSummary`), beside the collector's committed memory, so a
+climb is told three ways, blocks no one freed, a heap keeping freed memory, or memory taken straight
+from the system as compiled code and stacks are, and `Resident` reads `PrivateUsage` through
+`K32GetProcessMemoryInfo` without allocating. One correction to the candidates, read from the code
+and right. The two drawing tests make headless apps, in which `AppWindowPlugin` returns before any
+window and so SDL is never initialized, and `DefaultPlugins` has no audio plugin, so SDL's Windows
+backend and the audio device are out, and what remains is the loader with its layers and driver, the
+renderer's shaders and the engine's own allocations. On the working machine's Linux the hundred apps
+took 70 seconds and the line read the instance +63.79 MB, the device +83.36, the renderer's shaders
++143.21, the VkDevice destroyed -144.07, the instance destroyed -125.56 and +0.16 kept an app; the
+heap readings are Windows's and have run nowhere yet, a kernel lacking `HeapSummary` saying so in
+place of failing. Checked there were the strict build and the whole suite, 1,715 passed. Right. The
+pack run of `704952c5` ended at 01:50. Its macOS captures passed, and its Linux captures job drew
+all 256 examples on a cold cache, on an AMD EPYC 9V45 with `gfni` among its flags, the second kind
+of processor in the runner fleet and the kind whose compiled shaders carried the instruction, which
+settles Verdict 63 with the cache as the cause; the job then failed at the measure against raylib,
+whose page says nothing of which pairs failed, the step's page holding 21 lines of programs that
+ended of their own where GitHub's 4,096 characters ran out (Verdict 66). Decision 42's gate holds;
+items 27 and 28 wait for the next pack run, after `d6b08853`, `91ec5de1`, Verdict 64's mend and
+Verdict 66's.
+
+Before it, `d6b08853` came, Verdict 64's macOS twin mended and nothing else, 2 files. The leak
+test's held instance asks the loader for its extensions through
+`vkEnumerateInstanceExtensionProperties`, as the engine's `IsInstanceExtensionAvailable` asks, and
+where `VK_KHR_portability_enumeration` is listed asks for it with `EnumeratePortabilityKHR`, as the
+engine's instance does (`GraphicsDevice.Instance.cs:58-73`), with no surface and no debug messenger,
+the comment saying what MoltenVK's loader answered the bare instance. Checked on the working
+machine, whose loader lists the extension too, were the strict build and the whole suite, 1,715
+passed, the twin among them in 50 seconds. Right. The runs of `704952c5` went on. The push run ended
+at 01:28 red on macOS, the bare twin, and on Windows, where both leak tests failed, the held twin
+climbing as the plain one does, so the climb is the process's own and not the driver's reload
+(Verdict 64); the pack run's Windows suite failed the same way, its games job passed at 01:32 with
+every game played and the soak of twelve passing, which settles Verdict 65 and makes Slide's play
+the third green puzzle step on cold caches, and its two capture jobs are running at 01:34, the Linux
+one the last place the death showed. Decision 42's gate holds; items 27 and 28 wait for the next
+pack run, after `d6b08853` and Verdict 64's mend.
 
 Before it, `704952c5` came, Verdict 63's three asks and Verdict 64's ask done at `c08343d5` and one
 comment's width and wording at `704952c5`, 11 files. Every cache of Mesa's shaders, the Linux and
@@ -50,37 +81,6 @@ twice on caches compiled cold for the runner's own processor, the first two puzz
 Verdict 63's three; both macOS suites are red on the new held-instance twin of the leak test, whose
 bare Vulkan instance MoltenVK's loader refuses (Verdict 64); the Windows suites, the games job and
 the two capture jobs are running. Decision 42's gate holds; items 27 and 28 wait for it.
-
-Before it, `2a9dbdcb` came, Verdict 63's two asks done and nothing else, 11 files.
-`build/open-game.sh` opens a program on Linux and macOS as `e3d open` does, from the checkout with
-`--serve` and its output in its session log, ready once a `frames.wait 0` is answered within a
-minute, under a shell that waits on it and writes how it ended to `<name>.ended`, the exit code or
-the signal with its meaning, 132 an illegal instruction among them, and on Linux the processor;
-every opening on Linux prints the processor's model and flags; the shell allows cores, and a death
-that left one where the kernel's pattern names a file has gdb read the faulting thread, thirty
-frames and four instructions at its program counter, appended to the file, the core then deleted
-since it holds every page the process touched; `--ended` prints the file once gdb is done. The
-examples and games jobs install gdb and set the kernel's core pattern to a file under `captures`,
-where the runner's pipes to a disabled apport. Every game a Linux or macOS job opens goes through
-the script, the games job's twelve direct openings, the soak's and the storm's, and a death is said
-where the step fails, by `build/drive-game.sh`, by `step.py` for a step with no error of its own, by
-`soak-check.py` and by `storm.sh`, with gdb's lines first and then the kernel's and the memory on
-Linux. Tried on the working machine, a script that sent itself SIGILL named the code and the
-processor, Slide sent SIGKILL mid-step was named by the step's page, gdb's reading was tried on a
-real `ud2` core in an Ubuntu 24.04 container, and Slide, Jelly with its reopening, a soak and a
-storm played through the script; the whole path to a core could not run there, that machine's
-pattern piping cores to systemd. Checked there were the strict build, the whole suite 1,714 of 1,714
-and `ScriptTests` and `StepScriptTests`. Right. The owner pushed it at 22:43, and its push run's
-examples job died at Slide at 23:05 with the instruments speaking, exit code 132 on an AMD EPYC 7763
-and gdb's instruction `vgf2p8affineqb`, a GFNI instruction that processor lacks, in code with no
-symbol on a thread other than the main one, read under Verdict 63; its Linux and macOS suites are
-green, and its Windows suite ended red at 23:32 on the leak test's climb once more, 725 MB to 843
-over the hundred apps. The runs of `7b2486a5` ended, the push red on the Windows suite alone, the
-hundred-app leak test's private bytes climbing 1.1 MB an app (Verdict 64, the mend having found a
-climb the working set hid), the pack red on the Windows suite the same way, on the examples and
-games jobs (Verdict 63) and on the captures job, where ten examples died the same death while 228 of
-256 drew (Verdict 63), its macOS suite and its macOS captures green. Decision 42's gate holds; items
-27 and 28 wait for it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1136,8 +1136,8 @@ Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bou
 suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on four Windows suites
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
-`fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 65 on the pack run of
-`704952c5` on 2026-10-18, said under each. Verdicts 63 and 64 are open.
+`fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
+`704952c5` on 2026-10-18, said under each. Verdicts 64 and 66 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1403,7 +1403,16 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     the same day, every game played on cold caches, Slide among them, the third green puzzle step in
     a row; the captures job, where ten examples died on `7b2486a5`, is read when it ends, and its
     passing settles this verdict with the cache reading as the cause, the mend being the keyed
-    caches.
+    caches. Settled on the runs of `704952c5`, 2026-10-18. With every Mesa cache keyed by the
+    processor and compiled cold, the push run's and the pack run's examples jobs played Slide
+    through, the games job played all twelve, and the captures job drew all 256 examples where ten
+    had died, three green puzzle steps in a row and no death anywhere; and the captures job's page
+    named its processor, an AMD EPYC 9V45 with `gfni` among its flags, the second kind in the runner
+    fleet beside the EPYC 7763, which lacks it, both of one family and sharing every bit Mesa's key
+    holds. The cause is the first reading, a shader compiled on a runner of the one kind, carried in
+    Mesa's cache that the jobs restored from any earlier run, and run on a runner of the other, and
+    the mend is the keyed caches; the three instruments stay, so a death that comes again names
+    itself.
 
 64. **The hundred-app leak test reads the working set on Windows, which the system trims, so its
     baseline fell in a trough and the test failed with nothing leaking.** On the pack run of
@@ -1465,7 +1474,12 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     the leak, SDL's Windows backend, the audio device, the loader's layers or the engine's own
     allocations, and that allocation is then found and freed, or, where it is a library's and not
     the engine's, bounded with its cost said. Settled at three green Windows suites in a row after
-    the mend.
+    the mend. Done at `91ec5de1`, the private bytes read at each step of an app's life and averaged
+    over the eighty after the twentieth, the device's making and disposal split into finer steps,
+    and on Windows the heaps' allocated and committed bytes beside the collector's; the headless
+    apps initialize no SDL and open no audio device, so those two candidates are out and the loader
+    with its layers and driver, the renderer's shaders and the engine's allocations remain. The next
+    Windows suite names the step.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1499,6 +1513,22 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     Summit's death (Verdict 63) before the soak ran, so the mend is unproven there. Settled on the
     pack run of `704952c5`, 2026-10-18, the games job passing with the soak of the twelve games,
     Manor's and Swarm's figures within what a whole walk or turn holds.
+
+66. **The measure against raylib failed and its page says nothing of which pairs, the step's page
+    holding the programs that ended well.** On the pack run of `704952c5`, 2026-10-18, the captures
+    job drew all 256 examples and then failed at the measure against raylib's program, `compare.py`
+    ending with 1, which it does where a pair's share of differing pixels passed the one recorded
+    for it by more than its room or a pair is no longer drawn; the script prints the pairs to its
+    output and annotates nothing, so the page's one error is `step.py`'s, which under Verdict 63's
+    third ask lists how each program opened in the step ended, 21 lines of programs that ended of
+    their own with their processor and cache counts, and GitHub's 4,096 characters for an annotation
+    ran out before the command's last lines, so a reader not signed in learns which examples ended
+    well and not which pairs failed (N 6.7). Two things. `compare.py` says its failures as an error
+    annotation of its own, the pairs past their room with the share measured and the share recorded,
+    and the pairs no longer drawn; and `step.py` names only the programs that ended other than of
+    their own or still run, after the command's last lines, so an ending with exit code 0 costs the
+    page nothing. Settled when the measure's page names its pairs on a pack run, and the pairs are
+    then read for whether the runner's processor draws them otherwise.
 
 ## Decisions
 

@@ -384,4 +384,5 @@ with its page and line. `docs/first-game.md` is built step by step by `build/fir
 instead. Each step of those three jobs runs its script
 through `build/step.py`, as GitHub's bash would run it, and a step that fails without an error of
 its own is given one, naming the step, the command that failed with its exit code, the step's last
-lines and the last lines at a warning or worse of each session log it wrote.
+lines, each game it opened that ended other than of its own or still runs, and the last lines at a
+warning or worse of each session log it wrote.

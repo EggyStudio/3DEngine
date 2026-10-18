@@ -6,7 +6,8 @@ namespace Engine.Tests.Scripts;
 /// <summary>
 /// <c>build/step.py</c>, which runs each step of the Linux jobs on the package, says what failed
 /// in a step that fails having said nothing, and <c>build/raylib-bench/compare.py</c> says the pairs
-/// it measured for the first time where a reader who is not signed in sees them (REVIEW.md, Verdict 28).
+/// it measured for the first time and the pairs that fail where a reader who is not signed in sees
+/// them (REVIEW.md, Verdicts 28 and 66).
 /// </summary>
 /// <remarks>
 /// Three examples jobs in a row ended with <c>Process completed with exit code 4</c> and nothing
@@ -159,14 +160,59 @@ public sealed class StepScriptTests : IDisposable
         pairs.Should().Equal(names.Select(name => $"{name}\t1.5"), "every pair is in one notice, in order");
     }
 
-    // Runs build/step.py on the script, as GitHub runs it, against the workflow above and the
-    // folder's session logs, and returns its exit code, what it printed and the summary it wrote.
+    [NeedsPythonFact]
+    public void A_Measure_Says_The_Pairs_That_Fail_Their_Shares_As_Errors_With_The_Shares_And_Their_Room()
+    {
+        // The captures job of 704952c5, whose measure failed and whose page named no pair, compare.py
+        // having printed them alone (REVIEW.md, Verdict 66).
+        var program = "import compare\n"
+                      + "compare.ROOMS['models_loading'] = 3.0\n"
+                      + "failures = [f'{name}: {compare.held(name, share, recorded)}' for name, share, recorded in "
+                      + "[('shapes_basic_shapes', '5.0', '3.0'), ('models_loading', '7.5', '4.0'), ('text_raylib_fonts', 'none', '2.0')]]\n"
+                      + "assert compare.held('shapes_basic_shapes', '3.9', '3.0') is None\n"
+                      + "compare.errors(failures)\n"
+                      + "names = [f'shapes_example_{i}' for i in range(400)]\n"
+                      + "compare.errors([f'{name}: 12.5% apart where 3.0% was recorded, past its room of 1 point' for name in names])\n";
+        var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Path.Combine(Root, "build", "raylib-bench"), RedirectStandardOutput = true, RedirectStandardError = true });
+        start.ArgumentList.Add("-c");
+        start.ArgumentList.Add(program);
+        start.Environment["GITHUB_ACTIONS"] = "true";
+        start.Environment["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md");
+        start.Environment["PYTHONDONTWRITEBYTECODE"] = "1";
+        using var python = Process.Start(start)!;
+        var output = python.StandardOutput.ReadToEndAsync();
+        var errors = python.StandardError.ReadToEndAsync();
+        python.WaitForExit(60_000).Should().BeTrue();
+        python.ExitCode.Should().Be(0, errors.Result);
+
+        var said = TestScriptTests.Lines(output.Result).Where(line => line.StartsWith("::error ", StringComparison.Ordinal)).ToList();
+        said[0].Should().Be("::error title=3 pair(s) do not hold to the share recorded for them::"
+                            + "more than 1 point above it, or past the room the record gives, or no longer drawn:"
+                            + "%0Ashapes_basic_shapes: 5.0%25 apart where 3.0%25 was recorded, past its room of 1 point"
+                            + "%0Amodels_loading: 7.5%25 apart where 4.0%25 was recorded, past its room of 3 points"
+                            + "%0Atext_raylib_fonts: no frame from raylib's program where 2.0%25 apart was recorded",
+            "each pair is named with the share measured, the share recorded and its room, or what it drew in place of a frame");
+        File.ReadAllText(_folder.File("summary.md")).Should().Contain("### 3 pair(s) do not hold to the share recorded for them")
+            .And.Contain("    models_loading: 7.5% apart where 4.0% was recorded, past its room of 3 points", "and the page's summary says them too");
+
+        var many = said.Skip(1).ToList();
+        many.Should().HaveCountLessThanOrEqualTo(10, "GitHub shows ten errors of a step")
+            .And.OnlyContain(line => line.Length <= 4096, "and keeps an error's first 4,096 characters");
+        many[0].Should().StartWith($"::error title=400 pair(s) do not hold to the share recorded for them%2C 1 of {many.Count}::");
+        many.SelectMany(line => line[(line.IndexOf("::", 9, StringComparison.Ordinal) + 2)..].Split("%0A")).Skip(1).Take(150)
+            .Should().Equal(Enumerable.Range(0, 150).Select(i => $"shapes_example_{i}: 12.5%25 apart where 3.0%25 was recorded, past its room of 1 point"),
+                "the pairs are shared out in order");
+    }
+
     [NeedsPythonAndBashFact]
-    public void A_Step_Whose_Game_Died_Says_How_It_Ended_And_What_Gdb_Read_From_Its_Core()
+    public void A_Step_Whose_Game_Died_Says_How_After_Its_Last_Lines_And_Names_Games_Still_Running_And_None_That_Ended_Of_Their_Own()
     {
         // As build/open-game.sh leaves them for a game that died, its process id and the lines its
-        // shell wrote, the first naming the process, and for another game a line that names another
-        // process, as one an earlier opening wrote late, which is not this opening's.
+        // shell wrote, the first naming the process, for another game a line that names another
+        // process, as one an earlier opening wrote late, which is not this opening's, for a third
+        // the line of one that ended of its own, which costs the error nothing, and for a fourth
+        // the id of a process that still runs. The measure of 704952c5 listed 21 games that ended
+        // of their own, and its error was cut before the step's last lines (REVIEW.md, Verdict 66).
         File.WriteAllText(_folder.File("died.sh"), """
             sh -c 'exit 0' & gone="$!"
             wait "$gone"
@@ -175,17 +221,38 @@ public sealed class StepScriptTests : IDisposable
             printf '#0  0x00007f6ffce9a000 in ?? () from /lib/x86_64-linux-gnu/libLLVM-17.so.1\n=> 0x7f6ffce9a000:\tud2\n' >> sessions/Summit.ended
             echo "$gone" > sessions/Hopper.pid
             echo "its process 1 ended with exit code 0, of its own" > sessions/Hopper.ended
+            sh -c 'exit 0' & fine="$!"
+            wait "$fine"
+            echo "$fine" > sessions/Tempo.pid
+            echo "its process $fine ended with exit code 0, of its own, on AMD EPYC 9V45 96-Core Processor, gfni among its flags" > sessions/Tempo.ended
+            sleep 120 < /dev/null > /dev/null 2>&1 &
+            echo "$!" > sessions/Wick.pid
+            echo "the last line"
             status=$(sh -c 'echo "error [SESSION_UNREACHABLE] Summit accepted the connection and then said nothing." >&2; exit 4')
             """);
-        var (exit, log, _) = Step(_folder.File("died.sh"));
+        try
+        {
+            var (exit, log, _) = Step(_folder.File("died.sh"));
 
-        exit.Should().Be(4);
-        var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
-        error.Should().MatchRegex(@"%0ASummit, its process \d+ ended with exit code 132, SIGILL, an illegal instruction, on AMD EPYC 7763 64-Core Processor\.%0A", "the game's death is said with its signal and the processor")
-            .And.Contain("%0A    #0  0x00007f6ffce9a000 in ?? () from /lib/x86_64-linux-gnu/libLLVM-17.so.1%0A    => 0x7f6ffce9a000:\tud2", "and what gdb read from its core")
-            .And.NotContain("Hopper", "a line naming another process is not this opening's");
+            exit.Should().Be(4);
+            var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
+            error.Should().MatchRegex(@"%0ASummit, its process \d+ ended with exit code 132, SIGILL, an illegal instruction, on AMD EPYC 7763 64-Core Processor\.%0A", "the game's death is said with its signal and the processor")
+                .And.Contain("%0A    #0  0x00007f6ffce9a000 in ?? () from /lib/x86_64-linux-gnu/libLLVM-17.so.1%0A    => 0x7f6ffce9a000:\tud2", "and what gdb read from its core")
+                .And.MatchRegex(@"%0AWick, its process \d+ still runs\.", "a game the step left running is named")
+                .And.NotContain("Hopper", "a line naming another process is not this opening's")
+                .And.NotContain("Tempo", "a game that ended of its own costs the error nothing");
+            error.IndexOf("Summit, its process", StringComparison.Ordinal).Should().BeGreaterThan(error.IndexOf("    the last line", StringComparison.Ordinal),
+                "the step's last lines come before the games' endings, so the endings cannot crowd them out");
+        }
+        finally
+        {
+            if (int.TryParse(File.ReadAllText(_folder.File("sessions/Wick.pid")).Trim(), out var wick))
+                try { Process.GetProcessById(wick).Kill(); } catch (ArgumentException) { } catch (InvalidOperationException) { }
+        }
     }
 
+    // Runs build/step.py on the script, as GitHub runs it, against the workflow above and the
+    // folder's session logs, and returns its exit code, what it printed and the summary it wrote.
     private (int Exit, string Log, string Summary) Step(string script)
     {
         File.WriteAllText(_folder.File("build.yml"), Workflow);
