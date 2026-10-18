@@ -32,6 +32,15 @@ public static partial class E3D
         if (Resolve(emitter) is { } entity) Ecs.GetRef<Transform>(entity).Position = position;
     }
 
+    /// <summary>
+    /// Turns an emitter, which way its next particles start, and its particles too where they live
+    /// in its space (<see cref="ParticleEmitter.Local"/>) or stand at its points.
+    /// </summary>
+    public static void SetParticleEmitterRotation(ParticleEmitterHandle emitter, Quaternion rotation)
+    {
+        if (Resolve(emitter) is { } entity) Ecs.GetRef<Transform>(entity).Rotation = Quaternion.Normalize(rotation);
+    }
+
     /// <summary>Gives an emitter new settings, which its particles alive take from the next frame.</summary>
     public static void SetParticleEmitter(ParticleEmitterHandle emitter, ParticleEmitter settings)
     {

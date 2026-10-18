@@ -1179,6 +1179,7 @@ static class Engine.E3D
   static void SetParticleEmitter(ParticleEmitterHandle emitter, ParticleEmitter settings)
   static void SetParticleEmitterActive(ParticleEmitterHandle emitter, bool emitting)
   static void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position)
+  static void SetParticleEmitterRotation(ParticleEmitterHandle emitter, Quaternion rotation)
   static void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees)
   static void SetPhysicsBodyAngularVelocity(PhysicsBody body, Vector3 velocity)
   static void SetPhysicsBodyContinuous(PhysicsBody body, bool continuous)
@@ -2374,9 +2375,11 @@ struct Engine.ParticleEmitter
   Texture2D Texture
   Vector3 Gravity
   Vector3 Velocity
+  Vector3[]? Points
   bool BlendFrames
   bool Emitting
   bool Lit
+  bool Local
   float Bounce
   float Drag
   float EndSize

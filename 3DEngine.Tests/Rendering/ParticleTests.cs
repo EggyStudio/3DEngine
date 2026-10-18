@@ -163,6 +163,81 @@ public sealed class ParticleTests : IDisposable
         ecs.GetReadOnly<ParticleEmitter>(entity).Burst.Should().Be(0, "a burst is emitted once");
     }
 
+    // Still particles of one color that add their light, born only by a burst, each 0.6 wide.
+    private static ParticleEmitter Still(Color color) => ParticleEmitter.Default with
+    {
+        Emitting = false,
+        MaxParticles = 20,
+        Life = 30,
+        LifeVariation = 0,
+        Velocity = Vector3.Zero,
+        SpeedVariation = 0,
+        Gravity = Vector3.Zero,
+        Radius = 0,
+        StartSize = 0.6f,
+        EndSize = 0.6f,
+        StartColor = color,
+        EndColor = color,
+    };
+
+    // An emitter one and a half units along x from a parent at the middle, which the camera at 6
+    // units sees at pixel 116, 60 of the 160 by 120 frame, and a quarter turn of the parent about
+    // the view's axis carries to 80, 24.
+    private static (EcsWorld Ecs, int Parent, int Emitter) Parented(ParticleEmitter emitter)
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var parent = ecs.Spawn();
+        ecs.Add(parent, new Transform(Vector3.Zero));
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Transform(new Vector3(1.5f, 0, 0)));
+        ecs.Add(entity, new Parent(ecs.Handle(parent)));
+        ecs.Add(entity, emitter);
+        return (ecs, parent, entity);
+    }
+
+    private static readonly Quaternion QuarterTurn = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2);
+
+    [NeedsVulkanFact]
+    public void Particles_In_Their_Emitters_Space_Turn_With_Its_Parent_Where_Those_In_The_World_Stay()
+    {
+        Open();
+        var (ecs, parent, inSpace) = Parented(Still(new Color(30, 255, 40)) with { Local = true, Burst = 10 });
+        var inWorld = ecs.Spawn();
+        ecs.Add(inWorld, new Transform(new Vector3(1.5f, 0, 0)));
+        ecs.Add(inWorld, new Parent(ecs.Handle(parent)));
+        ecs.Add(inWorld, Still(new Color(40, 60, 255)) with { Burst = 10 });
+        var before = Capture(3);
+        ecs.GetRef<Transform>(parent).Rotation = QuarterTurn;
+        var after = Capture(3);
+
+        var right = GetImageColor(before, 116, 60);
+        ((int)right.G).Should().BeGreaterThan(120, $"both emitters' particles start at the emitter, green and blue, not {right}");
+        ((int)right.B).Should().BeGreaterThan(120, $"both emitters' particles start at the emitter, green and blue, not {right}");
+        var top = GetImageColor(after, 80, 24);
+        ((int)top.G).Should().BeGreaterThan(top.B + 60, $"the particles in the emitter's space turn with its parent, so green shows above, not {top}");
+        var stayed = GetImageColor(after, 116, 60);
+        ((int)stayed.B).Should().BeGreaterThan(stayed.G + 60, $"those in the world keep their places, so blue alone stays at the right, not {stayed}");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Particle_Placed_At_A_Point_Keeps_Its_Place_On_Its_Emitter_Through_Its_Parents_Turn()
+    {
+        Open();
+        var (ecs, parent, emitter) = Parented(Still(new Color(255, 60, 40)) with { Points = [Vector3.Zero] });
+        var before = Capture(3);
+        ecs.GetRef<Transform>(parent).Rotation = QuarterTurn;
+        var after = Capture(3);
+        ecs.GetRef<ParticleEmitter>(emitter).Points = null;
+        var gone = Capture(3);
+
+        Sum(GetImageColor(before, 116, 60)).Should().BeGreaterThan(200, "the placed particle stands at its point on the emitter");
+        Sum(GetImageColor(before, 80, 24)).Should().BeLessThan(40, "and nowhere else");
+        var turned = GetImageColor(after, 80, 24);
+        ((int)turned.R).Should().BeGreaterThan(150, $"a quarter turn of the parent carries it above the middle, not {turned}");
+        Sum(GetImageColor(after, 116, 60)).Should().BeLessThan(40, "where it stood before is left dark");
+        Sum(GetImageColor(gone, 80, 24)).Should().BeLessThan(40, "it lives until the points no longer hold it");
+    }
+
     [NeedsVulkanFact]
     public void Drag_Stops_A_Stream_Short_Of_Where_It_Would_Rise_Without()
     {

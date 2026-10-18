@@ -793,6 +793,7 @@ The light is worked out each frame and nothing is baked, so every light and mesh
 ```csharp
 ParticleEmitterHandle CreateParticleEmitter(Vector3 position, ParticleEmitter? emitter = null); // A stream of particles, a small white fountain unless set
 void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position); // Move where its next particles start
+void SetParticleEmitterRotation(ParticleEmitterHandle emitter, Quaternion rotation); // Turn which way they leave, and those in its space or at its points
 void SetParticleEmitter(ParticleEmitterHandle emitter, ParticleEmitter settings); // Give it new rate, life, velocity, gravity, sizes or colors
 ParticleEmitter GetParticleEmitter(ParticleEmitterHandle emitter);       // Its settings, to change one with `with`
 void SetParticleEmitterActive(ParticleEmitterHandle emitter, bool emitting); // Start or stop its stream

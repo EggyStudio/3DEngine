@@ -8,13 +8,14 @@
 // covers no pixel.
 import modelpass;
 
-// The header the step writes, then each particle in two float4 values, as particle_step.slang
-// lays them out, then the keys particle_sort.slang sorts an emitter laid over by alpha by, which
-// the header's last value marks in y.
+// The header, then each particle in two float4 values, as particle_step.slang lays them out, then
+// the keys particle_sort.slang sorts an emitter laid over by alpha by, which the header's fourth
+// value marks in y. The header's next three values are the rows of the matrix a particle is placed
+// by, the identity for particles in the world and the emitter's world matrix for those in its space.
 [[vk::binding(0, 2)]]
 StructuredBuffer<float4> slots;
 
-static const uint Header = 4;
+static const uint Header = 8;
 
 static const float2 corners[6] = { float2(-1, -1), float2(1, -1), float2(1, 1), float2(-1, -1), float2(1, 1), float2(-1, 1) };
 
@@ -61,7 +62,8 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float size = lerp(look.x, look.y, t);
     float4x4 viewProjection = modelPush.viewProjection;
     float4 eye = eyeInWorld(viewProjection);
-    float3 center = positionAge.xyz;
+    float4 placed = float4(positionAge.xyz, 1.0);
+    float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed));
     float3 facing = normalize(eye.w == 0.0 ? eye.xyz : eye.xyz - center);
     float3 right = cross(float3(0, 1, 0), facing);
     right = dot(right, right) > 1e-6 ? normalize(right) : float3(1, 0, 0);

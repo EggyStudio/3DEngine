@@ -9,9 +9,11 @@ namespace Engine;
 /// through.
 /// </summary>
 /// <remarks>
-/// The buffer starts with a header of four float4 values the dispatch writes from its push
-/// constants, what the draw reads of the emitter, then holds a particle in two float4 values
-/// each, its position and age, and its velocity and life, a particle with no life being dead.
+/// The buffer starts with a header of eight float4 values, four the dispatch writes from its push
+/// constants, what the draw reads of the emitter, then three rows of the matrix the draw places the
+/// particles by and one unread, which the recording writes before the dispatch. It then holds a
+/// particle in two float4 values each, its position and age, and its velocity and life, a particle
+/// with no life being dead.
 /// After the particles are <see cref="SortKeys"/> float4 values, the keys an emitter laid over by
 /// alpha is sorted by, far to near.
 /// </remarks>
@@ -39,7 +41,10 @@ internal sealed class GpuParticles : IDisposable
     internal VkDescriptorSet Set { get; }
 
     /// <summary>The bytes the header takes before the first particle.</summary>
-    public const int HeaderBytes = 64;
+    public const int HeaderBytes = 128;
+
+    /// <summary>The float4 value of the header the rows of the matrix the draw places the particles by start at.</summary>
+    public const int PlacedBy = 4;
 
     /// <summary>The bytes of one particle.</summary>
     public const int ParticleBytes = 32;
@@ -250,7 +255,7 @@ internal sealed unsafe partial class GraphicsDevice
         capacity = Math.Max(1, capacity);
         var keys = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)capacity);
         var bytes = (ulong)(GpuParticles.HeaderBytes + capacity * GpuParticles.ParticleBytes + keys * 16);
-        var buffer = CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.Write));
         Map(buffer).Clear();
 
         var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 1 };
@@ -275,17 +280,37 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Records into <paramref name="commands"/>, outside any render pass, the dispatch that steps
-    /// <paramref name="particles"/> and starts the new ones <paramref name="step"/> asks for.
+    /// Makes the buffer of the particles a program placed at <paramref name="points"/>, one a point,
+    /// standing still there at the start of a life no dispatch ages, which
+    /// <see cref="RecordParticleHeader"/> gives the rest of what the draw reads each frame.
     /// </summary>
-    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step)
+    public GpuParticles CreatePlacedParticles(ReadOnlySpan<System.Numerics.Vector3> points)
+    {
+        var particles = CreateParticles(points.Length);
+        var slots = MemoryMarshal.Cast<byte, System.Numerics.Vector4>(Map(particles.Buffer)[GpuParticles.HeaderBytes..]);
+        for (int i = 0; i < points.Length; i++)
+        {
+            slots[i * 2] = new System.Numerics.Vector4(points[i], 0);
+            slots[i * 2 + 1] = new System.Numerics.Vector4(0, 0, 0, 1);
+        }
+        return particles;
+    }
+
+    /// <summary>
+    /// Records into <paramref name="commands"/>, outside any render pass, the dispatch that steps
+    /// <paramref name="particles"/> and starts the new ones <paramref name="step"/> asks for, the
+    /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world.
+    /// </summary>
+    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, System.Numerics.Matrix4x4 placedBy)
     {
         if (commands is not VulkanCommandBuffer vkCommands || !CanStepParticles) return;
         var cmd = vkCommands.Handle;
 
-        // Earlier frames have finished drawing the particles about to be moved.
-        MemoryBarrier(cmd, VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader,
-            VkAccessFlags2.None, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None);
+        // Earlier frames have finished drawing the particles about to be moved, and the matrix the
+        // draw places them by is written for this frame's.
+        Span<System.Numerics.Vector4> rows = stackalloc System.Numerics.Vector4[4];
+        Rows(placedBy, rows);
+        WriteHeader(cmd, particles, rows, GpuParticles.PlacedBy);
 
         var sets = stackalloc VkDescriptorSet[2];
         sets[0] = particles.Set;
@@ -299,6 +324,44 @@ internal sealed unsafe partial class GraphicsDevice
         // The draws after it read what it wrote.
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderStorageRead);
+    }
+
+    /// <summary>
+    /// Records into <paramref name="commands"/>, outside any render pass, the header of
+    /// <paramref name="particles"/> that no dispatch steps, the particles a program placed, as the
+    /// step writes an emitter's own, its first four values and then the rows of the matrix the draw
+    /// places them by.
+    /// </summary>
+    public void RecordParticleHeader(ICommandBuffer commands, GpuParticles particles, ReadOnlySpan<System.Numerics.Vector4> look,
+        System.Numerics.Matrix4x4 placedBy)
+    {
+        if (commands is not VulkanCommandBuffer vkCommands) return;
+        Span<System.Numerics.Vector4> header = stackalloc System.Numerics.Vector4[GpuParticles.HeaderBytes / 16];
+        look[..GpuParticles.PlacedBy].CopyTo(header);
+        Rows(placedBy, header[GpuParticles.PlacedBy..]);
+        WriteHeader(vkCommands.Handle, particles, header, 0);
+    }
+
+    // The three rows of a matrix that take a point to where it is placed, as System.Numerics lays a
+    // matrix out for a row vector, each with the translation last, and a fourth unread.
+    private static void Rows(System.Numerics.Matrix4x4 m, Span<System.Numerics.Vector4> rows)
+    {
+        rows[0] = new System.Numerics.Vector4(m.M11, m.M21, m.M31, m.M41);
+        rows[1] = new System.Numerics.Vector4(m.M12, m.M22, m.M32, m.M42);
+        rows[2] = new System.Numerics.Vector4(m.M13, m.M23, m.M33, m.M43);
+        rows[3] = System.Numerics.Vector4.Zero;
+    }
+
+    // Writes values of the header from the first given on, once the frames before have finished
+    // stepping, sorting and drawing the particles, and before this frame's do.
+    private void WriteHeader(VkCommandBuffer cmd, GpuParticles particles, ReadOnlySpan<System.Numerics.Vector4> values, int first)
+    {
+        var users = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
+        MemoryBarrier(cmd, users, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None);
+        fixed (System.Numerics.Vector4* data = values)
+            _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)particles.Buffer).Buffer, (ulong)(first * 16), (ulong)(values.Length * 16), data);
+        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, users,
+            VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
     }
 
     /// <summary>

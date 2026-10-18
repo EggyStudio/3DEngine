@@ -17,7 +17,8 @@ struct Particle
     float4 velocityLife;
 };
 
-// The header, two particles' worth of float4 values, then the particles.
+// The header, four particles' worth of float4 values, the first four written here and the rest by
+// the recording, then the particles.
 [[vk::binding(0, 0)]]
 RWStructuredBuffer<float4> slots;
 
@@ -67,7 +68,7 @@ static const uint Die = 2;
 [[vk::push_constant]]
 ConstantBuffer<StepPush> push;
 
-static const uint Header = 4;
+static const uint Header = 8;
 
 // A number from 0 to 1 that changes wholly with each of its inputs, Jarzynski and Olano's PCG.
 float random(uint slot, uint seed, uint salt)

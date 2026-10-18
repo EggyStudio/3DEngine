@@ -290,3 +290,33 @@ The engine lacks a setting that turns the sun's contact shadows off, or leaves t
 shadow map holds the point, so that a game keeps the field and global illumination with hard
 shadows. Meanwhile the game's shadows carry the fringe, and the game turns the contact shadows off
 once a package brings the setting.
+
+Review: item 33 of REVIEW.md, 2026-10-18; a setting that turns the sun's contact shadows off, or
+leaves them out where the shadow map holds the point, so a game keeps the field and global
+illumination with hard shadows, after item 32; the far cascade's texel is noted under it as the
+lesser thing; the game turns the contact shadows off when a package brings the setting.
+
+### 2026-10-18, the voxel game in `Voxel-Sandbox`: an ImGui window cannot draw a program's texture
+
+The game draws every item's icon once into an atlas, 16 pixels an icon, which its hotbar draws as a
+texture with `DrawTexturePro` and its inventory window, drawn with ImGui, would draw with
+`ImGui.Image` or `ImDrawList.AddImage`. Read on the 3DEngine 5.2.43 package, built from `fc5fdc97`,
+and the same at the engine's `29eb2eca`, `ImGuiRenderNode.Run` binds the font atlas's set once
+before its loop over the draw commands (`3DEngine/Gui/Vulkan/ImGuiRenderNode.cs:172`) and draws
+every command with it, `pcmd.TextureId` read by none, so an image of a program's texture draws a
+part of the font atlas in its place. The engine lacks a texture id for a `Texture2D` that the ImGui
+pass binds for each command drawn with it, as ImGui's own Vulkan backend binds a set for each.
+
+Meanwhile the inventory window draws each icon's pixels as `AddRectFilled` rectangles, a row's
+stretch of one color each, 11,087 for the 97 icons the creative window shows at once. On a flat
+world in a hidden window of 1280 by 720 on the RTX 4070 Laptop GPU, `./e3d command profile` over two
+seconds, read with the window open and then closed four times, put `program.drawing` 0.53, 0.63,
+0.78 and 1.15 ms higher with it open and `cpu.imgui` 0.09 to 0.12 ms higher, and `gpu.imgui` at
+0.015 ms. The game at `344ef5b`, whose window drew a square of one color for each item, read
+0.01, 0.12, 0.21 and 0.71 ms and 0.01 ms the same way, so the rectangles cost the frame about half a
+millisecond while the window is open. The game moves the window onto the atlas texture once a
+package brings the texture id.
+
+Review: item 34 of REVIEW.md, 2026-10-18; a texture id for a `Texture2D` that the ImGui pass binds
+for each command drawn with it, after item 33; the game moves its inventory window onto its atlas
+when a package brings it.

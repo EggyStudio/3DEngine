@@ -259,6 +259,7 @@ var examples = new Dictionary<string, Action>
     ["ecs_animated_models"] = EcsAnimatedModels.Run,
     ["ecs_states"] = EcsStates.Run,
     ["ecs_physics"] = EcsPhysics.Run,
+    ["ecs_parented_particles"] = EcsParentedParticles.Run,
     ["scenes_level"] = ScenesLevel.Run,
 };
 

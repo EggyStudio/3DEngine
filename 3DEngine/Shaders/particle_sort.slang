@@ -28,7 +28,7 @@ struct SortPush
 [[vk::push_constant]]
 ConstantBuffer<SortPush> push;
 
-static const uint Header = 4;
+static const uint Header = 8;
 static const uint Threads = 256;
 static const uint Block = 512;
 

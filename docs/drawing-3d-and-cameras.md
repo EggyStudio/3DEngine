@@ -301,7 +301,8 @@ if (IsKeyPressed(Key.Space)) EmitParticles(sparks, 120);
 ```
 
 `SetParticleEmitterPosition` moves where its next particles start, as dust behind a running
-wheel, `SetParticleEmitterActive` starts and stops its stream, `GetParticleEmitter` and
+wheel, `SetParticleEmitterRotation` turns which way they leave, `SetParticleEmitterActive` starts
+and stops its stream, `GetParticleEmitter` and
 `SetParticleEmitter` read and change its settings with `with`, and `UnloadParticleEmitter`
 removes it and its particles:
 
@@ -313,6 +314,32 @@ float speed = 0;
 ```csharp
 SetParticleEmitterPosition(dust, wheel);
 SetParticleEmitter(dust, GetParticleEmitter(dust) with { Rate = speed * 4 });
+```
+
+A particle keeps its place in the world once born, so smoke stays where it rose as its emitter
+moves on. With `Local` an emitter keeps its particles in its entity's space instead, stepped there
+and placed by the entity's world matrix where they are drawn, so they move and turn with its
+transform and its parent's, as the sparks of a carried torch do, its `Velocity` and `Gravity`
+turning with it, and such particles do not meet the scene. A program may also place particles at
+`Points`, in the entity's space, which stand still there at `StartSize` in `StartColor` and live
+until the array no longer holds them, beside those born at the rate, as a night sky's stars are
+placed once on an entity that turns with the hour. In the ECS the emitter is the child of the
+entity that turns, by its `Parent`, and the `ecs_parented_particles` example turns a sky of 1,500
+placed stars and a comet whose tail is born in the sky's space:
+
+<!-- compiled with:
+Vector3[] stars = [];
+float hour = 0;
+-->
+```csharp
+var sky = CreateParticleEmitter(Vector3.Zero, ParticleEmitter.Default with
+{
+    Emitting = false,
+    Points = stars,
+    StartSize = 0.35f,
+    EndSize = 0.35f,
+});
+SetParticleEmitterRotation(sky, Quaternion.CreateFromAxisAngle(Vector3.UnitY, hour));
 ```
 
 An emitter keeps room for `MaxParticles`, and once that many are alive the oldest are replaced.

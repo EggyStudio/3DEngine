@@ -10,7 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4fa51a9c`, item 30's reading and nothing else, a passage at the end of
+Reviewed up to `29eb2eca`, item 31 done and nothing else, 10 files. What the owner saw was read
+first: a missing picture draws nothing and the example has no stand-in for a missing file, so the
+controller of the engine's making was raylib's own generic branch, shapes drawn for a pad whose name
+holds none of its aliases, which the README's capture reached with a pad named Console gamepad and a
+PlayStation pad reaches because SDL3 names it PS4 or PS5 Controller where raylib reads the system's
+Sony name. raylib's two pictures, `ps3.png` and `xbox.png` under CC0 at the pinned commit and byte
+for byte the fetched ones, are kept under the examples' resources and dropped from the fetched list,
+THIRD-PARTY-NOTICES.md naming them as the one exception to the files not kept here; the example
+reads SDL3's PlayStation names too and draws every other pad on the Xbox picture, SDL3 giving every
+pad that layout, the generic branch gone with the reason at the class's head; `triage.tsv`'s note
+and EXAMPLES.md follow and the capture is taken again, the Xbox picture with a stick, a trigger and
+a button shown. The sweep found all 220 examples loading every resource their raylib sources load
+but the compute example's shader written as Slang by design, and no other stand-in, so nothing else
+is listed. SHARED.md's row on the fetched files names the two kept pictures, the reviewer's. Checked
+were the strict build and the whole suite, 1,716 passed. Right. The game's second ASKS.md entry, the
+sun's contact shadows that cannot be turned off, is item 33, after item 32; and toward item 30's
+part (a) the working session read that `GlowLights.Carries` carries an emitter only where its box's
+longest side is within twice the first cascade's spacing, so Ore's one landscape-wide ore mesh is
+never carried and the ground is left to the screen probes' rays. At 23:32 the game's third entry
+came, an ImGui window that cannot draw a program's texture, which is item 34 after item 33. Next
+items 32, 33 and 34, which one package should carry to the game, then item 30's parts, and Verdict
+70's third green macOS suite.
+
+Before it, `4fa51a9c` came, item 30's reading and nothing else, a passage at the end of
 RENDERING.md's global illumination section with six pictures under `.github/assets/cascades/`. The
 examples that draw the cascades and `games/Ore` were captured at their captures' frames on the
 development machine's GPU and on lavapipe, each frame at High measured against a path-traced
@@ -71,34 +94,6 @@ the voxel game (Decision 44), this engine's week being the radiance cascades, wh
 yet look as good as it can (item 30), and beside it the examples' pictures where one of the engine's
 own stands in for raylib's, the gamepad example's controller first (item 31). Next item 30's
 reading, item 31, and one more green macOS suite for Verdict 70, the one verdict open.
-
-Before it, `5a2d7df3` came, Verdict 64's twin mend and nothing else, the leak test. The two drawing
-tests take the cycle's record back and judge the heap's floor and the Vulkan objects alike, the
-plain one judging its private bytes against 50 as before, and the twin holding the driver saying its
-own, a console line and the test's output giving how far the figure moved from the twentieth app to
-the last, said and not judged, its comment saying that beyond the plain test it measures the driver
-kept loaded through the hundred apps, with `1398ed24`'s Windows figures, the plain within its 50 and
-the twin 59.7 MB with no allocation a followed app's steps added standing once the next app had
-ended, the growth inside allocations that stood before, the driver's state kept across apps or the
-readings' swing and none of the engine's. A failure's series puts the heap's live objects after
-every ten apps first, then the private bytes with the collector and the heaps in brackets, the
-regions, the steps, the census baseline, the grown types, the Vulkan objects and the threads, and
-the allocation lines last, cut so the message fits 3,500 characters, as the handle failure's is, so
-a Windows page carries the heaps, the series, the regions and the steps. Checked on the working
-machine were the strict build with no warning and the whole suite, 1,716 passed, before one word of
-the said line changed, rose to moved by, since Linux read a fall, and the leak, norm and document
-tests after, the twin saying 0.7 MB given back on Linux; the file is 767 lines. Right. The pack run
-of `1398ed24`'s captures job passed by 19:22, the measure holding on every pair on an AMD EPYC 9V74
-80-Core with gfni, the page naming it, the 7763 side of Verdict 67 still awaited. The pack run of
-`1398ed24` ended at 19:38 whole green with its package, its Windows suite green with the thirteen
-games played and the twin's bound met by that run's chance before the mend, which counts for
-nothing. The owner pushed `5a2d7df3` at 19:23 and started its pack run; the push run's Linux suite
-passed and its macOS suite failed at 19:39 one test of 1,649, the script generation's unload after a
-recompile, a generation whose system threw a type of its own still alive after twenty collections
-(Verdict 70), the leak tests holding there, its Windows suite and examples job running, and the pack
-run's suites running. Next Verdict 70's reading, the Windows suites as the first of three for
-Verdicts 64 and 68, the third green macOS suite for Verdict 69, the measure on a 7763 (Verdict 67)
-and the pack run of `5a2d7df3`.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1186,22 +1181,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on its own, one commit, measured before and after with `gi.compare` against the reference at the
     frame named and held by a test on that measure, the pictures of RENDERING.md's passage taken
     again as they change; the four things seen that are not the cascades' stay as read, the
-    terminator's crescent being Decision 27's subsurface part.
+    terminator's crescent being Decision 27's subsurface part. Toward (a), read at `29eb2eca`:
+    `GlowLights.Carries` (`GlowLights.cs:57`) carries an emitter only where its box's longest side
+    is within twice the first cascade's spacing, so Ore's one landscape-wide ore mesh is never
+    carried and the ground beside each ore is left to the screen probes' sixteen rays a tile.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
-    first (Decision 44).** The owner said on 2026-10-18 at 22:25 that the gamepad example shows a
-    controller of the engine's own making where raylib's example shows its picture, and asked for
-    the right one, and for the other examples to be checked alike. `CoreInputGamepad.cs:25-26` loads
-    raylib's `ps3.png` and `xbox.png`, which `build/fetch-raylib-resources.sh` fetches for a capture
-    and a build copies beside the program, so what the owner saw is read first, the example run as
-    the owner runs it, with a controller and from the package, and the picture it shows found, a
-    stand-in drawn where the file is missing, a placeholder texture, or the capture's frame without
-    a controller; then the example shows raylib's pictures wherever it runs, shipped under the
-    examples' resources with raylib's license for them noted where the other fetched files' is, or
-    fetched where the example is built, as the file's license allows; and every example is read for
-    a picture of the engine's making standing where raylib's resource belongs, each replaced by the
-    resource raylib's example loads, listed here. One commit, the captures taken again where they
-    change.
+    first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
+    gamepad example shows a controller of the engine's own making where raylib's example shows its
+    picture, and asked for the right one, and for the other examples to be checked alike.
+    `CoreInputGamepad.cs:25-26` loads raylib's `ps3.png` and `xbox.png`, which
+    `build/fetch-raylib-resources.sh` fetches for a capture and a build copies beside the program,
+    so what the owner saw is read first, the example run as the owner runs it, with a controller and
+    from the package, and the picture it shows found, a stand-in drawn where the file is missing, a
+    placeholder texture, or the capture's frame without a controller; then the example shows
+    raylib's pictures wherever it runs, shipped under the examples' resources with raylib's license
+    for them noted where the other fetched files' is, or fetched where the example is built, as the
+    file's license allows; and every example is read for a picture of the engine's making standing
+    where raylib's resource belongs, each replaced by the resource raylib's example loads, listed
+    here. One commit, the captures taken again where they change. Done at `29eb2eca` on 2026-10-18,
+    the two pictures kept under CC0 with the notice, SDL3's PlayStation names read, every other pad
+    on the Xbox picture, the capture taken again, and the sweep finding no other stand-in.
 
 32. **Particles that live in their emitter's space and stand where the program puts them, for the
     game's stars (ASKS.md, 2026-10-18).** The voxel game's stars are fixed points on a sky that
@@ -1220,6 +1220,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     them, and `ASKS.md`'s entry carries the item's number. After item 31 and before item 30's parts,
     being a day's work that the game's item waits on, the owner's eye welcome on the order. One
     commit.
+
+33. **A setting turns the sun's contact shadows off, or leaves them out where the shadow map holds
+    the point (ASKS.md, 2026-10-18).** The voxel game draws its sun's shadows stepped along the
+    blocks' pixels (its item 7), and the sun's light at a point is the shadow map's share times the
+    contact shadow's (`modelpass.slang:583`), the contact shadow traced toward the sun through the
+    scene's distance field in the occlusion pass at half the window's size, out to 32 cells of the
+    finest cascade, blurred with the occlusion and read by the fragment's place in the window
+    (`modelpass.slang:293`, `ao.slang`), on wherever the field is built and the sun casts shadows
+    (`AmbientOcclusionRenderer.ContactShadows`), and off only with the field, which global
+    illumination needs; measured on a pillar one block across under a low sun, it darkens the grass
+    0.4 to 0.7 of a block past the hard edge. One thing. A setting of the lighting, reached from the
+    flat API and the entity API as the shadow distance is, turns the sun's contact shadows off, or
+    leaves them out where the shadow map holds the point and keeps them past its reach, with the
+    reason in the guide; a test holds a hard edge with them off and the field on; the game turns
+    them off when a package brings it. The far cascade's texel at the game's distance, 1.27 of a
+    block's pixel where the near ones are 0.11 and 0.38, is the lesser thing the entry notes and no
+    item. After item 32. One commit.
+
+34. **An ImGui draw command binds the texture it names, so a window draws a program's `Texture2D`
+    (ASKS.md, 2026-10-18).** The voxel game draws its items' icons once into an atlas (its item 9),
+    which its hotbar draws as a texture and its inventory window, drawn with ImGui, cannot:
+    `ImGuiRenderNode.Run` binds the font atlas's set once before its loop over the draw commands
+    (`3DEngine/Gui/Vulkan/ImGuiRenderNode.cs:172`) and draws every command with it, the command's
+    texture id read by none, so an image of a program's texture draws a part of the font atlas; the
+    game draws the icons' pixels as 11,087 rectangles meanwhile, half a millisecond a frame with the
+    window open. One thing. A `Texture2D` gives an ImGui texture id, through the flat API and the
+    entity API as the fonts are reached, and the ImGui pass binds a descriptor set for each
+    command's texture as ImGui's own Vulkan backend does, the font atlas's where a command names
+    none, with a test drawing a program's texture in an offscreen window and reading its pixels, and
+    the overlay guide saying it. After item 33. One commit.
 
 ## Verdicts
 

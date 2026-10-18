@@ -247,3 +247,8 @@ guide that shows it.
   draws them, AgX, Tony McMapface and Blender's filmic from Bevy's own tables, as
   [Effects over the frame](materials-light-and-shadows.md#effects-over-the-frame) shows with what a
   table costs.
+- **Particles that turn with their emitter, and particles placed.** `ParticleEmitter.Local` keeps
+  an emitter's particles in its entity's space, so they move and turn with its transform and its
+  parent's, `ParticleEmitter.Points` places particles of the program's own at points in that space,
+  standing until the array no longer holds them, and `SetParticleEmitterRotation` turns an emitter
+  made through the flat API, as [Particles](drawing-3d-and-cameras.md#particles) shows.

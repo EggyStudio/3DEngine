@@ -15,7 +15,9 @@ namespace Engine;
 /// varied by <see cref="SpeedVariation"/> and <see cref="LifeVariation"/>, falls by
 /// <see cref="Gravity"/>, slows by <see cref="Drag"/>, and goes from <see cref="StartSize"/> and <see cref="StartColor"/> to
 /// <see cref="EndSize"/> and <see cref="EndColor"/>. Once every slot is taken the oldest particle
-/// is the one replaced.
+/// is the one replaced. A particle keeps its place in the world once born, or with
+/// <see cref="Local"/> lives in the entity's space and moves and turns with it, and the program
+/// may place particles of its own at <see cref="Points"/> in that space, which stand there.
 /// </para>
 /// <para>
 /// An unlit particle emits its color times <see cref="Intensity"/>, which blooms where it
@@ -115,6 +117,29 @@ public struct ParticleEmitter
     /// the next replaces it, as a sheet of drawn frames is meant to be seen.
     /// </summary>
     public bool BlendFrames;
+
+    /// <summary>
+    /// Whether its particles live in its entity's space, moving and turning with its transform and
+    /// its parent's, rather than each keeping its place in the world from its birth on.
+    /// </summary>
+    /// <remarks>
+    /// They are stepped in that space, so <see cref="Velocity"/> and <see cref="Gravity"/> turn with
+    /// the entity too, and the entity's world matrix places them where they are drawn, their size
+    /// kept in world units. They do not meet the scene, whatever <see cref="Collision"/> says.
+    /// </remarks>
+    public bool Local;
+
+    /// <summary>
+    /// Particles the program places, one at each point, in the entity's space, so they move and turn
+    /// with it, standing still there and living until the array no longer holds them, drawn at
+    /// <see cref="StartSize"/> in <see cref="StartColor"/>. Null for none.
+    /// </summary>
+    /// <remarks>
+    /// They are drawn beside the particles born at <see cref="Rate"/>, which <see cref="MaxParticles"/>
+    /// counts and they do not. An array changed, in place or for another, is read again the frame
+    /// after, its points sent to the GPU whole, so a sky of stars is placed once and left.
+    /// </remarks>
+    public Vector3[]? Points;
 
     /// <summary>Particles to emit at once in the next frame, beside the rate, which drawing them clears.</summary>
     public int Burst;

@@ -291,7 +291,7 @@ where the first clip puts that bone's parent.
 Particles take the skins' path too. `ParticleExtract` copies each `ParticleEmitter`, placed by its
 entity's world matrix, with the window's camera (`MeshEntityDraws.WindowCamera`) and the frame's
 seconds, held to a tenth of a second. `ParticleRenderer` keeps a storage buffer for each emitter, a
-header of four float4 values and then two a particle (position and age, velocity and life), and the
+header of eight float4 values and then two a particle (position and age, velocity and life), and the
 `particles` node, after `skinning`, records a dispatch of `particle_step.slang` for each, a thread a
 particle, with everything the step and the draw need in its 128 bytes of push constants. The frame's
 births are its share of the rate, the fraction owed carried to the next frame, and its burst, in a
@@ -299,47 +299,53 @@ run of slots after the last frame's, so the oldest are replaced, each started wi
 radius with its velocity turned within the cone and its speed and life varied by a hash of its slot
 and a seed of the frame and the emitter. The first thread writes the colors, sizes and brightness
 into the header, which the draw reads, so nothing of an emitter is written from the CPU while a
-frame in flight reads it. A particle alive falls by gravity and slows by the emitter's drag, as an
-exponential of the step, whose bits ride in the push block's last word. Where an emitter collides,
-the node first draws the window's meshes that cast shadows into a depth at half the window's size,
-with `DrawDepth`, as ambient occlusion draws its own, and binds it with the view it was drawn
-through as the step's second set, one written each frame in flight, and the white texture with
-collision off in frames none collides. The step finds a particle's pixel in that depth, the surface
-there in the world through the inverse view-projection, and its normal from the texels beside it,
-turned toward the camera, and a particle that crossed that surface's plane from the camera's side in
-the step bounces off it, keeping the share of its speed into it that rides with the collision's two
-bits in the capacity word's spare high bits, or ends there. A particle already behind a surface, as
-one passing behind a post, crosses nothing. On `shaders_particles` the depth costs the graph about
-0.03 ms of CPU and the GPU about 0.01 ms. The draw (`particles.slang`) imports the model pass, binds
-its material set with the emitter's texture as the base color, white without one, and the window's
-lights set as sets 0 and 1 and the particles as set 2, and draws six vertices an instance, a square
-facing the camera's eye that `eyeInWorld` finds from the view-projection, over the window's scene
-decoded to linear light (§5) or after a target's meshes into the target, depth tested and not
-written, added or laid over by alpha. The square is a round dot, or the texture tinted where the
-emitter has one, whole or the frame of a sheet the share of the life gone picks, mixed with the next
-frame by how far the life is through its own where the emitter blends them, the branch on the
-emitter's setting so both samples are taken where every pixel takes them. The look's last value
-packs whether it is lit and textured, the sheet's columns and rows and whether they blend into an
-integer a float holds exactly, since the push block has no room left. A lit particle goes through
-`lit` as a rough surface facing the camera and an unlit one through `toDisplay`, so both follow the
-view's output flag, and the window's particles undo the window's encoding, since they are drawn over
-its decoded light, so an additive cloud adds up in linear light as emitted light does. Emitters laid
-over by alpha are drawn after the additive ones, from the farthest from the camera's eye to the
-nearest by where each emitter is. Within an emitter laid over by alpha, `particle_sort.slang` sorts
-after the step, in the emitter's buffer after its particles, a key a particle of its negative
-squared distance from the window's eye, a large one for the dead and infinity for the padding to a
-power of two, by Batcher's bitonic sort. Blocks of 512 keys are sorted in a workgroup's shared
-memory in one dispatch, and an emitter of more takes a dispatch for each step across blocks and one
-for the steps within them after it, so 400 particles cost 0.02 ms of the GPU where a dispatch a step
-took 0.47. A render target drawn through a camera of its own sorts them again from its eye before
-its pass, and the window again from its own before its scene's particles are drawn where a target
-sorted after it (`ParticleRenderer.SortFor`), each emitter keeping the eye its buffer was last
-sorted from. An emitter of 300 in `games/Sumo`'s two views added 0.025 to 0.03 ms of the GPU to
-`targets`, as `./e3d command profile` gives it, 0.38 against 0.35. The step clears and the sort sets
-a flag in the header, by which the draw reads each instance's particle through the sorted keys.
-`TargetsNode` draws them into each render target after its meshes, with its own lights, since the
-step runs before the targets, through the camera of the target's first `BeginMode3D`, which
-`Mode3DCamera.Targets` keeps, or the one its meshes were drawn through for a camera entity's
+frame in flight reads it. The header's next three values are the rows of the matrix the draw places
+a particle by, written into the command buffer before the dispatch, the identity for particles in
+the world and the entity's world matrix for those an emitter keeps in its space (`Local`), which
+start about its middle there, turn with it and meet nothing. A program's `Points` are a buffer of
+their own, made again when the points change and stepped by no dispatch, its whole header written
+each frame the same way, and an emitter laid over by alpha sorts each buffer from the eye in the
+space its particles are kept in. A particle alive falls by gravity and slows by the emitter's drag,
+as an exponential of the step, whose bits ride in the push block's last word. Where an emitter
+collides, the node first draws the window's meshes that cast shadows into a depth at half the
+window's size, with `DrawDepth`, as ambient occlusion draws its own, and binds it with the view it
+was drawn through as the step's second set, one written each frame in flight, and the white texture
+with collision off in frames none collides. The step finds a particle's pixel in that depth, the
+surface there in the world through the inverse view-projection, and its normal from the texels
+beside it, turned toward the camera, and a particle that crossed that surface's plane from the
+camera's side in the step bounces off it, keeping the share of its speed into it that rides with the
+collision's two bits in the capacity word's spare high bits, or ends there. A particle already
+behind a surface, as one passing behind a post, crosses nothing. On `shaders_particles` the depth
+costs the graph about 0.03 ms of CPU and the GPU about 0.01 ms. The draw (`particles.slang`) imports
+the model pass, binds its material set with the emitter's texture as the base color, white without
+one, and the window's lights set as sets 0 and 1 and the particles as set 2, and draws six vertices
+an instance, a square facing the camera's eye that `eyeInWorld` finds from the view-projection, over
+the window's scene decoded to linear light (§5) or after a target's meshes into the target, depth
+tested and not written, added or laid over by alpha. The square is a round dot, or the texture
+tinted where the emitter has one, whole or the frame of a sheet the share of the life gone picks,
+mixed with the next frame by how far the life is through its own where the emitter blends them, the
+branch on the emitter's setting so both samples are taken where every pixel takes them. The look's
+last value packs whether it is lit and textured, the sheet's columns and rows and whether they blend
+into an integer a float holds exactly, since the push block has no room left. A lit particle goes
+through `lit` as a rough surface facing the camera and an unlit one through `toDisplay`, so both
+follow the view's output flag, and the window's particles undo the window's encoding, since they are
+drawn over its decoded light, so an additive cloud adds up in linear light as emitted light does.
+Emitters laid over by alpha are drawn after the additive ones, from the farthest from the camera's
+eye to the nearest by where each emitter is. Within an emitter laid over by alpha,
+`particle_sort.slang` sorts after the step, in the emitter's buffer after its particles, a key a
+particle of its negative squared distance from the window's eye, a large one for the dead and
+infinity for the padding to a power of two, by Batcher's bitonic sort. Blocks of 512 keys are sorted
+in a workgroup's shared memory in one dispatch, and an emitter of more takes a dispatch for each
+step across blocks and one for the steps within them after it, so 400 particles cost 0.02 ms of the
+GPU where a dispatch a step took 0.47. A render target drawn through a camera of its own sorts them
+again from its eye before its pass, and the window again from its own before its scene's particles
+are drawn where a target sorted after it (`ParticleRenderer.SortFor`), each emitter keeping the eye
+its buffer was last sorted from. An emitter of 300 in `games/Sumo`'s two views added 0.025 to 0.03
+ms of the GPU to `targets`, as `./e3d command profile` gives it, 0.38 against 0.35. The step clears
+and the sort sets a flag in the header, by which the draw reads each instance's particle through the
+sorted keys. `TargetsNode` draws them into each render target after its meshes, with its own lights,
+since the step runs before the targets, through the camera of the target's first `BeginMode3D`,
+which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn through for a camera entity's
 texture. A target drawn only in 2D has no camera for them. A reflection probe's capture draws them
 into each face after its meshes, through the face from the probe's middle, lit by the capture's
 lights, so a fire in a room shows in its metal.
