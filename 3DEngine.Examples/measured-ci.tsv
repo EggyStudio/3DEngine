@@ -67,8 +67,11 @@ models_cubicmap_rendering	0.4
 models_decals	1.4
 # Recorded anew from b1e86aef's run, 5.5 where 0.8 and 5.4 in e477bc1e's. Nothing the example
 # draws through changed since 71050c8f, and on lavapipe and llvmpipe outside the job it reads 0.5 as
-# it did, so the job's drivers moved it.
-models_directional_billboard	5.5
+# it did, so the job's drivers moved it. Three points of room, since the share follows the runner's
+# processor, which lavapipe and Mesa's OpenGL compile their shaders for, within a point of 5.5 on an
+# AMD EPYC 9V45, which has gfni, and 7.8 to 7.9 on an AMD EPYC 7763, which has none, in the pack
+# runs since 704952c5, 08b104dd's page naming the 7763 (REVIEW.md, Verdict 67).
+models_directional_billboard	5.5	3
 models_first_person_maze	0.1
 models_geometric_shapes	0.7
 models_heightmap_rendering	0.2

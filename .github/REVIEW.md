@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4c6630a4`, item 28 done and nothing else, 15 files. `games/Ore` is a game like the
+Reviewed up to `2e4187e3`, the reading half of Verdict 68 and nothing else, the leak test, the
+handle census and the process's threads. The working machine reads no Thread handles, Linux having
+none, so there the test notes for each followed app the threads started and ended at each step by
+name from `/proc/self/task`, and on Windows `HandleCensus.Take` reads the handle table once for the
+counts by kind and the process's Thread handles, asking each handle's thread its id, whether it has
+ended and its name, so each step line says the threads whose handles it opened and the kept line
+names each kept handle's thread, ended or running, with the step that opened it; a handle failure's
+message puts the bound's line, the handles after every ten apps, what each followed app kept and the
+threads after every ten before the steps, cut to fit under the page's limit with the assertion's
+prefix and the test's name. Read on the working machine, the twenty-first app starts two pool
+workers and the GPU's three threads as the device is made, a file watcher at the behaviors plugin
+and three pool workers at the physics plugin, Bepu's dispatcher starting one fewer than its four,
+and ends them at the device's destruction, the instance's and the close, where the dispatcher is
+disposed; nothing starts at the lighting plugin or at startup there, where a pool on 32 cores needs
+no more threads, so the handles Windows keeps from those steps most likely belong to threads a
+four-core runner's pool or lavapipe starts there, the environment map's parallel prefilter, the
+asset server's workers and the schedule's parallel loop, which the run tells; and a heap census from
+the twentieth app to the hundredth grows no Thread object and no physics world, only reflection
+caches and strings, so nothing managed keeps an ended thread reachable, and what holds the Windows
+handles is the runtime's own thread bookkeeping, the pool or a native library. Checked were the
+strict build and the whole suite, 1,716 passed. Right. Seen beside it, the physics plugin warms up
+its world twice in two identical blocks, which goes with the mend. The pack run of `08b104dd` had by
+16:45 its games and captures-macos jobs green and its captures job red at 16:44 on the measure's
+same pair, 7.9 percent apart, the page naming the processor for the first time, an AMD EPYC 7763
+without gfni, so the pair fails on that kind and holds on the other (Verdict 67, the mend asked),
+with its Windows suite still playing the games and no package to come. Next the owner's push, its
+Windows suite naming the threads behind the kept handles, Verdicts 67 and 68's mends, a pack run
+playing thirteen games on three systems (item 28's last check) and Verdict 64's three green Windows
+suites.
+
+Before it, `4c6630a4` came, item 28 done and nothing else, 15 files. `games/Ore` is a game like the
 others, its project and `nuget.config` Wick's less the resources it has none of; `Program.cs` of 151
 lines sets the scene field and global illumination at High with G stepping it as Wick does, draws
 the ground and the ore as two models from the land's meshes, the ore's material emissive at
@@ -64,20 +94,6 @@ jobs passed by 15:27, the measure holding on every pair again (Verdict 67), with
 still running and no pack job to come after its red Windows suite. Next item 28, the runs of
 `08b104dd`, whose Windows suites are the first of the three Verdict 64 needs, and the next failing
 measure's processor and pictures (Verdict 67).
-
-Before it, `b40a788d` came, item 27 done and nothing else, 83 files, 77 of them the two game
-projects removed with 12,176 lines. `3DEngine.Game` and `3DEngine.Game.Tests` leave with their two
-lines in the solution and the two rows of AGENTS.md; `docs/global-illumination.md:43` and `:132` and
-`docs/materials-light-and-shadows.md:391` cite Voxel-Sandbox by its repository with the numbers as
-measured, and `.github/RENDERING.md:2151` says the game draws its world there; the tests' comments,
-`.gitignore:83` and the asks' captures stay, and a grep for the old name finds the channel's files
-and the two templates' package identities, which are the game template's and not the game's. Right.
-The pack run of `351cc461`'s Windows suite failed at 14:50 the plain leak test alone, the twin
-holding the layer passing again, 95 MB of private data kept over the eighty apps with the layer's
-library absent (Verdict 64, a second sample); the owner pushed this commit at 14:55, which cancelled
-the push run of `87cd9415` under the concurrency group, and the pack run of `351cc461` still runs
-its games and captures jobs. Next Verdict 64's mend, item 28, their push and runs, and the next
-failing measure's processor and pictures (Verdict 67).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1712,7 +1728,19 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     for the first time sharing the other nine notices. On the pack run of `351cc461`, 2026-10-18,
     the measure held on every pair again, so the pair has held on two pack runs and failed on two,
     the processor said on neither of the holding ones, which `87cd9415`'s notice ends from the next
-    pack run on.
+    pack run on. On the pack run of `08b104dd`, 2026-10-18, the measure failed on the pair alone,
+    7.9 percent apart, and the page said the processor, an AMD EPYC 7763 without gfni among its
+    flags, the 256 examples drawn in 1,571 seconds as on the two failing runs before, where the two
+    holding runs drew them in 1,257 and 1,247, so the pair fails on the fleet's 7763 and holds on
+    its other kind, the 9V45 with gfni, at 2.4 points apart between the two processors' drawings of
+    the same frame, a rounding difference the working machine, with gfni, draws as the 9V45 does.
+    Both pictures of the pair from this run and from the holding run of `4d5db9df` are in those
+    runs' captures artifacts under `measure`, for the owner's eye. The mend is one thing. The record
+    gives the pair a room in its third column measured over the two processors, 3 points over the
+    5.5 recorded to hold the 7.9 the 7763 draws with slack, with the reason above it naming the two
+    processors and their shares, as `compare.py` provides for a pair whose picture moves between
+    runs. Settled when the measure holds on a pack run on each kind of processor, the page naming
+    it.
 
 68. **The leak test's handle count passed its allowance by one at the 89th app on Windows, Thread
     handles of ended threads kept some four an app.** On the push of `4c6630a4`, 2026-10-18, the
@@ -1738,7 +1766,18 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     the allowance stands, since what it absorbed was a climb and not a swing; and the handle
     failure's message puts the series of handles after every ten apps and the kinds kept first, the
     followed apps' steps after and cut to the limit. Settled at three green Windows suites in a row
-    after the mend.
+    after the mend. Read at `2e4187e3` so far as the working machine can, which reads no Thread
+    handles: on Linux the followed apps' threads start and end by name at the steps said, the
+    physics plugin's three being Bepu's dispatcher workers, disposed at the close, and nothing
+    starts at the lighting plugin or at startup on 32 cores, so the handles Windows keeps from those
+    steps are most likely threads a four-core runner's pool or lavapipe starts there; a heap census
+    grows no Thread object across eighty apps, so nothing managed holds an ended thread, and the
+    runtime's bookkeeping, the pool or a native library does. On Windows the census names each kept
+    handle's thread, ended or running, with the step that opened it, and the next Windows suite says
+    whose they are; the mend follows it. Seen beside it, `PhysicsPlugin.cs:47-58` warms the physics
+    world up in two identical blocks one after the other since `118b4adc`, the second returning at
+    the warm-up's once-a-process guard and costing a pool item an app, and the second block goes
+    with the mend.
 
 ## Decisions
 
