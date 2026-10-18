@@ -693,11 +693,13 @@ jobs:
       # raylib's, and two machines' drivers are never compared. A pair measured for the first time
       # is listed in the run's summary and in notices, at most ten, which a reader not signed in
       # sees, to be recorded there, and until the file holds a share the step fails on none. A pair
-      # that fails is an error and a line of the summary, with its shares and its room. One
+      # that fails is an error and a line of the summary, with its shares and its room, the summary
+      # names the processor and whether gfni is among its flags, and both pictures of every pair
+      # are kept with the captures under measure, to be compared between runs. One
       # whose picture moves by the clock or the device is left out with the reason its line in
       # triage.tsv gives.
       - name: Measure every example against raylib's program
-        run: python3 -u build/raylib-bench/compare.py all --against 3DEngine.Examples/measured-ci.tsv --record captures/measured-ci.tsv
+        run: python3 -u build/raylib-bench/compare.py all --against 3DEngine.Examples/measured-ci.tsv --record captures/measured-ci.tsv --pictures captures/measure
 
       - name: Put the shares measured in the run's summary
         if: always()

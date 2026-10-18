@@ -170,9 +170,9 @@ public sealed class StepScriptTests : IDisposable
                       + "failures = [f'{name}: {compare.held(name, share, recorded)}' for name, share, recorded in "
                       + "[('shapes_basic_shapes', '5.0', '3.0'), ('models_loading', '7.5', '4.0'), ('text_raylib_fonts', 'none', '2.0')]]\n"
                       + "assert compare.held('shapes_basic_shapes', '3.9', '3.0') is None\n"
-                      + "compare.errors(failures)\n"
+                      + "compare.errors(failures, 'AMD EPYC 9V45 96-Core Processor, gfni among its flags')\n"
                       + "names = [f'shapes_example_{i}' for i in range(400)]\n"
-                      + "compare.errors([f'{name}: 12.5% apart where 3.0% was recorded, past its room of 1 point' for name in names])\n";
+                      + "compare.errors([f'{name}: 12.5% apart where 3.0% was recorded, past its room of 1 point' for name in names], 'AMD EPYC 7763 64-Core Processor, gfni not among its flags')\n";
         var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Path.Combine(Root, "build", "raylib-bench"), RedirectStandardOutput = true, RedirectStandardError = true });
         start.ArgumentList.Add("-c");
         start.ArgumentList.Add(program);
@@ -187,7 +187,7 @@ public sealed class StepScriptTests : IDisposable
 
         var said = TestScriptTests.Lines(output.Result).Where(line => line.StartsWith("::error ", StringComparison.Ordinal)).ToList();
         said[0].Should().Be("::error title=3 pair(s) do not hold to the share recorded for them::"
-                            + "more than 1 point above it, or past the room the record gives, or no longer drawn:"
+                            + "on AMD EPYC 9V45 96-Core Processor, gfni among its flags, more than 1 point above it, or past the room the record gives, or no longer drawn:"
                             + "%0Ashapes_basic_shapes: 5.0%25 apart where 3.0%25 was recorded, past its room of 1 point"
                             + "%0Amodels_loading: 7.5%25 apart where 4.0%25 was recorded, past its room of 3 points"
                             + "%0Atext_raylib_fonts: no frame from raylib's program where 2.0%25 apart was recorded",

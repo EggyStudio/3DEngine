@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Measures each written example against raylib's own program of the same name (NORM.md, N 5.2).
 
-    build/raylib-bench/compare.py <group, example or all>... [--record <file>] [--against <file>]
+    build/raylib-bench/compare.py <group, example or all>... [--record <file>] [--against <file>] [--pictures <folder>]
 
 raylib's example is built from the checkout build/examples-table.py reads, of the commit
 build/raylib-bench/run.sh pins, against raylib built as run.sh builds it, with its SDL3 backend,
@@ -32,11 +32,17 @@ never compared with each other. Under GitHub Actions the pairs measured for the 
 notices as well, at most ten, which a reader not signed in sees where the run's summary and its
 files need a sign-in, and the pairs that fail a run are errors and lines of the summary, each with
 the share measured, the share recorded and its room, or what it drew in place of a frame. Printed
-alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66).
+alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66). The
+summary also says the processor the run measured on and whether gfni is among its flags, with how
+many pairs were measured and how many failed, since both programs draw with code LLVM compiles for
+that processor and the runners are of two kinds, and a pair that held before each kind compiled its
+own failed on the two runs since (REVIEW.md, Verdict 67). --pictures copies both pictures of every pair into the folder given, which the captures
+job keeps with its captures, so a pair's frames are compared between two runs.
 """
 import importlib.util
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -191,6 +197,19 @@ def write_measured(measured, path=MEASURED):
             out.write(f"{name}\t{measured[name]}\n")
 
 
+def processor():
+    """The processor this runs on and whether gfni is among its flags, as build/open-game.sh says it
+    on a game step's page."""
+    try:
+        described = subprocess.run(["lscpu"], capture_output=True, text=True, env=dict(os.environ, LC_ALL="C")).stdout
+    except OSError:
+        return "a processor lscpu could not name"
+    lines = described.splitlines()
+    model = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("Model name:")), "an unnamed processor")
+    flags = next((line.split(":", 1)[1].split() for line in lines if line.startswith("Flags:")), [])
+    return f"{model}, gfni {'among' if 'gfni' in flags else 'not among'} its flags"
+
+
 def option(name):
     """The value given after --name, or None."""
     arguments = sys.argv[1:]
@@ -242,13 +261,13 @@ def notices(names, measured):
         annotate("notice", f"Measured for the first time, {index} of {len(parts)}", [f"{name}\t{measured[name]}" for name in part])
 
 
-def errors(failures):
+def errors(failures, where):
     """The pairs that fail the shares recorded for them as errors under GitHub Actions and lines of the
     job's summary, a pair a line, shared out among as few errors as hold them within the length GitHub
     keeps and no more than it shows, the last saying how many lines are left out where they do not
     fit."""
     title = f"{len(failures)} pair(s) do not hold to the share recorded for them"
-    lines = fit([f"more than {ROOM:g} point above it, or past the room the record gives, or no longer drawn:"] + failures)
+    lines = fit([f"on {where}, more than {ROOM:g} point above it, or past the room the record gives, or no longer drawn:"] + failures)
     parts, part = [], []
     for line in lines:
         if part and len(escape("\n".join(part + [line]))) > ANNOTATION_LENGTH - 200:
@@ -266,11 +285,13 @@ def errors(failures):
 
 
 def main():
-    values = {option("--record"), option("--against")}
+    values = {option("--record"), option("--against"), option("--pictures")}
     wanted = [a for a in sys.argv[1:] if not a.startswith("--") and a not in values]
     if not wanted:
         sys.exit(__doc__)
-    record, against = option("--record"), option("--against")
+    record, against, pictures = option("--record"), option("--against"), option("--pictures")
+    where = processor()
+    print(f"Measured on {where}.")
     commit = table.raylib_commit()
     source = table.raylib_source(commit, None)
     written = table.written_examples()
@@ -290,6 +311,8 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     measured = read_measured(record) if record else read_measured()
     failures, first = [], []
+    if pictures:
+        os.makedirs(pictures, exist_ok=True)
     # Whether any of raylib's programs drew its frame, and why the first that drew none did not. A
     # run where none drew is a measure that sees nothing, as on a machine where raylib's programs
     # cannot start, so it records nothing and fails.
@@ -309,6 +332,10 @@ def main():
                 failures.append(f"{name}: this engine's capture failed")
             continue
         theirs, why = capture_theirs(binary, example, frame)
+        if pictures:
+            for picture in (ours, theirs):
+                if picture is not None:
+                    shutil.copy(picture, pictures)
         if theirs is None:
             measured[name] = "none"
             print(f"  {name}: raylib's program drew no frame {frame}, " + "; ".join(why[:2]))
@@ -332,6 +359,8 @@ def main():
         annotate("error", "No frame from raylib's programs", lines)
         sys.exit(1)
     write_measured(measured, record or MEASURED)
+    summarize([f"### The measure against raylib, on {where}", "",
+               f"{len(examples)} pairs, {len(failures)} not holding to the share recorded for them, {len(first)} measured for the first time"])
 
     if first:
         print(f"{len(first)} pair(s) measured for the first time, recorded in {record or MEASURED} for {against}:")
@@ -345,7 +374,7 @@ def main():
         if against and not recorded:
             print(f"{against} holds no share yet, so the run does not fail until it is recorded.")
             return
-        errors(failures)
+        errors(failures, where)
         sys.exit(1)
 
 

@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a41cc801`, Verdict 66's two mends done and nothing else, 7 files. `compare.py` says
+Reviewed up to `0af1c9cd`, Verdict 64's two readings and nothing else, the leak test and the norm's
+list of waits. On 64-bit Windows the test sweeps the address space with `VirtualQuery` at the
+twentieth app and the last, summing the committed regions by their type, private, mapped or a
+module's image, and by what they hold, code where the protection is executable, a stack where the
+allocation holds a guard page, data otherwise, and says each kind's megabytes and regions then and
+now on a line of the series, the kind grown most first, so the one that grew names its owner, LLVM's
+code for lavapipe's shaders private, the runtime's mapped under its double mapping, stacks and data
+by themselves. Before an app's last reading the test waits half a second at most for the process's
+threads to fall to the count the app began with, on Windows from a snapshot of the system's threads
+that allocates nothing managed, counting the apps whose threads outlast it, and what changes between
+one app's last reading and the next app's first is a step of its own, so the steps sum to the
+tenth-app readings' climb; the wait is listed in `build/norm/3.3.txt` with its reason, the file
+counted there already. The wait is shorter than asked, with the reason in the test, two apps in
+eighty on Linux outliving two seconds and a hundred waits of that length on Windows passing the five
+minutes a test has. Checked on the working machine were the strict build and the whole suite, 1,715
+passed and N 3.3 failing until the wait was listed, and on Linux the steps summed to 0.04 MB given
+back an app with 0.32 between apps, every app's threads met within the wait but two's; the sweep
+runs on Windows alone and has not run yet. Right. The pack run of `a41cc801` ended at 11:38 on
+2026-10-18, its captures-macos and games jobs green and its captures job red at 11:36 on the raylib
+measure alone, every one of the 256 examples drawn in 26 minutes and the page naming its pair,
+`models_directional_billboard` 7.9 percent apart where 5.5 is recorded with a room of 1 point, which
+settles Verdict 66 and opens Verdict 67; the pack job did not run. The owner pushed `0af1c9cd` at
+11:33 and started its pack run at 11:34, both running at 11:51. Next their Windows suites naming
+Verdict 64's kind, Verdict 67's mend, and a pack run whole green; items 27 and 28 wait for it.
+
+Before it, `a41cc801` came, Verdict 66's two mends done and nothing else, 7 files. `compare.py` says
 the pairs that fail as errors of its own and as lines of the job's summary, titled with how many
 pairs do not hold to the share recorded, one line a pair, past its room with the share measured, the
 share recorded and the room, no frame from raylib's program with the reason its capture's first line
@@ -66,22 +91,6 @@ whose page says nothing of which pairs failed, the step's page holding 21 lines 
 ended of their own where GitHub's 4,096 characters ran out (Verdict 66). Decision 42's gate holds;
 items 27 and 28 wait for the next pack run, after `d6b08853`, `91ec5de1`, Verdict 64's mend and
 Verdict 66's.
-
-Before it, `d6b08853` came, Verdict 64's macOS twin mended and nothing else, 2 files. The leak
-test's held instance asks the loader for its extensions through
-`vkEnumerateInstanceExtensionProperties`, as the engine's `IsInstanceExtensionAvailable` asks, and
-where `VK_KHR_portability_enumeration` is listed asks for it with `EnumeratePortabilityKHR`, as the
-engine's instance does (`GraphicsDevice.Instance.cs:58-73`), with no surface and no debug messenger,
-the comment saying what MoltenVK's loader answered the bare instance. Checked on the working
-machine, whose loader lists the extension too, were the strict build and the whole suite, 1,715
-passed, the twin among them in 50 seconds. Right. The runs of `704952c5` went on. The push run ended
-at 01:28 red on macOS, the bare twin, and on Windows, where both leak tests failed, the held twin
-climbing as the plain one does, so the climb is the process's own and not the driver's reload
-(Verdict 64); the pack run's Windows suite failed the same way, its games job passed at 01:32 with
-every game played and the soak of twelve passing, which settles Verdict 65 and makes Slide's play
-the third green puzzle step on cold caches, and its two capture jobs are running at 01:34, the Linux
-one the last place the death showed. Decision 42's gate holds; items 27 and 28 wait for the next
-pack run, after `d6b08853` and Verdict 64's mend.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1138,7 +1147,8 @@ suite's time, on the runs of `82b23f8c` on 2026-10-12, the leak test green on fo
 and the suite's loss at its limit traced to a shader cache never saved after a failed job, mended at
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
-`704952c5` on 2026-10-18, said under each. Verdicts 64 and 66 are open.
+`704952c5` and 66 on the pack run of `a41cc801` on 2026-10-18, said under each. Verdicts 64 and 67
+are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -1510,7 +1520,16 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     class that grew names the owner; and the step line's last reading is taken once the app's
     threads are gone, as the tenth-app readings are, so its kept figure is the series'. What follows
     the reading is said here when it is in. Settled at three green Windows suites in a row after the
-    mend.
+    mend. Done at `0af1c9cd`, the sweep on 64-bit Windows at the twentieth app and the last, the
+    committed regions summed by type, private, mapped or image, and by what they hold, code by an
+    executable protection, a stack by a guard page in its allocation, data otherwise, the kind grown
+    most said first on a line of the series; each app's last reading taken once its threads have
+    ended, waited for half a second at most, since on Linux the threads of two apps in eighty
+    outlived two seconds and on Windows a longer wait for each of a hundred apps would pass the five
+    minutes a test is allowed, the apps whose threads outlast the wait counted on the line; and what
+    changes between an app's last reading and the next app's first a step of its own, so the steps
+    sum to the tenth-app readings' climb. On Linux the steps summed to 0.04 MB given back an app
+    with 0.32 between apps. The next Windows suite names the kind.
 
 65. **The games job's soak judges Manor and Swarm as standing still, and both move on.** On the pack
     run of `683e6e9d`, 2026-10-17, the games job's soak of the twelve games, two minutes each on
@@ -1562,7 +1581,35 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
     then read for whether the runner's processor draws them otherwise. Mended at `a41cc801`, the
     pairs said as the script's own errors with their shares and room, in at most ten under the
     limit, and the step's page naming only the programs that ended other than of their own or still
-    run, after its last lines.
+    run, after its last lines. Settled on the pack run of `a41cc801`, 2026-10-18, the measure's page
+    naming its one pair as the script's own error, `models_directional_billboard` 7.9 percent apart
+    where 5.5 was recorded, past its room of 1 point, and no program named, every one having ended
+    of its own; the pair is Verdict 67's.
+
+67. **The raylib measure's pair `models_directional_billboard` stands 7.9 percent apart where 5.5 is
+    recorded, on a runner whose processor the page does not say.** On the pack run of `a41cc801`,
+    2026-10-18, the captures job's measure failed on that pair alone, 7.9 percent of its pixels
+    apart from raylib's frame where `3DEngine.Examples/measured-ci.tsv:71` records 5.5, past the
+    point of room every pair has (`build/raylib-bench/compare.py:209`), the other pairs holding and
+    every one of the 256 examples drawn. The record was measured on a runner on 2026-10-11 or
+    before, and the measure held to it on the pack run of `fc5fdc97` on 2026-10-17 and failed on the
+    two pack runs since, `704952c5` with its cause lost under the page's limit (Verdict 66) and this
+    one on the pair. Two things changed between. Since `704952c5` each runner draws with shaders
+    compiled for its own processor (Verdict 63), where before the cache restored was one processor's
+    for every runner, so a frame whose pixels depend on the rounding LLVM's code for a processor
+    gives, the direction a billboard faces chosen from an angle near a boundary among them, may
+    differ between the two processors the fleet has and no longer be hidden; and the runner image's
+    own Mesa, which raylib's program draws with, is whatever its packages hold on the day. The page
+    says neither the processor nor its flags, which the game steps' pages do. The mend is one thing,
+    with its reading. The measure's page says the processor the runner drew on and whether gfni is
+    among its flags, as the game steps do, beside its pairs and its count, so a pair's share is read
+    with the processor that drew it; the pair is read on the working machine for what in its frame
+    turns on rounding, the billboard's direction at the frame taken first, and where it does, the
+    record gives the pair the room the two processors' shares measure, in the third column with the
+    reason above it, or the frame taken moves off the boundary and the picture is taken again; and
+    where it does not, raylib's frame is compared between the two runs for what Mesa drew otherwise.
+    Settled when the measure holds on a pack run, and said here again where a run on the other
+    processor fails it.
 
 ## Decisions
 
