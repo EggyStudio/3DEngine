@@ -227,20 +227,33 @@ internal sealed class Renderer : IDisposable
         UpdateDiagnostics(frameCtx.Extent);
         Timings.BeginFrameMs = Lap(ref mark);
 
-        Logger.FrameTrace("RenderFrame: Running prepare systems...");
-        var start = mark;
-        var prepareCpu = new List<(string, double)>(_prepareSystems.Count);
-        foreach (var sys in _prepareSystems)
+        try
         {
-            sys.Run(RenderWorld, renderCtx);
-            prepareCpu.Add((sys.GetType().Name, Lap(ref mark)));
-        }
-        Timings.PrepareCpu = prepareCpu;
-        Timings.PrepareMs = Stopwatch.GetElapsedTime(start, mark).TotalMilliseconds;
+            Logger.FrameTrace("RenderFrame: Running prepare systems...");
+            var start = mark;
+            var prepareCpu = new List<(string, double)>(_prepareSystems.Count);
+            foreach (var sys in _prepareSystems)
+            {
+                sys.Run(RenderWorld, renderCtx);
+                prepareCpu.Add((sys.GetType().Name, Lap(ref mark)));
+            }
+            Timings.PrepareCpu = prepareCpu;
+            Timings.PrepareMs = Stopwatch.GetElapsedTime(start, mark).TotalMilliseconds;
 
-        Logger.FrameTrace("RenderFrame: Executing render graph nodes...");
-        ExecuteGraph(renderCtx, frameCtx.InFlightIndex);
-        Timings.GraphMs = Lap(ref mark);
+            Logger.FrameTrace("RenderFrame: Executing render graph nodes...");
+            ExecuteGraph(renderCtx, frameCtx.InFlightIndex);
+            Timings.GraphMs = Lap(ref mark);
+        }
+        catch
+        {
+            // A frame that fails is never submitted and takes no slot of the frames in flight,
+            // while the renderers that keep what they let go for RetireFrames frames have counted
+            // it, so a frame after would destroy what one submitted before this still reads, such
+            // as a pool whose sets the device is still running. The device is waited for, so the
+            // frames before this one have finished.
+            Context.Graphics.WaitIdle();
+            throw;
+        }
 
         Logger.FrameTrace("RenderFrame: Ending frame...");
         Context.EndFrame(frameCtx, imageIndex);

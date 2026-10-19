@@ -344,7 +344,7 @@ internal sealed unsafe partial class GraphicsDevice
         ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null)
     {
-        var run = new ProbeRun(this, commandBuffer, gi.Cascades);
+        var run = new ProbeRun(this, commandBuffer, [(TraceStage, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -531,7 +531,7 @@ internal sealed unsafe partial class GraphicsDevice
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
         IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1)
     {
-        var run = new ProbeRun(this, commandBuffer, 1);
+        var run = new ProbeRun(this, commandBuffer, [(ScreenStage, 1), (FilterStage, 1), (GlowStage, glowLights ? 1 : 0)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -705,28 +705,19 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // One frame's recording of the probes' work, the descriptor pool its sets come from, freed once
-    // no frame in flight reads them.
+    // One frame's recording of the probes' work, the descriptor pool its sets come from, as many of
+    // each stage as it is made for, freed once no frame in flight reads them.
     private sealed class ProbeRun : IDisposable
     {
         private readonly GraphicsDevice _device;
         private readonly VkDescriptorPool _pool;
 
-        public ProbeRun(GraphicsDevice device, ICommandBuffer commandBuffer, int cascades)
+        public ProbeRun(GraphicsDevice device, ICommandBuffer commandBuffer, (int Stage, int Sets)[] sets)
         {
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
             _device = device;
             Commands = vkCmd.Handle;
-            var sets = (uint)(3 * cascades + 1);
-            var sizes = stackalloc VkDescriptorPoolSize[5];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 6 * sets };
-            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 3 * sets };
-            sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 4 * sets };
-            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = 3 * sets };
-            sizes[4] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = sets };
-            var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = sets, poolSizeCount = 5, pPoolSizes = sizes };
-            device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
-            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+            _pool = device.MakeDescriptorPool(sets.Select(s => (device.GiStages[s.Stage].Descriptors, s.Sets)));
         }
 
         public VkCommandBuffer Commands { get; }
@@ -765,11 +756,7 @@ internal sealed unsafe partial class GraphicsDevice
             _device._deviceApi.vkCmdDispatch(Commands, Math.Max(1, groups), 1, 1);
         }
 
-        public void Dispose()
-        {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _device._deviceApi.vkDestroyDescriptorPool(_pool);
-        }
+        public void Dispose() => _device.DestroyDescriptorPool(_pool);
     }
 
     // Runs before the device goes.

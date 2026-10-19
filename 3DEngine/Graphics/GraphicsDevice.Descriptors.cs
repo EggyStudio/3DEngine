@@ -5,14 +5,28 @@ namespace Engine;
 internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>
-    /// The pools descriptor sets are allocated from, the newest last. One that runs out is kept for
-    /// the sets it holds, and another as large is made for the next, so a frame with more draws
-    /// of their own sets than one pool holds still finds room.
+    /// Every pool the shared descriptor sets are allocated from, which go with the device.
     /// </summary>
     private readonly List<VkDescriptorPool> _descriptorPools = [];
 
-    // The pool new sets come from, or none before the first is made.
-    private VkDescriptorPool _descriptorPool => _descriptorPools.Count > 0 ? _descriptorPools[^1] : default;
+    /// <summary>
+    /// The shared sets' pools by the shape of the layouts they serve, the descriptors of each type
+    /// a set takes, every pool counted from its shape times its sets. One that runs out is kept for
+    /// the sets it holds, and one twice as large is made for the next, so a frame with more draws
+    /// of their own sets than one pool holds still finds room.
+    /// </summary>
+    private readonly Dictionary<string, List<SetPool>> _setPools = [];
+
+    // The sets a shape's first pool holds, and the most any of its pools do.
+    private const int FirstPoolSets = 64, MostPoolSets = 4096;
+
+    // A pool of the shared sets and how many more it holds, which a freed set gives back to.
+    private sealed class SetPool(VkDescriptorPool handle, int sets)
+    {
+        public readonly VkDescriptorPool Handle = handle;
+        public readonly int Sets = sets;
+        public int Left = sets;
+    }
 
     /// <summary>Default descriptor set layout (binding 0 = UBO vertex, binding 1 = combined image sampler fragment).</summary>
     private VkDescriptorSetLayout _cameraSetLayout;
@@ -22,7 +36,7 @@ internal sealed unsafe partial class GraphicsDevice
     private sealed class VulkanDescriptorSet : IDescriptorSet
     {
         private readonly GraphicsDevice _device;
-        private readonly VkDescriptorPool _pool;
+        private readonly SetPool _pool;
 
         /// <summary>The underlying Vulkan descriptor set handle.</summary>
         internal VkDescriptorSet Handle;
@@ -31,7 +45,7 @@ internal sealed unsafe partial class GraphicsDevice
         /// <param name="device">The owning graphics device.</param>
         /// <param name="pool">The pool it was allocated from, which it goes back to.</param>
         /// <param name="handle">The allocated Vulkan descriptor set handle.</param>
-        public VulkanDescriptorSet(GraphicsDevice device, VkDescriptorPool pool, VkDescriptorSet handle)
+        public VulkanDescriptorSet(GraphicsDevice device, SetPool pool, VkDescriptorSet handle)
         {
             _device = device;
             _pool = pool;
@@ -44,10 +58,11 @@ internal sealed unsafe partial class GraphicsDevice
         public void Dispose()
         {
             // A set outliving the device's pools went with them.
-            if (Handle.Handle != 0 && _device._descriptorPools.Contains(_pool))
+            if (Handle.Handle != 0 && _device._descriptorPools.Contains(_pool.Handle))
             {
                 var set = Handle;
-                _device._deviceApi.vkFreeDescriptorSets(_pool, 1, &set);
+                _device._deviceApi.vkFreeDescriptorSets(_pool.Handle, 1, &set);
+                _pool.Left++;
                 DeviceObjects.Gone(DeviceObjects.Kind.DescriptorSet);
             }
             if (Handle.Handle != 0) Interlocked.Decrement(ref _device._liveDescriptorSets);
@@ -55,7 +70,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    /// <summary>Creates the default descriptor set layout and descriptor pool used for camera UBOs and texture samplers.</summary>
+    /// <summary>Creates the default descriptor set layout used for camera UBOs and texture samplers.</summary>
     private void CreateDescriptorResources()
     {
         Logger.Debug("Creating descriptor set layout (binding 0=UBO vertex, binding 1=CombinedImageSampler fragment)...");
@@ -84,40 +99,61 @@ internal sealed unsafe partial class GraphicsDevice
 
         _deviceApi.vkCreateDescriptorSetLayout(&layoutInfo, null, out _cameraSetLayout).CheckResult();
         Logger.Debug("Descriptor set layout created.");
-
-        AddDescriptorPool();
     }
 
-    // Makes another pool of the same size, the one new sets come from.
-    private void AddDescriptorPool()
+    /// <summary>
+    /// Makes a pool of the sets given, each a layout's descriptors by type, one entry a descriptor,
+    /// and how many sets of it, its counts summed from them, or none where no set is given.
+    /// </summary>
+    /// <remarks>
+    /// A driver may refuse a set past its pool's counts, as MoltenVK does, where Mesa's allocate it
+    /// and the layer only warns, so no pool's counts are written by hand. A pool counted by hand is
+    /// outgrown when a pass is given another binding, and the frames that use it then fail on macOS
+    /// alone.
+    /// </remarks>
+    private VkDescriptorPool MakeDescriptorPool(IEnumerable<(VkDescriptorType[] Descriptors, int Sets)> layouts,
+        VkDescriptorPoolCreateFlags flags = VkDescriptorPoolCreateFlags.None)
     {
-        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers, 1024 storage buffers, 16384 images and 4096 samplers apart, maxSets=4096)...");
-        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[7];
-        poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
-        // A model pass set holds five maps, so samplers run out first.
-        poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 16384);
-        poolSizes[2] = new VkDescriptorPoolSize(VkDescriptorType.UniformBufferDynamic, 4096);
-        // For the storage buffers a drawing shader reads, which few draws have.
-        poolSizes[3] = new VkDescriptorPoolSize(VkDescriptorType.StorageBuffer, 1024);
-        // For the model pass's lights' sets, which read their images through two samplers bound
-        // apart, and a program's shaders that declare a texture and its sampler apart.
-        poolSizes[4] = new VkDescriptorPoolSize(VkDescriptorType.SampledImage, 16384);
-        poolSizes[5] = new VkDescriptorPoolSize(VkDescriptorType.Sampler, 4096);
-        // The scene's triangles in the model pass's lights' set, a set of which each frame and
-        // target makes, where the device traces rays.
-        poolSizes[6] = new VkDescriptorPoolSize(VkDescriptorType.AccelerationStructureKHR, 1024);
-
-        VkDescriptorPoolCreateInfo poolInfo = new()
+        var counts = new SortedDictionary<VkDescriptorType, uint>();
+        uint sets = 0;
+        foreach (var (descriptors, n) in layouts)
         {
-            flags = VkDescriptorPoolCreateFlags.FreeDescriptorSet,
-            maxSets = 4096,
-            poolSizeCount = CanQueryRays ? 7u : 6u,
-            pPoolSizes = poolSizes
-        };
+            foreach (var type in descriptors) counts[type] = counts.GetValueOrDefault(type) + (uint)n;
+            sets += (uint)n;
+        }
+        if (sets == 0) return default;
 
+        var sizes = stackalloc VkDescriptorPoolSize[Math.Max(1, counts.Count)];
+        var i = 0;
+        foreach (var (type, count) in counts) sizes[i++] = new VkDescriptorPoolSize(type, count);
+        var poolInfo = new VkDescriptorPoolCreateInfo { flags = flags, maxSets = sets, poolSizeCount = (uint)counts.Count, pPoolSizes = sizes };
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
-        _descriptorPools.Add(pool);
+        return pool;
+    }
+
+    // Destroys a pool MakeDescriptorPool made, where it made one.
+    private void DestroyDescriptorPool(VkDescriptorPool pool)
+    {
+        if (pool.Handle == 0) return;
+        DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
+        _deviceApi.vkDestroyDescriptorPool(pool);
+    }
+
+    // The camera set's descriptors and their shape, which its pools are counted from.
+    private static readonly VkDescriptorType[] CameraDescriptors = [VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler];
+    private static readonly string CameraShape = ShapeOf(CameraDescriptors);
+
+    // The key of a layout's shape, its descriptors in order of type.
+    private static string ShapeOf(VkDescriptorType[] descriptors) => string.Join(',', descriptors.Order());
+
+    // A layout's descriptors by type, one entry a descriptor, as MakeDescriptorPool counts them.
+    private static VkDescriptorType[] DescriptorsOf(ReadOnlySpan<DescriptorSetLayoutBinding> bindings)
+    {
+        var descriptors = new List<VkDescriptorType>();
+        foreach (var binding in bindings)
+            for (var d = 0u; d < binding.Count; d++) descriptors.Add(ToVkDescriptorType(binding.Type));
+        return [.. descriptors];
     }
 
     /// <summary>Destroys the descriptor pool and descriptor set layout.</summary>
@@ -132,6 +168,7 @@ internal sealed unsafe partial class GraphicsDevice
         // The sets still in them went with them.
         DeviceObjects.Gone(DeviceObjects.Kind.DescriptorSet, Volatile.Read(ref _liveDescriptorSets));
         _descriptorPools.Clear();
+        _setPools.Clear();
         if (_cameraSetLayout.Handle != 0)
         {
             _deviceApi.vkDestroyDescriptorSetLayout(_cameraSetLayout);
@@ -142,13 +179,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// <inheritdoc />
     public IDescriptorSet CreateDescriptorSet()
     {
-        if (_descriptorPool.Handle == 0)
+        if (_cameraSetLayout.Handle == 0)
             CreateDescriptorResources();
 
-        VkDescriptorSetLayout* layouts = stackalloc VkDescriptorSetLayout[1];
-        layouts[0] = _cameraSetLayout;
-
-        return Allocate(layouts[0]);
+        return Allocate(_cameraSetLayout, CameraDescriptors, CameraShape);
     }
 
     /// <summary>Wraps a Vulkan descriptor set layout for custom pipeline layouts.</summary>
@@ -162,10 +196,18 @@ internal sealed unsafe partial class GraphicsDevice
             _device = device;
             Handle = handle;
             Bindings = bindings;
+            Descriptors = DescriptorsOf(bindings);
+            Shape = ShapeOf(Descriptors);
         }
 
         /// <summary>The bindings it was made with, which a pipeline's stages are counted from.</summary>
         internal DescriptorSetLayoutBinding[] Bindings { get; }
+
+        /// <summary>A set's descriptors by type, which the pool its sets come from is counted from.</summary>
+        internal VkDescriptorType[] Descriptors { get; }
+
+        /// <summary>The key of the pools its sets come from, shared with every layout of its descriptors.</summary>
+        internal string Shape { get; }
 
         public void Dispose()
         {
@@ -180,7 +222,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <inheritdoc />
     public IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
     {
-        if (_descriptorPool.Handle == 0)
+        if (_cameraSetLayout.Handle == 0)
             CreateDescriptorResources();
 
         VkDescriptorSetLayoutBinding* vkBindings = stackalloc VkDescriptorSetLayoutBinding[bindings.Length];
@@ -208,36 +250,48 @@ internal sealed unsafe partial class GraphicsDevice
     /// <inheritdoc />
     public IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
     {
-        if (_descriptorPool.Handle == 0)
+        if (_cameraSetLayout.Handle == 0)
             CreateDescriptorResources();
 
         if (layout is not VulkanDescriptorSetLayout vkLayout)
             throw new ArgumentException("Descriptor set layout was not created by this device.", nameof(layout));
 
-        VkDescriptorSetLayout* layouts = stackalloc VkDescriptorSetLayout[1];
-        layouts[0] = vkLayout.Handle;
-
-        return Allocate(layouts[0]);
+        return Allocate(vkLayout.Handle, vkLayout.Descriptors, vkLayout.Shape);
     }
 
-    // Allocates a set of the layout from the newest pool, and from a new one when that is full.
-    private VulkanDescriptorSet Allocate(VkDescriptorSetLayout layout)
+    // Allocates a set of the layout from the newest pool of its shape with room for it, and from a
+    // new one when none has.
+    private VulkanDescriptorSet Allocate(VkDescriptorSetLayout layout, VkDescriptorType[] descriptors, string shape)
     {
+        if (!_setPools.TryGetValue(shape, out var pools)) _setPools[shape] = pools = [];
         for (int attempt = 0; ; attempt++)
         {
-            var pool = _descriptorPool;
+            if (pools.FindLast(p => p.Left > 0) is not { } pool)
+            {
+                var sets = pools.Count == 0 ? FirstPoolSets : Math.Min(2 * pools[^1].Sets, MostPoolSets);
+                Logger.Debug($"Making a descriptor pool of {sets} sets of {(shape.Length > 0 ? shape : "no descriptors")}...");
+                pool = new SetPool(MakeDescriptorPool([(descriptors, sets)], VkDescriptorPoolCreateFlags.FreeDescriptorSet), sets);
+                _descriptorPools.Add(pool.Handle);
+                pools.Add(pool);
+            }
             VkDescriptorSetAllocateInfo allocInfo = new()
             {
-                descriptorPool = pool,
+                descriptorPool = pool.Handle,
                 descriptorSetCount = 1,
                 pSetLayouts = &layout
             };
 
             VkDescriptorSet set;
             var result = _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set);
-            if (result == VkResult.Success) return new VulkanDescriptorSet(this, pool, set);
+            if (result == VkResult.Success)
+            {
+                pool.Left--;
+                return new VulkanDescriptorSet(this, pool, set);
+            }
+            // A pool whose sets were freed out of order may be too fragmented for one more set
+            // though its counts hold it, and is passed over until a set of it is freed.
             if (attempt > 0 || result is not (VkResult.ErrorOutOfPoolMemory or VkResult.ErrorFragmentedPool)) result.CheckResult();
-            AddDescriptorPool();
+            pool.Left = 0;
         }
     }
 

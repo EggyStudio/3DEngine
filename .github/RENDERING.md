@@ -2703,6 +2703,14 @@ run to run, with the runtime's compiler and collector in the frame.
   engine carves them itself rather than taking the Vulkan Memory Allocator, which DESIGN.md §8
   does not list.
 - **A swapchain rebuilt on resize** without a device wait every frame.
+- **Descriptor pools counted from their layouts** (`GraphicsDevice.MakeDescriptorPool`), done,
+  since MoltenVK refuses a set past its pool's counts where Mesa's drivers allocate it and the
+  layer only warns. A pass's pool holds the sets of each stage it dispatches, by type from their
+  bindings, and the shared sets come from pools by the shape of their layouts, so a binding added
+  to a shader reaches its pool with no count written for it. The layer's warning on a set past its
+  pool is counted with its errors, so a test fails on one wherever the layer runs. A frame that
+  fails waits for the device before it ends, since the renderers keep what they let go for a count
+  of frames and a frame not submitted would otherwise shorten it.
 
 ### Debugging
 

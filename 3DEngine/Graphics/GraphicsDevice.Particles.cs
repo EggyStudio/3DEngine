@@ -106,6 +106,12 @@ internal sealed unsafe partial class GraphicsDevice
     private readonly VkDescriptorSet[] _particleViewSets = new VkDescriptorSet[MaxFramesInFlight];
     private readonly IBuffer?[] _particleViewBuffers = new IBuffer?[MaxFramesInFlight];
 
+    // The type of each binding of an emitter's set and of the view's, which their set layouts and
+    // the pools of their sets are made from.
+    private static readonly VkDescriptorType[] ParticleDescriptors = [VkDescriptorType.StorageBuffer];
+    private static readonly VkDescriptorType[] ParticleViewDescriptors =
+        [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer];
+
     private VkPipeline _particlePipeline;
     private VkPipelineLayout _particleLayout;
     private VkDescriptorSetLayout _particleSetLayout;
@@ -128,28 +134,21 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (!IsInitialized || CanStepParticles) return;
 
-        var binding = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = VkDescriptorType.StorageBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        var binding = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = ParticleDescriptors[0], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 1, pBindings = &binding };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _particleSetLayout = setLayout;
 
         // The second set, the scene's depth and the view it was drawn through, and the scene's
         // distance field and where its cascades lie.
-        var viewBindings = stackalloc VkDescriptorSetLayoutBinding[4];
-        viewBindings[0] = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        viewBindings[1] = new VkDescriptorSetLayoutBinding { binding = 1, descriptorType = VkDescriptorType.UniformBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        viewBindings[2] = new VkDescriptorSetLayoutBinding { binding = 2, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        viewBindings[3] = new VkDescriptorSetLayoutBinding { binding = 3, descriptorType = VkDescriptorType.UniformBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        var viewInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 4, pBindings = viewBindings };
+        var viewBindings = stackalloc VkDescriptorSetLayoutBinding[ParticleViewDescriptors.Length];
+        for (int b = 0; b < ParticleViewDescriptors.Length; b++)
+            viewBindings[b] = new VkDescriptorSetLayoutBinding { binding = (uint)b, descriptorType = ParticleViewDescriptors[b], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        var viewInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = (uint)ParticleViewDescriptors.Length, pBindings = viewBindings };
         _deviceApi.vkCreateDescriptorSetLayout(&viewInfo, null, out var viewLayout).CheckResult();
         _particleViewLayout = viewLayout;
 
-        var sizes = stackalloc VkDescriptorPoolSize[2];
-        sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 2 * MaxFramesInFlight };
-        sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 2 * MaxFramesInFlight };
-        var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = MaxFramesInFlight, poolSizeCount = 2, pPoolSizes = sizes };
-        _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _particleViewPool).CheckResult();
-        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+        _particleViewPool = MakeDescriptorPool([(ParticleViewDescriptors, MaxFramesInFlight)]);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _particleViewPool, descriptorSetCount = 1, pSetLayouts = &viewLayout };
@@ -258,10 +257,7 @@ internal sealed unsafe partial class GraphicsDevice
         var buffer = CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.Write));
         Map(buffer).Clear();
 
-        var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 1 };
-        var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 1, pPoolSizes = &size };
-        _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
-        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+        var pool = MakeDescriptorPool([(ParticleDescriptors, 1)]);
         var layout = _particleSetLayout;
         var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &layout };
         VkDescriptorSet set;
@@ -273,8 +269,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         return new GpuParticles(buffer, capacity, set, () =>
         {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _deviceApi.vkDestroyDescriptorPool(pool);
+            DestroyDescriptorPool(pool);
             buffer.Dispose();
         });
     }
@@ -426,11 +421,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
         if (_particleLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_particleLayout);
         if (_particleSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleSetLayout);
-        if (_particleViewPool.Handle != 0)
-        {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _deviceApi.vkDestroyDescriptorPool(_particleViewPool);
-        }
+        DestroyDescriptorPool(_particleViewPool);
         if (_particleViewLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleViewLayout);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {

@@ -25,6 +25,9 @@ internal sealed class ComputePipeline : IDisposable
     internal VkPipelineLayout Layout { get; }
     internal VkDescriptorSetLayout SetLayout { get; }
 
+    /// <summary>The type of each of its bindings, one descriptor each, which a dispatch's pool is counted from.</summary>
+    internal VkDescriptorType[] Descriptors { get; init; } = [];
+
     /// <summary>The size of the uniform buffer at binding 0, or 0 when the shader declares no uniforms.</summary>
     public int UniformSize { get; }
 
@@ -106,6 +109,8 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkDestroyShaderModule(module);
 
         ComputePipeline? created = null;
+        var descriptors = new VkDescriptorType[count];
+        for (int d = 0; d < count; d++) descriptors[d] = bindings[d].descriptorType;
         created = new ComputePipeline(pipeline, layout, setLayout, uniformSize, [.. bufferBindings], imageBindings: [.. imageBindings], textureBindings: [.. textureBindings], dispose: () =>
         {
             lock (_computeGate)
@@ -118,7 +123,7 @@ internal sealed unsafe partial class GraphicsDevice
             _deviceApi.vkDestroyPipeline(pipeline);
             _deviceApi.vkDestroyPipelineLayout(layout);
             _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
-        });
+        }) { Descriptors = descriptors };
         lock (_computeGate) _computePipelines.Add(created);
         return created;
     }
@@ -166,17 +171,9 @@ internal sealed unsafe partial class GraphicsDevice
             }
 
             // A pool of one set for each dispatch, freed with it, since dispatches come and go
-            // at the program's pace rather than the frame's.
-            var sizes = stackalloc VkDescriptorPoolSize[6];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)Math.Max(1, buffers.Count) };
-            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
-            sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = (uint)Math.Max(1, images.Count) };
-            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
-            sizes[4] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = (uint)Math.Max(1, textures.Count) };
-            sizes[5] = new VkDescriptorPoolSize { type = VkDescriptorType.Sampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
-            var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 6, pPoolSizes = sizes };
-            _deviceApi.vkCreateDescriptorPool(&descriptorPoolInfo, null, out VkDescriptorPool pool).CheckResult();
-            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+            // at the program's pace rather than the frame's. It is counted from the pipeline's
+            // bindings, which a dispatch may bind fewer of.
+            var pool = MakeDescriptorPool([(pipeline.Descriptors, 1)]);
             var setLayout = pipeline.SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
             VkDescriptorSet set;
@@ -360,8 +357,7 @@ internal sealed unsafe partial class GraphicsDevice
 
             _deviceApi.vkDestroyFence(fence);
             _deviceApi.vkFreeCommandBuffers(_computePool, 1, &commands);
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _deviceApi.vkDestroyDescriptorPool(pool);
+            DestroyDescriptorPool(pool);
             uniforms?.Dispose();
             _computeInFlight.RemoveAt(i--);
         }

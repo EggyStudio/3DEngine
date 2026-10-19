@@ -53,6 +53,8 @@ internal sealed class GpuSkin : IDisposable
 internal sealed unsafe partial class GraphicsDevice
 {
     private const int SkinBindings = 6;
+    // The type of each binding, which the set layout and the pools of its sets are made from.
+    private static readonly VkDescriptorType[] SkinDescriptors = [.. Enumerable.Repeat(VkDescriptorType.StorageBuffer, SkinBindings)];
     private VkPipeline _skinPipeline;
     private VkPipelineLayout _skinLayout;
     private VkDescriptorSetLayout _skinSetLayout;
@@ -67,7 +69,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         var bindings = stackalloc VkDescriptorSetLayoutBinding[SkinBindings];
         for (uint b = 0; b < SkinBindings; b++)
-            bindings[b] = new VkDescriptorSetLayoutBinding { binding = b, descriptorType = VkDescriptorType.StorageBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+            bindings[b] = new VkDescriptorSetLayoutBinding { binding = b, descriptorType = SkinDescriptors[b], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = SkinBindings, pBindings = bindings };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _skinSetLayout = setLayout;
@@ -133,10 +135,7 @@ internal sealed unsafe partial class GraphicsDevice
         var rows = new IBuffer[ring];
         for (int i = 0; i < ring; i++) rows[i] = CreateBuffer(new BufferDesc(rowBytes, BufferUsage.Storage, CpuAccessMode.Write));
 
-        var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)(ring * SkinBindings) };
-        var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = (uint)ring, poolSizeCount = 1, pPoolSizes = &size };
-        _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
-        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+        var pool = MakeDescriptorPool([(SkinDescriptors, ring)]);
 
         var sets = new VkDescriptorSet[ring];
         var layout = _skinSetLayout;
@@ -162,8 +161,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         return new GpuSkin(output, count, rows, sets, () =>
         {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _deviceApi.vkDestroyDescriptorPool(pool);
+            DestroyDescriptorPool(pool);
             foreach (var row in rows) row.Dispose();
             morphBuffer.Dispose();
             restBuffer.Dispose();

@@ -398,7 +398,7 @@ internal sealed unsafe partial class GraphicsDevice
     public IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false)
     {
-        var run = new FieldRun(this, commandBuffer);
+        var run = new FieldRun(this, commandBuffer, instanceCount > 0 && triangleCount > 0 ? [SplatStage, ResolveStage] : [ResolveStage]);
         var cmd = run.Commands;
         var cells = ((VulkanBuffer)field.Cells).Buffer;
         var size = (uint)field.Resolution;
@@ -517,13 +517,13 @@ internal sealed unsafe partial class GraphicsDevice
     public IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
     {
-        var run = new FieldRun(this, commandBuffer);
-        if (field.KeptCells is null || instanceCount <= 0 || triangleCount <= 0) return run;
+        if (field.KeptCells is not { } kept || instanceCount <= 0 || triangleCount <= 0) return new FieldRun(this, commandBuffer, []);
+        var run = new FieldRun(this, commandBuffer, [SplatStage]);
         var size = (uint)field.Resolution;
         var splat = run.Set(SplatStage);
         run.Buffer(splat, 0, VkDescriptorType.StorageBuffer, corners);
         run.Buffer(splat, 1, VkDescriptorType.StorageBuffer, instances);
-        run.Buffer(splat, 2, VkDescriptorType.StorageBuffer, field.KeptCells);
+        run.Buffer(splat, 2, VkDescriptorType.StorageBuffer, kept);
         run.Buffer(splat, 3, VkDescriptorType.StorageBuffer, field.Albedo);
         run.Buffer(splat, 4, VkDescriptorType.StorageBuffer, field.Glow);
         run.Buffer(splat, 5, VkDescriptorType.StorageBuffer, field.Behind);
@@ -566,7 +566,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
     {
-        var run = new FieldRun(this, commandBuffer);
+        var run = new FieldRun(this, commandBuffer, [StampStage]);
         var set = run.Set(StampStage);
         run.Buffer(set, 0, VkDescriptorType.StorageBuffer, bricks);
         run.Buffer(set, 1, VkDescriptorType.StorageBuffer, shapes);
@@ -642,25 +642,19 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // One recording of the field's work, the descriptor pool its sets come from, freed once no
-    // frame in flight reads them.
+    // One recording of the field's work, the descriptor pool its sets come from, a set of each
+    // stage it is made for, freed once no frame in flight reads them.
     private sealed class FieldRun : IDisposable
     {
         private readonly GraphicsDevice _device;
         private readonly VkDescriptorPool _pool;
 
-        public FieldRun(GraphicsDevice device, ICommandBuffer commandBuffer)
+        public FieldRun(GraphicsDevice device, ICommandBuffer commandBuffer, int[] stages)
         {
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
             _device = device;
             Commands = vkCmd.Handle;
-            var sizes = stackalloc VkDescriptorPoolSize[3];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 12 };
-            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 6 };
-            sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
-            var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 2, poolSizeCount = 3, pPoolSizes = sizes };
-            device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
-            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+            _pool = device.MakeDescriptorPool(stages.Select(stage => (device.FieldStages[stage].Descriptors, 1)));
         }
 
         public VkCommandBuffer Commands { get; }
@@ -699,11 +693,7 @@ internal sealed unsafe partial class GraphicsDevice
             _device._deviceApi.vkCmdDispatch(Commands, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
         }
 
-        public void Dispose()
-        {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _device._deviceApi.vkDestroyDescriptorPool(_pool);
-        }
+        public void Dispose() => _device.DestroyDescriptorPool(_pool);
     }
 
     // Runs before the device goes.

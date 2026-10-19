@@ -10,7 +10,41 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `14ae5a02`, item 30's mend of the last cascade's reach and nothing else, 7 files,
+Reviewed up to `257006c7`, item 30's reads at the surface and nothing else, 6 files, the lean's
+refinement taken at 16:02. The bounced light's reads, the sky's, the summed probes' and the screen
+pass's probes around a hit read at the surface itself, the screen pass's read losing its normal
+parameter, and the lean of half a spacing stays for the ambient blend alone, its remark saying what
+the lean was for, a surface in a plane of probes reading the probes inside it before such probes
+were moved into the room, why the reads no longer take it, leaned they read probes standing where 61
+to 64 percent more light arrives than at the grazing room's far wall, which every bounce took on,
+and why the blend keeps it, a wall in the outer band of Low's last cascade taking a closed room's
+absent ambient light without it. The code reads as the measured build did, every view's distance
+identical and the frames identical to the last bit but where the glow lights' frame-to-frame jitter
+moves pixels; the bounds are pinned 15 percent over the new figures where views moved, both figures
+per view in the reason, the window 0.301, 0.287 and 0.270 where 0.356, 0.340 and 0.324, the strip
+0.216, 0.213 and 0.209 where 0.266, 0.255 and 0.250, the grazing floor 0.075, 0.075 and 0.055 where
+0.104, 0.105 and 0.099. The measure repeats exactly, the head's frames at 800 by 450 read twice in
+one run identical to the last bit, so the carried lamp's room's 0.002 is above its noise and stands
+named as the sampling term's with the far wall's level 1.075; RENDERING.md gives the figures by view
+at both sizes and that room by region, the red wall and the back wall nearer, the floor from 7 to 9
+percent under, the foot at 0.214 and 0.219 against 0.215, which is (d) done, the gain at the faces
+1.00 to 1.17 where 1.08 to 1.27 with the pocket's unchanged, still views calm, and the moved wall
+settling over two frames where the head took one. Checked were the strict build, the suite, 1,730 of
+1,730 with the norm tests after the test's move, and lavapipe under the required layer, 109 passed
+and 16 skipped. Right. Next the merge's first-bounce excess at the pocket and around the strip, read
+along the ways from the cascade above; the sampling term's two candidates again, and (c). The owner
+pushed `9b37e326` to `257006c7`, fifteen commits, at 17:22 and started the pack run with the push
+run, both running at 17:29, the first runs since `ad5d3692`; the package for the game comes from the
+pack run. At 18:03 the push run's macOS suite had failed at 15:36 UTC, 75 of its 1,688 tests, every
+one on a descriptor pool out of memory (Verdict 71), and its other two suites and the pack run's
+three were still running. At 18:18 the Linux suites of both runs had passed, the pack run's macOS
+suite had failed the same 75 tests in 17 minutes 4 seconds, and the Windows suites, the examples job
+and the pack run's captures and games jobs were still running. At 18:47 the push run had ended red
+on its macOS suite alone, its Windows suite green in 60 minutes, its examples job and digest green;
+the pack run's captures on Linux and macOS, its examples job and its games job, thirteen games
+played, soaked and stormed, were green, and its Windows suite was still running in its 85th minute.
+
+Before it, `14ae5a02` came, item 30's mend of the last cascade's reach and nothing else, 7 files,
 committed under the covered-fault principle of `a27fbdd0`, which the reviewer reads the same way.
 The last cascade's interval ends at the diagonal of the field's coarsest cascade, its rays going on
 until they meet a surface or leave the field and taking the sky only where they leave, the remark
@@ -56,32 +90,6 @@ ends in mid-air takes in a closed room larger than its reach. By the rule the re
 and not kept, a third time, and the reviewer's choice of the term's mend is under item 30. Right.
 Next that mend; a pack run for the game's package; then the refinement once more, the merge's
 first-bounce excess at the pocket and the strip, the sampling term's candidates, (c) and (d).
-
-Before it, `a27fbdd0` came, item 30's mend of Low's first bounce and nothing else, 9 files, under
-the conditions of 14:06. `RaysAt` follows the texels, four rays a texel in any cascade of eight a
-side and one where sixteen, every probe sending 256, its remark saying why; the bounce rooms test's
-figures at Low and Medium are pinned anew for the window, the strip and the grazing floor at Low,
-the reason per view giving both figures against High's; RENDERING.md takes the reading, the last
-cascade's reach and the ambient blend ruled out, the tile and the direct light ruled out with their
-figures, the second cascade's 64 texels named as the term, one ray a sixty-fourth of the sphere wide
-taking a bright spot or missing it for the whole texel, and the mend's figures with its cost; the
-guide describes the rule. Checked were the strict build, the suite, 1,729 of 1,729, and lavapipe
-under the required layer, 108 passed and 16 skipped for ray queries, the scratch switches out. The
-lean's part at each quality is read at the three grazing-room probes: they stand in the same places
-with the same spacing at both qualities, the second cascade's wall-plane probe 0.24 off the wall and
-the next plane 2.4, where the reference is 61 to 64 percent brighter than at the wall; at High they
-hold the reference at their own places within 1 percent and at Low 7 to 15 percent under, the wall
-probe's face across the room 35 percent under at the first bounce where High's is 21, its near-level
-rays ending at the last cascade's 9.6 with nothing past them at Low; a hit at the wall reads 1.36 to
-1.52 of the reference at Low and 1.63 at High with the lean of half a spacing, which reads halfway
-toward the brighter far plane, and 0.73 to 0.77 and 0.86 to 0.94 with none, which reads the
-wall-plane probe that at Low also carries the missing light beyond its last cascade; and with four
-rays Low's probes carry more of the gain, the room's middle 10 to 30 percent over at Low against 25
-to 37 at High. Right. Next the refinement measured on this head, the reads at no lean with the
-ambient blend keeping its half-spacing lean, by the rule at both sizes with the faces by bounce, the
-hits, still views and the moved wall's frames across its restamping; a pack run for the game's
-package; then the merge's first-bounce excess at the pocket and the strip, the sampling term's
-candidates, (c) and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1547,9 +1555,93 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it under the covered-fault principle, the widening lying in the far wall's own term, the
     sampling term's, which stands in the order with the level of 1.075 as its figure to mend, and
     the room narrowing at the test's size; the measure's repeatability on the head read twice is
-    said beside the figures, so a difference of 0.002 is known for what it is. Next that commit,
-    then the merge's first-bounce excess at the pocket and the strip, the sampling term's two
-    candidates, (c) and (d).
+    said beside the figures, so a difference of 0.002 is known for what it is. Done at `257006c7`
+    the same day, the reads at the surface and the lean kept for the ambient blend alone with its
+    reasons in the remark, the bounds pinned with both figures per view, the measure shown to repeat
+    exactly, and the wall's foot at 0.214 and 0.219 against 0.215, which is (d) done. Read by 16:47
+    with a scratch test at High, the light the merge lent along each way marked as taken from the
+    cascade above against the reference from the probe's place, and each probe above with its own
+    light along the way against the reference from its own place: two causes, neither of the three
+    named. Around the strip the excess is the probe's own rays and not the merge, one texel of each
+    of the two probes carrying 3.7 and 3.5 against 0.41 and 0.17, three of its four rays meeting
+    nothing and one meeting the strip itself 3.3 out, where the hit is lit by the strip's own glow
+    light from no distance at about 14.8 and stands for a quarter of the texel, which the reference
+    leaves out since a carried emitter's emission does not light the surface it is carried for; it
+    read as the merge's because the texel's mark said most of its rays met nothing, and the probes
+    above hold their places' light right along those ways. At the pocket it is the merge's parallax,
+    one way lending 0.650 against 0.250 where all four rays met nothing within reach, the probe
+    above that carries most of its weight, 1.28 away and higher, right where it stands and meeting
+    the ceiling 1.6 from the lamp along that way where the pocket's same way meets it 2.7 from the
+    lamp, where the reference is a quarter as bright, the probes above lending their view from where
+    they stand in place of the lower probe's against a near and strongly varying bright spot. The
+    reviewer's order: the strip's term first, a hit on a mesh carried as a glow light taking none of
+    that light's own light, one commit held by a test, judged at the strip's two probes by bounce,
+    the strip's view at both sizes and the glow tests; then the sampling term's two candidates
+    again, since their term stands in every frame and its patches are the most seen, with the far
+    wall's 1.075 as their figure; then the pocket's parallax, read for its mend's form and cost
+    first, the lower probe's rays carried to where each probe above's interval begins so the merged
+    ray is one ray, or what else fits, since it is a term of the merge's method and not a fault of a
+    line; then (c). Read further by 17:32: the strip's term is a leak through a thin face and not a
+    light lighting its own surface, a probe's ray passing through the strip, 0.06 thick and held
+    about its middle by the field, and meeting the wall 0.02 behind it, which the strip lights from
+    almost no distance, where the reference's path stops at the strip and leaves its emission out; a
+    margin on the glow light and a test of the hit's normal left the excess standing. The mend
+    measured, a light whose box the ray passed through within a cell before the hit giving the hit
+    none of its light by a slab test cast back along the ray, takes the texel's own light from 3.70
+    and 3.49 to none and the two probes' faces at the first bounce from 209 and 204 percent over to
+    5 and 9, moves no view outside the strip's room, and widens the strip's view at every quality by
+    0.026 to 0.044, the room reading 14 percent under where it read as its reference, its walls 12
+    to 18 under and its floor 18, the two probes 18 and 24 under past the first bounce where they
+    read 12 and 6 over; a first form leaving out any light within half a cell behind the hit dropped
+    the strip's halo as well and is out. So the leak's excess covered an under-read of the room's
+    light past the first bounce that stands at every quality and is named by where it shows and not
+    by its cause. The reviewer's ruling is to record the mend and read the under-read first, by the
+    principle as first set, the covered fault mended before the one that covers it is judged, since
+    the widening lands at no figure already known and the room would read 14 percent under for
+    anyone until the under-read's turn; the leak's mend stays in the tree and is judged again after
+    it. The reading: the strip room's light past the first bounce at its probes' own hits by bounce
+    and by where the hits stand, against the reference, with the leak's mend in, so the under-read
+    is named by what carries it, the strip's light carried as glow lights at the probes' hits, the
+    probes' reads at the surface in that room, or the merge. Named by 17:37: the merge's part is too
+    small to count, the ways from the cascade above holding at most 0.17 of a face's weight and 0.01
+    to 0.08 of light against faces of 0.5 to 0.7; at the probes' own hits the light past the first
+    bounce reads 18 to 24 percent under on the faces the walls take, and the first bounce there, the
+    strip's light at the hits, is uneven, 19 under on one face, 5 to 18 over on most and 47 to 133
+    over toward the front wall and the back; and at hits on the room's surfaces, read as the code
+    reads them with the probes holding one bounce, the floor's middle reads 0.71 of the reference
+    with the probes' own light at 0.64, the ceiling 0.87 with 0.85, the back wall 0.75 to 0.85 with
+    0.95 and a gradient of 0.79 to 0.88 running the other way, the probes standing where 12 to 21
+    percent less of the strip's light arrives than at the wall beside it, and the front wall and the
+    floor by the back 1.52 and 1.69 with the probes over and the gradient over. So two terms carry
+    it, the strip's light carried as glow lights as the probes' rays gather it from the surfaces it
+    lights, 36 percent under in what the floor's probes gather from above and 15 at the ceiling's,
+    over toward the front wall and the floor by the back, and the reads at the surface beside the
+    strip where the gradient reverses; the floor's middle and the back wall carry most of the room's
+    14. The reviewer's order: the glow light's light at a hit first, a first-bounce term with a
+    one-bounce reference, read at hits on the ceiling, the floor, the front and the back walls at
+    their distances and angles to the thin emitter against the reference, so the light a glow light
+    gives a surface is named by its form, its falloff with distance, its angle to the thin face or
+    its box's extent, and mended in one commit judged at those hits, the two probes' first bounce,
+    the strip's view and the other glow rooms; then the leak's mend judged again by the rule; then
+    the reversed gradient beside the strip, which is the gradient's term in the other direction and
+    goes with the sampling term's candidates and the parallax as the merge's and the read's terms;
+    then (c). Named by 17:45 with screen probes in the strip's room at one bounce against the
+    strip's exact unhidden direct light in closed form: none of the three forms, the falloff moving
+    at most 4 percent at the front wall, the angle nothing within four half diagonals where each
+    face's light is exact, and the box cut into points past that within 1.6 percent; what carries it
+    is the visibility march's cone, which runs from the hit to the box's middle as wide as the box's
+    mean half side, 0.35 for the strip, the same in every direction, so from directly above or below
+    the strip, whose middle lies 0.05 from the wall it is mounted on, the march runs along that wall
+    within a cell and reads it as a blocker, about 0.6 seen, though the wall stands behind the strip
+    and never between; the hits read the strip's light 28 percent under at the floor, 30 at the
+    ceiling, 12 and 24 at the side walls and 38 to 39 directly above and below. The mend under
+    judgment, one mechanism in the march, is a cone whose width toward a surface a step passes is
+    the box's own half-width across the way toward that surface, its support along the field's
+    normal at the step, 0.03 toward the strip's wall and near what it was for a cube, the march to
+    the faces' halves keeping its own cone; the floor from 28 under to the reference, the ceiling
+    from 30 under to 10, the side walls 10 and 21 under, a few hits in the ceiling's back corners 35
+    under remaining, to be read as their own figure. The leak's mend is set aside out of the tree
+    while this one is judged by the rule. Next its judgment.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -1631,7 +1723,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
-on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verdict is open.
+on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2376,6 +2468,32 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verd
     run of `a12206af` the same day the macOS suite passed whole again, the second of three. Settled
     on the push and pack runs of `a12206af` and the push run of `ad5d3692`, 2026-10-19, three green
     macOS suites in a row with the mend.
+
+71. **The scene field's descriptor pool counts its storage images by hand, so the faces image made
+    the resolve pass outgrow it and the macOS suite failed 75 tests with nothing wrong in the
+    frames.** On the push run of `257006c7`, 2026-10-19, the macOS suite failed 75 of 1,688 tests in
+    12 minutes 46 seconds, 1,582 passing, every failure with the render system throwing
+    `ErrorOutOfPoolMemory` from the renderer in stage Last, so each test's own assertion failed on a
+    frame not drawn and N 3.7 failed it a second time on the logged error, and three reference frame
+    tests found the layer's error that a descriptor pool was destroyed while a command buffer still
+    used it. The page counts 2,660 of the layer's lines naming binding 11 of a layout's first set
+    with a count of one and 380 naming where storage images are found in the pool, and `a52b125b`
+    gave the resolve pass two storage images for the faces at binding 11 (`field_resolve.slang:50`),
+    while the scene field's pool is sized by hand, twelve storage buffers, six storage images and
+    one uniform buffer (`GraphicsDevice.SceneField.cs:657`), as the illumination's, the cube
+    filter's and the skinning's pools are; MoltenVK refuses an allocation past a pool's counts, as
+    the specification allows, where the drivers the suite ran on before, Mesa's and the development
+    machine's, allocate past them, and the layer's line on an allocation past a pool's counts is a
+    warning, which the tests' list of validation errors does not hold, so the fault passed every
+    check before the push. Two things follow. Every descriptor pool's counts are taken from the
+    layouts it serves, counted by type from their bindings times the sets allocated, as the compute
+    helper's already are (`Compute.cs:170`), so no pool is sized by hand, and a test under the layer
+    allocates every layout from its pool and reads the layer's lines, warnings among them, for an
+    allocation past a pool's counts, so the fault fails where the layer runs and not on one driver;
+    and the renderer's path out of a failed allocation does not destroy a pool a submitted command
+    buffer still uses, waiting for the device or leaving the pool to the frame's end. The pack run's
+    macOS suite of the same commit failed the same 75 tests in 17 minutes 4 seconds. Settled at
+    three green macOS suites in a row after the mend.
 
 ## Decisions
 

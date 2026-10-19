@@ -97,8 +97,13 @@ internal sealed unsafe partial class GraphicsDevice
     private ISampler? _filterSampler;
     private ISampler? _equirectangularSampler;
 
-    // One compute stage the filter records, its pipeline, layout and the set layout of its bindings.
-    private readonly record struct ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout);
+    // One compute stage the filter records, its pipeline, layout and the set layout of its
+    // bindings, with the type of each binding, one descriptor each, which a pool of its sets is
+    // counted from.
+    private readonly record struct ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout)
+    {
+        public VkDescriptorType[] Descriptors { get; init; } = [];
+    }
 
     /// <summary>Whether the filter's shaders have been given, so probes can be captured and environments filtered.</summary>
     public bool CanFilterProbes => _filterStages[EnvironmentStage].Pipeline.Handle != 0;
@@ -149,7 +154,7 @@ internal sealed unsafe partial class GraphicsDevice
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _deviceApi.vkDestroyShaderModule(module);
-        return new ComputeStage(pipeline, layout, setLayout);
+        return new ComputeStage(pipeline, layout, setLayout) { Descriptors = types };
     }
 
     // A cube image of half floats a compute shader writes and a pass samples, with a view of each
@@ -237,8 +242,8 @@ internal sealed unsafe partial class GraphicsDevice
     public IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> viewProjections,
         Vector3 eye, FilteredCube target)
     {
-        var run = new FilterRun(this, commandBuffer);
         var source = Source(ProbeSourceSize);
+        var run = new FilterRun(this, commandBuffer, [(GatherStage, 1), .. FilterRun.Sets(source, target)]);
 
         // The faces' view-projections, the way each looks, the point in the middle of its far plane
         // less the eye, and the eye, as probe_gather.slang's Views lays them out.
@@ -284,10 +289,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// <exception cref="InvalidOperationException">The filter's shaders have not been given.</exception>
     public IDisposable RecordEnvironmentFilter(ICommandBuffer commandBuffer, IImageView image, uint imageHeight, FilteredCube target, FilteredCube sky)
     {
-        var run = new FilterRun(this, commandBuffer);
         // A source twice the target's width, so its mirror mip reads four texels of the image's own.
         var sourceSize = Math.Max(IrradianceSize, 2 * target.Size);
         var source = Source(sourceSize);
+        var run = new FilterRun(this, commandBuffer, [(EnvironmentStage, 2), .. FilterRun.Sets(source, target)]);
         _equirectangularSampler ??= CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.Repeat, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
@@ -330,22 +335,20 @@ internal sealed unsafe partial class GraphicsDevice
         private readonly List<IDisposable> _held = [];
         private static readonly VkImageSubresourceRange Whole = new(VkImageAspectFlags.Color, 0, Vulkan.VK_REMAINING_MIP_LEVELS, 0, 6);
 
-        public FilterRun(GraphicsDevice device, ICommandBuffer commandBuffer)
+        // The recording's sets, how many of each stage it dispatches, its pool counted from them.
+        public FilterRun(GraphicsDevice device, ICommandBuffer commandBuffer, (int Stage, int Sets)[] sets)
         {
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
             _device = device;
             _cmd = vkCmd.Handle;
-
-            // Enough for a gather or two, a source's mips and a target's levels, and the irradiance.
-            var sizes = stackalloc VkDescriptorPoolSize[4];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 32 };
-            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 2 };
-            sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 64 };
-            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 2 };
-            var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 48, poolSizeCount = 4, pPoolSizes = sizes };
-            device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
-            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+            _pool = device.MakeDescriptorPool(sets.Select(s => (device._filterStages[s.Stage].Descriptors, s.Sets)));
         }
+
+        // The sets Filter takes of the source and the target, one for each of the source's mips
+        // past its first, each of the target's levels, and the irradiance where the target has it.
+        public static (int Stage, int Sets)[] Sets((VkImage Image, VkDeviceMemory Memory, VkImageView Cube, VkImageView[] Levels) source,
+            FilteredCube target) =>
+            [(MipStage, source.Levels.Length - 1), (PrefilterStage, (int)target.MipLevels), (IrradianceStage, target.Irradiance is null ? 0 : 1)];
 
         public void Holds(IDisposable held) => _held.Add(held);
 
@@ -468,8 +471,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         public void Dispose()
         {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _device._deviceApi.vkDestroyDescriptorPool(_pool);
+            _device.DestroyDescriptorPool(_pool);
             foreach (var held in _held) held.Dispose();
         }
     }

@@ -220,10 +220,27 @@ internal sealed unsafe partial class GraphicsDevice
     /// <remarks>On in Debug builds and with <c>ENGINE_VULKAN_VALIDATION=1</c>, when the layer is installed.</remarks>
     public static bool ValidationActive { get; private set; }
 
+    // The layer's lines on a set asked of a pool past its counts, which it gives as warnings on a
+    // device of Vulkan 1.1 or later, since the driver may then refuse the set or allocate it.
+    // MoltenVK refuses and Mesa's allocate, so they are counted with the errors, and a test fails
+    // on one wherever the layer runs rather than on macOS alone.
+    private static readonly string[] PoolOverruns =
+    [
+        "VUID-VkDescriptorSetAllocateInfo-apiVersion-07895",
+        "VUID-VkDescriptorSetAllocateInfo-apiVersion-07896",
+        "WARNING-CoreValidation-AllocateDescriptorSets-WrongType",
+        "WARNING-VkDescriptorSetAllocateInfo-maxSet",
+        "WARNING-VkDescriptorSetAllocateInfo-descriptorCount",
+    ];
+
     /// <summary>
     /// Every error the validation layer has reported in this process, in order, so a test or a
     /// check after a run can fail on one instead of finding it in the log.
     /// </summary>
+    /// <remarks>
+    /// A set allocated past its pool's counts is among them, though the layer calls it a warning,
+    /// since a driver that enforces the counts refuses it.
+    /// </remarks>
     public static IReadOnlyList<string> ValidationErrors
     {
         get { lock (ValidationGate) return ValidationErrorList.ToArray(); }
@@ -245,7 +262,8 @@ internal sealed unsafe partial class GraphicsDevice
             var message = Marshal.PtrToStringUTF8((nint)data->pMessage) ?? string.Empty;
             var logger = Log.Category("Vulkan.Validation");
             var formatted = $"[{type}] {message}";
-            if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error))
+            var id = Marshal.PtrToStringUTF8((nint)data->pMessageIdName);
+            if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error) || id is not null && PoolOverruns.Contains(id))
             {
                 lock (ValidationGate) ValidationErrorList.Add(formatted);
                 logger.Error(formatted);

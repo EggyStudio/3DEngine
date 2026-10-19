@@ -65,15 +65,7 @@ internal sealed unsafe partial class GraphicsDevice
         var readSums = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
         var readRegions = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 4, BufferUsage.TransferDst, CpuAccessMode.Read));
 
-        var sizes = stackalloc VkDescriptorPoolSize[5];
-        sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.AccelerationStructureKHR, descriptorCount = 1 };
-        sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 2 };
-        sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 2 };
-        sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
-        sizes[4] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 1 };
-        var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 5, pPoolSizes = sizes };
-        _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
-        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
+        var pool = MakeDescriptorPool([(_referenceStage.Descriptors, 1)]);
         try
         {
             var setLayout = _referenceStage.SetLayout;
@@ -146,8 +138,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
         finally
         {
-            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
-            _deviceApi.vkDestroyDescriptorPool(pool);
+            DestroyDescriptorPool(pool);
             readSums.Dispose();
             readRegions.Dispose();
             lightBuffer.Dispose();
