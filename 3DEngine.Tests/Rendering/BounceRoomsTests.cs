@@ -282,6 +282,23 @@ public sealed class BounceRoomsTests : IDisposable
         onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
     }
 
+    // The screen probe on the far wall of the carried lamp's room in shaders_bounce_rooms at 800 by
+    // 450, the lamp carried past the green wall and the wall moved toward it, as L twice and M leave
+    // them. Its ray toward the green wall's end meets the wall's dark face toward the probe, which
+    // the eye does not see, and the screen's march took it for meeting the face the eye sees, lit by
+    // the lamp, so the ray read 1375% over the reference along it on the development machine's GPU
+    // and the face's green lay over the far wall and the floor past the wall's edge. A face met from
+    // behind is passed as the depth is, and the field reads the ray 57% under.
+    [NeedsRayQueryFact]
+    public void A_Screen_Probes_Ray_Meeting_A_Walls_Unseen_Face_Does_Not_Take_The_Face_The_Eye_Sees()
+    {
+        var probe = ReadScreenProbe(7, 490, 160, out var report, new Vector3(282, 1.2f, -1), moved: true);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        var ray = probe.Rays.MaxBy(ray => ray.Way.X)!;
+        (Luminance(ray.Light) / Luminance(ray.Reference)).Should().BeLessThan(2,
+            $"the ray toward the green wall's end reads the face it meets, not the lit face the eye sees behind it\n{report}");
+    }
+
     // The ninth room's right corner, where its floor meets the wall, at 800 by 450 at High, each
     // point of the corner the brightest of the pixels around it against the floor and the wall a
     // quarter of a block off it. The glow lights' pass took a texel of the frame before by its
@@ -406,13 +423,13 @@ public sealed class BounceRoomsTests : IDisposable
     // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by 450
     // at High, its rays written over the last frames once the screen's probes have settled, as
     // gi.screenprobe reads it, with the lines it writes of it.
-    private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report)
+    private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report, Vector3? lamp = null, bool moved = false)
     {
         var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
-        using var rooms = new Rooms();
+        using var rooms = new Rooms(lamp, moved);
         var world = GetApp().World;
         GpuScreenProbes? screen = null;
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
@@ -473,10 +490,14 @@ public sealed class BounceRoomsTests : IDisposable
             file.Write(MemoryMarshal.AsBytes(light.AsSpan(y * w * 3, w * 3)));
     }
 
-    // The rooms, their lights and their views as shaders_bounce_rooms has them.
+    // The rooms, their lights and their views as shaders_bounce_rooms has them, the carried lamp
+    // where it starts or at another of its places, and the green wall beside it where it starts or
+    // moved.
     private sealed class Rooms : IDisposable
     {
         private readonly Model _slab, _glow, _strip, _lamp;
+        private readonly Vector3 _carried;
+        private readonly bool _moved;
 
         public static readonly Camera3D[] Views =
         [
@@ -491,14 +512,16 @@ public sealed class BounceRoomsTests : IDisposable
             new(new Vector3(320, 2.6f, 3.2f), new Vector3(320, 0, -0.3f), Vector3.UnitY, 60),
         ];
 
-        public Rooms()
+        public Rooms(Vector3? carried = null, bool moved = false)
         {
+            _carried = carried ?? new Vector3(278, 2, -1.5f);
+            _moved = moved;
             CreateDirectionalLight(Vector3.Normalize(new Vector3(0.8f, -1, 0.25f)), new Color(255, 245, 230), 1.5f, castsShadows: true);
             CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
             CreatePointLight(new Vector3(40, 2.2f, 0), Color.White, 0.6f, range: 8);
             CreatePointLight(new Vector3(43, 1.5f, 0), Color.White, 25, range: 10, castsShadows: true);
             CreatePointLight(new Vector3(240, 2.6f, 0), new Color(255, 236, 210), 14, range: 16);
-            CreatePointLight(new Vector3(278, 2, -1.5f), new Color(255, 230, 200), 8, range: 10, castsShadows: true);
+            CreatePointLight(_carried, new Color(255, 230, 200), 8, range: 10, castsShadows: true);
             _slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _glow.Materials[0].Emissive = new Color(255, 240, 220);
@@ -556,8 +579,8 @@ public sealed class BounceRoomsTests : IDisposable
 
             Room(new Vector3(280, 0, 0), new Vector3(6, 3, 6), 0.3f, white);
             Box(_slab, new Vector3(277.15f, 1.5f, 0), new Vector3(0.3f, 3, 6), red);
-            Box(_slab, new Vector3(280, 1.25f, -1), new Vector3(0.2f, 2.5f, 2.5f), green);
-            DrawSphere(new Vector3(278, 2, -1.5f), 0.08f, new Color(255, 230, 200));
+            Box(_slab, new Vector3(_moved ? 281.5f : 280, 1.25f, -1), new Vector3(0.2f, 2.5f, 2.5f), green);
+            DrawSphere(_carried, 0.08f, new Color(255, 230, 200));
 
             var dim = new Color(60, 60, 58);
             Box(_slab, new Vector3(320, -0.15f, 0), new Vector3(8.6f, 0.3f, 8.6f), white);

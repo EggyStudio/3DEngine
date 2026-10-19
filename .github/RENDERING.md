@@ -766,7 +766,26 @@ coarser cascades and the probes beside that side let in, and 0.0015 bounded so; 
 behind the depth and then off the picture was handed to the field where it went off, past the wall
 it had gone behind, which lit a closed room with the lamp outside it 92 levels where 8 at most, so
 such a ray is handed to the field from the last point it stood in front of the depth (`traceScreen`
-in `gi.slang`). The pass costs 0.05 to 0.07 ms more in the rooms' views at `High`, 0.06 to 0.14 in
+in `gi.slang`). A surface the march meets is taken only where its face, as the depth around the hit
+gives it, turns toward the ray, and a face met from behind is passed as the depth is. Taken as met,
+a ray of a probe on the carried lamp's room's far wall past the green wall's end, the lamp carried
+beyond the wall and the wall moved, met the face the eye sees, lit, where the face toward the probe
+is dark, 1375% over the reference along it (`gi.screenprobe`), and its green lay over the far wall
+and the floor past the wall's edge, green over red 0.97 and 1.44 there where the reference reads
+0.74 and 0.99. Passed, the field reads the ray 57% under, and green over red reads 0.83 and 1.08.
+The rooms' views at 800 by 450 move by 0.0015 of their light at most, none further by more than
+0.0001, and that room so lit by 0.0002 further, its floor past the edge 14% under where 1%, the
+green having covered the shortfall of the light its probes read beyond their rays' reach. At 160 by
+90 the grazing floor's view at `High` widens by 0.003, the probes on its ceiling having met their
+own ceiling at no distance, lit, 55 to 460% over the reference along those rays, which covered their
+sixteen fixed ways' reading under the light over their hemisphere, 6 and 7% under where 9 and 22%
+over; the corridor's at `Low` by 0.006, its floor's tiles 85% under where 47%, as `High` reads them,
+87%; and the Cornell box's at `Low` by 0.0006, spread over the box, no tile moving by more than
+0.0001 of its light. The reflections in shaders_reflections read as before at `High` and `Low`,
+their floor and balls within 1%. It costs the illumination pass 0.01 to 0.03 ms in the carried
+lamp's room and 0.03 at `Low` to 0.09 at `High` in shaders_reflections, and the reflections 0.01
+(`./e3d command profile`, the frames unlimited).
+The pass costs 0.05 to 0.07 ms more in the rooms' views at `High`, 0.06 to 0.14 in
 the corridor's and 0.08 to 0.15 in the voxel game's room of glowstone, the least of eight readings
 each beside another program's use of the GPU. Three and four times as far read the wall past the
 pillar up to 1.75 of the reference, and a weight in the probes' blend for how much of the surface's

@@ -7,11 +7,19 @@ module screenmarch;
 public interface IPicture
 {
     public float4 sampleAt(float2 uv, float lod);
+    // Its texels across and down.
+    public float2 size();
 }
 
 public extension Sampler2D : IPicture
 {
     public float4 sampleAt(float2 uv, float lod) { return this.SampleLevel(uv, lod); }
+    public float2 size()
+    {
+        uint width, height;
+        this.GetDimensions(width, height);
+        return float2(width, height);
+    }
 }
 
 // An image and the sampler it is read through, bound apart.
@@ -27,6 +35,12 @@ public struct SplitPicture : IPicture
     }
 
     public float4 sampleAt(float2 uv, float lod) { return image.SampleLevel(sampler, uv, lod); }
+    public float2 size()
+    {
+        uint width, height;
+        image.GetDimensions(width, height);
+        return float2(width, height);
+    }
 }
 
 // The view the screen's probes are placed through, which gi_screen.slang traces them through and
@@ -98,21 +112,43 @@ bool onScreen<P : IPicture>(P depth, ScreenCamera camera, float3 q, out float4 a
     return true;
 }
 
+// The step toward a depth image's neighbor at uv + offset or uv - offset, the one whose point lies
+// nearer p, so a texel at a thing's edge takes its neighbor on its own surface.
+float3 pictureStep<P : IPicture>(P depth, ScreenCamera camera, float2 uv, float2 offset, float3 p)
+{
+    float3 ahead = screenWorld(camera, uv + offset, depth.sampleAt(uv + offset, 0).r) - p;
+    float3 behind = p - screenWorld(camera, uv - offset, depth.sampleAt(uv - offset, 0).r);
+    return dot(ahead, ahead) < dot(behind, behind) ? ahead : behind;
+}
+
+// The way out from the surface a depth image holds at uv, where its point is p, turned toward the
+// eye, from its neighbors a texel on along each axis.
+float3 pictureNormal<P : IPicture>(P depth, ScreenCamera camera, float2 uv, float3 p)
+{
+    float2 texel = 1.0 / max(depth.size(), float2(1.0));
+    float3 n = cross(pictureStep(depth, camera, uv, float2(texel.x, 0.0), p), pictureStep(depth, camera, uv, float2(0.0, texel.y), p));
+    float length = length(n);
+    if (length < 1e-12)
+        return normalize(camera.eye - p);
+    n /= length;
+    return dot(n, camera.eye - p) < 0.0 ? -n : n;
+}
+
 // Where a ray from p along way first meets the surface a depth image holds within length, in steps
 // more finely spaced near p, as a world position, or false and how far it went where it left the
 // picture or met nothing on it. A point behind the depth counts as on the surface while it is
-// within two steps of it, or a quarter of a unit, so a ray passing behind a thing in front does
-// not stop there, and the step it met the surface in is halved five times to find where, the ray
-// met only where the depth does not leap between the halving's ends. A ray
-// that passed behind the depth so and then went off the picture is left at the last point it stood
-// in front of it, for the field to find what it passed behind, since left where it went off it
-// stood past a wall it had gone behind, and the field's trace from there lit a closed room with the
-// lamp outside it, 92 levels where 8 at most, once the screen's probes' rays reached twice as far.
-// One still behind the depth at its end is left there too, where counted as meeting nothing a ray
-// that went into the floor before a wall ended under it, and the light from beyond read there was
-// none (gi.screenprobe). One that went off the picture without passing behind the depth is left at
-// its last point on it, since left at its first point off it the field's trace began under a
-// floor the step had crossed.
+// within two steps of it, or a quarter of a unit, so a ray passing behind a thing in front does not
+// stop there, and the step it met the surface in is halved five times to find where, the ray met
+// only where the depth does not leap between the halving's ends and the face there turns toward the
+// ray. A ray that passed behind the depth so and then went off the picture is left at the last
+// point it stood in front of it, for the field to find what it passed behind, since left where it
+// went off it stood past a wall it had gone behind, and the field's trace from there lit a closed
+// room with the lamp outside it, 92 levels where 8 at most, once the screen's probes' rays reached
+// twice as far. One still behind the depth at its end is left there too, where counted as meeting
+// nothing a ray that went into the floor before a wall ended under it, and the light from beyond
+// read there was none (gi.screenprobe). One that went off the picture without passing behind the
+// depth is left at its last point on it, since left at its first point off it the field's trace
+// began under a floor the step had crossed.
 public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
 {
     hit = p;
@@ -170,7 +206,15 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
                     float behindBy = distance(camera.eye, p + way * far) - distance(camera.eye, hit);
                     leaps = behindBy - frontBy > max(0.25, 8.0 * (far - near));
                 }
-                if (!leaps)
+                // A face the ray meets from behind, its way leaving the surface, is not where it
+                // meets the thing, and the ray passed behind the thing as above. Taken as met, a ray
+                // of a probe on the carried lamp's room's back wall past the green wall's end, the
+                // lamp beyond the wall, met the face the eye sees, lit, where the face toward the
+                // probe is dark, 1375% over the reference along it (gi.screenprobe), and green over
+                // red read 0.97 on the back wall past the wall's edge and 1.44 on the floor where
+                // the reference reads 0.74 and 0.99. Going on, the field reads the ray 57% under,
+                // and green over red 0.83 and 1.08.
+                if (!leaps && dot(pictureNormal(depth, camera, at.xy, hit), way) < 0.0)
                     return true;
             }
             if (behindFrom < 0.0)
