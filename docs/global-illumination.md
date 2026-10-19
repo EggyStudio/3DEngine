@@ -214,7 +214,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, and how many small emitters are carried as lights |
 | `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
 | `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one |
-| `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it |
+| `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, and the ways that carry most of the face furthest from it |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |
 | `gi.rays <on\|off>` | Whether `High` traces what the field misses through the GPU's own rays |
 | `gi.reference <png> <samples> [bounces]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by |

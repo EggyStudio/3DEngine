@@ -1724,8 +1724,12 @@ that `gi.compare` writes beside its difference.
   block, where the light past the first bounce reads twice the reference's. The world's
   first-cascade probe in the pocket between the floor and the block, which lights the floor there,
   reads 85% over its reference in its upward face even of one bounce, where the probes beside it
-  read 4% (`gi.probe 0.6 0.6 1.8 256 1`). Where the screen's probes stand in the second cascade, its
-  probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
+  read 4% (`gi.probe 0.6 0.6 1.8 256 1`). Most of that comes along one way of its sixty-four, whose
+  ray meets the emissive panel's underside 0.79 from the lamp and brings 13.8 where the reference,
+  its paths spread over the way's texel, reads 5.6, a part of the face of 2.10 against 0.85, since a
+  world probe traces each texel along its middle every frame and so takes a spot under a lamp for
+  the whole texel (`gi.probe`'s list of ways). Where the screen's probes stand in the second
+  cascade, its probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
   ![The small block's front, the frame and the reference](assets/cascades/cornell-small-block-front.webp)
 - **d. A dark patch at the moved wall's foot.** In the carried lamp's room the floor at the green
   wall's right foot falls by 9% over 50 pixels, from 0.144 to 0.131, where the reference's rises by

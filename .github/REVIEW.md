@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d8b01672`, item 30's screen probe instrument and nothing else, 11 files.
+Reviewed up to `33018b8b`, item 30's beyond term and nothing else, 9 files. The screen probes read
+the light beyond their rays around where each ray ended, a world probe counting where its reach
+covers a point the ray passed half a spacing before its end with a quarter spacing's slack, an
+unseen probe keeping no weight unless none is seen, and an end past both cascades falling back to
+the probes around the start leaned off the surface, the eight probe marches a screen probe gone; the
+screen march hands the field a ray still behind the depth at its end and a ray leaving the picture
+at its last point on it, which the reflections share. Measured at 800 by 450, the Cornell box at 300
+frames and the carried lamp's room at the item's frame, the block front's rays past their reach fell
+from 97 percent over their cells to 3, the far wall's level rose from 0.84 of the reference to 1.00
+with its patches 0.85 to 1.12 of their mean unmended, the room's frame moved from 0.944 to 0.989 and
+the box's from 1.064 to 1.033, the two faces unmoved at 1.65 and 0.77, and the illumination pass
+with the frames unlimited went from 1.10 to 1.29 ms in the box and 0.97 to 0.96 in the room, the
+scene pass unchanged. RENDERING.md says (b), (c) and (e) each with what remains and the sampling
+figures in the instrument's paragraph, (e)'s picture retaken as before, after and reference, the
+captures of the Cornell box and the bounce rooms retaken, having moved 2 to 3 and 6 levels on
+average, the reflections' unmoved; a bounce room test holds the rays past their reach within 15
+percent of their cells at the block front and the far wall, the corner left out with its reason, and
+the slab test's tint bound widens from 2 to 3 percent at 1.212 against 1.240 with the measurement in
+its comment. Checked were the strict build, the whole suite, 1,726 passed, all 432 rendering tests
+on the GPU, and the illumination, cascade edge, reference frame, bounce and glow tests on lavapipe
+under the required layer. Right. Next the pocket's term, `gi.probe` first extended to name the ways
+that carry a face's excess, the merged texel, whether its ray met a surface or took the cascade
+above, and the reference, so the upward face's excess is placed in its own hits or the merge; the
+owner's push of the ten commits since `a12206af` and a pack run; and Verdict 70's third green macOS
+suite.
+
+Before it, `d8b01672` came, item 30's screen probe instrument and nothing else, 11 files.
 `gi.screenprobe <x> <y> [samples] [bounces]` writes the sixteen rays of the screen probe under a
 pixel into a buffer the pass fills for that probe alone, giving for each ray where it was met, on
 the screen, in the field or past its reach, its light and the light of what it met without the
@@ -64,35 +90,6 @@ illumination and bounce view tests on the GPU, the corner test with the cascade 
 frame tests on lavapipe under the required layer, the strict build and the whole suite, 1,723
 passed. Right. Next parts (b) and (c), the owner's push of the eight commits since `a12206af` and a
 pack run, whose package the game waits on, and Verdict 70's third green macOS suite.
-
-Before it, `de92a62b` came, item 30's part (a) and nothing else, 11 files. A mesh of many small
-emitters is cut into its parts, its triangles joined where they share a corner quantized to a
-hundred-thousandth of the mesh's size, cached by vertex array, and carried as glow lights where
-every part fits the existing limit, a light each, touching parts merging as before, the field's mark
-and the ray scene's deciding alike; a part flat as one face, a block sunk in the ground showing its
-top alone, drew its own faces dark with dotted edges since the closed form skipped a flat box's thin
-axis and the screen-probe read went wrong, so such a part is a hundredth of its size thick about its
-face; and a light names which faces of its box emit, two bits an axis packed with its share, found
-from the triangles square to an axis lying on the box's face and mirrored for a mesh drawn from both
-sides, the closed form skipping faces that emit nothing and the rough light and the reach counting
-the emitting faces' surface, a full block naming every face so the existing emitters are unchanged,
-where a part showing a top and one side had spread its surface over six faces and lit the ground at
-a third. The field and the ray scene mark such a mesh whole, so its parts past the 64 nearest light
-nothing a probe carries to the ground around them, where whole the mesh lit it through the probes'
-rays, Ore holding 69, which `gi.state` counts and the glow lights' remarks, RENDERING.md and the
-guide say. Measured at Ore's capture frame against the reference of 512 paths, the ground beside the
-ore rose from 0.0371 to 0.0446 of the reference's 0.0455, its blocks of 16 pixels from 0.03 to 1.74
-to 0.95 to 0.99 of it, the cliffs from 0.0926 to 0.1112 of 0.1121, and every region from 3 percent
-under to 1. Two glow light tests, the rings of a lamp that is one mesh of its block and another 30
-off at High reading 0.978 to 0.988 of the path-traced table where they read 1.04 to 1.53 before, and
-a mesh of many blocks cut into its parts with the faces they show, a whole block naming every face
-and a sunk top its top alone; RENDERING.md's part (a) carries the figures with its picture retaken
-as the frame before, the frame after and the reference, Ore's picture retaken as the workflow takes
-it, and the carrying paragraph and the guide's emissive paragraph follow. Checked were the glow and
-bounce room tests on the GPU, the glow tests on lavapipe under the required layer, the strict build
-and the whole suite, 1,722 passed. Right. Next part (f), the owner's push of the seven commits since
-`a12206af` and a pack run, whose package the game waits on, and Verdict 70's third green macOS
-suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1248,7 +1245,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does along its way while the upper wall's probe's sixteen fixed ways miss the slab's red their
     cells hold, which is the sampling term (N 3.5); then the pocket's term, the light past the first
     bounce at hits in a concave angle, for (c) and (b)'s hits; then the corner's world probe over
-    the tall block; then the sampling term, read with the instruments before its mend.
+    the tall block; then the sampling term, read with the instruments before its mend. The beyond
+    term done at `33018b8b` on 2026-10-19, the block front's stray rays from 97 percent over to 3,
+    (e)'s level from 0.84 to 1.00 with its patches left, both frames nearer their references, held
+    by a bounce room test, the faces of (b) and (c) unmoved as said; next the pocket's term with
+    `gi.probe` extended to place a face's excess in its own hits or the merge from the cascade
+    above.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

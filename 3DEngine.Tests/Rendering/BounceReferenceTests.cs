@@ -60,6 +60,12 @@ public sealed class BounceReferenceTests : IDisposable
         probe.Reference.X.Should().BeApproximately(expected, expected * 0.03f, $"the light from every way is that of every wall, {expected:0.000}");
         probe.HitReference.X.Should().BeApproximately(expected, expected * 0.03f);
         probe.Middle.Length().Should().BeLessThan(2, "the probe is the one nearest the box's middle");
+        // Each way as gi.probe lists it, the reference's light along it that of every wall, and the
+        // ways' shares those the gather weighs, so their parts of a face sum to its light.
+        probe.Each.Should().HaveCount(64);
+        probe.Each.Should().OnlyContain(way => Math.Abs(way.Reference.X - expected) < expected * 0.1f && Math.Abs(way.Way.Length() - 1) < 1e-4f);
+        var up = probe.Each.Sum(way => way.Merged.X * Math.Max(way.Way.Y, 0) * way.Share) / probe.Each.Sum(way => Math.Max(way.Way.Y, 0) * way.Share) * MathF.PI;
+        up.Should().BeApproximately(probe.FacesMerged[2].X, probe.FacesMerged[2].X * 0.001f, "the ways' parts of the face facing up sum to the face's light");
     }
 
     [NeedsRayQueryFact]

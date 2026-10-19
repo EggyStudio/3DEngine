@@ -89,7 +89,7 @@ internal static class SceneFieldCommands
     [Command("gi.reference", "Path traces the window's picture through the device's rays, which global illumination at High holds the meshes for, as the reference global illumination is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it, each path bouncing as many times as given or until it ends: gi.reference <png> <samples> [bounces]")]
     internal static string Reference(string path, int samples, int bounces = -1) => BounceReference.Trace(ConsoleHost.World!, path, samples, bounces);
 
-    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
+    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
         BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
