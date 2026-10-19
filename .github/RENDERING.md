@@ -1700,6 +1700,10 @@ that `gi.compare` writes beside its difference.
   tile's probe standing at its middle, up to 8 pixels off the corner, where more of the room lies
   open to it than to the corner. The world probes alone darken the corner as the reference does and
   draw faceted shapes along the ceiling's edge (the middle picture, drawn at half the light).
+  Reading the light beyond the screen probes' rays where they end (c) leaves the corner at 0.77, its
+  probe on the back wall reading the second cascade, whose probe nearest its rays' ends stands over
+  the tall block and met a surface before its interval began in 182 of its 233 ways, and its rays
+  meeting the red wall reading the light past the first bounce there twice the reference's.
   ![The Cornell box's back corner, the frame, the frame without the screen probes, and the reference](assets/cascades/cornell-corner.webp)
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
@@ -1707,7 +1711,21 @@ that `gi.compare` writes beside its difference.
   even. With the screen probes left out it reads 0.120, 4% under, so they put the excess on it.
   Their rays toward the open side meet nothing within their reach and take the world's first cascade
   along their way, and with the merge left out the face reads 17% over and without the light past
-  the first bounce 35% under.
+  the first bounce 35% under. Those rays took the world's probes around the point they left the face
+  from, which saw along each ray's way what the ray passed by, and read 97% over the reference
+  across the ways they stand for; read around where they end, 3% over (`gi.screenprobe`, and
+  `gi_screen.slang`'s `beyond`). Two faults of the screen's march came with it, a ray still behind
+  the depth at its end counted as meeting nothing and one that went off the picture handed to the
+  field past a floor it had crossed, each reading the dark under the floor once the light beyond was
+  read where the ray ended. Global illumination costs 1.29 ms where 1.10 in the Cornell box at 800
+  by 450 on the development machine's GPU, and 0.96 where 0.97 in the carried lamp's room
+  (`./e3d command profile`, the frames unlimited). The face stays 1.65 times the reference's light,
+  since a ray that read none of the floor's light under it now meets the floor in front of the
+  block, where the light past the first bounce reads twice the reference's. The world's
+  first-cascade probe in the pocket between the floor and the block, which lights the floor there,
+  reads 85% over its reference in its upward face even of one bounce, where the probes beside it
+  read 4% (`gi.probe 0.6 0.6 1.8 256 1`). Where the screen's probes stand in the second cascade, its
+  probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
   ![The small block's front, the frame and the reference](assets/cascades/cornell-small-block-front.webp)
 - **d. A dark patch at the moved wall's foot.** In the carried lamp's room the floor at the green
   wall's right foot falls by 9% over 50 pixels, from 0.144 to 0.131, where the reference's rises by
@@ -1715,8 +1733,14 @@ that `gi.compare` writes beside its difference.
   glow each left out, so the world probes' blend on the floor draws it.
 - **e. Patches across the far wall in that room.** The wall right of the moved one lies in blocks of
   16 pixels from 0.84 to 1.14 of their mean ratio to the reference, and from 0.85 to 1.12 with the
-  screen probes left out, so the world probes' blend across the wall draws them too.
-  ![The carried lamp's room, the frame and the reference](assets/cascades/room-wall-foot-and-far-wall.webp)
+  screen probes left out, so the world probes' blend across the wall draws them too. Its light was
+  0.84 of the reference's over the wall's middle, and with the light beyond the screen probes' rays
+  read where they end (c) it is 1.00, the room's frame 0.989 of the reference's light where 0.944
+  (`gi.compare`). The patches stay, the wall's blocks from 0.85 to 1.12 of their mean where 0.94 to
+  1.12 in the same box before, since the rays now carry the world probes' blend from where they end
+  where they carried one set of probes' light across the whole wall (the pictures, the frame before,
+  the frame now and the reference).
+  ![The carried lamp's room, the frame before reading the light beyond the rays where they end, the frame after it, and the reference](assets/cascades/room-wall-foot-and-far-wall.webp)
 - **f. The lamp outside through the thin walls' corner.** Where the two thin walls meet, a tick a
   few pixels long reads 3.25 times the wall beside it, where the reference reads 1.10, and with
   global illumination off the room is dark and the tick gone. With the screen probes left out a
@@ -1754,9 +1778,12 @@ lost the ray, inside the slab. The probe on the back wall 0.13 from the red wall
 field's second cascade, its cells 0.3 and its rays reaching 1.2, and reads 112% over its cells. Its
 rays past their reach read 116% over theirs and those meeting the red wall 88%, the three within 0.3
 of the back wall taking 0.10 of green where the reference's direct light holds 0.006, the field's
-color there blending the white wall into the red. A ray past its reach takes the world's probes
-around the point it left the surface from, not where it ends, so a probe 1.2 or 2.4 off sees along
-the ray's way what the ray itself passes by.
+color there blending the white wall into the red. A ray past its reach took the world's probes
+around the point it left the surface from, not where it ends, so a probe 1.2 or 2.4 off saw along
+the ray's way what the ray itself passed by, which (c) mends. A probe's sixteen ways also read
+what the hemisphere holds unevenly, the reference along them 22% over its whole on the block's
+front, 26% under on the back wall, 21% under on the carried lamp's room's floor before the moved
+wall and 46% over on its far wall, and the window's filter blends tiles of the same ways.
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its

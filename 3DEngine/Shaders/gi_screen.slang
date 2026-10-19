@@ -5,7 +5,7 @@
 // while it is on the screen and through the scene's distance field from where it leaves it, and one
 // that meets a surface brings back the light the surface sends along it. One that meets nothing
 // brings back the light from beyond, the world's first cascade merged, blended between the world's
-// probes around this one. The rays are summed into the light arriving at the probe's surface,
+// probes around where it ended. The rays are summed into the light arriving at the probe's surface,
 // which the model pass blends between the probes around each pixel that stand on a surface like
 // the pixel's. A probe on no surface, or outside the world's first cascade, holds nothing, and the
 // model pass reads the world's probes there.
@@ -152,26 +152,6 @@ float3 probeAt(int3 at, uint c)
     return oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * view.trace.z);
 }
 
-// Which of the eight probes of cascade c around p a surface there sees, a bit a probe, each traced
-// through the field from a cell in front of the surface, so a probe beyond a wall or under a floor
-// is passed over.
-uint probesSeen(float3 p, uint c, float3 normal, float cell)
-{
-    int3 base;
-    float3 f;
-    if (!probesAround(p, c, normal, base, f))
-        return 0u;
-    uint seen = 0u;
-    float3 from = p + normal * cell;
-    for (int corner = 0; corner < 8; corner++)
-    {
-        int3 at = clamp(base + int3(corner & 1, (corner >> 1) & 1, corner >> 2), int3(0), int3(int(view.trace.y) - 1));
-        if (seesThrough(sceneField, fieldInfo, from, probeAt(at, c), cell * 0.5))
-            seen |= 1u << uint(corner);
-    }
-    return seen;
-}
-
 // The texel of a cascade's octahedron of `texels` along each side at t, which may lie a texel past
 // the square's edge. Across an edge the octahedron folds onto the same edge mirrored, and past a
 // corner onto the corner across from it, so a ray near the edge is blended with the texels beside it
@@ -189,26 +169,67 @@ int2 folded(int2 t, int texels)
     return t;
 }
 
-// The light from beyond the first interval along way, the world's cascade c's merged light blended
-// between its eight probes around p on a surface facing normal, each weighed by how near it is and
-// how squarely it stands in front of the surface, each probe inside a mesh or not among those seen
-// passed over, or -1 in a where p lies outside that cascade. A texel of the second cascade whose ray
-// met a surface before its interval began holds that surface's light, alpha a half, which here is
-// the light along way from that probe, taken as any other. Each probe's light along way is blended
-// between the four texels of its octahedron around it, as near as way lies to each. Read from the
-// texel way falls in, a ray on the border between two flipped from one to the other as the normal
-// rebuilt from the window's depth wavered by a degree or two, and on a wall square to the world's
-// axes half the sixteen rays lie on such borders, so a probe's light changed as the camera moved,
-// which the frame before's light averaged while it moved and drifted from for a dozen frames after
-// it stopped, 0.19 levels on the fifth frame after a walk where it reads 0.07
-// (GlobalIlluminationTests).
-float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
+// How much the probe of cascade c at `at`, standing at probe, sees of the point q, 1 where q lies
+// nearer it than its rays reached that way the frame before, falling to 0 over a quarter of the
+// probes' spacing past it, narrower than probeSees takes for a surface since q lies where a ray
+// passed and a probe beyond a wall half the spacing thick should see none of it.
+float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
 {
+    float3 toward = q - probe;
+    float d = length(toward);
+    if (d < 1e-4)
+        return 1.0;
+    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(ReachTexels - 1));
+    float reached = reach.loadAt(int3(at.xy * ReachTexels + texel, int(c) * int(view.trace.y) + at.z)).r;
+    float slack = 0.25 * apart;
+    return saturate((reached + slack - d) / slack);
+}
+
+// The light from beyond a ray's reach along way, the world's merged light blended between the
+// eight probes of the finest cascade around the point the ray reached, each weighed by how near it
+// is and by whether its rays reached the point the ray passed half their spacing before its end
+// the frame before (probeReaches), a probe inside a mesh passed over and one that reaches it not
+// kept only where none does, or blended around the point the ray left from where its end lies past
+// both cascades. Read around the point on the surface the ray left from, the probes there stood
+// 1.2 units off, or 2.4 in the second cascade, and saw along the ray's way what the ray itself
+// passed by, so in a Cornell box the rays of a probe on the small block's front that met nothing
+// in reach read 97% over the reference across the ways they stand for, and read here 3% over
+// (gi.screenprobe). A probe beyond a wall that reaches the point by the slack probeSees allows a
+// surface lent its dark to rays ending inside a closed emissive box, 11 to 38% under its walls'
+// light, and kept at a twentieth of its weight where unseen, the sky to a pillar's face in a closed
+// room. A texel of the second cascade whose ray met a surface before its interval began holds that
+// surface's light, alpha a half, which here is the light along way from that probe, taken as any
+// other. Each probe's light along way is blended between the four texels of its octahedron around
+// it, as near as way lies to each. Read from the texel way falls in, a ray on the border between two
+// flipped from one to the other as the normal rebuilt from the window's depth wavered by a degree
+// or two, and on a wall square to the world's axes half the sixteen rays lie on such borders, so a
+// probe's light changed as the camera moved, which the frame before's light averaged while it moved
+// and drifted from for a dozen frames after it stopped, 0.19 levels on the fifth frame after a walk
+// where it reads 0.07 (GlobalIlluminationTests).
+float3 beyond(float3 start, float3 normal, float3 way, float reached, uint around)
+{
+    float3 end = start + way * reached;
+    float3 lean = float3(0.0);
+    uint c = 0u;
     int3 base;
     float3 f;
-    if (!probesAround(p, c, normal, base, f))
-        return float4(0.0, 0.0, 0.0, -1.0);
+    if (!probesAround(end, 0u, lean, base, f))
+    {
+        c = 1u;
+        if (push.texels.y == 0u || !probesAround(end, 1u, lean, base, f))
+        {
+            end = start;
+            reached = 0.0;
+            lean = normal;
+            c = around;
+            probesAround(end, c, lean, base, f);
+        }
+    }
     float probes = view.trace.y;
+    float apart = fieldInfo.cascades[c].originAndCell.w * view.trace.z;
+    // Where the ray passed half the probes' spacing before its end, or, read around its start,
+    // a point before the surface.
+    float3 passed = reached > 0.0 ? end - way * min(0.5 * apart, reached * 0.5) : end + normal * (0.3 * apart);
     uint texels = c == 0u ? push.texels.x : push.texels.y;
     float2 o = octahedron(way) * float(texels) - 0.5;
     int2 first = int2(floor(o));
@@ -222,17 +243,17 @@ float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
         float2 lerps = lerp(1.0 - between, between, float2(side));
         share[k] = lerps.x * lerps.y;
     }
-    float3 sum = float3(0.0);
-    float weights = 0.0;
+    float3 sum = float3(0.0), seenSum = float3(0.0);
+    float weights = 0.0, seenWeights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        float seenHere = float((seen >> uint(corner)) & 1u);
-        float weight = lerps.x * lerps.y * lerps.z * seenHere * probeFacing(p, normal, probeAt(neighbor, c));
+        float weight = lerps.x * lerps.y * lerps.z;
         if (weight <= 0.0)
             continue;
+        float sees = probeReaches(passed, probeAt(neighbor, c), neighbor, c, apart);
         for (int k = 0; k < 4; k++)
         {
             int4 at = int4(neighbor.xy * int(texels) + texel[k], neighbor.z, 0);
@@ -240,9 +261,13 @@ float4 beyond(float3 p, uint c, float3 normal, float3 way, uint seen)
             float held = weight * share[k] * (light.a > 0.25 ? 1.0 : 0.0);
             sum += light.rgb * held;
             weights += held;
+            seenSum += light.rgb * held * sees;
+            seenWeights += held * sees;
         }
     }
-    return float4(weights > 1e-4 ? sum / weights : float3(0.0), 1.0);
+    if (seenWeights > 1e-3 * weights)
+        return seenSum / seenWeights;
+    return weights > 1e-4 ? sum / weights : float3(0.0);
 }
 
 [shader("compute")]
@@ -368,7 +393,6 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 side = abs(n.y) < 0.99 ? normalize(cross(n, float3(0, 1, 0))) : float3(1, 0, 0);
     float3 along = cross(n, side);
     float cell = max(fieldCell(fieldInfo, p), 1e-3);
-    uint seen = probesSeen(p, around, n, cell);
     float3 start = p + n * (cell * 0.5);
     float length = view.trace.x;
     float3 sum = float3(0.0);
@@ -415,7 +439,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     reached = start + way * t;
                 light = t >= 0.0
                     ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
-                    : beyond(p, around, n, way, seen).rgb;
+                    : beyond(start, n, way, farthest, around);
             }
             sum += light * weight;
             weights += weight;

@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f40133c0`, item 30's part (f) and nothing else, 7 files. The tick lies where the
+Reviewed up to `d8b01672`, item 30's screen probe instrument and nothing else, 11 files.
+`gi.screenprobe <x> <y> [samples] [bounces]` writes the sixteen rays of the screen probe under a
+pixel into a buffer the pass fills for that probe alone, giving for each ray where it was met, on
+the screen, in the field or past its reach, its light and the light of what it met without the
+indirect light, and sets each against the path-traced reference along its exact way and over its
+cell, the texel of the hemisphere the ray stands for, with the screen pass's own unfolding, a
+probe's rays turning with its normal alone so it settles on its sixteen ways and the cells
+separating a fault in a ray's read from a fault in its way; a test inside the closed emissive box
+holds every ray within 13 percent of the reference, every cell within 3, the rays' sum within 1 of
+the probe's light and the probe 5 under; the command-line guide and RENDERING.md say it. Checked
+were the strict build, the whole suite, 1,724 passed, and the illumination, cascade edge, reference
+frame and bounce tests on lavapipe under the required layer. Read with it in the Cornell box at 300
+frames against 256 paths a way, the block front's probe reads 43 percent over along its ways and 52
+over their cells, its eleven rays past their reach 97 over, one toward the upper left 430, its four
+rays meeting the floor before the block 72 to 100 over with the light past the first bounce 0.80 to
+0.86 where the reference has 0.31 to 0.49, and a fifth floor ray lost inside the slab reading 0,
+which darkens; the corner's probe on the back wall, in the second cascade, reads 112 percent over
+its cells, its rays past their reach 116 over, its five hits on the red wall 88 over with the light
+past the first bounce 0.91 to 1.02 where the reference has 0.42 to 0.64, and the three hits near the
+back wall carrying green the field's color blends from the white wall. Two terms are at fault in
+both: the light from beyond reads the world's probes around the ray's start on the surface and not
+around where the ray ended, a probe 1.2 off seeing along the way what the ray passes by; and the
+light past the first bounce at hits in a concave angle reads about twice the reference's, the probes
+blended a lean of the spacing off the surface seeing more of the lit room than the angle does, the
+mechanism named for (d) and (e). Right. Next (b) and (c), the beyond read at the ray's end from the
+probes around that point weighed by how far their rays reached toward it, then the concave-angle
+term measured for what it leaves and (d) and (e) read with both instruments for the same mechanism
+before its mend is chosen, in separate commits where the mends differ; the owner's push of the nine
+commits since `a12206af` and a pack run; and Verdict 70's third green macOS suite.
+
+Before it, `f40133c0` came, item 30's part (f) and nothing else, 7 files. The tick lies where the
 thin room's right wall meets its front wall at the outside lamp's height, a pixel no screen probe on
 a surface like its own stands near, so the model pass read the world's probes there, and the
 visibility test judged each probe from a point 0.3 of the spacing off the wall, which lies in the
@@ -63,27 +93,6 @@ bounce room tests on the GPU, the glow tests on lavapipe under the required laye
 and the whole suite, 1,722 passed. Right. Next part (f), the owner's push of the seven commits since
 `a12206af` and a pack run, whose package the game waits on, and Verdict 70's third green macOS
 suite.
-
-Before it, `c6914ab3` came, item 34 done and nothing else, 11 files. `GetImGuiTextureId` gives a
-loaded texture an id for ImGui's image, image button and a draw list's image, the texture's id with
-bit 32 set and none for a texture not loaded, the font atlas staying ImGui's texture 1 so neither id
-is taken for the other, reached by behaviors as the rest of the flat API is; the ImGui node takes
-the render world and binds for each command the set the immediate pass draws that texture by, the
-font atlas's layout, so a texture unloaded while drawn draws white, and the atlas's set elsewhere, a
-set bound again only where it changes, in the main window and in viewports, the SDL fallback drawing
-such a command untextured. A test draws through the foreground list in an offscreen window a red
-texture read red, a two-color texture by its right half's coordinates read blue, and text after them
-with more than twenty lit pixels from the atlas, failing with the image black when the pass was made
-to bind the atlas for every command again and passing on lavapipe under the required layer beside
-the ImGui reference frame; the window guide's ImGui section gains a paragraph and a compiled sample
-drawing an icon by its cell of an atlas, RENDERING.md's frame order a sentence, CHEATSHEET.md,
-PublicApi.txt and upgrading.md their lines. Checked were the strict build and the whole suite, 1,720
-passed. Right. Items 32, 33 and 34 are in for one package, which the game's three second commits
-wait on. Toward item 30's part (a) the working session plans to carry a large emissive mesh's
-emissive parts as glow lights, one box a connected part, cached by vertex array, reading first how
-the field marks a carried emitter's cells, since the 64 nearest emitters alone are lights and a far
-ore marked in the field would lose its light. Next part (a), the owner's push of the six commits
-since `a12206af` and a pack run, and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1203,7 +1212,43 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     same ray, so the rays and the term at fault are named before a mend is chosen; then (b) and (c)
     in one commit where one cause serves both, measured and held as before, and where the cause is
     the world probes' light past the first bounce in concave angles, (d) and (e) are read for the
-    same before their own mend.
+    same before their own mend. The instrument came at `d8b01672`, `gi.screenprobe` reading a screen
+    probe's sixteen rays against the reference along each way and over its cell, and named two terms
+    at fault in both (b) and (c), the light from beyond read around the ray's start and not its end,
+    and the light past the first bounce at hits in a concave angle at about twice the reference,
+    which is the mechanism (d) and (e) are read for. The mend of (b) and (c) reads beyond at the
+    ray's end, from the probes around that point weighed by how far their rays reached toward it,
+    then measures what the concave-angle term leaves, with (d) and (e) read for the same before
+    their own mend, separate commits where the mends differ. Read on 2026-10-19 at 03:06, before a
+    commit: the beyond term mended in the tree, the read taken around where the ray ended from the
+    probes whose reach covers a point the ray passed, the screen march handing the field the point
+    where it went behind the depth and the last point on the picture where it leaves it, which the
+    reflections share, takes the block front's rays past their reach from 97 percent over to 3 and
+    the far wall of the carried lamp's room from 0.84 of the reference to 1.00, that room's frame
+    from 0.944 to 0.989 and the Cornell box's from 1.064 to 1.033, so part (e)'s level is mended by
+    it and its patches are not, the wall's blocks spanning 0.85 to 1.12 of their mean where they
+    spanned 0.94 to 1.12 before, a bright patch mid-wall and a dark band along its right edge, since
+    the rays past their reach carry the world probes' blend from where they end and the wall
+    inherits the grid's variation, and the floor at the moved wall's foot (d) moves from 0.171 to
+    0.192 against 0.213, nearer and unmended; the faces of (b) and (c) do not move yet, the block's
+    front at 1.65 with the pocket between floor and block carrying the concave-angle excess, its
+    first cascade probe 85 percent over in its upward face against a one-bounce reference where its
+    neighbors read 4, and the corner at 0.77 against 0.60, where the second cascade's nearest probe
+    stands over the tall block with 182 of its 233 rays met before their interval began, which no
+    visibility weighting recovers, and its screen hits 88 over by the concave term. A third term is
+    the sampling, a probe's sixteen ways fixed by its normal and the filter blending tiles of the
+    same ways, the reference along those ways against the whole hemisphere reading 22 percent over
+    at (c), 26 under at (b), 21 under on (d)'s floor and 46 over on (e)'s wall. The reviewer's call
+    is one commit a mechanism: the beyond term's commit at once, held by its test of the rays past
+    their reach within 15 percent of their cells at the block front and the far wall, the corner
+    left out of it with the reason in the comment, the figures above in the message and in
+    RENDERING.md with part (e)'s level said mended and its patches not, its picture retaken, and
+    (b)'s and (c)'s faces said unmoved, the slab test's tint bound widened from 2 to 3 percent at
+    1.212 against 1.240 with the reason, the change reading each ray past its reach as the reference
+    does along its way while the upper wall's probe's sixteen fixed ways miss the slab's red their
+    cells hold, which is the sampling term (N 3.5); then the pocket's term, the light past the first
+    bounce at hits in a concave angle, for (c) and (b)'s hits; then the corner's world probe over
+    the tall block; then the sampling term, read with the instruments before its mend.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

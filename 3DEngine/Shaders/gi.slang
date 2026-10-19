@@ -187,6 +187,11 @@ bool onScreen<P : IPicture>(P depth, ScreenCamera camera, float3 q, out float4 a
 // in front of it, for the field to find what it passed behind, since left where it went off it
 // stood past a wall it had gone behind, and the field's trace from there lit a closed room with the
 // lamp outside it, 92 levels where 8 at most, once the screen's probes' rays reached twice as far.
+// One still behind the depth at its end is left there too, where counted as meeting nothing a ray
+// that went into the floor before a wall ended under it, and the light from beyond read there was
+// none (gi.screenprobe). One that went off the picture without passing behind the depth is left at
+// its last point on it, since left at its first point off it the field's trace began under a
+// floor the step had crossed.
 public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
 {
     hit = p;
@@ -201,7 +206,7 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
         float4 at;
         if (!onScreen(depth, camera, q, at))
         {
-            left = behindFrom >= 0.0 ? behindFrom : t;
+            left = behindFrom >= 0.0 ? behindFrom : before;
             return false;
         }
         if (at.w < 1.0 && at.z > at.w)
@@ -231,6 +236,7 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
         }
         before = t;
     }
+    left = behindFrom >= 0.0 ? behindFrom : length;
     return false;
 }
 
