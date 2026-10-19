@@ -40,7 +40,8 @@ here on. At 22:32 the run of `03e0bd36` had its three suites in their 23rd minut
 owner asked what the code fixes project is for and kept it (Decision 46), and at 22:45 that the
 release notes include everything and append to the older ones (Decision 47, item 37), and at 22:51,
 quoting nuget.org's notice, that the pack run publishes through trusted publishing (Decision 48,
-item 38).
+item 38), and at 22:57 that the reviewer starts the pack runs as well (Decision 49), the first with
+publish on once item 38 is in.
 
 Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
 judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
@@ -3034,6 +3035,16 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     package owner and repository owner `EggyStudio`, the workflow `pack.yml`, the push scope and its
     pattern, the feed holding the permanent GitHub ids of the owner and the repository for its
     check.
+
+49. **The reviewer starts the pack runs when a package is due.** The owner wrote at 22:57 on
+    2026-10-19 that the reviewer is to start the pack workflow as well, so no one waits on the owner
+    for a package and a pack can be made and checked as part of the review; the owner's GitHub login
+    on the machine carries the workflow scope, and the pushes were the reviewer's since 22:20. So
+    the reviewer starts a pack run with publish on when a package is due: after a commit the voxel
+    game or the other engine waits on, after the mend of a fault that made a pack run red, at the
+    end of a day's batch, and when the owner asks, and not after every commit, since a pack run is
+    more than an hour of the runners' time; the run is read and recorded as every run is, and its
+    package is what the game and the other engine take.
 
 ## Replies
 
