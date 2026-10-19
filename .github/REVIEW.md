@@ -10,8 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a52b125b`, item 30's mend of the field's color blend and nothing else, 17 files, the
-reviewer's choice of 09:20 carried out. The resolve pass writes each cell's face direction, the
+Reviewed up to `12ef6f13`, item 30's reading of what remains at (b) and nothing else, RENDERING.md
+and this file, no shader changed. The screen probe instrument at the corner probe, at no bounce, one
+and every bounce, splits the five hits nearest the corner: the lamp's direct light agrees with the
+reference's 0.33 once the panel carried as a glow light, about 0.12, is set aside; the light past
+the first bounce reads 0.91 to 0.95 against the reference's 0.63 to 0.65, 40 to 50 percent over, and
+carries the whole excess of 1.36 to 1.40 against 1.07 to 1.11. That light at a screen hit is the
+wall's color over pi times the world probes' faces read there, not the screen rays' reads past their
+reach, and the probes hold their own light near right, the second cascade's probe nearest the hits 7
+percent over the reference along the red wall's normal and the first cascade's nearest the corner 9
+over, their back-wall ways 22 and 35 over, gathered mostly from rays that met a surface before their
+interval began; read at the hit they give about 5.0 of red irradiance where about 3.5 reaches it,
+the light falling by two fifths from where the probes stand to the corner 1.3 to 1.9 units on, which
+a blend of probes 2.4 apart cannot draw. The model pass alone reads the same probes on the red wall
+at 1.13 of the reference 30 pixels from the corner and 1.25 at 10, and with the screen probes the
+wall reads 0.86 to 0.95, an under-read not yet placed. The term is named, the light past the first
+bounce at a surface in a concave corner read from probes standing in more open light, and three
+mends are offered, an occlusion factor on that light from the field's distances around the hit,
+probes read nearer the surface or weighted by the share of the hit's hemisphere each sees, and a
+finer first cascade near surfaces; the reviewer's choice is said under item 30. Right. Next that
+measurement; a pack run for the game's package; then (c), (d), and the sampling term measured again.
+
+Before it, `a52b125b` came, item 30's mend of the field's color blend and nothing else, 17 files,
+the reviewer's choice of 09:20 carried out. The resolve pass writes each cell's face direction, the
 eight bits the field's build keeps in its `uint`, into two single-byte images, the faces the passes
 read and the still meshes' copy, and the stamp writes a moving box's nearest face carried to the
 world through the shape's matrix by its transpose and restores from the copy as it does colors; the
@@ -74,22 +95,6 @@ and the illumination, cascade edge, reference frame, bounce and glow tests on la
 required layer, 83 passed and 15 skipped for ray queries. Right. Next (b)'s color blend and concave
 term, one commit; a pack run for the game's package; then (c), (d), and the sampling term measured
 again.
-
-Before it, `0d17cecc` came, item 30's reading of the screen probes' sampling term and nothing else,
-RENDERING.md and this file, no shader or test changed. The section says what the reviewer asked at
-07:40 and what item 30 records, the fourteen probes' readings along the sixteen fixed ways and of
-the probes' own light, the four mends measured and none kept, each by the Cornell box's three
-figures and the carried lamp's room's three, the shimmer of the ways turned each frame in the 99th
-part of a still view's pixels against 0.04 percent with the ways still, the per-view drift of the
-tiled ways at the bounce rooms' 160 by 90 with the five bounds passed and the wick frame's 3.2
-percent, the two-by-two tiling's worse drift, the thirty-six ways' cost measured by the profile
-command with frames unlimited, and under every mend the far wall's level falling because the sixteen
-ways' overread covered the rays' underread, rays passing behind the thin green wall within the
-depth's thickness that the screen's march counts as meeting the dark face the eye sees, named as a
-fault of the march's thickness; the tiled ways and the thirty-six stand as the candidates to measure
-again once the four faults are mended, said in one sentence. Right. Next the screen's hits behind
-thin walls, (e)'s level, one commit; a pack run for the game's package; and then (b)'s color blend
-and concave term, (c) and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1370,8 +1375,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of green to 0.007 and from 24 to 139 percent over the reference across their ways to 12 to 31,
     the corner over 50 pixels in 0.66 against 0.60, the pass within 0.02 ms, held by a test; what
     remains at (b) is the light past the first bounce in the concave corner, the hits' red 1.36 to
-    1.40 against 1.07 to 1.11 across their ways. Next its reading with both instruments before a
-    mend is proposed, then (c), (d) and the sampling term measured again.
+    1.40 against 1.07 to 1.11 across their ways. Read and recorded at `12ef6f13` the same day with
+    no shader change, the light past the first bounce at those hits 40 to 50 percent over the
+    reference and the whole excess, the probes' own light within 7 to 9 percent along the wall's
+    normal, the excess from reading probes 1.3 to 1.9 units out in more open light at a point in the
+    corner where two fifths less arrives, which a blend of probes 2.4 apart cannot draw. The
+    reviewer's choice is to measure the occlusion factor first, on the light past the first bounce
+    alone, as the ratio of the hit's openness to the openness where the probes stand, read from the
+    field's distances along a few cones, so an open hit beside open probes changes nothing, with any
+    constant in it measured against the reference and said (N 3.5); it is judged with the screen
+    probes on, as the frame has them, at the corner, the pocket (c), the wall's foot (d), which
+    reads under the reference and must not fall, the carried lamp's far wall and the open middle of
+    both rooms, which must not move, with the pass's cost at both qualities; the probes' weighting
+    by the hemisphere they share is not taken, since these probes see the hit and their light is
+    right where they stand, and a finer cascade is the last resort by its cost. The red wall's
+    under-read of 0.86 to 0.95 with the screen probes on is placed in the same reading before the
+    factor is judged, and was at 10:29, on the upper wall the sampling term, three red-wall screen
+    probes reading 12 and 25 percent under their hemispheres on the upper wall and 35 over on the
+    lower while each reads about 28 percent over the reference along its sixteen ways, the ways
+    missing the bright directions toward the lit ceiling, so the upper wall's hits stand in the open
+    room, the factor must read near one there and the upper wall's frame figure must not fall. Next
+    that measurement, one commit if it holds, then (c), (d) and the sampling term measured again.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

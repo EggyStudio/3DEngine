@@ -1756,6 +1756,41 @@ that `gi.compare` writes beside its difference.
   world's probes' own rays that meet the back wall under the ceiling in the corner read 1.5 to 2
   times the reference's light there, the same term at their hits.
   ![The Cornell box's back corner, the frame before a hit's color was taken from the cells facing its way, the frame after, and the reference, at half the light](assets/cascades/cornell-corner.webp)
+
+  Scaling the light past the first bounce at a hit by the ratio of the hit's openness to the
+  openness where the probes it reads stand was measured on 2026-10-19 and is not kept. Each openness
+  was read from the field's distances along five cones about the hit's normal, one along it and four
+  leaning 45 degrees toward the sides, each at four steps doubling out to the probes' spacing, the
+  nearest surface at each step against the cone's width there, 0.7 of the step, read in the finest
+  cascade with the width held within its four exact cells, and the cones weighed by their cosine to
+  the normal. Read in the cascade whose exact cells cover the width instead, a thin wall reads half
+  a cell thicker and an open wall's leaning cones close by a sixth. On the screen's probes' hits
+  alone, the ratio held at one at most, the corner probe's red-wall hits read 0 to 38% over the
+  reference along their ways where 26 to 54%, and 6 to 32% with the cones twice as long, and the
+  small block's front 1.32 of the reference's light where 1.40. The corner over 50 pixels in reads
+  0.645 where 0.660, the reference 0.601, because the corner is not over in the frame, the back
+  wall's first 12 pixels from it reading 1.00 to 1.02 of the reference and the wall 50 pixels in
+  0.93, so the figure is the wall further in reading under, and the factor lowers both. The open
+  middle moves, the Cornell box's back wall to 0.969 of the reference where 0.977 and the carried
+  lamp's room's floor to 0.972 where 0.988, the upper red wall falls to 0.898 where 0.903 and the
+  wall's foot (d) to 0.197 where 0.200.
+
+  Two faults show in the hits' figures. A hit whose cones a near wall closes reads that wall as
+  shade, though that wall lights it, as one on the tall block's side facing the red wall reads 0.06
+  open against 0.77 where its probes stand and loses nine tenths of its light where it read 64%
+  under the reference already, since the field's distances say how near a surface is and not how
+  much light it sends. And the probes' openness read at the mean of their places reads as low as
+  0.07 where that mean falls beside the tall block, and read at each probe, weighed as its light is,
+  it leaves the frame's figures alike. Held at 1.5 at most, the ratio raises the open middle by 1.2%
+  and the far wall by 4%. On the world's probes' hits as well, it brings the probe of the second
+  cascade near the corner, the first cascade's nearest the corner and the pocket's to 2, 10 and 9%
+  over their references merged where 9, 16 and 16%, but lowers the Cornell box's back wall to 0.947,
+  the carried lamp's floor to 0.904 and the wall's foot to 0.177, so the frame's open middle reads
+  near the reference because the world's probes' excess offsets what the screen's probes' sixteen
+  ways miss. The ratio costs 0.45 to 0.50 ms of global illumination's 1.15 to 1.50 at `High` and
+  `Low` in the Cornell box on the development machine's GPU, two readings of five cones at every hit
+  (`gi.screenprobe` with each hit's openness logged, `gi.compare` at 800 by 450, `gi.probe`,
+  `./e3d command profile`, the frames unlimited).
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
   reference's, lighter at the lower left and darker at the upper right where the reference's face is
