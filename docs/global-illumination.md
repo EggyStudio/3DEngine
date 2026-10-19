@@ -188,9 +188,10 @@ frame in some 0.02 ms.
   hit or a probe's ray that leaves the field through that side takes the sky's light unhidden, and a
   cave reaching past it lets a little in, 1.7 levels of 255 of the engine's light in a cave of 30 by
   30 blocks under a hill at `High`.
-- **A space wider than the last cascade.** A probe's ray that leaves the last cascade takes the sky.
-  At `Low`, whose last cascade's rays reach 16 units at the default cell, a cave wider than that
-  takes the sky past them, 27 levels in that cave, so a game of deep caves takes `Medium` or `High`.
+- **A space wider than the field.** A probe's ray of the last cascade goes on until it meets a
+  surface or leaves the field, and one that leaves takes the sky, so a cave lets the sky in only
+  where it reaches past the field, 128 units across at the default cell, or past its side behind
+  the eye (above).
 - **Moving meshes.** A mesh that moves reflects light as the boxes the field holds it as, and its
   emission reaches no other surface unless it is small enough to be a light of its own.
 - **Thin things.** What is thinner than a cell is held about its middle, so a thin wall stops light,

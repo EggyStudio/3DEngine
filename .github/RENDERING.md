@@ -1209,15 +1209,16 @@ so a glossy floor can mirror a wall past the last cascade's side behind the eye,
 sky's light unhidden. A probe's ray that leaves the field through that side takes the sky as well,
 so a cave reaching past it lets a little in. One of 30 by 30 blocks under a hill reads 1.7 levels of
 255 at `High` with the game's own shading off and 0.01 with the sky left out of the probes' rays;
-and at `Low`, whose last cascade's rays reach 16 units, a cave wider than that takes the sky past
-them at every heading, that one 27 levels. Read from one cascade alone, the light stepped at each
-one's end, on a canyon's floor under a sky with no sun, seen from twenty units up and twelve degrees
-down as the voxel game's hills were, from one row of pixels to the next by 14% at the screen's
-probes' end at `High`, 10% at the third cascade's and 15% at the last's, by 18% twice at `Medium`
-and by 25% at `Low`, whose screen probes end with its last cascade, and on the game's hills at
-sunset from 0.6 to 1.0 of the sky's light where the last ended; faded, the canyon's floor changes
-from row to row by 3.7%, 3.8% and 1.9% at most at 320 by 180 (`CascadeEdgeTests`) and by 2.9%, 3.0%
-and 1.0% at 640 by 360.
+and at `Low`, whose last cascade's rays reached 16 units, a cave wider than that took the sky past
+them at every heading, that one 27 levels, until the last cascade's rays went on to the field's edge
+(the grazing floor's room, below). Read from one cascade alone, the light stepped at each one's end,
+on a canyon's floor under a sky with no sun, seen from twenty units up and twelve degrees down as
+the voxel game's hills were, from one row of pixels to the next by 14% at the screen's probes' end
+at `High`, 10% at the third cascade's and 15% at the last's, by 18% twice at `Medium` and by 25% at
+`Low`, whose screen probes end with its last cascade, and on the game's hills at sunset from 0.6 to
+1.0 of the sky's light where the last ended; faded, the canyon's floor changes from row to row by
+3.7%, 3.8% and 1.9% at most at 320 by 180 (`CascadeEdgeTests`) and by 2.9%, 3.0% and 1.0% at 640 by
+360.
 
 The ninth gives the field the light of an emitter thinner than a cell. A strip 0.06 thick on a wall,
 under cells of 0.15, painted no cell its own, the wall nearer every cell's middle, so its light was
@@ -2083,6 +2084,26 @@ its near-level rays end at the last cascade's reach of 9.6 with nothing past the
 lean, and the widening names the light beyond `Low`'s last cascade at a probe's own face
 (`gi.compare`, BounceRoomsTests, `gi.probe` with 256 paths a way at no bounce, one and every
 bounce).
+
+**The last cascade's rays to the field's edge, on 2026-10-19.** The last cascade's interval ends at
+the field's edge, the diagonal of its coarsest cascade, where it ended at four times its spacing, so
+a ray across a room wider than that goes on until it meets a surface or leaves the field, and takes
+the sky only where it leaves. In a closed room sixteen units long at `Low` the last cascade's probes
+sent the rays of 16 of 1,536 texels into mid-air, which took the sky, and send none
+(CascadeEdgeTests). In the grazing floor's room at `Low` the probe at the far wall reads its face
+toward the room 22% under the reference at the first bounce where 35%, `High`'s 21%, and the three
+probes there read the light past the first bounce 11 to 36% over where from 11% under to 30% over,
+as `Medium`'s and `High`'s read it, 7 to 37% over. The room's frame reads 7% over where 4% under,
+`High`'s 8%, and its view 0.104 of its light from its reference at 160 by 90 where 0.074, `High`'s
+0.099 and `Medium`'s 0.105, and 0.086 at 800 by 450 where 0.053, `High`'s 0.088, so `Low` reads the
+room as `Medium` and `High` do, the gain uncovered there as in the window's and the strip's rooms
+(above), and the bounce rooms test holds the view at the new figure. Every other view at `Low`, and
+every view at `Medium` and `High`, reads as it did to the last digit. Global illumination costs 1.24
+to 1.26 ms where 1.16 to 1.17 in the Cornell box, 0.98 to 1.03 where 0.90 in the carried lamp's room
+and 2.63 where 2.48 to 2.52 in Ore's landscape at `Low`, 1.36 where 1.33 to 1.34, 1.00 where 0.97
+and 2.96 to 2.99 where 2.82 to 2.84 at `Medium`, and 1.47 to 1.48 where 1.44, 1.12 where 1.09 and
+3.05 to 3.10 where 3.04 to 3.11 at `High`, the rays that leave a room going on to the field's edge
+(`gi.probe`, `gi.compare`, BounceRoomsTests, `./e3d command profile`, the frames unlimited).
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its

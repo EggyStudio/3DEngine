@@ -9,7 +9,8 @@ namespace Engine.Tests.Rendering;
 /// were, its floor's light read down the picture's middle across the ends of the screen's probes,
 /// the world's cascades and the last cascade, past which the sky's light reaches the floor unhidden,
 /// and a closed room under the same sky, with the eye inside turned through a circle and in the
-/// frames before its last cascade is built.
+/// frames before its last cascade is built, and a closed room longer than four times the last
+/// cascade's spacing, whose rays go on to the field's edge.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -254,5 +255,71 @@ public sealed class CascadeEdgeTests : IDisposable
 
         var settled = floor[^1];
         floor.Take(3).Should().OnlyContain(light => light < 2 * settled, "the room hides the ambient light from its floor before its last cascade is built");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Last_Cascades_Rays_Meet_The_Walls_Of_A_Closed_Room_Wider_Than_Four_Times_Its_Spacing()
+    {
+        // A closed room sixteen units long at Low, inside the field's last cascade ahead of the eye,
+        // whose probes stand 2.4 apart. Their rays ended at four times that, 9.6, and those along the
+        // room ended in mid-air and took the sky; ending at the field's edge, every ray of every
+        // probe in the room meets a wall.
+        var config = Config.Default.WithWindow("long room", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        panel.Materials[0].Emissive = Color.White;
+        panel.Materials[0].EmissiveIntensity = 1;
+        var camera = new Camera3D(new Vector3(0, 2.4f, 0), new Vector3(4, 2, 0), Vector3.UnitY, 70);
+        for (int frame = 0; frame < 40; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(slab, new Vector3(4.5f, -0.15f, 0), Vector3.UnitY, 0, new Vector3(16.6f, 0.3f, 5.4f), Color.White);
+            DrawModelEx(slab, new Vector3(4.5f, 4.95f, 0), Vector3.UnitY, 0, new Vector3(16.6f, 0.3f, 5.4f), Color.White);
+            DrawModelEx(slab, new Vector3(4.5f, 2.4f, -2.55f), Vector3.UnitY, 0, new Vector3(16.6f, 4.8f, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(4.5f, 2.4f, 2.55f), Vector3.UnitY, 0, new Vector3(16.6f, 4.8f, 0.3f), Color.White);
+            DrawModelEx(slab, new Vector3(-3.65f, 2.4f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 4.8f, 4.8f), Color.White);
+            DrawModelEx(slab, new Vector3(12.65f, 2.4f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 4.8f, 4.8f), Color.White);
+            DrawModelEx(panel, new Vector3(10.5f, 0.03f, 0), Vector3.UnitY, 0, new Vector3(1.6f, 0.06f, 1.6f), Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var last = gi.Cascades - 1;
+        var rays = device.ReadProbeVolume(gi, last, merged: false);
+        var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(last)!.Value;
+        var (p, n) = (gi.Probes, gi.Texels[last]);
+        var spacing = 0.15f * (1 << last) * GlobalIlluminationRenderer.ProbeSpacing;
+        // Each texel's alpha says what its rays met, 0 a surface, a half a surface before their
+        // interval, a quarter the sky and 1 nothing, moved a sixteenth on for each that met
+        // nothing (texelMark in gi.slang), so a texel within a tenth of a quarter or of 1 met the sky.
+        var (probes, texels, sky) = (0, 0, 0);
+        for (int z = 0; z < p; z++)
+            for (int y = 0; y < p; y++)
+                for (int x = 0; x < p; x++)
+                {
+                    var at = origin + (new Vector3(x, y, z) + new Vector3(0.5f)) * spacing;
+                    if (MathF.Abs(at.X - 4.5f) > 7.5f || at.Y < 0.5f || at.Y > 4.3f || MathF.Abs(at.Z) > 2)
+                        continue;
+                    probes++;
+                    for (int v = 0; v < n; v++)
+                        for (int u = 0; u < n; u++)
+                        {
+                            var alpha = rays[((z * p * n + y * n + v) * p * n + x * n + u) * 4 + 3];
+                            texels++;
+                            if (MathF.Abs(alpha - 0.25f) < 0.1f || alpha > 0.9f) sky++;
+                        }
+                }
+        probes.Should().BeGreaterThan(2, "the room holds probes of the last cascade");
+        sky.Should().Be(0, $"no ray of the last cascade in a closed room ends in mid-air, of {texels} texels of {probes} probes");
+        UnloadModel(slab);
+        UnloadModel(panel);
     }
 }

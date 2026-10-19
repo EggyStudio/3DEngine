@@ -10,9 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a27fbdd0`, item 30's mend of Low's first bounce and nothing else, 9 files, under the
-conditions of 14:06. `RaysAt` follows the texels, four rays a texel in any cascade of eight a side
-and one where sixteen, every probe sending 256, its remark saying why; the bounce rooms test's
+Reviewed up to `50afce3c`, item 30's measurement of the lean's refinement on `a27fbdd0` and nothing
+else, RENDERING.md and this file, no shader changed. The refinement, reads at no lean with the
+ambient blend keeping its half-spacing lean, passes its check, the window narrowing by 0.053 to
+0.066 and the strip by 0.041 to 0.050 at every quality and both sizes, the thin room by 0.006, the
+wall's foot to 0.214 at Low and 0.219 at High against 0.215, the gain at the faces 1.00 to 1.17 a
+bounce where 1.08 to 1.27 with the pocket's 1.12 untouched as the merge's, a still view's 99th part
+changing by 0.03 percent at most, and the moved wall's room stepping to its settled light in one
+frame across its restamping as the head does, 18.5 percent then 0.5 and nothing more, no flicker;
+and it still widens the grazing floor at Low, by 0.044 and 0.069, the room 12 percent under where 4,
+while narrowing it at Medium and High, the room at High 2 under where 8 over, and the carried lamp's
+room by 0.002. The geometry from the lean's reading names the term as Low's own: the near probe a
+hit reads with no lean holds its place's light within 1 percent at High and 7 to 15 under at Low,
+its face across the room 35 percent under at the first bounce where High's is 21, since that face
+looks 11.8 across the room and its near-level rays end at the last cascade's 9.6 with nothing past
+them, where High's third cascade lends that light; so the term is what a last cascade's ray that
+ends in mid-air takes in a closed room larger than its reach. By the rule the refinement is recorded
+and not kept, a third time, and the reviewer's choice of the term's mend is under item 30. Right.
+Next that mend; a pack run for the game's package; then the refinement once more, the merge's
+first-bounce excess at the pocket and the strip, the sampling term's candidates, (c) and (d).
+
+Before it, `a27fbdd0` came, item 30's mend of Low's first bounce and nothing else, 9 files, under
+the conditions of 14:06. `RaysAt` follows the texels, four rays a texel in any cascade of eight a
+side and one where sixteen, every probe sending 256, its remark saying why; the bounce rooms test's
 figures at Low and Medium are pinned anew for the window, the strip and the grazing floor at Low,
 the reason per view giving both figures against High's; RENDERING.md takes the reading, the last
 cascade's reach and the ambient blend ruled out, the tile and the direct light ruled out with their
@@ -57,34 +77,6 @@ reads 15. By the rule the refinement is out as it stands, and the order changes 
 shortfall first as a term of its own. Right. Next that term's reading; a pack run for the game's
 package; then the refinement measured again, the merge's first-bounce excess at the pocket and the
 strip, the sampling term's candidates, (c) and (d).
-
-Before it, `e298f4c4` came, item 30's reading of the world probes' excess and nothing else,
-RENDERING.md after the sampling paragraph, a per-face split in `gi.probe`'s report by where each
-face's ways were met with its line in both guides, this file and SHARED.md, no shader changed, the
-suite 1,729 of 1,729. Seventeen faces of eleven world probes, said as fifteen until `69c7e8cc`,
-beside the thin room's wall, the strip's side walls, the grazing floor's walls, the window's ceiling
-and the Cornell box's walls were read for their first bounce, the engine with the bounce toggle off
-against the reference with no bounce past the probe's hits, which lights each hit as the lamps do,
-and for the light past it, the rest of each, the Cornell panel read alone as a carried glow light
-the engine counts at the hit and the reference on the second segment. Near the walls the first
-bounce reads at or under the reference, 2 to 8 percent under at the Cornell lamp's faces, 0 to 2
-over at the thin wall, 21 under at the grazing walls, and the light past it 14 to 39 percent over,
-20 to 39 in the Cornell box, 14 to 15 at the thin wall, 26 to 30 under the window's ceiling and 21
-to 23 at the grazing walls; splitting the reference's light past the first bounce into its second
-and the rest puts the gain at 1.08 to 1.09 a bounce in the thin room, 1.12 to 1.13 on the grazing
-walls, 1.14 to 1.16 under the window's ceiling and 1.12 to 1.27 in the Cornell box, consistent with
-what the rejected openness ratio took off the three Cornell probes. The excess comes along the ways
-that met a surface, inside their interval or before it began, which hold 74 to 100 percent of the
-faces' weight, 27 to 43 over through those met before the interval at the second cascade and 24 to
-40 through those inside it at the first. Two places carry an excess at the first bounce instead
-through the cascade above, the pocket, 3 to 19 percent over at the first bounce with its ways from
-the cascade above 78 to 202 over, and the strip's room, 204 to 209 over at the first bounce with
-those ways 483 to 2,521 over and its own hits 14 to 57, which is the merge's and a term of its own.
-So the term is named, the irradiance a world probe's hit reads from the probes around it, 8 to 27
-percent high a bounce, a gain compounding through the probes' own hits, and the reviewer's choice of
-what comes before its mend is said under item 30. Right. Next that reading; a pack run for the
-game's package; then the gain's mend, the merge's first-bounce excess at the pocket and the strip,
-the sampling term's candidates again, (c) and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1518,9 +1510,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     part is read there: the probes stand alike at both qualities and hold the reference at their
     places at High, 7 to 15 percent under at Low where their near-level rays end at the last
     cascade's reach with nothing past, so the half-spacing lean reads toward the brighter far plane
-    and none reads the wall-plane probe, which at Low carries the missing light beyond as well. Next
-    the refinement measured on `a27fbdd0` by the rule, then the merge's first-bounce excess at the
-    pocket and the strip, the sampling term's two candidates, (c) and (d).
+    and none reads the wall-plane probe, which at Low carries the missing light beyond as well.
+    Measured on `a27fbdd0` and recorded at `50afce3c` the same day with no shader change: the
+    refinement passes its check, the window and the strip narrowing at every quality, the foot at
+    the reference, the gain 1.00 to 1.17, no flicker across the moved wall's restamping, and the
+    grazing floor at Low still wider, its room 12 percent under, which by the rule names Low's own
+    term, what a last cascade's ray that ends in mid-air takes in a closed room larger than its
+    reach, the far wall 11.8 across where the reach is 9.6 and nothing past it at Low where High's
+    third cascade lends the light. The reviewer's choice is that no ray of the last cascade ends in
+    mid-air inside the field: its interval ends at the field's edge and not at a fixed reach, a ray
+    going on until it meets a surface or leaves the field, where it reads the sky as any ray leaving
+    the field does, so the last cascade hands over to nothing because there is nothing left to hand
+    to; not a third cascade at Low, which changes what Low is, and not the same cascade's probes
+    read at the ray's end, which is a feedback with a gain of its own. Judged at Low and Medium by
+    the rule at both sizes on the four rooms, the grazing room's probes' faces at the first bounce
+    against High's, High's rooms unmoved, and the cost at every quality in the Cornell box, the
+    carried lamp's room and Ore's landscape, whose last cascade's rays leave the field, since the
+    march is longer only where the room is; held by a test, one commit. Then the refinement once
+    more, expected to hold the grazing floor at Low, its own commit; then the merge's first-bounce
+    excess at the pocket and the strip, the sampling term's two candidates, (c) and (d). Next the
+    last cascade's reach.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

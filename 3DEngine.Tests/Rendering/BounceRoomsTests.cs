@@ -48,8 +48,10 @@ public sealed class BounceRoomsTests : IDisposable
     // first does (RaysAt), the rooms whose views it moved read as High reads them, the window's
     // 0.356 at Low and 0.340 at Medium where 0.315 and 0.300, High's 0.324, its walls 21 and 16%
     // over at Low where High's are 22 and 19%; the strip's 0.266 and 0.255 where 0.254 and 0.243,
-    // High's 0.250; and the grazing floor's 0.105 at Medium where 0.080, High's 0.099, and 0.074 at
-    // Low where 0.092, its room at one bounce reading as its reference where 5% under, High's 1%
+    // High's 0.250; and the grazing floor's 0.105 at Medium where 0.080, High's 0.099; and since
+    // the last cascade's rays go on to the field's edge (GlobalIlluminationRenderer), Low's reads
+    // 0.104, where 0.092 with one ray a texel and 0.074 with four and the last cascade's rays
+    // ending at four times its spacing, its room 7% over its reference where 4% under, High's 8%
     // over.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
@@ -70,7 +72,7 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(6, GlobalIllumination.Low, 0.31)]
     [InlineData(6, GlobalIllumination.Medium, 0.30)]
     [InlineData(6, GlobalIllumination.High, 0.27)]
-    [InlineData(7, GlobalIllumination.Low, 0.09)]
+    [InlineData(7, GlobalIllumination.Low, 0.12)]
     [InlineData(7, GlobalIllumination.Medium, 0.13)]
     [InlineData(7, GlobalIllumination.High, 0.15)]
     [InlineData(8, GlobalIllumination.Low, 0.15)]
