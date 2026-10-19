@@ -10,7 +10,34 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a7c2da8b`, item 30's part (h) and nothing else, with the review's commit between.
+Reviewed up to `089761fb`, item 36 and nothing else, with the review's commit between. A program may
+say of a shader that its vertex stage keeps the positions, the mark kept in the shader store under
+its lock and dropped when the shader is unloaded, and a batch of that shader takes its mesh's box
+when the mark is set, so every pass culls it as the engine's own batches are culled, the default
+drawn whole in every pass since a vertex stage may move vertices past the box, said in the remark
+with the trap of marking a stage that moves them; the shaders guide's section on moving vertices,
+the cheat sheet, the surface listing, the upgrading guide's list and RENDERING.md carry it, the last
+amending its sentence on such batches and recording the measurement. A model shadow test draws a
+floor and a cube with such a shader 20 units off, every pass drawing two unmarked and the first
+cascade and the camera one when marked with the cascade whose box holds the cube drawing two,
+failing with the mark's reading taken out. Measured in the game's build on the tree's engine at noon
+over seed 1's spawn with the two terrain shaders marked at runtime, the draws at 8 columns from
+2,899 to 886, the camera's 631 to 225 and the cascades' 563, 565 and 571 to 25, 58 and 355, the
+frame from 11.7 and 13.4 ms to 7.6 and 8.6, the shadows from 3.3 to 1.3 and the scene from 3.6 to
+2.1; at 16 columns the draws from 10,352 to 2,001, the frame from 42.3 ms to 26.4 and 29.7, the
+shadows from 18.8 to 2.8 and the scene from 11.1 to 5.6; the pictures identical with the mark off
+and on at both distances; the game gains it by marking its two terrain shaders once a package
+carries it, its line to write. Checked were the strict build, the suite, 1,738 passed with one
+failure before the fix, the upgrading test wanting the new name in the guide's list, and the
+documents, cheat sheet, surface and norm tests passing after, and lavapipe under the required layer
+over six test classes, 134 passed; a first game run carried a binary from the test's check with the
+mark's reading out, seen through the batches' boxes without blocks, and the measurement was taken
+again on the rebuilt one. The reviewer starts a pack run with publish on after the one in flight,
+since the game waits on this and on `a7c2da8b` (Decision 49). Right. Next the sampling term's
+candidates with (g), the band and the grazing ceiling's rays, Verdict 72, item 35, the parallax and
+(c).
+
+Before it, `a7c2da8b` came, item 30's part (h) and nothing else, with the review's commit between.
 Read in the game's copy at night with the screen probes off: the game leaves the stone's faces
 against a lamp block out of its section's mesh and draws the lamp apart as a cube, so the stone
 cells beside the lamp, in the wall's slab and the floor under it, read as the open in front of the
@@ -76,23 +103,6 @@ Verdict 72, item 35, the parallax and (c). The pack run with publish on started 
 and held the queue; its push cancelled the build run of `d2de2766` with its Windows suite in its
 68th minute, so Verdict 72's figure comes from the build run of `80625742`, running with the pack
 run at 00:43.
-
-Before it, `8e3ff67a` came, item 37's rule and nothing else, with the review's commit between. The
-notes script leaves out a commit whose every file lies under `.github/`, judged by the files each
-commit since the start names, a commit touching that folder beside anything else staying in, as this
-one does through the build folder and the tests; the test gains two such commits, one on the review
-and one on a workflow, and the notes stay the engine's three; BUILDING.md says it. On the feed and
-the history the notes start after `33fd0804`, where `5.2.92` was built, and hold 5 lines, the
-engine's commits since and none of the review's; the script and norm tests pass, 48 of 48. Right.
-The reviewer starts the pack run with publish on as the check of items 37 and 38 (Decision 49). (j)
-and (h) were read by 23:36, each a fault of a line said under item 30, and their mends come first.
-At 00:12 on 2026-10-20 the pack run with publish on, 39327786571 on `d2de2766`, had its Linux suite
-and examples job green, its captures, games and Windows jobs running, and its macOS suite red on one
-scene test (Verdict 73), so its pack job will not run and no package comes from it; the push run of
-the same commit had its Linux, macOS and examples green with Windows in its 40th minute, Verdict
-72's figure to come. The next pack run with publish on comes after Verdict 73's mend. Next (j)'s
-mend, Verdict 73, (h)'s mend, item 36, the sampling term's candidates with (g) and the band, Verdict
-72, item 35, the parallax and (c).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1861,8 +1871,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     takes its mesh's box and is culled by it in every pass as the engine's own are, the default as
     it is since a shader may move vertices, said in the remark and the shaders guide; held by a test
     of a batch with such a shader culled from a cascade it lies outside of; measured in the game,
-    the draws per pass and the frame at 8 and 16 columns before and after. After the sampling term's
-    commit and before Verdict 72's reading; the game's entry gets its Review line.
+    the draws per pass and the frame at 8 and 16 columns before and after. Done at `089761fb` on
+    2026-10-20, `E3D.SetShaderKeepsPositions`, the game's frame at 16 columns from 42 ms to 26 to 30
+    with its terrain shaders marked, held by a test; the game writes its line when a package carries
+    it.
 
 37. **A package's release notes are the commits since the package last published (Decision 47).**
     The pack run's notes are the commits since `build/version.txt` last changed, the whole minor
