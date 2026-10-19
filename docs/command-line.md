@@ -92,19 +92,20 @@ rays `gi.reference ref.png 1024` path traces the view as a reference, 1,024 path
 each wall, floor and block in the frame against it, with a picture of the difference and the frame's
 own light beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point against a reference of
 the light arriving at it from each way, where its rays met a surface, merged with the cascades
-above, and on each of its six faces, with the ways that carry most of the face furthest from the
-reference's, and `gi.screenprobe 400 300 256` reads the screen's probe under a pixel, each of its
-sixteen rays where it was met, on the screen, in the field or past its reach, against the
-reference's light along the same way. `gi.show` draws what the light holds over the window, `tiles`,
-`light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and `probes 1` the
-second cascade's, `difference ref.png` the frame against a reference, and `none` the window again.
-`gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and `screen` do
-their parts and `again` the light past the first bounce from the frame before's probes, so light
-bounces once, `follow` the probes taking the indirect light at the share their own light kept,
-so the indirect light of a light switched off fades over the frames each bounce takes, `glow` the
-small emissive surfaces carried as lights, whose light the rays leave out all the same, so
-what they give can be seen and timed, `gi.toggle cascade 2` keeps the third cascade's light alone,
-and `on` or `-1` puts each back.
+above, and on each of its six faces, each face also by where its ways were met, within their
+interval, before it began or in the cascade above, with the ways that carry most of the face
+furthest from the reference's, and `gi.screenprobe 400 300 256` reads the screen's probe under a
+pixel, each of its sixteen rays where it was met, on the screen, in the field or past its reach,
+against the reference's light along the same way. `gi.show` draws what the light holds over the
+window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and
+`probes 1` the second cascade's, `difference ref.png` the frame against a reference, and `none` the
+window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and
+`screen` do their parts and `again` the light past the first bounce from the frame before's probes,
+so light bounces once, `follow` the probes taking the indirect light at the share their own light
+kept, so the indirect light of a light switched off fades over the frames each bounce takes, `glow`
+the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what
+they give can be seen and timed, `gi.toggle cascade 2` keeps the third cascade's light alone, and
+`on` or `-1` puts each back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

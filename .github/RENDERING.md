@@ -1958,6 +1958,40 @@ excess stands. The thirty-six ways cost 2.47 to 2.48 ms of global illumination w
 and 2.09 to 2.11 where 1.11 to 1.17 at `Low` in the Cornell box (`gi.compare`, BounceRoomsTests with
 its bounds at zero, `./e3d command profile`, the frames unlimited).
 
+**The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Fifteen faces
+of eleven world probes were read against the reference by bounce and by where their ways were met,
+the faces the walls take their light from beside the walls the sampling term's candidates lit
+further over and near the Cornell box's walls (`gi.probe`, each face by where its ways were met). A
+probe's first bounce, the light its hits send on of what reaches them straight from the lights, is
+its light with `gi.toggle again off` against the reference of no bounce past the probe's hits, which
+lights each hit as the lamps light it, and the light past the first bounce is the rest of each. The
+Cornell box's panel, carried as glow lights, lights a hit as a light of the engine's own and in the
+reference's second segment, so its light was read alone, the lamp switched off
+(`entity.set 1 Light.Intensity 0`), and the lamp's taken as the whole less the panel's. In every
+room the light past the first bounce reads over the reference. The lamp's light at the Cornell box's
+two probes near the back corner reads 2 to 8% under at the first bounce on the faces the red wall,
+the back wall and the ceiling take, but 17% under on the second cascade's downward face, and 20 to
+39% over past it; the thin room's wall reads 0 to 2% over at first and 14 to 15% past it, the
+window's ceiling 8 and 31% and 26 to 30%, and the grazing floor's walls, read in the second cascade,
+whose probes stand 0.24 from them, 21% under and 21 to 23% over. So the excess grows with the bounce
+count, a gain at each bounce through the probes' own hits, which the reference's light past the
+first bounce, split into its second bounce and the rest, puts at 1.08 to 1.09 a bounce in the thin
+room, 1.12 to 1.13 on the grazing floor's walls, 1.14 to 1.16 under the window's ceiling and 1.12 to
+1.27 in the Cornell box, where the openness ratio on the world probes' hits (b) brought the three
+probes from 9, 16 and 16% over to 2, 10 and 9%. The excess past the first bounce comes along the
+ways that met a surface, within their interval or before it began, 74 to 100% of the faces' weight,
+the second cascade's probe in the Cornell box 27 to 43% over through those met before their interval
+and the first cascade's 24 to 40% through those within, while the ways that take the cascade above
+read under in the Cornell box and 8 to 27% over on the grazing floor's walls. The panel's light at
+those two probes reads from 18% under to 6% over at the first bounce and 5 to 12% over past it. Two
+places carry an excess at the first bounce instead, and through the cascade above. The pocket's
+probe reads 3 to 19% over at first and 16 to 22% past it, its ways that take the cascade above 78 to
+202% over at first and 67 to 131% past it, and the strip's room's two probes 204 to 209% over at
+first and 23 to 31% past it, their ways in the cascade above 483 to 2521% over at first where their
+own hits read 14 to 57%. There the excess stands at the first bounce, in the probes' own gathering
+through the merge (`gi.probe` with 256 paths a way at no bounce, one and every bounce,
+`gi.toggle again off`).
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's

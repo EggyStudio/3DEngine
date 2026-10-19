@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `75d7af37`, item 30's measurement of the openness factor and nothing else,
+Reviewed up to `3904d0f0`, item 30's measurement of the sampling term's two candidates and nothing
+else, RENDERING.md and this file, no shader changed, the code at the head before it. Each view's
+distance to its path-traced reference was the judge, the pixels' luminance differences summed over
+the reference's light, at 800 by 450 over the nine bounce room views and the Cornell box at High and
+Low against fresh 2,048-path references read over four-pixel blocks, and at 160 by 90 by the bounce
+rooms test with its bounds at zero at all three qualities, the head re-read in the same run. Both
+candidates, the ways turned for each tile and the thirty-six, widen four views' distance at both
+sizes, the thin walls' by 0.022 to 0.032 and 0.024, the strip's by up to 0.070 and 0.017, the
+grazing floor's by up to 0.030 and 0.019 and the window's by up to 0.021 and 0.020, the tiled ways
+widening the carried lamp's room at Low as well, while the Cornell box, the corridor and the carried
+lamp's room narrow at 800 by 450 by 0.006 to 0.018; the far wall reads 0.93 and 0.94 where 1.06, its
+blocks within 0.87 to 1.07 and 0.94 to 1.04 of their mean where 0.77 to 1.19, the wall's foot 0.208
+and 0.210 where 0.200 against 0.215, the block's front 1.20 and 1.22 where 1.40, the tiled ways'
+foot at Low falling to 0.179, and the thirty-six cost 2.47 ms where 1.45 at High and 2.10 where 1.14
+at Low. Where a view widens, the regions say why, the walls that read over with the fixed ways
+reading further over, the thin room's walls 8 to 9 percent where 5, the strip's side walls 22 where
+13, the grazing floor's walls 19 to 25 where 3 to 10 with its floor from 10 to 3, the window's
+ceiling 23 to 26 where none, so the sixteen ways' under-read covers the world probes' excess at
+their own hits on those walls, and both candidates are better samplers held back by that excess. By
+the rule both are out, recorded, and the order stands, the light past the first bounce at the world
+probes' own hits next, read by `gi.probe` against the reference independent of the frame, the
+candidates measured again after its mend. Right. Next that reading; a pack run for the game's
+package; then (c), (d), and the sampling term again.
+
+Before it, `75d7af37` came, item 30's measurement of the openness factor and nothing else,
 RENDERING.md and this file, no shader changed, the code back at the head before it. The factor
 measured was five cones about the hit's normal, one along it and four leaning 45 degrees, four steps
 doubling out to the probes' spacing, the nearest surface against the cone's width in the finest
@@ -55,39 +79,6 @@ mends are offered, an occlusion factor on that light from the field's distances 
 probes read nearer the surface or weighted by the share of the hit's hemisphere each sees, and a
 finer first cascade near surfaces; the reviewer's choice is said under item 30. Right. Next that
 measurement; a pack run for the game's package; then (c), (d), and the sampling term measured again.
-
-Before it, `a52b125b` came, item 30's mend of the field's color blend and nothing else, 17 files,
-the reviewer's choice of 09:20 carried out. The resolve pass writes each cell's face direction, the
-eight bits the field's build keeps in its `uint`, into two single-byte images, the faces the passes
-read and the still meshes' copy, and the stamp writes a moving box's nearest face carried to the
-world through the shape's matrix by its transpose and restores from the copy as it does colors; the
-coding and decoding of a face live in `scenefield.slang`. The hit shading blends the eight cells
-around a hit by hand, keeping a cell where its face's way is within 60 degrees of the hit's normal
-and falling back to the filtered read where none is kept so an edge is not left dark, its comment
-saying how facing is judged and why distance cannot separate a corner's diagonal cells; the faces
-are bound to the trace, the screen pass and the model pass's lights set, and the guide's memory a
-cascade goes from 5 to 5.5 MB for the two bytes a cell. Measured in the Cornell box at 300 frames,
-the corner probe's red-wall hits within a cell of the white wall carry 0.007 of green to 0.44 of red
-in their direct light where they carried up to 0.105, and read 12 to 31 percent over the reference
-across their ways where 24 to 139, ray 12's luminance 0.31 where 0.56 against 0.25; the corner probe
-5 under its hemisphere where 5 over, the corner over 50 pixels in 0.66 where 0.68 against 0.60, the
-frame 1.003, the block's front 1.40, the carried lamp's room as it was, the bounce rooms' views
-within 0.001, three first-cascade probes near the box's walls read by `gi.probe` moving 0 to 4
-points with their hits beside walls taking those walls' own colors, and the illumination pass within
-0.02 ms at both qualities with the reflections' scene pass 0.003 ms more. What remains at those hits
-is their red, 1.36 to 1.40 against 1.07 to 1.11 across their ways, the light past the first bounce
-in the concave corner. A bounce room test holds every screen hit toward the red wall to green under
-5 percent of its red in its direct light, failing before the mend on one hit at 0.105 to 0.471; the
-four screen probe tests share one reading helper, the thin-wall test's comment no longer describes
-the replaced first version, the compiler test's expected lights set gains the binding, (b)'s picture
-is retaken and the example captures moved within the encoding's noise, so none was; RENDERING.md's
-(b) carries the reading and the figures with the paint's four bytes called a `uint`. Checked were
-the strict build, the whole suite, 1,729 passed, all 434 rendering tests on the GPU, and the
-illumination, cascade edge, reference frame, bounce, glow and scene field tests on lavapipe under
-the required layer, 108 passed and 16 skipped for ray queries. Right. Next the reading of what
-remains at (b), the light past the first bounce in the concave corner, with both instruments before
-any mend is proposed for it; a pack run for the game's package; then (c), (d), and the sampling term
-measured again.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -167,9 +158,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    job of `aa9fe773` is red by its first game's step, the WebP script wanting ImageMagick the runner
    lacks (Verdict 52), its tests green, and `e28064f7`'s macOS job green; the macOS captures of
    `aa9fe773` green; the runs of `ea9a23cd` and `ffa3ec48` wait in the queue. Each push's run is
-   read by the reviewing session, and a failure it names comes first here. 2. **What the owner saw
-   on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked at
-   `shaders_subsurface` and at the voxel game and found four things, each measured before it is
+   read by the reviewing session, and a failure it names comes first here.
+
+2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
+   at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
    changed, each a commit of its own with its numbers before and after and a test that holds the
    measure, the voxel game's read through the testbed at eight columns, and the game's session asked
    to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
@@ -1405,7 +1397,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     said at both qualities, and if both fail the figures recorded and the choice made again. After
     it the light past the first bounce at the world probes' own hits, read by `gi.probe` against the
     reference independent of the frame, which is (c)'s term and what remains of (b)'s hits, then
-    (d). Next the two candidates' measurement.
+    (d). Measured and both out, recorded at `3904d0f0` the same day with no shader change: each
+    widens four views' distance to their references at both sizes, the thin walls, the strip, the
+    grazing floor and the window, where the walls that read over with the fixed ways read further
+    over, the sixteen ways' under-read covering the world probes' excess at their own hits on those
+    walls, while the Cornell box, the corridor and the carried lamp's room narrow and the far wall
+    comes to 0.93 and 0.94 with its blocks within 0.87 to 1.07 and 0.94 to 1.04 of their mean; both
+    are better samplers held back by that excess. Next the light past the first bounce at the world
+    probes' own hits, read by `gi.probe` against the reference independent of the frame, the term
+    named by what carries it before a mend is proposed, then the two candidates measured again after
+    its mend, then (c) and (d).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2237,6 +2238,7 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verd
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
    commits and does not push, as AGENTS.md and COMMITS.md say.
+
 2. **The package is `3DEngine` on nuget.org, the owner's own, numbered from 5.0.** The owner
    sets the major and minor in `build/version.txt`, the patch counts the commits since, and the
    `pack` workflow run by hand makes the package to download or push.
@@ -2253,6 +2255,7 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verd
    seeing every earlier stamp is Bevy's rule and is kept so the two engines agree, and removals
    kept 60 frames bound the memory. DESIGN.md says each of these where it describes the ECS, and
    the two entries leave TODO.md.
+
 5. **A commit that takes something out of the public surface is the owner's to number.** The
    patch counts commits and says nothing of what broke. When `PublicApi.txt` loses or reshapes a
    line, the working session says so under Replies, and the owner raises the minor or the major
@@ -2261,10 +2264,12 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verd
    the table of raylib's examples is mostly written, and 6.0 is the surface promised after
    that, which BUILDING.md says where it says how a package is numbered, in the next batch that
    touches it.
+
 6. **AGENTS.md's bullet and table row on NORM.md are the owner's, with the exception N 7.4
    makes.** They approved both on 2026-10-05 in the reviewing session, with the plan for the
    norm. A working session that commits a change to its instruction file only on the owner's
    word in its own session is right to, and waits for that word.
+
 7. **A run that fails says what failed in a page, and the reviewing session is given no log.**
    The owner chose it on 2026-10-05, after a log pasted into the reviewing session ended it.
    The suite runs whole as it does, and in parts only after a process is lost, which the owner

@@ -153,9 +153,25 @@ internal static class BounceReference
         for (int f = 0; f < 6; f++)
             lines.Add($"{names[f]}: {Rgb(probe.Faces[f])}, {Rgb(probe.FacesMerged[f])}, {Rgb(probe.FacesReference[f])}, {Share(probe.Faces[f], probe.FacesReference[f])}");
 
+        // Each face's light by where its ways were met, so a face's fault is placed at the probe's own
+        // hits or in what the cascade above lends it, each part weighed as the gather weighs it.
+        Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
+        lines.Add("each face's luminance by where its ways were met, within their interval, before it began and in the cascade above, each part's merged light, the reference's and its share of the face's weight:");
+        for (int f = 0; f < 6; f++)
+        {
+            var axis = axes[f];
+            var all = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axis), 0) * way.Share);
+            lines.Add($"{names[f]}: " + string.Join(", ", Enumerable.Range(0, 3).Select(met =>
+            {
+                var ways = probe.Each.Where(way => way.Met == met).ToArray();
+                float Sum(Func<ProbeWay, float> light) => ways.Sum(way => light(way) * Math.Max(Vector3.Dot(way.Way, axis), 0) * way.Share) * MathF.PI / all;
+                return string.Create(CultureInfo.InvariantCulture,
+                    $"{Sum(way => Luminance(way.Merged)):0.000} {Sum(way => Luminance(way.Reference)):0.000} {Sum(_ => 1 / MathF.PI):0.00}");
+            })));
+        }
+
         // The ways that carry most of the face furthest from the reference's light, each way's part
         // of the face weighed as the gather weighs it, by its cosine and its texel's share.
-        Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
         var furthest = Enumerable.Range(0, 6).MaxBy(f =>
             MathF.Abs(Luminance(probe.FacesMerged[f]) - Luminance(probe.FacesReference[f])) / Math.Max(Luminance(probe.FacesReference[f]), 1e-6f));
         var weights = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share);
