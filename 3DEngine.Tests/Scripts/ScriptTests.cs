@@ -6,7 +6,8 @@ namespace Engine.Tests.Scripts;
 
 /// <summary>
 /// The shell scripts a workflow runs on Windows or macOS, and those they call, use only what GNU's
-/// tools and the BSD ones macOS has both read, and what the bash 3.2 macOS ships reads.
+/// tools and the BSD ones macOS has both read, and what the bash 3.2 macOS ships reads; and the
+/// pack's release notes on a scratch history (<c>build/release-notes.sh</c>).
 /// </summary>
 /// <remarks>
 /// <c>sed -i</c> in <c>build/pack.sh</c> passed every Linux run and failed the first on macOS, whose
@@ -124,4 +125,92 @@ public sealed partial class ScriptTests
 
     [GeneratedRegex(@"(?<![\w/.])(?:build/[\w.-]+\.sh|\./e3d)\b")]
     private static partial Regex CalledScript();
+
+    // build/release-notes.sh on a scratch history, with nuget.org's flat container given as a
+    // folder. The notes start after the commit the newest package of the minor was built from, and
+    // where the feed answers nothing, lists no version of the minor or names a commit the history
+    // does not have, after the commit that last changed build/version.txt, saying why.
+    [NeedsBashFact]
+    public void The_Release_Notes_Start_After_The_Commit_The_Newest_Package_Of_The_Minor_Was_Built_From_Or_Say_Why_Not()
+    {
+        using var folder = new TestFolder("engine-release-notes-");
+        var history = folder.File("history");
+        Directory.CreateDirectory(Path.Combine(history, "build"));
+        File.Copy(Path.Combine(Root, "build", "release-notes.sh"), Path.Combine(history, "build", "release-notes.sh"));
+
+        // A program run in the scratch history, what it wrote and its exit code.
+        (int Code, string Said) Run(string program, string? feed, params string[] arguments)
+        {
+            var start = new ProcessStartInfo(program) { WorkingDirectory = history, RedirectStandardOutput = true, RedirectStandardError = true };
+            foreach (var argument in arguments) start.ArgumentList.Add(argument);
+            start.Environment["GIT_AUTHOR_NAME"] = start.Environment["GIT_COMMITTER_NAME"] = "test";
+            start.Environment["GIT_AUTHOR_EMAIL"] = start.Environment["GIT_COMMITTER_EMAIL"] = "test@example.com";
+            if (feed is not null) start.Environment["E3D_RELEASE_FEED"] = feed;
+            using var process = Process.Start(start)!;
+            var said = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            return (process.ExitCode, said);
+        }
+
+        // A commit of the form COMMITS.md gives, three marks and the sentence, changing a file of its
+        // own or build/version.txt, answering its hash.
+        string Commit(string sentence, string? version = null)
+        {
+            if (version is not null) File.WriteAllText(Path.Combine(history, "build", "version.txt"), version + "\n");
+            else File.AppendAllText(Path.Combine(history, "work.txt"), sentence + "\n");
+            Run("git", null, "add", "-A").Code.Should().Be(0);
+            var made = Run("git", null, "commit", "-q", "-m", "\u200e \u200e \u200e", "-m", sentence);
+            made.Code.Should().Be(0, made.Said);
+            return Run("git", null, "rev-parse", "HEAD").Said.Trim();
+        }
+
+        // The feed's index of the versions and each version's nuspec naming the commit it was built
+        // from, as nuget.org's flat container lays them out, at a file:// address.
+        string Feed(string name, params (string Version, string Commit)[] versions)
+        {
+            var feed = folder.File(name);
+            Directory.CreateDirectory(feed);
+            File.WriteAllText(Path.Combine(feed, "index.json"), $"{{\"versions\":[{string.Join(",", versions.Select(v => $"\"{v.Version}\""))}]}}");
+            foreach (var (version, commit) in versions)
+            {
+                Directory.CreateDirectory(Path.Combine(feed, version));
+                File.WriteAllText(Path.Combine(feed, version, "3dengine.nuspec"),
+                    $"<package><metadata><id>3DEngine</id><version>{version}</version><repository type=\"git\" url=\"https://github.com/EggyStudio/3DEngine\" commit=\"{commit}\" /></metadata></package>");
+            }
+            return new Uri(feed).AbsoluteUri;
+        }
+
+        (string Said, string[] Notes) Notes(string feed)
+        {
+            var (code, said) = Run("bash", feed, "build/release-notes.sh", "notes.txt");
+            code.Should().Be(0, said);
+            return (said, File.ReadAllLines(Path.Combine(history, "notes.txt")));
+        }
+
+        Run("git", null, "init", "-q").Code.Should().Be(0);
+        var older = Commit("The minor before.", "5.1");
+        Commit("The minor is raised.", "5.2");
+        Commit("The first change.");
+        var packed = Commit("The second change.");
+        Commit("The third change.");
+        string[] since = ["The third change.", "The second change.", "The first change."];
+
+        // 5.2.10 is the newest, read as a number where as text 5.2.9 would sort after it.
+        var (said, notes) = Notes(Feed("feed", ("5.1.4", older), ("5.2.9", older), ("5.2.10", packed)));
+        notes.Should().Equal(["The third change."], said);
+        said.Should().Contain($"after {packed}, where 5.2.10 was built");
+
+        (said, notes) = Notes(Feed("older", ("5.1.4", older)));
+        notes.Should().Equal(since, said);
+        said.Should().Contain("since the feed lists no version of 5.2");
+
+        (said, notes) = Notes(new Uri(folder.File("none")).AbsoluteUri);
+        notes.Should().Equal(since, said);
+        said.Should().Contain("since the feed answered nothing");
+
+        var elsewhere = new string('a', 40);
+        (said, notes) = Notes(Feed("elsewhere", ("5.2.3", elsewhere)));
+        notes.Should().Equal(since, said);
+        said.Should().Contain($"since 5.2.3 was built from {elsewhere}, which this checkout does not have");
+    }
 }

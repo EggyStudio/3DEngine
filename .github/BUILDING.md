@@ -203,9 +203,14 @@ on each, and the Linux `examples` job, and leaves the rest to the pack run. The 
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `5.0` to `5.1` starts it again at `5.1.0`.
 
-The package's release notes are those same commits, each one's sentence a line and the newest
-first, which `build/pack.sh` reads from the history into `build/artifacts/release-notes.txt` and
-the pack puts in the package. A version raised in `build/version.txt` starts them again.
+The package's release notes are the commits since the newest package of the minor on nuget.org was
+built, each one's sentence a line and the newest first, so a package's page says what changed since
+the package before it. `build/release-notes.sh` reads the versions from nuget.org's index of the
+package and the commit that version was built from from its nuspec's repository element, writes the
+commits after it from the history into `build/artifacts/release-notes.txt`, and says which commit
+they start after, which the pack run's summary shows. Where nuget.org answers nothing, lists no
+version of the minor, or names a commit the checkout does not have, the notes are the commits since
+`build/version.txt` last changed, and the script says why.
 
 ### The public surface
 

@@ -289,6 +289,19 @@ public sealed class NeedsPythonAndBashFactAttribute : FactAttribute
 }
 
 /// <summary>
+/// Skipped on Windows, for a script the pack job runs in bash on Linux alone, which a test drives
+/// with git and curl.
+/// </summary>
+/// <remarks>The <c>bash</c> a Windows runner finds first may be WSL's, which has no git of the checkout's.</remarks>
+public sealed class NeedsBashFactAttribute : FactAttribute
+{
+    public NeedsBashFactAttribute()
+    {
+        if (OperatingSystem.IsWindows()) Skip = "The pack job runs its scripts on Linux alone.";
+    }
+}
+
+/// <summary>
 /// Skipped where no Vulkan device starts, or off Linux, for a test that opens a window on SDL's
 /// offscreen video driver, which draws through <c>VK_EXT_headless_surface</c>.
 /// </summary>

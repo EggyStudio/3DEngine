@@ -71,7 +71,7 @@ public sealed class PackageContentsTests
         var spec = Spec(package);
         Element(spec, "readme").Should().Be("README.md");
         Element(spec, "license").Should().Be("MPL-2.0");
-        Element(spec, "releaseNotes").Should().NotBeNullOrWhiteSpace("build/pack.sh writes the commits since the version was raised");
+        Element(spec, "releaseNotes").Should().NotBeNullOrWhiteSpace("build/release-notes.sh writes the commits since the package before it");
         Element(spec, "releaseNotes")!.Split('\n').Should().NotContain(line => NormTests.NamesWhoDecided().IsMatch(line),
             "the notes give reasons and name no one who decided (NORM.md, N 4.7)");
 

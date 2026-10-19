@@ -14,29 +14,16 @@ rm -rf build/shader-cache
 # a version it sees and never reads it again, and a game asks for the newest with a floating
 # version such as 0.1.0-*.
 version="${1:-0.1.0-preview.$(date -u +%Y%m%d%H%M%S)}"
-# The release notes are the commits since build/version.txt last changed, newest first, each
-# commit's sentence a line, as the history already says them to be read. A checkout without the
-# history has none, and nor does a version raised by the last commit, which say so in their place.
+# The release notes, the commits since the last package of this minor on nuget.org was built
+# (build/release-notes.sh), whose first line, the commit they start after, the run's summary shows.
 notes="$PWD/build/artifacts/release-notes.txt"
-mkdir -p build/artifacts
-: > "$notes"
-if changed="$(git log -1 --format=%H -- build/version.txt 2>/dev/null)" && [ -n "$changed" ]; then
-  git log --format=%b "$changed"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$notes" || true
-fi
-# A line naming who decided a change is left out and said, since a reader of the package has no
-# one to follow and the history cannot be written again (NORM.md, N 4.7). The words are those
-# NormTests looks for in the documents.
-named='the owner|the reviewing session|REVIEW\.md'
-if grep -iqE "$named" "$notes"; then
-  grep -iE "$named" "$notes" | while IFS= read -r line; do
-    if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::warning title=Release notes::Left out for naming who decided, $line"
-    else echo "left out of the release notes for naming who decided: $line"; fi
-  done
-  grep -viE "$named" "$notes" > "$notes.kept" || true
-  mv "$notes.kept" "$notes"
+said="$(build/release-notes.sh "$notes")"
+echo "$said"
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  echo "$said" | head -1 | sed 's/^t/T/; s/$/./' >> "$GITHUB_STEP_SUMMARY"
 fi
 if [ ! -s "$notes" ]; then
-  echo "The first package of $version, with no commits since its version was raised." > "$notes"
+  echo "No commits since the package before $version." > "$notes"
 fi
 dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
 # The templates, of the same version, from a copy with that version written in as the one a new
