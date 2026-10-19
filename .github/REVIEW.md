@@ -10,7 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c9e1a5ac`, item 37, and `4af3cdde` before it, item 38, with the review's commits
+Reviewed up to `8e3ff67a`, item 37's rule and nothing else, with the review's commit between. The
+notes script leaves out a commit whose every file lies under `.github/`, judged by the files each
+commit since the start names, a commit touching that folder beside anything else staying in, as this
+one does through the build folder and the tests; the test gains two such commits, one on the review
+and one on a workflow, and the notes stay the engine's three; BUILDING.md says it. On the feed and
+the history the notes start after `33fd0804`, where `5.2.92` was built, and hold 5 lines, the
+engine's commits since and none of the review's; the script and norm tests pass, 48 of 48. Right.
+The reviewer starts the pack run with publish on as the check of items 37 and 38 (Decision 49). Next
+(j) and (h) read, item 36, the sampling term's candidates with (g) and the band, Verdict 72, item
+35, the parallax and (c).
+
+Before it, `c9e1a5ac` came, item 37, and `4af3cdde` before it, item 38, with the review's commits
 between. Item 38: the pack job takes the identity token's write permission beside its read of the
 contents, in the job alone, a step with the feed's login action and the user `EggyStudio` right
 before the push answers a key that lasts an hour, the push of both packages takes it where it took
@@ -60,39 +71,6 @@ either way. Checked were the strict build, the suite, 1,735 of 1,735, and lavapi
 required layer, 55 passed and 9 skipped; RENDERING.md records it. Right. Next items 38 and 37 in
 their own commits, then (j) and (h) read, item 36, the sampling term's candidates with (g) and the
 band, Verdict 72, item 35, the parallax and (c).
-
-Before it, `03e0bd36` came, item 30's part (i) and nothing else, 5 files, a fault of a line in the
-scene field's plan. Read in a transient copy of the game's build on `5.2.92` with the field's
-flicker recorded frame by frame, the blank comes eight frames after the break, when the replacing
-section settles, survives every part of the illumination left out, and shows in the field itself,
-every cascade wrong for that frame and right the next, the first changing 99.8 percent of its pixels
-by 111 levels and back; a rebuild alone gave no blank, a budget of four cascades a frame took the
-pair away and the game's two brought it back. The cause: when the replacement settles the old
-section, kept standing in until then, leaves and the cascades around go dirty, the budget builds two
-of the four, the new section is still pending for the other two, and a pending still mesh was
-stamped as its boxes, which fill the air above a section's ground, so for one frame every cascade
-held solid where the room is. The mend: a mesh that replaced a kept one in place is not stamped
-while it waits for cascades built since, which still hold the mesh it replaced as they did before it
-settled, the remark saying what the boxes did. A scene field test holds it with two cascades, a
-budget of one and the replacement settling, failing on the stamp without the mend; in the game's
-room at night the break's own frame changes 9 percent of the pixels and the pair of 89 and 87 at
-14.6 and 8.8 levels is gone, four forest breaks showing the break alone. RENDERING.md records it,
-and the coder's shared line under Replies is taken into SHARED.md as a row. Checked were the strict
-build, the suite, 1,734 of 1,734, and lavapipe under the required layer, 80 passed and 2 skipped
-over the field, illumination, edge and glow tests. Right. Next (g), the still blotches with the
-screen probes on, then (k), (j) and (h), Verdict 72, item 35, the sampling term's candidates with
-the band, the parallax, (c); and the owner's push of `03e0bd36` with them. At 22:08 (g) was read as
-the sampling term, said under item 30, and the order became (k), (j) and (h) read, then the sampling
-term's candidates with (g) and the band, then Verdict 72, item 35, the parallax and (c). The push
-run of `fa607cb3` ended whole green at 22:02, its Windows suite in 32 minutes, said under Verdict
-72; the owner pushed `03e0bd36` at 22:09, its run running. At 22:20 the owner gave the reviewer the
-pushes and the commits of its own edits, so the review's edits come in commits of their own from
-here on. At 22:32 the run of `03e0bd36` had its three suites in their 23rd minute. At 22:34 the
-owner asked what the code fixes project is for and kept it (Decision 46), and at 22:45 that the
-release notes include everything and append to the older ones (Decision 47, item 37), and at 22:51,
-quoting nuget.org's notice, that the pack run publishes through trusted publishing (Decision 48,
-item 38), and at 22:57 that the reviewer starts the pack runs as well (Decision 49), the first with
-publish on once item 38 is in.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1844,7 +1822,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     package's page. One commit, with item 36 and before Verdict 72's reading. Done at `c9e1a5ac` on
     2026-10-19, 15 lines where the minor's 105 against the feed's `5.2.92`, and widened the same
     day: a commit whose every file lies under `.github/` is left out, since the package carries
-    nothing from there, in a small commit before (j).
+    nothing from there, in a small commit before (j). The rule is in at `8e3ff67a`, the notes at 5
+    lines of the engine's alone.
 
 38. **The pack run publishes through nuget.org's trusted publishing and no stored key (Decision
     48).** The pack job gains the identity token's write permission beside its read of the contents,
