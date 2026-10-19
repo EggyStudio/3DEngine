@@ -3,8 +3,11 @@
 # measured against raylib's program, every game played, captured, soaked and resized and the README
 # followed on Linux, every example captured on the macOS runner's GPU, and every game played on
 # Windows and macOS. Then it packs the engine and its `dotnet new` templates, and pushes both
-# packages to nuget.org when asked to. Nothing is packed unless every job of the build passes, so no
-# package is made before its games are proven on it.
+# packages to nuget.org when asked to, through nuget.org's trusted publishing, a policy on nuget.org
+# for this repository's pack.yml that answers the run's identity with a key that lasts an hour, so
+# no key is stored as a secret, which nuget.org discourages for automated publishing. Nothing is
+# packed unless every job of the build passes, so no package is made before its games are proven on
+# it.
 #
 # The version is build/version.sh's, the major and minor in build/version.txt and, as the patch,
 # the commits since that file last changed. The package and its symbols are kept as the run's
@@ -15,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Push the package to nuget.org (needs the NUGET_API_KEY secret)'
+        description: 'Push the packages to nuget.org through its trusted publishing policy, which needs no secret'
         type: boolean
         default: false
 
@@ -37,6 +40,11 @@ jobs:
   pack:
     needs: build
     runs-on: ubuntu-24.04
+    # The identity token nuget.org's trusted publishing policy is given, which the login step asks
+    # for, the rest of the workflow keeping the read-only access it has.
+    permissions:
+      contents: read
+      id-token: write
     # It took 3 minutes on the pack run of fc5fdc97, the engine built in Release, packed and its
     # contents checked, so 30 ends a push to nuget.org that stalls.
     timeout-minutes: 30
@@ -78,9 +86,19 @@ jobs:
             build/package/*.nupkg
             build/package/*.snupkg
 
+      # The policy on nuget.org belongs to the user EggyStudio and names this repository, pack.yml,
+      # no environment, the push scope and the packages 3DEngine*. The key it answers lasts an hour,
+      # so the login comes right before the push.
+      - name: Log in to nuget.org through its trusted publishing policy
+        if: ${{ inputs.publish }}
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: EggyStudio
+
       - name: Push to nuget.org
         if: ${{ inputs.publish }}
-        run: dotnet nuget push "build/package/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "build/package/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Say what was made
         run: |

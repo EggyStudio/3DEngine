@@ -192,8 +192,12 @@ what a push runs every example captured for the gallery and measured against ray
 (`captures`), every game played, captured, soaked and resized and the README followed on Linux
 (`games`), every example captured on the macOS runner's GPU (`captures-macos`), and every game
 played on Windows and macOS. Only once every job passes does it pack with `build/pack.sh <version>`
-and keep the package as the run's artifact, and with its "publish" box ticked it pushes the package
-to nuget.org through the `NUGET_API_KEY` secret. A push runs the three systems' tests, Slide played
+and keep the package as the run's artifact, and with its "publish" box ticked it pushes both
+packages to nuget.org through nuget.org's trusted publishing, with no key stored. A policy on
+nuget.org, owned by the user EggyStudio, names the repository owner EggyStudio, the repository
+3DEngine, the workflow file `pack.yml`, no environment, the push scope and the packages `3DEngine*`,
+and the run's `NuGet/login` step gives it the run's identity for a key that lasts an hour. A push
+runs the three systems' tests, Slide played
 on each, and the Linux `examples` job, and leaves the rest to the pack run. The version is
 `build/version.sh`'s, the major and minor written in `build/version.txt` and, as the patch, the
 number of commits since that file last changed, so each commit counts the patch up by one and
