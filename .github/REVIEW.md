@@ -1850,8 +1850,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     saying the run publishes through the trusted publisher policy and needs no secret, BUILDING.md's
     publishing section saying the same with the policy's values, workflow `pack.yml`, no environment
     and the package pattern; the step with the secret goes. Checked by a pack run with publish on,
-    whose push the feed accepts, the first the owner starts after the policy stands. One commit,
-    with items 36 and 37 before Verdict 72's reading, the pattern `3DEngine*`.
+    whose push the feed accepts, the first the owner starts after the policy stands. One commit, the
+    pattern `3DEngine*`; at 22:54 the owner asked whether the pack could upload by itself, so this
+    comes first, right after the reading in hand, with item 37, and items 36, Verdict 72 and the
+    rest after.
 
 ## Verdicts
 
