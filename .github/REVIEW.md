@@ -33,9 +33,13 @@ documents, cheat sheet, surface and norm tests passing after, and lavapipe under
 over six test classes, 134 passed; a first game run carried a binary from the test's check with the
 mark's reading out, seen through the batches' boxes without blocks, and the measurement was taken
 again on the rebuilt one. The reviewer starts a pack run with publish on after the one in flight,
-since the game waits on this and on `a7c2da8b` (Decision 49). Right. Next the sampling term's
-candidates with (g), the band and the grazing ceiling's rays, Verdict 72, item 35, the parallax and
-(c).
+since the game waits on this and on `a7c2da8b` (Decision 49). At 01:48 the pack run with publish on
+of `80625742` had its games job red on Manor's soak (Verdict 74) with its macOS suite green this
+time, so it will not pack and the reviewer cancels it; the pack run queued on `869ad798` is the next
+check, and the build run of `89a36650` was cancelled by that push with its Windows suite unfinished,
+Verdict 72's figure to come from `869ad798`'s build run. Right. Next Verdict 74's mend, then the
+sampling term's candidates with (g), the band and the grazing ceiling's rays, Verdict 72, item 35,
+the parallax and (c).
 
 Before it, `a7c2da8b` came, item 30's part (h) and nothing else, with the review's commit between.
 Read in the game's copy at night with the screen probes off: the game leaves the stone's faces
@@ -1914,7 +1918,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
-the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 and 73 are open.
+the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 to 74 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2739,6 +2743,21 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     respawning the first copies in the step after the write where it fell there, the test holding
     the third against the first's mesh from before the write and asserting the file system gives
     back the time set. Settled at three green macOS suites in a row after the mend.
+
+74. **Manor's soak holds its entities at their least to 421, and a walk on the runner reached 422.**
+    On the pack run of `80625742`, 2026-10-20 at 01:43, the games job's soak of the thirteen games
+    failed Manor alone, its entities climbed from 374 to 422 at its least past its bound of 421, its
+    resident memory 544 MB at the first reading kept and 572 at the last, the other twelve passing.
+    Verdict 65 set Manor's four figures from a whole walk measured on 2026-10-17 as the most a walk
+    holds, and a walk on this runner reached one past the entities' figure, so the figure is the
+    most of the walks measured then and not of every walk, the level's streaming letting a walk that
+    goes further hold more. The mend is one thing, under N 3.5 and N 3.6: Manor's entity figure
+    measured again over whole walks on the development machine's GPU and on lavapipe at the paces
+    the runner takes, the most of them written into the table with the command and the walks that
+    measured it, with the room a measured spread gives, or the soak's course made to walk the level
+    whole before the readings judged begin, so the least holds the whole world; the soak's output
+    says which rooms a walk entered when a figure climbs, so the next such run reads itself. Settled
+    when the games job's soak passes on three pack runs in a row.
 
 ## Decisions
 
