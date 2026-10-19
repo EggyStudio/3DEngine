@@ -3028,7 +3028,10 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     repository, the workflow file `pack.yml`, no environment, the push scope and the package
     pattern, and the pack job proves it is that workflow with its identity token, takes a
     short-lived key from the feed's login action and pushes with it, so no key is stored in the
-    repository.
+    repository. The two policies stood active on nuget.org at 22:53, one a repository, each with the
+    package owner and repository owner `EggyStudio`, the workflow `pack.yml`, the push scope and its
+    pattern, the feed holding the permanent GitHub ids of the owner and the repository for its
+    check.
 
 ## Replies
 
