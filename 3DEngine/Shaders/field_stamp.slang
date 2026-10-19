@@ -48,6 +48,14 @@ RWTexture3D<float4> stillPaint;
 [[vk::binding(6, 0)]] [format("rgba8")]
 RWTexture3D<float4> albedoField;
 
+// The way each cell's nearest face looks, the still meshes' and the one the passes read, as
+// field_resolve.slang wrote them, a box's face's where the box is nearer.
+[[vk::binding(7, 0)]] [format("r8ui")]
+RWTexture3D<uint> stillFaces;
+
+[[vk::binding(8, 0)]] [format("r8ui")]
+RWTexture3D<uint> faceField;
+
 struct StampPush
 {
     // x: how many bricks. y: how many shapes. zw: unused.
@@ -79,6 +87,7 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     float d = stillField[at];
     float nearest = abs(d);
     float4 paint = stillPaint[at];
+    uint face = stillFaces[at];
     for (uint i = 0; i < brick.w; i++)
     {
         uint run = push.counts.x * 4u + brick.z + i;
@@ -92,8 +101,13 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
         {
             nearest = abs(box);
             paint = float4(shape.color.rgb, 1.0);
+            // The box's face nearest the cell, the axis it lies furthest out along, in the world.
+            int axis = q.x >= q.y && q.x >= q.z ? 0 : q.y >= q.z ? 1 : 2;
+            float3 outward = float3(axis == 0 ? sign(own.x) : 0.0, axis == 1 ? sign(own.y) : 0.0, axis == 2 ? sign(own.z) : 0.0);
+            face = faceBits(normalize(shape.row0.xyz * outward.x + shape.row1.xyz * outward.y + shape.row2.xyz * outward.z));
         }
     }
     field[at] = d;
     albedoField[at] = paint;
+    faceField[at] = face;
 }

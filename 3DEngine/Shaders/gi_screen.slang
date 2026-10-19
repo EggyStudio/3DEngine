@@ -74,6 +74,10 @@ Sampler3D reach;
 [[vk::binding(14, 0)]]
 RWStructuredBuffer<float4> rayLog;
 
+// The way each cell's nearest face looks, which a hit takes its color from cells by.
+[[vk::binding(15, 0)]]
+Texture3D<uint> fieldFaces;
+
 struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
@@ -433,7 +437,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             own = float3(0.0);
             if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
             {
-                light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
+                light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
                 reached = hit;
             }
             else
@@ -443,7 +447,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (t >= 0.0)
                     reached = start + way * t;
                 light = t >= 0.0
-                    ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
+                    ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(start, n, way, length, around);
             }
             sum += light * weight;

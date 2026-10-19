@@ -166,10 +166,10 @@ internal sealed partial class ModelRenderer
         BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from, the
-    // field, its colors and light, the lights, the window's depth, and its scene and depth the
-    // frame before.
+    // field, its colors, light and faces, the lights, the window's depth, and its scene and depth
+    // the frame before.
     private const uint ReflectFieldBinding = 19, ReflectAlbedoBinding = 20, ReflectGlowBinding = 21, ReflectLightsBinding = 22,
-        ReflectDepthBinding = 23, ReflectHistoryBinding = 24, ReflectHistoryDepthBinding = 25;
+        ReflectDepthBinding = 23, ReflectHistoryBinding = 24, ReflectHistoryDepthBinding = 25, ReflectFacesBinding = 36;
 
     // A field of one cell and no cascade, screen probes of one probe holding nothing and lights of
     // none, bound where global illumination is off, since the set must hold them.
@@ -225,6 +225,7 @@ internal sealed partial class ModelRenderer
         device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, ReflectFieldBinding));
         device.UpdateDescriptorSet(set, null, Lit(field.AlbedoView, field.Sampler, ReflectAlbedoBinding));
         device.UpdateDescriptorSet(set, null, Lit(field.GlowView, field.Sampler, ReflectGlowBinding));
+        device.UpdateDescriptorSet(set, null, Lit(field.FacesView, field.Sampler, ReflectFacesBinding));
         // The window's meshes for the device's ray tracing, or a scene of none, where the model
         // pass was built to trace rays.
         if (TracesRays) device.BindRayScene(set, RaySceneBinding, bounced?.Rays ?? (_noRays ??= device.CreateRayScene()));

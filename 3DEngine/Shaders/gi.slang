@@ -147,6 +147,37 @@ public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p
     return painted.a > 0.05 ? painted.rgb / painted.a : float3(0.5);
 }
 
+// A color of the field at p on a surface facing n, the eight cells around p blended by hand, each
+// kept only where the face whose color it holds looks the hit's way, its way within 60 degrees of
+// n, a cosine of a half or more, or surfaceAlbedo's blend where none of them does, as at a thin
+// edge, so the hit is not left dark. A cell on a corner's diagonal lies as far from either wall
+// and holds whichever painted it, so a red wall's hit within a cell of the white wall it meets
+// blended the white in, its green 0.15 where the wall's is 0.012, the light it sends on 0.56 where
+// a path-traced reference reads 0.25 (gi.screenprobe); a cell's distance to the hit's plane does
+// not tell those cells apart, as they lie as far from both.
+public float3 surfaceAlbedoFacing<V : IVolume>(Texture3D<uint> faces, V albedo, SceneFieldInfo info, float3 p, float3 n)
+{
+    int c = fieldCascade(info, p, 1.0);
+    if (c < 0)
+        return float3(0.5);
+    float4 oc = info.cascades[c].originAndCell;
+    int size = int(info.counts.y);
+    float3 q = clamp((p - oc.xyz) / oc.w, 0.5, float(size) - 0.5) - 0.5;
+    int3 base = int3(floor(q));
+    float3 f = q - float3(base);
+    float4 sum = float4(0.0);
+    for (int corner = 0; corner < 8; corner++)
+    {
+        int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
+        int3 at = min(base + offset, int3(size - 1));
+        int3 texel = int3(at.xy, at.z + c * size);
+        float3 lerps = lerp(1.0 - f, f, float3(offset));
+        float facing = dot(faceWay(faces.Load(int4(texel, 0))), n) >= 0.5 ? 1.0 : 0.0;
+        sum += albedo.loadAt(texel) * (lerps.x * lerps.y * lerps.z * facing);
+    }
+    return sum.a > 0.01 ? sum.rgb / sum.a : surfaceAlbedo(albedo, info, p);
+}
+
 // The emission of the field's surfaces at p, blended as their colors are.
 public float3 surfaceGlow<V : IVolume>(V glow, V albedo, SceneFieldInfo info, float3 p)
 {
@@ -603,11 +634,11 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // probes stood, and own holds the light the surface sends on of what reaches it straight from the
 // sun, the lights and the two brightest glow lights, with its emission but a glow light's, which a
 // world probe weighs the frame before's light by (gi_ambient.slang).
-public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes, V reach,
-    float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
+public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces, V glow, GiLights lights,
+    V cubes, V reach, float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
     float3 n = fieldNormal(field, info, p);
-    float3 color = surfaceAlbedo(albedo, info, p);
+    float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
     own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false) / Pi)
@@ -627,11 +658,11 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 // loop moved ahead of the sun's in directLight is not (build/mesa). Glowing false leaves the glow
 // lights' marches out, the model pass's build for a frame with none passing it so (Glowing in
 // lights); a parameter of the build, since a constant argument left them in the SPIR-V.
-public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes, V reach,
-    float3 p, float probes, float spacing, float cascades)
+public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, Texture3D<uint> faces, V glow, GiLights lights, V cubes,
+    V reach, float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
-    float3 color = surfaceAlbedo(albedo, info, p);
+    float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
         + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
     if (Glowing)

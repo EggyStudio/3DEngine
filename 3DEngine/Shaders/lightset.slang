@@ -195,6 +195,11 @@ public Texture3D reflectAlbedo;
 [[vk::binding(21, 1)]]
 public Texture3D reflectGlow;
 
+// The way each cell of the field's nearest face looks, which a reflection's hit takes its color
+// from cells by (gi.slang's surfaceAlbedoFacing).
+[[vk::binding(36, 1)]]
+public Texture3D<uint> reflectFaces;
+
 [[vk::binding(22, 1)]]
 public ConstantBuffer<GiLights> reflectLights;
 

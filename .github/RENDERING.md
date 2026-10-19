@@ -1718,8 +1718,29 @@ that `gi.compare` writes beside its difference.
   surfaces, its screen probe's rays meeting the red wall within 0.2 of the back wall reading 120 to
   139% over the reference across their ways, their light carrying 0.10 to 0.35 of green where the
   reference's holds 0.02, the field's color there blending the white wall into the red within its
-  cells of 0.3, and the light past the first bounce there twice the reference's.
-  ![The Cornell box's back corner, the frame before its second cascade's rays went 2.4 units, the frame after, and the reference, at half the light](assets/cascades/cornell-corner.webp)
+  cells of 0.3, and the light past the first bounce there twice the reference's. The field paints
+  each cell the color of its one nearest triangle, but a cell on the corner's diagonal lies as far
+  from the red wall as from the white one and holds whichever painted it, and a hit's color blended
+  the eight cells around it, those among them; nor does a cell's distance to the hit's plane tell
+  those cells apart, since it is the same to either wall. Mended by keeping, beside each cell's
+  color, the way its face looks, the eight bits the field's build already keeps in each cell's uint,
+  a byte a cell, about 0.5 MB a cascade with the still meshes' copy, and blending a hit's color from
+  the cells whose face looks within 60 degrees of the hit's normal alone, or from all eight where
+  none does. The red wall's hits within a cell of the white wall send on 0.007 to 0.008 of green to
+  0.43 to 0.45 of red of the lamp's light where 0.050 to 0.105 to 0.44 to 0.47, the wall's own color
+  0.012 to 0.58, and read 12 to 31% over the reference across their ways where 24 to 139% over, the
+  nearest of them 0.31 of luminance where 0.56 against the reference's 0.25, the corner's screen
+  probe 5% under the reference across its hemisphere where 5% over, and the corner 0.66 of the wall
+  50 pixels in where 0.68 (`gi.screenprobe`, `gi.compare`, the pictures, the frame before, the frame
+  now and the reference, at half the light). The Cornell box's frame reads 1.003 where 1.004 and the
+  small block's front 1.40, the carried lamp's room as it did, the bounce rooms test's views at 160
+  by 90 within 0.001 of their light, and the world's probes near the box's walls 0 to 4 points of
+  their faces' light from where they were, their hits beside the walls taking those walls' own
+  colors (`gi.probe`); global illumination costs 1.47 to 1.49 ms where 1.45 to 1.48 at `High` and
+  1.15 where 1.16 at `Low`, the reflections' scene pass alike (`./e3d command profile`, the frames
+  unlimited). What remains at the corner's hits is the light past the first bounce, their red 1.36
+  to 1.40 where the reference across their ways holds 1.07 to 1.11.
+  ![The Cornell box's back corner, the frame before a hit's color was taken from the cells facing its way, the frame after, and the reference, at half the light](assets/cascades/cornell-corner.webp)
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
   reference's, lighter at the lower left and darker at the upper right where the reference's face is

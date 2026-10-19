@@ -177,3 +177,23 @@ public float fieldCell(SceneFieldInfo info, float3 p)
     int i = fieldCascade(info, p, 1.0);
     return i < 0 ? 0.0 : info.cascades[i].originAndCell.w;
 }
+
+// The way a face looks in eight bits, four along each side of the octahedron the sphere is folded
+// onto, as field_splat.slang keeps it in each cell's uint, enough to tell faces that look apart
+// from faces that meet square; and the way back from the eight bits.
+public uint faceBits(float3 n)
+{
+    n /= abs(n.x) + abs(n.y) + abs(n.z);
+    float2 o = n.z >= 0.0 ? n.xy : (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    uint2 q = min(uint2((o * 0.5 + 0.5) * 16.0), uint2(15u));
+    return q.x | (q.y << 4);
+}
+
+public float3 faceWay(uint bits)
+{
+    float2 o = (float2(float(bits & 15u), float((bits >> 4) & 15u)) + 0.5) / 16.0 * 2.0 - 1.0;
+    float3 n = float3(o, 1.0 - abs(o.x) - abs(o.y));
+    if (n.z < 0.0)
+        n.xy = (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    return normalize(n);
+}

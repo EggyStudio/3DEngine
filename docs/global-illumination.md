@@ -156,7 +156,7 @@ ms of global illumination at `High` at 800 by 450 on the development machine's G
 
 `Low` suits a slow GPU or a scene whose light comes from near, `Medium` most games, and `High` a
 scene whose light comes from far off, a cave lit from its mouth or a valley under a sunset. A
-quality traces no more cascades than the field has, and the field adds 5 MB a cascade. Against
+quality traces no more cascades than the field has, and the field adds 5.5 MB a cascade. Against
 path-traced references of the nine views of `shaders_bounce_rooms` each view's light differs from
 its reference's by between 0.02 of it and 0.29, summed pixel by pixel, every quality alike within a
 few hundredths, so the qualities differ in how far and how finely the light is seen more than in how

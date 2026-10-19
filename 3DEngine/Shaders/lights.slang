@@ -459,7 +459,7 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         }
         hit = start + r * t;
     }
-    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
+    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), reflectFaces, SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
     if (!onScreen)
         return float4(shaded, 1.0);
     float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));

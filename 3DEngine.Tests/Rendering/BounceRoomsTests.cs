@@ -175,33 +175,9 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(1, 468, 364, 0.15)]
     public void A_Screen_Probes_Rays_Past_Their_Reach_Read_The_Light_The_Reference_Holds_Over_Their_Ways(int view, int x, int y, double bound)
     {
-        var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
-        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
-        SetSceneField(3, 0.15f, 2);
-        SetGlobalIllumination(GlobalIllumination.High);
-        using var rooms = new Rooms();
-        var world = GetApp().World;
-        GpuScreenProbes? screen = null;
-        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
-        {
-            // The probe's rays written over the last frames, once the screen's probes have settled.
-            if (frame == SceneFieldPlan.SettleFrames + 80)
-            {
-                screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
-                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = y / screen.Tile * screen.Across + x / screen.Tile;
-            }
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(Rooms.Views[view - 1]);
-            rooms.Draw();
-            EndMode3D();
-            EndDrawing();
-        }
-        var probe = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out var why);
-        probe.Should().NotBeNull(why);
-        var report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, x, y, 256);
+        var probe = ReadScreenProbe(view - 1, x, y, out var report);
         static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
-        var past = probe!.Rays.Where(ray => ray.Met == 2).ToArray();
+        var past = probe.Rays.Where(ray => ray.Met == 2).ToArray();
         past.Should().NotBeEmpty(report);
         var read = past.Sum(ray => Luminance(ray.Light) * ray.Share);
         var held = past.Sum(ray => Luminance(ray.OverCell) * ray.Share);
@@ -251,33 +227,9 @@ public sealed class BounceRoomsTests : IDisposable
     [NeedsRayQueryFact]
     public void The_Screen_Probe_In_The_Cornell_Boxs_Back_Corner_Reads_Its_Light_Near_The_Reference()
     {
-        var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
-        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
-        SetSceneField(3, 0.15f, 2);
-        SetGlobalIllumination(GlobalIllumination.High);
-        using var rooms = new Rooms();
-        var world = GetApp().World;
-        GpuScreenProbes? screen = null;
-        const int X = 276, Y = 140;
-        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
-        {
-            if (frame == SceneFieldPlan.SettleFrames + 80)
-            {
-                screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
-                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = Y / screen.Tile * screen.Across + X / screen.Tile;
-            }
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(Rooms.Views[0]);
-            rooms.Draw();
-            EndMode3D();
-            EndDrawing();
-        }
-        var probe = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out var why);
-        probe.Should().NotBeNull(why);
-        var report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, X, Y, 256);
+        var probe = ReadScreenProbe(0, 276, 140, out var report);
         static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
-        (Luminance(probe!.Light) / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
+        (Luminance(probe.Light) / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
             $"the corner's rays reach past the second cascade's near surfaces before they read the light beyond\n{report}");
     }
 
@@ -285,10 +237,38 @@ public sealed class BounceRoomsTests : IDisposable
     // 450, two of whose rays pass the thin green wall's end within two of the march's steps behind
     // the depth there. The screen's march took them for meeting the wall's face the eye sees, dark,
     // and the probe read 51% under the reference along its sixteen ways on the development
-    // machine's GPU; taken only where the ray comes within the halved step of the surface, they go
-    // on past the wall, and it reads 2% over.
+    // machine's GPU; taken only where the depth does not leap across the step they cross it in, they
+    // go on past the wall, and it reads 2% over.
     [NeedsRayQueryFact]
     public void A_Screen_Probes_Rays_Passing_Behind_A_Thin_Walls_End_Read_What_Lies_Beyond_It()
+    {
+        var probe = ReadScreenProbe(7, 600, 200, out var report);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        (Luminance(probe.Light) / Luminance(probe.AlongWays) - 1).Should().BeInRange(-0.15f, 0.15f,
+            $"the rays read what they meet past the wall's end, not the wall's face before it\n{report}");
+    }
+
+    // The screen probe on the Cornell box's back wall beside the red wall's corner, as the test above
+    // reads it. Its rays meeting the red wall within a cell of the white back wall took their color
+    // from the field's cells blended, those on the corner's diagonal holding the white wall's, and
+    // what the wall sends on of the light straight from the lamp held 0.050 to 0.105 of green to
+    // 0.439 to 0.471 of red on the development machine's GPU, where the wall's own color holds 0.012
+    // to 0.58; taken from the cells whose face looks the hit's way, it holds 0.007 to 0.008 of green
+    // to 0.429 to 0.448 of red, and the hits read 12 to 31% over the reference across the ways they
+    // stand for where they read 24 to 139% over.
+    [NeedsRayQueryFact]
+    public void A_Red_Walls_Rays_Beside_The_White_Wall_It_Meets_Take_The_Red_Walls_Color()
+    {
+        var probe = ReadScreenProbe(0, 276, 140, out var report);
+        var onRed = probe.Rays.Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
+        onRed.Should().HaveCountGreaterThanOrEqualTo(4, $"the probe's rays toward the red wall meet it on the screen\n{report}");
+        onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
+    }
+
+    // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by 450
+    // at High, its rays written over the last frames once the screen's probes have settled, as
+    // gi.screenprobe reads it, with the lines it writes of it.
+    private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report)
     {
         var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -297,27 +277,24 @@ public sealed class BounceRoomsTests : IDisposable
         using var rooms = new Rooms();
         var world = GetApp().World;
         GpuScreenProbes? screen = null;
-        const int X = 600, Y = 200;
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
         {
             if (frame == SceneFieldPlan.SettleFrames + 80)
             {
                 screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
-                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = Y / screen.Tile * screen.Across + X / screen.Tile;
+                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = y / screen.Tile * screen.Across + x / screen.Tile;
             }
             BeginDrawing();
             ClearBackground(Color.Black);
-            BeginMode3D(Rooms.Views[7]);
+            BeginMode3D(Rooms.Views[view]);
             rooms.Draw();
             EndMode3D();
             EndDrawing();
         }
         var probe = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out var why);
         probe.Should().NotBeNull(why);
-        var report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, X, Y, 256);
-        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
-        (Luminance(probe!.Light) / Luminance(probe.AlongWays) - 1).Should().BeInRange(-0.15f, 0.15f,
-            $"the rays read what they meet past the wall's end, not the wall's face before it\n{report}");
+        report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, x, y, 256);
+        return probe!;
     }
 
     // The references' folder beside this file.
