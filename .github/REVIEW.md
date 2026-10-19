@@ -37,9 +37,10 @@ since the game waits on this and on `a7c2da8b` (Decision 49). At 01:48 the pack 
 of `80625742` had its games job red on Manor's soak (Verdict 74) with its macOS suite green this
 time, so it will not pack and the reviewer cancels it; the pack run queued on `869ad798` is the next
 check, and the build run of `89a36650` was cancelled by that push with its Windows suite unfinished,
-Verdict 72's figure to come from `869ad798`'s build run. Right. Next Verdict 74's mend, then the
-sampling term's candidates with (g), the band and the grazing ceiling's rays, Verdict 72, item 35,
-the parallax and (c).
+Verdict 72's figure to come from `869ad798`'s build run. At 01:49 the sampling term's two candidates
+were measured again on this head and neither holds by the rule, said under item 30, the covered
+fault in what a ray brings by its way. Right. Next Verdict 74's mend, the rays' error read by
+elevation, Verdict 72, item 35, the parallax and (c).
 
 Before it, `a7c2da8b` came, item 30's part (h) and nothing else, with the review's commit between.
 Read in the game's copy at night with the screen probes off: the game leaves the stone's faces
@@ -1776,9 +1777,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on their own ceiling uncovered as the sampling term's. (h) done at `a7c2da8b` on 2026-10-20, a
     moved probe walled in where more than a quarter of its rays meet faces from behind, the warm
     patch on the grass from 5.8 times the reference to 1.42 and the owner's smudge with it, held by
-    a test; the game's mesh leaving out the stone's faces against a lamp is the game's item 15. Next
-    item 36, the sampling term's candidates with (g), the band and the grazing ceiling's rays,
-    Verdict 72, item 35, the parallax and (c).
+    a test; the game's mesh leaving out the stone's faces against a lamp is the game's item 15. Item
+    36 done at `089761fb`. The sampling term's two candidates measured again on `089761fb` by 01:49
+    on 2026-10-20, and neither holds by the rule: both widen the thin walls, the window's room and
+    the grazing floor at both sizes, by 0.013 to 0.032 at 160 by 90 and 0.005 to 0.026 at 800 by
+    450, while the strip's room, the carried lamp's room, the Cornell box and the corridor narrow;
+    where they widen, walls that read over with the fixed ways read further over, the thin room's 12
+    to 15 percent and the window room's 10 to 19, and the two candidates agree within a point or two
+    there. On the trunk the fixed ways read the frame 39 to 2 percent under around the five probes,
+    the tiled ways 11 to 26 over and the thirty-six 13 to 54 over, the still patches turned to tile
+    noise the filter evens out while the level moves with them; the three disagree in a fixed order,
+    the thirty-six putting more ways near the horizon and the tiled ways moving off the texels'
+    middles, so the light a ray brings depends on its way and reads over the nearer it lies to the
+    surface's plane, which the fixed ways at their texels' middles under-read and so covered; no
+    single part of a probe carries the excess, and the ceiling probes' rays met on their own ceiling
+    were one such case, taken by (j). So the covered fault is in what the rays bring by their way,
+    likely the grazing ways, and not in the sampling. The reviewer's order: Verdict 74's mend first,
+    then the rays' error against the reference over their cells read by elevation on the trunk's
+    probes and the window room's ceiling and walls with the tiled ways in, so the term is named by
+    its cause, the screen march's thickness at a grazing way, the field's read at a grazing hit or
+    the facing rule among the candidates; then its mend first if it is a fault of a line, or the
+    tiled ways taken under the covered-fault principle with the rooms' and the trunk's figures
+    pinned and the reason naming the term if it is the method's; the candidates held meanwhile. Next
+    Verdict 74, then that reading, then Verdict 72, item 35, the parallax and (c).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
