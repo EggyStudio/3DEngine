@@ -17,9 +17,10 @@ one does through the build folder and the tests; the test gains two such commits
 and one on a workflow, and the notes stay the engine's three; BUILDING.md says it. On the feed and
 the history the notes start after `33fd0804`, where `5.2.92` was built, and hold 5 lines, the
 engine's commits since and none of the review's; the script and norm tests pass, 48 of 48. Right.
-The reviewer starts the pack run with publish on as the check of items 37 and 38 (Decision 49). Next
-(j) and (h) read, item 36, the sampling term's candidates with (g) and the band, Verdict 72, item
-35, the parallax and (c).
+The reviewer starts the pack run with publish on as the check of items 37 and 38 (Decision 49). (j)
+and (h) were read by 23:36, each a fault of a line said under item 30, and their mends come first.
+Next (j)'s and (h)'s mends, item 36, the sampling term's candidates with (g) and the band, Verdict
+72, item 35, the parallax and (c).
 
 Before it, `c9e1a5ac` came, item 37, and `4af3cdde` before it, item 38, with the review's commits
 between. Item 38: the pack job takes the identity token's write permission beside its read of the
@@ -1710,7 +1711,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     point's, the corner's line of dots gone, held by a test, every view holding or narrowing; it was
     the glow pass's and none of the three candidates. The order: items 38 and 37, then (j) and (h)
     read, item 36, the sampling term's candidates with (g) and the band, Verdict 72, item 35, the
-    parallax and (c). Next items 38 and 37.
+    parallax and (c). (j) and (h) read by 23:36, each a fault of a line with its own cause and
+    neither the sampling term's. (j): in the carried lamp's room with the lamp in its third state
+    and the green wall in its second, green spreads past the wall's edge onto the back wall and the
+    floor, green over red 0.934 where the reference has 0.736 and 1.351 where 0.987, gone with the
+    screen probes off and standing with the history, the glow and the merge off, so it is the screen
+    probes' own rays, the filter spreading it; a back-wall probe's ray past the wall's end is called
+    met on the screen at 3.02 and shaded as the wall's lit face, 3.26 in green where the reference
+    along the way holds 0.22, since the march takes a point within two steps behind the depth as met
+    unless the depth leaps, and a ray passing behind the wall's lit face crosses no leap, so it is
+    met from behind on a face whose normal points its way, the third candidate; a turn-away after
+    the march takes the green down and then takes the world probes' light beyond reach, the back
+    wall reading 32 percent under where 6, so the mend belongs in the march, a face met from behind
+    counting as passing behind the depth, the ray going on and the field taking it from where it
+    last stood in front. (h): in the game's case at night, a warm patch on the grass outside a stone
+    wall against whose inside a glowstone stands, the probe whose grid spot is the corner where the
+    wall's inner face, the floor's top and the glowstone meet was moved along the field's normal
+    into the stone and kept there since the field read outside, holding light at 2,450 percent over
+    its reference on one face and not marked as holding nothing as the probes inside the ground are,
+    so the grass outside blends it in through a block of stone, the candidate of a probe inside a
+    solid, and the owner's faint smudge with the screen probes on is likely this probe through the
+    light beyond their reach; the mend is in the placing, a moved spot judged by the rays that leave
+    it or a probe kept out of a solid at a corner. The reviewer's order: (j)'s and (h)'s mends
+    first, one commit each by the rule with a test, since each is a fault of a line the owner sees;
+    then item 36, the sampling term's candidates with (g) and the band, Verdict 72, item 35, the
+    parallax and (c). Next (j)'s mend.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
