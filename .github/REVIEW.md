@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b4543ab5`, item 30's corner mend and nothing else, 7 files. Read first, the second
+Reviewed up to `0d17cecc`, item 30's reading of the screen probes' sampling term and nothing else,
+RENDERING.md and this file, no shader or test changed. The section says what the reviewer asked at
+07:40 and what item 30 records, the fourteen probes' readings along the sixteen fixed ways and of
+the probes' own light, the four mends measured and none kept, each by the Cornell box's three
+figures and the carried lamp's room's three, the shimmer of the ways turned each frame in the 99th
+part of a still view's pixels against 0.04 percent with the ways still, the per-view drift of the
+tiled ways at the bounce rooms' 160 by 90 with the five bounds passed and the wick frame's 3.2
+percent, the two-by-two tiling's worse drift, the thirty-six ways' cost measured by the profile
+command with frames unlimited, and under every mend the far wall's level falling because the sixteen
+ways' overread covered the rays' underread, rays passing behind the thin green wall within the
+depth's thickness that the screen's march counts as meeting the dark face the eye sees, named as a
+fault of the march's thickness; the tiled ways and the thirty-six stand as the candidates to measure
+again once the four faults are mended, said in one sentence. Right. Next the screen's hits behind
+thin walls, (e)'s level, one commit; a pack run for the game's package; and then (b)'s color blend
+and concave term, (c) and (d).
+
+Before it, `b4543ab5` came, item 30's corner mend and nothing else, 7 files. Read first, the second
 cascade's probe above the tall block is sound in itself, every way 10 percent over the reference and
 its faces 0 to 23 over, 182 of its 233 hits met before its interval began; the corner's screen probe
 read 86 percent over its hemisphere, nine rays past their reach carrying most of it and three ending
@@ -64,30 +80,6 @@ option came from them and RENDERING.md gives that option's GPU cost alone. Check
 build, the whole suite, 1,727 passed, and the illumination, cascade edge, reference frame, bounce
 and glow tests on lavapipe under the required layer. Right. Next the corner's second-cascade probe
 over the tall block, a pack run for the game's package, and what remains of (b), (c), (d) and (e).
-
-Before it, `ad5d3692` came, item 30's probe instrument extended and nothing else, 7 files.
-`gi.probe` lists the eight ways that carry most of the face furthest from the reference, each with
-where its ray went, within its interval, before it began or to the cascade above, the merged light,
-its own ray's light, the reference's and its part of the face against the reference's; the emissive
-box probe test holds it, each of 64 ways' reference within 10 percent of the walls' light and the
-ways' parts summing to the upward face within a tenth of a percent; the command's description, the
-two guides and RENDERING.md's part (c) carry it. Checked were the strict build and the whole suite,
-1,726 passed, no shader changed. Read with it, the pocket is not a concave-angle effect but the
-sampling term in the world probes: the probe in the angle of the floor and the block has an upward
-face of 3.74 against 2.03, and one way of its 64 carries 2.10 of it against the reference's 0.85,
-three quarters of the excess, its ray meeting the emissive panel's underside 0.79 from the lamp and
-bringing 13.8, the lamp's direct light on a white face that close, where the reference spreads its
-paths over the texel and reads 5.6, mostly the dimmer ceiling around the spot, the same at one
-bounce; the trace sends each texel's ray along its middle every frame and the gather builds the
-faces fresh with no history, so the hot spot stands for its whole texel, a 64th of the sphere, every
-frame, and feeds the floor's light past the first bounce before the block and through it (c)'s face.
-Right. The mend's order is the reviewer's, said under the item. The owner pushed the eleven commits
-at 04:06 on 2026-10-19, the push run's three suites running at 04:22 and no pack run started. By
-04:39 the push run's Linux and macOS suites and examples job had passed, the macOS suite the third
-green one in a row with Verdict 70's mend, which settles it, so no verdict is open; its Windows
-suite was still running. The push run ended whole green at 04:59, its Windows suite with the leak
-tests' mends and the games played. Next a pack run for the game's package, the sampling mend with
-two rays a texel, and the corner's probe.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1336,7 +1328,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     mends' figures go into RENDERING.md in one commit with no shader change, and the order goes on
     to the screen hits behind thin walls, (e)'s level, then (b)'s color blend and concave term,
     (c)'s light past the first bounce and (d), the sampling term measured again after them with the
-    tiled ways and the thirty-six as its candidates.
+    tiled ways and the thirty-six as its candidates, recorded at `0d17cecc` the same day with no
+    shader change.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

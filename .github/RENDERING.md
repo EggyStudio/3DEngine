@@ -1779,9 +1779,21 @@ that `gi.compare` writes beside its difference.
   read where they end (c) it is 1.00, the room's frame 0.989 of the reference's light where 0.944
   (`gi.compare`). The patches stay, the wall's blocks from 0.85 to 1.12 of their mean where 0.94 to
   1.12 in the same box before, since the rays now carry the world probes' blend from where they end
-  where they carried one set of probes' light across the whole wall (the pictures, the frame before,
-  the frame now and the reference).
-  ![The carried lamp's room, the frame before reading the light beyond the rays where they end, the frame after it, and the reference](assets/cascades/room-wall-foot-and-far-wall.webp)
+  where they carried one set of probes' light across the whole wall. Two rays of the wall's screen
+  probe that pass the thin green wall's end within two of the march's steps behind the depth there
+  were taken for meeting the face of it the eye sees, dark, where the reference meets the lit floor
+  and wall beyond, and the probe read 51% under the reference along its ways (`gi.screenprobe`).
+  Taken as met only where the depth does not leap between the ends of the step the ray crossed it
+  in, they go on past the wall and the probe reads 2% over, and the wall reads 1.06 of the reference
+  where 0.99, its blocks from 0.77 to 1.19 of their mean where 0.82 to 1.13, since its sixteen ways'
+  reading over the wall's light is no longer covered by those rays' reading under it (above); the
+  room's frame reads 0.989 where 0.978 and the floor at the moved wall's foot 0.201 where 0.187, the
+  reference 0.213. The Cornell box reads as it did, the small block's front 1.39 and the corner
+  0.68, and the bounce rooms test's views at 160 by 90 move by 0.008 of their light at most, the
+  thin walls' by 0.002 and the strip's by 0.002 nearer, at no cost in the illumination pass or the
+  reflections' worth measuring, 0.01 ms (`gi.compare`, `./e3d command profile`; the pictures, the
+  frame before, the frame now and the reference).
+  ![The carried lamp's room, the frame before the screen's march judged an edge by the depth's leap, the frame after it, and the reference](assets/cascades/room-wall-foot-and-far-wall.webp)
 - **f. The lamp outside through the thin walls' corner.** Where the two thin walls meet, a tick a
   few pixels long reads 3.25 times the wall beside it, where the reference reads 1.10, and with
   global illumination off the room is dark and the tick gone. With the screen probes left out a
@@ -1853,10 +1865,10 @@ machine's GPU (`./e3d command profile`, the frames unlimited). Under every mend 
 falls to 0.89 to 0.92 of the reference, the sixteen ways' reading over it having covered its rays'
 reading under it, among them rays that pass behind the thin green wall near its end within the
 depth's thickness, which the screen's march counts as meeting the face the eye sees, dark, where the
-reference meets the lit floor and wall beyond, a fault of the march's thickness. The ways turned for
-each tile and the thirty-six are the candidates to measure again once the screen's hits behind thin
-walls, the corner's color and the light past the first bounce in its angle (b), the pocket's (c) and
-the wall's foot (d) are mended.
+reference meets the lit floor and wall beyond, a fault of the march's thickness, mended since (e).
+The ways turned for each tile and the thirty-six are the candidates to measure again once the
+screen's hits behind thin walls, the corner's color and the light past the first bounce in its angle
+(b), the pocket's (c) and the wall's foot (d) are mended.
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
