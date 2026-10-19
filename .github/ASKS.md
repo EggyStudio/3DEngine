@@ -320,3 +320,52 @@ package brings the texture id.
 Review: item 34 of REVIEW.md, 2026-10-18; a texture id for a `Texture2D` that the ImGui pass binds
 for each command drawn with it, after item 33; the game moves its inventory window onto its atlas
 when a package brings it.
+
+### 2026-10-19, the voxel game in `Voxel-Sandbox`: a draw through a program's own shader is drawn by every pass
+
+The game draws each section of its land as a mesh through its own shader
+(`VoxelSandbox/resources/shaders/terrain.slang`), whose vertex stage reads a face's normal, corner
+and color from a stream of its own and keeps the mesh's positions where they are. Read on the
+3DEngine 5.2.92 package, built from `33fd0804`, the model pass culls a batch's instances by their
+boxes a block of 64 at a time in each pass, the camera's, the depth's, each shadow cascade's and each
+light's, and gives a batch drawn through a shader of the program's own no blocks
+(`3DEngine/Rendering/Models/ModelRenderer.Instances.cs:108`), which every pass then draws whole
+(`3DEngine/Rendering/Models/ModelRenderer.Culling.cs:104` and `:115`). On seed 1's overworld at the
+spawn at noon looking east, rendered offscreen at 1280 by 720 on the RTX 4070 Laptop GPU with no
+other program on it, once every column in reach was meshed, `./e3d command models.draws` read the
+draws of each pass at each render distance in columns of 16 blocks:
+
+| columns | camera | cascade 0 | cascade 1 | cascade 2 | depth |
+|---|---|---|---|---|---|
+| 4 | 199 | 179 | 181 | 187 | 181 |
+| 8 | 627 | 563 | 565 | 571 | 565 |
+| 12 | 1,326 | 1,198 | 1,200 | 1,206 | 1,200 |
+| 16 | 2,251 | 2,021 | 2,022 | 2,028 | 2,022 |
+
+The nearest cascade holds the first 7.7 blocks of the game's shadow distance of 96, and draws as
+many sections as the camera. `./e3d command profile`, read over four seconds with the frame paced at
+60 a second, put the frame and the passes' GPU time, in milliseconds, at:
+
+| columns | sections | frame | gpu | shadows | depth | main pass | global illumination | scene field |
+|---|---|---|---|---|---|---|---|---|
+| 4 | 580 | 16.7 | 4.7 | 0.47 | 0.56 | 1.66 | 1.83 | 0.004 |
+| 6 | 767 | 16.7 | 9.3 | 3.37 | 1.08 | 2.39 | 2.28 | 0.004 |
+| 8 | 1,253 | 16.7 | 12.1 | 4.32 | 1.94 | 3.65 | 2.07 | 0.004 |
+| 9 | 1,539 | 17.2 | 16.6 | 6.46 | 2.73 | 5.22 | 2.00 | 0.004 |
+| 10 | 1,799 | 21.7 | 21.8 | 9.55 | 3.44 | 6.28 | 2.30 | 0.004 |
+| 12 | 2,484 | 29.7 | 29.7 | 14.03 | 4.89 | 8.38 | 2.24 | 0.005 |
+| 16 | 4,140 | 46.7 | 46.4 | 23.52 | 7.65 | 12.93 | 2.11 | 0.004 |
+
+The shadows and the depth pass grow with every section within the render distance, past the 96
+blocks the shadows cover, where global illumination and the scene field stay level, and they hold
+the game to 8 columns at 60 frames a second. On lavapipe the GPU's work read 584 ms a frame at 4
+columns and 923 ms at 8, the shadows' 59 and 132 ms of it.
+
+The engine lacks a way for a draw through a program's own shader to be culled by its mesh's box,
+which a program whose vertex stage keeps the mesh's positions, as the terrain's does, would ask for.
+Meanwhile the game keeps its render distance at 8 columns until a package brings the culling.
+
+Review: item 36 of REVIEW.md, 2026-10-19; a program may say of a shader that its vertex stage keeps
+the positions, and a batch drawn with it is then culled by its mesh's box in every pass as the
+engine's own are, after the sampling term's commit; the game keeps 8 columns until a package brings
+it.

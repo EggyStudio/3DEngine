@@ -1811,6 +1811,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     commit, after the cone's and the leak's and before the sampling term's candidates, with the
     game's README left as it is, since no package carries it.
 
+36. **A draw through a program's own shader is culled by its mesh's box where the program says the
+    vertex stage keeps the positions (ASKS.md, Voxel-Sandbox's fourth entry).** Read in the game at
+    {now} on 2026-10-19: its terrain draws through its own shader, whose vertex stage keeps the
+    mesh's positions, and the model pass gives a batch with a program's own shader no box to cull by
+    (`ModelRenderer.Instances.cs:108`, `batch.Custom < 0`), so every pass draws it whole
+    (`ModelRenderer.Culling.cs:104, 115`), the nearest shadow cascade, which holds the first 7.7 of
+    the 96 blocks shadowed, drawing 563 sections against the camera's 627 at 8 columns of 16 and
+    2,021 against 2,251 at 16, so the game's frame on the development machine's GPU holds 60 a
+    second to 8 columns and falls to 21 at 16, the shadows at 23.5 ms and the main pass at 12.9
+    where the illumination stays near 2, and the game holds its render distance at 8. One commit: a
+    program may say of a shader that its vertex stage keeps the positions, so a batch drawn with it
+    takes its mesh's box and is culled by it in every pass as the engine's own are, the default as
+    it is since a shader may move vertices, said in the remark and the shaders guide; held by a test
+    of a batch with such a shader culled from a cascade it lies outside of; measured in the game,
+    the draws per pass and the frame at 8 and 16 columns before and after. After the sampling term's
+    commit and before Verdict 72's reading; the game's entry gets its Review line.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
