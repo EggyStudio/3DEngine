@@ -10,7 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `33018b8b`, item 30's beyond term and nothing else, 9 files. The screen probes read
+Reviewed up to `ad5d3692`, item 30's probe instrument extended and nothing else, 7 files. `gi.probe`
+lists the eight ways that carry most of the face furthest from the reference, each with where its
+ray went, within its interval, before it began or to the cascade above, the merged light, its own
+ray's light, the reference's and its part of the face against the reference's; the emissive box
+probe test holds it, each of 64 ways' reference within 10 percent of the walls' light and the ways'
+parts summing to the upward face within a tenth of a percent; the command's description, the two
+guides and RENDERING.md's part (c) carry it. Checked were the strict build and the whole suite,
+1,726 passed, no shader changed. Read with it, the pocket is not a concave-angle effect but the
+sampling term in the world probes: the probe in the angle of the floor and the block has an upward
+face of 3.74 against 2.03, and one way of its 64 carries 2.10 of it against the reference's 0.85,
+three quarters of the excess, its ray meeting the emissive panel's underside 0.79 from the lamp and
+bringing 13.8, the lamp's direct light on a white face that close, where the reference spreads its
+paths over the texel and reads 5.6, mostly the dimmer ceiling around the spot, the same at one
+bounce; the trace sends each texel's ray along its middle every frame and the gather builds the
+faces fresh with no history, so the hot spot stands for its whole texel, a 64th of the sphere, every
+frame, and feeds the floor's light past the first bounce before the block and through it (c)'s face.
+Right. The mend's order is the reviewer's, said under the item. The owner pushed the eleven commits
+at 04:06 on 2026-10-19, the push run's three suites running at 04:22 and no pack run started. By
+04:39 the push run's Linux and macOS suites and examples job had passed, the macOS suite the third
+green one in a row with Verdict 70's mend, which settles it, so no verdict is open; its Windows
+suite was still running. The push run ended whole green at 04:59, its Windows suite with the leak
+tests' mends and the games played. Next a pack run for the game's package, the sampling mend with
+two rays a texel, and the corner's probe.
+
+Before it, `33018b8b` came, item 30's beyond term and nothing else, 9 files. The screen probes read
 the light beyond their rays around where each ray ended, a world probe counting where its reach
 covers a point the ray passed half a spacing before its end with a quarter spacing's slack, an
 unseen probe keeping no weight unless none is seen, and an end past both cascades falling back to
@@ -65,31 +89,6 @@ probes around that point weighed by how far their rays reached toward it, then t
 term measured for what it leaves and (d) and (e) read with both instruments for the same mechanism
 before its mend is chosen, in separate commits where the mends differ; the owner's push of the nine
 commits since `a12206af` and a pack run; and Verdict 70's third green macOS suite.
-
-Before it, `f40133c0` came, item 30's part (f) and nothing else, 7 files. The tick lies where the
-thin room's right wall meets its front wall at the outside lamp's height, a pixel no screen probe on
-a surface like its own stands near, so the model pass read the world's probes there, and the
-visibility test judged each probe from a point 0.3 of the spacing off the wall, which lies in the
-front wall's cells, so a probe beyond a wall thinner than the 1.2-unit spacing read as seen and lent
-the lamp's light. Four things were tried and dropped, the slack at a quarter or an eighth of the
-spacing, probes in front alone, a larger offset and a stepped visibility test, each drawing dark
-notches beside the corner, worsening the tick or costing more than the march. The mend reads, for
-those pixels alone, the world's probes the surface sees with nothing the field holds between, fading
-to the next cascade across the outer band as the plain read does and falling back to it where no
-probe is seen, a first version reading one cascade having failed the cascade edge tests at High.
-Measured at the capture's frame against the reference of 512 paths, the corner's brightest over the
-wall beside fell from 3.25 to 1.02 where the reference reads 1.10, every region 9 percent over as
-before; the scene pass costs 0.24 to 0.31 ms in the thin room and 0.18 to 0.27 in the Cornell box on
-the development machine's GPU, 185 pixels of 360,000 taking the path and each holding up its group's
-eight marches. What remains is said beside the retaken picture, the corner's band past the screen
-probes, where the world's probes alone light it, still reading 1.41 against the reference's 0.96
-since the probes' own rays take the lamp's light through walls thinner than a cell. A bounce room
-test draws the rooms at High from the second view and holds the corner column's brightest under 1.4
-of the wall beside it, 1.09 with the mend and 3.90 without. Checked were the bounce room, global
-illumination and bounce view tests on the GPU, the corner test with the cascade edge and reference
-frame tests on lavapipe under the required layer, the strict build and the whole suite, 1,723
-passed. Right. Next parts (b) and (c), the owner's push of the eight commits since `a12206af` and a
-pack run, whose package the game waits on, and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1250,7 +1249,64 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     (e)'s level from 0.84 to 1.00 with its patches left, both frames nearer their references, held
     by a bounce room test, the faces of (b) and (c) unmoved as said; next the pocket's term with
     `gi.probe` extended to place a face's excess in its own hits or the merge from the cascade
-    above.
+    above. The instrument extended at `ad5d3692` reads the pocket as the sampling term in the world
+    probes and not a concave-angle effect, one way of 64 carrying three quarters of the probe's
+    excess with the panel's hot spot standing for its whole texel every frame. Three mends were
+    offered, each texel's ray turned within its texel from frame to frame on a stratified pattern
+    with a history of the probes' light held by hysteresis and reset where a cascade moves, which
+    removes the bias at the cost of a history volume a cascade and some flicker as the eye moves;
+    256 rays for the first cascade as the two above have, which reduces the bias to a quarter at
+    four times the first cascade's trace; or several rays a texel each frame averaged, no history
+    and no flicker at a cost in rays. The reviewer's order is to measure the 256 rays first, one
+    constant, the instruments saying how much of the pocket and of the faces it takes and the
+    illumination pass's time and Ore's frame on lavapipe saying its cost, and then to mend with the
+    turned rays and the history, which removes the bias rather than dividing it, the hysteresis
+    measured so a lamp brought in reaches its light within a few frames and a still view keeps its
+    calm, the several rays a texel kept as the fallback where the flicker is unacceptable; the 256
+    rays stay only where they alone bring the faces within the test's bound at a cost the runner
+    bears. Measured on 2026-10-19 at 04:09 and reverted, the first cascade at 256 rays took the
+    block's front from 1.65 to 1.40 of the reference and the pocket probe's upward face from 93
+    percent over to 27, left the corner at 0.77, moved the Cornell frame from 1.033 to 1.029 and the
+    carried lamp's room from 0.989 to 0.979, and cost the illumination pass 1.29 to 1.38 ms in the
+    box and 145 to 165 ms of Ore's 249 ms frame on lavapipe, a quarter of the bias left for a fifth
+    more of the pass, so it is not kept and its figures go in the mend's text. A plain hysteresis
+    would fail the two tests that hold the indirect light's response to a lamp brought in or put out
+    within two frames, which a history blending a fifth of each frame once lagged by seven. The mend
+    goes as a variant the reviewer approves: each texel's ray cycles through fixed sub-positions of
+    its texel, one a frame, four by four for the first cascade's texels and two by two for the
+    coarser cascades', each probe offset in the cycle; the merge keeps the last light seen at each
+    sub-position and writes their mean, so the bias falls to a grid as many times finer at one ray a
+    texel and a still view is constant by construction; a change is judged at the same sub-position
+    against what it held a cycle before, by a share and an absolute floor to be measured, and resets
+    the texel to the new light, so a lamp brought in or put out answers in one frame and the two
+    tests stand; the reach the visibility weights read takes the same slots; memory is the cycle's
+    count times the merged volume, some 4 MB a cascade. Its weak case, a lamp moving every frame
+    resetting the texels near it to one sub-position's light while it moves, is measured with the
+    carried lamp, and the mend is held by a test of the pocket's face and the two faces at their
+    frames, the still view's change from frame to frame and the two-frame tests kept, the thresholds
+    and the costs in its comment. Built and read on 2026-10-19 at 04:41, uncommitted, the
+    sub-position variant takes the pocket probe's upward face from 93 percent over to 15 and its own
+    rays' hits from 59 over to 6 under, the block's front from 1.65 to 1.41 and the corner from 0.77
+    to 0.75, the two-frame tests standing, at four times the world probes' memory, 6 to 25 MB in the
+    Cornell box at High; the 15 percent left on every face is the corner's term from the cascade
+    above. Its flaw is the fill window: a change is judged only at a sub-position seen since the
+    last reset, so in the sixteen frames after one a change landing on an unseen sub-position goes
+    unseen, the emissive box's walls appearing at frame 7 reading 0.063 where 1.0 is read without
+    it, the share logic then overshooting by 64 percent at frame 10 and settling by 17 where a test
+    reads at 11, and judging an unseen sub-position against the reset's sample would reset every
+    penumbra and edge texel each frame; a grazing floor view reads 0.188 against its bound of 0.15
+    besides. Three ways were offered, a change signal from the CPU comparing this frame's lights,
+    sun, sky, glow lights and rebuilt field regions with the last and resetting the texels within
+    reach of what changed, a slower reset, which fails the two-frame tests, and several rays a texel
+    each frame with no history. The reviewer chooses the rays, two by two a texel every frame,
+    option 3: it quarters the bias as the 256 rays did, the block's front at 1.40 beside the slots'
+    1.41 with the corner's term left for its own mend either way, and it has no history, no fill
+    window, no flicker as the eye moves and no noise around a carried lamp, no signal to keep from
+    the CPU and no memory grown fourfold, at a cost measured, 1.29 to 1.38 ms of the pass on the GPU
+    and 145 to 165 ms of Ore's on lavapipe; the slots stay out of the tree, their figures kept in
+    RENDERING.md as the way to the rest of the bias if the eye asks for it after the corner's term
+    is mended, four by four rays being too dear for lavapipe. The grazing floor view's 0.188 is
+    placed before the commit.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -1331,8 +1387,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `9a3e2e2a`; their numbers are not given again. Verdicts 56 to 62 are settled on the runs of
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
-`1398ed24` and `5a2d7df3`, and 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18,
-said under each. Verdict 70 is open.
+`1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
+on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. No verdict is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2074,7 +2130,9 @@ said under each. Verdict 70 is open.
     its load context, the process's list of generated behaviors and the schedule logger's providers.
     Settled at three green macOS suites in a row after it. On the push of `a12206af`, 2026-10-18,
     the macOS suite passed whole with the mend in, the first green macOS suite of three. On the pack
-    run of `a12206af` the same day the macOS suite passed whole again, the second of three.
+    run of `a12206af` the same day the macOS suite passed whole again, the second of three. Settled
+    on the push and pack runs of `a12206af` and the push run of `ad5d3692`, 2026-10-19, three green
+    macOS suites in a row with the mend.
 
 ## Decisions
 

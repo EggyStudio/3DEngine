@@ -208,6 +208,39 @@ public sealed class BounceRoomsTests : IDisposable
         (read / held - 1).Should().BeInRange((float)-bound, (float)bound, $"the rays past their reach read the light beyond them\n{report}");
     }
 
+    // The first cascade's probe in the Cornell box's pocket between the floor and the small block, as
+    // gi.probe reads it. Its texels' rays, one through each texel's middle, took the lamp's bright
+    // spot on the panel's underside for a whole texel, a sixty-fourth of the sphere, its upward face
+    // 93% over the path-traced reference's on the development machine's GPU and its faces from 13%
+    // over; four rays a texel, one from the middle of each quarter of it, read 7 to 24% over, at a
+    // cost to global illumination of 0.10 to 0.19 ms in the Cornell box at 800 by 450 on that GPU and
+    // 13 ms of lavapipe's 87 there.
+    [NeedsRayQueryFact]
+    public void The_First_Cascades_Probe_In_The_Cornell_Boxs_Pocket_Reads_Each_Face_Near_The_Reference()
+    {
+        var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(Rooms.Views[0]);
+            rooms.Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(0.6f, 0.6f, 1.8f), 256, -1, 0, out var why);
+        probe.Should().NotBeNull(why);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        string[] names = ["+x", "-x", "+y", "-y", "+z", "-z"];
+        var shares = Enumerable.Range(0, 6).Select(f => Luminance(probe!.Faces[f]) / Luminance(probe.FacesReference[f]) - 1).ToArray();
+        var read = string.Join(", ", Enumerable.Range(0, 6).Select(f => $"{names[f]} {shares[f]:+0.00;-0.00}"));
+        shares.Should().OnlyContain(share => Math.Abs(share) < 0.3f, $"each face reads the light its texels hold, not a spot under the lamp for a whole texel, {read}");
+    }
+
     // The references' folder beside this file.
     private static string Folder([System.Runtime.CompilerServices.CallerFilePath] string source = "") =>
         Path.Combine(Path.GetDirectoryName(source)!, "References", "bounce");

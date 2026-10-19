@@ -116,7 +116,10 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         return;
     }
     float4 own = radiance[written];
-    // A ray of the last cascade that met nothing, the sky's.
+    // What most of the texel's rays met, and the share that met nothing, which takes the light from
+    // beyond, the light of the rest in own's color (gi_trace.slang).
+    float nothing = float(texelNothing(own.a, RaysAt(c))) / float(RaysAt(c));
+    // Rays of the last cascade that met nothing, the sky's.
     float ownSky = abs(own.a - 0.25) < 0.1 ? 1.0 : 0.0;
     uint alone = uint(push.spacing.z + 0.5);
     if (alone > 0u && c >= alone)
@@ -127,9 +130,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     }
     if (alone > 0u && c + 1u < alone)
         own.rgb = float3(0.0);
-    // A ray that met a surface keeps its light, marked a half where it met it before its interval.
+    // A ray that met a surface keeps its light, marked a half where most met it before its interval.
     float kept = own.a > 0.25 && own.a < 0.75 ? 0.5 : 1.0;
-    if (upper == 0u || own.a < 0.75 || push.spacing.y > 0.5 || alone == c + 1u)
+    if (upper == 0u || nothing <= 0.0 || push.spacing.y > 0.5 || alone == c + 1u)
     {
         merged[written] = float4(own.rgb, own.a < 0.75 ? kept : 1.0);
         mergedSky[written] = ownSky;
@@ -167,6 +170,6 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
             }
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
-    merged[written] = float4(own.rgb + beyond, 1.0);
-    mergedSky[written] = weights > 1e-4 ? sky / weights : 0.0;
+    merged[written] = float4(own.rgb + beyond * nothing, own.a < 0.75 ? kept : 1.0);
+    mergedSky[written] = weights > 1e-4 ? sky / weights * nothing : 0.0;
 }

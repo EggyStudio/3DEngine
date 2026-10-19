@@ -1703,7 +1703,8 @@ that `gi.compare` writes beside its difference.
   Reading the light beyond the screen probes' rays where they end (c) leaves the corner at 0.77, its
   probe on the back wall reading the second cascade, whose probe nearest its rays' ends stands over
   the tall block and met a surface before its interval began in 182 of its 233 ways, and its rays
-  meeting the red wall reading the light past the first bounce there twice the reference's.
+  meeting the red wall reading the light past the first bounce there twice the reference's. Four
+  rays along each of the first cascade's texels (c) leave it at 0.77 too.
   ![The Cornell box's back corner, the frame, the frame without the screen probes, and the reference](assets/cascades/cornell-corner.webp)
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
@@ -1728,9 +1729,30 @@ that `gi.compare` writes beside its difference.
   ray meets the emissive panel's underside 0.79 from the lamp and brings 13.8 where the reference,
   its paths spread over the way's texel, reads 5.6, a part of the face of 2.10 against 0.85, since a
   world probe traces each texel along its middle every frame and so takes a spot under a lamp for
-  the whole texel (`gi.probe`'s list of ways). Where the screen's probes stand in the second
-  cascade, its probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
-  ![The small block's front, the frame and the reference](assets/cascades/cornell-small-block-front.webp)
+  the whole texel (`gi.probe`'s list of ways). Mended by sending four rays along each of the first
+  cascade's texels, one from the middle of each quarter of it, and taking their light together, the
+  probe's upward face reads 18% over the reference where 93%, its faces 7 to 24% over where 13 to
+  93%, and the block's front 1.39 times the reference's light where 1.65, its blocks of 16 pixels
+  1.34 to 1.48 (`gi.probe`, `gi.compare`, the pictures, the frame before, the frame now and the
+  reference). With the screen's probes left out the front reads 0.76 where 0.96, the first cascade's
+  errors there no longer offsetting each other. Global illumination costs 1.36 to 1.46 ms where 1.27
+  in the Cornell box at 800 by 450 on the development machine's GPU and 1.09 to 1.15 where 0.96 in
+  the carried lamp's room, the scene pass alike, and on lavapipe the Cornell box's frame takes 152.5
+  ms where 150.5, its pass 100 where 87, while Ore's frame by night stays 249 ms
+  (`./e3d command profile`, the frames unlimited). In the bounce rooms test the sun through a window
+  reads 0.329 of its light from its reference where 0.293 at `High`, the four rays catching more of
+  the sun's patch on the floor, which lifts the room's light by 3 to 9%, the floor nearer the
+  reference, 15% under where 18%, and the walls facing along z, already over, further over, 22%
+  where 13%, and the grazing floor reads 0.098 where 0.101. The first cascade at sixteen by sixteen
+  texels, a ray each, read the face 27% over and the front 1.40, at 1.38 ms where 1.29. Keeping
+  instead, for each texel, what its ray brought straight from the lights at each of sixteen places
+  in the texel, one a frame, and their mean, read 15% and 1.41 at no ray's cost, but a change at a
+  place the texel had not yet been seen at since it last took a new light went unseen, the emissive
+  box's first-cascade probe reading 0.063 of its walls' light where 1.0 the frame they began to glow
+  and then 64% over as its share rose, so those are left out, the way to the rest of the bias once
+  the second cascade's term (b) is mended. Where the screen's probes stand in the second cascade,
+  its probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
+  ![The small block's front, the frame before four rays a texel, the frame after them, and the reference](assets/cascades/cornell-small-block-front.webp)
 - **d. A dark patch at the moved wall's foot.** In the carried lamp's room the floor at the green
   wall's right foot falls by 9% over 50 pixels, from 0.144 to 0.131, where the reference's rises by
   13%, from 0.156 to 0.176. It stays with the screen probes, the merge, the frame before and the

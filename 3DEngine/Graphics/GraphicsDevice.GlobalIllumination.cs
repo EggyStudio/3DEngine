@@ -52,6 +52,9 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>How many cascades.</summary>
     public int Cascades => Texels.Count;
 
+    /// <summary>The rays each texel of cascade <paramref name="c"/>'s octahedron sends, as <c>gi.slang</c>'s <c>RaysAt</c> has them.</summary>
+    public static int RaysAt(int c) => c == 0 ? 4 : 1;
+
     /// <summary>The six faces of the light each probe receives, every cascade, as <c>gi_ambient.slang</c> writes them.</summary>
     public IImageView CubesView { get; }
 
@@ -375,7 +378,8 @@ internal sealed unsafe partial class GraphicsDevice
                 Start = intervals[c].Start, End = intervals[c].End, Spacing = spacing, Cascades = gi.Cascades,
                 Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1),
             };
-            run.Dispatch(TraceStage, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)), (p * p * p * n * n + 63) / 64);
+            run.Dispatch(TraceStage, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
+                (p * p * p * n * n * (uint)GpuIllumination.RaysAt(c) + 63) / 64);
         }
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 

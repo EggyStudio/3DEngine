@@ -149,6 +149,11 @@ On the development machine's laptop GPU at 800 by 450 with the frame rate unlimi
 | `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.38 MB | 0.74 ms |
 | `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 9.16 MB | 1.00 ms |
 
+The first cascade sends four rays along each of its directions, one from the middle of each quarter
+of the direction's texel, and takes their light together, so a lamp's bright spot under a ceiling
+stands for a quarter of the texel it falls in rather than the whole of it. That costs 0.10 to 0.19
+ms of global illumination at `High` at 800 by 450 on the development machine's GPU.
+
 `Low` suits a slow GPU or a scene whose light comes from near, `Medium` most games, and `High` a
 scene whose light comes from far off, a cave lit from its mouth or a valley under a sunset. A
 quality traces no more cascades than the field has, and the field adds 5 MB a cascade. Against

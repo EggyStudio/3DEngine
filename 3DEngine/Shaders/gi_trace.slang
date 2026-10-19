@@ -44,10 +44,11 @@ Sampler3D fieldGlow;
 [[vk::binding(4, 0)]]
 ConstantBuffer<GiLights> lights;
 
-// What each ray brought back, rgb the light, a 1 where it met nothing and lets what lies beyond
-// through, a half where it met a surface before its interval began, 0 where it met one inside it,
-// and a quarter where a ray of the last cascade met nothing and brought the sky's light, which the
-// merge takes as it takes 0 and counts as the sky the probe sees.
+// What each texel's rays brought back, rgb the light of those that met a surface or the sky over
+// how many it sends, and a what most of them met, 1 nothing, which lets what lies beyond through, a
+// half a surface before their interval began, 0 one inside it, and a quarter the sky, where a ray of
+// the last cascade met nothing and brought its light, which the merge takes as it takes 0 and
+// counts as the sky the probe sees, moved a sixteenth on for each ray that met nothing (texelMark).
 // A texel a direction, each probe a tile of the octahedron's texels.
 [[vk::binding(5, 0)]] [format("rgba16f")]
 RWTexture3D<float4> radiance;
@@ -187,19 +188,28 @@ float3 kept(uint3 at, int c, int probes, uint lane)
 
 groupshared float4 brought[64];
 
+// Each ray's light and mark, and its own light with how far it went, below zero where it met a face
+// from behind, for the first ray of its texel to take together.
+groupshared float4 rayLight[64];
+groupshared float4 rayOwn[64];
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
 {
     uint probes = push.cascade.y;
     uint texels = push.cascade.z;
-    uint rays = texels * texels;
+    // A thread a ray, a texel's rays (RaysAt) side by side in a workgroup.
+    uint each = RaysAt(push.cascade.x);
+    uint rays = texels * texels * each;
     uint probe = id.x / rays;
     // A probe's rays are 64 or 256, so every workgroup is one probe's, and one past the last
     // probes leaves whole, before the sum below every ray of a group reaches.
     if (probe >= probes * probes * probes)
         return;
-    uint ray = id.x % rays;
+    uint index = id.x % rays;
+    uint ray = index / each;
+    uint quarter = index % each;
     uint3 at = uint3(probe % probes, (probe / probes) % probes, probe / (probes * probes));
     uint2 texel = uint2(ray % texels, ray / texels);
     uint3 written = uint3(at.xy * texels + texel, at.z);
@@ -234,7 +244,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         light = float4(0.0);
     else
     {
-        float3 way = fromOctahedron((float2(texel) + 0.5) / float(texels));
+        // The first cascade sends a ray from the middle of each quarter of its texel, and the
+        // texel takes their light together (below). One from the texel's middle took a lamp's
+        // bright spot under a ceiling for the whole texel, which in a Cornell box's pocket between
+        // the floor and a block held a sixty-fourth of the sphere, and the first cascade's probe
+        // there read 93% over a path-traced reference in its upward face and the block's front 65%
+        // over its own; four rays read 18% and 39% over (gi.probe, gi.compare). The coarser
+        // cascades' texels are a quarter the size of the first's at High already.
+        float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
+        float3 way = fromOctahedron((float2(texel) + within) / float(texels));
         float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
         reached = t >= 0.0 ? t : push.interval.y;
         if (t >= 0.0)
@@ -261,13 +279,47 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         light = float4(0.0);
         own = float3(0.0);
     }
-    radiance[written] = light;
-    // Below zero where the ray met a face from behind, which the gather counts.
-    distances[written] = behind ? -reached : reached;
+
+    // A texel's rays taken together by its first, the light of those that met a surface or the
+    // sky over how many there are, marked with what most met and how many met nothing (texelMark),
+    // their own light and their reach their means, and a face met from behind where most met one so.
+    rayLight[lane] = light;
+    rayOwn[lane] = float4(own, behind ? -reached : reached);
+    GroupMemoryBarrierWithGroupSync();
+    float4 texelLight = float4(0.0);
+    float3 texelOwn = float3(0.0);
+    if (quarter == 0u)
+    {
+        float3 met = float3(0.0);
+        float reach = 0.0;
+        // How many met a surface, one before their interval began, the sky and nothing.
+        uint surfaces = 0u, early = 0u, skies = 0u, nothing = 0u;
+        uint behinds = 0u;
+        for (uint q = 0u; q < each; q++)
+        {
+            float4 one = rayLight[lane + q];
+            float4 itsOwn = rayOwn[lane + q];
+            surfaces += one.a < 0.125 ? 1u : 0u;
+            skies += one.a >= 0.125 && one.a < 0.375 ? 1u : 0u;
+            early += one.a >= 0.375 && one.a < 0.75 ? 1u : 0u;
+            nothing += one.a >= 0.75 ? 1u : 0u;
+            met += one.a < 0.75 ? one.rgb : float3(0.0);
+            texelOwn += itsOwn.rgb;
+            reach += abs(itsOwn.w);
+            behinds += itsOwn.w < 0.0 ? 1u : 0u;
+        }
+        float most = nothing * 2u > each ? 1.0 : early > surfaces && early >= skies ? 0.5 : skies > surfaces ? 0.25 : 0.0;
+        texelLight = float4(met / float(each), texelMark(most, nothing, each));
+        texelOwn /= float(each);
+        reach /= float(each);
+        radiance[written] = texelLight;
+        // Below zero where the rays met a face from behind, which the gather counts.
+        distances[written] = behinds * 2u > each ? -reach : reach;
+    }
 
     // The group's own light and all it brought back summed, each ray weighed by the share of the
     // sphere its texel spans, as the gather weighs them, halving the rays that add each step.
-    brought[lane] = float4(own, luminance(light.rgb)) * octahedronShare((float2(texel) + 0.5) / float(texels));
+    brought[lane] = quarter == 0u ? float4(texelOwn, luminance(texelLight.rgb)) * octahedronShare((float2(texel) + 0.5) / float(texels)) : float4(0.0);
     GroupMemoryBarrierWithGroupSync();
     for (uint half = 32u; half > 0u; half >>= 1)
     {
@@ -276,5 +328,5 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         GroupMemoryBarrierWithGroupSync();
     }
     if (lane == 0u)
-        partial[int3(int(at.x) * 4 + int(ray / 64u), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = brought[0];
+        partial[int3(int(at.x) * 4 + int(index / 64u), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = brought[0];
 }
