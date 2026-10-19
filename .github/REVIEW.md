@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fa607cb3`, item 30's mend of the leak through a thin emitter and nothing else,
+Reviewed up to `03e0bd36`, item 30's part (i) and nothing else, 5 files, a fault of a line in the
+scene field's plan. Read in a transient copy of the game's build on `5.2.92` with the field's
+flicker recorded frame by frame, the blank comes eight frames after the break, when the replacing
+section settles, survives every part of the illumination left out, and shows in the field itself,
+every cascade wrong for that frame and right the next, the first changing 99.8 percent of its pixels
+by 111 levels and back; a rebuild alone gave no blank, a budget of four cascades a frame took the
+pair away and the game's two brought it back. The cause: when the replacement settles the old
+section, kept standing in until then, leaves and the cascades around go dirty, the budget builds two
+of the four, the new section is still pending for the other two, and a pending still mesh was
+stamped as its boxes, which fill the air above a section's ground, so for one frame every cascade
+held solid where the room is. The mend: a mesh that replaced a kept one in place is not stamped
+while it waits for cascades built since, which still hold the mesh it replaced as they did before it
+settled, the remark saying what the boxes did. A scene field test holds it with two cascades, a
+budget of one and the replacement settling, failing on the stamp without the mend; in the game's
+room at night the break's own frame changes 9 percent of the pixels and the pair of 89 and 87 at
+14.6 and 8.8 levels is gone, four forest breaks showing the break alone. RENDERING.md records it,
+and the coder's shared line under Replies is taken into SHARED.md as a row. Checked were the strict
+build, the suite, 1,734 of 1,734, and lavapipe under the required layer, 80 passed and 2 skipped
+over the field, illumination, edge and glow tests. Right. Next (g), the still blotches with the
+screen probes on, then (k), (j) and (h), Verdict 72, item 35, the sampling term's candidates with
+the band, the parallax, (c); and the owner's push of `03e0bd36` with them. At 22:08 (g) was read as
+the sampling term, said under item 30, and the order became (k), (j) and (h) read, then the sampling
+term's candidates with (g) and the band, then Verdict 72, item 35, the parallax and (c). The push
+run of `fa607cb3` ended whole green at 22:02, its Windows suite in 32 minutes, said under Verdict
+72; the owner pushed `03e0bd36` at 22:09, its run running. At 22:20 the owner gave the reviewer the
+pushes and the commits of its own edits, so the review's edits come in commits of their own from
+here on.
+
+Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
 judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
 within a cell before its hit, by a slab test cast back along the ray, gives the hit none of its
 light, the remark saying why the reference leaves a carried emitter's emission out where a path
@@ -65,40 +93,6 @@ commit and before Verdict 72's reading. At 21:19 the owner added two from the bo
 parts (j) and (k): in the carried lamp's room with the light in its third state and the green wall
 in its second, green blooms over the wall's edge, and in the ninth room the corners carry a light
 border, which happens in many places and comes from the screen probes too.
-
-Before it, `132ac219` came, item 30's reading of the strip room's light past the first bounce and
-nothing else, RENDERING.md and this file, no shader changed, both mends out of it. Read with both
-mends in the tree, the room's shortfall lies in the probes' own gathering and not the read, the
-floor's read 0.73 of the reference with the probes holding 0.66 at their places, the ceiling's 0.89
-with 0.87, and the back wall's 0.76 to 0.81 with 0.94 to 0.96 and the reversed gradient of 0.80 to
-0.84 the smaller part; the floor's probes nearest the back hold their upward face 40 and 44 percent
-under and the ceiling's their downward 24 and 32, and at one probe two ways carry nearly all of the
-deficit, bringing 0.08 and 0.10 where the reference brings 0.84 and 0.59, their four rays meeting
-the back wall half a unit above the strip, where the strip's closed form gives near what they bring.
-The strip's light on its wall falls steeply, 7.8 half a hundredth above it, 2.1 at a tenth, 0.8 at a
-fifth and 0.11 at half a unit, so the closed form averaged over each texel as the reference weighs
-gives the reference's level, a third of it within half a cell of the strip's box, and the four rays
-at the same quarter-middles in every probe of the floor's row, all at one height and depth, pass
-over the band; with the strip half a unit off its wall in a scratch build the room reads within 2
-percent of a fresh reference at both qualities with the head's shaders and with both mends alike,
-the side walls 7 to 8 percent under in every variant, a term of their own. So the term is the rays'
-fixed sampling of a band narrower than a quarter texel, seen from the room's probes across a degree
-or two, which field cells of 0.15 could not place a hit inside either, a term of the method as the
-parallax is, and by the ruling of 19:51 the leak and the cone are taken together under the
-covered-fault principle, confirmed under item 30. Right. Next the cone's commit in forward
-differences, then the leak's, the strip's test pinned at the new figures with the reason naming the
-band; then the sampling term's candidates with the band beside them, the parallax, (c). At 20:25 the
-pack run of `33fd0804` had its macOS suite green in 42 minutes, the second of Verdict 71's three,
-its games job green in 39 minutes with the thirteen games, and its Linux suite and examples job
-green, with its Windows suite in its 64th minute and both captures running; the push run's Windows
-suite was in its 76th minute, the rest of it green. At 20:47 the pack run was whole green, its
-Windows suite in 75 minutes where the old pack run's took 115 and lost a part, so that was the
-fault's face, both captures and the digest green and the pack job done at 20:38, and by 20:52 the
-owner had uploaded its package, `5.2.92`, to nuget.org, the game's coder having found at 20:50 that
-the `5.2.65` listed there was `1398ed24`'s of 2026-10-18 and that the pack run's push step was
-skipped since the run was started without publishing; the push run's Windows suite was in its 94th
-minute. The owner also asked for the README's centered parts as markdown in a centering block
-(Decision 45, item 35).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1716,8 +1710,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sampling term's candidates with the band beside them, the parallax and (c). The leak's mend done
     at `fa607cb3` the same day, the strip's test pinned at 0.234, 0.245 and 0.244 with the band as
     the reason, the two probes' first bounce at 7 and 10 percent over where 211 and 206, the
-    emissive blocks' room at High moved by 0.0004 where a probe's rays cross a neighbor's box. Next
-    (i), then (g), (k), (j) and (h).
+    emissive blocks' room at High moved by 0.0004 where a probe's rays cross a neighbor's box. (i)
+    done at `03e0bd36` the same day, a mesh that replaced a kept one in place not stamped as its
+    boxes while a cascade the budget left for later still holds the one it replaced, the pair of
+    blank frames gone in the game, held by a test. (g) read by 22:08 in the game at the birch trunk:
+    five screen probes on the trunk read 4 to 55 percent under their hemispheres where the
+    hemisphere's light along the trunk varies little, each tracking the reference along its own
+    sixteen ways within 24 to 30 percent, so the fault is in which ways there are and not in what a
+    ray brings, one way meeting sunlit grass deciding a probe's green and the ways beyond reach the
+    blue, and neighboring probes casting the same ways err alike, so the patches stand still and
+    span many tiles, which the filter's blend cannot even out; the jittered places would move them,
+    the depth leap and the march's thickness touch one to six rays a probe at 0.005 of light at
+    most, and the filter is what fails to hide them. So (g) is the sampling term, the screen probes'
+    sixteen fixed ways, and goes with its two candidates, the ways turned per tile and the
+    thirty-six, measured as one with the band; and since the gain that held the candidates back is
+    mended and this term is what the owner sees most, the candidates move up. The order: (k), (j)
+    and (h) read, then the sampling term's candidates with (g), the band and whatever of the three
+    shares the cause, measured by the rule and committed where one holds, then Verdict 72's reading
+    and mend, item 35, the parallax and (c). Next (k).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2613,7 +2623,9 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     cost is the runner's, and the test script says in its summary, when a part is lost, the test it
     was in and the time each test took, so the next such run reads itself. The job's limits stay as
     measured, 100 on a push and 180 on the pack run, since the suite that runs through fits them.
-    Settled at three Windows suites in a row under 60 minutes after the mend.
+    The push run of `fa607cb3` ran the suite in 32 minutes 18 seconds, 1,674 passed, the whole job
+    in 40, on 2026-10-19 at 22:02. Settled at three Windows suites in a row under 60 minutes after
+    the mend.
 
 ## Decisions
 
