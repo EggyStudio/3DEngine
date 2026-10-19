@@ -36,7 +36,8 @@ term's candidates with (g) and the band, then Verdict 72, item 35, the parallax 
 run of `fa607cb3` ended whole green at 22:02, its Windows suite in 32 minutes, said under Verdict
 72; the owner pushed `03e0bd36` at 22:09, its run running. At 22:20 the owner gave the reviewer the
 pushes and the commits of its own edits, so the review's edits come in commits of their own from
-here on.
+here on. At 22:32 the run of `03e0bd36` had its three suites in their 23rd minute. At 22:34 the
+owner asked what the code fixes project is for and kept it (Decision 46).
 
 Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
 judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
@@ -2958,6 +2959,14 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     since a markdown table cannot size its pictures, unless the script that writes them makes
     thumbnails at the shown width, which is measured on GitHub and nuget.org before it is taken. The
     README is the package's, so what nuget.org draws is what a reader of the package sees.
+
+46. **The code fixes project stays.** The owner asked at 22:34 on 2026-10-19 what
+    `3DEngine.CodeFixes` is for and whether it could be folded into the engine or removed, and on
+    the answer said to keep it. It is the editor's fixes for the generators' four diagnostics, one
+    file, apart because a code fix needs Roslyn's workspace layer, which the compiler does not load,
+    so Roslyn keeps fixes out of the analyzer's assembly and the engine's library, which targets the
+    runtime, can host neither; it ships in the package beside the generator. BevyCSharp's twin stays
+    with it.
 
 ## Replies
 
