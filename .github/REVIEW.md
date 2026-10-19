@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7fe22abc`, item 30's part (k) and nothing else, with the review's commits between.
+Reviewed up to `c9e1a5ac`, item 37, and `4af3cdde` before it, item 38, with the review's commits
+between. Item 38: the pack job takes the identity token's write permission beside its read of the
+contents, in the job alone, a step with the feed's login action and the user `EggyStudio` right
+before the push answers a key that lasts an hour, the push of both packages takes it where it took
+the secret, and the input's description, the head comment and BUILDING.md say the run publishes
+through the policy with its values and needs no secret, nothing naming the secret any more; the YAML
+parses and the run is its proof. Item 37: the notes script reads nuget.org's flat index for the
+newest version of the minor in `build/version.txt`, as a number, takes the commit from that
+version's nuspec and writes the commits after it, newest first, a sentence a line with the rule
+against naming who decided kept, falling back to the minor's where the feed answers nothing, lists
+no version of the minor, gives no nuspec or names a commit the checkout lacks, its first line saying
+which commit the notes start after and why where it fell back, which the pack script prints and adds
+to the run's summary; on the feed today it starts after `33fd0804`, 15 lines where the minor's would
+be 105; the test runs it on a scratch history with a feed given as a folder, the newest package's
+commit and the three fallbacks with their reasons, in the script tests' file, which N 1.4's list
+has, since a new file under that folder failed the rule. Checked were the strict build and the
+suite, 1,735 passed with the one failure of N 1.4 before the move and the test and the norm tests
+passing after it. The review's own commits reach the notes, the first line today being the review's
+record of `7fe22abc`, so item 37 widens by one rule, a commit whose every file lies under `.github/`
+left out since the package carries nothing from there, which takes the review's and the workflows'
+commits by what they touch, the README, the guides, the license and the notices staying in; it comes
+in a small commit before (j), and the reviewer starts the pack run with publish on right after it,
+the first package published through the policy carrying notes of the engine alone. Right. Next that
+commit and the pack run, then (j) and (h) read, item 36, the sampling term's candidates with (g) and
+the band, Verdict 72, item 35, the parallax and (c).
+
+Before it, `7fe22abc` came, item 30's part (k) and nothing else, with the review's commits between.
 Read in the ninth room at 800 by 450 against a fresh reference, the floor's corner with the right
 wall carries a line of light dots a texel apart that the reference has not, gone with the screen
 probes off and with the history off and standing with the filter off: the glow lights' pass blends
@@ -67,32 +93,6 @@ release notes include everything and append to the older ones (Decision 47, item
 quoting nuget.org's notice, that the pack run publishes through trusted publishing (Decision 48,
 item 38), and at 22:57 that the reviewer starts the pack runs as well (Decision 49), the first with
 publish on once item 38 is in.
-
-Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
-judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
-within a cell before its hit, by a slab test cast back along the ray, gives the hit none of its
-light, the remark saying why the reference leaves a carried emitter's emission out where a path
-first meets it, the emitter reaching every surface as a light of its own counted at the surface so a
-path going on through it would count it twice, with the texel's 3.7 through the strip and the
-broader form that took the light around the strip and read the room 17 percent under. The two
-probes' faces toward the strip go from 211 and 206 percent over at the first bounce to 7 and 10 and
-from 14 and 7 over past it to 17 and 23 under; the strip's view at 160 by 90 reads 0.234, 0.245 and
-0.244 where 0.222, 0.216 and 0.212, its bounds pinned 15 percent over as the test's others are with
-the reason naming the band, and at 800 by 450 0.130 at Low and 0.136 at High where 0.109; every
-other view reads as it did but the emissive blocks' room at High at 800 by 450, 0.0213 where 0.0209,
-one block's lit side 0.4 percent darker where a screen probe's rays cross a neighbor's box, the room
-repeating to five digits without the change; no picture moves, the example's capture showing the
-carried lamp's room unmoved to the last digit. RENDERING.md records it. Checked were the strict
-build, the suite, 1,733 of 1,733, and lavapipe under the required layer, 117 passed and 17 skipped.
-Right. Next (i) in the game on `5.2.92` once its coder's reproduction arrives, then (g), (k), (j)
-and (h), Verdict 72, item 35, the sampling term's candidates with the band beside them, the parallax
-and (c); and the owner's push of `132ac219` to `fa607cb3`, four commits, with a pack run, which is
-Verdict 71's third macOS suite. The owner pushed `fb1d1f95` at 20:58 and `fa607cb3` at 21:21, the
-first push run cancelled by the second as the build group has it, the second running at 21:28 with
-no pack run started; its macOS suite is Verdict 71's third and its Windows suite's time Verdict 72's
-next figure. At 22:00 that run's macOS suite had passed in 21 minutes, the third of three, which
-settles Verdict 71, its Linux suite and examples job were green, and its Windows suite was in its
-38th minute.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1841,7 +1841,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of the minor, or names a commit the checkout does not have, the notes are the minor's as before
     and the summary says why; the pack job's step says which commit the notes start from. Held by a
     test of the script on a scratch history with a feed answer given to it, and read on the next
-    package's page. One commit, with item 36 and before Verdict 72's reading.
+    package's page. One commit, with item 36 and before Verdict 72's reading. Done at `c9e1a5ac` on
+    2026-10-19, 15 lines where the minor's 105 against the feed's `5.2.92`, and widened the same
+    day: a commit whose every file lies under `.github/` is left out, since the package carries
+    nothing from there, in a small commit before (j).
 
 38. **The pack run publishes through nuget.org's trusted publishing and no stored key (Decision
     48).** The pack job gains the identity token's write permission beside its read of the contents,
@@ -1854,7 +1857,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     whose push the feed accepts, the first the owner starts after the policy stands. One commit, the
     pattern `3DEngine*`; at 22:54 the owner asked whether the pack could upload by itself, so this
     comes first, right after the reading in hand, with item 37, and items 36, Verdict 72 and the
-    rest after.
+    rest after. Done at `4af3cdde` on 2026-10-19; the first pack run with publish on is its check.
 
 ## Verdicts
 
