@@ -55,7 +55,12 @@ public sealed class BounceRoomsTests : IDisposable
     // over. Read with no lean off the surface (Lean), the window's view reads 0.301, 0.287 and
     // 0.270 at Low, Medium and High where 0.356, 0.340 and 0.324, the strip's 0.216, 0.213 and
     // 0.209 where 0.266, 0.255 and 0.250, and the grazing floor's 0.075, 0.075 and 0.055 where
-    // 0.104, 0.105 and 0.099.
+    // 0.104, 0.105 and 0.099. With a hit given none of a glow light whose box its ray passed
+    // through within a cell before it (glowLightPassed), the strip's view reads 0.234, 0.245 and
+    // 0.244 where 0.222, 0.216 and 0.212, its room 12 to 13% under its reference where level, since
+    // the light the strip throws on the wall it is mounted on lies within a fifth of a block of the
+    // strip, a band the probes' rays, through the same points of each texel at every probe of a
+    // row, pass over, and the probes' rays through the strip to the wall had made up for it.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
@@ -72,9 +77,9 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.25)]
-    [InlineData(6, GlobalIllumination.Medium, 0.25)]
-    [InlineData(6, GlobalIllumination.High, 0.25)]
+    [InlineData(6, GlobalIllumination.Low, 0.27)]
+    [InlineData(6, GlobalIllumination.Medium, 0.28)]
+    [InlineData(6, GlobalIllumination.High, 0.28)]
     [InlineData(7, GlobalIllumination.Low, 0.09)]
     [InlineData(7, GlobalIllumination.Medium, 0.09)]
     [InlineData(7, GlobalIllumination.High, 0.07)]

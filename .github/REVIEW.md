@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `132ac219`, item 30's reading of the strip room's light past the first bounce and
+Reviewed up to `fb1d1f95`, item 30's cone in forward differences and nothing else, 4 files, under
+the confirmation of 20:16. The glow march's cone toward a surface a step passes is the box's own
+half-width across the way toward it, its support along the field's slope read with three differences
+where six, the remark giving the old width, the box's mean half side and 0.35 for the strip, why a
+march along a mounted emitter's wall took the wall for something between, the support of 0.03 toward
+the strip's wall and 0.5 for a cube toward a face, the hits before and after, the three reads
+against the six, the ceiling 8 percent under and the side walls 8 and 20 where the six gave 10, 10
+and 21, and the cost. A bounce room test holds the six rays from the probe at the back wall under
+the ceiling that meet the ceiling over the strip against Lambert's closed form over the strip's
+faces within 10 percent, 35.2 under with the head's shader and 3.6 under with the cone; the strip's
+view stays within its old bounds with the cone alone, so the pinning goes with the leak's commit.
+RENDERING.md takes the three reads and the cost against the head, the illumination pass 1.64 to 1.68
+ms where 1.49 at High and 1.51 where 1.28 at Low in the Cornell box and 1.29 where 1.24 and 1.17
+where 1.13 in the strip's room. Checked were the strict build, the suite, 1,733 of 1,733, and
+lavapipe under the required layer, 117 passed and 17 skipped over the glow, field, bounce and pool
+tests among others. Right. Next the leak's commit judged on this head, the strip's test pinned with
+the reason naming the band; item 35; then the sampling term's candidates with the band beside them,
+the parallax, (c); and the owner's push of `132ac219` and `fb1d1f95` with the commits after them. At
+20:57 the push run of `33fd0804` had ended cancelled, its Windows job cut at the job's 100-minute
+limit at 20:50 with its test step in its 98th minute and no summary written, where the pack run's
+Windows job of the same commit ran the suite in 45 minutes and the whole job in 75 (Verdict 72), the
+rest of the push run green. At 21:16 the owner, playing the voxel game on `5.2.92`, saw three things
+of the radiance cascades and said them, item 30's parts (g), (h) and (i): with the screen probes on
+the light looks like depth fighting, light leaks a little, and when a block is broken the indirect
+light goes blank for a frame and comes back with the field's next build; they come after the leak's
+commit and before Verdict 72's reading. At 21:19 the owner added two from the bounce rooms example,
+parts (j) and (k): in the carried lamp's room with the light in its third state and the green wall
+in its second, green blooms over the wall's edge, and in the ninth room the corners carry a light
+border, which happens in many places and comes from the screen probes too.
+
+Before it, `132ac219` came, item 30's reading of the strip room's light past the first bounce and
 nothing else, RENDERING.md and this file, no shader changed, both mends out of it. Read with both
 mends in the tree, the room's shortfall lies in the probes' own gathering and not the read, the
 floor's read 0.73 of the reference with the probes holding 0.66 at their places, the ceiling's 0.89
@@ -35,7 +65,14 @@ band; then the sampling term's candidates with the band beside them, the paralla
 pack run of `33fd0804` had its macOS suite green in 42 minutes, the second of Verdict 71's three,
 its games job green in 39 minutes with the thirteen games, and its Linux suite and examples job
 green, with its Windows suite in its 64th minute and both captures running; the push run's Windows
-suite was in its 76th minute, the rest of it green.
+suite was in its 76th minute, the rest of it green. At 20:47 the pack run was whole green, its
+Windows suite in 75 minutes where the old pack run's took 115 and lost a part, so that was the
+fault's face, both captures and the digest green and the pack job done at 20:38, and by 20:52 the
+owner had uploaded its package, `5.2.92`, to nuget.org, the game's coder having found at 20:50 that
+the `5.2.65` listed there was `1398ed24`'s of 2026-10-18 and that the pack run's push step was
+skipped since the run was started without publishing; the push run's Windows suite was in its 94th
+minute. The owner also asked for the README's centered parts as markdown in a centering block
+(Decision 45, item 35).
 
 Before it, `33fd0804` came, Verdict 71's mend and nothing else, 13 files, the restart having lost
 the scratch folder alone, the commit helper, the measurement scripts, the references at 800 by 450
@@ -74,40 +111,6 @@ the same commit had passed in 60 minutes, said under Verdict 71; the push run of
 Linux suite green in 19 minutes, its macOS suite green in 25, the first of Verdict 71's three, and
 its examples job green, with Windows running; and the pack run of `33fd0804` had its Linux suite and
 examples job green with its macOS and Windows suites, games and both captures running.
-
-Before it, `257006c7` came, item 30's reads at the surface and nothing else, 6 files, the lean's
-refinement taken at 16:02. The bounced light's reads, the sky's, the summed probes' and the screen
-pass's probes around a hit read at the surface itself, the screen pass's read losing its normal
-parameter, and the lean of half a spacing stays for the ambient blend alone, its remark saying what
-the lean was for, a surface in a plane of probes reading the probes inside it before such probes
-were moved into the room, why the reads no longer take it, leaned they read probes standing where 61
-to 64 percent more light arrives than at the grazing room's far wall, which every bounce took on,
-and why the blend keeps it, a wall in the outer band of Low's last cascade taking a closed room's
-absent ambient light without it. The code reads as the measured build did, every view's distance
-identical and the frames identical to the last bit but where the glow lights' frame-to-frame jitter
-moves pixels; the bounds are pinned 15 percent over the new figures where views moved, both figures
-per view in the reason, the window 0.301, 0.287 and 0.270 where 0.356, 0.340 and 0.324, the strip
-0.216, 0.213 and 0.209 where 0.266, 0.255 and 0.250, the grazing floor 0.075, 0.075 and 0.055 where
-0.104, 0.105 and 0.099. The measure repeats exactly, the head's frames at 800 by 450 read twice in
-one run identical to the last bit, so the carried lamp's room's 0.002 is above its noise and stands
-named as the sampling term's with the far wall's level 1.075; RENDERING.md gives the figures by view
-at both sizes and that room by region, the red wall and the back wall nearer, the floor from 7 to 9
-percent under, the foot at 0.214 and 0.219 against 0.215, which is (d) done, the gain at the faces
-1.00 to 1.17 where 1.08 to 1.27 with the pocket's unchanged, still views calm, and the moved wall
-settling over two frames where the head took one. Checked were the strict build, the suite, 1,730 of
-1,730 with the norm tests after the test's move, and lavapipe under the required layer, 109 passed
-and 16 skipped. Right. Next the merge's first-bounce excess at the pocket and around the strip, read
-along the ways from the cascade above; the sampling term's two candidates again, and (c). The owner
-pushed `9b37e326` to `257006c7`, fifteen commits, at 17:22 and started the pack run with the push
-run, both running at 17:29, the first runs since `ad5d3692`; the package for the game comes from the
-pack run. At 18:03 the push run's macOS suite had failed at 15:36 UTC, 75 of its 1,688 tests, every
-one on a descriptor pool out of memory (Verdict 71), and its other two suites and the pack run's
-three were still running. At 18:18 the Linux suites of both runs had passed, the pack run's macOS
-suite had failed the same 75 tests in 17 minutes 4 seconds, and the Windows suites, the examples job
-and the pack run's captures and games jobs were still running. At 18:47 the push run had ended red
-on its macOS suite alone, its Windows suite green in 60 minutes, its examples job and digest green;
-the pack run's captures on Linux and macOS, its examples job and its games job, thirteen games
-played, soaked and stormed, were green, and its Windows suite was still running in its 85th minute.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1696,7 +1699,34 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     reference leaving a thin emitter's emission out; the strip's test pinned at the new figures,
     0.235, 0.246 and 0.245 where 0.216, 0.213 and 0.209, the reason naming the band with both
     figures; the band in the order beside the sampling term's candidates and the parallax, the side
-    walls' 7 to 8 percent under noted as their own. Next the cone's commit.
+    walls' 7 to 8 percent under noted as their own. The cone done at `fb1d1f95` the same day in
+    forward differences, held by a test at the ceiling over the strip, at 0.15 to 0.19 ms on High's
+    pass in the Cornell box. The owner saw three things at 21:16 on 2026-10-19, playing the voxel
+    game on `5.2.92` with the day's work in it, and they are the item's parts (g), (h) and (i), each
+    read in the game first, with the game's coder giving the world, the place, the hour and the view
+    where each shows, and then mended as one mechanism a commit as the parts before: (g) with the
+    screen probes on the indirect light looks like depth fighting, a flicker read frame to frame in
+    a still view at the 99th part of its pixels and by tile, the screen probes' jittered places, the
+    depth leap test of `9c44401f`, the thickness of the march or the filter's blend across tiles
+    among the candidates; (h) light leaks a little, read where it shows against the field's cells
+    there, a thin wall held about its middle, a probe inside a solid, the merge's parallax or the
+    band's family among the candidates; and (i) when a block is broken the indirect light goes blank
+    for a frame and shows again with the field's next build, read in the frames around the break,
+    whether the field is cleared before its new build is ready or the probes read a field that is
+    not yet stamped, mended so the light of the frame before stands until the new field is read. At
+    21:19 the owner added two from the bounce rooms example, read the same way: (j) in the carried
+    lamp's room with the light in its third state and the green wall in its second, green blooms
+    over the wall's edge into what lies beyond it, read at the edge's pixels against the reference,
+    the filter's blend across a depth or normal edge, the field's color blend at the wall's end
+    after `a52b125b`, or a screen ray's thickness at the edge among the candidates; and (k) in the
+    ninth room the corners carry a light border, which the owner sees in many places and from the
+    screen probes too, read at a corner's pixels frame by frame and tile by tile against the
+    reference, the filter blending tiles across the corner's two normals, the probes read at the
+    surface on both walls at once, or the hits' facing rule among the candidates, (b)'s corner
+    reading of the day beside it. The order: the leak's commit, then (i), (g), (k), (j) and (h), two
+    read as one where they share a cause, then Verdict 72's reading and mend, then item 35, then the
+    sampling term's candidates with the band beside them, the parallax and (c). Next the leak's
+    commit.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -1769,6 +1799,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     `GetImGuiTextureId` and the pass binding each command's texture's set, a test reading the drawn
     texture beside the atlas's text, the guides following; the game takes it from the next package.
 
+35. **The README's centered parts are markdown inside one centering block (Decision 45), and
+    nuget.org draws them.** The heading, the description and the banners at the README's head stand
+    as markdown inside one `<div align="center">` with blank lines inside it, no `<h1>`, `<p>` or
+    `<img>` of their own, and every other HTML line of the README is read for whether markdown says
+    it, the tables of pictures staying HTML unless thumbnails at the shown width make a markdown
+    table render alike on GitHub and nuget.org, measured first; checked on GitHub's rendering and on
+    nuget.org's page of the next version uploaded, the gallery's script writing the same. One
+    commit, after the cone's and the leak's and before the sampling term's candidates, with the
+    game's README left as it is, since no package carries it.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -1778,7 +1818,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
-on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is open.
+on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdicts 71 and 72 are
+open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2562,6 +2603,26 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
     `33fd0804` passed it in 42 minutes at 20:03, the second. Settled at three green macOS suites in
     a row after the mend.
 
+72. **The Windows suite runs in 45 to 48 minutes when it runs through, and twice today a run of it
+    went past an hour on the same code, once cut by the job's limit.** On the push run of
+    `33fd0804`, 2026-10-19, the Windows job's test step (`build/test.py --no-build --timeout-minutes
+    60`) ran from 19:12 to 20:50 and was cut when the job reached its 100 minutes, writing no
+    summary, while the pack run's Windows job of the same commit ran the same step in 45 minutes 22
+    seconds with 1,674 passed and the whole job, the thirteen games played, in 75; the push run of
+    `257006c7` ran it in 48 minutes 3 seconds, and the pack run of `257006c7` took 115 minutes with
+    one part lost at its 60-minute limit in the hundred-app leak test at its 51st app, which Verdict
+    71 took for the pool fault's face. With no fault left to log, a part still ran an hour or more
+    on one runner of two, so the time is a term of its own, a test that hangs or crawls on some
+    Windows runners, the hundred-app leak tests the first to read since the one part that was seen
+    lost stood in them. The mend is read before it is chosen: the cut job uploaded its artifacts, so
+    the part's `output.txt` says which test ran when the hour ran out and what each test before it
+    took, read against the pack run's for the same tests; then the slow or hanging test is mended
+    where it is, a wait that has no bound given one, a hundred apps made fewer or cheaper if their
+    cost is the runner's, and the test script says in its summary, when a part is lost, the test it
+    was in and the time each test took, so the next such run reads itself. The job's limits stay as
+    measured, 100 on a push and 180 on the pack run, since the suite that runs through fits them.
+    Settled at three Windows suites in a row under 60 minutes after the mend.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -2882,6 +2943,17 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
     resource belongs, the gamepad example's controller first (item 31). The voxel game takes the
     cascades' mends through the engine's packages, after the engine's commits. Decision 39 stands
     lifted (Decision 42), and the verdicts open are mended as they come.
+
+45. **The README's centered parts are markdown inside a centering block, since nuget.org draws a
+    README without its HTML.** The owner wrote at 20:47 on 2026-10-19, having uploaded the packages
+    to nuget.org, that the README's centered elements need not be HTML: a centering block, `<div
+    align="center">`, holding plain markdown, the heading, the text and the banners, with a blank
+    line after the opening tag and before the closing one so the markdown inside is rendered,
+    centers on GitHub, and on nuget.org, which draws a package's README without its HTML and shows
+    such blocks as their source, the content stands as markdown; the tables of pictures stay HTML,
+    since a markdown table cannot size its pictures, unless the script that writes them makes
+    thumbnails at the shown width, which is measured on GitHub and nuget.org before it is taken. The
+    README is the package's, so what nuget.org draws is what a reader of the package sees.
 
 ## Replies
 

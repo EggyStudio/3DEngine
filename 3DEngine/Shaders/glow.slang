@@ -259,6 +259,42 @@ public bool glowLightOn(GlowLight light, float3 p, float3 n, float margin)
     return at < margin && glowLightDistance(light, p + n * margin) >= at + margin * 0.5;
 }
 
+// Whether a ray along `way` that met the field at p passed through a glow light's box within
+// `within` before it, as a ray passes a light thinner than a cell, which the field holds about its
+// middle, and meets the wall behind it, where the light reaches it from no distance. A path-traced
+// reference's path stops at the light and leaves out its emission there, since the light reaches
+// every surface as a light of its own (GlowLights), counted at the surface, and a path that went on
+// through it would count it again, so such a hit takes none of that light. A ray through the strip
+// 0.06 thick of shaders_bounce_rooms met the wall 0.02 behind it and brought a texel of each of the
+// two probes beside the strip 3.7 of light, their faces toward it 211 and 206% over the reference
+// at the first bounce on the development machine's GPU, where with this test they read 7 and 10%
+// over. Leaving out any light whose box lay within half a cell behind a hit also took the light
+// around the strip from rays that never passed it, and its room read 17% under where this test read
+// it 14%, both before glowMarch's cone.
+public bool glowLightPassed(GlowLight light, float3 p, float3 way, float within)
+{
+    float3 offset = p - light.middleAndReach.xyz;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    float enter = 0.0, leave = within;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float side = halves[k].w;
+        float3 axis = halves[k].xyz / max(side, 1e-6);
+        float o = dot(offset, axis), d = -dot(way, axis);
+        if (abs(d) < 1e-6)
+        {
+            if (abs(o) > side)
+                return false;
+            continue;
+        }
+        float t0 = (-side - o) / d, t1 = (side - o) / d;
+        enter = max(enter, min(t0, t1));
+        leave = min(leave, max(t0, t1));
+    }
+    return enter <= leave;
+}
+
 // How far q lies from a glow light's box, 0 inside it.
 public float glowLightDistance(GlowLight light, float3 q)
 {

@@ -2129,23 +2129,23 @@ most from frame to frame, and when the field stamps the carried lamp's room's mo
 comes to its settled light over two frames, 18.8% and then 3.8% of its mean light at the 99th part,
 where in one, 17.9% and then 0.3% (`gi.compare`, BounceRoomsTests, `gi.probe`).
 
-**The strip's room, read on 2026-10-19.** The two world probes beside the strip read their faces
-204 to 209% over the reference at the first bounce, nearly all of it one texel's own rays and none
-of it the cascade above's. A probe's ray passes through the strip, 0.06 thick, which the field holds
-about its middle, and meets the wall 0.02 behind it, which the strip lights from no distance, where
-a path-traced reference's path stops at the strip and leaves its emission out, the strip reaching
+**The strip's room, read on 2026-10-19.** The two world probes beside the strip read their faces 204
+to 209% over the reference at the first bounce, nearly all of it one texel's own rays and none of it
+the cascade above's. A probe's ray passes through the strip, 0.06 thick, which the field holds about
+its middle, and meets the wall 0.02 behind it, which the strip lights from no distance, where a
+path-traced reference's path stops at the strip and leaves its emission out, the strip reaching
 surfaces as a light of its own (`GlowLights`). The Cornell box's pocket carries an excess at the
 first bounce of another kind, the merge's parallax, the probe above that carries most of one way's
 weight standing 1.28 off and meeting the ceiling 1.6 from the lamp, where the pocket's own way meets
 it 2.7 from the lamp and a quarter as bright. A hit given none of a light whose box its ray passed
-through within a cell before it, a slab test cast back along the ray, takes the strip's probes to 5
-and 9% over at the first bounce and leaves the strip's room 14% under its reference, where it read
-level, so it was set aside. The light the strip gives a hit reads 28% under at the floor, 30% at the
-ceiling and 38 to 39% directly above and below the strip, against the strip's light in closed form,
-Lambert's over its six faces. The march that tells how much of a glow light a hit sees
+through within a cell before it, a slab test cast back along the ray (`glowLightPassed`), takes the
+strip's probes to 5 and 9% over at the first bounce and leaves the strip's room 14% under its
+reference, where it read level. The light the strip gives a hit reads 28% under at the floor, 30% at
+the ceiling and 38 to 39% directly above and below the strip, against the strip's light in closed
+form, Lambert's over its six faces. The march that tells how much of a glow light a hit sees
 (`glowLightSeen`) runs from the hit to the box's middle against a cone as wide as the box's mean
-half side, 0.35 for the strip, and from above or below the strip it runs along the wall the strip
-is mounted on within a cell, the wall inside the cone taken for something between. A cone as wide as
+half side, 0.35 for the strip, and from above or below the strip it runs along the wall the strip is
+mounted on within a cell, the wall inside the cone taken for something between. A cone as wide as
 the box across the way toward the surface each step passes, its support along the field's normal
 there, 0.03 toward the strip's wall and 0.5 for a cube toward a face, takes the floor to the closed
 form, the ceiling to 10% under and the side walls to 10 and 21%, a few hits in the ceiling's back
@@ -2160,7 +2160,13 @@ differences' six took them to 10, 10 and 21%, the rays from the back wall's scre
 the ceiling right over the strip to 4% under where 35% (`BounceRoomsTests`), and the strip's view
 within 0.001 of the six's. Global illumination costs 1.64 to 1.68 ms where 1.49 to 1.50 at `High`
 and 1.51 to 1.52 where 1.28 at `Low` in the Cornell box, and 1.29 to 1.30 where 1.24 and 1.17 to
-1.18 where 1.11 to 1.15 in the strip's room, as with six reads.
+1.18 where 1.11 to 1.15 in the strip's room, as with six reads. On `fb1d1f95`, with the cone, the
+slab test takes the two probes' faces toward the strip to 7 and 10% over at the first bounce where
+211 and 206%, and past it to 17 and 23% under where 14 and 7% over, and the strip's view to 0.234,
+0.245 and 0.244 at 160 by 90 where 0.222, 0.216 and 0.212, and to 0.130 and 0.136 at `Low` and
+`High` at 800 by 450 where 0.109. Every other view reads as it did but the emissive blocks' room at
+`High` at 800 by 450, 0.0213 where 0.0209 over blocks of 4 pixels, one block's lit side 0.4% darker
+where a screen probe's rays cross a neighbor's box.
 
 That term is the light the strip puts on the wall it is mounted on, which lies within a fifth of a
 unit of the strip. The wall takes 7.8 of the strip's light half a hundredth above it, 0.8 a fifth

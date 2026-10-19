@@ -575,6 +575,13 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // cell of its box (glowLightOn). Where the field does not hold p, every light unhidden.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves)
 {
+    return glowLightsAt(field, info, lights, p, n, marches, halves, float3(0.0));
+}
+
+// The same at a probe's ray's hit, the ray along `way`, a light the ray passed through right before
+// it met the field giving the hit none of its light (glowLightPassed).
+public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way)
+{
     int count = min(int(lights.glowCounts.x), MostGlowLights);
     float cell = fieldCell(info, p);
     float margin = max(cell, 0.0) * 0.5;
@@ -588,7 +595,7 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
     {
         GlowLight light = lights.glows[i];
         float faded = glowLightFade(light, p, n);
-        if (faded <= 0.0)
+        if (faded <= 0.0 || (dot(way, way) > 0.0 && glowLightPassed(light, p, way, 2.0 * margin)))
             continue;
         float3 arrived = glowLightIrradiance(light, p, n, margin) * faded;
         unhidden += arrived;
@@ -638,13 +645,13 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // sun, the lights and the two brightest glow lights, with its emission but a glow light's, which a
 // world probe weighs the frame before's light by (gi_ambient.slang).
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces, V glow, GiLights lights,
-    V cubes, V reach, float3 p, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
+    V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
-    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false) / Pi)
+    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }
