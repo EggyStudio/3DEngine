@@ -1826,6 +1826,38 @@ what the hemisphere holds unevenly, the reference along them 22% over its whole 
 front, 26% under on the back wall, 21% under on the carried lamp's room's floor before the moved
 wall and 46% over on its far wall, and the window's filter blends tiles of the same ways.
 
+**The screen probes' sixteen ways, read on 2026-10-19.** A screen probe's ways are set by its normal
+alone, so every probe on a floor sends the same sixteen and the window's filter blends like with
+like. Over fourteen probes in the Cornell box and the carried lamp's room at 300 frames, the
+reference along a probe's ways lies from 39% under to 149% over the reference across its hemisphere,
+the Cornell box's floor furthest, and the probe's own light from 33% under to 46% over, its rays'
+reads erring as often the other way, since the light from beyond a ray is a texel's and not its
+way's (`gi.screenprobe`). Four mends were measured and none kept, by the small block's front, the
+back corner against the wall 50 pixels in and the whole frame in the Cornell box, 1.39, 0.68 and
+1.005 of the reference before, and by the far wall's patches, its level and the whole frame in the
+carried lamp's room, 0.82 to 1.13, 0.99 and 0.978 before (`gi.compare` at 800 by 450). The ways
+turned each frame among sixteen places in their texels, each tile a step of its own, read 1.21, 0.67
+and 1.016, and 0.90 to 1.10, 0.89 and 0.968, but the 99th part of a still view's pixels changed by
+1.7 to 4.4% of its mean light from one frame to the next and some by 10 to 31%, where with the ways
+still they change by 0.04% at most. Turned for each tile and held, sixteen places laid so that every
+four tiles by four hold each once, they read 1.20, 0.64 and 1.016, and 0.89 to 1.07, 0.90 and 0.968,
+a still view as calm as before, but at the 160 by 90 of the bounce rooms test the views moved from
+their references, the thin walls' by 0.020 to 0.029 of their light, the strip's by 0.011 to 0.039,
+the grazing floor's by up to 0.023 and the window's by up to 0.021, five of the test's bounds passed
+by 0.001 to 0.024, and the wick's reference frame differed in 3.2% of its pixels where 2% are
+allowed; four places laid two by two read 1.22 and 0.67, and 0.91 to 1.09 and 0.90, and moved the
+strip's view by 0.110 and the thin walls' by up to 0.039. Thirty-six ways where sixteen read 1.22,
+0.66 and 1.012, and 0.93 to 1.05, 0.92 and 0.973, as calm, at a cost to global illumination of 2.43
+ms where 1.43 in the Cornell box and 1.70 where 1.09 in the carried lamp's room on the development
+machine's GPU (`./e3d command profile`, the frames unlimited). Under every mend the far wall's level
+falls to 0.89 to 0.92 of the reference, the sixteen ways' reading over it having covered its rays'
+reading under it, among them rays that pass behind the thin green wall near its end within the
+depth's thickness, which the screen's march counts as meeting the face the eye sees, dark, where the
+reference meets the lit floor and wall beyond, a fault of the march's thickness. The ways turned for
+each tile and the thirty-six are the candidates to measure again once the screen's hits behind thin
+walls, the corner's color and the light past the first bounce in its angle (b), the pocket's (c) and
+the wall's foot (d) are mended.
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's

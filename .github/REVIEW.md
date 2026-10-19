@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9b37e326`, item 30's sampling mend and nothing else, 11 files. The first cascade
+Reviewed up to `b4543ab5`, item 30's corner mend and nothing else, 7 files. Read first, the second
+cascade's probe above the tall block is sound in itself, every way 10 percent over the reference and
+its faces 0 to 23 over, 182 of its 233 hits met before its interval began; the corner's screen probe
+read 86 percent over its hemisphere, nine rays past their reach carrying most of it and three ending
+1.2 out at three to four times their cells, and around those ends the one probe in the room outside
+the block is the one above it, whose texels along those ways hold the block's lamp-lit top and the
+ceiling under the lamp, met before its interval, which the corner's rays never pass. The cause is
+that screen rays past the first cascade went half as far, 1.2, inside the range the second cascade's
+probes mark as early, a halving from the time a closed room near the field's side took five times
+the sky's light it should, before the light beyond was read at a ray's end. The mend sends screen
+rays the full twice the first cascade's spacing, 2.4, wherever they end. Measured in the Cornell box
+at 300 frames, the corner's screen probe fell from 86 percent over its hemisphere to 5, the corner
+fifty pixels in from 0.77 of the reference to 0.68 against 0.60, the whole frame from 1.032 to
+1.005, the block's front and the carried lamp's room unchanged, the closed room keeping 0.0004 of
+the sky at High and 0.0003 at Low against 0.0003 before, and the illumination pass 1.39 to 1.43 ms
+on the GPU with lavapipe's within its noise. A bounce room test holds the corner's probe within 25
+percent of its hemisphere, failing before the mend at 86, the beyond test's comment giving that
+probe's rays past their reach at 22 under, still out of that test; (b)'s picture is retaken as
+before, after and reference at half the light and the Cornell capture retaken, having moved a level.
+What remains at (b) is said in RENDERING.md, the corner probe's hits on the red wall near the back
+wall at 120 to 139 percent over their cells, carrying green the field's color blends from the white
+wall within its cells and the light past the first bounce in that concave corner at twice the
+reference's. Checked were the strict build, the whole suite, 1,728 passed, all 433 rendering tests
+on the GPU, and the illumination, cascade edge, reference frame, bounce and glow tests on lavapipe
+under the required layer. Right. Next the sampling term's readings recorded in RENDERING.md with no
+mend, read on 2026-10-19 and said under item 30; a pack run for the game's package; and the screen
+hits behind thin walls, then what remains of (b), (c) and (d).
+
+Before it, `9b37e326` came, item 30's sampling mend and nothing else, 11 files. The first cascade
 sends four rays along each of its directions, one thread a ray with a texel's four in neighboring
 threads of a workgroup and the first combining them through group memory, the texel's light the
 light of those that met a surface or the sky over four, its mark keeping the old bands so every
@@ -60,32 +88,6 @@ green one in a row with Verdict 70's mend, which settles it, so no verdict is op
 suite was still running. The push run ended whole green at 04:59, its Windows suite with the leak
 tests' mends and the games played. Next a pack run for the game's package, the sampling mend with
 two rays a texel, and the corner's probe.
-
-Before it, `33018b8b` came, item 30's beyond term and nothing else, 9 files. The screen probes read
-the light beyond their rays around where each ray ended, a world probe counting where its reach
-covers a point the ray passed half a spacing before its end with a quarter spacing's slack, an
-unseen probe keeping no weight unless none is seen, and an end past both cascades falling back to
-the probes around the start leaned off the surface, the eight probe marches a screen probe gone; the
-screen march hands the field a ray still behind the depth at its end and a ray leaving the picture
-at its last point on it, which the reflections share. Measured at 800 by 450, the Cornell box at 300
-frames and the carried lamp's room at the item's frame, the block front's rays past their reach fell
-from 97 percent over their cells to 3, the far wall's level rose from 0.84 of the reference to 1.00
-with its patches 0.85 to 1.12 of their mean unmended, the room's frame moved from 0.944 to 0.989 and
-the box's from 1.064 to 1.033, the two faces unmoved at 1.65 and 0.77, and the illumination pass
-with the frames unlimited went from 1.10 to 1.29 ms in the box and 0.97 to 0.96 in the room, the
-scene pass unchanged. RENDERING.md says (b), (c) and (e) each with what remains and the sampling
-figures in the instrument's paragraph, (e)'s picture retaken as before, after and reference, the
-captures of the Cornell box and the bounce rooms retaken, having moved 2 to 3 and 6 levels on
-average, the reflections' unmoved; a bounce room test holds the rays past their reach within 15
-percent of their cells at the block front and the far wall, the corner left out with its reason, and
-the slab test's tint bound widens from 2 to 3 percent at 1.212 against 1.240 with the measurement in
-its comment. Checked were the strict build, the whole suite, 1,726 passed, all 432 rendering tests
-on the GPU, and the illumination, cascade edge, reference frame, bounce and glow tests on lavapipe
-under the required layer. Right. Next the pocket's term, `gi.probe` first extended to name the ways
-that carry a face's excess, the merged texel, whether its ray met a surface or took the cascade
-above, and the reference, so the upward face's excess is placed in its own hits or the merge; the
-owner's push of the ten commits since `a12206af` and a pack run; and Verdict 70's third green macOS
-suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1309,8 +1311,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     1.39 and the corner unmoved at 0.77, at a tenth of a millisecond more of the pass on the GPU;
     the figures said of Ore's pass on lavapipe came from timestamps that claim more than the frame
     and are not trusted, the box's pass there going 87 to 100 ms and Ore's frame 249 ms either way.
-    Next the corner's second-cascade probe over the tall block, then what remains of (b), (c), (d)
-    and (e).
+    The corner's mend done at `b4543ab5` on 2026-10-19, screen rays past the first cascade sent the
+    full 2.4 as those within it, the corner's screen probe from 86 percent over its hemisphere to 5
+    and the corner from 0.77 of the reference to 0.68 against 0.60, held by a test, at 0.04 ms of
+    the pass; what remains at (b) is the field's color blending the white wall into the red near the
+    back wall and the light past the first bounce in the concave corner, said in RENDERING.md. The
+    sampling term read on 2026-10-19 with the screen probe instrument at fourteen probes, the
+    reference along a probe's sixteen fixed ways 39 percent under to 149 over the hemisphere, worst
+    on the Cornell floor, the probes' own light 33 under to 46 over, often the other way since light
+    past their reach is a texel's average, every floor probe sharing one set of ways since the frame
+    comes from the normal, so the filter blends like with like and averages none of it away. Four
+    mends tried, the ways turned per frame among sixteen places, which makes a still view shimmer by
+    2 to 4 percent of its pixels' value a frame; turned per tile over four by four places, and over
+    two by two, calm, the Cornell front 1.39 to 1.20 and the corner to 0.64, and at the bounce
+    rooms' 160 by 90 views 2 and 6, the thin walls and the strip, move against their references by
+    up to 0.04, five tests off by up to 0.024 and the wick frame apart in 3.2 percent of pixels; and
+    thirty-six ways where sixteen, calm, the front 1.22, the pass 1.43 to 2.43 ms. Each gains in the
+    Cornell box and each takes the far wall of the carried lamp's room from 0.99 of the reference to
+    0.89 or 0.92, where the fixed ways' overread had covered the screen hits landing at 1.3 on the
+    thin green wall's dark side while the reference sees the lit side behind it, a thickness fault
+    of the screen hits. The reviewer's choice is no mend of the sampling term, since a term whose
+    bias covers another fault's cannot be measured until that fault is mended, and widening five
+    tests' bounds for a view moved by a mend is not N 3.5's measurement. The readings and the four
+    mends' figures go into RENDERING.md in one commit with no shader change, and the order goes on
+    to the screen hits behind thin walls, (e)'s level, then (b)'s color blend and concave term,
+    (c)'s light past the first bounce and (d), the sampling term measured again after them with the
+    tiled ways and the thirty-six as its candidates.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
