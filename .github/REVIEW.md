@@ -10,11 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ed089e37`, Verdict 73's mend, and `1e89515c` before it, item 30's part (j), with the
-review's commits between. Verdict 73, the test alone: the scene reference reads a file's time fresh
-at each placing and its reload check asks at most twice a second by a static timer across every
-world in the process, run before the spawn passes, so when the check falls in the step after the
-write it respawns the first two copies from the new version and the third shares their new mesh,
+Reviewed up to `a7c2da8b`, item 30's part (h) and nothing else, with the review's commit between.
+Read in the game's copy at night with the screen probes off: the game leaves the stone's faces
+against a lamp block out of its section's mesh and draws the lamp apart as a cube, so the stone
+cells beside the lamp, in the wall's slab and the floor under it, read as the open in front of the
+cube's faces, as far outside as they lie inside; the corner probe's spot reads inside by a tenth,
+its gradient points into that stone, and the placing moved it there, where 21 of its 64 rays met
+faces from behind and 42 in front, so the majority did not wall it in. The mend judges the moved
+spot by the rays that leave it, a probe more than a quarter of whose rays meet faces from behind
+walled in, the share the other probe method takes, beside the majority rule, since at that corner
+the field it would be kept out by is the faulty one; in the game it walls in three probes the
+majority did not, all in solids, and in the bounce rooms none, every view at 160 by 90 reading as
+before to the last digit and the frames at 800 by 450 matching to the third. Judged: the warm patch
+on the grass at the wall's foot from 5.8 times the reference's light to 1.42, the grass beside it at
+1.38, its red over green from 1.21 to 0.37 where the reference has 0.36; with the screen probes on
+the owner's smudge goes with it, red over green from 0.71 to 0.56 against 0.57 and the light from 77
+to 46 percent over, which matches that dark corner; the probe's faces from 340 to 2,450 percent over
+to nothing, lying inside a mesh, the probes outside the wall as before; inside the room against a
+512-path reference the same before and after, and still frames equally calm. A test builds a
+section-like stone mesh that culls its faces against a lamp block drawn apart as an emissive cube
+with the corner at a probe's spot, the probe moved and holding light on the head and walled in with
+the mend, passing on lavapipe at Low. The field's own fault, the stone's faces against a lamp left
+out of the game's mesh, stands apart as the game's, its item 15. RENDERING.md records it; checked
+were the strict build, the suite, 1,738, and lavapipe under the required layer, 79 passed and 10
+skipped. Right. Next item 36, the sampling term's candidates with (g), the band and the grazing
+ceiling's rays, Verdict 72, item 35, the parallax and (c).
+
+Before it, `ed089e37` came, Verdict 73's mend, and `1e89515c` before it, item 30's part (j), with
+the review's commits between. Verdict 73, the test alone: the scene reference reads a file's time
+fresh at each placing and its reload check asks at most twice a second by a static timer across
+every world in the process, run before the spawn passes, so when the check falls in the step after
+the write it respawns the first two copies from the new version and the third shares their new mesh,
 which the old assertion, comparing the third with the first as it then is, took for a shared old
 mesh, and when the check does not fall there it passes, which fits one runner of two and reproduced
 here with 0.6 seconds between the last check and the step; the test keeps the first copy's mesh from
@@ -67,32 +93,6 @@ the same commit had its Linux, macOS and examples green with Windows in its 40th
 72's figure to come. The next pack run with publish on comes after Verdict 73's mend. Next (j)'s
 mend, Verdict 73, (h)'s mend, item 36, the sampling term's candidates with (g) and the band, Verdict
 72, item 35, the parallax and (c).
-
-Before it, `c9e1a5ac` came, item 37, and `4af3cdde` before it, item 38, with the review's commits
-between. Item 38: the pack job takes the identity token's write permission beside its read of the
-contents, in the job alone, a step with the feed's login action and the user `EggyStudio` right
-before the push answers a key that lasts an hour, the push of both packages takes it where it took
-the secret, and the input's description, the head comment and BUILDING.md say the run publishes
-through the policy with its values and needs no secret, nothing naming the secret any more; the YAML
-parses and the run is its proof. Item 37: the notes script reads nuget.org's flat index for the
-newest version of the minor in `build/version.txt`, as a number, takes the commit from that
-version's nuspec and writes the commits after it, newest first, a sentence a line with the rule
-against naming who decided kept, falling back to the minor's where the feed answers nothing, lists
-no version of the minor, gives no nuspec or names a commit the checkout lacks, its first line saying
-which commit the notes start after and why where it fell back, which the pack script prints and adds
-to the run's summary; on the feed today it starts after `33fd0804`, 15 lines where the minor's would
-be 105; the test runs it on a scratch history with a feed given as a folder, the newest package's
-commit and the three fallbacks with their reasons, in the script tests' file, which N 1.4's list
-has, since a new file under that folder failed the rule. Checked were the strict build and the
-suite, 1,735 passed with the one failure of N 1.4 before the move and the test and the norm tests
-passing after it. The review's own commits reach the notes, the first line today being the review's
-record of `7fe22abc`, so item 37 widens by one rule, a commit whose every file lies under `.github/`
-left out since the package carries nothing from there, which takes the review's and the workflows'
-commits by what they touch, the README, the guides, the license and the notices staying in; it comes
-in a small commit before (j), and the reviewer starts the pack run with publish on right after it,
-the first package published through the policy carrying notes of the engine alone. Right. Next that
-commit and the pack run, then (j) and (h) read, item 36, the sampling term's candidates with (g) and
-the band, Verdict 72, item 35, the parallax and (c).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1759,7 +1759,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     parallax and (c). (j) done at `1e89515c` on 2026-10-20, a face met from behind passed as the
     depth is, the green over the edge from 0.973 to 0.829 against 0.736 on the back wall, held by a
     test, three views at 160 by 90 wider within their bounds and the grazing ceiling's four rays met
-    on their own ceiling uncovered as the sampling term's. Next (h)'s mend.
+    on their own ceiling uncovered as the sampling term's. (h) done at `a7c2da8b` on 2026-10-20, a
+    moved probe walled in where more than a quarter of its rays meet faces from behind, the warm
+    patch on the grass from 5.8 times the reference to 1.42 and the owner's smudge with it, held by
+    a test; the game's mesh leaving out the stone's faces against a lamp is the game's item 15. Next
+    item 36, the sampling term's candidates with (g), the band and the grazing ceiling's rays,
+    Verdict 72, item 35, the parallax and (c).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
