@@ -730,11 +730,25 @@ there traces through the rock to the backs of the faces around it. In the voxel 
 cascade's probes deep in a mountain held the sky they found past the field's side and the grass they
 met from below. A ray that stops half a cell or more behind a face came on it from behind, having
 stepped from such a cell straight into the cells behind it, and the trace marks its distance below
-zero; a probe whose rays met more faces from behind than from in front is passed over as one inside
-a mesh from the next frame, its rays traced all the same so it is found again, as DDGI finds its
-probes inside geometry by the share of rays that met back faces. The rooms read their references as
-before to the fourth place, and global illumination costs 0.02 ms more in `shaders_bounce_rooms`,
-1.47 where 1.45. A ray of the last cascade that meets nothing brings the sky's light marked a
+zero; a probe whose rays met more faces from behind than from in front, or more than a quarter of
+them from behind, the share DDGI takes, is passed over as one inside a mesh from the next frame, its
+rays traced all the same so it is found again, as DDGI finds its probes inside geometry by the share
+of rays that met back faces. The rooms read their references as before to the fourth place, and
+global illumination costs 0.02 ms more in `shaders_bounce_rooms`, 1.47 where 1.45. The voxel game
+leaves a section's faces against a lamp block out of its mesh and draws the lamp apart as a cube, so
+the field reads the stone beside the lamp as the open in front of the lamp's faces, its cells as far
+outside as they lie inside, up to 0.64, and a probe whose spot was the corner of a wall, a floor and
+a lamp against them was moved 0.30 into the stone, its rays meeting 21 faces from behind of 64 and
+42 in front. At night it held the lamp's light 340 to 2450% over the reference across its faces, and
+the grass outside the wall took it, 5.8 times the reference's light on the grass by the wall's foot
+with the screen's probes off, red over green 1.21 where 0.36, and with them on red over green 0.71
+at the wall's foot where 0.57. Walled in by the quarter, it holds nothing, and the grass reads 1.42
+times the reference as the grass beside it does, 1.38, red over green 0.37, and 0.56 at the wall's
+foot. Of the four cascades' probes the quarter walls in three the majority did not, this one and two
+inside the ground under the grass, 19 of 64 from behind and 20 in front, and none in
+`shaders_bounce_rooms`, whose views read as before to the last place at 160 by 90
+(`GlobalIlluminationTests`).
+A ray of the last cascade that meets nothing brings the sky's light marked a
 quarter in its alpha, which the merge reads as it reads a ray that met a surface, and each merged
 texel carries the share of it that reached the sky in an image of its own, 1 for a ray of the last
 cascade that met nothing and the cascade above's blended where a ray met nothing, which the gather

@@ -112,7 +112,12 @@ void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
 // tunnel held the sky they found past the field's side and the grass they met from below, which
 // any surface reading them would take. A probe in the open meets faces from in front, those past
 // its interval none. As DDGI finds its probes inside geometry by the share of rays that met back
-// faces, a probe whose rays met more faces from behind is passed over until it meets fewer.
+// faces, a probe whose rays met more faces from behind, or more than a quarter of them so, the
+// share DDGI takes, is passed over until it meets fewer. In the voxel game the stone's faces
+// against a lamp block are left out of its section's mesh, so the field reads the stone beside the
+// lamp as the open in front of the lamp's faces, and a probe whose spot was the corner of a wall, a
+// floor and a lamp against them was moved into the stone, its rays meeting 21 faces from behind of
+// 64 and 42 in front, and lent the grass outside the wall the lamp's light.
 bool walledIn(uint3 at, uint texels)
 {
     uint backs = 0u, fronts = 0u;
@@ -125,7 +130,7 @@ bool walledIn(uint3 at, uint texels)
             else if (d > 0.0 && d < push.interval.x * 0.999)
                 fronts++;
         }
-    return backs > fronts;
+    return backs > fronts || 4u * backs > texels * texels;
 }
 
 [shader("compute")]
