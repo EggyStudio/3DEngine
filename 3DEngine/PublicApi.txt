@@ -1211,6 +1211,7 @@ static class Engine.E3D
   static void SetRandomSeed(uint seed)
   static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
   static void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1)
+  static void SetShaderKeepsPositions(Shader shader, bool keepsPositions)
   static void SetShaderValue(Shader shader, int location, int value)
   static void SetShaderValue(Shader shader, int slot, Vector2 value)
   static void SetShaderValue(Shader shader, int slot, Vector3 value)

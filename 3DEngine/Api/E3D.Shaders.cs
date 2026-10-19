@@ -77,6 +77,26 @@ public static partial class E3D
     /// <summary>Whether <paramref name="shader"/> is loaded.</summary>
     public static bool IsShaderValid(Shader shader) => shader.IsValid && Res<ShaderStore>().Get(shader.Id) is not null;
 
+    /// <summary>
+    /// Says whether a model shader's vertex stage keeps its mesh's positions where the instance
+    /// places them, so a mesh drawn with it is left out of each pass that cannot see the mesh's
+    /// box, as a mesh drawn with the model pass's own shader is.
+    /// </summary>
+    /// <remarks>
+    /// A mesh drawn with a shader of the program's own is drawn whole in every pass by default, the
+    /// camera's, the depth's, each shadow cascade's and the lights', since its vertex stage may move
+    /// the vertices past the mesh's box, as grass in the wind does. A stage that reads the positions
+    /// as they are and unpacks only what else a vertex carries, as a voxel world's chunk shader
+    /// does, keeps them, and its chunks out of a cascade's box are then not drawn into it. Said of a
+    /// stage that moves vertices, a mesh whose box a pass cannot see is left out of it while its
+    /// moved vertices would show there.
+    /// </remarks>
+    public static void SetShaderKeepsPositions(Shader shader, bool keepsPositions)
+    {
+        if (!shader.IsValid) return;
+        Res<ShaderStore>().SetKeepsPositions(shader.Id, keepsPositions);
+    }
+
     /// <summary>Frees a shader. Drawing with it afterward uses the engine's own.</summary>
     public static void UnloadShader(Shader shader)
     {

@@ -2758,7 +2758,8 @@ The largest costs as they were measured, in order, each with what changed:
    poses, and a batch of plain draws is in blocks of 64 as a group is, each around its draws' boxes
    placed by their world matrices (Arvo), so a section of blocks keeps a box as tight as its own. A
    batch with a shader of the program's own is not, since its vertex stage may move what it draws
-   past the box. Each pass makes its planes once for the matrix it draws through and passes over a
+   past the box, unless the program says the stage keeps the positions (`SetShaderKeepsPositions`).
+   Each pass makes its planes once for the matrix it draws through and passes over a
    batch it sees none of before binding its buffers, and a light's pass adds its near and far
    planes, which item 6 left out. The shadow shader writes the position as the light's matrix gives
    it and no pipeline clamps depth, so a block past either is clipped whole whether drawn or not,
@@ -2769,6 +2770,16 @@ The largest costs as they were measured, in order, each with what changed:
    place of 1.53, and no pixel of the frames moved by more than one level in 255. `models.draws`
    gives the last frame's calls by pass. At six columns the frame went from 14.3 to 8.4 ms and the
    shadows from 6.8 to 1.8.
+   The game's sections came to be drawn with its terrain shader, whose vertex stage unpacks each
+   vertex's normal from its stream and keeps its position, and were drawn whole in every pass again.
+   Said to keep its positions, on the default world at the spawn at noon at 1280 by 720, the frames
+   unlimited, the engine's Debug build, the calls at eight columns went from 2,899 to 886, 631 to
+   225 the camera's, 569 to 223 the depth's and 563, 565 and 571 to 25, 58 and 355 the cascades',
+   the frame from 11.7 and 13.4 ms to 7.6 and 8.6, the GPU's shadows from 3.3 and 3.2 ms to 1.3 and
+   1.2 and the scene from 3.6 and 3.7 to 2.1 and 2.2, and at sixteen columns from 10,352 calls to
+   2,001, the frame from 42.3 and 42.5 ms to 26.4 and 29.7, the shadows from 18.8 to 2.8 and 2.9 ms
+   and the scene from 11.1 to 5.6, two readings each, and no pixel moved by more than one level in
+   255.
 
 ### Beside raylib
 

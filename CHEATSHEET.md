@@ -516,6 +516,7 @@ Shader LoadShader(string fileName);                                  // Compile 
 Shader LoadShaderFromMemory(string code, string name);               // The same from source in memory
 bool IsShaderValid(Shader shader);                                   // Whether it is loaded
 void UnloadShader(Shader shader);                                    // Free it
+void SetShaderKeepsPositions(Shader shader, bool keepsPositions);    // Its vertex stage keeps the positions, so a pass that cannot see the mesh's box leaves it out
 void BeginShaderMode(Shader shader);                                 // Draw shapes, textures and text with it until EndShaderMode
 void EndShaderMode();                                                // Return to the engine's shader
 int GetShaderLocation(Shader shader, string uniformName);            // A uniform declared at the top level, by name (-1 when there is none)

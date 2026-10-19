@@ -88,7 +88,7 @@ internal sealed partial class ModelRenderer
     // it cannot see, unless the batch's shader is the program's own, which may move its vertices
     // past the mesh's box, or the mesh's box is not known, as a skin the GPU poses is not.
     private (IBuffer Ring, ulong Offset) WriteInstances(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<Instance> instanceOf,
-        IReadOnlyList<InstanceGroup> groups)
+        IReadOnlyList<InstanceGroup> groups, ShaderStore? store)
     {
         uint total = 0;
         foreach (var batch in _batches) total += batch.Count;
@@ -105,7 +105,11 @@ internal sealed partial class ModelRenderer
         {
             var batch = _batches[b];
             batch.First = first;
-            var box = batch.Group < 0 && batch.Custom < 0 && batch.Count > 0 ? batch.Mesh.Box : null;
+            // A batch of a shader of the program's own is drawn whole in every pass, since its vertex
+            // stage may move the vertices past the mesh's box, unless the program said the stage
+            // keeps them (SetShaderKeepsPositions).
+            var kept = batch.Custom < 0 || store?.KeepsPositions(draws[batch.Custom].Shader) == true;
+            var box = batch.Group < 0 && kept && batch.Count > 0 ? batch.Mesh.Box : null;
             batch.BlockStart = _blockCount;
             batch.BlockCount = box is null ? 0 : (int)((batch.Count + BlockSize - 1) / BlockSize);
             _drawBlocks.Add(box is { } around ? (_blockCount, first, around.Min, around.Max) : (-1, 0, default, default));

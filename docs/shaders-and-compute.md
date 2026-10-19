@@ -200,6 +200,14 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 A vertex stage that moves vertices, as grass in the wind does, casts the shadow of its mesh as it
 was before the stage moved it.
 
+A mesh drawn with a shader of the program's own is drawn whole in every pass, the camera's, the
+depth's, each shadow cascade's and the lights', since its vertex stage may move the vertices past
+the mesh's box. A stage that keeps the positions where the instance places them, as one that only
+unpacks a voxel chunk's normals from its stream does, is said so with
+`SetShaderKeepsPositions(shader, true)`, and a mesh drawn with it is then left out of each pass that
+cannot see the mesh's box, as a mesh drawn with the model pass's own shader is, so a chunk outside a
+shadow cascade's box is not drawn into it.
+
 ## A vertex stream of the program's own
 
 A mesh may carry one stream of the program's own beside its position, normal and texture

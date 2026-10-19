@@ -173,4 +173,63 @@ public sealed class ModelShadowTests : IDisposable
         UnloadMesh(floor);
         UnloadMesh(cube);
     }
+
+    [NeedsVulkanFact]
+    public void A_Mesh_Drawn_With_A_Shader_That_Keeps_Its_Positions_Is_Left_Out_Of_A_Cascade_It_Lies_Outside()
+    {
+        // A floor under the camera and a cube drawn with a shader of the program's own far off to the
+        // side, outside the camera's view and the nearest cascade's box, in the farthest cascade's.
+        // Its vertex stage hands the positions on as they are, and once the program says so the
+        // camera's pass and the nearest cascade's leave the cube out, as they would one drawn with the
+        // model pass's own shader.
+        var config = Config.Default.WithWindow("shadow test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.3f, -1, 0.2f)), Color.White, 1, castsShadows: true);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("vertex")]
+            ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0, ModelInstance instance)
+            {
+                return transformModelVertex(position, normal, uv, instance);
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return float4(lit(input.color.rgb, input), 1);
+            }
+            """, "kept.slang");
+        var floor = GenMeshPlane(4, 4, 1, 1);
+        var cube = GenMeshCube(1, 1, 1);
+        var plain = new ModelMaterial(Color.White);
+        var own = new ModelMaterial(Color.White) { Shader = shader };
+        var camera = new Camera3D(new Vector3(0, 4, 3), Vector3.Zero, Vector3.UnitY, 40);
+        Dictionary<string, int> Calls(bool keeps)
+        {
+            SetShaderKeepsPositions(shader, keeps);
+            Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawMesh(floor, plain, Matrix4x4.Identity);
+                DrawMesh(cube, own, Matrix4x4.CreateTranslation(20, 0.5f, 0));
+                EndMode3D();
+            }, keeps ? "kept" : "moved");
+            return GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().CallsByPass.ToDictionary();
+        }
+
+        var moved = Calls(keeps: false);
+        var kept = Calls(keeps: true);
+        string Read(Dictionary<string, int> calls) => string.Join(", ", calls.Select(c => $"{c.Key} {c.Value}"));
+        var nearest = kept.Keys.Where(k => k.StartsWith("cascade", StringComparison.Ordinal)).Order(StringComparer.Ordinal).First();
+        moved.GetValueOrDefault(nearest).Should().Be(2, $"a shader that may move vertices is drawn whole in every pass, {Read(moved)}");
+        kept.GetValueOrDefault(nearest).Should().Be(1, $"the nearest cascade leaves out the cube outside its box, {Read(kept)}");
+        kept.GetValueOrDefault("camera").Should().Be(1, $"the camera's pass leaves out the cube outside its view, {Read(kept)}");
+        kept.Where(c => c.Key.StartsWith("cascade", StringComparison.Ordinal)).Max(c => c.Value)
+            .Should().Be(2, $"the cascade whose box holds the cube draws it, {Read(kept)}");
+        UnloadMesh(floor);
+        UnloadMesh(cube);
+        UnloadShader(shader);
+    }
 }

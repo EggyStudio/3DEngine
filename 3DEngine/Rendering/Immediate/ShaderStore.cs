@@ -28,6 +28,7 @@ internal sealed class ShaderStore
 {
     private readonly object _gate = new();
     private readonly Dictionary<int, ShaderProgram> _live = [];
+    private readonly HashSet<int> _keepsPositions = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
 
@@ -51,12 +52,30 @@ internal sealed class ShaderStore
         lock (_gate) return _live.GetValueOrDefault(id);
     }
 
+    /// <summary>Marks whether a shader's vertex stage keeps its mesh's positions, so its draws are culled by the mesh's box.</summary>
+    public void SetKeepsPositions(int id, bool keeps)
+    {
+        lock (_gate)
+        {
+            if (!_live.ContainsKey(id)) return;
+            if (keeps) _keepsPositions.Add(id);
+            else _keepsPositions.Remove(id);
+        }
+    }
+
+    /// <summary>Whether the program said of a shader that its vertex stage keeps its mesh's positions.</summary>
+    public bool KeepsPositions(int id)
+    {
+        lock (_gate) return _keepsPositions.Contains(id);
+    }
+
     /// <summary>Unloads a shader.</summary>
     public bool Remove(int id)
     {
         lock (_gate)
         {
             if (!_live.Remove(id)) return false;
+            _keepsPositions.Remove(id);
             _removals.Add(id);
             return true;
         }

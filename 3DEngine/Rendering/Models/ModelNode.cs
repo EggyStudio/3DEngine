@@ -528,7 +528,7 @@ internal sealed partial class ModelRenderer : IDisposable
         if (view.Frame != _frames || view.Ring is null)
         {
             GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: true);
-            (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups);
+            (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups, store);
             view.Batches.Clear();
             view.Batches.AddRange(_batches);
             if (view.Blocks.Length < _blockCount) view.Blocks = new Block[Math.Max(_blockCount, view.Blocks.Length * 2)];

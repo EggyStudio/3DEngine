@@ -215,6 +215,10 @@ guide that shows it.
   texture coordinate, as
   [A vertex stream of the program's own](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)
   shows.
+- **A shader that keeps its positions.** `SetShaderKeepsPositions` says a model shader's vertex
+  stage keeps its mesh's positions, so a mesh drawn with it is left out of each pass that cannot
+  see the mesh's box, the camera's and each shadow cascade's among them, where it was drawn whole
+  in every pass, as [Moving vertices](shaders-and-compute.md#moving-vertices) shows.
 - **A mesh global illumination leaves out.** `ModelMaterial.BouncesLight`, true by default,
   set false for a mesh that moves in most frames, as a game's animal, which casts its shadows and
   is lit as before while the scene's field and global illumination leave it out, as
