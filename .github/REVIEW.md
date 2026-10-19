@@ -45,7 +45,11 @@ as its own cube, leaving open edges around the lamp's footprint that the field's
 front, which would explain both the probe moved into the stone and its not being found walled in;
 the field's cells and the probe's rays at that corner are read next. Right. Next (h)'s mend, item
 36, the sampling term's candidates with (g), the band and the grazing ceiling's uncovered ways,
-Verdict 72, item 35, the parallax and (c).
+Verdict 72, item 35, the parallax and (c). The pack run with publish on started again at 00:38 as
+39336354745 on `80625742`, the first one cancelled by the reviewer at 00:39 since it could not pack
+and held the queue; its push cancelled the build run of `d2de2766` with its Windows suite in its
+68th minute, so Verdict 72's figure comes from the build run of `80625742`, running with the pack
+run at 00:43.
 
 Before it, `8e3ff67a` came, item 37's rule and nothing else, with the review's commit between. The
 notes script leaves out a commit whose every file lies under `.github/`, judged by the files each
