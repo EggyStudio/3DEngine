@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `03e0bd36`, item 30's part (i) and nothing else, 5 files, a fault of a line in the
+Reviewed up to `7fe22abc`, item 30's part (k) and nothing else, with the review's commits between.
+Read in the ninth room at 800 by 450 against a fresh reference, the floor's corner with the right
+wall carries a line of light dots a texel apart that the reference has not, gone with the screen
+probes off and with the history off and standing with the filter off: the glow lights' pass blends
+each half-size texel's light with what the frame before's texels held at its place, taken by their
+distance from the eye alone, and at a corner the other surface's texels lie as far, so the floor
+took the wall's share of the rough light and multiplied it by its own; a scratch shader turning away
+texels of another normal took the dots out. The mend keeps each texel's normal folded onto the
+octahedron in the state image's two spare channels and takes a texel of the frame before only where
+its normal lies within 60 degrees of the point's, 25 degrees having widened the ninth room's view at
+160 by 90 since a surface two pixels wide takes wavering normals from the depth near its edges; at
+60 every view at 160 by 90 holds to three digits, the ninth room 0.05026, 0.05538 and 0.05904 where
+0.05020, 0.05536 and 0.05905, read to five digits and repeating exactly, every view at 800 by 450
+narrows or holds to five, and the two-by-two blocks 30 percent over the reference along the corners
+go from 17 to 3 on the left and 1,078 to 1,028 on the right, where the reference's own noise fills
+most of the region. A bounce room test reads the right corner in linear light at 800 by 450, the
+brightest of three by three pixels at the corner against the floor and the wall a quarter block off,
+37 percent over on average with 47 of 101 points past 20 on the head's shader and 4 under with 4 of
+101 with the mend; still frames stay calm, the 99th part changing 0.11 to 0.27 percent of the mean
+light frame to frame where 0.00 to 0.13, and the game's stone room at night shows no such line
+either way. Checked were the strict build, the suite, 1,735 of 1,735, and lavapipe under the
+required layer, 55 passed and 9 skipped; RENDERING.md records it. Right. Next items 38 and 37 in
+their own commits, then (j) and (h) read, item 36, the sampling term's candidates with (g) and the
+band, Verdict 72, item 35, the parallax and (c).
+
+Before it, `03e0bd36` came, item 30's part (i) and nothing else, 5 files, a fault of a line in the
 scene field's plan. Read in a transient copy of the game's build on `5.2.92` with the field's
 flicker recorded frame by frame, the blank comes eight frames after the break, when the replacing
 section settles, survives every part of the illumination left out, and shows in the field itself,
@@ -68,36 +93,6 @@ no pack run started; its macOS suite is Verdict 71's third and its Windows suite
 next figure. At 22:00 that run's macOS suite had passed in 21 minutes, the third of three, which
 settles Verdict 71, its Linux suite and examples job were green, and its Windows suite was in its
 38th minute.
-
-Before it, `fb1d1f95` came, item 30's cone in forward differences and nothing else, 4 files, under
-the confirmation of 20:16. The glow march's cone toward a surface a step passes is the box's own
-half-width across the way toward it, its support along the field's slope read with three differences
-where six, the remark giving the old width, the box's mean half side and 0.35 for the strip, why a
-march along a mounted emitter's wall took the wall for something between, the support of 0.03 toward
-the strip's wall and 0.5 for a cube toward a face, the hits before and after, the three reads
-against the six, the ceiling 8 percent under and the side walls 8 and 20 where the six gave 10, 10
-and 21, and the cost. A bounce room test holds the six rays from the probe at the back wall under
-the ceiling that meet the ceiling over the strip against Lambert's closed form over the strip's
-faces within 10 percent, 35.2 under with the head's shader and 3.6 under with the cone; the strip's
-view stays within its old bounds with the cone alone, so the pinning goes with the leak's commit.
-RENDERING.md takes the three reads and the cost against the head, the illumination pass 1.64 to 1.68
-ms where 1.49 at High and 1.51 where 1.28 at Low in the Cornell box and 1.29 where 1.24 and 1.17
-where 1.13 in the strip's room. Checked were the strict build, the suite, 1,733 of 1,733, and
-lavapipe under the required layer, 117 passed and 17 skipped over the glow, field, bounce and pool
-tests among others. Right. Next the leak's commit judged on this head, the strip's test pinned with
-the reason naming the band; item 35; then the sampling term's candidates with the band beside them,
-the parallax, (c); and the owner's push of `132ac219` and `fb1d1f95` with the commits after them. At
-20:57 the push run of `33fd0804` had ended cancelled, its Windows job cut at the job's 100-minute
-limit at 20:50 with its test step in its 98th minute and no summary written, where the pack run's
-Windows job of the same commit ran the suite in 45 minutes and the whole job in 75 (Verdict 72), the
-rest of the push run green. At 21:16 the owner, playing the voxel game on `5.2.92`, saw three things
-of the radiance cascades and said them, item 30's parts (g), (h) and (i): with the screen probes on
-the light looks like depth fighting, light leaks a little, and when a block is broken the indirect
-light goes blank for a frame and comes back with the field's next build; they come after the leak's
-commit and before Verdict 72's reading. At 21:19 the owner added two from the bounce rooms example,
-parts (j) and (k): in the carried lamp's room with the light in its third state and the green wall
-in its second, green blooms over the wall's edge, and in the ninth room the corners carry a light
-border, which happens in many places and comes from the screen probes too.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1732,7 +1727,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     mended and this term is what the owner sees most, the candidates move up. The order: (k), (j)
     and (h) read, then the sampling term's candidates with (g), the band and whatever of the three
     shares the cause, measured by the rule and committed where one holds, then Verdict 72's reading
-    and mend, item 35, the parallax and (c). Next (k).
+    and mend, item 35, the parallax and (c). (k) done at `7fe22abc` the same day, the glow pass's
+    blend with the frame before taking only texels whose normal lies within 60 degrees of the
+    point's, the corner's line of dots gone, held by a test, every view holding or narrowing; it was
+    the glow pass's and none of the three candidates. The order: items 38 and 37, then (j) and (h)
+    read, item 36, the sampling term's candidates with (g) and the band, Verdict 72, item 35, the
+    parallax and (c). Next items 38 and 37.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
