@@ -2129,6 +2129,47 @@ most from frame to frame, and when the field stamps the carried lamp's room's mo
 comes to its settled light over two frames, 18.8% and then 3.8% of its mean light at the 99th part,
 where in one, 17.9% and then 0.3% (`gi.compare`, BounceRoomsTests, `gi.probe`).
 
+**The strip's room, read on 2026-10-19.** The two world probes beside the strip read their faces
+204 to 209% over the reference at the first bounce, nearly all of it one texel's own rays and none
+of it the cascade above's. A probe's ray passes through the strip, 0.06 thick, which the field holds
+about its middle, and meets the wall 0.02 behind it, which the strip lights from no distance, where
+a path-traced reference's path stops at the strip and leaves its emission out, the strip reaching
+surfaces as a light of its own (`GlowLights`). The Cornell box's pocket carries an excess at the
+first bounce of another kind, the merge's parallax, the probe above that carries most of one way's
+weight standing 1.28 off and meeting the ceiling 1.6 from the lamp, where the pocket's own way meets
+it 2.7 from the lamp and a quarter as bright. A hit given none of a light whose box its ray passed
+through within a cell before it, a slab test cast back along the ray, takes the strip's probes to 5
+and 9% over at the first bounce and leaves the strip's room 14% under its reference, where it read
+level, so it was set aside. The light the strip gives a hit reads 28% under at the floor, 30% at the
+ceiling and 38 to 39% directly above and below the strip, against the strip's light in closed form,
+Lambert's over its six faces. The march that tells how much of a glow light a hit sees
+(`glowLightSeen`) runs from the hit to the box's middle against a cone as wide as the box's mean
+half side, 0.35 for the strip, and from above or below the strip it runs along the wall the strip
+is mounted on within a cell, the wall inside the cone taken for something between. A cone as wide as
+the box across the way toward the surface each step passes, its support along the field's normal
+there, 0.03 toward the strip's wall and 0.5 for a cube toward a face, takes the floor to the closed
+form, the ceiling to 10% under and the side walls to 10 and 21%, a few hits in the ceiling's back
+corners staying 35% under. Measured on `33fd0804` against references traced anew at 2048 paths a
+pixel, it moves the strip's view alone, 0.221, 0.216 and 0.212 at `Low`, `Medium` and `High` at 160
+by 90 where 0.216, 0.213 and 0.209, and 0.108 at `Low` and `High` at 800 by 450 where 0.104 and
+0.105, the room 1% over where level, and costs global illumination 0.22 to 0.24 ms in the Cornell
+box and 0.05 to 0.10 in the strip's room, forward differences, three reads of the field a step,
+costing as much as six.
+With both changes the room reads 12 to 13% under, its walls and floor 16 to 17%. The cone is set
+aside with the slab test until the term both uncover is placed.
+
+That term is the light the strip puts on the wall it is mounted on, which lies within a fifth of a
+unit of the strip. The wall takes 7.8 of the strip's light half a hundredth above it, 0.8 a fifth
+above and 0.11 half a unit above, and the floor's probes' four rays a texel, through the same
+middles of its quarters at every probe of a row, meet the wall half a unit above the strip. Along
+the floor probe's two texels toward it the strip's light in closed form averages 0.56 and 0.61,
+0.33 of it within half a cell of the strip and 0.16 more within a fifth, where the four rays bring
+0.08 and 0.11, so the floor's probes nearest the back hold their upward face 40 to 44% under and
+the ceiling's their downward face 24 to 32%. With the strip half a unit off its wall the room reads
+within 2% of its reference with or without either change, its side walls 7 to 8% under, and the
+floor's probe 21% over where 40% under (`gi.screenprobe`, `gi.probe`, `gi.compare`,
+BounceRoomsTests, `./e3d command profile`).
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's
