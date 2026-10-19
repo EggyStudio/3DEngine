@@ -10,13 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ad5d3692`, item 30's probe instrument extended and nothing else, 7 files. `gi.probe`
-lists the eight ways that carry most of the face furthest from the reference, each with where its
-ray went, within its interval, before it began or to the cascade above, the merged light, its own
-ray's light, the reference's and its part of the face against the reference's; the emissive box
-probe test holds it, each of 64 ways' reference within 10 percent of the walls' light and the ways'
-parts summing to the upward face within a tenth of a percent; the command's description, the two
-guides and RENDERING.md's part (c) carry it. Checked were the strict build and the whole suite,
+Reviewed up to `9b37e326`, item 30's sampling mend and nothing else, 11 files. The first cascade
+sends four rays along each of its directions, one thread a ray with a texel's four in neighboring
+threads of a workgroup and the first combining them through group memory, the texel's light the
+light of those that met a surface or the sky over four, its mark keeping the old bands so every
+reader reads it unchanged and its place within the band counting the rays that met nothing in
+sixteenths, the merge adding the light from beyond for that share; `gi.state` counts 256 rays for
+the first cascade, and the slots are out of the tree with their figures and the fill window in
+RENDERING.md's part (c). Measured in the Cornell box at 300 frames, the pocket probe's upward face
+fell from 93 percent over to 18 and its faces from 13 to 93 over to 7 to 24, the block's front from
+1.65 to 1.39 of the reference, reading 0.76 with the screen probes left out where it read 0.96, the
+first cascade's errors there no longer offsetting each other, and the corner stayed at 0.77; a
+bounce room test holds every face of that probe within 30 percent of the reference, failing before
+the mend with faces 13 to 93 over; (c)'s picture is retaken as before, after and reference, the
+bounce rooms' capture retaken by two and a half levels, the Cornell box's and the reflections'
+moving within the encoding's noise. The two held views were placed, the grazing floor's 0.188 having
+belonged to the slots, its figure moving 0.101 to 0.098 at High, and the sun through the window
+rising 3 to 9 percent within its bounds, the four rays catching more of the sun's patch on the
+floor, the floor and the ceiling nearer the reference and the two walls facing it further over. The
+cost on the GPU with the frames unlimited is 1.27 to 1.36 to 1.46 ms of the illumination pass in the
+box and 0.96 to 1.09 to 1.15 in the room, the scene pass unchanged; on lavapipe the box's frame went
+150.5 to 152.5 ms and its pass 87 to 100, Ore's frame 249 either way, and Ore's pass timestamps on
+lavapipe are not trustworthy, claiming more than the frame, so the 145 to 165 ms said of the 256-ray
+option came from them and RENDERING.md gives that option's GPU cost alone. Checked were the strict
+build, the whole suite, 1,727 passed, and the illumination, cascade edge, reference frame, bounce
+and glow tests on lavapipe under the required layer. Right. Next the corner's second-cascade probe
+over the tall block, a pack run for the game's package, and what remains of (b), (c), (d) and (e).
+
+Before it, `ad5d3692` came, item 30's probe instrument extended and nothing else, 7 files.
+`gi.probe` lists the eight ways that carry most of the face furthest from the reference, each with
+where its ray went, within its interval, before it began or to the cascade above, the merged light,
+its own ray's light, the reference's and its part of the face against the reference's; the emissive
+box probe test holds it, each of 64 ways' reference within 10 percent of the walls' light and the
+ways' parts summing to the upward face within a tenth of a percent; the command's description, the
+two guides and RENDERING.md's part (c) carry it. Checked were the strict build and the whole suite,
 1,726 passed, no shader changed. Read with it, the pocket is not a concave-angle effect but the
 sampling term in the world probes: the probe in the angle of the floor and the block has an upward
 face of 3.74 against 2.03, and one way of its 64 carries 2.10 of it against the reference's 0.85,
@@ -59,36 +86,6 @@ that carry a face's excess, the merged texel, whether its ray met a surface or t
 above, and the reference, so the upward face's excess is placed in its own hits or the merge; the
 owner's push of the ten commits since `a12206af` and a pack run; and Verdict 70's third green macOS
 suite.
-
-Before it, `d8b01672` came, item 30's screen probe instrument and nothing else, 11 files.
-`gi.screenprobe <x> <y> [samples] [bounces]` writes the sixteen rays of the screen probe under a
-pixel into a buffer the pass fills for that probe alone, giving for each ray where it was met, on
-the screen, in the field or past its reach, its light and the light of what it met without the
-indirect light, and sets each against the path-traced reference along its exact way and over its
-cell, the texel of the hemisphere the ray stands for, with the screen pass's own unfolding, a
-probe's rays turning with its normal alone so it settles on its sixteen ways and the cells
-separating a fault in a ray's read from a fault in its way; a test inside the closed emissive box
-holds every ray within 13 percent of the reference, every cell within 3, the rays' sum within 1 of
-the probe's light and the probe 5 under; the command-line guide and RENDERING.md say it. Checked
-were the strict build, the whole suite, 1,724 passed, and the illumination, cascade edge, reference
-frame and bounce tests on lavapipe under the required layer. Read with it in the Cornell box at 300
-frames against 256 paths a way, the block front's probe reads 43 percent over along its ways and 52
-over their cells, its eleven rays past their reach 97 over, one toward the upper left 430, its four
-rays meeting the floor before the block 72 to 100 over with the light past the first bounce 0.80 to
-0.86 where the reference has 0.31 to 0.49, and a fifth floor ray lost inside the slab reading 0,
-which darkens; the corner's probe on the back wall, in the second cascade, reads 112 percent over
-its cells, its rays past their reach 116 over, its five hits on the red wall 88 over with the light
-past the first bounce 0.91 to 1.02 where the reference has 0.42 to 0.64, and the three hits near the
-back wall carrying green the field's color blends from the white wall. Two terms are at fault in
-both: the light from beyond reads the world's probes around the ray's start on the surface and not
-around where the ray ended, a probe 1.2 off seeing along the way what the ray passes by; and the
-light past the first bounce at hits in a concave angle reads about twice the reference's, the probes
-blended a lean of the spacing off the surface seeing more of the lit room than the angle does, the
-mechanism named for (d) and (e). Right. Next (b) and (c), the beyond read at the ray's end from the
-probes around that point weighed by how far their rays reached toward it, then the concave-angle
-term measured for what it leaves and (d) and (e) read with both instruments for the same mechanism
-before its mend is chosen, in separate commits where the mends differ; the owner's push of the nine
-commits since `a12206af` and a pack run; and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1306,7 +1303,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and 145 to 165 ms of Ore's on lavapipe; the slots stay out of the tree, their figures kept in
     RENDERING.md as the way to the rest of the bias if the eye asks for it after the corner's term
     is mended, four by four rays being too dear for lavapipe. The grazing floor view's 0.188 is
-    placed before the commit.
+    placed before the commit. The sampling mend done at `9b37e326` on 2026-10-19, four rays a
+    direction in the first cascade taken together, the pocket probe's faces within 30 percent of the
+    reference where its upward face read 93 over, held by a test, the block's front from 1.65 to
+    1.39 and the corner unmoved at 0.77, at a tenth of a millisecond more of the pass on the GPU;
+    the figures said of Ore's pass on lavapipe came from timestamps that claim more than the frame
+    and are not trusted, the box's pass there going 87 to 100 ms and Ore's frame 249 ms either way.
+    Next the corner's second-cascade probe over the tall block, then what remains of (b), (c), (d)
+    and (e).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

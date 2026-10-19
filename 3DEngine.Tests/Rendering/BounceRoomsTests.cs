@@ -167,9 +167,8 @@ public sealed class BounceRoomsTests : IDisposable
     // where they ended, they read 3% over and 5% under, and the far wall's 32% under while a ray
     // that went into the floor before it counted as meeting nothing. The probe on the Cornell box's
     // back wall beside the red wall's corner is left out, its rays past their reach reading the
-    // second cascade, whose probe nearest their ends stands over the tall block, its rays meeting
-    // a surface before their interval began in 182 ways of 233, so it reads 70% over and 116%
-    // around the start.
+    // second cascade, whose probes 2.4 apart hold what they meet nearer than that as met before
+    // their interval began, so they read 22% under, and the probe as a whole is held below.
     [NeedsRayQueryTheory]
     [InlineData(1, 468, 364, 0.15)]
     [InlineData(8, 600, 200, 0.15)]
@@ -239,6 +238,46 @@ public sealed class BounceRoomsTests : IDisposable
         var shares = Enumerable.Range(0, 6).Select(f => Luminance(probe!.Faces[f]) / Luminance(probe.FacesReference[f]) - 1).ToArray();
         var read = string.Join(", ", Enumerable.Range(0, 6).Select(f => $"{names[f]} {shares[f]:+0.00;-0.00}"));
         shares.Should().OnlyContain(share => Math.Abs(share) < 0.3f, $"each face reads the light its texels hold, not a spot under the lamp for a whole texel, {read}");
+    }
+
+    // The screen probe on the Cornell box's back wall beside the red wall's corner in
+    // shaders_bounce_rooms at 800 by 450, which stands in the field's second cascade. Its rays went
+    // 1.2 units, half as far as the first cascade's, and read the light beyond them from the second
+    // cascade's probe over the tall block, which holds the block's lamp-lit top and the ceiling
+    // under the lamp as met before its interval began, so the probe read 86% over the path-traced
+    // reference across its hemisphere on the development machine's GPU. Going 2.4 units, they meet
+    // the ceiling and the block themselves, and it reads 5% over.
+    [NeedsRayQueryFact]
+    public void The_Screen_Probe_In_The_Cornell_Boxs_Back_Corner_Reads_Its_Light_Near_The_Reference()
+    {
+        var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        var world = GetApp().World;
+        GpuScreenProbes? screen = null;
+        const int X = 276, Y = 140;
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            if (frame == SceneFieldPlan.SettleFrames + 80)
+            {
+                screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = Y / screen.Tile * screen.Across + X / screen.Tile;
+            }
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(Rooms.Views[0]);
+            rooms.Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        var probe = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out var why);
+        probe.Should().NotBeNull(why);
+        var report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, X, Y, 256);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        (Luminance(probe!.Light) / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
+            $"the corner's rays reach past the second cascade's near surfaces before they read the light beyond\n{report}");
     }
 
     // The references' folder beside this file.

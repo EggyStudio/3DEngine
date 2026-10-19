@@ -394,6 +394,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 along = cross(n, side);
     float cell = max(fieldCell(fieldInfo, p), 1e-3);
     float3 start = p + n * (cell * 0.5);
+    // How far each ray goes before the light beyond it is read, twice as far as the world's first
+    // cascade's probes are apart wherever it ends. Half as far past the first cascade, as it went
+    // to keep a closed room near the field's side behind the eye from the sky's light, 0.0037 of it
+    // where 0.0007, before the light beyond was read where a ray ends, a probe in the second
+    // cascade, whose probes stand 2.4 units apart and mark what they meet nearer than that as met
+    // before their interval began, read the light beyond 1.2 units out, from the probe over the
+    // Cornell box's tall block for the back corner's rays, its lamp-lit top among it, the corner's
+    // screen probe 86% over the reference across its hemisphere; reaching 2.4 it reads 5% over,
+    // and the closed room keeps 0.0004 of the sky's light at High and 0.0003 at Low, as it did
+    // (gi.screenprobe, CascadeEdgeTests).
     float length = view.trace.x;
     float3 sum = float3(0.0);
     float weights = 0.0;
@@ -418,28 +428,23 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // What the surface sends on without the indirect light, which the screen's probes
             // keep no account of.
             float3 own;
-            // Twice as far as the world's probes are apart where the ray ends in the finest cascade,
-            // and as far as they are apart past it, since nearer the field's side behind the eye the
-            // coarser cascades and the probes beside that side let a closed room there take 0.0037
-            // of the sky's light where it took 0.0007, and 0.0015 so (CascadeEdgeTests).
-            float farthest = fieldCascade(fieldInfo, start + way * length, 1.0) == 0 ? length : length * 0.5;
             float met = 0.0;
-            float3 reached = start + way * farthest;
+            float3 reached = start + way * length;
             own = float3(0.0);
-            if (traceScreen(depth, camera(), start, way, farthest, 12, hit, leftAt))
+            if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
             {
                 light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
                 reached = hit;
             }
             else
             {
-                float t = leftAt < farthest ? traceField(sceneField, fieldInfo, start, way, leftAt, farthest) : -1.0;
+                float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
                 met = t >= 0.0 ? 1.0 : 2.0;
                 if (t >= 0.0)
                     reached = start + way * t;
                 light = t >= 0.0
                     ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
-                    : beyond(start, n, way, farthest, around);
+                    : beyond(start, n, way, length, around);
             }
             sum += light * weight;
             weights += weight;

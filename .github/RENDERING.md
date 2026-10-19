@@ -1699,13 +1699,27 @@ that `gi.compare` writes beside its difference.
   its edges. With the screen probes left out it reads 0.58, so the screen probes lift it, each
   tile's probe standing at its middle, up to 8 pixels off the corner, where more of the room lies
   open to it than to the corner. The world probes alone darken the corner as the reference does and
-  draw faceted shapes along the ceiling's edge (the middle picture, drawn at half the light).
-  Reading the light beyond the screen probes' rays where they end (c) leaves the corner at 0.77, its
-  probe on the back wall reading the second cascade, whose probe nearest its rays' ends stands over
-  the tall block and met a surface before its interval began in 182 of its 233 ways, and its rays
-  meeting the red wall reading the light past the first bounce there twice the reference's. Four
-  rays along each of the first cascade's texels (c) leave it at 0.77 too.
-  ![The Cornell box's back corner, the frame, the frame without the screen probes, and the reference](assets/cascades/cornell-corner.webp)
+  draw faceted shapes along the ceiling's edge. Reading the light beyond the screen probes' rays
+  where they end (c) leaves the corner at 0.77, its probe on the back wall reading the second
+  cascade, whose probe nearest its rays' ends stands over the tall block and met a surface before
+  its interval began in 182 of its 233 ways, and its rays meeting the red wall reading the light
+  past the first bounce there twice the reference's. Four rays along each of the first cascade's
+  texels (c) leave it at 0.77 too. Its probe's rays went 1.2 units, half as far as in the first
+  cascade, as they had since a closed room near the field's side behind the eye took 0.0037 of the
+  sky's light where 0.0007, and read the light beyond from the probe over the tall block, which
+  holds that block's lamp-lit top and the ceiling under the lamp as met before its interval began;
+  going 2.4, the corner's screen probe reads 5% over the reference across its hemisphere where 86%,
+  and the corner 0.68 of the wall 50 pixels in where 0.77, the reference 0.60, while the closed room
+  keeps 0.0004 of the sky's light at `High` and 0.0003 at `Low`, as it did (`gi.screenprobe`,
+  `gi.compare`, CascadeEdgeTests, the pictures, the frame before, the frame now and the reference,
+  at half the light). Global illumination costs 1.43 to 1.44 ms where 1.39 to 1.40 in the Cornell
+  box at 800 by 450 on the development machine's GPU, and alike in the carried lamp's room and on
+  lavapipe (`./e3d command profile`, the frames unlimited). What remains lies in the corner's own
+  surfaces, its screen probe's rays meeting the red wall within 0.2 of the back wall reading 120 to
+  139% over the reference across their ways, their light carrying 0.10 to 0.35 of green where the
+  reference's holds 0.02, the field's color there blending the white wall into the red within its
+  cells of 0.3, and the light past the first bounce there twice the reference's.
+  ![The Cornell box's back corner, the frame before its second cascade's rays went 2.4 units, the frame after, and the reference, at half the light](assets/cascades/cornell-corner.webp)
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
   reference's, lighter at the lower left and darker at the upper right where the reference's face is
@@ -1751,7 +1765,8 @@ that `gi.compare` writes beside its difference.
   box's first-cascade probe reading 0.063 of its walls' light where 1.0 the frame they began to glow
   and then 64% over as its share rose, so those are left out, the way to the rest of the bias once
   the second cascade's term (b) is mended. Where the screen's probes stand in the second cascade,
-  its probes 2.4 apart, no reading around a ray's end holds what the ray sees (b).
+  its probes 2.4 apart, no reading around the end of a ray 1.2 units long holds what the ray sees,
+  which their rays going 2.4 mends (b).
   ![The small block's front, the frame before four rays a texel, the frame after them, and the reference](assets/cascades/cornell-small-block-front.webp)
 - **d. A dark patch at the moved wall's foot.** In the carried lamp's room the floor at the green
   wall's right foot falls by 9% over 50 pixels, from 0.144 to 0.131, where the reference's rises by
