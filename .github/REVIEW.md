@@ -10,7 +10,44 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8e3ff67a`, item 37's rule and nothing else, with the review's commit between. The
+Reviewed up to `ed089e37`, Verdict 73's mend, and `1e89515c` before it, item 30's part (j), with the
+review's commits between. Verdict 73, the test alone: the scene reference reads a file's time fresh
+at each placing and its reload check asks at most twice a second by a static timer across every
+world in the process, run before the spawn passes, so when the check falls in the step after the
+write it respawns the first two copies from the new version and the third shares their new mesh,
+which the old assertion, comparing the third with the first as it then is, took for a shared old
+mesh, and when the check does not fall there it passes, which fits one runner of two and reproduced
+here with 0.6 seconds between the last check and the step; the test keeps the first copy's mesh from
+before the write and holds the third against that, and asserts that the file system gives back the
+time set, so a file system's fault would fail with its own message; the scene reference tests pass
+three runs in a row, the suite 1,737. Part (j): the screen march takes a met surface only where its
+face, from the depth around the hit, turns toward the ray, and a face met from behind is passed as
+the depth is, the ray going on and the field taking it from where it last stood in front; green over
+red left of the wall's edge goes from 0.973 to 0.829 on the back wall against the reference's 0.736
+and from 1.437 to 1.080 on the floor against 0.987, the back wall probe's ray from 1,375 percent
+over to 57 under, met in the field at 2.26, and the floor probe's two from 229 and 401 over to 4 and
+20; at 800 by 450 no view widens past 0.0001 and views narrow by up to 0.0015, the room in (j)'s
+state widening 0.0002 as its floor past the edge goes from 1 to 14 percent under, the green having
+covered what the probes read beyond their rays' reach, 15 to 52 percent under along the back wall
+probe's ways; at 160 by 90 three views widen within their pinned bounds, the grazing floor at High
+from 0.0551 to 0.0578 as the ceiling probes lose four rays each met on the screen at nothing on
+their own lit ceiling, 55 to 460 percent over, which uncovers the sixteen fixed ways, the corridor
+at Low from 0.2145 to 0.2203 toward High's 0.2263 where its floor tiles read 87 to 94 percent under
+before and after, a term of the corridor's own, and the Cornell box at Low by 0.0006 spread over the
+box; the reflections' floor and balls read as before within 1 percent and the wall 10 under in both
+builds; the pass costs 0.01 to 0.03 ms more in the room and 0.09 at High in the hall; a test holds
+the back wall probe's ray past the wall's end with the lamp and the wall in (j)'s state, failing on
+the head at 1,375 percent and passing with the mend; RENDERING.md records it; checked were the
+strict build, the suite, 1,737, and lavapipe under the required layer, 78 passed and 10 skipped. The
+reviewer starts the pack run with publish on again as the check of items 37 and 38 and of Verdict
+73. (h)'s first reading finds the game's mesher culling the stone faces against a lamp block drawn
+as its own cube, leaving open edges around the lamp's footprint that the field's splat puts in
+front, which would explain both the probe moved into the stone and its not being found walled in;
+the field's cells and the probe's rays at that corner are read next. Right. Next (h)'s mend, item
+36, the sampling term's candidates with (g), the band and the grazing ceiling's uncovered ways,
+Verdict 72, item 35, the parallax and (c).
+
+Before it, `8e3ff67a` came, item 37's rule and nothing else, with the review's commit between. The
 notes script leaves out a commit whose every file lies under `.github/`, judged by the files each
 commit since the start names, a commit touching that folder beside anything else staying in, as this
 one does through the build folder and the tests; the test gains two such commits, one on the review
@@ -52,31 +89,6 @@ in a small commit before (j), and the reviewer starts the pack run with publish 
 the first package published through the policy carrying notes of the engine alone. Right. Next that
 commit and the pack run, then (j) and (h) read, item 36, the sampling term's candidates with (g) and
 the band, Verdict 72, item 35, the parallax and (c).
-
-Before it, `7fe22abc` came, item 30's part (k) and nothing else, with the review's commits between.
-Read in the ninth room at 800 by 450 against a fresh reference, the floor's corner with the right
-wall carries a line of light dots a texel apart that the reference has not, gone with the screen
-probes off and with the history off and standing with the filter off: the glow lights' pass blends
-each half-size texel's light with what the frame before's texels held at its place, taken by their
-distance from the eye alone, and at a corner the other surface's texels lie as far, so the floor
-took the wall's share of the rough light and multiplied it by its own; a scratch shader turning away
-texels of another normal took the dots out. The mend keeps each texel's normal folded onto the
-octahedron in the state image's two spare channels and takes a texel of the frame before only where
-its normal lies within 60 degrees of the point's, 25 degrees having widened the ninth room's view at
-160 by 90 since a surface two pixels wide takes wavering normals from the depth near its edges; at
-60 every view at 160 by 90 holds to three digits, the ninth room 0.05026, 0.05538 and 0.05904 where
-0.05020, 0.05536 and 0.05905, read to five digits and repeating exactly, every view at 800 by 450
-narrows or holds to five, and the two-by-two blocks 30 percent over the reference along the corners
-go from 17 to 3 on the left and 1,078 to 1,028 on the right, where the reference's own noise fills
-most of the region. A bounce room test reads the right corner in linear light at 800 by 450, the
-brightest of three by three pixels at the corner against the floor and the wall a quarter block off,
-37 percent over on average with 47 of 101 points past 20 on the head's shader and 4 under with 4 of
-101 with the mend; still frames stay calm, the 99th part changing 0.11 to 0.27 percent of the mean
-light frame to frame where 0.00 to 0.13, and the game's stone room at night shows no such line
-either way. Checked were the strict build, the suite, 1,735 of 1,735, and lavapipe under the
-required layer, 55 passed and 9 skipped; RENDERING.md records it. Right. Next items 38 and 37 in
-their own commits, then (j) and (h) read, item 36, the sampling term's candidates with (g) and the
-band, Verdict 72, item 35, the parallax and (c).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1740,7 +1752,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it or a probe kept out of a solid at a corner. The reviewer's order: (j)'s and (h)'s mends
     first, one commit each by the rule with a test, since each is a fault of a line the owner sees;
     then item 36, the sampling term's candidates with (g) and the band, Verdict 72, item 35, the
-    parallax and (c). Next (j)'s mend.
+    parallax and (c). (j) done at `1e89515c` on 2026-10-20, a face met from behind passed as the
+    depth is, the green over the edge from 0.973 to 0.829 against 0.736 on the back wall, held by a
+    test, three views at 160 by 90 wider within their bounds and the grazing ceiling's four rays met
+    on their own ceiling uncovered as the sampling term's. Next (h)'s mend.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2699,7 +2714,10 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     while, and whether a copy placed in the same step as the set is read before the step reads
     times; then the test or the reference mended where the reading points, the test waiting for the
     step that reads times or the reference reading the time at each placing, with the reason in the
-    remark. Settled at three green macOS suites in a row after the mend.
+    remark. Read and mended at `ed089e37` on 2026-10-20, the reload check's twice-a-second timer
+    respawning the first copies in the step after the write where it fell there, the test holding
+    the third against the first's mesh from before the write and asserting the file system gives
+    back the time set. Settled at three green macOS suites in a row after the mend.
 
 ## Decisions
 
