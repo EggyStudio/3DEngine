@@ -1739,7 +1739,22 @@ that `gi.compare` writes beside its difference.
   colors (`gi.probe`); global illumination costs 1.47 to 1.49 ms where 1.45 to 1.48 at `High` and
   1.15 where 1.16 at `Low`, the reflections' scene pass alike (`./e3d command profile`, the frames
   unlimited). What remains at the corner's hits is the light past the first bounce, their red 1.36
-  to 1.40 where the reference across their ways holds 1.07 to 1.11.
+  to 1.40 where the reference across their ways holds 1.07 to 1.11. Of it, the hits send on 0.45 of
+  red of the light straight from the lamp and the panel, where the reference holds 0.33 of the
+  lamp's and, by the frame's own less the reference's of no bounce, about 0.12 of the panel's, and
+  0.91 to 0.95 of the light past the first bounce, where the reference's, less the panel's, is 0.63
+  to 0.65, so that term carries the whole excess (`gi.screenprobe` at no bounce, one bounce and
+  every bounce). A hit takes it from the world's probes around it, the second cascade's at -1.2,
+  3.6, -1.2 nearest, whose face along the red wall's normal reads 6.16 of red where its reference
+  reads 5.81, and the first cascade's nearest the corner, at -1.8, 4.2, -0.6, 6.00 where 5.56, each
+  face gathered mostly from rays that met a surface before their interval began and none of it from
+  the screen's rays (`gi.probe`). Read at the hit, they give it about 5.0 of red where the light
+  reaching the hit in the reference is about 3.5, the light falling by two fifths from where the
+  probes stand to the corner 1.3 to 1.9 units on, which a blend of probes 2.4 apart does not draw.
+  With the screen's probes left out, the red wall reads 1.13 of the reference 30 pixels from the
+  corner and 1.25 at 10, the model pass reading the same probes there (`gi.compare`), and the
+  world's probes' own rays that meet the back wall under the ceiling in the corner read 1.5 to 2
+  times the reference's light there, the same term at their hits.
   ![The Cornell box's back corner, the frame before a hit's color was taken from the cells facing its way, the frame after, and the reference, at half the light](assets/cascades/cornell-corner.webp)
 - **c. The small block's front in the Cornell box.** Its face toward the open side reads 0.207 where
   the reference reads 0.125, 65% over, and unevenly, its blocks of 16 pixels 1.46 to 1.83 of the
