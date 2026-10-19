@@ -10,7 +10,34 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `50afce3c`, item 30's measurement of the lean's refinement on `a27fbdd0` and nothing
+Reviewed up to `14ae5a02`, item 30's mend of the last cascade's reach and nothing else, 7 files,
+committed under the covered-fault principle of `a27fbdd0`, which the reviewer reads the same way.
+The last cascade's interval ends at the diagonal of the field's coarsest cascade, its rays going on
+until they meet a surface or leave the field and taking the sky only where they leave, the remark
+saying that past the last cascade nothing takes over and what Low's reach of 9.6 left the grazing
+far wall's probe at; a cascade edge test holds a closed room 16 long at Low inside the last cascade
+ahead of the eye, none of the 1,536 texels of its 24 last-cascade probes taking the sky where 16
+did, the test moved from the illumination tests' file to keep it under N 1.3's 800 lines. Measured
+against `a27fbdd0`, Medium and High are unmoved to the last digit in every view, the frame's figures
+and the grazing room's probes' faces; at Low the far-wall probe's face across the room reads 22
+percent under at the first bounce where 35 and High's 21, the three probes 11 to 36 percent over
+past it where Medium's and High's read 7 to 37, and the grazing room reads 7 percent over where 4
+under and High's 8 over, its view 0.104 where 0.074 at 160 by 90 against High's 0.099 and 0.086
+where 0.053 at 800 by 450 against High's 0.088, the one widening, landing at High's own figure for
+the room, which the gain's mend is for, the bound pinned with both figures and the reason, every
+other view at Low unmoved to the last digit. The pass costs 0.08 ms more at Low in the Cornell box,
+0.03 at Medium and High, 0.08 to 0.13 at Low in the carried lamp's room, 0.11 to 0.15 at Low and
+Medium in Ore's landscape and nothing at High there, since only the rays that leave a room go
+further. The guide says a space wider than the field where it said the last cascade, without the old
+figure, and RENDERING.md's line on the voxel game's cave at Low stands in the past, the cave not
+measured again. Checked were the strict build, the suite, passing but for N 1.3 before the test's
+move and the cascade edge tests 7 of 7 after it, and lavapipe under the required layer, 109 passed
+and 16 skipped. Right. Next the lean's refinement on this head in its own commit, Low measured again
+with the figures in hand for Medium and High and the norm test run after the move; a pack run for
+the game's package; then the merge's first-bounce excess at the pocket and the strip, the sampling
+term's candidates, (c) and (d).
+
+Before it, `50afce3c` came, item 30's measurement of the lean's refinement on `a27fbdd0` and nothing
 else, RENDERING.md and this file, no shader changed. The refinement, reads at no lean with the
 ambient blend keeping its half-spacing lean, passes its check, the window narrowing by 0.053 to
 0.066 and the strip by 0.041 to 0.050 at every quality and both sizes, the thin room by 0.006, the
@@ -55,28 +82,6 @@ ambient blend keeping its half-spacing lean, by the rule at both sizes with the 
 hits, still views and the moved wall's frames across its restamping; a pack run for the game's
 package; then the merge's first-bounce excess at the pocket and the strip, the sampling term's
 candidates, (c) and (d).
-
-Before it, `69c7e8cc` came, item 30's measurement of the gain's three mends and nothing else,
-RENDERING.md and this file, no shader changed, the scratch test and its helper out of the tree, the
-faces of the reading before corrected from fifteen to seventeen. The cause and the three mends are
-recorded as item 30 has them, the probes' crossing out, the lean at none out through the grazing
-floor at Low, and its refinement, the reads at no lean with the blend toward the ambient light
-keeping its half-spacing lean as a constant of its own, narrowing or holding every view but two, the
-window by 0.012 to 0.066 and the strip by 0.033 to 0.045, lifting the wall's foot to 0.219 at High
-and 0.209 at Low against 0.215, taking the gain a bounce to 1.07 at the thin room, 1.00 at the
-grazing walls, 1.05 under the window, 1.03 to 1.06 at the strip and 1.05 to 1.17 in the Cornell box
-with the pocket's 1.12 untouched as the merge's, the corner screen probe's red-wall hits from 26 to
-54 percent over along their ways to 23 to 45, and widening the grazing floor at Low from 0.092 to
-0.140 at 160 by 90 and from 0.091 to 0.146 at 800 by 450 with the carried lamp's room at Low by
-0.007, the crossing added changing none of that. The grazing room reads 9 percent under its
-reference at Low before any mend and 8 over at High, so taking the gain out leaves it 15 under at
-Low, the floor 17 and the walls 19 to 22, and 2 under at High; at Low the gain covered the room's
-own shortfall, whose wall sits in the last of Low's two cascades, with no cascade above to lend
-light, the ambient blend's own lean taking the far wall from 48 percent under to 22 where the head
-reads 15. By the rule the refinement is out as it stands, and the order changes under item 30, Low's
-shortfall first as a term of its own. Right. Next that term's reading; a pack run for the game's
-package; then the refinement measured again, the merge's first-bounce excess at the pocket and the
-strip, the sampling term's candidates, (c) and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1528,8 +1533,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     carried lamp's room and Ore's landscape, whose last cascade's rays leave the field, since the
     march is longer only where the room is; held by a test, one commit. Then the refinement once
     more, expected to hold the grazing floor at Low, its own commit; then the merge's first-bounce
-    excess at the pocket and the strip, the sampling term's two candidates, (c) and (d). Next the
-    last cascade's reach.
+    excess at the pocket and the strip, the sampling term's two candidates, (c) and (d). Done at
+    `14ae5a02` the same day, the last interval's end the field's edge, held by a cascade edge test,
+    Medium and High unmoved, Low's grazing room from 4 percent under to 7 over against High's 8 with
+    its view at High's own figure, the one widening, under the covered-fault principle, at 0.03 to
+    0.15 ms where rooms are larger than the old reach. Measured on `14ae5a02` by 16:02: the
+    refinement holds the grazing floor at Low, 0.104 to 0.075 and 0.086 to 0.046, narrows or holds
+    every view at 160 by 90 at every quality and every view at 800 by 450 but the carried lamp's
+    room, wider by 0.002 at High and at Low there while narrower by as much at the other size, its
+    red and back walls nearer and its far wall further over, the level 1.061 to 1.075, which is the
+    fixed ways' overread the lean's lower read there offset; the foot at the reference, the gain
+    1.00 to 1.17, still views calm and the moved wall settling over two frames. The reviewer takes
+    it under the covered-fault principle, the widening lying in the far wall's own term, the
+    sampling term's, which stands in the order with the level of 1.075 as its figure to mend, and
+    the room narrowing at the test's size; the measure's repeatability on the head read twice is
+    said beside the figures, so a difference of 0.002 is known for what it is. Next that commit,
+    then the merge's first-bounce excess at the pocket and the strip, the sampling term's two
+    candidates, (c) and (d).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

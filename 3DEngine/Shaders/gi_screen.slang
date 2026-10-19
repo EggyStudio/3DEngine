@@ -132,14 +132,13 @@ float4 hemisphere(float2 uv)
     return float4(normalize(d), length(d));
 }
 
-// The eight probes of the world's cascade c around p on a surface facing normal, weighed from
-// cascades.slang's Lean off it, the one nearest the field's origin first, and how far that point
-// lies from it toward the last, in probes, or false where it lies outside the cascade.
-bool probesAround(float3 p, uint c, float3 normal, out int3 base, out float3 f)
+// The eight probes of the world's cascade c around p, the one nearest the field's origin first, and
+// how far p lies from it toward the last, in probes, or false where it lies outside the cascade.
+bool probesAround(float3 p, uint c, out int3 base, out float3 f)
 {
     float4 oc = fieldInfo.cascades[c].originAndCell;
     float probes = view.trace.y;
-    float3 q = (p + normal * (Lean * oc.w * view.trace.z) - oc.xyz) / (oc.w * view.trace.z) - 0.5;
+    float3 q = (p - oc.xyz) / (oc.w * view.trace.z) - 0.5;
     base = int3(floor(q));
     f = q - float3(base);
     return oc.w > 0.0 && all(q >= -0.5) && all(q <= probes - 0.5);
@@ -213,20 +212,18 @@ float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
 float3 beyond(float3 start, float3 normal, float3 way, float reached, uint around)
 {
     float3 end = start + way * reached;
-    float3 lean = float3(0.0);
     uint c = 0u;
     int3 base;
     float3 f;
-    if (!probesAround(end, 0u, lean, base, f))
+    if (!probesAround(end, 0u, base, f))
     {
         c = 1u;
-        if (push.texels.y == 0u || !probesAround(end, 1u, lean, base, f))
+        if (push.texels.y == 0u || !probesAround(end, 1u, base, f))
         {
             end = start;
             reached = 0.0;
-            lean = normal;
             c = around;
-            probesAround(end, c, lean, base, f);
+            probesAround(end, c, base, f);
         }
     }
     float probes = view.trace.y;
@@ -384,10 +381,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     int3 base;
     float3 f;
     uint around = 0u;
-    if (!probesAround(p, 0u, n, base, f))
+    if (!probesAround(p, 0u, base, f))
     {
         around = 1u;
-        if (push.texels.y == 0u || !probesAround(p, 1u, n, base, f))
+        if (push.texels.y == 0u || !probesAround(p, 1u, base, f))
         {
             irradiance[id.xy] = float4(0.0);
             return;

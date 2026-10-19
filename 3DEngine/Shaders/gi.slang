@@ -398,7 +398,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
 float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c)
 {
     float4 oc = info.cascades[c].originAndCell;
-    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
@@ -439,7 +439,7 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
     if (c < 0 || c >= int(cascades))
         return 1.0;
     float4 oc = info.cascades[c].originAndCell;
-    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 r2 = r * r;
@@ -496,7 +496,7 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
     int c)
 {
     float4 oc = gathered.cascades[c].originAndCell;
-    float3 q = clamp((p + n * (Lean * oc.w * spacing) - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;

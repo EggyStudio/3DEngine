@@ -2105,6 +2105,30 @@ and 2.96 to 2.99 where 2.82 to 2.84 at `Medium`, and 1.47 to 1.48 where 1.44, 1.
 3.05 to 3.10 where 3.04 to 3.11 at `High`, the rays that leave a room going on to the field's edge
 (`gi.probe`, `gi.compare`, BounceRoomsTests, `./e3d command profile`, the frames unlimited).
 
+**The probes read with no lean, on 2026-10-19.** A hit and a pixel read the probes around them at
+the surface itself, where they read them half a spacing off it along the normal (`Lean`), which kept
+a surface in a plane of probes from reading the probes inside it before such probes were moved into
+the room, and read the probes before a wall standing where 61 to 64% more light arrives than at the
+wall, which every bounce took on (the gain, above). The blend toward the light past the probes
+(`probesHold`) keeps its lean. With the last cascade's rays reaching the field's edge, the grazing
+floor's view reads 0.075 at `Low` and `Medium` and 0.055 at `High` at 160 by 90 where 0.104, 0.105
+and 0.099, and 0.046 and 0.043 at `Low` and `High` at 800 by 450 where 0.086 and 0.088; the window's
+0.301, 0.287 and 0.270 where 0.356, 0.340 and 0.324, and at 800 by 450 0.236 and 0.245 where 0.303
+and 0.311; the strip's 0.209 to 0.216 where 0.250 to 0.266, and 0.104 and 0.105 where 0.150 and
+0.149; and the thin room's and the corridor's by up to 0.007 nearer. The gain at the faces is 1.00
+to 1.17 a bounce where 1.08 to 1.27, the pocket's unchanged at 1.12 to 1.13, and the wall's foot (d)
+reads 0.214 at `Low` and 0.219 at `High` where 0.195 and 0.200, against 0.215. The carried lamp's
+room reads 0.002 to 0.003 nearer its reference at 160 by 90 and 0.002 further at 800 by 450 at both
+qualities, 0.071 where 0.069 at `High`, its red wall's pixels 0.095 from the reference's in red
+where 0.111 and its wall facing -z 0.039 where 0.067 coming nearer, and its floor 9% under where 7%
+and its far wall further over, its level 1.075 of the reference's where 1.061, which is the sampling
+term's, the sixteen ways' reading over the wall that the lower read had offset. The measure repeats
+exactly, the head's frames at 800 by 450 read twice in one run alike to the last bit, so a
+difference of 0.002 is the change's. A still view keeps calm, its 99th part changing by 0.04% at
+most from frame to frame, and when the field stamps the carried lamp's room's moved wall the room
+comes to its settled light over two frames, 18.8% and then 3.8% of its mean light at the 99th part,
+where in one, 17.9% and then 0.3% (`gi.compare`, BounceRoomsTests, `gi.probe`).
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's

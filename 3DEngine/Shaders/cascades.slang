@@ -5,10 +5,15 @@ module cascades;
 
 import scenefield;
 
-// How far off a surface along its normal the probes around it are weighed from, in their spacing.
-// A room whose walls lie in planes of probes, as one whose size is a whole number of the spacing
-// may, weighed at the surface itself took its walls' and ceiling's light from the probes in their
-// planes alone, which stand inside them and hold nothing, and none from the row in front.
+// How far off a surface along its normal the blend toward the light past the probes is weighed
+// from (probesHold), in the probes' spacing. The probes themselves were read from there as well,
+// since a room whose walls lie in planes of probes, read at the surface itself, took its walls'
+// light from the probes in their planes, which stood inside them and held nothing; such a probe is
+// moved into the room before its wall (gi_trace.slang), and the probes are read at the surface
+// (bouncedAt), where leaned half a spacing off they were read standing where 61 to 64% more light
+// arrives than at the grazing floor's room's far wall, which every bounce took on. The blend keeps
+// the lean, since with none a wall in the outer band of Low's last cascade took a closed room's
+// absent ambient light, 46% under.
 public static const float Lean = 0.5;
 
 // The cells of a cascade's outer band, a probes' spacing, across which the indirect light fades
@@ -31,9 +36,9 @@ public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 // How much of the light from all around a surface at p facing n the probes of the cascades up to
 // `upTo` give rather than what lies past them, all of it inside the coarsest of them built, falling
 // to none across its outer band (CascadeBand), kept clear of the eye (bandHold), and none past it.
-// The point is taken leaned off the surface as the probes are read for it (Lean), so a floor on the
-// box's lower side, its probes half a spacing over it, lies half a spacing inside, or as the surface
-// itself where that holds more, because a surface facing the eye leans four cells toward the side
+// The point is taken leaned off the surface by half a spacing (Lean), so a floor on the box's lower
+// side, its probes half a spacing over it, lies half a spacing inside, or as the surface itself
+// where that holds more, because a surface facing the eye leans four cells toward the side
 // behind it, which may stand 1.6 cells behind the eye, and a pillar's face a block before the eye
 // leaned past that side, held nothing, and took the sky's light whole at three headings of a turn
 // in the voxel game's cave. Read from cascade `upTo` whether built or not, a closed room's floor in the
