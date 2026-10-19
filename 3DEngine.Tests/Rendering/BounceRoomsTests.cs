@@ -282,6 +282,59 @@ public sealed class BounceRoomsTests : IDisposable
         onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
     }
 
+    // The ninth room's right corner, where its floor meets the wall, at 800 by 450 at High, each
+    // point of the corner the brightest of the pixels around it against the floor and the wall a
+    // quarter of a block off it. The glow lights' pass took a texel of the frame before by its
+    // distance from the eye alone, and at a corner the other surface's texels lie as far, so the
+    // floor took the wall's share of its rough light times its own, a line of light along the
+    // corner a texel apart, the points 37% over the floor and the wall beside them on average and
+    // 47 of 101 more than 20% on the development machine's GPU; taken only from texels facing as
+    // the point does, 4% under, and 4 of 101.
+    [NeedsVulkanFact]
+    public void A_Corner_Lit_By_Glow_Lights_Carries_No_Line_Of_Light_Along_It()
+    {
+        var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        var camera = Rooms.Views[8];
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            rooms.Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var light = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        float Luminance(int x, int y)
+        {
+            var i = (Math.Clamp(y, 0, 449) * 800 + Math.Clamp(x, 0, 799)) * 4;
+            return 0.2126f * light[i] + 0.7152f * light[i + 1] + 0.0722f * light[i + 2];
+        }
+        float Around(Vector3 at, bool brightest)
+        {
+            var p = GetWorldToScreenEx(at, camera, 800, 450);
+            float most = 0, sum = 0;
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    var l = Luminance((int)p.X + dx, (int)p.Y + dy);
+                    (most, sum) = (Math.Max(most, l), sum + l);
+                }
+            return brightest ? most : sum / 9;
+        }
+        var over = new List<float>();
+        for (float z = -3.5f; z <= 1.5f; z += 0.05f)
+            over.Add(Around(new Vector3(323.99f, 0.01f, z), true) / Math.Max(Around(new Vector3(323.75f, 0, z), false), Around(new Vector3(324, 0.25f, z), false)) - 1);
+        var said = $"the corner's points {over.Average():+0%;-0%} over the floor and the wall beside them, {over.Count(o => o > 0.2)} of {over.Count} more than 20%";
+        over.Average().Should().BeLessThan(0.1f, said);
+        over.Count(o => o > 0.2f).Should().BeLessThan(15, said);
+    }
+
     // The screen probe on the strip's room's back wall under the ceiling, over the strip, whose rays
     // that meet the ceiling right above the strip bring back the strip's light there. The march that
     // tells how much of a glow light a hit sees ran beside the wall the strip is mounted on, against

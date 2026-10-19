@@ -47,7 +47,8 @@ RWTexture2D<float4> glowLight;
 Texture2D<float4> lastGlowLight;
 
 // x: the furthest the frames' light has lain from the blend, in luminance. y: the frames the blend
-// holds. This frame's and the frame before's, as the share's.
+// holds. zw: the surface's normal, folded onto the octahedron's square. This frame's and the frame
+// before's, as the share's.
 [[vk::binding(8, 0)]] [format("rgba16f")]
 RWTexture2D<float4> glowState;
 
@@ -95,6 +96,13 @@ static const float GlowMoving = 1.0 / 8.0;
 static const float GlowDeviations = 1.5;
 static const float GlowMargin = 0.03;
 static const float GlowLetGo = 1.0 / 64.0;
+
+// The least cosine between a point's normal and the normal of a texel of the frame before that the
+// point takes the texel's light from, 60 degrees, so the two sides of a right-angled corner part.
+// At 25 degrees the texels of the ninth room at 160 by 90, two pixels wide and their normals taken
+// from a depth that wavers near a surface's edge, lost the frame before's light on one surface too,
+// and the view read 0.0506 of its light from its reference where 0.0502.
+static const float GlowSameSurface = 0.5;
 
 float3 worldAt(float2 uv, float d)
 {
@@ -336,7 +344,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     {
         glowLight[id.xy] = float4(0.0, 0.0, 0.0, range);
         glowFar[id.xy] = float4(0.0);
-        glowState[id.xy] = float4(0.0);
+        glowState[id.xy] = float4(0.0, 0.0, octahedron(n));
         glowNormal[id.xy] = float4(n * 0.5 + 0.5, float(onLight ? GlowOnLight : GlowAsk) / 255.0);
         return;
     }
@@ -346,7 +354,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 now = float3(rough.r > 1e-8 ? light.r / rough.r : 0.0, rough.g > 1e-8 ? light.g / rough.g : 0.0, rough.b > 1e-8 ? light.b / rough.b : 0.0);
 
     // What the texels of the frame before around the point's place then held, each where its point
-    // lay as far from the frame before's eye as this one does.
+    // lay as far from the frame before's eye as this one does on a surface facing as this one's
+    // does. A texel holds its light as a share of its own surface's rough light, and at a corner
+    // the other surface's texels lie as far from the eye, so taken by their distance alone the
+    // floor along the walls of shaders_bounce_rooms' ninth room took the walls' shares times its
+    // own rough light, a line of light a texel apart along each corner.
     float3 before = float3(0.0), farBefore = float3(0.0);
     float furthest = 0.0, held = 0.0, still = 0.0, frames = 1.0 / GlowStill;
     if (view.last.w > 0.5 && (uint(view.grid.w + 0.5) & 1u) == 0u)
@@ -369,9 +381,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 float4 was = lastGlowLight.Load(int3(at, 0));
                 if (was.a < 0.0 || abs(was.a - expected) > 0.02 * expected + 0.05)
                     continue;
+                float4 state = lastGlowState.Load(int3(at, 0));
+                if (dot(fromOctahedron(state.zw), n) < GlowSameSurface)
+                    continue;
                 float2 lerps = lerp(1.0 - part, part, float2(offset));
                 float share = lerps.x * lerps.y;
-                float4 state = lastGlowState.Load(int3(at, 0));
                 before += was.rgb * share;
                 farBefore += lastGlowFar.Load(int3(at, 0)).rgb * share;
                 furthest += state.x * share;
@@ -421,5 +435,5 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float fresh = dropped ? 1.0 : lerp(1.0, max(1.0 / (frames + 1.0), least), saturate(held));
     glowLight[id.xy] = float4(lerp(before, now, fresh), range);
     glowFar[id.xy] = float4(lerp(farBefore, far, fresh), 0.0);
-    glowState[id.xy] = float4(dropped ? 0.0 : max(furthest * (1.0 - GlowLetGo), apart), min(frames * steady + 1.0, 1.0 / GlowStill), 0.0, 0.0);
+    glowState[id.xy] = float4(dropped ? 0.0 : max(furthest * (1.0 - GlowLetGo), apart), min(frames * steady + 1.0, 1.0 / GlowStill), octahedron(n));
 }

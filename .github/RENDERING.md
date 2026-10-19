@@ -1577,7 +1577,15 @@ and two thirds of the way to it, so a probe on the floor past a wall does not le
 the wall what it sees; where none of the four is so, the four of the four by four around that count
 most. The texel's normal is taken along each axis toward the side whose next two texels go on in a
 line, so a texel at a wall's foot takes the floor's. The pass blends the light with what the texel
-held the frame before where its surface was, a running mean over the first round and a thirty-second
+held the frame before where its surface was, from the texels of the frame before as far from the eye
+whose normal lies within 60 degrees of the texel's, kept beside each texel's state. A texel holds
+its light as a share of its own surface's rough light, and taken by their distance alone, the texels
+of a wall at a corner lent the floor along it the wall's share, a line of light along the ninth
+room's corners a texel apart, the corner 37% over the floor and the wall beside it at 800 by 450
+where 4% under (`BounceRoomsTests`). Within 25 degrees, a surface's own texels at 160 by 90, two
+pixels wide and their normals taken from a wavering depth near its edges, lost their blend too, and
+the ninth room's view read 0.0506 where 0.0502. The blend is a running mean over the first round and
+a thirty-second
 of each frame's after it, an eighth while the view moves, a moving view's blend counting as one
 frame's so the mean starts anew where it stops. The blend is dropped where no texel of the frame
 before held the surface, where a light that reaches it has a place whose light the frame before did
