@@ -10,33 +10,55 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e298f4c4`, item 30's reading of the world probes' excess and nothing else,
+Reviewed up to `69c7e8cc`, item 30's measurement of the gain's three mends and nothing else,
+RENDERING.md and this file, no shader changed, the scratch test and its helper out of the tree, the
+faces of the reading before corrected from fifteen to seventeen. The cause and the three mends are
+recorded as item 30 has them, the probes' crossing out, the lean at none out through the grazing
+floor at Low, and its refinement, the reads at no lean with the blend toward the ambient light
+keeping its half-spacing lean as a constant of its own, narrowing or holding every view but two, the
+window by 0.012 to 0.066 and the strip by 0.033 to 0.045, lifting the wall's foot to 0.219 at High
+and 0.209 at Low against 0.215, taking the gain a bounce to 1.07 at the thin room, 1.00 at the
+grazing walls, 1.05 under the window, 1.03 to 1.06 at the strip and 1.05 to 1.17 in the Cornell box
+with the pocket's 1.12 untouched as the merge's, the corner screen probe's red-wall hits from 26 to
+54 percent over along their ways to 23 to 45, and widening the grazing floor at Low from 0.092 to
+0.140 at 160 by 90 and from 0.091 to 0.146 at 800 by 450 with the carried lamp's room at Low by
+0.007, the crossing added changing none of that. The grazing room reads 9 percent under its
+reference at Low before any mend and 8 over at High, so taking the gain out leaves it 15 under at
+Low, the floor 17 and the walls 19 to 22, and 2 under at High; at Low the gain covered the room's
+own shortfall, whose wall sits in the last of Low's two cascades, with no cascade above to lend
+light, the ambient blend's own lean taking the far wall from 48 percent under to 22 where the head
+reads 15. By the rule the refinement is out as it stands, and the order changes under item 30, Low's
+shortfall first as a term of its own. Right. Next that term's reading; a pack run for the game's
+package; then the refinement measured again, the merge's first-bounce excess at the pocket and the
+strip, the sampling term's candidates, (c) and (d).
+
+Before it, `e298f4c4` came, item 30's reading of the world probes' excess and nothing else,
 RENDERING.md after the sampling paragraph, a per-face split in `gi.probe`'s report by where each
 face's ways were met with its line in both guides, this file and SHARED.md, no shader changed, the
-suite 1,729 of 1,729. Fifteen faces of eleven world probes beside the thin room's wall, the strip's
-side walls, the grazing floor's walls, the window's ceiling and the Cornell box's walls were read
-for their first bounce, the engine with the bounce toggle off against the reference with no bounce
-past the probe's hits, which lights each hit as the lamps do, and for the light past it, the rest of
-each, the Cornell panel read alone as a carried glow light the engine counts at the hit and the
-reference on the second segment. Near the walls the first bounce reads at or under the reference, 2
-to 8 percent under at the Cornell lamp's faces, 0 to 2 over at the thin wall, 21 under at the
-grazing walls, and the light past it 14 to 39 percent over, 20 to 39 in the Cornell box, 14 to 15 at
-the thin wall, 26 to 30 under the window's ceiling and 21 to 23 at the grazing walls; splitting the
-reference's light past the first bounce into its second and the rest puts the gain at 1.08 to 1.09 a
-bounce in the thin room, 1.12 to 1.13 on the grazing walls, 1.14 to 1.16 under the window's ceiling
-and 1.12 to 1.27 in the Cornell box, consistent with what the rejected openness ratio took off the
-three Cornell probes. The excess comes along the ways that met a surface, inside their interval or
-before it began, which hold 74 to 100 percent of the faces' weight, 27 to 43 over through those met
-before the interval at the second cascade and 24 to 40 through those inside it at the first. Two
-places carry an excess at the first bounce instead through the cascade above, the pocket, 3 to 19
-percent over at the first bounce with its ways from the cascade above 78 to 202 over, and the
-strip's room, 204 to 209 over at the first bounce with those ways 483 to 2,521 over and its own hits
-14 to 57, which is the merge's and a term of its own. So the term is named, the irradiance a world
-probe's hit reads from the probes around it, 8 to 27 percent high a bounce, a gain compounding
-through the probes' own hits, and the reviewer's choice of what comes before its mend is said under
-item 30. Right. Next that reading; a pack run for the game's package; then the gain's mend, the
-merge's first-bounce excess at the pocket and the strip, the sampling term's candidates again, (c)
-and (d).
+suite 1,729 of 1,729. Seventeen faces of eleven world probes, said as fifteen until `69c7e8cc`,
+beside the thin room's wall, the strip's side walls, the grazing floor's walls, the window's ceiling
+and the Cornell box's walls were read for their first bounce, the engine with the bounce toggle off
+against the reference with no bounce past the probe's hits, which lights each hit as the lamps do,
+and for the light past it, the rest of each, the Cornell panel read alone as a carried glow light
+the engine counts at the hit and the reference on the second segment. Near the walls the first
+bounce reads at or under the reference, 2 to 8 percent under at the Cornell lamp's faces, 0 to 2
+over at the thin wall, 21 under at the grazing walls, and the light past it 14 to 39 percent over,
+20 to 39 in the Cornell box, 14 to 15 at the thin wall, 26 to 30 under the window's ceiling and 21
+to 23 at the grazing walls; splitting the reference's light past the first bounce into its second
+and the rest puts the gain at 1.08 to 1.09 a bounce in the thin room, 1.12 to 1.13 on the grazing
+walls, 1.14 to 1.16 under the window's ceiling and 1.12 to 1.27 in the Cornell box, consistent with
+what the rejected openness ratio took off the three Cornell probes. The excess comes along the ways
+that met a surface, inside their interval or before it began, which hold 74 to 100 percent of the
+faces' weight, 27 to 43 over through those met before the interval at the second cascade and 24 to
+40 through those inside it at the first. Two places carry an excess at the first bounce instead
+through the cascade above, the pocket, 3 to 19 percent over at the first bounce with its ways from
+the cascade above 78 to 202 over, and the strip's room, 204 to 209 over at the first bounce with
+those ways 483 to 2,521 over and its own hits 14 to 57, which is the merge's and a term of its own.
+So the term is named, the irradiance a world probe's hit reads from the probes around it, 8 to 27
+percent high a bounce, a gain compounding through the probes' own hits, and the reviewer's choice of
+what comes before its mend is said under item 30. Right. Next that reading; a pack run for the
+game's package; then the gain's mend, the merge's first-bounce excess at the pocket and the strip,
+the sampling term's candidates again, (c) and (d).
 
 Before it, `3904d0f0` came, item 30's measurement of the sampling term's two candidates and nothing
 else, RENDERING.md and this file, no shader changed, the code at the head before it. Each view's
@@ -61,31 +83,6 @@ the rule both are out, recorded, and the order stands, the light past the first 
 probes' own hits next, read by `gi.probe` against the reference independent of the frame, the
 candidates measured again after its mend. Right. Next that reading; a pack run for the game's
 package; then (c), (d), and the sampling term again.
-
-Before it, `75d7af37` came, item 30's measurement of the openness factor and nothing else,
-RENDERING.md and this file, no shader changed, the code back at the head before it. The factor
-measured was five cones about the hit's normal, one along it and four leaning 45 degrees, four steps
-doubling out to the probes' spacing, the nearest surface against the cone's width in the finest
-cascade, the ratio of the hit's openness to the probes' capped at one, on the light past the first
-bounce alone, with the screen probes on at 800 by 450. On the screen's hits alone it mends what it
-was asked, the corner probe's red-wall hits from 26 to 54 percent over the reference along their
-ways to 0 to 38 and the block's front from 1.40 to 1.32, and in every variant of length, spread and
-the probes' place it fails the conditions, the open middle moving, the Cornell back wall from 0.977
-to 0.969 and the carried lamp's floor from 0.988 to 0.972, the wall's foot falling from 0.200 to
-0.195, the upper red wall from 0.903 to 0.898, and a cap of 1.5 raising the open middle 1.2 percent
-and the far wall 4; applied at the world probes' own hits it brings the three probes from 9, 16 and
-16 percent over their references to 2, 10 and 9 while the frame falls, the back wall to 0.947, the
-floor to 0.904 and the foot to 0.177; and the field's distances say how near a surface is and not
-how bright, a hit on the tall block's side facing the red wall reading 0.06 open against 0.77 and
-losing nine tenths of its light though that wall lights it, at 0.45 to 0.50 ms on 1.15 to 1.50. Two
-findings stand. The corner is not over in the frame, the back wall's first 12 pixels from it reading
-1.00 to 1.02 of the reference and the wall 50 pixels in 0.93, so the corner's 0.66 against 0.60 is
-the wall further in reading under, and a factor at the corner's hits lowers both; and the frame's
-open middle reads near the reference only because the world probes' excess offsets what the screen
-probes' sixteen ways miss. The factor is rejected and the choice made again under item 30, the
-sampling term before (c) and (d). Right. Next the sampling term's two candidates measured at this
-head against the path-traced references at both sizes; a pack run for the game's package; then the
-light past the first bounce at the world probes' own hits, (c), and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1425,7 +1422,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the red wall, the irradiance the hit reads against the reference's irradiance at that point from
     one bounce and the same read 0.3 off the wall, and the constant alone in a closed white room
     under the sky at one bounce, which tells the three apart; then the mend of the cause found, one
-    commit, measured at the fifteen faces and the frame as before; then the merge's first-bounce
+    commit, measured at the seventeen faces and the frame as before; then the merge's first-bounce
     excess at the pocket and the strip as its own term; then the sampling term's two candidates
     again, then (c) and (d). Read at 11:58 on 2026-10-19 with a scratch test that stays out of the
     tree, recomputing a hit's read on the CPU and tracing the reference's one-bounce irradiance at
@@ -1448,11 +1445,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     weighs a moved probe by where it stands or the move is held within what the grid's weights bear,
     said which and why; the facing rule holds for a moved probe; a still view's frame-to-frame
     change and the carried lamp's moved wall are read for a probe that crosses a wall as it moves;
-    and it is judged at the fifteen faces by bounce, the frame's figures, the bounce rooms' views at
-    both sizes against their references by the standing rule, the screen probes' corner hits, which
-    read the same probes, and the pass's cost at both qualities, with a test holding the gain at the
-    faces. The thin room's low point, whose probe sits in a pocket and reads 0.23 the other way, is
-    the pocket's term, (c), after it. Measured by 13:08, against the head at both sizes, at
+    and it is judged at the seventeen faces by bounce, the frame's figures, the bounce rooms' views
+    at both sizes against their references by the standing rule, the screen probes' corner hits,
+    which read the same probes, and the pass's cost at both qualities, with a test holding the gain
+    at the faces. The thin room's low point, whose probe sits in a pocket and reads 0.23 the other
+    way, is the pocket's term, (c), after it. Measured by 13:08, against the head at both sizes, at
     seventeen faces by bounce, at the wall hits by the recompute and in still views: the probes
     crossing the walls toward the eye with tent weights by where each stands works mechanically and
     is out, widening the grazing floor by up to 0.034 at both sizes, the strip, the corridor and the
@@ -1466,8 +1463,57 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cascade takes its point by the same lean and at Low the grazing room's far wall sits in the last
     cascade's band, taking the closed room's absent ambient light. Under measurement the lean at
     none with that blend keeping a half-spacing lean as a constant of its own, with and without the
-    crossing, and the moved wall's frames across its restamping. One commit if it holds. Next that
-    measurement.
+    crossing, and the moved wall's frames across its restamping. Measured and recorded at `69c7e8cc`
+    the same day with no shader change: the refinement narrows or holds every view but the grazing
+    floor at Low, which widens from 0.092 to 0.140, and the carried lamp's room at Low by 0.007,
+    lifts the foot to 0.219 and 0.209 against 0.215, which is (d), and takes the gain to 1.00 to
+    1.08 everywhere but the Cornell corner's 1.17 and the pocket's 1.12, the merge's; the grazing
+    room reads 9 percent under its reference at Low before any mend, its wall in the last of Low's
+    two cascades with no cascade above to lend light, and the gain covered that. Two errors cancel
+    in that room at Low as they did in the open middle, so by the standing principle Low's shortfall
+    is read and mended first as a term of its own, the light the last cascade's rays and the blend
+    toward the ambient give a closed room beyond their reach, judged at Low by the rule on the
+    grazing room, the carried lamp's room, the Cornell box and the thin room and with High unmoved;
+    then the refinement is measured again, expected to pass the rule once the room stands on its
+    own, one commit each. The crossing is out for good, the corner's gradient being steeper within
+    0.3 of the walls than a spacing out. After them the merge's first-bounce excess at the pocket
+    and the strip, the sampling term's two candidates, (c) and (d). Read by 13:49 with a scratch
+    switch holding the device's rays at every quality for the two instruments alone, out of the
+    tree: the last cascade's reach is not the term, Low's last cascade reaching 2.4 to 9.6 and every
+    way meeting a surface within it in that room, and the ambient blend fixed at one moving the room
+    one point; of the seventeen points between Low's 9 under and High's 8 over, about six lie at the
+    first bounce in the screen probes, Low's reading 9 to 23 percent under along their ways through
+    their field hits and their reads beyond reach alike with a tile of 16 pixels where High's is 8,
+    and High's the same probes 1 to 33 over, and eleven lie past the first bounce, where the world
+    probes read within about 8 percent of the reference at Low and 12 to 37 over at High, so High's
+    gain covers the room's first-bounce shortfall and part of Low's, and the refinement at Low
+    lowers a part that is near right; the Cornell box, the thin room and the carried lamp's room
+    read alike at both qualities. The reviewer's order: the screen probes' first bounce at Low
+    first, a term of its own with a one-bounce reference, named by what carries it, the march's step
+    or reach at the wider tile, the hits' direct light or the read beyond reach from Low's two
+    cascades, and mended in one commit judged at Low on the four rooms with High unmoved; then the
+    refinement measured again, with a reading of why Low's world probes carry little of the gain
+    High's carry, so the lean's part at each quality is known before it is set to none for both,
+    since a mend that lowers a near-right term at one quality is not yet the gradient's mend. Named
+    by 14:06: not the tile, which moves the frame at one bounce by a point at either quality, not
+    the hits' direct light, within 3 percent in every arrangement, but the read beyond reach, Low's
+    second cascade sending one ray through each of its 64 texels, the sampling term four rays a
+    texel mended in the first cascade at `9b37e326`, since 16 texels a side there make Low read as
+    High. The mend measured sends four rays a texel where a cascade has 8 a side and one where 16,
+    every probe 256, High unchanged by construction and to the last digit, Low's frame at one bounce
+    from 5 under to the reference, and at every bounce Low's grazing room nearer its reference by
+    0.018 and 0.037 at the two sizes, the other three rooms within 0.004, and the window wider by
+    0.041 and 0.054 at Low and 0.040 at Medium, the strip by 0.013 and the grazing floor at Medium
+    by 0.025, each widened view reading as High reads it region by region, the window's distance
+    0.303 against High's 0.311 and the strip's 0.150 against 0.149, Low's one-ray sampling having
+    covered High's own excess on the walls the gain lifts; at 0.05 ms on Low and 0.08 on Medium. The
+    reviewer takes it, since a view that widens to High's own figure for its room uncovers a fault
+    that stands at High already and is next in the order, which is the covered-fault principle and
+    not a widening the rule is against; the test's bounds at Low and Medium are pinned at the new
+    figures with the reason per view that each equals High's for that room (N 3.5), RENDERING.md
+    takes the reading and the figures, the scratch switches stay out, one commit. Then the
+    refinement again, expected to narrow the window and the strip at Low as at High. Next that
+    commit.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

@@ -49,11 +49,14 @@ public float octahedronShare(float2 uv)
     return 1.0 / (l * l * l);
 }
 
-// The rays a texel of cascade c's octahedron sends, four in the first cascade, one from the middle
-// of each quarter of the texel, and one from its middle in the others (gi_trace.slang).
-public uint RaysAt(uint c)
+// The rays a texel of a cascade's octahedron of `texels` along each side sends, four where it has
+// 8, one from the middle of each quarter of the texel, and one from its middle where it has 16, so
+// every probe sends 256 (gi_trace.slang). The count follows the texels and not the cascade, since a
+// texel of 8 a side spans a sixty-fourth of the sphere, which one ray takes a bright spot or misses
+// it for, whichever cascade it is, as Low's and Medium's second is (gi_trace.slang).
+public uint RaysAt(uint texels)
 {
-    return c == 0u ? 4u : 1u;
+    return texels <= 8u ? 4u : 1u;
 }
 
 // A texel's mark as gi_trace.slang writes it for `rays` rays, `nothing` of which met nothing, is

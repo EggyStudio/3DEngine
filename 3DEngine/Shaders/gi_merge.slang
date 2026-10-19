@@ -118,7 +118,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float4 own = radiance[written];
     // What most of the texel's rays met, and the share that met nothing, which takes the light from
     // beyond, the light of the rest in own's color (gi_trace.slang).
-    float nothing = float(texelNothing(own.a, RaysAt(c))) / float(RaysAt(c));
+    float nothing = float(texelNothing(own.a, RaysAt(texels))) / float(RaysAt(texels));
     // Rays of the last cascade that met nothing, the sky's.
     float ownSky = abs(own.a - 0.25) < 0.1 ? 1.0 : 0.0;
     uint alone = uint(push.spacing.z + 0.5);

@@ -2029,6 +2029,38 @@ its floor 17% where 10%, while at `High` it reads 2% under where 8% over. So at 
 covered that room's own shortfall, and taking it out leaves the shortfall standing (`gi.probe` and
 `gi.screenprobe` with 256 paths a way, `gi.compare`, BounceRoomsTests).
 
+**`Low`'s first bounce in the grazing floor's room, read and mended on 2026-10-19.** The grazing
+floor's room reads 9% under its reference at `Low` and 8% over at `High`, where the Cornell box, the
+thin room and the carried lamp's room read alike at both, within a point. It lies within reach of
+`Low`'s last cascade, whose rays from 2.4 to 9.6 met a surface in all 64 ways of each probe read
+there, the floor and the ceiling three units apart meeting even the long ones, and with
+`probesHold`, its blend toward the ambient light, held at 1, the room reads 8% under where 9%. With
+`gi.toggle again off`, against a reference of one bounce, the room reads 5% under at `Low` and 1%
+over at `High`, the light past the first bounce giving the rest of the difference, near the
+reference at `Low`'s world probes and 12 to 37% over at `High`'s (the gain, above). Read at one
+bounce under four pixels of the room, the screen's probes read the light beyond their reach from 44%
+under the reference to 9% over along their ways at `Low` where `High`'s read 23% under to 83% over,
+while their hits in the field and on the screen read within 3% at both. The tile is not it, `High`
+at 16 pixels and `Low` at 8 moving the frame at one bounce by a point at most, nor a third cascade,
+which at 8 texels a side leaves `Low` as it reads. `Low`'s second cascade, of 8 texels a side with
+one ray through each, is, since with 16 a side `Low` reads as `High` does, the light beyond reach
+33% under to 80% over and the frame at one bounce 1% under. One ray through a texel a sixty-fourth
+of the sphere wide takes a bright spot or misses it for the whole texel, which the first cascade's
+four rays a texel mended (c). Mended by sending four rays a texel in any cascade of 8 a side, so
+every probe sends 256 (`RaysAt`), the room reads as its reference at one bounce at `Low`. `High` is
+unmoved to the last digit of every view at both sizes. At `Low` the grazing floor's view narrows by
+0.018 at 160 by 90 and 0.037 at 800 by 450 and the Cornell box's by 0.003 to 0.004, the thin room's
+and the carried lamp's moving by 0.002 at most, and the views it widens widen to `High`'s own
+figures for their rooms, the window's to 0.356 at `Low` and 0.340 at `Medium` where `High`'s is
+0.324 at 160 by 90 and to 0.303 where `High`'s is 0.311 at 800 by 450, its walls 21 and 16% over at
+`Low` where 6 and 8%, `High`'s 22 and 19%, the strip's to 0.266 and 0.255 where `High`'s is 0.250,
+and the grazing floor's at `Medium` to 0.105 where `High`'s is 0.099, so the one ray a texel covered
+at `Low` the walls the gain lifts at `High`, and the bounce rooms test holds those views at the new
+figures. Global illumination costs 1.18 to 1.20 ms where 1.13 to 1.14 at `Low` and 1.34 to 1.40
+where 1.30 to 1.31 at `Medium` in the Cornell box on the development machine's GPU (`gi.screenprobe`
+with 256 paths a way at no bounce past the hits, `gi.compare` at 800 by 450, BounceRoomsTests,
+`./e3d command profile`, the frames unlimited).
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's

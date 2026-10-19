@@ -43,7 +43,14 @@ public sealed class BounceRoomsTests : IDisposable
     // strip's and the blocks' read 0.25 to 0.27 and 0.05 with each pixel's glow light its own;
     // taken from texels of half the window's size (gi_screen_glow.slang), which at 160 by 90 are
     // two pixels wide beside a strip six hundredths of a block thick, they read further, where at
-    // 1280 by 720 the strip's reads 0.163 against 0.162 and the blocks' 0.020 against 0.018.
+    // 1280 by 720 the strip's reads 0.163 against 0.162 and the blocks' 0.020 against 0.018. Since
+    // the second cascade of Low and Medium, of 8 texels a side, sends four rays a texel as the
+    // first does (RaysAt), the rooms whose views it moved read as High reads them, the window's
+    // 0.356 at Low and 0.340 at Medium where 0.315 and 0.300, High's 0.324, its walls 21 and 16%
+    // over at Low where High's are 22 and 19%; the strip's 0.266 and 0.255 where 0.254 and 0.243,
+    // High's 0.250; and the grazing floor's 0.105 at Medium where 0.080, High's 0.099, and 0.074 at
+    // Low where 0.092, its room at one bounce reading as its reference where 5% under, High's 1%
+    // over.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
@@ -54,16 +61,16 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(3, GlobalIllumination.Low, 0.24)]
     [InlineData(3, GlobalIllumination.Medium, 0.26)]
     [InlineData(3, GlobalIllumination.High, 0.28)]
-    [InlineData(4, GlobalIllumination.Low, 0.34)]
-    [InlineData(4, GlobalIllumination.Medium, 0.32)]
+    [InlineData(4, GlobalIllumination.Low, 0.41)]
+    [InlineData(4, GlobalIllumination.Medium, 0.40)]
     [InlineData(4, GlobalIllumination.High, 0.34)]
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.26)]
-    [InlineData(6, GlobalIllumination.Medium, 0.26)]
+    [InlineData(6, GlobalIllumination.Low, 0.31)]
+    [InlineData(6, GlobalIllumination.Medium, 0.30)]
     [InlineData(6, GlobalIllumination.High, 0.27)]
-    [InlineData(7, GlobalIllumination.Low, 0.13)]
+    [InlineData(7, GlobalIllumination.Low, 0.09)]
     [InlineData(7, GlobalIllumination.Medium, 0.13)]
     [InlineData(7, GlobalIllumination.High, 0.15)]
     [InlineData(8, GlobalIllumination.Low, 0.15)]

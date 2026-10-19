@@ -204,11 +204,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     uint probes = push.cascade.y;
     uint texels = push.cascade.z;
     // A thread a ray, a texel's rays (RaysAt) side by side in a workgroup.
-    uint each = RaysAt(push.cascade.x);
+    uint each = RaysAt(texels);
     uint rays = texels * texels * each;
     uint probe = id.x / rays;
-    // A probe's rays are 64 or 256, so every workgroup is one probe's, and one past the last
-    // probes leaves whole, before the sum below every ray of a group reaches.
+    // A probe's rays are 256, so every workgroup is one probe's, and one past the last probes
+    // leaves whole, before the sum below every ray of a group reaches.
     if (probe >= probes * probes * probes)
         return;
     uint index = id.x % rays;
@@ -248,13 +248,16 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         light = float4(0.0);
     else
     {
-        // The first cascade sends a ray from the middle of each quarter of its texel, and the
-        // texel takes their light together (below). One from the texel's middle took a lamp's
-        // bright spot under a ceiling for the whole texel, which in a Cornell box's pocket between
-        // the floor and a block held a sixty-fourth of the sphere, and the first cascade's probe
-        // there read 93% over a path-traced reference in its upward face and the block's front 65%
-        // over its own; four rays read 18% and 39% over (gi.probe, gi.compare). The coarser
-        // cascades' texels are a quarter the size of the first's at High already.
+        // A cascade of 8 texels a side sends a ray from the middle of each quarter of its texel,
+        // and the texel takes their light together (below). One from the texel's middle took a
+        // lamp's bright spot under a ceiling for the whole texel, which in a Cornell box's pocket
+        // between the floor and a block held a sixty-fourth of the sphere, and the first cascade's
+        // probe there read 93% over a path-traced reference in its upward face and the block's
+        // front 65% over its own; four rays read 18% and 39% over (gi.probe, gi.compare). Low's and
+        // Medium's second cascade has 8 a side as well, and with one ray a texel the screen's
+        // probes in a room twelve units wide read the light beyond their reach from it from 44%
+        // under the reference to 9% over along their ways at one bounce, where with 16 a side they
+        // read it as High's do (gi.screenprobe).
         float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
         float3 way = fromOctahedron((float2(texel) + within) / float(texels));
         float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
