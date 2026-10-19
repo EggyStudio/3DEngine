@@ -10,7 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3904d0f0`, item 30's measurement of the sampling term's two candidates and nothing
+Reviewed up to `e298f4c4`, item 30's reading of the world probes' excess and nothing else,
+RENDERING.md after the sampling paragraph, a per-face split in `gi.probe`'s report by where each
+face's ways were met with its line in both guides, this file and SHARED.md, no shader changed, the
+suite 1,729 of 1,729. Fifteen faces of eleven world probes beside the thin room's wall, the strip's
+side walls, the grazing floor's walls, the window's ceiling and the Cornell box's walls were read
+for their first bounce, the engine with the bounce toggle off against the reference with no bounce
+past the probe's hits, which lights each hit as the lamps do, and for the light past it, the rest of
+each, the Cornell panel read alone as a carried glow light the engine counts at the hit and the
+reference on the second segment. Near the walls the first bounce reads at or under the reference, 2
+to 8 percent under at the Cornell lamp's faces, 0 to 2 over at the thin wall, 21 under at the
+grazing walls, and the light past it 14 to 39 percent over, 20 to 39 in the Cornell box, 14 to 15 at
+the thin wall, 26 to 30 under the window's ceiling and 21 to 23 at the grazing walls; splitting the
+reference's light past the first bounce into its second and the rest puts the gain at 1.08 to 1.09 a
+bounce in the thin room, 1.12 to 1.13 on the grazing walls, 1.14 to 1.16 under the window's ceiling
+and 1.12 to 1.27 in the Cornell box, consistent with what the rejected openness ratio took off the
+three Cornell probes. The excess comes along the ways that met a surface, inside their interval or
+before it began, which hold 74 to 100 percent of the faces' weight, 27 to 43 over through those met
+before the interval at the second cascade and 24 to 40 through those inside it at the first. Two
+places carry an excess at the first bounce instead through the cascade above, the pocket, 3 to 19
+percent over at the first bounce with its ways from the cascade above 78 to 202 over, and the
+strip's room, 204 to 209 over at the first bounce with those ways 483 to 2,521 over and its own hits
+14 to 57, which is the merge's and a term of its own. So the term is named, the irradiance a world
+probe's hit reads from the probes around it, 8 to 27 percent high a bounce, a gain compounding
+through the probes' own hits, and the reviewer's choice of what comes before its mend is said under
+item 30. Right. Next that reading; a pack run for the game's package; then the gain's mend, the
+merge's first-bounce excess at the pocket and the strip, the sampling term's candidates again, (c)
+and (d).
+
+Before it, `3904d0f0` came, item 30's measurement of the sampling term's two candidates and nothing
 else, RENDERING.md and this file, no shader changed, the code at the head before it. Each view's
 distance to its path-traced reference was the judge, the pixels' luminance differences summed over
 the reference's light, at 800 by 450 over the nine bounce room views and the Cornell box at High and
@@ -58,27 +86,6 @@ probes' sixteen ways miss. The factor is rejected and the choice made again unde
 sampling term before (c) and (d). Right. Next the sampling term's two candidates measured at this
 head against the path-traced references at both sizes; a pack run for the game's package; then the
 light past the first bounce at the world probes' own hits, (c), and (d).
-
-Before it, `12ef6f13` came, item 30's reading of what remains at (b) and nothing else, RENDERING.md
-and this file, no shader changed. The screen probe instrument at the corner probe, at no bounce, one
-and every bounce, splits the five hits nearest the corner: the lamp's direct light agrees with the
-reference's 0.33 once the panel carried as a glow light, about 0.12, is set aside; the light past
-the first bounce reads 0.91 to 0.95 against the reference's 0.63 to 0.65, 40 to 50 percent over, and
-carries the whole excess of 1.36 to 1.40 against 1.07 to 1.11. That light at a screen hit is the
-wall's color over pi times the world probes' faces read there, not the screen rays' reads past their
-reach, and the probes hold their own light near right, the second cascade's probe nearest the hits 7
-percent over the reference along the red wall's normal and the first cascade's nearest the corner 9
-over, their back-wall ways 22 and 35 over, gathered mostly from rays that met a surface before their
-interval began; read at the hit they give about 5.0 of red irradiance where about 3.5 reaches it,
-the light falling by two fifths from where the probes stand to the corner 1.3 to 1.9 units on, which
-a blend of probes 2.4 apart cannot draw. The model pass alone reads the same probes on the red wall
-at 1.13 of the reference 30 pixels from the corner and 1.25 at 10, and with the screen probes the
-wall reads 0.86 to 0.95, an under-read not yet placed. The term is named, the light past the first
-bounce at a surface in a concave corner read from probes standing in more open light, and three
-mends are offered, an occlusion factor on that light from the field's distances around the hit,
-probes read nearer the surface or weighted by the share of the hit's hemisphere each sees, and a
-finer first cascade near surfaces; the reviewer's choice is said under item 30. Right. Next that
-measurement; a pack run for the game's package; then (c), (d), and the sampling term measured again.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1405,8 +1412,62 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     comes to 0.93 and 0.94 with its blocks within 0.87 to 1.07 and 0.94 to 1.04 of their mean; both
     are better samplers held back by that excess. Next the light past the first bounce at the world
     probes' own hits, read by `gi.probe` against the reference independent of the frame, the term
-    named by what carries it before a mend is proposed, then the two candidates measured again after
-    its mend, then (c) and (d).
+    named by what carries it before a mend is proposed. Named at `e298f4c4` the same day with no
+    shader change: near the walls the world probes' first bounce reads at or under the reference and
+    the light past it 14 to 39 percent over, a gain of 1.08 to 1.27 a bounce in the irradiance a
+    probe's hit reads from the probes around it, compounding through the probes' own hits; and apart
+    from it the merge reads over at the first bounce in the pocket and around the carried strip
+    through the cascade above, by up to 2,521 percent along those ways. The gain is named by where
+    it shows and not yet by its cause, which is one of three, the constant that turns the faces into
+    irradiance and irradiance into the hit's light, the probes read standing in more light than
+    reaches the hit on its wall, or a face holding the wall's own outgoing light read back into it,
+    so one more reading comes first, at one hit on the thin wall, one on a grazing wall and one on
+    the red wall, the irradiance the hit reads against the reference's irradiance at that point from
+    one bounce and the same read 0.3 off the wall, and the constant alone in a closed white room
+    under the sky at one bounce, which tells the three apart; then the mend of the cause found, one
+    commit, measured at the fifteen faces and the frame as before; then the merge's first-bounce
+    excess at the pocket and the strip as its own term; then the sampling term's two candidates
+    again, then (c) and (d). Read at 11:58 on 2026-10-19 with a scratch test that stays out of the
+    tree, recomputing a hit's read on the CPU and tracing the reference's one-bounce irradiance at
+    the hit, 0.3 off it and at each probe's own place: the constant holds, a white floor under a
+    uniform sky reading 1.00 of the reference at the floor and off it and the probe's faces 1 to 2
+    percent over; the wall's own light is ruled out, the read against the probes' own places 0.97 to
+    1.07 on the red and the white walls alike and the red wall's gradient the smaller; and the cause
+    is the gradient, the probes right where they stand and standing where 11 to 64 percent more
+    light arrives than at the hit, 1.13 at the thin wall whose probes are 0.7 to 1.2 off, 1.15 at
+    the Cornell back wall's middle and 1.56 by its corner with the second cascade's planes 1.1
+    behind the wall and 1.3 before it, 1.63 at the grazing walls, 1.08 under the window's ceiling,
+    the thin room at 1.08 a bounce and the Cornell box at 1.27 differing in that alone. The lean of
+    0.5 recomputed at 0.1 and 0 brings the grazing walls to 1.07 and 0.86 and raises the window's
+    ceiling and the back wall off it, and moves the Cornell walls not at all, since no probe stands
+    near them; the facing weight dropped takes 3 to 10 percent off everywhere. The reviewer's choice
+    is the probes placed against the walls, a probe whose grid spot lies behind a wall within its
+    spacing moved to the wall's front so every wall has a plane of probes beside it, the move rule
+    widened from its 0.45, measured together with the lean toward none, each kept by what the
+    measurement says; a finer spacing near surfaces stays the last resort. Conditions: the blend
+    weighs a moved probe by where it stands or the move is held within what the grid's weights bear,
+    said which and why; the facing rule holds for a moved probe; a still view's frame-to-frame
+    change and the carried lamp's moved wall are read for a probe that crosses a wall as it moves;
+    and it is judged at the fifteen faces by bounce, the frame's figures, the bounce rooms' views at
+    both sizes against their references by the standing rule, the screen probes' corner hits, which
+    read the same probes, and the pass's cost at both qualities, with a test holding the gain at the
+    faces. The thin room's low point, whose probe sits in a pocket and reads 0.23 the other way, is
+    the pocket's term, (c), after it. Measured by 13:08, against the head at both sizes, at
+    seventeen faces by bounce, at the wall hits by the recompute and in still views: the probes
+    crossing the walls toward the eye with tent weights by where each stands works mechanically and
+    is out, widening the grazing floor by up to 0.034 at both sizes, the strip, the corridor and the
+    window, moving the gain little, 1.14 to 1.27 to 1.09 to 1.19, and reading the Cornell corner's
+    hits worse, 1.22 to 1.60 and 1.56 to 1.70, since probes brought within 0.3 of a concave corner's
+    walls stand where the reference itself is 1.6 to 1.8 of the light at the hit; the lean at none
+    takes the gain to 1.05 to 1.17 in the Cornell box, 1.00 at the grazing walls, 1.05 under the
+    window and 1.03 to 1.06 at the strip, narrows the window by up to 0.066, the strip by up to
+    0.045 and the thin room, lifts the wall's foot from 0.200 to 0.219 against 0.215, and widens the
+    grazing floor at Low alone by 0.08, because the blend toward the ambient light past the last
+    cascade takes its point by the same lean and at Low the grazing room's far wall sits in the last
+    cascade's band, taking the closed room's absent ambient light. Under measurement the lean at
+    none with that blend keeping a half-spacing lean as a constant of its own, with and without the
+    crossing, and the moved wall's frames across its restamping. One commit if it holds. Next that
+    measurement.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

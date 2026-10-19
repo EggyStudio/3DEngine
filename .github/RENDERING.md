@@ -1958,9 +1958,9 @@ excess stands. The thirty-six ways cost 2.47 to 2.48 ms of global illumination w
 and 2.09 to 2.11 where 1.11 to 1.17 at `Low` in the Cornell box (`gi.compare`, BounceRoomsTests with
 its bounds at zero, `./e3d command profile`, the frames unlimited).
 
-**The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Fifteen faces
-of eleven world probes were read against the reference by bounce and by where their ways were met,
-the faces the walls take their light from beside the walls the sampling term's candidates lit
+**The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Seventeen
+faces of eleven world probes were read against the reference by bounce and by where their ways were
+met, the faces the walls take their light from beside the walls the sampling term's candidates lit
 further over and near the Cornell box's walls (`gi.probe`, each face by where its ways were met). A
 probe's first bounce, the light its hits send on of what reaches them straight from the lights, is
 its light with `gi.toggle again off` against the reference of no bounce past the probe's hits, which
@@ -1991,6 +1991,43 @@ first and 23 to 31% past it, their ways in the cascade above 483 to 2521% over a
 own hits read 14 to 57%. There the excess stands at the first bounce, in the probes' own gathering
 through the merge (`gi.probe` with 256 paths a way at no bounce, one and every bounce,
 `gi.toggle again off`).
+
+**The gain's cause and three mends of it, read on 2026-10-19.** A hit's read of the probes around it
+was recomputed from their faces with `gi.toggle again off`, the blend `bouncedSeenSum` takes without
+its march, against the reference's irradiance from one bounce traced from the hit's own point and
+from each probe's place, weighed as the read weighs them, the Cornell box drawn without its panel so
+its lamp alone lights it. Of the three causes a gain could have, the constant that turns the faces
+into a hit's light holds, a white floor under a sky of 1 reading 1.00 of the reference and the probe
+over it 1 to 2% over on its faces. Nor is it the wall's own light read back, the probes' faces
+reading the reference at their own places within 3% under and 7% over on the red wall and the white
+ones alike, and the red wall's excess the smaller. It is the gradient, the probes standing where 11
+to 64% more light arrives for the hit's normal than at the hit, 11% at the thin room's wall, whose
+hits read the first cascade's probes 0.7 to 1.2 off, and 15 to 61% at the Cornell box's back wall
+and 2 to 24% at its red wall, whose hits read the second cascade's, its planes 1.1 behind the back
+wall and 1.3 before it, and 61 to 64% at the grazing floor's walls. 0.3 off the wall, where the same
+probes are read, the excess falls, the thin wall's from 13% to none and the back wall's corner's
+from 56 to 30%. Three mends were measured and none kept, by the rule that no view's distance to its
+reference widens at 800 by 450 or at 160 by 90 (`gi.compare`, BounceRoomsTests with its bounds at
+zero). Probes whose spot lies within six tenths of the spacing behind the surface nearest them, with
+the eye across its plane, moved through it along its normal to stand before it, the blends weighing
+each probe by a tent about where it stands, cross as meant, those behind the Cornell box's walls and
+ceiling standing 0.2 to 0.3 before them, and a still view keeps calm, but the grazing floor's view
+widens by 0.017 to 0.034 and three others by 0.003 to 0.008, the gain at the faces barely falls, the
+Cornell box's from 1.14 to 1.27 a bounce to 1.09 to 1.19, and the corner's hits read worse, 60 and
+70% over where 22 and 56%, since a concave corner's light rises steeply within 0.3 of its walls,
+where the probes come to stand. Reading the probes with no lean (`Lean`) takes the gain to 1.03 to
+1.08 a bounce in the thin room, under the window's ceiling and in the strip's room, 1.00 on the
+grazing floor's walls and 1.05 to 1.17 in the Cornell box, the pocket's alone unchanged at 1.12 to
+1.13, the window's view narrowing by 0.012 to 0.066, the strip's by 0.033 to 0.045 and the wall's
+foot (d) reading 0.219 where 0.200 against 0.215, but the grazing floor's view widens at `Low` by
+0.074 and 0.082. Its far wall lies in the outer band of `Low`'s last cascade, and `probesHold`,
+which blends the probes toward the ambient light past that cascade, takes its point by the same
+lean, so with none the wall took a closed room's absent ambient light, 46% under where none with the
+screen's probes left out. With `probesHold` keeping a lean of half the spacing, the view still
+widens at `Low` by 0.048 and 0.055 and at `Medium` by 0.032, its room reading 15% under where 9%,
+its floor 17% where 10%, while at `High` it reads 2% under where 8% over. So at `Low` the gain
+covered that room's own shortfall, and taking it out leaves the shortfall standing (`gi.probe` and
+`gi.screenprobe` with 256 paths a way, `gi.compare`, BounceRoomsTests).
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
