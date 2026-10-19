@@ -2152,11 +2152,15 @@ form, the ceiling to 10% under and the side walls to 10 and 21%, a few hits in t
 corners staying 35% under. Measured on `33fd0804` against references traced anew at 2048 paths a
 pixel, it moves the strip's view alone, 0.221, 0.216 and 0.212 at `Low`, `Medium` and `High` at 160
 by 90 where 0.216, 0.213 and 0.209, and 0.108 at `Low` and `High` at 800 by 450 where 0.104 and
-0.105, the room 1% over where level, and costs global illumination 0.22 to 0.24 ms in the Cornell
-box and 0.05 to 0.10 in the strip's room, forward differences, three reads of the field a step,
-costing as much as six.
-With both changes the room reads 12 to 13% under, its walls and floor 16 to 17%. The cone is set
-aside with the slab test until the term both uncover is placed.
+0.105, the room 1% over where level. With both changes the room reads 12 to 13% under, its walls and
+floor 16 to 17%, and the term both uncover is the method's (below), so both are taken under the
+covered-fault principle, the cone first. Its slope is read by forward differences, three reads of
+the field, which take the ceiling to 8% under and the side walls to 8 and 20% where central
+differences' six took them to 10, 10 and 21%, the rays from the back wall's screen probe that meet
+the ceiling right over the strip to 4% under where 35% (`BounceRoomsTests`), and the strip's view
+within 0.001 of the six's. Global illumination costs 1.64 to 1.68 ms where 1.49 to 1.50 at `High`
+and 1.51 to 1.52 where 1.28 at `Low` in the Cornell box, and 1.29 to 1.30 where 1.24 and 1.17 to
+1.18 where 1.11 to 1.15 in the strip's room, as with six reads.
 
 That term is the light the strip puts on the wall it is mounted on, which lies within a fifth of a
 unit of the strip. The wall takes 7.8 of the strip's light half a hundredth above it, 0.8 a fifth

@@ -277,6 +277,74 @@ public sealed class BounceRoomsTests : IDisposable
         onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
     }
 
+    // The screen probe on the strip's room's back wall under the ceiling, over the strip, whose rays
+    // that meet the ceiling right above the strip bring back the strip's light there. The march that
+    // tells how much of a glow light a hit sees ran beside the wall the strip is mounted on, against
+    // a cone as wide as the strip's mean half side, 0.35, and took the wall for something between,
+    // and the six such hits read the strip's light 35% under its closed form on the development
+    // machine's GPU; against a cone as wide as the strip across the way toward the wall, 0.03, they
+    // read it 4% under.
+    [NeedsRayQueryFact]
+    public void The_Ceiling_Over_A_Strip_On_Its_Wall_Takes_The_Strips_Light_In_Closed_Form()
+    {
+        var probe = ReadScreenProbe(5, 400, 110, out var report);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        var over = probe.Rays.Where(ray => ray.Met < 2).Select(ray => (ray.Own, At: probe.Start + ray.Way * ray.Distance))
+            .Where(hit => hit.At.Y > 2.8f && MathF.Abs(hit.At.X - 200) <= 1 && hit.At.Z < -1.6f).ToArray();
+        over.Should().NotBeEmpty($"the probe's rays meet the ceiling over the strip\n{report}");
+        var read = over.Sum(hit => Luminance(hit.Own));
+        var exact = over.Sum(hit => Luminance(StripLight(hit.At with { Y = 3 }, -Vector3.UnitY)));
+        (read / exact - 1).Should().BeInRange(-0.1f, 0.1f, $"the ceiling over the strip takes its light as its closed form gives it\n{report}");
+    }
+
+    // The strip's light at p on the room's white facing n, Lambert's closed form over each face of its
+    // box p lies before, in linear light.
+    private static Vector3 StripLight(Vector3 p, Vector3 n)
+    {
+        static float Linear(byte c)
+        {
+            var v = c / 255f;
+            return v <= 0.04045f ? v / 12.92f : MathF.Pow((v + 0.055f) / 1.055f, 2.4f);
+        }
+        var middle = new Vector3(200, 1.5f, -2.45f);
+        Vector3[] axes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
+        float[] halves = [1, 0.03f, 0.03f];
+        var seen = 0f;
+        for (int k = 0; k < 3; k++)
+            for (int side = -1; side <= 1; side += 2)
+            {
+                var face = middle + axes[k] * (side * halves[k]);
+                if (Vector3.Dot(p - face, axes[k]) * side <= 0) continue;
+                var (u, v) = (axes[(k + 1) % 3] * halves[(k + 1) % 3], axes[(k + 2) % 3] * halves[(k + 2) % 3]);
+                seen += FormFactor(p, n, [face + u + v, face - u + v, face - u - v, face + u - v]);
+            }
+        var (white, emitted) = (new Color(220, 220, 215), new Color(255, 230, 190));
+        return new Vector3(Linear(white.R) * Linear(emitted.R), Linear(white.G) * Linear(emitted.G), Linear(white.B) * Linear(emitted.B)) * 30 * seen;
+    }
+
+    // The share of the light a uniformly bright polygon sends a point at p facing n, the polygon
+    // clipped to the side n faces.
+    private static float FormFactor(Vector3 p, Vector3 n, Vector3[] corners)
+    {
+        var kept = new List<Vector3>();
+        for (int i = 0; i < corners.Length; i++)
+        {
+            var (a, b) = (corners[i] - p, corners[(i + 1) % corners.Length] - p);
+            var (da, db) = (Vector3.Dot(a, n), Vector3.Dot(b, n));
+            if (da >= 0) kept.Add(a);
+            if (da >= 0 != db >= 0) kept.Add(a + (b - a) * (da / (da - db)));
+        }
+        if (kept.Count < 3) return 0;
+        var sum = Vector3.Zero;
+        for (int i = 0; i < kept.Count; i++)
+        {
+            var (a, b) = (Vector3.Normalize(kept[i]), Vector3.Normalize(kept[(i + 1) % kept.Count]));
+            var g = Vector3.Cross(a, b);
+            if (g.Length() > 1e-9f) sum += Vector3.Normalize(g) * MathF.Acos(Math.Clamp(Vector3.Dot(a, b), -1, 1));
+        }
+        return MathF.Abs(Vector3.Dot(sum, n)) / (2 * MathF.PI);
+    }
+
     // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by 450
     // at High, its rays written over the last frames once the screen's probes have settled, as
     // gi.screenprobe reads it, with the lines it writes of it.

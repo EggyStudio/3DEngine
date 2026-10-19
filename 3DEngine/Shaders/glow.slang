@@ -319,7 +319,32 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
         if (d < min(height, glowLightDistance(light, q)) - step * 0.5)
         {
             float y = d > 0.0 ? d * d / (2.0 * before) : 0.0;
-            float cone = max(min(radius * max(t - y, 0.0) / total, height), step * 0.25);
+            // A radius below zero, the march to the box's middle (glowLightSeen), takes the cone as
+            // wide as the box across the way toward the surface the step passes, the box's support
+            // along the field's slope there, 0.03 for a strip 0.06 thick toward the wall it is
+            // mounted on and 0.5 for a cube a unit wide toward a face. As wide as the box's mean
+            // half side in every way, 0.35 for a strip 2 long, a march from a hit above or below
+            // the strip ran along its wall within a cell and took the wall, inside the cone, for
+            // something between, though the wall stands behind the strip, and the hits in the
+            // strip's room of shaders_bounce_rooms read its light 28% under its closed form at the
+            // floor, 30% at the ceiling and 35% right over the strip, where with the support the
+            // floor reads it, the ceiling 8% under and the hits over the strip 4%, a few hits in
+            // the ceiling's back corners 35% under. The slope is read by forward differences, three
+            // reads of the field, where central differences' six took the ceiling to 10% under and
+            // the side walls to 10 and 21% against 8 and 20%, at the same cost, global illumination
+            // taking 0.15 to 0.24 ms more in the Cornell box on the development machine's GPU.
+            float wide = radius;
+            if (wide < 0.0)
+            {
+                float e = step * 0.5;
+                float3 slope = float3(fieldDistanceIn(field, info, c, q + float3(e, 0, 0)), fieldDistanceIn(field, info, c, q + float3(0, e, 0)),
+                    fieldDistanceIn(field, info, c, q + float3(0, 0, e))) - d;
+                float3 across = slope - way * dot(slope, way);
+                float acrossLength = length(across);
+                across = acrossLength > 1e-4 ? across / acrossLength : slope;
+                wide = abs(dot(across, light.halfX.xyz)) + abs(dot(across, light.halfY.xyz)) + abs(dot(across, light.halfZ.xyz));
+            }
+            float cone = max(min(wide * max(t - y, 0.0) / total, height), step * 0.25);
             // Outside a surface, the share is half and more by how far the way passes from it.
             if (d > 0.0)
                 seen = min(seen, saturate(0.5 + 0.5 * sqrt(max(d * d - y * y, 0.0)) / cone));
@@ -402,10 +427,10 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
 }
 
 // How much of a glow light a surface at p facing n, in cells of `cell`, sees, from 0 to 1: one
-// march from a cell and a half off the surface to the middle of its box, the cone the box's mean
-// half side, which a probe's ray's hit and a pixel no screen probe holds take, the light that
-// bounces on and a far pixel's asking less than the shadows near the eye. Where the field does not
-// hold p, all of it.
+// march from a cell and a half off the surface to the middle of its box, the cone as wide as the
+// box across the way toward each surface the march passes (glowMarch), which a probe's ray's hit
+// and a pixel no screen probe holds take, the light that bounces on and a far pixel's asking less
+// than the shadows near the eye. Where the field does not hold p, all of it.
 public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell)
 {
     if (cell <= 0.0)
@@ -416,7 +441,7 @@ public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight 
     float entry = glowLightEntry(light, from, toward / total);
     if (entry <= cell * 2.0)
         return 1.0;
-    float seen = glowMarch(field, info, light, p, n, cell, from + toward / total * entry, (light.halfX.w + light.halfY.w + light.halfZ.w) / 3.0, 1.5);
+    float seen = glowMarch(field, info, light, p, n, cell, from + toward / total * entry, -1.0, 1.5);
     return lerp(1.0, seen, fieldHold(info, p));
 }
 

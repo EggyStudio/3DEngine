@@ -10,33 +10,60 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `33fd0804`, Verdict 71's mend and nothing else, 13 files, the restart having lost the
-scratch folder alone, the commit helper, the measurement scripts, the references at 800 by 450 and
-the saved shader variants, with the tree whole and item 30's work in progress stashed by its paths.
-One helper makes every descriptor pool, counting it by type from the descriptors of the layouts
-whose sets it gives times the sets taken, each compute stage keeping its bindings' types, the
-field's run from the stages it dispatches, the probes' run from trace, merge and ambient times the
-cascades, the screen run from screen, filter and glow where glow lights are, the cube filter's from
-its gather or environment sets with the source's mips, the target's levels and the irradiance, and
-the reference, the skinning's ring, the particles' sets and the compute helper's declared bindings
-through the same helper, so no count is written by hand; the shared pool became pools by the shape
-of the layouts they serve, 64 sets for the first of a shape and twice the last for each next up to
-4,096, a freed set going back to its pool, its old counts having lacked storage images entirely. The
-debug callback counts the layer's five lines on an allocation past a pool with its errors, so every
-test under the layer fails on one and N 3.7 with it; and since a frame that throws is never
-submitted and takes no slot of the frames in flight while the field and illumination renderers
-counted it toward retiring frames, destroying the pool of a frame submitted before it, which was the
-layer's error on macOS, the renderer waits for the device when the preparation or the graph throws,
-then rethrows. Two descriptor pool tests hold it, one drawing frames through every pool, which
-failed before the mend under lavapipe and the layer on seven storage images asked of a pool of six
-and passes after, a scratch trace confirming it reaches every pool but the reference, which lavapipe
-cannot trace, and one failing three frames through a graph node, which without the device wait
-reports the layer's line on a pool destroyed in use and passes with it. Checked were the strict
-build, the suite, 1,732 of 1,732 with the leak test ending at no descriptor pools, and lavapipe
-under the required layer, 229 passed and 16 skipped over eleven test classes; RENDERING.md has a
-line under what the engine needs. Right. Next the owner's push of `33fd0804` and a pack run, which
-is the game's package and Verdict 71's first macOS suite; the cone's commit from the stash; the
-leak's mend judged again; the sampling term's candidates; the parallax; (c). The owner pushed
+Reviewed up to `132ac219`, item 30's reading of the strip room's light past the first bounce and
+nothing else, RENDERING.md and this file, no shader changed, both mends out of it. Read with both
+mends in the tree, the room's shortfall lies in the probes' own gathering and not the read, the
+floor's read 0.73 of the reference with the probes holding 0.66 at their places, the ceiling's 0.89
+with 0.87, and the back wall's 0.76 to 0.81 with 0.94 to 0.96 and the reversed gradient of 0.80 to
+0.84 the smaller part; the floor's probes nearest the back hold their upward face 40 and 44 percent
+under and the ceiling's their downward 24 and 32, and at one probe two ways carry nearly all of the
+deficit, bringing 0.08 and 0.10 where the reference brings 0.84 and 0.59, their four rays meeting
+the back wall half a unit above the strip, where the strip's closed form gives near what they bring.
+The strip's light on its wall falls steeply, 7.8 half a hundredth above it, 2.1 at a tenth, 0.8 at a
+fifth and 0.11 at half a unit, so the closed form averaged over each texel as the reference weighs
+gives the reference's level, a third of it within half a cell of the strip's box, and the four rays
+at the same quarter-middles in every probe of the floor's row, all at one height and depth, pass
+over the band; with the strip half a unit off its wall in a scratch build the room reads within 2
+percent of a fresh reference at both qualities with the head's shaders and with both mends alike,
+the side walls 7 to 8 percent under in every variant, a term of their own. So the term is the rays'
+fixed sampling of a band narrower than a quarter texel, seen from the room's probes across a degree
+or two, which field cells of 0.15 could not place a hit inside either, a term of the method as the
+parallax is, and by the ruling of 19:51 the leak and the cone are taken together under the
+covered-fault principle, confirmed under item 30. Right. Next the cone's commit in forward
+differences, then the leak's, the strip's test pinned at the new figures with the reason naming the
+band; then the sampling term's candidates with the band beside them, the parallax, (c). At 20:25 the
+pack run of `33fd0804` had its macOS suite green in 42 minutes, the second of Verdict 71's three,
+its games job green in 39 minutes with the thirteen games, and its Linux suite and examples job
+green, with its Windows suite in its 64th minute and both captures running; the push run's Windows
+suite was in its 76th minute, the rest of it green.
+
+Before it, `33fd0804` came, Verdict 71's mend and nothing else, 13 files, the restart having lost
+the scratch folder alone, the commit helper, the measurement scripts, the references at 800 by 450
+and the saved shader variants, with the tree whole and item 30's work in progress stashed by its
+paths. One helper makes every descriptor pool, counting it by type from the descriptors of the
+layouts whose sets it gives times the sets taken, each compute stage keeping its bindings' types,
+the field's run from the stages it dispatches, the probes' run from trace, merge and ambient times
+the cascades, the screen run from screen, filter and glow where glow lights are, the cube filter's
+from its gather or environment sets with the source's mips, the target's levels and the irradiance,
+and the reference, the skinning's ring, the particles' sets and the compute helper's declared
+bindings through the same helper, so no count is written by hand; the shared pool became pools by
+the shape of the layouts they serve, 64 sets for the first of a shape and twice the last for each
+next up to 4,096, a freed set going back to its pool, its old counts having lacked storage images
+entirely. The debug callback counts the layer's five lines on an allocation past a pool with its
+errors, so every test under the layer fails on one and N 3.7 with it; and since a frame that throws
+is never submitted and takes no slot of the frames in flight while the field and illumination
+renderers counted it toward retiring frames, destroying the pool of a frame submitted before it,
+which was the layer's error on macOS, the renderer waits for the device when the preparation or the
+graph throws, then rethrows. Two descriptor pool tests hold it, one drawing frames through every
+pool, which failed before the mend under lavapipe and the layer on seven storage images asked of a
+pool of six and passes after, a scratch trace confirming it reaches every pool but the reference,
+which lavapipe cannot trace, and one failing three frames through a graph node, which without the
+device wait reports the layer's line on a pool destroyed in use and passes with it. Checked were the
+strict build, the suite, 1,732 of 1,732 with the leak test ending at no descriptor pools, and
+lavapipe under the required layer, 229 passed and 16 skipped over eleven test classes; RENDERING.md
+has a line under what the engine needs. Right. Next the owner's push of `33fd0804` and a pack run,
+which is the game's package and Verdict 71's first macOS suite; the cone's commit from the stash;
+the leak's mend judged again; the sampling term's candidates; the parallax; (c). The owner pushed
 `33fd0804` at 19:09 and started its pack run at 19:10; at 19:20 the push run's three suites were
 running, the pack run was pending behind the pack run of `257006c7`, whose Windows suite was still
 running in its 118th minute with every other job done, and the game's package waits on the new one.
@@ -81,33 +108,6 @@ and the pack run's captures and games jobs were still running. At 18:47 the push
 on its macOS suite alone, its Windows suite green in 60 minutes, its examples job and digest green;
 the pack run's captures on Linux and macOS, its examples job and its games job, thirteen games
 played, soaked and stormed, were green, and its Windows suite was still running in its 85th minute.
-
-Before it, `14ae5a02` came, item 30's mend of the last cascade's reach and nothing else, 7 files,
-committed under the covered-fault principle of `a27fbdd0`, which the reviewer reads the same way.
-The last cascade's interval ends at the diagonal of the field's coarsest cascade, its rays going on
-until they meet a surface or leave the field and taking the sky only where they leave, the remark
-saying that past the last cascade nothing takes over and what Low's reach of 9.6 left the grazing
-far wall's probe at; a cascade edge test holds a closed room 16 long at Low inside the last cascade
-ahead of the eye, none of the 1,536 texels of its 24 last-cascade probes taking the sky where 16
-did, the test moved from the illumination tests' file to keep it under N 1.3's 800 lines. Measured
-against `a27fbdd0`, Medium and High are unmoved to the last digit in every view, the frame's figures
-and the grazing room's probes' faces; at Low the far-wall probe's face across the room reads 22
-percent under at the first bounce where 35 and High's 21, the three probes 11 to 36 percent over
-past it where Medium's and High's read 7 to 37, and the grazing room reads 7 percent over where 4
-under and High's 8 over, its view 0.104 where 0.074 at 160 by 90 against High's 0.099 and 0.086
-where 0.053 at 800 by 450 against High's 0.088, the one widening, landing at High's own figure for
-the room, which the gain's mend is for, the bound pinned with both figures and the reason, every
-other view at Low unmoved to the last digit. The pass costs 0.08 ms more at Low in the Cornell box,
-0.03 at Medium and High, 0.08 to 0.13 at Low in the carried lamp's room, 0.11 to 0.15 at Low and
-Medium in Ore's landscape and nothing at High there, since only the rays that leave a room go
-further. The guide says a space wider than the field where it said the last cascade, without the old
-figure, and RENDERING.md's line on the voxel game's cave at Low stands in the past, the cave not
-measured again. Checked were the strict build, the suite, passing but for N 1.3 before the test's
-move and the cascade edge tests 7 of 7 after it, and lavapipe under the required layer, 109 passed
-and 16 skipped. Right. Next the lean's refinement on this head in its own commit, Low measured again
-with the figures in hand for Medium and High and the norm test run after the move; a pack run for
-the game's package; then the merge's first-bounce excess at the pocket and the strip, the sampling
-term's candidates, (c) and (d).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1683,7 +1683,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     strip's test pinned at the new figures with the reason naming that term, which then stands in
     the order with the sampling term's candidates and the parallax. The cone's commit, when it
     comes, measures forward differences against the six reads first and takes the three where the
-    hits' figures hold within their bound, the cost said either way. Next that reading.
+    hits' figures hold within their bound, the cost said either way. Named and recorded at
+    `132ac219` the same day with no shader change: neither of the two, but the band of light the
+    strip puts on the wall it is mounted on, narrower than a quarter texel, which the probes' four
+    rays at their fixed quarter-middles pass over, so the floor's probes gather the band's light at
+    a tenth of the reference; a term of the method, in the sampling term's family, shown by the
+    strip set half a unit off its wall reading within 2 percent of a fresh reference with any
+    shaders. So the leak and the cone are taken together under the covered-fault principle as the
+    ruling said: the cone first in forward differences, three reads where six, which hold the hits
+    within two points of the six reads' figures at about the same cost, its test holding the
+    ceiling's hits over the strip against the closed form; then the leak with its remark on the
+    reference leaving a thin emitter's emission out; the strip's test pinned at the new figures,
+    0.235, 0.246 and 0.245 where 0.216, 0.213 and 0.209, the reason naming the band with both
+    figures; the band in the order beside the sampling term's candidates and the parallax, the side
+    walls' 7 to 8 percent under noted as their own. Next the cone's commit.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2545,8 +2558,9 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
     that is the fault's second face, the layer's lines slowing every allocation under it, or a slow
     runner, the pack run of `33fd0804`'s Windows suite says, and if it is as slow with no line to
     log, the leak test's time on Windows is a verdict of its own. The push run of `33fd0804` passed
-    its macOS suite in 25 minutes on 2026-10-19 at 19:35, the first of three. Settled at three green
-    macOS suites in a row after the mend.
+    its macOS suite in 25 minutes on 2026-10-19 at 19:35, the first of three, and the pack run of
+    `33fd0804` passed it in 42 minutes at 20:03, the second. Settled at three green macOS suites in
+    a row after the mend.
 
 ## Decisions
 
