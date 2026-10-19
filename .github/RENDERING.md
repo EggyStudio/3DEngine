@@ -1937,9 +1937,26 @@ falls to 0.89 to 0.92 of the reference, the sixteen ways' reading over it having
 reading under it, among them rays that pass behind the thin green wall near its end within the
 depth's thickness, which the screen's march counts as meeting the face the eye sees, dark, where the
 reference meets the lit floor and wall beyond, a fault of the march's thickness, mended since (e).
-The ways turned for each tile and the thirty-six are the candidates to measure again once the
-screen's hits behind thin walls, the corner's color and the light past the first bounce in its angle
-(b), the pocket's (c) and the wall's foot (d) are mended.
+Measured again on the same day with the screen's hits behind thin walls (e) and the corner's color
+(b) mended, against references of 2048 paths a pixel at 800 by 450 and the bounce rooms test's at
+160 by 90, each view's distance to its reference taken as the test takes it, its pixels' differences
+summed over the reference's light, over blocks of 4 pixels at 800 by 450, both candidates widen four
+views at both sizes. The thin walls' widens by 0.022 to 0.032 at 160 by 90 and 0.024 to 0.025 at 800
+by 450, the strip's by 0.009 to 0.070 and 0.011 to 0.017, the grazing floor's by 0.012 to 0.030 at
+`High` and `Medium` and 0.012 to 0.019 at `High`, and the window's by up to 0.021 and 0.009 to
+0.020. At 800 by 450 they narrow the Cornell box's by 0.006 to 0.014, the corridor's by 0.006 to
+0.011 and the carried lamp's room's by 0.015 to 0.018. At `High` the far wall reads 0.93 and 0.94 of
+the reference where 1.06, its blocks of 16 pixels 0.87 to 1.07 and 0.94 to 1.04 of their mean where
+0.77 to 1.19, the wall's foot (d) 0.208 and 0.210 where 0.200 against 0.215, and the small block's
+front 1.20 and 1.22 where 1.40, and at `Low` the wall's foot reads 0.179 with the ways turned for
+each tile where 0.192. Where a view widens, walls that read over the reference with the fixed ways
+read further over, the thin room's walls 8 to 9% over where 5%, the strip's side walls 22% where
+13%, the grazing floor's walls 19 to 25% where 3 to 10% while its floor reads 3 to 4% over where
+10%, and the window's ceiling 23 to 26% where 0%, so the sixteen ways' reading under on those walls
+covers the excess of the world's probes' own hits (b), and neither candidate is kept while that
+excess stands. The thirty-six ways cost 2.47 to 2.48 ms of global illumination where 1.45 at `High`
+and 2.09 to 2.11 where 1.11 to 1.17 at `Low` in the Cornell box (`gi.compare`, BounceRoomsTests with
+its bounds at zero, `./e3d command profile`, the frames unlimited).
 
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its

@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `12ef6f13`, item 30's reading of what remains at (b) and nothing else, RENDERING.md
+Reviewed up to `75d7af37`, item 30's measurement of the openness factor and nothing else,
+RENDERING.md and this file, no shader changed, the code back at the head before it. The factor
+measured was five cones about the hit's normal, one along it and four leaning 45 degrees, four steps
+doubling out to the probes' spacing, the nearest surface against the cone's width in the finest
+cascade, the ratio of the hit's openness to the probes' capped at one, on the light past the first
+bounce alone, with the screen probes on at 800 by 450. On the screen's hits alone it mends what it
+was asked, the corner probe's red-wall hits from 26 to 54 percent over the reference along their
+ways to 0 to 38 and the block's front from 1.40 to 1.32, and in every variant of length, spread and
+the probes' place it fails the conditions, the open middle moving, the Cornell back wall from 0.977
+to 0.969 and the carried lamp's floor from 0.988 to 0.972, the wall's foot falling from 0.200 to
+0.195, the upper red wall from 0.903 to 0.898, and a cap of 1.5 raising the open middle 1.2 percent
+and the far wall 4; applied at the world probes' own hits it brings the three probes from 9, 16 and
+16 percent over their references to 2, 10 and 9 while the frame falls, the back wall to 0.947, the
+floor to 0.904 and the foot to 0.177; and the field's distances say how near a surface is and not
+how bright, a hit on the tall block's side facing the red wall reading 0.06 open against 0.77 and
+losing nine tenths of its light though that wall lights it, at 0.45 to 0.50 ms on 1.15 to 1.50. Two
+findings stand. The corner is not over in the frame, the back wall's first 12 pixels from it reading
+1.00 to 1.02 of the reference and the wall 50 pixels in 0.93, so the corner's 0.66 against 0.60 is
+the wall further in reading under, and a factor at the corner's hits lowers both; and the frame's
+open middle reads near the reference only because the world probes' excess offsets what the screen
+probes' sixteen ways miss. The factor is rejected and the choice made again under item 30, the
+sampling term before (c) and (d). Right. Next the sampling term's two candidates measured at this
+head against the path-traced references at both sizes; a pack run for the game's package; then the
+light past the first bounce at the world probes' own hits, (c), and (d).
+
+Before it, `12ef6f13` came, item 30's reading of what remains at (b) and nothing else, RENDERING.md
 and this file, no shader changed. The screen probe instrument at the corner probe, at no bounce, one
 and every bounce, splits the five hits nearest the corner: the lamp's direct light agrees with the
 reference's 0.33 once the panel carried as a glow light, about 0.12, is set aside; the light past
@@ -63,38 +88,6 @@ the required layer, 108 passed and 16 skipped for ray queries. Right. Next the r
 remains at (b), the light past the first bounce in the concave corner, with both instruments before
 any mend is proposed for it; a pack run for the game's package; then (c), (d), and the sampling term
 measured again.
-
-Before it, `9c44401f` came, item 30's mend of the screen's hits behind thin walls and nothing else,
-7 files. The screen's march took a point up to two steps, 0.4, behind the depth as a hit, so two
-rays of the far wall's probe in the carried lamp's room, passing the thin green wall's end where
-from the eye that space lies behind the wall, were shaded as the wall's dark eye-facing face where
-the reference meets the lit floor and wall beyond, and the probe read 51 percent under the reference
-along its ways. The mend is one judgment at the halving, a ray counting as meeting the surface only
-where the depth does not leap between the halving's two ends, a leap being more than the larger of
-0.25 and eight halved steps with the sky in front the largest, and otherwise the ray goes on as any
-ray behind the depth for the field to pick up from where it went behind; a first version judging by
-how far the halving ended from the surface drew stripes in the reflections example where the mirror
-floor is seen past the spheres at a slant and was replaced, and the reflections share the march, so
-their capture moves within the encoding's noise. The march's section moved unchanged into
-`screenmarch.slang`, which `gi.slang` re-exports, keeping it under N 1.3's 800 lines at 641, and the
-package contents test needed a fresh local package, built by the pack script into the build folder
-and published nowhere. Measured, the far wall's probe from 51 under to 2 over along its ways, held
-within 15 percent by a bounce room test that fails before the mend; the far wall's level from 0.99
-to 1.06 of the reference and its patches from 0.82 to 1.13 to 0.77 to 1.19, the sixteen ways'
-overread there no longer covered, which is the sampling term's turn after the four faults; the
-room's frame from 0.978 to 0.989 and the floor at the moved wall's foot, (d), from 0.187 to 0.201
-against 0.213; the Cornell box as it was, front 1.39, corner 0.68, frame 1.004; the bounce rooms'
-views at 160 by 90 within 0.008 of before, the thin walls' and the strip's within 0.002; and the
-illumination pass within 0.03 ms, the reflections' scene pass 0.01 ms more. The rays-past-reach test
-keeps the block's front alone, its comment saying why the far wall left, those rays reading 11 over
-along their ways and 116 over their cells, the sixteen ways' own error; (e)'s picture and the bounce
-rooms capture are retaken, the Cornell and reflections captures unmoved; RENDERING.md's (e) carries
-the figures and the sixteen-ways paragraph says its thickness fault is mended. Checked were the
-strict build, the whole suite after the repack, 1,728 passed, all 434 rendering tests on the GPU,
-and the illumination, cascade edge, reference frame, bounce and glow tests on lavapipe under the
-required layer, 83 passed and 15 skipped for ray queries. Right. Next (b)'s color blend and concave
-term, one commit; a pack run for the game's package; then (c), (d), and the sampling term measured
-again.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1394,8 +1387,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     probes reading 12 and 25 percent under their hemispheres on the upper wall and 35 over on the
     lower while each reads about 28 percent over the reference along its sixteen ways, the ways
     missing the bright directions toward the lit ceiling, so the upper wall's hits stand in the open
-    room, the factor must read near one there and the upper wall's frame figure must not fall. Next
-    that measurement, one commit if it holds, then (c), (d) and the sampling term measured again.
+    room, the factor must read near one there and the upper wall's frame figure must not fall.
+    Measured and not kept, recorded at `75d7af37` on 2026-10-19 with no shader change: the factor
+    mends the corner's hits and the block's front and moves the open middle, the foot and the upper
+    wall in every variant, and it reads how near a surface is and not how bright, a face lit by the
+    red wall losing nine tenths of its light beside it, so it is rejected. Its reading found that
+    the corner's first 12 pixels read 1.00 to 1.02 of the reference and the wall 50 pixels in 0.93,
+    so (b)'s frame figure is that wall's under-read, the sampling term's, and that the frame's open
+    middle is right by two errors cancelling, the world probes' excess of 9 to 16 percent at their
+    own hits against what the sixteen fixed ways miss. Neither can be judged in the frame while the
+    other stands, and (c) and (d) are figures of the frame, so the order changes: the sampling term
+    comes next, its two candidates, the ways turned for each tile and the thirty-six ways, measured
+    at this head with the distance to the path-traced reference as the judge at 800 by 450 by
+    `gi.compare` and at 160 by 90 by the bounce rooms' views, a candidate out where it widens any
+    view's distance at either size, the test's measured differences pinned again only where a view's
+    distance shrinks and with the per-view figures as the reason (N 3.5), the thirty-six ways' cost
+    said at both qualities, and if both fail the figures recorded and the choice made again. After
+    it the light past the first bounce at the world probes' own hits, read by `gi.probe` against the
+    reference independent of the frame, which is (c)'s term and what remains of (b)'s hits, then
+    (d). Next the two candidates' measurement.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
