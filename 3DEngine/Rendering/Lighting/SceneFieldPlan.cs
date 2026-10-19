@@ -35,7 +35,8 @@ namespace Engine;
 /// <see cref="MobileSettleFrames"/> where it moved within as many frames, so a figure that stops for
 /// a while is not built into the cascades and out again. One that moved more
 /// recently, a skinned one, and a still one whose cascades have not been built
-/// again since it came are stamped each frame as boxes, the nearest the eye first to
+/// again since it came, but for one that replaced a still mesh in place, which the cascades not
+/// yet built still hold, are stamped each frame as boxes, the nearest the eye first to
 /// <see cref="MaxShapes"/> boxes, into the bricks of cells each box comes within the band of, and the
 /// bricks stamped the frame before are stamped again so a box that left one is gone. A skinned
 /// mesh is a box for each joint around the vertices it holds most, posed by the joint, and one that
@@ -172,6 +173,11 @@ internal sealed class SceneFieldPlan
     private readonly HashSet<Instance> _pending = new(Keys.Shared);
     // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
     private readonly Dictionary<Instance, long> _kept = new(Keys.Shared);
+    // Still meshes that replaced a kept one in place and wait for cascades built since, which still
+    // hold the one they replaced and so are not stamped. Stamped as its boxes, a voxel game's
+    // section of ground filled the air above it in the cascades a budget of two left for the next
+    // frame, and the room's indirect light went for that frame and came back.
+    private readonly HashSet<Instance> _replacing = new(Keys.Shared);
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
@@ -424,6 +430,8 @@ internal sealed class SceneFieldPlan
         foreach (var (instance, since) in _kept.ToArray())
             if (!ReplacedBy(instance, unsettled) || _frame - since > 2 * SettleFrames)
             {
+                foreach (var replacing in _pending)
+                    if (Replacing(replacing, instance)) _replacing.Add(replacing);
                 _kept.Remove(instance);
                 Leave(instance);
             }
@@ -450,7 +458,7 @@ internal sealed class SceneFieldPlan
         }
 
         // A still mesh is stamped until every built cascade it comes within the band of has been
-        // built since it came.
+        // built since it came, but for one that replaced a mesh in place (_replacing).
         foreach (var instance in _pending.ToArray())
         {
             var (bounds, added) = _still[instance];
@@ -458,7 +466,11 @@ internal sealed class SceneFieldPlan
             for (int c = 0; c < Cascades && !waiting; c++)
                 waiting = _built[c] is { } origin && _builtFrame[c] < added && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c)));
             if (waiting) moving.Add(instance);
-            else _pending.Remove(instance);
+            else
+            {
+                _pending.Remove(instance);
+                _replacing.Remove(instance);
+            }
         }
 
         // The nearest meshes' shapes, a box for each part of each, posed, to as many as a frame
@@ -483,7 +495,7 @@ internal sealed class SceneFieldPlan
         var count = 0;
         if (_nearest.Length < moving.Count) (_nearest, _byDistance) = (new Instance[moving.Count * 2], new long[moving.Count * 2]);
         foreach (var instance in moving)
-            if (_kept.Count == 0 || !Replaces(instance))
+            if ((_kept.Count == 0 || !Replaces(instance)) && !_replacing.Contains(instance))
             {
                 _byDistance[count] = (long)BitConverter.SingleToInt32Bits(Vector3.DistanceSquared(instance.World.Translation, eye)) << 32 | (uint)count;
                 _nearest[count++] = instance;
@@ -569,6 +581,7 @@ internal sealed class SceneFieldPlan
         MarkAround(_still[instance].Bounds);
         _still.Remove(instance);
         _pending.Remove(instance);
+        _replacing.Remove(instance);
     }
 
     // Whether a mesh of other vertices drawn through a still mesh's matrix, unsettled, lies where it was.
@@ -586,11 +599,15 @@ internal sealed class SceneFieldPlan
     private bool Replaces(Instance instance)
     {
         foreach (var still in _kept.Keys)
-            if (instance.World == still.World && !ReferenceEquals(instance.Vertices, still.Vertices)
-                && _bounds(instance.Vertices).Transformed(instance.World).Overlaps(_still[still].Bounds))
+            if (Replacing(instance, still))
                 return true;
         return false;
     }
+
+    // Whether a mesh of other vertices drawn through a still mesh's matrix lies where it was.
+    private bool Replacing(Instance instance, Instance still) =>
+        instance.World == still.World && !ReferenceEquals(instance.Vertices, still.Vertices)
+        && _bounds(instance.Vertices).Transformed(instance.World).Overlaps(_still[still].Bounds);
 
     // A mesh drawn the same for SettleFrames frames running, which the cascades around it are built
     // again with and which is stamped until they have been.

@@ -554,9 +554,15 @@ eight columns, 1,836 meshes, the plan took 92 µs a frame in place of 1,600 and 
 0.39 ms of the CPU in place of 1.8 to 2.0, by `./e3d command profile`. A still mesh replaced in
 place, by a mesh of other vertices drawn through the same matrix where it was, as a game's section
 meshed again when a block is placed, stays in the field as it was until its replacement is still,
-and the replacement is not stamped meanwhile, so one build takes the one out and puts the other in;
-a mesh that moves keeps its vertices and is stamped as before, and one kept for a replacement that
-never settles leaves after sixteen frames. Three walls around a lamp that lights them by indirect
+and the replacement is not stamped meanwhile, so one build takes the one out and puts the other in,
+nor after it settles while a cascade around it the budget leaves for a later frame holds the one it
+replaced. Stamped there as its boxes, a section of the voxel game's ground filled the air above it
+in the two cascades a budget of two left, and a closed stone room lit by one glowstone went dark for
+the frame eight after a block of its floor broke and came back the next, 89 and 87% of the pixels
+changing by more than 8 levels in the two frames, where only the frame of the break changes, 9% of
+them (`SceneFieldTests`, `voxel.flicker`). A mesh that moves keeps its vertices and is stamped as
+before, and one kept for a replacement that never settles leaves after sixteen frames. Three walls
+around a lamp that lights them by indirect
 light alone, replaced with a block beside the lamp, read 116 on the wall before and 69 six frames
 after, the walls gone from the field at once and their replacement standing in as a few boxes; kept,
 the wall held 114 to 116 until the replacement settled (`GlobalIlluminationTests`). Its triangles go
@@ -602,8 +608,9 @@ the face, seen along each axis, and the resolve gives a cell the larger of its n
 light and the lent light times the share of a cell's face those faces cover along the axis they
 cover most of, a whole face at most. The lend's buffer, six words a cell, 6 MB, is made the first
 time a build has such an emitter. A mesh that moved more recently, a skinned one, and a still one
-whose cascades are not yet built again are stamped each frame as boxes, the nearest the eye first
-to 256 boxes, into the bricks of four cells they come within the band of, each cell the least of
+whose cascades are not yet built again, but for one that replaced a mesh in place, are stamped each
+frame as boxes, the nearest the eye first to 256 boxes, into the bricks of four cells they come
+within the band of, each cell the least of
 the still image's distance and those of the boxes that come within its brick, which the plan lists
 brick by brick (`field_stamp.slang`), and the bricks stamped the frame before are stamped again so
 a box that left one is gone. A cell is painted the color of the nearer of the still meshes and the

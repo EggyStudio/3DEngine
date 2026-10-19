@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fb1d1f95`, item 30's cone in forward differences and nothing else, 4 files, under
+Reviewed up to `fa607cb3`, item 30's mend of the leak through a thin emitter and nothing else,
+judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
+within a cell before its hit, by a slab test cast back along the ray, gives the hit none of its
+light, the remark saying why the reference leaves a carried emitter's emission out where a path
+first meets it, the emitter reaching every surface as a light of its own counted at the surface so a
+path going on through it would count it twice, with the texel's 3.7 through the strip and the
+broader form that took the light around the strip and read the room 17 percent under. The two
+probes' faces toward the strip go from 211 and 206 percent over at the first bounce to 7 and 10 and
+from 14 and 7 over past it to 17 and 23 under; the strip's view at 160 by 90 reads 0.234, 0.245 and
+0.244 where 0.222, 0.216 and 0.212, its bounds pinned 15 percent over as the test's others are with
+the reason naming the band, and at 800 by 450 0.130 at Low and 0.136 at High where 0.109; every
+other view reads as it did but the emissive blocks' room at High at 800 by 450, 0.0213 where 0.0209,
+one block's lit side 0.4 percent darker where a screen probe's rays cross a neighbor's box, the room
+repeating to five digits without the change; no picture moves, the example's capture showing the
+carried lamp's room unmoved to the last digit. RENDERING.md records it. Checked were the strict
+build, the suite, 1,733 of 1,733, and lavapipe under the required layer, 117 passed and 17 skipped.
+Right. Next (i) in the game on `5.2.92` once its coder's reproduction arrives, then (g), (k), (j)
+and (h), Verdict 72, item 35, the sampling term's candidates with the band beside them, the parallax
+and (c); and the owner's push of `132ac219` to `fa607cb3`, four commits, with a pack run, which is
+Verdict 71's third macOS suite. The owner pushed `fb1d1f95` at 20:58 and `fa607cb3` at 21:21, the
+first push run cancelled by the second as the build group has it, the second running at 21:28 with
+no pack run started; its macOS suite is Verdict 71's third and its Windows suite's time Verdict 72's
+next figure. At 22:00 that run's macOS suite had passed in 21 minutes, the third of three, which
+settles Verdict 71, its Linux suite and examples job were green, and its Windows suite was in its
+38th minute.
+
+Before it, `fb1d1f95` came, item 30's cone in forward differences and nothing else, 4 files, under
 the confirmation of 20:16. The glow march's cone toward a surface a step passes is the box's own
 half-width across the way toward it, its support along the field's slope read with three differences
 where six, the remark giving the old width, the box's mean half side and 0.35 for the strip, why a
@@ -73,44 +99,6 @@ the `5.2.65` listed there was `1398ed24`'s of 2026-10-18 and that the pack run's
 skipped since the run was started without publishing; the push run's Windows suite was in its 94th
 minute. The owner also asked for the README's centered parts as markdown in a centering block
 (Decision 45, item 35).
-
-Before it, `33fd0804` came, Verdict 71's mend and nothing else, 13 files, the restart having lost
-the scratch folder alone, the commit helper, the measurement scripts, the references at 800 by 450
-and the saved shader variants, with the tree whole and item 30's work in progress stashed by its
-paths. One helper makes every descriptor pool, counting it by type from the descriptors of the
-layouts whose sets it gives times the sets taken, each compute stage keeping its bindings' types,
-the field's run from the stages it dispatches, the probes' run from trace, merge and ambient times
-the cascades, the screen run from screen, filter and glow where glow lights are, the cube filter's
-from its gather or environment sets with the source's mips, the target's levels and the irradiance,
-and the reference, the skinning's ring, the particles' sets and the compute helper's declared
-bindings through the same helper, so no count is written by hand; the shared pool became pools by
-the shape of the layouts they serve, 64 sets for the first of a shape and twice the last for each
-next up to 4,096, a freed set going back to its pool, its old counts having lacked storage images
-entirely. The debug callback counts the layer's five lines on an allocation past a pool with its
-errors, so every test under the layer fails on one and N 3.7 with it; and since a frame that throws
-is never submitted and takes no slot of the frames in flight while the field and illumination
-renderers counted it toward retiring frames, destroying the pool of a frame submitted before it,
-which was the layer's error on macOS, the renderer waits for the device when the preparation or the
-graph throws, then rethrows. Two descriptor pool tests hold it, one drawing frames through every
-pool, which failed before the mend under lavapipe and the layer on seven storage images asked of a
-pool of six and passes after, a scratch trace confirming it reaches every pool but the reference,
-which lavapipe cannot trace, and one failing three frames through a graph node, which without the
-device wait reports the layer's line on a pool destroyed in use and passes with it. Checked were the
-strict build, the suite, 1,732 of 1,732 with the leak test ending at no descriptor pools, and
-lavapipe under the required layer, 229 passed and 16 skipped over eleven test classes; RENDERING.md
-has a line under what the engine needs. Right. Next the owner's push of `33fd0804` and a pack run,
-which is the game's package and Verdict 71's first macOS suite; the cone's commit from the stash;
-the leak's mend judged again; the sampling term's candidates; the parallax; (c). The owner pushed
-`33fd0804` at 19:09 and started its pack run at 19:10; at 19:20 the push run's three suites were
-running, the pack run was pending behind the pack run of `257006c7`, whose Windows suite was still
-running in its 118th minute with every other job done, and the game's package waits on the new one.
-At 19:51 the pack run of `257006c7` had ended red, its Windows suite's test step failing at 19:20
-after 115 minutes with 1,672 tests passed and none failed and one part of the suite lost at its
-60-minute limit in the hundred-app leak test at its 51st app, where the push run's Windows suite of
-the same commit had passed in 60 minutes, said under Verdict 71; the push run of `33fd0804` had its
-Linux suite green in 19 minutes, its macOS suite green in 25, the first of Verdict 71's three, and
-its examples job green, with Windows running; and the pack run of `33fd0804` had its Linux suite and
-examples job green with its macOS and Windows suites, games and both captures running.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1725,8 +1713,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     surface on both walls at once, or the hits' facing rule among the candidates, (b)'s corner
     reading of the day beside it. The order: the leak's commit, then (i), (g), (k), (j) and (h), two
     read as one where they share a cause, then Verdict 72's reading and mend, then item 35, then the
-    sampling term's candidates with the band beside them, the parallax and (c). Next the leak's
-    commit.
+    sampling term's candidates with the band beside them, the parallax and (c). The leak's mend done
+    at `fa607cb3` the same day, the strip's test pinned at 0.234, 0.245 and 0.244 with the band as
+    the reason, the two probes' first bounce at 7 and 10 percent over where 211 and 206, the
+    emissive blocks' room at High moved by 0.0004 where a probe's rays cross a neighbor's box. Next
+    (i), then (g), (k), (j) and (h).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -1818,8 +1809,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `fc5fdc97`, `534a1c2b`, `2a02ba3e` and `683e6e9d` on 2026-10-17, and 63 and 65 on the runs of
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
-on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdicts 71 and 72 are
-open.
+on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
+the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2600,8 +2591,9 @@ open.
     runner, the pack run of `33fd0804`'s Windows suite says, and if it is as slow with no line to
     log, the leak test's time on Windows is a verdict of its own. The push run of `33fd0804` passed
     its macOS suite in 25 minutes on 2026-10-19 at 19:35, the first of three, and the pack run of
-    `33fd0804` passed it in 42 minutes at 20:03, the second. Settled at three green macOS suites in
-    a row after the mend.
+    `33fd0804` passed it in 42 minutes at 20:03, the second. Settled on the macOS suites of the push
+    run and the pack run of `33fd0804` and the push run of `fa607cb3`, 2026-10-19, three green in a
+    row after the mend, in 25, 42 and 21 minutes.
 
 72. **The Windows suite runs in 45 to 48 minutes when it runs through, and twice today a run of it
     went past an hour on the same code, once cut by the job's limit.** On the push run of
@@ -2956,6 +2948,11 @@ open.
     README is the package's, so what nuget.org draws is what a reader of the package sees.
 
 ## Replies
+
+Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
+budget left for a later frame still holds the one it replaced, where a voxel game's section stamped
+as its boxes filled the air above its ground in those cascades and a room's indirect light went for
+a frame eight after a block broke (`SceneFieldPlan`).
 
 
 
