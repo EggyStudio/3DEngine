@@ -38,7 +38,9 @@ run of `fa607cb3` ended whole green at 22:02, its Windows suite in 32 minutes, s
 pushes and the commits of its own edits, so the review's edits come in commits of their own from
 here on. At 22:32 the run of `03e0bd36` had its three suites in their 23rd minute. At 22:34 the
 owner asked what the code fixes project is for and kept it (Decision 46), and at 22:45 that the
-release notes include everything and append to the older ones (Decision 47, item 37).
+release notes include everything and append to the older ones (Decision 47, item 37), and at 22:51,
+quoting nuget.org's notice, that the pack run publishes through trusted publishing (Decision 48,
+item 38).
 
 Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
 judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
@@ -1840,6 +1842,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     test of the script on a scratch history with a feed answer given to it, and read on the next
     package's page. One commit, with item 36 and before Verdict 72's reading.
 
+38. **The pack run publishes through nuget.org's trusted publishing and no stored key (Decision
+    48).** The pack job gains the identity token's write permission beside its read of the contents,
+    a step with the feed's login action, `NuGet/login@v1`, given the nuget.org user name the policy
+    belongs to, `EggyStudio` unless the owner says another, which answers a short-lived key, and the
+    push step takes that key where it took the secret, the input's description and the head comment
+    saying the run publishes through the trusted publisher policy and needs no secret, BUILDING.md's
+    publishing section saying the same with the policy's values, workflow `pack.yml`, no environment
+    and the package pattern; the step with the secret goes. Checked by a pack run with publish on,
+    whose push the feed accepts, the first the owner starts after the policy stands. One commit,
+    with items 36 and 37 before Verdict 72's reading, the pattern `3DEngine*`.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -3006,6 +3019,16 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     record of the latest version names, read by the pack run from the feed, and the whole minor's
     where the feed answers nothing or lists no version of the minor, a reader of the notes being
     told what changed since what they could have had.
+
+48. **The pack workflow publishes through nuget.org's trusted publishing.** On 2026-10-19 at 22:51
+    the owner, making nuget.org's trusted publisher policies for the two repositories, quoted the
+    feed's notice that API keys are strongly discouraged for automated publishing and trusted
+    publishing is the way for GitHub Actions, and so the pack workflow publishes through it: the
+    policy on nuget.org names the package owner `EggyStudio`, the repository owner `EggyStudio`, the
+    repository, the workflow file `pack.yml`, no environment, the push scope and the package
+    pattern, and the pack job proves it is that workflow with its identity token, takes a
+    short-lived key from the feed's login action and pushes with it, so no key is stored in the
+    repository.
 
 ## Replies
 
