@@ -84,11 +84,19 @@ public sealed class SceneRefTests : IDisposable
         SceneRefSystem.Run(world);
         Positions(first).Should().BeSameAs(Positions(second), "copies of one file are one mesh, uploaded once and drawn as instances");
 
-        // The file written again, with a later time, spawns a copy with arrays of its own.
-        File.SetLastWriteTimeUtc(path, File.GetLastWriteTimeUtc(path).AddSeconds(5));
+        // The file written again, with a later time, spawns a copy with arrays of its own. The step
+        // that next asks the file system for the files' times, which it does twice a second, spawns
+        // the copies placed before again from the new version too, and that step may be this one,
+        // so the third copy is held against the arrays the first had before the write. Held against
+        // the first's arrays after the step, the test failed on one macOS runner of two, as it does
+        // wherever half a second passes between the last asking and the step after the write.
+        var before = Positions(first);
+        var later = File.GetLastWriteTimeUtc(path).AddSeconds(5);
+        File.SetLastWriteTimeUtc(path, later);
+        File.GetLastWriteTimeUtc(path).Should().Be(later, "the file system gives back the time the file was set to");
         var third = Place(level, path, Vector3.Zero);
         SceneRefSystem.Run(world);
-        Positions(third).Should().NotBeSameAs(Positions(first), "a new version of the file is read anew");
+        Positions(third).Should().NotBeSameAs(before, "a new version of the file is read anew");
 
         Vector3[] Positions(int placed) => level.GetReadOnly<Mesh>(level.ChildrenOf(placed).Single()).Positions;
     }
