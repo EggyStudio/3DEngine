@@ -19,7 +19,12 @@ the history the notes start after `33fd0804`, where `5.2.92` was built, and hold
 engine's commits since and none of the review's; the script and norm tests pass, 48 of 48. Right.
 The reviewer starts the pack run with publish on as the check of items 37 and 38 (Decision 49). (j)
 and (h) were read by 23:36, each a fault of a line said under item 30, and their mends come first.
-Next (j)'s and (h)'s mends, item 36, the sampling term's candidates with (g) and the band, Verdict
+At 00:12 on 2026-10-20 the pack run with publish on, 39327786571 on `d2de2766`, had its Linux suite
+and examples job green, its captures, games and Windows jobs running, and its macOS suite red on one
+scene test (Verdict 73), so its pack job will not run and no package comes from it; the push run of
+the same commit had its Linux, macOS and examples green with Windows in its 40th minute, Verdict
+72's figure to come. The next pack run with publish on comes after Verdict 73's mend. Next (j)'s
+mend, Verdict 73, (h)'s mend, item 36, the sampling term's candidates with (g) and the band, Verdict
 72, item 35, the parallax and (c).
 
 Before it, `c9e1a5ac` came, item 37, and `4af3cdde` before it, item 38, with the review's commits
@@ -1873,7 +1878,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
-the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 is open.
+the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 and 73 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2679,6 +2684,22 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     The push run of `fa607cb3` ran the suite in 32 minutes 18 seconds, 1,674 passed, the whole job
     in 40, on 2026-10-19 at 22:02. Settled at three Windows suites in a row under 60 minutes after
     the mend.
+
+73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
+    pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
+    `SceneRefTests.Copies_Of_A_File_Share_Its_Mesh_Until_The_File_Is_Written_Again` at its line 91,
+    the third copy's positions the first mesh's where a new version of the file is read anew, 1,661
+    passed and 32 skipped in 16 minutes 2 seconds, while the push run's macOS suite of the same
+    commit passed it, so it shows on one runner of two. The test saves a scene, places two copies,
+    which share one mesh, sets the file's write time five seconds later and places a third, which
+    should read the file anew; the scene reference keeps each file's write time and reads the file
+    again where the time it reads is later (`SceneRef.cs:90, 124`). The mend is read before it is
+    chosen: whether the time the runner's file system gave back after the set was the one set,
+    whether the reference read the time before the set in a frame of its own or caches it for a
+    while, and whether a copy placed in the same step as the set is read before the step reads
+    times; then the test or the reference mended where the reading points, the test waiting for the
+    step that reads times or the reference reading the time at each placing, with the reason in the
+    remark. Settled at three green macOS suites in a row after the mend.
 
 ## Decisions
 
