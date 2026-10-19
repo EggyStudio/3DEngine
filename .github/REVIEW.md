@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `69c7e8cc`, item 30's measurement of the gain's three mends and nothing else,
+Reviewed up to `a27fbdd0`, item 30's mend of Low's first bounce and nothing else, 9 files, under the
+conditions of 14:06. `RaysAt` follows the texels, four rays a texel in any cascade of eight a side
+and one where sixteen, every probe sending 256, its remark saying why; the bounce rooms test's
+figures at Low and Medium are pinned anew for the window, the strip and the grazing floor at Low,
+the reason per view giving both figures against High's; RENDERING.md takes the reading, the last
+cascade's reach and the ambient blend ruled out, the tile and the direct light ruled out with their
+figures, the second cascade's 64 texels named as the term, one ray a sixty-fourth of the sphere wide
+taking a bright spot or missing it for the whole texel, and the mend's figures with its cost; the
+guide describes the rule. Checked were the strict build, the suite, 1,729 of 1,729, and lavapipe
+under the required layer, 108 passed and 16 skipped for ray queries, the scratch switches out. The
+lean's part at each quality is read at the three grazing-room probes: they stand in the same places
+with the same spacing at both qualities, the second cascade's wall-plane probe 0.24 off the wall and
+the next plane 2.4, where the reference is 61 to 64 percent brighter than at the wall; at High they
+hold the reference at their own places within 1 percent and at Low 7 to 15 percent under, the wall
+probe's face across the room 35 percent under at the first bounce where High's is 21, its near-level
+rays ending at the last cascade's 9.6 with nothing past them at Low; a hit at the wall reads 1.36 to
+1.52 of the reference at Low and 1.63 at High with the lean of half a spacing, which reads halfway
+toward the brighter far plane, and 0.73 to 0.77 and 0.86 to 0.94 with none, which reads the
+wall-plane probe that at Low also carries the missing light beyond its last cascade; and with four
+rays Low's probes carry more of the gain, the room's middle 10 to 30 percent over at Low against 25
+to 37 at High. Right. Next the refinement measured on this head, the reads at no lean with the
+ambient blend keeping its half-spacing lean, by the rule at both sizes with the faces by bounce, the
+hits, still views and the moved wall's frames across its restamping; a pack run for the game's
+package; then the merge's first-bounce excess at the pocket and the strip, the sampling term's
+candidates, (c) and (d).
+
+Before it, `69c7e8cc` came, item 30's measurement of the gain's three mends and nothing else,
 RENDERING.md and this file, no shader changed, the scratch test and its helper out of the tree, the
 faces of the reading before corrected from fifteen to seventeen. The cause and the three mends are
 recorded as item 30 has them, the probes' crossing out, the lean at none out through the grazing
@@ -59,30 +85,6 @@ percent high a bounce, a gain compounding through the probes' own hits, and the 
 what comes before its mend is said under item 30. Right. Next that reading; a pack run for the
 game's package; then the gain's mend, the merge's first-bounce excess at the pocket and the strip,
 the sampling term's candidates again, (c) and (d).
-
-Before it, `3904d0f0` came, item 30's measurement of the sampling term's two candidates and nothing
-else, RENDERING.md and this file, no shader changed, the code at the head before it. Each view's
-distance to its path-traced reference was the judge, the pixels' luminance differences summed over
-the reference's light, at 800 by 450 over the nine bounce room views and the Cornell box at High and
-Low against fresh 2,048-path references read over four-pixel blocks, and at 160 by 90 by the bounce
-rooms test with its bounds at zero at all three qualities, the head re-read in the same run. Both
-candidates, the ways turned for each tile and the thirty-six, widen four views' distance at both
-sizes, the thin walls' by 0.022 to 0.032 and 0.024, the strip's by up to 0.070 and 0.017, the
-grazing floor's by up to 0.030 and 0.019 and the window's by up to 0.021 and 0.020, the tiled ways
-widening the carried lamp's room at Low as well, while the Cornell box, the corridor and the carried
-lamp's room narrow at 800 by 450 by 0.006 to 0.018; the far wall reads 0.93 and 0.94 where 1.06, its
-blocks within 0.87 to 1.07 and 0.94 to 1.04 of their mean where 0.77 to 1.19, the wall's foot 0.208
-and 0.210 where 0.200 against 0.215, the block's front 1.20 and 1.22 where 1.40, the tiled ways'
-foot at Low falling to 0.179, and the thirty-six cost 2.47 ms where 1.45 at High and 2.10 where 1.14
-at Low. Where a view widens, the regions say why, the walls that read over with the fixed ways
-reading further over, the thin room's walls 8 to 9 percent where 5, the strip's side walls 22 where
-13, the grazing floor's walls 19 to 25 where 3 to 10 with its floor from 10 to 3, the window's
-ceiling 23 to 26 where none, so the sixteen ways' under-read covers the world probes' excess at
-their own hits on those walls, and both candidates are better samplers held back by that excess. By
-the rule both are out, recorded, and the order stands, the light past the first bounce at the world
-probes' own hits next, read by `gi.probe` against the reference independent of the frame, the
-candidates measured again after its mend. Right. Next that reading; a pack run for the game's
-package; then (c), (d), and the sampling term again.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1511,9 +1513,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     that stands at High already and is next in the order, which is the covered-fault principle and
     not a widening the rule is against; the test's bounds at Low and Medium are pinned at the new
     figures with the reason per view that each equals High's for that room (N 3.5), RENDERING.md
-    takes the reading and the figures, the scratch switches stay out, one commit. Then the
-    refinement again, expected to narrow the window and the strip at Low as at High. Next that
-    commit.
+    takes the reading and the figures, the scratch switches stay out, one commit. Done at `a27fbdd0`
+    the same day, the test's Low and Medium figures pinned with both figures per view. The lean's
+    part is read there: the probes stand alike at both qualities and hold the reference at their
+    places at High, 7 to 15 percent under at Low where their near-level rays end at the last
+    cascade's reach with nothing past, so the half-spacing lean reads toward the brighter far plane
+    and none reads the wall-plane probe, which at Low carries the missing light beyond as well. Next
+    the refinement measured on `a27fbdd0` by the rule, then the merge's first-bounce excess at the
+    pocket and the strip, the sampling term's two candidates, (c) and (d).
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

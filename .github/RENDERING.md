@@ -2061,6 +2061,29 @@ where 1.30 to 1.31 at `Medium` in the Cornell box on the development machine's G
 with 256 paths a way at no bounce past the hits, `gi.compare` at 800 by 450, BounceRoomsTests,
 `./e3d command profile`, the frames unlimited).
 
+**The reads at no lean measured again, on 2026-10-19.** With the second cascade of `Low` and
+`Medium` sending four rays a texel, reading the probes with no lean, `probesHold` keeping a lean of
+half the spacing as its own, narrows the window's view by 0.053 to 0.055 at every quality at 160 by
+90 and by 0.066 at 800 by 450, and the strip's by 0.041 to 0.050, at `Low` and `Medium` as at
+`High`, takes the wall's foot (d) to 0.214 at `Low` and 0.219 at `High` where 0.195 and 0.200,
+against 0.215, and the gain at the faces to 1.00 to 1.17 a bounce where 1.08 to 1.27, the pocket's
+unchanged. A still view keeps calm, its 99th part changing by 0.03% at most from frame to frame, and
+when the field stamps the carried lamp's room's moved wall, about 380 frames after it moves, the
+room steps to its settled light in one frame and keeps it, as it does without the change. But the
+grazing floor's view widens at `Low` by 0.044 at 160 by 90 and 0.069 at 800 by 450, its room 12%
+under where 4%, and the carried lamp's room's by 0.002 at 800 by 450, while the grazing floor's
+narrows at `Medium` by 0.030 and at `High` by 0.044 to 0.045, its room 2% under where 8% over. At
+the room's walls the probes stand alike at both qualities, the plane nearest the far wall 0.24 off
+it and the next 2.4, the reference at their places 61 to 64% brighter than at the wall, and with no
+lean a hit there reads the near probe. At `High` that probe holds the reference at its place within
+1% and the hit reads 6 to 14% under; at `Low` it holds it 7 to 15% under, its face toward the room
+35% under at the first bounce where `High`'s is 21%, since that face looks 11.8 across the room and
+its near-level rays end at the last cascade's reach of 9.6 with nothing past them at `Low`, where
+`High`'s third cascade lends that light, and the hit reads 23 to 27% under. So the reads keep their
+lean, and the widening names the light beyond `Low`'s last cascade at a probe's own face
+(`gi.compare`, BounceRoomsTests, `gi.probe` with 256 paths a way at no bounce, one and every
+bounce).
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's
