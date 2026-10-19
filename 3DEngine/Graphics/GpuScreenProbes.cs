@@ -11,8 +11,9 @@ internal sealed class GpuScreenProbes : IDisposable
 
     internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
         ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
-        IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen, ScreenGlow glow)
+        IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen, ScreenGlow glow, IBuffer rayLog)
     {
+        RayLog = rayLog;
         GlowSeen = glowSeen;
         Glow = glow;
         History = history;
@@ -91,6 +92,15 @@ internal sealed class GpuScreenProbes : IDisposable
     /// built as meshes came or went within them with the box around those meshes.
     /// </summary>
     public const int ViewBytes = 3 * 64 + 9 * 16;
+
+    /// <summary>
+    /// The rays of the one probe <c>gi.screenprobe</c> asks about, as <c>gi_screen.slang</c>'s
+    /// <c>rayLog</c> lays them out, which the CPU reads.
+    /// </summary>
+    public IBuffer RayLog { get; }
+
+    /// <summary>The bytes of <see cref="RayLog"/>, four float4 values and then four for each of the sixteen rays.</summary>
+    public const int RayLogBytes = (4 + 16 * 4) * 16;
 
     /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty words (GlowSeenWords in glow.slang).</summary>
     public const int GlowSeenBytes = 20 * 4;

@@ -150,7 +150,8 @@ internal sealed unsafe partial class GraphicsDevice
             _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer], 16);
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageBuffer], 16);
             _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
@@ -464,6 +465,8 @@ internal sealed unsafe partial class GraphicsDevice
         Name(lastGeometry, "Screen probes' surfaces, the frame before");
         var view = CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
         var glowSeen = CreateBuffer(new BufferDesc((ulong)(across * down) * GpuScreenProbes.GlowSeenBytes, BufferUsage.Storage | BufferUsage.TransferDst));
+        var rayLog = CreateBuffer(new BufferDesc(GpuScreenProbes.RayLogBytes, BufferUsage.Storage, CpuAccessMode.Read));
+        Name(rayLog, "Screen probe's rays, as gi.screenprobe asks for them");
         // The glow lights' light a texel of the view's depth each, half the view's size as
         // AmbientOcclusionRenderer draws it.
         var glowDesc = desc with { Extent = new Extent2D(Math.Max(1, width / 2), Math.Max(1, height / 2)) };
@@ -506,10 +509,11 @@ internal sealed unsafe partial class GraphicsDevice
             sampler.Dispose();
             view.Dispose();
             glowSeen.Dispose();
+            rayLog.Dispose();
             IDisposable[] all = [irradianceView, geometryView, blendedView, historyView, lastGeometryView, .. glow.Views,
                 irradiance, geometry, blended, history, lastGeometry, .. glow.Images];
             foreach (var one in all) one.Dispose();
-        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow);
+        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog);
     }
 
     /// <summary>
@@ -519,7 +523,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
-        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights)
+        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1)
     {
         var run = new ProbeRun(this, commandBuffer, 1);
         var cmd = run.Commands;
@@ -553,7 +557,8 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(set, 11, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)gi.ReachView).View, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
         run.Buffer(set, 10, VkDescriptorType.UniformBuffer, screen.View);
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, screen.GlowSeen);
-        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, 0, 0];
+        run.Buffer(set, 14, VkDescriptorType.StorageBuffer, screen.RayLog);
+        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), 0];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);

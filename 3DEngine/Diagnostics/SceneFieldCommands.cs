@@ -93,6 +93,29 @@ internal static class SceneFieldCommands
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
         BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
+    [Command("gi.screenprobe", "The rays of the window's screen probe under a pixel against a path-traced reference along each, where each was met, on the screen, in the field or beyond its reach, and the light the probe sums against the reference's: gi.screenprobe <x> <y> [samples] [bounces]")]
+    internal static string ScreenProbe(int x, int y, int samples = 256, int bounces = -1)
+    {
+        var world = ConsoleHost.World!;
+        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings) || settings.Quality == GlobalIllumination.Off)
+            return "global illumination is off, and SetGlobalIllumination turns it on";
+        if (!world.TryGetResource<Renderer>(out var renderer) || renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Screen is not { } screen)
+            return "the window has no screen probes";
+        if (x < 0 || y < 0 || x / screen.Tile >= screen.Across || y / screen.Tile >= screen.Down)
+            return $"no screen probe stands under {x}, {y}, the window's probes being {screen.Across} by {screen.Down} tiles of {screen.Tile} pixels";
+        // The probe's rays are written from the next frame on, and read once the frames in flight
+        // that might not have written them yet have finished.
+        settings.LoggedScreenProbe = y / screen.Tile * screen.Across + x / screen.Tile;
+        var from = ConsoleHost.Time.FrameCount;
+        ConsoleHost.Later(() =>
+        {
+            if (ConsoleHost.Time.FrameCount < from + 4) return null;
+            settings.LoggedScreenProbe = -1;
+            return BounceReference.ScreenProbe(world, screen, x, y, samples, bounces);
+        });
+        return $"reading the screen probe under {x}, {y}";
+    }
+
     [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]
     internal static string Compare(string path) => BounceReference.Compare(ConsoleHost.World!, path);
 

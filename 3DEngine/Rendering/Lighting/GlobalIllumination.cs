@@ -38,6 +38,9 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether the model pass reads the world's probes alone, the screen's left unread, as <c>gi.toggle screen off</c> sets it.</summary>
     public bool ScreenOff { get; set; }
 
+    /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
+    public int LoggedScreenProbe { get; set; } = -1;
+
     /// <summary>Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as <c>gi.toggle merge off</c> sets it.</summary>
     public bool MergeOff { get; set; }
 
@@ -353,7 +356,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             }
             var jitter = JitterAt(_frame, tile);
             var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
-            _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0)));
+            _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
+                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1)));
             _lastScreen = (window.ViewProjection, window.Eye);
         }
         else if (_screen is not null)

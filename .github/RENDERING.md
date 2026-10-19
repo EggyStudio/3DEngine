@@ -1735,6 +1735,29 @@ that `gi.compare` writes beside its difference.
   frame before, the frame now, the frame now with the screen's probes left out, and the reference).
   ![The thin walls' corner, the frame before the mend, the frame after it, the frame after it without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
 
+**The screen's probes ray by ray, read on 2026-10-19.** `gi.screenprobe <x> <y>` reads the window's
+screen probe under a pixel as the screen's pass wrote it for the frame, into a buffer written for
+that probe alone, each of its sixteen rays where it was met, on the screen, in the field or past its
+reach in the world's cascade, with its light and the light of what it met without the indirect
+light, against the light a path-traced reference sends along the same way from where the rays start
+and over the ways of the hemisphere the ray stands for, its cell. A probe's rays turn with its
+normal alone, so it settles on its sixteen ways' light, and the reference along them and over their
+cells tells a fault of the rays' reads from one of their ways. Inside a closed box of emissive walls
+each ray reads within 13% of the reference and the probe 5% under it (`BounceReferenceTests`). In
+the Cornell box 300 frames on, the probe on the small block's front reads 43% over the reference
+along its ways, 52% over it across their cells and 64% across the hemisphere. Its eleven rays past
+their reach read 97% over their cells, one toward the box's upper left 430%, and the four meeting
+the floor in front of the block 72 to 100% over theirs, the light past the first bounce at the three
+nearest it 0.80 to 0.86 of red where the reference's is about 0.31 to 0.49. One more meets the floor
+0.17 under its top and reads none of its light, since the field's march picks up where the screen's
+lost the ray, inside the slab. The probe on the back wall 0.13 from the red wall stands in the
+field's second cascade, its cells 0.3 and its rays reaching 1.2, and reads 112% over its cells. Its
+rays past their reach read 116% over theirs and those meeting the red wall 88%, the three within 0.3
+of the back wall taking 0.10 of green where the reference's direct light holds 0.006, the field's
+color there blending the white wall into the red. A ray past its reach takes the world's probes
+around the point it left the surface from, not where it ends, so a probe 1.2 or 2.4 off sees along
+the ray's way what the ray itself passes by.
+
 Four things seen are not the cascades'. The emissive blocks of the ninth room seem to stand in a
 wide soft light, yet the floor below the small one reads within 4% of the reference's light from its
 foot to 140 pixels down, 0.394 against 0.400 at the foot, and 7 to 11% under it beside the block's

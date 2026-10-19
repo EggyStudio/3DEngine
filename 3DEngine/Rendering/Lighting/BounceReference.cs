@@ -127,8 +127,6 @@ internal static class BounceReference
     {
         if (MeasureProbe(world, point, samples, bounces, cascade, out var why) is not { } probe) return why;
         static string Rgb(Vector3 v) => string.Create(CultureInfo.InvariantCulture, $"{v.X:0.000} {v.Y:0.000} {v.Z:0.000}");
-        static string Share(Vector3 held, Vector3 reference) =>
-            string.Create(CultureInfo.InvariantCulture, $"{(Luminance(held) / Math.Max(Luminance(reference), 1e-6f) - 1) * 100:+0;-0;0}%");
         var m = probe.Middle;
         var lines = new List<string>
         {
@@ -242,6 +240,151 @@ internal static class BounceReference
     }
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.
+    /// <summary>
+    /// What <c>gi.screenprobe</c> reports: each of the sixteen rays of the window's screen probe under
+    /// a pixel, as the screen's pass wrote them for the frame, where each was met, on the screen, in
+    /// the field or beyond its reach, against the light a path-traced reference sends along the same
+    /// way from where the rays start and over the ways it stands for, and the light the probe sums
+    /// against the reference's along its ways, over their cells and over the whole hemisphere.
+    /// </summary>
+    internal static string ScreenProbe(World world, GpuScreenProbes screen, int x, int y, int samples, int bounces) =>
+        MeasureScreenProbe(world, screen, samples, bounces, out var why) is { } probe ? ScreenProbeReport(probe, screen.Tile, x, y, samples) : why;
+
+    /// <summary>The lines <see cref="ScreenProbe"/> writes of a probe measured, under the pixel x, y of tiles of the side given.</summary>
+    internal static string ScreenProbeReport(ScreenProbeLight probe, int tile, int x, int y, int samples)
+    {
+        static string Rgb(Vector3 v) => string.Create(CultureInfo.InvariantCulture, $"{v.X:0.000} {v.Y:0.000} {v.Z:0.000}");
+        string[] where = ["on the screen", "in the field", "beyond its reach"];
+        var (p, n, start) = (probe.Point, probe.Normal, probe.Start);
+        var lines = new List<string>
+        {
+            string.Create(CultureInfo.InvariantCulture,
+                $"the screen probe of tile {x / tile}, {y / tile} under pixel {x}, {y} stands at {p.X:0.###},{p.Y:0.###},{p.Z:0.###} facing {n.X:0.##},{n.Y:0.##},{n.Z:0.##}, the field's cell {probe.Cell:0.###}, its rays leaving from {start.X:0.###},{start.Y:0.###},{start.Z:0.###} and taking the world's cascade {probe.Beyond} beyond their reach; the reference {samples} paths a way over {ScreenProbeSide} by {ScreenProbeSide} ways"),
+            $"its light, irradiance: {Rgb(probe.Light)}, the reference along its sixteen ways {Rgb(probe.AlongWays)}, {Share(probe.Light, probe.AlongWays)}, over their cells {Rgb(probe.OverCells)}, {Share(probe.Light, probe.OverCells)}, over the whole hemisphere {Rgb(probe.Hemisphere)}, {Share(probe.Light, probe.Hemisphere)}",
+        };
+        var (parts, partsReference, partsOverCells, partRays) = (new Vector3[3], new Vector3[3], new Vector3[3], new int[3]);
+        foreach (var ray in probe.Rays)
+        {
+            parts[ray.Met] += ray.Light * ray.Share;
+            partsReference[ray.Met] += ray.Reference * ray.Share;
+            partsOverCells[ray.Met] += ray.OverCell * ray.Share;
+            partRays[ray.Met]++;
+        }
+        lines.Add("each part of it by where its rays were met, against the reference's along the same rays and over their cells: " + string.Join("; ",
+            Enumerable.Range(0, 3).Where(k => partRays[k] > 0).Select(k =>
+                $"{where[k]}, {partRays[k]} rays, {Rgb(parts[k])} against {Rgb(partsReference[k])}, {Share(parts[k], partsReference[k])}, and {Rgb(partsOverCells[k])}, {Share(parts[k], partsOverCells[k])}")));
+        lines.Add("each ray, its way and its angle from the normal, where it was met and how far, its light, the reference's along it and over its cell:");
+        for (int r = 0; r < probe.Rays.Length; r++)
+        {
+            var ray = probe.Rays[r];
+            var degrees = MathF.Acos(Math.Clamp(Vector3.Dot(ray.Way, n), -1, 1)) * 180 / MathF.PI;
+            lines.Add(string.Create(CultureInfo.InvariantCulture,
+                $"{r + 1,2}: {ray.Way.X:0.00},{ray.Way.Y:0.00},{ray.Way.Z:0.00} at {degrees:0}°, {where[ray.Met]} at {ray.Distance:0.00}: {Rgb(ray.Light)}, the reference {Rgb(ray.Reference)}, {Share(ray.Light, ray.Reference)}, over its cell {Rgb(ray.OverCell)}, {Share(ray.Light, ray.OverCell)}")
+                + (ray.Met < 2 ? $"; its own light {Rgb(ray.Own)}" : ""));
+        }
+        return string.Join("\n", lines);
+    }
+
+    // How far a probe's light lies from the reference's, or, since a share of no light is no figure,
+    // whether the probe's is dark where the reference's is.
+    private static string Share(Vector3 held, Vector3 reference) =>
+        Luminance(reference) < 1e-4f ? Luminance(held) < 1e-4f ? "dark as the reference is" : "lit where the reference is dark"
+            : string.Create(CultureInfo.InvariantCulture, $"{(Luminance(held) / Luminance(reference) - 1) * 100:+0;-0;0}%");
+
+    /// <summary>The ways along each side of the octahedron the reference of a screen probe is traced over, each ray read from the one it falls in.</summary>
+    internal const int ScreenProbeSide = 64;
+
+    /// <summary>One ray of a screen probe, its way, where it was met, 0 on the screen, 1 in the field, 2 beyond its reach, how far, its light, the light without the indirect light of what it met, the reference's along it and over its cell, the ways of the hemisphere it stands for, and its share of the probe's light.</summary>
+    internal sealed record ScreenProbeRay(Vector3 Way, int Met, float Distance, Vector3 Light, Vector3 Own, Vector3 Reference, Vector3 OverCell, float Share);
+
+    /// <summary>A screen probe as <see cref="ScreenProbe"/> reads it, its place, its light and the reference's, and its rays.</summary>
+    internal sealed record ScreenProbeLight(Vector3 Point, Vector3 Normal, float Cell, Vector3 Start, int Beyond, Vector3 Light, Vector3 AlongWays,
+        Vector3 OverCells, Vector3 Hemisphere, ScreenProbeRay[] Rays);
+
+    /// <summary>
+    /// What <see cref="ScreenProbe"/> reports of the probe the screen's pass last wrote the rays of
+    /// (<c>GlobalIlluminationSettings.LoggedScreenProbe</c>), or null and why where it sent none.
+    /// </summary>
+    internal static ScreenProbeLight? MeasureScreenProbe(World world, GpuScreenProbes screen, int samples, int bounces, out string why)
+    {
+        if (Prepare(world, out why) is not { } tracer) return null;
+        tracer.Device.WaitIdle();
+        var log = MemoryMarshal.Cast<byte, Vector4>(tracer.Device.Map(screen.RayLog)).ToArray();
+        static Vector3 Xyz(Vector4 v) => new(v.X, v.Y, v.Z);
+        var (p, n, start, sum) = (log[0], log[1], log[2], log[3]);
+        if (sum.W <= 0)
+        {
+            why = "the screen probe sent no rays, standing on no surface or outside the world's cascades";
+            return null;
+        }
+
+        // The reference along each way from where the rays start, a fine octahedron of them, each
+        // ray read from the texel its way falls in.
+        const int Side = ScreenProbeSide;
+        var traced = tracer.Trace(Matrix4x4.Identity, Side, Side, samples, bounces, Xyz(start)).Light;
+        Vector3 Along(Vector3 way)
+        {
+            var uv = OctahedronOf(way);
+            var (u, v) = (Math.Clamp((int)(uv.X * Side), 0, Side - 1), Math.Clamp((int)(uv.Y * Side), 0, Side - 1));
+            var i = (v * Side + u) * 3;
+            return new Vector3(traced[i], traced[i + 1], traced[i + 2]);
+        }
+        // The reference's light reaching the surface over the whole hemisphere, each way weighed by
+        // its cosine and its texel's share of the sphere, as the world's probes weigh theirs, and
+        // over each ray's cell, the texel of the hemisphere's square the ray stands for as
+        // gi_screen.slang's hemisphere unfolds it around the normal, since the sixteen rays' ways
+        // alone may read a bright floor or a dark opening more or less than the hemisphere holds.
+        var normal = Xyz(n);
+        var side = MathF.Abs(normal.Y) < 0.99f ? Vector3.Normalize(Vector3.Cross(normal, Vector3.UnitY)) : Vector3.UnitX;
+        var across = Vector3.Cross(normal, side);
+        var (hemisphere, hemisphereWeight) = (Vector3.Zero, 0f);
+        var (cells, cellWeights) = (new Vector3[16], new float[16]);
+        for (int v = 0; v < Side; v++)
+            for (int u = 0; u < Side; u++)
+            {
+                var onOctahedron = Octahedron((u + 0.5f) / Side, (v + 0.5f) / Side);
+                var way = Vector3.Normalize(onOctahedron);
+                var weight = Math.Max(Vector3.Dot(way, normal), 0) / MathF.Pow(onOctahedron.Length(), 3);
+                if (weight <= 0) continue;
+                var i = (v * Side + u) * 3;
+                var light = new Vector3(traced[i], traced[i + 1], traced[i + 2]);
+                hemisphere += light * weight;
+                hemisphereWeight += weight;
+                var local = new Vector3(Vector3.Dot(way, side), Vector3.Dot(way, across), Vector3.Dot(way, normal));
+                local /= MathF.Abs(local.X) + MathF.Abs(local.Y) + local.Z;
+                var cellU = Math.Clamp((int)((local.X + local.Y + 1) * 2), 0, 3);
+                var cellV = Math.Clamp((int)((local.X - local.Y + 1) * 2), 0, 3);
+                cells[cellV * 4 + cellU] += light * weight;
+                cellWeights[cellV * 4 + cellU] += weight;
+            }
+        hemisphere *= MathF.PI / Math.Max(hemisphereWeight, 1e-12f);
+
+        var rays = new ScreenProbeRay[16];
+        var (alongWays, overCells) = (Vector3.Zero, Vector3.Zero);
+        for (int r = 0; r < rays.Length; r++)
+        {
+            var (light, way, reached, own) = (log[4 + r * 4], log[5 + r * 4], log[6 + r * 4], log[7 + r * 4]);
+            var reference = Along(Xyz(way));
+            var cell = cells[r] / Math.Max(cellWeights[r], 1e-12f);
+            // Each ray's share of the light the probe sums, its weights scaled to sum to pi.
+            var share = way.W * MathF.PI / sum.W;
+            alongWays += reference * share;
+            overCells += cell * share;
+            rays[r] = new ScreenProbeRay(Xyz(way), Math.Clamp((int)MathF.Round(light.W), 0, 2), reached.W, Xyz(light), Xyz(own), reference, cell, share);
+        }
+        return new ScreenProbeLight(Xyz(p), normal, p.W, Xyz(start), (int)n.W, Xyz(sum), alongWays, overCells, hemisphere, rays);
+    }
+
+    // The point of the square a unit direction stands for, the octahedron folded flat, as gi.slang's octahedron gives it.
+    private static Vector2 OctahedronOf(Vector3 d)
+    {
+        d /= MathF.Abs(d.X) + MathF.Abs(d.Y) + MathF.Abs(d.Z);
+        var p = new Vector2(d.X, d.Y);
+        if (d.Z < 0)
+            p = new Vector2((1 - MathF.Abs(p.Y)) * (p.X >= 0 ? 1 : -1), (1 - MathF.Abs(p.X)) * (p.Y >= 0 ? 1 : -1));
+        return p * 0.5f + new Vector2(0.5f);
+    }
+
     private static Vector3 Octahedron(float u, float v)
     {
         var (x, y) = (u * 2 - 1, v * 2 - 1);

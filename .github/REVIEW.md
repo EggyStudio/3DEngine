@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `de92a62b`, item 30's part (a) and nothing else, 11 files. A mesh of many small
+Reviewed up to `f40133c0`, item 30's part (f) and nothing else, 7 files. The tick lies where the
+thin room's right wall meets its front wall at the outside lamp's height, a pixel no screen probe on
+a surface like its own stands near, so the model pass read the world's probes there, and the
+visibility test judged each probe from a point 0.3 of the spacing off the wall, which lies in the
+front wall's cells, so a probe beyond a wall thinner than the 1.2-unit spacing read as seen and lent
+the lamp's light. Four things were tried and dropped, the slack at a quarter or an eighth of the
+spacing, probes in front alone, a larger offset and a stepped visibility test, each drawing dark
+notches beside the corner, worsening the tick or costing more than the march. The mend reads, for
+those pixels alone, the world's probes the surface sees with nothing the field holds between, fading
+to the next cascade across the outer band as the plain read does and falling back to it where no
+probe is seen, a first version reading one cascade having failed the cascade edge tests at High.
+Measured at the capture's frame against the reference of 512 paths, the corner's brightest over the
+wall beside fell from 3.25 to 1.02 where the reference reads 1.10, every region 9 percent over as
+before; the scene pass costs 0.24 to 0.31 ms in the thin room and 0.18 to 0.27 in the Cornell box on
+the development machine's GPU, 185 pixels of 360,000 taking the path and each holding up its group's
+eight marches. What remains is said beside the retaken picture, the corner's band past the screen
+probes, where the world's probes alone light it, still reading 1.41 against the reference's 0.96
+since the probes' own rays take the lamp's light through walls thinner than a cell. A bounce room
+test draws the rooms at High from the second view and holds the corner column's brightest under 1.4
+of the wall beside it, 1.09 with the mend and 3.90 without. Checked were the bounce room, global
+illumination and bounce view tests on the GPU, the corner test with the cascade edge and reference
+frame tests on lavapipe under the required layer, the strict build and the whole suite, 1,723
+passed. Right. Next parts (b) and (c), the owner's push of the eight commits since `a12206af` and a
+pack run, whose package the game waits on, and Verdict 70's third green macOS suite.
+
+Before it, `de92a62b` came, item 30's part (a) and nothing else, 11 files. A mesh of many small
 emitters is cut into its parts, its triangles joined where they share a corner quantized to a
 hundred-thousandth of the mesh's size, cached by vertex array, and carried as glow lights where
 every part fits the existing limit, a light each, touching parts merging as before, the field's mark
@@ -59,25 +84,6 @@ emissive parts as glow lights, one box a connected part, cached by vertex array,
 the field marks a carried emitter's cells, since the 64 nearest emitters alone are lights and a far
 ore marked in the field would lose its light. Next part (a), the owner's push of the six commits
 since `a12206af` and a pack run, and Verdict 70's third green macOS suite.
-
-Before it, `a2df7bb4` came, item 33 done and nothing else, 14 files. `SetContactShadows` stands
-beside the shadow distance in the flat API, stored on the shadow settings and reached as the
-distance is, taking a public enum in a file of its own (N 1.2) with three values, On, the default,
-PastShadowMap and Off: Off has the occlusion pass trace nothing toward the sun and the model pass
-read nothing; PastShadowMap writes a flag into the lighting buffer, `lights.slang` gains an overload
-giving how much of a point the shadow map holds, 1 within its cascades, the blend across the last
-one's edge and 0 past it, and the model pass lerps the contact shadow toward 1 by that hold, the
-two-argument form staying. A model shadow test raises a pillar under a low sun with the field on and
-reads the floor a fifth of a unit past the shadow's side, 0.71 of the far floor's light with contact
-shadows on and 1.00 with them off or past the map, and with the shadow distance at 1, the map
-holding none of the floor, the shadow's inside 0 past the map and 169 of 255 off, holding off and
-past-the-map above 0.95, on below off by 0.05, and past-the-map 40 under off past the map, the
-figures in its comment; the materials guide's distance-field section gives the reason and the two
-settings, RENDERING.md's paragraph, CHEATSHEET.md, PublicApi.txt and upgrading.md follow. Checked
-were the strict build and the whole suite, 1,719 passed, and the new test with the reference frames
-on lavapipe under the required layer. Right. The game turns its contact shadows off from the next
-package. Next item 34, the ImGui pass binding the set of a command's texture, then item 30's parts,
-and Verdict 70's third green macOS suite.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1172,7 +1178,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     (a) done at `de92a62b` on 2026-10-19, a mesh of many emitters cut into its parts and carried as
     glow lights by the faces each shows, the ground beside Ore's ore within 2 percent of the
     reference where it read 0.03 to 1.74 of it in patches, held by two glow light tests, the limit
-    of 64 lit emitters said; parts (f), (b) and (c), (d) and (e) follow.
+    of 64 lit emitters said; parts (f), (b) and (c), (d) and (e) follow. Part (f) done at `f40133c0`
+    on 2026-10-19, a pixel with no screen probe on a surface like its own reading the world's probes
+    it sees through the field, the tick from 3.25 to 1.02 times the wall beside where the reference
+    has 1.10, held by a bounce room test, at 0.07 to 0.09 ms of the scene pass; the corner's band
+    past the screen probes still reads 1.41 against 0.96 since the world probes' own rays take the
+    lamp through walls thinner than a cell, a remainder noted in the reading for the parts to come;
+    parts (b) and (c), (d) and (e) follow. Read toward (b) and (c) on 2026-10-19 at 01:52, before a
+    mend: the two causes the reading named explain a part of each. With the screen probes' light
+    from beyond zeroed the block's front reads 0.151, so the rays meeting nothing in reach carry
+    0.056 of the 0.082 excess and the hits the rest, and reading the light past the first bounce at
+    the hits through the traced read changed nothing at 0.2 ms, reverted; the first cascade's probe
+    in the angle of the floor and the block reads 58 percent over in its own rays' hits and its
+    faces, the room's other first-cascade probes 14 under to 18 over and the second cascade's above
+    the block 2 over, so the excess sits where probes read each other's light past the first bounce
+    in a concave angle and the rays from beyond carry it to the block. At the corner, from the red
+    wall out a hundred pixels of the back wall against the far wall, the frame runs 0.65 to 1.02,
+    the frame without screen probes 0.49 to 1.02 and the reference 0.44 to 1.03, so the screen
+    probes darken the corner less than the world probes across a band ten tiles wide, which a tile's
+    middle 8 pixels off cannot account for, and neither the filter, the history nor 64 rays a probe
+    in place of 16 moves it, a bias and not noise. The next step is an instrument in a commit of its
+    own, `gi.screenprobe <x> <y>`, giving for the screen probe at a pixel each of its 16 rays'
+    light, met on the screen, in the field or from beyond, against the path-traced light along the
+    same ray, so the rays and the term at fault are named before a mend is chosen; then (b) and (c)
+    in one commit where one cause serves both, measured and held as before, and where the cause is
+    the world probes' light past the first bounce in concave angles, (d) and (e) are read for the
+    same before their own mend.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the

@@ -65,10 +65,20 @@ RWStructuredBuffer<uint> glowSeen;
 [[vk::binding(11, 0)]]
 Sampler3D reach;
 
+// Where the one probe gi.screenprobe asks about stands and what each of its rays found, which the
+// CPU reads back. Four values hold its point and the field's cell there, its normal and which of the
+// world's cascades its rays reach beyond into, the point its rays start from, and its light with the
+// rays' weights' sum, and four more each ray, its light and where it was met, 0 on the screen, 1 in
+// the field and 2 beyond its reach, its way and weight, the point it met or reached and how far, and
+// the light that point sends on without the indirect light.
+[[vk::binding(14, 0)]]
+RWStructuredBuffer<float4> rayLog;
+
 struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
-    // where it has none. zw: unused.
+    // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
+    // w: unused.
     uint4 texels;
 };
 
@@ -363,6 +373,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float length = view.trace.x;
     float3 sum = float3(0.0);
     float weights = 0.0;
+    bool logged = push.texels.z == probe + 1u;
+    if (logged)
+    {
+        rayLog[0] = float4(p, cell);
+        rayLog[1] = float4(n, float(around));
+    }
     for (uint v = 0u; v < Rays; v++)
         for (uint u = 0u; u < Rays; u++)
         {
@@ -383,18 +399,40 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // coarser cascades and the probes beside that side let a closed room there take 0.0037
             // of the sky's light where it took 0.0007, and 0.0015 so (CascadeEdgeTests).
             float farthest = fieldCascade(fieldInfo, start + way * length, 1.0) == 0 ? length : length * 0.5;
+            float met = 0.0;
+            float3 reached = start + way * farthest;
+            own = float3(0.0);
             if (traceScreen(depth, camera(), start, way, farthest, 12, hit, leftAt))
+            {
                 light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, hit, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
+                reached = hit;
+            }
             else
             {
                 float t = leftAt < farthest ? traceField(sceneField, fieldInfo, start, way, leftAt, farthest) : -1.0;
+                met = t >= 0.0 ? 1.0 : 2.0;
+                if (t >= 0.0)
+                    reached = start + way * t;
                 light = t >= 0.0
                     ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, reach, start + way * t, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(p, around, n, way, seen).rgb;
             }
             sum += light * weight;
             weights += weight;
+            if (logged)
+            {
+                uint at = 4u + (v * Rays + u) * 4u;
+                rayLog[at] = float4(light, met);
+                rayLog[at + 1u] = float4(way, weight);
+                rayLog[at + 2u] = float4(reached, distance(start, reached));
+                rayLog[at + 3u] = float4(own, 0.0);
+            }
         }
+    if (logged)
+    {
+        rayLog[2] = float4(start, 0.0);
+        rayLog[3] = float4(sum * (Pi / max(weights, 1e-6)), weights);
+    }
     // The weights scaled to sum to pi, the light reaching the surface under a sky of 1, where an
     // equal share for every texel read it at 1.04 of that. The glow lights' light straight to the
     // surface, which the rays that meet one leave out, the model pass takes at each pixel.

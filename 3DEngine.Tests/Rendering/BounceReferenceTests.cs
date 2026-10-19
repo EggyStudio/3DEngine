@@ -63,6 +63,45 @@ public sealed class BounceReferenceTests : IDisposable
     }
 
     [NeedsRayQueryFact]
+    public void A_Screen_Probe_Inside_The_Emissive_Box_Reads_Each_Ray_As_The_Reference_Does()
+    {
+        // Every way inside the box carries the walls' light over one less their color, so each of a
+        // screen probe's rays reads it, met on the screen, in the field or past its reach in the
+        // world's cascade, as the reference along the same way does, and the probe's light is pi
+        // times it.
+        var world = default(World);
+        GpuScreenProbes? screen = null;
+        var share = EmissiveBox(frame =>
+        {
+            if (frame != 6) return;
+            world = GetApp().World;
+            screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+            world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = screen.Down / 2 * screen.Across + screen.Across / 2;
+        });
+        var probe = BounceReference.MeasureScreenProbe(world!, screen!, 256, -1, out var why);
+        probe.Should().NotBeNull(why);
+        var report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, screen.Across / 2 * screen.Tile, screen.Down / 2 * screen.Tile, 256);
+        var expected = 1 / (1 - share);
+        probe!.Rays.Should().HaveCount(16);
+        var summed = Vector3.Zero;
+        foreach (var ray in probe.Rays)
+        {
+            ray.Reference.X.Should().BeApproximately(expected, expected * 0.06f, $"the light along every way is that of every wall\n{report}");
+            ray.OverCell.X.Should().BeApproximately(expected, expected * 0.03f, $"and over every way of its cell\n{report}");
+            // A ray the field meets on a wall near the ceiling's edge reads 13% short, which the
+            // bound allows.
+            ray.Light.X.Should().BeApproximately(expected, expected * 0.15f, $"every ray reads the walls' light wherever it was met\n{report}");
+            if (ray.Met < 2) ray.Own.X.Should().BeApproximately(1, 0.02f, $"what a ray meets on the screen or in the field emits 1\n{report}");
+            summed += ray.Light * ray.Share;
+        }
+        summed.X.Should().BeApproximately(probe.Light.X, probe.Light.X * 0.01f, $"the probe's light is its rays' by their shares, as the pass wrote both\n{report}");
+        probe.AlongWays.X.Should().BeApproximately(MathF.PI * expected, MathF.PI * expected * 0.03f, report);
+        probe.OverCells.X.Should().BeApproximately(MathF.PI * expected, MathF.PI * expected * 0.03f, report);
+        probe.Hemisphere.X.Should().BeApproximately(MathF.PI * expected, MathF.PI * expected * 0.03f, report);
+        probe.Light.X.Should().BeApproximately(probe.AlongWays.X, probe.AlongWays.X * 0.08f, $"the probe sums every way's light over its hemisphere\n{report}");
+    }
+
+    [NeedsRayQueryFact]
     public void A_Probe_Beside_A_Block_Carried_As_A_Glow_Light_Reads_None_Of_Its_Emission_In_The_Reference()
     {
         // An emissive block two units on a side, which global illumination carries as a light, alone
@@ -101,8 +140,8 @@ public sealed class BounceReferenceTests : IDisposable
 
     // A closed box of walls of sRGB 188, which reflect half the light that reaches them in linear
     // light, each emitting 1, drawn until global illumination at High has settled, the share
-    // returned.
-    private static float EmissiveBox()
+    // returned, atFrame told each frame's number before it is drawn.
+    private static float EmissiveBox(Action<int>? atFrame = null)
     {
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -113,6 +152,7 @@ public sealed class BounceReferenceTests : IDisposable
         var camera = new Camera3D(new Vector3(0, 0, 1.5f), new Vector3(0.3f, -0.2f, 0), Vector3.UnitY, 70);
         for (int frame = 0; frame < 12; frame++)
         {
+            atFrame?.Invoke(frame);
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(camera);
