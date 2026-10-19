@@ -37,7 +37,8 @@ run of `fa607cb3` ended whole green at 22:02, its Windows suite in 32 minutes, s
 72; the owner pushed `03e0bd36` at 22:09, its run running. At 22:20 the owner gave the reviewer the
 pushes and the commits of its own edits, so the review's edits come in commits of their own from
 here on. At 22:32 the run of `03e0bd36` had its three suites in their 23rd minute. At 22:34 the
-owner asked what the code fixes project is for and kept it (Decision 46).
+owner asked what the code fixes project is for and kept it (Decision 46), and at 22:45 that the
+release notes include everything and append to the older ones (Decision 47, item 37).
 
 Before it, `fa607cb3` came, item 30's mend of the leak through a thin emitter and nothing else,
 judged on `fb1d1f95` under the confirmation of 20:16. A light whose box a probe's ray passed through
@@ -1828,6 +1829,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the draws per pass and the frame at 8 and 16 columns before and after. After the sampling term's
     commit and before Verdict 72's reading; the game's entry gets its Review line.
 
+37. **A package's release notes are the commits since the package last published (Decision 47).**
+    The pack run's notes are the commits since `build/version.txt` last changed, the whole minor
+    each time, 89 lines at `5.2.92`. The notes take the latest version of the package the feed
+    lists, from nuget.org's index of the package and that version's nuspec, whose repository commit
+    names where that package was built, and are the commits from that commit to the head, newest
+    first, each commit's sentence a line as before; where the feed answers nothing, lists no version
+    of the minor, or names a commit the checkout does not have, the notes are the minor's as before
+    and the summary says why; the pack job's step says which commit the notes start from. Held by a
+    test of the script on a scratch history with a feed answer given to it, and read on the next
+    package's page. One commit, with item 36 and before Verdict 72's reading.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -2984,6 +2996,16 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 72 i
     so Roslyn keeps fixes out of the analyzer's assembly and the engine's library, which targets the
     runtime, can host neither; it ships in the package beside the generator. BevyCSharp's twin stays
     with it.
+
+47. **A package's release notes are the commits since the package last published on nuget.org.** The
+    owner wrote at 22:45 on 2026-10-19 that the release notes include everything and the next
+    package appends them to the older ones: the notes a pack run writes are the commits since
+    `build/version.txt` last changed, so every package of a minor carries the whole minor's notes,
+    104 lines at `0.5.105` and 119 at `0.5.120`, 89 at the engine's `5.2.92`. So a package's release
+    notes are the commits since the package last published on nuget.org, whose commit the feed's own
+    record of the latest version names, read by the pack run from the feed, and the whole minor's
+    where the feed answers nothing or lists no version of the minor, a reader of the notes being
+    told what changed since what they could have had.
 
 ## Replies
 
