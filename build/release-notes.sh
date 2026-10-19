@@ -6,7 +6,9 @@
 # element the commit it was built from. Where the feed answers nothing, lists no version of the
 # minor, or names a commit the checkout does not have, the notes are the commits since
 # build/version.txt last changed, as they were, and it says why. It prints the commit the notes
-# start from, which the pack run's summary shows. E3D_RELEASE_FEED names another feed laid out as
+# start from, which the pack run's summary shows. A commit whose every file lies under .github/ is
+# left out, since the package carries nothing from there, which takes the review's records and the
+# workflows' changes alike by what they touch. E3D_RELEASE_FEED names another feed laid out as
 # nuget.org's flat container is, a folder given as a file:// address, as the test gives one.
 #
 #   build/release-notes.sh <file>
@@ -45,7 +47,11 @@ if [ -z "$from" ] && changed="$(git log -1 --format=%H -- build/version.txt 2>/d
   since="build/version.txt last changed, since $why"
 fi
 if [ -n "$from" ]; then
-  git log --format=%b "$from"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$out" || true
+  git rev-list "$from"..HEAD | while IFS= read -r commit; do
+    files="$(git show --name-only --format= "$commit")"
+    if [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qv '^\.github/'; then continue; fi
+    git log -1 --format=%b "$commit"
+  done | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$out" || true
   echo "the release notes start after $from, where $since"
 else
   echo "the release notes are empty, since $why and the checkout has no history of build/version.txt"

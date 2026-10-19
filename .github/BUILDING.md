@@ -210,7 +210,9 @@ package and the commit that version was built from from its nuspec's repository 
 commits after it from the history into `build/artifacts/release-notes.txt`, and says which commit
 they start after, which the pack run's summary shows. Where nuget.org answers nothing, lists no
 version of the minor, or names a commit the checkout does not have, the notes are the commits since
-`build/version.txt` last changed, and the script says why.
+`build/version.txt` last changed, and the script says why. A commit whose every file lies under
+`.github/` is left out, since the package carries nothing from there, so the review's records and
+the workflows' changes stay off a package's page while the README and the guides it carries do not.
 
 ### The public surface
 

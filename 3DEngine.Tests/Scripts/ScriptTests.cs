@@ -129,7 +129,8 @@ public sealed partial class ScriptTests
     // build/release-notes.sh on a scratch history, with nuget.org's flat container given as a
     // folder. The notes start after the commit the newest package of the minor was built from, and
     // where the feed answers nothing, lists no version of the minor or names a commit the history
-    // does not have, after the commit that last changed build/version.txt, saying why.
+    // does not have, after the commit that last changed build/version.txt, saying why. A commit
+    // whose every file lies under .github/ is left out, as the review's records are.
     [NeedsBashFact]
     public void The_Release_Notes_Start_After_The_Commit_The_Newest_Package_Of_The_Minor_Was_Built_From_Or_Say_Why_Not()
     {
@@ -153,11 +154,12 @@ public sealed partial class ScriptTests
         }
 
         // A commit of the form COMMITS.md gives, three marks and the sentence, changing a file of its
-        // own or build/version.txt, answering its hash.
-        string Commit(string sentence, string? version = null)
+        // own, the one named or build/version.txt, answering its hash.
+        string Commit(string sentence, string? version = null, string file = "work.txt")
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(history, file))!);
             if (version is not null) File.WriteAllText(Path.Combine(history, "build", "version.txt"), version + "\n");
-            else File.AppendAllText(Path.Combine(history, "work.txt"), sentence + "\n");
+            else File.AppendAllText(Path.Combine(history, file), sentence + "\n");
             Run("git", null, "add", "-A").Code.Should().Be(0);
             var made = Run("git", null, "commit", "-q", "-m", "\u200e \u200e \u200e", "-m", sentence);
             made.Code.Should().Be(0, made.Said);
@@ -193,6 +195,8 @@ public sealed partial class ScriptTests
         Commit("The first change.");
         var packed = Commit("The second change.");
         Commit("The third change.");
+        Commit("The review records the third change.", file: ".github/REVIEW.md");
+        Commit("The workflow builds it.", file: ".github/workflows/build.yml");
         string[] since = ["The third change.", "The second change.", "The first change."];
 
         // 5.2.10 is the newest, read as a number where as text 5.2.9 would sort after it.
