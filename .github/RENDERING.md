@@ -2355,6 +2355,49 @@ draws its mirror floor and its metal spheres as rough, so it judges the wall alo
 noise of a wide penumbra shows in none of these frames apart from a's patches.
 ![The wax sphere of shaders_subsurface, its terminator](assets/cascades/subsurface-terminator.webp)
 
+**Where the method stops, read to 2026-10-20.** Five terms of the radiance cascades as the engine
+draws them stand unmended, each named by its cause in the readings above. Every form read against
+one was out by the rule that no view's distance to its reference widens at 800 by 450 or at 160 by
+90 (`gi.compare` against references of 2048 paths a pixel, BounceRoomsTests with its bounds at
+zero), or cost more than it gave.
+
+- **The gain past the first bounce.** A hit reads the probes around it where 11 to 64% more light
+  arrives for its normal than at the hit itself, the light rising away from the surface the hit lies
+  on, so each bounce through the probes' own hits gains 1.08 in the thin room and up to 1.27 in the
+  Cornell box, the world probes 8 to 16% over their references (`gi.probe`). Moving the probes
+  behind a surface through it widened the grazing floor's view by 0.017 to 0.034, reading them with
+  no lean widened it at `Low` by 0.074 and 0.082, its room's own shortfall uncovered, and scaling
+  the light past the first bounce by the hit's openness against the probes' moved the open middle
+  and cost 0.45 to 0.50 ms.
+- **The probes' spacing against near occlusion.** A hit beside a block reads probes standing 0.6
+  above it, where the block hides little, so the floor before the Cornell box's small block takes
+  3.4 to 3.6 times the reference's light past the first bounce and the block's front reads 1.20 of
+  its reference at `High`. An occlusion at the screen's probes' hits, from short marches or the
+  field's distances, brought the front to 1.02 to 1.15 but widened the corridor's, the strip's and
+  the carried lamp's views, a near wall that lights a hit counting as shade, at 0.14 to 0.64 ms, and
+  weighing the blend toward the probes a hit sees changed nothing at the front, the floor seeing the
+  same probes, at 0.26 ms.
+- **The coarse cascades' absence inside a space narrower than their spacing.** The corridor, 2 wide
+  in walls 0.3 thick, holds no probe of the second cascade or above, their spots in its walls moved
+  out through the faces nearer them, so its first cascade's probes hold nothing at any bounce and
+  its walls read 67 to 69% under, the march of its screen probes' rays (the corridor's far light,
+  above) mending the first bounce of the far light alone. Moving such a spot through its farther
+  face brought probes inside whose rays meet the walls before their interval begins and widened the
+  corridor's view by 0.002 to 0.006, and tracing the first cascade's rays on where they see no probe
+  above lit its probes to 86% under where 100%, the view moving by 0.005 at most, at 0.01 to 0.06
+  ms.
+- **The faces' read of light that runs along a surface.** A surface reads the probes' faces along
+  its normal alone, so light running along a corridor, which its probes hold in the faces toward its
+  ends, reaches its walls and floor only where a surface faces it, the mid-corridor probe's face
+  toward the open end 0.020 against the reference's 0.125 and its other faces 87 to 93% under. No
+  form is read against it alone.
+- **A further way to the thin walls' corner.** With the screen's probes left out, the thin room's
+  corner by its front wall reads 2.85 times the wall beside it with the lamp outside and 1.01 to
+  1.03 with it off, where with the reach's slack at half the spacing it read 3.53, and cutting the
+  twentieth of a weight `bouncedAt` keeps for an unseen probe takes it to 2.81, so the model pass's
+  read of the probes there lends it the lamp's light by a way not yet named. The screen's probes
+  cover it, the corner reading within its test's bound with them.
+
 ## 5. Render targets and post processing
 
 The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,

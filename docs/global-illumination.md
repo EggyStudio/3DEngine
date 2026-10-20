@@ -197,6 +197,10 @@ frame in some 0.02 ms.
 - **Thin things.** What is thinner than a cell is held about its middle, so a thin wall stops light,
   but a gap thinner than a cell is closed to it.
 
+The terms of the method that stand unmended, each with its cause, the room and the figure that
+show it and the forms read against it, are under Where the method stops in
+[RENDERING.md](../.github/RENDERING.md).
+
 ## Reading it
 
 `DrawBounceWindow()`, called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows

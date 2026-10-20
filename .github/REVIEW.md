@@ -10,7 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8e80cf46`, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
+Reviewed up to `e6594bc4`, the corridor's mend, form (iii), and nothing else, carrying COMMITS.md's
+sentence of Decision 50 and the review's file. A trace held within a given cascade and every finer
+one stands beside the field trace, the same march stopping where the ray leaves them; a screen
+probe's ray past its reach whose world probes hold nothing along its way goes on through the field
+as far as four times its reach, within the cascade it starts in and the next coarser one, and is
+shaded as a probe's hit is, the remark giving the corridor's term, its walls 78 to 79 under going to
+67 to 69 and its ceiling 69 to 55, the march to the field's edge at 66 to 68 and 52 for 0.13 to 0.19
+ms in the ore sample against 0.00 to 0.13 bounded, and the cascade edge room's 0.029 where under
+0.002 for the march into the coarser cascades. The corridor's bounds narrow to 0.25, 0.26 and 0.25
+where it reads 0.213, 0.222 and 0.215, the reason in the bounds' remark, and a new test reads the
+screen probe on the corridor's wall at 800 by 450, 1 percent of the reference along its ways on the
+head and 13 with the mend, bounded above 6; RENDERING.md has a record dated 2026-10-20 with these
+figures, the night's, the cascade edge figure and the two forms not taken; COMMITS.md's sentence
+says the review's three files are edited in the tree and committed by whichever batch comes next,
+never in a commit of their own but for one a day at most at a day's end, naming no one. On the final
+code the rule moves the corridor alone, by 0.017 to 0.023 at both sizes, every other view holding to
+the third digit, and the ore sample by day and night adds 0.00 to 0.13 ms on 3.25 to 3.79. Checked
+were the strict build, the suite, 1,746 passed and none failed, and lavapipe under the required
+layer over the global illumination, bounce rooms, reference frame, glow, cascade edge and descriptor
+pool tests, 89 passed and 12 skipped. Pushed at once; the pack run of `9f9180b7` runs on. The light
+past the first bounce at probes that hold nothing was read for its cause by 07:49, said under item
+30, and a form of (ii) beside (iii) is to be read. That form was read by 08:02 and is out, the term
+standing named as two of the method's, said under item 30, which ends the week's readings. Next item
+39, the terms named in RENDERING.md, then what stands of item 2's order, then item 7's next game;
+item 6 waits on the owner's word.
+
+Before it, `8e80cf46` came, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
 nothing else, the first carrying the review's edits as the batch that came next. The Windows suite
 runs in its parts from the start, each held to 70 minutes since the Rendering part took 52 minutes
 16 seconds cold on the 7763, the step's comment naming the pack run of `448aa3fc`, the whole run
@@ -36,8 +62,7 @@ suites running and the build run of `7eb7079b` had ended green at 06:44, its Win
 72. At 07:41 the build run of `9f9180b7` had ended green at 07:36, its Windows suite in its parts
 from the start in 33 minutes 22 seconds on an EPYC 9V45, cold, exit 0, Verdict 72's first of three,
 and the pack run had its Linux and macOS suites and examples green with its Windows, captures and
-games jobs running. Next (iii)'s commit, then the light past the first bounce at probes that hold
-nothing.
+games jobs running.
 
 Before it, `4369898a` came, item 30's thin walls' mend and nothing else, with the review's commits
 between. The sight test's slack is an eighth of the spacing, a cell of the probes' cascade, since
@@ -74,29 +99,6 @@ exit 1 for the lost whole run though no test failed, and lavapipe writing no sha
 asked for by name, so the pack job was skipped and no package was made again; read under Verdict 72,
 whose two further mends come before the corridor's commit, and then the pack run starts anew on the
 head.
-
-Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
-The leak tests keep the readings after every ten apps as numbers and read the process's growth from
-a base that is the most of the tenth's reading, the twentieth's after its census where one was
-taken, and the thirtieth's, both judged tests, the headless and the offscreen, asserting the growth
-under 50 with the base in their messages; the remark gives the run's figures, 156.5, 80.0 and 159.2
-and then 169.6 at the hundredth with the heap at 14.3 to 14.8, 89.6 against the bound where the last
-less the thirtieth reads 10.4, and the sensitivity, a leak of 0.71 MB an app failing the bound where
-0.63 did; a new test reads the check on this run's series, 10.4 passing, and on a climb of 0.8 MB an
-app, 56 failing; the file went to 807 lines and failed N 1.3, so the held instance's class moved to
-a partial of the same class, nothing else changed. Checked were the strict build, the suite, 1,742
-passed and the one failure the move mends, the norm and leak tests after it, 21, and the leak tests
-on the development machine's GPU. (c)'s two candidates read at both sizes and none passes the rule,
-said under item 30, so (c) stands as named with no mend; the thin walls' term has a likely cause to
-read. The push cancels the build run of `448aa3fc`; the pack run with publish on of `448aa3fc` is
-kept running, twenty minutes in on three suites, since a restart on this head would cost that for a
-hedge against a trough that has come once in the day's Windows suites, and the package it makes is
-the same engine. The thin walls' term was read again by 04:58 and named anew, said under item 30,
-the near-start candidate out and two others to read. At 05:00 the pack run with publish on of
-`448aa3fc` had its Linux suite green at 04:51 and its other six jobs running, and the pack run of
-the other engine its suites and native jobs green with its capture, drive and game jobs running; the
-feed holds `5.2.92` still. The thin walls' candidates were read by 05:18 and the slack at one cell
-is taken, said under item 30.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2061,7 +2063,58 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     to the lit ground outside; the form is a trace held within those two cascades beside the field
     trace, its remark giving the cascade edge figure, and the rule at both sizes and the ore sample
     by day and night run again on that code before the full checks and the commit. The reviewer
-    agrees, and asks the cascade edge figure pinned in the test as it stands.
+    agrees, and asks the cascade edge figure pinned in the test as it stands. The corridor's term
+    mended at `e6594bc4` on 2026-10-20 with form (iii) held to its cascade and the next coarser, as
+    the head says. Next the light past the first bounce at probes that hold nothing, read for its
+    cause. The light past the first bounce at probes that hold nothing read by 07:49 on 2026-10-20
+    on `e6594bc4` at view 3 at High, nothing changed. Four screen probes about 13 units into the
+    corridor, on the two walls, the floor and the ceiling, read 0.000 along their sixteen ways from
+    the reference at no bounce, 0.001 to 0.002 over the whole hemisphere toward the sunlit patch at
+    the open end alone, so the reference's light there is all past the first bounce, 0.004 to 0.012
+    along the ways; the engine reads 0.000 at every one with the second round off, so all its light
+    there is past the first bounce too, what the hits take from the world's probes, and against the
+    reference along their ways the walls read 87 and 90 under, the floor 48 and the ceiling 27, the
+    rays that meet the corridor on the screen within reach reading nothing against 0.001 to 0.003
+    and those met in the field, most marched on by (iii), 36 to 78 under. The cause: a hit's light
+    past the first bounce comes from the world's probes around it, and the corridor's first-cascade
+    probes hold nothing at any bounce, their own rays meeting only its walls, which no lamp or sun
+    reaches this deep and whose light past the first bounce comes from the same probes, while the
+    merge lets nothing into that loop since no coarser probe stands inside; so the far light's first
+    bounce never reaches the world's probes, and every bounce after it is missing at every hit the
+    screen's probes meet near them, (iii) giving the far hits the far light's first bounce through
+    the probes near the open end and the corridor's own probes nothing. The form to read, (ii)
+    beside (iii): (ii)'s trace held within its cascade and the next coarser one as (iii)'s is, and
+    (iii)'s march set off by the same finding as (ii)'s, where the probes around a ray's end see no
+    probe above, which the merge finds each frame and would write into the probes' state for the
+    screen's pass to read the frame after, in place of being set off by the light, so (ii)'s small
+    light no longer stops it; and why (ii) reached only 14 percent of the reference at the
+    mid-corridor probe, the sunlit patch subtending a few of its 256 rays where the reference's
+    light there is mostly the walls near the open end that the patch lights, which (ii)'s hits take
+    from probes near the open end. The reviewer orders that form read by the rule at both sizes and
+    the cost as before, with the frame's lag of the finding read too, a probe's state from the frame
+    before where the camera or the world moves. That form read by 08:02 on 2026-10-20 and out by the
+    rule, nothing changed. The merge marks every texel of a first-cascade probe that sees none of
+    the probes above around it, its alpha two more, safe since the readers test that alpha against
+    0.25 alone and no cascade's merge reads the first's; (ii) traces such a probe's ray on within
+    its cascade and the next; (iii) marches on where the probes around a ray's end are mostly marked
+    or hold nothing; the finding has no lag, since the screen's pass is recorded after the merge in
+    the same frame. Against `e6594bc4` the corridor moves by 0.001 and 0.000 at the large size and
+    0.003 narrower, 0.001 wider and 0.000 at the small, Medium widening, every other view holding to
+    the third digit, the corridor's walls as on the head and its ceiling and floor 52 and 54 under
+    where 55, for 0.01 to 0.02 ms more, the still frames as on the head. Why (ii) reaches 14 percent
+    at the mid-corridor probe: its face toward the open end takes the far light at 0.020 against
+    0.125, 85 under, and its other five faces 87 to 93 under, their ways meeting the near walls
+    within the interval at 0.001 a way where the reference reads 0.010 to 0.017; the ways that go on
+    meet the sunlit patch, which gives its own light, and the walls and floor near the open end,
+    which no sun reaches and which take their light past the first bounce from second-cascade probes
+    that all stand outside the corridor behind its walls, so they bring nothing past their first
+    bounce where the reference carries the patch's bounce; and the walls and floor deep in read only
+    the probes' faces along their normals, which see the near walls, so the light along the corridor
+    in the open end's face reaches them only where a surface faces it, at the closed end. So the
+    light past the first bounce at probes that hold nothing stands, named as two terms of the
+    method: the coarse cascades' absence inside a space narrower than their spacing, and the faces'
+    read along a surface's normal of light that runs along it. Both stand in the order with the
+    gain; none has a mend within the rule today.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2191,6 +2244,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pattern `3DEngine*`; at 22:54 the owner asked whether the pack could upload by itself, so this
     comes first, right after the reading in hand, with item 37, and items 36, Verdict 72 and the
     rest after. Done at `4af3cdde` on 2026-10-19; the first pack run with publish on is its check.
+
+39. **RENDERING.md names the terms of the global illumination's method that stand unmended, with
+    their figures.** The week's readings under item 30 ended on 2026-10-20 with the rule's rooms at
+    their bounds and five terms named by cause whose mends widen a view or cost more than they give:
+    the gain past the first bounce, 8 to 16 over at the world probes; the probes' spacing against
+    near occlusion, the small block's front at 1.20 of its reference; the coarse cascades' absence
+    inside a space narrower than their spacing, the corridor's walls 67 to 69 under; the faces' read
+    along a surface's normal of light that runs along it; and the further way the lamp's light
+    reaches a corner through the model pass's read of the probes, 2.85 times the wall beside it with
+    the screen's probes off. The readings that found them stand in REVIEW.md alone, and a reader of
+    the engine has no page saying where the method stops. So RENDERING.md's global illumination part
+    gains a section naming each term, its cause in a sentence, the room and figure that show it, the
+    forms read against it and why each is out, and the rule they were read by; a sentence in the
+    global illumination guide points to it. One commit, documents alone, carrying the review's
+    files.
 
 ## Verdicts
 
