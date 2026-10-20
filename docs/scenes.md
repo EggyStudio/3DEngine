@@ -77,6 +77,45 @@ colliders describe after these, so an observer does not find them yet, and a fil
 `SceneFile` has them the next frame. A component no observer watches costs a load nothing, and a
 world with no observer of a load reads one number to know.
 
+## A saved game over its scenes
+
+A game played through its levels saves what play changed rather than the whole world again, so a
+save is a few lines and a level fixed in an update reaches a player's save from before it.
+`SaveGame.Start` loads the scene files a game begins from and keeps what each of their entities
+holds, `SaveGame.Save` writes only what differs, and `SaveGame.Load` loads the same files again and
+lays the save over them:
+
+<!-- compiled with:
+World world = null!;
+EcsWorld ecs = null!;
+Vector3 where = default;
+-->
+```csharp
+SaveGame.Start(world, "levels/keep.json", "levels/village.json");
+// ...
+var arrow = ecs.Spawn();
+ecs.Add(arrow, new Transform(where));
+ecs.Add(arrow, default(Saved));    // spawned in play, and saved whole
+// ...
+if (IsKeyPressed(Key.F5)) SaveGame.Save(world, "saves/slot.json");
+if (IsKeyPressed(Key.F9)) SaveGame.Load(world, "saves/slot.json");
+```
+
+A save names its scenes and holds, for each entity of theirs that play changed, the components it
+changed, put on or took off, a component taken off written as `null`, keyed by the scene and the id
+the entity has there, which stays the same from one run to the next. An entity of theirs that play
+despawned is written as removed, and one the game spawned with `Saved` is written whole, so what the
+game spawns on its own each run, its camera or its interface, is not spawned twice when the save is
+read. Entities a `SceneRef` or a `ModelRef` placed are left out, as a scene file leaves them.
+
+`Load` despawns the game in progress first, then loads the scenes and lays the save over them, so
+what the save does not touch is as the files hold it now: a level edited after the save shows each
+edit on a component play never changed. It tells the save's `Loaded<T>` events and one
+`SceneLoaded` naming it once over the whole, after the save is laid. A file that is not a save is
+refused before anything is despawned. Each component is compared as a whole, so a component play
+changed comes back as play left it, every field of it. A save of one change in a level of 2,000
+entities is 291 bytes where the scene written whole is 438,739.
+
 ## Building what is saved
 
 The level is entities with names and components, made as any entities are:

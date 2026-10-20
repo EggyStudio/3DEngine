@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A saved game over its scenes.** `SaveGame.Start`, `SaveGame.Save` and `SaveGame.Load` keep a
+  game as what play changed over the scene files it started from, a file of its own `Format` and
+  `Version`, `SaveGame.ScenesOf` naming them, and an entity spawned in play is saved where it is
+  `Saved`, as [A saved game over its scenes](scenes.md#a-saved-game-over-its-scenes) shows.
 - **Building what a file does not hold.** `Loaded<T>` is told for each component of each entity a
   scene file spawned once the whole file is in, and `SceneLoaded`, with its `Path` and `Entities`,
   once after them, a save read back as any file, as

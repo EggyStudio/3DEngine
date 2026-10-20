@@ -10,14 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `414e6f77`, item 51 and nothing else, carrying the review's and the ledger's files,
+Reviewed up to `43ace92a`, item 52 and nothing else, carrying the review's and the ledger's files,
+in the form and with the tests and numbers said before it; the suite gave 1,801, the strict build is
+clean and the scene guide's blocks build on the fresh pack. Read at 18:05; its push waits for the
+build run of `414e6f77`, started at 18:05, to end, the pack run of `b19f09dc` in its games and
+captures. SHARED.md's row says both engines have it. Next item 53 from the ledger, a saved game laid
+over its scenes. Item 6 waits on the owner's word.
+
+Before it, `414e6f77` came, item 51 and nothing else, carrying the review's and the ledger's files,
 in the form and at the cost said before it; the suite gave 1,798, the strict build is clean, the
-guide's block builds on the fresh pack and Tumble builds strictly on it. Read at 17:47. The pack run
-of `b19f09dc` had its three suites green by 18:02, macOS at 17:31 with every game played, Verdict
-76's second, Linux at 17:37 with both passes, which settles Verdict 78, and Windows at 18:02 in its
-parts, so the three commits from `ec39331c` to this head were pushed at 18:04, its games and
-captures jobs running on. SHARED.md's row says both engines have it. Next item 52 from the ledger, a
-message after a load. Item 6 waits on the owner's word.
+guide's block builds on the fresh pack and Tumble builds strictly on it. Pushed at 18:04 with items
+49 and 50 once the pack run's suites were past.
 
 Before it, `e510f268` came, item 50 and nothing else, carrying the review's and the ledger's files,
 in the form, kinds and cost said before it. The behaviors guide's paragraph after the observers has
@@ -30,26 +33,6 @@ ARCHITECTURE.md's ECS section has the bullet, the upgrading guide's added entry 
 flag, the event, its interface, the nine kinds and the hit, and the surface listing has 121 lines
 more. Checked were the strict build, the suite, 1,790 with the four picking tests among them, the
 behaviors guide's thirteen blocks on a fresh pack and the live run.
-
-Before it, `ec39331c` came, item 49 and nothing else, carrying the review's file, in the form and at
-the cost said before it. One public type a file under the ECS's observers folder, the adding and
-removal events, the carrier, the two event interfaces and the internal component event, with the
-world's observe, trigger and private registry in a file of their own; the hooks in the world's add,
-update, remove, despawn and the two bulk spawns, the store holding the two counts and its removal in
-a method of its own, since a lambda over the method's parameters made its closure on every call and
-a despawn allocated, and the world dropping the observers on disposal; an observer's exception
-logged with its event's type as C# writes it, the test carrying the expected error. The cheat sheet
-has the hand sentence in its ECS prose after the despawn paragraph, the behaviors guide its
-observers section with two blocks, ARCHITECTURE.md its ECS bullet, the upgrading guide its added
-entry and the surface listing 33 lines more. Nine tests: told once on adding and once on removal
-with a replacement telling nothing, one entity's observer and a disposed handle, a despawn telling
-each component's observer after the entity has gone and letting its own go, a change queued on
-commands telling at apply, a game's event in order through every observer, the hand's, the arm's
-halving and stopping it under 4 and the body's, an event that does not propagate and one of no
-entity, an observer that throws, no bytes allocated with no observer and with one of another
-component, and an undisposed world with observers collected. Checked were the strict build, the
-suite, 1,786, the behaviors guide's twelve blocks on a fresh pack, and the norm, cheat sheet,
-upgrading and surface tests.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2677,7 +2660,60 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     3,197 microseconds with no observer and 3,604 with one, about 0.4 microseconds an event told; a
     live reload of the level told both lights, the three model references and the scene with no
     error. The scene guide's paragraph after saving and loading with a block, the cheat sheet's
-    sentence, the upgrading guide's entry and 23 lines of the surface listing follow.
+    sentence, the upgrading guide's entry and 23 lines of the surface listing follow. Done at
+    `43ace92a` on 2026-10-20, as the head says.
+
+53. **A saved game laid over the scenes it started from, and a setting read over its default.**
+    SHARED.md's row, where BevyCSharp has a save game and a persistent setting, a file read over its
+    default since `0f0f461` so a field a later version adds keeps its default, and this engine is to
+    consider, taken on 2026-10-20 after item 52: today a save is a whole scene file written again,
+    so a saved game carries every entity of the level it started from, and a game that keeps a few
+    values across runs, a best lap, a score or a setting, writes its own file as the games do,
+    Rally, Pinball and Tumble each with their own. The engine gains a saved game that holds what
+    changed since the scenes it started from, the entities added, removed and changed by component
+    against the loaded files, read by loading those scenes again and laying the save over them, so a
+    level's own edits after the save still show where the save did not touch them, with the save
+    naming its scenes and the loaded event firing once over the whole as item 52 has it; and a
+    persistent value of a type the scene codec can write, read from a file beside the program over
+    its default so a field a later version adds keeps its default and written back on change or on
+    demand, for a game's settings and records. Read first BevyCSharp's save game and persistent
+    setting for the model, never edited, and how this engine's scene file tells an entity from one
+    run to the next, which a save over scenes needs; say the form before the commit; the scene
+    guide's section with a block, the cheat sheet's hand sentence, the surface listing and the
+    upgrading guide's entry; tests of a save over a scene with an entity added, one removed and one
+    changed, of a level edited after the save, of a persistent value read over its default with a
+    field added, and of the cost of a save against a whole scene written. Two commits, the save over
+    scenes and then the persistent value, and a later item moving a game's records to it. The first
+    commit's form said by 18:15 on 2026-10-20 and taken: an entity is told from one run to the next
+    by the scene file's id, given at first save and read back, a scene reference's copy dropping it,
+    so the key is the scene's index and the id; a static save game with a format name and version, a
+    start naming the scenes, a save to a path returning the entities written and throwing with no
+    game started, a load, and the scenes of the game, the game in progress a private resource of the
+    world holding the scenes, each scene entity's handle by scene and id and each one's components
+    as loaded, written compactly by the codecs so they compare as text; a marker component on an
+    entity spawned in play to be written whole, keeping the game's own camera and interface from
+    being spawned twice; the file holding the scenes and the entries, a changed component written
+    whole, a taken-off one as null, a removed entity as such and a marked one whole with its name
+    and parent; the comparison per component and not per field, so a changed component comes back
+    with every field as play left it; the save written beside the old file and moved over it; the
+    load refusing a file that is no save before anything is despawned, ending the game in progress,
+    loading the scenes with item 52's telling held back, spawning the saved entities first so
+    references resolve, laying the entries and then telling once over the whole with the save's
+    path; entities placed by a scene or model reference left out as the scene's write leaves them.
+    Six tests, an entity added, one removed and one changed with a camera taken off, the file
+    holding only those, a load into the game it was made in ending that game first with no doubles,
+    a level edited after the save showing its edits where the save did not touch them, the telling
+    once over the whole, the cost of one change in 200 entities under a twentieth of the whole
+    scene, and a save with no game throwing and a file that is no save refused with the level
+    standing. The numbers: 200 entities with one change saved in 663 microseconds and 291 bytes
+    against the whole scene's 1,105 and 43,339, loaded in 1,208; 2,000 entities saved in 6,281 and
+    291 bytes against 11,244 and 438,739, loaded in 11,835, the save's time growing with the
+    entities since each component is written to compare; a live run on the level saved two entries
+    in 456 bytes and loaded back right. Item 52's allocation test takes the least of five reads a
+    condition, since a test beside it registers codecs from an assembly it compiled and the
+    registry's next lookup rebuilt its index in the middle of a measured read, the stated cost
+    unchanged. The scene guide's section with a block, the cheat sheet's sentence, ARCHITECTURE.md's
+    sentence, the upgrading guide's entry and eight lines of the surface listing follow.
 
 ## Verdicts
 

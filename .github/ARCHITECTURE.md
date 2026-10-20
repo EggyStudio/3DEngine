@@ -236,6 +236,8 @@ is placed the same way with a `SceneRef`, a prefab, which `SceneRefSystem` spawn
 in the frame it appears, without the file's ids so copies of one file stay apart, and down to eight
 references deep, and spawns again when the file is written while the level runs, looking at the
 files twice a second. The console's `scene.save` and `scene.load` do the same from `./e3d`.
+`SaveGame` keeps a game as what play changed over the scene files it started from, keyed by each
+entity's scene and id, and reads it back by loading them again and laying the save over them.
 
 ## The renderer
 

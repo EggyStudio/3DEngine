@@ -155,10 +155,14 @@ public static partial class SceneFile
 
     /// <summary>Loads a scene file into the world's ECS and returns the entities it spawned.</summary>
     /// <exception cref="InvalidDataException">The file is not a scene file this code reads.</exception>
-    public static List<int> Load(World world, string path)
+    public static List<int> Load(World world, string path) => Load(world, path, tell: true);
+
+    // The same, telling the observers of what it loaded unless the caller tells them after work of
+    // its own, as a saved game laid over its scenes does.
+    internal static List<int> Load(World world, string path, bool tell)
     {
         using var document = JsonDocument.Parse(File.ReadAllText(path));
-        return Read(world, document.RootElement, null, path);
+        return Read(world, document.RootElement, null, path, tell);
     }
 
     /// <summary>Spawns the entities of a scene file's JSON into the world's ECS and returns them.</summary>

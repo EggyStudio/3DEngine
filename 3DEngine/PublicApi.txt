@@ -2863,6 +2863,14 @@ enum Engine.RlMatrixMode : int
 sealed class Engine.RunIfAttribute : Attribute
   RunIfAttribute(string memberName)
   string MethodName { get; }
+static class Engine.SaveGame
+  const int Version = 1
+  const string Format = "3dengine-save"
+  static IReadOnlyList<string> ScenesOf(World world)
+  static List<int> Load(World world, string path)
+  static List<int> Start(World world, params string[] scenes)
+  static int Save(World world, string path)
+struct Engine.Saved
 sealed class Engine.Scene
   IEnumerable<SceneNode> Traverse()
   List<SceneEmbeddedTexture> EmbeddedTextures { get; }

@@ -1464,7 +1464,9 @@ A `Collider` and a `RigidBody` say what is solid, and the body is made when the 
 `ecs.GetReadOnly<PhysicsBody>(entity)` gives it to the physics functions. ARCHITECTURE.md describes
 the format. Once a file is in, `ecs.Observe<Loaded<Door>>(on => ...)` is told each `Door` it
 spawned, with every other entity of the file present, and `ecs.Observe<SceneLoaded>(on => ...)`
-once after them, a save read back as any file.
+once after them, a save read back as any file. `SaveGame.Start(world, scenes)` begins a game,
+`SaveGame.Save(world, path)` writes what play changed over its scenes, and `SaveGame.Load` reads the
+scenes again with the save laid over them, an entity spawned in play saved where it is `Saved`.
 
 ## Lights
 

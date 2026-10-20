@@ -95,11 +95,15 @@ public sealed class SceneLoadedTests : IDisposable
             return allocated;
         }
 
+        // The least of several reads, since a test beside this one may register a codec, which the
+        // registry's next lookup builds its index again for, in the middle of one.
+        long Least() => Enumerable.Range(0, 5).Min(_ => Read());
+
         Read();
-        var none = Read();
+        var none = Least();
         using var other = ecs.Observe<Ping>(_ => { });
         Read();
-        var unrelated = Read();
+        var unrelated = Least();
         var told = 0;
         using var transforms = ecs.Observe<Loaded<Transform>>(_ => told++);
         Read();
