@@ -1352,14 +1352,17 @@ jobs:
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
       # names the game, what climbed with its numbers or the command that ended it, and its log's
-      # last warnings.
+      # last warnings. The games start three seconds apart and each is given five minutes to serve,
+      # since nineteen starting at once on the runner's four cores took two past the minute an
+      # opening is given on the pack run of f78b8c58; each log says how long its game took.
       - name: Play each game a while and check nothing it holds grows
         run: |
           games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones FeatureTest)
           pids=()
           for game in "${games[@]}"; do
-            build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
+            E3D_OPEN_WAIT=300 build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
+            sleep 3
           done
           for i in "${!pids[@]}"; do wait "${pids[$i]}" || echo "the soak of ${games[$i]} ended early"; done
           cat captures/soak-*.log

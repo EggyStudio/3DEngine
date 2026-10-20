@@ -16,6 +16,9 @@
 #   build/open-game.sh <program or example> [--offscreen|--hidden|...]
 #   build/open-game.sh --ended <program or example>
 #
+# It waits a minute for the program to serve, or the seconds E3D_OPEN_WAIT gives, as the soak gives
+# programs started together that share a runner's few cores, and says how long it took.
+#
 # Beside the log, under build/sessions, it writes these.
 #   - <name>.pid, the program's process id, once it is started.
 #   - <name>.ended, once it ends, a line saying how, then what gdb read where a core was left.
@@ -172,11 +175,13 @@ if [ -z "$pid" ]; then
   exit 1
 fi
 # It serves once a command is answered, which its first frame does, and is given the minute e3d
-# open gives a program.
-until=$(( SECONDS + 60 ))
+# open gives a program, or the seconds asked for.
+patience="${E3D_OPEN_WAIT:-60}"
+started=$SECONDS
+until=$(( SECONDS + patience ))
 while [ "$SECONDS" -lt "$until" ]; do
   if ./e3d command --session "$pid" frames.wait 0 --quiet --timeout 10 > /dev/null 2>&1; then
-    echo "$name is serving ($pid), its log in $log"
+    echo "$name is serving ($pid) after $(( SECONDS - started )) s, its log in $log"
     exit 0
   fi
   grep -q "^its process $pid " "$ended" 2> /dev/null && break
@@ -186,7 +191,7 @@ if grep -q "^its process $pid " "$ended" 2> /dev/null; then
   for _ in $(seq 1 240); do [ -e "$reading" ] || break; sleep 0.5; done
   echo "$name did not open, since $(cat "$ended")" >&2
 else
-  echo "$name did not serve within a minute of starting, its process $pid still running." >&2
+  echo "$name did not serve within $patience seconds of starting, its process $pid still running." >&2
 fi
 tail -n 5 "$log" >&2 || true
 exit 1
