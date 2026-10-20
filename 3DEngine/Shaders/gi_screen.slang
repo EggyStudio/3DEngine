@@ -174,8 +174,8 @@ int2 folded(int2 t, int texels)
 
 // How much the probe of cascade c at `at`, standing at probe, sees of the point q, 1 where q lies
 // nearer it than its rays reached that way the frame before, falling to 0 over a quarter of the
-// probes' spacing past it, narrower than probeSees takes for a surface since q lies where a ray
-// passed and a probe beyond a wall half the spacing thick should see none of it.
+// probes' spacing past it, since q lies where a ray passed and a probe beyond a wall half the
+// spacing thick should see none of it.
 float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
 {
     float3 toward = q - probe;

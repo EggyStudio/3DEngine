@@ -349,11 +349,18 @@ public static const float OwnShare = 0.25;
 
 // How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n, 1
 // where p, taken three tenths of the probes' spacing off the surface along n, lies nearer the probe
-// than its rays reached that way the frame before, falling to 0 over half the spacing past it, as
-// DDGI weighs its probes by the distances they traced. Taken off the surface, the point comes
-// nearer a probe on its own side and goes further from one past it, so a probe under a floor or
-// beyond a wall, whose rays stop at the floor's or the wall's far face, lends a surface on this side
-// none of the light it sees there.
+// than its rays reached that way the frame before, falling to 0 over an eighth of the spacing past
+// it, a cell of the probes' cascade, as DDGI weighs its probes by the distances they traced. Taken
+// off the surface, the point comes nearer a probe on its own side and goes further from one past
+// it, so a probe under a floor or beyond a wall, whose rays stop at the floor's or the wall's far
+// face, lends a surface on this side none of the light it sees there. Over half the spacing, a
+// probe 0.55 beyond a wall 0.1 thick, whose rays reached the wall's far face, read as seeing the
+// screen's probes' hits on this side and lent them the light it sees. The thin room's right wall,
+// its lamp outside, read 1.153 of a path-traced reference on its inner face and 1.072 with that
+// lamp off, the reference reading the wall alike either way, and over an eighth it reads 1.098.
+// Through walls 0.3 thick the corridor's walls took the light of sunlit probes outside, which
+// covered part of their own reading under, 67 to 70% under the reference with it and 78 to 79%
+// without (gi.compare at 800 by 450, gi.screenprobe).
 public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, int3 at, int c, float probes, float apart)
 {
     float3 toward = p + n * (0.3 * apart) - probe;
@@ -362,7 +369,7 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
         return 1.0;
     int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(ReachTexels - 1));
     float reached = reach.loadAt(int3(at.xy * ReachTexels + texel, c * int(probes) + at.z)).r;
-    float slack = 0.5 * apart;
+    float slack = 0.125 * apart;
     return saturate((reached + slack - d) / slack);
 }
 

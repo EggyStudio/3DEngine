@@ -1110,23 +1110,23 @@ the floor by itself at ±8% with the screen's probes off, the history changing i
 error over every region moves a point at most in any room, and the cost is within the noise,
 global illumination 0.37, 0.45 and 0.54 ms by quality and the scene's pass 0.16 ms.
 
-The fifth takes on the leaks. Each probe keeps how far its rays went along eight by eight
-directions before a surface stopped them, the trace writing each ray's distance and the gather
-laying them out as the probes' reach, and `bouncedAt` weighs a probe by whether a surface, taken
-three tenths of the probes' spacing off along its normal, lies within that reach, its weight falling
-to a twentieth over half the spacing past it (`probeSees` in `gi.slang`), as DDGI weighs its probes
-by the distances they traced. Cut to nothing over a quarter of the spacing, the weight left a pixel
-with one or two of its probes seen to their light alone, which drew a notch beside the Cornell box's
-tall block and a smear by its green wall. A closed room with a lamp under its floor took 15.3 levels
-of the lamp's light, lent by the probes beneath the floor to the walls by it through the light past
-the first bounce, which `gi.toggle again off` took to nothing. It takes 1.6, and its test's bound is
-8 again, the lamp over its roof giving 6.1. The thin room's leak was the field's. Its walls, 0.1
-thick in cells of 0.15, lay between two cells' middles, each 0.025 outside the wall, so a march
-toward the lamp outside stepped over them and the lamp lit the floor inside, which the room's probe
-read on its face toward the floor at 255% over a reference of hits lit directly. The field holds a
-wall thinner than a cell, where it held one thinner than half a cell, as a sheet half a cell thick
-about its middle, and that probe's hits read 6% over where they read 63%. Before and after, over
-every region against every bounce.
+The fifth takes on the leaks. Each probe keeps how far its rays went along eight by eight directions
+before a surface stopped them, the trace writing each ray's distance and the gather laying them out
+as the probes' reach, and `bouncedAt` weighs a probe by whether a surface, taken three tenths of the
+probes' spacing off along its normal, lies within that reach, its weight falling to a twentieth over
+an eighth of the spacing past it, a cell of the probes' cascade (`probeSees` in `gi.slang`), as DDGI
+weighs its probes by the distances they traced. Cut to nothing over a quarter of the spacing, the
+weight left a pixel with one or two of its probes seen to their light alone, which drew a notch
+beside the Cornell box's tall block and a smear by its green wall. A closed room with a lamp under
+its floor took 15.3 levels of the lamp's light, lent by the probes beneath the floor to the walls by
+it through the light past the first bounce, which `gi.toggle again off` took to nothing. It takes
+1.6, and its test's bound is 8 again, the lamp over its roof giving 6.1. The thin room's leak was
+the field's. Its walls, 0.1 thick in cells of 0.15, lay between two cells' middles, each 0.025
+outside the wall, so a march toward the lamp outside stepped over them and the lamp lit the floor
+inside, which the room's probe read on its face toward the floor at 255% over a reference of hits
+lit directly. The field holds a wall thinner than a cell, where it held one thinner than half a
+cell, as a sheet half a cell thick about its middle, and that probe's hits read 6% over where they
+read 63%. Before and after, over every region against every bounce.
 
 | Room | `Low` | `Medium` | `High` | `High` against one bounce |
 |---|---|---|---|---|
@@ -1929,9 +1929,10 @@ that `gi.compare` writes beside its difference.
   1.02 of the wall beside it, faded across a cascade's outer band as `bounced` fades, at a cost to
   the model pass of 0.07 ms in that room at 800 by 450, 0.31 where 0.24, from 185 pixels' groups,
   and 0.09 in the Cornell box, 0.27 where 0.18. Where the world's probes alone light the corner,
-  past the screen's probes' reach, their band still reads 1.41 where the reference reads 0.96, the
-  probes' own rays taking the lamp's light through walls thinner than a cell (the pictures, the
-  frame before, the frame now, the frame now with the screen's probes left out, and the reference).
+  past the screen's probes' reach, their band still reads 1.41 where the reference reads 0.96, read
+  from those probes, whose own rays take none of the lamp's light (the reach's slack, below; the
+  pictures, the frame before, the frame now, the frame now with the screen's probes left out, and
+  the reference).
   ![The thin walls' corner, the frame before the mend, the frame after it, the frame after it without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
 
 **The screen's probes ray by ray, read on 2026-10-19.** `gi.screenprobe <x> <y>` reads the window's
@@ -2028,8 +2029,9 @@ room the world's probes read the reference 10 to 28% over across their ways merg
 above where 9% under to 24% over by their own rays, a way past the first cascade's interval taking
 the light a coarser cascade's probe sees along it from where it stands, the sunlit floor or the
 window, 0.27 to 0.42 where the reference along it reads 0.015 to 0.26, the merge's parallax; in the
-thin room they read 9 to 12% over by their own rays, no way taking the cascade above, through walls
-thinner than a cell (f). By the angle from the normal, the rays near the surface's plane read their
+thin room they read 9 to 12% over by their own rays, no way taking the cascade above, the gain past
+the first bounce, since they read the same with the lamp outside switched off (the reach's slack,
+below). By the angle from the normal, the rays near the surface's plane read their
 texels' reference within 1% in the window's room, so neither the screen's march nor the field reads
 a grazing way over. On the trunk the patches go, its blocks of 16 pixels reading 1.02 to 1.31 of the
 reference, mean 1.17, where 0.58 to 0.97, mean 0.76, and the thirty-six 1.13 to 1.76, mean 1.41. The
@@ -2057,6 +2059,37 @@ Marching instead from the ray's point twice the spacing out to each probe above'
 texel's own sight of each in place of the probe's, the bilinear fix, took the pocket's upward face
 to 2.16 at 0.24 to 0.29 ms more at `High`. The small block's front (c) reads 1.20 and 1.10 of the
 reference at `High` and `Low` where 1.18 and 1.13.
+
+**The reach's slack beside thin walls, read on 2026-10-20.** Nine of the thin room's world probes,
+beside its right wall, at the wall's foot and corners, in its middle and by its far wall, take none
+of the light of the lamp outside that wall. One beside the wall reads 0.267 by its own rays where a
+path-traced reference reads 0.242, and the same with that lamp switched off (`entity.set 4
+Light.Intensity 0`), as the reference does, their 10% over being the gain past the first bounce
+(`gi.probe`). The frame takes it on the wall's inner face, 1.153 of the reference where 1.072 with
+the lamp off, the reference reading the wall alike either way, and in blocks of 20 pixels 50 to 62%
+of the reference's light along the wall's foot, 20 to 30% along the ceiling, 15 to 22% at the front
+wall's corner and 1 to 2% in its middle (`gi.compare` at 800 by 450). The screen's probes' hits
+within 0.4 of the wall take it past the first bounce, the rays of a probe by the corner reading
+0.338 where 0.206 with the lamp off against the reference's 0.183, their own light alike
+(`gi.screenprobe`), since they read the world's probes through `bouncedAt`, which weighs each by its
+reach with a slack, and over half the spacing a probe 0.55 beyond the wall, its rays reaching the
+wall's far face, read as seeing them. Over an eighth of the spacing, a cell of the probes' cascade,
+the wall reads 1.098, its foot 1.050 times its light with the lamp off where 1.279
+(BounceRoomsTests), and the thin walls' view narrows by 0.012 to 0.017 at both sizes. Of the wall's
+2.6 points left, the twentieth of a weight `bouncedAt` keeps for a probe it does not see carries
+0.8. With the screen's probes left out, the corner by the front wall reads 3.53 times the wall
+beside it where 1.01 with the lamp off, and 2.85 over an eighth, the twentieth cut to nothing taking
+it to 2.81, so the model pass's read of the probes there lends it the lamp's light by a further way.
+The corridor's widens by 0.011 to 0.017, its walls 78 to 79% under the reference where 67 to 70%,
+since the sunlit probes beyond its walls 0.3 thick lent them light that covered part of their own
+reading under, a term of its own. The Cornell box's back wall reads 1.043 where 1.033 and the
+grazing floor's wall facing −x 1.122 where 1.094, the dark probes behind those walls having covered
+part of the gain past the first bounce. It costs nothing, global illumination 1.94 ms at `High` in
+the Cornell box where 1.94 to 1.99 on the development machine's GPU, and the reflections move by
+0.01% of their light in `shaders_reflections` and 0.09% in `models_reflection_probe` (`./e3d command
+profile`, the frames unlimited). Marching from the screen's probes' hits to the probes they see
+(`bouncedSeenAt`) read the wall 1.085, widened the corridor's view by 0.028 to 0.040 and cost 0.25
+to 0.42 ms more.
 
 **The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Seventeen
 faces of eleven world probes were read against the reference by bounce and by where their ways were

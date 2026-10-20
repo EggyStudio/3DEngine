@@ -63,21 +63,29 @@ public sealed class BounceRoomsTests : IDisposable
     // row, pass over, and the probes' rays through the strip to the wall had made up for it. With
     // each tile's rays placed at one of sixteen places in their texels, the thin walls' view reads
     // 0.085, 0.090 and 0.094 where 0.072, 0.071 and 0.072, its world probes 9 to 12% over the
-    // reference by their own rays through walls thinner than a cell, and the grazing floor's at
+    // reference by their own rays, the gain past the first bounce, and the grazing floor's at
     // High 0.086 where 0.058, its walls 8% over where 8% under, the merge's parallax, each read
     // under by the fixed ways before, which also had the strip's read 0.234, 0.245 and 0.244 where
     // 0.216, 0.240 and 0.218. With the probes above read toward what the rays would meet (the
-    // merge's parallax), the thin walls' view reads 0.090, 0.094 and 0.098, their walls thinner than
-    // a cell, and the window's, the grazing floor's and the strip's narrow.
+    // merge's parallax), the thin walls' view reads 0.090, 0.094 and 0.098, their walls thinner
+    // than a cell, and the window's, the grazing floor's and the strip's narrow. With the reach's
+    // slack an eighth of the probes' spacing where half (probeSees), the probes beyond a wall lend
+    // the screen's probes' hits beside it none of their light, and the thin walls' view reads
+    // 0.078, 0.079 and 0.084, the lamp outside lighting their walls' foot and edges none. The
+    // corridor's reads 0.234, 0.244 and 0.232 where 0.219, 0.232 and 0.215, its walls 78 to 79%
+    // under their reference at 800 by 450 where 67 to 70%, the sunlit probes beyond them having
+    // covered part of their own reading under, and the grazing floor's at High 0.082 where 0.078,
+    // its wall facing -x 12% over where 9%, the dark probes behind it having covered part of the
+    // gain past the first bounce.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
     [InlineData(1, GlobalIllumination.High, 0.15)]
-    [InlineData(2, GlobalIllumination.Low, 0.10)]
-    [InlineData(2, GlobalIllumination.Medium, 0.11)]
-    [InlineData(2, GlobalIllumination.High, 0.11)]
-    [InlineData(3, GlobalIllumination.Low, 0.24)]
-    [InlineData(3, GlobalIllumination.Medium, 0.26)]
+    [InlineData(2, GlobalIllumination.Low, 0.09)]
+    [InlineData(2, GlobalIllumination.Medium, 0.10)]
+    [InlineData(2, GlobalIllumination.High, 0.10)]
+    [InlineData(3, GlobalIllumination.Low, 0.27)]
+    [InlineData(3, GlobalIllumination.Medium, 0.29)]
     [InlineData(3, GlobalIllumination.High, 0.28)]
     [InlineData(4, GlobalIllumination.Low, 0.35)]
     [InlineData(4, GlobalIllumination.Medium, 0.34)]
@@ -90,7 +98,7 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(6, GlobalIllumination.High, 0.28)]
     [InlineData(7, GlobalIllumination.Low, 0.09)]
     [InlineData(7, GlobalIllumination.Medium, 0.09)]
-    [InlineData(7, GlobalIllumination.High, 0.09)]
+    [InlineData(7, GlobalIllumination.High, 0.10)]
     [InlineData(8, GlobalIllumination.Low, 0.15)]
     [InlineData(8, GlobalIllumination.Medium, 0.13)]
     [InlineData(8, GlobalIllumination.High, 0.14)]
@@ -182,6 +190,49 @@ public sealed class BounceRoomsTests : IDisposable
         }
         beside /= 110;
         (brightest / beside).Should().BeLessThan(1.4, "the corner reads the wall's light, not the lamp's beyond the walls");
+    }
+
+    [NeedsVulkanFact]
+    public void The_Thin_Walls_Foot_Takes_No_Light_From_The_Lamp_Outside()
+    {
+        // The thin room's right wall along its foot, seen as the corner's test sees it, with the
+        // lamp outside the wall and with that lamp off, which a path-traced reference reads alike.
+        // The screen's probes' hits beside the wall read the world's probes by their reach, and
+        // those beyond it read as seeing the hits through the slack the reach is given (probeSees),
+        // which over half the probes' spacing lent them the lamp's light through the wall 0.1
+        // thick, the foot 1.279 times its light with the lamp off on the development machine's GPU,
+        // and over an eighth 1.050.
+        const int Wide = 800, High = 450;
+        var config = Config.Default.WithWindow("bounce rooms", Wide, High) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        double Foot()
+        {
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(Rooms.Views[1]);
+                rooms.Draw();
+                EndMode3D();
+                EndDrawing();
+            }
+            var renderer = GetApp().World.Resource<Engine.Renderer>();
+            var light = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+            double sum = 0;
+            for (int y = 300; y < 322; y++)
+                for (int x = 430; x < 520; x++)
+                    sum += 0.2126 * light[(y * Wide + x) * 4] + 0.7152 * light[(y * Wide + x) * 4 + 1] + 0.0722 * light[(y * Wide + x) * 4 + 2];
+            return sum / (22 * 90);
+        }
+
+        var lit = Foot();
+        SetLightColor(rooms.Outside, Color.White, 0);
+        var dark = Foot();
+
+        (lit / dark).Should().BeLessThan(1.1, $"the wall's foot reads {lit:0.0000} with the lamp outside and {dark:0.0000} without it");
     }
 
     // The screen probe gi.screenprobe read in shaders_bounce_rooms at 800 by 450 on the small block's
@@ -542,6 +593,9 @@ public sealed class BounceRoomsTests : IDisposable
         private readonly Vector3 _carried;
         private readonly bool _moved;
 
+        // The bright lamp close outside the thin room's right wall.
+        public LightHandle Outside { get; }
+
         public static readonly Camera3D[] Views =
         [
             new(new Vector3(0, 2.5f, 8), new Vector3(0, 2.4f, 0), Vector3.UnitY, 45),
@@ -562,7 +616,7 @@ public sealed class BounceRoomsTests : IDisposable
             CreateDirectionalLight(Vector3.Normalize(new Vector3(0.8f, -1, 0.25f)), new Color(255, 245, 230), 1.5f, castsShadows: true);
             CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
             CreatePointLight(new Vector3(40, 2.2f, 0), Color.White, 0.6f, range: 8);
-            CreatePointLight(new Vector3(43, 1.5f, 0), Color.White, 25, range: 10, castsShadows: true);
+            Outside = CreatePointLight(new Vector3(43, 1.5f, 0), Color.White, 25, range: 10, castsShadows: true);
             CreatePointLight(new Vector3(240, 2.6f, 0), new Color(255, 236, 210), 14, range: 16);
             CreatePointLight(_carried, new Color(255, 230, 200), 8, range: 10, castsShadows: true);
             _slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
