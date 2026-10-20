@@ -10,20 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `afbe81cf`, item 57's fifth part, audio and text, and nothing else, carrying the
-review's file, in the shape and with the tests and numbers said before it. Read at 23:14. The build
-run of `086d9a00` ended green at 23:20, its Windows parts in 44 minutes 38 seconds, 1,759 passed, so
-`c6face9f` and this head were pushed at 23:22. Next item 58, the default spatial processor, then
-part 6, scenes and saves and the interface. Item 6 waits on the owner's word. At about 23:47 the
-owner gave the modeling work, Decision 51 and items 59 to 66, taken after item 58 and part 6.
+Reviewed up to `f78b8c58`, item 58, the default spatial processor, and nothing else, carrying the
+review's files, in the form said before it: the distance processor beside the backend, the pan from
+the direction against the listener's across vector, the volume one within the near distance and the
+inverse of the distance to zero at the far, the directivity from the dipole, the server starting
+with it and the setter kept internal, near and far distances on the server and the voice, the
+guide's model, the upgrading entry and eight lines of the surface listing; two things moved after
+the form, the upgrading entry naming every member whole as its test asks, and the new test waiting
+on an event the mix processor sets after a count of frames in place of a sleep, which N 3.3 caught,
+nothing joining the rule's list. The suite 1,825 passed plain and shuffled, 1,823 before; the
+feature test's drone through the spatial play read 2.34 left and 1.42 right on the pack. Read at
+00:05 on 2026-10-21. The build run of `afbe81cf` ended green at 00:10, its Linux suite in 38
+minutes, its macOS in 28 and its Windows parts in 44 minutes 4 seconds, the examples job green after
+them, which settles Verdict 75; the head was pushed at 00:12 and the day's pack run with publish on
+started at 00:12, run 39506383679, the push's build run left to run beside it (Decision 52); the
+pack run is Verdict 77's third and Verdict 79's second. Next the feature test's sixth part, scenes
+and saves and the interface, its shape before its commit; then Decision 51's items 59 to 66, the
+modeling work of 2026-10-20, in order. Item 6 waits on the owner's word.
+
+Before it, `afbe81cf` came, item 57's fifth part, audio and text, and nothing else, carrying the
+review's file, in the shape and with the tests and numbers said before it. Pushed at 23:22 with
+`c6face9f`.
 
 Before it, `c6face9f` came, item 57's fourth part, global illumination, particles and the effects,
 and nothing else, carrying the review's file, in the shape and with the tests and numbers said
 before it.
-
-Before it, `086d9a00` came, item 57's third part, models and animation and lights and shadows, and
-nothing else, carrying the review's file, in the shape and with the tests and numbers said before
-it. Pushed at 22:23 with the three before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3093,7 +3104,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     without parallelization, clean four times, an app opening one backend unaffected. The feature
     test's audio zone plays its drone with a position through the server with the listener set from
     the camera each frame and keeps its check, reading 2.31 left and 1.40 right alone where the same
-    placement had read 14.28 and 14.56.
+    placement had read 14.28 and 14.56. Done at `f78b8c58` on 2026-10-21, as the head says.
 
 59. **An edit mesh a program shapes by operations, with a recipe that rebuilds it, built into what
     the engine draws and collides with (Decision 51).** The owner asked for modeling in both
@@ -3260,7 +3271,9 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is se
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
 the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 78 is settled on the
 pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on the pack runs of
-`2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20, said under it. Verdicts 75, 77 and 79 are open.
+`2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20, said under it. Verdict 75 is settled on the
+runs of `b3922179`, `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, said under it. Verdicts 77
+and 79 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -4198,8 +4211,10 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
     slope over the readings after the twentieth, the series printed as it is and the remark saying
     why one reading cannot be the base, with a test of the check on this run's series passing and on
     a climbing one failing. It gates the package, so it comes before (c)'s mend. Mended at
-    `f72bda5d` on 2026-10-20 in the first form, as the head says. Settled at three Windows suites in
-    a row with the test green after the mend.
+    `f72bda5d` on 2026-10-20 in the first form, as the head says. Settles at three Windows suites in
+    a row with the test green after the mend. Settled on the Windows suites of `b3922179`,
+    `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, four in a row green after the mend, 1 hour
+    21 minutes, 1 hour 25, 53 minutes and 44 minutes 4 seconds.
 
 76. **Span's drive on macOS found the load not crossing the truss, with no joint broken and no force
     read.** On the pack run of `b4b798d4`, 2026-10-20 at 13:05, the macOS job's step playing every
@@ -4693,6 +4708,14 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
     the same in both. The owner is asked the game's name, Blockout failing a word, whether the glTF
     export comes earlier than last, and whether a dependency for robust booleans is wanted later
     should the partition's limits show.
+
+52. **The Actions bill is not weighed.** The owner wrote at 00:06 on 2026-10-21 that the bill need
+    not be considered, the runs being free of charge for them. So a push's build run is left to run
+    beside a pack run started at the same time and is never cancelled for its cost, macOS stays in
+    every push, the three systems' suites run on every push as they do, and the reviewer's reading
+    of the month's minutes stands as a reading and not as a reason; a run is still cancelled where
+    it is doomed, so its figures are not waited for, and a push still waits for the run before it to
+    end, so no figure is lost.
 
 ## Replies
 

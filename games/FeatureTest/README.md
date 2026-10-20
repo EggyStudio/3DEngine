@@ -27,7 +27,12 @@ a compute shader paints, and the Game of Life and a greying shader read back uns
 the audio zone, a speaker whose drone is panned toward it as you move, music, a tone a stream makes
 and a coin every two seconds, and past it on the outer ring the text zone, a page of Lato past
 Latin-1, Hebrew read right to left, a colour glyph, the default font, a distance field font turned
-and a ligature measured with and without.
+and a ligature measured with and without. Beyond the drawing zone on the outer ring is the scenes
+zone, a level written as a scene file and started as a saved game, a prefab a scene places, a stack
+of crates whose numbers are a data file found by its id after a rename, a block moved and one
+spawned that the save brings back, and how often you came, kept between runs. Beyond the effects
+zone is the interface zone, screens stepped by Enter and P, a sign you type on, an ImGui window and
+a health bar and a gauge in 2D.
 
 ## Keys
 
@@ -41,6 +46,8 @@ and a ligature measured with and without.
 | R | go back to the start of the zone you are in |
 | Tab | hold the mouse in the window to look with it |
 | Arrows | look |
+| Enter, P | in the interface zone, start from the title and pause |
+| Backspace | in the interface zone, take back a character from the sign |
 | F1 | the panel |
 | F2 | the engine's performance window |
 

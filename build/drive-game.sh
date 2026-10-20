@@ -789,6 +789,33 @@ case "$game" in
     text=$(ask feature.status text)
     echo "$text"
     case "$text" in *"text ok"*) ;; *) fail "the text was not drawn as it should be, $text" ;; esac
+    # The level started as a saved game and read back over itself, its crate found by its id after
+    # a rename, and the interface's screens stepped by keys, text typed, the ImGui button clicked
+    # where it says it is drawn, and the pad's button pressed after, since the first pad also moves
+    # through ImGui.
+    cmd feature.zone scenes
+    cmd frames.wait 10
+    scenes=$(ask feature.status scenes)
+    echo "$scenes"
+    case "$scenes" in *"scenes ok"*) ;; *) fail "the level was not saved and read back as it should be, $scenes" ;; esac
+    cmd feature.zone interface
+    cmd frames.wait 20
+    cmd input.key Enter 2
+    cmd frames.wait 5
+    cmd input.key P 2
+    cmd frames.wait 5
+    cmd input.text featuretest
+    cmd frames.wait 5
+    shown=$(ask feature.status interface)
+    at=$(printf '%s\n' "$shown" | sed -n 's/.*the button at \([0-9]*\),\([0-9]*\).*/\1 \2/p')
+    [ -n "$at" ] || fail "the interface's button was not drawn, $shown"
+    cmd input.click $at
+    cmd frames.wait 5
+    cmd input.button 0 RightFaceDown 2
+    cmd frames.wait 5
+    interface=$(ask feature.status interface)
+    echo "$interface"
+    case "$interface" in *"interface ok"*) ;; *) fail "the interface did not take what was asked of it, $interface" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

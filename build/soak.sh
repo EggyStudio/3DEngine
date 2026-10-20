@@ -181,7 +181,7 @@ turn() {
       # and off again as the next turn leaves it, the effects shown, the audio zone's sounds played
       # and stopped, the panel shown every fourth turn, and every zone's status read.
       if (( i % 4 == 1 )); then cmd feature.panel on; else cmd feature.panel off; fi
-      case $(( i % 11 )) in
+      case $(( i % 13 )) in
         0) cmd feature.zone hub; key W 60 ;;
         1) cmd feature.zone drawing; key W 60 ;;
         2) cmd feature.zone course crates; key W 120 ;;
@@ -193,6 +193,8 @@ turn() {
         8) cmd feature.zone effects; wait_frames 150 ;;
         9) cmd feature.zone audio; wait_frames 200 ;;
         10) cmd feature.zone text; key W 60 ;;
+        11) cmd feature.zone scenes; key W 60 ;;
+        12) cmd feature.zone interface; key Enter 2; key P 2; cmd input.text soak; wait_frames 30 ;;
       esac
       cmd feature.status
       wait_frames 30 ;;
