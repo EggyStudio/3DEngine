@@ -2202,6 +2202,17 @@ enum Engine.LoadState : int
   Loaded = 2
   Loading = 1
   NotLoaded = 0
+readonly struct Engine.Loaded<T> : IComponentEvent, IEntityEvent, IEquatable<Loaded<T>>
+  Entity Entity { get; init; }
+  Loaded(Entity Entity, T? Value)
+  T? Value { get; init; }
+  bool Equals(Loaded<T> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Loaded<T> left, Loaded<T> right)
+  static bool op_Inequality(Loaded<T> left, Loaded<T> right)
+  void Deconstruct(out Entity Entity, out T? Value)
 static class Engine.Log
   static ILogger Category(string category)
   static ILogger For<T>()
@@ -2866,7 +2877,7 @@ sealed class Engine.SceneAsset
   SceneAsset()
   string SourceFormat { get; init; }
   string? SourcePath { get; init; }
-sealed class Engine.SceneCodec<T> : ISceneCodec
+sealed class Engine.SceneCodec<T> : ISceneCodec, ITellsLoaded
   IReadOnlyList<string> FormerNames { get; init; }
   SceneCodec(string name, SceneCodec<T?>.Writer write, SceneCodec<T?>.Reader read)
   Type Type { get; }
@@ -2938,6 +2949,17 @@ static class Engine.SceneJson
   static void Write(Utf8JsonWriter writer, string? name, Vector2 v)
   static void Write(Utf8JsonWriter writer, string? name, Vector3 v)
   static void Write(Utf8JsonWriter writer, string? name, Vector4 v)
+readonly struct Engine.SceneLoaded : IEquatable<SceneLoaded>
+  IReadOnlyList<Entity> Entities { get; init; }
+  SceneLoaded(string Path, IReadOnlyList<Entity> Entities)
+  bool Equals(SceneLoaded other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(SceneLoaded left, SceneLoaded right)
+  static bool op_Inequality(SceneLoaded left, SceneLoaded right)
+  string Path { get; init; }
+  void Deconstruct(out string Path, out IReadOnlyList<Entity> Entities)
 sealed class Engine.SceneNode
   List<SceneNode> Children { get; }
   List<object> Components { get; }

@@ -11,5 +11,5 @@ namespace Engine;
 /// </remarks>
 public readonly record struct Add<T>(Entity Entity, T Value) : IEntityEvent, IComponentEvent
 {
-    void IComponentEvent.Count(EcsWorld ecs, int by) => ecs.CountObservers<T>(added: true, by);
+    void IComponentEvent.Count(EcsWorld ecs, int by) => ecs.CountObservers<T>(ComponentChange.Added, by);
 }

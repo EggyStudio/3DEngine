@@ -49,6 +49,34 @@ if (IsKeyPressed(Key.R))
 
 The two flat calls use `SceneFile`, with a path taken as it is.
 
+What a file does not hold, a game builds once the file is in. Each component of each entity the
+file spawned is told as a `Loaded<T>` once every entity of the file is spawned, every parent set and
+every component read, so an observer of a component's builds for its entity what the file leaves
+out, finding any other entity of the file, and the file's `SceneLoaded` follows once, with its path
+and every entity it spawned, for what is built once for the level:
+
+<!-- compiled with:
+EcsWorld ecs = null!;
+public struct Door { public Entity Frame; }
+public struct Patrol { public string Route; }
+static void Hinge(EcsWorld ecs, Entity door, Entity frame) { }
+static void Plan(EcsWorld ecs, IReadOnlyList<Entity> level) { }
+-->
+```csharp
+// A door's hinge joins it to its frame, an entity the file holds too, by the id it was saved with.
+ecs.Observe<Loaded<Door>>(on => Hinge(on.Ecs, on.Event.Entity, on.Event.Value.Frame));
+// The routes the guards walk, planned once from every marker of the level.
+ecs.Observe<SceneLoaded>(on => Plan(on.Ecs, on.Event.Entities));
+
+var level = LoadScene("level.json");
+```
+
+A save read back is a scene file read, so it is told the same way, and so is each copy a
+`SceneRef` places, once the copy is under its entity. `LoadScene` makes the bodies the file's
+colliders describe after these, so an observer does not find them yet, and a file read with
+`SceneFile` has them the next frame. A component no observer watches costs a load nothing, and a
+world with no observer of a load reads one number to know.
+
 ## Building what is saved
 
 The level is entities with names and components, made as any entities are:

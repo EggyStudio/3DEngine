@@ -134,7 +134,7 @@ internal static class SceneRefSystem
                 Versions[file] = version = new Version(written, parsed);
             }
             var shared = version.Meshes;
-            spawned = SceneFile.Read(world, version.Document.RootElement, (index, component) => component == "Mesh" && index < shared.Count && shared[index] is not null);
+            spawned = SceneFile.Read(world, version.Document.RootElement, (index, component) => component == "Mesh" && index < shared.Count && shared[index] is not null, path, tell: false);
             for (int i = 0; i < spawned.Count; i++)
             {
                 if (i < shared.Count && shared[i] is { } mesh) ecs.Add(spawned[i], mesh);
@@ -157,6 +157,8 @@ internal static class SceneRefSystem
             ecs.Add(child, new SceneInstance { SourcePath = path });
             if (ecs.ParentOf(child) == 0) ecs.SetParent(child, entity);
         }
+        // Once the copy is placed under its entity with the meshes its copies share.
+        SceneFile.TellLoaded(ecs, spawned, path);
     }
 
     // The version of each file last spawned, parsed, and the meshes its first copy read, by the

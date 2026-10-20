@@ -45,7 +45,9 @@ internal struct SceneKept
 /// warning, so a file outlives a component type being removed. A component saved at an earlier
 /// version of its type's <see cref="DataVersionAttribute"/> is moved forward as it is read, and one
 /// saved at a later version is read as far as this build knows it and saved back as that version
-/// with every value it held.
+/// with every value it held. Once the whole file is in, each component's <see cref="Loaded{T}"/> is
+/// told on each entity it spawned, and then the file's <see cref="SceneLoaded"/>, where anything
+/// observes them.
 /// </para>
 /// </remarks>
 public static partial class SceneFile
@@ -153,7 +155,11 @@ public static partial class SceneFile
 
     /// <summary>Loads a scene file into the world's ECS and returns the entities it spawned.</summary>
     /// <exception cref="InvalidDataException">The file is not a scene file this code reads.</exception>
-    public static List<int> Load(World world, string path) => Read(world, File.ReadAllText(path));
+    public static List<int> Load(World world, string path)
+    {
+        using var document = JsonDocument.Parse(File.ReadAllText(path));
+        return Read(world, document.RootElement, null, path);
+    }
 
     /// <summary>Spawns the entities of a scene file's JSON into the world's ECS and returns them.</summary>
     /// <exception cref="InvalidDataException">The text is not a scene file this code reads.</exception>
@@ -168,8 +174,10 @@ public static partial class SceneFile
         return Read(world, document.RootElement, skip);
     }
 
-    // The same from a file already parsed, which a prefab placed many times is parsed into once.
-    internal static List<int> Read(World world, JsonElement root, Func<int, string, bool>? skip)
+    // The same from a file already parsed, which a prefab placed many times is parsed into once,
+    // telling the observers of what it loaded once it is in, unless the caller tells them after
+    // work of its own, as a prefab's placing under its entity is.
+    internal static List<int> Read(World world, JsonElement root, Func<int, string, bool>? skip, string path = "", bool tell = true)
     {
         var ecs = world.Resource<EcsWorld>();
         world.TryGetResource<AssetServer>(out var assets);
@@ -223,6 +231,23 @@ public static partial class SceneFile
         }
 
         Logger.Debug($"Scene file: spawned {spawned.Count} entit{(spawned.Count == 1 ? "y" : "ies")}.");
+        if (tell) TellLoaded(ecs, spawned, path);
         return spawned;
+    }
+
+    /// <summary>
+    /// Triggers each watched component's <see cref="Loaded{T}"/> on each entity a file spawned, in
+    /// the file's order, and then the file's <see cref="SceneLoaded"/>, where anything observes them.
+    /// </summary>
+    internal static void TellLoaded(EcsWorld ecs, List<int> spawned, string path)
+    {
+        // A world with no observer of a load reads a count and asks the observers no more.
+        if (!ecs.WatchesLoads) return;
+        var watched = SceneComponents.All.OfType<ITellsLoaded>().Where(codec => codec.Watched(ecs)).ToArray();
+        if (watched.Length > 0)
+            foreach (var entity in spawned)
+                foreach (var codec in watched)
+                    codec.Tell(ecs, entity);
+        if (ecs.Watches<SceneLoaded>()) ecs.Trigger(new SceneLoaded(path, [.. spawned.Select(ecs.Handle)]));
     }
 }

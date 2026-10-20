@@ -58,13 +58,32 @@ public sealed partial class EcsWorld
         return _observers!;
     }
 
-    /// <summary>Counts <paramref name="by"/> more observers of a <typeparamref name="T"/> being added, or removed.</summary>
-    internal void CountObservers<T>(bool added, int by)
+    /// <summary>Counts <paramref name="by"/> more observers of a <typeparamref name="T"/> being added, removed, or loaded with a scene.</summary>
+    internal void CountObservers<T>(ComponentChange change, int by)
     {
         var store = GetStore<T>();
-        if (added) Interlocked.Add(ref store.AddObservers, by);
-        else Interlocked.Add(ref store.RemoveObservers, by);
+        switch (change)
+        {
+            case ComponentChange.Added: Interlocked.Add(ref store.AddObservers, by); break;
+            case ComponentChange.Removed: Interlocked.Add(ref store.RemoveObservers, by); break;
+            case ComponentChange.Loaded:
+                Interlocked.Add(ref store.LoadObservers, by);
+                Interlocked.Add(ref _loadObservers, by);
+                break;
+        }
     }
+
+    // How many observers of any component's Loaded the world has, which a scene read reads first.
+    private int _loadObservers;
+
+    /// <summary>Whether anything observes a component loaded with a scene, or the scene's load itself, which a read with none skips.</summary>
+    internal bool WatchesLoads => Volatile.Read(ref _loadObservers) > 0 || Watches<SceneLoaded>();
+
+    /// <summary>Whether any observer watches every <typeparamref name="TEvent"/>.</summary>
+    internal bool Watches<TEvent>() => _observers?.Watches(typeof(TEvent)) ?? false;
+
+    /// <summary>Whether anything observes a <typeparamref name="T"/> loaded with a scene.</summary>
+    internal bool CountsLoads<T>() => GetStore<T>(create: false) is { LoadObservers: > 0 };
 
     // Tells the observers of a component added to an entity that had none, where any watch it.
     private void TellAdded<T>(int entity, T component) => _observers?.Trigger(this, new Add<T>(Handle(entity), component));
@@ -163,6 +182,11 @@ public sealed partial class EcsWorld
                 }
                 counted?.Count(ecs, -count);
             }
+        }
+
+        public bool Watches(Type type)
+        {
+            lock (_lock) return _every.TryGetValue(type, out var list) && list.Count > 0;
         }
 
         private Delegate[]? Copy(Dictionary<Type, List<Delegate>> byType, Type type)

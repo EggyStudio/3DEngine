@@ -1462,7 +1462,9 @@ and `[FormerName("Chest")]` on a component or a field reads a level saved under 
 `JsonObject Migrate(int from, JsonObject value)` brings a level saved at an earlier one up to it.
 A `Collider` and a `RigidBody` say what is solid, and the body is made when the scene loads, so
 `ecs.GetReadOnly<PhysicsBody>(entity)` gives it to the physics functions. ARCHITECTURE.md describes
-the format.
+the format. Once a file is in, `ecs.Observe<Loaded<Door>>(on => ...)` is told each `Door` it
+spawned, with every other entity of the file present, and `ecs.Observe<SceneLoaded>(on => ...)`
+once after them, a save read back as any file.
 
 ## Lights
 

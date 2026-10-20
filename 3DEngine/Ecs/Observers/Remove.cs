@@ -10,5 +10,5 @@ namespace Engine;
 /// </remarks>
 public readonly record struct Remove<T>(Entity Entity, T Value) : IEntityEvent, IComponentEvent
 {
-    void IComponentEvent.Count(EcsWorld ecs, int by) => ecs.CountObservers<T>(added: false, by);
+    void IComponentEvent.Count(EcsWorld ecs, int by) => ecs.CountObservers<T>(ComponentChange.Removed, by);
 }

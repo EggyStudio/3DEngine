@@ -10,7 +10,16 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e510f268`, item 50 and nothing else, carrying the review's and the ledger's files,
+Reviewed up to `414e6f77`, item 51 and nothing else, carrying the review's and the ledger's files,
+in the form and at the cost said before it; the suite gave 1,798, the strict build is clean, the
+guide's block builds on the fresh pack and Tumble builds strictly on it. Read at 17:47. The pack run
+of `b19f09dc` had its three suites green by 18:02, macOS at 17:31 with every game played, Verdict
+76's second, Linux at 17:37 with both passes, which settles Verdict 78, and Windows at 18:02 in its
+parts, so the three commits from `ec39331c` to this head were pushed at 18:04, its games and
+captures jobs running on. SHARED.md's row says both engines have it. Next item 52 from the ledger, a
+message after a load. Item 6 waits on the owner's word.
+
+Before it, `e510f268` came, item 50 and nothing else, carrying the review's and the ledger's files,
 in the form, kinds and cost said before it. The behaviors guide's paragraph after the observers has
 a block, the camera with picking, a click on a door and a drag pushing a crate, names the nine
 kinds, the hit, the climb and the stop, says a skinned mesh is met unposed in its bind pose so an
@@ -20,11 +29,7 @@ nothing; the cheat sheet's hand sentence follows the observers' in the states pr
 ARCHITECTURE.md's ECS section has the bullet, the upgrading guide's added entry names the camera's
 flag, the event, its interface, the nine kinds and the hit, and the surface listing has 121 lines
 more. Checked were the strict build, the suite, 1,790 with the four picking tests among them, the
-behaviors guide's thirteen blocks on a fresh pack and the live run. Read at 17:24; its push with
-`ec39331c` waits for the pack run's suites to pass. SHARED.md's row says both engines have it. At
-17:33 the pack run of `b19f09dc` had its macOS job green at 17:31 with every game played, Verdict
-76's second, and its Linux and Windows jobs running. Next item 51 from the ledger, the animation
-state machine as a data asset. Item 6 waits on the owner's word.
+behaviors guide's thirteen blocks on a fresh pack and the live run.
 
 Before it, `ec39331c` came, item 49 and nothing else, carrying the review's file, in the form and at
 the cost said before it. One public type a file under the ECS's observers folder, the adding and
@@ -45,17 +50,6 @@ entity, an observer that throws, no bytes allocated with no observer and with on
 component, and an undisposed world with observers collected. Checked were the strict build, the
 suite, 1,786, the behaviors guide's twelve blocks on a fresh pack, and the norm, cheat sheet,
 upgrading and surface tests.
-
-Before it, `b19f09dc` came, Verdict 78's mend and nothing else, carrying the review's file. The test
-script's run takes the seed as a parameter, every process it starts having the seed taken out of its
-environment and only the shuffled run's having it set to the flag's, the shuffled step touching the
-environment no more, the docstring and the comment saying why, a test of the script running inside a
-shuffled suite; the script tests' runner removes the variable from the inner script's environment
-beside the runner's own, so a case means a seed only where it sets one; a new case runs the script
-in its shuffle-fails mode under an outer seed of 99 with the flag's 7 and reads 80 passed on the
-plain page and 79 with one failed and the seed 7 on the shuffled page with exit 1, failing against
-the old script exactly as the runner did; the script's twelve tests pass plainly and under the day's
-seed. Pushed at 16:48 and the pack run with publish on started on it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2639,7 +2633,51 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     guide's section, the cheat sheet's hand sentence, the upgrading guide's entry and 42 lines of
     the surface listing follow, and Tumble's robot keeps its own choice with a remark saying why,
     its walk and run blended by speed, its aim a layer and its rise from the ragdoll's pose, none of
-    which a machine of whole clips holds.
+    which a machine of whole clips holds. Done at `414e6f77` on 2026-10-20, as the head says.
+
+52. **A message after a load, so a game builds once what a file does not hold.** SHARED.md's row,
+    where BevyCSharp has it since `3ab5b22` and this engine is to consider with saves, taken on
+    2026-10-20 after item 51 and on item 49's events: a scene file holds components and no meshes
+    built from data, physics bodies or sounds, so a game builds those after a load, and today it
+    polls or keeps a flag; the engine triggers an event on each entity a scene file spawned once the
+    whole file is in, so an observer of that event on a component builds what the file does not hold
+    for its entity with every other entity of the file already present, and a world-level event
+    after the file naming it, for what a game builds once for the whole; the same after a saved game
+    is read, since a save is a scene; the scene guide's paragraph after the loading section with a
+    block, the cheat sheet's hand sentence, the surface listing and the upgrading guide's entry;
+    tests of the entity event reaching every spawned entity after the last is in, of the file's
+    event once, of a save read, and of the cost with no observer, which must be none. Read first
+    BevyCSharp's `3ab5b22` for the model, never edited, and where the scene's spawn ends today, and
+    say the form before the commit. One commit. The form said by 17:49 on 2026-10-20 and taken, the
+    typed one: every load ends in the scene file's read, which spawns every entity first and then
+    sets parents and reads components entity by entity, so the adding event fires mid-file; a typed
+    loaded event carrying the entity and the component is triggered at the end of the read for each
+    component of each entity the file spawned, in file order, once the whole file is in, counted per
+    store as the adding and removal events are so nothing is made where no one watches, and a
+    scene-loaded world event with the path and the entities is triggered once after them, the path
+    empty for a read of text; a save read is a scene read, so the same events fire with the save's
+    path; in the scene load the events come before the engine's own bodies are built from the
+    colliders and bodies the file holds, which the documents say. The untyped alternative, one event
+    an entity filtered by component, was not taken, since the typed one hands the observer the
+    component, reaches only entities with it and costs nothing for components no one watches. The
+    cost with no observer one read of a world counter and one registry check, no list recorded and
+    nothing triggered, a test showing a read allocating the same with an unrelated observer as with
+    none. The tests and numbers said by 17:55 and taken: the telling returns at once unless the
+    world watches loads, a count of loaded observers kept beside each store's count or any observer
+    of the scene event, and otherwise takes the codecs whose component is watched and tells entity
+    by entity in the file's order, each entity's components in the registry's order, then the scene
+    event; the read tells at its end, the load passes its path, and a scene reference reads without
+    telling and tells after it has placed the copy under its entity and given back the shared
+    meshes. Three tests: a file of three entities, a child among them and a camera, each loaded
+    transform seeing all three named with the parent set and the camera in, in the file's order,
+    then the scene event naming all; a world saved and read into another telling the hero and the
+    save's path; and reads with no observer and with an observer of an unrelated event allocating
+    the same bytes, a loaded observer then told three times. The numbers: the telling with no
+    observer a count read at the stopwatch's resolution, and a file of a thousand transforms read in
+    3,197 microseconds with no observer and 3,604 with one, about 0.4 microseconds an event told; a
+    live reload of the level told both lights, the three model references and the scene with no
+    error. The scene guide's paragraph after saving and loading with a block, the cheat sheet's
+    sentence, the upgrading guide's entry and 23 lines of the surface listing follow.
 
 ## Verdicts
 
@@ -2654,7 +2692,8 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
-the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 to 78 are open.
+the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 78 is settled on the
+pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3651,7 +3690,8 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     test's own script under a seed from outside; the remark says why. One commit, before the pack
     run, whose Linux suite would fail the same way. Mended at `b19f09dc` on 2026-10-20 as the head
     says; the pack run started on it is the check. Settled when the Linux job passes both passes on
-    the next build run.
+    the next build run. The Linux job of the pack run of `b19f09dc` passed both passes on 2026-10-20
+    at 17:37. Settled on the pack run of `b19f09dc` on 2026-10-20.
 
 ## Decisions
 

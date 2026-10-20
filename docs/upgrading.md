@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **Building what a file does not hold.** `Loaded<T>` is told for each component of each entity a
+  scene file spawned once the whole file is in, and `SceneLoaded`, with its `Path` and `Entities`,
+  once after them, a save read back as any file, as
+  [Saving and loading](scenes.md#saving-and-loading) shows.
 - **A state machine of clips.** `AnimationStateMachine`, of `AnimationMachineState` and
   `AnimationMachineTransition` taken on an `AnimationCondition`, read and written with `Load`,
   `Save`, `Read` and `Write` as a file of its `Format` and `Version`, chooses an entity's

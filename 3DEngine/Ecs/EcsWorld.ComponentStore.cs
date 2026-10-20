@@ -21,6 +21,7 @@ public sealed partial class EcsWorld
         // rather than with the observers, so an add or a removal none watches reads one number.
         internal int AddObservers;
         internal int RemoveObservers;
+        internal int LoadObservers;
 
         /// <inheritdoc />
         Action? IComponentStore.Removal(EcsWorld world, int entity, Entity handle) =>
