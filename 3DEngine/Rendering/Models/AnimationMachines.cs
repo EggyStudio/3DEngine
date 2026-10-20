@@ -7,13 +7,13 @@ namespace Engine;
 /// <see cref="AnimatedModel"/> is played, choosing the clip by the machine's transitions.
 /// </summary>
 /// <remarks>
-/// A machine is compiled once, a file's by its path and one made in code by the object, into the
-/// list of transitions tried from each state, so a step with no transition due reads the
-/// parameters those transitions name and nothing more. Entering a state sets the model's clip,
-/// speed and blend time and plays the clip from its start, and
-/// <see cref="AnimatedModelDraws"/> blends to it as it blends any change of clip. A state that plays
-/// once is held at its last frame by stopping the model's time there, in the frame it would pass
-/// it, so its pose never comes round to the start.
+/// A machine is compiled once, a file's by its path, and one made in code or read by a file's id by
+/// the object, into the list of transitions tried from each state, so a step with no transition due
+/// reads the parameters those transitions name and nothing more. Entering a state sets the model's
+/// clip, speed and blend time and plays the clip from its start, and
+/// <see cref="AnimatedModelDraws"/> blends to it as it blends any change of clip. A state that
+/// plays once is held at its last frame by stopping the model's time there, in the frame it would
+/// pass it, so its pose never comes round to the start.
 /// </remarks>
 internal sealed class AnimationMachines
 {
@@ -42,9 +42,10 @@ internal sealed class AnimationMachines
     {
         if (clips.Length == 0 || !ecs.TryGet<AnimationMachine>(entity, out var machine)) return;
         var run = machine.HasParameters ? machine.Parameters : ecs.GetRef<AnimationMachine>(entity).Parameters;
-        if (!ReferenceEquals(run.Source, (object?)machine.Machine ?? machine.Path))
+        var source = Source(machine);
+        if (!ReferenceEquals(run.Source, source))
         {
-            run.Source = (object?)machine.Machine ?? machine.Path;
+            run.Source = source;
             run.Compiled = Compile(machine);
             run.StateIndex = -1;
         }
@@ -111,11 +112,25 @@ internal sealed class AnimationMachines
         ecs.GetRef<AnimationMachine>(entity).State = state.Name;
     }
 
+    // What a machine is compiled from, the object made in code, the file's value where the id
+    // reads one, the id where it reads none, or else the path.
+    private static object? Source(in AnimationMachine machine)
+    {
+        if (machine.Machine is { } made) return made;
+        if (machine.File.Id is not { } id) return machine.Path;
+        return machine.File.TryGet(out var read) ? read : id;
+    }
+
     // The machine compiled, or null for one whose names do not hold together or whose file cannot
-    // be read, which is said once.
+    // be read, which is said once. A file's id that reads none was said as it was read.
     private Compiled? Compile(in AnimationMachine machine)
     {
         if (machine.Machine is { } made) return _made.GetValue(made, m => Checked(m, "made in code"));
+        if (machine.File.Id is { } id)
+        {
+            var named = $"'{machine.File.Path}' ({id})";
+            return machine.File.TryGet(out var file) ? _made.GetValue(file, m => Checked(m, named)) : null;
+        }
         var path = machine.Path ?? "";
         if (_files.TryGetValue(path, out var known)) return known;
         AnimationStateMachine? read = null;

@@ -193,7 +193,9 @@ public sealed class AnimationMachineTests : IDisposable
         var text = File.ReadAllText(path);
         text.Should().Contain("\"format\": \"3dengine-animation-machine\"").And.Contain("\"When\": \"Triggered\"");
         var read = AnimationStateMachine.Load(path);
-        read.Write().Should().Be(text, "what was read writes the same file");
+        text.Should().MatchRegex("\"version\": 1,\\s*\"id\": \"[0-9a-f]{12}\"", "the save gives the file an id after its format and version");
+        read.Write().Should().Be(System.Text.RegularExpressions.Regex.Replace(text, "\\r?\\n\\s*\"id\": \"[0-9a-f]{12}\",", ""),
+            "what was read writes the same file, the id aside, which the save gives and Write leaves out");
         read.Start.Should().Be("Bend");
         read.States.Select(s => (s.Name, s.Clip, s.Loop, s.Speed)).Should().Equal(machine.States.Select(s => (s.Name, s.Clip, s.Loop, s.Speed)));
         read.Transitions.Select(t => (t.From, t.To, t.When, t.Parameter, t.Value, t.Fade))

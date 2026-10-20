@@ -28,8 +28,10 @@ enum Engine.AnimationCondition : int
   True = 1
 struct Engine.AnimationMachine
   AnimationMachine(AnimationStateMachine machine)
+  AnimationMachine(DataRef<AnimationStateMachine> file)
   AnimationMachine(string path)
   AnimationStateMachine? Machine
+  DataRef<AnimationStateMachine> File
   float Get(string name)
   string Path
   string State
@@ -582,6 +584,29 @@ enum Engine.CubemapLayout : int
   CrossThreeByFour = 3
   LineHorizontal = 2
   LineVertical = 1
+sealed class Engine.DataAssetAttribute : Attribute
+  DataAssetAttribute()
+static class Engine.DataAssets
+  const int Version = 1
+  const string Format = "3dengine-data"
+  static DataRef<T?> Find<T>(string id)
+  static DataRef<T?> Load<T>(string fileName)
+  static DataRef<T?> Save<T>(string fileName, T? value)
+  static void Add<T>(SceneCodec<T?> codec)
+  static void Save<T>(DataRef<T?> reference, T? value)
+readonly struct Engine.DataRef<T> : IEquatable<DataRef<T>>
+  T? Value { get; }
+  bool Equals(DataRef<T?> other)
+  bool IsNone { get; }
+  bool TryGet(out T? value)
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DataRef<T?> left, DataRef<T?> right)
+  static bool op_Inequality(DataRef<T?> left, DataRef<T?> right)
+  string? Id { get; }
+  string? Path { get; }
+  string? Problem { get; }
 sealed class Engine.DataVersionAttribute : Attribute
   DataVersionAttribute(int version)
   int Version { get; }
@@ -3009,6 +3034,7 @@ enum Engine.ScenePurposeMask : int
   Render = 2
   Runtime = 3
 sealed class Engine.SceneReadContext
+  DataRef<T> Data<T>(string? id)
   Entity Resolve(string? id)
   Handle<TAsset> Load<TAsset>(string? path)
 struct Engine.SceneRef

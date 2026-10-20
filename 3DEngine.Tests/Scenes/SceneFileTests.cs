@@ -123,6 +123,7 @@ public class SceneFileTests
             using Engine;
             namespace Game;
             public enum Mood { Calm, Angry }
+            [DataAsset] public struct Stats { public int Value; }
             [SceneComponent]
             public struct Everything
             {
@@ -131,6 +132,7 @@ public class SceneFileTests
                 public Matrix4x4 M; public Color Tint; public Entity Target; public Handle<TextureAsset> Skin;
                 public float? Maybe; public Vector3? Somewhere; public int[] Counts; public Vector3[] Points;
                 public Entity[] Targets; public int[][] Skipped; public readonly int Fixed;
+                public DataRef<Stats> Kit; public DataRef<Stats>[] Kits;
             }
             [Behavior]
             public struct Wanderer { public float Heading; [OnUpdate] public void Step(BehaviorContext ctx) { } }
@@ -150,6 +152,8 @@ public class SceneFileTests
         generated.Should().Contain("\"Everything\"").And.Contain("\"Wanderer\"").And.Contain("ctx.IdOf(v.Target)")
             .And.Contain("ctx.Load<global::Engine.TextureAsset>").And.Contain("Enum.Parse<global::Game.Mood>")
             .And.Contain("\"Counts\"").And.Contain("\"Points\"").And.Contain("w.WriteStringValue(ctx.IdOf(item))")
+            .And.Contain("w.WriteString(\"Kit\", v.Kit.Id)").And.Contain("ctx.Data<global::Game.Stats>(q.GetString())")
+            .And.Contain("global::Engine.DataAssets.Add(new global::Engine.SceneCodec<global::Game.Stats>")
             .And.NotContain("Skipped").And.NotContain("Fixed");
     }
 

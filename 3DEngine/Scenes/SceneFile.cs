@@ -118,11 +118,13 @@ public static partial class SceneFile
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
-        // An indented writer puts every number of a vector on a line of its own, so arrays of
-        // numbers are folded back onto one line, which is how a person reads a position.
-        return NumberArray().Replace(Encoding.UTF8.GetString(buffer.ToArray()),
-            m => "[" + string.Join(", ", m.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries)) + "]");
+        return Folded(Encoding.UTF8.GetString(buffer.ToArray()));
     }
+
+    // An indented writer puts every number of a vector on a line of its own, so arrays of numbers
+    // are folded back onto one line, which is how a person reads a position.
+    internal static string Folded(string json) =>
+        NumberArray().Replace(json, m => "[" + string.Join(", ", m.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries)) + "]");
 
     // Writes a component a file held at a later version than its codec's as the file held it,
     // with each field the codec writes set from the entity and the later version kept, so a level
@@ -205,7 +207,7 @@ public static partial class SceneFile
             if (entry.TryGetProperty("name", out var name) && name.GetString() is { } text) ecs.SetName(entity, text);
         }
 
-        var context = new SceneReadContext(ecs, byId, assets);
+        var context = new SceneReadContext(ecs, byId, assets, path);
         for (int i = 0; i < entries.Length; i++)
         {
             var entry = entries[i];

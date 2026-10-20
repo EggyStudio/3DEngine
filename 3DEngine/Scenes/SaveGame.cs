@@ -225,7 +225,7 @@ public static class SaveGame
         }
 
         world.TryGetResource<AssetServer>(out var assets);
-        var context = new SceneReadContext(ecs, byId, assets);
+        var context = new SceneReadContext(ecs, byId, assets, path);
         for (int i = 0; i < entries.Length; i++)
         {
             var entry = entries[i];

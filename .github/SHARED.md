@@ -87,7 +87,7 @@ table also answers whether the two agree.
 | A character that walls stop, that slides, steps and holds slopes | taken at `f2ac0cd` | has (`b9f280b2`) |
 | Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
 | A character crouches and stands from its component's height, and its step height is set there | taken at `d5e68ad` | has (`52579d98`) |
-| A character flies at its move with gravity held off, what it meets still stopping it, and a dynamic body is put at a point at rest by one call | taken at `aa5c9e0`, `Fly` and `PhysicsWorld.Place` | to consider for the flight; has `PhysicsBody.SetPosition` for the body, its velocity kept |
+| A character flies at its move with gravity held off, what it meets still stopping it, and a dynamic body is put at a point at rest by one call | taken at `aa5c9e0`, `Fly` and `PhysicsWorld.Place` | has (`ac77ef83`, the controller's `Fly` with the contacts still stopping it, and `PlacePhysicsBody` and `PhysicsWorld.Place` zeroing the velocities beside the set-position that keeps them) |
 | A collider that is the shape of the meshes an entity and those under it show, made once they are loaded | taken at `d5e68ad`, `ColliderShape.Hull` and `Mesh` | has (`Collider.Mesh`, `454e9276`) |
 | Friction and bounce for each body, mixed for a pair | has | has (`9aa94324`) |
 | A joint described in a scene file as an entity naming its two bodies, at its own place and axis | taken at `c98010a`, `JointBetween` | has (`Joint`, `e46058fc`) |

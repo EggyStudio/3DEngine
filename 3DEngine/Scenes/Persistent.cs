@@ -9,8 +9,9 @@ namespace Engine;
 /// read over a default so a field a later version adds keeps the default's value.
 /// </summary>
 /// <typeparam name="T">
-/// What is kept, a type marked <see cref="SceneComponentAttribute"/>, whose fields the scene codec
-/// writes and reads as a scene file holds a component.
+/// What is kept, a type marked <see cref="SceneComponentAttribute"/> or
+/// <see cref="DataAssetAttribute"/>, whose fields the scene codec writes and reads as a scene file
+/// holds a component.
 /// </typeparam>
 /// <remarks>
 /// <para>
@@ -26,6 +27,12 @@ namespace Engine;
 /// <see cref="Save"/> writes the value on demand, and one made with <c>saveOnChange</c> writes it at
 /// each <see cref="Set"/> too. A write goes to a file beside the old one, moved over it, so one cut
 /// short leaves the value before.
+/// </para>
+/// <para>
+/// A data file (<see cref="DataAssets"/>) holds a type the same way, but it is the game's own data,
+/// which components refer to by the id the file carries, where a persistent value is the player's,
+/// read by its file's name and written as it changes, so its file is the object of the fields alone
+/// and has no id.
 /// </para>
 /// </remarks>
 public sealed class Persistent<T>
@@ -44,12 +51,12 @@ public sealed class Persistent<T>
     /// <param name="fileName">The file, a relative name beside the program.</param>
     /// <param name="fallback">The value where the file has none, and the value its missing fields keep.</param>
     /// <param name="saveOnChange">Whether each <see cref="Set"/> writes the file, as well as <see cref="Save"/>.</param>
-    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is not marked <see cref="SceneComponentAttribute"/>, so no codec writes it.</exception>
+    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is marked neither <see cref="SceneComponentAttribute"/> nor <see cref="DataAssetAttribute"/>, so no codec writes it.</exception>
     public Persistent(string fileName, T fallback, bool saveOnChange = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(fileName);
-        _codec = SceneComponents.All.OfType<SceneCodec<T>>().FirstOrDefault()
-                 ?? throw new InvalidOperationException($"Persistent: {typeof(T).Name} has no scene codec. Mark it [SceneComponent] so its fields can be written.");
+        _codec = SceneComponents.All.OfType<SceneCodec<T>>().FirstOrDefault() ?? DataAssets.CodecOf<T>()
+                 ?? throw new InvalidOperationException($"Persistent: {typeof(T).Name} has no scene codec. Mark it [SceneComponent] or [DataAsset] so its fields can be written.");
         _fallback = fallback;
         _saveOnChange = saveOnChange;
         Path = System.IO.Path.IsPathRooted(fileName) ? fileName : System.IO.Path.Combine(AppContext.BaseDirectory, fileName);

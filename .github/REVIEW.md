@@ -10,14 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `02d89f18`, item 54 and nothing else, carrying the review's file, in the form said
+Reviewed up to `ac77ef83`, item 55 and nothing else, carrying the review's and the ledger's files,
+in the form said before it; the strict build is clean, the suite gave 1,817 plain and shuffled by
+the day's seed, two more, and the physics and upgrading guides' 23 blocks built on a fresh pack.
+Read at 20:09. The pack run of `b3922179` ended green whole at 20:53 and pushed `5.2.190` to
+nuget.org through the policy, the day's package with the five games and items 40 to 53, its Windows
+suite in its parts in 68 minutes 28 seconds, 1,748 passed, the job with the games in 106 minutes;
+the feed listed it by 21:03, ten minutes after the push, its nuspec naming `b3922179` with 33 lines
+of notes, the 33 engine commits since `5.2.155`'s `9f9180b7` and none of the review's, item 37
+proven again; the build run of `b3922179` had ended green before the push. So `02d89f18` and this
+head were pushed at 20:56. SHARED.md's row says both engines have it. At 20:39 the pack run had its
+games job green at 20:30, the siege and Tones' soak passing, Verdict 77's second and Verdict 79's
+first, and both captures green, its Windows job alone running in its 95th minute with the games to
+play after its suite. Next item 56 from the ledger, data files by an id surviving a rename. Item 6
+waits on the owner's word.
+
+Before it, `02d89f18` came, item 54 and nothing else, carrying the review's file, in the form said
 before it; the suite gave 1,815 plain and 1,815 shuffled by the day's seed, the strict build is
-clean and the behaviors guide's blocks build on the fresh pack. Read at 19:30; its push waits for
-the pack run of `b3922179`'s suites to pass. SHARED.md's row says both engines have it. At 20:08 the
-pack run of `b3922179` had its Linux and macOS suites green, the macOS job with every game played at
-19:56, Verdict 76's third, so it is settled, and its Windows, captures and games jobs running. Next
-item 55 from the ledger, the character's flight and a body placed at rest. Item 6 waits on the
-owner's word.
+clean and the behaviors guide's blocks build on the fresh pack.
 
 Before it, `b3922179` came, Verdict 79's mend and nothing else, carrying the review's and the
 ledger's files. The run's own readings showed one step and no climb, the live managed bytes going
@@ -40,10 +50,6 @@ MB against a bound of 11.10 and pinned to one core 8.75 against 12.16, no engine
 Pushed at 19:05 after the three before it, and the pack run with publish on started anew on this
 head for the day's batch, its games job Verdict 79's first and Verdict 77's second, its macOS games
 Verdict 76's third.
-
-Before it, `8e31620c` came, item 53's second commit, the persistent value, and nothing else,
-carrying the review's file, in the form said before it; the suite gave 1,807 and the strict build is
-clean. Pushed at 19:03 with the two before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2276,7 +2282,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     day: a commit whose every file lies under `.github/` is left out, since the package carries
     nothing from there, in a small commit before (j). The rule is in at `8e3ff67a`, the notes at 5
     lines of the engine's alone. Proven on `5.2.155`, listed on 2026-10-20 at 08:48 with 18 lines,
-    the engine's commits since `33fd0804` and none of the review's.
+    the engine's commits since `33fd0804` and none of the review's. Proven again on `5.2.190`,
+    listed on 2026-10-20 by 21:03 with 33 lines, the engine's commits since `9f9180b7`.
 
 38. **The pack run publishes through nuget.org's trusted publishing and no stored key (Decision
     48).** The pack job gains the identity token's write permission beside its read of the contents,
@@ -2291,7 +2298,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     comes first, right after the reading in hand, with item 37, and items 36, Verdict 72 and the
     rest after. Done at `4af3cdde` on 2026-10-19; the first pack run with publish on is its check.
     Proven on the pack run of `9f9180b7` on 2026-10-20 at 08:38, the login and the push through the
-    policy passing and `5.2.155` pushed.
+    policy passing and `5.2.155` pushed. Proven again on the pack run of `b3922179` on 2026-10-20 at
+    20:53, `5.2.190` pushed.
 
 39. **RENDERING.md names the terms of the global illumination's method that stand unmended, with
     their figures.** The week's readings under item 30 ended on 2026-10-20 with the rule's rooms at
@@ -2822,7 +2830,56 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     falling; each test failing at its first check with the flight branch or the zeroing taken out.
     The physics guide's sentences and a paragraph with a compiled block, the cheat sheet's three
     lines through its script and a sentence in its prose, four lines of the surface listing and the
-    upgrading guide's entry follow.
+    upgrading guide's entry follow. Done at `ac77ef83` on 2026-10-20, as the head says, the ledger's
+    row saying both engines have it.
+
+56. **Data in files of its own, referred to by an id that survives a rename.** SHARED.md's row,
+    where BevyCSharp has a data asset attribute and a typed data reference, and this engine is to
+    consider, taken on 2026-10-20 after item 55: a game's own data, a weapon's numbers, a level's
+    rules or an enemy's kind, lives today in a scene component or in code, and a scene names a file
+    by its path, so a renamed file breaks every scene that names it; the engine gains a data asset,
+    a type marked as one whose scene codec writes it to a file of its own in the scenes' format with
+    an id given at first save as the scene file's ids are, and a typed reference a component holds
+    by that id, resolved at load from a table of the ids to paths that a rename keeps, with the file
+    found as models are found, the reference reading as none where the file is missing with a
+    warning naming the id; the animation machine's file of item 51 and the persistent value of item
+    53 read against it, the machine's path field kept and the id offered beside it; the scene
+    guide's section with a block, the cheat sheet's hand sentence, the surface listing and the
+    upgrading guide's entry; tests of a data file saved with an id and read back, a reference
+    resolved by id after the file is renamed, a missing file read as none with its warning, and the
+    cost of a scene with no reference, which must be none. Read first BevyCSharp's data asset and
+    reference for the model, never edited, and how the id table is kept and written there, and say
+    the form before the commit. One commit. The form said by 20:16 on 2026-10-20 and taken: the id
+    lives inside the data file as an entity's lives inside a scene file, twelve hex characters given
+    at the first save and kept by every later one, so no sidecars and no shipped index where
+    BevyCSharp keeps both; the table of ids to full paths in memory in a static holder, every data
+    file read or written adding its entry, and an id missed adding one by one look through the
+    folder beside the program, recursive, and through each folder a data file was read from or
+    written to in this run, reading only the head of each JSON file and stopping at the first other
+    key, so a file renamed by hand is found again since its id goes with it, a missed id remembered
+    with its problem at one look and one warning a run; a data asset attribute on a struct taken by
+    the scene component generator beside the scene component's, the same codec, field rules, former
+    names and versions, registered with the data assets, a type marked both registered with both,
+    the file carrying the format, the version, the id, the type's full name and the fields as a
+    scene file holds a component, a later version read as far as known with a warning and a save
+    laying the written fields over the file's own; a typed reference as a readonly struct holding
+    the id and a shared holder per id and type, with the id, whether none, the value, the path, the
+    problem and a try, the value the file's shared by every reference and replaced by a save, the
+    type's start value where none, the id kept where the file is missing so a scene saved again
+    writes it back; the generator writing a reference field or an array of them by the context's id
+    and reading by its data look, which resolves at load and passes the scene's asset server so a
+    handle in a data file loads; a missing file or one of another type reading as none with one
+    warning naming the id; the static holder's save to a name or to a reference, load by name found
+    as models are found and none with a warning never an exception, find by id and the id of a file,
+    an unregistered type throwing as the persistent value does; the machine's file a kind the holder
+    knows by its own format, gaining a top-level id with its save through the holder and the
+    component a reference field beside its path; the persistent value taking a data asset type too,
+    its file a bare object with no id, the remarks saying a persistent value is the player's read by
+    name and a data asset the game's referred to by id. The tests as listed, and the cost of a scene
+    with no reference the same allocation before and after the table is built with the holder's
+    lookups at zero. The reviewer asks one sentence more in the look's remark, the count of files
+    the look read where it was more than a few hundred, said in the warning, so a large folder's
+    cost is seen.
 
 ## Verdicts
 
@@ -3823,7 +3880,8 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
     trigger raised to the walls' top; the result had differed run to run on one machine from the
     physics' threads, and the pack run started on the mend is the first of three. Settled when the
     games job passes the siege on three pack runs in a row. The games job of the pack run of
-    `b19f09dc` passed the siege at 16:23 on 2026-10-20, the first of three.
+    `b19f09dc` passed the siege at 16:23 on 2026-10-20, the first of three. The games job of the
+    pack run of `b3922179` passed the siege at 20:30 on 2026-10-20, the second of three.
 
 78. **The shuffled pass's own test fails under the shuffled pass, the stand-in's plain run
     inheriting the seed.** On the build run of `6a289059`, 2026-10-20 at 16:29, the Linux job's
@@ -3856,7 +3914,8 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
     the reason in the remark, one commit. The pack job was skipped on it, so the day's package
     waits. Read and mended at `b3922179` on 2026-10-20 as the head says, a recording bounded to
     fifteen seconds and held once; the pack run started on it is the first of three. Settled when
-    the games job's soak passes Tones on three pack runs in a row.
+    the games job's soak passes Tones on three pack runs in a row. The games job of the pack run of
+    `b3922179` passed the soak at 20:30 on 2026-10-20, the first of three.
 
 ## Decisions
 

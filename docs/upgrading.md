@@ -305,6 +305,13 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **Data in files of its own.** A struct marked `DataAssetAttribute` is written by `DataAssets.Save`
+  to a file of its own of the `DataAssets.Format` and `Version` with an id given at its first save,
+  and a component's `DataRef<T>` field, with its `Id`, `IsNone`, `Value`, `Path`, `Problem` and
+  `TryGet`, names it by that id through a rename, `DataAssets.Load` and `DataAssets.Find` giving one
+  by name or by id. `SceneReadContext.Data` reads one in a codec, `DataAssets.Add` registers a codec
+  as the generator does, and `AnimationMachine.File` names a machine's file the same way, as
+  [Data in files of its own](scenes.md#data-in-files-of-its-own) shows.
 - **A character that flies, and a body put down at rest.** `SetPhysicsCharacterFly`, or
   `CharacterController.Fly` beside the body, makes a character fly at the velocity it is given, up
   and down as well, with gravity held off and walls and ceilings still stopping it, as

@@ -1470,7 +1470,10 @@ once after them, a save read back as any file. `SaveGame.Start(world, scenes)` b
 `SaveGame.Save(world, path)` writes what play changed over its scenes, and `SaveGame.Load` reads the
 scenes again with the save laid over them, an entity spawned in play saved where it is `Saved`.
 `new Persistent<Settings>("settings.json", fallback)` keeps a `[SceneComponent]` value in a file
-read over its default, written by `Save()` or at each `Set` with `saveOnChange: true`.
+read over its default, written by `Save()` or at each `Set` with `saveOnChange: true`. A
+`[DataAsset]` struct is kept in a file of its own by `DataAssets.Save("sword.json", value)`, which
+gives the file an id at its first save, and a component's `DataRef<Weapon>` field names the file by
+that id through any rename, `DataAssets.Load` and `DataAssets.Find` giving one by name or by id.
 
 ## Lights
 

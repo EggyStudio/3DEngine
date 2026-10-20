@@ -19,8 +19,10 @@ namespace Engine;
 /// <para>
 /// It is data, kept in a JSON file as a scene is, with a <c>format</c> and a <c>version</c>, each
 /// state and transition an object of its fields by name and a condition by its name, written by
-/// <see cref="Write"/> and read by <see cref="Read"/>, and shared by every entity that names the
-/// file. One made in code runs the same way.
+/// <see cref="Write()"/> and read by <see cref="Read(string)"/>, and shared by every entity that
+/// names the file. <see cref="Save"/> gives the file an id at its first save, by which
+/// <see cref="AnimationMachine.File"/> refers to it through a rename, as <see cref="DataAssets"/>
+/// keeps it. One made in code runs the same way.
 /// </para>
 /// </remarks>
 public sealed class AnimationStateMachine
@@ -47,15 +49,13 @@ public sealed class AnimationStateMachine
         Read(E3D.ResolveFile(fileName) is { } path ? File.ReadAllText(path)
             : throw new FileNotFoundException($"The animation state machine '{fileName}' was not found in the working directory, beside the program or under source/ beside it.", fileName));
 
-    /// <summary>Writes the machine to a file, a relative name beside the program, where <see cref="Load"/> finds it again.</summary>
-    public void Save(string fileName)
-    {
-        var path = Path.IsPathRooted(fileName) ? fileName : Path.Combine(AppContext.BaseDirectory, fileName);
-        if (Path.GetDirectoryName(path) is { Length: > 0 } folder) Directory.CreateDirectory(folder);
-        File.WriteAllText(path, Write());
-    }
+    /// <summary>
+    /// Writes the machine to a file, a relative name beside the program, where <see cref="Load"/>
+    /// finds it again, keeping the id the file has or giving it one at its first save.
+    /// </summary>
+    public void Save(string fileName) => DataAssets.Save(fileName, this);
 
-    /// <summary>The machine as the JSON of a machine file.</summary>
+    /// <summary>The machine as the JSON of a machine file, with no id.</summary>
     public string Write()
     {
         using var buffer = new MemoryStream();
@@ -64,38 +64,43 @@ public sealed class AnimationStateMachine
                    Indented = true,
                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                }))
+            Write(writer, null);
+        return Encoding.UTF8.GetString(buffer.ToArray());
+    }
+
+    // The machine as a machine file's object, with the file's id after its format and version.
+    internal void Write(Utf8JsonWriter writer, string? id)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("format", Format);
+        writer.WriteNumber("version", Version);
+        if (id is not null) writer.WriteString("id", id);
+        writer.WriteString(nameof(Start), Start);
+        writer.WriteStartArray(nameof(States));
+        foreach (var state in States)
         {
             writer.WriteStartObject();
-            writer.WriteString("format", Format);
-            writer.WriteNumber("version", Version);
-            writer.WriteString(nameof(Start), Start);
-            writer.WriteStartArray(nameof(States));
-            foreach (var state in States)
-            {
-                writer.WriteStartObject();
-                writer.WriteString(nameof(state.Name), state.Name);
-                writer.WriteString(nameof(state.Clip), state.Clip);
-                writer.WriteBoolean(nameof(state.Loop), state.Loop);
-                writer.WriteNumber(nameof(state.Speed), state.Speed);
-                writer.WriteEndObject();
-            }
-            writer.WriteEndArray();
-            writer.WriteStartArray(nameof(Transitions));
-            foreach (var transition in Transitions)
-            {
-                writer.WriteStartObject();
-                writer.WriteString(nameof(transition.From), transition.From);
-                writer.WriteString(nameof(transition.To), transition.To);
-                writer.WriteString(nameof(transition.When), transition.When.ToString());
-                writer.WriteString(nameof(transition.Parameter), transition.Parameter);
-                writer.WriteNumber(nameof(transition.Value), transition.Value);
-                writer.WriteNumber(nameof(transition.Fade), transition.Fade);
-                writer.WriteEndObject();
-            }
-            writer.WriteEndArray();
+            writer.WriteString(nameof(state.Name), state.Name);
+            writer.WriteString(nameof(state.Clip), state.Clip);
+            writer.WriteBoolean(nameof(state.Loop), state.Loop);
+            writer.WriteNumber(nameof(state.Speed), state.Speed);
             writer.WriteEndObject();
         }
-        return Encoding.UTF8.GetString(buffer.ToArray());
+        writer.WriteEndArray();
+        writer.WriteStartArray(nameof(Transitions));
+        foreach (var transition in Transitions)
+        {
+            writer.WriteStartObject();
+            writer.WriteString(nameof(transition.From), transition.From);
+            writer.WriteString(nameof(transition.To), transition.To);
+            writer.WriteString(nameof(transition.When), transition.When.ToString());
+            writer.WriteString(nameof(transition.Parameter), transition.Parameter);
+            writer.WriteNumber(nameof(transition.Value), transition.Value);
+            writer.WriteNumber(nameof(transition.Fade), transition.Fade);
+            writer.WriteEndObject();
+        }
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     /// <summary>A machine from the JSON of a machine file, a field it lacks keeping its default.</summary>
@@ -105,7 +110,19 @@ public sealed class AnimationStateMachine
         try
         {
             using var document = JsonDocument.Parse(json);
-            var root = document.RootElement;
+            return Read(document.RootElement);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidDataException($"Not an animation state machine: {ex.Message}", ex);
+        }
+    }
+
+    // The same from a file already parsed, as a data file's reference reads it.
+    internal static AnimationStateMachine Read(JsonElement root)
+    {
+        try
+        {
             if (!root.TryGetProperty("format", out var format) || format.GetString() != Format)
                 throw new InvalidDataException($"Not an animation state machine: its \"format\" is not \"{Format}\".");
             if (root.TryGetProperty("version", out var version) && version.GetInt32() > Version)

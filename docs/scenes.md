@@ -139,6 +139,41 @@ cannot be read gives it too, with the reason in `Problem` and the log, and is no
 the value is saved. `Save` writes on demand, and one made with `saveOnChange: true` writes at each
 `Set` as well. `Revert` reads the file again and `Reset` saves the default.
 
+## Data in files of its own
+
+A game's own data, a weapon's numbers, an enemy's kind or a level's rules, which many entities
+share and which changes without the game being built again, goes in a struct marked `[DataAsset]`,
+kept in a file of its own. A component refers to it through a `DataRef<T>` field by the id the file
+was given at its first save, so a file renamed or moved keeps every scene that names it:
+
+<!-- compiled with:
+[DataAsset] public struct Weapon { public int Damage; public float Reach; public string Title; public static Weapon Default => new() { Damage = 1, Reach = 1, Title = "Fist" }; }
+[SceneComponent] public struct Armed { public DataRef<Weapon> Weapon; }
+EcsWorld ecs = null!;
+int guard = 0;
+-->
+```csharp
+var sword = DataAssets.Save("weapons/sword.json", new Weapon { Damage = 12, Reach = 2, Title = "Sword" });
+ecs.Add(guard, new Armed { Weapon = sword });
+// ...
+var weapon = ecs.GetReadOnly<Armed>(guard).Weapon;
+if (!weapon.IsNone) DrawText($"{weapon.Value.Title} {weapon.Value.Damage}", 10, 10, 20, Color.White);
+```
+
+The file holds its format, its id, the type's name and the type's fields as a scene file holds a
+component. It is read once and shared by every reference to it, and a save through `DataAssets.Save`
+replaces the value for all of them. `DataAssets.Load` gives a reference by the file's name, found as
+a model is, and gives a file written by hand an id the first time it reads it, and
+`DataAssets.Find` gives one by the id. A scene file writes a reference as the id and finds the file
+as it loads, through a table of the ids and where their files are, filled as files are read and
+written. An id the table lacks is looked for through the folder beside the program, the scene
+file's own folder and the folders data files came from, in the start of each JSON file there, so a
+file renamed by hand is found again. A reference whose file is missing reads as none, `IsNone` with the reason naming the id in
+`Problem` and the log, and `Value` the type's default. It keeps the id, so the scene saved again
+still names the file. A `Persistent<T>` takes a `[DataAsset]` type as well, for a value the player
+changes, kept by its file's name, and an `AnimationMachine` names its machine's file by the id
+through `File`, beside its `Path`.
+
 ## Building what is saved
 
 The level is entities with names and components, made as any entities are:

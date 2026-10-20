@@ -1,0 +1,38 @@
+{
+  "format": "3dengine-animation-machine",
+  "version": 1,
+  "id": "5e1d0c7a9b42",
+  "Start": "",
+  "States": [
+    {
+      "Name": "Idle",
+      "Clip": "Idle",
+      "Loop": true,
+      "Speed": 1
+    },
+    {
+      "Name": "Walk",
+      "Clip": "Walking",
+      "Loop": true,
+      "Speed": 1
+    }
+  ],
+  "Transitions": [
+    {
+      "From": "Idle",
+      "To": "Walk",
+      "When": "Above",
+      "Parameter": "speed",
+      "Value": 0.1,
+      "Fade": 0.2
+    },
+    {
+      "From": "Walk",
+      "To": "Idle",
+      "When": "Below",
+      "Parameter": "speed",
+      "Value": 0.1,
+      "Fade": 0.2
+    }
+  ]
+}

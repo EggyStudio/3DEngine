@@ -125,6 +125,7 @@ public class GeneratorAttributeTests
         }
 
         [SceneComponent] public struct Marker { public int Value; }
+        [DataAsset] public struct Stats { public int Value; }
         public struct Unmarked { public int Value; }
         [SceneComponent, FormerName("Formerly")] public struct Renamed { public int Value; }
         [SceneComponent, DataVersion(2)]
@@ -166,6 +167,7 @@ public class GeneratorAttributeTests
         ["Engine.SceneComponentAttribute"] = "Marker",
         ["Engine.FormerNameAttribute"] = "Formerly",
         ["Engine.DataVersionAttribute"] = "Versioned",
+        ["Engine.DataAssetAttribute"] = "Stats",
     };
 
     private static IEnumerable<string> GeneratorAttributes =>
@@ -310,6 +312,14 @@ public class GeneratorAttributeTests
         SceneComponents.Find("GeneratorProbe.Unmarked").Should().BeNull("a struct without it is not registered");
         SceneComponents.Find("GeneratorProbe.Formerly")?.Type.Name.Should().Be("Renamed", "[FormerName] finds a type by the name it had");
         SceneComponents.Find("GeneratorProbe.Versioned")?.Version.Should().Be(2, "[DataVersion] gives the codec its version");
+
+        // A data asset is saved to a file of its own by its codec, and is no component a scene holds.
+        SceneComponents.Find("GeneratorProbe.Stats").Should().BeNull("[DataAsset] registers the type for data files, not scene files");
+        var stats = assembly.GetType("GeneratorProbe.Stats")!;
+        var save = typeof(DataAssets).GetMethods().Single(m => m.Name == nameof(DataAssets.Save) && m.GetParameters()[0].ParameterType == typeof(string));
+        using var folder = new TestFolder("engine-probe-data-");
+        save.MakeGenericMethod(stats).Invoke(null, [folder.File("stats.json"), Activator.CreateInstance(stats)]);
+        File.ReadAllText(folder.File("stats.json")).Should().Contain("\"type\": \"GeneratorProbe.Stats\"", "[DataAsset] registers the type for data files");
     }
 
     // Runs every generator over Source, emits the result and loads it, running its module

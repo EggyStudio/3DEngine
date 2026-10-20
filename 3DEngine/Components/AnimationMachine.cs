@@ -6,7 +6,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The machine is read from <see cref="Path"/>, once for every entity naming the file, or is
+/// The machine is read from <see cref="File"/>, the file by its id, which a rename of the file
+/// keeps, or from <see cref="Path"/>, once for every entity naming the file, or is
 /// <see cref="Machine"/> where one made in code is given. It enters its start once the model has
 /// loaded, and each frame takes the first transition whose condition holds, playing the state's
 /// clip from its start through the <see cref="AnimatedModel"/> beside it, whose
@@ -16,17 +17,23 @@ namespace Engine;
 /// </para>
 /// <para>
 /// The parameters are set through the entity's component by reference, <c>ref</c> in a behavior
-/// method or <see cref="EcsWorld.GetRef{T}(int)"/>, and read at the next frame's step. A scene
-/// file holds the path and the state, so a level saved mid-run starts the machine where it was,
-/// and not the parameters, which the game sets again. A machine whose names do not hold together,
-/// or whose file cannot be read, is said once in the log and runs nothing.
+/// method or <see cref="EcsWorld.GetRef{T}(int)"/>, and read at the next frame's step. A scene file
+/// holds the file's id, the path and the state, so a level saved mid-run starts the machine where
+/// it was, and not the parameters, which the game sets again. A machine whose names do not hold
+/// together, or whose file cannot be read, is said once in the log and runs nothing.
 /// </para>
 /// </remarks>
 [SceneComponent]
 public struct AnimationMachine
 {
-    /// <summary>The machine file, relative to the program, or empty where <see cref="Machine"/> is given.</summary>
+    /// <summary>The machine file, relative to the program, or empty where <see cref="File"/> or <see cref="Machine"/> is given.</summary>
     public string Path;
+
+    /// <summary>
+    /// The machine file by its id, which a rename of the file keeps, run in place of
+    /// <see cref="Path"/>'s where it is set. One that reads as none runs nothing.
+    /// </summary>
+    public DataRef<AnimationStateMachine> File;
 
     /// <summary>A machine made in code, run in place of a file's. A scene file does not hold it.</summary>
     public AnimationStateMachine? Machine;
@@ -40,6 +47,16 @@ public struct AnimationMachine
     public AnimationMachine(string path)
     {
         Path = path;
+        Machine = null;
+        State = "";
+        _parameters = new();
+    }
+
+    /// <summary>A machine read from a file by its id, as <see cref="DataAssets.Load{T}"/> or <see cref="DataAssets.Find{T}(string)"/> gives it.</summary>
+    public AnimationMachine(DataRef<AnimationStateMachine> file)
+    {
+        Path = "";
+        File = file;
         Machine = null;
         State = "";
         _parameters = new();
@@ -86,7 +103,7 @@ internal sealed class AnimationMachineParameters
     /// <summary>Whether a clip that plays once has reached its end, where it holds.</summary>
     public bool Ended;
 
-    /// <summary>The machine object or the path it was compiled from, and what it was compiled to, or null where it runs nothing.</summary>
+    /// <summary>The machine object, the file's id or the path it was compiled from, and what it was compiled to, or null where it runs nothing.</summary>
     public object? Source;
     public object? Compiled;
 }

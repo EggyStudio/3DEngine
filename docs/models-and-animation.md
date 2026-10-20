@@ -279,8 +279,12 @@ program changes its clip, and a clip that plays once holds its last frame. A ste
 due reads the parameters its transitions name and nothing else, some 80 nanoseconds for three.
 
 The machine's file is JSON as a scene file is, `Load` reads it and `Save` writes it, and every
-entity naming one path shares one reading of it. A scene file holds an entity's `AnimationMachine`
-by its path and the state it is in, so a level saved mid-run starts the machine there. The
+entity naming one path shares one reading of it. `Save` gives the file an id, and
+`AnimationMachine.File`, a `DataRef<AnimationStateMachine>` from `DataAssets.Load` or
+`DataAssets.Find`, names the file by that id in place of its path, so a level keeps its machines
+through a rename (see [Data in files of its own](scenes.md#data-in-files-of-its-own)). A scene file
+holds an entity's `AnimationMachine` by its path or its file's id and the state it is in, so a level
+saved mid-run starts the machine there. The
 parameters are set through the entity's component by reference, `ref` in a behavior method or
 `GetRef`, and read at the next frame. A machine whose names do not hold together, a transition to a
 state it lacks, is said once in the log and runs nothing.

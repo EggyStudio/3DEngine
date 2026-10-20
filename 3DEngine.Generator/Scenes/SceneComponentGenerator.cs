@@ -8,22 +8,24 @@ namespace Engine;
 /// Roslyn incremental generator writing the JSON a scene file holds for each component type marked
 /// <c>[SceneComponent]</c> and each <c>[Behavior]</c>, and registering it with
 /// <c>SceneComponents</c> from a module initializer, so a scene is saved and loaded with no
-/// reflection.
+/// reflection. A struct marked <c>[DataAsset]</c> is written the same way and registered with
+/// <c>DataAssets</c>, for a data file of its own.
 /// </summary>
 /// <remarks>
 /// Every public instance field that is not read-only is written by name when its type is one a
 /// scene file holds, <c>bool</c>, the whole and real number types, <c>string</c>, an enum (by
 /// name), <c>Vector2</c>, <c>Vector3</c>, <c>Vector4</c>, <c>Quaternion</c>, <c>Matrix4x4</c>,
-/// <c>Color</c>, <c>Entity</c> (by scene id), <c>Handle&lt;T&gt;</c> (by asset path), a nullable
-/// of one of those, or an array of one, as a mesh's positions are. Other fields are left out, so a
-/// component holding a runtime handle is saved without it rather than refused. A component starts
-/// from its static <c>Default</c> or <c>Identity</c> when it has one, so a field missing from an
-/// older file keeps a sensible value. A type's or a field's <c>[FormerName]</c> is a name the file
-/// is read from where it has not the current one, a type's registered as a full name, one given
-/// alone placed in the type's namespace. A type's <c>[DataVersion]</c> past 1 is written under
-/// <c>"$version"</c>, and an object of an earlier version is passed through the type's static
-/// <c>Migrate</c>, once with the version it holds, before its fields are read. A versioned type
-/// without one is warned of (E3D200) and read as the file has it.
+/// <c>Color</c>, <c>Entity</c> (by scene id), <c>Handle&lt;T&gt;</c> (by asset path),
+/// <c>DataRef&lt;T&gt;</c> (by the data file's id), a nullable of one of those, or an array of one,
+/// as a mesh's positions are. Other fields are left out, so a component holding a runtime handle is
+/// saved without it rather than refused. A component starts from its static <c>Default</c> or
+/// <c>Identity</c> when it has one, so a field missing from an older file keeps a sensible value. A
+/// type's or a field's <c>[FormerName]</c> is a name the file is read from where it has not the
+/// current one, a type's registered as a full name, one given alone placed in the type's namespace.
+/// A type's <c>[DataVersion]</c> past 1 is written under <c>"$version"</c>, and an object of an
+/// earlier version is passed through the type's static <c>Migrate</c>, once with the version it
+/// holds, before its fields are read. A versioned type without one is warned of (E3D200) and read
+/// as the file has it.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 internal sealed class SceneComponentGenerator : IIncrementalGenerator
@@ -32,9 +34,10 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
     private const string Behavior = "Engine.BehaviorAttribute";
     private const string FormerName = "Engine.FormerNameAttribute";
     private const string DataVersion = "Engine.DataVersionAttribute";
+    private const string DataAsset = "Engine.DataAssetAttribute";
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
-    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName, DataVersion];
+    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName, DataVersion, DataAsset];
 
     private static readonly DiagnosticDescriptor NoMigration = new(
         "E3D200",
@@ -59,12 +62,20 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
             .Where(static m => m is not null)
             .Collect();
 
-        context.RegisterSourceOutput(marked.Combine(behaviors), static (spc, pair) =>
+        var data = context.SyntaxProvider
+            .ForAttributeWithMetadataName(DataAsset,
+                static (node, _) => node is StructDeclarationSyntax,
+                static (ctx, _) => Model(ctx.TargetSymbol as INamedTypeSymbol) is { } model ? model with { Data = true, Component = false } : null)
+            .Where(static m => m is not null)
+            .Collect();
+
+        context.RegisterSourceOutput(marked.Combine(behaviors).Combine(data), static (spc, all) =>
         {
-            var models = pair.Left.Concat(pair.Right)
+            // A type marked both as a component and as a data asset is registered as each.
+            var models = all.Left.Left.Concat(all.Left.Right).Concat(all.Right)
                 .Where(m => m is not null)
                 .GroupBy(m => m!.Type)
-                .Select(g => g.First()!)
+                .Select(g => g.First()! with { Component = g.Any(m => m!.Component), Data = g.Any(m => m!.Data) })
                 .OrderBy(m => m.Type, StringComparer.Ordinal)
                 .ToList();
             foreach (var model in models)
@@ -85,6 +96,9 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
     // earlier version is passed through, null where the type has none.
     private sealed record ComponentModel(string Type, string Name, string Start, FieldModel[] Fields, string[] FormerNames)
     {
+        // Whether it is registered as a component a scene file holds, as a data asset, or as both.
+        public bool Component { get; init; } = true;
+        public bool Data { get; init; }
         public int Version { get; init; } = 1;
         public string? Migrate { get; init; }
         public Diagnostic? Diagnostic { get; init; }
@@ -241,6 +255,13 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
             return (Json("WriteString", $"ctx.PathOf({value})"), $"ctx.Load<{asset}>({p}.GetString())");
         }
 
+        if (type is INamedTypeSymbol { IsGenericType: true } reference &&
+            reference.OriginalDefinition.ToDisplayString() == "Engine.DataRef<T>")
+        {
+            var held = reference.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return (Json("WriteString", $"{value}.Id"), $"ctx.Data<{held}>({p}.GetString())");
+        }
+
         return null;
     }
 
@@ -254,38 +275,45 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
 
         foreach (var model in models)
         {
-            source.Append("        global::Engine.SceneComponents.Add(new global::Engine.SceneCodec<").Append(model.Type).Append(">(")
-                .Append(Quote(model.Name)).Append(",\n")
-                .Append("            static (global::System.Text.Json.Utf8JsonWriter w, in ").Append(model.Type)
-                .Append(" v, global::Engine.SceneWriteContext ctx) =>\n            {\n");
-            if (model.Version > 1)
-                source.Append("                w.WriteNumber(global::Engine.SceneJson.VersionName, ").Append(model.Version).Append(");\n");
-            foreach (var field in model.Fields)
-                source.Append("                ").Append(field.Write).Append('\n');
-            source.Append("            },\n")
-                .Append("            static (e, ctx) =>\n            {\n");
-            if (model.Migrate is not null)
-                source.Append("                e = global::Engine.SceneJson.Migrated(e, ").Append(model.Version).Append(", ")
-                    .Append(model.Migrate).Append(", ").Append(Quote(model.Type.Replace("global::", ""))).Append(");\n");
-            source.Append("                var value = ").Append(model.Start).Append(";\n");
-            foreach (var field in model.Fields)
-            {
-                source.Append("                if (e.TryGetProperty(").Append(Quote(field.Name)).Append(", out var p_").Append(field.Name).Append(')');
-                foreach (var former in field.FormerNames)
-                    source.Append(" || e.TryGetProperty(").Append(Quote(former)).Append(", out p_").Append(field.Name).Append(')');
-                source.Append(") { var p = p_").Append(field.Name).Append("; ").Append(field.Read).Append(" }\n");
-            }
-            source.Append("                return value;\n            })");
-            var settings = new List<string>();
-            if (model.FormerNames.Length > 0)
-                settings.Add("FormerNames = new string[] { " + string.Join(", ", model.FormerNames.Select(Quote)) + " }");
-            if (model.Version > 1) settings.Add($"Version = {model.Version}");
-            if (settings.Count > 0) source.Append(" { ").Append(string.Join(", ", settings)).Append(" }");
-            source.Append(");\n");
+            if (model.Component) Codec(source, model, "SceneComponents");
+            if (model.Data) Codec(source, model, "DataAssets");
         }
 
         source.Append("    }\n}\n");
         return source.ToString();
+    }
+
+    // The registration of one type's codec with the registry named.
+    private static void Codec(StringBuilder source, ComponentModel model, string registry)
+    {
+        source.Append("        global::Engine.").Append(registry).Append(".Add(new global::Engine.SceneCodec<").Append(model.Type).Append(">(")
+            .Append(Quote(model.Name)).Append(",\n")
+            .Append("            static (global::System.Text.Json.Utf8JsonWriter w, in ").Append(model.Type)
+            .Append(" v, global::Engine.SceneWriteContext ctx) =>\n            {\n");
+        if (model.Version > 1)
+            source.Append("                w.WriteNumber(global::Engine.SceneJson.VersionName, ").Append(model.Version).Append(");\n");
+        foreach (var field in model.Fields)
+            source.Append("                ").Append(field.Write).Append('\n');
+        source.Append("            },\n")
+            .Append("            static (e, ctx) =>\n            {\n");
+        if (model.Migrate is not null)
+            source.Append("                e = global::Engine.SceneJson.Migrated(e, ").Append(model.Version).Append(", ")
+                .Append(model.Migrate).Append(", ").Append(Quote(model.Type.Replace("global::", ""))).Append(");\n");
+        source.Append("                var value = ").Append(model.Start).Append(";\n");
+        foreach (var field in model.Fields)
+        {
+            source.Append("                if (e.TryGetProperty(").Append(Quote(field.Name)).Append(", out var p_").Append(field.Name).Append(')');
+            foreach (var former in field.FormerNames)
+                source.Append(" || e.TryGetProperty(").Append(Quote(former)).Append(", out p_").Append(field.Name).Append(')');
+            source.Append(") { var p = p_").Append(field.Name).Append("; ").Append(field.Read).Append(" }\n");
+        }
+        source.Append("                return value;\n            })");
+        var settings = new List<string>();
+        if (model.FormerNames.Length > 0)
+            settings.Add("FormerNames = new string[] { " + string.Join(", ", model.FormerNames.Select(Quote)) + " }");
+        if (model.Version > 1) settings.Add($"Version = {model.Version}");
+        if (settings.Count > 0) source.Append(" { ").Append(string.Join(", ", settings)).Append(" }");
+        source.Append(");\n");
     }
 
     private static string Quote(string text) => "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
