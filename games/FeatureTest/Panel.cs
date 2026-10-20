@@ -10,10 +10,11 @@ namespace FeatureTest;
 /// engine's switches, and each zone's status, its toggles and buttons that go to it and its spots.
 /// </summary>
 /// <remarks>
-/// The keyboard and the first gamepad move through its widgets, and while it holds the keyboard the
-/// player is not walked by it. The costs are averages over the last frames, read by their names in
-/// the profile, which <c>./e3d command profile</c> lists whole, as the engine's profile window does
-/// when the panel shows it.
+/// The keyboard moves through its widgets, and the first gamepad too while it is open, which leaves
+/// the pad to the game alone while it is shut. While it holds the keyboard the player is not walked
+/// by it. The costs are averages over the last frames, read by their names in the profile, which
+/// <c>./e3d command profile</c> lists whole, as the engine's profile window does when the panel
+/// shows it.
 /// </remarks>
 sealed class Panel
 {
@@ -59,6 +60,7 @@ sealed class Panel
     public void Update()
     {
         if (IsKeyPressed(Key.F1)) Open = !Open;
+        SetImGuiGamepadNavigation(Open);
     }
 
     /// <summary>Draws the panel, inside the frame, asking for a teleport where a button does.</summary>

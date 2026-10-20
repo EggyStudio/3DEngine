@@ -305,6 +305,12 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **The pad in ImGui when asked.** `SetImGuiGamepadNavigation` lets the first gamepad move through
+  ImGui's windows and press their widgets, for a menu played by the pad alone, as
+  [Input and ImGui](input.md#input-and-imgui) shows. Before, the pad moved through ImGui from the
+  start, so a game played by the pad with a tool window open had the window's focused button
+  pressed by each press of the pad's lower face button, and now the pad reaches the game alone
+  until a program asks.
 - **Sound heard from its side and fainter with distance.** A sound played at a position is panned
   toward the side of the listener it is on and grows quieter from its near distance to silence at
   its far one, which `AudioVoiceParams.NearDistance` and `AudioVoiceParams.FarDistance` set for one

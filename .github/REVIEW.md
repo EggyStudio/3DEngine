@@ -10,31 +10,34 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f78b8c58`, item 58, the default spatial processor, and nothing else, carrying the
-review's files, in the form said before it: the distance processor beside the backend, the pan from
-the direction against the listener's across vector, the volume one within the near distance and the
-inverse of the distance to zero at the far, the directivity from the dipole, the server starting
-with it and the setter kept internal, near and far distances on the server and the voice, the
-guide's model, the upgrading entry and eight lines of the surface listing; two things moved after
-the form, the upgrading entry naming every member whole as its test asks, and the new test waiting
-on an event the mix processor sets after a count of frames in place of a sleep, which N 3.3 caught,
-nothing joining the rule's list. The suite 1,825 passed plain and shuffled, 1,823 before; the
-feature test's drone through the spatial play read 2.34 left and 1.42 right on the pack. Read at
-00:05 on 2026-10-21. The build run of `afbe81cf` ended green at 00:10, its Linux suite in 38
-minutes, its macOS in 28 and its Windows parts in 44 minutes 4 seconds, the examples job green after
-them, which settles Verdict 75; the head was pushed at 00:12 and the day's pack run with publish on
-started at 00:12, run 39506383679, the push's build run left to run beside it (Decision 52); the
-pack run is Verdict 77's third and Verdict 79's second. Next the feature test's sixth part, scenes
-and saves and the interface, its shape before its commit; then Decision 51's items 59 to 66, the
-modeling work of 2026-10-20, in order. Item 6 waits on the owner's word.
+Reviewed up to `c2b8c0e9`, item 57's sixth and last part, scenes and saves and the interface, and
+nothing else, carrying the review's file, in the shape and with the tests and numbers said before
+it: a scenes zone that writes a crate's data file and moves it before anything reads it, a prefab
+and a level naming the crate by id, starts the level as a saved game, moves a block, spawns a saved
+one, saves and loads with the save over the level, writes the entities again and reads them back,
+and counts arrivals across runs, which is items 53 and 56 proved on the package; an interface zone
+of three screens as a state, typed text onto a sign, a counted pad button, an ImGui window of a
+button, a slider, a box, a combo and a color, and a health bar and a ring gauge in 2D; the drive
+reads both zones, the soak cycles thirteen places, the games job's step ran in 4 minutes 37 seconds,
+the soak held 23 entities and 593 to 592 MB over 120 seconds, the storm 0 validation errors. Read at
+00:20 on 2026-10-21. Not pushed: the build run of `f78b8c58` and the pack run beside it are still
+running, and the head is pushed when the build run ends. Next item 67, the pad's ImGui navigation
+off by default, found by this part, one commit; then item 71's first part, the call leaving the
+screen probes out, which the owner asked at about 01:00 for the voxel game; then items 68 and 69,
+the readback without a wait and the mesh over a shader's buffers, which the voxel game asked for at
+about 00:30 on 2026-10-21 for its generation and meshing on the GPU, a package due after them; then
+item 70, the animated capture the owner asked for at about 00:29; then item 71's second part, the
+cascades' faults from the game's repros; then Decision 51's items 59 to 66, the modeling work of
+2026-10-20, in order, the recipe's words read from BevyCSharp's Replies or written first. Item 6 and
+the feature test's portable build wait on the owner's word.
+
+Before it, `f78b8c58` came, item 58, the default spatial processor, and nothing else, carrying the
+review's files, in the form said before it, the suite 1,825 passed plain and shuffled. Pushed at
+00:12, the day's pack run with publish on started then, run 39506383679.
 
 Before it, `afbe81cf` came, item 57's fifth part, audio and text, and nothing else, carrying the
 review's file, in the shape and with the tests and numbers said before it. Pushed at 23:22 with
 `c6face9f`.
-
-Before it, `c6face9f` came, item 57's fourth part, global illumination, particles and the effects,
-and nothing else, carrying the review's file, in the shape and with the tests and numbers said
-before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3063,7 +3066,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the mix 4.11 left and 2.48 right, Lato measured 299 and drawn 298, the word 56 with ligatures
     and 57 without; on the GPU the drone 2.88 and 1.74; the soak's 35 turns and 13 readings pass
     with nothing growing and the storm has no validation error. A finding of the engine's is item
-    58. Part 5 done at `afbe81cf` on 2026-10-20, as the head says.
+    58. Part 5 done at `afbe81cf` on 2026-10-20, as the head says. Done at `c2b8c0e9` on 2026-10-21
+    with its sixth part, the six parts at `7d7ecba6`, `8609089a`, `086d9a00`, `c6face9f`, `afbe81cf`
+    and `c2b8c0e9`, as the heads said; the portable build waits on the owner.
 
 58. **A sound placed by its position is heard from its side and fainter with distance, as the audio
     guide says.** Found by the feature test's audio zone on 2026-10-20: the audio server pans and
@@ -3255,6 +3260,119 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shaped in the game. `model.export` and `model.import` beside the save and the load. Tests: a box
     exported and read back with the engine's own reader having the same counts, a file validated
     against the glTF schema's required fields, and a known glTF's import counted. One commit.
+
+67. **The first gamepad moves through ImGui only when the program asks.** Found by the feature
+    test's interface zone on 2026-10-21: the engine feeds the first pad to ImGui's navigation, so
+    the pad's lower face button presses the focused ImGui button as well as reaching the game, and
+    the zone's drive had to click the button before pressing the pad; a game that plays by the pad
+    with a tool window open has its button taken by the window. Dear ImGui's own default is
+    navigation by the keyboard and the mouse alone, and rlImGui leaves the pad out unless asked, so
+    the engine does the same: a call turning the pad's navigation on for a program that wants its
+    windows driven from a couch, off by default, named in the ImGui guide section and the cheat
+    sheet through its script, with the surface listing and the upgrading entry; a test that a pad's
+    press reaches the game and not ImGui by default and both when the call is made. The interface
+    zone then presses the pad without the click first, keeping the click as a step of its own. One
+    commit, before item 59.
+
+68. **A shader buffer is read back without holding the program.** Asked by the voxel game on
+    2026-10-21 for its generation on the GPU (ASKS.md, the entry of that day): `ReadShaderBuffer`
+    waits for the dispatches submitted and holds the program until the GPU has caught up, which its
+    remark says a game reading every frame pays for each time, so a game that generates a world's
+    columns in compute and places blocks from the result on the CPU stalls on every column. The
+    engine gains a readback asked for and collected later: `ReadShaderBufferAsync(buffer, offset,
+    size)` records a copy into a staging buffer of its own after the dispatches submitted and
+    answers a `ShaderReadback` handle with a fence of the submission;
+    `IsShaderReadbackReady(readback)` answers without waiting; `GetShaderReadback(readback, span)`
+    copies the bytes out once ready, or waits where asked early; `UnloadShaderReadback` frees the
+    staging buffer; the staging buffers pooled by size. With the cheat sheet lines through the
+    script, the surface listing, the compute guide's section saying when a game reads with a wait
+    and when without, and the upgrading entry. Tests: a dispatch writing a sequence read back the
+    frame after without a wait, the ready flag false on the frame of the ask under the null device's
+    fences and true after, the bytes right, and a readback asked each frame for a hundred frames
+    leaking no buffer. The game's entry of 00:33 reads a dispatch writing 128 KB at 0.60 to 0.83 ms
+    and its read back at once at 1.08 to 1.71 ms on the main thread, on a frame of 16.9 ms with 4.8
+    ms of wait, so a read takes up to a third of what a standing frame has left, and its flights at
+    12 columns put the frame at 21.4 to 28.8 ms. One commit, after item 67 and before item 59, since
+    the game waits on it.
+
+69. **A mesh drawn from buffers a compute shader wrote, with a count the shader writes.** Asked by
+    the voxel game on 2026-10-21 for its meshing on the GPU (ASKS.md, the entry of that day): a mesh
+    reaches the screen only by `UploadMesh` or `UpdateMeshBuffer` from arrays on the CPU, so a
+    mesher in compute would write a buffer, read it back with the wait of item 68's fault and upload
+    it again. The engine gains a mesh over shader buffers: `LoadMeshFromShaderBuffers(positions,
+    stream, count, capacity)`, a mesh whose positions and stream of the program's own are the given
+    shader buffers, with no indices, drawn with an indirect draw whose vertex count the shader
+    writes into the count buffer's first four bytes, up to the capacity, so a dispatch and a draw
+    share the buffers with no copy and no wait, the buffers' writes made visible to the vertex stage
+    by a barrier the frame records; the mesh drawn by `DrawMesh` and the model pass as any other,
+    culled by a box the program sets with `SetMeshBoundingBox`, read by the global illumination's
+    data as a mesh of positions and the stream's colors where the format says so, and its physics
+    left to the program. With the cheat sheet lines, the surface listing, the compute guide's
+    section with a compute shader writing a quad and the frame drawing it, an example
+    `shaders_compute_mesh` with its capture, and the upgrading entry. Tests: a shader writing two
+    triangles and a count of 6 drawn and read from the frame's pixels on the device, a count of 0
+    drawing nothing, a count past the capacity clamped, and the null device recording the indirect
+    draw. The game's entry of 00:33 reads the mesher's 4 ms budget through `UploadMesh` and
+    `UpdateMeshBuffer`, the update at 10.2 to 14.0 ms of a 21.4 to 28.8 ms frame flying at 12
+    columns, and the render graph at 6.7 to 9.2 ms there against 5.3 to 5.5 standing. One commit,
+    after item 68 and before item 59, since the game waits on it.
+
+70. **An animated capture of a run, frames taken at an interval and written as one file, and one
+    made from captures on disk (Decision 53).** The owner asked at about 00:29 on 2026-10-21 for
+    captures made into animations from several pictures with a time between them, a second or 250
+    ms, as tooling to show things in the documentation and in devlogs. The engine gains a recorder:
+    `record <path> <length> [every <step>] [scale <s>]` beside `shot` in the catalog, taking frames
+    from the frame being drawn at a step given in milliseconds or frames (`250ms`, `15f`), for a
+    length in seconds or frames or a count of pictures (`5s`, `8`), scaled down by a factor where
+    asked, each frame kept in memory as it is taken and the file written when the length is reached
+    or `record.stop` is sent, with the frames' own times as the delays, so a step of 1 s plays at 1
+    s and `record ... play <ms>` plays faster or slower; the formats by the path's extension, `.gif`
+    by an encoder of the engine's own in managed code, a palette of 256 colors by median cut over
+    all the frames with ordered dithering, the LZW of the format and a loop forever, and `.png` as
+    an animated PNG, the frames as the format's frame chunks over the engine's PNG writer, lossless,
+    which GitHub's pages play as they play a GIF; no library is taken, the dependency table allowing
+    none for it and, in the flat API as raylib's examples record with Ctrl and F12,
+    `StartRecording(fileName, intervalMs)` and `StopRecording()` with their cheat sheet lines
+    through the script and the surface listing; and a step of its own in the e3d client, `./e3d
+    record <path> <length> [--every <step>]`, which sends the command and waits for the file. For
+    captures on disk, a script `build/animate.py <out> <pictures...> --delay <ms> [--loop n]
+    [--scale s]` assembles PNG or WebP captures into a GIF, an animated PNG or an animated WebP by
+    their extension, with Pillow where it is present and the engine's own writers where it is not,
+    so a devlog's animation is made from the captures the pack run already takes; the guide's
+    section on captures shows both, with one animation of a game in the README's gallery as its
+    first use. Tests: a recording of eight frames at 250 ms on the null device whose file parses as
+    a GIF with eight frames and the delays right, the same as an animated PNG read back by the
+    engine's reader frame by frame, a palette of a known picture within a distance of its colors,
+    and the script run over three captures in the suite. Two commits, the recorder with its formats
+    and the command, then the client's step and the script. One or two days, after item 69 and
+    before item 59.
+
+71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
+    faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
+    about 01:00 on 2026-10-21 that the voxel game is not to enable the screen probes, which give a
+    pixelated look even where none is meant, that the cascades without them are the better option
+    for the game's art, and that the cascades still show faults: light from a light block held off
+    by two columns leaks through the thin gap at their corner; the penumbra of edges on the ground
+    is not smooth and shows zig-zags; the screen probes shift on movement and are not consistent on
+    the voxel game; there seems to be z-fighting at points between the global illumination and the
+    opaque textures, if not fixed already; and there is noise, visible in the bounce rooms 3 to 6 or
+    so. Two parts. First, the call: the screen probes are a part of the method a program cannot
+    leave out but by the `gi.screenprobe` command and the bounce window, so the flat API gains
+    `SetGlobalIlluminationScreenProbes(bool enabled)`, on by default as today, with its cheat sheet
+    line through the script, the surface listing, the global illumination guide's paragraph on when
+    to leave them out, a pixel-art or voxel look among the reasons, the upgrading entry, and a test
+    that a frame without them draws the cascades' light alone; one commit, after item 67, since the
+    game waits on it. Second, the faults, after item 70: the game's coder writes an ASKS.md entry
+    with a repro of each, the world's seed, the place, the hour and a capture, and the engine's
+    coder reproduces each in the engine's own scenes, the bounce rooms or the Ore sample's voxel
+    field, with a capture, reads it to its cause and says the cause in RENDERING.md beside the terms
+    already named, then mends each where a form passes the rule that no view's distance to its
+    path-traced reference widens at either size and costs no more than it gives, one commit a fault,
+    and names as a term where the method stops what no form passes; the corner leak first, since a
+    thin gap between two blocks letting light through is the kind of leak the fifth term took on,
+    then the zig-zag penumbra, the z-fighting, the noise, and the screen probes' shift last since
+    the game leaves them out. Each mend's capture in the record, the game's captures made again on
+    the package that brings them.
 
 ## Verdicts
 
@@ -4716,6 +4834,26 @@ and 79 are open.
     of the month's minutes stands as a reading and not as a reason; a run is still cancelled where
     it is doomed, so its figures are not waited for, and a push still waits for the run before it to
     end, so no figure is lost.
+
+53. **Animated captures as tooling for documentation and devlogs.** The owner wrote at about 00:29
+    on 2026-10-21 that it is to be possible to capture, or to make animations from several captures,
+    with timings such as a second or 250 ms between the pictures, to have more tooling to show
+    things in the documentation or in devlogs. So item 70: a recorder in the engine taking frames at
+    a step for a length and writing a GIF or an animated PNG by encoders of the engine's own, a
+    client step for it, and a script assembling an animation from captures on disk, with one
+    animation in the README as its first use; the same in both engines.
+
+54. **The voxel game leaves the screen probes out, and the cascades' faults the owner sees are read
+    and mended.** The owner wrote at about 01:00 on 2026-10-21 that the voxel game is not to enable
+    the screen probes, whose look is pixelated even where that is not meant, that the radiance
+    cascades without them are the better option for the game's art, and that the cascades still have
+    graphical faults, a light block's light leaking through the thin gap at the corner of two
+    columns that hold it off, penumbrae on the ground with zig-zags, the screen probes shifting on
+    movement, z-fighting at points between the global illumination and the opaque textures, and
+    noise, seen in the bounce rooms 3 to 6. So item 71: a call that leaves the screen probes out,
+    which the game takes as its default, and the faults reproduced from the game's repros in the
+    engine's own scenes, read to their causes and mended one by one under the rule the readings
+    keep, or named where the method stops.
 
 ## Replies
 

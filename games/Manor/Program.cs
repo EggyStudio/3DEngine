@@ -24,6 +24,8 @@ SetConfigFlags(ConfigFlags.WindowResizable | (settings.Vsync ? ConfigFlags.Vsync
 InitWindow(startWidth, startHeight, "Manor");
 InitAudioDevice();
 SetTargetFPS(60);
+// The menus are ImGui windows the pad moves through.
+SetImGuiGamepadNavigation(true);
 // Escape pauses rather than closing the window.
 SetExitKey(Key.Null);
 settings.Apply();

@@ -211,11 +211,19 @@ void Shoot() { }
 if (IsMouseButtonPressed(MouseButton.Left) && !ImGui.GetIO().WantCaptureMouse) Shoot();
 ```
 
-ImGui reads the first gamepad too, so a menu drawn in ImGui is played with the pad alone. The
-d-pad or the left stick moves between the focused window's widgets, starting on its first, the
-bottom face button presses the one it is on, and the right face button backs out of a field or a
-popup. `ImGui.SetNextWindowFocus()` before a menu's window gives it the pad. Arrow keys, Enter and
-Escape do the same from a keyboard.
+ImGui reads the first gamepad too once a program asks, so a menu drawn in ImGui is played with the
+pad alone:
+
+```csharp
+SetImGuiGamepadNavigation(true);
+```
+
+The d-pad or the left stick then moves between the focused window's widgets, starting on its
+first, the bottom face button presses the one it is on, and the right face button backs out of a
+field or a popup. `ImGui.SetNextWindowFocus()` before a menu's window gives it the pad. Until a
+program asks, the pad reaches the game alone, as Dear ImGui and rlImGui leave it, so a game played
+by the pad keeps each press while a tool window is open. Arrow keys, Enter and Escape move through
+ImGui from a keyboard either way.
 
 ## Input in the ECS
 

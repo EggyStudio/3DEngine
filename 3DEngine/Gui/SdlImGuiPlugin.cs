@@ -64,8 +64,11 @@ internal sealed class SdlImGuiPlugin : IPlugin
         // Docking lets a window be dragged onto another or onto a dock space, which
         // ImGui.DockSpaceOverViewport makes of the whole window. Viewports, which take ImGui
         // windows out of the game's window, are offered where SdlImGuiViewports can place a window
-        // and stay off until a program sets ImGuiConfigFlags.ViewportsEnable.
-        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad | ImGuiConfigFlags.DockingEnable;
+        // and stay off until a program sets ImGuiConfigFlags.ViewportsEnable. The keyboard moves
+        // through ImGui's widgets, and the first gamepad only once a program asks, through
+        // SetImGuiGamepadNavigation, as ImGui and rlImGui leave it, so a game played by the pad
+        // keeps its presses to itself while a tool window is open.
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.DockingEnable;
         ImGui.StyleColorsDark();
 
         // A window never shown, as a run that ./e3d or a test scripts, neither reads nor writes

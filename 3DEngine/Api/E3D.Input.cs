@@ -342,4 +342,19 @@ public static partial class E3D
             (ushort)(Math.Clamp(rightMotor, 0f, 1f) * ushort.MaxValue),
             (uint)Math.Max(0, seconds * 1000));
     }
+
+    /// <summary>
+    /// Sets whether the first gamepad moves through ImGui's windows and presses their widgets, as a
+    /// menu played with the pad alone needs.
+    /// </summary>
+    /// <remarks>
+    /// It is off until a program turns it on, as Dear ImGui and rlImGui leave it, since a pad
+    /// moving through ImGui presses the focused ImGui widget with its lower face button, and a game
+    /// played by the pad with a tool window open had the window's widget pressed by each press
+    /// meant for the game. The pad reaches the game either way. It is ImGui's own
+    /// <c>ImGuiConfigFlags.NavEnableGamepad</c>, which a program may set instead, and is ImGui's
+    /// for the window that is open, so a window opened again starts with it off.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">No window is open, so ImGui has no context.</exception>
+    public static void SetImGuiGamepadNavigation(bool enabled) => SdlImGuiInput.SetGamepadNavigation(enabled);
 }

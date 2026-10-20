@@ -22,9 +22,10 @@ public enum Screen
 /// <remarks>
 /// While the player is here, Enter moves the screen from the title to play, P pauses and plays
 /// again, the characters typed go onto the sign, which Backspace takes back, and the first
-/// gamepad's lower face button is counted. The ImGui window's button says where it is drawn, so a
-/// run clicks it there. The interface is ok when the screen has been each of its three, text was
-/// typed, the button was clicked and the pad's button pressed.
+/// gamepad's lower face button is counted, which reaches the game and not the ImGui window, the pad
+/// moving through ImGui only while the panel is open. The ImGui window's button says where it is
+/// drawn, so a run clicks it there. The interface is ok when the screen has been each of its three,
+/// text was typed, the button was clicked and the pad's button pressed.
 /// </remarks>
 sealed class Interface : Zone
 {

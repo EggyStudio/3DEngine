@@ -388,6 +388,9 @@ void SetGamepadLight(int gamepad, Color color);          // Sets the color of a 
 void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds); // Rumbles a gamepad, each
                                                                                          // motor from 0 to 1, for
                                                                                          // seconds
+void SetImGuiGamepadNavigation(bool enabled);            // Sets whether the first gamepad moves through ImGui's windows
+                                                         // and presses their widgets, as a menu played with the pad
+                                                         // alone needs
 
 AutomationEventList LoadAutomationEventList(string? fileName); // A list of automation events loaded from a file
                                                                // ExportAutomationEventList wrote, or an empty one to
@@ -2273,5 +2276,6 @@ bool QuaternionEquals(Quaternion p, Quaternion q);       // Whether two rotation
 ## ImGui
 
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
-is drawn over everything else, and the keyboard and the first gamepad move through its widgets.
+is drawn over everything else. The keyboard moves through its widgets, and the first gamepad too
+once `SetImGuiGamepadNavigation(true)` is called.
 F2 shows the engine's performance window.

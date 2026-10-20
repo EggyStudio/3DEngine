@@ -26,7 +26,9 @@ Shared areas:
 - scene files, saves, data in files, and files that outlive a renamed type
 - input, including what a script injects
 - the command-line tool that controls a running app (`bcs`, `e3d`)
-- modeling: an edit mesh shaped by operations, its recipe, grid prototyping, the modeling commands and window
+- modeling: an edit mesh shaped by operations, its recipe, grid prototyping, the modeling commands
+  and window
+- captures of a running app, still and animated, and the scripts that make them
 - tests, the games built from the package, measurement, CI, packing and the version
 - the rules for prose and commits
 
@@ -123,6 +125,14 @@ table also answers whether the two agree.
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | has (`b1265b6a`, `[DataAsset]` and `DataRef<T>` with the id inside the file, no sidecar and no shipped index, a missed id found by one look through the folders reading each file's head) |
 | A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | has (`43ace92a`, a loaded event a component on each entity a scene file spawned once the whole file is in, and a scene-loaded event with the path and the entities after them, a save read being a scene read, nothing told where no one watches) |
 | Content streamed on the go, so a game ships small and plays while its world downloads: a manifest and packs on any static host, reads by byte range into a block cache on disk keyed by the manifest's version, a recorded first-run set fetched ahead in order of first use, and prefetch driven by the game's own streaming, as the file layer of a browser port of a large game does it (`.ref/playgta5`, its `io_worker.js`) | to consider, taken when a game ships a world too large to download first; has scene packs fetched whole on demand and cached | to consider, taken when a game ships a world too large to download first; has Manor's cells streamed from disk around the player |
+
+### Shaders, meshes and captures
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A shader buffer read back without holding the program, asked for in one frame and collected in a later one by a handle with a ready flag, the staging buffers pooled | to check | to take (item 68) |
+| A mesh over buffers a compute shader wrote, positions and a stream with a count the shader writes, drawn by an indirect draw with no copy and no wait, culled by a box the program sets | to check | to take (item 69) |
+| An animated capture, frames taken from the frame being drawn at a step in milliseconds or frames for a length, written as a GIF or an animated PNG by encoders of the engine's own with the frames' times as the delays, a `record` command and a client step for it, and a script assembling captures on disk into one | to take (item 46) | to take (item 70) |
 
 ### Modeling
 

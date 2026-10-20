@@ -1305,6 +1305,7 @@ static class Engine.E3D
   static void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds)
   static void SetGesturesEnabled(Gesture flags)
   static void SetGlobalIllumination(GlobalIllumination quality)
+  static void SetImGuiGamepadNavigation(bool enabled)
   static void SetLightCastsShadows(LightHandle light, bool castsShadows)
   static void SetLightColor(LightHandle light, Color color, float intensity = 1f)
   static void SetLightDirection(LightHandle light, Vector3 direction)

@@ -369,3 +369,62 @@ Review: item 36 of REVIEW.md, 2026-10-19; a program may say of a shader that its
 the positions, and a batch drawn with it is then culled by its mesh's box in every pass as the
 engine's own are, after the sampling term's commit; the game keeps 8 columns until a package brings
 it.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: a shader buffer is read back only by holding the program
+
+The game is to compute its columns' noise fields on the GPU and place the blocks from them on the
+CPU, where its bodies, edits, light levels and saves read the blocks, so each batch of columns comes
+back through `ReadShaderBuffer`, whose remark says it waits for the dispatches submitted and holds
+the program until the GPU has caught up, which a game reading every frame pays for each time
+(`3DEngine/Api/E3D.Compute.cs:113`). Read on the 3DEngine 5.2.190 package, built from `b3922179`, on
+seed 1's overworld at noon from above the forest at the spawn looking east, 12 columns drawn and
+every one meshed, offscreen at 1280 by 720 on the RTX 4070 Laptop GPU with no other program on it,
+a fragment sent by `./e3d eval -f` between frames dispatched a compute shader writing 128 KB, a
+column's 32,768 cells at four bytes each, and read it back at once, timed by a stopwatch on the main
+thread, eight times five frames apart. The dispatch's call took 0.60 to 0.83 ms after the first,
+which made its pipeline, and the read 1.08 to 1.71 ms, every read giving the bytes the shader wrote.
+`./e3d command profile` over 240 frames there put the frame at 16.9 ms, 4.8 ms of it the wait for
+the next, so a read a frame takes up to a third of what the frame has left.
+
+Flying, the frame has nothing left. Three ten-second flights east over land not yet loaded, read by
+`./e3d command profile` after `profile.reset` on the 5.2.155 package in the same place and size,
+put the frame at 18.3 to 18.9 ms at 8 columns and 21.4 to 28.8 ms at 12, the program's update 5.1
+to 5.8 ms and 10.2 to 14.0 ms of it, where it is 2.5 to 2.7 ms standing, the growth the columns
+joined to the world and the sections meshed (Voxel-Sandbox's README, What it costs). A read with a
+wait in each of those frames adds its wait to them.
+
+The engine lacks a readback asked for in one frame and collected in a later one without a wait,
+which a game generating on the GPU and placing blocks on the CPU asks for. Meanwhile the game
+generates its columns on the CPU on worker tasks (`VoxelSandbox/World/ChunkStreamer.cs:65`).
+
+Review: item 68 of REVIEW.md, 2026-10-21; a readback asked for and collected later,
+`ReadShaderBufferAsync` answering a `ShaderReadback` handle with a fence of the submission,
+`IsShaderReadbackReady` answering without waiting and `GetShaderReadback` copying the bytes out once
+ready, the staging buffers pooled, with the compute guide's section on when a game reads with a wait
+and when without; taken after item 67 and before the modeling work, a package due after item 69.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: a mesh reaches the screen only from arrays on the CPU
+
+The game meshes each section of 16 by 16 by 16 blocks on the main thread under a budget of 4 ms a
+frame (`VoxelSandbox/VoxelGame.cs:14`) and gives its faces to the engine by `UploadMesh` and
+`UpdateMeshBuffer` (`VoxelSandbox/Rendering/ChunkRenderer.cs:57` and `:67`), the positions, the
+indices, the colors and the terrain shader's stream of eight bytes a corner. A mesher in compute
+would write those into shader buffers, and a mesh reaches the screen only from arrays on the CPU,
+so they would be read back with `ReadShaderBuffer`'s wait, 1.08 to 1.71 ms for 128 KB as the entry
+above read it, and uploaded again, the GPU's work crossing to the CPU and back.
+
+Read as the entry above says, the three flights at 12 columns put the frame at 21.4 to 28.8 ms and
+the program's update at 10.2 to 14.0 ms, of which the meshing takes up to its 4 ms a frame, the
+update's 2.7 ms standing a part, and the columns' join the remainder, and the engine's render graph
+at 6.7 to 9.2 ms, where it is 4.5 to 5.0 ms flying at 8 columns and 5.3 to 5.5 standing at 12.
+
+The engine lacks a mesh drawn from buffers a compute shader wrote, with a count of vertices the
+shader writes, so a dispatch and a draw share the buffers with no copy and no wait, which a program
+meshing in compute asks for. Meanwhile the game meshes on the CPU.
+
+
+Review: item 69 of REVIEW.md, 2026-10-21; a mesh over shader buffers,
+`LoadMeshFromShaderBuffers(positions, stream, count, capacity)`, drawn by an indirect draw whose
+vertex count the shader writes into the count buffer's first four bytes, a barrier before the vertex
+stage, culled by a box `SetMeshBoundingBox` sets and read by the global illumination as any mesh,
+with an example `shaders_compute_mesh`; taken after item 68, a package due after it.

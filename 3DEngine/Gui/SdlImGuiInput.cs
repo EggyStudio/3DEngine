@@ -119,9 +119,21 @@ internal static class SdlImGuiInput
         (GamepadButton.LeftFaceLeft, ImGuiKey.GamepadDpadLeft), (GamepadButton.LeftFaceRight, ImGuiKey.GamepadDpadRight),
     ];
 
+    /// <summary>Turns the first gamepad's way through ImGui's windows on or off, by ImGui's own flag.</summary>
+    /// <exception cref="InvalidOperationException">ImGui has no context, as before <c>InitWindow</c>.</exception>
+    public static void SetGamepadNavigation(bool enabled)
+    {
+        if (ImGui.GetCurrentContext() == IntPtr.Zero)
+            throw new InvalidOperationException("ImGui has no context until InitWindow, so SetImGuiGamepadNavigation is called after it.");
+        var io = ImGui.GetIO();
+        if (enabled) io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+        else io.ConfigFlags &= ~ImGuiConfigFlags.NavEnableGamepad;
+    }
+
     /// <summary>
-    /// Gives ImGui the first connected gamepad's buttons, sticks and triggers, so its navigation
-    /// moves through windows and widgets with the pad alone, or tells it there is no pad.
+    /// Gives ImGui the first connected gamepad's buttons, sticks and triggers, which its navigation
+    /// moves through windows and widgets by once a program turns it on and <c>ImGui.IsKeyDown</c>
+    /// reads either way, or tells it there is no pad.
     /// </summary>
     /// <remarks>
     /// A stick counts from a quarter of the way over, past where a pad at rest drifts, to the full
@@ -138,13 +150,15 @@ internal static class SdlImGuiInput
         io.BackendFlags |= ImGuiBackendFlags.HasGamepad;
         // ImGui hides its cursor until a key or button moves it, and a first press of the button that
         // picks only shows it, so a menu opened with the pad in hand took two presses to choose its
-        // first item. A pad's press shows the cursor before ImGui reads it, so that press acts.
-        foreach (var (button, _) in PadButtons)
-            if (pad.ButtonPressed(button))
-            {
-                ImGuiNative.igSetNavCursorVisible(1);
-                break;
-            }
+        // first item. A pad's press shows the cursor before ImGui reads it, so that press acts. A
+        // pad that does not move through ImGui leaves its cursor as the keyboard left it.
+        if ((io.ConfigFlags & ImGuiConfigFlags.NavEnableGamepad) != 0)
+            foreach (var (button, _) in PadButtons)
+                if (pad.ButtonPressed(button))
+                {
+                    ImGuiNative.igSetNavCursorVisible(1);
+                    break;
+                }
         foreach (var (button, key) in PadButtons) io.AddKeyEvent(key, pad.ButtonDown(button));
         Analog(io, ImGuiKey.GamepadL2, pad.Axis(GamepadAxis.LeftTrigger), 0.1f);
         Analog(io, ImGuiKey.GamepadR2, pad.Axis(GamepadAxis.RightTrigger), 0.1f);
