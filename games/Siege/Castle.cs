@@ -118,6 +118,9 @@ public sealed class Castle
 
     public const float RoofHeight = 2.5f;
 
+    // The top of the walls either side, five blocks and a battlement high.
+    public const float WallTop = 6;
+
     // A gray a little different for each block, so the courses read.
     private static Color Stone(int x, int y, int z)
     {

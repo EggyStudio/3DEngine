@@ -586,8 +586,8 @@ case "$game" in
     ;;
   Siege)
     # Each frame a step of the physics, since the shot is let go in the frame the arm passes its
-    # angle. A stone thrown at the keep, and then bombs until the banner falls to the field, within
-    # eight, the welds they broke asserted on the way.
+    # angle. A stone thrown at the keep, and then bombs until the banner is brought down below the
+    # walls' top, within eight, the welds they broke asserted on the way.
     cmd time.frame 0.0166667
     status=""
     for shot in stone bomb bomb bomb bomb bomb bomb bomb bomb; do

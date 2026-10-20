@@ -10,7 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b371b65c`, item 47's wrap and nothing else, carrying the review's file. A comment
+Reviewed up to `6a289059`, item 48 and nothing else, carrying the review's file. The schedule's
+shuffle draws a random order of each stage's list keeping the add order between every pair the stage
+holds to, from one random source over the stages in their order, the same for the same seed; the
+app's startup calls it once with the environment's seed before the startup stage, after the plugins
+and behaviors have added their systems, a whole number logged at info and anything else warned and
+left, systems added later running where they are added; the test script, where a flag names a seed,
+runs the suite whole once more with the variable set after a suite that passed, its results and page
+under a shuffled folder with the seed in the head, a failure saying the seed and the command to run
+the same order again on the page and in an error annotation, and a suite that failed in add order
+not run shuffled; the workflow's Linux job runs the shuffled pass with the day's date as the seed,
+uploads its page beside the three systems' for the digest, and its limit goes from 45 to 100 minutes
+since each run ends at its own 40; BUILDING.md has the paragraph and the command and
+ARCHITECTURE.md's schedule section two sentences. Tests hold for forty seeds that a conflicting pair
+stays in order, systems stay on their side of a main-thread one and of one declaring nothing, the
+same seed gives the same order and more than five orders come out, and the script's tests cover a
+test failing only under the seed with the seed named and a failed suite not run shuffled. On the
+development machine the suite gave 1,774 and then 1,774 shuffled by the day's seed in 9 minutes 7
+seconds and 9 minutes 30, the seed's line logged once an app, so nothing in the suite leans on an
+undeclared order at this seed; a live hidden run logged the line and ran 30 frames. The strict build
+is clean and the script's, norm and document tests pass. Read at 15:58. The build run of `2cc516fc`
+ended green at 15:57, so the six commits from `00c820ce` to this head were pushed at 15:58, the pack
+run with publish on running on. The Linux suite's doubled time is accepted, a Linux minute the
+cheapest. At 16:01 the pack run of `2cc516fc` had its games job red at 15:34 on the siege's drive
+from the package on lavapipe, the banner not fallen in eight bombs (Verdict 77), with its captures
+and macOS games green and its Windows job running, so the pack job will be skipped and the day's
+package waits on the mend; the pack run starts anew on the head when it is pushed. By 16:27 that run
+had ended, its Windows suite green in its parts in 72 minutes 31 seconds, 1,703 passed, and its
+captures job measuring the Unicode ranges example against raylib for the first time at 10.7 percent
+on an EPYC 9V45, the figure the CI measure file takes with Verdict 77's commit; the pack job was
+skipped. Next Verdict 77, then item 49. Item 6 waits on the owner's word.
+
+Before it, `b371b65c` came, item 47's wrap and nothing else, carrying the review's file. A comment
 that would pass the sheet's width of 120 goes on at its column on the lines below, broken at word
 boundaries, and where a declaration leaves fewer than 24 characters for its comment the comment
 starts on the line under it at column 57; the fixture test covers both forms and the page test reads
@@ -24,9 +55,7 @@ draws a random order of each stage's list in which every such pair keeps its add
 random source over the stages in their order, the same for the same seed, moving only systems whose
 declarations do not conflict, where today a light batch under 0.5 ms runs those in add order on the
 calling thread every frame, so a system that changes something without declaring it passes in that
-order alone. Read at 15:36; the pack run of `2cc516fc` had its macOS job green at 15:24 with every
-game played, Verdict 76's first, and the push of the five commits from `00c820ce` waits for the
-build run of `2cc516fc` to end. Next item 48's commit. Item 6 waits on the owner's word.
+order alone.
 
 Before it, `09a50fea` came, item 46 at `748779fc`, carrying the review's and the ledger's files, and
 item 47 at `09a50fea`. The dummy driver was already the choice for hidden, offscreen and headless
@@ -54,26 +83,6 @@ summary's first sentence, accurate and standing on their own where the hand ones
 above, but at a median of 77 characters against 32, 308 lines over 160 against 37, with a few
 reading oddly where a parameter reference repeats its noun, the summaries left as they are since
 IntelliSense shows them. The suite gave 1,773.
-
-Before it, `120b5ee9` came, item 45's second commit, the versions, at `00c820ce`, carrying the
-review's file, and TODO.md's scene section rewritten at `120b5ee9`. A data-version attribute on a
-scene component or behavior struct names a static migration from a version and the file's object,
-public or internal, found by name, which the generated reader calls once with the version the file
-holds, written as a run of checks against each version, taken from BevyCSharp's form after a call
-per step was written first, since that would apply a change twice to a migration written the other
-way; the generated writer puts the version first once past 1, a file with no version being 1; the
-migration's wrapper throws a data exception naming the type and the version it moved from on a throw
-or a null; the codec interface's version defaults to 1; a component from a later version is read as
-it is with a warning, its raw object kept on the entity and written back at that version with the
-values this build did not read and the fields it knows set from the entity; a warning diagnostic
-marks a versioned type with no callable migration, its generated code still compiling, with a code
-fix adding a commented stub. Tests read a split across two versions, a later file kept and saved
-back, a failing migration naming the type and version, the diagnostic with its code compiling, the
-code fix and the generator attribute; the scene guide's paragraph and block, the cheat sheet, the
-surface listing, the upgrading guide's entry naming every new member, ARCHITECTURE.md and the Shared
-line follow, SHARED.md's row saying both engines have it. Checked were the strict build, the suite,
-1,771 passed, five more, and the guide's eleven blocks built on a fresh pack. TODO.md's scene bullet
-on older files not migrated goes, the section describing former names and versions.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2448,7 +2457,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     against raylib and says the share in its summary without failing, so the file says what a run
     measured. The sprite fonts example's stale capture is taken again with it, documents and
     captures alone. The line left the CI measure file at `3b46c543`, to be recorded from the run,
-    the sprite fonts capture taken again with it.
+    the sprite fonts capture taken again with it. The captures job of the pack run of `2cc516fc`
+    measured it at 10.7 percent on 2026-10-20, the line's figure.
 
 45. **A renamed or reshaped type still reads its old scene files, from BevyCSharp's former names and
     data versions.** TODO.md's next entry with work left, read on 2026-10-20 at 14:19 under Scenes,
@@ -2516,7 +2526,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     workflow's Linux suite runs that pass with the day's seed, its failures naming the seed to run
     again; BUILDING.md says it, with the flag and the seed. BevyCSharp's `379f59a4` is the model,
     read and never edited. Read first how the stage orders systems today and whether an asked order,
-    before or after another, is kept under the shuffle, which it must be. One commit.
+    before or after another, is kept under the shuffle, which it must be. One commit. Done at
+    `6a289059` on 2026-10-20, as the head says, the ledger's row saying both engines have it.
+
+49. **An observer is told when a component is added to or removed from an entity, or when an event
+    of the game's own is sent to it.** SHARED.md's row, where BevyCSharp has Bevy's observers and
+    this engine is to consider, taken on 2026-10-20 as the next with TODO.md through: today a game
+    that wants to act when a component arrives or leaves polls for it each frame or keeps its own
+    list, as the siege and ragdoll games did with their own bookkeeping. The engine gains a
+    registration of an observer on a component type for its adding and its removal, called with the
+    entity and the component at the stage where the change is applied, and an event type of the
+    game's own sent to an entity, with observers of that event type called in the order registered
+    and able to stop it, modeled on BevyCSharp's as it reads Bevy's, read and never edited; the
+    behaviors guide's paragraph, the cheat sheet through its script, the surface listing and the
+    upgrading guide's added entry; tests of an observer told once on adding, once on removal, of an
+    entity's despawn removing every component, of a game's event sent and stopped, and of the cost
+    when no observer is registered, which must be none. Read first how the ECS applies an add or a
+    removal today and where a hook fits, and say the form and its cost before the commit. One
+    commit, two if the events stand apart.
 
 ## Verdicts
 
@@ -2531,7 +2558,7 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
-the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 and 76 are open.
+the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3491,6 +3518,25 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     Settled when the games' step passes Span on macOS on the next pack run and two after. The macOS
     job of the pack run of `2cc516fc` passed at 15:24 on 2026-10-20 with every game played, Span
     among them, the first of three.
+
+77. **The siege's drive on the Linux games job found the banner standing after eight bombs, where it
+    fell after three on the development machine and on its lavapipe.** On the pack run of
+    `2cc516fc`, 2026-10-20 at 15:34, the games job's step building and playing the siege from the
+    package failed, the status reading 9 shots, 157 of 190 blocks and 170 of 342 welds broken, the
+    most force 7,994 N at a strength of 8,000, the banner at 4.0 with 18.3 left, the arm at 222 and
+    no shot, the log ending in the screens turning from aim to swing to flight and back; the macOS
+    games step had passed the same drive at 15:24, and the drive had passed on the development
+    machine's card and on its lavapipe before the commit. So the castle came down but the banner did
+    not reach the trigger box that ends the siege within the drive's eight bombs on that runner,
+    where the physics' float path on another processor, the four cores' frame pace with each frame
+    one step, or rubble holding the banner up may differ; the reading comes first from the job's
+    artifacts, the banner's place and what held it, against the machine's runs, and whether the
+    result differs run to run on the same machine; then the mend where it points, the drive's
+    assertion on what the siege is, the welds broken and the blocks down past a share, with the
+    banner's fall as the game's own end and not the drive's, or the trigger box widened to where a
+    fallen banner lands, with the reason in the remark, one commit. The pack job was skipped on it,
+    so the day's package waits. Settled when the games job passes the siege on three pack runs in a
+    row.
 
 ## Decisions
 

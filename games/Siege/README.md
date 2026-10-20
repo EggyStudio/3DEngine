@@ -7,8 +7,8 @@ by sweeping a ball along it to the first body it meets. The castle is near two h
 boxes and columns shaped as convex hulls, each welded to the blocks it was laid against, and a weld
 breaks where `GetPhysicsJointForce` reads it holding harder than its strength. A stone wears down
 the blocks it presses by the push of their contact, a bomb bursts on what it meets and pushes every
-body near it from the side facing the burst, and the banner falling to the field enters a trigger,
-which ends the siege. A spot light sweeps the keep and casts its shadow, under a tonemap and a
+body near it from the side facing the burst, and the banner brought down below the walls' top, onto
+the field or the keep's rubble, enters a trigger, which ends the siege. A spot light sweeps the keep and casts its shadow, under a tonemap and a
 depth of field.
 
 It is built outside the solution from the package `build/pack.sh` makes, as a game of your own would

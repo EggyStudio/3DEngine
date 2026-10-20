@@ -3,9 +3,9 @@
 // blocks, boxes and columns shaped as convex hulls, every one welded to those it was laid against,
 // and a weld breaks where it holds harder than its strength, read each frame. A stone wears down
 // the blocks it presses by the push of their contact, a bomb bursts on what it meets and pushes
-// every body near it from the side facing the burst, and the banner falling to the field enters a
-// trigger, which ends the siege. Written against the engine's package, as a game outside this
-// repository would be.
+// every body near it from the side facing the burst, and the banner brought down below the walls'
+// top enters a trigger, which ends the siege. Written against the engine's package, as a game
+// outside this repository would be.
 using System.Numerics;
 using Engine;
 using static Engine.E3D;
@@ -29,8 +29,10 @@ var stone = LoadModelFromMesh(GenMeshSphere(0.45f, 6, 8));
 CreatePhysicsStaticBox(new Vector3(15, -0.5f, 0), new Vector3(140, 1, 90));
 var castle = new Castle(new Castle.Models(cube, column, roof));
 var catapult = new Catapult(stone);
-// The field round the castle, a trigger the banner enters when it falls to it.
-var fallen = CreatePhysicsKinematicBox(Castle.Keep with { Y = 0.75f }, new Vector3(30, 1.5f, 30));
+// The field round the castle up to the walls' top, a trigger the banner enters when it is brought
+// down onto the field or onto the rubble of the keep, which held it 4 units up once, out of the
+// bombs' reach, where a trigger 1.5 high took a banner only on the field.
+var fallen = CreatePhysicsKinematicBox(Castle.Keep with { Y = Castle.WallTop / 2 }, new Vector3(30, Castle.WallTop, 30));
 SetPhysicsBodyTrigger(fallen, true);
 
 SetAmbientLight(new Color(110, 130, 175), 0.35f);

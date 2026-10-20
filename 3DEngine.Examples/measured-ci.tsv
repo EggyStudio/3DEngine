@@ -190,6 +190,7 @@ text_rectangle_bounds	6.5
 text_sprite_fonts	0.7
 text_strings_management	4.3
 text_unicode_emojis	1.6
+text_unicode_ranges	10.7
 text_words_alignment	1.9
 text_writing_anim	1.3
 textures_background_scrolling	1.2
