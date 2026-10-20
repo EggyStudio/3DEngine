@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -578,6 +578,26 @@ case "$game" in
         case "$status" in Fell*) ;; *) fail "the load did not fall once the road broke, $status" ;; esac
       fi
     done
+    ;;
+  Siege)
+    # Each frame a step of the physics, since the shot is let go in the frame the arm passes its
+    # angle. A stone thrown at the keep, and then bombs until the banner falls to the field, within
+    # eight, the welds they broke asserted on the way.
+    cmd time.frame 0.0166667
+    status=""
+    for shot in stone bomb bomb bomb bomb bomb bomb bomb bomb; do
+      cmd siege.throw 250 40 "$shot"
+      for i in $(seq 1 40); do
+        cmd frames.wait 15
+        status=$(ask siege.status)
+        case "$status" in Aim*|Won*) break ;; esac
+      done
+      echo "$shot: $status"
+      case "$status" in Won*) break ;; esac
+    done
+    case "$status" in *" shots 0 "*) fail "the catapult did not throw, $status" ;; esac
+    case "$status" in *" broken 0 "*) fail "no weld broke, $status" ;; esac
+    case "$status" in Won*) ;; *) fail "the banner did not fall in eight bombs, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

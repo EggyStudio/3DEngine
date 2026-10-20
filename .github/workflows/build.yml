@@ -274,7 +274,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -402,7 +402,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -561,7 +561,7 @@ jobs:
       # every game in the pack run.
       - name: Build every game from the package and play the puzzle of gestures
         run: |
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege; do
             dotnet restore "games/$game" --force-evaluate
             dotnet build "games/$game" --no-restore
           done
@@ -1238,6 +1238,24 @@ jobs:
           ./e3d stop --quiet
           build/webp.sh captures/span.png captures/span.webp lossy 800x450
 
+      # The siege, by build/drive-game.sh as Windows and macOS play it, a stone thrown and bombs
+      # until the banner falls asserted, with the welds they broke, and then captured as a second
+      # bomb bursts in the keep, each frame a step of the physics, since the shot is let go in the
+      # frame the arm passes its angle.
+      - name: Build and play the siege from the package
+        run: |
+          build/drive-game.sh Siege
+          build/open-game.sh games/Siege/bin/Debug/net10.0/Siege --offscreen
+          ./e3d command time.frame 0.0166667 --quiet
+          ./e3d command frames.wait 30 --quiet
+          ./e3d command siege.throw 250 40 bomb --quiet
+          ./e3d command frames.wait 300 --quiet --timeout 600
+          ./e3d command siege.throw 250 40 bomb --quiet
+          ./e3d command frames.wait 105 --quiet --timeout 600
+          ./e3d shot captures/siege.png --quiet
+          ./e3d stop --quiet
+          build/webp.sh captures/siege.png captures/siege.webp lossy 800x450
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
@@ -1245,7 +1263,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span)
+          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -1268,7 +1286,7 @@ jobs:
                          games/Wordfall/bin/Debug/net10.0/Wordfall games/Slide/bin/Debug/net10.0/Slide \
                          games/Jelly/bin/Debug/net10.0/Jelly games/Wick/bin/Debug/net10.0/Wick \
                          games/Ore/bin/Debug/net10.0/Ore games/Pinball/bin/Debug/net10.0/Pinball \
-                         games/Span/bin/Debug/net10.0/Span \
+                         games/Span/bin/Debug/net10.0/Span games/Siege/bin/Debug/net10.0/Siege \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

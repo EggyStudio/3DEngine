@@ -470,7 +470,9 @@ keeping its runs the same as each other but not as a program that does not.
   and triggers, [`games/Pinball`](../games/Pinball/Program.cs), a continuous ball, flippers on
   hinges driven by their motors and a plunger on a slider driven by its own, and
   [`games/Span`](../games/Span/Program.cs), a bridge of planks on hinges and ropes whose joints
-  break past a force
+  break past a force, and [`games/Siege`](../games/Siege/Program.cs), a castle of welded boxes and
+  convex hulls thrown at by a catapult on a hinge driven by its motor, its bombs pushing what is
+  near them
 - The cheatsheet's [Physics](../CHEATSHEET.md#physics)
 - Previous: [Input](input.md)
 - Next: [Behaviors and the ECS](behaviors-and-the-ecs.md)

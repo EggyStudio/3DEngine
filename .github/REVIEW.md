@@ -10,7 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `df03842b`, item 41 and nothing else, carrying the review's file and the ledger's.
+Reviewed up to `b4b798d4`, item 42 and nothing else, carrying the review's file. The convex hull and
+the static model transform the vertices by the scale alone, posed for a skinned model as before,
+both remarks saying the transform is not read and why, the physics guide's hull paragraph saying so
+too, and the upgrading guide's section, six that still compile, with the entry that a transform's
+own scale is given as the scale and its turn or move goes to the mesh. The test makes a 2 m cube
+model whose transform is turned 0.7 radians about z and moved to 30 by 5 by 0, a hull made at 0 by
+10 by 0 hit from above at x 0.9 at y 11 and a static model made at 0 by 0 by 20 hit at y 1, each the
+body hit, the hull test failing on the old line, checked by swapping it back for one run. Checked
+were the strict build, the suite, 1,754, the related filters, 83, and the animation tests that shape
+a posed skinned arm. Read at 12:10. The build run of `5cd706d9` ended green at 12:23, its Windows
+parts in 68 minutes 43 seconds, 1,685 passed, so the four commits from `f74e087f` to this head were
+pushed together at 12:26 and the pack run with publish on started on them for the day's batch,
+Pinball, Span and items 40 to 42. The siege game goes on with its stones back on hulls after a
+repack, so far at a strength of 8,000 N with static loads peaking at 5,064, a stone breaking one or
+two welds and a bomb 27 to 44 with 4 to 7 blocks taken, the banner not yet fallen. Item 6 waits on
+the owner's word.
+
+Before it, `df03842b` came, item 41 and nothing else, carrying the review's file and the ledger's.
 The contact impulse read multiplies the last substep's push by the solver's substep count, the
 cached value for a sleeping pair included, so at the default of one substep nothing changes and
 above it the value is the step's push, which divided by the step is the force at any substep count,
@@ -19,10 +36,7 @@ guide says at any number of substeps, the upgrading guide's section becomes five
 with an entry saying 5.1 gave the last substep's push and a game with a substep count above one
 reads that many times more; a new test at substeps 1 and 4 reads a 2 kg box resting on a static
 floor as its weight times the step within a percent, a quarter at 4 without the change. Checked were
-the strict build and the suite, 1,753. Read at 11:49; the push of `f74e087f`, `d03d0e53` and this
-head waits for the build run of `5cd706d9` to end, and the pack run with publish on starts on it for
-the day's batch. The siege game's first draft found item 42 by 11:58, the hull and the static model
-baking the model's transform, mended before its commit. Item 6 waits on the owner's word.
+the strict build and the suite, 1,753.
 
 Before it, `d03d0e53` came, item 40's force-alone fix and nothing else, carrying the review's file
 and the ledger's row. The joint's force sums the squares of the constraint's linear part by its type
@@ -38,25 +52,6 @@ to 10,181, its hinges' turning part negligible in the bridge's plane, so the str
 the guide's figures stand. An observation taken as item 41: the contact impulse read returns the
 last substep's impulse where its summary says the impulse over the step is the force, short by the
 substep count above one.
-
-Before it, `f74e087f` came, Span, item 7's second game, and nothing else, carrying the review's
-file. The load's fall was the game's own design and no engine finding: read step by step with the
-joint's force and each joint's place, the load never went through the far cliff but dropped through
-the truss at mid-span with no joint broken and none more than 5 cm apart, the roll impulse carrying
-it along as it fell, since a truss of ball joints in a plane holds nothing out of its plane and had
-bowed sideways under its own weight before the load came, its middle node at 0.20 and 0.34 under the
-load with the nodes beside it at minus 0.35, and plank ends overlapping the cliff faces had loaded
-the anchors' joints with 12 to 14 kN at rest; the game takes hinges about the span's axis at every
-node in place of ball joints and puts the cliffs on a layer the planks do not meet, and the truss
-crosses at 150, 400 and 800 kg. The breaking rule at a strength of 7,000 N, from the most force on
-any joint over three runs at 150 kg: the truss's hinges held 4,326 N at most, the road alone 5,767
-under its own weight and 10,213 under the load, passing 8 kN before the load was halfway, and a road
-on four ropes 4,394 and crossed. The drive asserts the truss crossed whole and the road broken with
-the load fallen, passing on the development machine's card and on lavapipe under the validation
-layer; the soak's 23 turns, its check and the storm pass; the suite gave 1,748 with the strict build
-clean; the physics guide has a paragraph on Span's numbers and on hinges against ball joints with
-Span in its see-also; a Shared line under Replies offers the joint's force, taken into SHARED.md's
-row in both engines, the other engine's item 36.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2366,7 +2361,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     entry among those that still compile, a model whose transform held a scale or turn of its own
     giving it through the scale or the mesh; tests make a hull and a static model from a model whose
     transform was set to a pose 30 m away and read them standing where they were asked and shaped as
-    the mesh. Before the siege game's commit, which then takes hulls for its stones.
+    the mesh. Before the siege game's commit, which then takes hulls for its stones. Done at
+    `b4b798d4` on 2026-10-20, as the head says.
 
 ## Verdicts
 

@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -147,6 +147,13 @@ turn() {
       if (( i % 2 == 0 )); then cmd span.build truss; else cmd span.build road; fi
       wait_frames 2
       cmd span.go
+      wait_frames 240 ;;
+    siege)
+      # Stones and bombs thrown at the keep in turn, each landed before the next, the blocks a bomb
+      # takes and the welds it breaks let go, and the castle laid again every few turns, its blocks
+      # and welds made again.
+      if (( i % 4 == 3 )); then cmd siege.reset; wait_frames 2; fi
+      if (( i % 2 == 0 )); then cmd siege.throw 250 40 stone; else cmd siege.throw 250 40 bomb; fi
       wait_frames 240 ;;
   esac
 }
