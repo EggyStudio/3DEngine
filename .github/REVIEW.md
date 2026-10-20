@@ -2898,18 +2898,21 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
 75. **The hundred-app leak test's bound on resident growth takes its base from one reading at the
     twentieth app, and a trough there fails a flat series.** On the pack run of `193c68b0`,
     2026-10-20 at 03:29, the Windows suite's Core part failed the offscreen app leak test, the
-    private bytes committed after every ten apps in MB 156.5, 80.0, 159.2, 164.0 and 163.9 and on to
-    158.7 at the hundredth, flat but for the twentieth, where the process had given memory back
-    between apps, so the last less the twentieth read 78.7 against the bound of 50 while the last
-    less the tenth read 2.2 and the heap's live objects held 14.3 to 14.8 MB throughout; the regions
-    by kind said the same, private data 69.1 MB at the twentieth to 158.7 at the last and every
-    other kind unchanged, the apps 1,704 ms each on the 7763. The fault is the bound's form, one
-    reading as the base. The mend is one thing, under N 3.5: the base taken as the greatest of the
-    readings at the tenth, twentieth and thirtieth app, or the growth read as the slope over the
-    readings after the twentieth, the series printed as it is and the remark saying why one reading
-    cannot be the base, with a test of the check on this run's series passing and on a climbing one
-    failing. It gates the package, so it comes before (c)'s mend. Settled at three Windows suites in
-    a row with the test green after the mend.
+    private bytes committed after every ten apps in MB 156.5, 80.0, 159.2, 164.0, 163.9, 164.1,
+    166.6, 168.7, 165.9 and 169.6, a slow climb but for the twentieth's trough, where the process
+    had given memory back between apps, so the last less the twentieth read 89.6 against the bound
+    of 50 while the last less the tenth read 13.1 and the last less the thirtieth 10.4, and the
+    heap's live objects held 14.3 to 14.8 MB throughout; the regions by kind said the same, private
+    data 69.1 MB at the twentieth to 158.7 at the last and every other kind unchanged, the apps
+    1,704 ms each on the 7763; no census was taken on Windows, so the twentieth's reading stood as
+    the base as read. The figures were corrected by the coder from the run's results file on
+    2026-10-20, the reviewer having read the region's 158.7 for the last reading. The fault is the
+    bound's form, one reading as the base. The mend is one thing, under N 3.5: the base taken as the
+    greatest of the readings at the tenth, twentieth and thirtieth app, or the growth read as the
+    slope over the readings after the twentieth, the series printed as it is and the remark saying
+    why one reading cannot be the base, with a test of the check on this run's series passing and on
+    a climbing one failing. It gates the package, so it comes before (c)'s mend. Settled at three
+    Windows suites in a row with the test green after the mend.
 
 ## Decisions
 
