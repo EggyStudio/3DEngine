@@ -38,6 +38,13 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether the model pass reads the world's probes alone, the screen's left unread, as <c>gi.toggle screen off</c> sets it.</summary>
     public bool ScreenOff { get; set; }
 
+    /// <summary>
+    /// Whether the window and the render targets have screen probes at all, as
+    /// <see cref="E3D.SetGlobalIlluminationScreenProbes"/> sets it, where <see cref="ScreenOff"/>
+    /// traces them and leaves them unread to show what they give.
+    /// </summary>
+    public bool ScreenProbes { get; set; } = true;
+
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
 
@@ -351,9 +358,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying)));
 
-        // The screen's probes, where the window has a depth to stand them on, the first interval theirs.
+        // The screen's probes, where the window has a depth to stand them on and the program has not
+        // left them out, the first interval theirs.
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
-        if (renderWorld.TryGet<WindowDepth>() is { } depth && renderWorld.TryGet<WindowView>() is { } window
+        if (renderWorld.TryGet<GlobalIlluminationSettings>()!.ScreenProbes && renderWorld.TryGet<WindowDepth>() is { } depth && renderWorld.TryGet<WindowView>() is { } window
             && renderWorld.TryGet<SwapchainTarget>() is { } swapchain && Matrix4x4.Invert(window.ViewProjection, out var inverse))
         {
             var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality));
@@ -417,6 +425,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             || renderWorld.TryGet<GlobalIlluminationSettings>() is not { } settings
             || renderWorld.TryGet<TargetOcclusion>()?.Depths.GetValueOrDefault(id) is not { } depth
             || !Matrix4x4.Invert(camera, out var inverse)) return;
+        var targets = renderWorld.TryGet<TargetIllumination>();
+        if (targets is null) renderWorld.Set(targets = new TargetIllumination());
+        // A program that left the screen's probes out has the target read the world's probes alone.
+        if (!settings.ScreenProbes)
+        {
+            if (_targets.Remove(id, out var left)) _retired.Add((_frame, left));
+            targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, null, depth, GlowLights: _glowCount);
+            return;
+        }
         var tile = TileAt(settings.Quality);
         if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
@@ -431,8 +448,6 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
         _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0)));
         state.Last = (camera, at);
-        var targets = renderWorld.TryGet<TargetIllumination>();
-        if (targets is null) renderWorld.Set(targets = new TargetIllumination());
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }
 

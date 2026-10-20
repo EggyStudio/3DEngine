@@ -10,34 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c2b8c0e9`, item 57's sixth and last part, scenes and saves and the interface, and
+Reviewed up to `b47d20d6`, item 67, the first gamepad moving through ImGui only once a program asks,
+and nothing else, carrying the review's files and the asks: `SetImGuiGamepadNavigation` beside the
+gamepad calls, ImGui's flag set by it and no longer at start, a throw before the window, the pad's
+keys still fed so ImGui reads them, Manor and the feature test's panel turning it on, the interface
+zone pressing the pad before any click, the three-press test, the guide paragraph, the cheat sheet
+line, the surface listing and the upgrading entry; the suite 1,826 passed plain and shuffled in
+under ten minutes each, both drives green from the package under the layer, Manor's six lanterns in
+82.1 seconds. Read at 01:06 on 2026-10-21. The build run of `f78b8c58` ended green at 01:09, its
+three suites green, Windows in 46 minutes 56 seconds, Linux in 48 and macOS in 29, and its examples
+job after them, so `c2b8c0e9` and this head were pushed at 01:12, run 39513504094 started; the pack
+run of `f78b8c58` lost its Windows suite's games step at 01:17 to the feature test's audio zone,
+Verdict 80, its tests green in 36 minutes 47 seconds and its Linux and macOS suites green, so no
+package comes from it and the next pack run with publish on follows the mend, which comes right
+after item 71's call; its games job is still Verdict 77's third and Verdict 79's second. Next item
+71's first part, the call leaving the screen probes out, its form said and taken; then the glow
+lights' bound of its second part, since the game's entry of 01:16 reads the model pass at 12.9 ms
+without the screen's probes with forty glowstones in view against 1.8 with; then items 68 and 69,
+the readback without a wait and the mesh over a shader's buffers, a package due after them; then
+item 70, the animated capture; then the rest of item 71's second part, the cascades' faults from the
+game's entry; then Decision 51's items 59 to 66, the modeling work, in order, the recipe's words
+from BevyCSharp's Replies at `08d03b4d`. Item 6 and the feature test's portable build wait on the
+owner's word.
+
+Before it, `c2b8c0e9` came, item 57's sixth and last part, scenes and saves and the interface, and
 nothing else, carrying the review's file, in the shape and with the tests and numbers said before
-it: a scenes zone that writes a crate's data file and moves it before anything reads it, a prefab
-and a level naming the crate by id, starts the level as a saved game, moves a block, spawns a saved
-one, saves and loads with the save over the level, writes the entities again and reads them back,
-and counts arrivals across runs, which is items 53 and 56 proved on the package; an interface zone
-of three screens as a state, typed text onto a sign, a counted pad button, an ImGui window of a
-button, a slider, a box, a combo and a color, and a health bar and a ring gauge in 2D; the drive
-reads both zones, the soak cycles thirteen places, the games job's step ran in 4 minutes 37 seconds,
-the soak held 23 entities and 593 to 592 MB over 120 seconds, the storm 0 validation errors. Read at
-00:20 on 2026-10-21. Not pushed: the build run of `f78b8c58` and the pack run beside it are still
-running, and the head is pushed when the build run ends. Next item 67, the pad's ImGui navigation
-off by default, found by this part, one commit; then item 71's first part, the call leaving the
-screen probes out, which the owner asked at about 01:00 for the voxel game; then items 68 and 69,
-the readback without a wait and the mesh over a shader's buffers, which the voxel game asked for at
-about 00:30 on 2026-10-21 for its generation and meshing on the GPU, a package due after them; then
-item 70, the animated capture the owner asked for at about 00:29; then item 71's second part, the
-cascades' faults from the game's repros; then Decision 51's items 59 to 66, the modeling work of
-2026-10-20, in order, the recipe's words read from BevyCSharp's Replies or written first. Item 6 and
-the feature test's portable build wait on the owner's word.
+it, the feature test whole.
 
 Before it, `f78b8c58` came, item 58, the default spatial processor, and nothing else, carrying the
 review's files, in the form said before it, the suite 1,825 passed plain and shuffled. Pushed at
 00:12, the day's pack run with publish on started then, run 39506383679.
-
-Before it, `afbe81cf` came, item 57's fifth part, audio and text, and nothing else, carrying the
-review's file, in the shape and with the tests and numbers said before it. Pushed at 23:22 with
-`c6face9f`.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3272,7 +3274,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sheet through its script, with the surface listing and the upgrading entry; a test that a pad's
     press reaches the game and not ImGui by default and both when the call is made. The interface
     zone then presses the pad without the click first, keeping the click as a step of its own. One
-    commit, before item 59.
+    commit, before item 59. Done at `b47d20d6` on 2026-10-21, as the head says.
 
 68. **A shader buffer is read back without holding the program.** Asked by the voxel game on
     2026-10-21 for its generation on the GPU (ASKS.md, the entry of that day): `ReadShaderBuffer`
@@ -3368,11 +3370,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     field, with a capture, reads it to its cause and says the cause in RENDERING.md beside the terms
     already named, then mends each where a form passes the rule that no view's distance to its
     path-traced reference widens at either size and costs no more than it gives, one commit a fault,
-    and names as a term where the method stops what no form passes; the corner leak first, since a
-    thin gap between two blocks letting light through is the kind of leak the fifth term took on,
-    then the zig-zag penumbra, the z-fighting, the noise, and the screen probes' shift last since
-    the game leaves them out. Each mend's capture in the record, the game's captures made again on
-    the package that brings them.
+    and names as a term where the method stops what no form passes; the glow lights' bound first,
+    right after the call and before item 68, since the game's entry reads the model pass at 1.8 ms
+    with the screen's probes and 12.9 ms without with forty glowstones in view, so the game cannot
+    leave the probes out until it is bounded; then, after item 70, the edge leak, which the entry
+    reproduces in a room whose halves meet along one edge, 43 levels about the edge without the
+    probes and 3 with the edge closed, the kind of leak the fifth term took on; then the zig-zag
+    edges, stepped square without the probes and wavy with them; then the noise, which the game did
+    not see and the owner saw in the bounce rooms 3 to 6; the z-fighting, which the game did not
+    see, read in the bounce rooms; and the screen probes' shift last, small in the game's numbers
+    and left out there. A sixth term found by the call's reading on 2026-10-21 joins the second
+    part: without the screen's probes the model pass takes the glow lights at each pixel, marching
+    to each in view, 0.31 to 1.01 ms at Low on the Cornell box's four small emitters where the
+    screen pass left them in texels for 0.7 ms less, so a voxel world of many light blocks may lose
+    in the model pass what the call saves; read with the game's figures from its entry and bounded
+    by a form whose cost does not grow with the lights in view, a list of the glow lights a screen
+    tile sees or a coarse glow pass of its own without the probes, under the same rule. Each mend's
+    capture in the record, the game's captures made again on the package that brings them.
 
 ## Verdicts
 
@@ -3390,8 +3404,8 @@ runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verd
 the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 78 is settled on the
 pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on the pack runs of
 `2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20, said under it. Verdict 75 is settled on the
-runs of `b3922179`, `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, said under it. Verdicts 77
-and 79 are open.
+runs of `b3922179`, `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, said under it. Verdicts 77,
+79 and 80 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -4413,6 +4427,25 @@ and 79 are open.
     fifteen seconds and held once; the pack run started on it is the first of three. Settled when
     the games job's soak passes Tones on three pack runs in a row. The games job of the pack run of
     `b3922179` passed the soak at 20:30 on 2026-10-20, the first of three.
+
+80. **The pack run's Windows suite loses its games step to the feature test's audio zone, whose
+    music had played 0.6 seconds where its rule asks for more than one.** On the pack run of
+    `f78b8c58`, 39506383679, on 2026-10-21, the Windows suite passed its tests, 1,762 in 36 minutes
+    47 seconds, and its step playing every game from the package failed on the feature test: the
+    audio zone's status read the device at 48,000 hertz in 2 channels, the wave written and read
+    back, the music 0.6 s played, the stream asked for samples 55 times, the coin played once, and
+    the mix's left 2.60 and right 1.57 with the drone alone, so the spatial play of item 58 was
+    heard from its side, and no audio ok, since the zone's rule is the wave, the music over one
+    second, the stream asked and the sides, and the music fell short. The zone counts frames, Alone
+    plus 60, and then judges by seconds of music, which the music stream feeds from the frame; on a
+    runner whose frames come slowly after the suite's parts, 60 frames feed less than a second,
+    where the Linux and macOS suites and the machine feed more. The fault is a bound in seconds on a
+    wait counted in frames. The mend is one thing: the zone's status says the sounds are not heard
+    yet until the music has played over a second and the other three hold, within a bound of frames
+    after which it says what fell short, and the drive reads the status until it is ok or the bound,
+    as the drive reads the other zones that take time, so a slow runner waits and a broken one still
+    fails. The pack job did not run, so no package comes from this run; the next pack run with
+    publish on follows the mend. Mended at `?`.
 
 ## Decisions
 

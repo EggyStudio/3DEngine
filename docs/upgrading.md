@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **Global illumination without the screen's probes.** `SetGlobalIlluminationScreenProbes` leaves
+  out the probes global illumination stands on the window's surfaces every few pixels, so every
+  surface reads the cascades' light alone, as
+  [The screen's probes](global-illumination.md#the-screens-probes) shows.
 - **The pad in ImGui when asked.** `SetImGuiGamepadNavigation` lets the first gamepad move through
   ImGui's windows and press their widgets, for a menu played by the pad alone, as
   [Input and ImGui](input.md#input-and-imgui) shows. Before, the pad moved through ImGui from the

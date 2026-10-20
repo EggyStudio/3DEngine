@@ -71,6 +71,22 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Sets whether global illumination stands a probe on the window's surfaces every few pixels,
+    /// beside the cascades of probes through the scene, which it does until a program leaves them
+    /// out.
+    /// </summary>
+    /// <remarks>
+    /// The screen's probes trace the near light through the window's depth, so the light under a
+    /// table or where a wall meets the floor is seen at the size the window draws it, and the
+    /// model pass reads them before the cascades' probes. Left out, they are neither made nor traced,
+    /// for the window or a render texture, and every surface reads the cascades' light alone, which
+    /// is smoother and coarser, so a game whose art shows the screen's tiles, as a world of blocks
+    /// does, and one that has no time for them, leaves them out.
+    /// </remarks>
+    public static void SetGlobalIlluminationScreenProbes(bool enabled) =>
+        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).ScreenProbes = enabled;
+
+    /// <summary>
     /// Draws what global illumination holds in an ImGui window of its own, which a program shows
     /// while its light is worked on, with how much it traces and the memory that takes, a view of
     /// its probes drawn over the window, its parts each to be left out, and a path-traced reference

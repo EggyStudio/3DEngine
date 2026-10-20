@@ -121,6 +121,23 @@ render texture, take 1.14 ms of the GPU at `Low` between them, as `./e3d command
 `targets`, where they took 0.62 reading the world's probes alone. A reflection probe's faces take
 the indirect light from the world's probes alone.
 
+A game leaves the screen's probes out where its art shows their tiles, as a world of blocks does,
+or where it has no time for them:
+
+```csharp
+SetGlobalIllumination(GlobalIllumination.Low);
+SetGlobalIlluminationScreenProbes(false);
+```
+
+They are then neither made nor traced, for the window or a render texture, and every surface reads
+the cascades' light alone, smoother and coarser, with nothing of the light under a table that is
+smaller than the probes' spacing. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an
+RTX 4070 Laptop GPU, the screen's probes take 0.77 ms of the GPU at `Low` and 0.92 at `High` where
+no emissive surface is carried as a light. Where some are, the screen's probes carry their light
+too, and without them each pixel works it out itself: the room's four small emitters took the model
+pass from 0.31 to 1.01 ms at `Low`, of the 1.34 ms the screen's probes took, so the frame still came
+out 0.6 ms shorter.
+
 ## Emissive surfaces
 
 A small emissive surface, one whose box is no longer than twice the spacing of the first

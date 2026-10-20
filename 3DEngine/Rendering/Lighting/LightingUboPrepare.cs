@@ -73,7 +73,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 SceneFieldPlan.Resolution / GlobalIlluminationRenderer.ProbeSpacing, cascades);
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
-            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality), settings.ScreenOff ? 0 : 1, 0, 0);
+            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality), settings.ScreenOff || !settings.ScreenProbes ? 0 : 1, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
             if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.ViewProjection, out var inverse)
@@ -124,7 +124,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 // through the window's depth.
                 targetUbo.Indirect = windowUbo.Indirect;
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
-                    targetUbo.Screen = windowUbo.Screen with { Y = renderWorld.TryGet<GlobalIlluminationSettings>()!.ScreenOff ? 0 : 1 };
+                    targetUbo.Screen = windowUbo.Screen;
                 // And its occlusion and the sun's contact shadows, worked out from its own depth.
                 if (draws.ViewProjectionOf(target) is not null) targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion;
                 targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));

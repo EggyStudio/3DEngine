@@ -428,3 +428,78 @@ Review: item 69 of REVIEW.md, 2026-10-21; a mesh over shader buffers,
 vertex count the shader writes into the count buffer's first four bytes, a barrier before the vertex
 stage, culled by a box `SetMeshBoundingBox` sets and read by the global illumination as any mesh,
 with an example `shaders_compute_mesh`; taken after item 68, a package due after it.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: global illumination leaks through an edge, steps at its edges, and costs the model pass more without the screen's probes
+
+The owner judges the screen's probes pixelated and the cascades without them the better look for
+the game, and sees a light block's light leak through the gap where two columns meet at a corner,
+penumbrae on the ground with zig-zags, the screen's probes shifting as the eye moves, points where
+the light and the blocks' faces fight, and noise in the engine's bounce rooms 3 to 6. Each was read
+at the game's `28eb41c` on the 3DEngine 5.2.190 package, built from `b3922179`, with `voxel.gi
+high`, the game's default, its four cascades and its screen's probes every 8 pixels, offscreen at
+1280 by 720 on the RTX 4070 Laptop GPU, on the flat world opened by `./e3d open
+VoxelSandbox/bin/Debug/net10.0/VoxelSandbox --offscreen --transient --flat`, after `voxel.cycle
+off`, `voxel.hud off`, `voxel.clouds off`, `voxel.fly on` and `voxel.kill all`, and again after
+`gi.toggle screen off`, which leaves the screen's probes out.
+
+**The leak through an edge.** `voxel.room 10 4 -22 22 11 -10 stone`, a wall that steps a block east
+halfway, `voxel.fill 16 5 -21 16 10 -16 stone` and `voxel.fill 17 5 -15 17 10 -11 stone`, so its two
+halves meet only along the edge at x 17, z -15, a glowstone west of it, `voxel.set 15 5 -14
+glowstone`, at hour 23 with the game's light levels off, `voxel.shade off off`, so the engine's light
+alone shows, and the eye east of the wall, `voxel.tp 21.2 5 -20.2` and `voxel.look 225 -32`. Light
+comes through the edge and fans over the floor and the wall east of it, though no ray between the
+two halves passes but through the edge itself. Over 500 by 400 pixels about the edge the brightest
+reads 29 sRGB levels with the screen's probes and 43 without, the mean 0.10 and 0.11. With the edge
+closed, `voxel.fill 16 5 -15 16 10 -15 stone`, they read 0 and 3, the mean 0 and 0.006. So the
+leak is the cascades' and stays without the screen's probes
+([capture, eight times as bright](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/leak.webp)).
+
+**The zig-zag edges.** The leaked light's edges zig-zag in steps along the floor, wavy with the
+screen's probes and in square steps without them. A lamp's shadow shows the same: a glowstone on a
+block, `voxel.set 40 4 -30 stone` and `voxel.set 40 5 -30 glowstone`, a pillar two blocks tall
+three blocks east, `voxel.fill 43 4 -30 43 5 -30 stone`, at hour 23, seen from straight above,
+`voxel.tp 45.5 9 -29.5` and `voxel.look 90 -70`, its shadow's edges on the grass wavy with the
+screen's probes and stepped without them
+([capture, contrast stretched](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/penumbra.webp)).
+
+**The shift as the eye moves.** In a closed room of white concrete, `voxel.room 10 4 -22 22 11 -10
+white_concrete`, with `voxel.set 16 5 -16 glowstone`, at hour 23, the eye at `voxel.tp 16.5 5
+-11.8` and `voxel.look 0 -20`, `voxel.flicker 160 0 0.5 20 <file>` stepped half a block over 20
+frames. Each frame changed from the one before by 0.28 sRGB levels on the mean while it moved with
+the screen's probes and 0.26 without, and over the 30 frames after, 0.0014 with them, 0.0085 at
+most, and nothing without. Put half a block over at once, the frame after and the frame 60 later
+differ by a level at most with the screen's probes and by none without. Over seed 1's spawn at noon,
+flying at 96 looking east over the forest, two blocks east over 60 frames changed each frame by 0.51
+levels with the screen's probes and 0.49 without, and nothing after either way. So in these scenes
+the screen's probes move the light by little that a frame's change shows, and the owner sees the
+shift in play.
+
+**Points where the light and the faces fight, and noise.** Neither was seen in the scenes above.
+In the lamp room, still for 150 frames, each frame changed from the one before by 0.0002 levels on
+the mean with the screen's probes and by none without, no pixel by more than 8. The owner saw the
+noise in the engine's own bounce rooms 3 to 6.
+
+**The model pass's cost without the screen's probes.** A closed room of stone, `voxel.room 0 4 -30
+22 11 -16 stone`, forty glowstones on its floor two blocks apart in five rows of eight, x 5 to 19
+and z -28 to -20, at hour 23, the eye at `voxel.tp 11.5 9 -17.2` and `voxel.look 0 -35` with all
+forty in view, `gi.state` carrying the forty as lights. `./e3d command profile` over 240 frames after
+`profile.reset`, three times each way, with the frame paced at 60 a second and gnome-shell taking
+about a fifth of the GPU, put `gpu.hdr_scene` at 1.79, 1.82 and 1.81 ms with the screen's probes and
+12.95, 12.96 and 12.86 ms without them. The frame held 16.7 ms with them and took 20.1 to 20.3 ms
+without them, and `gpu.global_illumination` stayed at 6.6 to 6.8 ms either way. So leaving the
+screen's probes out, for forty light blocks in view, costs the model pass eleven milliseconds a
+frame
+([capture](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/forty.webp)).
+
+The engine lacks a way to leave the screen's probes out that a program calls, light kept from passing
+through an edge where two solid cells meet, edges of indirect light that do not step with the
+cascades' cells, and glow lights whose cost in the model pass does not grow with the light blocks in
+view. Meanwhile the game keeps the screen's probes, as at High, and changes nothing in its light.
+
+
+Review: item 71 of REVIEW.md, 2026-10-21; `SetGlobalIlluminationScreenProbes` first, then the glow
+lights' cost in the model pass bounded by a form that does not grow with the lights in view, a list
+of the glow lights a screen tile sees or a coarse glow pass without the probes, right after it since
+the game waits on both; then, after the compute asks and the animated capture, the edge leak, the
+stepped edges, the noise and the shift, each reproduced in the engine's own scenes and mended under
+the rule that no view's distance to its reference widens, or named where the method stops.

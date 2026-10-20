@@ -1622,6 +1622,10 @@ void SetGlobalIllumination(GlobalIllumination quality);  // Works out global ill
                                                          // default, the light a surface sends on lighting the surfaces
                                                          // around it, so a red wall tints the floor beside it and a
                                                          // room lit by the sun through a window is lit inside
+void SetGlobalIlluminationScreenProbes(bool enabled);    // Sets whether global illumination stands a probe on the
+                                                         // window's surfaces every few pixels, beside the cascades of
+                                                         // probes through the scene, which it does until a program
+                                                         // leaves them out
 void DrawBounceWindow();                                 // Draws what global illumination holds in an ImGui window of
                                                          // its own, which a program shows while its light is worked on,
                                                          // with how much it traces and the memory that takes, a view of

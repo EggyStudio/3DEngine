@@ -52,7 +52,9 @@ internal static class SceneFieldCommands
         // before's two, and its words of the glow lights; and for each texel of the depth the glow
         // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
         // its normal in four.
-        if (gi.Screen is { } screen)
+        if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: false })
+            lines.Add("no screen probes, which the program left out, the cascades' light read alone");
+        else if (gi.Screen is { } screen)
         {
             var glow = screen.Glow.Light.Description.Extent;
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
