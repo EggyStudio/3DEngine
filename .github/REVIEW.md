@@ -32,8 +32,9 @@ read keeps for an unseen probe takes it only to 2.81, so the model pass's read o
 brings the lamp's light by a further way, not named yet, the record saying so, while with the
 screen's probes on the corner reads within its test's bound, the twentieth carrying 0.8 of the
 wall's 2.6 remaining points. The push cancels the build run of `102eea09`; the pack run with publish
-on of `448aa3fc` runs on, its Windows suite in its second hour. Next the corridor's under-read read
-for its cause, split by bounce and by where the light is met, before any mend.
+on of `448aa3fc` runs on, its Windows suite in its second hour. The corridor's under-read was read
+and named by 05:51, the coarse cascades against a space narrower than their spacing, said under item
+30 with three mend forms. Next form (i) read by the rule, then (ii) and (iii) together.
 
 Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
 The leak tests keep the readings after every ten apps as numbers and read the process's growth from
@@ -1958,7 +1959,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     with the reason; a further way the lamp's light reaches the corner by the front wall through the
     model pass's read of the probes, 2.85 times the wall beside it with the screen's probes left
     out, is noted and not named. Next the corridor's under-read, 78 to 79 under at 800 by 450 with
-    the mend, read for its cause by bounce and by where the light is met, before any mend.
+    the mend, read for its cause by bounce and by where the light is met, before any mend. The
+    corridor's under-read read and named by 05:51 on 2026-10-20 at view 3 on `4369898a` at High,
+    nothing changed. The corridor, 2 wide in walls 0.3 thick, holds no probe of the second cascade
+    or above, so the light along it past the first cascade's interval, from the sunlit floor at its
+    open end 6 or more units off, reaches no probe inside it. Every first-cascade probe in the
+    corridor reads nothing, four of them 0.000 by their own rays and merged at every bounce where
+    the reference reads 0.011 to 0.027 merged and 0.005 to 0.015 by the rays' own reach, the sun met
+    along the corridor at no bounce past the hits; the second cascade's spots, 2.4 apart, fall at z
+    1.2 either side, inside the walls, and each is moved to stand a tenth of the spacing off the
+    face nearer it, the outer one, to 1.54, outside the corridor where the sun lights it, 0.206 by
+    its own rays against 0.200, and the third cascade's nearest stand outside too, so the merge's
+    marches to the probes above see none of them through the walls and a first-cascade way that
+    meets nothing within its interval takes nothing; the screen's probes take nothing either, one on
+    a wall reading 0.000 against 0.008 along its sixteen ways, its hits' own light holding no sun
+    this deep and the indirect light they read the first cascade's, which is nothing; before
+    `4369898a` the slack had lent the walls' hits the sunlit first-cascade probes outside at z 1.8,
+    67 to 70 under where 78 to 79 without it. So the term is the coarse cascades against a space
+    narrower than their spacing, the probe's move out of a wall picking the nearer face whichever
+    side the room lies, and a corridor 2 wide having no spot of a 2.4 grid inside it. Three forms
+    for a reading as the others: (i) a probe whose spot lies inside a wall moved to the side with
+    room for it, where the field shows space beyond the farther face within its most move of 0.45 of
+    the spacing, at z 1.2 a move of 0.2 inward plus the clearance to 0.76, inside the corridor, at
+    no cost in the frame, only the trace's choice, rooms whose walls sit on the grid's spots moving;
+    (ii) a first-cascade way that meets nothing within its interval, where every probe above it is
+    hidden, traced on through the field to what it meets and shaded with that hit's own light, the
+    far light's first bounce, costing only where no probe above is seen; (iii) the screen's probes'
+    rays past their reach the same, marching on where the world's probes around their end hold
+    nothing. The reviewer orders (i) read first, since it mends the cause where a spot can be moved
+    inside at no cost in the frame, by the rule at both sizes with the rooms whose walls sit on the
+    grid's spots watched, and then (ii) and (iii) together as one reading, the far light's first
+    bounce where the cascades cannot stand, by the rule and the cost, since a corridor narrower than
+    the first cascade's spacing would still have no probe.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
