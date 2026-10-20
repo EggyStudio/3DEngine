@@ -2091,6 +2091,34 @@ profile`, the frames unlimited). Marching from the screen's probes' hits to the 
 (`bouncedSeenAt`) read the wall 1.085, widened the corridor's view by 0.028 to 0.040 and cost 0.25
 to 0.42 ms more.
 
+**The corridor's far light, read on 2026-10-20.** The corridor, sixteen units long, 2 wide in walls
+0.3 thick and open at its −x end where the sun comes in, holds no world probe of the second cascade
+or above. The second cascade's spots there, 2.4 apart, fall at z ±1.2 inside its walls, and each is
+moved out through the face nearer it to z ±1.54, outside, where the sun lights it, and the third
+cascade's stand outside too. The merge, which marches to the probes above, sees none of them through
+the walls, so the first cascade's probes along the corridor take nothing past their interval and
+read nothing at any bounce, where a path-traced reference reads 0.011 to 0.027, and a screen probe
+on its wall 13 units in reads nothing where the reference reads 0.008 along its ways (`gi.probe`,
+`gi.screenprobe`). Its walls read 78 to 79% under the reference, its ceiling 69% and its floor 66%
+(`gi.compare` at 800 by 450). A screen probe's ray past its reach whose world probes hold nothing
+along its way goes on through the field, as far as four times its reach and within the cascade it
+starts in and the next coarser one, and takes the light of what it meets, and the walls read 67 to
+69% under, the ceiling 55% and the floor 55%, the corridor's view narrowing by 0.017 to 0.023 at
+both sizes and every other view holding to the third digit. It costs 0.21 to 0.25 ms in the
+corridor, where its rays march, nothing in the strip's room or the emissive block's, 0.01 in the
+Cornell box and 0.04 in the window's room at `High`, and in Ore 0.00 to 0.13 ms by day and by night
+alike at `High` and `Low`, where marched on to the field's edge it cost 0.13 to 0.19 for walls 66 to
+68% under and a ceiling 52% (`./e3d command profile`, the frames unlimited). Marched into the
+coarser cascades, it passed walls 1 thick in cells of 2, and a closed room at the field's side
+behind the eye took the sky's light, its pillar's face 0.029 of an open floor's light where it holds
+under 0.002 (CascadeEdgeTests). A probe whose spot lies in a wall moved through its farther face
+where no other probe covers that side brought the second cascade's probes at two of the four spots
+along the corridor inside, which read nothing, their ways along it reaching the third cascade
+outside, and widened the view by 0.002 to 0.006. A world probe's ray traced on where its probe sees
+no probe above narrowed it by 0.004 to 0.005 at 0.02 to 0.06 ms in every room, and beside the
+screen's march it lit the probes a little and so stopped the march. What stays under is the light
+past the first bounce at probes that hold nothing.
+
 **The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Seventeen
 faces of eleven world probes were read against the reference by bounce and by where their ways were
 met, the faces the walls take their light from beside the walls the sampling term's candidates lit

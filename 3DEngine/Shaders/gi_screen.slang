@@ -455,6 +455,31 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 light = t >= 0.0
                     ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, start + way * t, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
                     : beyond(start, n, way, length, around);
+                // A ray past its reach whose world probes hold nothing along its way goes on
+                // through the field, as far as four times its reach and within the cascade it
+                // starts in and the next coarser one, and takes the light of what it meets. A
+                // corridor 2 wide in walls 0.3 thick holds no probe of the second cascade or above,
+                // their spots in its walls moved out through the faces nearer them, so its first
+                // cascade's probes take nothing along it past their interval and its screen probes'
+                // rays nothing past their reach. Its walls read 78 to 79% under a path-traced
+                // reference at 800 by 450, its ceiling 69%; marched on, 67 to 69% and 55%, and to
+                // the field's edge 66 to 68% and 52%, where Ore's global illumination took 0.13 to
+                // 0.19 ms more by day and by night at High and Low on the development machine's
+                // GPU, and 0.00 to 0.13 bounded so. Into the coarser cascades the march passed
+                // walls 1 thick in cells of 2, and a closed room at the field's side took the sky's
+                // light, its pillar's face 0.029 of an open floor's light where it holds under
+                // 0.002 (gi.compare, CascadeEdgeTests, ./e3d command profile, the frames
+                // unlimited).
+                if (t < 0.0 && luminance(light) <= 1e-6)
+                {
+                    float far = traceFieldWithin(sceneField, fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
+                    if (far >= 0.0)
+                    {
+                        met = 1.0;
+                        reached = start + way * far;
+                        light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
+                    }
+                }
             }
             sum += light * weight;
             weights += weight;

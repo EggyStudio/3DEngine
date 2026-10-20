@@ -30,7 +30,13 @@ checked were the strict build, the script, norm and document tests, 65, and the 
 changed script, 1,745 passed and none failed, exit 0. The reviewer pushes and starts the pack run
 with publish on on this head at once, since the game waits and the corridor's commit changes no
 package the game needs. The ore sample by night was measured for (iii), said under item 30, and its
-commit follows. Next (iii)'s commit, then the light past the first bounce at probes that hold
+commit follows. At 07:09 the pack run with publish on of `9f9180b7`, started 06:55, had its three
+suites running and the build run of `7eb7079b` had ended green at 06:44, its Windows suite whole in
+43 minutes 11 seconds on an EPYC 9V74, cold, no cache written there either, a figure under Verdict
+72. At 07:41 the build run of `9f9180b7` had ended green at 07:36, its Windows suite in its parts
+from the start in 33 minutes 22 seconds on an EPYC 9V45, cold, exit 0, Verdict 72's first of three,
+and the pack run had its Linux and macOS suites and examples green with its Windows, captures and
+games jobs running. Next (iii)'s commit, then the light past the first bounce at probes that hold
 nothing.
 
 Before it, `4369898a` came, item 30's thin walls' mend and nothing else, with the review's commits
@@ -2041,7 +2047,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     both sizes where unbounded by 0.019 to 0.027, every other view holding to the third digit, so
     the coder takes the bound, half the cost for the same mend, and the reviewer agrees; a corridor
     test reads the wall's screen probe at 0.13 of the reference along its ways with it where 0.00
-    without, bounded above 0.06. The commit follows.
+    without, bounded above 0.06. The commit follows. (iii)'s checks by 07:19 on 2026-10-20 found a
+    fault the rule's rooms do not hold: the cascade edge test of a face before the eye staying dark
+    where the eye stands nearest the last cascade's side failed in the suite and on lavapipe, a
+    closed stone room with walls 1 thick, the field's cells 0.25 doubling to 2, the pillar's face
+    reading 0.029 of the open floor's light where the bound is 0.002, everything else passing, 1,745
+    and 88. Three forms read against it: twice the reach for a bound still fails at 0.029; the hit's
+    own light alone passes but loses the corridor's whole gain, walls 79 and 77 under where 67 and
+    69, since the far hits' light comes mostly through the probes there; and the march held to the
+    cascade its ray starts in and the next coarser one passes and keeps the corridor's gain whole,
+    walls 67 and 69 under, ceiling and floor 55, at the same cost, 1.48 ms in the corridor. So the
+    leak was the march into the coarser cascades, where walls 1 thick in cells of 2 let it through
+    to the lit ground outside; the form is a trace held within those two cascades beside the field
+    trace, its remark giving the cascade edge figure, and the rule at both sizes and the ore sample
+    by day and night run again on that code before the full checks and the commit. The reviewer
+    agrees, and asks the cascade edge figure pinned in the test as it stands.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -3044,10 +3064,16 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     Windows suites in a row that end green with their summary inside the job's limit, each recorded
     with its processor and time. Mended at `14890db6` and `8e80cf46` on 2026-10-20 as the head says,
     the parts from the start held to 70 minutes each and the exit 0 on a run lost to its time alone
-    with every test green; the pack run started on `8e80cf46` is the first suite under them. Settled
-    at three Windows suites in a row after the mends that end with their summary inside the job's
-    limit, each recorded with its processor, its time and whether the cache was found, since the
-    time is the processor's and an hour is not the bound.
+    with every test green; the pack run started on `8e80cf46` is the first suite under them. The
+    push run of `7eb7079b`, under the first two mends and before the last two, ran its Windows suite
+    whole on an EPYC 9V74, cold, in 43 minutes 11 seconds, 1,682 passed, the job in 55, lavapipe
+    writing no cache there either, which confirms the reading on a second processor; the count
+    toward settling starts at the pack run of `9f9180b7`, the first under all four. The push run of
+    `9f9180b7` on 2026-10-20, the first under all four mends, ran its Windows suite in its parts
+    from the start on an EPYC 9V45, cold, in 33 minutes 22 seconds, 1,683 passed, exit 0, the job in
+    40 minutes, the first of three. Settled at three Windows suites in a row after the mends that
+    end with their summary inside the job's limit, each recorded with its processor, its time and
+    whether the cache was found, since the time is the processor's and an hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
@@ -3483,6 +3509,17 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     end of a day's batch, and when the owner asks, and not after every commit, since a pack run is
     more than an hour of the runners' time; the run is read and recorded as every run is, and its
     package is what the game and the other engine take.
+
+50. **The review's files are committed by the batch that comes next, and by the reviewer at most
+    once a day.** The owner wrote on 2026-10-20 that the review's commits had become nine of every
+    ten in the history and were to stop, and then that the reviewer is to edit the review's files in
+    the tree and commit nothing, as it did before 2026-10-19, with one commit a day at most where
+    that makes sense. So REVIEW.md, SHARED.md and NORM.md stay edited in the tree and the coder's
+    next batch carries them, as AGENTS.md has it; the reviewer commits them in a commit of their own
+    only at a day's end where no batch carried them, never for a reading, a run or a package. The
+    coder adds one sentence saying so to COMMITS.md in the next batch, in the paragraph on what a
+    commit carries, naming the review's files, the batch that comes next and the one commit a day at
+    most, and no one who decided it (N 4.7).
 
 ## Replies
 

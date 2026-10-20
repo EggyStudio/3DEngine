@@ -135,6 +135,26 @@ public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin
     return -1.0;
 }
 
+// The same, stopping where the ray leaves cascade `most` and every finer one, as -1, since a wall
+// thinner than a coarser cascade's cell may let it through.
+public float traceFieldWithin<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax, int most)
+{
+    float t = tMin;
+    for (int i = 0; i < 64 && t < tMax; i++)
+    {
+        float3 p = origin + way * t;
+        int c = fieldCascade(info, p, 1.0);
+        if (c < 0 || c > most)
+            return -1.0;
+        float cell = info.cascades[c].originAndCell.w;
+        float d = fieldDistanceIn(field, info, c, p);
+        if (d < cell * 0.1)
+            return t;
+        t += max(d, cell * 0.25);
+    }
+    return -1.0;
+}
+
 // A color of the field at p, the cells' colors blended and divided by how much of them a surface
 // painted, so a cell no surface painted lends nothing, or gray where none around p is painted.
 public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p)

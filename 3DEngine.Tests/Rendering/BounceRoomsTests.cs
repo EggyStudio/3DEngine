@@ -76,7 +76,10 @@ public sealed class BounceRoomsTests : IDisposable
     // under their reference at 800 by 450 where 67 to 70%, the sunlit probes beyond them having
     // covered part of their own reading under, and the grazing floor's at High 0.082 where 0.078,
     // its wall facing -x 12% over where 9%, the dark probes behind it having covered part of the
-    // gain past the first bounce.
+    // gain past the first bounce. With the screen's probes' rays past their reach marched on
+    // through the field where their world probes give nothing (gi_screen.slang), the corridor's
+    // view reads 0.213, 0.222 and 0.215, its first cascade's probes holding nothing along it since
+    // no probe of a coarser cascade stands inside it.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
@@ -84,9 +87,9 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(2, GlobalIllumination.Low, 0.09)]
     [InlineData(2, GlobalIllumination.Medium, 0.10)]
     [InlineData(2, GlobalIllumination.High, 0.10)]
-    [InlineData(3, GlobalIllumination.Low, 0.27)]
-    [InlineData(3, GlobalIllumination.Medium, 0.29)]
-    [InlineData(3, GlobalIllumination.High, 0.28)]
+    [InlineData(3, GlobalIllumination.Low, 0.25)]
+    [InlineData(3, GlobalIllumination.Medium, 0.26)]
+    [InlineData(3, GlobalIllumination.High, 0.25)]
     [InlineData(4, GlobalIllumination.Low, 0.35)]
     [InlineData(4, GlobalIllumination.Medium, 0.34)]
     [InlineData(4, GlobalIllumination.High, 0.32)]
@@ -340,6 +343,20 @@ public sealed class BounceRoomsTests : IDisposable
         static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
         (Luminance(probe.Light) / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
             $"the corner's rays reach past the second cascade's near surfaces before they read the light beyond\n{report}");
+    }
+
+    // The screen probe on the corridor's wall facing +z, 13 units from its open end, in
+    // shaders_bounce_rooms at 800 by 450. The corridor holds no world probe of the second cascade
+    // or above, so its first cascade's probes hold nothing along it, and the probe's rays past
+    // their reach read nothing, the probe 1% of the reference's light along its ways on the
+    // development machine's GPU. Marched on through the field to what they meet, it reads 13%.
+    [NeedsRayQueryFact]
+    public void A_Screen_Probe_On_The_Corridors_Wall_Takes_The_Light_Of_Its_Open_End()
+    {
+        var probe = ReadScreenProbe(2, 560, 225, out var report);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        (Luminance(probe.Light) / Luminance(probe.AlongWays)).Should().BeGreaterThan(0.06f,
+            $"the rays past their reach go on to the light the open end sends along the corridor\n{report}");
     }
 
     // The screen probe on the far wall of the carried lamp's room in shaders_bounce_rooms at 800 by

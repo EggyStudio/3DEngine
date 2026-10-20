@@ -51,6 +51,10 @@ owner, the reviewing session or REVIEW.md out of the notes.
 
 A commit that changes the engine's public surface carries `3DEngine/PublicApi.txt` written again by
 `build/api.sh`, which the suite holds it to, so the change is in the diff where it is read.
+REVIEW.md, SHARED.md and NORM.md are edited in the tree by the reviewing session and committed by
+whichever batch comes next, so the history holds the work rather than a commit for each reading, and
+never in a commit of their own but for one a day at most, at a day's end where no batch carried
+them.
 
 Written from a shell, so the marks are exact rather than pasted:
 
