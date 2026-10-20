@@ -2578,6 +2578,17 @@ readonly struct Engine.ParticleEmitterHandle : IEquatable<ParticleEmitterHandle>
   static bool op_Equality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   static bool op_Inequality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   void Deconstruct(out Entity Entity)
+sealed class Engine.Persistent<T>
+  Persistent(string fileName, T? fallback, bool saveOnChange = false)
+  T? Value { get; }
+  bool Changed { get; }
+  string Path { get; }
+  string? Problem { get; }
+  void Reset()
+  void Revert()
+  void Save()
+  void Set(T? value)
+  void Update(Func<T?, T?> change)
 readonly struct Engine.PhysicsBody : IEquatable<PhysicsBody>
   PhysicsBody(PhysicsWorld world, int handle, BodyKind kind)
   Quaternion Rotation { get; set; }

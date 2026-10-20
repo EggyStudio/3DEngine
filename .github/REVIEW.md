@@ -10,29 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `43ace92a`, item 52 and nothing else, carrying the review's and the ledger's files,
+Reviewed up to `a150c4c1`, item 53's first commit, the saved game over its scenes, and nothing else,
+carrying the review's and the ledger's files, in the form and with the tests and numbers said before
+it; the suite gave 1,807. Read at 18:27; its push with `43ace92a` waits for the build run of
+`414e6f77` to end. At 18:35 the pack run of `b19f09dc` had ended red at 18:34 on its games job's
+soak alone, Tones' heap climbing past its bound (Verdict 79), the siege's drive passing on that job,
+Verdict 77's first, and both captures jobs green, so the pack job was skipped and the day's package
+waits on the mend; the feed holds `5.2.155` still. The persistent value's form is said under item 53
+and taken, its commit next, then Verdict 79, then the push and the pack run anew. Item 6 waits on
+the owner's word.
+
+Before it, `43ace92a` came, item 52 and nothing else, carrying the review's and the ledger's files,
 in the form and with the tests and numbers said before it; the suite gave 1,801, the strict build is
-clean and the scene guide's blocks build on the fresh pack. Read at 18:05; its push waits for the
-build run of `414e6f77`, started at 18:05, to end, the pack run of `b19f09dc` in its games and
-captures. SHARED.md's row says both engines have it. Next item 53 from the ledger, a saved game laid
-over its scenes. Item 6 waits on the owner's word.
+clean and the scene guide's blocks build on the fresh pack.
 
 Before it, `414e6f77` came, item 51 and nothing else, carrying the review's and the ledger's files,
 in the form and at the cost said before it; the suite gave 1,798, the strict build is clean, the
 guide's block builds on the fresh pack and Tumble builds strictly on it. Pushed at 18:04 with items
 49 and 50 once the pack run's suites were past.
-
-Before it, `e510f268` came, item 50 and nothing else, carrying the review's and the ledger's files,
-in the form, kinds and cost said before it. The behaviors guide's paragraph after the observers has
-a block, the camera with picking, a click on a door and a drag pushing a crate, names the nine
-kinds, the hit, the climb and the stop, says a skinned mesh is met unposed in its bind pose so an
-animated figure is picked where it stands at rest, gives the cost at about 40 ns a mesh entity a
-frame, says nothing is cast where the window's camera does not ask and that ImGui's windows pick
-nothing; the cheat sheet's hand sentence follows the observers' in the states prose;
-ARCHITECTURE.md's ECS section has the bullet, the upgrading guide's added entry names the camera's
-flag, the event, its interface, the nine kinds and the hit, and the surface listing has 121 lines
-more. Checked were the strict build, the suite, 1,790 with the four picking tests among them, the
-behaviors guide's thirteen blocks on a fresh pack and the live run.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2713,7 +2708,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     condition, since a test beside it registers codecs from an assembly it compiled and the
     registry's next lookup rebuilt its index in the middle of a measured read, the stated cost
     unchanged. The scene guide's section with a block, the cheat sheet's sentence, ARCHITECTURE.md's
-    sentence, the upgrading guide's entry and eight lines of the surface listing follow.
+    sentence, the upgrading guide's entry and eight lines of the surface listing follow. The save
+    over scenes done at `a150c4c1` on 2026-10-20. The persistent value's form said by 18:27 and
+    taken: a sealed class over a type made from a file name, a fallback and whether to save on
+    change, a relative name beside the program, throwing where the type has no scene codec, which it
+    finds among the registered codecs, with the path, the value, the problem, a changed flag and
+    set, update, save, revert and reset as BevyCSharp's; the file the object of the type's fields by
+    name as a scene file holds one component, written and read by the type's own codec through two
+    internal calls that take a value apart from any entity against a detached world, so no
+    reflection and the type a scene writes is the type it keeps; the read laying the file's object
+    over the fallback written by the codec field by field and reading the result back, so a field
+    the file lacks keeps the fallback's value and not the codec's own start, and a data version in
+    the file bringing an older one up as a scene's would; a missing file giving the fallback, one
+    that cannot be read giving it with the reason in the problem and a warning, left unwritten until
+    a save; a save written beside the file and moved over it, and a set saving where asked. Four
+    tests on the transform, an earlier file holding the position alone read over a fallback scaled 2
+    keeping the fallback's scale, nothing written until asked and then on demand and on change with
+    revert and reset, a broken file giving the fallback with its problem and the file left as it
+    was, and a vector refused for want of a codec; a live run wrote a field of view and read it over
+    a camera's fallback. The scene guide's section with a settings block, the cheat sheet's
+    sentence, the upgrading guide's entry and eleven lines of the surface listing follow.
 
 ## Verdicts
 
@@ -2729,7 +2743,7 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 i
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
 the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 78 is settled on the
-pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
+pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 and 79 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3710,7 +3724,8 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
     so the day's package waits. Read and mended at `62efc173` on 2026-10-20 as the head says, the
     trigger raised to the walls' top; the result had differed run to run on one machine from the
     physics' threads, and the pack run started on the mend is the first of three. Settled when the
-    games job passes the siege on three pack runs in a row.
+    games job passes the siege on three pack runs in a row. The games job of the pack run of
+    `b19f09dc` passed the siege at 16:23 on 2026-10-20, the first of three.
 
 78. **The shuffled pass's own test fails under the shuffled pass, the stand-in's plain run
     inheriting the seed.** On the build run of `6a289059`, 2026-10-20 at 16:29, the Linux job's
@@ -3728,6 +3743,20 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
     says; the pack run started on it is the check. Settled when the Linux job passes both passes on
     the next build run. The Linux job of the pack run of `b19f09dc` passed both passes on 2026-10-20
     at 17:37. Settled on the pack run of `b19f09dc` on 2026-10-20.
+
+79. **Tones' heap climbs through the soak, its least reading past the bound.** On the pack run of
+    `b19f09dc`, 2026-10-20 at 18:23, the games job's soak failed on Tones alone, its heap's least
+    climbing from 7,716,304 bytes to 13,944,080 past the bound of 10,970,901, the first half's least
+    with the slack, while its resident memory held at 240 MB at the first reading kept and 247 at
+    the last; the soak had passed its 28 turns on the development machine before the commit. The
+    managed heap's least climbing while the resident holds says something the game keeps across
+    turns grows, the recording's samples kept from turn to turn, a sound made from each recording's
+    wave and never unloaded, the drums' waves loaded on each hit, or the processors' buffers made
+    anew on each reorder; the reading comes first on the machine with the soak's turns and the
+    heap's readings between them, then the mend where it points, the game freeing what a turn made
+    before the next or the engine freeing a wave's or a sound's managed side where it does not, with
+    the reason in the remark, one commit. The pack job was skipped on it, so the day's package
+    waits. Settled when the games job's soak passes Tones on three pack runs in a row.
 
 ## Decisions
 

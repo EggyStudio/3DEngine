@@ -116,6 +116,29 @@ refused before anything is despawned. Each component is compared as a whole, so 
 changed comes back as play left it, every field of it. A save of one change in a level of 2,000
 entities is 291 bytes where the scene written whole is 438,739.
 
+## A value kept between runs
+
+Settings and records a game keeps whatever level is played, a volume, the controls, a best lap, go
+in a `Persistent<T>`, a value of a `[SceneComponent]` type kept in a file of its own beside the
+program, written as a scene file writes one component:
+
+<!-- compiled with:
+[SceneComponent] public struct Settings { public float Volume; public bool Subtitles; public static Settings Default => new() { Volume = 0.8f }; }
+-->
+```csharp
+var settings = new Persistent<Settings>("settings.json", Settings.Default);
+SetMasterVolume(settings.Value.Volume);
+// ...
+settings.Update(s => s with { Volume = 0.5f });
+settings.Save();
+```
+
+The file is read laid over the default given, so a field the file does not name, as one a later
+version of the game added, keeps the default's value. A missing file gives the default, and one that
+cannot be read gives it too, with the reason in `Problem` and the log, and is not written over until
+the value is saved. `Save` writes on demand, and one made with `saveOnChange: true` writes at each
+`Set` as well. `Revert` reads the file again and `Reset` saves the default.
+
 ## Building what is saved
 
 The level is entities with names and components, made as any entities are:

@@ -42,6 +42,10 @@ public sealed class SceneCodec<T>(string name, SceneCodec<T>.Writer write, Scene
         else ecs.Add(entity, value);
     }
 
+    // A value written and read apart from any entity, as a persistent value's is.
+    internal void WriteValue(Utf8JsonWriter writer, in T value, SceneWriteContext context) => write(writer, value, context);
+    internal T ReadValue(JsonElement element, SceneReadContext context) => read(element, context);
+
     bool ITellsLoaded.Watched(EcsWorld ecs) => ecs.CountsLoads<T>();
 
     void ITellsLoaded.Tell(EcsWorld ecs, int entity)

@@ -305,6 +305,11 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A value kept between runs.** `Persistent<T>` keeps a `[SceneComponent]` value in a file beside
+  the program, read over its default so a field a later version adds keeps the default's, with its
+  `Path`, `Value`, `Problem` and `Changed`, written by `Save` or at each `Set` where it saves on
+  change, with `Update`, `Revert` and `Reset`, as
+  [A value kept between runs](scenes.md#a-value-kept-between-runs) shows.
 - **A saved game over its scenes.** `SaveGame.Start`, `SaveGame.Save` and `SaveGame.Load` keep a
   game as what play changed over the scene files it started from, a file of its own `Format` and
   `Version`, `SaveGame.ScenesOf` naming them, and an entity spawned in play is saved where it is
