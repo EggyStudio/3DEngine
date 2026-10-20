@@ -34,7 +34,10 @@ screen's probes on the corner reads within its test's bound, the twentieth carry
 wall's 2.6 remaining points. The push cancels the build run of `102eea09`; the pack run with publish
 on of `448aa3fc` runs on, its Windows suite in its second hour. The corridor's under-read was read
 and named by 05:51, the coarse cascades against a space narrower than their spacing, said under item
-30 with three mend forms. Next form (i) read by the rule, then (ii) and (iii) together.
+30 with three mend forms. At 06:06 the pack run of `448aa3fc` had every job green but Windows, its
+games job at 05:37, Verdict 74's second of three, and its captures at 05:47, with the Windows
+suite's step in its 96th minute under the mends, the pack job waiting on it. Next form (i) read by
+the rule, then (ii) and (iii) together.
 
 Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
 The leak tests keep the readings after every ten apps as numbers and read the process's growth from
@@ -3015,7 +3018,8 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     devices, bounded at 602, and the soak saying where a walk stood when a figure climbs; Manor's
     images stand at 92 in the table where those walks reached 94, under the slack's 98, watched.
     Settled when the games job's soak passes on three pack runs in a row. The games job of the pack
-    run of `193c68b0` passed at 03:24 on 2026-10-20, the first of three.
+    run of `193c68b0` passed at 03:24 on 2026-10-20, the first of three. The games job of the pack
+    run of `448aa3fc` passed at 05:37 on 2026-10-20, the second of three.
 
 75. **The hundred-app leak test's bound on resident growth takes its base from one reading at the
     twentieth app, and a trough there fails a flat series.** On the pack run of `193c68b0`,
