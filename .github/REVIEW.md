@@ -10,7 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f72bda5d`, Verdict 75's mend and nothing else, with the review's commits between.
+Reviewed up to `4369898a`, item 30's thin walls' mend and nothing else, with the review's commits
+between. The sight test's slack is an eighth of the spacing, a cell of the probes' cascade, since
+the spacing is 8 at every quality, the remark naming the borrowed light with the thin wall's 1.153,
+1.072 with the lamp off and 1.098 mended, and the corridor's 67 to 70 under going to 78 to 79; the
+screen shader's reach remark drops its comparison with the sight test, no longer true. The thin
+walls' bounds go to 0.09, 0.10 and 0.10 where they read 0.078, 0.079 and 0.084, the corridor's Low
+and Medium are pinned at 0.27 and 0.29 where they read 0.234 and 0.244, and the grazing floor's High
+at 0.10 where it reads 0.082, the reason in the bounds' remark; a new test reads the thin wall's
+foot at 800 by 450 with the outside lamp on and off through the light color, 1.279 on the head and
+1.050 mended, bounded under 1.1, the rooms exposing the lamp's handle. RENDERING.md has a record
+dated 2026-10-20 after the parallax's, the reach paragraph says an eighth, and the earlier naming is
+corrected in (f)'s record, the sampling term's and the bounds' remark. Checked were the strict
+build, the suite, 1,744 passed and none failed, and lavapipe under the required layer over the
+global illumination, bounce rooms, reference frame, glow, cascade edge and descriptor pool tests, 89
+passed and 11 skipped. Two findings from the corrections: four more world probes at the thin room's
+corners read the same with the outside lamp off, nine in all, which the record says; and with the
+screen's probes left out, the corner by the front wall reads 3.53 times the wall beside it on the
+head, 1.01 with the lamp off and 2.85 mended, where cutting the twentieth of a weight the bounced
+read keeps for an unseen probe takes it only to 2.81, so the model pass's read of the probes there
+brings the lamp's light by a further way, not named yet, the record saying so, while with the
+screen's probes on the corner reads within its test's bound, the twentieth carrying 0.8 of the
+wall's 2.6 remaining points. The push cancels the build run of `102eea09`; the pack run with publish
+on of `448aa3fc` runs on, its Windows suite in its second hour. Next the corridor's under-read read
+for its cause, split by bounce and by where the light is met, before any mend.
+
+Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
 The leak tests keep the readings after every ten apps as numbers and read the process's growth from
 a base that is the most of the tenth's reading, the twentieth's after its census where one was
 taken, and the thirtieth's, both judged tests, the headless and the offscreen, asserting the growth
@@ -31,7 +56,7 @@ the near-start candidate out and two others to read. At 05:00 the pack run with 
 `448aa3fc` had its Linux suite green at 04:51 and its other six jobs running, and the pack run of
 the other engine its suites and native jobs green with its capture, drive and game jobs running; the
 feed holds `5.2.92` still. The thin walls' candidates were read by 05:18 and the slack at one cell
-is taken, said under item 30. Next its commit, then the corridor's under-read read for its cause.
+is taken, said under item 30.
 
 Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
 between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
@@ -54,33 +79,6 @@ reading (Verdict 75), so the pack job was skipped and no package was made; every
 green. The held push went at 04:26, cancelling the build run of `390c9b61` in its Windows suite,
 whose reading moves to the pack run with publish on started at 04:27 on this head, `39359042041`,
 the first pack run under Verdict 72's mends, and to this head's build run; the game waits on it.
-
-Before it, `30993e84` came, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else,
-with the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
-cache directory, the remark saying that left to its default lavapipe wrote no cache on any run and
-every suite compiled every app's shaders, 32 to over 60 minutes by processor; the restore step has
-an id, and a step after the suite and before the save, run always, says the processor, how many
-files Mesa wrote and their size and the key the suite began from, or no cache, with a warning where
-Mesa wrote nothing, so each Windows run records its processor, whether a cache was found and what
-was kept beside its suite's time. The test script, when the whole suite is lost, reads the tests its
-output says ended, passed, failed with message and stack or skipped, and the page counts them; in
-the rerun in parts, a part all of whose tests ended is not run again, said in a line, and a part's
-results stand in place of the whole run's for the same tests; the page's lost entry and its
-annotation say the five slowest tests that ended with their times, one a line, beside the test the
-run was in or the last to end and its progress line. The stand-in has a mode that ends all of two
-parts, one test failing with its message, and ten of the Rendering part, then hangs, and the new
-test holds the page at 79 passed, 1 failed and none without a result, Rendering alone run again and
-the rest said as not run again, the five slowest with their times and the failure counted with its
-message; BUILDING.md says it. On the cut job this would have run one part again, about six minutes
-after the whole run's hour, inside the job's 100. Checked were the strict build, the suite, 1,741,
-and the test script's tests, 8. The push cancels the build run of `4a028c03` in its Windows suite,
-and the build run of this head is the first Windows suite with the mends, its cache step the reading
-of whether Mesa on Windows keeps a cache (Verdict 72). At 03:51 the pack run of `193c68b0` had its
-games job green at 03:24, Verdict 74's first of three, its captures jobs green at 03:36, and its
-Windows job in the suite's step since 02:22, an hour and a half, the pre-mend script at its rerun on
-a slow runner, the pack job waiting on it; the build run of this head had its Linux and macOS suites
-green by 03:50 and its Windows suite running since 03:25, the first under the mends. The parallax
-read was taken by 03:36, said under item 30.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1955,7 +1953,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the thin walls' bounds narrowed and the corridor's and the grazing room's pinned with the
     reason, a test at the thin wall's inner face against the lamp off, RENDERING.md with these
     figures, the suite and lavapipe. (b) is not taken, more cost for less on the thin wall and the
-    corridor uncovered twice as far.
+    corridor uncovered twice as far. The thin walls' term mended at `4369898a` on 2026-10-20 with
+    the slack at one cell, as the head says, the corridor's and the grazing floor's bounds pinned
+    with the reason; a further way the lamp's light reaches the corner by the front wall through the
+    model pass's read of the probes, 2.85 times the wall beside it with the screen's probes left
+    out, is noted and not named. Next the corridor's under-read, 78 to 79 under at 800 by 450 with
+    the mend, read for its cause by bounce and by where the light is met, before any mend.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
