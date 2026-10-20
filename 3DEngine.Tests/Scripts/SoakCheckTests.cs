@@ -136,6 +136,30 @@ public sealed class SoakCheckTests : IDisposable
         Check(Walked("slide", (81, 82, 108, 81), (81, 82, 130, 81))).Exit.Should().Be(1, "a game with no whole walk or turn to grow into");
     }
 
+    [NeedsPythonFact]
+    public void Manors_Entities_Are_Bounded_By_What_A_Whole_Walk_Holds_And_A_Climb_Says_Where_The_Walk_Stood()
+    {
+        // The least of each half on the pack run of 80625742, Manor's entities from 374 to 422 with
+        // nothing leaking, its walk where its status says after each reading's figures. They pass
+        // under the 539 a whole walk holds at once, and past it the error says where the walk stood
+        // at each half's least, so the run reads itself.
+        string Entities(int before, int after)
+        {
+            var path = _folder.File("manor.csv");
+            File.WriteAllLines(path, Enumerable.Range(0, 8).Select(i =>
+                $"{10 * i} managed {50 << 20} heap {100 << 20} gen2 {i} resident {400L << 20} entities {(i < 5 ? before : after)} entityIds 539 " +
+                $"buffers 150 | Play lanterns {i / 2}/6 at {i}.0,0.0,{40 - 10 * i}.0 cells {14 + i} doors 0 route {4 * i}/34 time {10 * i}.0 worst 20ms"));
+            return path;
+        }
+
+        Check(Entities(374, 422)).Exit.Should().Be(0, "the rooms the second half reached are the estate's");
+        var (exit, log) = Check(Entities(374, 640));
+        exit.Should().Be(1, "past what a whole walk holds at once");
+        var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
+        error.Should().Contain("manor: entities climbed from 374 to 640 at its least")
+            .And.Contain("the second half's least where it stood at Play lanterns 2/6 at 5.0,0.0,-10.0 cells 19 doors 0 route 20/34");
+    }
+
     private (int Exit, string Log) Check(params string[] readings)
     {
         var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = _folder.Path, RedirectStandardOutput = true, RedirectStandardError = true });

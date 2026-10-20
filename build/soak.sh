@@ -138,10 +138,13 @@ turn() {
 # the program answers between frames while a turn waits on them. A device whose turns take long, as
 # a runner drawing eight games on four cores is, where a turn of 240 frames took two minutes, so
 # still gives a dozen readings, where reading after each turn gave two.
+# A game that walks a level says where it stands after each reading's figures, so a figure that
+# climbs is read with the rooms the walk was in (build/soak-check.py).
+where() { case "$name" in manor) echo " | $(./e3d command manor.status "${session[@]}" --timeout 600)" ;; esac; }
 end=$(( SECONDS + seconds ))
 (
   while (( SECONDS < end )); do
-    echo "$SECONDS $(./e3d command memory.collect "${session[@]}" --timeout 600)" >> "$out"
+    echo "$SECONDS $(./e3d command memory.collect "${session[@]}" --timeout 600)$(where)" >> "$out"
     sleep 10
   done
 ) &
@@ -152,5 +155,5 @@ while (( SECONDS < end )); do
   i=$(( i + 1 ))
 done
 wait "$reader"
-echo "$SECONDS $(./e3d command memory.collect "${session[@]}" --timeout 600)" >> "$out"
+echo "$SECONDS $(./e3d command memory.collect "${session[@]}" --timeout 600)$(where)" >> "$out"
 echo "$name: $i turns in $seconds seconds, $(wc -l < "$out") readings in $out"
