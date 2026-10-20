@@ -10,7 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9fd38dd9`, item 35 and nothing else, with the review's commit between. The README's
+Reviewed up to `30993e84`, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else, with
+the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
+cache directory, the remark saying that left to its default lavapipe wrote no cache on any run and
+every suite compiled every app's shaders, 32 to over 60 minutes by processor; the restore step has
+an id, and a step after the suite and before the save, run always, says the processor, how many
+files Mesa wrote and their size and the key the suite began from, or no cache, with a warning where
+Mesa wrote nothing, so each Windows run records its processor, whether a cache was found and what
+was kept beside its suite's time. The test script, when the whole suite is lost, reads the tests its
+output says ended, passed, failed with message and stack or skipped, and the page counts them; in
+the rerun in parts, a part all of whose tests ended is not run again, said in a line, and a part's
+results stand in place of the whole run's for the same tests; the page's lost entry and its
+annotation say the five slowest tests that ended with their times, one a line, beside the test the
+run was in or the last to end and its progress line. The stand-in has a mode that ends all of two
+parts, one test failing with its message, and ten of the Rendering part, then hangs, and the new
+test holds the page at 79 passed, 1 failed and none without a result, Rendering alone run again and
+the rest said as not run again, the five slowest with their times and the failure counted with its
+message; BUILDING.md says it. On the cut job this would have run one part again, about six minutes
+after the whole run's hour, inside the job's 100. Checked were the strict build, the suite, 1,741,
+and the test script's tests, 8. The push cancels the build run of `4a028c03` in its Windows suite,
+and the build run of this head is the first Windows suite with the mends, its cache step the reading
+of whether Mesa on Windows keeps a cache (Verdict 72). Next the parallax, its mend's form and cost
+read first, then (c).
+
+Before it, `9fd38dd9` came, item 35 and nothing else, with the review's commit between. The README's
 head is one centering block holding markdown with blank lines inside, the heading, the description
 and the five banners as markdown pictures, no heading, paragraph or picture tag left, and that block
 is the only HTML in the file; the gallery is written by the examples table script between its
@@ -32,7 +55,7 @@ in the file's mode by 03:10, the block centers the heading, the description with
 and the five banners, and the gallery is fifteen tables holding the 270 pictures. At 03:19 the pack
 run of `193c68b0` had its macOS suite green at 03:00, Verdict 73's third, so it is settled, and its
 Windows, captures and games jobs running an hour in; the build run of this head runs since 03:07;
-the feed's last package is `5.2.92`. Next Verdict 72's two commits, the parallax and (c).
+the feed's last package is `5.2.92`.
 
 Before it, `4bc29a78` came, item 30's sampling term with (g) in it, the tiled ways, and nothing
 else, with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
@@ -62,27 +85,6 @@ its Windows job in its suite, which this push cancels unread, the pack run's Win
 the figure; the pack run with publish on had its Linux and examples jobs green and the rest running,
 Verdict 73 at two green macOS suites of three (Verdict 73). Verdict 72 was read by the coder by
 02:52 and its mends are chosen, said under it.
-
-Before it, `b03017f2` came, Verdict 74's mend and nothing else, with the review's commits between.
-Manor was built from a package of the head and walked whole by its autopilot at the soak's size, two
-whole walks at each of three paces, the game's own, a tenth of a second a frame and a quarter, as a
-runner's slow frames count more of the game's time, on the development machine's GPU and on
-lavapipe: the most entities at a reading 464 to 533, and every walk on both devices at every pace
-held 539 entity ids, the most alive at once, the figure the table already had for the ids; the soak
-had bounded the entities by the first half's least alone, 374 times 1.1 plus 10, which the runner's
-second half passed by one seeing other rooms, nothing leaking. The soak check takes Manor's entities
-among its whole-walk figures at 539, bounded at 602 with the slack, the remark naming the command,
-the walks, the paces and the spread; the soak script writes Manor's status, its route step, place
-and cells, after each reading, and the check says where the walk stood at each half's least and at
-its first and last reading when a figure climbs; a soak check test holds the run's figures passing
-and 374 to 640 failing with the second half's place named, and the head's check failing the run's
-figures as the runner did; a 150-second soak here wrote and read the status, 444 then 420 against
-602. The strict build passes and the suite, 1,740. An aside kept under the verdict: the table holds
-Manor's images at 92 where these walks reached 93 and 94, under the slack's 98. The pack run queued
-on `869ad798`, half an hour in without the mend, is cancelled by the reviewer and started again on
-this head, so its games job carries the mend (Decision 49). The rays' error was read by 02:23, said
-under item 30, and names the merge's parallax and the thin walls as what the fixed ways covered, so
-the tiled ways are taken.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2769,7 +2771,10 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 
     page saying, for a lost process, the test it was in and the times of its slowest tests, so a
     runner that finished 1,705 of 1,706 does not start over. If the step reads no cache, the Windows
     suite runs in its parts from the start, about 62 minutes on a 7763 under the job's 100, as the
-    third mend. Settled at three Windows suites in a row after the mends that end with their summary
+    third mend. Mended at `81007b4e` and `30993e84` on 2026-10-20 as the head says, the cache asked
+    for by name and said after the suite, and the lost whole run's ended tests counted with only the
+    parts holding tests without a result run again; the build run of `30993e84` is the first suite
+    under them. Settled at three Windows suites in a row after the mends that end with their summary
     inside the job's limit, each recorded with its processor, its time and whether the cache was
     found, since the time is the processor's and an hour is not the bound.
 
