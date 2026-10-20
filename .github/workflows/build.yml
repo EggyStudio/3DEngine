@@ -169,20 +169,6 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
-      # The processor, its model and a checksum of its flags (build/processor.sh), which keys Mesa's
-      # cache, since lavapipe's code is compiled for the instructions of the processor it runs on.
-      - run: echo "PROCESSOR=$(build/processor.sh)" >> "$GITHUB_ENV"
-
-      # Mesa's cache of the shaders lavapipe compiles, restored here and saved after the suite as the
-      # Linux job keeps it. The suite's apps here drew a frame in 3.8 seconds where four apps on a
-      # host's lavapipe took 3.7 each with Mesa's cache off and 0.84 with it.
-      - uses: actions/cache/restore@v6
-        id: mesa
-        with:
-          path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
-          restore-keys: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-
-
       # The Vulkan loader from LunarG's runtime, the validation layer from its SDK, and lavapipe
       # from Mesa's Windows build, pointed at by the loader's variables rather than installed. The
       # SDK's version is pinned, as build/fetch-validation-layer.sh pins Linux's, so a change of
@@ -207,11 +193,6 @@ jobs:
           echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
           echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
           echo "VK_ADD_LAYER_PATH=C:\VulkanSDK\Bin" >> "$GITHUB_ENV"
-          echo "MESA_SHADER_CACHE_DIR=$(cygpath -w "$GITHUB_WORKSPACE/build/mesa-cache")" >> "$GITHUB_ENV"
-          # Asked for by name, since left to its default lavapipe wrote no cache here on any run, the
-          # save after the suite finding no folder, and every suite compiled every app's shaders, 32
-          # to over 60 minutes by the runner's processor (REVIEW.md, Verdict 72).
-          echo "MESA_SHADER_CACHE_DISABLE=false" >> "$GITHUB_ENV"
           echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
 
       # The loader leaves VK_DRIVER_FILES and VK_ICD_FILENAMES unread in a process with an
@@ -241,38 +222,19 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\3DEngine.Tests\TestResults\dumps" | Out-Null
 
       # The suite through build/test.py in its parts from the start, each a process held to 70
-      # minutes where the script's own limit is 40. Lavapipe's Windows build keeps no shader cache,
-      # asked for by name or not, so every app compiles every shader and the suite runs cold on
-      # every run. On the pack run of 448aa3fc on an EPYC 7763 the whole run ran out its hour 1,302
-      # tests in, and the parts holding tests it gave no result, thirteen of fifteen, ran again for
-      # 121 minutes 5 seconds in all, the Rendering part alone 52 minutes 16 seconds, past a push's
-      # 100. Run in parts with no whole run to lose, the suite takes about 62 minutes cold there.
+      # minutes where the script's own limit is 40. Mesa's Windows builds keep no shader cache, the
+      # disk cache built into neither the MSVC nor the MinGW one, whose lavapipe carries none of its
+      # names where Linux's does, so no cache is restored or saved here and every app compiles every
+      # shader, which on lavapipe with Mesa's cache off takes 56% of the Rendering and Core parts,
+      # most of it at an app's first frame. On the pack run of 448aa3fc on an EPYC 7763 the whole
+      # run ran out its hour 1,302 tests in, and the parts holding tests it gave no result, thirteen
+      # of fifteen, ran again for 121 minutes 5 seconds in all, past a push's 100. Run in parts with
+      # no whole run to lose, the suite took 66 minutes 23 seconds cold there on the pack run of
+      # 9f9180b7.
       - run: python build/test.py --no-build --parts --timeout-minutes 70
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
-
-      # What lavapipe wrote into Mesa's cache, and the cache the suite began from, beside the
-      # processor, so a run says whether its suite ran warm and the next one reads whether Mesa on
-      # Windows keeps a cache at all.
-      - name: Say what Mesa's cache holds
-        if: always()
-        env:
-          RESTORED: ${{ steps.mesa.outputs.cache-matched-key }}
-        run: |
-          began="${RESTORED:-no cache}"
-          if [ -d build/mesa-cache ] && [ -n "$(find build/mesa-cache -type f -print -quit)" ]; then
-            echo "On $PROCESSOR, Mesa's cache holds $(find build/mesa-cache -type f | wc -l) files, $(du -sh build/mesa-cache | cut -f1), the suite having begun from $began"
-          else
-            echo "::warning title=Mesa's cache::On $PROCESSOR, lavapipe wrote no shader cache into build/mesa-cache, so every app compiled its shaders, the suite having begun from $began"
-          fi
-
-      # The shaders the suite compiled, kept whether it passed or not.
-      - uses: actions/cache/save@v6
-        if: always()
-        with:
-          path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
 
 
       - name: Build a game from the package and draw it under the validation layer

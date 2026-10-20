@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e6594bc4`, the corridor's mend, form (iii), and nothing else, carrying COMMITS.md's
+Reviewed up to `82dd08f2`, item 39 and nothing else, documents alone, carrying the review's file.
+RENDERING.md's global illumination part ends with a section on where the method stops, read to
+2026-10-20, opening with the rule and naming the five terms each with its cause, the room and figure
+that show it and the forms read and why each is out, the gain at 1.08 to 1.27 a bounce with the
+world probes 8 to 16 over, the near occlusion at the small block's front 1.20, the coarse cascades'
+absence at the corridor's walls 67 to 69 under, the faces' read of light that runs along a surface
+at the mid-corridor probe's face 0.020 against 0.125, and the further way to the thin walls' corner
+at 2.85 times the wall with the screen's probes off; the global illumination guide's section on
+where it falls short points to it. Checked were the norm, document, upgrading, cheat sheet and
+package tests, 38. Item 2's order was read by 08:07 and stands as said under it. The coder raised a
+conflict: Decision 7 records the owner's choice that the suite runs whole and in parts only after a
+process is lost, over parts on every run, and `14890db6`, which the reviewer ordered under Verdict
+72, runs the Windows suite in its parts from the start; the reviewer put it to the owner at once,
+and the Windows job stands as committed until the owner's word, since a whole run on Windows is lost
+on every slow runner with no cache to warm it and the parts are the one form that fits a push's hour
+there. Pushed. At 08:14 the pack run of `9f9180b7` had its games job green at 07:58, Verdict 74's
+third, so it is settled, its macOS captures green at 08:13 and its Windows suite and Linux captures
+running, the Windows parts 79 minutes in, the pack job waiting on them. At 08:39 the pack run of
+`9f9180b7` had ended green whole at 08:38 and pushed `5.2.155` to nuget.org through the policy, the
+login and the push passing, the first package since `5.2.92` and the first through the policy, which
+proves item 38, item 37 proven when the feed lists it and its notes are read; its Windows suite ran
+in its parts on an EPYC 7763, cold, in 66 minutes 23 seconds, 1,683 passed, exit 0, the job in 99
+minutes with the thirteen games, Verdict 72's second of three; the game's coder was told the version
+at once for its item 16. The feed listed `5.2.155` at 08:48, ten minutes after the push, its nuspec
+naming `9f9180b7` and carrying 18 lines of notes, the 18 commits since `5.2.92`'s `33fd0804` whose
+files are not all under `.github`, the review's commits left out, which proves item 37; the game's
+coder was told. Verdict 48's remedies were read by 09:40 and have nothing to give, said under item
+2. Next the Windows job's cache steps taken out, then item 7's next game; item 6 waits on the
+owner's word.
+
+Before it, `e6594bc4` came, the corridor's mend, form (iii), and nothing else, carrying COMMITS.md's
 sentence of Decision 50 and the review's file. A trace held within a given cascade and every finer
 one stands beside the field trace, the same march stopping where the ray leaves them; a screen
 probe's ray past its reach whose world probes hold nothing along its way goes on through the field
@@ -32,9 +62,7 @@ layer over the global illumination, bounce rooms, reference frame, glow, cascade
 pool tests, 89 passed and 12 skipped. Pushed at once; the pack run of `9f9180b7` runs on. The light
 past the first bounce at probes that hold nothing was read for its cause by 07:49, said under item
 30, and a form of (ii) beside (iii) is to be read. That form was read by 08:02 and is out, the term
-standing named as two of the method's, said under item 30, which ends the week's readings. Next item
-39, the terms named in RENDERING.md, then what stands of item 2's order, then item 7's next game;
-item 6 waits on the owner's word.
+standing named as two of the method's, said under item 30, which ends the week's readings.
 
 Before it, `8e80cf46` came, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
 nothing else, the first carrying the review's edits as the batch that came next. The Windows suite
@@ -63,42 +91,6 @@ suites running and the build run of `7eb7079b` had ended green at 06:44, its Win
 from the start in 33 minutes 22 seconds on an EPYC 9V45, cold, exit 0, Verdict 72's first of three,
 and the pack run had its Linux and macOS suites and examples green with its Windows, captures and
 games jobs running.
-
-Before it, `4369898a` came, item 30's thin walls' mend and nothing else, with the review's commits
-between. The sight test's slack is an eighth of the spacing, a cell of the probes' cascade, since
-the spacing is 8 at every quality, the remark naming the borrowed light with the thin wall's 1.153,
-1.072 with the lamp off and 1.098 mended, and the corridor's 67 to 70 under going to 78 to 79; the
-screen shader's reach remark drops its comparison with the sight test, no longer true. The thin
-walls' bounds go to 0.09, 0.10 and 0.10 where they read 0.078, 0.079 and 0.084, the corridor's Low
-and Medium are pinned at 0.27 and 0.29 where they read 0.234 and 0.244, and the grazing floor's High
-at 0.10 where it reads 0.082, the reason in the bounds' remark; a new test reads the thin wall's
-foot at 800 by 450 with the outside lamp on and off through the light color, 1.279 on the head and
-1.050 mended, bounded under 1.1, the rooms exposing the lamp's handle. RENDERING.md has a record
-dated 2026-10-20 after the parallax's, the reach paragraph says an eighth, and the earlier naming is
-corrected in (f)'s record, the sampling term's and the bounds' remark. Checked were the strict
-build, the suite, 1,744 passed and none failed, and lavapipe under the required layer over the
-global illumination, bounce rooms, reference frame, glow, cascade edge and descriptor pool tests, 89
-passed and 11 skipped. Two findings from the corrections: four more world probes at the thin room's
-corners read the same with the outside lamp off, nine in all, which the record says; and with the
-screen's probes left out, the corner by the front wall reads 3.53 times the wall beside it on the
-head, 1.01 with the lamp off and 2.85 mended, where cutting the twentieth of a weight the bounced
-read keeps for an unseen probe takes it only to 2.81, so the model pass's read of the probes there
-brings the lamp's light by a further way, not named yet, the record saying so, while with the
-screen's probes on the corner reads within its test's bound, the twentieth carrying 0.8 of the
-wall's 2.6 remaining points. The push cancels the build run of `102eea09`; the pack run with publish
-on of `448aa3fc` runs on, its Windows suite in its second hour. The corridor's under-read was read
-and named by 05:51, the coarse cascades against a space narrower than their spacing, said under item
-30 with three mend forms. At 06:06 the pack run of `448aa3fc` had every job green but Windows, its
-games job at 05:37, Verdict 74's second of three, and its captures at 05:47, with the Windows
-suite's step in its 96th minute under the mends, the pack job waiting on it. The corridor's forms
-were read by 06:19, (i) out, (ii) not taken and (iii) taken, said under item 30. At 06:38 the pack
-run of `448aa3fc` had ended red at 06:32 on its Windows suite alone, every test passing, 1,667
-passed and none failed in 121 minutes 5 seconds on an EPYC 7763, the whole run lost at its hour with
-1,302 passed and thirteen of the fifteen parts run again for 61 minutes more, the step ending with
-exit 1 for the lost whole run though no test failed, and lavapipe writing no shader cache though
-asked for by name, so the pack job was skipped and no package was made again; read under Verdict 72,
-whose two further mends come before the corridor's commit, and then the pack run starts anew on the
-head.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -181,30 +173,55 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    read by the reviewing session, and a failure it names comes first here.
 
 2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
-   at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
-   changed, each a commit of its own with its numbers before and after and a test that holds the
-   measure, the voxel game's read through the testbed at eight columns, and the game's session asked
-   to write what it measures of them in ASKS.md. The game's session measured b, c and d on the game
-   and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with that file.
-   The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's lobes gone
-   at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone farther off,
-   so b closes with its commit, d gains its lever and e is added. At 23:40 the owner looked at
-   `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part, which is
-   part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the sky's
-   light enter it by the heading alone, which is part g and comes first (Decision 28). At 10:55 the
-   owner looked at the tree with g's mend and found it right at every heading and tier but one
-   window at High, and found the indirect light noisy and spotted where a penumbra is wide, which is
-   part h. The apparatus first: `BounceReference` traces a mesh's flat color times its texture's
-   average and not the vertex colors the field and the model pass read, so the game's rooms of white
-   concrete, one white material with each block's color in its vertices, read a third brighter in
-   the reference than in the frame and the comparison cannot tell the bounce's error from the
-   color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since `3c7fe822`,
-   blended by the hit's barycentrics as the model pass blends them, a colored slab within 1% where
-   0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run whether the
-   measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left thing, then
-   item 10, item 9 and item 8, the others being done; the game's session measured g and h in the
-   game and wrote them in ASKS.md, as it measured d at both cells and e along the distance, and
-   reads g on `64fd2f14`.
+    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
+    changed, each a commit of its own with its numbers before and after and a test that holds the
+    measure, the voxel game's read through the testbed at eight columns, and the game's session
+    asked to write what it measures of them in ASKS.md. The game's session measured b, c and d on
+    the game and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with
+    that file. The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's
+    lobes gone at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone
+    farther off, so b closes with its commit, d gains its lever and e is added. At 23:40 the owner
+    looked at `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part,
+    which is part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the
+    sky's light enter it by the heading alone, which is part g and comes first (Decision 28). At
+    10:55 the owner looked at the tree with g's mend and found it right at every heading and tier
+    but one window at High, and found the indirect light noisy and spotted where a penumbra is wide,
+    which is part h. The apparatus first: `BounceReference` traces a mesh's flat color times its
+    texture's average and not the vertex colors the field and the model pass read, so the game's
+    rooms of white concrete, one white material with each block's color in its vertices, read a
+    third brighter in the reference than in the frame and the comparison cannot tell the bounce's
+    error from the color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since
+    `3c7fe822`, blended by the hit's barycentrics as the model pass blends them, a colored slab
+    within 1% where 0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run
+    whether the measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left
+    thing, then item 10, item 9 and item 8, the others being done; the game's session measured g and
+    h in the game and wrote them in ASKS.md, as it measured d at both cells and e along the
+    distance, and reads g on `64fd2f14`. Read again by 08:07 on 2026-10-20 from the record and the
+    history: h's shadow depth and wall are done at `56db892b` and `8118e2c7`, the tiles' blotches at
+    0.30 percent and the seam's teeth of about ten pixels left for the owner's eye on `623bdc47`,
+    and the wall's dark side behind the pillar at 0.80 of the reference is the near occlusion term
+    from its other side, named under item 39; Verdict 49's steps and pairs are done and the verdict
+    settled; f's second left thing is done at `a25edfa7`; items 10, 9 and 8 are done at `c54d64eb`,
+    `feec07a2` and `c81eca54`; Verdict 48's two remedies stand unmade, the lamps' passes compiled
+    once and shared by the apps of a process, where the pipeline cache is per render world and no
+    Vulkan pipeline cache is shared across apps, and the leak test's lampless app given no lamp pass
+    to compile, and with the Windows job cold on every run since lavapipe's Windows build keeps no
+    cache they are next, read first for how much of the Windows suite's time each app's compiles
+    hold. Then item 7. Verdict 48's two remedies read by 09:40 on 2026-10-20 and taken as read with
+    nothing to mend: on lavapipe under the required layer the Rendering and Core parts take 35
+    minutes 43 seconds with Mesa's cache off as on Windows, 16 minutes 21 seconds filling and 15
+    minutes 48 warm, so 56 percent of their time is the same shaders compiled again for each app,
+    the leak test's app 1.32 seconds cold against 0.56 warm, 0.11 of it the making of its seven
+    pipelines and most of the rest the first frame, 830 ms cold against 164, where lavapipe compiles
+    its variants at the first draw and dispatch; a pipeline cache made with each device from the one
+    before changes nothing, 199 seconds against 195 over the hundred apps, since lavapipe's cache
+    keeps nothing of its compiled code across devices and its draw-time compiles are not in it, so
+    sharing compiles needs the device kept from app to app, which the leak tests exist to forbid;
+    the lampless app already makes no lamp or bounce pass, seven pipelines in 109 ms; and pal1000's
+    Windows builds of Mesa 26.2.4, the MSVC one the job takes and the MinGW one, lack the disk cache
+    altogether, their lavapipe carrying a stub's name where the Linux one carries the cache's, so no
+    variable, folder or step can warm the Windows suite. The Windows job's cache steps go in a small
+    commit with the finding in their place, then item 7.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -2230,7 +2247,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     2026-10-19, 15 lines where the minor's 105 against the feed's `5.2.92`, and widened the same
     day: a commit whose every file lies under `.github/` is left out, since the package carries
     nothing from there, in a small commit before (j). The rule is in at `8e3ff67a`, the notes at 5
-    lines of the engine's alone.
+    lines of the engine's alone. Proven on `5.2.155`, listed on 2026-10-20 at 08:48 with 18 lines,
+    the engine's commits since `33fd0804` and none of the review's.
 
 38. **The pack run publishes through nuget.org's trusted publishing and no stored key (Decision
     48).** The pack job gains the identity token's write permission beside its read of the contents,
@@ -2244,6 +2262,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pattern `3DEngine*`; at 22:54 the owner asked whether the pack could upload by itself, so this
     comes first, right after the reading in hand, with item 37, and items 36, Verdict 72 and the
     rest after. Done at `4af3cdde` on 2026-10-19; the first pack run with publish on is its check.
+    Proven on the pack run of `9f9180b7` on 2026-10-20 at 08:38, the login and the push through the
+    policy passing and `5.2.155` pushed.
 
 39. **RENDERING.md names the terms of the global illumination's method that stand unmended, with
     their figures.** The week's readings under item 30 ended on 2026-10-20 with the rule's rooms at
@@ -2258,7 +2278,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     gains a section naming each term, its cause in a sentence, the room and figure that show it, the
     forms read against it and why each is out, and the rule they were read by; a sentence in the
     global illumination guide points to it. One commit, documents alone, carrying the review's
-    files.
+    files. Done at `82dd08f2` on 2026-10-20, as the head says.
 
 ## Verdicts
 
@@ -2271,7 +2291,9 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
-runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 and 75 are open.
+runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
+runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdicts 72 and 75 are
+open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3139,9 +3161,12 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     toward settling starts at the pack run of `9f9180b7`, the first under all four. The push run of
     `9f9180b7` on 2026-10-20, the first under all four mends, ran its Windows suite in its parts
     from the start on an EPYC 9V45, cold, in 33 minutes 22 seconds, 1,683 passed, exit 0, the job in
-    40 minutes, the first of three. Settled at three Windows suites in a row after the mends that
-    end with their summary inside the job's limit, each recorded with its processor, its time and
-    whether the cache was found, since the time is the processor's and an hour is not the bound.
+    40 minutes, the first of three. The pack run of `9f9180b7` on 2026-10-20 ran its Windows suite
+    in its parts on an EPYC 7763, cold, in 66 minutes 23 seconds, 1,683 passed, exit 0, the job in
+    99 minutes with the thirteen games, the second of three, and the slow runner's figure for the
+    parts, inside a push's 100 by a third. Settled at three Windows suites in a row after the mends
+    that end with their summary inside the job's limit, each recorded with its processor, its time
+    and whether the cache was found, since the time is the processor's and an hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
@@ -3183,7 +3208,9 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     images stand at 92 in the table where those walks reached 94, under the slack's 98, watched.
     Settled when the games job's soak passes on three pack runs in a row. The games job of the pack
     run of `193c68b0` passed at 03:24 on 2026-10-20, the first of three. The games job of the pack
-    run of `448aa3fc` passed at 05:37 on 2026-10-20, the second of three.
+    run of `448aa3fc` passed at 05:37 on 2026-10-20, the second of three. The games job of the pack
+    run of `9f9180b7` passed at 07:58 on 2026-10-20, three in a row. Settled on the pack runs of
+    `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20.
 
 75. **The hundred-app leak test's bound on resident growth takes its base from one reading at the
     twentieth app, and a trough there fails a flat series.** On the pack run of `193c68b0`,
@@ -3241,13 +3268,17 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
    norm. A working session that commits a change to its instruction file only on the owner's
    word in its own session is right to, and waits for that word.
 
-7. **A run that fails says what failed in a page, and the reviewing session is given no log.**
-   The owner chose it on 2026-10-05, after a log pasted into the reviewing session ended it.
-   The suite runs whole as it does, and in parts only after a process is lost, which the owner
-   chose over parts on every run. A test in which the engine logs an error fails unless it says
-   it expects that error, with a list of the tests that log one today. The norm has these as
-   N 6.7, N 6.8 and N 3.7, and the reviewing session reads a run's jobs and annotations from
-   GitHub.
+7. **A run that fails says what failed in a page, and the reviewing session is given no log.** The
+   owner chose it on 2026-10-05, after a log pasted into the reviewing session ended it. The suite
+   runs whole as it does, and in parts only after a process is lost, which the owner chose over
+   parts on every run. A test in which the engine logs an error fails unless it says it expects that
+   error, with a list of the tests that log one today. The norm has these as N 6.7, N 6.8 and N 3.7,
+   and the reviewing session reads a run's jobs and annotations from GitHub. On 2026-10-20 the
+   Windows suite was set to run in its parts from the start at `14890db6` under Verdict 72, since
+   lavapipe's Windows build keeps no shader cache and a whole run there is lost at its hour on every
+   slow runner, 121 minutes with the parts run again where the parts alone take 62; the coder raised
+   it against this decision's second sentence, and the reviewer put it to the owner, the Windows job
+   standing as committed until the owner's word, Linux and macOS running whole as before.
 
 8. **The page's repeated lines are warnings and errors.** The owner chose it on 2026-10-06, after
    the page of `98f6d8e5` repeated the engine's banner, so the section counts what is logged at
