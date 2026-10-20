@@ -23,8 +23,15 @@ descriptor pool tests, 94 passed and 11 skipped. (c)'s first reading is under it
 this head is held until the build run of `390c9b61` ends its Windows suite, since a push cancels
 that run and its suite is the first under Verdict 72's mends with the cache's reading at its end,
 lost three times to pushes already; the pack run of `193c68b0` runs on regardless. (c) was read and
-named by 04:06, said under item 30. Next (c)'s candidates read for form and cost, then the thin
-walls' term.
+named by 04:06, said under item 30. At 04:24 the pack run of `193c68b0` ended red on its Windows
+suite, run cold on an EPYC 7763, the whole lost at its 60 minutes with the bounce rooms' test the
+last to end at 59 minutes 20 seconds, the parts then run again for 62 more, 121 minutes 49 seconds
+in all, 1,678 passed and one failed, the hundred-app leak test's bound on a trough in its base
+reading (Verdict 75), so the pack job was skipped and no package was made; every other job was
+green. The held push went at 04:26, cancelling the build run of `390c9b61` in its Windows suite,
+whose reading moves to the pack run with publish on started at 04:27 on this head, `39359042041`,
+the first pack run under Verdict 72's mends, and to this head's build run; the game waits on it.
+Next (c)'s candidates read for form and cost, then the thin walls' term.
 
 Before it, `30993e84` came, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else,
 with the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
@@ -2003,7 +2010,7 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
-runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 74 are open.
+runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 and 75 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2837,9 +2844,15 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 
     third mend. Mended at `81007b4e` and `30993e84` on 2026-10-20 as the head says, the cache asked
     for by name and said after the suite, and the lost whole run's ended tests counted with only the
     parts holding tests without a result run again; the build run of `30993e84` is the first suite
-    under them. Settled at three Windows suites in a row after the mends that end with their summary
-    inside the job's limit, each recorded with its processor, its time and whether the cache was
-    found, since the time is the processor's and an hour is not the bound.
+    under them. On the pack run of `193c68b0`, under the old script, the Windows suite ran on an
+    EPYC 7763 cold, no cache found, the whole lost at 60 minutes with the bounce rooms' test the
+    last to end at 59 minutes 20 seconds, the parts then 62 minutes, 121 minutes 49 seconds in all,
+    the Rendering part alone some 50 of them, 1,704 ms a leak app; so on a 7763 the second mend's
+    rerun of the lost part alone still passes a push's 100 minutes only with the cache warm or the
+    third mend in, which the runs under the mends read. Settled at three Windows suites in a row
+    after the mends that end with their summary inside the job's limit, each recorded with its
+    processor, its time and whether the cache was found, since the time is the processor's and an
+    hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
@@ -2881,6 +2894,22 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 
     images stand at 92 in the table where those walks reached 94, under the slack's 98, watched.
     Settled when the games job's soak passes on three pack runs in a row. The games job of the pack
     run of `193c68b0` passed at 03:24 on 2026-10-20, the first of three.
+
+75. **The hundred-app leak test's bound on resident growth takes its base from one reading at the
+    twentieth app, and a trough there fails a flat series.** On the pack run of `193c68b0`,
+    2026-10-20 at 03:29, the Windows suite's Core part failed the offscreen app leak test, the
+    private bytes committed after every ten apps in MB 156.5, 80.0, 159.2, 164.0 and 163.9 and on to
+    158.7 at the hundredth, flat but for the twentieth, where the process had given memory back
+    between apps, so the last less the twentieth read 78.7 against the bound of 50 while the last
+    less the tenth read 2.2 and the heap's live objects held 14.3 to 14.8 MB throughout; the regions
+    by kind said the same, private data 69.1 MB at the twentieth to 158.7 at the last and every
+    other kind unchanged, the apps 1,704 ms each on the 7763. The fault is the bound's form, one
+    reading as the base. The mend is one thing, under N 3.5: the base taken as the greatest of the
+    readings at the tenth, twentieth and thirtieth app, or the growth read as the slope over the
+    readings after the twentieth, the series printed as it is and the remark saying why one reading
+    cannot be the base, with a test of the check on this run's series passing and on a climbing one
+    failing. It gates the package, so it comes before (c)'s mend. Settled at three Windows suites in
+    a row with the test green after the mend.
 
 ## Decisions
 
