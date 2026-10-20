@@ -137,6 +137,23 @@ saved with its arrays this way. A source generator writes the code that saves
 and reads them as the program compiles, so loading does no reflection and works in a trimmed or
 AOT build.
 
+A component or a field renamed keeps its saved levels with `[FormerName]`, which names what it was
+called. A file is read from the old name where it has not the new one, and the next save writes
+the new one. A type's former name given alone is in its own namespace, and one with a dot is a full
+name, for a type moved to another, and the attribute is repeated for a name changed more than once:
+
+```csharp
+[SceneComponent, FormerName("Chest")]
+public struct Coffer
+{
+    [FormerName("Gold")] public int Coins;
+    public bool Opened;
+}
+```
+
+A field's own name in a file is read before a former one, and a former name another component has
+since taken is read as that component.
+
 ## What is solid
 
 A `Collider` says what shape an entity is solid as, and a `RigidBody` beside it whether it falls

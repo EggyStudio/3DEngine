@@ -18,16 +18,19 @@ namespace Engine;
 /// of one of those, or an array of one, as a mesh's positions are. Other fields are left out, so a
 /// component holding a runtime handle is saved without it rather than refused. A component starts
 /// from its static <c>Default</c> or <c>Identity</c> when it has one, so a field missing from an
-/// older file keeps a sensible value.
+/// older file keeps a sensible value. A type's or a field's <c>[FormerName]</c> is a name the file
+/// is read from where it has not the current one, a type's registered as a full name, one given
+/// alone placed in the type's namespace.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 internal sealed class SceneComponentGenerator : IIncrementalGenerator
 {
     private const string SceneComponent = "Engine.SceneComponentAttribute";
     private const string Behavior = "Engine.BehaviorAttribute";
+    private const string FormerName = "Engine.FormerNameAttribute";
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
-    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior];
+    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName];
 
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -59,9 +62,23 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
         });
     }
 
-    private sealed record FieldModel(string Name, string Write, string Read);
+    private sealed record FieldModel(string Name, string Write, string Read)
+    {
+        // The names the field was written under before, which the reader tries where the file has
+        // not its own.
+        public string[] FormerNames { get; init; } = [];
+    }
 
-    private sealed record ComponentModel(string Type, string Name, string Start, FieldModel[] Fields);
+    private sealed record ComponentModel(string Type, string Name, string Start, FieldModel[] Fields, string[] FormerNames);
+
+    // The names a [FormerName] on a symbol gives, in the order they are written.
+    private static string[] FormerNamesOf(ISymbol symbol) =>
+        symbol.GetAttributes()
+            .Where(a => a.AttributeClass?.ToDisplayString() == FormerName && a.ConstructorArguments.Length == 1)
+            .Select(a => a.ConstructorArguments[0].Value as string)
+            .Where(n => !string.IsNullOrEmpty(n))
+            .Select(n => n!)
+            .ToArray();
 
     private static ComponentModel? Model(INamedTypeSymbol? type)
     {
@@ -75,10 +92,13 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
         foreach (var field in type.GetMembers().OfType<IFieldSymbol>())
         {
             if (field.IsStatic || field.IsConst || field.IsReadOnly || field.DeclaredAccessibility != Accessibility.Public) continue;
-            if (Field(field.Name, field.Type) is { } model) fields.Add(model);
+            if (Field(field.Name, field.Type) is { } model) fields.Add(model with { FormerNames = FormerNamesOf(field) });
         }
 
-        return new ComponentModel(fqn, type.Name, start, fields.ToArray());
+        // A former name alone is in the type's own namespace, and one with a dot is a full name.
+        var space = type.ContainingNamespace is { IsGlobalNamespace: false } ns ? ns.ToDisplayString() + "." : "";
+        var former = FormerNamesOf(type).Select(n => n.Contains('.') ? n : space + n).ToArray();
+        return new ComponentModel(fqn, type.Name, start, fields.ToArray(), former);
     }
 
     // Generated code lives in the type's assembly, so internal is enough, but a nested type must be
@@ -201,9 +221,16 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
                 .Append("            static (e, ctx) =>\n            {\n")
                 .Append("                var value = ").Append(model.Start).Append(";\n");
             foreach (var field in model.Fields)
-                source.Append("                if (e.TryGetProperty(").Append(Quote(field.Name)).Append(", out var p_").Append(field.Name).Append(")) { var p = p_").Append(field.Name).Append("; ")
-                    .Append(field.Read).Append(" }\n");
-            source.Append("                return value;\n            }));\n");
+            {
+                source.Append("                if (e.TryGetProperty(").Append(Quote(field.Name)).Append(", out var p_").Append(field.Name).Append(')');
+                foreach (var former in field.FormerNames)
+                    source.Append(" || e.TryGetProperty(").Append(Quote(former)).Append(", out p_").Append(field.Name).Append(')');
+                source.Append(") { var p = p_").Append(field.Name).Append("; ").Append(field.Read).Append(" }\n");
+            }
+            source.Append("                return value;\n            })");
+            if (model.FormerNames.Length > 0)
+                source.Append(" { FormerNames = new string[] { ").Append(string.Join(", ", model.FormerNames.Select(Quote))).Append(" } }");
+            source.Append(");\n");
         }
 
         source.Append("    }\n}\n");

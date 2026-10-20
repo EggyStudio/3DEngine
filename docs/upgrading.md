@@ -290,6 +290,10 @@ guide that shows it.
   plays as a wave of the right speed, as [Sound the program makes](audio.md#sound-the-program-makes)
   shows. A backend of the program's own gives them as `IAudioBackend.DeviceSampleRate` and
   `IAudioBackend.DeviceChannels`, which are 0 until it says otherwise.
+- **A renamed component's levels.** `FormerNameAttribute` on a scene component or one of its
+  fields reads a scene file written under its old name, which a codec gives as
+  `ISceneCodec.FormerNames` and `SceneCodec.FormerNames` and `SceneComponents.Find` answers by, as
+  [A program's own components](scenes.md#a-programs-own-components) shows.
 - **A font's ligatures turned off.** `SetFontLigatures` draws a font's standard ligatures as their
   letters, for a program that needs a glyph for each character, as
   [Fonts from files](text-and-fonts.md#fonts-from-files) shows.

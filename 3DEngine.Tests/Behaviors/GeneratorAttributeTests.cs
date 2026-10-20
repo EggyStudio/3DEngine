@@ -126,6 +126,7 @@ public class GeneratorAttributeTests
 
         [SceneComponent] public struct Marker { public int Value; }
         public struct Unmarked { public int Value; }
+        [SceneComponent, FormerName("Formerly")] public struct Renamed { public int Value; }
         """;
 
     // What each attribute's case checks, by the attribute's full name. A name the generators read
@@ -157,6 +158,7 @@ public class GeneratorAttributeTests
         ["Engine.MainThreadAttribute"] = "MainThread",
         ["Engine.CommandAttribute"] = "probe.ping",
         ["Engine.SceneComponentAttribute"] = "Marker",
+        ["Engine.FormerNameAttribute"] = "Formerly",
     };
 
     private static IEnumerable<string> GeneratorAttributes =>
@@ -299,6 +301,7 @@ public class GeneratorAttributeTests
         ConsoleCommands.Find("notacommand").Should().BeNull("a method without [Command] is not one");
         SceneComponents.Find("GeneratorProbe.Marker").Should().NotBeNull("[SceneComponent] registers the type for scene files");
         SceneComponents.Find("GeneratorProbe.Unmarked").Should().BeNull("a struct without it is not registered");
+        SceneComponents.Find("GeneratorProbe.Formerly")?.Type.Name.Should().Be("Renamed", "[FormerName] finds a type by the name it had");
     }
 
     // Runs every generator over Source, emits the result and loads it, running its module

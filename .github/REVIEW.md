@@ -10,7 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4789ebde`, item 44 and nothing else, carrying the review's file. The TrueType font
+Reviewed up to `3b46c543`, the CI measure's line and a stale capture, documents and captures alone,
+carrying the review's file. The Unicode ranges example's line leaves the CI measure file rather than
+going back to 9.1, since the comparison script fails a pair whose measure stands more than a point
+past its record and measures a pair not in the record for the first time, saying so in the summary
+and in a notice without failing, so the line is recorded from what the next captures job measures;
+the machine's own record keeps its 11.4. The sprite fonts example was captured again with its
+gallery thumbnail and the captures table, the table's check passing. Read at 14:18; the push of the
+four commits from `006ff3ba` waits for the build run of `fd484ead` to end, the pack run with publish
+on then started anew on the head. Item 6 waits on the owner's word; TODO.md's next entry with work
+left is item 45, old scene files read through former names and versions.
+
+Before it, `4789ebde` came, item 44 and nothing else, carrying the review's file. The TrueType font
 reads the kern table, Microsoft's and Apple's first format, horizontal and along the line; a font
 loaded from a file keeps a Latin shaping read once at load for the glyphs of the characters it is
 baked with, its ligature rules lookup by lookup, the pair adjustments of its kern feature by glyph
@@ -39,9 +50,7 @@ ranges examples and their thumbnails are refreshed; the sprite fonts example's s
 stale already by 4 percent with its share unchanged and is left. The games that draw Lato are kerned
 and joined once repacked, none measuring text by prefix or character. The text guide's paragraph and
 snippet, the cheat sheet, the surface listing, the upgrading guide, seven that still compile and the
-added entry, and the raylib comparison's new row follow. Read at 14:17; the push of the three
-commits from `006ff3ba` waits for the build run of `fd484ead` to end, the pack run with publish on
-then started anew on the head. Item 6 waits on the owner's word.
+added entry, and the raylib comparison's new row follow.
 
 Before it, `40283221` came, item 43 at `006ff3ba` and Verdict 76's mend at `40283221`, the first
 carrying the review's file. The audio backend's interface gains the device's sample rate and
@@ -65,34 +74,6 @@ saw the build state six times in six; the mend is two frames waited after the go
 read, which answers only once those frames have run, so the game has taken the go on any runner at
 any speed, the read then seeing the build state no time in six and the full run passing, and the
 other games' drives already wait frames between a command and the read it is judged by.
-
-Before it, `39103995` came, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying
-the review's file, nothing in the engine changed. The robot model is carried in the game's resources
-byte-identical to raylib's at the pinned commit with a notice beside it naming its author, CC0 and
-the commit, said in the README. The robot is a character controller of radius 0.35 and 1.8 m drawn
-at half the model's size, its idle, walk and run chosen and timed by speed; the upper body is a
-one-keyframe clip the game builds each frame, the idle's keyframe or the punch's while a punch
-lasts, the torso and every bone below it turned about the torso's joint toward the pointer within a
-quarter turn, laid over the legs as a layer from the torso; a crouch is the character's height at
-1.1 with the sitting clip held at a frame, standing only where nothing is over it. The ragdoll is
-eleven capsules from the pose the robot was last given, on a layer that does not collide with
-itself, ball joints with cone limits at the waist, neck, shoulders and hips and hinges about the
-body's across at the knees and elbows, each of the 43 bones carried by its nearest part with its
-offset taken at the fall, the model posed from the bodies' transforms through a one-keyframe clip
-each frame, the blow an impulse at a point on the part nearest the contact; once the parts lie still
-for 0.6 s after at least 1.5, or after 6, the ragdoll is let go, the character made where the hips
-lie facing the feet, and a blend goes from the lying clip to the standing clip's seated first frame
-over 0.7 s, then standing over 0.9, then idle. Cannons fire at the chest, a kinematic bar sweeps the
-middle at 1.5 to 1.8 m and stars are triggers to collect; a ball faster than 3 m a second knocks the
-robot down and so does the bar, on a contact starting or a continuing push read by the contact
-impulse; a punch at the striking part of its swing sends a ball near the fist away; status, strike
-and hazards commands. The scripted run asserts a walk over 1.5 m by a key, a fall from the strike
-and a rise, passing on the development machine's card and on lavapipe in 29 seconds under validation
-with no errors; crouched through 12 seconds of the bar alone there are no falls and standing it is
-knocked down; the soak's 23 turns and its check pass, the storm passes, the suite gave 1,754, the
-game is wired in as Siege was, BUILDING.md says seventeen and the animation and physics guides list
-it. No engine finding came from it, the layer and blend calls and the model-space keyframes doing
-what their documents say.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2466,7 +2447,30 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     its own, and the figure is recorded from the next pack run's captures job, which measures
     against raylib and says the share in its summary without failing, so the file says what a run
     measured. The sprite fonts example's stale capture is taken again with it, documents and
-    captures alone.
+    captures alone. The line left the CI measure file at `3b46c543`, to be recorded from the run,
+    the sprite fonts capture taken again with it.
+
+45. **A renamed or reshaped type still reads its old scene files, from BevyCSharp's former names and
+    data versions.** TODO.md's next entry with work left, read on 2026-10-20 at 14:19 under Scenes,
+    the entries between text and it being descriptions, limits kept on purpose or the method's
+    limits under item 39: an older file is read by keeping the fields it has, with no migration, so
+    a field renamed or a component split leaves the old file's value behind. SHARED.md's row says
+    BevyCSharp has it and this engine is to consider, and its model is read from the other checkout:
+    a former-name attribute on a type or a field, repeatable, a name alone meaning the type's own
+    namespace and a dotted name a full one, a renamed struct field taking the paths under it along
+    and a name another type has since taken going to that type; a data-version attribute on a type
+    with a static migration from a version and the file's object, which the generator finds by name
+    and its registration calls, a load running it from the file's version, a file recording its
+    version beside the fields once past 1, and a versioned type with no migration a generator
+    warning; and a file from a later version read as far as the fields match, not migrated, and
+    saved back at its later version with the values this build did not read. The port: the registry
+    answering by each former name; the generated reader trying the former names where a field's own
+    is missing; the generated codec writing the version past 1 and calling the migration on load,
+    with a diagnostic for a versioned type with no migration and its code fix beside the generator's
+    others; tests of a component renamed, a field renamed, a split migrated across two versions and
+    a file from a later version kept; the scene guide's paragraph, the cheat sheet where it lists
+    attributes, the surface listing and the upgrading guide's added entry; and a Shared line under
+    Replies, the row then saying both have it. Two commits, the renames and then the versions.
 
 ## Verdicts
 
@@ -3839,6 +3843,11 @@ Shared: a game reads the force a joint held its bodies with over the last step,
 `GetPhysicsJointForce` (`fdcfd435`), the impulse Bepu keeps for the joint's own constraint over the
 length of a substep, which a box of 3 kilograms hanging on a distance joint reads as its weight
 within a percent at one substep and at four.
+
+Shared: a scene component or one of its fields keeps its saved levels across a rename by
+`[FormerName]`, after BevyCSharp's, a type's former name alone placed in its namespace and one with
+a dot taken as full, the registry answering by each former name after every current one, and the
+generated reader trying a field's former names where its own is missing (item 45, the renames).
 
 
 

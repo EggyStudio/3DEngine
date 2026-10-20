@@ -13,6 +13,13 @@ public interface ISceneCodec
     /// <summary>The component type.</summary>
     Type Type { get; }
 
+    /// <summary>
+    /// The full names the component was written under before, from its type's
+    /// <see cref="FormerNameAttribute"/>, which a file is read from where no registered type now has
+    /// the name. None, the default, where it was never renamed.
+    /// </summary>
+    IReadOnlyList<string> FormerNames => [];
+
     /// <summary>Whether the entity has the component.</summary>
     bool Has(EcsWorld ecs, int entity);
 

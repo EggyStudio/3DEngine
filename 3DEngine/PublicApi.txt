@@ -1600,6 +1600,9 @@ enum Engine.FontType : int
   Bitmap = 1
   Default = 0
   Sdf = 2
+sealed class Engine.FormerNameAttribute : Attribute
+  FormerNameAttribute(string name)
+  string Name { get; }
 enum Engine.GamepadAxis : int
   LeftTrigger = 4
   LeftX = 0
@@ -1748,6 +1751,7 @@ interface Engine.IPlugin
 interface Engine.IPluginGroup
   IEnumerable<IPlugin> GetPlugins()
 interface Engine.ISceneCodec
+  IReadOnlyList<string> FormerNames { get; }
   Type Type { get; }
   bool Has(EcsWorld ecs, int entity)
   string Name { get; }
@@ -2663,6 +2667,7 @@ sealed class Engine.SceneAsset
   string SourceFormat { get; init; }
   string? SourcePath { get; init; }
 sealed class Engine.SceneCodec<T> : ISceneCodec
+  IReadOnlyList<string> FormerNames { get; init; }
   SceneCodec(string name, SceneCodec<T?>.Writer write, SceneCodec<T?>.Reader read)
   Type Type { get; }
   bool Has(EcsWorld ecs, int entity)

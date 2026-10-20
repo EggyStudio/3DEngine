@@ -20,6 +20,9 @@ public sealed class SceneCodec<T>(string name, SceneCodec<T>.Writer write, Scene
     public Type Type => typeof(T);
 
     /// <inheritdoc />
+    public IReadOnlyList<string> FormerNames { get; init; } = [];
+
+    /// <inheritdoc />
     public bool Has(EcsWorld ecs, int entity) => ecs.Has<T>(entity);
 
     /// <inheritdoc />
