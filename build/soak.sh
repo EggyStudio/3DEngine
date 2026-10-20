@@ -164,13 +164,16 @@ turn() {
       cmd input.click 640 300
       wait_frames 60 ;;
     tones)
-      # Notes and drums played under the echo and the filter turned on and off in turn, a recording
-      # made, saved, read back and played every few turns, the sound made of it let go each time.
+      # Notes and drums played under the echo and the filter turned on and off in turn, and every
+      # few turns, from the first, a note recorded, saved, read back and played, the sound made of
+      # it let go each time. The recording is of the note alone, at the start of the turn, since a
+      # recording's samples come at the rate it plays, so one as long as a turn on a runner whose
+      # turns took 30 seconds held its buffers from past the soak's first quarter, a step its check
+      # read as a climb, where each recording now holds as much as the first.
       if (( i % 2 == 0 )); then cmd tones.effect echo on; else cmd tones.effect echo off; fi
       if (( i % 3 == 0 )); then cmd tones.effect filter on; else cmd tones.effect filter off; fi
-      if (( i % 4 == 0 )); then cmd tones.record start; fi
+      if (( i % 4 == 0 )); then cmd tones.record start; key A 10; cmd tones.record stop; wait_frames 2; key Four 2; fi
       key A 10; key D 10; key Z 2; key G 10; key X 2; key K 20
-      if (( i % 4 == 0 )); then cmd tones.record stop; wait_frames 2; key Four 2; fi
       wait_frames 60 ;;
   esac
 }

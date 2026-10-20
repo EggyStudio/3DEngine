@@ -10,24 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a150c4c1`, item 53's first commit, the saved game over its scenes, and nothing else,
-carrying the review's and the ledger's files, in the form and with the tests and numbers said before
-it; the suite gave 1,807. Read at 18:27; its push with `43ace92a` waits for the build run of
-`414e6f77` to end. At 18:35 the pack run of `b19f09dc` had ended red at 18:34 on its games job's
-soak alone, Tones' heap climbing past its bound (Verdict 79), the siege's drive passing on that job,
-Verdict 77's first, and both captures jobs green, so the pack job was skipped and the day's package
-waits on the mend; the feed holds `5.2.155` still. The persistent value's form is said under item 53
-and taken, its commit next, then Verdict 79, then the push and the pack run anew. Item 6 waits on
-the owner's word.
+Reviewed up to `8e31620c`, item 53's second commit, the persistent value, and nothing else, carrying
+the review's file, in the form said before it; the suite gave 1,807 and the strict build is clean.
+The build run of `414e6f77` ended green at 19:01, so the three commits from `43ace92a` to this head
+were pushed at 19:04; the pack run anew waits for Verdict 79's mend, which stands in the coder's
+tree. SHARED.md's row says both engines have the save and the persistent value. Item 6 waits on the
+owner's word.
+
+Before it, `a150c4c1` came, item 53's first commit, the saved game over its scenes, and nothing
+else, carrying the review's and the ledger's files, in the form and with the tests and numbers said
+before it; the suite gave 1,807.
 
 Before it, `43ace92a` came, item 52 and nothing else, carrying the review's and the ledger's files,
 in the form and with the tests and numbers said before it; the suite gave 1,801, the strict build is
 clean and the scene guide's blocks build on the fresh pack.
-
-Before it, `414e6f77` came, item 51 and nothing else, carrying the review's and the ledger's files,
-in the form and at the cost said before it; the suite gave 1,798, the strict build is clean, the
-guide's block builds on the fresh pack and Tumble builds strictly on it. Pushed at 18:04 with items
-49 and 50 once the pack run's suites were past.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2727,7 +2723,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     revert and reset, a broken file giving the fallback with its problem and the file left as it
     was, and a vector refused for want of a codec; a live run wrote a field of view and read it over
     a camera's fallback. The scene guide's section with a settings block, the cheat sheet's
-    sentence, the upgrading guide's entry and eleven lines of the surface listing follow.
+    sentence, the upgrading guide's entry and eleven lines of the surface listing follow. The
+    persistent value done at `8e31620c` on 2026-10-20; the item is done, the ledger's row saying
+    both engines have it.
 
 ## Verdicts
 

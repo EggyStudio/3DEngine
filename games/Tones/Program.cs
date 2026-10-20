@@ -1,8 +1,8 @@
 // Tones, an instrument played on the keyboard, whose samples the program writes itself and pushes
 // through an audio stream, an organ or a plucked string for each key held and drum hits read from
 // waves as samples. The stream's pitch, pan and volume are set by keys and it pauses and resumes.
-// Its echo and its filter are processors over the stream's samples, a third records them, and a
-// recording is saved as a wave and read back to be drawn and played. A processor over what the
+// Its echo and its filter are processors over the stream's samples, a third records the first
+// fifteen seconds of them, and a recording is saved as a wave and read back to be drawn and played. A processor over what the
 // device mixes reads how loud it plays. Written against the engine's package, as a game outside
 // this repository would be.
 using System.Numerics;
@@ -14,6 +14,11 @@ InitAudioDevice();
 SetTargetFPS(60);
 
 const int Rate = 44100, Block = 512;
+// The longest a recording runs, which keeps its first quarter of a minute. Its buffer is made that
+// long once, at the start, and a recording read back is held once, shared by what draws it and the
+// sound that plays it, so what recordings hold is bounded from the first frame. A recording as long
+// as a slow turn of the soak, 30 seconds on a runner, once held 19 MB between turns.
+const int RecordingSeconds = 15;
 const string RecordingFile = "tones-recording.wav";
 
 // A stream keeps a little queued, so a key is heard soon after it is pressed.
@@ -44,6 +49,8 @@ var (kick, snare, hat) = (Drum("kick"), Drum("snare"), Drum("hat"));
 // always, last, so it records what they made. Attached again in that order whenever one changes,
 // since one attached is run after those attached before it.
 Effects.Rate = Rate;
+Effects.MaxRecording = Rate * RecordingSeconds;
+Effects.Recording.Capacity = Effects.MaxRecording;
 void Attach()
 {
     DetachAudioStreamProcessor(stream, Effects.Echo);
@@ -80,12 +87,13 @@ void Record(bool start)
     if (!ExportWave(wave, RecordingFile)) return;
     // Read back from the file, as another program would read it.
     var back = LoadWave(RecordingFile);
-    recorded = LoadWaveSamples(back);
+    recorded = back.Samples;
     savedPeak = recorded.Length == 0 ? 0 : recorded.Max(MathF.Abs);
     var from = Math.Min(recorded.Length, (Effects.LetGoAt < 0 ? 0 : Effects.LetGoAt) + Rate / 2);
     var to = Math.Min(recorded.Length, from + Rate);
     savedTail = to > from ? recorded[from..to].Max(MathF.Abs) : 0;
     if (playback is { } old) UnloadSound(old);
+    // Sharing the samples drawn, so one recording is held once.
     playback = LoadSoundFromWave(back);
     UnloadWave(back);
 }
@@ -252,7 +260,7 @@ static bool IsBlack(int note) => (note % 12) is 1 or 3 or 6 or 8 or 10;
 /// </summary>
 public static class Effects
 {
-    public static int Rate;
+    public static int Rate, MaxRecording;
     public static bool EchoOn, FilterOn, IsRecording;
     public static readonly List<float> Recording = [];
     public static float Loudest;
@@ -294,7 +302,7 @@ public static class Effects
         {
             Trace[TraceAt] = sample;
             TraceAt = (TraceAt + 1) % Trace.Length;
-            if (!IsRecording) continue;
+            if (!IsRecording || Recording.Count >= MaxRecording) continue;
             Recording.Add(sample);
             Loudest = MathF.Max(Loudest, MathF.Abs(sample));
         }
