@@ -566,6 +566,10 @@ case "$game" in
       cmd span.build "$design"
       cmd frames.wait 5
       cmd span.go
+      # The game takes a command in its next frame, and its state moves at the start of the frame
+      # after, so a status read within a frame of the go, as a macOS runner's slow frames made it,
+      # read the bridge still building. Two frames run before the first read.
+      cmd frames.wait 2
       status=""
       for i in $(seq 1 60); do
         status=$(ask span.status)
