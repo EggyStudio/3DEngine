@@ -10,15 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ea7b1b83`, Rally's README and nothing else, documents alone, carrying the review's
+Reviewed up to `2271cdea`, Pinball, item 7's game, and nothing else, carrying the review's file. The
+table lies flat with gravity tilted 6.5 degrees and scaled to it, its walls static boxes turned
+about the vertical; the ball and the plunger are continuous bodies, the flippers hang on hinges to
+kinematic posts under the table with motors and limits, the plunger is a slider on its own motor,
+three bumpers and two slings kick from their contacts with each bumper lighting a point light, a
+nudge on a key and a tilt at three close together, three balls with the best saved to a file, its
+own sounds from a script, and status and autopilot commands; a README in the games' form; the drive
+script's case asserts a ball launched, a flipper meeting it under the autopilot and the drain once
+the flips stop; the game is in the workflow's three loops and the soak and storm lists with a
+games-job step that drives and captures it; the gallery is written by the table script with the
+capture and its thumbnail, the README's count 14, BUILDING.md saying fourteen games and the physics
+guide's see-also naming it. Checked were the strict build, the suite, 1,746, the table's check, and
+the drive four times on the GPU and once on lavapipe under the validation layer, built from a fresh
+pack. Two findings about the engine, said under item 7: a motor that drives a body from rest at once
+can drive it through a resting body, continuous or not, and a hinge's limit gives under a strong
+motor. The push of `ea7b1b83` and this head waits for the build run of `f4c62380` to end; read at
+10:19. Next the three document lines of the findings, then the rope-and-bridge puzzle. Item 6 waits
+on the owner's word.
+
+Before it, `ea7b1b83` came, Rally's README and nothing else, documents alone, carrying the review's
 file. It follows the games' form, the game, three laps against the clock and the ghost of the best
 lap, the parts of the engine it uses read from its program, a Perlin-noise heightmap with the road
 pressed flat as a static collider of its own mesh, eight gates as triggers, the vehicle on four
 raycast wheels with keys, a pad or the autopilot, the engine's loop as a music stream and the race's
 sounds, lit dust particles, the race's screens as states and the best lap saved to a file, and the
 sentence on its build from the package; the norm and document tests gave 22. Its push waits for the
-build run of `f4c62380` to end, as pushes go from here. Pinball is begun in the games' usual shape,
-one batch built and played from a fresh pack before the commit. Item 6 waits on the owner's word.
+build run of `f4c62380` to end, as pushes go from here.
 
 Before it, `f4c62380` came, the Windows job's cache steps taken out and nothing else, carrying the
 review's file. The processor step that keyed the cache alone, the cache's restore and save, the two
@@ -33,35 +51,6 @@ run of `82dd08f2` ended green at 09:16 with its Windows suite in its parts on a 
 58 minutes 26 seconds, 1,683 passed, exit 0, the third green Windows suite in a row under the mends,
 so Verdict 72 is settled. Pushed at 09:42, after that run had ended, as pushes go from here so no
 run is cancelled midway. Item 7's next game is Pinball, said under it.
-
-Before it, `82dd08f2` came, item 39 and nothing else, documents alone, carrying the review's file.
-RENDERING.md's global illumination part ends with a section on where the method stops, read to
-2026-10-20, opening with the rule and naming the five terms each with its cause, the room and figure
-that show it and the forms read and why each is out, the gain at 1.08 to 1.27 a bounce with the
-world probes 8 to 16 over, the near occlusion at the small block's front 1.20, the coarse cascades'
-absence at the corridor's walls 67 to 69 under, the faces' read of light that runs along a surface
-at the mid-corridor probe's face 0.020 against 0.125, and the further way to the thin walls' corner
-at 2.85 times the wall with the screen's probes off; the global illumination guide's section on
-where it falls short points to it. Checked were the norm, document, upgrading, cheat sheet and
-package tests, 38. Item 2's order was read by 08:07 and stands as said under it. The coder raised a
-conflict: Decision 7 records the owner's choice that the suite runs whole and in parts only after a
-process is lost, over parts on every run, and `14890db6`, which the reviewer ordered under Verdict
-72, runs the Windows suite in its parts from the start; the reviewer put it to the owner at once,
-and the Windows job stands as committed until the owner's word, since a whole run on Windows is lost
-on every slow runner with no cache to warm it and the parts are the one form that fits a push's hour
-there. Pushed. At 08:14 the pack run of `9f9180b7` had its games job green at 07:58, Verdict 74's
-third, so it is settled, its macOS captures green at 08:13 and its Windows suite and Linux captures
-running, the Windows parts 79 minutes in, the pack job waiting on them. At 08:39 the pack run of
-`9f9180b7` had ended green whole at 08:38 and pushed `5.2.155` to nuget.org through the policy, the
-login and the push passing, the first package since `5.2.92` and the first through the policy, which
-proves item 38, item 37 proven when the feed lists it and its notes are read; its Windows suite ran
-in its parts on an EPYC 7763, cold, in 66 minutes 23 seconds, 1,683 passed, exit 0, the job in 99
-minutes with the thirteen games, Verdict 72's second of three; the game's coder was told the version
-at once for its item 16. The feed listed `5.2.155` at 08:48, ten minutes after the push, its nuspec
-naming `9f9180b7` and carrying 18 lines of notes, the 18 commits since `5.2.92`'s `33fd0804` whose
-files are not all under `.github`, the review's commits left out, which proves item 37; the game's
-coder was told. Verdict 48's remedies were read by 09:40 and have nothing to give, said under item
-2.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -583,6 +572,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    rope-and-bridge puzzle, planks joined by ball and distance joints, ropes as chains of them and a
    joint broken past a bound, is the game after. Rally has no README where every other game has one
    in the games' form; it gets one in a commit of its own before Pinball's batch, documents alone.
+   Rally's README done at `ea7b1b83` and Pinball at `2271cdea` on 2026-10-20, as the head says.
+   Pinball found two things of the engine's: the plunger driven home with a force of 600 went from
+   rest to 33 units a second in one step and passed through the ball before it, both continuous,
+   since the physics library finds a step's contacts from the velocities the step begins with and
+   the motor's acceleration comes after in the solver, so neither sweep sees it, where held to 120
+   it speeds up over its travel with the ball riding it and leaves at 21; and at a torque of 400 the
+   flipper stood 18 degrees past both its limits, 3 at 60, the limit a spring a motor can push into.
+   Neither is mended in the engine today; the physics guide says both beside the continuous body's
+   call and in the hinge's paragraph, a line each for a game's author, and E3D.md says that the key
+   command answers once the key is let go, so a status read right after it reads the key up, one
+   commit, documents alone, before the next game. The rope-and-bridge puzzle is next: a load carried
+   across gaps on bridges the player joins from planks, planks joined by ball and distance joints,
+   ropes as chains of them, a joint broken when its force passes a bound so a bridge breaks where it
+   is weak, played through e3d by placing planks with a drive asserting a crossing and a break.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for

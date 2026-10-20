@@ -289,7 +289,12 @@ A swept body stops at a wall of any thickness at 50 units a second, at one a fif
 at 100 and half a unit at 300, since a contact stops a body over a step rather than at once. A
 bullet is faster than that and is better as a ray or a ball cast each frame from where it was to
 where it is, `GetSphereCastPhysics` above, than as a body. In a scene file a `RigidBody`'s
-`Continuous` sweeps its body.
+`Continuous` sweeps its body. A step finds its contacts from the velocities it begins with, so a
+body a motor or a joint drives from rest at once is not swept for what it gains within that step,
+and passes through a body resting against it. `games/Pinball`'s plunger, driven home by its slider's
+motor with a force of 600, went from rest to 33 units a second in one step and through the ball
+before it, the ball and the plunger both continuous. Held to a force of 120, it speeds up over its
+travel as a spring does, the ball riding it, and the ball leaves it at 21 units a second.
 
 ## Joints
 
@@ -305,13 +310,15 @@ var hinge = CreatePhysicsHingeJoint(post, door, new Vector3(0.1f, 1, 0), Vector3
 SetPhysicsHingeLimits(hinge, -90, 90);
 ```
 
-`SetPhysicsHingeMotor` drives a hinge at a speed, as a wheel or a fan, and `games/Manor` swings
-its doors by it, open while the player is in a door's sensor and back to shut after.
-`SetPhysicsBallJointLimits` keeps a ball joint within a cone it swings and twists in, as a
-shoulder, `SetPhysicsDistanceJointRange` lengthens or shortens a rope after it is made, as a winch,
+`SetPhysicsHingeMotor` drives a hinge at a speed, as a wheel or a fan, and `games/Manor` swings its
+doors by it, open while the player is in a door's sensor and back to shut after. A hinge's limit is
+a spring a motor pushes into, so a strong motor carries the hinge past it, `games/Pinball`'s
+flippers standing 18 degrees past both their limits at a torque of 400 and 3 at 60.
+`SetPhysicsBallJointLimits` keeps a ball joint within a cone it swings and twists in, as a shoulder,
+`SetPhysicsDistanceJointRange` lengthens or shortens a rope after it is made, as a winch,
 `DestroyPhysicsJoint` breaks a joint, as a rope that is cut, and `IsPhysicsJointValid` says whether
-it is still there. `games/Summit` hangs a bridge from a beam on two ropes,
-distance joints a little slack, so it sways as it is crossed:
+it is still there. `games/Summit` hangs a bridge from a beam on two ropes, distance joints a little
+slack, so it sways as it is crossed:
 
 ```csharp
 var beam = CreatePhysicsKinematicBox(new Vector3(5, 9, -27), new Vector3(6, 0.4f, 0.4f));

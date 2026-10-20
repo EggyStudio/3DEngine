@@ -92,9 +92,11 @@ rather than xdotool.
 
 Injected input is made when the loop next processes events, as a real key would be, so a program
 that reads `IsKeyPressed` before `BeginDrawing` sees it. `input.key` and `input.click` answer after
-the input is released, so the next `shot` sees the result. Each `./e3d` call is a process of its
-own and takes a few frames to start, so a result shorter than that (a quarter-second sound) may be
-over before a separate `shot` arrives. `input.state` says whether input arrived.
+the input is released, so the next `shot` sees the result and a status asked for after `input.key`
+reads the key up. A status read while the key is held is asked for while `input.key` still waits, by
+a command sent in the background beside it. Each `./e3d` call is a process of its own and takes a
+few frames to start, so a result shorter than that (a quarter-second sound) may be over before a
+separate `shot` arrives. `input.state` says whether input arrived.
 
 ```bash
 ./e3d command input.key W 40 && ./e3d shot /tmp/after.png
