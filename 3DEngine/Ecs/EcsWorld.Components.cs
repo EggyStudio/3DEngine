@@ -49,6 +49,7 @@ public sealed partial class EcsWorld : IDisposable
     public void Dispose()
     {
         ReleaseCaches();
+        _observers = null;
         lock (_stores)
         {
             _stores.Clear();

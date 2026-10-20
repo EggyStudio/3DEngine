@@ -10,7 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `62efc173`, Verdict 77's mend and nothing else, carrying the review's and the
+Reviewed up to `b19f09dc`, Verdict 78's mend and nothing else, carrying the review's file. The test
+script's run takes the seed as a parameter, every process it starts having the seed taken out of its
+environment and only the shuffled run's having it set to the flag's, the shuffled step touching the
+environment no more, the docstring and the comment saying why, a test of the script running inside a
+shuffled suite; the script tests' runner removes the variable from the inner script's environment
+beside the runner's own, so a case means a seed only where it sets one; a new case runs the script
+in its shuffle-fails mode under an outer seed of 99 with the flag's 7 and reads 80 passed on the
+plain page and 79 with one failed and the seed 7 on the shuffled page with exit 1, failing against
+the old script exactly as the runner did; the script's twelve tests pass plainly and under the day's
+seed. Read at 16:49; the build run of `62efc173`, whose shuffled pass was known to fail, was
+cancelled, this head pushed at 16:48 and the pack run with publish on started on it for the day's
+batch, the five games, items 40 to 48 and the three mends; its Linux job is Verdict 78's check, its
+games job Verdict 77's first and its macOS games Verdict 76's second. Item 49's form and cost were
+said before its commit, taken as said under it. Item 6 waits on the owner's word.
+
+Before it, `62efc173` came, Verdict 77's mend and nothing else, carrying the review's and the
 ledger's files and the CI measure's line back at 10.7. The job's log said the castle was down after
 the fourth bomb on the runner too, 157 of 190 blocks and 164 welds broken, the banner dropped from
 15.8 to 4.0 and resting on the keep's rubble outside it through the bombs after, each thrown at the
@@ -33,12 +48,7 @@ pinned to four cores won at the fourth at 5.7, 4.1, 4.8, 4.1 and 4.1, three of t
 in about 2 minutes 29 seconds each, where the runner took 4 minutes 21 seconds for nine shots; the
 taller trigger overlaps the castle's lower half and adds contact pairs, inside those times. One run
 the coder spoiled by building the client while a drive asked for status, stopped and run again
-clean. Read at 16:44. The build run of `6a289059` ended red at 16:43 on its Linux job's shuffled
-pass alone, the plain run green at 1,722 and the shuffled one failing the script's own test of the
-shuffled pass, which inherited the seed into the stand-in's plain run (Verdict 78), Windows and
-macOS green; this head was pushed at {now}, and the pack run with publish on waits for Verdict 78's
-mend, since its Linux suite would fail the same way. Item 49's code and tests are written, its form
-and cost to be said before the commit. Item 6 waits on the owner's word.
+clean. Pushed at 16:44.
 
 Before it, `6a289059` came, item 48 and nothing else, carrying the review's file. The schedule's
 shuffle draws a random order of each stage's list keeping the add order between every pair the stage
@@ -60,22 +70,6 @@ development machine the suite gave 1,774 and then 1,774 shuffled by the day's se
 seconds and 9 minutes 30, the seed's line logged once an app, so nothing in the suite leans on an
 undeclared order at this seed; a live hidden run logged the line and ran 30 frames. The strict build
 is clean and the script's, norm and document tests pass. Pushed at 15:58 with the five before it.
-
-Before it, `b371b65c` came, item 47's wrap and nothing else, carrying the review's file. A comment
-that would pass the sheet's width of 120 goes on at its column on the lines below, broken at word
-boundaries, and where a declaration leaves fewer than 24 characters for its comment the comment
-starts on the line under it at column 57; the fixture test covers both forms and the page test reads
-the wrapped page; 23 lines pass 120 where 308 passed 160, all 23 declarations longer than 120 by
-themselves, which are not wrapped; the sheet grows from 1,173 lines to 2,247; the suite gave 1,773
-and the strict build is clean. Item 48 is read: the schedule has no before or after API, a stage's
-systems running in the order they were added, and the batches keep the add order wherever it
-matters, between two systems whose declared reads and writes conflict, a system declaring none
-conflicting with every other, and against a main-thread system, which is a barrier, so the shuffle
-draws a random order of each stage's list in which every such pair keeps its add order, from one
-random source over the stages in their order, the same for the same seed, moving only systems whose
-declarations do not conflict, where today a light batch under 0.5 ms runs those in add order on the
-calling thread every frame, so a system that changes something without declaring it passes in that
-order alone.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2536,7 +2530,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     entity's despawn removing every component, of a game's event sent and stopped, and of the cost
     when no observer is registered, which must be none. Read first how the ECS applies an add or a
     removal today and where a hook fits, and say the form and its cost before the commit. One
-    commit, two if the events stand apart.
+    commit, two if the events stand apart. The form said by 16:49 on 2026-10-20 and taken: on the
+    world, an observer of every event of a type or of one entity's, returning a handle whose
+    disposal stops it, and a trigger that does nothing when the world has no observers; the event's
+    carrier holding the event by reference so a change reaches the observers after it, the entity it
+    has reached or none, the world and a propagation switch; an entity event interface and a
+    propagating one; adding and removal events carrying the entity and the value, the first firing
+    when an entity gets a component it lacked through add, update, commands as applied or a batch
+    spawn and not on a replacement, the second once the component has gone through remove or despawn
+    with its value, a despawn taking the handle before the id is freed and running the observers
+    after so they read the value and not a live entity, the entity's own observers then let go; a
+    trigger running the type's observers then the entity's in the order added, a propagating event
+    repeating at each parent until stopped or the root, the stop ending the climb and not the
+    entity's remaining observers; observers running inside the call on its thread with an exception
+    logged and going no further; a store's own add and remove through the generated path and the
+    move of a recompiled script's components not observed. The hook sits in the world's add, update,
+    remove, despawn and bulk spawns and not in the store, since a store holding the observers would
+    hold the world and the static store cache would keep an undisposed world alive, each store
+    keeping two counts the event types raise and lower, the registry made with the first observer
+    and a test checking an undisposed world with observers is still collected. The cost over 200,000
+    entities in nanoseconds a call: no observer at all the same as before within noise, 20, 19 and
+    36 against 25, 16.5 and 34 for add, remove and despawn, with no allocation over a thousand of
+    each; observers of other components only the same for add and remove and 13 more for a despawn;
+    an observer of the component changed 200, 177 and 322, boxing the event, the carrier, a copy of
+    the list and the call. One commit, the component events and the game's sharing the registry. The
+    cheat sheet gets a hand sentence in its ECS prose naming the observers, since its lists hold the
+    flat API alone.
 
 ## Verdicts
 
@@ -3545,7 +3564,8 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     so a suite run under a seed from outside still runs its plain pass plain, and the test sets and
     clears the variable for its own inner runs as it means them, with a second case running the
     test's own script under a seed from outside; the remark says why. One commit, before the pack
-    run, whose Linux suite would fail the same way. Settled when the Linux job passes both passes on
+    run, whose Linux suite would fail the same way. Mended at `b19f09dc` on 2026-10-20 as the head
+    says; the pack run started on it is the check. Settled when the Linux job passes both passes on
     the next build run.
 
 ## Decisions

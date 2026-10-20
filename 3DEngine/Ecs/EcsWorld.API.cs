@@ -49,7 +49,9 @@ public sealed partial class EcsWorld
         for (int i = 0; i < count; i++)
         {
             var id = _entities.Spawn();
-            store.Add(id, factory(id));
+            var component = factory(id);
+            store.Add(id, component);
+            if (store.AddObservers > 0) TellAdded(id, component);
         }
     }
 
@@ -66,7 +68,9 @@ public sealed partial class EcsWorld
         for (int i = 0; i < count; i++)
         {
             var id = _entities.Spawn();
-            store.Add(id, new T());
+            var component = new T();
+            store.Add(id, component);
+            if (store.AddObservers > 0) TellAdded(id, component);
         }
     }
 
@@ -88,12 +92,33 @@ public sealed partial class EcsWorld
     public void Despawn(int entity)
     {
         var list = _storeList;
-        for (int i = 0; i < list.Count; i++)
-            if (list[i].TryRemove(entity, out var disposable) && disposable is not null)
-                try { disposable.Dispose(); } catch { }
+        var observers = _observers;
+        if (observers is null)
+        {
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].TryRemove(entity, out var disposable) && disposable is not null)
+                    try { disposable.Dispose(); } catch { }
 
-        // Refused for an id that is not alive, so despawning twice frees the id once.
+            // Refused for an id that is not alive, so despawning twice frees the id once.
+            _entities.Despawn(entity);
+            return;
+        }
+
+        // With observers, each component watched is told of once the entity has gone, under the
+        // handle it had, and the entity's own observers are let go after.
+        var handle = Handle(entity);
+        List<Action>? told = null;
+        for (int i = 0; i < list.Count; i++)
+        {
+            var store = list[i];
+            if (store.Removal(this, entity, handle) is { } tell) (told ??= []).Add(tell);
+            if (store.TryRemove(entity, out var disposable) && disposable is not null)
+                try { disposable.Dispose(); } catch { }
+        }
         _entities.Despawn(entity);
+        if (told is not null)
+            foreach (var tell in told) tell();
+        if (!handle.IsNone) observers.Forget(this, handle);
     }
 
     /// <summary>Despawns the entity <paramref name="entity"/> names, if it is still that entity.</summary>
@@ -179,7 +204,11 @@ public sealed partial class EcsWorld
     public bool Remove<T>(int entity)
     {
         var store = GetStore<T>(create: false);
-        return store != null && store.Remove(entity);
+        if (store is null) return false;
+        if (store.RemoveObservers == 0) return store.Remove(entity);
+        if (!store.TryGet(entity, out var value) || !store.Remove(entity)) return false;
+        Trigger(new Remove<T>(Handle(entity), value));
+        return true;
     }
 
     /// <summary>Returns a span of entity IDs that currently have component <typeparamref name="T"/>.</summary>
@@ -205,13 +234,35 @@ public sealed partial class EcsWorld
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The component value.</param>
-    public void Add<T>(int entity, T component) => GetStore<T>().Add(entity, component);
+    public void Add<T>(int entity, T component)
+    {
+        var store = GetStore<T>();
+        if (store.AddObservers == 0)
+        {
+            store.Add(entity, component);
+            return;
+        }
+        var had = store.Has(entity);
+        store.Add(entity, component);
+        if (!had) TellAdded(entity, component);
+    }
 
     /// <summary>Updates an existing component (or adds if missing) and marks it as changed for this frame.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The new component value.</param>
-    public void Update<T>(int entity, T component) => GetStore<T>().Update(entity, component, _currentTick);
+    public void Update<T>(int entity, T component)
+    {
+        var store = GetStore<T>();
+        if (store.AddObservers == 0)
+        {
+            store.Update(entity, component, _currentTick);
+            return;
+        }
+        var had = store.Has(entity);
+        store.Update(entity, component, _currentTick);
+        if (!had) TellAdded(entity, component);
+    }
 
     /// <summary>Updates an existing component via a transformer function and marks it as changed; no-op if the component is missing.</summary>
     /// <typeparam name="T">The component type.</typeparam>

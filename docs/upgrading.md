@@ -300,6 +300,11 @@ guide that shows it.
   `SceneJson.VersionName`. A codec gives the number as `ISceneCodec.Version` and
   `SceneCodec.Version`, 1 for a component with none, as
   [A program's own components](scenes.md#a-programs-own-components) shows.
+- **Observers.** `EcsWorld.Observe` runs a delegate, given an `On<TEvent>`, the moment a component
+  is added, as `Add<T>`, or removed, as `Remove<T>`, or an event of the game's own is sent with
+  `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
+  `IPropagatingEvent`, which `On.Propagate` stops, as
+  [Observers](behaviors-and-the-ecs.md#observers) shows.
 - **A font's ligatures turned off.** `SetFontLigatures` draws a font's standard ligatures as their
   letters, for a program that needs a glyph for each character, as
   [Fonts from files](text-and-fonts.md#fonts-from-files) shows.

@@ -216,6 +216,60 @@ public static void Won(BehaviorContext ctx)
 }
 ```
 
+## Observers
+
+A filter finds what changed when its method next runs. An observer runs the moment a component is
+added or removed, or an event of the game's own is triggered, before anything else looks at the
+world, which suits an index kept in step with a component, or a hit that armor softens before the
+body behind it takes it:
+
+<!-- compiled with:
+BehaviorContext ctx = null!;
+public struct Mine { public int Key; }
+public sealed class MineIndex { public void Add(Entity entity, Mine mine) { } public void Forget(Entity entity, Mine mine) { } }
+MineIndex index = new();
+-->
+```csharp
+ctx.Ecs.Observe<Add<Mine>>(on => index.Add(on.Event.Entity, on.Event.Value));
+ctx.Ecs.Observe<Remove<Mine>>(on => index.Forget(on.Event.Entity, on.Event.Value));
+```
+
+`Add<T>` comes as an entity gets a component it did not have, and `Remove<T>` once one has left it,
+by `Remove` or with the entity by `Despawn`, with the value it had. Each runs inside the call that
+made the change and on its thread, or as the commands are applied for a change queued on
+`ctx.Cmd`, with the whole world to work in. A component no observer watches is added and removed as
+it would be with none, its store reading one number to know, and a world with no observer at all
+despawns as it would without them.
+
+An event is any type a game declares, sent with `Trigger`:
+
+<!-- compiled with:
+BehaviorContext ctx = null!;
+Entity hand = default, arm = default, body = default;
+int health = 100;
+-->
+```csharp
+public readonly record struct Hit(Entity Entity, int Damage) : IPropagatingEvent;
+
+// The arm's armor takes half, and stops a hit left under 4 from reaching the body.
+ctx.Ecs.Observe<Hit>(arm, on =>
+{
+    on.Event = on.Event with { Damage = on.Event.Damage / 2 };
+    if (on.Event.Damage < 4) on.Propagate(false);
+});
+ctx.Ecs.Observe<Hit>(body, on => health -= on.Event.Damage);
+
+ctx.Ecs.Trigger(new Hit(hand, 10));
+```
+
+One that names an entity, an `IEntityEvent`, reaches the observers of every such event and then the
+entity's own, each in the order it was added. An `IPropagatingEvent` goes on the same way to each
+parent in turn, until an observer calls `on.Propagate(false)` or it reaches the root, and since
+`on.Event` is a reference, an observer that changes it hands the change to those after it. Any other
+event reaches the observers of every such event. An exception an observer throws is logged and goes
+no further. The handle `Observe` returns stops the observer when disposed, and an entity's own
+observers go with it once it is despawned, after they are told of what it took.
+
 ## Scripts changed while the game runs
 
 A behavior in a `.cs` file under `source/behaviors` is compiled by the running game, through Roslyn,

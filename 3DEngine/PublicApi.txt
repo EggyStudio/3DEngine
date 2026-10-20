@@ -1,3 +1,14 @@
+readonly struct Engine.Add<T> : IComponentEvent, IEntityEvent, IEquatable<Add<T>>
+  Add(Entity Entity, T? Value)
+  Entity Entity { get; init; }
+  T? Value { get; init; }
+  bool Equals(Add<T> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Add<T> left, Add<T> right)
+  static bool op_Inequality(Add<T> left, Add<T> right)
+  void Deconstruct(out Entity Entity, out T? Value)
 sealed class Engine.AddedAttribute : Attribute
   AddedAttribute(params Type[] types)
   Type[] Types { get; }
@@ -1363,6 +1374,8 @@ sealed class Engine.EcsWorld : IDisposable
   EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
   EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
   Entity Handle(int entity)
+  IDisposable Observe<TEvent>(Action<On<TEvent?>> observer)
+  IDisposable Observe<TEvent>(Entity entity, Action<On<TEvent?>> observer)
   IEnumerable<int> AllEntities()
   IReadOnlyList<Type> ComponentTypes { get; }
   List<int> Removed<T>()
@@ -1395,6 +1408,7 @@ sealed class Engine.EcsWorld : IDisposable
   void DespawnWhen<TState>(int entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
   void Dispose()
   void SetName(int entity, string name)
+  void Trigger<TEvent>(TEvent? value)
   void Update<T>(Entity entity, T? component)
   void Update<T>(int entity, T? component)
 delegate void Engine.EcsWorld.BulkProcessAction<T>(Span<T?> components, ReadOnlySpan<int> entities)
@@ -1736,6 +1750,8 @@ interface Engine.IAudioBackend : IDisposable
   void SetVoiceVolume(int voiceId, float volume)
   void StopVoice(int voiceId)
   void Update()
+interface Engine.IEntityEvent
+  Entity Entity { get; }
 interface Engine.ILogger
   void Debug(string message)
   void Error(string message, Exception? exception = null)
@@ -1753,6 +1769,7 @@ interface Engine.IPlugin
   void Build(App app)
 interface Engine.IPluginGroup
   IEnumerable<IPlugin> GetPlugins()
+interface Engine.IPropagatingEvent : IEntityEvent
 interface Engine.ISceneCodec
   IReadOnlyList<string> FormerNames { get; }
   Type Type { get; }
@@ -2378,6 +2395,11 @@ sealed class Engine.OnTransitionAttribute : Attribute
   object To { get; }
 sealed class Engine.OnUpdateAttribute : Attribute
   OnUpdateAttribute()
+sealed class Engine.On<TEvent>
+  EcsWorld Ecs { get; }
+  Entity Entity { get; }
+  TEvent? Event { get; }
+  void Propagate(bool propagate)
 struct Engine.Parent
   Entity Value
   Parent(Entity value)
@@ -2605,6 +2627,17 @@ readonly struct Engine.ReflectionProbeHandle : IEquatable<ReflectionProbeHandle>
   static bool op_Equality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   static bool op_Inequality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   void Deconstruct(out Entity Entity)
+readonly struct Engine.Remove<T> : IComponentEvent, IEntityEvent, IEquatable<Remove<T>>
+  Entity Entity { get; init; }
+  Remove(Entity Entity, T? Value)
+  T? Value { get; init; }
+  bool Equals(Remove<T> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Remove<T> left, Remove<T> right)
+  static bool op_Inequality(Remove<T> left, Remove<T> right)
+  void Deconstruct(out Entity Entity, out T? Value)
 readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
   IReadOnlyList<Texture2D> Textures { get; init; }
   RenderTexture2D(Texture2D Texture, Texture2D Depth = default)

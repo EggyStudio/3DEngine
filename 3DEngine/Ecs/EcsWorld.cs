@@ -72,6 +72,11 @@ public sealed partial class EcsWorld
         bool SetBoxed(int entity, object value);
         /// <summary>Adds a boxed value of the store's type to <paramref name="entity"/> through <paramref name="world"/>'s typed Add, as a system adds one.</summary>
         void AddTo(EcsWorld world, int entity, object value);
+        /// <summary>
+        /// What tells the observers of this component leaving <paramref name="entity"/>, run once it has
+        /// gone, or <c>null</c> where none watch or the entity has none.
+        /// </summary>
+        Action? Removal(EcsWorld world, int entity, Entity handle);
         /// <summary>Whether <paramref name="entity"/>'s component in this store changed since the reader last looked (<see cref="ChangeTicks"/>).</summary>
         bool Changed(int entity);
         /// <summary>Whether <paramref name="entity"/> got its component in this store since the reader last looked, not having had one.</summary>

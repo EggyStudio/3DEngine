@@ -17,6 +17,19 @@ public sealed partial class EcsWorld
         /// <summary>A store whose readers outside a system count changes from the start of <paramref name="frame"/>.</summary>
         internal ComponentStore(FrameClock? frame = null) => _frame = frame;
 
+        // How many observers the world has of this component being added, and removed, kept here
+        // rather than with the observers, so an add or a removal none watches reads one number.
+        internal int AddObservers;
+        internal int RemoveObservers;
+
+        /// <inheritdoc />
+        Action? IComponentStore.Removal(EcsWorld world, int entity, Entity handle) =>
+            RemoveObservers > 0 && _set.TryGet(entity, out var value) ? Telling(world, handle, value) : null;
+
+        // In a method of its own, since a lambda taking the parameters of the method it is written in
+        // has its closure made as that method is entered, whichever way it goes.
+        private static Action Telling(EcsWorld world, Entity handle, T value) => () => world.Trigger(new Remove<T>(handle, value));
+
         // The tick after which a write counts as changed to the reader. It is the tick the running
         // system last ran at, or outside a system the start of the world's frame.
         private long Since => ChangeTicks.Since(_frame?.Start ?? 0);

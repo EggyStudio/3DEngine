@@ -142,6 +142,14 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   `GlobalTransform` in `Render`, which the renderer's extracts read.
 - `EcsCommands` queues spawns, despawns, adds and removes as closures, applied in `PostUpdate`, so a
   system can change the world's shape while iterating it.
+- `Observe<TEvent>` runs a delegate the moment an event is triggered, of every such event or of one
+  entity's, and `Trigger` runs them, the entity's after the others and each parent's in turn for an
+  `IPropagatingEvent` until one stops it. `Add<T>` and `Remove<T>` are triggered by `EcsWorld`'s
+  `Add`, `Update`, `Remove` and `Despawn` once the change is made, where the component's store
+  counts an observer of it, so an add or a removal none watches reads that count alone, and a
+  world with no observer despawns as before. The observers are the world's, made with the first,
+  and a store holds a count and no reference to them, so the static cache of stores keeps no world
+  alive.
 
 ## Behaviors
 
