@@ -10,8 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4bc29a78`, item 30's sampling term with (g) in it, the tiled ways, and nothing else,
-with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
+Reviewed up to `9fd38dd9`, item 35 and nothing else, with the review's commit between. The README's
+head is one centering block holding markdown with blank lines inside, the heading, the description
+and the five banners as markdown pictures, no heading, paragraph or picture tag left, and that block
+is the only HTML in the file; the gallery is written by the examples table script between its
+markers as a markdown table a folder of the examples in the program's order with the games last in
+the workflows' order, row for row the hand-kept gallery's order, 270 pictures, each the capture made
+small to 260 by 146 under the assets' gallery folder with the SHA-256 of its capture in a table, 1.6
+MB in all, the names padded to 32 characters with no-break spaces, and the script's check fails
+where the gallery or its count is out of date, a picture is missing, was made from a capture taken
+again since or is shown by no example or game, needing no image tool, so the examples job's check
+runs as it did. The norm test for N 4.5 and the document link tests read the gallery's markdown
+pictures, the gallery test holds each shown picture at 260 by 146 and each capture at 800 by 450 as
+before, and BUILDING.md says the script writes the gallery and a new or changed capture needs it run
+again; the game's README is untouched. Checked were the strict build, the suite, 1,740, and the
+table's check; the reviewer counted the 270 pictures in the file and the folder, none twice, and the
+head block as the one HTML. Its look on GitHub and on nuget.org's page of the next version is read
+after the push and the next package, the next pack run's with this head in it. The push cancels the
+build run of `4bc29a78`; the pack run of `193c68b0` runs on. Next Verdict 72's two commits, the
+parallax and (c).
+
+Before it, `4bc29a78` came, item 30's sampling term with (g) in it, the tiled ways, and nothing
+else, with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
 sixteen places in their texels, every four tiles by four holding each place once, so the probes read
 the hemisphere evenly and the window's filter blends the places together; the shader's remark names
 the sampling term with its figures, 15 and 41 under from the texels' middles against 2 and 5 from
@@ -37,8 +57,7 @@ On the runs of `193c68b0`, the build run's Linux, macOS and examples jobs were g
 its Windows job in its suite, which this push cancels unread, the pack run's Windows job carrying
 the figure; the pack run with publish on had its Linux and examples jobs green and the rest running,
 Verdict 73 at two green macOS suites of three (Verdict 73). Verdict 72 was read by the coder by
-02:52 and its mends are chosen, said under it. Next Verdict 72's two commits, item 35, the parallax
-and (c).
+02:52 and its mends are chosen, said under it.
 
 Before it, `b03017f2` came, Verdict 74's mend and nothing else, with the review's commits between.
 Manor was built from a package of the head and walked whole by its autopilot at the soak's size, two
@@ -60,38 +79,6 @@ on `869ad798`, half an hour in without the mend, is cancelled by the reviewer an
 this head, so its games job carries the mend (Decision 49). The rays' error was read by 02:23, said
 under item 30, and names the merge's parallax and the thin walls as what the fixed ways covered, so
 the tiled ways are taken.
-
-Before it, `089761fb` came, item 36 and nothing else, with the review's commit between. A program
-may say of a shader that its vertex stage keeps the positions, the mark kept in the shader store
-under its lock and dropped when the shader is unloaded, and a batch of that shader takes its mesh's
-box when the mark is set, so every pass culls it as the engine's own batches are culled, the default
-drawn whole in every pass since a vertex stage may move vertices past the box, said in the remark
-with the trap of marking a stage that moves them; the shaders guide's section on moving vertices,
-the cheat sheet, the surface listing, the upgrading guide's list and RENDERING.md carry it, the last
-amending its sentence on such batches and recording the measurement. A model shadow test draws a
-floor and a cube with such a shader 20 units off, every pass drawing two unmarked and the first
-cascade and the camera one when marked with the cascade whose box holds the cube drawing two,
-failing with the mark's reading taken out. Measured in the game's build on the tree's engine at noon
-over seed 1's spawn with the two terrain shaders marked at runtime, the draws at 8 columns from
-2,899 to 886, the camera's 631 to 225 and the cascades' 563, 565 and 571 to 25, 58 and 355, the
-frame from 11.7 and 13.4 ms to 7.6 and 8.6, the shadows from 3.3 to 1.3 and the scene from 3.6 to
-2.1; at 16 columns the draws from 10,352 to 2,001, the frame from 42.3 ms to 26.4 and 29.7, the
-shadows from 18.8 to 2.8 and the scene from 11.1 to 5.6; the pictures identical with the mark off
-and on at both distances; the game gains it by marking its two terrain shaders once a package
-carries it, its line to write. Checked were the strict build, the suite, 1,738 passed with one
-failure before the fix, the upgrading test wanting the new name in the guide's list, and the
-documents, cheat sheet, surface and norm tests passing after, and lavapipe under the required layer
-over six test classes, 134 passed; a first game run carried a binary from the test's check with the
-mark's reading out, seen through the batches' boxes without blocks, and the measurement was taken
-again on the rebuilt one. The reviewer starts a pack run with publish on after the one in flight,
-since the game waits on this and on `a7c2da8b` (Decision 49). At 01:48 the pack run with publish on
-of `80625742` had its games job red on Manor's soak (Verdict 74) with its macOS suite green this
-time, so it will not pack and the reviewer cancels it; the pack run queued on `869ad798` is the next
-check, and the build run of `89a36650` was cancelled by that push with its Windows suite unfinished,
-Verdict 72's figure to come from `869ad798`'s build run. At 01:49 the sampling term's two candidates
-were measured again on this head and neither holds by the rule, said under item 30, the covered
-fault in what a ray brings by its way. Right. Next Verdict 74's mend, the rays' error read by
-elevation, Verdict 72, item 35, the parallax and (c).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1886,7 +1873,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     table render alike on GitHub and nuget.org, measured first; checked on GitHub's rendering and on
     nuget.org's page of the next version uploaded, the gallery's script writing the same. One
     commit, after the cone's and the leak's and before the sampling term's candidates, with the
-    game's README left as it is, since no package carries it.
+    game's README left as it is, since no package carries it. Done at `9fd38dd9` on 2026-10-20, as
+    the head says.
 
 36. **A draw through a program's own shader is culled by its mesh's box where the program says the
     vertex stage keeps the positions (ASKS.md, Voxel-Sandbox's fourth entry).** Read in the game at
