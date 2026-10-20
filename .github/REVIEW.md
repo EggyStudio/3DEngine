@@ -10,11 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f74e087f`, Span, item 7's second game, and nothing else, carrying the review's file.
-The load's fall was the game's own design and no engine finding: read step by step with the joint's
-force and each joint's place, the load never went through the far cliff but dropped through the
-truss at mid-span with no joint broken and none more than 5 cm apart, the roll impulse carrying it
-along as it fell, since a truss of ball joints in a plane holds nothing out of its plane and had
+Reviewed up to `d03d0e53`, item 40's force-alone fix and nothing else, carrying the review's file
+and the ledger's row. The joint's force sums the squares of the constraint's linear part by its type
+through the solver's accumulated impulses, a weld's last three, a hinge's first three and all of a
+ball joint's, a distance joint's and a slider's: a weld beside an anchor at 1, 2 and 4 m reads 98.1
+in both orders, an upright hinge 1 and 2 m out 98.1, the welded stack 294.3, 196.2 and 98.1 from the
+bottom and the arm of two 196.4 at its root; two new tests, a weld with the box 4 m out reading its
+weight within a percent in both orders and an upright hinge with a box 2 m out reading its weight,
+fail on the old reading at 404 and 219; the remarks, the physics guide's paragraph and the upgrading
+entry say force alone; the strict build is clean and the suite gave 1,751. Span's numbers did not
+move after a repack, the truss 4,321 to 4,326, the road at rest 5,767 and its unbroken peak 10,179
+to 10,181, its hinges' turning part negligible in the bridge's plane, so the strength of 7,000 and
+the guide's figures stand. An observation taken as item 41: the contact impulse read returns the
+last substep's impulse where its summary says the impulse over the step is the force, short by the
+substep count above one. Read at 11:31; the push of `f74e087f` and this head waits for the build run
+of `5cd706d9` to end, and the pack run with publish on starts after item 41's commit is pushed with
+them, so the package carries both reads alike. The siege game is next after item 41. Item 6 waits on
+the owner's word.
+
+Before it, `f74e087f` came, Span, item 7's second game, and nothing else, carrying the review's
+file. The load's fall was the game's own design and no engine finding: read step by step with the
+joint's force and each joint's place, the load never went through the far cliff but dropped through
+the truss at mid-span with no joint broken and none more than 5 cm apart, the roll impulse carrying
+it along as it fell, since a truss of ball joints in a plane holds nothing out of its plane and had
 bowed sideways under its own weight before the load came, its middle node at 0.20 and 0.34 under the
 load with the nodes beside it at minus 0.35, and plank ends overlapping the cliff faces had loaded
 the anchors' joints with 12 to 14 kN at rest; the game takes hinges about the span's axis at every
@@ -27,10 +45,7 @@ the load fallen, passing on the development machine's card and on lavapipe under
 layer; the soak's 23 turns, its check and the storm pass; the suite gave 1,748 with the strict build
 clean; the physics guide has a paragraph on Span's numbers and on hinges against ball joints with
 Span in its see-also; a Shared line under Replies offers the joint's force, taken into SHARED.md's
-row in both engines, the other engine's item 36. Read at 11:11; its push waits for the build run of
-`5cd706d9` to end. A pack run with publish on is due at the day's end with Pinball, item 40 and Span
-in. The third game, a siege, is begun by item 7's measure, said under it. Item 6 waits on the
-owner's word.
+row in both engines, the other engine's item 36.
 
 Before it, `5cd706d9` came, item 40 at `fdcfd435` and the soak's Pinball turn at `5cd706d9`, the
 first carrying the review's file. A program reads the force a joint held its bodies with over the
@@ -41,16 +56,6 @@ ball and flipping, the table nudged at times and a game started again once its l
 where its turn had been empty and spun without waiting on a frame. The build run of `f4c62380` ended
 green at 11:03, its Windows suite in parts in 70 minutes 20 seconds, so the five commits from
 `ea7b1b83` to this head were pushed together at 11:05, no run cancelled.
-
-Before it, `1189291d` came, the three document lines of Pinball's findings and nothing else,
-documents alone, carrying the review's file. The physics guide says under fast bodies that a step
-finds its contacts from the velocities it begins with, so a body a motor or a joint drives from rest
-at once passes through a body resting against it, with the plunger's figures, 600 from rest to 33
-units a second in a step and through the ball where 120 speeds up over its travel and the ball
-leaves at 21, and in the hinge's paragraph that a hinge's limit is a spring a motor pushes into, the
-flippers 18 degrees past both limits at 400 and 3 at 60; E3D.md says a status asked for after the
-key command reads the key up, and a status while the key is held is asked for by a command sent in
-the background beside it; the norm and document tests gave 22.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2325,7 +2330,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     in both orders and reads its weight within a percent, beside the hanging rope. A torque read
     would be a call of its own with a defined point, if a game asks. Span's hinges hold forces in
     the bridge's plane, so its numbers stand, read again once the change is in; the siege game's
-    breaking rule builds on it.
+    breaking rule builds on it. The force-alone fix done at `d03d0e53` on 2026-10-20, as the head
+    says; Span's numbers stand.
+
+41. **The contact impulse read is scaled as the joint's force is, so both are the force over the
+    step at any substep count.** Found on 2026-10-20 with item 40's fix: `GetPhysicsContactImpulse`
+    returns what the solver keeps, the last substep's impulse, and its summary says the impulse
+    divided by the step is the force, which holds at the default of one substep and is short by the
+    substep count above it, where the joint's force read scales by the substep since `d03d0e53`. No
+    game calls it yet, by the coverage reading under item 7, so the value may change: the read takes
+    the same scaling as the joint's, its remarks say what it is over the step and at more substeps
+    than one, the upgrading guide's entry says the value moved for substep counts above one, and a
+    test reads a resting box's contact as its weight within a percent at one substep and at four,
+    beside the joint's. One commit, before the siege game, so the package the day's pack run makes
+    carries both reads alike.
 
 ## Verdicts
 

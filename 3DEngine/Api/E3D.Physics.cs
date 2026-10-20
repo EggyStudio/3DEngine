@@ -431,11 +431,13 @@ public static partial class E3D
     /// Divided by the step, a sixtieth of a second, it is the force between them.
     /// </summary>
     /// <remarks>
-    /// The friction along the surface and the twist about the normal are left out, so a crate
-    /// dragged across a plate presses it by its weight as one at rest does. A pair asked about goes
-    /// on being answered with what it was when it fell asleep, as a crate long at rest on a
-    /// pressure plate does, since nothing between them changes while it sleeps. A pair asked about
-    /// first while asleep is woken and answered from its next step.
+    /// It is the push of the whole step at any number of substeps, so divided by the step it is the
+    /// force with <see cref="PhysicsSettings.SubstepCount"/> above 1 as well. The friction along
+    /// the surface and the twist about the normal are left out, so a crate dragged across a plate
+    /// presses it by its weight as one at rest does. A pair asked about goes on being answered with
+    /// what it was when it fell asleep, as a crate long at rest on a pressure plate does, since
+    /// nothing between them changes while it sleeps. A pair asked about first while asleep is woken
+    /// and answered from its next step.
     /// </remarks>
     public static float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b) => Physics.GetContactImpulse(a, b);
 

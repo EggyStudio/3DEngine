@@ -200,7 +200,7 @@ them, which a contact's speed does not once they rest, as a pressure plate that 
 a crate heavy enough. A body presses what holds it by its weight times the step, 9.81 times its
 mass over 60, whether it rests or is dragged across, since the friction is not counted, and a pair
 asked about goes on being answered with that once it sleeps. Times 60, the steps in a second, it is
-the force between them:
+the force between them, at any number of substeps:
 
 <!-- compiled with:
 PhysicsBody plate = default, crate = default;

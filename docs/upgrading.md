@@ -9,10 +9,10 @@ since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Four changes still compile and do something else, and they
+nothing else a game calls has changed. Five changes still compile and do something else, and they
 come first.
 
-## Four that still compile
+## Five that still compile
 
 A capsule takes its rings before its slices, as raylib 6's does. Both are numbers, so a call
 written for 5.1 compiles and draws its capsule with the two swapped.
@@ -49,6 +49,11 @@ effect, light past white to bloom, returns `toDisplay(light)` in its place.
 color over one plus its luminance, which is `Tonemap.ReinhardLuminance` now. A gray is drawn the
 same by both, and a game that chose Reinhard for how its colors kept their hue chooses
 `Tonemap.ReinhardLuminance`.
+
+`GetPhysicsContactImpulse` gives the push of the whole step at any number of substeps, where 5.1's
+gave the push of the step's last substep alone. A game at the default of one substep reads what it
+did, and one that set `PhysicsSettings.SubstepCount` above 1 reads that many times more, its weight
+times the step, as at one substep.
 
 ## The flat API's class
 

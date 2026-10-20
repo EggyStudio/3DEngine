@@ -194,4 +194,26 @@ public class PhysicsContactTests
         Matrix4x4.Decompose(composed, out _, out var rotation, out _);
         Quaternion.Dot(rotation, body.Rotation).Should().BeApproximately(1f, 1e-4f, "the world rotation is the body's too");
     }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    public void A_Resting_Box_Presses_The_Floor_By_Its_Weight_Over_The_Step_At_Any_Substep_Count(int substeps)
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings
+        {
+            UseFixedTimestep = true, FixedTimeStep = Step, SubstepCount = substeps, Gravity = new Vector3(0, -9.81f, 0),
+        });
+        var floor = world.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 0.5f, 10));
+        var box = world.CreateBox(new Vector3(0, 0.5f, 0), new Vector3(0.5f), mass: 2);
+        // Asked about each step while it settles, as the joint's force is read beside it.
+        var pressed = 0f;
+        for (int i = 0; i < 60; i++)
+        {
+            world.StepOnce(Step);
+            pressed = world.GetContactImpulse(box, floor);
+        }
+
+        (pressed / Step).Should().BeApproximately(2 * 9.81f, 2 * 9.81f * 0.01f, "its weight, the step's push over the step");
+    }
 }

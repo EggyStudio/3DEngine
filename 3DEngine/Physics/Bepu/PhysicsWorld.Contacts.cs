@@ -253,16 +253,18 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>
-    /// The push the last step's solver gave two touching bodies along their contacts' normals, in
-    /// mass times units a second, or 0 for a pair not touching.
+    /// The push the last step's solver gave two touching bodies along their contacts' normals over
+    /// the whole step, in mass times units a second, or 0 for a pair not touching.
     /// </summary>
     /// <remarks>
     /// It says how hard a pair presses as well as how hard it met, as a stack's weight on what holds
     /// it, where a contact's speed says only how fast they closed. Divided by the step it is the
-    /// force between them. A sleeping pair's contact is kept with its island rather than in the
-    /// narrow phase's map, and nothing between them changes while it sleeps, so a pair asked about
-    /// before it slept is answered with what it was then. One asked about first while asleep is
-    /// woken by the question and answered from its next step.
+    /// force between them, at any number of substeps, since the solver keeps the push of the step's
+    /// last substep alone, which is multiplied by their count, as the joint's force is. A sleeping
+    /// pair's contact is kept with its island rather than in the narrow phase's map, and nothing
+    /// between them changes while it sleeps, so a pair asked about before it slept is answered with
+    /// what it was then. One asked about first while asleep is woken by the question and answered
+    /// from its next step.
     /// </remarks>
     internal float GetContactImpulse(PhysicsBody a, PhysicsBody b)
     {
@@ -283,7 +285,7 @@ public sealed partial class PhysicsWorld
             // the twist about the normal left out, being other numbers in other units.
             var sum = new PushSum();
             if (Simulation.NarrowPhase.TryExtractSolverContactData(cache.ConstraintHandle, ref sum))
-                return _impulses[key] = sum.Total;
+                return _impulses[key] = sum.Total * Simulation.Solver.SubstepCount;
         }
 
         var sleeping = false;
