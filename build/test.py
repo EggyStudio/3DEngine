@@ -705,21 +705,26 @@ def merged_page(digests):
     return fit(lines), ordered
 
 
-def annotations(lost, causes, head_line, repeated):
+def annotations(lost, causes, head_line, repeated, ended=False):
     """
     The annotations, which anyone can read where a run's log and summary need signing in: an error
     for each lost process and each cause, ten at most, each with its whole entry of the page, and
-    a notice with the page's head and the lines the output repeated most.
+    a notice with the page's head and the lines the output repeated most. Where every test of its
+    run has a result and none failed (ended, or the process's own for a digest's), a process lost to
+    its time limit is said in a notice of its own with its whole entry, since the parts run after it
+    gave its tests their results.
     """
-    errors = [(f"Lost: {p['label']}", lost_entry(p)) for p in lost]
+    timed = [p for p in lost if (ended or p.get("ended")) and p["lost"] == "time"]
+    said = [(f"Lost to its time, every test ended after it: {p['label']}", lost_entry(p)) for p in timed]
+    errors = [(f"Lost: {p['label']}", lost_entry(p)) for p in lost if p not in timed]
     errors += [(f"{c['count']:,} × {c['type']}" + (f" on {', '.join(c['systems'])}" if c.get("systems") else "")
                 + (f" at {c['frame']}" if c["frame"] else ""), entry(c)) for c in causes]
     notice = [head_line] + [f"{count:,} × {line}" for line, count in repeated]
-    return errors[:ANNOTATIONS], notice
+    return errors[:ANNOTATIONS], notice, said
 
 
 def publish(lines, notes, results_dir=None, d=None):
-    errors, notice = notes
+    errors, notice, said = notes
     print(BEGIN)
     print("\n".join(lines))
     print(END)
@@ -730,6 +735,8 @@ def publish(lines, notes, results_dir=None, d=None):
             json.dump(d, f, indent=1)
     for title, message in errors:
         annotate("error", title, message)
+    for title, message in said:
+        annotate("notice", title, message)
     annotate("notice", "The tests", notice)
     summarize(lines)
 
@@ -778,7 +785,8 @@ def main():
             except (OSError, ValueError):
                 print(f"no digest at {path}")
         lines, causes = merged_page(digests)
-        lost = [dict(p, label=f"{p['label']} on {d['system']}") for d in digests for p in d["processes"] if p["lost"]]
+        lost = [dict(p, label=f"{p['label']} on {d['system']}", ended=d["failed"] == 0 and d["no_result"] == 0)
+                for d in digests for p in d["processes"] if p["lost"]]
         repeated = [r for d in digests for r in d["repeated"]][:REPEATED_SHOWN]
         publish(lines, annotations(lost, causes, "; ".join(head(d) for d in digests) or lines[-1], repeated))
         return 0
@@ -827,8 +835,14 @@ def main():
             print(process.summary(), flush=True)
 
     d = digest(results, done, listed, time.monotonic() - started)
-    publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"]), results, d)
-    return 0 if d["failed"] == 0 and d["no_result"] == 0 and not any(p.lost for p in done) else 1
+    # A run whose every test has a result and none failed passes where a process was lost to its
+    # time limit alone, the loss said in a notice, as a whole run on a slow runner runs out its hour
+    # before the parts give the rest of its tests their results. On the pack run of 448aa3fc the
+    # Windows suite's 1,667 tests all passed so and the step ended with exit code 1, which skipped the
+    # pack. A crash, a hang or a climb of memory is a fault the run met, whatever the parts gave after.
+    ended = d["failed"] == 0 and d["no_result"] == 0
+    publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"], ended), results, d)
+    return 0 if ended and all(p.lost in (None, "time") for p in done) else 1
 
 
 if __name__ == "__main__":

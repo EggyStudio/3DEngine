@@ -145,7 +145,7 @@ public sealed class TestScriptTests : IDisposable
             mode, "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
             "--results", _folder.Path, "--timeout-minutes", minutes, "--memory-mb", "200");
 
-        exit.Should().Be(1, "a process was lost");
+        exit.Should().Be(mode == "hang" ? 0 : 1, mode == "hang" ? "the parts gave every test of a run lost to its time a result" : "a process was lost to a fault");
         var page = File.ReadAllLines(_folder.File("digest.md"));
         page[0].Should().Contain("80 passed, 0 failed, 0 skipped, 0 without a result", "the parts ran every test the suite lists");
         page.First(line => line.StartsWith("### ", StringComparison.Ordinal)).Should().StartWith($"### Lost: the suite, {said}");
@@ -202,6 +202,22 @@ public sealed class TestScriptTests : IDisposable
             "    `Engine.Tests.Rendering.Drawing.Draws_5` 35 s");
         string.Join("\n", page).Should().Contain("1 failed, of 1 cause").And.Contain("Expected the rule to hold, but it did not.",
             "a failure the whole run printed is counted with its message");
+    }
+
+    [NeedsPythonFact]
+    public void A_Whole_Run_Lost_To_Its_Time_Whose_Parts_Give_Every_Test_A_Passing_Result_Passes_With_A_Notice()
+    {
+        // As the pack run of 448aa3fc's Windows suite ran out its hour 1,302 tests in, its parts
+        // passed every test and the step ended with exit code 1, so the pack job was skipped on a
+        // suite with nothing failing.
+        var (exit, log) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") },
+            "hang", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--timeout-minutes", "0.1");
+
+        exit.Should().Be(0, "every test has a result and none failed");
+        var lines = Lines(log);
+        lines.Should().NotContain(line => line.StartsWith("::error ", StringComparison.Ordinal), "a run lost to its time alone is no failure");
+        lines.Should().ContainSingle(line => line.StartsWith("::notice title=Lost to its time", StringComparison.Ordinal)).Which.Should()
+            .Contain("the suite").And.Contain("ended at its time limit", "the loss is said with its figures");
     }
 
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it
