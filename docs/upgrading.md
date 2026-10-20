@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **What the mouse does to an entity.** `Camera.Picking` on the camera drawing the window triggers a
+  `Pointer<TEvent>` on the mesh entity under the mouse, an `IPointerEvent` of `Over`, `Out`, `Move`,
+  `Press`, `Release`, `Click`, `DragStart`, `Drag` or `DragEnd`, those over it carrying a
+  `PointerHit`, as [Observers](behaviors-and-the-ecs.md#observers) shows.
 - **A font's ligatures turned off.** `SetFontLigatures` draws a font's standard ligatures as their
   letters, for a program that needs a glyph for each character, as
   [Fonts from files](text-and-fonts.md#fonts-from-files) shows.

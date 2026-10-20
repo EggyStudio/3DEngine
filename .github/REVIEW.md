@@ -10,7 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b19f09dc`, Verdict 78's mend and nothing else, carrying the review's file. The test
+Reviewed up to `ec39331c`, item 49 and nothing else, carrying the review's file, in the form and at
+the cost said before it. One public type a file under the ECS's observers folder, the adding and
+removal events, the carrier, the two event interfaces and the internal component event, with the
+world's observe, trigger and private registry in a file of their own; the hooks in the world's add,
+update, remove, despawn and the two bulk spawns, the store holding the two counts and its removal in
+a method of its own, since a lambda over the method's parameters made its closure on every call and
+a despawn allocated, and the world dropping the observers on disposal; an observer's exception
+logged with its event's type as C# writes it, the test carrying the expected error. The cheat sheet
+has the hand sentence in its ECS prose after the despawn paragraph, the behaviors guide its
+observers section with two blocks, ARCHITECTURE.md its ECS bullet, the upgrading guide its added
+entry and the surface listing 33 lines more. Nine tests: told once on adding and once on removal
+with a replacement telling nothing, one entity's observer and a disposed handle, a despawn telling
+each component's observer after the entity has gone and letting its own go, a change queued on
+commands telling at apply, a game's event in order through every observer, the hand's, the arm's
+halving and stopping it under 4 and the body's, an event that does not propagate and one of no
+entity, an observer that throws, no bytes allocated with no observer and with one of another
+component, and an undisposed world with observers collected. Checked were the strict build, the
+suite, 1,786, the behaviors guide's twelve blocks on a fresh pack, and the norm, cheat sheet,
+upgrading and surface tests. Read at 17:02; its push waits for the pack run's build jobs to pass, so
+the push's build run does not crowd them. SHARED.md's row says both engines have it. Next item 50
+from the ledger, the pointer's events on an entity. Item 6 waits on the owner's word.
+
+Before it, `b19f09dc` came, Verdict 78's mend and nothing else, carrying the review's file. The test
 script's run takes the seed as a parameter, every process it starts having the seed taken out of its
 environment and only the shuffled run's having it set to the flag's, the shuffled step touching the
 environment no more, the docstring and the comment saying why, a test of the script running inside a
@@ -19,11 +41,7 @@ beside the runner's own, so a case means a seed only where it sets one; a new ca
 in its shuffle-fails mode under an outer seed of 99 with the flag's 7 and reads 80 passed on the
 plain page and 79 with one failed and the seed 7 on the shuffled page with exit 1, failing against
 the old script exactly as the runner did; the script's twelve tests pass plainly and under the day's
-seed. Read at 16:49; the build run of `62efc173`, whose shuffled pass was known to fail, was
-cancelled, this head pushed at 16:48 and the pack run with publish on started on it for the day's
-batch, the five games, items 40 to 48 and the three mends; its Linux job is Verdict 78's check, its
-games job Verdict 77's first and its macOS games Verdict 76's second. Item 49's form and cost were
-said before its commit, taken as said under it. Item 6 waits on the owner's word.
+seed. Pushed at 16:48 and the pack run with publish on started on it.
 
 Before it, `62efc173` came, Verdict 77's mend and nothing else, carrying the review's and the
 ledger's files and the CI measure's line back at 10.7. The job's log said the castle was down after
@@ -49,27 +67,6 @@ in about 2 minutes 29 seconds each, where the runner took 4 minutes 21 seconds f
 taller trigger overlaps the castle's lower half and adds contact pairs, inside those times. One run
 the coder spoiled by building the client while a drive asked for status, stopped and run again
 clean. Pushed at 16:44.
-
-Before it, `6a289059` came, item 48 and nothing else, carrying the review's file. The schedule's
-shuffle draws a random order of each stage's list keeping the add order between every pair the stage
-holds to, from one random source over the stages in their order, the same for the same seed; the
-app's startup calls it once with the environment's seed before the startup stage, after the plugins
-and behaviors have added their systems, a whole number logged at info and anything else warned and
-left, systems added later running where they are added; the test script, where a flag names a seed,
-runs the suite whole once more with the variable set after a suite that passed, its results and page
-under a shuffled folder with the seed in the head, a failure saying the seed and the command to run
-the same order again on the page and in an error annotation, and a suite that failed in add order
-not run shuffled; the workflow's Linux job runs the shuffled pass with the day's date as the seed,
-uploads its page beside the three systems' for the digest, and its limit goes from 45 to 100 minutes
-since each run ends at its own 40; BUILDING.md has the paragraph and the command and
-ARCHITECTURE.md's schedule section two sentences. Tests hold for forty seeds that a conflicting pair
-stays in order, systems stay on their side of a main-thread one and of one declaring nothing, the
-same seed gives the same order and more than five orders come out, and the script's tests cover a
-test failing only under the seed with the seed named and a failed suite not run shuffled. On the
-development machine the suite gave 1,774 and then 1,774 shuffled by the day's seed in 9 minutes 7
-seconds and 9 minutes 30, the seed's line logged once an app, so nothing in the suite leans on an
-undeclared order at this seed; a live hidden run logged the line and ran 30 frames. The strict build
-is clean and the script's, norm and document tests pass. Pushed at 15:58 with the five before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2555,7 +2552,54 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     an observer of the component changed 200, 177 and 322, boxing the event, the carrier, a copy of
     the list and the call. One commit, the component events and the game's sharing the registry. The
     cheat sheet gets a hand sentence in its ECS prose naming the observers, since its lists hold the
-    flat API alone.
+    flat API alone. Done at `ec39331c` on 2026-10-20, as the head says.
+
+50. **A game observes what a pointer does to an entity as events on that entity, climbing its
+    parents until stopped.** SHARED.md's row, where BevyCSharp has Bevy's pointer events in their
+    seventeen kinds and this engine is to consider, where a raylib program asks the ray collision
+    calls itself, taken on 2026-10-20 as the next after item 49, whose propagating events are the
+    carrier: a program that opts in, by a picking setting on a camera, has the engine cast the
+    pointer's ray each frame against the models and shapes it draws with their boxes or meshes, as
+    the editor's picking does, and trigger on the entity hit the events of the pointer's moving over
+    it, leaving it, pressing, releasing, clicking and dragging with the button, the pointer's place
+    and the hit's point and normal, each propagating to the entity's parents until stopped; nothing
+    is cast where no camera opts in, so a program that asks the ray collision calls itself pays
+    nothing. Read first how the editor picks today and what the drawn entities keep that a cast can
+    read, and say the form, the kinds and the cost before the commit; the behaviors guide's
+    paragraph after the observers, the cheat sheet's hand sentence, the surface listing and the
+    upgrading guide's entry; tests of each kind on a box under a camera, of the climb to a parent
+    and its stop, and of the cost with no camera opting in, which must be none. One commit. The form
+    said by 17:11 on 2026-10-20 and taken: this engine has no editor, so the model is BevyCSharp's
+    pointer event with its kinds and its camera's picking setting; the opt-in is a picking flag on
+    the camera, off by default, read on the camera that draws the window alone, the first without a
+    target, a render texture's camera not picking since the pointer is not over its texture; a
+    pointer event carrying the entity, the pointer's place and the kind, propagating up the parents
+    until stopped so a model's root hears a click on any of its meshes, the kind a record struct
+    with Bevy's name, over, out, move with its delta, press, release and click with the button, drag
+    start with the hit as the button went down, drag with its distance and delta and drag end with
+    its distance, a hit carrying the world point, a normal facing the camera of length one and the
+    distance in world units, eight of Bevy's seventeen left out, enter, leave, the drag enter, over,
+    leave and drop, scroll and cancel, the mouse the only pointer; a resource the ECS plugin inserts
+    with a main-thread system before the game's update, since an observer may change anything,
+    casting the ray from the camera through the mouse's place against the window's size as the
+    renderer sizes the camera, each mesh entity tested by the sphere around its positions kept in a
+    weak table keyed by the array, scaled by the matrix's largest scale, one the ray reaches tested
+    by its box in its own space and then its triangles with the world distance kept, the nearest
+    triangle winning, a skinned mesh met unposed, the global transform of the frame before, which is
+    what the player sees; Bevy's rules for the order, out to the old entity before over to the new,
+    move over the same entity, press to the entity under the pointer, drag start and drag to the
+    entity pressed each frame the pointer moves with the button held wherever it is, release to the
+    entity under the pointer, click where that is the entity pressed and drag end to the entity
+    pressed after a drag; the pointer over an ImGui window picking nothing. The cost with no camera
+    asking 0.3 microseconds a frame reading the camera store alone with no allocation, a flat
+    program with no camera returning at the count, and with a camera asking 45 microseconds for
+    1,000 cube entities and 400 for 10,000, about 40 ns an entity, the last-array shortcut having
+    taken 10,000 from 483; the flat ray calls untouched. Four tests on a cube under a camera: the
+    kinds in order with a click, a right-button drag through out and a drag end with no release or
+    click off the box, the climb to the parent and its stop, and no camera asking casting and
+    allocating nothing until the flag is set; a live hidden run told the events on the spinning cube
+    and the triangle with no error. The types one to a file under the rendering area's picking
+    folder, needing no AGENTS.md row.
 
 ## Verdicts
 

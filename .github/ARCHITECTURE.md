@@ -150,6 +150,11 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   world with no observer despawns as before. The observers are the world's, made with the first,
   and a store holds a count and no reference to them, so the static cache of stores keeps no world
   alive.
+- `PointerPicking`, run on the main thread in `PreUpdate` where the window's camera has
+  `Camera.Picking` set, casts the mouse's ray at each `Mesh` entity where the frame before drew it,
+  by the sphere around its positions, kept per array, and then its triangles, and triggers a
+  `Pointer<TEvent>` on the nearest for what the mouse did, Bevy's kinds from `Over` to `DragEnd`.
+  With no camera asking it reads the cameras and casts nothing.
 
 ## Behaviors
 

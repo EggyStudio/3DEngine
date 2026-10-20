@@ -73,6 +73,11 @@ internal sealed class EcsPlugin : IPlugin
         app.AddSystem(Stage.Render, new SystemDescriptor(TransformPropagation.Run, "EcsPlugin.TransformPropagation")
             .Write<EcsWorld>());
 
+        // What the mouse does to the mesh entities a picking camera draws, triggered on them before
+        // the game's update, on the main thread, since an observer may change anything.
+        app.World.InsertResource(new PointerPicking());
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(PointerPicking.Run, "EcsPlugin.PointerPicking").MainThreadOnly());
+
         // Code-generated [Behavior] layer that registers systems against the ECS world.
         app.AddPlugin(new BehaviorsPlugin());
     }

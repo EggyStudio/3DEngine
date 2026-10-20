@@ -288,6 +288,7 @@ struct Engine.Camera
   Camera(float fovY = 60f, float near = 0.1f, float far = 1000f, RenderTexture2D target = default)
   Color Background
   RenderTexture2D Target
+  bool Picking
   float Far
   float FovY
   float Near
@@ -335,6 +336,17 @@ struct Engine.CharacterController
   float MaxSlope
   float StepHeight
   static CharacterController Default { get; }
+readonly struct Engine.Click : IEquatable<Click>, IPointerEvent
+  Click(MouseButton Button, PointerHit Hit)
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  bool Equals(Click other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Click left, Click right)
+  static bool op_Inequality(Click left, Click right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
 struct Engine.Collider
   ColliderShape Shape
   Vector3 Size
@@ -563,6 +575,40 @@ readonly struct Engine.DespawnWhen<TState> : IEquatable<DespawnWhen<TState>> whe
   static bool op_Equality(DespawnWhen<TState> left, DespawnWhen<TState> right)
   static bool op_Inequality(DespawnWhen<TState> left, DespawnWhen<TState> right)
   void Deconstruct(out Func<StateTransition<TState>, bool> Rule)
+readonly struct Engine.Drag : IEquatable<Drag>, IPointerEvent
+  Drag(MouseButton Button, Vector2 Distance, Vector2 Delta)
+  MouseButton Button { get; init; }
+  Vector2 Delta { get; init; }
+  Vector2 Distance { get; init; }
+  bool Equals(Drag other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Drag left, Drag right)
+  static bool op_Inequality(Drag left, Drag right)
+  void Deconstruct(out MouseButton Button, out Vector2 Distance, out Vector2 Delta)
+readonly struct Engine.DragEnd : IEquatable<DragEnd>, IPointerEvent
+  DragEnd(MouseButton Button, Vector2 Distance)
+  MouseButton Button { get; init; }
+  Vector2 Distance { get; init; }
+  bool Equals(DragEnd other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DragEnd left, DragEnd right)
+  static bool op_Inequality(DragEnd left, DragEnd right)
+  void Deconstruct(out MouseButton Button, out Vector2 Distance)
+readonly struct Engine.DragStart : IEquatable<DragStart>, IPointerEvent
+  DragStart(MouseButton Button, PointerHit Hit)
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  bool Equals(DragStart other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DragStart left, DragStart right)
+  static bool op_Inequality(DragStart left, DragStart right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
 static class Engine.E3D
   const int AnimationFps = 60
   const int MeshStreamBuffer = 9
@@ -1769,6 +1815,7 @@ interface Engine.IPlugin
   void Build(App app)
 interface Engine.IPluginGroup
   IEnumerable<IPlugin> GetPlugins()
+interface Engine.IPointerEvent
 interface Engine.IPropagatingEvent : IEntityEvent
 interface Engine.ISceneCodec
   IReadOnlyList<string> FormerNames { get; }
@@ -2334,6 +2381,17 @@ enum Engine.MouseCursor : int
   ResizeNESW = 8
   ResizeNS = 6
   ResizeNWSE = 7
+readonly struct Engine.Move : IEquatable<Move>, IPointerEvent
+  Move(PointerHit Hit, Vector2 Delta)
+  PointerHit Hit { get; init; }
+  Vector2 Delta { get; init; }
+  bool Equals(Move other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Move left, Move right)
+  static bool op_Inequality(Move left, Move right)
+  void Deconstruct(out PointerHit Hit, out Vector2 Delta)
 sealed class Engine.Music
   AudioStream Stream { get; }
   bool IsValid { get; }
@@ -2400,6 +2458,23 @@ sealed class Engine.On<TEvent>
   Entity Entity { get; }
   TEvent? Event { get; }
   void Propagate(bool propagate)
+readonly struct Engine.Out : IEquatable<Out>, IPointerEvent
+  bool Equals(Out other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Out left, Out right)
+  static bool op_Inequality(Out left, Out right)
+readonly struct Engine.Over : IEquatable<Over>, IPointerEvent
+  Over(PointerHit Hit)
+  PointerHit Hit { get; init; }
+  bool Equals(Over other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Over left, Over right)
+  static bool op_Inequality(Over left, Over right)
+  void Deconstruct(out PointerHit Hit)
 struct Engine.Parent
   Entity Value
   Parent(Entity value)
@@ -2573,6 +2648,41 @@ static class Engine.PluginOrder
   const int Foundation = -1000
   const int Late = 1000
   const int Latest = 2000
+readonly struct Engine.PointerHit : IEquatable<PointerHit>
+  PointerHit(Vector3 Point, Vector3 Normal, float Distance)
+  Vector3 Normal { get; init; }
+  Vector3 Point { get; init; }
+  bool Equals(PointerHit other)
+  float Distance { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(PointerHit left, PointerHit right)
+  static bool op_Inequality(PointerHit left, PointerHit right)
+  void Deconstruct(out Vector3 Point, out Vector3 Normal, out float Distance)
+readonly struct Engine.Pointer<TEvent> : IEntityEvent, IEquatable<Pointer<TEvent>>, IPropagatingEvent where TEvent : struct, IPointerEvent
+  Entity Entity { get; init; }
+  Pointer(Entity Entity, Vector2 Position, TEvent Event)
+  TEvent Event { get; init; }
+  Vector2 Position { get; init; }
+  bool Equals(Pointer<TEvent> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Pointer<TEvent> left, Pointer<TEvent> right)
+  static bool op_Inequality(Pointer<TEvent> left, Pointer<TEvent> right)
+  void Deconstruct(out Entity Entity, out Vector2 Position, out TEvent Event)
+readonly struct Engine.Press : IEquatable<Press>, IPointerEvent
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  Press(MouseButton Button, PointerHit Hit)
+  bool Equals(Press other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Press left, Press right)
+  static bool op_Inequality(Press left, Press right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
 readonly struct Engine.Ray : IEquatable<Ray>
   Ray(Vector3 Position, Vector3 Direction)
   Vector3 Direction { get; init; }
@@ -2627,6 +2737,17 @@ readonly struct Engine.ReflectionProbeHandle : IEquatable<ReflectionProbeHandle>
   static bool op_Equality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   static bool op_Inequality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   void Deconstruct(out Entity Entity)
+readonly struct Engine.Release : IEquatable<Release>, IPointerEvent
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  Release(MouseButton Button, PointerHit Hit)
+  bool Equals(Release other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Release left, Release right)
+  static bool op_Inequality(Release left, Release right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
 readonly struct Engine.Remove<T> : IComponentEvent, IEntityEvent, IEquatable<Remove<T>>
   Entity Entity { get; init; }
   Remove(Entity Entity, T? Value)

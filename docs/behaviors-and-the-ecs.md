@@ -270,6 +270,36 @@ event reaches the observers of every such event. An exception an observer throws
 no further. The handle `Observe` returns stops the observer when disposed, and an entity's own
 observers go with it once it is despawned, after they are told of what it took.
 
+What the mouse does to a mesh entity is an event on it, where the camera drawing the window asks
+for it with `Picking`:
+
+<!-- compiled with:
+BehaviorContext ctx = null!;
+int camera = 0;
+Entity door = default, crate = default;
+static void Open(EcsWorld ecs, Entity entity) { }
+static void Push(EcsWorld ecs, Entity entity, System.Numerics.Vector2 by) { }
+-->
+```csharp
+ctx.Ecs.Add(camera, new Camera(60) { Picking = true });
+
+ctx.Ecs.Observe<Pointer<Click>>(door, on => Open(on.Ecs, on.Entity));
+ctx.Ecs.Observe<Pointer<Drag>>(crate, on => Push(on.Ecs, on.Entity, on.Event.Event.Delta));
+```
+
+Each frame the pointer's ray is cast at every `Mesh` entity, by the sphere around its positions and
+then its triangles, and the nearest it meets is under the pointer. `Over` and `Out` say the pointer
+came over the entity or left it, `Move` that it moved on it, `Press`, `Release` and `Click` what a
+button did over it, and `DragStart`, `Drag` and `DragEnd` what a button held from it did, wherever
+the pointer went. Each carries where the pointer is in the window, and those that happen over the
+entity carry a `PointerHit`, the point met, the surface's normal there and its distance. They go up
+the entity's parents as the events above do, so a model's root hears a click on any of its meshes,
+until an observer calls `on.Propagate(false)`. A skinned mesh is met as it stands unposed, its bind
+pose, and not as a clip has posed it on the GPU, so an animated figure is picked where it stands at
+rest. The cast costs some 40 nanoseconds a mesh entity a frame, and a world whose window camera does
+not ask casts nothing, so a program testing a ray with `GetRayCollisionMesh` itself pays for no
+picking. The mouse over an ImGui window picks nothing.
+
 ## Scripts changed while the game runs
 
 A behavior in a `.cs` file under `source/behaviors` is compiled by the running game, through Roslyn,

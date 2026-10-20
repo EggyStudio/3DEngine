@@ -1435,7 +1435,9 @@ rule answers true for.
 `ecs.Observe<Add<Health>>(on => ...)` runs the moment an entity gets a `Health`, `Remove<Health>`
 once one leaves it, and `ecs.Trigger(new Hit(entity, 10))` sends an event of the game's own to its
 observers, the entity's after the rest, and up its parents for an `IPropagatingEvent` until one
-calls `on.Propagate(false)`.
+calls `on.Propagate(false)`. A window camera with `Picking` set tells the mesh entity under the
+mouse what it does to it, as `Pointer<Over>`, `Out`, `Move`, `Press`, `Release`, `Click`,
+`DragStart`, `Drag` and `DragEnd`, climbing its parents the same way.
 
 ## Scenes
 

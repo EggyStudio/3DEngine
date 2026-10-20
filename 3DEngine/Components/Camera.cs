@@ -25,6 +25,19 @@ public struct Camera
     /// <summary>The color a camera's render texture is cleared to, unless the program clears it inside <c>BeginTextureMode</c>.</summary>
     public Color Background;
 
+    /// <summary>
+    /// Whether the mouse picks the mesh entities this camera draws into the window, triggering a
+    /// <see cref="Pointer{TEvent}"/> on the one under it as it moves over, leaves, presses, clicks
+    /// and drags.
+    /// </summary>
+    /// <remarks>
+    /// Read for the camera that draws the window alone, the first without a <see cref="Target"/>.
+    /// It costs a ray cast a frame at every <see cref="Mesh"/> entity, by the sphere around each
+    /// one's positions and then the triangles of those the ray reaches, so it is off by default, and
+    /// a world where no camera sets it casts nothing.
+    /// </remarks>
+    public bool Picking;
+
     /// <summary>A 60 degree field of view from 0.1 to 1000 units. A default <see cref="Camera"/> sees nothing.</summary>
     public static Camera Default => new(60f);
 
