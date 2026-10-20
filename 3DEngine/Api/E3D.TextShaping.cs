@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Engine;
 
 // Text shaped by a font's own substitutions, where a color font joins a sequence of emoji into the
@@ -48,6 +50,55 @@ public static partial class E3D
                 [("medi", (byte)ArabicJoining.Form.Medial)], [("init", (byte)ArabicJoining.Form.Initial)], [("rlig", 0)], [("rclt", 0), ("calt", 0)],
                 [("mset", 0), ("liga", 0), ("clig", 0)]);
 
+    /// <summary>
+    /// How a font loaded from a file shapes a line read left to right, its standard ligatures by
+    /// the <c>liga</c> feature of its GSUB table under the latn script, where it has outlines to
+    /// draw them from, and its pairs kerned by the pair adjustments of the <c>kern</c> feature of
+    /// its GPOS table, or by its kern table where its GPOS kerns nothing, each read once for the
+    /// glyphs of the characters asked for and the ligatures they make, or null where it does
+    /// neither.
+    /// </summary>
+    /// <remarks>
+    /// A ligature or a pair chosen by its context, which a Latin font's <c>liga</c> and <c>kern</c>
+    /// rarely make, is not read, so a line is shaped by a lookup at each glyph and each pair, a few
+    /// microseconds where the font's own engine took a few hundred.
+    /// </remarks>
+    internal static Font.LatinShaping? LatinPlan(TrueTypeFont? reader, IEnumerable<int> asked)
+    {
+        if (reader is null) return null;
+        var characters = asked.Distinct().ToArray();
+        var glyphOf = characters.ToDictionary(c => c, reader.GlyphIndex);
+        var glyphs = glyphOf.Values.Where(g => g != 0).ToHashSet();
+        List<Dictionary<int, (int[] Then, int Ligature)[]>> joins = [];
+        if (reader.HasOutlines && reader.Substitutions is { } gsub && gsub.PlanFor("latn", ("liga", 0)) is { } liga)
+        {
+            try
+            {
+                joins = gsub.Ligatures(liga, gsub.Reachable(glyphs, liga));
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+            }
+        }
+        // Each ligature drawn as a character asked for where one maps to it, and otherwise as the
+        // glyph baked under its key.
+        var characterOf = new Dictionary<int, int>();
+        foreach (var (c, g) in glyphOf)
+            if (g != 0) characterOf.TryAdd(g, c);
+        var ligatureKeys = joins.SelectMany(rules => rules.Values.SelectMany(listed => listed.Select(rule => rule.Ligature))).Distinct()
+            .ToDictionary(g => g, g => characterOf.TryGetValue(g, out var c) ? c : JoinedKey(g));
+        var pairs = reader.Positions is { } gpos && gpos.PlanFor("latn", ("kern", 0)) is { } kern
+            ? gpos.PairAdvances(kern, [.. glyphs.Concat(ligatureKeys.Keys)])
+            : [];
+        var byTable = pairs.Count == 0 && reader.Kerns;
+        return joins.Count == 0 && pairs.Count == 0 && !byTable ? null : new(reader, glyphOf, joins, ligatureKeys, pairs, byTable);
+    }
+
+    // The ligatures a font makes that are drawn as glyphs of their own, baked with it under their
+    // keys.
+    private static int[] LigatureGlyphs(Font.LatinShaping? latin) =>
+        latin is null ? [] : [.. latin.LigatureKeys.Where(entry => entry.Value > 0x10FFFF).Select(entry => entry.Key).Order()];
+
     // The plan of a font's positions for Arabic, the marks above and below put on their letters and
     // on each other, the distances and the kerning between letters, and each letter joined to the
     // next by its exit and that one's entry, all at every glyph.
@@ -85,7 +136,9 @@ public static partial class E3D
         text = Composed(font, text);
         if (TextDirection.HasRightToLeft(text))
             return font.ShapedText(text, t => [.. t.Split('\n').SelectMany((line, i) => i == 0 ? ShapeLine(font, line) : ShapeLine(font, line).Prepend(new PlacedKey('\n')))]);
-        return font.Joining is { } joining ? font.ShapedText(text, t => [.. ShapeText(font, joining, t).Select(key => new PlacedKey(key))]) : Runes(text);
+        if (font.Joining is { } joining) return font.ShapedText(text, t => [.. ShapeText(font, joining, t).Select(key => new PlacedKey(key))]);
+        if (font.Latin is { } latin) return font.ShapedText(text, t => ShapeLatin(font, latin, t));
+        return Runes(text);
     }
 
     // Text with each character and the mark right after it composed into the one character Unicode
@@ -185,6 +238,64 @@ public static partial class E3D
             else keys.Add(font.Glyphs.ContainsKey(JoinedKey(glyph)) ? JoinedKey(glyph) : '?');
         }
         return keys;
+    }
+
+    /// <summary>
+    /// Text with nothing read right to left shaped a line at a time by a font's standard
+    /// ligatures, where they are on, each glyph drawn as the character it is the glyph of and a
+    /// ligature by its key, and each moving the pen on by its own advance and what kerning adds to
+    /// it before the glyph that follows.
+    /// </summary>
+    /// <remarks>
+    /// A ligature is made where its glyphs follow one another with nothing between them, so a
+    /// zero width non-joiner keeps two letters apart, and one whose glyph was not baked is not
+    /// made. A default ignorable character is left out, as HarfBuzz hides one. Text drawn each
+    /// frame is shaped once a string, so the work is kept to a lookup at each glyph and each pair.
+    /// </remarks>
+    private static PlacedKey[] ShapeLatin(Font font, Font.LatinShaping latin, string text)
+    {
+        var reader = latin.Reader;
+        // Each glyph, the character it was, the first of a ligature's, and whether it is a
+        // ligature, a character's glyph read from those of the characters the font was baked with.
+        var run = new List<(int Glyph, int Character, bool Joined)>(text.Length);
+        foreach (var rune in text.EnumerateRunes())
+            run.Add((latin.GlyphOf.TryGetValue(rune.Value, out var g) ? g : rune.Value == '\n' ? 0 : reader.GlyphIndex(rune.Value), rune.Value, false));
+        if (font.Ligatures)
+            foreach (var rules in latin.Joins)
+                for (int at = 0; at < run.Count; at++)
+                {
+                    if (!rules.TryGetValue(run[at].Glyph, out var listed)) continue;
+                    foreach (var (then, ligature) in listed)
+                    {
+                        if (at + then.Length >= run.Count || !font.Glyphs.ContainsKey(latin.LigatureKeys[ligature])) continue;
+                        var follows = true;
+                        for (int k = 0; k < then.Length && follows; k++) follows = run[at + 1 + k].Glyph == then[k];
+                        if (!follows) continue;
+                        run[at] = (ligature, run[at].Character, true);
+                        run.RemoveRange(at + 1, then.Length);
+                        break;
+                    }
+                }
+
+        // What kerning adds, in the font's units at the bake's scale, a pixel height of ascent to
+        // descent, the pair a newline ends left unkerned.
+        var unit = font.BaseSize / (reader.Ascent - reader.Descent);
+        var placed = new PlacedKey[run.Count];
+        var count = 0;
+        for (int i = 0; i < run.Count; i++)
+        {
+            var (glyph, character, joined) = run[i];
+            if (DefaultIgnorable(character)) continue;
+            var key = joined ? latin.LigatureKeys[glyph] : character;
+            var next = i + 1;
+            while (next < run.Count && DefaultIgnorable(run[next].Character)) next++;
+            var kerned = character == '\n' || next >= run.Count || run[next].Character == '\n' ? 0
+                : latin.Pairs.TryGetValue((uint)glyph << 16 | (uint)run[next].Glyph, out var adds) ? adds
+                : latin.ByKernTable ? reader.Kerning(glyph, run[next].Glyph) : 0;
+            placed[count++] = kerned == 0 ? new PlacedKey(key)
+                : new PlacedKey(key, default, (TryGetGlyph(font, key, out var drawn) ? drawn.Advance : 0) + kerned * unit);
+        }
+        return count == placed.Length ? placed : placed[..count];
     }
 
     // The characters of a run that select or join rather than draw, the joiners, the variation

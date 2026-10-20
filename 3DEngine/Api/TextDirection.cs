@@ -32,6 +32,9 @@ internal static class TextDirection
     /// <summary>Whether a character of the text is read right to left, which a text of none shows as it is stored.</summary>
     public static bool HasRightToLeft(string text)
     {
+        // No character below U+0590, where Hebrew begins, is read right to left, and text drawn
+        // each frame is mostly of those, which a search a vector at a time finds.
+        if (text.AsSpan().IndexOfAnyExceptInRange('\0', '\u058F') < 0) return false;
         foreach (var rune in text.EnumerateRunes())
             if (Classify(rune.Value) is Class.R or Class.AL or Class.AN) return true;
         return false;

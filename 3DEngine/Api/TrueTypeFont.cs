@@ -41,6 +41,10 @@ internal sealed class TrueTypeFont
     private readonly int _cblc, _cbdt, _colr, _cpal, _sbix;
     private readonly bool _longLoca;
     private readonly ColorPaint? _paints;
+
+    // The kern table's horizontal pairs, by the left glyph in the high half and the right in the
+    // low, in the font's units.
+    private readonly Dictionary<uint, short> _kerning = [];
     private readonly CompactFontOutlines? _cff;
 
     /// <summary>The units an em is drawn in.</summary>
@@ -73,6 +77,7 @@ internal sealed class TrueTypeFont
         if (tables.TryGetValue("GSUB", out var gsub)) Substitutions = GlyphSubstitution.Read(data, gsub, gdef);
         if (tables.TryGetValue("GPOS", out var gpos)) Positions = GlyphPositioning.Read(data, gpos, gdef, Advance);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
+        if (tables.TryGetValue("kern", out var kern)) ReadKerning(kern);
         if (_glyf == 0 && tables.TryGetValue("CFF ", out var cff)) _cff = CompactFontOutlines.Read(data, cff);
 
         (_cmap12, _cmap4) = Maps(data, tables["cmap"]);
@@ -243,6 +248,63 @@ internal sealed class TrueTypeFont
 
     /// <summary>How far a glyph moves the pen, in the font's units.</summary>
     public int Advance(int glyph) => U16(_hmtx + Math.Min(glyph, _hMetrics - 1) * 4);
+
+    /// <summary>Whether the font's kern table moves any pair, as an older font's does.</summary>
+    public bool Kerns => _kerning.Count > 0;
+
+    /// <summary>
+    /// How far the kern table moves a glyph followed by another, in the font's units, 0 for a pair
+    /// it lists none for.
+    /// </summary>
+    public int Kerning(int left, int right) => _kerning.TryGetValue((uint)left << 16 | (uint)right, out var value) ? value : 0;
+
+    // The kern table's pairs of the first format, horizontal and along the line, in Microsoft's
+    // version of the table, a 16-bit version and count, and Apple's, a 32-bit version and count
+    // with each subtable's length in 32 bits. A pair listed twice keeps the first value read. A
+    // table pointing past the file's end leaves the pairs read before it.
+    private void ReadKerning(int kern)
+    {
+        try
+        {
+            var apple = U16(kern) == 1;
+            var count = apple ? (int)U32(kern + 4) : U16(kern + 2);
+            var at = kern + (apple ? 8 : 4);
+            for (int t = 0; t < count; t++)
+            {
+                int length, coverage, format, pairs;
+                bool horizontal;
+                if (apple)
+                {
+                    length = (int)U32(at);
+                    coverage = U16(at + 4);
+                    format = coverage & 0xFF;
+                    // Apple's high bits say vertical and across the line, neither of which this is.
+                    horizontal = (coverage & 0xC000) == 0;
+                    pairs = at + 8;
+                }
+                else
+                {
+                    length = U16(at + 2);
+                    coverage = U16(at + 4);
+                    format = coverage >> 8;
+                    // Microsoft's low bits say horizontal, minimum values and across the line.
+                    horizontal = (coverage & 0x7) == 1;
+                    pairs = at + 6;
+                }
+                if (format == 0 && horizontal)
+                    for (int p = 0; p < U16(pairs); p++)
+                    {
+                        var pair = pairs + 8 + p * 6;
+                        _kerning.TryAdd(U32(pair), S16(pair + 4));
+                    }
+                if (length <= 0) break;
+                at += length;
+            }
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
+    }
 
     private (int Start, int Length) GlyphData(int glyph)
     {

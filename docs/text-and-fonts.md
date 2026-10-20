@@ -62,6 +62,25 @@ so text lies where it would from the one bake, as raylib's does, whose advances 
 the size a font is loaded at, as they are here. `LoadFont(fileName)` bakes at 32 pixels, and
 `UnloadFont` frees every bake.
 
+A line read left to right is kerned and joined as the font says, where raylib draws it a character
+at a time. A pair the `kern` feature of the font's GPOS table moves apart or together is drawn
+so, as V tucked under the arm of an A before it, or by its kern table where an older font has no
+such feature, and the standard ligatures of its `liga` feature are drawn as the one glyph the
+font has for them, as f and i joined into fi, those it can make of the characters it is loaded
+with baked with it. Both are read from the font once as it loads, so a line drawn for the first
+time costs a few microseconds more than one drawn a character at a time, and a ligature or a pair
+the font chooses by the letters around it, which a Latin font rarely has, is not made.
+`MeasureTextEx` measures what is drawn, so text centered by it stays centered.
+A program that needs each character drawn as a glyph of its own, as a text field that puts its
+caret between two letters, turns the ligatures off, and the kerning stays:
+
+<!-- compiled with:
+var lato = LoadFontEx("resources/fonts/Lato-Regular.ttf", 48);
+-->
+```csharp
+SetFontLigatures(lato, false);   // "file" drawn as f, i, l and e
+```
+
 ## Fonts drawn as images
 
 A pixel-art game often draws its font by hand, every glyph on a row of one image, separated from
@@ -136,7 +155,7 @@ DrawTextEx(joined, Sequences, new Vector2(20, 90), 48, 4, Color.White);
 
 A joiner or a variation selector a font does not join is not drawn. The text outside a color
 font's emoji is drawn a character at a time, as raylib draws it, so the ligatures and the shaping
-of a script such as Arabic are not made. A variable color font's emoji are drawn as its default
+of a script such as Arabic are not made in a font that joins emoji. A variable color font's emoji are drawn as its default
 instance.
 
 ## Text read right to left
@@ -186,10 +205,10 @@ is written, has each letter drawn with its exit on the next one's entry, up or d
 word where the two lie at different heights. A
 letter's marks are shaped in the order HarfBuzz puts them in, shadda before the vowel written with
 it, whatever order the text stores them in. A font with no positions draws a mark after its letter
-where the font's glyph of it lies. Text in other scripts is drawn a character at a time with
-raylib's advances, so a Latin font's kerning and ligatures are not made, and a line measures as it
-does in raylib. A letter and a mark stored after it, as e and a combining acute, are drawn as the
-one character Unicode has for both, é, where the font has it, as HarfBuzz composes them.
+where the font's glyph of it lies. A line read left to right is kerned and joined by its font as
+[Fonts from files](#fonts-from-files) says, and the shaping Devanagari needs is not made. A letter
+and a mark stored after it, as e and a combining acute, are drawn as the one character Unicode has
+for both, é, where the font has it, as HarfBuzz composes them.
 
 ## Typed text
 

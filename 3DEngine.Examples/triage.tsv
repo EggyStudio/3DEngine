@@ -116,7 +116,7 @@ text_font_filters	can
 text_format_text	can
 text_writing_anim	can
 text_rectangle_bounds	can	with GetGlyphInfo by code point in GetGlyphIndex's place
-text_unicode_ranges	can	its fonts load Latin-1 where raylib's load ASCII, so its atlas and its Spanish line differ, and its labels are in ImGui's default font, as the comparison page says
+text_unicode_ranges	can	its fonts load Latin-1 where raylib's load ASCII, so its atlas and its Spanish line differ, its atlas holding the ligatures its font makes of them too, and its labels are in ImGui's default font, as the comparison page says
 text_3d_drawing	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_codepoints_loading	can	its counts in ImGui's default font, and its text drawn larger than its font from a bake at the size, as the comparison page says
 text_inline_styling	can	with GetGlyphInfo by code point in GetGlyphIndex's place

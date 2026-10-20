@@ -57,7 +57,16 @@ word of behs sits 200 below the one after it, and its glyphs leave 50 in from th
 
 arabic-forms.ttf has no substitutions, as an older font of Arabic has none, and maps the same three
 letters and their presentation forms, beh's four, alef's two and lam's four, the isolated and final
-lam-alef and the space, each a glyph of its own, so text in it is drawn by those forms."""
+lam-alef and the space, each a glyph of its own, so text in it is drawn by those forms.
+
+latin.ttf kerns and joins Latin letters, as a text font does, under the latn script of its GSUB
+and GPOS tables. 'A', 'V', 'T', 'o', 'f', 'i' and the space are mapped to glyphs of bars of their
+own, 600, 600, 600, 500, 400, 200 and 300 wide, and glyph 8, mapped from no character, is the
+ligature of f and i, 550 wide, which the liga feature makes of the two. The kern feature moves V
+150 toward an A before it and o 100 toward a T, by a pair adjustment of the first format.
+
+latin-kern.ttf has the same glyphs and no GSUB or GPOS table, and kerns the same pairs by a kern
+table of the first format, as an older font does."""
 import os, struct, zlib
 
 
@@ -494,3 +503,40 @@ loca, at = b"", 0
 for g in shapes: loca += struct.pack(">I", at); at += len(g)
 loca += struct.pack(">I", at)
 font(os.path.join(here, "arabic-forms.ttf"), len(shapes), codes, {b"glyf": glyf, b"loca": loca}, advances)
+
+# latin.ttf: glyphs 1 to 7 'A', 'V', 'T', 'o', 'f', 'i' and the space, and 8 the ligature of f and
+# i, each a shape its place can be told by.
+latin_glyphs = [
+    b"",
+    simple([[(50, 0), (50, 700), (550, 700), (550, 0)]]),
+    simple([[(50, 100), (50, 700), (550, 700), (550, 100)]]),
+    simple([[(50, 600), (50, 700), (550, 700), (550, 600)], [(250, 0), (250, 600), (350, 600), (350, 0)]]),
+    simple([[(50, 0), (50, 400), (450, 400), (450, 0)]]),
+    simple([[(50, 0), (50, 700), (150, 700), (150, 0)], [(150, 600), (150, 700), (350, 700), (350, 600)]]),
+    simple([[(50, 0), (50, 450), (150, 450), (150, 0)]]),
+    b"",
+    simple([[(50, 0), (50, 700), (150, 700), (150, 0)], [(150, 600), (150, 700), (500, 700), (500, 600)], [(400, 0), (400, 450), (500, 450), (500, 0)]]),
+]
+glyf = b"".join(latin_glyphs)
+loca, at = b"", 0
+for g in latin_glyphs: loca += struct.pack(">I", at); at += len(g)
+loca += struct.pack(">I", at)
+latin_codes = [(0x41, 1), (0x56, 2), (0x54, 3), (0x6F, 4), (0x66, 5), (0x69, 6), (0x20, 7)]
+latin_advances = {1: 600, 2: 600, 3: 600, 4: 500, 5: 400, 6: 200, 7: 300, 8: 550}
+# The pairs by their glyphs, A then V and T then o, each moving the first glyph's advance.
+kern_cover = cover([1, 3])
+kern_pairs = (struct.pack(">HHHHHHH", 1, 14, 0x04, 0, 2, 14 + len(kern_cover), 20 + len(kern_cover)) + kern_cover
+              + struct.pack(">HHh", 1, 2, -150) + struct.pack(">HHh", 1, 4, -100))
+font(os.path.join(here, "latin.ttf"), 9, latin_codes,
+     {b"glyf": glyf, b"loca": loca, b"GSUB": gsub_of(b"latn", [(b"liga", [0])], [(4, 0, ligatures({5: [(8, [6])]}))]),
+      b"GPOS": gsub_of(b"latn", [(b"kern", [0])], [(2, 0, kern_pairs)])},
+     latin_advances)
+
+# latin-kern.ttf: the same glyphs and pairs, kerned by a kern table of the first format.
+pairs = sorted([(1, 2, -150), (3, 4, -100)])
+search = 6 * 2 ** (len(pairs).bit_length() - 1)
+kern_sub = (struct.pack(">HHH", 0, 14 + 6 * len(pairs), 0x0001)
+            + struct.pack(">HHHH", len(pairs), search, len(pairs).bit_length() - 1, 6 * len(pairs) - search)
+            + b"".join(struct.pack(">HHh", *p) for p in pairs))
+font(os.path.join(here, "latin-kern.ttf"), 9, latin_codes,
+     {b"glyf": glyf, b"loca": loca, b"kern": struct.pack(">HH", 0, 1) + kern_sub}, latin_advances)

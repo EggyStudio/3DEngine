@@ -996,6 +996,7 @@ Vector2 MeasureTextCodepoints(Font font, int[] codepoints, float fontSize, float
 bool IsFontValid(Font font);                                                                // Whether it has an atlas and glyphs
 Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? codepoints); // A font file already in memory (".ttf")
 void SetTextLineSpacing(int spacing);                                                       // Lines a size and this many pixels apart
+void SetFontLigatures(Font font, bool ligatures);                                           // Draw fi as its ligature or as its letters (on by default)
 void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint); // One character by its code point
 void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint); // Characters by code point
 Glyph? GetGlyphInfo(Font font, int codepoint);                                              // Where a glyph sits and how far it advances, or the font's '?' glyph

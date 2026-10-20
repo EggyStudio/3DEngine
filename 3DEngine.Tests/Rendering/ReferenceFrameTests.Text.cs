@@ -24,6 +24,27 @@ public sealed partial class ReferenceFrameTests
     }
 
     [NeedsVulkanFact]
+    public void Latin_Kerned_And_Joined_Matches_Its_Reference()
+    {
+        // The test font's letters, bars of their own, V kerned toward an A and o toward a T by its
+        // kern feature, and f and i drawn as their ligature, then as two letters with ligatures off.
+        Open(256, 96);
+        var font = LoadFontEx(Path.Combine(AppContext.BaseDirectory, "Api", "latin.ttf"), 32, LoadCodepoints("AVTofi "));
+        var apart = LoadFontEx(Path.Combine(AppContext.BaseDirectory, "Api", "latin.ttf"), 32, LoadCodepoints("AVTofi "));
+        SetFontLigatures(apart, false);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.RayWhite);
+            DrawTextEx(font, "AVTo fi", new Vector2(10, 12), 32, 2, Color.DarkBlue);
+            DrawTextEx(apart, "AVTo fi", new Vector2(10, 56), 32, 2, Color.Maroon);
+        });
+        Matches(frame, "latin_kerned_and_joined");
+        UnloadFont(font);
+        UnloadFont(apart);
+    }
+
+    [NeedsVulkanFact]
     public void Color_Text_Matches_Its_Reference()
     {
         // The test fonts' color glyphs drawn as text, paints of a gradient and a moved square

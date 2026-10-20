@@ -86,6 +86,43 @@ public sealed class Font
     // How the font shapes Arabic, null where none was asked for or it can shape none.
     internal ArabicShaping? Arabic { get; private set; }
 
+    /// <summary>
+    /// How a font loaded from a file shapes a line read left to right, read from its reader's
+    /// tables once for the glyphs it was baked with, each character's glyph in
+    /// <see cref="GlyphOf"/>. Its standard ligatures are a table of rules by their first glyph for
+    /// each lookup in turn, each ligature drawn by its key in <see cref="LigatureKeys"/>, and what
+    /// kerning adds to the first glyph of a pair is in <see cref="Pairs"/> from its positions, or
+    /// in the reader's kern table where <see cref="ByKernTable"/> is set.
+    /// </summary>
+    internal sealed record LatinShaping(TrueTypeFont Reader, Dictionary<int, int> GlyphOf,
+        List<Dictionary<int, (int[] Then, int Ligature)[]>> Joins, Dictionary<int, int> LigatureKeys,
+        Dictionary<uint, int> Pairs, bool ByKernTable);
+
+    // How the font shapes a line read left to right, null where it makes no ligatures and kerns
+    // no pair.
+    internal LatinShaping? Latin { get; private set; }
+
+    // The same font, shaping lines read left to right as given.
+    internal Font WithLatin(LatinShaping? latin)
+    {
+        Latin = latin;
+        return this;
+    }
+
+    // Whether the font's ligatures are made, which a program turns off where each character is to
+    // be drawn as a glyph of its own, as a caret is put between letters.
+    internal bool Ligatures { get; private set; } = true;
+
+    // Makes the font's ligatures or not, in its larger bakes too, and lets go of the text shaped.
+    internal void SetLigatures(bool ligatures)
+    {
+        foreach (var font in _larger.Values.Prepend(this))
+        {
+            font.Ligatures = ligatures;
+            font._shaped.Clear();
+        }
+    }
+
     // The same font, shaping Arabic as given.
     internal Font WithArabic(ArabicShaping? arabic)
     {
@@ -122,6 +159,7 @@ public sealed class Font
         if (_larger.TryGetValue(size, out var known)) return known;
         if (_larger.Count >= MaxBakes) return _larger.Values.MaxBy(f => f.BaseSize)!;
         if (Rebake(size) is not { IsValid: true } baked) return this;
+        baked.Ligatures = Ligatures;
 
         // Each glyph drawn from the larger bake's pixels into this font's box and advance scaled to
         // the bake's size, so text lies where it does drawn from this one, as raylib's, which

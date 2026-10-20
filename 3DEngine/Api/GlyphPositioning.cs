@@ -112,6 +112,65 @@ internal sealed class GlyphPositioning : GlyphLayout
         return then != 0 ? second + 1 : second;
     }
 
+    /// <summary>
+    /// What a plan's pair adjustments add to the advance of the first glyph of each pair of the
+    /// glyphs given, in the font's units, by the pair's glyphs or by their classes, keyed by the
+    /// first glyph in the high half and the second in the low, read once so a line is kerned by a
+    /// lookup for each pair. In each lookup the first subtable that lists a pair sets it, and the
+    /// lookups add up, as they apply in turn. A table pointing past the file's end leaves the pairs
+    /// read before it.
+    /// </summary>
+    public Dictionary<uint, int> PairAdvances(Plan plan, IReadOnlyCollection<int> glyphs)
+    {
+        var pairs = new Dictionary<uint, int>();
+        var given = glyphs.Where(g => g != 0).ToHashSet();
+        try
+        {
+            foreach (var (lookup, _) in plan.Lookups)
+            {
+                var found = new Dictionary<uint, int>();
+                foreach (var (type, sub) in Subtables(lookup))
+                {
+                    if (type != 2) continue;
+                    int format = U16(sub), first = U16(sub + 4), then = U16(sub + 6), size = Size(first) + Size(then);
+                    // The first glyph's advance, after its placements where the record has them.
+                    if ((first & 0x4) == 0) continue;
+                    var advance = Size(first & 0x3);
+                    foreach (var (glyph, index) in Covered(sub + U16(sub + 2)))
+                    {
+                        if (!given.Contains(glyph)) continue;
+                        if (format == 1 && index < U16(sub + 8))
+                        {
+                            var set = sub + U16(sub + 10 + index * 2);
+                            for (int r = 0; r < U16(set); r++)
+                            {
+                                var record = set + 2 + r * (2 + size);
+                                if (given.Contains(U16(record))) found.TryAdd((uint)glyph << 16 | U16(record), S16(record + 2 + advance));
+                            }
+                        }
+                        else if (format == 2)
+                        {
+                            var class1 = Class(sub + U16(sub + 8), glyph);
+                            if (class1 >= U16(sub + 12)) continue;
+                            foreach (var second in given)
+                            {
+                                var class2 = Class(sub + U16(sub + 10), second);
+                                if (class2 < U16(sub + 14))
+                                    found.TryAdd((uint)glyph << 16 | (uint)second, S16(sub + 16 + (class1 * U16(sub + 14) + class2) * size + advance));
+                            }
+                        }
+                    }
+                }
+                foreach (var (key, value) in found)
+                    if (value != 0) pairs[key] = pairs.GetValueOrDefault(key) + value;
+            }
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
+        return pairs;
+    }
+
     // The record of a pair set whose second glyph is the one given, the set's records sorted by it.
     private int? PairRecord(int set, int glyph, int size)
     {

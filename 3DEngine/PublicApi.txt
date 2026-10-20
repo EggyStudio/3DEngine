@@ -1163,6 +1163,7 @@ static class Engine.E3D
   static void SetEnvironmentMap(Image equirectangular, float intensity = 1f)
   static void SetExitKey(Key key)
   static void SetExposure(float exposure)
+  static void SetFontLigatures(Font font, bool ligatures)
   static void SetFxaa(bool enabled)
   static void SetGamepadLight(int gamepad, Color color)
   static void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds)

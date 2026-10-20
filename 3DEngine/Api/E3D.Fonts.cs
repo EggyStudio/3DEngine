@@ -303,8 +303,12 @@ public static partial class E3D
             : asked;
         if (asked.Any(c => c > 0xFFFF) && outlines is null)
             ApiLogger.Warn($"{caller}: '{name}' has no outlines to draw characters past U+FFFF from, so they are left out.");
+        // Text read left to right is shaped by the font's standard ligatures, which the reader
+        // draws as it draws joined glyphs, and kerned by its positions or its kern table.
+        var latin = LatinPlan(outlines, asked);
+        var ligated = LigatureGlyphs(latin);
         // The reader and the bytes it holds are kept with the font only where it draws some of it.
-        if (own.Length == 0 && arabicPlan is null) outlines = null;
+        if (own.Length == 0 && arabicPlan is null && ligated.Length == 0) outlines = null;
         var ranges = GlyphRanges(asked.Except(own));
         if (ranges.Length == 1) ranges = GlyphRanges([' ']);
 
@@ -313,7 +317,7 @@ public static partial class E3D
         var joined = outlines is null ? [] : JoinedGlyphs(outlines, asked);
         var formed = arabicPlan is null ? [] : FormedGlyphs(outlines!, asked, arabicPlan);
         (int Key, int Glyph)[] wanted = outlines is null ? []
-            : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Union(formed).Select(g => (JoinedKey(g), g))];
+            : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Union(formed).Union(ligated).Select(g => (JoinedKey(g), g))];
         (TrueTypeFont, HashSet<int>)? joining = joined.Length > 0 ? (outlines!, own.ToHashSet()) : null;
 
         // The atlas builder stops the program on a font in which it finds none of the characters it
@@ -337,10 +341,12 @@ public static partial class E3D
         Font? BakeAt(int size)
         {
             if (outlines is { HasOutlines: false } || outlines is not null && !builderFinds)
-                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining).WithArabic(arabic);
+                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))
+                    ?.WithJoining(joining).WithArabic(arabic).WithLatin(latin);
             fixed (ushort* pinned = ranges)
                 return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
-                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining).WithArabic(arabic);
+                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))
+                    ?.WithJoining(joining).WithArabic(arabic).WithLatin(latin);
         }
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : null;
     }
@@ -369,13 +375,18 @@ public static partial class E3D
             ApiLogger.Warn($"LoadFontEx: '{fileName}' has none of the Latin-1 characters, so it is baked with its first, U+{first:X4}. Give it the characters to bake with LoadCodepoints.");
             only = GlyphRanges([first]);
         }
+        // Text is shaped by the font's standard ligatures, the reader drawing those it can make of
+        // Latin-1, and kerned by its positions or its kern table.
+        var outlines = TrueTypeFont.Read(data);
+        var latin = LatinPlan(outlines, only is null ? Enumerable.Range(0x20, 0xE0) : []);
+        (int Key, int Glyph)[] ligated = [.. LigatureGlyphs(latin).Select(g => (JoinedKey(g), g))];
         Font? BakeAt(int size)
         {
             fixed (ushort* pinned = only)
             {
                 var ranges = (IntPtr)pinned;
                 return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, only is null ? atlas.GetGlyphRangesDefault() : ranges),
-                    TextureFilter.Bilinear);
+                    TextureFilter.Bilinear, ligated.Length == 0 ? null : baked => WithBeyondPlane(baked, outlines!, Math.Max(4, size), ligated))?.WithLatin(latin);
             }
         }
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : GetFontDefault();
@@ -441,13 +452,17 @@ public static partial class E3D
 
         if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
 
-        // Characters past U+FFFF, which the atlas builder cannot name, from the font's outlines.
+        // Characters past U+FFFF, which the atlas builder cannot name, from the font's outlines,
+        // and the standard ligatures it can make of the characters asked for, which text is shaped
+        // by.
         var beyond = codepoints?.Where(c => c is > 0xFFFF and <= 0x10FFFF).Distinct().Order().ToArray() ?? [];
-        var outlines = beyond.Length > 0 ? TrueTypeFont.Read(File.ReadAllBytes(path)) : null;
+        var outlines = TrueTypeFont.Read(File.ReadAllBytes(path));
         if (beyond.Length > 0 && outlines is not { HasOutlines: true })
             ApiLogger.Warn($"LoadFontEx: '{fileName}' has no outlines to draw characters past U+FFFF from, so they are left out.");
+        var latin = LatinPlan(outlines, codepoints ?? Enumerable.Range(0x20, 0xE0));
+        var ligated = LigatureGlyphs(latin);
         (int Key, int Glyph)[] wanted = outlines is { HasOutlines: true }
-            ? [.. beyond.Select(c => (c, outlines.GlyphIndex(c))).Where(g => g.Item2 != 0)]
+            ? [.. beyond.Select(c => (c, outlines.GlyphIndex(c))).Where(g => g.Item2 != 0), .. ligated.Select(g => (JoinedKey(g), g))]
             : [];
 
         var ranges = codepoints is null ? null : GlyphRanges(codepoints);
@@ -494,7 +509,7 @@ public static partial class E3D
 
             var texture = LoadTextureFromImage(baked.Field);
             SetTextureFilter(texture, TextureFilter.Bilinear);
-            return new Font(texture, fontSize, fontSize, baked.Glyphs, baked.Coverage, FontType.Sdf).WithWholeAdvances();
+            return new Font(texture, fontSize, fontSize, baked.Glyphs, baked.Coverage, FontType.Sdf).WithWholeAdvances().WithLatin(latin);
         }
     }
 
@@ -646,6 +661,19 @@ public static partial class E3D
     /// drawn and measured after it, in place of each font's own line height.
     /// </summary>
     public static void SetTextLineSpacing(int spacing) => _textLineSpacing = (_app, spacing);
+
+    /// <summary>
+    /// Makes a font's standard ligatures or not in the text drawn and measured in it after this, as
+    /// fi drawn as the one glyph the font has for both or as its two letters.
+    /// </summary>
+    /// <remarks>
+    /// A font loaded from a file draws a line read left to right with the ligatures its
+    /// <c>liga</c> feature makes and its pairs kerned by its <c>kern</c> feature or its kern
+    /// table, which raylib's text does not. A program that needs each character drawn as a glyph
+    /// of its own, as a text field puts its caret between two letters, turns its ligatures off.
+    /// Kerning stays, since it moves the glyphs and leaves each character its own.
+    /// </remarks>
+    public static void SetFontLigatures(Font font, bool ligatures) => font.SetLigatures(ligatures);
 
     // How far down a newline moves, at a size, the size and the set spacing or the font's own height.
     private static float LineAdvance(Font font, float fontSize) =>

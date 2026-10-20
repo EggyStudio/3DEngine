@@ -82,6 +82,49 @@ internal sealed partial class GlyphSubstitution : GlyphLayout
         return reached;
     }
 
+    /// <summary>
+    /// The ligatures a plan's ligature substitutions make of the glyphs given, one table for each
+    /// lookup in turn, each of a first glyph's rules the glyphs that follow it and the ligature
+    /// they make, in the order the font lists them, longest first, and only those whose glyphs are
+    /// all given, read once so a line is joined by a match at each glyph. A table pointing past the
+    /// file's end leaves the rules read before it.
+    /// </summary>
+    public List<Dictionary<int, (int[] Then, int Ligature)[]>> Ligatures(Plan plan, IReadOnlySet<int> glyphs)
+    {
+        var lookups = new List<Dictionary<int, (int[] Then, int Ligature)[]>>();
+        try
+        {
+            foreach (var (lookup, _) in plan.Lookups)
+            {
+                var rules = new Dictionary<int, List<(int[] Then, int Ligature)>>();
+                foreach (var (type, sub) in Subtables(lookup))
+                {
+                    if (type != 4) continue;
+                    foreach (var (glyph, index) in Covered(sub + U16(sub + 2)))
+                    {
+                        if (!glyphs.Contains(glyph)) continue;
+                        var set = sub + U16(sub + 6 + index * 2);
+                        for (int l = 0; l < U16(set); l++)
+                        {
+                            var ligature = set + U16(set + 2 + l * 2);
+                            var rest = Enumerable.Range(0, U16(ligature + 2) - 1).Select(c => (int)U16(ligature + 4 + c * 2)).ToArray();
+                            if (rest.All(glyphs.Contains))
+                            {
+                                if (!rules.TryGetValue(glyph, out var listed)) rules[glyph] = listed = [];
+                                listed.Add((rest, U16(ligature)));
+                            }
+                        }
+                    }
+                }
+                if (rules.Count > 0) lookups.Add(rules.ToDictionary(r => r.Key, r => r.Value.ToArray()));
+            }
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+        }
+        return lookups;
+    }
+
     private void Reach(int type, int sub, HashSet<int> reached)
     {
         var format = U16(sub);

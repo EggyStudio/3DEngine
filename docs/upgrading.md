@@ -9,10 +9,10 @@ since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Six changes still compile and do something else, and they
+nothing else a game calls has changed. Seven changes still compile and do something else, and they
 come first.
 
-## Six that still compile
+## Seven that still compile
 
 A capsule takes its rings before its slices, as raylib 6's does. Both are numbers, so a call
 written for 5.1 compiles and draws its capsule with the two swapped.
@@ -61,6 +61,12 @@ times the scale given, where 5.1's took the model's `Transform` in as well. A pr
 drawn. A model whose `Transform` held a scale of its own gives it as the scale, and one whose
 `Transform` held a turn or a move of its own gives it to the mesh, through `UpdateMeshVertices`
 or the file it is loaded from.
+
+A line read left to right in a font loaded from a file is kerned by the font's GPOS table or its
+kern table and drawn with its standard ligatures, where 5.1 drew it a character at a time as raylib
+does, so a line in such a font lies a little tighter and `MeasureTextEx` gives its width as drawn.
+A program that counts a glyph for each character, as one that puts a caret between letters by
+their advances, calls `SetFontLigatures(font, false)`.
 
 ## The flat API's class
 
@@ -284,3 +290,6 @@ guide that shows it.
   plays as a wave of the right speed, as [Sound the program makes](audio.md#sound-the-program-makes)
   shows. A backend of the program's own gives them as `IAudioBackend.DeviceSampleRate` and
   `IAudioBackend.DeviceChannels`, which are 0 until it says otherwise.
+- **A font's ligatures turned off.** `SetFontLigatures` draws a font's standard ligatures as their
+  letters, for a program that needs a glyph for each character, as
+  [Fonts from files](text-and-fonts.md#fonts-from-files) shows.

@@ -109,7 +109,7 @@ physics, text and fonts, audio, audio streams and waves, and files
   world, so a mesh or a hull collider shapes a body from them as the clip last posed them, made
   once and kept so until the entity's `PhysicsBody` is removed. What is missing is a body that
   follows the pose by itself, which no game has asked for.
-- **Text is shaped in emoji and Arabic, and ordered right to left.** A coverage font loaded from a file is baked again at a size it
+- **Text is shaped in emoji, Arabic and Latin, and ordered right to left.** A coverage font loaded from a file is baked again at a size it
   is drawn at a quarter or more past its own, eight sizes at most, and one loaded as `FontType.Sdf`
   stays sharp at any size, its characters past U+FFFF as their outlines. A font has Latin-1 or the
   characters it was asked for, those past U+FFFF drawn by the engine's own TrueType reader into the
@@ -125,8 +125,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   kerned and each letter joined to the next by its exit and that one's entry, as Nastaliq is
   written, by the font's GPOS (`GlyphPositioning`). A letter and a mark after it are drawn as the
   one character Unicode has for both where the font has it (`UnicodeCompositions`, which
-  `build/make-compositions.py` writes). The rest of the text is drawn a character at a time, so a
-  Latin font's ligatures and kerning and the shaping Devanagari needs are not made.
+  `build/make-compositions.py` writes). A line read left to right in a font loaded from a file is
+  kerned by its GPOS `kern` feature or its kern table and joined by its `liga` feature, the
+  ligatures it can make of its characters baked with it, which `SetFontLigatures` turns off, both
+  read from the font once as it loads. The shaping Devanagari needs is not made, nor a ligature or
+  a pair a font chooses by its context, nor a run read left to right within a line read right to
+  left kerned, nor Latin text shaped in a font that joins emoji.
 
 ### Meshes, materials and light
 

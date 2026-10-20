@@ -10,8 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fd484ead`, Tones, item 7's fifth game, the sound toy, and nothing else, carrying the
-review's file, nothing in the engine changed. The instrument sets the stream buffer's default to
+Reviewed up to `40283221`, item 43 at `006ff3ba` and Verdict 76's mend at `40283221`, the first
+carrying the review's file. The audio backend's interface gains the device's sample rate and
+channels, 0 by default so a program's own backend still compiles, the SDL backend giving the spec it
+kept and 0 while not initialized, and two flat calls read them, 0 unless the device is ready, their
+remarks saying SDL is asked for 48,000 in two channels and gives the device's own; the mixed
+processor's remarks name them, the audio guide's processor paragraph says how a program saves what
+the device plays, and the cheat sheet, the surface listing and the upgrading guide's added entry
+follow, the entry naming the two backend members too since the upgrading test asked; tests read the
+dummy driver keeping 48,000 and 2, a backend with no device keeping 0, a backend of six channels at
+44,100 through the flat calls and 0 with no app; the strict build is clean and the suite gave 1,755
+with the upgrading test failing until the entry was written, the document tests then 15. Verdict
+76's cause was in the drive's timing and nothing physical: the macOS step failed on Span's first
+read, which came 0.03 s after the go and still said the build state with 0 N and the load at its
+start, since the world in that state is paused; requests are answered at the top of the first stage
+inside the frame's drawing after the game's own code, the game takes the go at the top of its next
+loop and the state moves at the start of the frame after that, so a read answered within a frame of
+the go's answer sees the old state, and on the macOS runner a round trip of 0.32 s against frames of
+0.2 s landed the read two frames late; reproduced on the machine held to 2 frames a second, the read
+saw the build state six times in six; the mend is two frames waited after the go before the first
+read, which answers only once those frames have run, so the game has taken the go on any runner at
+any speed, the read then seeing the build state no time in six and the full run passing, and the
+other games' drives already wait frames between a command and the read it is judged by. Read at
+13:44; the pack run of `b4b798d4` was cancelled, its pack job unable to run with macOS red, and the
+push of the two commits waits for the build run of `fd484ead` to end, the pack run with publish on
+then started anew on the head. TODO.md's order was read and its next entry with work left is item
+44, Latin kerning and ligatures. Item 6 waits on the owner's word.
+
+Before it, `fd484ead` came, Tones, item 7's fifth game, the sound toy, and nothing else, carrying
+the review's file, nothing in the engine changed. The instrument sets the stream buffer's default to
 2,048, loads a stream at 44,100 Hz in 32 bits mono and feeds it in 512-frame blocks while the stream
 is processed, at most eight a frame; keys play an organ of three partials or a plucked string by
 Karplus-Strong under an envelope, three keys hit drums made as waves at 22,050 Hz, loaded, converted
@@ -30,14 +57,7 @@ processor hearing 0.103 to 0.134 while a note played; the soak's 28 turns and it
 storm passes, the suite gave 1,754, the game is wired in as Tumble was with the recording's file on
 the drive script's list to remove, BUILDING.md says eighteen and the audio guide lists it. A finding
 taken as item 43: a mixed processor cannot know the rate or the channels of the samples it gets.
-Read at 13:24, and pushed with Siege and Tumble at 13:24 once the build run of `b4b798d4` had ended
-green, the pack run with publish on running on. At 13:25 the pack run of `b4b798d4` had its macOS
-job red at 13:05 on the games' step, Span's drive on macOS, the load not crossing the truss whole
-with no joint broken and no force read, where the macOS suite passed, 1,677 in 16 minutes 20
-seconds, and the Linux games job still ran (Verdict 76), so the pack job will be skipped and the
-day's package waits on the mend; Windows and the captures ran on. Item 7's list is through, five
-games for five of the areas the coverage reading named; next item 43's commit, then Verdict 76, then
-the pack run anew on the head, then TODO.md's order. Item 6 waits on the owner's word.
+Pushed at 13:24 with Siege and Tumble.
 
 Before it, `39103995` came, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying
 the review's file, nothing in the engine changed. The robot model is carried in the game's resources
@@ -66,30 +86,6 @@ knocked down; the soak's 23 turns and its check pass, the storm passes, the suit
 game is wired in as Siege was, BUILDING.md says seventeen and the animation and physics guides list
 it. No engine finding came from it, the layer and blend calls and the model-space keyframes doing
 what their documents say.
-
-Before it, `f3949ba6` came, Siege, item 7's third game, and nothing else, carrying the review's
-file. The catapult arm, 4.5 m and 120 kg, hangs on a hinge to a kinematic pivot driven by its motor
-at 60,000 newton-meters; the shot is welded to the cup and the weld destroyed at the chosen angle, a
-60 kg stone as a convex hull or a 40 kg bomb as a capsule, both continuous, the arc drawn by the
-sphere cast along each stretch to the first body; the castle is 190 blocks, boxes and hull columns
-with a slab, a hull roof and a banner, joined by 342 welds, the lowest to a kinematic foundation; a
-weld breaks where the joint's force passes 8,000 N, static loads peaking at 5,064 to 6,513 and a
-stone strike putting 9,000 to 14,000 on the welds near it; a stone wears the blocks it presses by
-the contact impulse at a toughness of 450, a hard throw pressing 430 to 480 a step; a bomb bursts on
-contact, pushing every block and stone within 3.5 by the bodies in a sphere with an impulse at a
-point from the side facing the burst and a point light's flash; the banner entering a kinematic
-trigger box ends the siege; a spot light with shadows sweeps the keep by its direction with a 4,096
-shadow map, the AgX tonemap and depth of field; the status reads the angular velocity and the bomb
-is drawn as a capsule. A stone breaks 0 to 5 welds and may crumble a block, a bomb 27 to 47 welds
-taking 2 to 16 blocks, and the banner fell after three bombs in each run. The scripted run asserts a
-throw, welds broken and the banner down within eight bombs, each frame one step since the release is
-checked once a frame, said in the game's comment, passing on the development machine's card and on
-lavapipe in 1 minute 49 seconds under validation; the soak's 27 turns with throws and rebuilds and
-its check pass, the storm passes, and a rebuild after the fall stands whole, 190 blocks, the banner
-at 15.8 and the columns in place, item 42 at work; the suite gave 1,754, the game wired in as Span
-was, BUILDING.md saying sixteen. The weld's reading held no further surprise once it read the force
-alone; the catapult's release in the frame and not the step is a limit of the flat API, which has no
-per-step hook, worked around and named only if another game meets it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2442,7 +2438,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     before the device is open, with the mixed processor's remarks naming them and the audio guide's
     paragraph on processors saying how a program saves what the device plays, the cheat sheet line,
     the surface listing and the upgrading guide's added entry, and a test reading the dummy driver's
-    format as the backend kept it. One commit.
+    format as the backend kept it. One commit. Done at `006ff3ba` on 2026-10-20, as the head says.
+
+44. **Latin text is kerned and its standard ligatures made, in drawing and in measuring alike.**
+    From TODO.md's text entry, read on 2026-10-20 at 13:44 as the next with work left, the entries
+    before it being descriptions, left out for a reason or answered by the author's own publish: the
+    engine shapes emoji and Arabic and orders right to left, and draws the rest a character at a
+    time, so a Latin font's ligatures and kerning and Devanagari's shaping are not made. The
+    smallest useful step is the kern feature's pair adjustments from the positioning table with the
+    kern table as a fallback, and the standard ligatures from the substitution table, for Latin runs
+    in fonts loaded from files, since every game draws Latin text and a kerned pair such as AV or To
+    shows at once; applied in the run's drawing and in both measuring calls so layout stays true,
+    with a way to turn ligatures off where a program needs a character a glyph, as raylib's text has
+    none of this; tests on a font with a known kern pair and an fi ligature compared against the
+    font's own tables, a reference frame and the text guide's paragraph. One commit unless it grows.
+    Devanagari's shaping, the reph, the matras and the conjuncts, is a larger second step left for a
+    game that asks.
 
 ## Verdicts
 
@@ -3412,8 +3423,9 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     frames came slower, and whether the Linux games job passed the same drive; then the mend where
     it points, the drive waiting on the load's motion and not a count, or the game applying its push
     once the world runs, with the reason in the remark, one commit. The pack job was skipped on it,
-    so the day's package waits. Settled when the games' step passes Span on macOS on the next pack
-    run and two after.
+    so the day's package waits. Read and mended at `40283221` on 2026-10-20 as the head says, the
+    first read two frames after the go; the Linux games job had passed the same drive on that run.
+    Settled when the games' step passes Span on macOS on the next pack run and two after.
 
 ## Decisions
 
