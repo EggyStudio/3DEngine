@@ -22,8 +22,9 @@ required layer over the global illumination, glow, room, cascade edge, reference
 descriptor pool tests, 94 passed and 11 skipped. (c)'s first reading is under item 30. The push of
 this head is held until the build run of `390c9b61` ends its Windows suite, since a push cancels
 that run and its suite is the first under Verdict 72's mends with the cache's reading at its end,
-lost three times to pushes already; the pack run of `193c68b0` runs on regardless. Next (c), then
-the thin walls' term read for its mend's form and cost.
+lost three times to pushes already; the pack run of `193c68b0` runs on regardless. (c) was read and
+named by 04:06, said under item 30. Next (c)'s candidates read for form and cost, then the thin
+walls' term.
 
 Before it, `30993e84` came, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else,
 with the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
@@ -1839,7 +1840,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lamp's shadow as the field gives it, in the panel's glow light at the hit, or both. Next the
     coder reads those against the closed form at the hits on the floor before the block and on the
     block's sides, as the strip's light was read, the lamp's direct light with its shadow and the
-    panel's light by its rectangle, then the light past the first bounce at the same hits.
+    panel's light by its rectangle, then the light past the first bounce at the same hits. (c) read
+    and named by 04:06 on 2026-10-20, with the parallax read in, at view 1 at High. The hits' own
+    light is right, and the earlier read of a first bounce a third under was against a reference
+    holding one more bounce, since the reference at b bounces traces b plus 1 segments; against the
+    reference at no bounce and the closed form, the hits' own light matches, the model's falloff
+    0.2295 in green at a floor point against the reference's 0.231, and the engine's light with the
+    panel by Lambert's rectangle 0.308 against 0.306 and 0.200 against 0.206 where both are in
+    sight. The light past the first bounce at the floor hits the block's front probes meet reads 3.4
+    to 3.6 times the reference within about 0.3 of the block's front, 0.517 against 0.146, 0.447
+    against 0.131 and 0.375 against 0.104 in green, 1.7 times a little further, 28 over clear of it
+    and under by the green wall, 0.222 against 0.418, the hits' full light 73 to 79 over before the
+    block and 16 to 37 further off. The world probes around those hits read their own places near
+    their references, the pocket's 16 over upward and 25 downward, its neighbors 2 to 12 over, and
+    the one moved out of the block 5 under; the floor hit takes their light from 0.6 above the
+    floor, where the block hides little, and not the light that reaches the floor in the block's
+    lee, where the reference's light past the first bounce is a quarter of theirs. So (c)'s term is
+    the probes' spacing against near occlusion, a term of the method, named with two candidates for
+    a form and cost reading as the parallax's, an occlusion at each probe hit from a few short field
+    marches scaling the light it takes from the probes, or the probes' blend at a hit weighted
+    toward those the hit's own hemisphere sees. The reviewer orders (c)'s candidates read first
+    while its figures are warm, then the thin walls' term read, the commits following the readings
+    under the rule.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
