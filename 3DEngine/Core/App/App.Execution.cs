@@ -32,14 +32,34 @@ public sealed partial class App
     }
 
     /// <summary>Runs <see cref="Stage.Startup"/>, once. Later calls do nothing.</summary>
+    /// <remarks>
+    /// Where <c>E3D_SCHEDULE_SHUFFLE_SEED</c> names a whole number, each stage's systems are
+    /// shuffled by it first, within the order the stage holds to, and the log says the seed.
+    /// </remarks>
     public void Startup()
     {
         if (_started) return;
         _started = true;
 
+        ShuffleSchedule(Environment.GetEnvironmentVariable(Schedule.ShuffleSeedVariable));
         Logger.Info("Running the Startup stage, the systems that initialize once...");
         Schedule.RunStage(Stage.Startup, World);
         Logger.Info("Startup stage complete.");
+    }
+
+    // Shuffles each stage's systems by the seed the text names, once, as the app starts, after its
+    // plugins and behaviors have added theirs, so a run of the suite with a seed finds a system
+    // leaning on an order nothing asks for. Systems added later run where they are added.
+    internal void ShuffleSchedule(string? seed)
+    {
+        if (string.IsNullOrWhiteSpace(seed)) return;
+        if (!int.TryParse(seed.Trim(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value))
+        {
+            Logger.Warn($"{Schedule.ShuffleSeedVariable} is '{seed}', which is not a whole number, so each stage runs its systems in the order they were added.");
+            return;
+        }
+        Schedule.Shuffle(value);
+        Logger.Info($"Each stage runs its systems in an order shuffled by the seed {value}, those that conflict in the order they were added.");
     }
 
     /// <summary>Runs one whole frame, <see cref="Stage.First"/> through <see cref="Stage.Last"/>.</summary>

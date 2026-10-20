@@ -2,6 +2,7 @@
 """Runs the engine's tests and writes a page of what happened, at most 200 lines.
 
     build/test.py [PART ...] [--parts] [--no-build]    # the suite whole, or parts of it by name
+    build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
     build/test.py --read DIR                           # the page of results already in a folder
     build/test.py --digest DIR ...                     # one page from several systems' digests
 
@@ -24,6 +25,12 @@ out when none repeats. It ends the log between two marking lines, and is written
 TestResults/digest.md and digest.json. Under GitHub Actions it is also the job's summary, with a
 cause an error annotation. What the processes print goes to TestResults/output*.txt, and the log has
 a line for each process. It exits 0 when every test passed and no process was lost.
+
+With --shuffle-seed, a suite that passed runs whole once more with E3D_SCHEDULE_SHUFFLE_SEED set to
+the seed, so each app shuffles its stages' systems by it as it starts, within the order a stage
+holds to, and a system leaning on an order nothing asks for meets another. That run's results and
+page go to TestResults/shuffled, its head naming the seed, and a failure says the command that
+runs it again, since the same seed gives the same order.
 """
 
 import argparse
@@ -57,6 +64,7 @@ TESTS_SHOWN = 4
 SLOWEST_SHOWN = 5
 REPEATED_SHOWN = 3
 PART_SIZE = 30
+SHUFFLE_SEED = "E3D_SCHEDULE_SHUFFLE_SEED"
 BEGIN = "=" * 30 + " the page " + "=" * 30
 END = "=" * 30 + " end of the page " + "=" * 30
 
@@ -770,6 +778,8 @@ def main():
     parser.add_argument("--timeout-minutes", type=float, default=40)
     parser.add_argument("--hang-minutes", type=float, default=5)
     parser.add_argument("--memory-mb", type=int, default=4096)
+    parser.add_argument("--shuffle-seed", type=int, metavar="N",
+                        help="after a suite that passed, run it whole once more with each stage's systems shuffled by N")
     args = parser.parse_args()
     # A Windows console's code page may lack what the page writes, so the log is UTF-8 everywhere.
     if hasattr(sys.stdout, "reconfigure"):
@@ -842,7 +852,42 @@ def main():
     # pack. A crash, a hang or a climb of memory is a fault the run met, whatever the parts gave after.
     ended = d["failed"] == 0 and d["no_result"] == 0
     publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"], ended), results, d)
-    return 0 if ended and all(p.lost in (None, "time") for p in done) else 1
+    passed = ended and all(p.lost in (None, "time") for p in done)
+    if args.shuffle_seed is not None:
+        if not passed:
+            print(f"The suite failed in the order its systems were added, so it is not run again shuffled by the seed {args.shuffle_seed}.", flush=True)
+        elif not shuffled(dotnet, args, results, args.shuffle_seed):
+            return 1
+    return 0 if passed else 1
+
+
+def shuffled(dotnet, args, results, seed):
+    """Runs the suite whole once more with each stage's systems shuffled by the seed, into a folder of
+    its own under the results, writes its page there, and says whether every test passed."""
+    folder = os.path.join(results, "shuffled")
+    os.makedirs(folder, exist_ok=True)
+    for name in os.listdir(folder):
+        if (name.startswith("results") and name.endswith(".trx")) or (name.startswith("output") and name.endswith(".txt")) or name.startswith("digest."):
+            os.remove(os.path.join(folder, name))
+    os.environ[SHUFFLE_SEED] = str(seed)
+    try:
+        process = run(dotnet, Process("the suite", None), args, folder)
+    finally:
+        del os.environ[SHUFFLE_SEED]
+    print(process.summary(), flush=True)
+
+    d = digest(folder, [process], [], process.seconds)
+    d["system"] += f" shuffled by the seed {seed}"
+    passed = d["failed"] == 0 and d["no_result"] == 0 and process.lost in (None, "time")
+    lines = page(d)
+    notes = annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"])
+    if not passed:
+        again = f"build/test.py --shuffle-seed {seed}"
+        said = f"Each stage's systems were shuffled by the seed {seed}, and `{again}` runs the suite in the same order again."
+        lines = fit([lines[0], "", said, ""] + lines[2:])
+        notes = ([(f"Shuffled by the seed {seed}", [said])] + notes[0], notes[1], notes[2])
+    publish(lines, notes, folder, d)
+    return passed
 
 
 if __name__ == "__main__":

@@ -51,9 +51,10 @@ jobs:
     # moving to a new release would change it under the tests with no commit to show for it. Moving
     # to the next release is a commit of its own.
     runs-on: ubuntu-24.04
-    # The job took 17 minutes on the push of fc5fdc97, and build/test.py ends the suite at its own
-    # 40, so the job's 45 is reached only where a step around the suite hangs.
-    timeout-minutes: 45
+    # The job took 17 minutes on the push of fc5fdc97 with the suite run once. The suite runs twice,
+    # the second time shuffled, and build/test.py ends each run at its own 40, so the job's 100 is
+    # reached only where a step around the suite hangs.
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v7
 
@@ -113,8 +114,10 @@ jobs:
       # process is lost, and ends the log with a page of what failed, which is the job's summary and
       # its annotations. glibc is held to two arenas, since each device lavapipe opens starts threads
       # that glibc gives arenas of their own, and what is freed in an arena stays the test host's,
-      # some hundred MB over the drawing tests.
-      - run: python3 build/test.py --no-build
+      # some hundred MB over the drawing tests. A suite that passed runs whole once more with each
+      # stage's systems shuffled by the day's date as a seed, so a system leaning on an order nothing
+      # asks for meets a new order each day, and a failure names the seed that runs it again.
+      - run: python3 build/test.py --no-build --shuffle-seed "$(date -u +%Y%m%d)"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
@@ -136,6 +139,16 @@ jobs:
           path: |
             3DEngine.Tests/TestResults/digest.md
             3DEngine.Tests/TestResults/digest.json
+          if-no-files-found: ignore
+
+      # The shuffled run's page, which the digest job reads beside the systems' own.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-digest-linux-shuffled
+          path: |
+            3DEngine.Tests/TestResults/shuffled/digest.md
+            3DEngine.Tests/TestResults/shuffled/digest.json
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
@@ -444,12 +457,12 @@ jobs:
             captures/
 
   digest:
-    # One page for the commit from the three systems' pages, a line for each system and each cause
-    # with the systems it was seen on, the one place that says where a commit fails.
+    # One page for the commit from the three systems' pages and the shuffled run's, a line for each
+    # and each cause with the systems it was seen on, the one place that says where a commit fails.
     needs: [linux, windows, macos]
     if: always()
     runs-on: ubuntu-24.04
-    # It reads three pages and writes one, which took seconds on the push of fc5fdc97.
+    # It reads four pages and writes one, where three took seconds on the push of fc5fdc97.
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7

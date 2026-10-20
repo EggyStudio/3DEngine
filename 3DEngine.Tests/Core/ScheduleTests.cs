@@ -55,6 +55,41 @@ public class ScheduleTests
     }
 
     [Fact]
+    public void A_Seed_Shuffles_Systems_Whose_Declarations_Do_Not_Conflict_And_Keeps_Those_That_Do_In_The_Order_Added()
+    {
+        static string Shuffled(int seed)
+        {
+            var schedule = new Schedule();
+            // B reads what A writes, so B stays after A. M runs on the main thread and N declares
+            // nothing, so every system stays on its side of each. C, D, E, F and G read what nothing
+            // here writes, so they may run in any order between those.
+            schedule.AddSystem(Stage.Update, Adds("A").Write<First>());
+            schedule.AddSystem(Stage.Update, Adds("C").Read<Second>());
+            schedule.AddSystem(Stage.Update, Adds("B").Read<First>());
+            schedule.AddSystem(Stage.Update, Adds("D").Read<Second>());
+            schedule.AddSystem(Stage.Update, Adds("M").MainThreadOnly());
+            schedule.AddSystem(Stage.Update, Adds("E").Read<Third>());
+            schedule.AddSystem(Stage.Update, Adds("F").Read<Second>());
+            schedule.AddSystem(Stage.Update, Adds("N"));
+            schedule.AddSystem(Stage.Update, Adds("G").Read<Third>());
+            schedule.Shuffle(seed);
+            return string.Concat(schedule.SystemNames(Stage.Update));
+        }
+
+        var orders = new HashSet<string>();
+        for (var seed = 0; seed < 40; seed++)
+        {
+            var order = Shuffled(seed);
+            orders.Add(order);
+            order.IndexOf('B').Should().BeGreaterThan(order.IndexOf('A'), $"B reads what A writes, and seed {seed} gave {order}");
+            order[..4].Order().Should().Equal("ABCD", $"what was added before M runs before it, and seed {seed} gave {order}");
+            order[4..].Should().Match("M??NG", $"what was added between M and N stays there, and seed {seed} gave {order}");
+            Shuffled(seed).Should().Be(order, "a seed gives the same order each time");
+        }
+        orders.Should().HaveCountGreaterThan(5, "systems whose declarations do not conflict move with the seed");
+    }
+
+    [Fact]
     public void A_Batch_Of_Systems_That_Took_Next_To_Nothing_Runs_On_The_Calling_Thread_And_A_Heavy_One_Is_Shared()
     {
         var world = new World();

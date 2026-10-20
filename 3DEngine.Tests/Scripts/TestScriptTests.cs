@@ -220,6 +220,32 @@ public sealed class TestScriptTests : IDisposable
             .Contain("the suite").And.Contain("ended at its time limit", "the loss is said with its figures");
     }
 
+    [NeedsPythonFact]
+    public void A_Suite_Run_Again_Shuffled_By_A_Seed_Names_The_Seed_Where_It_Fails()
+    {
+        var (exit, log) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") },
+            "shuffle-fails", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--shuffle-seed", "20261020");
+
+        exit.Should().Be(1, "the shuffled run failed a test");
+        File.ReadAllLines(_folder.File("digest.md"))[0].Should().Contain("80 passed, 0 failed", "the run in the order systems were added passed");
+        var page = File.ReadAllLines(Path.Combine(_folder.Path, "shuffled", "digest.md"));
+        page[0].Should().StartWith("## Tests on").And.Contain("shuffled by the seed 20261020").And.Contain("79 passed, 1 failed");
+        page.Should().Contain("Each stage's systems were shuffled by the seed 20261020, and `build/test.py --shuffle-seed 20261020` runs the suite in the same order again.");
+        Lines(log).Should().Contain(line => line.StartsWith("::error title=Shuffled by the seed 20261020::", StringComparison.Ordinal)
+            && line.Contains("build/test.py --shuffle-seed 20261020"), "the annotation names the seed to run again");
+    }
+
+    [NeedsPythonFact]
+    public void A_Suite_That_Failed_In_The_Order_Added_Is_Not_Run_Again_Shuffled()
+    {
+        var (exit, log) = Script("most", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
+            "--results", _folder.Path, "--timeout-minutes", "0.1", "--shuffle-seed", "7");
+
+        exit.Should().Be(1);
+        Lines(log).Should().Contain("The suite failed in the order its systems were added, so it is not run again shuffled by the seed 7.");
+        Directory.Exists(Path.Combine(_folder.Path, "shuffled")).Should().BeFalse();
+    }
+
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it
     // is not an option, and returns its exit code and what it printed.
     private static (int Exit, string Log) Script(params string[] arguments) => Script(new Dictionary<string, string>(), arguments);

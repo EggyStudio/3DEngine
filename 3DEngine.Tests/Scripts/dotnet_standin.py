@@ -8,7 +8,8 @@ the runtime is asked to and saying, as createdump does, the thread it crashed on
 die-unsaid, the same without that line, or most, ending every test of Api and NormTests, one of
 those failing with its message, and ten of Rendering, each longer than the one before, and then
 hanging. With a filter, as a part, it passes the tests the filter takes and writes their results
-file.
+file. Told shuffle-fails, the suite whole passes, unless E3D_SCHEDULE_SHUFFLE_SEED is set, when one
+test of NormTests fails, as a test leaning on the order of an app's systems does in another order.
 """
 
 import os
@@ -86,7 +87,12 @@ def main():
     results = value("--results-directory")
     logger = next(arg for arg in sys.argv if arg.startswith("trx;LogFileName="))
     path = os.path.join(results, logger.split("=", 1)[1])
-    rows = "".join(f'<UnitTestResult testName="{name}" outcome="Passed" />' for name in names)
+    shuffled = os.environ.get("E3D_STANDIN") == "shuffle-fails" and os.environ.get("E3D_SCHEDULE_SHUFFLE_SEED")
+    rows = "".join(
+        f'<UnitTestResult testName="{name}" outcome="Failed"><Output><ErrorInfo><Message>Expected the order to hold, '
+        f'but seed {shuffled} broke it.</Message><StackTrace>   at Engine.Tests.NormTests.N_1_3()</StackTrace></ErrorInfo></Output></UnitTestResult>'
+        if shuffled and name.endswith("N_1_3") else f'<UnitTestResult testName="{name}" outcome="Passed" />'
+        for name in names)
     with open(path, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?><TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">'
                 f"<Results>{rows}</Results></TestRun>")

@@ -60,7 +60,10 @@ writes (`.Read<T>()`, `.Write<T>()`), whether it must run on the main thread, an
 Within a stage, systems are packed greedily into batches whose declarations do not conflict, and
 each batch runs with `Parallel.ForEach`. A system that declares nothing conflicts with everything
 and runs alone. `Startup`, `Render` and `Cleanup` run on one thread. Within a stage, systems run
-in the order they were added, and there is no before or after ordering.
+in the order they were added, and there is no before or after ordering. A whole number in
+`E3D_SCHEDULE_SHUFFLE_SEED` shuffles each stage's systems once as the app starts, keeping that
+order between two that conflict and between a main-thread system and any other, which a run of the
+suite with a seed uses to find a system leaning on an order nothing declares (BUILDING.md).
 
 ## Resources and events
 

@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `09a50fea`, item 46 at `748779fc`, carrying the review's and the ledger's files, and
+Reviewed up to `b371b65c`, item 47's wrap and nothing else, carrying the review's file. A comment
+that would pass the sheet's width of 120 goes on at its column on the lines below, broken at word
+boundaries, and where a declaration leaves fewer than 24 characters for its comment the comment
+starts on the line under it at column 57; the fixture test covers both forms and the page test reads
+the wrapped page; 23 lines pass 120 where 308 passed 160, all 23 declarations longer than 120 by
+themselves, which are not wrapped; the sheet grows from 1,173 lines to 2,247; the suite gave 1,773
+and the strict build is clean. Item 48 is read: the schedule has no before or after API, a stage's
+systems running in the order they were added, and the batches keep the add order wherever it
+matters, between two systems whose declared reads and writes conflict, a system declaring none
+conflicting with every other, and against a main-thread system, which is a barrier, so the shuffle
+draws a random order of each stage's list in which every such pair keeps its add order, from one
+random source over the stages in their order, the same for the same seed, moving only systems whose
+declarations do not conflict, where today a light batch under 0.5 ms runs those in add order on the
+calling thread every frame, so a system that changes something without declaring it passes in that
+order alone. Read at 15:36; the pack run of `2cc516fc` had its macOS job green at 15:24 with every
+game played, Verdict 76's first, and the push of the five commits from `00c820ce` waits for the
+build run of `2cc516fc` to end. Next item 48's commit. Item 6 waits on the owner's word.
+
+Before it, `09a50fea` came, item 46 at `748779fc`, carrying the review's and the ledger's files, and
 item 47 at `09a50fea`. The dummy driver was already the choice for hidden, offscreen and headless
 runs unless a setting asks for the device, forced by an override hint, and the audio guide said so;
 E3D.md gains the line beside the offscreen flag, and the test runs hidden, offscreen and headless,
@@ -35,11 +53,7 @@ defaults as the source has them and two overload pairs pairing otherwise; the co
 summary's first sentence, accurate and standing on their own where the hand ones leaned on the line
 above, but at a median of 77 characters against 32, 308 lines over 160 against 37, with a few
 reading oddly where a parameter reference repeats its noun, the summaries left as they are since
-IntelliSense shows them. The suite gave 1,773. Read at 15:23; the push waits for the build run of
-`2cc516fc` to end. At 15:29 the pack run of `2cc516fc` had its macOS job green at 15:24 with every
-game played, Verdict 76's first, and its Windows, captures and games jobs running. One thing back
-under item 47, the long lines wrapped, and item 48 from the ledger next. Item 6 waits on the owner's
-word.
+IntelliSense shows them. The suite gave 1,773.
 
 Before it, `120b5ee9` came, item 45's second commit, the versions, at `00c820ce`, carrying the
 review's file, and TODO.md's scene section rewritten at `120b5ee9`. A data-version attribute on a
@@ -60,14 +74,6 @@ surface listing, the upgrading guide's entry naming every new member, ARCHITECTU
 line follow, SHARED.md's row saying both engines have it. Checked were the strict build, the suite,
 1,771 passed, five more, and the guide's eleven blocks built on a fresh pack. TODO.md's scene bullet
 on older files not migrated goes, the section describing former names and versions.
-
-Before it, `2cc516fc` came, item 45's first commit, the former names, and nothing else, carrying the
-review's file. A scene component or one of its fields marked with a former name is read from a scene
-file written under its old name, the registry answering by each former name and the generated reader
-trying the former names where a field's own is missing, with the attribute's file, the codec
-interface's addition, the generator's change and tests of a component and a field renamed; the cheat
-sheet, the surface listing, the scene guide and the upgrading guide's entry follow. It went with the
-push of 14:35 and the pack run with publish on started then.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2497,7 +2503,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the writer wraps a comment past the sheet's width of 120 onto continuation comment lines at the
     same column, the summaries untouched, the test reading the wrapped form; one small commit, with
     the sheet rewritten. The parameter references that repeat their noun are the summaries' own and
-    stay.
+    stay. The wrap done at `b371b65c` on 2026-10-20, as the head says.
 
 48. **The suite runs once with the schedule's order shuffled by a seed, so a test that leaned on an
     order nothing asked for is found.** SHARED.md's row, where BevyCSharp has it since `379f59a4`, a
