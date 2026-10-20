@@ -30,7 +30,8 @@ the same engine. The thin walls' term was read again by 04:58 and named anew, sa
 the near-start candidate out and two others to read. At 05:00 the pack run with publish on of
 `448aa3fc` had its Linux suite green at 04:51 and its other six jobs running, and the pack run of
 the other engine its suites and native jobs green with its capture, drive and game jobs running; the
-feed holds `5.2.92` still. Next the two candidates by the rule and the cost.
+feed holds `5.2.92` still. The thin walls' candidates were read by 05:18 and the slack at one cell
+is taken, said under item 30. Next its commit, then the corridor's under-read read for its cause.
 
 Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
 between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
@@ -1921,7 +1922,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     raised beside it, that the readings labelled the panel alone had set the sun's light to zero and
     not the lamp's, was withdrawn by 05:00 on a second look: those readings ran in the Cornell box
     program, whose only light is the lamp as entity 1 and which has no sun, the sun being entity 1
-    in the bounce rooms alone, so the panel-alone figures and RENDERING.md's line stand.
+    in the bounce rooms alone, so the panel-alone figures and RENDERING.md's line stand. The thin
+    walls' candidates read by 05:18 on 2026-10-20 by the rule at both sizes with the cost and the
+    reflections, (a) the sight test's slack at one cell, 0.125 of the spacing, and at two, 0.25,
+    where half a spacing stands, and (b) the screen probes' hits through the seen read's marches.
+    Against the head at 800 by 450 at High and Low, one cell narrows the thin walls by 0.017 and
+    0.015, two cells by 0.014 and 0.012 and the marches by 0.022 and 0.019, and widens the corridor
+    by 0.015 and 0.016 for either slack and 0.038 and 0.039 for the marches, the Cornell box by
+    0.002 and 0.001 and the grazing room by 0.003 and 0.000, the small size reading alike and the
+    other five views holding to the third digit; so by the rule alone each is out, the corridor
+    widening most. The widening is the same leak taken away, running the other way: the thin wall's
+    inner face reads 1.153 of the reference on the head and 1.072 with the outside lamp off, 1.098
+    with one cell, 1.109 with two and 1.085 with the marches, the room's other surfaces holding at
+    1.08 to 1.10, the gain past the first bounce; the corridor's walls read 67 to 70 under the
+    reference on the head and 78 to 79 under with one cell, 90 to 92 with the marches, so the slack
+    had lent them the light of sunlit probes beyond their walls, 0.3 thick, less than half the
+    spacing, covering an under-read of the corridor's own not yet named by cause; the Cornell box's
+    back wall goes from 1.033 to 1.043 and its red wall from 1.001 to 1.008, and the grazing room's
+    wall facing minus x from 1.094 to 1.122, where the slack had lent dark probes from behind the
+    walls, covering part of the gain. The cost of one cell is the head to the hundredth, the Cornell
+    box 1.94 ms at High and 1.71 at Low and the window's room 1.15 and 0.96, and the marches 0.25 to
+    0.42 ms more; the reflections scene and the reflection probe model, against references traced
+    there, move by 0.01 and 0.09 percent of their light with one cell, 0.3072 to 0.3072 and 0.1330
+    to 0.1336, and 0.0 and 0.06 with two, the marches giving 0.3075 and 0.1316, the model pass's own
+    pixels in those frames. The reviewer takes (a) at one cell under the covered-fault principle,
+    since what it takes away is light lent through solid walls, a mechanism known to be wrong at no
+    cost with the reflections unmoved, unlike (c)'s candidates, which added a mechanism of their
+    own; the corridor's own under-read is named as a term in the order, 67 to 70 under on the head,
+    to be read for its cause next, before any other mend, and the Cornell box's and the grazing
+    room's rises are the gain, already in the order. The commit in the usual form, the remark at the
+    sight test naming the slack's borrowed light with the thin wall's and the corridor's figures,
+    the thin walls' bounds narrowed and the corridor's and the grazing room's pinned with the
+    reason, a test at the thin wall's inner face against the lamp off, RENDERING.md with these
+    figures, the suite and lavapipe. (b) is not taken, more cost for less on the thin wall and the
+    corridor uncovered twice as far.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
