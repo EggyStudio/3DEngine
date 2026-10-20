@@ -179,6 +179,31 @@ public sealed class TestScriptTests : IDisposable
         }
     }
 
+    [NeedsPythonFact]
+    public void A_Whole_Run_Lost_Near_Its_End_Runs_Again_Only_The_Parts_Holding_Tests_It_Gave_No_Result()
+    {
+        // A whole run that ends every test of Api and NormTests, one of them failing, and ten of
+        // Rendering's forty, before its time runs out, as a Windows runner of a slow processor ran
+        // out its hour 1,705 tests in, and every part run again from the start took the job past its
+        // limit with no page written.
+        var (exit, log) = Script("most", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
+            "--results", _folder.Path, "--timeout-minutes", "0.1");
+
+        exit.Should().Be(1, "a process was lost and a test failed");
+        var page = File.ReadAllLines(_folder.File("digest.md"));
+        page[0].Should().Contain("79 passed, 1 failed, 0 skipped, 0 without a result", "the tests that ended in the whole run count as they ended");
+        Lines(log).Should().Contain("Api: every test ended in the whole run, so it is not run again")
+            .And.Contain("everything else: every test ended in the whole run, so it is not run again");
+        page.Should().Contain(line => line.StartsWith("- Rendering: 40 passed", StringComparison.Ordinal), "the part holding tests without a result runs again")
+            .And.NotContain(line => line.StartsWith("- Api:", StringComparison.Ordinal));
+        page.SkipWhile(line => line != "Its slowest tests that ended:").Skip(1).Take(5).Should().Equal(
+            "    `Engine.Tests.Rendering.Drawing.Draws_9` 1 m 3 s", "    `Engine.Tests.Rendering.Drawing.Draws_8` 56 s",
+            "    `Engine.Tests.Rendering.Drawing.Draws_7` 49 s", "    `Engine.Tests.Rendering.Drawing.Draws_6` 42 s",
+            "    `Engine.Tests.Rendering.Drawing.Draws_5` 35 s");
+        string.Join("\n", page).Should().Contain("1 failed, of 1 cause").And.Contain("Expected the rule to hold, but it did not.",
+            "a failure the whole run printed is counted with its message");
+    }
+
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it
     // is not an option, and returns its exit code and what it printed.
     private static (int Exit, string Log) Script(params string[] arguments) => Script(new Dictionary<string, string>(), arguments);

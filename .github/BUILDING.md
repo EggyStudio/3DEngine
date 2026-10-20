@@ -31,8 +31,10 @@ instruction its processor lacks. The script writes what the suite prints to
 `TestResults/digest.md`, which holds the counts, the failures by cause, the most frequent first,
 each with its message, its first frames and some of its tests, and the lines the output repeated
 most. A process that is lost, by a crash, a hang, its time or its memory, is said first on the page,
-with the tests it was in and its last lines, and the suite runs again in parts, a process for each
-area of thirty tests or more and one for the rest, so a part that is lost costs only its own tests.
+with the tests it was in, the times of its slowest tests and its last lines, and the suite runs again
+in parts, a process for each area of thirty tests or more and one for the rest, so a part that is
+lost costs only its own tests. Only the parts holding a test the whole run gave no result run again,
+the rest counted as the whole run printed them, so a run lost near its end does not start over.
 `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in

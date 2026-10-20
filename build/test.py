@@ -10,8 +10,11 @@ passing or failing, is read from its results file. One that is lost, by a crash,
 or its memory, is said first on the page, with how far a test that prints its progress, as
 `[leak test] app 37 of 100`, had got, and the minidump a test host that died left in
 TestResults/dumps, with the stack of the thread it was written for where dotnet-dump, named by
-E3D_DOTNET_DUMP or on the path, reads it, and the suite runs again in parts, each a process of its own under the same
-limits, so a part that is lost costs only its own tests. A part is a name after
+E3D_DOTNET_DUMP or on the path, reads it, and the times of its slowest tests. The suite then runs
+again in parts, each a process of its own under the same limits, so a part that is lost costs only
+its own tests, and only the parts holding a test the whole run gave no result run again, the rest
+counted from what the whole run printed, so a run lost a test short of its end does not start
+over. A part is a name after
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
 whose filter is the negation of the others, so no test falls between two parts.
 
@@ -51,6 +54,7 @@ DUMP_FRAMES_SHOWN = 8
 DUMP_THREADS_SHOWN = 4
 MESSAGE_LINES = 5
 TESTS_SHOWN = 4
+SLOWEST_SHOWN = 5
 REPEATED_SHOWN = 3
 PART_SIZE = 30
 BEGIN = "=" * 30 + " the page " + "=" * 30
@@ -76,6 +80,8 @@ class Process:
         self.progress = None      # the last line a test printed of how far it had got, as "[leak test] app 37 of 100"
         self.dumps = []           # the minidumps a lost test host left
         self.dump_lines = []      # what dotnet-dump read in the ones it left, a line each
+        self.slowest = []         # its slowest tests that ended, each with its time
+        self.finished = {}        # what its output says of the tests that ended, where it was lost
         self.counts = Counter()
 
     def summary(self):
@@ -144,6 +150,9 @@ def run(dotnet, process, args, results):
             process.lost = "crash"
     process.counts = Counter(outcome for outcome, _, _ in read_results(os.path.join(results, process.name + ".trx")).values())
     if process.lost:
+        process.finished, times = ended_in(text)
+        process.counts = Counter(outcome for outcome, _, _ in process.finished.values())
+        process.slowest = [f"`{name}` {duration(seconds)}" for name, seconds in sorted(times.items(), key=lambda t: -t[1])[:SLOWEST_SHOWN]]
         process.running = tests_running(text)
         process.after = last_ended(text)
         process.last_lines = last_lines(text)
@@ -284,6 +293,50 @@ def tests_running(text):
 def last_ended(text):
     ended = re.findall(r"^\s+(?:Passed|Failed|Skipped) (\S+)", text, re.M)
     return ended[-1] if ended else None
+
+
+# A test's line in dotnet test's console log, its outcome, its name and its time, as `1 m 3 s`,
+# `49 s` or `12 ms`.
+ENDED = re.compile(r"^\s+(Passed|Failed|Skipped) (Engine\.Tests\.\S.*?) \[(?:(\d+) m)? ?(?:(\d+) s)? ?(?:(\d+) ms)?\]\s*$")
+
+
+def ended_in(text):
+    """
+    Each test a process's console log says ended, as its outcome, the first line of its message
+    and its stack, as read_results gives them from a results file, which a lost process leaves
+    none of, and each one's time in seconds.
+    """
+    finished, times = {}, {}
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        match = ENDED.match(line)
+        if not match:
+            continue
+        outcome, name = match.group(1), match.group(2)
+        message, stack, part = [], [], None
+        if outcome == "Failed":
+            for following in lines[i + 1:]:
+                if ENDED.match(following) or following.startswith("["):
+                    break
+                stripped = following.strip()
+                if stripped in ("Error Message:", "Stack Trace:"):
+                    part = message if stripped == "Error Message:" else stack
+                elif stripped.endswith("Messages:"):
+                    part = None
+                elif part is not None:
+                    part.append(following.strip())
+        key = name
+        while key in finished:
+            key = f"{name} [{len([k for k in finished if k == name or k.startswith(name + ' [')]) + 1}]"
+        finished[key] = ({"Skipped": "NotExecuted"}.get(outcome, outcome), "\n".join(message), "\n".join(stack))
+        times[key] = int(match.group(3) or 0) * 60 + int(match.group(4) or 0) + int(match.group(5) or 0) / 1000
+    return finished, times
+
+
+def without_result(names, results):
+    """The names a run gave no result, a theory listed by its method's name having one where any case has."""
+    methods = {name.split("(")[0] for name in results}
+    return [name for name in names if name not in results and name.split("(")[0] not in methods]
 
 
 def list_tests(dotnet, args):
@@ -521,6 +574,11 @@ def digest(results_dir, processes, listed, seconds):
         else [os.path.join(results_dir, f) for f in sorted(os.listdir(results_dir)) if f.startswith("output") and f.endswith(".txt")]
 
     results = {}
+    # What a whole run that was lost printed of the tests that ended, before its parts, whose
+    # results stand in place of any of the same name.
+    for p in processes:
+        if p.label == "the suite" and p.lost:
+            results.update(p.finished)
     for path in trx:
         results.update(read_results(path))
     outcomes = Counter(outcome for outcome, _, _ in results.values())
@@ -537,8 +595,7 @@ def digest(results_dir, processes, listed, seconds):
         cause["tests"].append(name)
     # A theory may be listed once by its method's name and report each case by its arguments, so a
     # listed name has a result where any case of its method has one.
-    methods = {name.split("(")[0] for name in results}
-    no_result = sum(1 for name in set(listed) if name not in results and name.split("(")[0] not in methods)
+    no_result = len(without_result(set(listed), results))
 
     return {
         "system": {"Darwin": "macOS"}.get(platform.system(), platform.system()),
@@ -546,7 +603,7 @@ def digest(results_dir, processes, listed, seconds):
         "passed": outcomes["Passed"], "failed": outcomes["Failed"], "skipped": outcomes["NotExecuted"], "no_result": no_result,
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
         "processes": [{"label": p.label, "lost": p.lost, "seconds": round(p.seconds), "peak_mb": p.peak_mb, "exit_code": p.exit_code,
-                       "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(),
+                       "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(), "slowest": p.slowest,
                        "progress": p.progress, "dumps": p.dumps, "dump_lines": p.dump_lines} for p in processes],
         "causes": sorted(causes.values(), key=lambda c: (-c["count"], c["key"])),
         "repeated": repeated_lines(read_text(path) for path in outputs),
@@ -581,6 +638,8 @@ def lost_entry(p):
         lines.append(f"The test had got as far as `{p['progress']}`")
     if p.get("dumps"):
         lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
+    if p.get("slowest"):
+        lines += ["Its slowest tests that ended"] + p["slowest"]
     return lines + p.get("dump_lines", []) + p["last_lines"]
 
 
@@ -599,6 +658,9 @@ def page(d):
             lines.append(f"The test had got as far as `{p['progress']}`")
         if p.get("dumps"):
             lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
+        if p.get("slowest"):
+            lines.append("Its slowest tests that ended:")
+            lines += ["    " + test for test in p["slowest"]]
         if p.get("dump_lines"):
             lines += ["    " + line for line in p["dump_lines"]]
         lines.append("Its last lines:")
@@ -748,9 +810,19 @@ def main():
         done.append(run(dotnet, process, args, results))
         print(process.summary(), flush=True)
     if not args.parts and not args.all_parts and done[0].lost:
-        # Run again in parts, each a process, so a part that is lost costs only its own tests.
+        # Run again in parts, each a process, so a part that is lost costs only its own tests, and
+        # only the parts holding a test the whole run gave no result. On a Windows runner of a slow
+        # processor the whole suite ran out its hour 1,705 tests in, and every part run again from
+        # the start took the job past its limit with no page written.
         listed = list_tests(dotnet, args)
-        for process in parts_of(listed):
+        parts = parts_of(listed)
+        labels = {process.label for process in parts}
+        for process in parts:
+            held = [name for name in listed if (segment(name) if segment(name) in labels else "everything else") == process.label]
+            left = without_result(held, done[0].finished)
+            if not left:
+                print(f"{process.label}: every test ended in the whole run, so it is not run again", flush=True)
+                continue
             done.append(run(dotnet, process, args, results))
             print(process.summary(), flush=True)
 

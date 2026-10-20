@@ -5,8 +5,10 @@ Its tests are 40 under Rendering, 35 under Api and 5 of NormTests. Asked for the
 --list-tests it lists them. Asked to run them with no filter, as the suite whole, it does what
 E3D_STANDIN says: hang, grow until it is ended, or die with exit code 134, leaving a minidump where
 the runtime is asked to and saying, as createdump does, the thread it crashed on and its signal, or
-die-unsaid, the same without that line. With a filter, as a
-part, it passes the tests the filter takes and writes their results file.
+die-unsaid, the same without that line, or most, ending every test of Api and NormTests, one of
+those failing with its message, and ten of Rendering, each longer than the one before, and then
+hanging. With a filter, as a part, it passes the tests the filter takes and writes their results
+file.
 """
 
 import os
@@ -42,6 +44,17 @@ def main():
     filter_ = value("--filter")
     if filter_ is None:
         mode = os.environ.get("E3D_STANDIN", "pass")
+        if mode == "most":
+            for name in TESTS[40:]:
+                if name.endswith("N_1_3"):
+                    print(f"  Failed {name} [3 ms]\n  Error Message:\n   Expected the rule to hold, but it did not.\n"
+                          "  Stack Trace:\n     at Engine.Tests.NormTests.N_1_3() in /src/NormTests.cs:line 30", flush=True)
+                else:
+                    print(f"  Passed {name} [2 ms]", flush=True)
+            for i in range(10):
+                seconds = i * 7
+                print(f"  Passed {TESTS[i]} [{f'{seconds // 60} m {seconds % 60} s' if seconds >= 60 else f'{seconds} s'}]", flush=True)
+            time.sleep(600)
         print("  Passed Engine.Tests.Api.Calls.Answers_0 [1 ms]", flush=True)
         if mode == "hang":
             time.sleep(600)
