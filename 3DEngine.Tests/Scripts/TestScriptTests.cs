@@ -236,6 +236,20 @@ public sealed class TestScriptTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void A_Seed_From_Outside_Leaves_The_Plain_Run_Plain_And_The_Flag_s_Seed_Shuffles_The_Second()
+    {
+        // As the shuffled run of the suite runs this test, under a seed of its own in the environment,
+        // which reached the plain run of the script the test ran and failed it there.
+        var (exit, log) = Script(new Dictionary<string, string> { ["E3D_SCHEDULE_SHUFFLE_SEED"] = "99" },
+            "shuffle-fails", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--shuffle-seed", "7");
+
+        exit.Should().Be(1, "the shuffled run failed a test");
+        File.ReadAllLines(_folder.File("digest.md"))[0].Should().Contain("80 passed, 0 failed", "the plain run ran without the seed from outside");
+        File.ReadAllLines(Path.Combine(_folder.Path, "shuffled", "digest.md"))[0].Should().Contain("shuffled by the seed 7").And.Contain("79 passed, 1 failed");
+        Lines(log).Should().Contain(line => line.Contains("seed 7 broke it", StringComparison.Ordinal) || line.Contains("--shuffle-seed 7", StringComparison.Ordinal));
+    }
+
+    [NeedsPythonFact]
     public void A_Suite_That_Failed_In_The_Order_Added_Is_Not_Run_Again_Shuffled()
     {
         var (exit, log) = Script("most", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
@@ -263,6 +277,9 @@ public sealed class TestScriptTests : IDisposable
         foreach (var argument in rest) start.ArgumentList.Add(argument);
         start.Environment.Remove("GITHUB_ACTIONS");
         start.Environment.Remove("GITHUB_STEP_SUMMARY");
+        // A shuffled run of the suite runs this test under its seed, which a case means only where
+        // it sets it, so the script is run without it otherwise.
+        start.Environment.Remove("E3D_SCHEDULE_SHUFFLE_SEED");
         foreach (var (name, value) in environment) start.Environment[name] = value;
 
         using var script = Process.Start(start)!;

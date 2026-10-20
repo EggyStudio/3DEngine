@@ -27,7 +27,7 @@ cause an error annotation. What the processes print goes to TestResults/output*.
 a line for each process. It exits 0 when every test passed and no process was lost.
 
 With --shuffle-seed, a suite that passed runs whole once more with E3D_SCHEDULE_SHUFFLE_SEED set to
-the seed, so each app shuffles its stages' systems by it as it starts, within the order a stage
+the seed, which every other run has taken out of its environment, so each app shuffles its stages' systems by it as it starts, within the order a stage
 holds to, and a system leaning on an order nothing asks for meets another. That run's results and
 page go to TestResults/shuffled, its head naming the seed, and a failure says the command that
 runs it again, since the same seed gives the same order.
@@ -102,7 +102,7 @@ class Process:
 LOSSES = {"time": "ended at its time limit", "memory": "ended at its memory limit", "hang": "lost to a test that hung", "crash": "lost to a crash"}
 
 
-def run(dotnet, process, args, results):
+def run(dotnet, process, args, results, seed=None):
     command = dotnet + ["test", args.project]
     if args.no_build:
         command.append("--no-build")
@@ -124,6 +124,12 @@ def run(dotnet, process, args, results):
         before = set(os.listdir(dumps))
         environment = dict(os.environ, DOTNET_DbgEnableMiniDump="1", DOTNET_DbgMiniDumpType="1",
                            DOTNET_DbgMiniDumpName=os.path.join(dumps, "%e-%p.dmp"))
+        # The seed is the shuffled run's alone. A suite run under one from outside, as a test of
+        # this script is inside a shuffled run of the suite, runs its other processes in the order
+        # their systems were added, and the script's own tests read the plain run as plain.
+        environment.pop(SHUFFLE_SEED, None)
+        if seed is not None:
+            environment[SHUFFLE_SEED] = str(seed)
         # An NVIDIA driver's cache of the pipelines it compiled, a folder of the suite's own and
         # larger than the driver's 128 MiB, where a desktop's cache at that size keeps no pipeline
         # new to it and every app compiles each again, the suite taking 12.6 to 13 minutes where
@@ -869,11 +875,7 @@ def shuffled(dotnet, args, results, seed):
     for name in os.listdir(folder):
         if (name.startswith("results") and name.endswith(".trx")) or (name.startswith("output") and name.endswith(".txt")) or name.startswith("digest."):
             os.remove(os.path.join(folder, name))
-    os.environ[SHUFFLE_SEED] = str(seed)
-    try:
-        process = run(dotnet, Process("the suite", None), args, folder)
-    finally:
-        del os.environ[SHUFFLE_SEED]
+    process = run(dotnet, Process("the suite", None), args, folder, seed)
     print(process.summary(), flush=True)
 
     d = digest(folder, [process], [], process.seconds)

@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6a289059`, item 48 and nothing else, carrying the review's file. The schedule's
+Reviewed up to `62efc173`, Verdict 77's mend and nothing else, carrying the review's and the
+ledger's files and the CI measure's line back at 10.7. The job's log said the castle was down after
+the fourth bomb on the runner too, 157 of 190 blocks and 164 welds broken, the banner dropped from
+15.8 to 4.0 and resting on the keep's rubble outside it through the bombs after, each thrown at the
+same aim and landing in the same place, where the trigger the win needs was a field box 1.5 high a
+banner 1.6 long resting at 4.0 never meets; the run left no siege capture, the failure ending the
+drive before its shot. Run to run on the development machine's lavapipe with the package before the
+mend, three runs on all cores won at bombs 5, 4 and 4 with the banner at 5.9, 2.7 and 1.3 after the
+fourth, and three pinned to four cores as the runner has won at 5, 4 and 4, the first leaving the
+banner at 3.8 after the fourth, near the runner's 4.0, and the fifth happening to knock it to 1.4,
+so the result differs run to run on one machine from the physics' threads and the runner's was one
+draw with no later bomb reaching it. The mend is the trigger raised to the walls' top, 6, five
+blocks and a battlement, a kinematic box of 30 by 6 by 30 at half that height, so a banner brought
+down onto the field or onto the rubble ends the siege and one still upright on a keep standing about
+four layers or more does not, the comment saying the rubble held it four units up once out of the
+bombs' reach and the game's head comment, its README and the drive's comment saying brought down
+below the walls' top; chosen over moving the assertion off the banner since a player would meet the
+same thing, the drive's assertion staying the game's end. After the mend three runs on all cores won
+at the fourth bomb with the banner caught at 5.5, 2.6 and 4.1 in about 85 seconds each, and five
+pinned to four cores won at the fourth at 5.7, 4.1, 4.8, 4.1 and 4.1, three of the five identical,
+in about 2 minutes 29 seconds each, where the runner took 4 minutes 21 seconds for nine shots; the
+taller trigger overlaps the castle's lower half and adds contact pairs, inside those times. One run
+the coder spoiled by building the client while a drive asked for status, stopped and run again
+clean. Read at 16:44. The build run of `6a289059` ended red at 16:43 on its Linux job's shuffled
+pass alone, the plain run green at 1,722 and the shuffled one failing the script's own test of the
+shuffled pass, which inherited the seed into the stand-in's plain run (Verdict 78), Windows and
+macOS green; this head was pushed at {now}, and the pack run with publish on waits for Verdict 78's
+mend, since its Linux suite would fail the same way. Item 49's code and tests are written, its form
+and cost to be said before the commit. Item 6 waits on the owner's word.
+
+Before it, `6a289059` came, item 48 and nothing else, carrying the review's file. The schedule's
 shuffle draws a random order of each stage's list keeping the add order between every pair the stage
 holds to, from one random source over the stages in their order, the same for the same seed; the
 app's startup calls it once with the environment's seed before the startup stage, after the plugins
@@ -29,17 +59,7 @@ test failing only under the seed with the seed named and a failed suite not run 
 development machine the suite gave 1,774 and then 1,774 shuffled by the day's seed in 9 minutes 7
 seconds and 9 minutes 30, the seed's line logged once an app, so nothing in the suite leans on an
 undeclared order at this seed; a live hidden run logged the line and ran 30 frames. The strict build
-is clean and the script's, norm and document tests pass. Read at 15:58. The build run of `2cc516fc`
-ended green at 15:57, so the six commits from `00c820ce` to this head were pushed at 15:58, the pack
-run with publish on running on. The Linux suite's doubled time is accepted, a Linux minute the
-cheapest. At 16:01 the pack run of `2cc516fc` had its games job red at 15:34 on the siege's drive
-from the package on lavapipe, the banner not fallen in eight bombs (Verdict 77), with its captures
-and macOS games green and its Windows job running, so the pack job will be skipped and the day's
-package waits on the mend; the pack run starts anew on the head when it is pushed. By 16:27 that run
-had ended, its Windows suite green in its parts in 72 minutes 31 seconds, 1,703 passed, and its
-captures job measuring the Unicode ranges example against raylib for the first time at 10.7 percent
-on an EPYC 9V45, the figure the CI measure file takes with Verdict 77's commit; the pack job was
-skipped. Next Verdict 77, then item 49. Item 6 waits on the owner's word.
+is clean and the script's, norm and document tests pass. Pushed at 15:58 with the five before it.
 
 Before it, `b371b65c` came, item 47's wrap and nothing else, carrying the review's file. A comment
 that would pass the sheet's width of 120 goes on at its column on the lines below, broken at word
@@ -56,33 +76,6 @@ random source over the stages in their order, the same for the same seed, moving
 declarations do not conflict, where today a light batch under 0.5 ms runs those in add order on the
 calling thread every frame, so a system that changes something without declaring it passes in that
 order alone.
-
-Before it, `09a50fea` came, item 46 at `748779fc`, carrying the review's and the ledger's files, and
-item 47 at `09a50fea`. The dummy driver was already the choice for hidden, offscreen and headless
-runs unless a setting asks for the device, forced by an override hint, and the audio guide said so;
-E3D.md gains the line beside the offscreen flag, and the test runs hidden, offscreen and headless,
-checking the dummy driver initialized at 48,000 Hz and 2 channels and a 0.3 s sound playing and
-ending within 0.25 to 1.5 s, run and not skipped; a live hidden run logged the device opened through
-the dummy driver; the suite gave 1,771. The cheat sheet's writer in the tests' API folder reads the
-flat API's source with Roslyn, each line the declaration without modifiers and attributes and the
-first sentence of the summary, cut as BevyCSharp's script cuts it, references as their names, a
-default naming a constant read from the built engine, the numerics namespace dropped, the comment at
-column 57 or one space after a longer declaration; a list is the code block under a comment naming
-the script and its files, the mark, everything outside such blocks hand-written and kept, each named
-file's public functions in declaration order with a blank line between files and at each banner, a
-file named twice, unnamed or empty failing the test; the sheet keeps its sections, each comment
-mapping one to its files, and two files that fed two sections were split, the global illumination
-calls and the image text calls into files of their own, the surface unchanged. The test compares the
-file with the writer's output reporting up to forty differing lines, a fixture test covers the
-writer's rules, the name and count test stays, a script writes the sheet as the surface script
-writes the listing, and BUILDING.md, the page's intro and the raylib comparison say it. The written
-sheet against the hand-kept one: 787 lines against 783, four overloads the hand sheet had missed; no
-line changes section and 187 change place within theirs; 15 declarations differ, parameter names and
-defaults as the source has them and two overload pairs pairing otherwise; the comments read as each
-summary's first sentence, accurate and standing on their own where the hand ones leaned on the line
-above, but at a median of 77 characters against 32, 308 lines over 160 against 37, with a few
-reading oddly where a parameter reference repeats its noun, the summaries left as they are since
-IntelliSense shows them. The suite gave 1,773.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2558,7 +2551,7 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
-the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 to 77 are open.
+the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 to 78 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3535,8 +3528,25 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     assertion on what the siege is, the welds broken and the blocks down past a share, with the
     banner's fall as the game's own end and not the drive's, or the trigger box widened to where a
     fallen banner lands, with the reason in the remark, one commit. The pack job was skipped on it,
-    so the day's package waits. Settled when the games job passes the siege on three pack runs in a
-    row.
+    so the day's package waits. Read and mended at `62efc173` on 2026-10-20 as the head says, the
+    trigger raised to the walls' top; the result had differed run to run on one machine from the
+    physics' threads, and the pack run started on the mend is the first of three. Settled when the
+    games job passes the siege on three pack runs in a row.
+
+78. **The shuffled pass's own test fails under the shuffled pass, the stand-in's plain run
+    inheriting the seed.** On the build run of `6a289059`, 2026-10-20 at 16:29, the Linux job's
+    plain suite passed, 1,722, and the suite run again shuffled by the seed 20261020 failed one
+    test, the script's test that a suite run again shuffled names the seed where it fails: its
+    stand-in's plain run read 79 passed and 1 failed where 80 and none were expected, since the
+    shuffled pass sets the seed in the environment of every process it runs, the test's inner script
+    among them, so the stand-in's shuffle-fails mode failed in the inner plain run as in the inner
+    shuffled one; on the development machine the test ran under no seed and passed. The mend is one
+    thing, under N 3.5: the script clears the seed from the environment of the plain run it starts,
+    so a suite run under a seed from outside still runs its plain pass plain, and the test sets and
+    clears the variable for its own inner runs as it means them, with a second case running the
+    test's own script under a seed from outside; the remark says why. One commit, before the pack
+    run, whose Linux suite would fail the same way. Settled when the Linux job passes both passes on
+    the next build run.
 
 ## Decisions
 
