@@ -515,6 +515,9 @@ enum Engine.CubemapLayout : int
   CrossThreeByFour = 3
   LineHorizontal = 2
   LineVertical = 1
+sealed class Engine.DataVersionAttribute : Attribute
+  DataVersionAttribute(int version)
+  int Version { get; }
 sealed class Engine.DefaultPlugins : IPlugin, IPluginGroup
   DefaultPlugins()
   IEnumerable<IPlugin> GetPlugins()
@@ -1754,6 +1757,7 @@ interface Engine.ISceneCodec
   IReadOnlyList<string> FormerNames { get; }
   Type Type { get; }
   bool Has(EcsWorld ecs, int entity)
+  int Version { get; }
   string Name { get; }
   void Read(JsonElement element, EcsWorld ecs, int entity, SceneReadContext context)
   void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
@@ -2671,6 +2675,7 @@ sealed class Engine.SceneCodec<T> : ISceneCodec
   SceneCodec(string name, SceneCodec<T?>.Writer write, SceneCodec<T?>.Reader read)
   Type Type { get; }
   bool Has(EcsWorld ecs, int entity)
+  int Version { get; init; }
   string Name { get; }
   void Read(JsonElement element, EcsWorld ecs, int entity, SceneReadContext context)
   void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
@@ -2723,7 +2728,9 @@ static class Engine.SceneFile
   static string Write(EcsWorld ecs, IEnumerable<int>? entities = null)
   static void Save(EcsWorld ecs, string path, IEnumerable<int>? entities = null)
 static class Engine.SceneJson
+  const string VersionName = "$version"
   static Color ReadColor(JsonElement e)
+  static JsonElement Migrated(JsonElement e, int version, Func<int, JsonObject, JsonObject> migrate, string type)
   static Matrix4x4 ReadMatrix4x4(JsonElement e)
   static Quaternion ReadQuaternion(JsonElement e)
   static Vector2 ReadVector2(JsonElement e)

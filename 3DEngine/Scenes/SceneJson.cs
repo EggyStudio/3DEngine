@@ -1,12 +1,69 @@
+using System.Buffers;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Engine;
 
 /// <summary>The JSON forms of the values scene files hold, which the generated code calls.</summary>
 public static class SceneJson
 {
+    /// <summary>
+    /// The key a component's object holds the version of its layout under, written where its
+    /// <see cref="DataVersionAttribute"/> is past 1.
+    /// </summary>
+    public const string VersionName = "$version";
+
+    /// <summary>
+    /// A component's object brought up to <paramref name="version"/> through
+    /// <paramref name="migrate"/> from the version it holds, or itself where it holds that version
+    /// or a later one.
+    /// </summary>
+    /// <remarks>
+    /// An object with no <see cref="VersionName"/> is version 1. <paramref name="migrate"/> is
+    /// called once, with the version the object holds and the object without its
+    /// <see cref="VersionName"/>, and gives it back as <paramref name="version"/> holds it.
+    /// </remarks>
+    /// <param name="e">The component's object as the file holds it.</param>
+    /// <param name="version">The version the program reads.</param>
+    /// <param name="migrate">The type's <c>Migrate</c>.</param>
+    /// <param name="type">The type's name, for the message of a migration that fails.</param>
+    /// <exception cref="InvalidDataException">The version is not a whole number from 1, or a migration threw or gave nothing back.</exception>
+    public static JsonElement Migrated(JsonElement e, int version, Func<int, JsonObject, JsonObject> migrate, string type)
+    {
+        var from = VersionOf(e, type);
+        if (from >= version) return e;
+
+        var value = JsonObject.Create(e)!;
+        value.Remove(VersionName);
+        try
+        {
+            value = migrate(from, value);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException($"{type}'s migration from version {from} failed: {ex.Message}", ex);
+        }
+        if (value is null) throw new InvalidDataException($"{type}'s migration from version {from} gave back nothing.");
+
+        // Written out and parsed again, since a reader takes an element. A node a migration made
+        // from a value writes it through the converter it was made with, which needs no reflection.
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer)) value.WriteTo(writer);
+        using var document = JsonDocument.Parse(buffer.WrittenMemory);
+        return document.RootElement.Clone();
+    }
+
+    // The version a component's object holds, 1 where it holds none.
+    internal static int VersionOf(JsonElement e, string type)
+    {
+        if (e.ValueKind != JsonValueKind.Object || !e.TryGetProperty(VersionName, out var held)) return 1;
+        return held.ValueKind == JsonValueKind.Number && held.TryGetInt32(out var number) && number >= 1
+            ? number
+            : throw new InvalidDataException($"{type}'s \"{VersionName}\" is {held.GetRawText()}, not a whole number from 1.");
+    }
+
     /// <summary>
     /// Writes a vector as an array of its components, as an element of the open array when
     /// <paramref name="name"/> is null.

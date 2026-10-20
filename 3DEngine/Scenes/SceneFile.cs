@@ -1,6 +1,8 @@
+using System.Buffers;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Engine;
 
@@ -13,6 +15,16 @@ internal struct SceneId
 {
     /// <summary>The id, unique within a scene.</summary>
     public string Value;
+}
+
+/// <summary>
+/// The objects of an entity's components that a scene file held at a version past the one this
+/// build reads, by component type, which a save writes back with what this build changed.
+/// </summary>
+internal struct SceneKept
+{
+    /// <summary>Each such component's object as the file held it.</summary>
+    public Dictionary<Type, string> Objects;
 }
 
 /// <summary>
@@ -30,7 +42,10 @@ internal struct SceneId
 /// <para>
 /// Loading spawns every entity first and reads components after, so a field may refer to an
 /// entity later in the file. A component the running program has no codec for is skipped with a
-/// warning, so a file outlives a component type being removed.
+/// warning, so a file outlives a component type being removed. A component saved at an earlier
+/// version of its type's <see cref="DataVersionAttribute"/> is moved forward as it is read, and one
+/// saved at a later version is read as far as this build knows it and saved back as that version
+/// with every value it held.
 /// </para>
 /// </remarks>
 public static partial class SceneFile
@@ -86,11 +101,13 @@ public static partial class SceneFile
                 if (parent != 0 && ecs.TryGet<SceneId>(parent, out var parentId)) writer.WriteString("parent", parentId.Value);
 
                 writer.WriteStartObject("components");
+                var kept = ecs.TryGet<SceneKept>(entity, out var later) ? later.Objects : null;
                 foreach (var codec in codecs)
                 {
                     if (!codec.Has(ecs, entity)) continue;
                     writer.WriteStartObject(SceneComponents.KeyOf(codec));
-                    codec.Write(writer, ecs, entity, context);
+                    if (kept is not null && kept.TryGetValue(codec.Type, out var held)) WriteOver(writer, held, codec, ecs, entity, context);
+                    else codec.Write(writer, ecs, entity, context);
                     writer.WriteEndObject();
                 }
                 writer.WriteEndObject();
@@ -103,6 +120,32 @@ public static partial class SceneFile
         // numbers are folded back onto one line, which is how a person reads a position.
         return NumberArray().Replace(Encoding.UTF8.GetString(buffer.ToArray()),
             m => "[" + string.Join(", ", m.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries)) + "]");
+    }
+
+    // Writes a component a file held at a later version than its codec's as the file held it,
+    // with each field the codec writes set from the entity and the later version kept, so a level
+    // a newer build saved and an older one changed loses nothing either build wrote.
+    private static void WriteOver(Utf8JsonWriter writer, string held, ISceneCodec codec, EcsWorld ecs, int entity, SceneWriteContext context)
+    {
+        var current = new ArrayBufferWriter<byte>();
+        using (var fields = new Utf8JsonWriter(current))
+        {
+            fields.WriteStartObject();
+            codec.Write(fields, ecs, entity, context);
+            fields.WriteEndObject();
+        }
+
+        var merged = JsonNode.Parse(held)!.AsObject();
+        using var written = JsonDocument.Parse(current.WrittenMemory);
+        foreach (var field in written.RootElement.EnumerateObject())
+            if (field.Name != SceneJson.VersionName)
+                merged[field.Name] = JsonNode.Parse(field.Value.GetRawText());
+        foreach (var (name, value) in merged)
+        {
+            writer.WritePropertyName(name);
+            if (value is null) writer.WriteNullValue();
+            else value.WriteTo(writer);
+        }
     }
 
     [System.Text.RegularExpressions.GeneratedRegex(@"\[\s*([-0-9.eE+]+(?:\s*,\s*[-0-9.eE+]+)*)\s*\]")]
@@ -168,6 +211,14 @@ public static partial class SceneFile
                     continue;
                 }
                 codec.Read(component.Value, ecs, spawned[i], context);
+                if (SceneJson.VersionOf(component.Value, codec.Name) is var held && held > codec.Version)
+                {
+                    Logger.Warn($"Scene file: '{component.Name}' was saved at version {held}, and this build reads up to "
+                                + $"{codec.Version}, so it is read as far as this build knows it and saved back as it was.");
+                    if (!ecs.TryGet<SceneKept>(spawned[i], out var kept))
+                        ecs.Add(spawned[i], kept = new SceneKept { Objects = [] });
+                    kept.Objects[codec.Type] = component.Value.GetRawText();
+                }
             }
         }
 

@@ -9,9 +9,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Engine.CodeFixes;
 
 /// <summary>
-/// The fixes an editor offers for the behavior and command generators' diagnostics, where the right
-/// change is clear from the diagnostic alone, a stage method given the context it takes, one stage
-/// kept of several, and a command made static or reachable.
+/// The fixes an editor offers for the behavior, command and scene component generators'
+/// diagnostics, where the right change is clear from the diagnostic alone, a stage method given the
+/// context it takes, one stage kept of several, a command made static or reachable, and a versioned
+/// scene component given a migration to fill in.
 /// </summary>
 /// <remarks>
 /// A stage method returning a value (E3D001), a <c>[RunIf]</c> naming nothing (E3D003) and the rest
@@ -32,6 +33,9 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
     /// <summary>A command that is neither public nor internal.</summary>
     public const string NotReachable = "E3D101";
 
+    /// <summary>A scene component past data version 1 with no <c>Migrate</c>.</summary>
+    public const string NoMigration = "E3D200";
+
     // The attributes that place a method, by their short names, as a program writes them.
     private static readonly string[] StageAttributes =
     [
@@ -40,7 +44,7 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
     ];
 
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [BadSignature, SeveralStages, NotStatic, NotReachable];
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [BadSignature, SeveralStages, NotStatic, NotReachable, NoMigration];
 
     /// <inheritdoc />
     public override FixAllProvider? GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -49,7 +53,17 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-        if (root?.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } method) return;
+        var node = root?.FindNode(context.Span);
+        if (root is null || node is null) return;
+
+        // E3D200 is reported on the struct, and the rest on a method.
+        if (node is StructDeclarationSyntax type)
+        {
+            foreach (var diagnostic in context.Diagnostics.Where(d => d.Id == NoMigration))
+                Register(context, diagnostic, root, "Add a Migrate method to move each version forward", type, WithMigration(type));
+            return;
+        }
+        if (node.FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } method) return;
 
         foreach (var diagnostic in context.Diagnostics)
         {
@@ -77,11 +91,32 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
     }
 
     private static void Register(CodeFixContext context, Diagnostic diagnostic, SyntaxNode root, string title,
-        MethodDeclarationSyntax before, MethodDeclarationSyntax after)
+        SyntaxNode before, SyntaxNode after)
     {
         context.RegisterCodeFix(
             CodeAction.Create(title, _ => Task.FromResult(context.Document.WithSyntaxRoot(root.ReplaceNode(before, after))), title),
             diagnostic);
+    }
+
+    // The struct with a Migrate added after its members, one step in from the struct and after a
+    // blank line, giving the object back as it came for the program to change. Its types are
+    // written in full, since the file may not use System.Text.Json.Nodes.
+    private static StructDeclarationSyntax WithMigration(StructDeclarationSyntax type)
+    {
+        var indent = type.GetLeadingTrivia().LastOrDefault(t => t.IsKind(SyntaxKind.WhitespaceTrivia)).ToString();
+        var step = indent + "    ";
+        var line = type.DescendantTrivia().FirstOrDefault(t => t.IsKind(SyntaxKind.EndOfLineTrivia)).ToString() is { Length: > 0 } found
+            ? found
+            : "\n";
+        const string node = "System.Text.Json.Nodes.JsonObject";
+        var text = string.Concat(
+            (type.Members.Count > 0 ? line : ""),
+            step, "// Brings a value saved at version from up to this one.", line,
+            step, $"public static {node} Migrate(int from, {node} value)", line,
+            step, "{", line,
+            step, "    return value;", line,
+            step, "}", line);
+        return type.AddMembers(SyntaxFactory.ParseMemberDeclaration(text)!);
     }
 
     // The stage attributes on the method, by short name, in the order written.

@@ -294,6 +294,12 @@ guide that shows it.
   fields reads a scene file written under its old name, which a codec gives as
   `ISceneCodec.FormerNames` and `SceneCodec.FormerNames` and `SceneComponents.Find` answers by, as
   [A program's own components](scenes.md#a-programs-own-components) shows.
+- **A changed component's levels.** `DataVersionAttribute` numbers a scene component's layout, and
+  the component's static `Migrate` brings a file saved at an earlier version up to it, through
+  `SceneJson.Migrated`, which the generated reader calls, with the version kept under
+  `SceneJson.VersionName`. A codec gives the number as `ISceneCodec.Version` and
+  `SceneCodec.Version`, 1 for a component with none, as
+  [A program's own components](scenes.md#a-programs-own-components) shows.
 - **A font's ligatures turned off.** `SetFontLigatures` draws a font's standard ligatures as their
   letters, for a program that needs a glyph for each character, as
   [Fonts from files](text-and-fonts.md#fonts-from-files) shows.

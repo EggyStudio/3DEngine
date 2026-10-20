@@ -47,6 +47,7 @@ public class GeneratorCodeFixTests
 
     private static ISourceGenerator Behaviors => new BehaviorGenerator().AsSourceGenerator();
     private static ISourceGenerator Commands => new CommandGenerator().AsSourceGenerator();
+    private static ISourceGenerator Scenes => new SceneComponentGenerator().AsSourceGenerator();
 
     [Fact]
     public async Task A_Stage_Method_Is_Given_The_Context_It_Takes()
@@ -159,6 +160,34 @@ public class GeneratorCodeFixTests
         text.Should().Contain("""
                 [Command("tools.ping", "Answers pong")]
                 internal static string Ping() => "pong";
+            """);
+        after.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task A_Versioned_Scene_Component_Is_Given_A_Migration_To_Fill_In()
+    {
+        var (text, after) = await Fix(Scenes, """
+            using Engine;
+
+            namespace Game;
+
+            [SceneComponent, DataVersion(2)]
+            public struct Health
+            {
+                public int Current;
+            }
+            """, GeneratorCodeFixes.NoMigration, "Add a Migrate method to move each version forward");
+
+        text.Should().Contain("""
+                public int Current;
+
+                // Brings a value saved at version from up to this one.
+                public static System.Text.Json.Nodes.JsonObject Migrate(int from, System.Text.Json.Nodes.JsonObject value)
+                {
+                    return value;
+                }
+            }
             """);
         after.Should().BeEmpty();
     }

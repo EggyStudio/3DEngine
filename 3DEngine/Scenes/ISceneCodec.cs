@@ -20,6 +20,12 @@ public interface ISceneCodec
     /// </summary>
     IReadOnlyList<string> FormerNames => [];
 
+    /// <summary>
+    /// The version of the layout the component is saved in, from its type's
+    /// <see cref="DataVersionAttribute"/>, 1 where it has none.
+    /// </summary>
+    int Version => 1;
+
     /// <summary>Whether the entity has the component.</summary>
     bool Has(EcsWorld ecs, int entity);
 

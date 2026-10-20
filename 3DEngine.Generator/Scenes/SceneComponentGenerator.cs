@@ -20,7 +20,10 @@ namespace Engine;
 /// from its static <c>Default</c> or <c>Identity</c> when it has one, so a field missing from an
 /// older file keeps a sensible value. A type's or a field's <c>[FormerName]</c> is a name the file
 /// is read from where it has not the current one, a type's registered as a full name, one given
-/// alone placed in the type's namespace.
+/// alone placed in the type's namespace. A type's <c>[DataVersion]</c> past 1 is written under
+/// <c>"$version"</c>, and an object of an earlier version is passed through the type's static
+/// <c>Migrate</c>, once with the version it holds, before its fields are read. A versioned type
+/// without one is warned of (E3D200) and read as the file has it.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 internal sealed class SceneComponentGenerator : IIncrementalGenerator
@@ -28,9 +31,16 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
     private const string SceneComponent = "Engine.SceneComponentAttribute";
     private const string Behavior = "Engine.BehaviorAttribute";
     private const string FormerName = "Engine.FormerNameAttribute";
+    private const string DataVersion = "Engine.DataVersionAttribute";
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
-    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName];
+    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName, DataVersion];
+
+    private static readonly DiagnosticDescriptor NoMigration = new(
+        "E3D200",
+        "A versioned scene component has no migration",
+        "'{0}' is at data version {1} and has no static Migrate(int, JsonObject) returning JsonObject that generated code can call, so a file saved at an earlier version is read as it is",
+        "Scenes", DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -57,6 +67,8 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
                 .Select(g => g.First()!)
                 .OrderBy(m => m.Type, StringComparer.Ordinal)
                 .ToList();
+            foreach (var model in models)
+                if (model.Diagnostic is { } diagnostic) spc.ReportDiagnostic(diagnostic);
             if (models.Count > 0)
                 spc.AddSource("SceneComponentRegistration.g.cs", Emit(models));
         });
@@ -69,7 +81,14 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
         public string[] FormerNames { get; init; } = [];
     }
 
-    private sealed record ComponentModel(string Type, string Name, string Start, FieldModel[] Fields, string[] FormerNames);
+    // Version is the type's [DataVersion], 1 without one, and Migrate the method a file of an
+    // earlier version is passed through, null where the type has none.
+    private sealed record ComponentModel(string Type, string Name, string Start, FieldModel[] Fields, string[] FormerNames)
+    {
+        public int Version { get; init; } = 1;
+        public string? Migrate { get; init; }
+        public Diagnostic? Diagnostic { get; init; }
+    }
 
     // The names a [FormerName] on a symbol gives, in the order they are written.
     private static string[] FormerNamesOf(ISymbol symbol) =>
@@ -92,13 +111,37 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
         foreach (var field in type.GetMembers().OfType<IFieldSymbol>())
         {
             if (field.IsStatic || field.IsConst || field.IsReadOnly || field.DeclaredAccessibility != Accessibility.Public) continue;
-            if (Field(field.Name, field.Type) is { } model) fields.Add(model with { FormerNames = FormerNamesOf(field) });
+            if (Field(field.Name, field.Type) is { } written) fields.Add(written with { FormerNames = FormerNamesOf(field) });
         }
 
         // A former name alone is in the type's own namespace, and one with a dot is a full name.
         var space = type.ContainingNamespace is { IsGlobalNamespace: false } ns ? ns.ToDisplayString() + "." : "";
         var former = FormerNamesOf(type).Select(n => n.Contains('.') ? n : space + n).ToArray();
-        return new ComponentModel(fqn, type.Name, start, fields.ToArray(), former);
+        var model = new ComponentModel(fqn, type.Name, start, fields.ToArray(), former);
+
+        var version = type.GetAttributes()
+            .Where(a => a.AttributeClass?.ToDisplayString() == DataVersion && a.ConstructorArguments.Length == 1)
+            .Select(a => a.ConstructorArguments[0].Value as int?)
+            .FirstOrDefault() ?? 1;
+        if (version <= 1) return model;
+        if (MigrateOf(type) is { } migrate) return model with { Version = version, Migrate = $"{fqn}.{migrate.Name}" };
+        return model with
+        {
+            Version = version,
+            Diagnostic = Diagnostic.Create(NoMigration, type.Locations.FirstOrDefault() ?? Location.None, type.Name, version),
+        };
+    }
+
+    // The type's static Migrate(int, JsonObject) returning JsonObject, which the generated reader
+    // in its assembly can call, or null.
+    private static IMethodSymbol? MigrateOf(INamedTypeSymbol type)
+    {
+        const string node = "System.Text.Json.Nodes.JsonObject";
+        return type.GetMembers("Migrate").OfType<IMethodSymbol>().FirstOrDefault(m =>
+            m.IsStatic && m.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal &&
+            m.Parameters.Length == 2 && m.Parameters[0].Type.SpecialType == SpecialType.System_Int32 &&
+            m.Parameters.All(p => p.RefKind == RefKind.None) &&
+            m.Parameters[1].Type.ToDisplayString() == node && m.ReturnType.ToDisplayString() == node);
     }
 
     // Generated code lives in the type's assembly, so internal is enough, but a nested type must be
@@ -215,11 +258,16 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
                 .Append(Quote(model.Name)).Append(",\n")
                 .Append("            static (global::System.Text.Json.Utf8JsonWriter w, in ").Append(model.Type)
                 .Append(" v, global::Engine.SceneWriteContext ctx) =>\n            {\n");
+            if (model.Version > 1)
+                source.Append("                w.WriteNumber(global::Engine.SceneJson.VersionName, ").Append(model.Version).Append(");\n");
             foreach (var field in model.Fields)
                 source.Append("                ").Append(field.Write).Append('\n');
             source.Append("            },\n")
-                .Append("            static (e, ctx) =>\n            {\n")
-                .Append("                var value = ").Append(model.Start).Append(";\n");
+                .Append("            static (e, ctx) =>\n            {\n");
+            if (model.Migrate is not null)
+                source.Append("                e = global::Engine.SceneJson.Migrated(e, ").Append(model.Version).Append(", ")
+                    .Append(model.Migrate).Append(", ").Append(Quote(model.Type.Replace("global::", ""))).Append(");\n");
+            source.Append("                var value = ").Append(model.Start).Append(";\n");
             foreach (var field in model.Fields)
             {
                 source.Append("                if (e.TryGetProperty(").Append(Quote(field.Name)).Append(", out var p_").Append(field.Name).Append(')');
@@ -228,8 +276,11 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
                 source.Append(") { var p = p_").Append(field.Name).Append("; ").Append(field.Read).Append(" }\n");
             }
             source.Append("                return value;\n            })");
+            var settings = new List<string>();
             if (model.FormerNames.Length > 0)
-                source.Append(" { FormerNames = new string[] { ").Append(string.Join(", ", model.FormerNames.Select(Quote))).Append(" } }");
+                settings.Add("FormerNames = new string[] { " + string.Join(", ", model.FormerNames.Select(Quote)) + " }");
+            if (model.Version > 1) settings.Add($"Version = {model.Version}");
+            if (settings.Count > 0) source.Append(" { ").Append(string.Join(", ", settings)).Append(" }");
             source.Append(");\n");
         }
 

@@ -10,16 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3b46c543`, the CI measure's line and a stale capture, documents and captures alone,
+Reviewed up to `2cc516fc`, item 45's first commit, the former names, and nothing else, carrying the
+review's file. A scene component or one of its fields marked with a former name is read from a scene
+file written under its old name, the registry answering by each former name and the generated reader
+trying the former names where a field's own is missing, with the attribute's file, the codec
+interface's addition, the generator's change and tests of a component and a field renamed; the cheat
+sheet, the surface listing, the scene guide and the upgrading guide's entry follow. It landed before
+the push of 14:35 and went with it, read at 14:35, so the pack run with publish on started then
+carries it; the build run of `fd484ead` had ended green at 14:31, its Windows parts in 57 minutes 4
+seconds, 1,691 passed. Next item 45's second commit, the versions. Item 6 waits on the owner's word.
+
+Before it, `3b46c543` came, the CI measure's line and a stale capture, documents and captures alone,
 carrying the review's file. The Unicode ranges example's line leaves the CI measure file rather than
 going back to 9.1, since the comparison script fails a pair whose measure stands more than a point
 past its record and measures a pair not in the record for the first time, saying so in the summary
 and in a notice without failing, so the line is recorded from what the next captures job measures;
 the machine's own record keeps its 11.4. The sprite fonts example was captured again with its
-gallery thumbnail and the captures table, the table's check passing. Read at 14:18; the push of the
-four commits from `006ff3ba` waits for the build run of `fd484ead` to end, the pack run with publish
-on then started anew on the head. Item 6 waits on the owner's word; TODO.md's next entry with work
-left is item 45, old scene files read through former names and versions.
+gallery thumbnail and the captures table, the table's check passing. Pushed at 14:35 with the three
+before it.
 
 Before it, `4789ebde` came, item 44 and nothing else, carrying the review's file. The TrueType font
 reads the kern table, Microsoft's and Apple's first format, horizontal and along the line; a font
@@ -51,29 +59,6 @@ stale already by 4 percent with its share unchanged and is left. The games that 
 and joined once repacked, none measuring text by prefix or character. The text guide's paragraph and
 snippet, the cheat sheet, the surface listing, the upgrading guide, seven that still compile and the
 added entry, and the raylib comparison's new row follow.
-
-Before it, `40283221` came, item 43 at `006ff3ba` and Verdict 76's mend at `40283221`, the first
-carrying the review's file. The audio backend's interface gains the device's sample rate and
-channels, 0 by default so a program's own backend still compiles, the SDL backend giving the spec it
-kept and 0 while not initialized, and two flat calls read them, 0 unless the device is ready, their
-remarks saying SDL is asked for 48,000 in two channels and gives the device's own; the mixed
-processor's remarks name them, the audio guide's processor paragraph says how a program saves what
-the device plays, and the cheat sheet, the surface listing and the upgrading guide's added entry
-follow, the entry naming the two backend members too since the upgrading test asked; tests read the
-dummy driver keeping 48,000 and 2, a backend with no device keeping 0, a backend of six channels at
-44,100 through the flat calls and 0 with no app; the strict build is clean and the suite gave 1,755
-with the upgrading test failing until the entry was written, the document tests then 15. Verdict
-76's cause was in the drive's timing and nothing physical: the macOS step failed on Span's first
-read, which came 0.03 s after the go and still said the build state with 0 N and the load at its
-start, since the world in that state is paused; requests are answered at the top of the first stage
-inside the frame's drawing after the game's own code, the game takes the go at the top of its next
-loop and the state moves at the start of the frame after that, so a read answered within a frame of
-the go's answer sees the old state, and on the macOS runner a round trip of 0.32 s against frames of
-0.2 s landed the read two frames late; reproduced on the machine held to 2 frames a second, the read
-saw the build state six times in six; the mend is two frames waited after the go before the first
-read, which answers only once those frames have run, so the game has taken the go on any runner at
-any speed, the read then seeing the build state no time in six and the full run passing, and the
-other games' drives already wait frames between a command and the read it is judged by.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2470,7 +2455,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     others; tests of a component renamed, a field renamed, a split migrated across two versions and
     a file from a later version kept; the scene guide's paragraph, the cheat sheet where it lists
     attributes, the surface listing and the upgrading guide's added entry; and a Shared line under
-    Replies, the row then saying both have it. Two commits, the renames and then the versions.
+    Replies, the row then saying both have it. Two commits, the renames and then the versions. The
+    renames done at `2cc516fc` on 2026-10-20, as the head says; the versions next.
 
 ## Verdicts
 
@@ -3848,6 +3834,12 @@ Shared: a scene component or one of its fields keeps its saved levels across a r
 `[FormerName]`, after BevyCSharp's, a type's former name alone placed in its namespace and one with
 a dot taken as full, the registry answering by each former name after every current one, and the
 generated reader trying a field's former names where its own is missing (item 45, the renames).
+A component's layout is numbered by `[DataVersion]`, after BevyCSharp's, its static `Migrate`
+called once with the version the file holds, written as a run of checks on it, the number written
+under `"$version"` once past 1, a versioned type with no migration warned of (E3D200) with a fix
+that adds one, and a component of a later version read as it is and saved back at that version
+with the values this build did not read and the fields it knows set from the entity (item 45, the
+versions). SHARED.md's row 120 can say both have it.
 
 
 

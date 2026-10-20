@@ -154,6 +154,42 @@ public struct Coffer
 A field's own name in a file is read before a former one, and a former name another component has
 since taken is read as that component.
 
+A change a name cannot describe, a field split in two or a value counted in other units, is made
+by numbering the component's layout with `[DataVersion]` and giving it a static `Migrate`, which
+takes the version a file was saved at and the component as the file holds it, and gives it back as
+this version holds it:
+
+```csharp
+using System.Text.Json.Nodes;
+
+[SceneComponent, DataVersion(2)]
+public struct Health
+{
+    public int Current;
+    public int Most;
+
+    public static JsonObject Migrate(int from, JsonObject value)
+    {
+        if (from < 2) // 1 saved both in one array, "Life": [current, most]
+        {
+            var life = value["Life"]!.AsArray();
+            value.Remove("Life");
+            value["Current"] = (int)life[0]!;
+            value["Most"] = (int)life[1]!;
+        }
+        return value;
+    }
+}
+```
+
+The next change raises the number to 3 and adds a check of `from < 3` after this one, so a file
+several versions old passes through each change in order. A component past version 1 is saved with its number under
+`"$version"`, and one saved with none is version 1, so the first number given reads every level
+saved before it. A versioned component with no `Migrate` is warned of as the program compiles
+(E3D200), and an editor offers to add one. A level saved by a later build of the game, at a version
+past the one running, is read as far as this build knows its fields and saved back at that version
+with every value it held, so a player who opens it in an older build loses nothing.
+
 ## What is solid
 
 A `Collider` says what shape an entity is solid as, and a `RigidBody` beside it whether it falls

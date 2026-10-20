@@ -731,6 +731,8 @@ void SaveScene(string fileName, IEnumerable<Entity>? entities = null); // Write 
 A scene file is JSON of entities and their components by name. The engine's components are saved,
 and a program's own are when marked `[SceneComponent]`, as `[SceneComponent] public struct Crate;`,
 and `[FormerName("Chest")]` on a component or a field reads a level saved under its old name.
+`[DataVersion(2)]` numbers a component's layout, and its static
+`JsonObject Migrate(int from, JsonObject value)` brings a level saved at an earlier one up to it.
 A `Collider` and a `RigidBody` say what is solid, and the body is made when the scene loads, so
 `ecs.GetReadOnly<PhysicsBody>(entity)` gives it to the physics functions. ARCHITECTURE.md describes
 the format.

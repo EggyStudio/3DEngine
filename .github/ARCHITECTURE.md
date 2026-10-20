@@ -169,14 +169,15 @@ taken twice, or any on a static method (E3D008). A field holding a reference oth
 a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
 state declaration that cannot be registered is reported on the enum or method (E3D007).
 `3DEngine.CodeFixes` offers an editor's fixes where the change is clear, a stage method given its
-`BehaviorContext` first, keeping the parameters taken by `ref` or `in` (E3D001), one stage kept of several (E3D002), and a command made static (E3D100)
-or internal (E3D101). `BehaviorContext` resolves the ECS, commands, time and input when it is made,
-and `ctx.Physics` only when it is read, so behaviors run without `PhysicsPlugin`. The generated
-registrations are found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches
-`source/behaviors` beside the program, or the project's own when the program runs from a project's
-`bin/<configuration>/<framework>`, compiles what it finds with Roslyn and the same generator against
-the engine and the program's assembly into a collectible load context, and replaces the previous
-generation's systems.
+`BehaviorContext` first, keeping the parameters taken by `ref` or `in` (E3D001), one stage kept of
+several (E3D002), a command made static (E3D100) or internal (E3D101), and a `Migrate` to fill in
+for a versioned scene component (E3D200). `BehaviorContext` resolves the ECS, commands, time and
+input when it is made, and `ctx.Physics` only when it is read, so behaviors run without
+`PhysicsPlugin`. The generated registrations are found by `BehaviorsPlugin` when it builds.
+`RuntimeBehaviorCompiler` watches `source/behaviors` beside the program, or the project's own when
+the program runs from a project's `bin/<configuration>/<framework>`, compiles what it finds with
+Roslyn and the same generator against the engine and the program's assembly into a collectible load
+context, and replaces the previous generation's systems.
 
 ## Assets
 
@@ -203,16 +204,22 @@ positions) and registers it from a module initializer, so loading runs no reflec
 keyed by its type's name, or by its full name when two registered types share the name, and a name
 two of a program's types share loads neither. A name one of the engine's own types has always means
 that type, in writing and in reading, and a program's type of the same name takes its full name, so
-a file reads the same whatever the program registers after it was saved. A physics body is described
-by a `Collider` and a `RigidBody`, which `PhysicsBodies` turns into a `PhysicsBody` in `PreUpdate`,
-and `LoadScene` at once, with the joints `Joint` components describe, each on an entity of its own
-whose place is the joint's point and whose up is its axis. A model is named with a `ModelRef`, which
-`ModelRefSystem` spawns under its entity, and the entities a model spawns are not saved, since the
-file brings them back. Another scene file is placed the same way with a `SceneRef`, a prefab, which
-`SceneRefSystem` spawns under its entity in the frame it appears, without the file's ids so copies
-of one file stay apart, and down to eight references deep, and spawns again when the file is written
-while the level runs, looking at the files twice a second. The console's `scene.save` and
-`scene.load` do the same from `./e3d`.
+a file reads the same whatever the program registers after it was saved. A component or a field
+marked `[FormerName]` is read from its old name where the file has not the new one. A component
+marked `[DataVersion(n)]` past 1 is written with `"$version"`, and the generated reader passes an
+object of an earlier version through the type's static `Migrate`, once with the version it holds,
+before reading its fields, a versioned type without one warned of (E3D200). An object of a later
+version is read as it is, and `SceneFile` keeps its text in an internal `SceneKept` on the entity,
+so a save writes it back at that version with the fields this build knows set from the entity and
+the rest as the file held them. A physics body is described by a `Collider` and a `RigidBody`, which
+`PhysicsBodies` turns into a `PhysicsBody` in `PreUpdate`, and `LoadScene` at once, with the joints
+`Joint` components describe, each on an entity of its own whose place is the joint's point and whose
+up is its axis. A model is named with a `ModelRef`, which `ModelRefSystem` spawns under its entity,
+and the entities a model spawns are not saved, since the file brings them back. Another scene file
+is placed the same way with a `SceneRef`, a prefab, which `SceneRefSystem` spawns under its entity
+in the frame it appears, without the file's ids so copies of one file stay apart, and down to eight
+references deep, and spawns again when the file is written while the level runs, looking at the
+files twice a second. The console's `scene.save` and `scene.load` do the same from `./e3d`.
 
 ## The renderer
 
