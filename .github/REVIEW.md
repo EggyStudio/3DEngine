@@ -36,8 +36,15 @@ on of `448aa3fc` runs on, its Windows suite in its second hour. The corridor's u
 and named by 05:51, the coarse cascades against a space narrower than their spacing, said under item
 30 with three mend forms. At 06:06 the pack run of `448aa3fc` had every job green but Windows, its
 games job at 05:37, Verdict 74's second of three, and its captures at 05:47, with the Windows
-suite's step in its 96th minute under the mends, the pack job waiting on it. Next form (i) read by
-the rule, then (ii) and (iii) together.
+suite's step in its 96th minute under the mends, the pack job waiting on it. The corridor's forms
+were read by 06:19, (i) out, (ii) not taken and (iii) taken, said under item 30. At 06:38 the pack
+run of `448aa3fc` had ended red at 06:32 on its Windows suite alone, every test passing, 1,667
+passed and none failed in 121 minutes 5 seconds on an EPYC 7763, the whole run lost at its hour with
+1,302 passed and thirteen of the fifteen parts run again for 61 minutes more, the step ending with
+exit 1 for the lost whole run though no test failed, and lavapipe writing no shader cache though
+asked for by name, so the pack job was skipped and no package was made again; read under Verdict 72,
+whose two further mends come before the corridor's commit, and then the pack run starts anew on the
+head. Next Verdict 72's two mends, the ore sample by night, (iii)'s commit, then the pack run.
 
 Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
 The leak tests keep the readings after every ten apps as numbers and read the process's growth from
@@ -1993,7 +2000,39 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     inside at no cost in the frame, by the rule at both sizes with the rooms whose walls sit on the
     grid's spots watched, and then (ii) and (iii) together as one reading, the far light's first
     bounce where the cascades cannot stand, by the rule and the cost, since a corridor narrower than
-    the first cascade's spacing would still have no probe.
+    the first cascade's spacing would still have no probe. The corridor's three forms read by 06:19
+    on 2026-10-20 by the rule at both sizes and by cost, nothing committed. (i), a probe whose spot
+    lies inside a wall going through its farther face where the next spot that way stands in no open
+    space and the next on the nearer side does, moves the second cascade's probes at x 80.4 and 82.8
+    inside to z 0.74 either side, those at 75.6 and 78 staying at 1.54, and the ones moved inside
+    read nothing, 214 of their 252 ways meeting a wall before their interval begins and the rest
+    reaching the third cascade outside, so it widens the corridor by 0.002 to 0.006 at both sizes,
+    its walls going to 81 to 82 under where 78 to 79, every other view holding to the third digit;
+    out by the rule. (ii), a world probe's ray that meets nothing in its interval tracing on through
+    the field where its probe sees none of the eight above, with eight marches a workgroup as the
+    merge does, and (iii), a screen probe's ray past its reach tracing on where the world's probes
+    around its end hold nothing, the hit shaded as a probe's hit is either way, each narrow the
+    corridor alone with every other view holding to the third digit, (ii) by 0.005 at the large size
+    and 0.004 to 0.005 at the small, (iii) by 0.025 and 0.023 and 0.019 to 0.027, and both together
+    by 0.009 and 0.007 and 0.002 to 0.008, less than (iii) alone, since (ii)'s small light at the
+    probes stops (iii)'s march, which goes on only where the probes hold nothing; the corridor's
+    regions at 800 by 450 at High go from walls 79 and 78 under, ceiling 69 and floor 66 to walls 66
+    and 68, ceiling 52 and floor 54 with (iii), and to 77 and 75, 65 and 64 with (ii), the
+    mid-corridor world probe 86 under where 100. The cost at High and Low on the development
+    machine's GPU with frames unlimited, the corridor 1.27 to 1.29 and 0.99 ms on the head, the
+    strip's room 1.44 to 1.47 and 1.30 to 1.32, the emissive block's room 1.90 to 1.93 and 1.72 to
+    1.74, the Cornell box 1.95 and 1.72 and the window's room 1.15 and 0.97: (iii) takes the
+    corridor to 1.50 and 1.22 to 1.26, the dark rooms the same, the box 0.01 more and the window's
+    room 0.04 more at High, costing where it acts; (ii) costs 0.02 to 0.06 everywhere. The reviewer
+    takes (iii) alone as the mend, (ii) not taken and (i) out, with its open risk measured first: a
+    dark scene under a black sky, such as the ore sample at night, where a ray toward the sky whose
+    probes hold nothing marches to the field's edge every frame, which the bounce rooms do not show;
+    the coder measures the sample by night from a scratch copy of its build before the commit, and
+    if the night's cost is more than a fraction of the day's the march takes a bound, a most length
+    or a budget a frame, with the figures in the remark; then the commit in the usual form. What
+    stays under in the corridor is the light past the first bounce, the world probes there 86 to 100
+    under, so the screen probes' hits read nothing from them, a term that stands in the order under
+    the gain.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2974,10 +3013,29 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     last to end at 59 minutes 20 seconds, the parts then 62 minutes, 121 minutes 49 seconds in all,
     the Rendering part alone some 50 of them, 1,704 ms a leak app; so on a 7763 the second mend's
     rerun of the lost part alone still passes a push's 100 minutes only with the cache warm or the
-    third mend in, which the runs under the mends read. Settled at three Windows suites in a row
-    after the mends that end with their summary inside the job's limit, each recorded with its
-    processor, its time and whether the cache was found, since the time is the processor's and an
-    hour is not the bound.
+    third mend in, which the runs under the mends read. The first suite under the mends, the pack
+    run of `448aa3fc` on 2026-10-20, ran on an EPYC 7763 again, cold, and read two things. Lavapipe
+    wrote no shader cache though asked for by name, the step after the suite warning so and the save
+    finding no folder, so Mesa on Windows from that build keeps no cache at all and the first mend's
+    hope is closed, which answers the reading. The whole run was lost at its hour with 1,302 passed,
+    after the bounce rooms' rays-past-their-reach test again, the slowest tests that ended 4 minutes
+    24 seconds, 4 minutes 15 and 4 minutes 12, and the rerun took only the parts holding tests
+    without a result as the second mend has it, but those were thirteen of the fifteen, since the
+    whole run's order leaves a test or more of nearly every part for its last third, the Rendering
+    part alone 52 minutes 16 seconds, so the suite took 121 minutes 5 seconds in all, 1,667 passed
+    and none failed, inside the pack run's 180 and not a push's 100; and the step ended with exit 1
+    for the lost whole run though every test had a result and none failed, so the pack job was
+    skipped on a green suite. So the third mend is taken, and one more: the Windows suite runs in
+    its parts from the start, about 62 minutes cold on a 7763 and less on the others, with no whole
+    run to lose, the cache's variables kept and the step after the suite kept as a reading, the
+    reason in the job's comment naming this run; and the test script, when every test has a result
+    and none failed, ends with exit 0 and says the whole run's loss as a notice with its figures,
+    not as a failure, held by a test on the stand-in's lost mode with every test passing. Two
+    commits under N 3.5, before the corridor's. The settling condition stands as written, three
+    Windows suites in a row that end green with their summary inside the job's limit, each recorded
+    with its processor and time. Settled at three Windows suites in a row after the mends that end
+    with their summary inside the job's limit, each recorded with its processor, its time and
+    whether the cache was found, since the time is the processor's and an hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed

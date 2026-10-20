@@ -149,7 +149,7 @@ jobs:
     runs-on: windows-latest
     # The job took 75 minutes on the push of fc5fdc97, 46 of them the suite and 20 the twelve games,
     # so a push, which plays Slide alone, has 100, and the pack run, which plays the twelve, 180, the
-    # suite held to 60 below and the games' step to 110.
+    # suite's parts held to 70 each below and the games' step to 110.
     timeout-minutes: ${{ inputs.pack && 180 || 100 }}
     defaults:
       run:
@@ -240,12 +240,14 @@ jobs:
           New-ItemProperty -Path $key -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\3DEngine.Tests\TestResults\dumps" | Out-Null
 
-      # The suite through build/test.py, as on Linux, held to 60 minutes where the script's own
-      # limit is 40, since a Mesa cache never saved after a failed job leaves every app compiling
-      # the changed shaders, 3.7 seconds an app where 0.84, which doubled the suite from 22 minutes
-      # past 40 on the pack run of ee85866f. A suite that runs cold then still ends whole and saves
-      # the cache.
-      - run: python build/test.py --no-build --timeout-minutes 60
+      # The suite through build/test.py in its parts from the start, each a process held to 70
+      # minutes where the script's own limit is 40. Lavapipe's Windows build keeps no shader cache,
+      # asked for by name or not, so every app compiles every shader and the suite runs cold on
+      # every run. On the pack run of 448aa3fc on an EPYC 7763 the whole run ran out its hour 1,302
+      # tests in, and the parts holding tests it gave no result, thirteen of fifteen, ran again for
+      # 121 minutes 5 seconds in all, the Rendering part alone 52 minutes 16 seconds, past a push's
+      # 100. Run in parts with no whole run to lose, the suite takes about 62 minutes cold there.
+      - run: python build/test.py --no-build --parts --timeout-minutes 70
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'

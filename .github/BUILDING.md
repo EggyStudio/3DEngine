@@ -19,23 +19,22 @@ The suite needs no GPU or display, because the tests that touch rendering use
 `NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests report as skipped,
 and so do the render tests without a Vulkan device, each with its reason in the run's output.
 
-`build/test.py` runs the suite as one process held to 40 minutes and 4 GB, which the Windows job
-raises to 60 minutes (`--timeout-minutes 60`), since lavapipe compiles the shaders each app draws
-with unless Mesa's cache holds them, 3.7 seconds an app where 0.84, and a cache left unsaved by a
-failed job doubled the suite there from 22 minutes past 40. The build workflow restores that cache
-before the suite and saves it after, whether the suite passed or not, keyed by the processor's model
-and a checksum of its flags (`build/processor.sh`), since lavapipe compiles for the instructions of
-the processor it runs on, and a runner of one kind that restored code another kind made died on an
-instruction its processor lacks. The script writes what the suite prints to
-`3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines, also written to
-`TestResults/digest.md`, which holds the counts, the failures by cause, the most frequent first,
-each with its message, its first frames and some of its tests, and the lines the output repeated
-most. A process that is lost, by a crash, a hang, its time or its memory, is said first on the page,
-with the tests it was in, the times of its slowest tests and its last lines, and the suite runs again
-in parts, a process for each area of thirty tests or more and one for the rest, so a part that is
-lost costs only its own tests. Only the parts holding a test the whole run gave no result run again,
-the rest counted as the whole run printed them, so a run lost near its end does not start over.
-`python3 build/test.py Rendering` runs one part, and `--parts` all of them.
+`build/test.py` runs the suite as one process held to 40 minutes and 4 GB. The Windows job runs it
+in its parts from the start, each held to 70 minutes (`--parts --timeout-minutes 70`), since
+lavapipe's Windows build keeps no shader cache and compiles the shaders each app draws with, so the
+suite runs cold on every run, and on an EPYC 7763 a whole run ran out its hour before its last
+third. The build workflow restores and saves the cache Mesa is asked for there all the same, keyed
+by the processor's model and a checksum of its flags (`build/processor.sh`), and says what it holds
+after the suite, so a run reads whether a later build of Mesa keeps one. The script writes what the
+suite prints to `3DEngine.Tests/TestResults/output.txt` and ends with a page of at most 200 lines,
+also written to `TestResults/digest.md`, which holds the counts, the failures by cause, the most
+frequent first, each with its message, its first frames and some of its tests, and the lines the
+output repeated most. A process that is lost, by a crash, a hang, its time or its memory, is said
+first on the page, with the tests it was in, the times of its slowest tests and its last lines, and
+the suite runs again in parts, a process for each area of thirty tests or more and one for the rest,
+so a part that is lost costs only its own tests. Only the parts holding a test the whole run gave no
+result run again, the rest counted as the whole run printed them, so a run lost near its end does
+not start over. `python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in
 `build/nvidia-cache`, of 2 GiB, through `__GL_SHADER_DISK_CACHE_PATH` and
