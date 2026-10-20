@@ -27,8 +27,12 @@ again; the game's README is untouched. Checked were the strict build, the suite,
 table's check; the reviewer counted the 270 pictures in the file and the folder, none twice, and the
 head block as the one HTML. Its look on GitHub and on nuget.org's page of the next version is read
 after the push and the next package, the next pack run's with this head in it. The push cancels the
-build run of `4bc29a78`; the pack run of `193c68b0` runs on. Next Verdict 72's two commits, the
-parallax and (c).
+build run of `4bc29a78`; the pack run of `193c68b0` runs on. Rendered through GitHub's markdown API
+in the file's mode by 03:10, the block centers the heading, the description without forced breaks
+and the five banners, and the gallery is fifteen tables holding the 270 pictures. At 03:19 the pack
+run of `193c68b0` had its macOS suite green at 03:00, Verdict 73's third, so it is settled, and its
+Windows, captures and games jobs running an hour in; the build run of this head runs since 03:07;
+the feed's last package is `5.2.92`. Next Verdict 72's two commits, the parallax and (c).
 
 Before it, `4bc29a78` came, item 30's sampling term with (g) in it, the tiled ways, and nothing
 else, with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
@@ -1933,7 +1937,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 `704952c5`, 66 on the pack run of `a41cc801`, 67 on the pack run of `5a2d7df3`, 69 on the runs of
 `1398ed24` and `5a2d7df3`, 64 and 68 on the runs of `5a2d7df3` and `a12206af` on 2026-10-18, and 70
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
-the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 to 74 are open.
+the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
+runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 74 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -2786,8 +2791,9 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     respawning the first copies in the step after the write where it fell there, the test holding
     the third against the first's mesh from before the write and asserting the file system gives
     back the time set. Settled at three green macOS suites in a row after the mend. The macOS suites
-    of the pack run of `80625742` at 01:24 and of the build run of `193c68b0` at 02:45 on 2026-10-20
-    passed, the first two of three, the pack run's suite of `193c68b0` still running.
+    of the pack run of `80625742` at 01:24 and of the build run and the pack run of `193c68b0` at
+    02:45 and 03:00 on 2026-10-20 passed, three in a row. Settled on the runs of `80625742` and
+    `193c68b0` on 2026-10-20.
 
 74. **Manor's soak holds its entities at their least to 421, and a walk on the runner reached 422.**
     On the pack run of `80625742`, 2026-10-20 at 01:43, the games job's soak of the thirteen games
