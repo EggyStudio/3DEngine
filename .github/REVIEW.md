@@ -10,7 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b03017f2`, Verdict 74's mend and nothing else, with the review's commits between.
+Reviewed up to `4bc29a78`, item 30's sampling term with (g) in it, the tiled ways, and nothing else,
+with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
+sixteen places in their texels, every four tiles by four holding each place once, so the probes read
+the hemisphere evenly and the window's filter blends the places together; the shader's remark names
+the sampling term with its figures, 15 and 41 under from the texels' middles against 2 and 5 from
+the places, and what the fixed ways had covered, the rays' reads 26 to 35 over the reference along
+their ways, the merge's parallax and the walls thinner than a cell. The bounce rooms' bounds take
+the thin walls' figures, 0.085, 0.090 and 0.094 where 0.072, 0.071 and 0.072 stood, their world
+probes 9 to 12 over by their own rays, the grazing floor at High at 0.086 where 0.058, its walls 8
+over where 8 under, the parallax, and the strip's 0.216, 0.240 and 0.218 where 0.234, 0.245 and
+0.244; view 7 at High is bounded at 0.09; the thin wall's end probe, 22 over where 2 and its rays
+past their reach 34 over along their ways, is bounded from minus 0.15 to 0.30 with the parallax
+named, the old dark-face read of 51 under still failing; the small block's front probe, its rays
+past their reach 34 under their texels where 9 over, since each ray stands for its texel from one
+place of it, is bounded at 0.4, the old 97 over still failing. RENDERING.md's screen probes'
+paragraph says where the rays leave from, and a record dated 2026-10-20 carries the rule at both
+sizes, the decomposition over 28 and 24 probes, the world probes' own and merged reads, the angle
+bands, the trunk's blocks, 1.02 to 1.31 with a mean of 1.17 where 0.58 to 0.97 with a mean of 0.76
+stood and the thirty-six 1.13 to 1.76, the still frames and the cost. The still frames at the 99th
+part in the Cornell box move 0.01 to 0.04 a frame against the head's 0.02 to 0.03, the most 0.6
+either way, and the carried lamp's room 0.00 on both; the cost is none, the same sixteen rays.
+Checked were the strict build, the suite, 1,740, and lavapipe under the required layer over the
+global illumination, glow, room, cascade edge and reference frame tests, 92 passed and 10 skipped.
+On the runs of `193c68b0`, the build run's Linux, macOS and examples jobs were green by 02:50 and
+its Windows job in its suite, which this push cancels unread, the pack run's Windows job carrying
+the figure; the pack run with publish on had its Linux and examples jobs green and the rest running,
+Verdict 73 at two green macOS suites of three (Verdict 73). Verdict 72 was read by the coder by
+02:52 and its mends are chosen, said under it. Next Verdict 72's two commits, item 35, the parallax
+and (c).
+
+Before it, `b03017f2` came, Verdict 74's mend and nothing else, with the review's commits between.
 Manor was built from a package of the head and walked whole by its autopilot at the soak's size, two
 whole walks at each of three paces, the game's own, a tenth of a second a frame and a quarter, as a
 runner's slow frames count more of the game's time, on the development machine's GPU and on
@@ -29,8 +59,7 @@ Manor's images at 92 where these walks reached 93 and 94, under the slack's 98. 
 on `869ad798`, half an hour in without the mend, is cancelled by the reviewer and started again on
 this head, so its games job carries the mend (Decision 49). The rays' error was read by 02:23, said
 under item 30, and names the merge's parallax and the thin walls as what the fixed ways covered, so
-the tiled ways are taken. Right. Next the tiled ways' commit, then Verdict 72, item 35, the parallax
-and (c).
+the tiled ways are taken.
 
 Before it, `089761fb` came, item 36 and nothing else, with the review's commit between. A program
 may say of a shader that its vertex stage keeps the positions, the mark kept in the shader store
@@ -63,32 +92,6 @@ Verdict 72's figure to come from `869ad798`'s build run. At 01:49 the sampling t
 were measured again on this head and neither holds by the rule, said under item 30, the covered
 fault in what a ray brings by its way. Right. Next Verdict 74's mend, the rays' error read by
 elevation, Verdict 72, item 35, the parallax and (c).
-
-Before it, `a7c2da8b` came, item 30's part (h) and nothing else, with the review's commit between.
-Read in the game's copy at night with the screen probes off: the game leaves the stone's faces
-against a lamp block out of its section's mesh and draws the lamp apart as a cube, so the stone
-cells beside the lamp, in the wall's slab and the floor under it, read as the open in front of the
-cube's faces, as far outside as they lie inside; the corner probe's spot reads inside by a tenth,
-its gradient points into that stone, and the placing moved it there, where 21 of its 64 rays met
-faces from behind and 42 in front, so the majority did not wall it in. The mend judges the moved
-spot by the rays that leave it, a probe more than a quarter of whose rays meet faces from behind
-walled in, the share the other probe method takes, beside the majority rule, since at that corner
-the field it would be kept out by is the faulty one; in the game it walls in three probes the
-majority did not, all in solids, and in the bounce rooms none, every view at 160 by 90 reading as
-before to the last digit and the frames at 800 by 450 matching to the third. Judged: the warm patch
-on the grass at the wall's foot from 5.8 times the reference's light to 1.42, the grass beside it at
-1.38, its red over green from 1.21 to 0.37 where the reference has 0.36; with the screen probes on
-the owner's smudge goes with it, red over green from 0.71 to 0.56 against 0.57 and the light from 77
-to 46 percent over, which matches that dark corner; the probe's faces from 340 to 2,450 percent over
-to nothing, lying inside a mesh, the probes outside the wall as before; inside the room against a
-512-path reference the same before and after, and still frames equally calm. A test builds a
-section-like stone mesh that culls its faces against a lamp block drawn apart as an emissive cube
-with the corner at a probe's spot, the probe moved and holding light on the head and walled in with
-the mend, passing on lavapipe at Low. The field's own fault, the stone's faces against a lamp left
-out of the game's mesh, stands apart as the game's, its item 15. RENDERING.md records it; checked
-were the strict build, the suite, 1,738, and lavapipe under the required layer, 79 passed and 10
-skipped. Right. Next item 36, the sampling term's candidates with (g), the band and the grazing
-ceiling's rays, Verdict 72, item 35, the parallax and (c).
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1801,7 +1804,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     rooms' and the trunk's figures pinned with the reason naming the parallax and the thin walls as
     the terms uncovered, the view that moves past its bound pinned anew, the still frames read again
     and RENDERING.md taking the figures; then Verdict 72, item 35, the parallax, (c). Next the tiled
-    ways' commit.
+    ways' commit. Done at `4bc29a78` on 2026-10-20, the tiled ways as the head says, with (g) in
+    them; the parallax and (c) stand in the order after item 35.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2745,8 +2749,36 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     was in and the time each test took, so the next such run reads itself. The job's limits stay as
     measured, 100 on a push and 180 on the pack run, since the suite that runs through fits them.
     The push run of `fa607cb3` ran the suite in 32 minutes 18 seconds, 1,674 passed, the whole job
-    in 40, on 2026-10-19 at 22:02. Settled at three Windows suites in a row under 60 minutes after
-    the mend.
+    in 40, on 2026-10-19 at 22:02. Read by the coder by 02:52 on 2026-10-20 from the cut job's
+    artifacts, no test hanging or crawling. The whole suite ran its 60 minutes to the test script's
+    limit, finished 1,705 tests and stood at the 30th app of the third hundred-app leak test, 1.8
+    seconds an app; the script then ran everything again in parts, the eleven small parts in eight
+    minutes and the Rendering part for 28 until the job's 100 ran out midway through the global
+    illumination tests, at a test of 49 seconds in the whole run; the createdump came from the
+    cancellation, and no page was written. The hour was lavapipe drawing global illumination, 17
+    minutes of the global illumination tests, 12 of the glow lights, four each of the glow penumbra,
+    the glow pillar and the cascade edge, and three of the hundred-app leak tests, the slowest tests
+    four minutes each, the emissive block shut in a room and the illumination held still as the
+    camera slides. The time follows the runner's processor, every run cold, 32 minutes on an EPYC
+    9V45, 45 on a 9V74, 48 on a Xeon 8573C and over 60 on an EPYC 7763 twice, the 115 under Verdict
+    71's fault among them. Cold because no Windows runner has a Mesa shader cache, since the restore
+    step finds none, the repository's 60 caches hold none for Windows and one for every Linux
+    processor, and the save step after the suite says the path does not exist, so lavapipe from
+    mesa-dist-win never writes the directory the job names and every app compiles its shaders anew,
+    3.7 seconds an app against 0.84 on a host by the workflow's own remark; the mend of `9a3e2e2a`,
+    which saved the cache after a failed job, had nothing to save on Windows, unseen until this
+    reading. The reviewer takes two mends, a commit each under N 3.5. The Windows job sets the cache
+    enabled beside the cache directory, and a step after the suite says how many files Mesa wrote
+    there, so the next run reads whether lavapipe on Windows keeps a cache at all, and if it does,
+    every suite after the first on a processor runs warm, about a third of its time; and the test
+    script, when the whole suite is lost to its time, takes the outcomes of the tests that finished
+    from the whole run's output and runs again only the parts holding tests without a result, its
+    page saying, for a lost process, the test it was in and the times of its slowest tests, so a
+    runner that finished 1,705 of 1,706 does not start over. If the step reads no cache, the Windows
+    suite runs in its parts from the start, about 62 minutes on a 7763 under the job's 100, as the
+    third mend. Settled at three Windows suites in a row after the mends that end with their summary
+    inside the job's limit, each recorded with its processor, its time and whether the cache was
+    found, since the time is the processor's and an hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
@@ -2765,7 +2797,9 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     remark. Read and mended at `ed089e37` on 2026-10-20, the reload check's twice-a-second timer
     respawning the first copies in the step after the write where it fell there, the test holding
     the third against the first's mesh from before the write and asserting the file system gives
-    back the time set. Settled at three green macOS suites in a row after the mend.
+    back the time set. Settled at three green macOS suites in a row after the mend. The macOS suites
+    of the pack run of `80625742` at 01:24 and of the build run of `193c68b0` at 02:45 on 2026-10-20
+    passed, the first two of three, the pack run's suite of `193c68b0` still running.
 
 74. **Manor's soak holds its entities at their least to 421, and a walk on the runner reached 422.**
     On the pack run of `80625742`, 2026-10-20 at 01:43, the games job's soak of the thirteen games
