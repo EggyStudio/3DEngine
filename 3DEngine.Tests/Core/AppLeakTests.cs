@@ -1,8 +1,5 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
 using FluentAssertions;
-using Vortice.Vulkan;
 using Xunit.Abstractions;
 
 namespace Engine.Tests.Core;
@@ -22,7 +19,7 @@ namespace Engine.Tests.Core;
 /// </remarks>
 [Collection("Memory")]
 [Trait("Category", "Integration")]
-public sealed class AppLeakTests(ITestOutputHelper output)
+public sealed partial class AppLeakTests(ITestOutputHelper output)
 {
     // What the apps left, how many there were and how long they took, the process's resident
     // memory and the GC's live heap after the twentieth and after the last, in megabytes, and the
@@ -31,9 +28,27 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // from the twentieth app to the last where a census of the heap could be taken, and the threads
     // the process has after every tenth shutdown.
     private sealed record Cycled(int Apps, double Seconds, double ResidentAt20, double ResidentAtLast, double HeapAt20, double HeapAtLast,
-        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, string Heaps, string Residents, double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null,
-        string? Stages = null, string? Regions = null, string? Allocations = null)
+        IReadOnlyList<(int Apps, double Heap)> HeapEveryTen, IReadOnlyList<(int Apps, double Resident)> ResidentEveryTen, string Heaps, string Residents,
+        double? ResidentBeforeCensus, string? Grown, string Threads, string? DeviceObjectsGrown = null, string? Stages = null, string? Regions = null,
+        string? Allocations = null)
     {
+        // How far the process's memory rose, the last reading less the most of the readings at the
+        // tenth, the twentieth and the thirtieth app. One reading cannot be the base, since the
+        // process gives memory back between apps when it likes. On the pack run of 193c68b0 the
+        // offscreen test's private bytes on Windows read 156.5 MB at the tenth app, 80.0 at the
+        // twentieth and 159.2 at the thirtieth, and on to 169.6 at the hundredth, with the heap's
+        // live objects at 14.3 to 14.8 MB throughout, and the last less the twentieth, 89.6, failed
+        // the bound of 50, where the last less the thirtieth read 10.4 (REVIEW.md, Verdict 75). The
+        // base is the twentieth's reading after its heap census where one was taken, so what the
+        // census keeps is in it. Read from the thirtieth at most, the bound of 50 fails a leak of
+        // 0.71 MB an app over a hundred apps, where from the twentieth it failed one of 0.63.
+        public double ResidentBase => BaseOf(ResidentEveryTen, ResidentAt20);
+
+        public double ResidentGrowth => ResidentAtLast - ResidentBase;
+
+        public static double BaseOf(IEnumerable<(int Apps, double Resident)> everyTen, double at20) =>
+            everyTen.Where(r => r.Apps is 10 or 30).Select(r => r.Resident).Append(at20).Max();
+
         // How far the heap's floor rose, the least of the readings from the twentieth app on in the
         // first half against the least in the second, the twentieth to the fiftieth against the
         // seventieth to the hundredth where a hundred were made. A leak raises the floor as it
@@ -147,6 +162,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var everyTen = new List<(int Apps, double Heap)>();
         var threads = new List<string>();
         var residents = new List<string>();
+        var residentEveryTen = new List<(int Apps, double Resident)>();
         var spent = Stopwatch.StartNew();
         for (int i = 1; i <= 100; i++)
         {
@@ -201,6 +217,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // told from the collector's regions, which it gives back over time rather than at once.
             var committed = GC.GetGCMemoryInfo().TotalCommittedBytes / 1e6;
             residents.Add($"{i}: {resident:0.0} ({committed:0.0}{ProcessMemory.Heaps()})");
+            residentEveryTen.Add((i, resident));
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, the collector committing {committed:0} MB, {GC.CollectionCount(2)} full collections");
             // The Vulkan objects every device made and none destroyed, which a closed app's device
             // should leave none of, so a native growth is told from the driver's own.
@@ -256,7 +273,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                     Console.WriteLine($"[leak test] the memory committed by the kind of region holding it, {regionsGrown}");
                     output.WriteLine($"the memory committed by the kind of region holding it, {regionsGrown}");
                 }
-                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), string.Join(", ", residents), residentBeforeCensus, grown,
+                return new Cycled(i, spent.Elapsed.TotalSeconds, residentAt20, resident, heapAt20, heap, everyTen, residentEveryTen, string.Join(", ", heaps),
+                    string.Join(", ", residents), residentBeforeCensus, grown,
                     string.Join(", ", threads), DeviceObjects.GrownSince(objectsAt20!), stages.ToString(), regionsGrown,
                     string.Join(Environment.NewLine, steps.Values.Select(s => s.Allocations).OfType<string>()));
             }
@@ -605,7 +623,26 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         var cycled = Cycle(Config.Default with { Headless = true }, heapEveryTen: true);
 
         cycled.FloorRise.Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
-        (cycled.ResidentAtLast - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, {cycled.Series}");
+        cycled.ResidentGrowth.Should().BeLessThan(50, $"and the process gives back what each took, from {Based(cycled)}, {cycled.Series}");
+    }
+
+    // The base the growth is read from, as a failure says it.
+    private static string Based(Cycled cycled) =>
+        $"{cycled.ResidentBase:0.0} MB, the most of the readings at the tenth, the twentieth and the thirtieth app";
+
+    [Fact]
+    public void The_Growth_Is_Read_From_The_Most_Of_Three_Readings_So_A_Trough_In_A_Flat_Series_Holds_And_A_Climb_Fails()
+    {
+        // The offscreen test's private bytes on Windows on the pack run of 193c68b0, flat but for a
+        // trough at the twentieth app, and a process that keeps 0.8 MB of each app from the same start.
+        (int Apps, double Resident)[] trough =
+            [(10, 156.5), (20, 80.0), (30, 159.2), (40, 164.0), (50, 163.9), (60, 164.1), (70, 166.6), (80, 168.7), (90, 165.9), (100, 169.6)];
+        var climbing = Enumerable.Range(1, 10).Select(k => (Apps: 10 * k, Resident: 150 + 8.0 * k)).ToArray();
+
+        (trough[^1].Resident - Cycled.BaseOf(trough, trough[1].Resident)).Should().BeApproximately(10.4, 1e-9, "a trough in a flat series holds nothing")
+            .And.BeLessThan(50);
+        (climbing[^1].Resident - Cycled.BaseOf(climbing, climbing[1].Resident)).Should().BeApproximately(56, 1e-9, "a climb of 0.8 MB an app keeps it")
+            .And.BeGreaterThanOrEqualTo(50);
     }
 
     [Fact]
@@ -637,7 +674,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     {
         var cycled = Draw();
 
-        (cycled.ResidentAtLast - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, its pipelines included, {cycled.Series}");
+        cycled.ResidentGrowth.Should().BeLessThan(50, $"and the process gives back what each took, its pipelines included, from {Based(cycled)}, {cycled.Series}");
     }
 
     // The same hundred apps beside a Vulkan instance the test holds open throughout, so the loader
@@ -661,47 +698,6 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                    $"from the twentieth app to the last, said and not judged";
         Console.WriteLine($"[leak test] {said}");
         output.WriteLine($"{said}{cycled.Series}");
-    }
-
-    // A Vulkan instance made through the loader the engine's devices use, as the engine's instance
-    // is made but with no surface, no debug messages and no layer, as the apps beside it are made.
-    // MoltenVK on macOS is a portability driver, which the loader gives an instance only to a caller
-    // that asks for portability drivers, by the extension and the flag, where the loader offers
-    // them. An instance that asked for nothing was answered ErrorIncompatibleDriver there.
-    private sealed unsafe class HeldInstance : IDisposable
-    {
-        private readonly VkInstanceApi _api;
-
-        public HeldInstance()
-        {
-            Vulkan.vkInitialize().CheckResult();
-            var portability = Encoding.UTF8.GetString(Vulkan.VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME).TrimEnd('\0');
-            var portable = Offered(portability);
-            using var extensions = new VkStringArray(portable ? [portability] : new List<string>());
-            VkApplicationInfo application = new() { apiVersion = VkVersion.Version_1_3 };
-            VkInstanceCreateInfo info = new()
-            {
-                pApplicationInfo = &application,
-                enabledExtensionCount = extensions.Length,
-                ppEnabledExtensionNames = extensions,
-                flags = portable ? VkInstanceCreateFlags.EnumeratePortabilityKHR : VkInstanceCreateFlags.None,
-            };
-            Vulkan.vkCreateInstance(&info, null, out var instance).CheckResult();
-            _api = new VkInstanceApi(instance);
-        }
-
-        public void Dispose() => _api.vkDestroyInstance();
-
-        private static bool Offered(string name)
-        {
-            if (Vulkan.vkEnumerateInstanceExtensionProperties(out uint count) != VkResult.Success || count == 0) return false;
-            var properties = new VkExtensionProperties[(int)count];
-            if (Vulkan.vkEnumerateInstanceExtensionProperties(properties) != VkResult.Success) return false;
-            for (int i = 0; i < (int)count; i++)
-                fixed (byte* offered = properties[i].extensionName)
-                    if (Marshal.PtrToStringUTF8((nint)offered) == name) return true;
-            return false;
-        }
     }
 
     // The apps are made with the validation layer off, in the Debug build as well, on every system,
