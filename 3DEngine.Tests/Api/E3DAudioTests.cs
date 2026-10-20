@@ -24,6 +24,9 @@ public sealed class E3DAudioTests : IDisposable
 
         public bool IsInitialized => true;
         public string BackendId => "recording";
+        // A device of six speakers, which mixes in six channels at a rate of its own.
+        public int DeviceSampleRate => 44100;
+        public int DeviceChannels => 6;
         public void Initialize() { }
         public int CreateVoice(Sound sound, in AudioVoiceParams parameters)
         {
@@ -100,6 +103,25 @@ public sealed class E3DAudioTests : IDisposable
         var path = Path.Combine(_folder.Path, $"blip{_written++}.wav");
         File.WriteAllBytes(path, stream.ToArray());
         return path;
+    }
+
+    [Fact]
+    public void The_Device_Rate_And_Channels_Are_What_The_Backend_Kept_And_None_Before_A_Device_Opens()
+    {
+        GetAudioDeviceSampleRate().Should().Be(44100);
+        GetAudioDeviceChannels().Should().Be(6, "a mixed processor's samples come in the device's channels, which are not always two");
+
+        var app = GetApp();
+        UseApp(null);
+        try
+        {
+            GetAudioDeviceSampleRate().Should().Be(0, "no device is open");
+            GetAudioDeviceChannels().Should().Be(0);
+        }
+        finally
+        {
+            UseApp(app);
+        }
     }
 
     [Fact]

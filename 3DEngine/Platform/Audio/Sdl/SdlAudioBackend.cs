@@ -160,6 +160,14 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     public bool IsInitialized => _initialized;
 
     /// <inheritdoc />
+    /// <remarks>What SDL gave for the 48,000 asked, the device's own where it has one.</remarks>
+    public int DeviceSampleRate => _initialized ? _deviceSpec.Freq : 0;
+
+    /// <inheritdoc />
+    /// <remarks>What SDL gave for the two asked for, more on a device of more speakers.</remarks>
+    public int DeviceChannels => _initialized ? _deviceSpec.Channels : 0;
+
+    /// <inheritdoc />
     public string BackendId => "sdl3";
 
     /// <summary>Whether SDL's dummy driver is tried where no device opens, false only for a test of a backend with none.</summary>

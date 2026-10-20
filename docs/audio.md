@@ -215,7 +215,10 @@ over everything a stream queues, in the stream's own channels, a piece of music'
 later that way. `AttachAudioMixedProcessor` runs one over the mix the device plays, every sound and
 stream together, on the audio thread, so a value it shares with the loop is a single field, as the
 volume history `audio_mixed_processor` draws is. Each runs after those attached before it, until
-it is detached.
+it is detached. The mix comes at the device's own rate in its own channels, which SDL is asked to
+make 48,000 a second in two and which a device may make otherwise, so a program saving what the
+device plays reads them from `GetAudioDeviceSampleRate` and `GetAudioDeviceChannels` and makes its
+`Wave` at those, where a recording of a stream's own samples is made at the stream's.
 
 ## Sound in a 3D world
 

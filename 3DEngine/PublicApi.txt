@@ -872,6 +872,8 @@ static class Engine.E3D
   static float Wrap(float value, float min, float max)
   static float[] LoadWaveSamples(Wave wave)
   static int ColorToInt(Color color)
+  static int GetAudioDeviceChannels()
+  static int GetAudioDeviceSampleRate()
   static int GetCharPressed()
   static int GetCurrentMonitor()
   static int GetFPS()
@@ -1711,6 +1713,8 @@ interface Engine.IAudioBackend : IDisposable
   bool IsVoicePlaying(int voiceId)
   int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters)
   int CreateVoice(Sound sound, in AudioVoiceParams parameters)
+  int DeviceChannels { get; }
+  int DeviceSampleRate { get; }
   long QueuedVoiceFrames(int voiceId)
   string BackendId { get; }
   void Initialize()

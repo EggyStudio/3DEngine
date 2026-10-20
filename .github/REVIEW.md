@@ -10,8 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `39103995`, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying the
-review's file, nothing in the engine changed. The robot model is carried in the game's resources
+Reviewed up to `fd484ead`, Tones, item 7's fifth game, the sound toy, and nothing else, carrying the
+review's file, nothing in the engine changed. The instrument sets the stream buffer's default to
+2,048, loads a stream at 44,100 Hz in 32 bits mono and feeds it in 512-frame blocks while the stream
+is processed, at most eight a frame; keys play an organ of three partials or a plucked string by
+Karplus-Strong under an envelope, three keys hit drums made as waves at 22,050 Hz, loaded, converted
+to 44,100 mono and read out as samples; pitch, pan and volume by keys, pause and resume with the
+playing state in the status; stream processors, an echo of a third of a second at 0.55 feedback and
+a one-pole 600 Hz low pass, then a recorder, all detached and attached again in order whenever one
+changes since an attached one runs after those before it; a mixed processor reads the device's peak
+on the audio thread into a shared float; a recording is a wave the program builds, saved, read back
+as samples, drawn and played as a sound; status, effect and record commands. The scripted run
+records a note with the echo off and then on, each saved and read back, asserting notes played, more
+than 44,100 samples saved and read, a peak over 0.05 and the tail, the loudest sample from half a
+second to a second and a half after the note was let go by the sample index so no runner's timing
+moves it, 0.000 dry and 0.060 to 0.063 with the echo in four runs, passing on the development
+machine's card and on lavapipe on SDL's dummy driver under validation with no errors, the mixed
+processor hearing 0.103 to 0.134 while a note played; the soak's 28 turns and its check pass, the
+storm passes, the suite gave 1,754, the game is wired in as Tumble was with the recording's file on
+the drive script's list to remove, BUILDING.md says eighteen and the audio guide lists it. A finding
+taken as item 43: a mixed processor cannot know the rate or the channels of the samples it gets.
+Read at 13:24, and pushed with Siege and Tumble at 13:24 once the build run of `b4b798d4` had ended
+green, the pack run with publish on running on. At 13:25 the pack run of `b4b798d4` had its macOS
+job red at 13:05 on the games' step, Span's drive on macOS, the load not crossing the truss whole
+with no joint broken and no force read, where the macOS suite passed, 1,677 in 16 minutes 20
+seconds, and the Linux games job still ran (Verdict 76), so the pack job will be skipped and the
+day's package waits on the mend; Windows and the captures ran on. Item 7's list is through, five
+games for five of the areas the coverage reading named; next item 43's commit, then Verdict 76, then
+the pack run anew on the head, then TODO.md's order. Item 6 waits on the owner's word.
+
+Before it, `39103995` came, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying
+the review's file, nothing in the engine changed. The robot model is carried in the game's resources
 byte-identical to raylib's at the pinned commit with a notice beside it naming its author, CC0 and
 the commit, said in the README. The robot is a character controller of radius 0.35 and 1.8 m drawn
 at half the model's size, its idle, walk and run chosen and timed by speed; the upper body is a
@@ -36,9 +65,7 @@ with no errors; crouched through 12 seconds of the bar alone there are no falls 
 knocked down; the soak's 23 turns and its check pass, the storm passes, the suite gave 1,754, the
 game is wired in as Siege was, BUILDING.md says seventeen and the animation and physics guides list
 it. No engine finding came from it, the layer and blend calls and the model-space keyframes doing
-what their documents say. Read at 13:03; its push with Siege waits for the build run of `b4b798d4`
-to end, the pack run with publish on running on. The sound toy is next by item 7. Item 6 waits on
-the owner's word.
+what their documents say.
 
 Before it, `f3949ba6` came, Siege, item 7's third game, and nothing else, carrying the review's
 file. The catapult arm, 4.5 m and 120 kg, hangs on a hinge to a kinematic pivot driven by its motor
@@ -63,18 +90,6 @@ at 15.8 and the columns in place, item 42 at work; the suite gave 1,754, the gam
 was, BUILDING.md saying sixteen. The weld's reading held no further surprise once it read the force
 alone; the catapult's release in the frame and not the step is a limit of the flat API, which has no
 per-step hook, worked around and named only if another game meets it.
-
-Before it, `b4b798d4` came, item 42 and nothing else, carrying the review's file. The convex hull
-and the static model transform the vertices by the scale alone, posed for a skinned model as before,
-both remarks saying the transform is not read and why, the physics guide's hull paragraph saying so
-too, and the upgrading guide's section, six that still compile, with the entry that a transform's
-own scale is given as the scale and its turn or move goes to the mesh. The test makes a 2 m cube
-model whose transform is turned 0.7 radians about z and moved to 30 by 5 by 0, a hull made at 0 by
-10 by 0 hit from above at x 0.9 at y 11 and a static model made at 0 by 0 by 20 hit at y 1, each the
-body hit, the hull test failing on the old line, checked by swapping it back for one run. Checked
-were the strict build, the suite, 1,754, the related filters, 83, and the animation tests that shape
-a posed skinned arm. Pushed at 12:26 with the three before it, and the pack run with publish on
-started on them.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -655,7 +670,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    and resume, the mixed and stream processors, and waves loaded and read as samples, as an
    instrument played by keys with an echo and a filter as processors and a recording saved as a
    wave, the scripted run asserting a note played, a processor's effect read in the samples and the
-   wave saved and read back.
+   wave saved and read back. Tones done at `fd484ead` on 2026-10-20, as the head says, eighteen
+   games, with item 43 as its finding. The list is through: Pinball, Span, Siege, Tumble and Tones,
+   five games for five of the areas the coverage reading named, two engine faults found and mended
+   on the way, items 42 and 43, and two reads added, items 40 and 41. The next game comes when the
+   items above wait again.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
@@ -2410,6 +2429,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the mesh. Before the siege game's commit, which then takes hulls for its stones. Done at
     `b4b798d4` on 2026-10-20, as the head says.
 
+43. **A program reads the audio device's sample rate and channels, so a mixed processor knows the
+    samples it gets.** Found by Tones on 2026-10-20: the mixed processor's remarks say its samples
+    are interleaved in the device's channels, two on most, and the callback is a span of floats
+    alone, where the flat API has no call for the device's rate or channels; the SDL backend asks
+    for 48,000 Hz and two channels but keeps what the device gives, which the postmix gets, 48,000
+    and 2 on the development machine and otherwise on a 44.1 kHz or surround device, so a program
+    cannot save what the device plays as a wave of the right speed, and Tones records at the
+    stream's stage, where it knows the rate, using the mixed processor for a level alone; raylib's
+    own callback is given the frame count on a device fixed at two channels. So the engine gains
+    `GetAudioDeviceSampleRate` and `GetAudioDeviceChannels`, read from what the backend kept, zero
+    before the device is open, with the mixed processor's remarks naming them and the audio guide's
+    paragraph on processors saying how a program saves what the device plays, the cheat sheet line,
+    the surface listing and the upgrading guide's added entry, and a test reading the dummy driver's
+    format as the backend kept it. One commit.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -2423,7 +2457,7 @@ on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
-the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 75 is open.
+the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 and 76 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3363,6 +3397,23 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 75 i
     a climbing one failing. It gates the package, so it comes before (c)'s mend. Mended at
     `f72bda5d` on 2026-10-20 in the first form, as the head says. Settled at three Windows suites in
     a row with the test green after the mend.
+
+76. **Span's drive on macOS found the load not crossing the truss, with no joint broken and no force
+    read.** On the pack run of `b4b798d4`, 2026-10-20 at 13:05, the macOS job's step playing every
+    game from the package failed on Span: the load did not cross the truss whole, the build at 17
+    planks, no ropes, 27 joints, none broken, the most force 0 N at a strength of 7,000, the load's
+    place minus 8 by 0.6 by 0, its starting place, the log ending in the renderer's resize to 480 by
+    270; the macOS suite passed, 1,677, the Linux games job was still running, and the drive had
+    passed on the development machine's card and on lavapipe before the commit. A force of 0 N on
+    every joint with the load at its start says the load never rolled or the world never stepped
+    before the drive read: the reading comes first from the job's artifacts, the drive's commands
+    and the status between them, whether the roll's impulse went to a body not yet awake or before
+    the first step on that runner, whether the drive's waits are frames where the macOS runner's
+    frames came slower, and whether the Linux games job passed the same drive; then the mend where
+    it points, the drive waiting on the load's motion and not a count, or the game applying its push
+    once the world runs, with the reason in the remark, one commit. The pack job was skipped on it,
+    so the day's package waits. Settled when the games' step passes Span on macOS on the next pack
+    run and two after.
 
 ## Decisions
 

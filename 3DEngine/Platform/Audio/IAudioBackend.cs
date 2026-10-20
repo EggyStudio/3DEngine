@@ -89,6 +89,18 @@ public interface IAudioBackend : IDisposable
     void SetMixedProcessors(AudioCallback[] processors) { }
 
     /// <summary>
+    /// The rate the open device plays at, in samples a second, which the mixed samples come at,
+    /// or 0 where no device is open, the default.
+    /// </summary>
+    int DeviceSampleRate => 0;
+
+    /// <summary>
+    /// The channels the open device plays, which the mixed samples are interleaved in, or 0 where
+    /// no device is open, the default.
+    /// </summary>
+    int DeviceChannels => 0;
+
+    /// <summary>
     /// Pumps backend bookkeeping (3D recompute, voice recycling). Called once per frame
     /// by <see cref="AudioUpdateSystem"/>; backends may also do this internally on their
     /// own thread.

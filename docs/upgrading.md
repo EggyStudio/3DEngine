@@ -279,3 +279,8 @@ guide that shows it.
 - **A joint's force.** `GetPhysicsJointForce` says how hard a joint held its bodies together over
   the last step, the force alone in newtons, so a rope or a bridge breaks past a load the program
   chose, as [Joints](physics.md#joints) shows.
+- **The audio device's format.** `GetAudioDeviceSampleRate` and `GetAudioDeviceChannels` say the
+  rate and the channels a mixed processor's samples come in, so a program saves what the device
+  plays as a wave of the right speed, as [Sound the program makes](audio.md#sound-the-program-makes)
+  shows. A backend of the program's own gives them as `IAudioBackend.DeviceSampleRate` and
+  `IAudioBackend.DeviceChannels`, which are 0 until it says otherwise.

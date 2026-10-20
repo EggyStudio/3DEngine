@@ -74,6 +74,8 @@ public static partial class E3D
     /// <remarks>
     /// It runs on the audio thread, as raylib's does, over samples interleaved in the device's
     /// channels, two on most, so what it shares with the program's own thread is shared with care.
+    /// The device's rate and channels are <see cref="GetAudioDeviceSampleRate"/> and
+    /// <see cref="GetAudioDeviceChannels"/>, which a program saving the samples as a wave reads.
     /// </remarks>
     public static void AttachAudioMixedProcessor(AudioCallback processor)
     {

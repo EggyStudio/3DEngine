@@ -94,6 +94,20 @@ public class SdlAudioBackendTests
     }
 
     [Fact]
+    public void The_Dummy_Driver_Keeps_The_Rate_And_Channels_Asked_For_And_No_Device_Keeps_None()
+    {
+        using (var backend = WithNoDevice(fallBackToDummy: true))
+        {
+            backend.DeviceSampleRate.Should().Be(48000, "the dummy driver opens at the rate asked for, which the mixed samples come at");
+            backend.DeviceChannels.Should().Be(2);
+        }
+        var none = WithNoDevice(fallBackToDummy: false);
+        none.DeviceSampleRate.Should().Be(0, "no device opened");
+        none.DeviceChannels.Should().Be(0);
+        none.Dispose();
+    }
+
+    [Fact]
     public void A_Run_That_Shows_No_Window_Plays_To_The_Dummy_Driver_Unless_It_Asks_For_The_Device()
     {
         SdlAudioPlugin.Silent(Config.Default).Should().BeFalse("a window shown plays through the machine's device");

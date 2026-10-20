@@ -900,6 +900,8 @@ walks a character through a `CharacterController` component beside its `PhysicsB
 void InitAudioDevice();                                   // Open the audio device (sounds are silent until then)
 void CloseAudioDevice();                                  // Stop every sound and music the flat API started
 bool IsAudioDeviceReady();                                // Whether the device is open, SDL's dummy driver where the machine has none
+int GetAudioDeviceSampleRate();                           // The rate it plays at, which a mixed processor's samples come at (0 before it is open)
+int GetAudioDeviceChannels();                             // The channels it plays, which they are interleaved in, two on most
 void SetMasterVolume(float volume);                       // Volume every sound is multiplied by (0 to 1)
 float GetMasterVolume();                                  // That volume
 

@@ -164,6 +164,23 @@ public static partial class E3D
     public static bool IsAudioDeviceReady() =>
         _app?.World.TryGetResource<AudioServer>(out var audio) == true && audio.Backend is not NullAudioBackend && audio.Backend.IsInitialized;
 
+    /// <summary>The rate the audio device plays at, in samples a second.</summary>
+    /// <remarks>
+    /// A processor <see cref="AttachAudioMixedProcessor"/> runs is given samples at this rate,
+    /// interleaved in <see cref="GetAudioDeviceChannels"/> channels, so a program saving what the
+    /// device plays makes its <see cref="Wave"/> of them at these. SDL is asked for 48,000 a second
+    /// in two channels and gives what the device has, which is not always those. It is 0 before the
+    /// device is open.
+    /// </remarks>
+    public static int GetAudioDeviceSampleRate() => IsAudioDeviceReady() ? Audio()!.Backend.DeviceSampleRate : 0;
+
+    /// <summary>The channels the audio device plays, two on most, or 0 before it is open.</summary>
+    /// <remarks>
+    /// The channels a mixed processor's samples are interleaved in, as
+    /// <see cref="GetAudioDeviceSampleRate"/> says.
+    /// </remarks>
+    public static int GetAudioDeviceChannels() => IsAudioDeviceReady() ? Audio()!.Backend.DeviceChannels : 0;
+
     /// <summary>Sets the volume every sound is multiplied by, from 0 to 1.</summary>
     public static void SetMasterVolume(float volume)
     {
