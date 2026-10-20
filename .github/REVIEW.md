@@ -30,8 +30,13 @@ message; BUILDING.md says it. On the cut job this would have run one part again,
 after the whole run's hour, inside the job's 100. Checked were the strict build, the suite, 1,741,
 and the test script's tests, 8. The push cancels the build run of `4a028c03` in its Windows suite,
 and the build run of this head is the first Windows suite with the mends, its cache step the reading
-of whether Mesa on Windows keeps a cache (Verdict 72). Next the parallax, its mend's form and cost
-read first, then (c).
+of whether Mesa on Windows keeps a cache (Verdict 72). At 03:51 the pack run of `193c68b0` had its
+games job green at 03:24, Verdict 74's first of three, its captures jobs green at 03:36, and its
+Windows job in the suite's step since 02:22, an hour and a half, the pre-mend script at its rerun on
+a slow runner, the pack job waiting on it; the build run of this head had its Linux and macOS suites
+green by 03:50 and its Windows suite running since 03:25, the first under the mends. The parallax
+read was taken by 03:36, said under item 30. Next the parallax, its mend's form and cost read first,
+then (c).
 
 Before it, `9fd38dd9` came, item 35 and nothing else, with the review's commit between. The README's
 head is one centering block holding markdown with blank lines inside, the heading, the description
@@ -2847,7 +2852,8 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72 and 
     at `b03017f2` on 2026-10-20, the entities' figure 539 from whole walks at three paces on two
     devices, bounded at 602, and the soak saying where a walk stood when a figure climbs; Manor's
     images stand at 92 in the table where those walks reached 94, under the slack's 98, watched.
-    Settled when the games job's soak passes on three pack runs in a row.
+    Settled when the games job's soak passes on three pack runs in a row. The games job of the pack
+    run of `193c68b0` passed at 03:24 on 2026-10-20, the first of three.
 
 ## Decisions
 
