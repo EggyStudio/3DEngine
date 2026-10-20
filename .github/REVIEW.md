@@ -1798,7 +1798,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the terms uncovered, the view that moves past its bound pinned anew, the still frames read again
     and RENDERING.md taking the figures; then Verdict 72, item 35, the parallax, (c). Next the tiled
     ways' commit. Done at `4bc29a78` on 2026-10-20, the tiled ways as the head says, with (g) in
-    them; the parallax and (c) stand in the order after item 35.
+    them; the parallax and (c) stand in the order after item 35. The parallax's mend read for its
+    form and cost by 03:35 on 2026-10-20, two forms measured as scratch on the head. The first, a
+    parallax read, a term of the merge's method, takes the reach each probe above already writes,
+    the distance its ray met a surface at along each of its 64 ways, and reads that probe toward the
+    point on this probe's ray nearest where its own ray met a surface, in place of along the same
+    way, its texels sampled there folded across the octahedron's edges, the read unchanged where its
+    ray met nothing or the turn is nil, at the cost of one binding in the merge and the upper
+    interval's end in the push, no trace. The second, the bilinear fix as a texel's own sight,
+    counts a probe above for a texel only where its interval's start along that way can be seen from
+    this ray's point as far out, eight short field marches a texel in place of one sight test a
+    probe. At the pocket's probe at High, the part from the cascade above, the upward face reads
+    0.274 on the head, 0.163 with the parallax read and 0.218 with the sight where the reference is
+    0.101, and the face toward minus x 0.129, 0.063 and 0.099 where 0.049; every way merged, 16 over
+    on the head and with the parallax read and 12 with the sight, the faces' totals moving a few
+    points either way with their parts within the interval 8 to 24 over on their own rays. The cost
+    over two rounds with frames unlimited, the Cornell box at 1.97 to 1.99 ms at High and 1.74 to
+    1.76 at Low and the window's room at 1.15 to 1.16 and 0.96 on the head, is within 0.03 ms for
+    the parallax read and 0.01 to 0.04 more in the window's room, and 0.24 more at High and 0.04 at
+    Low in the box and 0.27 to 0.29 and 0.07 to 0.08 in the room for the sight. By the rule against
+    the head, the parallax read narrows the window's room by 0.013 to 0.019 at the small size and
+    0.025 and 0.015 at the large, the grazing floor by 0.008 to 0.015 and 0.008 and 0.013, the
+    strip's room by 0.005 to 0.009 and 0.007 and 0.016, the carried lamp's room by up to 0.004 and
+    0.005 and 0.003, the Cornell box within 0.001, and widens the thin walls alone, 0.004 to 0.005
+    at the small size and 0.003 and 0.005 at the large, their regions reading as before at High, 11
+    over, and a point further over at Low, the walls thinner than a cell, (f)'s term, which the
+    tiled ways uncovered and which stands in the order. So the reviewer takes the parallax read
+    under the covered-fault principle, the thin walls' widening pinned with the reason naming that
+    term, the remark in the merge shader in place of the bilinear fix's sentence, a test at the
+    pocket probe's part from the cascade above, the room bounds held or narrowed and the thin walls'
+    pinned anew where they move, RENDERING.md with these figures, the suite and lavapipe, one
+    commit; the sight is not taken, a tenth of the illumination's time for a worse read. Then (c),
+    and after it the thin walls' term read for its mend's form and cost as the parallax was.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
