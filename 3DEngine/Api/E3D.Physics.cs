@@ -254,7 +254,10 @@ public static partial class E3D
     public static PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80) =>
         Physics.CreateCharacter(feet, radius, height, mass);
 
-    /// <summary>The velocity a character walks at along the ground, until it is given another.</summary>
+    /// <summary>
+    /// The velocity a character walks at along the ground, until it is given another, whose
+    /// vertical part carries it up and down only while it flies.
+    /// </summary>
     /// <remarks>A character whose entity has a <see cref="CharacterController"/>, as one a scene file made, is walked through it.</remarks>
     public static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity)
     {
@@ -267,6 +270,23 @@ public static partial class E3D
     {
         if (Controller(body) is { } entity) Res<EcsWorld>().GetRef<CharacterController>(entity).Jump = speed;
         else Physics.JumpCharacter(body, speed);
+    }
+
+    /// <summary>
+    /// Makes a character fly, as a creative mode or a spectator does, or walk again. Flying, it
+    /// goes at the velocity <see cref="MovePhysicsCharacter"/> gives it up and down as well as
+    /// along, with gravity held off and walls, floors and ceilings still stopping it.
+    /// </summary>
+    /// <remarks>
+    /// It hovers where asked for nothing and does not jump. <see cref="IsPhysicsCharacterGrounded"/>
+    /// still says whether it is over ground close enough to stand on, which a game reads to land it.
+    /// A character whose entity has a <see cref="CharacterController"/> flies through its
+    /// <see cref="CharacterController.Fly"/>.
+    /// </remarks>
+    public static void SetPhysicsCharacterFly(PhysicsBody body, bool fly)
+    {
+        if (Controller(body) is { } entity) Res<EcsWorld>().GetRef<CharacterController>(entity).Fly = fly;
+        else Physics.SetCharacterFly(body, fly);
     }
 
     // The entity a character body's CharacterController is on, which the physics step reads the
@@ -312,7 +332,25 @@ public static partial class E3D
     public static Vector3 GetPhysicsBodyPosition(PhysicsBody body) => Physics.GetPosition(body);
 
     /// <summary>Moves a body to a position at once, keeping its velocity.</summary>
+    /// <remarks>
+    /// A body moving when it is moved goes on moving from where it is put, as one carried through a
+    /// portal does. <see cref="PlacePhysicsBody"/> puts a body somewhere at rest instead, as a
+    /// respawn does.
+    /// </remarks>
     public static void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position) => Physics.SetPosition(body, position);
+
+    /// <summary>
+    /// Puts a body at a position and rotation at rest, as a respawn does. Its velocity and turning
+    /// are set to zero and it is woken.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SetPhysicsBodyPosition"/> keeps the velocity, so a body falling or thrown when it
+    /// is moved goes on from where it is put, and this stops it there, from where gravity and what
+    /// it rests on take it. A character stays upright, so it keeps its own rotation, and walks on at
+    /// the velocity it was last asked for.
+    /// </remarks>
+    /// <example><code>if (IsKeyPressed(Key.R)) PlacePhysicsBody(crate, start, Quaternion.Identity);</code></example>
+    public static void PlacePhysicsBody(PhysicsBody body, Vector3 position, Quaternion rotation) => Physics.Place(body, position, rotation);
 
     /// <summary>How fast and which way a body moves, in units a second.</summary>
     public static Vector3 GetPhysicsBodyVelocity(PhysicsBody body) => Physics.GetLinearVelocity(body);

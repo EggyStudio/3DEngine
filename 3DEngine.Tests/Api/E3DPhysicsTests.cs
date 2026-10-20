@@ -125,6 +125,43 @@ public sealed partial class E3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Body_Placed_Rests_Where_It_Is_Put_And_One_Set_To_A_Position_Carries_Its_Velocity_On()
+    {
+        // Ice, so what moves on it slides on at the speed it has.
+        var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
+        var placed = CreatePhysicsBox(new Vector3(-3, 4, 0), Vector3.One);
+        var moved = CreatePhysicsBox(new Vector3(3, 4, 0), Vector3.One);
+        // Both thrown along X spinning, then set down on the floor in the middle of their flight.
+        foreach (var body in new[] { floor, placed, moved }) SetPhysicsBodyMaterial(body, 0, 0);
+        foreach (var box in new[] { placed, moved })
+        {
+            SetPhysicsBodyVelocity(box, new Vector3(4, 0, 0));
+            SetPhysicsBodyAngularVelocity(box, new Vector3(0, 3, 0));
+        }
+        Frames(10);
+
+        var turned = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4);
+        PlacePhysicsBody(placed, new Vector3(-3, 0.5f, 5), turned);
+        SetPhysicsBodyPosition(moved, new Vector3(3, 0.5f, 5));
+        GetPhysicsBodyVelocity(placed).Should().Be(Vector3.Zero);
+        GetPhysicsBodyAngularVelocity(placed).Should().Be(Vector3.Zero);
+        GetPhysicsBodyVelocity(moved).X.Should().BeApproximately(4, 0.01f, "set to a position it keeps its velocity");
+        Frames(60);
+
+        var at = GetPhysicsBodyPosition(placed);
+        at.X.Should().BeApproximately(-3, 0.01f, "placed at rest it stays where it was put");
+        at.Z.Should().BeApproximately(5, 0.01f);
+        at.Y.Should().BeApproximately(0.5f, 0.02f);
+        MathF.Abs(Quaternion.Dot(GetPhysicsBodyRotation(placed), turned)).Should().BeGreaterThan(0.9999f, "turned as it was put");
+        GetPhysicsBodyPosition(moved).X.Should().BeGreaterThan(6.5f, "it slid on along X at the speed it had");
+
+        RunUntil(() => !placed.IsAwake, 600).Should().BeTrue("a box at rest on the floor goes to sleep");
+        PlacePhysicsBody(placed, new Vector3(-3, 3, 5), Quaternion.Identity);
+        placed.IsAwake.Should().BeTrue("placing wakes it");
+        RunUntil(() => GetPhysicsBodyPosition(placed).Y < 0.52f).Should().BeTrue("woken, it falls from where it was put to the floor");
+    }
+
+    [Fact]
     public void A_Model_Drawn_Where_A_Body_Stood_Makes_A_Hull_And_A_Level_Where_They_Are_Asked()
     {
         // A program draws a body by setting its model's transform to the body's, here 30 meters away

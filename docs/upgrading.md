@@ -305,6 +305,12 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A character that flies, and a body put down at rest.** `SetPhysicsCharacterFly`, or
+  `CharacterController.Fly` beside the body, makes a character fly at the velocity it is given, up
+  and down as well, with gravity held off and walls and ceilings still stopping it, as
+  [A character](physics.md#a-character) shows. `PlacePhysicsBody` and `PhysicsWorld.Place` put a
+  body at a position and rotation with its velocity stopped, where `SetPhysicsBodyPosition` keeps
+  it, as [Pushing and moving](physics.md#pushing-and-moving) shows.
 - **An asked order among a stage's systems.** `SystemDescriptor.After` and `SystemDescriptor.Before`
   order a system next to another of its stage by name, kept as `SystemDescriptor.RunsAfter` and
   `SystemDescriptor.RunsBefore`, and `App.Chain` orders a list one after another, sorted as the app

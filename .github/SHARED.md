@@ -57,7 +57,7 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| An order among systems in one stage, one before or after another or a chain | taken at `bb1ae57`, as `After`, `Before` and `App.Chain` | to consider, where a system runs after every earlier one it conflicts with (`c6619ab5`) and nothing orders two by name |
+| An order among systems in one stage, one before or after another or a chain | taken at `bb1ae57`, as `After`, `Before` and `App.Chain` | has (`02d89f18`, `After`, `Before` and `App.Chain` by name, resolved once at start with a missing name or a round refusing it, kept by the batches and the shuffle, the add order holding where nothing is asked) |
 | An order kept only between two systems whose data conflict, a chain or a before or after that costs nothing where none do | not taken: every C# system runs as an exclusive system, which Bevy counts as conflicting with every other, so a weak order between two is the strong one by another name; the row returns when systems that declare their access run non-exclusively | has (`c6619ab5`), the order every system runs in |
 | An observer told when a component is added or removed or an event of a game's own is sent to an entity | taken at `26c0a16` | has (`ec39331c`, an observer of a type's events or one entity's with a handle, adding and removal events, a game's event sent to an entity and climbing its parents until stopped, the hook in the world and nothing paid with no observer) |
 | `Changed` and `Added` filters that a system not run every frame can trust | has, from Bevy | has (`e612ac63`, `58924752`) |

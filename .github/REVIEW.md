@@ -10,7 +10,16 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b3922179`, Verdict 79's mend and nothing else, carrying the review's and the
+Reviewed up to `02d89f18`, item 54 and nothing else, carrying the review's file, in the form said
+before it; the suite gave 1,815 plain and 1,815 shuffled by the day's seed, the strict build is
+clean and the behaviors guide's blocks build on the fresh pack. Read at 19:30; its push waits for
+the pack run of `b3922179`'s suites to pass. SHARED.md's row says both engines have it. At 20:08 the
+pack run of `b3922179` had its Linux and macOS suites green, the macOS job with every game played at
+19:56, Verdict 76's third, so it is settled, and its Windows, captures and games jobs running. Next
+item 55 from the ledger, the character's flight and a body placed at rest. Item 6 waits on the
+owner's word.
+
+Before it, `b3922179` came, Verdict 79's mend and nothing else, carrying the review's and the
 ledger's files. The run's own readings showed one step and no climb, the live managed bytes going
 3.73, 4.28 and 4.79 MB and then 8.23 at 63 seconds and holding, the heap 7.72 to 13.94 at the same
 reading and holding, the step landing after the first quarter of the readings so the check read it
@@ -30,15 +39,11 @@ fresh pack: the drive passing with the tail at 0.060 and 0.000, the soak at full
 MB against a bound of 11.10 and pinned to one core 8.75 against 12.16, no engine file changed.
 Pushed at 19:05 after the three before it, and the pack run with publish on started anew on this
 head for the day's batch, its games job Verdict 79's first and Verdict 77's second, its macOS games
-Verdict 76's third. Next item 54 from the ledger. Item 6 waits on the owner's word.
+Verdict 76's third.
 
 Before it, `8e31620c` came, item 53's second commit, the persistent value, and nothing else,
 carrying the review's file, in the form said before it; the suite gave 1,807 and the strict build is
 clean. Pushed at 19:03 with the two before it.
-
-Before it, `a150c4c1` came, item 53's first commit, the saved game over its scenes, and nothing
-else, carrying the review's and the ledger's files, in the form and with the tests and numbers said
-before it; the suite gave 1,807.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2776,7 +2781,48 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the unknown name refused with their messages, and a stage with no order left as it was. The
     behaviors guide's paragraph and block, the cheat sheet's sentence, ARCHITECTURE.md's schedule
     paragraph in place of its sentence that there is no ordering, BUILDING.md's shuffle paragraph,
-    the upgrading guide's entry and five lines of the surface listing follow.
+    the upgrading guide's entry and five lines of the surface listing follow. Done at `02d89f18` on
+    2026-10-20, as the head says, the ledger's row saying both engines have it.
+
+55. **A character flies at its move with gravity held off, what it meets still stopping it, and a
+    dynamic body is put at a point at rest by one call.** SHARED.md's row, where BevyCSharp has a
+    fly setting and a place call since `aa5c9e0` and this engine is to consider for the flight,
+    having a set-position call for the body that keeps its velocity, taken on 2026-10-20 after item
+    54: a character controller gains a flight the game turns on and off, under which gravity is held
+    off and its move carries it along its facing's up as well, what it meets still stopping it as on
+    the ground, so a creative mode or a spectator flies through a world without falling and without
+    passing through walls; and the physics API gains a call placing a dynamic body at a point and
+    orientation at rest, its velocities zeroed and its sleep state woken, beside the set-position
+    call that keeps the velocity, with the difference said in both remarks. The physics guide's
+    paragraphs on characters and bodies, the cheat sheet through its script, the surface listing and
+    the upgrading guide's entry; tests of a flying character holding its height with no ground under
+    it, stopped by a wall and a ceiling, landing when the flight ends, and of a body placed at rest
+    staying there where set-position would have carried its velocity on. One commit. Read first how
+    the character controller moves today and BevyCSharp's form, never edited, and say the form
+    before the commit. The form said by 19:39 on 2026-10-20 and taken: the character controller
+    gains a fly flag copied to the body by the drive through an internal call, the character keeping
+    the whole velocity asked for with the walk taking its horizontal part as before, a flying
+    character's planned velocity the one asked for less the step's gravity as BevyCSharp's is,
+    hovering when asked for nothing, carried up and down by its vertical velocity with the body
+    upright so its up is the world's, and walls, floors and ceilings stopping it through its
+    contacts as they stop a walk, no jump or step climb in flight and the grounded state still found
+    so a game reads it to land, with a flat call through the controller where the entity has one; a
+    public place on the physics world beside the public set-position and a flat place call beside
+    the set-position one, setting the rotation and then the origin's position by the body's offset,
+    zeroing both velocities, waking the body, updating its bounds and dropping the pose kept for
+    blending so it is not blended into, a character keeping its upright rotation and walking on at
+    the velocity last asked for and a static body moved and turned, both pairs' remarks saying the
+    difference, set-position keeping the velocity so a body carried through a portal goes on and
+    place stopping it as a respawn does, the world's set-position gaining the summary its bare
+    inheritance lacked. Tests: a flying character over nothing rising 2 units in a second and
+    holding within 0.01 not grounded, one flown into a wall stopped at its height, one flown through
+    its controller's flag stopped under a ceiling, and both landing grounded when the flight ends;
+    two spinning boxes thrown on ice, the placed one at zero velocities holding within 0.01 with its
+    turn kept and the set one sliding on, the placed one then sleeping, placed up, awake at once and
+    falling; each test failing at its first check with the flight branch or the zeroing taken out.
+    The physics guide's sentences and a paragraph with a compiled block, the cheat sheet's three
+    lines through its script and a sentence in its prose, four lines of the surface listing and the
+    upgrading guide's entry follow.
 
 ## Verdicts
 
@@ -2792,7 +2838,8 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 i
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
 runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
 the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 78 is settled on the
-pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 and 79 are open.
+pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on the pack runs of
+`2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20, said under it. Verdicts 75, 77 and 79 are open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3752,7 +3799,9 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 and 79 ar
     Settled when the games' step passes Span on macOS on the next pack run and two after. The macOS
     job of the pack run of `2cc516fc` passed at 15:24 on 2026-10-20 with every game played, Span
     among them, the first of three. The macOS job of the pack run of `b19f09dc` passed at 17:31 on
-    2026-10-20 with every game played, the second of three.
+    2026-10-20 with every game played, the second of three. The macOS job of the pack run of
+    `b3922179` passed at 19:56 on 2026-10-20 with every game played, three in a row. Settled on the
+    pack runs of `2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20.
 
 77. **The siege's drive on the Linux games job found the banner standing after eight bombs, where it
     fell after three on the development machine and on its lavapipe.** On the pack run of

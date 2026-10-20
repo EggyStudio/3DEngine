@@ -1779,9 +1779,12 @@ PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, flo
                                                          // holds still on a slope (PhysicsWorld.CreateCharacter says
                                                          // how)
 void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity); // The velocity a character walks at along the ground,
-                                                               // until it is given another
+                                                               // until it is given another, whose vertical part carries
+                                                               // it up and down only while it flies
 void JumpPhysicsCharacter(PhysicsBody body, float speed); // Makes a character on the ground jump, leaving it upward at
                                                           // speed
+void SetPhysicsCharacterFly(PhysicsBody body, bool fly); // Makes a character fly, as a creative mode or a spectator
+                                                         // does, or walk again
 bool IsPhysicsCharacterGrounded(PhysicsBody body);       // Whether a character stands on ground it can walk on
 void SetPhysicsCharacterMaxSlope(PhysicsBody body, float degrees); // The steepest ground, in degrees, a character walks
                                                                    // on, 45 to begin with
@@ -1794,6 +1797,8 @@ Matrix4x4 GetPhysicsBodyTransform(PhysicsBody body);     // Where a body is to b
 Vector3 GetPhysicsBodyPosition(PhysicsBody body);        // Where a body is in the simulation, as of its last step
 void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position); // Moves a body to a position at once, keeping its
                                                                  // velocity
+void PlacePhysicsBody(PhysicsBody body, Vector3 position, Quaternion rotation); // Puts a body at a position and
+                                                                                // rotation at rest, as a respawn does
 Vector3 GetPhysicsBodyVelocity(PhysicsBody body);        // How fast and which way a body moves, in units a second
 void SetPhysicsBodyVelocity(PhysicsBody body, Vector3 velocity); // Sets how fast and which way a body moves, waking it
 void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse); // Pushes a body at its center, changing its velocity by
@@ -1865,7 +1870,9 @@ Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int heig
 Bodies are BepuPhysics's, stepped at the fixed rate inside `BeginDrawing`, so a box is drawn by
 setting a model's `Transform` to `GetPhysicsBodyTransform(body)` before `DrawModel`. The ECS reaches
 the same world as `PhysicsWorld`, with contacts as `ContactStarted` and `ContactEnded` events, and
-walks a character through a `CharacterController` component beside its `PhysicsBody`.
+walks a character through a `CharacterController` component beside its `PhysicsBody`, flying it
+where its `Fly` is set. `PhysicsWorld.Place` puts a body at rest where `SetPosition` keeps its
+velocity.
 
 ## Audio
 

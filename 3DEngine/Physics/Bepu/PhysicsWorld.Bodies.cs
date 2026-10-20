@@ -86,7 +86,12 @@ public sealed partial class PhysicsWorld
         return Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Pose.Orientation;
     }
 
-    /// <inheritdoc />
+    /// <summary>Moves a body's origin to a position at once, keeping its velocity and turning.</summary>
+    /// <remarks>
+    /// A body moving when it is moved goes on moving from where it is put, as one carried through a
+    /// portal does, and one at rest is woken. <see cref="Place"/> puts a body somewhere at rest
+    /// instead, as a respawn does. Neither is blended into from where the body was.
+    /// </remarks>
     public void SetPosition(PhysicsBody body, Vector3 position)
     {
         if (body.Kind == BodyKind.Static)
@@ -106,6 +111,35 @@ public sealed partial class PhysicsWorld
             // A teleport, so it is not blended into.
             _previousPoses.Remove(body.Handle);
         }
+    }
+
+    /// <summary>
+    /// Puts a body's origin at a position and its rotation at another at once and at rest, its
+    /// velocity and turning set to zero and the body woken, as a respawn or a teleport does.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SetPosition"/> keeps the velocity, so a body falling or thrown when it is moved
+    /// goes on from where it is put, and this stops it there, from where gravity and what it rests
+    /// on take it as for a body set down still. A character stays upright, so it keeps its own
+    /// rotation, and walks on at the velocity it was last asked for. A static body is moved and
+    /// turned, having no velocity. It is not blended into from where it was.
+    /// </remarks>
+    public void Place(PhysicsBody body, Vector3 position, Quaternion rotation)
+    {
+        if (body.Kind == BodyKind.Static)
+        {
+            SetRotation(body, rotation);
+            SetPosition(body, position);
+            return;
+        }
+        var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        if (!_characters.ContainsKey(body.Handle)) br.Pose.Orientation = Quaternion.Normalize(rotation);
+        br.Pose.Position = position - Origin(body.Handle, br.Pose.Orientation);
+        br.Velocity.Linear = Vector3.Zero;
+        br.Velocity.Angular = Vector3.Zero;
+        Wake(br);
+        br.UpdateBounds();
+        _previousPoses.Remove(body.Handle);
     }
 
     /// <inheritdoc />

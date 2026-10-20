@@ -89,6 +89,50 @@ public sealed partial class E3DPhysicsTests
     }
 
     [Fact]
+    public void A_Flying_Character_Holds_Its_Height_Is_Stopped_By_A_Wall_And_A_Ceiling_And_Lands_When_The_Flight_Ends()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var physics = GetApp().World.Resource<PhysicsWorld>();
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
+        // A wall six units high whose face is at x 1.75, and a ceiling whose underside is 4 up.
+        CreatePhysicsStaticBox(new Vector3(2, 3, 0), new Vector3(0.5f, 6, 4));
+        CreatePhysicsStaticBox(new Vector3(-5, 4.5f, 0), new Vector3(3, 1, 3));
+        // Far past the floor's edge, over nothing at all.
+        var hovering = CreatePhysicsCharacter(new Vector3(30, 5, 0), 0.4f, 1.8f);
+        var walled = CreatePhysicsCharacter(new Vector3(0, 1, 0), 0.4f, 1.8f);
+        // Flown through its controller.
+        var roofed = ecs.Spawn();
+        ecs.Add(roofed, physics.CreateCharacter(new Vector3(-5, 0, 0), 0.4f, 1.8f, entityId: roofed));
+        ecs.Add(roofed, new Transform(new Vector3(-5, 0.9f, 0)));
+        ecs.Add(roofed, CharacterController.Default with { Fly = true, Velocity = new Vector3(0, 3, 0) });
+
+        SetPhysicsCharacterFly(hovering, true);
+        SetPhysicsCharacterFly(walled, true);
+        MovePhysicsCharacter(hovering, new Vector3(0, 2, 0));
+        MovePhysicsCharacter(walled, new Vector3(5, 0, 0));
+        Frames(60);
+        MovePhysicsCharacter(hovering, Vector3.Zero);
+        var risen = GetPhysicsBodyPosition(hovering).Y;
+        Frames(60);
+
+        risen.Should().BeApproximately(7.9f, 0.1f, "a second up at two units a second from its middle at 5.9");
+        GetPhysicsBodyPosition(hovering).Y.Should().BeApproximately(risen, 0.01f, "asked for nothing it holds its height for a second with gravity held off");
+        IsPhysicsCharacterGrounded(hovering).Should().BeFalse();
+        GetPhysicsBodyPosition(walled).X.Should().BeInRange(1.2f, 1.4f, "the wall's face stops it as it stops a walk");
+        GetPhysicsBodyPosition(walled).Y.Should().BeApproximately(1.9f, 0.02f, "at the height it flew in at");
+        GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(roofed)).Y.Should().BeInRange(3.0f, 3.12f, "its head stopped at the ceiling's underside");
+
+        SetPhysicsCharacterFly(walled, false);
+        MovePhysicsCharacter(walled, Vector3.Zero);
+        ecs.GetRef<CharacterController>(roofed) = CharacterController.Default;
+        RunUntil(() => IsPhysicsCharacterGrounded(walled) && ecs.GetReadOnly<CharacterController>(roofed).Grounded
+                       && GetPhysicsBodyVelocity(walled).Length() < 0.05f)
+            .Should().BeTrue("with the flight ended each falls to the floor and stands on it");
+        GetPhysicsBodyPosition(walled).Y.Should().BeApproximately(0.9f, 0.03f);
+        GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(roofed)).Y.Should().BeApproximately(0.9f, 0.03f);
+    }
+
+    [Fact]
     public void A_Vehicle_Settles_On_Its_Springs_Drives_Forward_Turns_Left_And_Brakes_To_A_Stop()
     {
         CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(400, 1, 400));

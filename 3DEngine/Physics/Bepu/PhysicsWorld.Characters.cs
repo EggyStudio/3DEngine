@@ -25,7 +25,9 @@ public sealed partial class PhysicsWorld
         public required PhysicsBody Body;
         public required float Radius;
         public required float HalfHeight;
+        // The velocity asked for, whose vertical part only a flight takes.
         public Vector3 Wanted;
+        public bool Fly;
         public float MaxSlopeCos = MathF.Cos(float.DegreesToRadians(45));
         public float JumpSpeed;
         public bool Grounded;
@@ -69,11 +71,22 @@ public sealed partial class PhysicsWorld
 
     /// <summary>
     /// The velocity a character walks at from the next step on, along the ground it stands on. Its
-    /// vertical part is ignored, since gravity and the ground decide the character's fall.
+    /// vertical part is ignored, since gravity and the ground decide the character's fall, unless
+    /// it flies (<see cref="SetCharacterFly"/>).
     /// </summary>
     internal void MoveCharacter(PhysicsBody body, Vector3 velocity)
     {
-        if (_characters.TryGetValue(body.Handle, out var character)) character.Wanted = velocity with { Y = 0 };
+        if (_characters.TryGetValue(body.Handle, out var character)) character.Wanted = velocity;
+    }
+
+    /// <summary>
+    /// Makes a character fly at the velocity <see cref="MoveCharacter"/> gave it, up and down as
+    /// well as along, with gravity held off, or walk again. What it meets stops it as a wall stops
+    /// a walk, it hovers where asked for nothing, and it does not jump or climb steps.
+    /// </summary>
+    internal void SetCharacterFly(PhysicsBody body, bool fly)
+    {
+        if (_characters.TryGetValue(body.Handle, out var character)) character.Fly = fly;
     }
 
     /// <summary>Makes a character on the ground leave it upward at <paramref name="speed"/> at the next step.</summary>
@@ -147,11 +160,11 @@ public sealed partial class PhysicsWorld
 
     // Before a step of dt, finds each character's ground, and sets its velocity to walk where it
     // was asked to, along that ground, with the step's pull of gravity along a slope it may stand
-    // on taken out beforehand, since the integrator adds it during the step. The rays and what
-    // follows from them only read the simulation, so a crowd is worked out on several threads, each
-    // casting through a pool of its own, and what it decided is written back in order after, so
-    // every character sees the others as the step left them and the result is the same however
-    // many threads there are.
+    // on taken out beforehand, since the integrator adds it during the step, or the whole pull for
+    // one that flies. The rays and what follows from them only read the simulation, so a crowd is
+    // worked out on several threads, each casting through a pool of its own, and what it decided is
+    // written back in order after, so every character sees the others as the step left them and
+    // the result is the same however many threads there are.
     private void UpdateCharacters(float dt)
     {
         if (_characters.Count == 0) return;
@@ -259,14 +272,22 @@ public sealed partial class PhysicsWorld
             }
 
             var velocity = reference.Velocity.Linear;
-            if (character.Grounded && !alone) character.Lift = ClimbStep(character, center, pool);
-            if (character.Grounded)
+            var walk = character.Wanted with { Y = 0 };
+            if (character.Grounded && !alone && !character.Fly) character.Lift = ClimbStep(character, center, pool);
+            if (character.Fly)
+            {
+                // The velocity asked for in every direction, less the step's gravity, which the
+                // integrator adds during the step, so it hovers where asked for nothing and what it
+                // meets stops it as it stops a walk.
+                velocity = character.Wanted - gravity * dt;
+            }
+            else if (character.Grounded)
             {
                 // Along the ground, so a walk up or down a slope follows it, and with the pull along
                 // the slope canceled, so standing still on it stays still.
                 var n = character.GroundNormal;
-                var along = character.Wanted - Vector3.Dot(character.Wanted, n) * n;
-                if (along != Vector3.Zero) along = Vector3.Normalize(along) * character.Wanted.Length();
+                var along = walk - Vector3.Dot(walk, n) * n;
+                if (along != Vector3.Zero) along = Vector3.Normalize(along) * walk.Length();
                 var pull = gravity - Vector3.Dot(gravity, n) * n;
                 // On a body that moves, as a platform, it walks relative to that body, so it rides it.
                 velocity = groundVelocity + along - pull * dt + MathF.Min(0, Vector3.Dot(velocity - groundVelocity, n)) * n;
@@ -276,13 +297,13 @@ public sealed partial class PhysicsWorld
                     character.Grounded = false;
                 }
             }
-            else if (character.Wanted != Vector3.Zero)
+            else if (walk != Vector3.Zero)
             {
                 // In the air, or against ground too steep to stand on, it steers toward where it was
                 // asked to go at a limited rate, and asked for nothing it keeps its own motion, so a
                 // steep slope slides it down and a jump carries it on.
                 var horizontal = velocity with { Y = 0 };
-                var change = character.Wanted - horizontal;
+                var change = walk - horizontal;
                 var most = AirAcceleration * dt;
                 if (change.Length() > most) change = Vector3.Normalize(change) * most;
                 velocity += change;

@@ -115,7 +115,10 @@ entity's `PhysicsBody` is removed and the body made again (see the animation gui
 
 `ApplyPhysicsImpulse` pushes a body at its center, as a hit or an explosion does, and
 `SetPhysicsBodyVelocity` sets its speed and direction outright. `SetPhysicsBodyPosition` moves it
-at once, as a respawn does. `SetPhysicsGravity` sets what every body falls by, 9.81 down unless
+at once and keeps its velocity, so a body carried through a portal goes on as it was going.
+`PlacePhysicsBody` puts it at a position and rotation at rest, its velocity and turning stopped and
+the body woken, as a respawn or a level begun again does, so a crate thrown when it is put back
+does not fly on from its start. `SetPhysicsGravity` sets what every body falls by, 9.81 down unless
 set, and `SetPhysicsPaused` holds the whole simulation still, as a pause menu needs.
 
 `SetPhysicsBodyMaterial` gives a body its friction and bounce, so ice is a friction near 0, rubber
@@ -427,6 +430,24 @@ if (IsKeyPressed(Key.Space) && IsPhysicsCharacterGrounded(player)) JumpPhysicsCh
 `SetPhysicsCharacterMaxSlope` and `SetPhysicsCharacterStepHeight` set the steepest ground it walks
 up and the highest step it climbs.
 
+`SetPhysicsCharacterFly` makes it fly, as a creative mode or a spectator does. Gravity is held off,
+the vertical part of the velocity `MovePhysicsCharacter` gives carries it up and down, and walls,
+floors and ceilings still stop it, so it moves about the world without falling and without
+passing through walls. It hovers where asked for nothing and does not jump or climb steps.
+`IsPhysicsCharacterGrounded` still says whether it is over ground close enough to stand on, and
+with the flight ended gravity takes it again and it lands:
+
+<!-- compiled with:
+PhysicsBody player = default;
+Vector3 walk = default;
+bool flying = false;
+-->
+```csharp
+if (IsKeyPressed(Key.F)) SetPhysicsCharacterFly(player, flying = !flying);
+var rise = flying ? (IsKeyDown(Key.Space) ? 4 : 0) - (IsKeyDown(Key.LeftShift) ? 4 : 0) : 0;
+MovePhysicsCharacter(player, (walk == Vector3.Zero ? walk : Vector3.Normalize(walk) * 4) + new Vector3(0, rise, 0));
+```
+
 ## Physics in the ECS
 
 A body belongs to an entity when it is made through `ctx.Physics`, the physics world of a
@@ -451,7 +472,9 @@ An entity can also say what it is shaped as with a `Collider` component, and a `
 it, from which the engine makes its body. A scene file holds those two, so a level saved to a file
 says what in it is solid. Contacts reach behaviors as `ContactStarted` and `ContactEnded` events,
 each naming the two entities, and a character is walked through a `CharacterController` component
-beside its body.
+beside its body, whose `Fly` sets it flying as `SetPhysicsCharacterFly` does.
+`ctx.Physics.Place(body, position, rotation)` puts an entity's body somewhere at rest as
+`PlacePhysicsBody` does, and `ctx.Physics.SetPosition` moves it keeping its velocity.
 
 ## The same every run
 

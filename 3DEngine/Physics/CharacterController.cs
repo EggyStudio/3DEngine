@@ -5,8 +5,8 @@ namespace Engine;
 /// <summary>
 /// Walks an entity's character body (made with <see cref="PhysicsWorld.CreateCharacter"/> and kept
 /// on the entity as its <see cref="PhysicsBody"/>). The physics step reads the wanted velocity,
-/// steepest slope, jump, step height and height from it before stepping, and writes back whether
-/// it stands on ground.
+/// steepest slope, jump, step height, height and flight from it before stepping, and writes back
+/// whether it stands on ground.
 /// </summary>
 /// <example>
 /// <code>
@@ -22,7 +22,10 @@ namespace Engine;
 [SceneComponent]
 public struct CharacterController
 {
-    /// <summary>The velocity it walks at along the ground. The vertical part is ignored.</summary>
+    /// <summary>
+    /// The velocity it walks at along the ground. The vertical part is ignored unless it flies,
+    /// which carries it up and down at it as well.
+    /// </summary>
     public Vector3 Velocity;
 
     /// <summary>The steepest ground, in degrees, it stands and walks on.</summary>
@@ -39,6 +42,18 @@ public struct CharacterController
     /// or 0 to leave it as it was made. A height it has no room for overhead is taken once there is.
     /// </summary>
     public float Height;
+
+    /// <summary>
+    /// Whether it flies, at <see cref="Velocity"/> up and down as well as along, with gravity held
+    /// off, and walls, floors and ceilings still stopping it.
+    /// </summary>
+    /// <remarks>
+    /// A game's creative mode, or a spectator that does not pass through the level. It hovers where
+    /// asked for nothing, a jump does nothing, and it does not climb steps. <see cref="Grounded"/>
+    /// still says whether it is over ground close enough to stand on, which a game reads to land it
+    /// by setting this back, when gravity takes it again.
+    /// </remarks>
+    public bool Fly;
 
     /// <summary>Whether it stood on ground at the last step. Written by the physics step.</summary>
     public bool Grounded;
