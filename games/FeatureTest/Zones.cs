@@ -105,13 +105,16 @@ sealed class Toggle(string key, string label, bool on = true, Action<bool>? chan
 /// <summary>The zones, the hub first, and which one a point is in.</summary>
 static class Zones
 {
-    /// <summary>How far from the hub's middle the zones' middles are.</summary>
-    public const float Ring = 70;
+    /// <summary>
+    /// How far from the hub's middle the zones' middles are, the first eight on the inner ring and the
+    /// rest on the outer, in the gaps between, so their roads pass between the inner zones.
+    /// </summary>
+    public const float Ring = 70, Outer = 120;
 
     public static Zone[] All { get; set; } = [];
 
-    /// <summary>The middle of a zone at a bearing from the hub.</summary>
-    public static Vector3 At(float bearing) => Zone.Ahead(bearing) * Ring;
+    /// <summary>The middle of a zone at a bearing from the hub, on a ring.</summary>
+    public static Vector3 At(float bearing, float ring = Ring) => Zone.Ahead(bearing) * ring;
 
     /// <summary>The zone whose middle is nearest a point within its reach, or null on the roads between.</summary>
     public static Zone? Around(Vector3 point)

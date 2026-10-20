@@ -776,6 +776,19 @@ case "$game" in
     effects=$(ask feature.status effects)
     echo "$effects"
     case "$effects" in *"effects ok"*"shaders ok"*) ;; *) fail "an effect or a shader was not read as it should be, $effects" ;; esac
+    # The wave written and read back, the music and the program's stream played, and the drone
+    # panned toward its speaker read louder on that side of the mix, and the page of text read back,
+    # its line as wide as measured, its Hebrew from right to left and its colour glyph in colour.
+    cmd feature.zone audio
+    cmd frames.wait 300
+    audio=$(ask feature.status audio)
+    echo "$audio"
+    case "$audio" in *"audio ok"*) ;; *) fail "a sound was not played or read as it should be, $audio" ;; esac
+    cmd feature.zone text
+    cmd frames.wait 130
+    text=$(ask feature.status text)
+    echo "$text"
+    case "$text" in *"text ok"*) ;; *) fail "the text was not drawn as it should be, $text" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

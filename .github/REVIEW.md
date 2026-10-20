@@ -10,19 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `086d9a00`, item 57's third part, models and animation and lights and shadows, and
+Reviewed up to `c6face9f`, item 57's fourth part, global illumination, particles and the effects,
+and nothing else, carrying the review's file, in the shape and with the tests and numbers said
+before it. Read at 22:50; its push waits for the build run of `086d9a00` to end. The last four zones
+go on an outer ring of 120 m in the gaps between the inner eight, so their roads pass between the
+inner zones. Next part 5, audio and text, its shape said before its commit. Item 6 waits on the
+owner's word.
+
+Before it, `086d9a00` came, item 57's third part, models and animation and lights and shadows, and
 nothing else, carrying the review's file, in the shape and with the tests and numbers said before
-it. Read at 22:15. The build run of `ac77ef83` ended green at 22:21, its Windows parts in 73 minutes
-58 seconds, 1,754 passed, so the four commits from `b1265b6a` to this head were pushed at 22:23.
-Next part 4, global illumination, particles and the effects, its shape said before its commit. Item
-6 waits on the owner's word.
+it. Pushed at 22:23 with the three before it.
 
 Before it, `8609089a` came, item 57's second part, the admin panel and the crash log, and nothing
 else, carrying the review's file, in the shape and with the tests and numbers said before it.
-
-Before it, `7d7ecba6` came, item 57's first part, the feature test's hub, character and two zones,
-and nothing else, carrying the review's and the ledger's files, in the shape and with the tests and
-numbers said before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2999,7 +2999,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     175, 242, the shadow 49, 54, 67 and the sphere 255, 200, 85, the same on the GPU, the lamps off
     reading no red and no blue, the shadows 10.123 ms on and 0.181 off; the soak's 40 turns and 13
     readings pass with nothing growing, the storm has no validation error, and the README's map and
-    BUILDING.md cover both zones. Part 3 done at `086d9a00` on 2026-10-20, as the head says.
+    BUILDING.md cover both zones. Part 3 done at `086d9a00` on 2026-10-20, as the head says. Part
+    4's shape, tests and numbers said by 22:49 and taken: an illumination zone, a white room open
+    toward the hub with a red wall and a green one each by its own material, a lintel, a white lamp
+    toward the green wall, an emissive panel and a pillar, global illumination set to Low only while
+    the player is in it from the 121st frame after arriving and off with the field cleared on
+    leaving since it costs every frame, the window read at the 120th frame off and the 420th on at
+    four places along the floor by each wall, the light bouncing when the red wall's side grows
+    redder by its red over its green and blue than the green wall's side does by more than 0.03,
+    since turned on it takes the sky's blue out of both sides alike and a one-sided read was too
+    thin at 480 by 270, measured 0.062 on lavapipe and 0.059 on the GPU and 0.085 at 1280 by 720; a
+    particles zone of six emitters over a slab, the default fountain, an additive fire, alpha smoke,
+    sparks bouncing, lit particles and a burst, the particles alone drawn every half second into a
+    160 by 90 texture through an empty 3D mode and read back with each emitter's stretch counted, ok
+    when each is above 5, measured 38, 53, 158, 31, 37 and 107; an effects zone with a grey board, a
+    red patch and an emissive bar, a knot through the toon shader and a billboard of the plasma
+    texture, the four shaders linked from the examples' resources, each of none, bloom, vignette,
+    grading at zero saturation, exposure at 2, depth of field, motion blur and the AgX curve shown
+    alone for a second on arriving with the window read at each phase's end, ok when bloom lifts the
+    glow by more than 15 summed levels, the vignette darkens the edge by 15, the red is graded to
+    within 10 of grey and the exposure lifts the board by 30, each failure named, measured 133
+    against 117, 33 against 64, the red to 27 and the board 32 to 44; the shaders checked by the
+    life shader stepping a grid read back as a blinker of three cells turning, the plasma shader's
+    colors counted and the grayscale shader drawing red into a target read grey, measured 161 turns,
+    51 colors and 94; the screen read kept only from a first call that a shared keep makes on
+    arriving at a zone that reads the window, so a run that does not visit them pays for no copy.
+    The drive asserts the bounce after 440 frames, the particles after 150 and the effects with the
+    shaders after 500; the soak cycles nine places. The whole step on lavapipe under the layer
+    passes in 5 minutes 2 seconds against the drive's eight and the GPU in 1 minute 43 with the same
+    readings; the soak's 36 turns and 13 readings pass with nothing growing, the storm has no
+    validation error, and the README's map and BUILDING.md cover the three zones. Part 4 done at
+    `c6face9f` on 2026-10-20, as the head says.
 
 ## Verdicts
 

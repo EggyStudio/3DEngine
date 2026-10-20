@@ -16,10 +16,13 @@
     <ItemGroup>
         <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
         <!-- The models the examples and Tumble carry, taken from where they are rather than copied. -->
-        <Content Include="..\..\3DEngine.Examples\resources\arm.gltf;..\..\3DEngine.Examples\resources\morph.gltf;..\..\3DEngine.Examples\resources\torus.obj;..\..\3DEngine.Examples\resources\torus.mtl;..\..\3DEngine.Examples\resources\checker.png;..\Tumble\resources\robot.glb;..\Tumble\resources\robot-CC0.txt"
+        <Content Include="..\..\3DEngine.Examples\resources\arm.gltf;..\..\3DEngine.Examples\resources\morph.gltf;..\..\3DEngine.Examples\resources\torus.obj;..\..\3DEngine.Examples\resources\torus.mtl;..\..\3DEngine.Examples\resources\checker.png;..\Tumble\resources\robot.glb;..\Tumble\resources\robot-CC0.txt;..\..\3DEngine.Examples\resources\coin.wav;..\..\3DEngine.Examples\resources\drone.ogg"
                  Link="resources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="..\..\3DEngine.Examples\resources\shaders\toon.slang;..\..\3DEngine.Examples\resources\shaders\life.slang;..\..\3DEngine.Examples\resources\shaders\plasma.slang;..\..\3DEngine.Examples\resources\shaders\grayscale.slang"
                  Link="resources\shaders\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Lato, and two fonts the tests carry whose glyphs are shapes and colours known in advance. -->
+        <Content Include="..\..\3DEngine.Examples\resources\fonts\Lato-Regular.ttf;..\..\3DEngine.Examples\resources\fonts\Lato-OFL.txt;..\..\3DEngine.Tests\Api\rtl.ttf;..\..\3DEngine.Tests\Api\layers.ttf"
+                 Link="resources\fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

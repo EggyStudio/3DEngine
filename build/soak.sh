@@ -178,10 +178,10 @@ turn() {
     featuretest)
       # The player put at each zone in turn and walked a little there, the course's crates pushed
       # and its platform ridden from the start each time, global illumination turned on in its room
-      # and off again as the next turn leaves it, the effects shown, the panel shown every fourth
-      # turn, and every zone's status read.
+      # and off again as the next turn leaves it, the effects shown, the audio zone's sounds played
+      # and stopped, the panel shown every fourth turn, and every zone's status read.
       if (( i % 4 == 1 )); then cmd feature.panel on; else cmd feature.panel off; fi
-      case $(( i % 9 )) in
+      case $(( i % 11 )) in
         0) cmd feature.zone hub; key W 60 ;;
         1) cmd feature.zone drawing; key W 60 ;;
         2) cmd feature.zone course crates; key W 120 ;;
@@ -191,6 +191,8 @@ turn() {
         6) cmd feature.zone illumination; wait_frames 200 ;;
         7) cmd feature.zone particles; wait_frames 60 ;;
         8) cmd feature.zone effects; wait_frames 150 ;;
+        9) cmd feature.zone audio; wait_frames 200 ;;
+        10) cmd feature.zone text; key W 60 ;;
       esac
       cmd feature.status
       wait_frames 30 ;;

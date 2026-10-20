@@ -322,16 +322,19 @@ draws every 3D shape and an easel of 2D shapes and text drawn into a texture, th
 character on a ramp, stairs, a gap, a moving platform, crates and a low tunnel, the models zone
 plays skinned models, an animation state machine, morph targets and an instanced draw beside every
 generated mesh, the lights zone lights a floor with a lamp, a spot, the sun's shadow and an emissive
-sphere, a room shows global illumination, the particles zone gives off each kind of particle, and
-the effects zone shows each effect over the frame and runs shaders of its own. Each zone says what
-it found in a line the console reads, the easel's from its texture read back from the GPU, the
-course's from the triggers at the ends of its stations, the arm's from its outline read back as it
-bends, the lights' from the floor read from above, the room's from its floor read in the window with
-global illumination off and on, the particles' from their pixels in a texture, the effects' from the
-window with each effect on and off, and the shaders' from what they wrote. F1 opens an admin panel
-in ImGui, which shows the frame's costs as the profile averages them and turns the engine's and each
-zone's features on and off, and an exception nothing catches writes `crash-` and the time beside the
-program, with where the player stood and each zone's last status, which the next run names:
+sphere, a room shows global illumination, the particles zone gives off each kind of particle, the
+effects zone shows each effect over the frame and runs shaders of its own, the audio zone plays
+sounds, music, a stream and a wave, and the text zone draws Lato past Latin-1, Hebrew right to left
+and a colour glyph. Each zone says what it found in a line the console reads, the easel's from its
+texture read back from the GPU, the course's from the triggers at the ends of its stations, the
+arm's from its outline read back as it bends, the lights' from the floor read from above, the room's
+from its floor read in the window with global illumination off and on, the particles' from their
+pixels in a texture, the effects' from the window with each effect on and off, the shaders' from
+what they wrote, the audio's from the mix the device plays and a wave written and read back, and the
+text's from its page read back. F1 opens an admin panel in ImGui, which shows the frame's costs as
+the profile averages them and turns the engine's and each zone's features on and off, and an
+exception nothing catches writes `crash-` and the time beside the program, with where the player
+stood and each zone's last status, which the next run names:
 
 ```bash
 build/pack.sh

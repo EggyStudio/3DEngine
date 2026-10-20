@@ -10,6 +10,7 @@ using static Engine.E3D;
 
 Crash.Install();
 InitWindow(1280, 720, "Feature test");
+InitAudioDevice();
 SetTargetFPS(60);
 if (Crash.Last() is { } crashed) TraceLog(LogLevel.Info, $"FeatureTest: the last crash is written in {crashed} beside the program.");
 
@@ -19,7 +20,7 @@ SetAmbientLight(new Color(160, 175, 210), 0.5f);
 var sun = CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), new Color(255, 244, 228), 2, castsShadows: true);
 SetShadowDistance(50);
 
-Zones.All = [new Hub(), new Drawing(), new Course(), new Models(), new Lights(), new Illumination(), new Particles(), new Effects()];
+Zones.All = [new Hub(), new Drawing(), new Course(), new Models(), new Lights(), new Illumination(), new Particles(), new Effects(), new Audio(), new Text()];
 var player = new Player(Zones.All[0].Start, Zones.All[0].Facing);
 var panel = new Panel(sun, Crash.Last());
 FeatureCommands.Admin = panel;
@@ -52,6 +53,7 @@ while (!WindowShouldClose())
     if (FeatureCommands.CrashAsked) throw new InvalidOperationException("The feature test was asked to crash by feature.crash, to write its crash file.");
 }
 
+CloseAudioDevice();
 CloseWindow();
 
 // The zone's name and status at the top and the keys at the bottom, each wrapped to the window.
