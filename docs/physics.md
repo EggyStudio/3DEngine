@@ -341,6 +341,12 @@ PhysicsJoint rope = default;
 if (IsPhysicsJointValid(rope) && GetPhysicsJointForce(rope) > 2000) DestroyPhysicsJoint(rope);
 ```
 
+`games/Span` breaks a bridge's joints past 7,000 newtons, which the hinges of a truss under its
+road kept below under a load of 150 kilograms, holding 4,326 at most, and those of a road of planks
+alone passed, holding 10,213, since a chain pulled near straight carries a load across it only at a
+high tension. Its joints are hinges across the bridge, since planks on ball joints in a plane hold
+nothing out of it, and a truss of them bows sideways under its own weight and folds under a load.
+
 `CreatePhysicsSliderJoint` lets the second body slide along an axis against the first and neither
 turn, as a drawer, a sliding door or a lift. `SetPhysicsSliderLimits` stops it at its ends, in
 units along the axis from where it was made, `SetPhysicsSliderMotor` drives it toward the axis's
@@ -459,8 +465,10 @@ keeping its runs the same as each other but not as a program that does not.
 - Examples: [`physics_boxes`](../3DEngine.Examples/Physics/PhysicsBoxes.cs),
   [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs), and the games
   [`games/Summit`](../games/Summit/Program.cs), a character on the controller over joints, a lift
-  and triggers, and [`games/Pinball`](../games/Pinball/Program.cs), a continuous ball, flippers on
-  hinges driven by their motors and a plunger on a slider driven by its own
+  and triggers, [`games/Pinball`](../games/Pinball/Program.cs), a continuous ball, flippers on
+  hinges driven by their motors and a plunger on a slider driven by its own, and
+  [`games/Span`](../games/Span/Program.cs), a bridge of planks on hinges and ropes whose joints
+  break past a force
 - The cheatsheet's [Physics](../CHEATSHEET.md#physics)
 - Previous: [Input](input.md)
 - Next: [Behaviors and the ECS](behaviors-and-the-ecs.md)

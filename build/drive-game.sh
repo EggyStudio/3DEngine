@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -554,6 +554,30 @@ case "$game" in
     done
     echo "$status"
     case "$status" in *" drains 0 "*) fail "the ball did not drain once the flippers stopped, $status" ;; esac
+    ;;
+  Span)
+    # The truss the game knows built and the load sent across it, which it carries to the far
+    # cliff, and then the road alone, whose joints the load strains past their strength, so one
+    # breaks and the load falls.
+    for design in truss road; do
+      cmd span.reset
+      cmd frames.wait 2
+      cmd span.build "$design"
+      cmd frames.wait 5
+      cmd span.go
+      status=""
+      for i in $(seq 1 60); do
+        status=$(ask span.status)
+        case "$status" in Crossing*) cmd frames.wait 30 ;; *) break ;; esac
+      done
+      echo "$design: $status"
+      if [ "$design" = truss ]; then
+        case "$status" in Crossed*"broken 0 "*) ;; *) fail "the load did not cross the truss whole, $status" ;; esac
+      else
+        case "$status" in *"broken 0 "*) fail "no joint of the road alone broke, $status" ;; esac
+        case "$status" in Fell*) ;; *) fail "the load did not fall once the road broke, $status" ;; esac
+      fi
+    done
     ;;
   *)
     fail "is not a game this script plays"

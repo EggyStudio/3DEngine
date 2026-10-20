@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -138,6 +138,16 @@ turn() {
       wait_frames 240
       if (( i % 3 == 2 )); then key T 2; fi
       key Enter 2 ;;
+    span)
+      # The truss and the road alone built in turn and the load sent across, the truss carrying
+      # it and the road breaking, each bridge's planks and joints taken down by the next reset. A
+      # frame passes between commands, since the game reads one a frame.
+      cmd span.reset
+      wait_frames 2
+      if (( i % 2 == 0 )); then cmd span.build truss; else cmd span.build road; fi
+      wait_frames 2
+      cmd span.go
+      wait_frames 240 ;;
   esac
 }
 

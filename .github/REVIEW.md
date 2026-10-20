@@ -10,7 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1189291d`, the three document lines of Pinball's findings and nothing else,
+Reviewed up to `5cd706d9`, item 40 at `fdcfd435` and the soak's Pinball turn at `5cd706d9`, the
+first carrying the review's file. A program reads the force a joint held its bodies with over the
+last step, which the solver keeps for its next step, through the new call, with its cheat sheet
+line, the surface listing, the upgrading guide's added entry and the physics guide's paragraph, and
+a test reads a hanging box's weight from it; the soak plays Pinball, its autopilot launching each
+ball and flipping, the table nudged at times and a game started again once its last ball drains,
+where its turn had been empty and spun without waiting on a frame. The build run of `f4c62380` ended
+green at 11:03, its Windows suite in parts in 70 minutes 20 seconds, so the five commits from
+`ea7b1b83` to this head were pushed together at 11:05, no run cancelled. The rope-and-bridge puzzle,
+Span, stands in the tree with its breaking rule on the joint's force. A pack run with publish on is
+due at the day's end with Pinball, item 40 and Span in. Item 6 waits on the owner's word.
+
+Before it, `1189291d` came, the three document lines of Pinball's findings and nothing else,
 documents alone, carrying the review's file. The physics guide says under fast bodies that a step
 finds its contacts from the velocities it begins with, so a body a motor or a joint drives from rest
 at once passes through a body resting against it, with the plunger's figures, 600 from rest to 33
@@ -18,12 +30,7 @@ units a second in a step and through the ball where 120 speeds up over its trave
 leaves at 21, and in the hinge's paragraph that a hinge's limit is a spring a motor pushes into, the
 flippers 18 degrees past both limits at 400 and 3 at 60; E3D.md says a status asked for after the
 key command reads the key up, and a status while the key is held is asked for by a command sent in
-the background beside it; the norm and document tests gave 22. The pushes of `ea7b1b83`, `2271cdea`
-and this head wait for the build run of `f4c62380` to end; read at 10:20. The rope-and-bridge puzzle
-is begun, with a thing said ahead: the flat API reads no joint's force, so the game judges a joint's
-strain by how far its two anchor points stand apart under load, measured against the load before it
-is taken and said as a finding. By 10:25 the puzzle had found the engine's gap, no joint's force to
-read, which is item 40, taken before the puzzle's commit. Item 6 waits on the owner's word.
+the background beside it; the norm and document tests gave 22.
 
 Before it, `2271cdea` came, Pinball, item 7's game, and nothing else, carrying the review's file.
 The table lies flat with gravity tilted 6.5 degrees and scaled to it, its walls static boxes turned
@@ -41,15 +48,6 @@ the drive four times on the GPU and once on lavapipe under the validation layer,
 pack. Two findings about the engine, said under item 7: a motor that drives a body from rest at once
 can drive it through a resting body, continuous or not, and a hinge's limit gives under a strong
 motor.
-
-Before it, `ea7b1b83` came, Rally's README and nothing else, documents alone, carrying the review's
-file. It follows the games' form, the game, three laps against the clock and the ghost of the best
-lap, the parts of the engine it uses read from its program, a Perlin-noise heightmap with the road
-pressed flat as a static collider of its own mesh, eight gates as triggers, the vehicle on four
-raycast wheels with keys, a pad or the autopilot, the engine's loop as a music stream and the race's
-sounds, lit dust particles, the race's screens as states and the best lap saved to a file, and the
-sentence on its build from the package; the norm and document tests gave 22. Its push waits for the
-build run of `f4c62380` to end, as pushes go from here.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -585,7 +583,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    across gaps on bridges the player joins from planks, planks joined by ball and distance joints,
    ropes as chains of them, a joint broken when its force passes a bound so a bridge breaks where it
    is weak, played through e3d by placing planks with a drive asserting a crossing and a break. The
-   document lines done at `1189291d` on 2026-10-20; the rope-and-bridge puzzle begun.
+   document lines done at `1189291d` on 2026-10-20; the rope-and-bridge puzzle begun. The soak's
+   Pinball turn mended at `5cd706d9`; Span, the rope-and-bridge puzzle, in the tree on item 40's
+   call.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
@@ -2282,7 +2282,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the puzzle breaks a joint past a force measured against the truss and the road, and reads with
     the force in hand why the load fell through the far cliff after crossing at 400 and 800 kg, a
     plank's end pinned at the cliff's edge and pressed into it the first suspect, said as a finding
-    if it is the engine's.
+    if it is the engine's. Done at `fdcfd435` on 2026-10-20, as the head says.
 
 ## Verdicts
 
@@ -3632,6 +3632,11 @@ Shared: a mesh that replaced a still one in place is not stamped as boxes while 
 budget left for a later frame still holds the one it replaced, where a voxel game's section stamped
 as its boxes filled the air above its ground in those cascades and a room's indirect light went for
 a frame eight after a block broke (`SceneFieldPlan`).
+
+Shared: a game reads the force a joint held its bodies with over the last step,
+`GetPhysicsJointForce` (`fdcfd435`), the impulse Bepu keeps for the joint's own constraint over the
+length of a substep, which a box of 3 kilograms hanging on a distance joint reads as its weight
+within a percent at one substep and at four.
 
 
 
