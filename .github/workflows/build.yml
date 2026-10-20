@@ -274,7 +274,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -402,7 +402,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -561,7 +561,7 @@ jobs:
       # every game in the pack run.
       - name: Build every game from the package and play the puzzle of gestures
         run: |
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball; do
             dotnet restore "games/$game" --force-evaluate
             dotnet build "games/$game" --no-restore
           done
@@ -1208,6 +1208,20 @@ jobs:
           ./e3d stop --quiet
           build/webp.sh captures/ore.png captures/ore.webp lossy 800x450
 
+      # The pinball table, by build/drive-game.sh as Windows and macOS play it, a ball launched by
+      # the plunger, met by a flipper and drained asserted, and then captured in play, the ball up
+      # among the bumpers.
+      - name: Build and play the pinball table from the package
+        run: |
+          build/drive-game.sh Pinball
+          build/open-game.sh games/Pinball/bin/Debug/net10.0/Pinball --offscreen
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command pinball.autopilot true --quiet
+          ./e3d command frames.wait 600 --quiet --timeout 600
+          ./e3d shot captures/pinball.png --quiet
+          ./e3d stop --quiet
+          build/webp.sh captures/pinball.png captures/pinball.webp lossy 800x450
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
@@ -1215,7 +1229,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore)
+          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -1237,7 +1251,7 @@ jobs:
                          games/Tempo/bin/Debug/net10.0/Tempo games/Sumo/bin/Debug/net10.0/Sumo \
                          games/Wordfall/bin/Debug/net10.0/Wordfall games/Slide/bin/Debug/net10.0/Slide \
                          games/Jelly/bin/Debug/net10.0/Jelly games/Wick/bin/Debug/net10.0/Wick \
-                         games/Ore/bin/Debug/net10.0/Ore \
+                         games/Ore/bin/Debug/net10.0/Ore games/Pinball/bin/Debug/net10.0/Pinball \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

@@ -10,7 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f4c62380`, the Windows job's cache steps taken out and nothing else, carrying the
+Reviewed up to `ea7b1b83`, Rally's README and nothing else, documents alone, carrying the review's
+file. It follows the games' form, the game, three laps against the clock and the ghost of the best
+lap, the parts of the engine it uses read from its program, a Perlin-noise heightmap with the road
+pressed flat as a static collider of its own mesh, eight gates as triggers, the vehicle on four
+raycast wheels with keys, a pad or the autopilot, the engine's loop as a music stream and the race's
+sounds, lit dust particles, the race's screens as states and the best lap saved to a file, and the
+sentence on its build from the package; the norm and document tests gave 22. Its push waits for the
+build run of `f4c62380` to end, as pushes go from here. Pinball is begun in the games' usual shape,
+one batch built and played from a fresh pack before the commit. Item 6 waits on the owner's word.
+
+Before it, `f4c62380` came, the Windows job's cache steps taken out and nothing else, carrying the
 review's file. The processor step that keyed the cache alone, the cache's restore and save, the two
 Mesa variables and the step after the suite go, and the suite step's comment says that neither
 Windows build of Mesa carries a disk cache, its lavapipe holding none of the cache's names where
@@ -22,8 +32,7 @@ Checked were the workflow's parse and the norm, document, workflow and script te
 run of `82dd08f2` ended green at 09:16 with its Windows suite in its parts on a Xeon 8370C, cold, in
 58 minutes 26 seconds, 1,683 passed, exit 0, the third green Windows suite in a row under the mends,
 so Verdict 72 is settled. Pushed at 09:42, after that run had ended, as pushes go from here so no
-run is cancelled midway. Item 7's next game is Pinball, said under it, with Rally's missing README
-in a commit of its own before it. Item 6 waits on the owner's word.
+run is cancelled midway. Item 7's next game is Pinball, said under it.
 
 Before it, `82dd08f2` came, item 39 and nothing else, documents alone, carrying the review's file.
 RENDERING.md's global illumination part ends with a section on where the method stops, read to
@@ -53,34 +62,6 @@ naming `9f9180b7` and carrying 18 lines of notes, the 18 commits since `5.2.92`'
 files are not all under `.github`, the review's commits left out, which proves item 37; the game's
 coder was told. Verdict 48's remedies were read by 09:40 and have nothing to give, said under item
 2.
-
-Before it, `8e80cf46` came, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
-nothing else, the first carrying the review's edits as the batch that came next. The Windows suite
-runs in its parts from the start, each held to 70 minutes since the Rendering part took 52 minutes
-16 seconds cold on the 7763, the step's comment naming the pack run of `448aa3fc`, the whole run
-lost at its hour 1,302 tests in, thirteen of fifteen parts run again, 121 minutes 5 seconds in all
-past a push's 100, and about 62 minutes cold there for the parts alone, and saying lavapipe's
-Windows build keeps no cache asked for by name or not; the cache's restore, save and the step after
-the suite stay as the reading; BUILDING.md says the same in place of the old cache reasoning;
-checked were the workflow's parse, the strict build and the norm, document and script tests, 64. A
-run whose every test has a result and none failed exits 0 where a process was lost to its time limit
-alone, the loss said in a notice of its own with its whole entry in place of an error, the digest
-job giving each merged system's processes the same rule from that system's counts, and a process
-lost to a crash, a hang or its memory still failing the run, whatever the parts gave after, since
-each is a fault the run met; the theory's hang mode is that case and expects exit 0 where the grow
-and die modes keep 1, and a new test runs the hang mode under the runner's variables and holds exit
-0, no error and a single notice naming the suite and its limit; BUILDING.md has a sentence on it;
-checked were the strict build, the script, norm and document tests, 65, and the suite through the
-changed script, 1,745 passed and none failed, exit 0. The reviewer pushes and starts the pack run
-with publish on on this head at once, since the game waits and the corridor's commit changes no
-package the game needs. The ore sample by night was measured for (iii), said under item 30, and its
-commit follows. At 07:09 the pack run with publish on of `9f9180b7`, started 06:55, had its three
-suites running and the build run of `7eb7079b` had ended green at 06:44, its Windows suite whole in
-43 minutes 11 seconds on an EPYC 9V74, cold, no cache written there either, a figure under Verdict
-72. At 07:41 the build run of `9f9180b7` had ended green at 07:36, its Windows suite in its parts
-from the start in 33 minutes 22 seconds on an EPYC 9V45, cold, exit 0, Verdict 72's first of three,
-and the pack run had its Linux and macOS suites and examples green with its Windows, captures and
-games jobs running.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.

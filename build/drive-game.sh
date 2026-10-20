@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -525,6 +525,35 @@ case "$game" in
     cmd ore.night true
     cmd frames.wait 60
     ./e3d shot "captures/$name-night.png" --quiet || true
+    ;;
+  Pinball)
+    # A game started with Enter, the plunger pulled with Space for half a second and let go, which
+    # launches the ball out of its lane, then the autopilot's flips until a flipper has met the
+    # ball, and then no flips, so the ball drains between the flippers.
+    cmd input.key Enter 2
+    cmd frames.wait 30
+    cmd input.key Space 30
+    status=""
+    for i in $(seq 1 20); do
+      status=$(ask pinball.status)
+      case "$status" in *"launches 0 "*) cmd frames.wait 30 ;; *) break ;; esac
+    done
+    echo "$status"
+    case "$status" in *"launches 0 "*) fail "the plunger did not launch the ball, $status" ;; esac
+    cmd pinball.autopilot true
+    for i in $(seq 1 60); do
+      status=$(ask pinball.status)
+      case "$status" in *" flips 0 "*) cmd frames.wait 60 ;; *) break ;; esac
+    done
+    echo "$status"
+    case "$status" in *" flips 0 "*) fail "no flipper met the ball, $status" ;; esac
+    cmd pinball.autopilot false
+    for i in $(seq 1 60); do
+      status=$(ask pinball.status)
+      case "$status" in *" drains 0 "*) cmd frames.wait 60 ;; *) break ;; esac
+    done
+    echo "$status"
+    case "$status" in *" drains 0 "*) fail "the ball did not drain once the flippers stopped, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

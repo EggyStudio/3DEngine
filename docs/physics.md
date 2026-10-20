@@ -436,9 +436,10 @@ keeping its runs the same as each other but not as a program that does not.
 ## See also
 
 - Examples: [`physics_boxes`](../3DEngine.Examples/Physics/PhysicsBoxes.cs),
-  [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs), and the game
+  [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs), and the games
   [`games/Summit`](../games/Summit/Program.cs), a character on the controller over joints, a lift
-  and triggers
+  and triggers, and [`games/Pinball`](../games/Pinball/Program.cs), a continuous ball, flippers on
+  hinges driven by their motors and a plunger on a slider driven by its own
 - The cheatsheet's [Physics](../CHEATSHEET.md#physics)
 - Previous: [Input](input.md)
 - Next: [Behaviors and the ECS](behaviors-and-the-ecs.md)
