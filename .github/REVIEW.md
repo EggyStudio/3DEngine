@@ -10,7 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4369898a`, item 30's thin walls' mend and nothing else, with the review's commits
+Reviewed up to `8e80cf46`, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
+nothing else, the first carrying the review's edits as the batch that came next. The Windows suite
+runs in its parts from the start, each held to 70 minutes since the Rendering part took 52 minutes
+16 seconds cold on the 7763, the step's comment naming the pack run of `448aa3fc`, the whole run
+lost at its hour 1,302 tests in, thirteen of fifteen parts run again, 121 minutes 5 seconds in all
+past a push's 100, and about 62 minutes cold there for the parts alone, and saying lavapipe's
+Windows build keeps no cache asked for by name or not; the cache's restore, save and the step after
+the suite stay as the reading; BUILDING.md says the same in place of the old cache reasoning;
+checked were the workflow's parse, the strict build and the norm, document and script tests, 64. A
+run whose every test has a result and none failed exits 0 where a process was lost to its time limit
+alone, the loss said in a notice of its own with its whole entry in place of an error, the digest
+job giving each merged system's processes the same rule from that system's counts, and a process
+lost to a crash, a hang or its memory still failing the run, whatever the parts gave after, since
+each is a fault the run met; the theory's hang mode is that case and expects exit 0 where the grow
+and die modes keep 1, and a new test runs the hang mode under the runner's variables and holds exit
+0, no error and a single notice naming the suite and its limit; BUILDING.md has a sentence on it;
+checked were the strict build, the script, norm and document tests, 65, and the suite through the
+changed script, 1,745 passed and none failed, exit 0. The reviewer pushes and starts the pack run
+with publish on on this head at once, since the game waits and the corridor's commit changes no
+package the game needs. The ore sample by night was measured for (iii), said under item 30, and its
+commit follows. Next (iii)'s commit, then the light past the first bounce at probes that hold
+nothing.
+
+Before it, `4369898a` came, item 30's thin walls' mend and nothing else, with the review's commits
 between. The sight test's slack is an eighth of the spacing, a cell of the probes' cascade, since
 the spacing is 8 at every quality, the remark naming the borrowed light with the thin wall's 1.153,
 1.072 with the lamp off and 1.098 mended, and the corridor's 67 to 70 under going to 78 to 79; the
@@ -44,7 +67,7 @@ passed and none failed in 121 minutes 5 seconds on an EPYC 7763, the whole run l
 exit 1 for the lost whole run though no test failed, and lavapipe writing no shader cache though
 asked for by name, so the pack job was skipped and no package was made again; read under Verdict 72,
 whose two further mends come before the corridor's commit, and then the pack run starts anew on the
-head. Next Verdict 72's two mends, the ore sample by night, (iii)'s commit, then the pack run.
+head.
 
 Before it, `f72bda5d` came, Verdict 75's mend and nothing else, with the review's commits between.
 The leak tests keep the readings after every ten apps as numbers and read the process's growth from
@@ -68,28 +91,6 @@ the near-start candidate out and two others to read. At 05:00 the pack run with 
 the other engine its suites and native jobs green with its capture, drive and game jobs running; the
 feed holds `5.2.92` still. The thin walls' candidates were read by 05:18 and the slack at one cell
 is taken, said under item 30.
-
-Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
-between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
-parallax, the pocket's figures, 171 over where 61, and the sight form's 116 at a tenth of the
-illumination's time; the reach binding and the upper interval's end go in the merge's push; a new
-test reads the pocket probe's upward face's part from the cascade above, 2.71 of the reference on
-the head and 1.61 with the read, bounded under 2; the bounds' remark gives the thin walls' new
-figures, 0.090, 0.094 and 0.098, under their bounds, which hold as all others do; RENDERING.md has a
-record dated 2026-10-20. Checked were the strict build, the suite, 1,742, and lavapipe under the
-required layer over the global illumination, glow, room, cascade edge, reference frame and
-descriptor pool tests, 94 passed and 11 skipped. (c)'s first reading is under item 30. The push of
-this head is held until the build run of `390c9b61` ends its Windows suite, since a push cancels
-that run and its suite is the first under Verdict 72's mends with the cache's reading at its end,
-lost three times to pushes already; the pack run of `193c68b0` runs on regardless. (c) was read and
-named by 04:06, said under item 30. At 04:24 the pack run of `193c68b0` ended red on its Windows
-suite, run cold on an EPYC 7763, the whole lost at its 60 minutes with the bounce rooms' test the
-last to end at 59 minutes 20 seconds, the parts then run again for 62 more, 121 minutes 49 seconds
-in all, 1,678 passed and one failed, the hundred-app leak test's bound on a trough in its base
-reading (Verdict 75), so the pack job was skipped and no package was made; every other job was
-green. The held push went at 04:26, cancelling the build run of `390c9b61` in its Windows suite,
-whose reading moves to the pack run with publish on started at 04:27 on this head, `39359042041`,
-the first pack run under Verdict 72's mends, and to this head's build run; the game waits on it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2032,7 +2033,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     or a budget a frame, with the figures in the remark; then the commit in the usual form. What
     stays under in the corridor is the light past the first bounce, the world probes there 86 to 100
     under, so the screen probes' hits read nothing from them, a term that stands in the order under
-    the gain.
+    the gain. The ore sample by night measured by 06:54 on 2026-10-20 from a scratch copy of its
+    build on the tree's engine and the head's shaders, frames unlimited: unbounded, (iii) adds 0.13
+    to 0.19 ms by day and by night alike at High and Low on 3.3 to 3.9 ms, the night costing no more
+    than the day, so no bound is forced; held to four times the rays' reach, 9.6 units there, it
+    adds 0.05 to 0.14, the corridor keeping nearly all of its gain, narrowing by 0.017 to 0.023 at
+    both sizes where unbounded by 0.019 to 0.027, every other view holding to the third digit, so
+    the coder takes the bound, half the cost for the same mend, and the reviewer agrees; a corridor
+    test reads the wall's screen probe at 0.13 of the reference along its ways with it where 0.00
+    without, bounded above 0.06. The commit follows.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -3033,9 +3042,12 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     not as a failure, held by a test on the stand-in's lost mode with every test passing. Two
     commits under N 3.5, before the corridor's. The settling condition stands as written, three
     Windows suites in a row that end green with their summary inside the job's limit, each recorded
-    with its processor and time. Settled at three Windows suites in a row after the mends that end
-    with their summary inside the job's limit, each recorded with its processor, its time and
-    whether the cache was found, since the time is the processor's and an hour is not the bound.
+    with its processor and time. Mended at `14890db6` and `8e80cf46` on 2026-10-20 as the head says,
+    the parts from the start held to 70 minutes each and the exit 0 on a run lost to its time alone
+    with every test green; the pack run started on `8e80cf46` is the first suite under them. Settled
+    at three Windows suites in a row after the mends that end with their summary inside the job's
+    limit, each recorded with its processor, its time and whether the cache was found, since the
+    time is the processor's and an hour is not the bound.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
