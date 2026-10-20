@@ -177,6 +177,7 @@ jobs:
       # Linux job keeps it. The suite's apps here drew a frame in 3.8 seconds where four apps on a
       # host's lavapipe took 3.7 each with Mesa's cache off and 0.84 with it.
       - uses: actions/cache/restore@v6
+        id: mesa
         with:
           path: build/mesa-cache
           key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
@@ -207,6 +208,10 @@ jobs:
           echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
           echo "VK_ADD_LAYER_PATH=C:\VulkanSDK\Bin" >> "$GITHUB_ENV"
           echo "MESA_SHADER_CACHE_DIR=$(cygpath -w "$GITHUB_WORKSPACE/build/mesa-cache")" >> "$GITHUB_ENV"
+          # Asked for by name, since left to its default lavapipe wrote no cache here on any run, the
+          # save after the suite finding no folder, and every suite compiled every app's shaders, 32
+          # to over 60 minutes by the runner's processor (REVIEW.md, Verdict 72).
+          echo "MESA_SHADER_CACHE_DISABLE=false" >> "$GITHUB_ENV"
           echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
 
       # The loader leaves VK_DRIVER_FILES and VK_ICD_FILENAMES unread in a process with an
@@ -244,6 +249,21 @@ jobs:
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
+
+      # What lavapipe wrote into Mesa's cache, and the cache the suite began from, beside the
+      # processor, so a run says whether its suite ran warm and the next one reads whether Mesa on
+      # Windows keeps a cache at all.
+      - name: Say what Mesa's cache holds
+        if: always()
+        env:
+          RESTORED: ${{ steps.mesa.outputs.cache-matched-key }}
+        run: |
+          began="${RESTORED:-no cache}"
+          if [ -d build/mesa-cache ] && [ -n "$(find build/mesa-cache -type f -print -quit)" ]; then
+            echo "On $PROCESSOR, Mesa's cache holds $(find build/mesa-cache -type f | wc -l) files, $(du -sh build/mesa-cache | cut -f1), the suite having begun from $began"
+          else
+            echo "::warning title=Mesa's cache::On $PROCESSOR, lavapipe wrote no shader cache into build/mesa-cache, so every app compiled its shaders, the suite having begun from $began"
+          fi
 
       # The shaders the suite compiled, kept whether it passed or not.
       - uses: actions/cache/save@v6
