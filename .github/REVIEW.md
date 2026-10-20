@@ -10,7 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `82dd08f2`, item 39 and nothing else, documents alone, carrying the review's file.
+Reviewed up to `f4c62380`, the Windows job's cache steps taken out and nothing else, carrying the
+review's file. The processor step that keyed the cache alone, the cache's restore and save, the two
+Mesa variables and the step after the suite go, and the suite step's comment says that neither
+Windows build of Mesa carries a disk cache, its lavapipe holding none of the cache's names where
+Linux's does, that every app compiles every shader, 56 percent of the Rendering and Core parts on
+lavapipe with the cache off and most of it at an app's first frame, and that the whole run of
+`448aa3fc` ran out its hour where the parts took 66 minutes 23 seconds cold on the 7763;
+BUILDING.md's sentence says the same and that the Linux job keeps its cache keyed by the processor.
+Checked were the workflow's parse and the norm, document, workflow and script tests, 65. The build
+run of `82dd08f2` ended green at 09:16 with its Windows suite in its parts on a Xeon 8370C, cold, in
+58 minutes 26 seconds, 1,683 passed, exit 0, the third green Windows suite in a row under the mends,
+so Verdict 72 is settled. Pushed at 09:42, after that run had ended, as pushes go from here so no
+run is cancelled midway. Item 7's next game is Pinball, said under it, with Rally's missing README
+in a commit of its own before it. Item 6 waits on the owner's word.
+
+Before it, `82dd08f2` came, item 39 and nothing else, documents alone, carrying the review's file.
 RENDERING.md's global illumination part ends with a section on where the method stops, read to
 2026-10-20, opening with the rule and naming the five terms each with its cause, the room and figure
 that show it and the forms read and why each is out, the gain at 1.08 to 1.27 a bounce with the
@@ -37,32 +52,7 @@ at once for its item 16. The feed listed `5.2.155` at 08:48, ten minutes after t
 naming `9f9180b7` and carrying 18 lines of notes, the 18 commits since `5.2.92`'s `33fd0804` whose
 files are not all under `.github`, the review's commits left out, which proves item 37; the game's
 coder was told. Verdict 48's remedies were read by 09:40 and have nothing to give, said under item
-2. Next the Windows job's cache steps taken out, then item 7's next game; item 6 waits on the
-owner's word.
-
-Before it, `e6594bc4` came, the corridor's mend, form (iii), and nothing else, carrying COMMITS.md's
-sentence of Decision 50 and the review's file. A trace held within a given cascade and every finer
-one stands beside the field trace, the same march stopping where the ray leaves them; a screen
-probe's ray past its reach whose world probes hold nothing along its way goes on through the field
-as far as four times its reach, within the cascade it starts in and the next coarser one, and is
-shaded as a probe's hit is, the remark giving the corridor's term, its walls 78 to 79 under going to
-67 to 69 and its ceiling 69 to 55, the march to the field's edge at 66 to 68 and 52 for 0.13 to 0.19
-ms in the ore sample against 0.00 to 0.13 bounded, and the cascade edge room's 0.029 where under
-0.002 for the march into the coarser cascades. The corridor's bounds narrow to 0.25, 0.26 and 0.25
-where it reads 0.213, 0.222 and 0.215, the reason in the bounds' remark, and a new test reads the
-screen probe on the corridor's wall at 800 by 450, 1 percent of the reference along its ways on the
-head and 13 with the mend, bounded above 6; RENDERING.md has a record dated 2026-10-20 with these
-figures, the night's, the cascade edge figure and the two forms not taken; COMMITS.md's sentence
-says the review's three files are edited in the tree and committed by whichever batch comes next,
-never in a commit of their own but for one a day at most at a day's end, naming no one. On the final
-code the rule moves the corridor alone, by 0.017 to 0.023 at both sizes, every other view holding to
-the third digit, and the ore sample by day and night adds 0.00 to 0.13 ms on 3.25 to 3.79. Checked
-were the strict build, the suite, 1,746 passed and none failed, and lavapipe under the required
-layer over the global illumination, bounce rooms, reference frame, glow, cascade edge and descriptor
-pool tests, 89 passed and 12 skipped. Pushed at once; the pack run of `9f9180b7` runs on. The light
-past the first bounce at probes that hold nothing was read for its cause by 07:49, said under item
-30, and a form of (ii) beside (iii) is to be read. That form was read by 08:02 and is out, the term
-standing named as two of the method's, said under item 30, which ends the week's readings.
+2.
 
 Before it, `8e80cf46` came, Verdict 72's third and fourth mends, `14890db6` and `8e80cf46`, and
 nothing else, the first carrying the review's edits as the batch that came next. The Windows suite
@@ -600,7 +590,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 7. **A game is written meanwhile.** When the items above wait on a run or on the owner, the next
    game of `games/` is written, as the owner asked on 2026-10-07, a later game finding nothing new
-   being the point of each.
+   being the point of each. On 2026-10-20 at 09:42, with the week's readings ended and the verdicts
+   waiting on runs, the thirteen games' use of the engine was read: hinges, kinematic boxes and a
+   heightmap are taken by Manor, Summit and Rally, and no game uses a continuous body, distance or
+   ball joints, ropes and chains, a slider joint with its motor or a joint destroyed while the game
+   runs. The next game is Pinball, a fast ball as a continuous body on a tilted table, flippers on
+   hinges driven by their motors, the plunger a slider with its motor, bumpers and slingshots
+   kicking the ball, many contacts a second, a score with its sounds and a tilt that nudges the
+   table, played through e3d by its keys with a drive asserting a ball launched, flipped and
+   drained, chosen first since a fast ball on thin rails is where a missing sweep shows at once; the
+   rope-and-bridge puzzle, planks joined by ball and distance joints, ropes as chains of them and a
+   joint broken past a bound, is the game after. Rally has no README where every other game has one
+   in the games' form; it gets one in a commit of its own before Pinball's batch, documents alone.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
@@ -2292,8 +2293,8 @@ and the suite's loss at its limit traced to a shader cache never saved after a f
 on the runs of `a12206af` and `ad5d3692` on 2026-10-19, said under each. Verdict 71 is settled on
 the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdict 73 is settled on the
 runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdict 74 is settled on the pack
-runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdicts 72 and 75 are
-open.
+runs of `193c68b0`, `448aa3fc` and `9f9180b7` on 2026-10-20, said under it. Verdict 72 is settled on
+the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdict 75 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -3164,9 +3165,11 @@ open.
     40 minutes, the first of three. The pack run of `9f9180b7` on 2026-10-20 ran its Windows suite
     in its parts on an EPYC 7763, cold, in 66 minutes 23 seconds, 1,683 passed, exit 0, the job in
     99 minutes with the thirteen games, the second of three, and the slow runner's figure for the
-    parts, inside a push's 100 by a third. Settled at three Windows suites in a row after the mends
-    that end with their summary inside the job's limit, each recorded with its processor, its time
-    and whether the cache was found, since the time is the processor's and an hour is not the bound.
+    parts, inside a push's 100 by a third. The push run of `82dd08f2` on 2026-10-20 ran its Windows
+    suite in its parts on a Xeon 8370C, cold, in 58 minutes 26 seconds, 1,683 passed, exit 0, the
+    third of three; the cache steps went at `f4c62380`, since no Windows build of Mesa keeps one.
+    Settled on the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, three green Windows suites in a
+    row under the mends, 33, 66 and 58 minutes on three processors.
 
 73. **A scene file written again with a later time was not read anew on the macOS runner.** On the
     pack run of `d2de2766`, 2026-10-19 at 23:46, the macOS suite failed
