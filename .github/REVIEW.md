@@ -10,7 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5cd706d9`, item 40 at `fdcfd435` and the soak's Pinball turn at `5cd706d9`, the
+Reviewed up to `f74e087f`, Span, item 7's second game, and nothing else, carrying the review's file.
+The load's fall was the game's own design and no engine finding: read step by step with the joint's
+force and each joint's place, the load never went through the far cliff but dropped through the
+truss at mid-span with no joint broken and none more than 5 cm apart, the roll impulse carrying it
+along as it fell, since a truss of ball joints in a plane holds nothing out of its plane and had
+bowed sideways under its own weight before the load came, its middle node at 0.20 and 0.34 under the
+load with the nodes beside it at minus 0.35, and plank ends overlapping the cliff faces had loaded
+the anchors' joints with 12 to 14 kN at rest; the game takes hinges about the span's axis at every
+node in place of ball joints and puts the cliffs on a layer the planks do not meet, and the truss
+crosses at 150, 400 and 800 kg. The breaking rule at a strength of 7,000 N, from the most force on
+any joint over three runs at 150 kg: the truss's hinges held 4,326 N at most, the road alone 5,767
+under its own weight and 10,213 under the load, passing 8 kN before the load was halfway, and a road
+on four ropes 4,394 and crossed. The drive asserts the truss crossed whole and the road broken with
+the load fallen, passing on the development machine's card and on lavapipe under the validation
+layer; the soak's 23 turns, its check and the storm pass; the suite gave 1,748 with the strict build
+clean; the physics guide has a paragraph on Span's numbers and on hinges against ball joints with
+Span in its see-also; a Shared line under Replies offers the joint's force, taken into SHARED.md's
+row in both engines, the other engine's item 36. Read at 11:11; its push waits for the build run of
+`5cd706d9` to end. A pack run with publish on is due at the day's end with Pinball, item 40 and Span
+in. The third game, a siege, is begun by item 7's measure, said under it. Item 6 waits on the
+owner's word.
+
+Before it, `5cd706d9` came, item 40 at `fdcfd435` and the soak's Pinball turn at `5cd706d9`, the
 first carrying the review's file. A program reads the force a joint held its bodies with over the
 last step, which the solver keeps for its next step, through the new call, with its cheat sheet
 line, the surface listing, the upgrading guide's added entry and the physics guide's paragraph, and
@@ -18,9 +40,7 @@ a test reads a hanging box's weight from it; the soak plays Pinball, its autopil
 ball and flipping, the table nudged at times and a game started again once its last ball drains,
 where its turn had been empty and spun without waiting on a frame. The build run of `f4c62380` ended
 green at 11:03, its Windows suite in parts in 70 minutes 20 seconds, so the five commits from
-`ea7b1b83` to this head were pushed together at 11:05, no run cancelled. The rope-and-bridge puzzle,
-Span, stands in the tree with its breaking rule on the joint's force. A pack run with publish on is
-due at the day's end with Pinball, item 40 and Span in. Item 6 waits on the owner's word.
+`ea7b1b83` to this head were pushed together at 11:05, no run cancelled.
 
 Before it, `1189291d` came, the three document lines of Pinball's findings and nothing else,
 documents alone, carrying the review's file. The physics guide says under fast bodies that a step
@@ -31,23 +51,6 @@ leaves at 21, and in the hinge's paragraph that a hinge's limit is a spring a mo
 flippers 18 degrees past both limits at 400 and 3 at 60; E3D.md says a status asked for after the
 key command reads the key up, and a status while the key is held is asked for by a command sent in
 the background beside it; the norm and document tests gave 22.
-
-Before it, `2271cdea` came, Pinball, item 7's game, and nothing else, carrying the review's file.
-The table lies flat with gravity tilted 6.5 degrees and scaled to it, its walls static boxes turned
-about the vertical; the ball and the plunger are continuous bodies, the flippers hang on hinges to
-kinematic posts under the table with motors and limits, the plunger is a slider on its own motor,
-three bumpers and two slings kick from their contacts with each bumper lighting a point light, a
-nudge on a key and a tilt at three close together, three balls with the best saved to a file, its
-own sounds from a script, and status and autopilot commands; a README in the games' form; the drive
-script's case asserts a ball launched, a flipper meeting it under the autopilot and the drain once
-the flips stop; the game is in the workflow's three loops and the soak and storm lists with a
-games-job step that drives and captures it; the gallery is written by the table script with the
-capture and its thumbnail, the README's count 14, BUILDING.md saying fourteen games and the physics
-guide's see-also naming it. Checked were the strict build, the suite, 1,746, the table's check, and
-the drive four times on the GPU and once on lavapipe under the validation layer, built from a fresh
-pack. Two findings about the engine, said under item 7: a motor that drives a body from rest at once
-can drive it through a resting body, continuous or not, and a hinge's limit gives under a strong
-motor.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -585,7 +588,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    is weak, played through e3d by placing planks with a drive asserting a crossing and a break. The
    document lines done at `1189291d` on 2026-10-20; the rope-and-bridge puzzle begun. The soak's
    Pinball turn mended at `5cd706d9`; Span, the rope-and-bridge puzzle, in the tree on item 40's
-   call.
+   call. Span done at `f74e087f` on 2026-10-20, as the head says, fifteen games; the fall it met was
+   its own design, said there. By 11:12 the coder had read what the games use: of the 717 statics in
+   the surface listing, 465 are called by no game, most of them raylib's helpers over math, images,
+   text and files, but whole areas stand untouched, the weld joint, the ball joint's limits, convex
+   hulls and capsules, the bodies in a sphere, the sphere cast, an impulse at a point and a
+   contact's impulse, triggers, the character's height and a distance joint's range; animation
+   beyond one clip, the blending and layers and the animated model component; audio pushed by the
+   program, the stream's pitch, pan, volume, pause and resume, the processors and waves; meshes and
+   textures changed at run time; spot lights, a light's direction and shadows, the shadow map's
+   size, the tonemap, depth of field, color grading and contact shadows; the 2D shader, scissor and
+   blend modes; touch and the gamepad's sensors; and the storage values. The third game is a siege,
+   knocking down welded towers: towers of convex-hull and box blocks welded together, broken where
+   the joint's force passes a strength, a weld's reading mixing force with torque where no test or
+   game has tried it; a catapult arm on a hinge with its motor throwing a capsule or a hull; a blast
+   finding what is near with the bodies in a sphere and pushing each piece with an impulse at a
+   point; a block's damage from the contact's impulse, aiming with the sphere cast and a trigger for
+   the goal; hundreds of blocks waking and sleeping; a spot light on the tower with shadows and a
+   tonemap and depth of field chosen; the scripted run asserting a throw, a weld broken and the
+   tower down. A ragdoll game, which would cover the ball joint's cone, capsules and the animation's
+   blending and layers, waits on a skinned model, which the games have none of, and a
+   procedural-sound toy is narrower; both stand after.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
@@ -2282,7 +2305,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the puzzle breaks a joint past a force measured against the truss and the road, and reads with
     the force in hand why the load fell through the far cliff after crossing at 400 and 800 kg, a
     plank's end pinned at the cliff's edge and pressed into it the first suspect, said as a finding
-    if it is the engine's. Done at `fdcfd435` on 2026-10-20, as the head says.
+    if it is the engine's. Done at `fdcfd435` on 2026-10-20, as the head says. A finding by 11:15
+    the same day, before the publish: the read on a weld depends on the order its two bodies were
+    given, and for welds and hinges it adds newton-meters to newtons. A 10 kg box, 98.1 N, on a
+    kinematic anchor over 120 steps at rest reads 98.1 as a weld with the anchor first and 138.7
+    with the box first, 404.5 with the box 4 m out, since the library's weld holds the offset of its
+    second body's center and its linear impulse acts there, so with the box second the moment falls
+    on the kinematic side and reads nothing, the linear part 98.1 in both orders and the angular
+    part alone moving; a weld arm of two boxes reads 219.5 at the root, 196.4 of force with an
+    angular 98 where the root's real moment is 294, so the angular part is not the moment at the
+    joint either; a hinge on a vertical axis with the box 2 m out reads 219.4, the force 98.1 at the
+    hinge's point and the moment 196.2, defined at the point but in mixed units; a stack of three
+    welded boxes reads 294.3, 196.2 and 98.1 from the bottom, compression alone. The mend, one
+    commit before the publish: the call returns the force alone, the magnitude of the constraint's
+    linear part, all of a ball joint, the distance joint's scalar, a hinge's first three, a weld's
+    last three and a slider's two, read from the accumulated impulses by the constraint's type, so
+    it is newtons for every kind and a weld reads the same in either order; the remarks, the physics
+    guide's paragraph and the upgrading entry say force alone; a test welds a box beside an anchor
+    in both orders and reads its weight within a percent, beside the hanging rope. A torque read
+    would be a call of its own with a defined point, if a game asks. Span's hinges hold forces in
+    the bridge's plane, so its numbers stand, read again once the change is in; the siege game's
+    breaking rule builds on it.
 
 ## Verdicts
 

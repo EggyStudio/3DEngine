@@ -1,6 +1,7 @@
 using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Constraints;
+using BepuUtilities;
 
 namespace Engine;
 
@@ -404,17 +405,46 @@ public sealed partial class PhysicsWorld
         joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle));
 
     /// <summary>
-    /// The force a joint held its bodies together with over the last step, the impulse its own
-    /// constraint gave in the step's last substep over that substep's length, a hinge's limit and
-    /// motor and a slider's lock apart, and 0 for a joint that is gone or before any step.
+    /// The force a joint held its bodies together with over the last step, the linear part of the
+    /// impulse its own constraint gave in the step's last substep over that substep's length, a
+    /// hinge's limit and motor and a slider's lock apart, and 0 for a joint that is gone or before
+    /// any step.
     /// </summary>
+    /// <remarks>
+    /// The turning part is left out. A weld holds its second body's center where it was put
+    /// against the first, so the moment it holds is taken about that center, and a box welded
+    /// beside a kinematic anchor read its weight alone given second and its weight with the moment
+    /// given first, 98 newtons against 404 with the box 4 meters out, where the force is the same
+    /// in either order.
+    /// </remarks>
     internal float GetJointForce(PhysicsJoint joint)
     {
         if (!JointExists(joint) || _lastStep <= 0) return 0;
         // The solver keeps each constraint's impulse from the last substep, to start the next
         // step's from, so reading it costs nothing until it is asked for.
-        var impulse = Simulation.Solver.GetAccumulatedImpulseMagnitude(new ConstraintHandle(joint.Handle));
-        return impulse * Simulation.Solver.SubstepCount / _lastStep;
+        var handle = new ConstraintHandle(joint.Handle);
+        // A weld's impulse is its turning part and then its linear part, and a hinge's its linear
+        // part and then its turning part. A ball joint's, a distance joint's and a slider's are
+        // linear alone.
+        var type = Simulation.Solver.GetConstraintReference(handle).TypeBatch.TypeId;
+        var linear = type == Weld.ConstraintTypeId ? new LinearImpulse(3, 3)
+            : type == Hinge.ConstraintTypeId ? new LinearImpulse(0, 3)
+            : new LinearImpulse(0, int.MaxValue);
+        Simulation.Solver.EnumerateAccumulatedImpulses(handle, ref linear);
+        return MathF.Sqrt(linear.Squared) * Simulation.Solver.SubstepCount / _lastStep;
+    }
+
+    // Sums the squares of a range of a constraint's impulse, as the solver lists them.
+    private struct LinearImpulse(int first, int count) : IForEach<float>
+    {
+        private int _index;
+        public float Squared;
+
+        public void LoopBody(float value)
+        {
+            if (_index >= first && _index - first < count) Squared += value * value;
+            _index++;
+        }
     }
 
     private PhysicsJoint Add<T>(BodyReference a, BodyReference b, T constraint) where T : unmanaged, ITwoBodyConstraintDescription<T>

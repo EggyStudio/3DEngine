@@ -103,6 +103,7 @@ table also answers whether the two agree.
 | Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow, a sleeping body woken when its layer or trigger changes | taken at `795762b`, 32 layers | has (`8520dbe1`, `ac897afa`) |
 | A body a game knows is fast swept over each step, so it does not cross a thin wall within one, chosen for each body | taken at `795762b` | has (`SetPhysicsBodyContinuous`, `799a9d56`) |
 | A slider joint, one body along an axis against another without turning, with limits, a motor and its position, from code and from a scene file | taken at `36362ce` from code and `c98010a` from a scene file | has (`979c97be`) |
+| A program reads the force a joint held its bodies with over the last step, the impulse the solver keeps for the joint's own constraint over a substep, so a game breaks a joint past a strength where the joints' give under load reads alike for a truss and a bare road | to take, the same library on the managed side, item 36 | has (`fdcfd435`, a box of 3 kilograms on a distance joint reading its weight within a percent at one substep and at four; Span breaks a road's joint past 7,000 N where a truss holds 4,326 N and the road 10,213 under the load) |
 | A game asks how hard two touching bodies press, answered while they sleep too | taken at `36362ce`, the push alone | has (`GetPhysicsContactImpulse`, `53cd565f`), the push alone since `c774a379` |
 
 ### Scenes, saves and files

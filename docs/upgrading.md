@@ -265,5 +265,5 @@ guide that shows it.
   `ImGui.ImageButton` and a draw list's `AddImage`, which drew a part of the font atlas before, as
   [ImGui in the same frame](window-and-frame.md#imgui-in-the-same-frame) shows.
 - **A joint's force.** `GetPhysicsJointForce` says how hard a joint held its bodies together over
-  the last step, so a rope or a bridge breaks past a load the program chose, as
-  [Joints](physics.md#joints) shows.
+  the last step, the force alone in newtons, so a rope or a bridge breaks past a load the program
+  chose, as [Joints](physics.md#joints) shows.

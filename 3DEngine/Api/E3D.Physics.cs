@@ -197,10 +197,10 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// It is the joint's own hold, so a hinge's limit and motor and a slider's lock are left out
-    /// of it. A ball joint's and a distance joint's is a force alone, while a hinge's and a weld's
-    /// hold their bodies from turning too, and a torque is added in. A joint that breaks under a
-    /// load reads this each frame and is destroyed with <see cref="DestroyPhysicsJoint"/> past a
-    /// force the program chose.
+    /// of it, and the force alone, so the torque with which a hinge or a weld keeps its bodies from
+    /// turning is left out too, and a weld reads the same whichever of its bodies was given first.
+    /// A joint that breaks under a load reads this each frame and is destroyed with
+    /// <see cref="DestroyPhysicsJoint"/> past a force the program chose.
     /// </remarks>
     public static float GetPhysicsJointForce(PhysicsJoint joint) => Physics.GetJointForce(joint);
 

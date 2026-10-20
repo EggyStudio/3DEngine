@@ -329,10 +329,11 @@ CreatePhysicsDistanceJoint(beam, bridge, new Vector3(7.5f, 9, -27), new Vector3(
 
 `GetPhysicsJointForce` says how hard a joint held its bodies together over the last step, in
 newtons where mass is in kilograms, so a rope a 3 kilogram box hangs on reads its weight, 29.4. It
-reads the joint's own hold, a hinge's limit and motor and a slider's lock apart, and a hinge's and
-a weld's take in the torque that keeps their bodies from turning. The solver keeps each joint's
-impulse for its next step, so the call costs nothing until it is made, and a joint that breaks
-under a load reads it each frame and is destroyed past a force the program chose:
+reads the joint's own hold and its force alone, a hinge's limit and motor, a slider's lock and the
+torque a hinge or a weld holds against turning left out, so a weld reads the same whichever of its
+bodies was given first. The solver keeps each joint's impulse for its next step, so the call costs
+nothing until it is made, and a joint that breaks under a load reads it each frame and is destroyed
+past a force the program chose:
 
 <!-- compiled with:
 PhysicsJoint rope = default;

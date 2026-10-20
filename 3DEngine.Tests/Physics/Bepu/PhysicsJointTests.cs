@@ -107,6 +107,36 @@ public class PhysicsJointTests
         world.GetJointForce(rope).Should().Be(0, "nor does one that is gone");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void A_Weld_Reads_The_Weight_Of_A_Box_Held_Out_Beside_It_Whichever_Body_Is_Given_First(bool boxFirst)
+    {
+        using var world = NewWorld();
+        var anchor = world.CreateKinematicBox(new Vector3(0, 10, 0), new Vector3(0.5f));
+        // Four meters out, where the moment the weld holds is four times the weight.
+        var box = world.CreateBox(new Vector3(4, 10, 0), new Vector3(0.5f), mass: 10);
+        var weld = boxFirst ? world.CreateWeldJoint(box, anchor) : world.CreateWeldJoint(anchor, box);
+
+        Run(world, 120);
+
+        world.GetJointForce(weld).Should().BeApproximately(10 * 9.81f, 10 * 9.81f * 0.01f, "the force alone, the moment left out");
+    }
+
+    [Fact]
+    public void A_Hinge_Reads_The_Weight_It_Holds_And_Not_The_Moment()
+    {
+        using var world = NewWorld();
+        var post = world.CreateKinematicBox(new Vector3(0, 10, 0), new Vector3(0.1f));
+        // A door two meters wide on an upright hinge, which holds its weight and the moment of it.
+        var door = world.CreateBox(new Vector3(2, 10, 0), new Vector3(0.5f), mass: 10);
+        var hinge = world.CreateHingeJoint(post, door, new Vector3(0, 10, 0), Vector3.UnitY);
+
+        Run(world, 120);
+
+        world.GetJointForce(hinge).Should().BeApproximately(10 * 9.81f, 10 * 9.81f * 0.01f);
+    }
+
     // The angle a door has swung about the vertical through the hinge, from where it was made along +X.
     private static float DoorAngle(PhysicsWorld world, PhysicsBody door, Vector3 hinge)
     {
