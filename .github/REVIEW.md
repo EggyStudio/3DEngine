@@ -10,20 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8e31620c`, item 53's second commit, the persistent value, and nothing else, carrying
-the review's file, in the form said before it; the suite gave 1,807 and the strict build is clean.
-The build run of `414e6f77` ended green at 19:01, so the three commits from `43ace92a` to this head
-were pushed at 19:04; the pack run anew waits for Verdict 79's mend, which stands in the coder's
-tree. SHARED.md's row says both engines have the save and the persistent value. Item 6 waits on the
-owner's word.
+Reviewed up to `b3922179`, Verdict 79's mend and nothing else, carrying the review's and the
+ledger's files. The run's own readings showed one step and no climb, the live managed bytes going
+3.73, 4.28 and 4.79 MB and then 8.23 at 63 seconds and holding, the heap 7.72 to 13.94 at the same
+reading and holding, the step landing after the first quarter of the readings so the check read it
+as a climb, the runner's turns taking about 30 seconds where the machine's took five; a recording's
+buffers were sized by how long it ran and held until the next, 19 MB for 30 seconds, the list's
+spare capacity that a clear keeps and two copies, the drawing's and the read-back wave's, nothing
+climbing but a recording without a bound, which a player would meet too, the engine freeing what it
+should. The mend: Tones keeps a recording's first fifteen seconds, the list's capacity made that
+size once at the start so it is in the baseline, the recording read back held once and shared by the
+drawing and the sound with no copy, two 30-second recordings leaving the managed heap at 6.52, 8.02
+and 8.41 MB against 23 before; the soak's turn records a note alone at the start of every fourth
+turn from the first, so the first recording's hold is in before the first quarter ends however slow
+the turns and each later one holds as much as the first; the README and the head comment say the
+fifteen seconds; compacting the large object heap in the collect command was tried and reverted,
+since it did not settle the reading and would move every game's soak. Checked on lavapipe from a
+fresh pack: the drive passing with the tail at 0.060 and 0.000, the soak at full speed holding 7.82
+MB against a bound of 11.10 and pinned to one core 8.75 against 12.16, no engine file changed.
+Pushed at 19:05 after the three before it, and the pack run with publish on started anew on this
+head for the day's batch, its games job Verdict 79's first and Verdict 77's second, its macOS games
+Verdict 76's third. Next item 54 from the ledger. Item 6 waits on the owner's word.
+
+Before it, `8e31620c` came, item 53's second commit, the persistent value, and nothing else,
+carrying the review's file, in the form said before it; the suite gave 1,807 and the strict build is
+clean. Pushed at 19:03 with the two before it.
 
 Before it, `a150c4c1` came, item 53's first commit, the saved game over its scenes, and nothing
 else, carrying the review's and the ledger's files, in the form and with the tests and numbers said
 before it; the suite gave 1,807.
-
-Before it, `43ace92a` came, item 52 and nothing else, carrying the review's and the ledger's files,
-in the form and with the tests and numbers said before it; the suite gave 1,801, the strict build is
-clean and the scene guide's blocks build on the fresh pack.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2727,6 +2742,42 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     persistent value done at `8e31620c` on 2026-10-20; the item is done, the ledger's row saying
     both engines have it.
 
+54. **An order among the systems of one stage, one before or after another or a chain, kept under
+    the shuffle.** SHARED.md's row, where this engine is to consider and a system runs after every
+    earlier one it conflicts with, taken on 2026-10-20 after item 53: a stage's systems run in the
+    order added, which ARCHITECTURE.md says, so a plugin's system and a game's that must follow it
+    lean on the order of their adding, which no one asked for and item 48's shuffle moves since
+    `6a289059`; the engine gains an asked order, a system added before or after another by name or a
+    chain of names, kept by the batches as a conflict's order is kept and by the shuffle, a cycle
+    refused with the names at the app's start; the behaviors guide's paragraph on stages, the cheat
+    sheet's hand sentence, ARCHITECTURE.md's schedule sentence, the surface listing and the
+    upgrading guide's entry; tests of a before, an after and a chain holding under forty seeds
+    beside item 48's, a cycle refused by name, and the cost of a stage with no asked order, which
+    must be none. Read first how a system is named and found in the schedule today and BevyCSharp's
+    form for the model, never edited, and say the form before the commit. One commit. The form said
+    by 19:11 on 2026-10-20 and taken, as BevyCSharp's: a system is named by its descriptor, the name
+    given or the delegate's type and method, a generated behavior's by its name, stage and method,
+    and nothing finds one by name today but the removal by source; the descriptor gains after and
+    before by name, fluent, with the lists read back, and the app a chain over a stage ordering each
+    after the one before by name, so systems sharing a name are ordered together; an internal
+    ordering of the schedule runs at the app's startup before the shuffle, leaving a stage where no
+    system asks as it is after one look over its list, otherwise resolving every name among the
+    stage's systems, after or before every system of the name and never itself, sorting stably by
+    the earliest added of those whose predecessors are all placed so the add order holds wherever
+    nothing was asked, each system keeping a predecessors set, null where no order touches it; a
+    name the stage lacks refuses the start naming the system, the stage and the name, and a cycle
+    refuses it naming the round; the batches treat a predecessor in an earlier batch as a conflict
+    with an asked-order note and the shuffle keeps it; a system added after the start runs where it
+    is added, said in the documents, and a plain system orders against a behavior's by its name. The
+    cost with no order asked one look at each system at start and one null read a pair in the
+    batches beside the conflict check, nothing allocated and the list untouched, held by a test.
+    Four tests, an after, a before and a backward chain holding in the sorted list, through the
+    parallel batches and under forty seeds, a chain run after startup in its order, the round and
+    the unknown name refused with their messages, and a stage with no order left as it was. The
+    behaviors guide's paragraph and block, the cheat sheet's sentence, ARCHITECTURE.md's schedule
+    paragraph in place of its sentence that there is no ordering, BUILDING.md's shuffle paragraph,
+    the upgrading guide's entry and five lines of the surface listing follow.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -3754,7 +3805,9 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdicts 75 to 77 and 79 ar
     heap's readings between them, then the mend where it points, the game freeing what a turn made
     before the next or the engine freeing a wave's or a sound's managed side where it does not, with
     the reason in the remark, one commit. The pack job was skipped on it, so the day's package
-    waits. Settled when the games job's soak passes Tones on three pack runs in a row.
+    waits. Read and mended at `b3922179` on 2026-10-20 as the head says, a recording bounded to
+    fifteen seconds and held once; the pack run started on it is the first of three. Settled when
+    the games job's soak passes Tones on three pack runs in a row.
 
 ## Decisions
 

@@ -33,14 +33,18 @@ public sealed partial class App
 
     /// <summary>Runs <see cref="Stage.Startup"/>, once. Later calls do nothing.</summary>
     /// <remarks>
-    /// Where <c>E3D_SCHEDULE_SHUFFLE_SEED</c> names a whole number, each stage's systems are
-    /// shuffled by it first, within the order the stage holds to, and the log says the seed.
+    /// Each stage's systems are put first in the order they asked for with
+    /// <see cref="SystemDescriptor.After"/> and <see cref="SystemDescriptor.Before"/>. Where
+    /// <c>E3D_SCHEDULE_SHUFFLE_SEED</c> names a whole number, they are then shuffled by it, within
+    /// the order the stage holds to, and the log says the seed.
     /// </remarks>
+    /// <exception cref="InvalidOperationException">A system asks to run next to one its stage does not hold, or the order asked goes round.</exception>
     public void Startup()
     {
         if (_started) return;
         _started = true;
 
+        Schedule.Order();
         ShuffleSchedule(Environment.GetEnvironmentVariable(Schedule.ShuffleSeedVariable));
         Logger.Info("Running the Startup stage, the systems that initialize once...");
         Schedule.RunStage(Stage.Startup, World);

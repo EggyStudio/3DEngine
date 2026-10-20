@@ -64,6 +64,32 @@ turns in each frame, and a behavior added between `InitWindow` and the first fra
 the start. `ctx.Time.DeltaSeconds` is the frame's time, as `GetFrameTime()` is, and
 `ctx.FixedDelta` the fixed step's.
 
+Within a stage, systems run in the order they were added, and two whose declared reads and writes do
+not conflict may run in either order, as a batch run on several threads or a seed's shuffle runs
+them. A system that must follow another, as a score counted after the pieces move, asks for it by
+the other's name, a behavior's being its type's, its stage's and its method's joined by
+underscores:
+
+<!-- compiled with:
+App app = null!;
+static void Move(World world) { }
+static void Score(World world) { }
+static void Celebrate(World world) { }
+static void Collide(World world) { }
+-->
+```csharp
+app.AddSystem(Stage.Update, new SystemDescriptor(Score, "Score").After("Move").Read<EcsWorld>());
+app.AddSystem(Stage.Update, new SystemDescriptor(Move, "Move").Read<EcsWorld>());
+app.AddSystem(Stage.Update, new SystemDescriptor(Celebrate, "Celebrate").After("Spin_OnUpdate_Turn"));
+app.Chain(Stage.Update, new SystemDescriptor(Collide, "Collide"), new SystemDescriptor(Score, "Score again"));
+```
+
+`Before` is the other side of `After`, and `App.Chain` orders each of its systems after the one
+before it. The app sorts each stage by what was asked as it starts, keeping the order added wherever
+nothing was, and a name the stage does not hold or an order that goes round stops it from starting
+with the names. Each asked order holds in the stage's batches and under any seed's shuffle, and a
+stage where no system asks is left as it is.
+
 ## Spawning entities
 
 `ctx.Ecs.Spawn()` makes an entity, and `ctx.Ecs.Add` gives it components. The `ecs_mesh_entities`

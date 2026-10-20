@@ -12,11 +12,13 @@ public sealed partial class Schedule
     /// <remarks>
     /// A stage holds to the order systems were added in between two that conflict, by what they
     /// declare they read and write or by one declaring nothing, and between a main-thread system
-    /// and any other, as its batches do, and the shuffle keeps those pairs. Two systems whose
-    /// declarations do not conflict may run in either order, which a batch run in parallel allows
-    /// already, while a batch light enough to run on the calling thread runs them in the order
-    /// added in every frame, so a system reading what another changes without declaring it can
-    /// pass every test in that order alone. The same seed and the same systems give the same order.
+    /// and any other, as its batches do, and to the order a system asked for with
+    /// <see cref="SystemDescriptor.After"/> and <see cref="SystemDescriptor.Before"/>, and the
+    /// shuffle keeps those pairs. Two systems whose declarations do not conflict may run in either
+    /// order, which a batch run in parallel allows already, while a batch light enough to run on
+    /// the calling thread runs them in the order added in every frame, so a system reading what
+    /// another changes without declaring it can pass every test in that order alone. The same seed
+    /// and the same systems give the same order.
     /// </remarks>
     internal void Shuffle(int seed)
     {
@@ -67,5 +69,6 @@ public sealed partial class Schedule
     }
 
     private static bool HeldInOrder(SystemDescriptor earlier, SystemDescriptor later) =>
-        earlier.Affinity == ThreadAffinity.MainThread || later.Affinity == ThreadAffinity.MainThread || earlier.ConflictsWith(later);
+        earlier.Affinity == ThreadAffinity.MainThread || later.Affinity == ThreadAffinity.MainThread || earlier.ConflictsWith(later)
+        || later.Predecessors?.Contains(earlier) == true;
 }

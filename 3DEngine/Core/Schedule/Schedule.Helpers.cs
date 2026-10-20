@@ -101,9 +101,10 @@ public sealed partial class Schedule
     /// conflicting resource access and can safely run in parallel.
     /// </summary>
     /// <remarks>
-    /// A system joins the first batch after the last one holding a system it conflicts with and
-    /// after the last main-thread system added before it, so a system that reads what an earlier
-    /// one writes runs after it, and the order systems were added in holds wherever it matters.
+    /// A system joins the first batch after the last one holding a system it conflicts with or asked
+    /// to run after and after the last main-thread system added before it, so a system that reads
+    /// what an earlier one writes runs after it, and the order systems were added in, or asked for,
+    /// holds wherever it matters.
     /// </remarks>
     /// <param name="systems">The systems to partition.</param>
     /// <param name="notes">
@@ -137,6 +138,12 @@ public sealed partial class Schedule
                 }
                 for (int j = 0; j < batch.Count; j++)
                 {
+                    if (desc.Predecessors?.Contains(batch[j]) == true)
+                    {
+                        earliest = i + 1;
+                        if (!batchNotes[i].Contains("asked-order")) batchNotes[i].Add("asked-order");
+                        break;
+                    }
                     if (desc.TryGetConflictReason(batch[j], out var reason))
                     {
                         earliest = i + 1;

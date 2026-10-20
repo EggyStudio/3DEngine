@@ -41,15 +41,16 @@ where one was lost to a crash, a hang or its memory, whatever the parts gave aft
 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 `E3D_SCHEDULE_SHUFFLE_SEED` set to a whole number shuffles the order each stage of an app runs its
-systems in, once as the app starts, and the app's log says the seed. A stage runs its systems in
-the order they were added, and the shuffle keeps that order between two systems whose declared reads
-and writes conflict, one declaring none conflicting with every other, and between a main-thread
-system and any other, as the stage's batches do. Systems whose declarations do not conflict move,
-so a system reading what another changes without declaring it, which passes while a light batch
-runs them in the order added, meets the other order. The same seed and systems give the same order.
-`build/test.py --shuffle-seed N` runs a suite that passed whole once more with the seed set, its
-results and page in `TestResults/shuffled`, and a failure there names the command that runs it in
-the same order again. The Linux job runs that pass with the day's date as the seed:
+systems in, once as the app starts, and the app's log says the seed. A stage runs its systems in the
+order they were added, and the shuffle keeps that order between two systems whose declared reads and
+writes conflict, one declaring none conflicting with every other, between a main-thread system and
+any other, as the stage's batches do, and every order a system asked for with
+`SystemDescriptor.After` or `Before`. Systems whose declarations do not conflict move, so a system
+reading what another changes without declaring it, which passes while a light batch runs them in the
+order added, meets the other order. The same seed and systems give the same order. `build/test.py
+--shuffle-seed N` runs a suite that passed whole once more with the seed set, its results and page
+in `TestResults/shuffled`, and a failure there names the command that runs it in the same order
+again. The Linux job runs that pass with the day's date as the seed:
 
 ```bash
 python3 build/test.py --shuffle-seed 20261020   # and the suite once more, each stage shuffled by the seed

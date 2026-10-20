@@ -59,10 +59,14 @@ A system is a `SystemFn(World)` in a `SystemDescriptor`, which declares the reso
 writes (`.Read<T>()`, `.Write<T>()`), whether it must run on the main thread, and a run condition.
 Within a stage, systems are packed greedily into batches whose declarations do not conflict, and
 each batch runs with `Parallel.ForEach`. A system that declares nothing conflicts with everything
-and runs alone. `Startup`, `Render` and `Cleanup` run on one thread. Within a stage, systems run
-in the order they were added, and there is no before or after ordering. A whole number in
-`E3D_SCHEDULE_SHUFFLE_SEED` shuffles each stage's systems once as the app starts, keeping that
-order between two that conflict and between a main-thread system and any other, which a run of the
+and runs alone. `Startup`, `Render` and `Cleanup` run on one thread. Within a stage, systems run in
+the order they were added unless one asks to run before or after another by its name
+(`SystemDescriptor.After`, `Before`, `App.Chain`), which the app sorts each stage by as it starts,
+keeping the order added wherever nothing asked otherwise and refusing a name the stage lacks or an
+order that goes round, with the names. A stage where nothing asks is left as it is. A system's
+predecessors keep it in a later batch than theirs. A whole number in `E3D_SCHEDULE_SHUFFLE_SEED`
+shuffles each stage's systems once as the app starts, after that sort, keeping the order between two
+that conflict, between a main-thread system and any other, and every order asked, which a run of the
 suite with a seed uses to find a system leaning on an order nothing declares (BUILDING.md).
 
 ## Resources and events

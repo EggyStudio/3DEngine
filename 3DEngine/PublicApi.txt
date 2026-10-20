@@ -68,6 +68,7 @@ sealed class Engine.App : IDisposable
   App AddSystem(Stage stage, SystemDescriptor descriptor)
   App AddSystem(Stage stage, SystemFn system)
   App AddSystem(Stage stage, SystemFn system, Func<World, bool> runCondition)
+  App Chain(Stage stage, params SystemDescriptor[] systems)
   App InsertResource<T>(T value)
   App OnEnter<TState>(TState state, SystemDescriptor system) where TState : struct, Enum
   App OnEnter<TState>(TState state, SystemFn system) where TState : struct, Enum
@@ -3125,6 +3126,10 @@ sealed class Engine.SystemDescriptor
   Func<World, bool>? RunCondition { get; init; }
   IReadOnlyCollection<Type> Reads { get; }
   IReadOnlyCollection<Type> Writes { get; }
+  IReadOnlyList<string> RunsAfter { get; }
+  IReadOnlyList<string> RunsBefore { get; }
+  SystemDescriptor After(string name)
+  SystemDescriptor Before(string name)
   SystemDescriptor MainThreadOnly()
   SystemDescriptor Read<T>()
   SystemDescriptor RunIf(Func<World, bool> condition)

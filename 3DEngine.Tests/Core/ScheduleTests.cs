@@ -90,6 +90,91 @@ public class ScheduleTests
     }
 
     [Fact]
+    public void An_Asked_Order_Holds_In_The_Batches_And_Under_Every_Seed_s_Shuffle()
+    {
+        // None of these conflict, so only the order asked keeps any of them in place. Score runs
+        // after Move, Input before it, and X, Y and Z, added backward, each after the one before.
+        static Schedule Made()
+        {
+            var schedule = new Schedule();
+            schedule.AddSystem(Stage.Update, Adds("Score").Read<First>().After("Move"));
+            schedule.AddSystem(Stage.Update, Adds("Draw").Read<Second>());
+            schedule.AddSystem(Stage.Update, Adds("Move").Read<Third>());
+            schedule.AddSystem(Stage.Update, Adds("Input").Read<Second>().Before("Move"));
+            schedule.AddSystem(Stage.Update, Adds("Z").Read<First>().After("Y"));
+            schedule.AddSystem(Stage.Update, Adds("Y").Read<First>().After("X"));
+            schedule.AddSystem(Stage.Update, Adds("X").Read<First>());
+            schedule.Order();
+            return schedule;
+        }
+
+        static void Holds(IList<string> order, string because)
+        {
+            order.IndexOf("Input").Should().BeLessThan(order.IndexOf("Move"), because);
+            order.IndexOf("Move").Should().BeLessThan(order.IndexOf("Score"), because);
+            order.IndexOf("X").Should().BeLessThan(order.IndexOf("Y"), because);
+            order.IndexOf("Y").Should().BeLessThan(order.IndexOf("Z"), because);
+        }
+
+        var world = new World();
+        world.InsertResource(new ConcurrentQueue<string>());
+        var ordered = Made();
+        Holds([.. ordered.SystemNames(Stage.Update)], "the stage is sorted as the app starts");
+        Holds(Run(ordered, world), "each runs in a batch after those it asked to follow");
+
+        for (var seed = 0; seed < 40; seed++)
+        {
+            var schedule = Made();
+            schedule.Shuffle(seed);
+            Holds([.. schedule.SystemNames(Stage.Update)], $"seed {seed} gave {string.Join(", ", schedule.SystemNames(Stage.Update))}");
+        }
+    }
+
+    [Fact]
+    public void A_Chain_Added_To_An_App_Runs_In_Its_Order_From_The_App_s_Start()
+    {
+        var app = new App();
+        app.World.InsertResource(new ConcurrentQueue<string>());
+        app.AddSystem(Stage.Update, Adds("Late").Read<Second>().After("Third"));
+        app.Chain(Stage.Update, Adds("First").Read<First>(), Adds("Second").Read<Second>(), Adds("Third").Read<Third>());
+
+        app.Startup();
+        app.Schedule.RunStage(Stage.Update, app.World);
+
+        app.World.Resource<ConcurrentQueue<string>>().Should().Equal("First", "Second", "Third", "Late");
+        app.Dispose();
+    }
+
+    [Fact]
+    public void An_Order_That_Goes_Round_Or_Names_No_System_Of_The_Stage_Is_Refused_By_Name()
+    {
+        var round = new Schedule();
+        round.AddSystem(Stage.Update, Adds("A").After("C"));
+        round.AddSystem(Stage.Update, Adds("B").After("A"));
+        round.AddSystem(Stage.Update, Adds("C").After("B"));
+        round.Invoking(s => s.Order()).Should().Throw<InvalidOperationException>()
+            .WithMessage("The order asked in stage Update goes round: 'A' after 'C' after 'B' after 'A'.");
+
+        var unknown = new Schedule();
+        unknown.AddSystem(Stage.Update, Adds("A").After("Nobody"));
+        unknown.Invoking(s => s.Order()).Should().Throw<InvalidOperationException>()
+            .WithMessage("System 'A' in stage Update asks to run next to 'Nobody', and no other system of the stage is called that.");
+    }
+
+    [Fact]
+    public void A_Stage_Where_No_System_Asks_For_An_Order_Is_Left_As_It_Was()
+    {
+        var schedule = new Schedule();
+        foreach (var name in new[] { "A", "B", "C", "D" }) schedule.AddSystem(Stage.Update, Adds(name).Read<First>());
+        var before = schedule.SystemNames(Stage.Update);
+
+        schedule.Order();
+
+        schedule.SystemNames(Stage.Update).Should().Equal(before);
+        schedule.Systems().Should().OnlyContain(system => system.Predecessors == null, "no system carries an order the batches or a shuffle read");
+    }
+
+    [Fact]
     public void A_Batch_Of_Systems_That_Took_Next_To_Nothing_Runs_On_The_Calling_Thread_And_A_Heavy_One_Is_Shared()
     {
         var world = new World();

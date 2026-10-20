@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **An asked order among a stage's systems.** `SystemDescriptor.After` and `SystemDescriptor.Before`
+  order a system next to another of its stage by name, kept as `SystemDescriptor.RunsAfter` and
+  `SystemDescriptor.RunsBefore`, and `App.Chain` orders a list one after another, sorted as the app
+  starts, as [Stages](behaviors-and-the-ecs.md#stages) shows.
 - **A value kept between runs.** `Persistent<T>` keeps a `[SceneComponent]` value in a file beside
   the program, read over its default so a field a later version adds keeps the default's, with its
   `Path`, `Value`, `Problem` and `Changed`, written by `Save` or at each `Set` where it saves on

@@ -61,6 +61,23 @@ public sealed class SystemDescriptor
 
     private readonly HashSet<Type> _reads = [];
     private readonly HashSet<Type> _writes = [];
+    private readonly List<string> _after = [];
+    private readonly List<string> _before = [];
+
+    /// <summary>The names of the systems in its stage this one runs after.</summary>
+    public IReadOnlyList<string> RunsAfter => _after;
+
+    /// <summary>The names of the systems in its stage this one runs before.</summary>
+    public IReadOnlyList<string> RunsBefore => _before;
+
+    /// <summary>Whether it asks to run before or after another system.</summary>
+    internal bool AsksOrder => _after.Count > 0 || _before.Count > 0;
+
+    /// <summary>
+    /// The systems of its stage it runs after, by the order asked of it and of them, found as the
+    /// app starts, which its batch and the shuffle keep, or null where no order touches it.
+    /// </summary>
+    internal HashSet<SystemDescriptor>? Predecessors;
 
     /// <summary>Creates a new system descriptor wrapping the specified delegate.</summary>
     /// <param name="system">The system delegate to execute.</param>
@@ -93,6 +110,47 @@ public sealed class SystemDescriptor
     // How long the system took when it last ran, which decides whether its batch is worth
     // handing to other threads.
     internal double LastMilliseconds;
+
+    /// <summary>Runs this system after every system in its stage called <paramref name="name"/>.</summary>
+    /// <remarks>
+    /// <para>
+    /// Bevy's <c>.after</c>. Within a stage, systems run in the order they were added, and two
+    /// whose declared access does not conflict may run in either order, as a batch run in parallel
+    /// or a seed's shuffle runs them, so a system that reads what another wrote this frame without a
+    /// conflict saying so asks for the order here. The name is another system's
+    /// <see cref="Name"/>, a behavior's being its type's, its stage's and its method's joined by
+    /// underscores, as <c>Spin_OnUpdate_Turn</c>.
+    /// </para>
+    /// <para>
+    /// The name is found as the app starts, among the systems its stage holds then, so the other may
+    /// be added after this one. A name no system of the stage carries, or an order that goes round,
+    /// stops the app from starting with the names. A system added after the app has started runs
+    /// where it is added. <see cref="App.Chain"/> orders a list of systems one after another.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// app.AddSystem(Stage.Update, new SystemDescriptor(Score, "Score"));
+    /// app.AddSystem(Stage.Update, new SystemDescriptor(CheckForWinner, "CheckForWinner").After("Score"));
+    /// </code>
+    /// </example>
+    /// <returns>This descriptor for fluent chaining.</returns>
+    public SystemDescriptor After(string name)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        _after.Add(name);
+        return this;
+    }
+
+    /// <summary>Runs this system before every system in its stage called <paramref name="name"/>.</summary>
+    /// <remarks>Bevy's <c>.before</c>, the other side of <see cref="After"/>, which says how the name is found.</remarks>
+    /// <returns>This descriptor for fluent chaining.</returns>
+    public SystemDescriptor Before(string name)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        _before.Add(name);
+        return this;
+    }
 
     /// <summary>Marks this system as main-thread-only, preventing it from running in parallel batches.</summary>
     /// <returns>This descriptor for fluent chaining.</returns>

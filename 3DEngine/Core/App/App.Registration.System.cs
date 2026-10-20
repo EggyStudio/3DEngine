@@ -58,6 +58,33 @@ public sealed partial class App
         return this;
     }
 
+    /// <summary>Adds <paramref name="systems"/> to <paramref name="stage"/>, each to run after the one before it.</summary>
+    /// <remarks>
+    /// Bevy's <c>.chain()</c>, systems that pass work along in one frame. Each is ordered after the
+    /// one before it by its name, as <see cref="SystemDescriptor.After"/> orders one system after
+    /// another, so systems sharing a name are ordered together.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// app.Chain(Stage.Update,
+    ///     new SystemDescriptor(Move, "Move"),
+    ///     new SystemDescriptor(Collide, "Collide"),
+    ///     new SystemDescriptor(Score, "Score"));
+    /// </code>
+    /// </example>
+    /// <returns>This app for fluent chaining.</returns>
+    public App Chain(Stage stage, params SystemDescriptor[] systems)
+    {
+        ArgumentNullException.ThrowIfNull(systems);
+        for (int i = 0; i < systems.Length; i++)
+        {
+            ArgumentNullException.ThrowIfNull(systems[i]);
+            if (i > 0) systems[i].After(systems[i - 1].Name);
+            AddSystem(stage, systems[i]);
+        }
+        return this;
+    }
+
     /// <summary>Removes every system tagged with the given <see cref="SystemDescriptor.Source"/> from every stage.</summary>
     /// <param name="source">The provenance tag to match.</param>
     /// <returns>The total number of systems removed.</returns>

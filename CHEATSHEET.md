@@ -1442,7 +1442,9 @@ once one leaves it, and `ecs.Trigger(new Hit(entity, 10))` sends an event of the
 observers, the entity's after the rest, and up its parents for an `IPropagatingEvent` until one
 calls `on.Propagate(false)`. A window camera with `Picking` set tells the mesh entity under the
 mouse what it does to it, as `Pointer<Over>`, `Out`, `Move`, `Press`, `Release`, `Click`,
-`DragStart`, `Drag` and `DragEnd`, climbing its parents the same way.
+`DragStart`, `Drag` and `DragEnd`, climbing its parents the same way. A system added with
+`new SystemDescriptor(Score, "Score").After("Move")`, or `.Before`, or a list given to
+`app.Chain(stage, ...)`, runs in that order within its stage, sorted as the app starts.
 
 ## Scenes
 
