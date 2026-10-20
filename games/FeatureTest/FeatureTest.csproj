@@ -18,6 +18,8 @@
         <!-- The models the examples and Tumble carry, taken from where they are rather than copied. -->
         <Content Include="..\..\3DEngine.Examples\resources\arm.gltf;..\..\3DEngine.Examples\resources\morph.gltf;..\..\3DEngine.Examples\resources\torus.obj;..\..\3DEngine.Examples\resources\torus.mtl;..\..\3DEngine.Examples\resources\checker.png;..\Tumble\resources\robot.glb;..\Tumble\resources\robot-CC0.txt"
                  Link="resources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\..\3DEngine.Examples\resources\shaders\toon.slang;..\..\3DEngine.Examples\resources\shaders\life.slang;..\..\3DEngine.Examples\resources\shaders\plasma.slang;..\..\3DEngine.Examples\resources\shaders\grayscale.slang"
+                 Link="resources\shaders\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

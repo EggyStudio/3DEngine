@@ -17,7 +17,13 @@ a heightmap and a maze from images, an OBJ, a skinned arm, a robot run by an ani
 it names by its file's id, strips of morph targets and four hundred cubes in one instanced draw.
 North is the lights zone, a red lamp and a blue spot that cast shadows, a block the sun throws a
 shadow from, a glowing sphere, balls from rough to polished and from dielectric to metal, and a room
-a reflection probe lights with itself.
+a reflection probe lights with itself. North-east is a white room with a red wall and a green one,
+where global illumination is on while you are there, and off again as you leave, since it costs
+every frame. South-east is the particles zone, a fountain, a fire, smoke, sparks that bounce, lit
+particles and a burst every two seconds. South is the effects zone, a board with a red patch and a
+glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion blur and a
+tonemapping curve are shown on in turn as you arrive, a knot drawn through a toon shader, a texture a
+compute shader paints, and the Game of Life and a greying shader read back unseen.
 
 ## Keys
 

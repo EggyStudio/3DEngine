@@ -758,6 +758,24 @@ case "$game" in
     echo "$dark"
     case "$dark" in *"no red from the lamp"*"no blue from the spot"*) ;; *) fail "the lamps turned off still lit the floor, $dark" ;; esac
     cmd feature.toggle lights lamps on
+    # The room read with global illumination off and on, the floor by its red wall taking its red,
+    # each emitter's particles counted in a texture drawn through a camera in front of them, and
+    # each effect shown in turn and read in the window, with the shaders read back.
+    cmd feature.zone illumination
+    cmd frames.wait 440
+    bounced=$(ask feature.status illumination)
+    echo "$bounced"
+    case "$bounced" in *"the light bounces"*) ;; *) fail "global illumination took no colour from the room's walls, $bounced" ;; esac
+    cmd feature.zone particles
+    cmd frames.wait 150
+    particles=$(ask feature.status particles)
+    echo "$particles"
+    case "$particles" in *"particles ok"*) ;; *) fail "an emitter's particles were not drawn, $particles" ;; esac
+    cmd feature.zone effects
+    cmd frames.wait 500
+    effects=$(ask feature.status effects)
+    echo "$effects"
+    case "$effects" in *"effects ok"*"shaders ok"*) ;; *) fail "an effect or a shader was not read as it should be, $effects" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

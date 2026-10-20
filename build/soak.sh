@@ -177,16 +177,20 @@ turn() {
       wait_frames 60 ;;
     featuretest)
       # The player put at each zone in turn and walked a little there, the course's crates pushed
-      # and its platform ridden from the start each time, the panel shown every fourth turn, and
-      # every zone's status read.
+      # and its platform ridden from the start each time, global illumination turned on in its room
+      # and off again as the next turn leaves it, the effects shown, the panel shown every fourth
+      # turn, and every zone's status read.
       if (( i % 4 == 1 )); then cmd feature.panel on; else cmd feature.panel off; fi
-      case $(( i % 6 )) in
+      case $(( i % 9 )) in
         0) cmd feature.zone hub; key W 60 ;;
         1) cmd feature.zone drawing; key W 60 ;;
         2) cmd feature.zone course crates; key W 120 ;;
         3) cmd feature.zone course platform; wait_frames 120 ;;
         4) cmd feature.zone models; key W 60 ;;
         5) cmd feature.zone lights; wait_frames 70 ;;
+        6) cmd feature.zone illumination; wait_frames 200 ;;
+        7) cmd feature.zone particles; wait_frames 60 ;;
+        8) cmd feature.zone effects; wait_frames 150 ;;
       esac
       cmd feature.status
       wait_frames 30 ;;

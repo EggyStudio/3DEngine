@@ -10,19 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8609089a`, item 57's second part, the admin panel and the crash log, and nothing
-else, carrying the review's file, in the shape and with the tests and numbers said before it. Read
-at 22:01; its push with the two before it waits for the build run of `ac77ef83` to end, in its 65th
-minute. Next part 3, models and animation and lights and shadows, its shape said before its commit.
-Item 6 waits on the owner's word.
+Reviewed up to `086d9a00`, item 57's third part, models and animation and lights and shadows, and
+nothing else, carrying the review's file, in the shape and with the tests and numbers said before
+it. Read at 22:15. The build run of `ac77ef83` ended green at 22:21, its Windows parts in 73 minutes
+58 seconds, 1,754 passed, so the four commits from `b1265b6a` to this head were pushed at 22:23.
+Next part 4, global illumination, particles and the effects, its shape said before its commit. Item
+6 waits on the owner's word.
+
+Before it, `8609089a` came, item 57's second part, the admin panel and the crash log, and nothing
+else, carrying the review's file, in the shape and with the tests and numbers said before it.
 
 Before it, `7d7ecba6` came, item 57's first part, the feature test's hub, character and two zones,
 and nothing else, carrying the review's and the ledger's files, in the shape and with the tests and
 numbers said before it.
-
-Before it, `b1265b6a` came, item 56 and nothing else, 24 files, carrying the review's and the
-ledger's files, in the form and with the tests and numbers said before it; the suite gave 1,822
-plain and shuffled and the strict build is clean.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2970,7 +2970,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and 0.000, the crash file saying 5.4 seconds and 94 frames into the run with the exception's
     line; the soak's 39 turns and 13 readings pass the check with nothing growing, the storm
     captures with no validation error, the workflow and scripts parse, and the README and
-    BUILDING.md gain the paragraphs. Part 2 done at `8609089a` on 2026-10-20, as the head says.
+    BUILDING.md gain the paragraphs. Part 2 done at `8609089a` on 2026-10-20, as the head says. Part
+    3's shape, tests and numbers said by 22:15 and taken: the models zone with every generated mesh
+    and the heightmap and cubic map from generated images on plinths, the OBJ torus with its
+    material and texture, the arm posed at a time, the morph model twice by clip and by weight, 400
+    cubes instanced in one draw and Tumble's robot as an entity with an animated model and a
+    machine, the machine of idle, walk and run on speed written at each start through the data
+    assets keeping its id and named through the component's file reference so items 51 and 56 run in
+    it, the models linked from the examples' and Tumble's resources and not copied; its status
+    drawing the arm alone into a 96 by 96 texture every half second and reading it back, the arm
+    bending when its outline's count ranges by a tenth of its most, the machine running once its
+    state has been each of the three, then the meshes' vertices and the instanced count, with
+    toggles for playing and instancing. The lights zone with a grey floor, a red point lamp casting
+    shadows round a pillar, a blue spot turning and casting shadows, a block the sun shadows, an
+    emissive sphere, six balls from rough to polished with every other one metal and a three-walled
+    room with a reflection probe and a polished ball; its status drawing the zone from 22 m over it
+    into a 128 by 128 texture each second while the player is in it, since the sun's cascades follow
+    the window's camera, finding each patch by the world-to-screen call and averaging nine pixels,
+    the lamp's patch red against the open floor, the spot's blue, the block's shadow more than 45
+    darker than the floor beside it and the sphere's top glowing, each failing part named and the
+    probe's readiness said, with toggles for the lamps and the shadows. The drive's case runs the
+    models zone for 600 frames asserting the arm bends and the machine runs, the lights zone for 200
+    asserting lights ok, then the lamps off asserting no red and no blue and on again; the shadow
+    measure turns the lamps' shadows off with the sun's, since with the sun's alone off the lamps
+    kept 9.3 of 10.5 ms; the soak cycles six places. The whole step on lavapipe under the layer
+    passes in 2 minutes 56 seconds, the arm's outline 594 to 764 pixels, the machine through its
+    three states, the lamp's patch 216, 154, 148 against the floor's 195, 189, 181, the spot's 167,
+    175, 242, the shadow 49, 54, 67 and the sphere 255, 200, 85, the same on the GPU, the lamps off
+    reading no red and no blue, the shadows 10.123 ms on and 0.181 off; the soak's 40 turns and 13
+    readings pass with nothing growing, the storm has no validation error, and the README's map and
+    BUILDING.md cover both zones. Part 3 done at `086d9a00` on 2026-10-20, as the head says.
 
 ## Verdicts
 

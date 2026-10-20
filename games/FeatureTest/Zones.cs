@@ -49,6 +49,24 @@ abstract class Zone
 
     public abstract string Status();
 
+    /// <summary>
+    /// A point of the zone, across it to the right as the hub looks out at it, along it away from the
+    /// hub, and up.
+    /// </summary>
+    protected Vector3 Place(float across, float along, float up = 0)
+    {
+        var ahead = Ahead(Bearing(Vector3.Zero, Center));
+        return Center + new Vector3(-ahead.Z, 0, ahead.X) * across + ahead * along + Vector3.UnitY * up;
+    }
+
+    /// <summary>Draws a box lit as a model, its size across, up and along the zone, turned as the zone is.</summary>
+    protected void Box(Model cube, Vector3 center, Vector3 size, Color color)
+    {
+        var turn = Matrix4x4.CreateRotationY(float.DegreesToRadians(180 - Bearing(Vector3.Zero, Center)));
+        cube.Transform = Matrix4x4.CreateScale(size) * turn * Matrix4x4.CreateTranslation(center);
+        DrawModel(cube, Vector3.Zero, 1, color);
+    }
+
     /// <summary>The bearing from one point to another across the ground.</summary>
     public static float Bearing(Vector3 from, Vector3 to)
     {
