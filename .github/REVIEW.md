@@ -10,10 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `089761fb`, item 36 and nothing else, with the review's commit between. A program may
-say of a shader that its vertex stage keeps the positions, the mark kept in the shader store under
-its lock and dropped when the shader is unloaded, and a batch of that shader takes its mesh's box
-when the mark is set, so every pass culls it as the engine's own batches are culled, the default
+Reviewed up to `b03017f2`, Verdict 74's mend and nothing else, with the review's commits between.
+Manor was built from a package of the head and walked whole by its autopilot at the soak's size, two
+whole walks at each of three paces, the game's own, a tenth of a second a frame and a quarter, as a
+runner's slow frames count more of the game's time, on the development machine's GPU and on
+lavapipe: the most entities at a reading 464 to 533, and every walk on both devices at every pace
+held 539 entity ids, the most alive at once, the figure the table already had for the ids; the soak
+had bounded the entities by the first half's least alone, 374 times 1.1 plus 10, which the runner's
+second half passed by one seeing other rooms, nothing leaking. The soak check takes Manor's entities
+among its whole-walk figures at 539, bounded at 602 with the slack, the remark naming the command,
+the walks, the paces and the spread; the soak script writes Manor's status, its route step, place
+and cells, after each reading, and the check says where the walk stood at each half's least and at
+its first and last reading when a figure climbs; a soak check test holds the run's figures passing
+and 374 to 640 failing with the second half's place named, and the head's check failing the run's
+figures as the runner did; a 150-second soak here wrote and read the status, 444 then 420 against
+602. The strict build passes and the suite, 1,740. An aside kept under the verdict: the table holds
+Manor's images at 92 where these walks reached 93 and 94, under the slack's 98. The pack run queued
+on `869ad798`, half an hour in without the mend, is cancelled by the reviewer and started again on
+this head, so its games job carries the mend (Decision 49). Right. Next the rays' error read by
+elevation, then Verdict 72, item 35, the parallax and (c).
+
+Before it, `089761fb` came, item 36 and nothing else, with the review's commit between. A program
+may say of a shader that its vertex stage keeps the positions, the mark kept in the shader store
+under its lock and dropped when the shader is unloaded, and a batch of that shader takes its mesh's
+box when the mark is set, so every pass culls it as the engine's own batches are culled, the default
 drawn whole in every pass since a vertex stage may move vertices past the box, said in the remark
 with the trap of marking a stage that moves them; the shaders guide's section on moving vertices,
 the cheat sheet, the surface listing, the upgrading guide's list and RENDERING.md carry it, the last
@@ -67,47 +87,6 @@ out of the game's mesh, stands apart as the game's, its item 15. RENDERING.md re
 were the strict build, the suite, 1,738, and lavapipe under the required layer, 79 passed and 10
 skipped. Right. Next item 36, the sampling term's candidates with (g), the band and the grazing
 ceiling's rays, Verdict 72, item 35, the parallax and (c).
-
-Before it, `ed089e37` came, Verdict 73's mend, and `1e89515c` before it, item 30's part (j), with
-the review's commits between. Verdict 73, the test alone: the scene reference reads a file's time
-fresh at each placing and its reload check asks at most twice a second by a static timer across
-every world in the process, run before the spawn passes, so when the check falls in the step after
-the write it respawns the first two copies from the new version and the third shares their new mesh,
-which the old assertion, comparing the third with the first as it then is, took for a shared old
-mesh, and when the check does not fall there it passes, which fits one runner of two and reproduced
-here with 0.6 seconds between the last check and the step; the test keeps the first copy's mesh from
-before the write and holds the third against that, and asserts that the file system gives back the
-time set, so a file system's fault would fail with its own message; the scene reference tests pass
-three runs in a row, the suite 1,737. Part (j): the screen march takes a met surface only where its
-face, from the depth around the hit, turns toward the ray, and a face met from behind is passed as
-the depth is, the ray going on and the field taking it from where it last stood in front; green over
-red left of the wall's edge goes from 0.973 to 0.829 on the back wall against the reference's 0.736
-and from 1.437 to 1.080 on the floor against 0.987, the back wall probe's ray from 1,375 percent
-over to 57 under, met in the field at 2.26, and the floor probe's two from 229 and 401 over to 4 and
-20; at 800 by 450 no view widens past 0.0001 and views narrow by up to 0.0015, the room in (j)'s
-state widening 0.0002 as its floor past the edge goes from 1 to 14 percent under, the green having
-covered what the probes read beyond their rays' reach, 15 to 52 percent under along the back wall
-probe's ways; at 160 by 90 three views widen within their pinned bounds, the grazing floor at High
-from 0.0551 to 0.0578 as the ceiling probes lose four rays each met on the screen at nothing on
-their own lit ceiling, 55 to 460 percent over, which uncovers the sixteen fixed ways, the corridor
-at Low from 0.2145 to 0.2203 toward High's 0.2263 where its floor tiles read 87 to 94 percent under
-before and after, a term of the corridor's own, and the Cornell box at Low by 0.0006 spread over the
-box; the reflections' floor and balls read as before within 1 percent and the wall 10 under in both
-builds; the pass costs 0.01 to 0.03 ms more in the room and 0.09 at High in the hall; a test holds
-the back wall probe's ray past the wall's end with the lamp and the wall in (j)'s state, failing on
-the head at 1,375 percent and passing with the mend; RENDERING.md records it; checked were the
-strict build, the suite, 1,737, and lavapipe under the required layer, 78 passed and 10 skipped. The
-reviewer starts the pack run with publish on again as the check of items 37 and 38 and of Verdict
-73. (h)'s first reading finds the game's mesher culling the stone faces against a lamp block drawn
-as its own cube, leaving open edges around the lamp's footprint that the field's splat puts in
-front, which would explain both the probe moved into the stone and its not being found walled in;
-the field's cells and the probe's rays at that corner are read next. Right. Next (h)'s mend, item
-36, the sampling term's candidates with (g), the band and the grazing ceiling's uncovered ways,
-Verdict 72, item 35, the parallax and (c). The pack run with publish on started again at 00:38 as
-39336354745 on `80625742`, the first one cancelled by the reviewer at 00:39 since it could not pack
-and held the queue; its push cancelled the build run of `d2de2766` with its Windows suite in its
-68th minute, so Verdict 72's figure comes from the build run of `80625742`, running with the pack
-run at 00:43.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2777,8 +2756,11 @@ the runs of `33fd0804` and `fa607cb3` on 2026-10-19, said under it. Verdicts 72 
     the runner takes, the most of them written into the table with the command and the walks that
     measured it, with the room a measured spread gives, or the soak's course made to walk the level
     whole before the readings judged begin, so the least holds the whole world; the soak's output
-    says which rooms a walk entered when a figure climbs, so the next such run reads itself. Settled
-    when the games job's soak passes on three pack runs in a row.
+    says which rooms a walk entered when a figure climbs, so the next such run reads itself. Mended
+    at `b03017f2` on 2026-10-20, the entities' figure 539 from whole walks at three paces on two
+    devices, bounded at 602, and the soak saying where a walk stood when a figure climbs; Manor's
+    images stand at 92 in the table where those walks reached 94, under the slack's 98, watched.
+    Settled when the games job's soak passes on three pack runs in a row.
 
 ## Decisions
 
