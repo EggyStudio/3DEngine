@@ -27,8 +27,10 @@ figures as the runner did; a 150-second soak here wrote and read the status, 444
 602. The strict build passes and the suite, 1,740. An aside kept under the verdict: the table holds
 Manor's images at 92 where these walks reached 93 and 94, under the slack's 98. The pack run queued
 on `869ad798`, half an hour in without the mend, is cancelled by the reviewer and started again on
-this head, so its games job carries the mend (Decision 49). Right. Next the rays' error read by
-elevation, then Verdict 72, item 35, the parallax and (c).
+this head, so its games job carries the mend (Decision 49). The rays' error was read by 02:23, said
+under item 30, and names the merge's parallax and the thin walls as what the fixed ways covered, so
+the tiled ways are taken. Right. Next the tiled ways' commit, then Verdict 72, item 35, the parallax
+and (c).
 
 Before it, `089761fb` came, item 36 and nothing else, with the review's commit between. A program
 may say of a shader that its vertex stage keeps the positions, the mark kept in the shader store
@@ -1777,8 +1779,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     its cause, the screen march's thickness at a grazing way, the field's read at a grazing hit or
     the facing rule among the candidates; then its mend first if it is a fault of a line, or the
     tiled ways taken under the covered-fault principle with the rooms' and the trunk's figures
-    pinned and the reason naming the term if it is the method's; the candidates held meanwhile. Next
-    Verdict 74, then that reading, then Verdict 72, item 35, the parallax and (c).
+    pinned and the reason naming the term if it is the method's; the candidates held meanwhile.
+    Verdict 74 mended at `b03017f2`. The rays' error read by 02:23 with the tiled ways in, each
+    probe's error split into what the rays read along their ways against the reference along the
+    same and how the ways sample, the reference along them against the whole hemisphere: in the
+    window room the rays read 26 to 28 percent over and the fixed ways sampled 15 under, a net of
+    nothing, where the tiled ways sample 2 under and the net is 12 over; on the trunk the rays read
+    33 to 35 over and the fixed ways sampled 41 under, a net of 25 under, where the tiled sample 5
+    under and the net is 16 over; so the tiled ways mend the sampling term with (g) in it at no
+    cost, the same sixteen rays, and the rays' over-read of about 30 percent, which the
+    under-sampling covered, shows. By where the rays are met, the light beyond reach carries the
+    most, 17 to 52 percent over, the field hits 7 to 27 and the screen hits 8 to 12 in the window
+    room; by angle from the normal the rays near the surface's plane read no excess, so the march's
+    thickness, the field's read at a grazing hit and the facing rule are not it; and the window
+    room's world probes read 5 percent over where their own rays met a surface and 17 over on every
+    way merged with the cascades above, one face taking 0.141 from the cascade above against 0.051,
+    a coarser probe standing elsewhere seeing along those ways the sunlit floor or the window past
+    what the way itself meets, which is the merge's parallax, already in the order; the thin room's
+    probes read 9 to 12 over from their own rays alone, the lamp's light through walls thinner than
+    a cell, (f)'s term. So the reviewer takes the tiled ways under the covered-fault principle, the
+    rooms' and the trunk's figures pinned with the reason naming the parallax and the thin walls as
+    the terms uncovered, the view that moves past its bound pinned anew, the still frames read again
+    and RENDERING.md taking the figures; then Verdict 72, item 35, the parallax, (c). Next the tiled
+    ways' commit.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
