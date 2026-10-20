@@ -74,6 +74,9 @@ public sealed partial class PhysicsWorld : IDisposable
     /// <summary>Time accumulator for the fixed-timestep integrator.</summary>
     private float _accumulator;
 
+    // The length of the last step taken, which turns a joint's impulse into a force.
+    private float _lastStep;
+
     /// <summary>Creates a physics world using default <see cref="PhysicsSettings"/>.</summary>
     public PhysicsWorld() : this(new PhysicsSettings()) { }
 

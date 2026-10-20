@@ -846,6 +846,7 @@ void DestroyPhysicsJoint(PhysicsJoint joint);                                   
 void SetPhysicsCharacterStepHeight(PhysicsBody body, float height);             // The highest step a character climbs (its radius)
 bool SetPhysicsCharacterHeight(PhysicsBody body, float height);                 // Crouch or stand, false when a ceiling is in the way
 bool IsPhysicsJointValid(PhysicsJoint joint);                                   // Whether it still exists
+float GetPhysicsJointForce(PhysicsJoint joint);                                 // The force it held with over the last step, to break it past one
 PhysicsBody CreatePhysicsVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null); // A box on raycast wheels as springs, facing -Z, a car unless set
 void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false); // Drive it, -1 to 1, a positive steer turning left
 void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings);                   // Its wheels, springs, engine, brakes, grip, steering, drag

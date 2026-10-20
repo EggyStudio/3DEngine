@@ -860,6 +860,7 @@ static class Engine.E3D
   static float GetMusicTimeLength(Music music)
   static float GetMusicTimePlayed(Music music)
   static float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b)
+  static float GetPhysicsJointForce(PhysicsJoint joint)
   static float GetPhysicsSliderPosition(PhysicsJoint slider)
   static float MatrixTrace(Matrix4x4 mat)
   static float Normalize(float value, float start, float end)

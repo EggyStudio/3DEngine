@@ -19,7 +19,7 @@ public sealed partial class PhysicsWorld
             {
                 UpdateCharacters(_settings.FixedTimeStep);
                 UpdateVehicles(_settings.FixedTimeStep);
-                Simulation.Timestep(_settings.FixedTimeStep, Workers);
+                Timestep(_settings.FixedTimeStep);
                 UpdateContacts();
                 _accumulator -= _settings.FixedTimeStep;
             }
@@ -28,7 +28,7 @@ public sealed partial class PhysicsWorld
         {
             UpdateCharacters(deltaSeconds);
             UpdateVehicles(deltaSeconds);
-            Simulation.Timestep(deltaSeconds, Workers);
+            Timestep(deltaSeconds);
             UpdateContacts();
         }
     }
@@ -42,8 +42,14 @@ public sealed partial class PhysicsWorld
         RememberPoses();
         UpdateCharacters(seconds);
         UpdateVehicles(seconds);
-        Simulation.Timestep(seconds, Workers);
+        Timestep(seconds);
         UpdateContacts();
+    }
+
+    private void Timestep(float seconds)
+    {
+        Simulation.Timestep(seconds, Workers);
+        _lastStep = seconds;
     }
 
     /// <summary>Writes every body's pose into its entity's <see cref="Transform"/>, as it is.</summary>

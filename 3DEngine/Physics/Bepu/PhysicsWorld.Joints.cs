@@ -403,6 +403,20 @@ public sealed partial class PhysicsWorld
     internal bool JointExists(PhysicsJoint joint) =>
         joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle));
 
+    /// <summary>
+    /// The force a joint held its bodies together with over the last step, the impulse its own
+    /// constraint gave in the step's last substep over that substep's length, a hinge's limit and
+    /// motor and a slider's lock apart, and 0 for a joint that is gone or before any step.
+    /// </summary>
+    internal float GetJointForce(PhysicsJoint joint)
+    {
+        if (!JointExists(joint) || _lastStep <= 0) return 0;
+        // The solver keeps each constraint's impulse from the last substep, to start the next
+        // step's from, so reading it costs nothing until it is asked for.
+        var impulse = Simulation.Solver.GetAccumulatedImpulseMagnitude(new ConstraintHandle(joint.Handle));
+        return impulse * Simulation.Solver.SubstepCount / _lastStep;
+    }
+
     private PhysicsJoint Add<T>(BodyReference a, BodyReference b, T constraint) where T : unmanaged, ITwoBodyConstraintDescription<T>
     {
         // A joined pair is woken, so a sleeping body starts obeying its new joint.

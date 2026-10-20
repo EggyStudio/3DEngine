@@ -191,6 +191,20 @@ public static partial class E3D
     public static bool IsPhysicsJointValid(PhysicsJoint joint) => Physics.JointExists(joint);
 
     /// <summary>
+    /// The force a joint held its bodies together with over the last step, in newtons where mass
+    /// is in kilograms, as a rope holding a box reads the box's weight. 0 for a joint that is gone,
+    /// a rope with slack in it, or before the first step.
+    /// </summary>
+    /// <remarks>
+    /// It is the joint's own hold, so a hinge's limit and motor and a slider's lock are left out
+    /// of it. A ball joint's and a distance joint's is a force alone, while a hinge's and a weld's
+    /// hold their bodies from turning too, and a torque is added in. A joint that breaks under a
+    /// load reads this each frame and is destroyed with <see cref="DestroyPhysicsJoint"/> past a
+    /// force the program chose.
+    /// </remarks>
+    public static float GetPhysicsJointForce(PhysicsJoint joint) => Physics.GetJointForce(joint);
+
+    /// <summary>
     /// Gives a body a friction, 0 for ice and 1 for rubber, and a bounce, 0 for none and 1 for a
     /// ball that comes back as fast as it fell. Two bodies mix their frictions and take the larger bounce.
     /// </summary>

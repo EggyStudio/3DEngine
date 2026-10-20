@@ -10,8 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2271cdea`, Pinball, item 7's game, and nothing else, carrying the review's file. The
-table lies flat with gravity tilted 6.5 degrees and scaled to it, its walls static boxes turned
+Reviewed up to `1189291d`, the three document lines of Pinball's findings and nothing else,
+documents alone, carrying the review's file. The physics guide says under fast bodies that a step
+finds its contacts from the velocities it begins with, so a body a motor or a joint drives from rest
+at once passes through a body resting against it, with the plunger's figures, 600 from rest to 33
+units a second in a step and through the ball where 120 speeds up over its travel and the ball
+leaves at 21, and in the hinge's paragraph that a hinge's limit is a spring a motor pushes into, the
+flippers 18 degrees past both limits at 400 and 3 at 60; E3D.md says a status asked for after the
+key command reads the key up, and a status while the key is held is asked for by a command sent in
+the background beside it; the norm and document tests gave 22. The pushes of `ea7b1b83`, `2271cdea`
+and this head wait for the build run of `f4c62380` to end; read at 10:20. The rope-and-bridge puzzle
+is begun, with a thing said ahead: the flat API reads no joint's force, so the game judges a joint's
+strain by how far its two anchor points stand apart under load, measured against the load before it
+is taken and said as a finding. By 10:25 the puzzle had found the engine's gap, no joint's force to
+read, which is item 40, taken before the puzzle's commit. Item 6 waits on the owner's word.
+
+Before it, `2271cdea` came, Pinball, item 7's game, and nothing else, carrying the review's file.
+The table lies flat with gravity tilted 6.5 degrees and scaled to it, its walls static boxes turned
 about the vertical; the ball and the plunger are continuous bodies, the flippers hang on hinges to
 kinematic posts under the table with motors and limits, the plunger is a slider on its own motor,
 three bumpers and two slings kick from their contacts with each bumper lighting a point light, a
@@ -25,9 +40,7 @@ guide's see-also naming it. Checked were the strict build, the suite, 1,746, the
 the drive four times on the GPU and once on lavapipe under the validation layer, built from a fresh
 pack. Two findings about the engine, said under item 7: a motor that drives a body from rest at once
 can drive it through a resting body, continuous or not, and a hinge's limit gives under a strong
-motor. The push of `ea7b1b83` and this head waits for the build run of `f4c62380` to end; read at
-10:19. Next the three document lines of the findings, then the rope-and-bridge puzzle. Item 6 waits
-on the owner's word.
+motor.
 
 Before it, `ea7b1b83` came, Rally's README and nothing else, documents alone, carrying the review's
 file. It follows the games' form, the game, three laps against the clock and the ghost of the best
@@ -37,20 +50,6 @@ raycast wheels with keys, a pad or the autopilot, the engine's loop as a music s
 sounds, lit dust particles, the race's screens as states and the best lap saved to a file, and the
 sentence on its build from the package; the norm and document tests gave 22. Its push waits for the
 build run of `f4c62380` to end, as pushes go from here.
-
-Before it, `f4c62380` came, the Windows job's cache steps taken out and nothing else, carrying the
-review's file. The processor step that keyed the cache alone, the cache's restore and save, the two
-Mesa variables and the step after the suite go, and the suite step's comment says that neither
-Windows build of Mesa carries a disk cache, its lavapipe holding none of the cache's names where
-Linux's does, that every app compiles every shader, 56 percent of the Rendering and Core parts on
-lavapipe with the cache off and most of it at an app's first frame, and that the whole run of
-`448aa3fc` ran out its hour where the parts took 66 minutes 23 seconds cold on the 7763;
-BUILDING.md's sentence says the same and that the Linux job keeps its cache keyed by the processor.
-Checked were the workflow's parse and the norm, document, workflow and script tests, 65. The build
-run of `82dd08f2` ended green at 09:16 with its Windows suite in its parts on a Xeon 8370C, cold, in
-58 minutes 26 seconds, 1,683 passed, exit 0, the third green Windows suite in a row under the mends,
-so Verdict 72 is settled. Pushed at 09:42, after that run had ended, as pushes go from here so no
-run is cancelled midway. Item 7's next game is Pinball, said under it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -585,7 +584,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    commit, documents alone, before the next game. The rope-and-bridge puzzle is next: a load carried
    across gaps on bridges the player joins from planks, planks joined by ball and distance joints,
    ropes as chains of them, a joint broken when its force passes a bound so a bridge breaks where it
-   is weak, played through e3d by placing planks with a drive asserting a crossing and a break.
+   is weak, played through e3d by placing planks with a drive asserting a crossing and a break. The
+   document lines done at `1189291d` on 2026-10-20; the rope-and-bridge puzzle begun.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for
@@ -2264,6 +2264,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     forms read against it and why each is out, and the rule they were read by; a sentence in the
     global illumination guide points to it. One commit, documents alone, carrying the review's
     files. Done at `82dd08f2` on 2026-10-20, as the head says.
+
+40. **A program reads a joint's force, `GetPhysicsJointForce`.** Found by the rope-and-bridge puzzle
+    on 2026-10-20 at 10:25, before its commit: its breaking rule, a joint broken where its force
+    passes a bound so a weak bridge breaks where it is weak, cannot be built on what the flat API
+    gives, since the API reads a contact's impulse and no joint's, and the one measure in reach, how
+    far a joint's two anchor points stand apart under the load, follows the load and not the design,
+    0.034, 0.056 and 0.092 m at 150, 400 and 800 kg for a truss of 17 planks and 27 joints against
+    0.026, 0.057 and 0.098 for a bare road of 4 planks and 5 joints, a chain of planks on ball
+    joints carrying a load in tension as a rope does, so a bound on the give breaks both bridges or
+    neither. The physics library keeps each constraint's accumulated impulse and reads its magnitude
+    by the constraint's handle, which over the fixed step is the joint's force in newtons. So the
+    engine gains the call, the impulse magnitude of the joint's own constraint over the last step,
+    its limit and motor apart, costing nothing until called, with its cheat sheet line, the surface
+    listing, the upgrading guide's added entry and the physics guide's paragraph on joints, and a
+    test of a box hanging on a distance joint reading its weight within a percent. One commit; then
+    the puzzle breaks a joint past a force measured against the truss and the road, and reads with
+    the force in hand why the load fell through the far cliff after crossing at 400 and 800 kg, a
+    plank's end pinned at the cliff's edge and pressed into it the first suspect, said as a finding
+    if it is the engine's.
 
 ## Verdicts
 

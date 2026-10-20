@@ -83,6 +83,30 @@ public class PhysicsJointTests
         world.GetPosition(weight).Y.Should().BeApproximately(7, 0.05f, "the rope stops it three units under the hook");
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    public void A_Rope_Reads_The_Weight_Of_The_Box_Hanging_On_It(int substeps)
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings
+        {
+            UseFixedTimestep = true, FixedTimeStep = Step, SubstepCount = substeps, Gravity = new Vector3(0, -9.81f, 0),
+        });
+        var hook = world.CreateKinematicBox(new Vector3(0, 10, 0), new Vector3(0.1f));
+        var box = world.CreateBox(new Vector3(0, 8, 0), new Vector3(0.5f), mass: 3);
+        var rope = world.CreateDistanceJoint(hook, box, new Vector3(0, 10, 0), new Vector3(0, 8.5f, 0), 0, 1.5f);
+        world.GetJointForce(rope).Should().Be(0, "nothing is held before a step");
+
+        Run(world, 120);
+
+        world.GetJointForce(rope).Should().BeApproximately(3 * 9.81f, 3 * 9.81f * 0.01f, "it holds the box's weight");
+        world.SetDistanceJointRange(rope, 0, 3);
+        Run(world, 1);
+        world.GetJointForce(rope).Should().Be(0, "a rope with slack in it holds nothing");
+        world.DestroyJoint(rope);
+        world.GetJointForce(rope).Should().Be(0, "nor does one that is gone");
+    }
+
     // The angle a door has swung about the vertical through the hinge, from where it was made along +X.
     private static float DoorAngle(PhysicsWorld world, PhysicsBody door, Vector3 hinge)
     {
