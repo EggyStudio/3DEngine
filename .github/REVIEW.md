@@ -27,8 +27,10 @@ read. The push cancels the build run of `448aa3fc`; the pack run with publish on
 kept running, twenty minutes in on three suites, since a restart on this head would cost that for a
 hedge against a trough that has come once in the day's Windows suites, and the package it makes is
 the same engine. The thin walls' term was read again by 04:58 and named anew, said under item 30,
-the near-start candidate out and two others to read. Next those two by the rule and the cost, and
-the panel-alone readings' labels checked.
+the near-start candidate out and two others to read. At 05:00 the pack run with publish on of
+`448aa3fc` had its Linux suite green at 04:51 and its other six jobs running, and the pack run of
+the other engine its suites and native jobs green with its capture, drive and game jobs running; the
+feed holds `5.2.92` still. Next the two candidates by the rule and the cost.
 
 Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
 between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
@@ -1915,12 +1917,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the cost: (a) the sight test's slack held to a cell or two in place of half a spacing, at no
     cost, which every reader of the bounced read takes, the screen probes' hits, the model pass and
     its reflections; (b) the screen probes' hits through the seen read's marches, (c)'s seen
-    variant, 0.26 ms more at High in the Cornell box with no change at the block's front. A thing to
-    settle beside it: the readings labelled the panel alone in the cone and strip work set entity
-    1's light to zero, and entity 1 is the sun, not the Cornell box's lamp, entity 2, so those
-    readings were the lamp and the panel without the sun; the coder finds whether any figure from
-    them reached RENDERING.md or a commit, and a figure that did is corrected in a commit naming the
-    mislabel.
+    variant, 0.26 ms more at High in the Cornell box with no change at the block's front. A doubt
+    raised beside it, that the readings labelled the panel alone had set the sun's light to zero and
+    not the lamp's, was withdrawn by 05:00 on a second look: those readings ran in the Cornell box
+    program, whose only light is the lamp as entity 1 and which has no sun, the sun being entity 1
+    in the bounce rooms alone, so the panel-alone figures and RENDERING.md's line stand.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
