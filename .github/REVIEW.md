@@ -10,8 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `30993e84`, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else, with
-the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
+Reviewed up to `b35bcb8f`, item 30's parallax read and nothing else, with the review's commits
+between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
+parallax, the pocket's figures, 171 over where 61, and the sight form's 116 at a tenth of the
+illumination's time; the reach binding and the upper interval's end go in the merge's push; a new
+test reads the pocket probe's upward face's part from the cascade above, 2.71 of the reference on
+the head and 1.61 with the read, bounded under 2; the bounds' remark gives the thin walls' new
+figures, 0.090, 0.094 and 0.098, under their bounds, which hold as all others do; RENDERING.md has a
+record dated 2026-10-20. Checked were the strict build, the suite, 1,742, and lavapipe under the
+required layer over the global illumination, glow, room, cascade edge, reference frame and
+descriptor pool tests, 94 passed and 11 skipped. (c)'s first reading is under item 30. The push of
+this head is held until the build run of `390c9b61` ends its Windows suite, since a push cancels
+that run and its suite is the first under Verdict 72's mends with the cache's reading at its end,
+lost three times to pushes already; the pack run of `193c68b0` runs on regardless. Next (c), then
+the thin walls' term read for its mend's form and cost.
+
+Before it, `30993e84` came, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else,
+with the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
 cache directory, the remark saying that left to its default lavapipe wrote no cache on any run and
 every suite compiled every app's shaders, 32 to over 60 minutes by processor; the restore step has
 an id, and a step after the suite and before the save, run always, says the processor, how many
@@ -35,8 +50,7 @@ games job green at 03:24, Verdict 74's first of three, its captures jobs green a
 Windows job in the suite's step since 02:22, an hour and a half, the pre-mend script at its rerun on
 a slow runner, the pack job waiting on it; the build run of this head had its Linux and macOS suites
 green by 03:50 and its Windows suite running since 03:25, the first under the mends. The parallax
-read was taken by 03:36, said under item 30. Next the parallax, its mend's form and cost read first,
-then (c).
+read was taken by 03:36, said under item 30.
 
 Before it, `9fd38dd9` came, item 35 and nothing else, with the review's commit between. The README's
 head is one centering block holding markdown with blank lines inside, the heading, the description
@@ -61,35 +75,6 @@ and the five banners, and the gallery is fifteen tables holding the 270 pictures
 run of `193c68b0` had its macOS suite green at 03:00, Verdict 73's third, so it is settled, and its
 Windows, captures and games jobs running an hour in; the build run of this head runs since 03:07;
 the feed's last package is `5.2.92`.
-
-Before it, `4bc29a78` came, item 30's sampling term with (g) in it, the tiled ways, and nothing
-else, with the review's commits between. Each tile's screen probe sends its sixteen rays from one of
-sixteen places in their texels, every four tiles by four holding each place once, so the probes read
-the hemisphere evenly and the window's filter blends the places together; the shader's remark names
-the sampling term with its figures, 15 and 41 under from the texels' middles against 2 and 5 from
-the places, and what the fixed ways had covered, the rays' reads 26 to 35 over the reference along
-their ways, the merge's parallax and the walls thinner than a cell. The bounce rooms' bounds take
-the thin walls' figures, 0.085, 0.090 and 0.094 where 0.072, 0.071 and 0.072 stood, their world
-probes 9 to 12 over by their own rays, the grazing floor at High at 0.086 where 0.058, its walls 8
-over where 8 under, the parallax, and the strip's 0.216, 0.240 and 0.218 where 0.234, 0.245 and
-0.244; view 7 at High is bounded at 0.09; the thin wall's end probe, 22 over where 2 and its rays
-past their reach 34 over along their ways, is bounded from minus 0.15 to 0.30 with the parallax
-named, the old dark-face read of 51 under still failing; the small block's front probe, its rays
-past their reach 34 under their texels where 9 over, since each ray stands for its texel from one
-place of it, is bounded at 0.4, the old 97 over still failing. RENDERING.md's screen probes'
-paragraph says where the rays leave from, and a record dated 2026-10-20 carries the rule at both
-sizes, the decomposition over 28 and 24 probes, the world probes' own and merged reads, the angle
-bands, the trunk's blocks, 1.02 to 1.31 with a mean of 1.17 where 0.58 to 0.97 with a mean of 0.76
-stood and the thirty-six 1.13 to 1.76, the still frames and the cost. The still frames at the 99th
-part in the Cornell box move 0.01 to 0.04 a frame against the head's 0.02 to 0.03, the most 0.6
-either way, and the carried lamp's room 0.00 on both; the cost is none, the same sixteen rays.
-Checked were the strict build, the suite, 1,740, and lavapipe under the required layer over the
-global illumination, glow, room, cascade edge and reference frame tests, 92 passed and 10 skipped.
-On the runs of `193c68b0`, the build run's Linux, macOS and examples jobs were green by 02:50 and
-its Windows job in its suite, which this push cancels unread, the pack run's Windows job carrying
-the figure; the pack run with publish on had its Linux and examples jobs green and the rest running,
-Verdict 73 at two green macOS suites of three (Verdict 73). Verdict 72 was read by the coder by
-02:52 and its mends are chosen, said under it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1834,7 +1819,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pocket probe's part from the cascade above, the room bounds held or narrowed and the thin walls'
     pinned anew where they move, RENDERING.md with these figures, the suite and lavapipe, one
     commit; the sight is not taken, a tenth of the illumination's time for a worse read. Then (c),
-    and after it the thin walls' term read for its mend's form and cost as the parallax was.
+    and after it the thin walls' term read for its mend's form and cost as the parallax was. The
+    parallax read done at `b35bcb8f` on 2026-10-20, as the head says. (c) read first by 04:02 at the
+    small block's front in the Cornell box, view 1 of the bounce rooms at 800 by 450 at High, the
+    front reading 1.37 of the reference at both qualities with the fixed ways, 1.18 and 1.13 with
+    the tiled and 1.20 and 1.10 with the parallax read. Twelve screen probes on the front with the
+    tiled ways read their hemisphere 15 over, the rays bringing 26 over their cells and the ways
+    sampling within 2; by where met, against the reference along each, the screen hits are 44 rays
+    and 42 percent of the light at 43 over, the rays beyond reach 120 at 32 over and the field's 28
+    at 17 over. Four of them read once at one bounce, the second round off against the reference at
+    one bounce, and once in full: at one bounce they read 29 to 39 under along their ways, their
+    screen hits 31 to 44 under along their own ways and their field hits 19 to 59, each hit's light
+    its own alone, and in full 19 to 31 over, so the light past the first bounce at the probes reads
+    several times the reference's, 0.64 against 0.17 and 0.60 against 0.18 in luminance at two
+    probes, covering a first bounce that reads a third under. A hit's own light in the probe hit's
+    shading is its color times the lamps' direct light less what the field hides plus the two
+    brightest glow lights, and the reference counts a carried glow light, the box's panel among the
+    four carried there, in the hit's direct light; so the shortfall at one bounce lies in the point
+    lamp's shadow as the field gives it, in the panel's glow light at the hit, or both. Next the
+    coder reads those against the closed form at the hits on the floor before the block and on the
+    block's sides, as the strip's light was read, the lamp's direct light with its shadow and the
+    panel's light by its rectangle, then the light past the first bounce at the same hits.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
