@@ -10,7 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d03d0e53`, item 40's force-alone fix and nothing else, carrying the review's file
+Reviewed up to `df03842b`, item 41 and nothing else, carrying the review's file and the ledger's.
+The contact impulse read multiplies the last substep's push by the solver's substep count, the
+cached value for a sleeping pair included, so at the default of one substep nothing changes and
+above it the value is the step's push, which divided by the step is the force at any substep count,
+the read staying an impulse as its name says; the internal and public remarks say so, the physics
+guide says at any number of substeps, the upgrading guide's section becomes five that still compile
+with an entry saying 5.1 gave the last substep's push and a game with a substep count above one
+reads that many times more; a new test at substeps 1 and 4 reads a 2 kg box resting on a static
+floor as its weight times the step within a percent, a quarter at 4 without the change. Checked were
+the strict build and the suite, 1,753. Read at 11:49; the push of `f74e087f`, `d03d0e53` and this
+head waits for the build run of `5cd706d9` to end, and the pack run with publish on starts on it for
+the day's batch. The siege game's first draft found item 42 by 11:58, the hull and the static model
+baking the model's transform, mended before its commit. Item 6 waits on the owner's word.
+
+Before it, `d03d0e53` came, item 40's force-alone fix and nothing else, carrying the review's file
 and the ledger's row. The joint's force sums the squares of the constraint's linear part by its type
 through the solver's accumulated impulses, a weld's last three, a hinge's first three and all of a
 ball joint's, a distance joint's and a slider's: a weld beside an anchor at 1, 2 and 4 m reads 98.1
@@ -23,10 +37,7 @@ move after a repack, the truss 4,321 to 4,326, the road at rest 5,767 and its un
 to 10,181, its hinges' turning part negligible in the bridge's plane, so the strength of 7,000 and
 the guide's figures stand. An observation taken as item 41: the contact impulse read returns the
 last substep's impulse where its summary says the impulse over the step is the force, short by the
-substep count above one. Read at 11:31; the push of `f74e087f` and this head waits for the build run
-of `5cd706d9` to end, and the pack run with publish on starts after item 41's commit is pushed with
-them, so the package carries both reads alike. The siege game is next after item 41. Item 6 waits on
-the owner's word.
+substep count above one.
 
 Before it, `f74e087f` came, Span, item 7's second game, and nothing else, carrying the review's
 file. The load's fall was the game's own design and no engine finding: read step by step with the
@@ -46,16 +57,6 @@ layer; the soak's 23 turns, its check and the storm pass; the suite gave 1,748 w
 clean; the physics guide has a paragraph on Span's numbers and on hinges against ball joints with
 Span in its see-also; a Shared line under Replies offers the joint's force, taken into SHARED.md's
 row in both engines, the other engine's item 36.
-
-Before it, `5cd706d9` came, item 40 at `fdcfd435` and the soak's Pinball turn at `5cd706d9`, the
-first carrying the review's file. A program reads the force a joint held its bodies with over the
-last step, which the solver keeps for its next step, through the new call, with its cheat sheet
-line, the surface listing, the upgrading guide's added entry and the physics guide's paragraph, and
-a test reads a hanging box's weight from it; the soak plays Pinball, its autopilot launching each
-ball and flipping, the table nudged at times and a game started again once its last ball drains,
-where its turn had been empty and spun without waiting on a frame. The build run of `f4c62380` ended
-green at 11:03, its Windows suite in parts in 70 minutes 20 seconds, so the five commits from
-`ea7b1b83` to this head were pushed together at 11:05, no run cancelled.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2343,7 +2344,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     than one, the upgrading guide's entry says the value moved for substep counts above one, and a
     test reads a resting box's contact as its weight within a percent at one substep and at four,
     beside the joint's. One commit, before the siege game, so the package the day's pack run makes
-    carries both reads alike.
+    carries both reads alike. Done at `df03842b` on 2026-10-20, as the head says, the read an
+    impulse over the whole step, its name kept.
+
+42. **A convex hull and a static model are shaped from the mesh and the scale alone, the model's
+    transform left out.** Found by the siege game on 2026-10-20 at 11:58: `CreatePhysicsConvexHull`
+    and `CreatePhysicsStaticModel` bake the model's transform into the shape, and the documented way
+    to draw a body sets that transform to the body's each frame, so a hull made from a model after
+    it has been drawn is built where the last body drawn with it stood and the new body is placed
+    there too; the game's second stone, a hull from the stone model after the first stone had been
+    drawn at the castle, stood about 30 m from the cup, and welded to the arm across that distance
+    the arm spun at 645, 4,293 and 73,838 radians a second within ten frames with the sling reading
+    640 kN and then 21 MN, where the same game on spheres is stable through repeated throws and a
+    scratch test swinging the arm three times with welded spheres is clean; the castle's columns and
+    roof would meet it on every rebuild, since their models' transforms are set each frame to draw.
+    The physics guide's own paragraph on hulls sets a cone's transform to its body's, and every game
+    draws bodies so; the boxes example makes its cones before the first frame and never meets it.
+    The mend, one commit: both calls shape the body from the mesh's vertices times the scale alone,
+    posed for a skinned model as before, with the transform left out, their remarks saying the
+    transform is not read since a program sets it to a body's to draw; the upgrading guide gets an
+    entry among those that still compile, a model whose transform held a scale or turn of its own
+    giving it through the scale or the mesh; tests make a hull and a static model from a model whose
+    transform was set to a pose 30 m away and read them standing where they were asked and shaped as
+    the mesh. Before the siege game's commit, which then takes hulls for its stones.
 
 ## Verdicts
 

@@ -125,6 +125,27 @@ public sealed partial class E3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Model_Drawn_Where_A_Body_Stood_Makes_A_Hull_And_A_Level_Where_They_Are_Asked()
+    {
+        // A program draws a body by setting its model's transform to the body's, here 30 meters away
+        // and turned, and a body made from the model after stands where it is asked.
+        var block = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        block.Transform = Matrix4x4.CreateRotationZ(0.7f) * Matrix4x4.CreateTranslation(30, 5, 0);
+
+        var hull = CreatePhysicsConvexHull(block, new Vector3(0, 10, 0));
+        var top = GetRayCollisionPhysics(new Ray(new Vector3(0.9f, 20, 0), -Vector3.UnitY), 30);
+        top.Hit.Should().BeTrue("the hull stands where it was asked");
+        top.Body.Should().Be(hull);
+        top.Point.Y.Should().BeApproximately(11, 0.01f, "shaped as the mesh, its top a unit above its middle");
+
+        var level = CreatePhysicsStaticModel(block, new Vector3(0, 0, 20));
+        var floor = GetRayCollisionPhysics(new Ray(new Vector3(0.9f, 20, 20), -Vector3.UnitY), 30);
+        floor.Hit.Should().BeTrue("and so does the level");
+        floor.Body.Should().Be(level);
+        floor.Point.Y.Should().BeApproximately(1, 0.01f);
+    }
+
+    [Fact]
     public void A_Ball_Lands_On_A_Model_Made_Level_Geometry_And_A_Rope_Holds_Another()
     {
         var ground = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));

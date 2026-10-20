@@ -9,10 +9,10 @@ since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
 6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Five changes still compile and do something else, and they
+nothing else a game calls has changed. Six changes still compile and do something else, and they
 come first.
 
-## Five that still compile
+## Six that still compile
 
 A capsule takes its rings before its slices, as raylib 6's does. Both are numbers, so a call
 written for 5.1 compiles and draws its capsule with the two swapped.
@@ -54,6 +54,13 @@ same by both, and a game that chose Reinhard for how its colors kept their hue c
 gave the push of the step's last substep alone. A game at the default of one substep reads what it
 did, and one that set `PhysicsSettings.SubstepCount` above 1 reads that many times more, its weight
 times the step, as at one substep.
+
+`CreatePhysicsConvexHull` and `CreatePhysicsStaticModel` shape the body from the model's meshes
+times the scale given, where 5.1's took the model's `Transform` in as well. A program sets the
+`Transform` to a body's to draw it, and a body made from the model after stood where that one was
+drawn. A model whose `Transform` held a scale of its own gives it as the scale, and one whose
+`Transform` held a turn or a move of its own gives it to the mesh, through `UpdateMeshVertices`
+or the file it is loaded from.
 
 ## The flat API's class
 

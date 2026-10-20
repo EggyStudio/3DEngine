@@ -90,7 +90,8 @@ units a second, sets it higher, since a frame counts for up to a quarter of a se
 A body of a model's own shape that falls and tumbles, as a rock or a barrel, is
 `CreatePhysicsConvexHull`, shaped as the smallest shape without hollows that holds the model's
 vertices. Its position is the model's origin, where the model is drawn, though it turns about its
-center of mass. The `physics_boxes` example drops cones among its boxes:
+center of mass. The model's `Transform` is not read, so a model drawn with a body's transform, as
+below, makes the next body where it is asked. The `physics_boxes` example drops cones among its boxes:
 
 <!-- compiled with:
 Model cone = default;

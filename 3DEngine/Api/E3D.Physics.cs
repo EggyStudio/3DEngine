@@ -44,12 +44,14 @@ public static partial class E3D
     /// <remarks>
     /// A mesh collides only with bodies that move, and a triangle only from its front, the side its
     /// winding faces. A skinned model is shaped as it was last posed and drawn, and stays so when it
-    /// is posed again.
+    /// is posed again. The model's <c>Transform</c> is not read, since a program sets it to a body's
+    /// transform to draw the body, and a body made from the model after would stand where that one
+    /// was drawn. A scale of the model's own is given by <paramref name="scale"/>.
     /// </remarks>
     /// <returns>The body, or an invalid one when the model has no triangles, with the reason in the log.</returns>
     public static PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1)
     {
-        var world = model.Transform * Matrix4x4.CreateScale(scale);
+        var world = Matrix4x4.CreateScale(scale);
         var points = new List<Vector3>();
         var triangles = new List<int>();
         for (int index = 0; index < model.Meshes.Length; index++)
@@ -84,12 +86,15 @@ public static partial class E3D
     /// The body's position and rotation are where the model is drawn, as
     /// <c>DrawModelEx(model, GetPhysicsBodyPosition(body), ...)</c> draws it, and it turns about its
     /// center of mass. A hollow in the model is filled, so a cup holds nothing. A skinned model is
-    /// shaped as it was last posed and drawn.
+    /// shaped as it was last posed and drawn. The model's <c>Transform</c> is not read, since a
+    /// program sets it to a body's transform to draw the body, and a hull made from the model after
+    /// stood where that body was drawn, as a catapult's second stone did 30 meters from its cup. A
+    /// scale of the model's own is given by <paramref name="scale"/>.
     /// </remarks>
     /// <returns>The body, or an invalid one when the model's vertices hold nothing, with the reason in the log.</returns>
     public static PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1)
     {
-        var world = model.Transform * Matrix4x4.CreateScale(scale);
+        var world = Matrix4x4.CreateScale(scale);
         var points = new HashSet<Vector3>();
         for (int index = 0; index < model.Meshes.Length; index++)
             if (Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out _))
