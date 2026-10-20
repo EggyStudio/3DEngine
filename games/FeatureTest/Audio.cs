@@ -25,14 +25,21 @@ namespace FeatureTest;
 /// The wave is a half second of a tone at half the full scale, written with
 /// <see cref="ExportWave"/> beside the program and read back with <see cref="LoadWave"/>, its
 /// frames counted and its peak measured. The audio is ok when the wave comes back as it went, the
-/// music has played on, the stream has been asked for samples, and the mix is louder on the side
-/// the speaker stands.
+/// music has played over a second, the stream has been asked for samples, and the mix is louder on
+/// the side the speaker stands.
+/// </para>
+/// <para>
+/// The music is fed from the frame, so a machine whose frames come slowly feeds less of it in as
+/// many frames. The status says the sounds are not heard yet until all four hold, or until
+/// <see cref="Patience"/> frames after the drone's time alone have gone, after which it says what
+/// fell short, so a run reads it until it is ok or says so.
 /// </para>
 /// </remarks>
 sealed class Audio : Zone
 {
-    // The frames the drone plays alone on arriving, before the rest start.
-    private const int Rate = 48000, Tone = Rate / 2, Alone = 120;
+    // The frames the drone plays alone on arriving, before the rest start, and the frames after
+    // those the status waits for the music's second and the rest before it says what fell short.
+    private const int Rate = 48000, Tone = Rate / 2, Alone = 120, Patience = 1200;
     private readonly Model _speaker = LoadModelFromMesh(GenMeshCube(1, 1, 1));
     private readonly Sound _coin = LoadSound("resources/coin.wav");
     private readonly Sound _drone = LoadSound("resources/drone.ogg");
@@ -185,7 +192,15 @@ sealed class Audio : Zone
         if (_frames < Alone + 60) return $"{device}, {_wave}, the sounds not heard yet, which waits for you to be here";
         var sided = _mixLeft > _mixRight * 1.2;
         var ok = _waveOk && _played > 1 && _asked > 0 && sided;
+        if (!ok && _frames < Alone + Patience)
+            return $"{device}, {_wave}, the sounds not heard yet, the music {_played:0.0} s played of the second it is to play";
+        var missing = new List<string>();
+        if (!_waveOk) missing.Add("the wave not read back as written");
+        if (_played <= 1) missing.Add("the music short of a second");
+        if (_asked == 0) missing.Add("the stream never asked for samples");
+        if (!sided) missing.Add("not heard from its side");
         return $"{device}, {_wave}, the music {_played:0.0} s played, the stream asked for samples {_asked} times, the coin played {_coins} times, "
-               + $"the drone at the speaker, the mix's left {_mixLeft:0.00} and right {_mixRight:0.00} with it alone{(sided ? "" : ", not heard from its side")}{(ok ? ", audio ok" : "")}";
+               + $"the drone at the speaker, the mix's left {_mixLeft:0.00} and right {_mixRight:0.00} with it alone"
+               + (ok ? ", audio ok" : $", {string.Join(", ", missing)} after {Patience} frames");
     }
 }
