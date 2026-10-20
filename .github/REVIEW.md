@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b35bcb8f`, item 30's parallax read and nothing else, with the review's commits
+Reviewed up to `f72bda5d`, Verdict 75's mend and nothing else, with the review's commits between.
+The leak tests keep the readings after every ten apps as numbers and read the process's growth from
+a base that is the most of the tenth's reading, the twentieth's after its census where one was
+taken, and the thirtieth's, both judged tests, the headless and the offscreen, asserting the growth
+under 50 with the base in their messages; the remark gives the run's figures, 156.5, 80.0 and 159.2
+and then 169.6 at the hundredth with the heap at 14.3 to 14.8, 89.6 against the bound where the last
+less the thirtieth reads 10.4, and the sensitivity, a leak of 0.71 MB an app failing the bound where
+0.63 did; a new test reads the check on this run's series, 10.4 passing, and on a climb of 0.8 MB an
+app, 56 failing; the file went to 807 lines and failed N 1.3, so the held instance's class moved to
+a partial of the same class, nothing else changed. Checked were the strict build, the suite, 1,742
+passed and the one failure the move mends, the norm and leak tests after it, 21, and the leak tests
+on the development machine's GPU. (c)'s two candidates read at both sizes and none passes the rule,
+said under item 30, so (c) stands as named with no mend; the thin walls' term has a likely cause to
+read. The push cancels the build run of `448aa3fc`; the pack run with publish on of `448aa3fc` is
+kept running, twenty minutes in on three suites, since a restart on this head would cost that for a
+hedge against a trough that has come once in the day's Windows suites, and the package it makes is
+the same engine. Next the thin walls' term read on the GPU, then by the rule and the cost.
+
+Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
 between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
 parallax, the pocket's figures, 171 over where 61, and the sight form's 116 at a tenth of the
 illumination's time; the reach binding and the upper interval's end go in the merge's push; a new
@@ -31,7 +49,6 @@ reading (Verdict 75), so the pack job was skipped and no package was made; every
 green. The held push went at 04:26, cancelling the build run of `390c9b61` in its Windows suite,
 whose reading moves to the pack run with publish on started at 04:27 on this head, `39359042041`,
 the first pack run under Verdict 72's mends, and to this head's build run; the game waits on it.
-Next (c)'s candidates read for form and cost, then the thin walls' term.
 
 Before it, `30993e84` came, Verdict 72's two mends, `81007b4e` and `30993e84`, and nothing else,
 with the review's commits between. The Windows job asks Mesa for its shader cache by name beside the
@@ -59,30 +76,6 @@ Windows job in the suite's step since 02:22, an hour and a half, the pre-mend sc
 a slow runner, the pack job waiting on it; the build run of this head had its Linux and macOS suites
 green by 03:50 and its Windows suite running since 03:25, the first under the mends. The parallax
 read was taken by 03:36, said under item 30.
-
-Before it, `9fd38dd9` came, item 35 and nothing else, with the review's commit between. The README's
-head is one centering block holding markdown with blank lines inside, the heading, the description
-and the five banners as markdown pictures, no heading, paragraph or picture tag left, and that block
-is the only HTML in the file; the gallery is written by the examples table script between its
-markers as a markdown table a folder of the examples in the program's order with the games last in
-the workflows' order, row for row the hand-kept gallery's order, 270 pictures, each the capture made
-small to 260 by 146 under the assets' gallery folder with the SHA-256 of its capture in a table, 1.6
-MB in all, the names padded to 32 characters with no-break spaces, and the script's check fails
-where the gallery or its count is out of date, a picture is missing, was made from a capture taken
-again since or is shown by no example or game, needing no image tool, so the examples job's check
-runs as it did. The norm test for N 4.5 and the document link tests read the gallery's markdown
-pictures, the gallery test holds each shown picture at 260 by 146 and each capture at 800 by 450 as
-before, and BUILDING.md says the script writes the gallery and a new or changed capture needs it run
-again; the game's README is untouched. Checked were the strict build, the suite, 1,740, and the
-table's check; the reviewer counted the 270 pictures in the file and the folder, none twice, and the
-head block as the one HTML. Its look on GitHub and on nuget.org's page of the next version is read
-after the push and the next package, the next pack run's with this head in it. The push cancels the
-build run of `4bc29a78`; the pack run of `193c68b0` runs on. Rendered through GitHub's markdown API
-in the file's mode by 03:10, the block centers the heading, the description without forced breaks
-and the five banners, and the gallery is fifteen tables holding the 270 pictures. At 03:19 the pack
-run of `193c68b0` had its macOS suite green at 03:00, Verdict 73's third, so it is settled, and its
-Windows, captures and games jobs running an hour in; the build run of this head runs since 03:07;
-the feed's last package is `5.2.92`.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -1868,7 +1861,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     marches scaling the light it takes from the probes, or the probes' blend at a hit weighted
     toward those the hit's own hemisphere sees. The reviewer orders (c)'s candidates read first
     while its figures are warm, then the thin walls' term read, the commits following the readings
-    under the rule.
+    under the rule. (c)'s two candidates read by 04:51 on 2026-10-20 by the rule at both sizes, 160
+    by 90 with the bounds at zero and 800 by 450 against the references, and none passes. The
+    block's front against the reference at High and Low reads 1.198 and 1.099 on the head, the back
+    wall 1.033, the floor 1.000, the whole box 1.011 and the illumination 1.98 ms at High; the blend
+    toward the probes a hit sees changes nothing at the front, 1.21 at High for 2.24 ms, since the
+    floor hits before the block see the same probes either way, so it is out; the occlusion forms,
+    which scale the indirect light at the screen probes' hits alone, bring the front to 1.099 and
+    1.015 with four short marches a spacing out for 2.45 ms, 1.145 and 1.062 half a spacing out for
+    2.27, 1.143 and 1.054 by the ratio of the hit's open share to the blended probes' by their reach
+    for 2.62, and 1.019 and 0.953 by the field distances along the same four ways for 2.12, but
+    every one widens the corridor at both sizes by 0.007 to 0.027, the strip by 0.002 to 0.048 and
+    the carried lamp's room by 0.002 to 0.045, the march over a spacing and the field distances
+    widen the Cornell box by 0.006 to 0.018, and the half-spacing march and the ratio hold the box
+    at the large size and widen it by 0.002 to 0.004 at the small at Low and Medium, while all
+    narrow the thin walls' view by 0.019 to 0.079 and the window's by 0.006 to 0.031; these are the
+    two faults the record of 2026-10-19 named for the openness ratio, a near surface counted as
+    shade though it lights the hit, darkening rooms that read under, and the occlusion covering the
+    thin walls' term by darkening the hits beside a thin wall that take the outside lamp's light. So
+    (c) stands as named, the probes' spacing against near occlusion, with no mend that holds the
+    rule. The thin walls' term has a likely cause, to be read on the GPU: the hidden lamp light's
+    march starts 1.5 cells off the hit and its see-through skips its first two cells, so a floor or
+    ceiling hit within about a tenth of a unit of a thin wall's inner face starts the march past the
+    wall and takes the outside lamp's full light; the coder reads the thin room's world probes on
+    the head and with the march starting half a cell out, keeping the two cells it stops short of
+    the lamp, then the rule and the cost as for the parallax.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
@@ -2911,8 +2928,9 @@ runs of `80625742` and `193c68b0` on 2026-10-20, said under it. Verdicts 72, 74 
     greatest of the readings at the tenth, twentieth and thirtieth app, or the growth read as the
     slope over the readings after the twentieth, the series printed as it is and the remark saying
     why one reading cannot be the base, with a test of the check on this run's series passing and on
-    a climbing one failing. It gates the package, so it comes before (c)'s mend. Settled at three
-    Windows suites in a row with the test green after the mend.
+    a climbing one failing. It gates the package, so it comes before (c)'s mend. Mended at
+    `f72bda5d` on 2026-10-20 in the first form, as the head says. Settled at three Windows suites in
+    a row with the test green after the mend.
 
 ## Decisions
 
