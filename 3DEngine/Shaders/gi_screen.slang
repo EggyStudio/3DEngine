@@ -417,7 +417,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     for (uint v = 0u; v < Rays; v++)
         for (uint u = 0u; u < Rays; u++)
         {
-            float4 local = hemisphere((float2(u, v) + 0.5) / float(Rays));
+            // A tile's rays leave from one of sixteen places in their texels of the hemisphere's
+            // square, every four tiles by four holding each place once, so the window's filter
+            // blends the ways of every place across the tiles around a pixel. Sent from their
+            // texels' middles alone, every probe on a surface sent the same sixteen ways, which
+            // read the hemisphere 15% under in the window's room and 41% under on the voxel game's
+            // birch trunk, there in patches many tiles wide that stood still; placed so, they read
+            // it 2 and 5% under (gi.screenprobe). The rays' own reads, 26 to 35% over the reference
+            // along their ways either way, are what the ways' reading under had covered, the
+            // merge's parallax and the walls thinner than a cell.
+            float4 local = hemisphere((float2(u, v) + (float2(id.xy & 3u) + 0.5) / 4.0) / float(Rays));
             float3 way = normalize(side * local.x + along * local.y + n * local.z);
             // How squarely the ray falls on the surface times the share of the hemisphere its
             // texel spans, one over the cube of its octahedron point's distance, as the gather of

@@ -765,7 +765,9 @@ build, and the Cornell box's from 0.69 to 0.70 ms at `High` with 0.84 MB more, b
 The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
 at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
 occlusion pass draws, which it draws for the probes alone where the occlusion and contact shadows
-are off. It sends 16 rays over the hemisphere around the surface's normal, twice as far as the
+are off. It sends 16 rays over the hemisphere around the surface's normal, one through each texel
+of the hemisphere's square of four by four, each tile's from one of sixteen places in its texels,
+every four tiles by four holding each place once (below), twice as far as the
 world's probes are apart where a ray ends in the finest cascade and as far as they are apart past
 it, stepped through the depth while on the screen and through the field from where they leave it.
 Reaching as far as the probes are apart, a wall two units before a pillar beside a lamp took the
@@ -2006,6 +2008,36 @@ covers the excess of the world's probes' own hits (b), and neither candidate is 
 excess stands. The thirty-six ways cost 2.47 to 2.48 ms of global illumination where 1.45 at `High`
 and 2.09 to 2.11 where 1.11 to 1.17 at `Low` in the Cornell box (`gi.compare`, BounceRoomsTests with
 its bounds at zero, `./e3d command profile`, the frames unlimited).
+
+**The screen probes' ways placed by tile, read on 2026-10-20.** With (j) and (h) mended, against the
+same references, the ways turned for each tile and held, as above, and the thirty-six ways widen the
+same three views at both sizes and agree within a point or two on their regions. At 160 by 90 at
+`Low`, `Medium` and `High`, the ways placed by tile widen the thin walls' view by 0.013, 0.019 and
+0.022, the window's by 0.020, 0.006 and 0.018 and the grazing floor's by 0.003, 0.011 and 0.028, and
+narrow the strip's by 0.018, 0.005 and 0.026 and the carried lamp's room's by up to 0.014; at 800 by
+450 at `High` and `Low` they widen the thin walls' by 0.025 and 0.023, the window's by 0.006 and
+0.012 and the grazing floor's by 0.015 and 0.009, and narrow the Cornell box's by 0.016 and 0.014,
+the strip's by 0.020 and 0.013, the carried lamp's room's by 0.029 and 0.024 and the corridor's by
+0.011 and 0.007. Split over 28 screen probes in the window's room and 24 on the voxel game's birch
+trunk at noon (`gi.screenprobe`), the light the rays bring reads 26 and 33% over the reference along
+the same ways from the texels' middles and 28 and 35% from the places, and the reference along the
+ways reads the hemisphere's 15 and 41% under from the middles and 2 and 5% under from the places, so
+the probes read the hemisphere 12 and 16% over where 0 and 25% under. The sixteen fixed ways'
+reading under had covered the rays' reading over, which is two terms of the method. In the window's
+room the world's probes read the reference 10 to 28% over across their ways merged with the cascades
+above where 9% under to 24% over by their own rays, a way past the first cascade's interval taking
+the light a coarser cascade's probe sees along it from where it stands, the sunlit floor or the
+window, 0.27 to 0.42 where the reference along it reads 0.015 to 0.26, the merge's parallax; in the
+thin room they read 9 to 12% over by their own rays, no way taking the cascade above, through walls
+thinner than a cell (f). By the angle from the normal, the rays near the surface's plane read their
+texels' reference within 1% in the window's room, so neither the screen's march nor the field reads
+a grazing way over. On the trunk the patches go, its blocks of 16 pixels reading 1.02 to 1.31 of the
+reference, mean 1.17, where 0.58 to 0.97, mean 0.76, and the thirty-six 1.13 to 1.76, mean 1.41. The
+ways are kept placed by tile under the covered-fault principle, the two terms named, the grazing
+floor's bound in the bounce rooms test taken to 0.09 and the thin wall's end's and the small block's
+probes pinned anew (BounceRoomsTests). A still view changes by 0.04% at most in its 99th part from
+one frame to the next, where 0.03%, and global illumination costs nothing more, the same sixteen
+rays.
 
 **The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Seventeen
 faces of eleven world probes were read against the reference by bounce and by where their ways were
