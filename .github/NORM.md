@@ -19,7 +19,7 @@ is its own design, which the annexes point to.
 | the followed engine | The engine whose way of working a library follows, Bevy for BevyCSharp and raylib for 3DEngine |
 | an example | A program in the examples project, opened by name |
 | a capture | The picture the pack workflow takes of an example or a game |
-| a game | A project under `games/`, built from the package |
+| a game | A project under `games/`, built from the package; the feature test beside the games is not one, built from the package in 3DEngine and in BevyCSharp on the tree's projects unless a version is named, as the pack run and the testers' zips name one |
 | the workflow | The build workflow, which GitHub runs on a push, and the pack workflow, run by hand; a rule names the one it means, and one that names neither means both |
 | the pack run | A run of the pack workflow, which runs the build workflow's jobs whole, the ones a push skips among them, and packs after them |
 | a batch | One finished piece of work, which is one commit |

@@ -16,9 +16,10 @@ namespace Engine;
 /// <b>Why SDL3:</b> SDL3-CS already ships with the engine for windowing + input,
 /// the native binaries (Windows/Linux/macOS) come from <c>SDL3-CS.Native</c>, and the
 /// stream API is rich enough to cover the gameplay-facing
-/// <see cref="IAudioBackend"/> contract without any per-platform shim. The
-/// <see cref="ISpatialAudioProcessor"/> slot (Steam Audio) supplies 3D distance
-/// attenuation; SDL itself does no positional audio.
+/// <see cref="IAudioBackend"/> contract without any per-platform shim. The audio server's
+/// <see cref="ISpatialAudioProcessor"/>, the engine's own unless another replaces it, supplies
+/// each spatial voice's pan and its attenuation with distance, since SDL itself does no
+/// positional audio.
 /// </para>
 /// <para>
 /// <b>Voice model:</b> one <c>SDL_AudioStream</c> per voice, bound to the single
@@ -534,10 +535,10 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     /// <inheritdoc />
     public void SetVoicePosition(int voiceId, Vector3 position)
     {
-        // SDL has no built-in spatial audio. The ISpatialAudioProcessor (Steam Audio)
-        // computes attenuation each tick and the AudioServer feeds it through
-        // SetVoiceVolume. Position is recorded by the AudioServer's voice table; this
-        // method is intentionally a no-op for the SDL backend.
+        // SDL has no built-in spatial audio. The audio server's spatial processor computes
+        // the pan and the attenuation each tick and feeds them through SetVoicePan and
+        // SetVoiceVolume. Position is recorded by the AudioServer's voice table, so this
+        // method is a no-op for the SDL backend.
     }
 
     /// <inheritdoc />

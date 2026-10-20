@@ -9,6 +9,7 @@ namespace Engine.Tests.Audio.Sdl;
 /// <c>false</c> when no device is available, and turns every subsequent method call
 /// into a no-op so gameplay code never has to null-check the backend.
 /// </summary>
+[Collection("Sdl audio")]
 [Trait("Category", "Integration")]
 [Trait("Backend", "Sdl")]
 public class SdlAudioBackendTests

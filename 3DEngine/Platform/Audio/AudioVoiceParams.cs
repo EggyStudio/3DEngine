@@ -6,10 +6,10 @@ namespace Engine;
 /// Per-voice playback parameters passed at <see cref="IAudioBackend.CreateVoice"/> time.
 /// </summary>
 /// <remarks>
-/// <see cref="Position"/> being non-null marks the voice as <i>spatial</i>: the backend
-/// is expected to apply 3D distance attenuation, panning, and (when an
-/// <see cref="ISpatialAudioProcessor"/> is set) HRTF / occlusion. Null position
-/// requests a 2D mix at the supplied <see cref="Volume"/>.
+/// <see cref="Position"/> being non-null marks the voice as <i>spatial</i>: the audio server's
+/// spatial processor pans it toward the side of the listener it is on and makes it quieter with
+/// distance, between <see cref="NearDistance"/> and <see cref="FarDistance"/>, every frame. Null
+/// position requests a 2D mix at the supplied <see cref="Volume"/>.
 /// </remarks>
 public readonly record struct AudioVoiceParams
 {
@@ -57,6 +57,18 @@ public readonly record struct AudioVoiceParams
 
     /// <summary>The balance a pannable voice starts at, from -1 (left) to 1 (right).</summary>
     public float Pan { get; init; }
+
+    /// <summary>
+    /// The distance within which a spatial voice is at its full volume, or 0 for the audio
+    /// server's <see cref="AudioServer.NearDistance"/>.
+    /// </summary>
+    public float NearDistance { get; init; }
+
+    /// <summary>
+    /// The distance at which a spatial voice falls silent, or 0 for the audio server's
+    /// <see cref="AudioServer.FarDistance"/>.
+    /// </summary>
+    public float FarDistance { get; init; }
 
     /// <summary>Reusable defaults: non-spatial, unity volume, no loop, playing, omni.</summary>
     public static AudioVoiceParams Default => new() { Volume = 1f, DipolePower = 1f, PlaybackRate = 1f };

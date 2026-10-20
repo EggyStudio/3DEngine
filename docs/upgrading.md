@@ -305,6 +305,14 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **Sound heard from its side and fainter with distance.** A sound played at a position is panned
+  toward the side of the listener it is on and grows quieter from its near distance to silence at
+  its far one, which `AudioVoiceParams.NearDistance` and `AudioVoiceParams.FarDistance` set for one
+  sound and `AudioServer.NearDistance` and `AudioServer.FarDistance` for every other, starting at
+  `AudioServer.DefaultNearDistance` and `AudioServer.DefaultFarDistance`, and
+  `SpatialContext.NearDistance` and `SpatialContext.FarDistance` carry to a spatial processor, as
+  [Sound in a 3D world](audio.md#sound-in-a-3d-world) shows. Before, it played from the middle at
+  its full volume.
 - **Data in files of its own.** A struct marked `DataAssetAttribute` is written by `DataAssets.Save`
   to a file of its own of the `DataAssets.Format` and `Version` with an id given at its first save,
   and a component's `DataRef<T>` field, with its `Id`, `IsNone`, `Value`, `Path`, `Problem` and

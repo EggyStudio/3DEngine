@@ -34,7 +34,8 @@ public sealed class AudioServer : IDisposable
     private readonly List<PendingVoice> _pending = new();
 
     private IAudioBackend _backend = new NullAudioBackend();
-    private ISpatialAudioProcessor? _spatial;
+    private ISpatialAudioProcessor? _spatial = new DistanceSpatialProcessor();
+    private float _nearDistance = DefaultNearDistance, _farDistance = DefaultFarDistance;
     private int _nextTicket = 1;
     private Vector3 _listenerPosition;
     private Quaternion _listenerOrientation = Quaternion.Identity;
@@ -47,10 +48,44 @@ public sealed class AudioServer : IDisposable
         get { lock (_lock) return _backend; }
     }
 
-    /// <summary>Optional spatial post-processor. Returns <c>null</c> when none is set.</summary>
+    /// <summary>
+    /// The spatial processor each spatial voice's pan and volume are worked out through, the
+    /// engine's own unless another replaced it, or <c>null</c> where none was set in its place, when
+    /// spatial voices play from the middle at their own volume.
+    /// </summary>
     public ISpatialAudioProcessor? Spatial
     {
         get { lock (_lock) return _spatial; }
+    }
+
+    /// <summary>The <see cref="NearDistance"/> a server starts with.</summary>
+    public const float DefaultNearDistance = 1;
+
+    /// <summary>The <see cref="FarDistance"/> a server starts with.</summary>
+    public const float DefaultFarDistance = 50;
+
+    /// <summary>
+    /// The distance within which a spatial voice is at its full volume, for every voice that gives
+    /// none of its own (<see cref="AudioVoiceParams.NearDistance"/>), a unit to begin with.
+    /// </summary>
+    /// <remarks>
+    /// Past it the engine's spatial processor makes a voice quieter as the inverse of its distance,
+    /// silent at <see cref="FarDistance"/>. A value below a thousandth is taken as a thousandth.
+    /// </remarks>
+    public float NearDistance
+    {
+        get { lock (_lock) return _nearDistance; }
+        set { lock (_lock) _nearDistance = float.IsNaN(value) ? DefaultNearDistance : MathF.Max(value, 1e-3f); }
+    }
+
+    /// <summary>
+    /// The distance at which a spatial voice falls silent, for every voice that gives none of its
+    /// own (<see cref="AudioVoiceParams.FarDistance"/>), fifty units to begin with.
+    /// </summary>
+    public float FarDistance
+    {
+        get { lock (_lock) return _farDistance; }
+        set { lock (_lock) _farDistance = float.IsNaN(value) ? DefaultFarDistance : MathF.Max(value, 1e-3f); }
     }
 
     /// <summary>Current listener position in world space (used for 3D voices).</summary>
@@ -127,7 +162,10 @@ public sealed class AudioServer : IDisposable
         Logger.Info($"AudioServer: backend set to '{backend.BackendId}'.");
     }
 
-    /// <summary>Installs (or replaces) the spatial post-processor.</summary>
+    /// <summary>
+    /// Replaces the spatial processor, the engine's own to begin with, as a richer one does, or
+    /// takes it away with <c>null</c>, after which spatial voices play from the middle.
+    /// </summary>
     internal void SetSpatialProcessor(ISpatialAudioProcessor? processor)
     {
         ISpatialAudioProcessor? previous;
@@ -198,7 +236,8 @@ public sealed class AudioServer : IDisposable
                 Looping: parameters.Looping, Paused: parameters.Paused,
                 Orientation: parameters.Orientation,
                 DipoleWeight: parameters.DipoleWeight, DipolePower: parameters.DipolePower,
-                PlaybackRate: parameters.PlaybackRate);
+                PlaybackRate: parameters.PlaybackRate,
+                NearDistance: parameters.NearDistance, FarDistance: parameters.FarDistance);
             _pending.Add(new PendingVoice(ticket, handle, parameters));
         }
         return new AudioSource(ticket, this);
@@ -221,7 +260,9 @@ public sealed class AudioServer : IDisposable
                 Orientation: parameters.Orientation,
                 DipoleWeight: parameters.DipoleWeight,
                 DipolePower: parameters.DipolePower,
-                PlaybackRate: parameters.PlaybackRate);
+                PlaybackRate: parameters.PlaybackRate,
+                NearDistance: parameters.NearDistance,
+                FarDistance: parameters.FarDistance);
             return new AudioSource(ticket, this);
         }
     }
@@ -365,6 +406,8 @@ public sealed class AudioServer : IDisposable
                         ListenerForward = listenerForward, ListenerUp = listenerUp,
                         DipoleWeight = rec.Orientation is null ? 0f : rec.DipoleWeight,
                         DipolePower = rec.DipolePower <= 0f ? 1f : rec.DipolePower,
+                        NearDistance = rec.NearDistance > 0 ? rec.NearDistance : _nearDistance,
+                        FarDistance = rec.FarDistance > 0 ? rec.FarDistance : _farDistance,
                     };
 
                     var spatial = sp.Compute(rec.VoiceId, rec.Position, _listenerPosition, ctx);
@@ -543,7 +586,9 @@ public sealed class AudioServer : IDisposable
         Quaternion? Orientation = null,
         float DipoleWeight = 0f,
         float DipolePower = 1f,
-        float PlaybackRate = 1f);
+        float PlaybackRate = 1f,
+        float NearDistance = 0f,
+        float FarDistance = 0f);
 
     private readonly record struct PendingVoice(int Ticket, Handle<Sound> Handle, AudioVoiceParams Parameters);
 }

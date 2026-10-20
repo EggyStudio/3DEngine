@@ -26,6 +26,7 @@ Shared areas:
 - scene files, saves, data in files, and files that outlive a renamed type
 - input, including what a script injects
 - the command-line tool that controls a running app (`bcs`, `e3d`)
+- modeling: an edit mesh shaped by operations, its recipe, grid prototyping, the modeling commands and window
 - tests, the games built from the package, measurement, CI, packing and the version
 - the rules for prose and commits
 
@@ -122,6 +123,20 @@ table also answers whether the two agree.
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | has (`b1265b6a`, `[DataAsset]` and `DataRef<T>` with the id inside the file, no sidecar and no shipped index, a missed id found by one look through the folders reading each file's head) |
 | A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | has (`43ace92a`, a loaded event a component on each entity a scene file spawned once the whole file is in, and a scene-loaded event with the path and the entities after them, a save read being a scene read, nothing told where no one watches) |
 | Content streamed on the go, so a game ships small and plays while its world downloads: a manifest and packs on any static host, reads by byte range into a block cache on disk keyed by the manifest's version, a recorded first-run set fetched ahead in order of first use, and prefetch driven by the game's own streaming, as the file layer of a browser port of a large game does it (`.ref/playgta5`, its `io_worker.js`) | to consider, taken when a game ships a world too large to download first; has scene packs fetched whole on demand and cached | to consider, taken when a game ships a world too large to download first; has Manor's cells streamed from disk around the player |
+
+### Modeling
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| An edit mesh of faces of any count with a selection, shaped by operations (primitives among them stairs, wedge and arch, select by index, direction or box, move, rotate, scale on a grid step, extrude, inset, delete, merge, flip, triangulate, duplicate, join), its history the recipe of its operations, which is its undo and its saved `*.model` file rebuilt at load, built into the engine's meshes one a material slot and a collider | to take (item 38) | to take (item 59) |
+| Grid prototyping: a generated grid image of a meter's cell with lines a tenth apart, prototype materials from a named set of colors, and texture coordinates by world-aligned box mapping in meters as every face's default | to take (item 39) | to take (item 60) |
+| Booleans of two edit meshes, union, difference and intersection, by the binary space partition of csg.js written in the engine, the triangles merged back into faces, with room, door, window and ramp primitives on them | to take (item 39) | to take (item 60) |
+| `model.*` commands one an operation in the recipe's words, the model's name first, answering the counts, with save, load, undo, show and info, and an ImGui window a program draws with one call listing the recipe, offering the operations, picking a face by a ray against the edit mesh's faces and extruding by a drag | to take (item 40), the window in the editor as well | to take (item 61) |
+| Texture coordinates of a selection by planar, box, cylindrical and spherical projection, moved, scaled, rotated and set to a texel density, and materials by slot so a face is given a texture by its slot, all recorded in the recipe | to take (item 41) | to take (item 62) |
+| A game under `games/` that is a level blocked out from one recipe file, walked by the character, reshaped from the modeling window while walked and saved back | to take (item 42) | to take (item 63) |
+| Face and edge operations, bevel with segments, loop cut, subdivide, bridge, fill, dissolve, knife, mirror, spin and smooth, in the recipe, the commands and the window | to take (item 43) | to take (item 64) |
+| A modifier stack applied at the build over an editable base, mirror, array, bevel, Catmull-Clark subdivision, solidify, boolean and triangulate, reordered and applied, in the recipe as `modifier` lines | to take (item 44) | to take (item 65) |
+| The built mesh written as glTF 2.0 by a writer of the engine's own, one primitive a slot with its color and texture path, and a model file read into an edit mesh with coplanar triangles merged into faces | to take (item 45) | to take (item 66) |
 
 ### Input and the command line
 

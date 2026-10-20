@@ -178,7 +178,11 @@ sealed class Engine.AudioServer : IDisposable
   ISpatialAudioProcessor? Spatial { get; }
   Quaternion ListenerOrientation { get; set; }
   Vector3 ListenerPosition { get; set; }
+  const float DefaultFarDistance = 50f
+  const float DefaultNearDistance = 1f
+  float FarDistance { get; set; }
   float MasterVolume { get; set; }
+  float NearDistance { get; set; }
   int LiveSourceCount { get; }
   void Dispose()
 readonly struct Engine.AudioSource : IEquatable<AudioSource>
@@ -214,6 +218,8 @@ readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
   bool Paused { get; init; }
   float DipolePower { get; init; }
   float DipoleWeight { get; init; }
+  float FarDistance { get; init; }
+  float NearDistance { get; init; }
   float Pan { get; init; }
   float PlaybackRate { get; init; }
   float Volume { get; init; }
@@ -3098,6 +3104,8 @@ readonly struct Engine.SpatialContext : IEquatable<SpatialContext>
   bool Equals(SpatialContext other)
   float DipolePower { get; init; }
   float DipoleWeight { get; init; }
+  float FarDistance { get; init; }
+  float NearDistance { get; init; }
   override bool Equals(object obj)
   override int GetHashCode()
   override string ToString()

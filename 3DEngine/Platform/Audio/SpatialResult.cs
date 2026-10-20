@@ -12,10 +12,9 @@ namespace Engine;
 /// single scalar.
 /// </para>
 /// <para>
-/// <see cref="Pan"/> is a stereo balance hint in <c>[-1, +1]</c> derived from the
-/// source's position in the listener's coordinate frame. Backends that support
-/// per-voice panning can consume it; backends that don't (e.g. the current SDL3
-/// backend) ignore it without harm.
+/// <see cref="Pan"/> is the stereo balance in <c>[-1, +1]</c> from the source's position in
+/// the listener's frame, which SDL3's backend plays by splitting a spatial voice's gain between
+/// the left channel and the right, and which a backend that cannot pan passes over.
 /// </para>
 /// </remarks>
 public readonly record struct SpatialResult

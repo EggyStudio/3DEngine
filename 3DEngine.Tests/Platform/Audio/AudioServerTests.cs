@@ -58,7 +58,7 @@ public class AudioServerTests
     {
         using var server = new AudioServer();
         server.Backend.Should().BeOfType<NullAudioBackend>();
-        server.Spatial.Should().BeNull();
+        server.Spatial.Should().BeOfType<DistanceSpatialProcessor>("a server pans and attenuates its spatial voices with the engine's own processor");
         server.LiveSourceCount.Should().Be(0);
 
         server.ListenerPosition = new Vector3(1, 2, 3);
@@ -225,6 +225,35 @@ public class AudioServerTests
         backend.Calls.Should().Contain("Update");
     }
 
+    [Fact]
+    public void The_Engines_Spatial_Processor_Pans_A_Voice_To_Its_Side_And_Quiets_It_From_Its_Near_Distance_To_Its_Far_One()
+    {
+        using var server = new AudioServer();
+        var backend = new RecordingBackend();
+        server.SetBackend(backend);
+        // The last value of a call the server made for a voice, the backend's voices counted from 100.
+        float Last(string call, int voice)
+        {
+            var line = backend.Calls.Last(c => c.StartsWith($"{call}({voice},", StringComparison.Ordinal));
+            return float.Parse(line[(line.IndexOf(',') + 1)..^1], System.Globalization.CultureInfo.CurrentCulture);
+        }
+
+        // The listener at the origin facing -Z, so its left is -X.
+        server.Play(MakeSound(), new AudioVoiceParams { Position = new Vector3(-0.5f, 0, 0), Volume = 1 });
+        server.Play(MakeSound(), new AudioVoiceParams { Position = new Vector3(0, 0, -10), Volume = 1 });
+        server.Play(MakeSound(), new AudioVoiceParams { Position = new Vector3(3, 0, 0), Volume = 1, NearDistance = 1, FarDistance = 5 });
+        server.Play(MakeSound(), new AudioVoiceParams { Position = new Vector3(0, 0, 2 * AudioServer.DefaultFarDistance), Volume = 1 });
+        server.Tick();
+
+        Last("Pan", 100).Should().BeApproximately(-1, 1e-4f, "a voice to the listener's left is panned all the way left");
+        Last("Vol", 100).Should().Be(1, "within the near distance it is at its full volume");
+        Last("Pan", 101).Should().BeApproximately(0, 1e-4f, "a voice straight ahead is in the middle");
+        Last("Vol", 101).Should().BeApproximately((1 / 10f - 1 / 50f) / (1 - 1 / 50f), 1e-4f, "past the near distance it falls as the inverse of the distance");
+        Last("Pan", 102).Should().BeApproximately(1, 1e-4f);
+        Last("Vol", 102).Should().BeApproximately((1 / 3f - 1 / 5f) / (1 - 1 / 5f), 1e-4f, "by the near and far distances the voice gives");
+        Last("Vol", 103).Should().Be(0, "at twice the far distance it is silent");
+    }
+
     private sealed class HalfGainProcessor : ISpatialAudioProcessor
     {
         public string ProcessorId => "half";
@@ -241,9 +270,10 @@ public class AudioServerTests
         var backend = new RecordingBackend();
         server.SetBackend(backend);
 
-        // Two voices, one non-spatial (no spatial processor is set anyway) and one spatial.
+        // Two voices, one non-spatial and one spatial within its near distance, where the spatial
+        // processor leaves its volume whole.
         server.Play(MakeSound("a.wav"), new AudioVoiceParams { Volume = 1f });
-        server.PlaySpatial(MakeSound("b.wav"), new Vector3(5, 0, 0), new AudioVoiceParams { Volume = 0.5f });
+        server.PlaySpatial(MakeSound("b.wav"), new Vector3(0.5f, 0, 0), new AudioVoiceParams { Volume = 0.5f });
 
         server.MasterVolume = 0.25f;
         backend.Calls.Clear();
@@ -253,7 +283,7 @@ public class AudioServerTests
         backend.Calls.Should().Contain(c => c.StartsWith("Vol(100,") && c.EndsWith(",0.25)"),
             "non-spatial voice = 1.0 * MasterVolume(0.25)");
         backend.Calls.Should().Contain(c => c.StartsWith("Vol(101,") && c.EndsWith(",0.125)"),
-            "spatial voice = 0.5 * MasterVolume(0.25) (no spatial processor → spatial gain = 1)");
+            "spatial voice = 0.5 * MasterVolume(0.25), its spatial gain 1 within its near distance");
     }
 
     [Fact]

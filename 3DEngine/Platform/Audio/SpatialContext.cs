@@ -42,11 +42,18 @@ public readonly record struct SpatialContext
     /// </summary>
     public float DipolePower { get; init; }
 
+    /// <summary>The distance within which the voice is at its full volume, the voice's or the server's.</summary>
+    public float NearDistance { get; init; }
+
+    /// <summary>The distance at which the voice falls silent, the voice's or the server's.</summary>
+    public float FarDistance { get; init; }
+
     /// <summary>Empty context: identity orientations, omni directivity.</summary>
     public static SpatialContext Empty => new()
     {
         SourceForward = -Vector3.UnitZ, SourceUp = Vector3.UnitY,
         ListenerForward = -Vector3.UnitZ, ListenerUp = Vector3.UnitY,
         DipoleWeight = 0f, DipolePower = 1f,
+        NearDistance = AudioServer.DefaultNearDistance, FarDistance = AudioServer.DefaultFarDistance,
     };
 }

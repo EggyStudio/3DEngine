@@ -5,10 +5,10 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The audio: a drone played at a speaker to the left of the zone's start, panned toward it and
-/// quieter further from it as the camera moves, a coin played every two seconds panned by where the
-/// player stands, music streamed from a file, a stream whose samples a callback of the program's own
-/// makes, and a wave written to a file and read back.
+/// The audio: a drone played at a speaker to the left of the zone's start and heard from where the
+/// camera is, a coin played every two seconds panned by where the player stands, music streamed
+/// from a file, a stream whose samples a callback of the program's own makes, and a wave written to
+/// a file and read back.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -17,9 +17,9 @@ namespace FeatureTest;
 /// samples from the second half second on, the left channel's and the right's apart, so the drone
 /// being heard from its side is read in the mix, louder on the left with the speaker on the left, as
 /// the camera sees it from the zone's start. The music, the stream and the coin start after, since
-/// the music's own channels are not alike. The drone's pan and volume are the program's, from the
-/// camera to the speaker, since the engine installs no spatial processor of its own and plays a
-/// voice placed by its position from the middle at full volume.
+/// the music's own channels are not alike. The drone is played at the speaker's place through the
+/// audio server, with the listener set where the camera is and looking where it looks, so its pan
+/// and its fall with distance are the engine's spatial processor's.
 /// </para>
 /// <para>
 /// The wave is a half second of a tone at half the full scale, written with
@@ -44,7 +44,7 @@ sealed class Audio : Zone
     private AudioSource _source = AudioSource.Invalid;
     private double _left, _right, _mixLeft, _mixRight;
     private int _channels = 2, _frames, _coins, _asked;
-    private float _phase, _clock, _played, _pan;
+    private float _phase, _clock, _played;
     private string _wave = "the wave not written yet";
     private bool _waveOk;
 
@@ -125,19 +125,15 @@ sealed class Audio : Zone
         else if (!here && _frames > 0) End();
         _frames = here ? _frames + 1 : 0;
 
-        if (!here) return;
-
-        // The drone from the camera's side the speaker is on, quieter further from it.
-        var camera = player.Camera;
-        var forward = Vector3.Normalize(camera.Target - camera.Position);
-        var across = Vector3.Normalize(Vector3.Cross(forward, Vector3.UnitY));
-        var speaker = Speaker - camera.Position;
-        _pan = Math.Clamp(Vector3.Dot(Vector3.Normalize(speaker), across), -1, 1);
-        if (_source.IsValid)
+        // The listener where the camera is, looking where it looks, which the drone is heard from.
+        if (_server is not null)
         {
-            _source.SetPan(_pan);
-            _source.SetVolume(Math.Clamp(6 / speaker.Length(), 0.1f, 1));
+            var camera = player.Camera;
+            _server.ListenerPosition = camera.Position;
+            _server.ListenerOrientation = Quaternion.CreateFromRotationMatrix(
+                Matrix4x4.CreateWorld(Vector3.Zero, Vector3.Normalize(camera.Target - camera.Position), Vector3.UnitY));
         }
+        if (!here) return;
 
         if (_frames == 30) lock (_gate) (_left, _right) = (0, 0);
         if (_frames == Alone)
@@ -164,7 +160,8 @@ sealed class Audio : Zone
 
     private void Begin()
     {
-        if (_server is not null) _source = _server.Play(_drone, new AudioVoiceParams { Pannable = true, Looping = true, Volume = 1 });
+        if (_server is not null)
+            _source = _server.Play(_drone, new AudioVoiceParams { Position = Speaker, Looping = true, Volume = 1, NearDistance = 6, FarDistance = 40 });
         (_clock, _coins, _asked, _played) = (0, 0, 0, 0);
     }
 
@@ -189,6 +186,6 @@ sealed class Audio : Zone
         var sided = _mixLeft > _mixRight * 1.2;
         var ok = _waveOk && _played > 1 && _asked > 0 && sided;
         return $"{device}, {_wave}, the music {_played:0.0} s played, the stream asked for samples {_asked} times, the coin played {_coins} times, "
-               + $"the drone panned {_pan:0.00} toward the speaker, the mix's left {_mixLeft:0.00} and right {_mixRight:0.00} with it alone{(sided ? "" : ", not heard from its side")}{(ok ? ", audio ok" : "")}";
+               + $"the drone at the speaker, the mix's left {_mixLeft:0.00} and right {_mixRight:0.00} with it alone{(sided ? "" : ", not heard from its side")}{(ok ? ", audio ok" : "")}";
     }
 }

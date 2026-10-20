@@ -3,10 +3,14 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// Optional spatial post-processor that augments raw <see cref="IAudioBackend"/> output
-/// with engine-quality 3D parameters (distance attenuation, occlusion, HRTF direction).
-/// None is built into the engine, and without one the backend's own 3D math is used.
+/// The spatial processor the audio server works out each spatial voice's pan and volume through,
+/// every frame, from where the voice and the listener are and which way each faces.
 /// </summary>
+/// <remarks>
+/// The server starts with the engine's own, which pans a voice toward the side of the listener it
+/// is on and makes it quieter with distance (see <see cref="AudioVoiceParams.NearDistance"/>). A
+/// richer one, as one of head-related transfer functions or of occlusion, takes its place.
+/// </remarks>
 public interface ISpatialAudioProcessor : IDisposable
 {
     /// <summary>Stable processor identifier (e.g. <c>"steamaudio"</c>).</summary>

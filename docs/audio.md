@@ -240,6 +240,15 @@ var engine = ctx.PlaySpatialSound("resources/drone.ogg", truckPosition);
 engine.SetPosition(truckPosition);
 ```
 
+A sound placed so is panned toward the side of the listener it is on, all the way left where it
+stands straight to the listener's left, and is at its full volume within its near distance, a unit
+to begin with. Past that it grows quieter as the inverse of its distance until it is silent at its
+far distance, fifty units to begin with. `AudioVoiceParams.NearDistance` and `FarDistance` set one
+sound's, and `AudioServer.NearDistance` and `FarDistance` every sound's that sets none. A sound
+given an orientation and a directivity, through `SetOrientation` and `SetDirectivity` on its
+`AudioSource`, is quieter away from the way it faces. The engine's own spatial processor works this
+out each frame, and a richer one, as one of head-related transfer functions, can take its place.
+
 The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and their context.
 
 ## See also

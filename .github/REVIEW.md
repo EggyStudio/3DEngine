@@ -10,19 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c6face9f`, item 57's fourth part, global illumination, particles and the effects,
+Reviewed up to `afbe81cf`, item 57's fifth part, audio and text, and nothing else, carrying the
+review's file, in the shape and with the tests and numbers said before it. Read at 23:14. The build
+run of `086d9a00` ended green at 23:20, its Windows parts in 44 minutes 38 seconds, 1,759 passed, so
+`c6face9f` and this head were pushed at 23:22. Next item 58, the default spatial processor, then
+part 6, scenes and saves and the interface. Item 6 waits on the owner's word. At about 23:47 the
+owner gave the modeling work, Decision 51 and items 59 to 66, taken after item 58 and part 6.
+
+Before it, `c6face9f` came, item 57's fourth part, global illumination, particles and the effects,
 and nothing else, carrying the review's file, in the shape and with the tests and numbers said
-before it. Read at 22:50; its push waits for the build run of `086d9a00` to end. The last four zones
-go on an outer ring of 120 m in the gaps between the inner eight, so their roads pass between the
-inner zones. Next part 5, audio and text, its shape said before its commit. Item 6 waits on the
-owner's word.
+before it.
 
 Before it, `086d9a00` came, item 57's third part, models and animation and lights and shadows, and
 nothing else, carrying the review's file, in the shape and with the tests and numbers said before
 it. Pushed at 22:23 with the three before it.
-
-Before it, `8609089a` came, item 57's second part, the admin panel and the crash log, and nothing
-else, carrying the review's file, in the shape and with the tests and numbers said before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3029,7 +3030,220 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     passes in 5 minutes 2 seconds against the drive's eight and the GPU in 1 minute 43 with the same
     readings; the soak's 36 turns and 13 readings pass with nothing growing, the storm has no
     validation error, and the README's map and BUILDING.md cover the three zones. Part 4 done at
-    `c6face9f` on 2026-10-20, as the head says.
+    `c6face9f` on 2026-10-20, as the head says. Part 5's shape, tests and numbers said by 23:05 and
+    taken: an audio zone where the drone plays alone for two seconds on arriving as a pannable
+    looping sound, panned by the program toward the speaker each frame and its volume set by
+    distance, a mixed processor summing each channel's energy from the half second on and the side
+    heard when the left is above 1.2 times the right, then the music, a sine from a stream callback
+    and a coin every two seconds panned by the player's side, everything stopping on leaving, and at
+    start a half second of a tone written as a wave beside the program and read back with its frames
+    counted and its peak measured, ok when the wave comes back as 24,000 frames peaking at 0.5, the
+    music played past a second, the stream asked for samples and the side heard; a text zone on the
+    outer ring drawing a page every second into a texture on a billboard, Lato baked with the asked
+    code points, Hebrew in the tests' right-to-left font, a color emoji in the tests' layered font,
+    the default font, a word with and without ligatures and an SDF Lato turned, the two test fonts
+    linked from the tests as the models are, ok when the line's lit columns stand within six pixels
+    of the measure, the Hebrew letters' bars rise left to right so the first is drawn at the right,
+    the emoji's red and blue pixels count past ten with the red's mean left of the blue's, and the
+    default font's line is lit. The drive runs the audio zone for 300 frames and the text zone for
+    130; the soak cycles eleven places. The whole step on lavapipe under the layer passes in 5
+    minutes 17 seconds, the device at 48,000 Hz in two channels on the dummy driver, the wave 24,000
+    frames at 0.500, the music 2.9 s, the stream asked 82 times, the drone panned minus 0.46 with
+    the mix 4.11 left and 2.48 right, Lato measured 299 and drawn 298, the word 56 with ligatures
+    and 57 without; on the GPU the drone 2.88 and 1.74; the soak's 35 turns and 13 readings pass
+    with nothing growing and the storm has no validation error. A finding of the engine's is item
+    58. Part 5 done at `afbe81cf` on 2026-10-20, as the head says.
+
+58. **A sound placed by its position is heard from its side and fainter with distance, as the audio
+    guide says.** Found by the feature test's audio zone on 2026-10-20: the audio server pans and
+    attenuates a spatial voice only through a spatial processor, and nothing installs one, the
+    setter having no caller and the interface no implementation in the engine, the backend's comment
+    naming Steam Audio for the slot, which is not shipped, so a sound played with a position,
+    through the behavior context's spatial play or the server's play with a position, plays from the
+    middle at full volume, where the guide's section on sound in a 3D world says such a sound is
+    louder near the listener and heard from its side; measured in the zone, the drone with a
+    position to the camera's left gave the mix 14.28 left and 14.56 right, and alone at a pan of
+    minus one 2.76 and 0.00. The mend is one thing: the engine installs a spatial processor of its
+    own by default, the pan from the listener's across vector against the direction to the voice and
+    the volume falling from a near distance to a far one the voice or the server sets, with the slot
+    kept for a richer one and the setter replacing the default; the guide's sentence then true and
+    saying the model, the cheat sheet through its script where a call is added, the surface listing
+    and the upgrading guide's entry; a test playing a sound to the listener's left and reading the
+    mix's sides through a mixed processor as the zone does, and one at twice the far distance
+    reading near silence; the feature test's audio zone then plays its drone through the spatial
+    play and keeps its check. One commit, after part 5. The form said by 23:14 on 2026-10-20 and
+    taken: an internal distance processor in the platform's audio folder, the pan the unit direction
+    from the listener to the voice against the listener's across vector, clamped, minus one at the
+    left and zero straight ahead, behind or at the listener, the volume one within the near distance
+    and zero at or past the far, between them the inverse of the distance brought to zero at the
+    far, and where the voice has an orientation a directivity from the context's dipole, the
+    attenuation the distance's times the directivity; the audio server starting with it, the setter
+    kept internal and replacing it with null taking it away as its summary says, the server gaining
+    near and far distances with defaults of 1 and 50 and the voice's parameters gaining their own,
+    zero meaning the server's, the tick filling the context from them; the comments that said none
+    is built in, that the backend ignores the pan and that named Steam Audio for the slot put right;
+    the audio guide's section gaining the model and the upgrading guide its entry, no flat call
+    added so the cheat sheet stands, eight lines of the surface listing. Tests: a unit test through
+    the recording backend at four placements with their pans and volumes, a new device test playing
+    a looping tone on the dummy driver and reading the mix's sides, the right under a hundredth of
+    the left at three to the left and the mix at twice the far distance under a thousandth of the
+    one near, two existing tests changed for the default and the near distance; a finding on the
+    way, the new class beside the backend tests ending the test host with a heap fault since those
+    set the process's audio driver and open and close backends, both classes put in one collection
+    without parallelization, clean four times, an app opening one backend unaffected. The feature
+    test's audio zone plays its drone with a position through the server with the listener set from
+    the camera each frame and keeps its check, reading 2.31 left and 1.40 right alone where the same
+    placement had read 14.28 and 14.56.
+
+59. **An edit mesh a program shapes by operations, with a recipe that rebuilds it, built into what
+    the engine draws and collides with (Decision 51).** The owner asked for modeling in both
+    engines, Blender's kind, from the command line as well as in a game, grid prototyping first;
+    this item is the kernel the rest stands on. An edit mesh is a polygon mesh of vertices, faces as
+    loops of vertex indices of any count, a texture coordinate at each face corner, a material slot
+    and a smooth flag a face, and edges read from the faces; a selection of vertices, edges or faces
+    as sets; and its history as the list of operations that made it, the recipe, so undo drops the
+    last line and rebuilds, and a saved model is its recipe, a text file `*.model` of one operation
+    a line in the words the commands of item 61 use, read back and rebuilt at load, so a level's
+    models are small files a reader understands and a diff reads. The operations of this item: new
+    and free; the primitives box, plane, cylinder, cone, wedge, stairs with a count of steps, a
+    rise, a run and a width and closed underneath, and arch, each placed by its lowest corner or its
+    center on the grid; select all, none, invert, faces by index, faces by the direction their
+    normal faces nearest (`+y`, `-x`), vertices and faces inside a box, and the faces sharing a
+    material slot; move, rotate about an axis through the selection's center or a given pivot, and
+    scale, of the selection, snapped to a grid step the mesh holds (one meter by default, any power
+    of two of it down to a sixteenth); extrude faces along their normals by a distance or by a
+    vector, the sides filled; inset faces by a distance; delete the selection, the faces left open
+    or the hole filled; merge vertices within a distance; flip the selection's normals; triangulate;
+    duplicate the selection in place; and join another edit mesh in. The build: faces triangulated
+    with ear clipping, so a concave face triangulates right, normals per face or averaged where the
+    smooth flag is set and the edge's angle under a threshold, tangents from the texture
+    coordinates, one mesh a material slot, through `LoadModelFromEditMesh`, a model with one mesh a
+    material slot and a default material each, `UploadMesh` underneath, and
+    `UpdateModelFromEditMesh` writing the meshes again in place after a change, and a collider
+    through `CreatePhysicsStaticModel` from the built model. The surface is a resource struct
+    `EditMesh` holding an id, with the calls in a new area file `E3D.Modeling.cs`, named as raylib
+    would name them where it has the operation and plainly where it has none, each with its cheat
+    sheet line through the script and the surface listing, and a guide page `docs/modeling.md` with
+    a section an operation showing the recipe and what it makes. Tests: a test an operation on exact
+    counts of vertices, edges and faces, the signed volume of a closed mesh (a two by three by four
+    box 24, a stairs the sum of its steps), and watertightness, every edge shared by two faces with
+    opposite winding, and a recipe written and read back making the same counts; a capture of each
+    primitive in the gallery row. Two commits, the mesh and the primitives with the selection and
+    the transforms, then the topology operations, the recipe, the build and the collider.
+
+60. **Grid prototyping: materials that show a meter, texture coordinates aligned to the world, and
+    openings cut by booleans (Decision 51).** The owner's first use: blocking out a level with
+    textures of different colors showing a grid of about a meter, stairs, and windows cut by boolean
+    operations. The engine makes the grid image, `GenImageGrid(int pixelsPerMeter, Color face, Color
+    line, Color fine)`, an image of one meter's cell with its edge lines and lines every tenth of a
+    meter in a finer tone, beside `GenImageChecked`, 1024 pixels a meter by default with mipmaps,
+    and a prototype material from a color, the grid image tinted, in a small set of named colors for
+    floors, walls, ceilings, stairs, doors, windows, and a hazard, so a level reads by color as the
+    dev textures of the engines of the 2000s read; a face's texture coordinates by world-aligned box
+    mapping, each face projected along the axis its normal faces nearest, in meters, so the grid
+    shows one meter everywhere and continues across faces, which is the default of every primitive
+    and of every face a boolean makes. Booleans: union, difference and intersection of two edit
+    meshes, the second placed by a transform, written in the engine as the binary space partition
+    algorithm of csg.js, each mesh split by the other's planes, the parts kept by the operation, the
+    triangles then merged back into faces where coplanar and sharing edges and the vertices merged,
+    so a window cut from a wall is a few faces and not a hundred triangles; coplanar faces of the
+    two meshes handled by the algorithm's classification with an epsilon the mesh holds, and the
+    limit said in the guide that two faces in one plane are cut as the algorithm cuts them, so an
+    opening is cut with a box a little deeper than the wall. The new primitives on it: a room, a box
+    with its inside hollowed by a wall thickness, a door and a window, each a cut of a box through a
+    wall selected or named, a ramp. Tests: a box cut by a box through its wall has the faces
+    counted, is watertight and has the volume of the two less their overlap; a union of two boxes
+    sharing a face; the grid image's lines at the right pixels; the box mapping giving a two meter
+    face coordinates spanning two; a capture of a room with a window and a door and stairs in it.
+    Two commits, the grid image, the materials and the mapping, then the booleans and the openings.
+
+61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
+    to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
+    line, simple to use. The engine's catalog gains `model.*` commands, one an operation, each
+    taking the model's name first and then the operation's measures in the recipe's words, so a line
+    typed is a line of the recipe: `model.box room 8 3 6`, `model.select room +y`, `model.extrude
+    room 1`, `model.cut room window 1 1 2 0.5`, `model.material room wall`, `model.undo room`,
+    `model.save room resources/models/room.model`, `model.load room <path>`, `model.show room 0 0 0`
+    spawning or moving an entity that draws the model and follows its edits, `model.info room`
+    answering the counts, the bounds, the volume and the open edges, and `model.list`; a command
+    answers the counts after it, so a script reads what it did, and `./e3d command model.<op>`
+    reaches each as the catalog does. The window: an ImGui window a program draws with one call,
+    `DrawModelingWindow(EditMesh)`, as `DrawBounceWindow` is drawn, since the engine has no editor
+    (DESIGN.md §7); it lists the recipe with the last lines undone and redone by buttons, shows the
+    selection's counts, offers each operation with its measures as fields and a button, and takes
+    the mouse in the 3D view: a click selects the face under the pointer by a ray tested against the
+    edit mesh's faces one by one, with shift adding and control removing, a drag along the face's
+    normal extrudes or moves the selection by the grid step with the distance shown, and the hovered
+    face and the selection drawn as outlines over the model, the way the voxel game's aim outlines a
+    block. A guide section on blocking out a level from the terminal, as a script of `./e3d command`
+    lines making a room with a window. Tests: the commands through the console host making the room
+    of the guide and reading its counts, a load after a save giving the same, and the window's
+    picking tested through the ray against a known face. Two commits, the commands, then the window.
+
+62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
+    processing and adding textures to surfaces. The selection's texture coordinates by projection,
+    planar along an axis or the view, box as item 60's default, cylindrical about an axis, and
+    spherical; moved, scaled and rotated as a whole or about their center; set to a texel density,
+    so many pixels a meter, read from the material's texture; and reset to the world-aligned
+    default. A material slot takes a material of the engine's, a color with a texture and the maps
+    the engine's material has, so a face is given a texture by giving its slot one, the built
+    model's meshes drawn with each slot's; slots added, renamed and removed, and the faces of a
+    removed slot given the first. The texture coordinates of the recipe's operations are recorded as
+    operations too, so a saved recipe rebuilds them. A section of the window shows the selection's
+    coordinates over the slot's texture. Tests: each projection's coordinates on a box's known face,
+    the density on a two meter face with a 512 pixel texture, and a capture of a room with a brick
+    wall and a wooden floor from the examples' resources. One commit.
+
+63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
+    otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
+    of three rooms, a corridor, stairs between two floors, a window and two doors, made from one
+    recipe file of some forty lines in the game's resources and rebuilt at load, in the prototype
+    materials; a character walking it through `CreatePhysicsCharacter` and `MovePhysicsCharacter`
+    with mouse look as Manor has, the level solid through the built collider; F1 opening the
+    modeling window on the level's edit mesh so the level is reshaped while walking in it, the
+    collider rebuilt on a change, and F5 saving the recipe; a sun and the global illumination on, so
+    the grid walls show the light. Commands `blockout.status` and `blockout.autopilot` for the drive
+    and the soak, the drive walking the stairs to the upper floor and reading the character's
+    height, cutting a window by a command and reading the counts, and a capture; the game joins the
+    build-all, drive, soak and storm lists and the README's gallery with its capture, and the
+    guide's page names it. One commit.
+
+64. **Modeling operations on faces and edges, Blender's kinds (Decision 51).** The owner's later
+    wave: selecting a face, insetting and pulling it, merging, beveling. On the kernel: bevel of the
+    selected edges by a width with a count of segments, the profile round; loop cut, a cut around a
+    ring of faces at a fraction; subdivide the selected faces by a count; bridge two selected face
+    loops of the same count; fill a hole of selected edges with one face; dissolve the selected
+    faces into one, or the selected edges, keeping the shape; knife, a cut of the selected faces by
+    a plane; mirror of the selection across an axis through a pivot, merging on the plane; spin of
+    the selected edges about an axis by an angle in steps; and smooth, the vertices moved toward
+    their neighbors' mean by a factor. Each in the recipe and the commands, in the window with its
+    measures. Tests: each operation's counts on a box, a bevel of a box's twelve edges with two
+    segments watertight and the volume between the box's and its inscribed one, a mirror of a half
+    giving a whole with no doubled vertices; a capture of a beveled, inset and loop-cut box. Two
+    commits, the bevel, the loop cut and the subdivision, then the rest.
+
+65. **Modifiers, a stack applied at the build and never baked until asked (Decision 51).** The owner
+    asked for Blender-like modifiers. An edit mesh holds a list of modifiers applied in order at the
+    build over the base, which stays editable: mirror across axes, array by a count and an offset or
+    along a curve of positions, bevel as item 64's over every edge or the edges past an angle,
+    subdivision by Catmull-Clark to a level, solidify by a thickness inward or outward, boolean with
+    another edit mesh placed by a transform, and triangulate; each added, reordered, removed and
+    applied, applying baking its result into the base and dropping it; in the recipe as `modifier`
+    lines and in the commands and the window, the build's time for a stack read in a test against a
+    budget. Tests: a mirror on a half box giving a box's counts, an array of three, a subdivision of
+    a box to level one giving 26 vertices and level two 98, a solidified plane watertight, and a
+    capture of a subdivided and beveled shape. One commit.
+
+66. **What is modeled is exported for Blender and imported from it (Decision 51).** The built mesh
+    and its materials written as a glTF 2.0 file, a JSON with its buffer beside or embedded,
+    positions, normals, texture coordinates, indices, one primitive a material slot with the slot's
+    color and its texture referenced by path, by a writer of the engine's own in managed code, so a
+    level blocked out in the game is opened and finished in Blender; and a model file read into an
+    edit mesh through Assimp, which reads the formats `LoadModel` reads, triangles merged back into
+    faces where coplanar and sharing edges, materials into slots, so a model from Blender is cut and
+    shaped in the game. `model.export` and `model.import` beside the save and the load. Tests: a box
+    exported and read back with the engine's own reader having the same counts, a file validated
+    against the glTF schema's required fields, and a known glTF's import counted. One commit.
 
 ## Verdicts
 
@@ -4454,6 +4668,31 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
     coder adds one sentence saying so to COMMITS.md in the next batch, in the paragraph on what a
     commit carries, naming the review's files, the batch that comes next and the one commit a day at
     most, and no one who decided it (N 4.7).
+
+51. **Modeling in both engines, from the kernel to the modifiers, grid prototyping first.** The
+    owner wrote at about 23:47 on 2026-10-20 that the engines are to support modeling too, beyond
+    the primitives they have, Blender's kind, possible in a game and all of it from the command
+    line, simple to use so it is the more powerful: grid prototyping as the essential tool of world
+    design, with textures of different colors showing a grid of about a meter, stairs, and windows
+    through boolean operations; processing texture coordinates and adding textures to surfaces; and
+    later selecting a face, insetting and pulling it, merging, beveling and Blender-like modifiers;
+    the reviewer to shape the best solution, adding and removing as it sees fit, and to ask what
+    needs asking. The reviewer's shape, the same in both engines by SHARED.md's rows and each
+    engine's own underneath: items 59 to 66, an edit mesh of faces of any count with a selection and
+    a recipe of operations that is its history, its undo and its saved file, built into the engine's
+    meshes and colliders; the grid materials, world-aligned texture coordinates and booleans by
+    binary space partition, written in the engine since the dependency table takes no library for
+    it; the commands, one an operation in the recipe's words, and an ImGui window a program draws
+    with face picking by ray and a drag to extrude, no editor application in 3DEngine and the
+    editor's panel in BevyCSharp; texture coordinate projections and materials by slot; a game
+    blocking out a level from one recipe; the face and edge operations; a modifier stack applied at
+    the build; and glTF written by the engine and read into an edit mesh, so Blender opens what the
+    game made and the game cuts what Blender made. Each engine's coder takes the items after its
+    current work, item 58 and the feature test's sixth part in 3DEngine and item 37 in BevyCSharp,
+    in the items' order, the two in parallel to one text, the words of the recipe and the commands
+    the same in both. The owner is asked the game's name, Blockout failing a word, whether the glTF
+    export comes earlier than last, and whether a dependency for robust booleans is wanted later
+    should the partition's limits show.
 
 ## Replies
 
