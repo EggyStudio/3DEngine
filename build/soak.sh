@@ -180,11 +180,13 @@ turn() {
       # and its platform ridden from the start each time, the panel shown every fourth turn, and
       # every zone's status read.
       if (( i % 4 == 1 )); then cmd feature.panel on; else cmd feature.panel off; fi
-      case $(( i % 4 )) in
+      case $(( i % 6 )) in
         0) cmd feature.zone hub; key W 60 ;;
         1) cmd feature.zone drawing; key W 60 ;;
         2) cmd feature.zone course crates; key W 120 ;;
         3) cmd feature.zone course platform; wait_frames 120 ;;
+        4) cmd feature.zone models; key W 60 ;;
+        5) cmd feature.zone lights; wait_frames 70 ;;
       esac
       cmd feature.status
       wait_frames 30 ;;

@@ -15,6 +15,9 @@
 
     <ItemGroup>
         <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+        <!-- The models the examples and Tumble carry, taken from where they are rather than copied. -->
+        <Content Include="..\..\3DEngine.Examples\resources\arm.gltf;..\..\3DEngine.Examples\resources\morph.gltf;..\..\3DEngine.Examples\resources\torus.obj;..\..\3DEngine.Examples\resources\torus.mtl;..\..\3DEngine.Examples\resources\checker.png;..\Tumble\resources\robot.glb;..\Tumble\resources\robot-CC0.txt"
+                 Link="resources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

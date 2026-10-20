@@ -12,7 +12,12 @@ along the road, a grid laid through rlgl's matrix, and an easel showing a textur
 text are drawn into each frame. East is the course, six lanes running east side by side, each a
 station the character is tried on: a ramp of 25 degrees, stairs of 0.25, a gap to jump, a platform
 that carries you, crates to push and a tunnel to crouch through. A trigger at each lane's end turns
-green once you reach it.
+green once you reach it. North-west is the models zone, every mesh the engine generates on a plinth,
+a heightmap and a maze from images, an OBJ, a skinned arm, a robot run by an animation state machine
+it names by its file's id, strips of morph targets and four hundred cubes in one instanced draw.
+North is the lights zone, a red lamp and a blue spot that cast shadows, a block the sun throws a
+shadow from, a glowing sphere, balls from rough to polished and from dielectric to metal, and a room
+a reflection probe lights with itself.
 
 ## Keys
 

@@ -10,20 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7d7ecba6`, item 57's first part, the feature test's hub, character and two zones,
-and nothing else, carrying the review's and the ledger's files, in the shape and with the tests and
-numbers said before it. Read at 21:46; its push with `b1265b6a` waits for the build run of
-`ac77ef83` to end. Next part 2, the admin panel and the crash log, its shape said before its commit.
+Reviewed up to `8609089a`, item 57's second part, the admin panel and the crash log, and nothing
+else, carrying the review's file, in the shape and with the tests and numbers said before it. Read
+at 22:01; its push with the two before it waits for the build run of `ac77ef83` to end, in its 65th
+minute. Next part 3, models and animation and lights and shadows, its shape said before its commit.
 Item 6 waits on the owner's word.
+
+Before it, `7d7ecba6` came, item 57's first part, the feature test's hub, character and two zones,
+and nothing else, carrying the review's and the ledger's files, in the shape and with the tests and
+numbers said before it.
 
 Before it, `b1265b6a` came, item 56 and nothing else, 24 files, carrying the review's and the
 ledger's files, in the form and with the tests and numbers said before it; the suite gave 1,822
 plain and shuffled and the strict build is clean.
-
-Before it, `ac77ef83` came, item 55 and nothing else, carrying the review's and the ledger's files,
-in the form said before it; the strict build is clean, the suite gave 1,817 plain and shuffled by
-the day's seed, two more, and the physics and upgrading guides' 23 blocks built on a fresh pack.
-Pushed at 20:56 with item 54's.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2947,7 +2946,31 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     coordinates. The soak of 120 seconds offscreen gave 42 turns and 13 readings with the check
     passing and nothing growing, the storm captured after it with no validation error, the norm and
     document tests pass and the workflow and scripts parse. Part 1 done at `7d7ecba6` on 2026-10-20,
-    as the head says.
+    as the head says. Part 2's shape, tests and numbers said by 22:00 and taken: an ImGui window on
+    a key that the keyboard, a gamepad and the mouse move through, the player deaf to the keys while
+    it holds them, showing the frame's costs by their profile names, the frame rate, the engine's
+    profile window and the last crash file's name, the engine's switches for the sun's shadows,
+    ambient occlusion, FXAA and the frame cap, the player's fly box, and each zone's status, toggles
+    and buttons to its start and spots; toggles with a one-word key and a label for the hub's cube,
+    the drawing zone's shapes and easel and the course's platform and triggers, each zone's status
+    saying when one is off; a crash file written beside the executable on an unhandled exception
+    with the exception whole, the time and frames into the run, the player's line, each zone's last
+    status, the frame's costs, the system and the log's last forty lines, all from what the last
+    frame published and never from the engine mid-frame, the next run naming the newest file in its
+    log and on the panel, the engine's own crash log still written beside it; commands for the
+    toggles, a toggle, the panel, the costs and a crash from the main loop after the next frame. The
+    drive's case after the course turns the easel and the cube off and on in the statuses, reads the
+    shadows' GPU cost before and 240 frames after the sun's shadows go off, under a tenth of on or
+    zero where the device times nothing, and opens the panel and reads it as drawn; the games job's
+    step captures the drawing zone with the panel open, asks for the crash, waits for the file and
+    reads its lines, waits for the session's end at exit 134 since the file is written while the
+    process still aborts, and reopens to read the log naming the file; the soak shows the panel
+    every fourth turn. The whole step run locally from the workflow's text on lavapipe passes in 1
+    minute 45 seconds, the shadows' cost 7.636 ms on and 0.194 off and on the machine's GPU 0.058
+    and 0.000, the crash file saying 5.4 seconds and 94 frames into the run with the exception's
+    line; the soak's 39 turns and 13 readings pass the check with nothing growing, the storm
+    captures with no validation error, the workflow and scripts parse, and the README and
+    BUILDING.md gain the paragraphs. Part 2 done at `8609089a` on 2026-10-20, as the head says.
 
 ## Verdicts
 
