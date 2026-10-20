@@ -27,7 +27,10 @@ If nothing is serving, start one and wait for it to be ready:
 `shot` works, and nothing appears on the desktop. `--offscreen` needs no display server, so it also
 works over SSH, in a container or on a locked session, and a software Vulkan device (lavapipe) is
 enough. A run with no window has no window events, so input arrives only through `input.*`.
-`--headless` is for logic, because there is nothing to capture.
+`--headless` is for logic, because there is nothing to capture. A run with no window, hidden,
+offscreen or headless, plays its sound to SDL's dummy driver whatever devices the machine has, which
+takes it at the rate a device would and plays none, so sounds end and music moves on with nothing
+heard, unless the program's `Config.AudibleWithoutWindow` asks for the device.
 
 Any program built on the engine takes the same flags (`--serve`, `--headless`, `--offscreen`,
 `--hidden`, `--frames N`) or the variables `E3D_SERVE`, `E3D_HEADLESS`, `E3D_OFFSCREEN`,

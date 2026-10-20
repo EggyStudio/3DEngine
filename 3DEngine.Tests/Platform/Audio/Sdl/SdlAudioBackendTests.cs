@@ -118,12 +118,23 @@ public class SdlAudioBackendTests
     }
 
     [NeedsAudioDeviceFact]
-    public void A_Headless_App_Plays_To_The_Dummy_Driver_Where_A_Sound_Ends_When_It_Would()
+    public void A_Run_That_Shows_No_Window_Plays_To_The_Dummy_Driver_Where_A_Sound_Ends_When_It_Would()
     {
-        using var app = new App(Config.Default with { Headless = true }).AddPlugin(new SoundsPlugin());
+        foreach (var config in new[] { Config.Default with { Hidden = true }, Config.Default with { Offscreen = true }, Config.Default with { Headless = true } })
+            Plays(config);
+    }
+
+    // The app of the config plays a sound to the dummy driver, ready at the rate and channels asked
+    // for, and the sound ends about when it would through a device.
+    private static void Plays(Config config)
+    {
+        using var app = new App(config).AddPlugin(new SoundsPlugin());
         var server = app.World.Resource<AudioServer>();
         var backend = server.Backend.Should().BeOfType<SdlAudioBackend>().Subject;
         backend.Driver.Should().Be("dummy", "a run that shows no window makes no sound, whatever devices the machine has");
+        backend.IsInitialized.Should().BeTrue("the dummy driver is chosen and opened, not fallen back to");
+        backend.DeviceSampleRate.Should().Be(48000);
+        backend.DeviceChannels.Should().Be(2);
 
         // Three tenths of a second of silence, which the dummy driver takes at the rate it plays.
         var sound = new Sound { Samples = new float[48000 * 3 / 10], SampleRate = 48000, Channels = 1 };

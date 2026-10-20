@@ -117,7 +117,7 @@ table also answers whether the two agree.
 | A model's sibling files, an OBJ's `.mtl` and a glTF's `.bin`, come from the reader the model came from, whatever reader that is, and no native code opens a file | has for glTF, the loader being Bevy's | has (`AssimpFiles`, `abc24192`), read from the model's own stream with no copy and a reader's exception answered as the load's (`1fac9eff`) |
 | A model file with animation clips placed in a level plays, where its meshes would stand at rest | to check | has (`ba328b18`) |
 | What a level loaded through its references is let go once nothing uses it | has, Bevy counting its handles | has (`4e765797`) |
-| A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
+| A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | has (`2cc516fc`, `00c820ce`, the same two attributes on scene components and behavior structs, a migration run once from the file's version, a later file kept and saved back at its version) |
 | A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`), a file read over its default since `0f0f461` so a field a later version adds keeps its default | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
 | A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to consider, with saves |

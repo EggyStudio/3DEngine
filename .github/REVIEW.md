@@ -10,15 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2cc516fc`, item 45's first commit, the former names, and nothing else, carrying the
+Reviewed up to `120b5ee9`, item 45's second commit, the versions, at `00c820ce`, carrying the
+review's file, and TODO.md's scene section rewritten at `120b5ee9`. A data-version attribute on a
+scene component or behavior struct names a static migration from a version and the file's object,
+public or internal, found by name, which the generated reader calls once with the version the file
+holds, written as a run of checks against each version, taken from BevyCSharp's form after a call
+per step was written first, since that would apply a change twice to a migration written the other
+way; the generated writer puts the version first once past 1, a file with no version being 1; the
+migration's wrapper throws a data exception naming the type and the version it moved from on a throw
+or a null; the codec interface's version defaults to 1; a component from a later version is read as
+it is with a warning, its raw object kept on the entity and written back at that version with the
+values this build did not read and the fields it knows set from the entity; a warning diagnostic
+marks a versioned type with no callable migration, its generated code still compiling, with a code
+fix adding a commented stub. Tests read a split across two versions, a later file kept and saved
+back, a failing migration naming the type and version, the diagnostic with its code compiling, the
+code fix and the generator attribute; the scene guide's paragraph and block, the cheat sheet, the
+surface listing, the upgrading guide's entry naming every new member, ARCHITECTURE.md and the Shared
+line follow, SHARED.md's row saying both engines have it. Checked were the strict build, the suite,
+1,771 passed, five more, and the guide's eleven blocks built on a fresh pack. TODO.md's scene bullet
+on older files not migrated goes, the section describing former names and versions. Read at 14:57;
+the push waits for the build run of `2cc516fc` to end, the pack run with publish on running on.
+TODO.md has no entry with the coder's work left, so the next items come from the ledger, 46 and 47.
+Item 6 waits on the owner's word.
+
+Before it, `2cc516fc` came, item 45's first commit, the former names, and nothing else, carrying the
 review's file. A scene component or one of its fields marked with a former name is read from a scene
 file written under its old name, the registry answering by each former name and the generated reader
 trying the former names where a field's own is missing, with the attribute's file, the codec
 interface's addition, the generator's change and tests of a component and a field renamed; the cheat
-sheet, the surface listing, the scene guide and the upgrading guide's entry follow. It landed before
-the push of 14:35 and went with it, read at 14:35, so the pack run with publish on started then
-carries it; the build run of `fd484ead` had ended green at 14:31, its Windows parts in 57 minutes 4
-seconds, 1,691 passed. Next item 45's second commit, the versions. Item 6 waits on the owner's word.
+sheet, the surface listing, the scene guide and the upgrading guide's entry follow. It went with the
+push of 14:35 and the pack run with publish on started then.
 
 Before it, `3b46c543` came, the CI measure's line and a stale capture, documents and captures alone,
 carrying the review's file. The Unicode ranges example's line leaves the CI measure file rather than
@@ -28,37 +49,6 @@ and in a notice without failing, so the line is recorded from what the next capt
 the machine's own record keeps its 11.4. The sprite fonts example was captured again with its
 gallery thumbnail and the captures table, the table's check passing. Pushed at 14:35 with the three
 before it.
-
-Before it, `4789ebde` came, item 44 and nothing else, carrying the review's file. The TrueType font
-reads the kern table, Microsoft's and Apple's first format, horizontal and along the line; a font
-loaded from a file keeps a Latin shaping read once at load for the glyphs of the characters it is
-baked with, its ligature rules lookup by lookup, the pair adjustments of its kern feature by glyph
-or by class, or its kern table where the feature kerns nothing; the ligature glyphs are baked beyond
-the plane under their joined keys or drawn as a character where one asked for maps to them, in all
-three file loaders and the SDF path; the placed keys shape text with nothing read right to left, and
-the two drawing calls, the image drawing call and both measuring calls read those keys so layout
-stays true; a call turns ligatures off in a font and its larger bakes, kerning staying; a ligature
-or a pair chosen by context is not read, said in the guide and TODO.md. The cost: shaping each new
-string through the general substitution and positioning engine took 265 microseconds a string in
-Lato, so the tables are read once at load and a new string costs 4.1 against 2.0 drawn plainly,
-steady with tiering off, a string drawn again coming from the font's cache, and the right-to-left
-test gains an early out for text with no character from U+0590 on, 5.9 microseconds to 0.3 on ASCII.
-Two test fonts join the color test fonts' script, and five tests read AV and To kerned by the
-feature and by the kern table against the fonts' own values, 15 and 10 px at 100, the fi ligature
-baked at 55 px and turned off and on, both measuring calls and the Latin-1 load path, and a ligature
-of a letter not baked staying apart; a reference frame of kerned and joined Latin; the
-font-from-file frame rewritten on lavapipe since Lato is kerned and the word file takes its
-ligature, 3.4 percent of pixels. The strict build is clean, the suite gave 1,762, and all nine text
-reference frames pass on lavapipe under validation. Against raylib the Unicode ranges example went
-from 9.1 to 11.4 percent apart, its text reading the same but its atlas holding the CJK font's five
-ligatures in a strip below, 512 by 277 where 512 by 256, raised in the machine's measure file and in
-the CI's by hand with the triage line saying why, which the reviewer sends back to the run, said
-under item 44; ten other text examples held their shares; the captures of the fonts and Unicode
-ranges examples and their thumbnails are refreshed; the sprite fonts example's stored capture was
-stale already by 4 percent with its share unchanged and is left. The games that draw Lato are kerned
-and joined once repacked, none measuring text by prefix or character. The text guide's paragraph and
-snippet, the cheat sheet, the surface listing, the upgrading guide, seven that still compile and the
-added entry, and the raylib comparison's new row follow.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2456,7 +2446,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     a file from a later version kept; the scene guide's paragraph, the cheat sheet where it lists
     attributes, the surface listing and the upgrading guide's added entry; and a Shared line under
     Replies, the row then saying both have it. Two commits, the renames and then the versions. The
-    renames done at `2cc516fc` on 2026-10-20, as the head says; the versions next.
+    renames done at `2cc516fc` on 2026-10-20, as the head says; the versions next. The versions done
+    at `00c820ce` and TODO.md's section at `120b5ee9` on 2026-10-20, as the head says; the item is
+    done.
+
+46. **A run that shows no window makes no sound, its audio going to a device of silence while every
+    sound runs.** SHARED.md's row, marked to take with SDL's dummy driver as the fallback already,
+    taken on 2026-10-20 as the next with TODO.md through: an offscreen or hidden run opens the audio
+    on SDL's dummy driver by choice and not by fallback, so a runner or a test machine with no
+    device or a device another process holds plays every sound, stream and music through the same
+    code at the same rate with nothing heard, the mixed processor fed as on a real device; the
+    choice said in the audio guide and in E3D.md beside the offscreen flag, with a test that a
+    hidden run reports the device ready, the dummy rate and channels, and a sound's playing state
+    moving as on a device. Read first how the backend chooses today, since the games' drives on the
+    runners already run with sound, and where the dummy driver is already the choice the item is a
+    sentence in the guide and the ledger's row, not a commit. One commit at most.
+
+47. **The cheat sheet is written by a tool from each call's documentation, so the two cannot
+    differ.** SHARED.md's row, where BevyCSharp writes its sheet from the built library through
+    `build/cheatsheet` and this engine writes its sheet by hand and checks it by name, taken on
+    2026-10-20: a script under `build/` reads the flat API's XML documentation, the summary of each
+    public static, and writes CHEATSHEET.md in its present shape, section by section as the surface
+    listing orders them, with the hand-written parts kept where the sheet carries prose no summary
+    holds, marked so the script keeps them; the cheat sheet test then checks the file against the
+    script's output and fails where a hand edit or a new call stands unwritten, as BevyCSharp's
+    does; BUILDING.md says how it is written again. Read BevyCSharp's script for the model and never
+    edit it. One commit, the sheet rewritten by the script in it with its differences from the
+    hand-kept text read and said.
 
 ## Verdicts
 
