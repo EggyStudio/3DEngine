@@ -76,16 +76,23 @@ public partial class DocumentLinkTests
         var examples = Regex.Matches(File.ReadAllText(Path.Combine(root, "3DEngine.Examples", "Program.cs")), @"\[""(?<name>[a-z0-9_]+)""\]")
             .Select(m => m.Groups["name"].Value).ToHashSet();
         var wrong = new List<string>();
-        foreach (Match picture in Picture().Matches(File.ReadAllText(Path.Combine(root, "README.md"))))
+        var pictures = Picture().Matches(File.ReadAllText(Path.Combine(root, "README.md")));
+        pictures.Should().NotBeEmpty("the gallery's tables are Markdown, each picture the capture made small");
+        foreach (Match picture in pictures)
         {
             var name = picture.Groups["name"].Value;
+            var shown = Path.Combine(root, ".github", "assets", "gallery", name + ".webp");
             var file = Path.Combine(root, ".github", "assets", "examples", name + ".webp");
-            if (!File.Exists(file)) wrong.Add($"{name}: no {name}.webp");
+            if (!File.Exists(file)) wrong.Add($"{name}: no capture {name}.webp");
             else if (examples.Contains(name) && WebPSize(File.ReadAllBytes(file)) is var size && size != (800, 450))
                 wrong.Add($"{name}: {size.Width} by {size.Height}");
+            if (!File.Exists(shown)) wrong.Add($"{name}: no picture in the gallery's folder");
+            else if (WebPSize(File.ReadAllBytes(shown)) is var small && small != (260, 146))
+                wrong.Add($"{name}: shown at {small.Width} by {small.Height}");
         }
 
-        string.Join("\n", wrong).Should().BeEmpty("an example is drawn at raylib's 800 by 450 and stored as drawn, and a game at its own window's size");
+        string.Join("\n", wrong).Should().BeEmpty("an example is drawn at raylib's 800 by 450 and stored as drawn, a game at its own window's size, " +
+            "and the gallery shows each made small to 260 by 146, the width its table gives it");
     }
 
     // The width and height a WebP file's header gives, from whichever of its three kinds it is.
@@ -134,8 +141,9 @@ public partial class DocumentLinkTests
     [GeneratedRegex(@"\]\((?<target>[^)\s]+)\)")]
     private static partial Regex Link();
 
-    // A gallery picture, with the address it links to when it is inside a link.
-    [GeneratedRegex(@"(?:<a href=""(?<link>[^""]+)"">)?<img src=""[^""]*/assets/examples/(?<name>[a-z0-9_]+)\.webp""")]
+    // A gallery picture, a Markdown picture of the capture made small, with the address it links to
+    // when it is inside a link.
+    [GeneratedRegex(@"\[!\[[^\]]*\]\([^)]*/assets/gallery/(?<name>[a-z0-9_]+)\.webp\)\](?:\((?<link>[^)]+)\))?")]
     private static partial Regex Picture();
 
     private static string RepoRoot()

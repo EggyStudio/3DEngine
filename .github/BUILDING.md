@@ -117,9 +117,13 @@ the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched 
 `build/raylib-bench/work`. An example is written when `3DEngine.Examples/Program.cs` opens it by
 raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.tsv`, which
 `--triage` starts for a new one from the functions it calls that the flat API lacks. It also writes
-the README's counts of the examples, a line under the Examples heading and each of the gallery's
-headings with the pictures in its row. `--check` fails where the table or the counts are out of
-date, which the examples job runs on every push.
+the README's gallery, a Markdown table a folder of the examples with the games last, each picture
+the capture made small to 260 by 146 into `.github/assets/gallery` by ImageMagick or `cwebp`, with
+the SHA-256 of the capture it was made from in `captures.tsv` beside them, since nuget.org prints an
+HTML table as its text and draws a Markdown picture at its own size, and the line under the Examples
+heading that counts them. A new or changed capture needs the script run again. `--check` fails where
+the table, the gallery or its count is out of date, or a picture is missing, made from a capture
+taken again since, or shown by no example or game, which the examples job runs on every push.
 
 `build/raylib-bench/compare.py <group, example or all>` builds raylib's own program of each written
 example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library,

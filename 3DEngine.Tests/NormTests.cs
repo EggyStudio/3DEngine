@@ -262,7 +262,7 @@ public sealed partial class NormTests
         // an example's class is written in or a game's Program.cs.
         var runs = Regex.Matches(Read("3DEngine.Examples/Program.cs"), @"\[""(?<name>[a-z0-9_]+)""\]\s*=\s*(?<class>\w+)\.Run")
             .ToDictionary(m => m.Groups["name"].Value, m => m.Groups["class"].Value);
-        foreach (Match picture in Regex.Matches(Read("README.md"), @"(?:<a href=""(?<link>[^""]+)"">)?<img src=""[^""]*/assets/examples/(?<name>[a-z0-9_]+)\.webp"""))
+        foreach (Match picture in Regex.Matches(Read("README.md"), @"\[!\[[^\]]*\]\([^)]*/assets/gallery/(?<name>[a-z0-9_]+)\.webp\)\](?:\((?<link>[^)]+)\))?"))
         {
             var (link, name) = (picture.Groups["link"].Value, picture.Groups["name"].Value);
             var file = link.StartsWith(Blob, StringComparison.Ordinal) ? link[Blob.Length..] : "";

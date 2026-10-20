@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Writes .github/EXAMPLES.md, a row for each of raylib's examples and what this engine makes of it,
-and the README's count of the examples and of the pictures in each row of its gallery.
+and the README's gallery and its count of the examples.
 
     build/examples-table.py [--raylib <checkout>]            # write the table and the README's counts
     build/examples-table.py [--raylib <checkout>] --check    # fail where either is out of date, or an example has no row
@@ -14,10 +14,22 @@ when 3DEngine.Examples/Program.cs opens it by raylib's name, and otherwise its s
 
 --triage reads each unwritten example's C for the functions of raylib.h it calls that
 CHEATSHEET.md does not carry, a start for its line in triage.tsv that a person then reads over.
+
+The README's gallery shows every written example's capture and every game's, each picture opening
+the program that drew it. It is a table a folder of 3DEngine.Examples under a heading naming it,
+in the folders' order, each table one row of the folder's examples in the order Program.cs opens
+them, and the games last, which scrolls sideways on GitHub and on nuget.org where it is wider than
+the page. Each picture is the capture made small, into .github/assets/gallery, at the width the
+gallery shows it, since the tables are Markdown, which nuget.org draws, where it prints HTML as its
+text, and a Markdown picture is shown at its own size. --check fails where a picture is missing,
+was made from a capture taken again since, or is shown by no example or game.
 """
 
+import glob
+import hashlib
 import os
 import re
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -29,6 +41,21 @@ TRIAGE = os.path.join(ROOT, "3DEngine.Examples", "triage.tsv")
 MEASURED = os.path.join(ROOT, "3DEngine.Examples", "measured.tsv")
 EXAMPLES = os.path.join(ROOT, "3DEngine.Examples")
 CAPTURES = os.path.join(ROOT, ".github", "assets", "examples")
+GALLERY = os.path.join(ROOT, ".github", "assets", "gallery")
+
+# The capture each of the gallery's pictures was made from, by its SHA-256, so a check finds a
+# picture whose capture was taken again without making it again, which another ImageMagick would
+# make in other bytes.
+MADE_FROM = os.path.join(GALLERY, "captures.tsv")
+
+# A capture made small to the width the gallery shows it at, and raylib's window's shape.
+THUMBNAIL = (260, 146)
+
+# The games under games/, in the order the workflows play them, the gallery's last row.
+GAMES = ["Hopper", "Summit", "Swarm", "Rally", "Manor", "Tactics", "Tempo", "Sumo", "Wordfall", "Slide", "Jelly", "Wick", "Ore"]
+
+# The lines the gallery stands between in the README.
+GALLERY_START, GALLERY_END = "<!-- example-gallery -->", "<!-- /example-gallery -->"
 
 # The table is read on GitHub, where a picture is shown from its full address.
 BLOB = "https://github.com/EggyStudio/3DEngine/blob/main/"
@@ -280,21 +307,88 @@ def build(commit, examples, triage, written):
     return "\n".join(out) + "\n"
 
 
-def counted(readme, examples, total, own):
-    """The README with each heading of its gallery counting the pictures in the row under it, and a
-    line before the first of them counting the table's examples, the engine's own and the games."""
+def gallery(written):
+    """The README's gallery, a heading and a table a folder of the examples and one of the games, and
+    the names of the captures it shows."""
+    rows = {}
+    for name, path in written.items():
+        if os.path.exists(os.path.join(CAPTURES, name + ".webp")):
+            rows.setdefault(path.split("/")[1], []).append((name, name, BLOB + path))
+    games = [(game.lower(), game, f"{BLOB}games/{game}/Program.cs") for game in GAMES
+             if os.path.exists(os.path.join(CAPTURES, game.lower() + ".webp"))]
+    sections, shown = [], []
+    for title, row in [*sorted(rows.items()), ("Games", games)]:
+        if not row:
+            continue
+        heads, captions = [], []
+        for picture, name, link in row:
+            shown.append(picture)
+            heads.append(f"[![{picture}]({RAW}.github/assets/gallery/{picture}.webp)]({link})")
+            # The caption sets each column's width, its name padded with spaces that do not break to
+            # thirty-two characters, about the picture's width in code, so a column is as wide as
+            # its picture whatever the name, as BevyCSharp's gallery measured on both sites.
+            captions.append(f"[`{name}" + "\u00a0" * max(0, 32 - len(name)) + f"`]({link})")
+        # The pictures are the table's head, so each name stands under its picture.
+        sections.append(f"### {title} ({len(row)})\n\n| " + " | ".join(heads) + " |\n|" + "---|" * len(heads)
+                        + "\n| " + " | ".join(captions) + " |")
+    return "\n\n".join(sections), shown, len(games)
+
+
+def made_from():
+    """The capture each picture of the gallery was made from, as its SHA-256 by its name."""
+    if not os.path.exists(MADE_FROM):
+        return {}
+    with open(MADE_FROM, encoding="utf-8") as listed:
+        return dict(line.rstrip("\n").split("\t") for line in listed if line.strip() and not line.startswith("#"))
+
+
+def digest(path):
+    with open(path, "rb") as file:
+        return hashlib.sha256(file.read()).hexdigest()
+
+
+def make_pictures(shown, check):
+    """Makes the gallery's pictures whose captures changed, or names them where only checking.
+
+    A picture is made again where it is missing or its capture's SHA-256 is not the one it was made
+    from, and one the gallery does not show is taken away. ImageMagick makes it where there is
+    one, and libwebp's cwebp where ImageMagick was built without WebP.
+    """
+    listed = made_from()
+    wanted = {name: digest(os.path.join(CAPTURES, name + ".webp")) for name in shown}
+    stale = [name for name, sha in wanted.items()
+             if listed.get(name) != sha or not os.path.exists(os.path.join(GALLERY, name + ".webp"))]
+    present = {os.path.basename(path)[:-5] for path in glob.glob(os.path.join(GALLERY, "*.webp"))}
+    gone = sorted((present | set(listed)) - set(wanted))
+    if check:
+        return [os.path.join(GALLERY, name + ".webp") for name in sorted(stale) + gone]
+
+    os.makedirs(GALLERY, exist_ok=True)
+    magick = shutil.which("magick") or shutil.which("convert")
+    width, height = THUMBNAIL
+    for name in stale:
+        source, picture = os.path.join(CAPTURES, name + ".webp"), os.path.join(GALLERY, name + ".webp")
+        if magick:
+            command = [magick, source, "-resize", f"{width}x{height}!", "-quality", "85", "-strip", picture]
+        elif shutil.which("cwebp"):
+            command = ["cwebp", "-quiet", "-q", "85", "-resize", str(width), str(height), source, "-o", picture]
+        else:
+            sys.exit("ImageMagick or cwebp is needed to make the gallery's pictures")
+        subprocess.run(command, check=True)
+    for name in gone:
+        if os.path.exists(os.path.join(GALLERY, name + ".webp")):
+            os.remove(os.path.join(GALLERY, name + ".webp"))
+    with open(MADE_FROM, "w", encoding="utf-8") as out:
+        out.write("# The capture each picture here was made from, by its SHA-256, which build/examples-table.py\n"
+                  "# reads to make a picture again where its capture was taken again.\n")
+        out.writelines(f"{name}\t{wanted[name]}\n" for name in sorted(wanted))
+    return []
+
+
+def counted(readme, examples, total, own, games):
+    """The README with a line before its gallery counting the table's examples, the engine's own and
+    the games."""
     lines = readme.split("\n")
-    start = lines.index("## Examples")
-    end = next(i for i in range(start + 1, len(lines)) if lines[i].startswith("## "))
-    headings = [i for i in range(start, end) if lines[i].startswith("### ")]
-    games = 0
-    for i in headings:
-        title = re.sub(r" \(\d+\)$", "", lines[i][4:])
-        row = next((line for line in lines[i + 1:end] if line.startswith("<table")), "")
-        pictures = row.count("<img ")
-        lines[i] = f"### {title} ({pictures})"
-        if title == "Games":
-            games = pictures
     states = [f"{total['written']} are written here"]
     states += [f"{total[state]} {words}" for state, words in (("part", "in part"), ("can", "can be written"), ("missing", "are missing")) if total[state]]
     states.append(f"{total['n/a']} {'does' if total['n/a'] == 1 else 'do'} not apply")
@@ -302,9 +396,9 @@ def counted(readme, examples, total, own):
         f"**Of raylib's {len(examples)} examples {', '.join(states[:-1])} and {states[-1]}, and beside them are "
         f"{len(own)} examples of the engine's own and {games} games.**",
         width=100, break_long_words=False, break_on_hyphens=False)
-    # The line stands between the section's opening paragraph and the first heading, in place of
-    # the line written before.
-    first = headings[0]
+    # The line stands between the section's opening paragraph and the gallery, in place of the line
+    # written before.
+    first = lines.index(GALLERY_START)
     paragraph_end = first - 1
     while lines[paragraph_end] == "":
         paragraph_end -= 1
@@ -341,19 +435,28 @@ def main():
     names = {example["name"] for example in examples}
     total = {state: sum(1 for example in examples if example["state"] == state) for state in ORDER}
     readme = open(README, encoding="utf-8").read()
-    gallery = counted(readme, examples, total, [name for name in written if name not in names])
+    pictures, shown, games = gallery(written)
+    marked = re.compile(re.escape(GALLERY_START) + r"\n(?:.*?\n)?" + re.escape(GALLERY_END), re.S)
+    if not marked.search(readme):
+        sys.exit(f"README.md has no {GALLERY_START} and {GALLERY_END} around the gallery")
+    written_readme = marked.sub(lambda _: GALLERY_START + "\n" + (pictures + "\n" if pictures else "") + GALLERY_END, readme, count=1)
+    written_readme = counted(written_readme, examples, total, [name for name in written if name not in names], games)
     if "--check" in arguments:
         current = open(TABLE, encoding="utf-8").read() if os.path.exists(TABLE) else ""
         if current != table:
             sys.exit(".github/EXAMPLES.md is out of date; run build/examples-table.py")
-        if readme != gallery:
-            sys.exit("README.md's counts of the examples are out of date; run build/examples-table.py")
+        if readme != written_readme:
+            sys.exit("README.md's gallery or its count of the examples is out of date; run build/examples-table.py")
+        if stale := make_pictures(shown, check=True):
+            sys.exit("the gallery's pictures are out of date, so run build/examples-table.py, for "
+                     + ", ".join(os.path.relpath(path, ROOT) for path in stale))
         return
+    make_pictures(shown, check=False)
     with open(TABLE, "w", encoding="utf-8") as out:
         out.write(table)
     with open(README, "w", encoding="utf-8") as out:
-        out.write(gallery)
-    print(f"wrote {os.path.relpath(TABLE, ROOT)}, {len(examples)} examples, and README.md's counts")
+        out.write(written_readme)
+    print(f"wrote {os.path.relpath(TABLE, ROOT)}, {len(examples)} examples, README.md's gallery of {len(shown)} pictures and its count")
 
 
 if __name__ == "__main__":
