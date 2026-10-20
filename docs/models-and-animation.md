@@ -320,8 +320,11 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`shaders_instance_hues`](../3DEngine.Examples/Shaders/ShadersInstanceHues.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
-- The game [`games/Jelly`](../games/Jelly/Program.cs), a blob that squashes and stretches by its
-  model's morph targets, the model written by a script beside it
+- The games [`games/Jelly`](../games/Jelly/Program.cs), a blob that squashes and stretches by its
+  model's morph targets, the model written by a script beside it, and
+  [`games/Tumble`](../games/Tumble/Robot.cs), a robot whose walk and run are blended by its speed,
+  its upper body aimed on a layer of its own, which falls as a ragdoll posing the model from its
+  bodies and stands up by a blend from the pose it lies in
 - The cheatsheet's [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Text and fonts](text-and-fonts.md)
 - Next: [Materials, light and shadows](materials-light-and-shadows.md)

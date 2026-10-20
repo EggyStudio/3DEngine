@@ -10,8 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b4b798d4`, item 42 and nothing else, carrying the review's file. The convex hull and
-the static model transform the vertices by the scale alone, posed for a skinned model as before,
+Reviewed up to `f3949ba6`, Siege, item 7's third game, and nothing else, carrying the review's file.
+The catapult arm, 4.5 m and 120 kg, hangs on a hinge to a kinematic pivot driven by its motor at
+60,000 newton-meters; the shot is welded to the cup and the weld destroyed at the chosen angle, a 60
+kg stone as a convex hull or a 40 kg bomb as a capsule, both continuous, the arc drawn by the sphere
+cast along each stretch to the first body; the castle is 190 blocks, boxes and hull columns with a
+slab, a hull roof and a banner, joined by 342 welds, the lowest to a kinematic foundation; a weld
+breaks where the joint's force passes 8,000 N, static loads peaking at 5,064 to 6,513 and a stone
+strike putting 9,000 to 14,000 on the welds near it; a stone wears the blocks it presses by the
+contact impulse at a toughness of 450, a hard throw pressing 430 to 480 a step; a bomb bursts on
+contact, pushing every block and stone within 3.5 by the bodies in a sphere with an impulse at a
+point from the side facing the burst and a point light's flash; the banner entering a kinematic
+trigger box ends the siege; a spot light with shadows sweeps the keep by its direction with a 4,096
+shadow map, the AgX tonemap and depth of field; the status reads the angular velocity and the bomb
+is drawn as a capsule. A stone breaks 0 to 5 welds and may crumble a block, a bomb 27 to 47 welds
+taking 2 to 16 blocks, and the banner fell after three bombs in each run. The scripted run asserts a
+throw, welds broken and the banner down within eight bombs, each frame one step since the release is
+checked once a frame, said in the game's comment, passing on the development machine's card and on
+lavapipe in 1 minute 49 seconds under validation; the soak's 27 turns with throws and rebuilds and
+its check pass, the storm passes, and a rebuild after the fall stands whole, 190 blocks, the banner
+at 15.8 and the columns in place, item 42 at work; the suite gave 1,754, the game wired in as Span
+was, BUILDING.md saying sixteen. The weld's reading held no further surprise once it read the force
+alone; the catapult's release in the frame and not the step is a limit of the flat API, which has no
+per-step hook, worked around and named only if another game meets it. Read at 12:32; its push waits
+for the build run of `b4b798d4` to end, the pack run with publish on running on it. Nothing of the
+coder's is open; the next game by item 7's measure is said under it. Item 6 waits on the owner's
+word.
+
+Before it, `b4b798d4` came, item 42 and nothing else, carrying the review's file. The convex hull
+and the static model transform the vertices by the scale alone, posed for a skinned model as before,
 both remarks saying the transform is not read and why, the physics guide's hull paragraph saying so
 too, and the upgrading guide's section, six that still compile, with the entry that a transform's
 own scale is given as the scale and its turn or move goes to the mesh. The test makes a 2 m cube
@@ -19,13 +46,8 @@ model whose transform is turned 0.7 radians about z and moved to 30 by 5 by 0, a
 10 by 0 hit from above at x 0.9 at y 11 and a static model made at 0 by 0 by 20 hit at y 1, each the
 body hit, the hull test failing on the old line, checked by swapping it back for one run. Checked
 were the strict build, the suite, 1,754, the related filters, 83, and the animation tests that shape
-a posed skinned arm. Read at 12:10. The build run of `5cd706d9` ended green at 12:23, its Windows
-parts in 68 minutes 43 seconds, 1,685 passed, so the four commits from `f74e087f` to this head were
-pushed together at 12:26 and the pack run with publish on started on them for the day's batch,
-Pinball, Span and items 40 to 42. The siege game goes on with its stones back on hulls after a
-repack, so far at a strength of 8,000 N with static loads peaking at 5,064, a stone breaking one or
-two welds and a bomb 27 to 44 with 4 to 7 blocks taken, the banner not yet fallen. Item 6 waits on
-the owner's word.
+a posed skinned arm. Pushed at 12:26 with the three before it, and the pack run with publish on
+started on them.
 
 Before it, `df03842b` came, item 41 and nothing else, carrying the review's file and the ledger's.
 The contact impulse read multiplies the last substep's push by the solver's substep count, the
@@ -37,21 +59,6 @@ with an entry saying 5.1 gave the last substep's push and a game with a substep 
 reads that many times more; a new test at substeps 1 and 4 reads a 2 kg box resting on a static
 floor as its weight times the step within a percent, a quarter at 4 without the change. Checked were
 the strict build and the suite, 1,753.
-
-Before it, `d03d0e53` came, item 40's force-alone fix and nothing else, carrying the review's file
-and the ledger's row. The joint's force sums the squares of the constraint's linear part by its type
-through the solver's accumulated impulses, a weld's last three, a hinge's first three and all of a
-ball joint's, a distance joint's and a slider's: a weld beside an anchor at 1, 2 and 4 m reads 98.1
-in both orders, an upright hinge 1 and 2 m out 98.1, the welded stack 294.3, 196.2 and 98.1 from the
-bottom and the arm of two 196.4 at its root; two new tests, a weld with the box 4 m out reading its
-weight within a percent in both orders and an upright hinge with a box 2 m out reading its weight,
-fail on the old reading at 404 and 219; the remarks, the physics guide's paragraph and the upgrading
-entry say force alone; the strict build is clean and the suite gave 1,751. Span's numbers did not
-move after a repack, the truss 4,321 to 4,326, the road at rest 5,767 and its unbroken peak 10,179
-to 10,181, its hinges' turning part negligible in the bridge's plane, so the strength of 7,000 and
-the guide's figures stand. An observation taken as item 41: the contact impulse read returns the
-last substep's impulse where its summary says the impulse over the step is the force, short by the
-substep count above one.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -609,7 +616,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    tonemap and depth of field chosen; the scripted run asserting a throw, a weld broken and the
    tower down. A ragdoll game, which would cover the ball joint's cone, capsules and the animation's
    blending and layers, waits on a skinned model, which the games have none of, and a
-   procedural-sound toy is narrower; both stand after.
+   procedural-sound toy is narrower; both stand after. Siege done at `f3949ba6` on 2026-10-20, as
+   the head says, sixteen games, the weld's reading holding no surprise once item 40's fix was in,
+   item 42 found and mended on its way. The fourth game, said at 12:32: the ragdoll, since the
+   examples' fetched raylib resources hold a skinned and animated robot model the examples already
+   draw, which a game may carry with its notice; a figure that walks and runs by the animation's
+   blending and layers, an upper body aimed on its own layer, and falls as a ragdoll of capsules on
+   ball joints with cone limits and hinges at the knees and elbows when struck, stands up again by a
+   blend from the pose it lies in, and takes the character's height setting; the scripted run
+   asserts a walk, a fall and a rise. The sound toy stands after it. By 12:36 the robot model's way
+   was read: it comes carried in the game's resources with its notice beside it, as the games' font
+   comes with its license, since raylib's license file at the pinned commit lists it as CC0 by its
+   author and a game carries what it loads where the examples fetch raylib's files under raylib's
+   many licenses; it is 1.6 MB, byte-identical to the fetched copy, the largest file a game carries,
+   in the tree as a plain blob since nothing is routed through LFS, which the reviewer allows and
+   tells the owner, who may have it fetched in the game's build instead. The model has 43 joints and
+   clips for idling, walking, running, a punch, death and standing; the ragdoll's pose is a
+   one-keyframe animation the game fills from the bodies each frame, getting up a blend from it to
+   standing, and the upper body a layer over the walk from the torso.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for

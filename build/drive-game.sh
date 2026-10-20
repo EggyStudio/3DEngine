@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -598,6 +598,35 @@ case "$game" in
     case "$status" in *" shots 0 "*) fail "the catapult did not throw, $status" ;; esac
     case "$status" in *" broken 0 "*) fail "no weld broke, $status" ;; esac
     case "$status" in Won*) ;; *) fail "the banner did not fall in eight bombs, $status" ;; esac
+    ;;
+  Tumble)
+    # The cannons and the bar stopped and each frame a step, the robot walked forward by its key,
+    # struck by a ball from its side, which knocks it down as a ragdoll, and stood up again once it
+    # lies still.
+    cmd tumble.hazards off
+    cmd time.frame 0.0166667
+    cmd frames.wait 30
+    cmd input.key W 90
+    walk=$(ask tumble.status)
+    echo "$walk"
+    walked=$(printf '%s\n' "$walk" | sed -n 's/.* walked \([0-9.]*\) .*/\1/p')
+    awk -v w="$walked" 'BEGIN { exit !(w > 1.5) }' || fail "the robot did not walk, $walk"
+    cmd tumble.strike
+    status=""
+    for i in $(seq 1 20); do
+      cmd frames.wait 10
+      status=$(ask tumble.status)
+      case "$status" in Down*|Rising*) break ;; esac
+    done
+    echo "$status"
+    case "$status" in *" falls 1 "*) ;; *) fail "the ball did not knock the robot down, $status" ;; esac
+    for i in $(seq 1 40); do
+      cmd frames.wait 15
+      status=$(ask tumble.status)
+      case "$status" in Up*) break ;; esac
+    done
+    echo "$status"
+    case "$status" in Up*" rises 1 "*) ;; *) fail "the robot did not stand up again, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -155,6 +155,14 @@ turn() {
       if (( i % 4 == 3 )); then cmd siege.reset; wait_frames 2; fi
       if (( i % 2 == 0 )); then cmd siege.throw 250 40 stone; else cmd siege.throw 250 40 bomb; fi
       wait_frames 240 ;;
+    tumble)
+      # The robot walked about the arena under the cannons and the bar, knocked down as a ragdoll
+      # and standing up again as it goes, its ragdoll's bodies and joints made and let go each time,
+      # and punching and crouching now and then.
+      key W 40; key D 30; key S 40; key A 30
+      if (( i % 3 == 2 )); then cmd tumble.strike; key C 60; fi
+      cmd input.click 640 300
+      wait_frames 60 ;;
   esac
 }
 

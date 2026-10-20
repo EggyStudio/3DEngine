@@ -1,0 +1,6 @@
+robot.glb, the robot and its clips, is by Quaternius (https://www.patreon.com/quaternius),
+dedicated to the public domain under CC0 1.0 Universal
+(https://creativecommons.org/publicdomain/zero/1.0/). It is the file raylib's examples carry as
+examples/models/resources/models/gltf/robot.glb at raylib's commit
+30fa673ef2fa137588cf8b5732c65d76d86c1570, whose LICENSE.md lists it as CC0. Nothing is owed for it,
+and it is credited here as a courtesy.
