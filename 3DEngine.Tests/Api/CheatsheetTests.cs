@@ -54,7 +54,7 @@ public partial class CheatsheetTests
     }
 
     [Fact]
-    public void A_List_Holds_Its_Files_Functions_In_Order_Each_With_The_First_Sentence_Of_Its_Summary()
+    public void A_List_Holds_Its_Files_Functions_In_Order_Each_With_The_First_Sentence_Of_Its_Summary_Wrapped()
     {
         using var folder = new TestFolder("engine-cheatsheet-");
         Directory.CreateDirectory(folder.File("3DEngine/Api"));
@@ -74,6 +74,15 @@ public partial class CheatsheetTests
 
                 /// <inheritdoc cref="Close{T}(ref T)"/>
                 public static bool Close() => true;
+
+                /// <summary>
+                /// Waits for every thing opened before it to close, however long that takes, and then
+                /// gives back how many there were.
+                /// </summary>
+                public static int Wait() => 0;
+
+                /// <summary>Spins a thing about its axis until it stops.</summary>
+                public static void SpinAboutAnAxis(int thing, float speed, float axisX, float axisY, float axisZ, bool clockwise) { }
             }
             """);
         File.WriteAllText(folder.File("3DEngine/Api/E3D.Two.cs"), """
@@ -106,6 +115,10 @@ public partial class CheatsheetTests
 
             bool Close<T>(ref T thing);                              // Closes it, as Open opened it, or null
             bool Close();                                            // Closes it, as Open opened it, or null
+            int Wait();                                              // Waits for every thing opened before it to close, however
+                                                                     // long that takes, and then gives back how many there were
+            void SpinAboutAnAxis(int thing, float speed, float axisX, float axisY, float axisZ, bool clockwise);
+                                                                     // Spins a thing about its axis until it stops
             ```
 
             Kept as it is.

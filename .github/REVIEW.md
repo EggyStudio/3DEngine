@@ -10,7 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `120b5ee9`, item 45's second commit, the versions, at `00c820ce`, carrying the
+Reviewed up to `09a50fea`, item 46 at `748779fc`, carrying the review's and the ledger's files, and
+item 47 at `09a50fea`. The dummy driver was already the choice for hidden, offscreen and headless
+runs unless a setting asks for the device, forced by an override hint, and the audio guide said so;
+E3D.md gains the line beside the offscreen flag, and the test runs hidden, offscreen and headless,
+checking the dummy driver initialized at 48,000 Hz and 2 channels and a 0.3 s sound playing and
+ending within 0.25 to 1.5 s, run and not skipped; a live hidden run logged the device opened through
+the dummy driver; the suite gave 1,771. The cheat sheet's writer in the tests' API folder reads the
+flat API's source with Roslyn, each line the declaration without modifiers and attributes and the
+first sentence of the summary, cut as BevyCSharp's script cuts it, references as their names, a
+default naming a constant read from the built engine, the numerics namespace dropped, the comment at
+column 57 or one space after a longer declaration; a list is the code block under a comment naming
+the script and its files, the mark, everything outside such blocks hand-written and kept, each named
+file's public functions in declaration order with a blank line between files and at each banner, a
+file named twice, unnamed or empty failing the test; the sheet keeps its sections, each comment
+mapping one to its files, and two files that fed two sections were split, the global illumination
+calls and the image text calls into files of their own, the surface unchanged. The test compares the
+file with the writer's output reporting up to forty differing lines, a fixture test covers the
+writer's rules, the name and count test stays, a script writes the sheet as the surface script
+writes the listing, and BUILDING.md, the page's intro and the raylib comparison say it. The written
+sheet against the hand-kept one: 787 lines against 783, four overloads the hand sheet had missed; no
+line changes section and 187 change place within theirs; 15 declarations differ, parameter names and
+defaults as the source has them and two overload pairs pairing otherwise; the comments read as each
+summary's first sentence, accurate and standing on their own where the hand ones leaned on the line
+above, but at a median of 77 characters against 32, 308 lines over 160 against 37, with a few
+reading oddly where a parameter reference repeats its noun, the summaries left as they are since
+IntelliSense shows them. The suite gave 1,773. Read at 15:23; the push waits for the build run of
+`2cc516fc` to end. At 15:29 the pack run of `2cc516fc` had its macOS job green at 15:24 with every
+game played, Verdict 76's first, and its Windows, captures and games jobs running. One thing back
+under item 47, the long lines wrapped, and item 48 from the ledger next. Item 6 waits on the owner's
+word.
+
+Before it, `120b5ee9` came, item 45's second commit, the versions, at `00c820ce`, carrying the
 review's file, and TODO.md's scene section rewritten at `120b5ee9`. A data-version attribute on a
 scene component or behavior struct names a static migration from a version and the file's object,
 public or internal, found by name, which the generated reader calls once with the version the file
@@ -28,10 +59,7 @@ code fix and the generator attribute; the scene guide's paragraph and block, the
 surface listing, the upgrading guide's entry naming every new member, ARCHITECTURE.md and the Shared
 line follow, SHARED.md's row saying both engines have it. Checked were the strict build, the suite,
 1,771 passed, five more, and the guide's eleven blocks built on a fresh pack. TODO.md's scene bullet
-on older files not migrated goes, the section describing former names and versions. Read at 14:57;
-the push waits for the build run of `2cc516fc` to end, the pack run with publish on running on.
-TODO.md has no entry with the coder's work left, so the next items come from the ledger, 46 and 47.
-Item 6 waits on the owner's word.
+on older files not migrated goes, the section describing former names and versions.
 
 Before it, `2cc516fc` came, item 45's first commit, the former names, and nothing else, carrying the
 review's file. A scene component or one of its fields marked with a former name is read from a scene
@@ -40,15 +68,6 @@ trying the former names where a field's own is missing, with the attribute's fil
 interface's addition, the generator's change and tests of a component and a field renamed; the cheat
 sheet, the surface listing, the scene guide and the upgrading guide's entry follow. It went with the
 push of 14:35 and the pack run with publish on started then.
-
-Before it, `3b46c543` came, the CI measure's line and a stale capture, documents and captures alone,
-carrying the review's file. The Unicode ranges example's line leaves the CI measure file rather than
-going back to 9.1, since the comparison script fails a pair whose measure stands more than a point
-past its record and measures a pair not in the record for the first time, saying so in the summary
-and in a notice without failing, so the line is recorded from what the next captures job measures;
-the machine's own record keeps its 11.4. The sprite fonts example was captured again with its
-gallery thumbnail and the captures table, the table's check passing. Pushed at 14:35 with the three
-before it.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2460,7 +2479,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     hidden run reports the device ready, the dummy rate and channels, and a sound's playing state
     moving as on a device. Read first how the backend chooses today, since the games' drives on the
     runners already run with sound, and where the dummy driver is already the choice the item is a
-    sentence in the guide and the ledger's row, not a commit. One commit at most.
+    sentence in the guide and the ledger's row, not a commit. One commit at most. Done at `748779fc`
+    on 2026-10-20, the choice already made and the line and the test added, as the head says.
 
 47. **The cheat sheet is written by a tool from each call's documentation, so the two cannot
     differ.** SHARED.md's row, where BevyCSharp writes its sheet from the built library through
@@ -2472,7 +2492,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     script's output and fails where a hand edit or a new call stands unwritten, as BevyCSharp's
     does; BUILDING.md says how it is written again. Read BevyCSharp's script for the model and never
     edit it. One commit, the sheet rewritten by the script in it with its differences from the
-    hand-kept text read and said.
+    hand-kept text read and said. Done at `09a50fea` on 2026-10-20, as the head says. One thing
+    back: a sheet is read at a glance, and 308 of its lines run past 160 characters where 37 did, so
+    the writer wraps a comment past the sheet's width of 120 onto continuation comment lines at the
+    same column, the summaries untouched, the test reading the wrapped form; one small commit, with
+    the sheet rewritten. The parameter references that repeat their noun are the summaries' own and
+    stay.
+
+48. **The suite runs once with the schedule's order shuffled by a seed, so a test that leaned on an
+    order nothing asked for is found.** SHARED.md's row, where BevyCSharp has it since `379f59a4`, a
+    seed in the environment shuffling every schedule of the app and its render world, said in
+    BUILDING.md, and this engine is to consider, taken on 2026-10-20 as the next with TODO.md
+    through: the engine's schedule, where it orders systems of one stage by no asked order, takes a
+    seed from the environment and shuffles those systems' order once at the app's start, the seed
+    logged, so a test or a game that leaned on an order the stage did not promise fails under it;
+    the suite's script runs the whole suite once more with a seed where a flag asks, and the
+    workflow's Linux suite runs that pass with the day's seed, its failures naming the seed to run
+    again; BUILDING.md says it, with the flag and the seed. BevyCSharp's `379f59a4` is the model,
+    read and never edited. Read first how the stage orders systems today and whether an asked order,
+    before or after another, is kept under the shuffle, which it must be. One commit.
 
 ## Verdicts
 
@@ -3444,7 +3482,9 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     once the world runs, with the reason in the remark, one commit. The pack job was skipped on it,
     so the day's package waits. Read and mended at `40283221` on 2026-10-20 as the head says, the
     first read two frames after the go; the Linux games job had passed the same drive on that run.
-    Settled when the games' step passes Span on macOS on the next pack run and two after.
+    Settled when the games' step passes Span on macOS on the next pack run and two after. The macOS
+    job of the pack run of `2cc516fc` passed at 15:24 on 2026-10-20 with every game played, Span
+    among them, the first of three.
 
 ## Decisions
 
