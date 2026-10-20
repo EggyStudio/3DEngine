@@ -149,7 +149,8 @@ internal static class PublicSurface
             return text;
         }));
 
-    private static string Value(object? value, Type type)
+    // A default value as C# writes it, which the cheatsheet's lists write too.
+    internal static string Value(object? value, Type type)
     {
         type = type.IsByRef ? type.GetElementType()! : type;
         var underlying = Nullable.GetUnderlyingType(type) ?? type;

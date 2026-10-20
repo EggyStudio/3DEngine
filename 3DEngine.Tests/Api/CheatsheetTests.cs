@@ -9,8 +9,12 @@ namespace Engine.Tests.Api;
 /// line left for a function that is gone, fails the suite.
 /// </summary>
 /// <remarks>
-/// A function is matched by its name and number of parameters, which tells overloads apart without
-/// spelling the cheatsheet's types the way reflection names them.
+/// <see cref="CheatsheetWriter"/> writes the page's lists from the source, and
+/// <c>build/cheatsheet.sh</c> writes them again through this test with
+/// <c>ENGINE_WRITE_CHEATSHEET</c> set. A function is also matched by its name and number of
+/// parameters against the built engine, which tells overloads apart without spelling the
+/// cheatsheet's types the way reflection names them, so a function the writer could not read from
+/// the source fails too.
 /// </remarks>
 [Trait("Category", "Unit")]
 public partial class CheatsheetTests
@@ -27,6 +31,88 @@ public partial class CheatsheetTests
         // Joined, so a failure names every function at once.
         string.Join(", ", api.Except(listed).Order()).Should().BeEmpty("each public function of E3D has its line in CHEATSHEET.md");
         string.Join(", ", listed.Except(api).Order()).Should().BeEmpty("each line of CHEATSHEET.md names a function E3D has");
+    }
+
+    [Fact]
+    public void The_Lists_Are_What_The_Script_Writes_From_Each_Function_And_Its_Documentation()
+    {
+        var path = Path.Combine(RepoRoot(), "CHEATSHEET.md");
+        var page = File.ReadAllText(path).ReplaceLineEndings("\n");
+        var written = CheatsheetWriter.Write(RepoRoot(), page);
+        if (Environment.GetEnvironmentVariable("ENGINE_WRITE_CHEATSHEET") == "1")
+        {
+            File.WriteAllText(path, written);
+            page = written;
+        }
+
+        // Each line that differs, so the failure says which functions changed.
+        var lines = page.Split('\n');
+        var report = string.Join("\n", lines.Except(written.Split('\n')).Select(l => "- " + l)
+            .Concat(written.Split('\n').Except(lines).Select(l => "+ " + l)).Take(40));
+        report.Should().BeEmpty("CHEATSHEET.md's lists are written from the source by build/cheatsheet.sh");
+        written.Should().Be(page, "the lists hold the same lines in the same order");
+    }
+
+    [Fact]
+    public void A_List_Holds_Its_Files_Functions_In_Order_Each_With_The_First_Sentence_Of_Its_Summary()
+    {
+        using var folder = new TestFolder("engine-cheatsheet-");
+        Directory.CreateDirectory(folder.File("3DEngine/Api"));
+        File.WriteAllText(folder.File("3DEngine/Api/E3D.One.cs"), """
+            namespace Engine;
+            public static partial class E3D
+            {
+                /// <summary>Opens a <see cref="Thing"/> of <paramref name="size"/>. The rest is the guide's.</summary>
+                public static void Open(int size, float scale = 1.5f, string? name = null) { }
+
+                private static void Helper() { }
+
+                // -- Closing
+
+                /// <summary>Closes it, as <see cref="Open(int, float, string)"/> opened it, or <see langword="null"/>.</summary>
+                public static bool Close<T>(ref T thing) => true;
+
+                /// <inheritdoc cref="Close{T}(ref T)"/>
+                public static bool Close() => true;
+            }
+            """);
+        File.WriteAllText(folder.File("3DEngine/Api/E3D.Two.cs"), """
+            namespace Engine;
+            public static partial class E3D
+            {
+                /// <summary>Counts.</summary>
+                public static int Count() => 0;
+            }
+            """);
+        const string page = """
+            # Cheatsheet
+
+            <!-- written by build/cheatsheet.sh from E3D.Two.cs, E3D.One.cs -->
+            ```csharp
+            void Gone();
+            ```
+
+            Kept as it is.
+            """;
+
+        CheatsheetWriter.Write(folder.Path, page).Should().Be("""
+            # Cheatsheet
+
+            <!-- written by build/cheatsheet.sh from E3D.Two.cs, E3D.One.cs -->
+            ```csharp
+            int Count();                                             // Counts
+
+            void Open(int size, float scale = 1.5f, string? name = null); // Opens a Thing of size
+
+            bool Close<T>(ref T thing);                              // Closes it, as Open opened it, or null
+            bool Close();                                            // Closes it, as Open opened it, or null
+            ```
+
+            Kept as it is.
+            """);
+
+        var unnamed = () => CheatsheetWriter.Write(folder.Path, page.Replace("E3D.Two.cs, ", ""));
+        unnamed.Should().Throw<InvalidDataException>().WithMessage("No list of CHEATSHEET.md names E3D.Two.cs*");
     }
 
     [Fact]

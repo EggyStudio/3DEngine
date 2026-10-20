@@ -12,7 +12,8 @@ machine, with the command that measures it again.
 - **A loop the program owns.** `while (!WindowShouldClose())`, `BeginDrawing`, `EndDrawing`, with
   nothing to subclass and no callbacks to register.
 - **A cheatsheet.** [CHEATSHEET.md](../CHEATSHEET.md) has every function on one line, grouped as
-  raylib groups its own, and a test keeps it equal to the code.
+  raylib groups its own, written from the code and its documentation, and a test keeps it equal to
+  them.
 - **Examples by name.** `dotnet run --project 3DEngine.Examples -- core_basic_window` runs one,
   named as raylib's are, each with a capture in the README.
 

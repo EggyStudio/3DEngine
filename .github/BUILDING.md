@@ -235,6 +235,17 @@ to the surface is meant, `build/api.sh` writes the file again:
 build/api.sh         # 3DEngine/PublicApi.txt from the built engine, and what changed in it
 ```
 
+`CHEATSHEET.md`'s lists of the flat API's functions are written from the source of
+`3DEngine/Api`, each function a line of its declaration and the first sentence of its summary,
+under a comment naming the files a list is written from, in the order the files declare them.
+The text around the lists is written by hand and kept. The suite fails while the page and what
+the source gives differ, so a function added, changed or documented anew carries its line, which
+`build/cheatsheet.sh` writes again, and a file of functions no list names fails until one does:
+
+```bash
+build/cheatsheet.sh  # CHEATSHEET.md's lists from the flat API's source, and what changed in them
+```
+
 A pack made locally without a version is a version of its own, `0.1.0-preview.` and the time,
 since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
