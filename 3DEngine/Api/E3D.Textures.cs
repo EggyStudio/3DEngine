@@ -515,7 +515,7 @@ public static partial class E3D
 
     // Finds a file the way a program run from anywhere expects, as given (relative to the working
     // directory), then beside the program, then under source/ beside it, where content items land.
-    private static string? ResolveFile(string fileName)
+    internal static string? ResolveFile(string fileName)
     {
         if (File.Exists(fileName)) return fileName;
         foreach (var root in new[] { AppContext.BaseDirectory, Path.Combine(AppContext.BaseDirectory, "source") })

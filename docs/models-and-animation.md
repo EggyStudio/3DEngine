@@ -229,6 +229,62 @@ flat API does. Where the shape must follow the pose, as for a door that swings o
 hit where it is now, removing the entity's `PhysicsBody` has the body made again from the pose of
 that frame.
 
+## A state machine of clips
+
+A character idles, walks once its speed passes a value and jumps when a key is pressed, landing back
+in its idle once the jump's clip ends. An `AnimationStateMachine` says that as data, states each
+naming a clip, whether it loops and its speed, and transitions each from a state, or from any, to
+another when a condition holds, with the time the clip left fades into the one entered over. An
+`AnimationMachine` beside an entity's `AnimatedModel` runs it, on the parameters the game sets:
+
+<!-- compiled with:
+EcsWorld ecs = null!;
+int robot = 0;
+float speed = 0;
+-->
+```csharp
+var machine = new AnimationStateMachine
+{
+    States =
+    [
+        new() { Name = "Idle", Clip = "Idle" },
+        new() { Name = "Walk", Clip = "Walking" },
+        new() { Name = "Jump", Clip = "Jump", Loop = false },
+    ],
+    Transitions =
+    [
+        new() { From = "Idle", To = "Walk", When = AnimationCondition.Above, Parameter = "speed", Value = 0.1f },
+        new() { From = "Walk", To = "Idle", When = AnimationCondition.Below, Parameter = "speed", Value = 0.1f },
+        new() { To = "Jump", When = AnimationCondition.Triggered, Parameter = "jump", Fade = 0.1f },
+        new() { From = "Jump", To = "Idle", When = AnimationCondition.Finished },
+    ],
+};
+machine.Save("robot.machine.json");
+
+ecs.Add(robot, new AnimatedModel("resources/robot.glb"));
+ecs.Add(robot, new AnimationMachine("robot.machine.json"));
+// ...
+ref var animation = ref ecs.GetRef<AnimationMachine>(robot);
+animation.Set("speed", speed);
+if (IsKeyPressed(Key.Space)) animation.Trigger("jump");
+```
+
+A condition is a parameter `Above` or `Below` a value, `True` or `False` for a flag, `Triggered`
+for a trigger, which the transition taking it uses up, or `Finished`, the state's clip played to
+its end, or come round once where it loops. Each frame the transitions from the state the machine
+is in are tried in the order they are listed, the first that holds taken, so a list puts the more
+particular first. Entering a state plays its clip from its start through the `AnimatedModel`, its
+blend time set to the transition's fade, so the model blends from the clip before as it does when a
+program changes its clip, and a clip that plays once holds its last frame. A step with no transition
+due reads the parameters its transitions name and nothing else, some 80 nanoseconds for three.
+
+The machine's file is JSON as a scene file is, `Load` reads it and `Save` writes it, and every
+entity naming one path shares one reading of it. A scene file holds an entity's `AnimationMachine`
+by its path and the state it is in, so a level saved mid-run starts the machine there. The
+parameters are set through the entity's component by reference, `ref` in a behavior method or
+`GetRef`, and read at the next frame. A machine whose names do not hold together, a transition to a
+state it lacks, is said once in the log and runs nothing.
+
 ## Morph targets
 
 A mesh can carry morph targets, shapes its vertices are moved toward by a weight from 0 to 1, as

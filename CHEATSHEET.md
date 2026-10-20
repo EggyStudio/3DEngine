@@ -1391,6 +1391,11 @@ the window's frame spreads, and a `SubsurfaceThickness`, how thick its parts are
 light from behind, as a glTF file's `KHR_materials_volume` says. Models are drawn unlit, as raylib
 draws them, until the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
+An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it chooses which, by an
+`AnimationStateMachine` of states and transitions read from a file (`AnimationStateMachine.Load`,
+`Save`), on the parameters the game sets with `machine.Set("speed", 2f)` and
+`machine.Trigger("jump")`.
+
 ## States
 
 <!-- written by build/cheatsheet.sh from E3D.States.cs -->

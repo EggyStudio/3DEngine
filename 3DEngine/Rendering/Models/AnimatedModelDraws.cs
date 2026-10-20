@@ -20,7 +20,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A change of <see cref="AnimatedModel.Clip"/> keeps the clip before playing on beside it and
-/// blends from it to the new one over <see cref="AnimatedModel.BlendSeconds"/>.
+/// blends from it to the new one over <see cref="AnimatedModel.BlendSeconds"/>. An entity's
+/// <see cref="AnimationMachine"/> is stepped before its clip is played, and makes its changes the
+/// same way (<see cref="AnimationMachines"/>).
 /// </para>
 /// </remarks>
 internal sealed class AnimatedModelDraws
@@ -34,6 +36,7 @@ internal sealed class AnimatedModelDraws
     // Each file loaded once, with how many entities draw a copy of it.
     private readonly Dictionary<string, LoadedFile> _files = [];
     private readonly HashSet<int> _seen = [];
+    private readonly AnimationMachines _machines = new();
     private bool _warned;
 
     private sealed class LoadedFile
@@ -143,6 +146,7 @@ internal sealed class AnimatedModelDraws
             // Through each camera mesh entities are drawn through, the window's and those drawing
             // into a render texture, so a posed model shows in a security camera's screen too.
             var cameras = MeshEntityDraws.Cameras(world, ecs);
+            var machines = ecs.Count<AnimationMachine>() > 0;
             foreach (var (entity, animated) in ecs.Query<AnimatedModel>())
             {
                 _seen.Add(entity);
@@ -150,6 +154,7 @@ internal sealed class AnimatedModelDraws
                 if (playing.Model is not { } model) continue;
 
                 ref var component = ref ecs.GetRef<AnimatedModel>(entity);
+                if (machines) _machines.Step(ecs, entity, ref component, playing.Clips, dt);
                 Play(model, playing, ref component, dt);
                 var placed = TransformPropagation.WorldMatrix(ecs, entity);
                 foreach (var (viewProjection, _, target) in cameras) E3D.RecordModel(model, placed, viewProjection, target);

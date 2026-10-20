@@ -19,6 +19,48 @@ struct Engine.AnimatedModel
   float Time
   string Clip
   string Path
+enum Engine.AnimationCondition : int
+  Above = 3
+  Below = 4
+  False = 2
+  Finished = 0
+  Triggered = 5
+  True = 1
+struct Engine.AnimationMachine
+  AnimationMachine(AnimationStateMachine machine)
+  AnimationMachine(string path)
+  AnimationStateMachine? Machine
+  float Get(string name)
+  string Path
+  string State
+  void Set(string name, bool value)
+  void Set(string name, float value)
+  void Trigger(string name)
+sealed class Engine.AnimationMachineState
+  AnimationMachineState()
+  bool Loop
+  float Speed
+  string Clip
+  string Name
+sealed class Engine.AnimationMachineTransition
+  AnimationCondition When
+  AnimationMachineTransition()
+  float Fade
+  float Value
+  string From
+  string Parameter
+  string To
+sealed class Engine.AnimationStateMachine
+  AnimationStateMachine()
+  List<AnimationMachineState> States
+  List<AnimationMachineTransition> Transitions
+  const int Version = 1
+  const string Format = "3dengine-animation-machine"
+  static AnimationStateMachine Load(string fileName)
+  static AnimationStateMachine Read(string json)
+  string Start
+  string Write()
+  void Save(string fileName)
 sealed class Engine.App : IDisposable
   App AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
   App AddState<TState>(TState initial) where TState : struct, Enum

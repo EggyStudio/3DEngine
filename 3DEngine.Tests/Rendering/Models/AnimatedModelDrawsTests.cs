@@ -14,7 +14,7 @@ namespace Engine.Tests.Rendering.Models;
 [Trait("Category", "Unit")]
 public sealed class AnimatedModelDrawsTests : IDisposable
 {
-    private static readonly string Arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
+    internal static readonly string Arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
     private readonly App _app = new();
     private readonly EcsWorld _ecs = new();
     private readonly Time _time = new() { MaxDeltaSeconds = 10 };
@@ -148,7 +148,7 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     [Fact]
     public void A_Change_Of_Clip_Blends_From_The_One_Before_Over_Its_Blend_Time()
     {
-        var entity = Spawn(new AnimatedModel(TwoClips(), "bend", speed: 0, blendSeconds: 1) { Time = 1 }, Vector3.Zero);
+        var entity = Spawn(new AnimatedModel(TwoClips(_folder), "bend", speed: 0, blendSeconds: 1) { Time = 1 }, Vector3.Zero);
         Frame(0.1);
         Tip(0).X.Should().BeApproximately(-1, 0.02f, "bent");
 
@@ -254,8 +254,8 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     }
 
     // The arm with a second clip, "rest", which holds the elbow straight for a second, in a
-    // buffer of its own beside the file's.
-    private string TwoClips()
+    // buffer of its own beside the file's, written into the folder.
+    internal static string TwoClips(TestFolder folder)
     {
         var gltf = JsonNode.Parse(File.ReadAllText(Arm))!.AsObject();
         var bytes = new byte[40];
@@ -276,7 +276,7 @@ public sealed class AnimatedModelDrawsTests : IDisposable
             ["samplers"] = new JsonArray(new JsonObject { ["input"] = accessors.Count - 2, ["output"] = accessors.Count - 1, ["interpolation"] = "LINEAR" }),
             ["channels"] = new JsonArray(new JsonObject { ["sampler"] = 0, ["target"] = new JsonObject { ["node"] = target, ["path"] = "rotation" } }),
         });
-        var file = _folder.File("arm2.gltf");
+        var file = folder.File("arm2.gltf");
         File.WriteAllText(file, gltf.ToJsonString());
         return file;
     }

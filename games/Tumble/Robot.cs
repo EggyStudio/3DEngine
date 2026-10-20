@@ -7,6 +7,11 @@ using static Engine.E3D;
 /// its speed and its upper body aimed on a layer of its own, which falls as a ragdoll of capsules
 /// when struck and stands up again by a blend from the pose it lies in.
 /// </summary>
+/// <remarks>
+/// It chooses its clips in code rather than through an <see cref="AnimationStateMachine"/>, since
+/// its walk and run are blended by its speed rather than switched, its aim is a layer over them,
+/// and it stands up from the pose its ragdoll left, none of which a machine of whole clips holds.
+/// </remarks>
 public sealed class Robot
 {
     // The model is 3.6 units tall, drawn at half its size, so the robot stands 1.8 meters.

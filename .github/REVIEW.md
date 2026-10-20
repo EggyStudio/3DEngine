@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ec39331c`, item 49 and nothing else, carrying the review's file, in the form and at
+Reviewed up to `e510f268`, item 50 and nothing else, carrying the review's and the ledger's files,
+in the form, kinds and cost said before it. The behaviors guide's paragraph after the observers has
+a block, the camera with picking, a click on a door and a drag pushing a crate, names the nine
+kinds, the hit, the climb and the stop, says a skinned mesh is met unposed in its bind pose so an
+animated figure is picked where it stands at rest, gives the cost at about 40 ns a mesh entity a
+frame, says nothing is cast where the window's camera does not ask and that ImGui's windows pick
+nothing; the cheat sheet's hand sentence follows the observers' in the states prose;
+ARCHITECTURE.md's ECS section has the bullet, the upgrading guide's added entry names the camera's
+flag, the event, its interface, the nine kinds and the hit, and the surface listing has 121 lines
+more. Checked were the strict build, the suite, 1,790 with the four picking tests among them, the
+behaviors guide's thirteen blocks on a fresh pack and the live run. Read at 17:24; its push with
+`ec39331c` waits for the pack run's suites to pass. SHARED.md's row says both engines have it. At
+17:33 the pack run of `b19f09dc` had its macOS job green at 17:31 with every game played, Verdict
+76's second, and its Linux and Windows jobs running. Next item 51 from the ledger, the animation
+state machine as a data asset. Item 6 waits on the owner's word.
+
+Before it, `ec39331c` came, item 49 and nothing else, carrying the review's file, in the form and at
 the cost said before it. One public type a file under the ECS's observers folder, the adding and
 removal events, the carrier, the two event interfaces and the internal component event, with the
 world's observe, trigger and private registry in a file of their own; the hooks in the world's add,
@@ -28,9 +44,7 @@ halving and stopping it under 4 and the body's, an event that does not propagate
 entity, an observer that throws, no bytes allocated with no observer and with one of another
 component, and an undisposed world with observers collected. Checked were the strict build, the
 suite, 1,786, the behaviors guide's twelve blocks on a fresh pack, and the norm, cheat sheet,
-upgrading and surface tests. Read at 17:02; its push waits for the pack run's build jobs to pass, so
-the push's build run does not crowd them. SHARED.md's row says both engines have it. Next item 50
-from the ledger, the pointer's events on an entity. Item 6 waits on the owner's word.
+upgrading and surface tests.
 
 Before it, `b19f09dc` came, Verdict 78's mend and nothing else, carrying the review's file. The test
 script's run takes the seed as a parameter, every process it starts having the seed taken out of its
@@ -42,31 +56,6 @@ in its shuffle-fails mode under an outer seed of 99 with the flag's 7 and reads 
 plain page and 79 with one failed and the seed 7 on the shuffled page with exit 1, failing against
 the old script exactly as the runner did; the script's twelve tests pass plainly and under the day's
 seed. Pushed at 16:48 and the pack run with publish on started on it.
-
-Before it, `62efc173` came, Verdict 77's mend and nothing else, carrying the review's and the
-ledger's files and the CI measure's line back at 10.7. The job's log said the castle was down after
-the fourth bomb on the runner too, 157 of 190 blocks and 164 welds broken, the banner dropped from
-15.8 to 4.0 and resting on the keep's rubble outside it through the bombs after, each thrown at the
-same aim and landing in the same place, where the trigger the win needs was a field box 1.5 high a
-banner 1.6 long resting at 4.0 never meets; the run left no siege capture, the failure ending the
-drive before its shot. Run to run on the development machine's lavapipe with the package before the
-mend, three runs on all cores won at bombs 5, 4 and 4 with the banner at 5.9, 2.7 and 1.3 after the
-fourth, and three pinned to four cores as the runner has won at 5, 4 and 4, the first leaving the
-banner at 3.8 after the fourth, near the runner's 4.0, and the fifth happening to knock it to 1.4,
-so the result differs run to run on one machine from the physics' threads and the runner's was one
-draw with no later bomb reaching it. The mend is the trigger raised to the walls' top, 6, five
-blocks and a battlement, a kinematic box of 30 by 6 by 30 at half that height, so a banner brought
-down onto the field or onto the rubble ends the siege and one still upright on a keep standing about
-four layers or more does not, the comment saying the rubble held it four units up once out of the
-bombs' reach and the game's head comment, its README and the drive's comment saying brought down
-below the walls' top; chosen over moving the assertion off the banner since a player would meet the
-same thing, the drive's assertion staying the game's end. After the mend three runs on all cores won
-at the fourth bomb with the banner caught at 5.5, 2.6 and 4.1 in about 85 seconds each, and five
-pinned to four cores won at the fourth at 5.7, 4.1, 4.8, 4.1 and 4.1, three of the five identical,
-in about 2 minutes 29 seconds each, where the runner took 4 minutes 21 seconds for nine shots; the
-taller trigger overlaps the castle's lower half and adds contact pairs, inside those times. One run
-the coder spoiled by building the client while a drive asked for status, stopped and run again
-clean. Pushed at 16:44.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2599,7 +2588,58 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     click off the box, the climb to the parent and its stop, and no camera asking casting and
     allocating nothing until the flag is set; a live hidden run told the events on the spinning cube
     and the triangle with no error. The types one to a file under the rendering area's picking
-    folder, needing no AGENTS.md row.
+    folder, needing no AGENTS.md row. Done at `e510f268` on 2026-10-20, as the head says.
+
+51. **An animation state machine as a data asset, states each a clip and how it plays, transitions
+    tried in order on a parameter.** SHARED.md's row, where BevyCSharp has it since `667ca9ac` with
+    a scene naming the machine, and this engine is to consider, its models playing one clip through
+    the update call and a game writing the machine itself, as Tumble did with its idle, walk and run
+    by speed and its blends, taken on 2026-10-20 after item 50: a data asset of states, each naming
+    a clip, whether it loops and its speed, and of transitions, each from a state or any to a state,
+    tried in order on a condition, a parameter's value against a bound, a flag, a trigger used up as
+    taken or the clip's end, with a fade time; a component holding the machine's parameters and its
+    current state, run on a model by a system through the blending call the engine has so the fade
+    and the clip's end are unchanged, the parameters set by the game's code or a behavior; the asset
+    loaded from a file in the scenes' format and saved by the same, a scene naming it on an entity;
+    Tumble's machine read against it and left as it is, since a game writes its own where it likes,
+    with a sentence in the game's comment. Read first BevyCSharp's `667ca9ac` for the model, never
+    edited, and how this engine's blend and layer calls compose, and say the form and cost before
+    the commit; the animation guide's section with a block, the cheat sheet's hand sentence, the
+    surface listing and the upgrading guide's entry; tests of a transition on a value, a flag and a
+    trigger used up, the clip's end, the fade, a file saved and read back, and the cost of a machine
+    with no transition due, which must be a read of its parameters alone. One commit. The form said
+    by 17:37 on 2026-10-20 and taken: the data under the assets' animation folder one type a file, a
+    machine with a start, its states each a name, a clip, whether it loops and its speed, and its
+    transitions each from a state or any to a state on a condition, finished, a flag's truth or
+    falsehood, a value above or below a bound or a trigger, with a fade; a file found as models are
+    found, saved beside the program for a relative name, in the scenes' format with a format name
+    and a version and the condition by its name, written without reflection, a bad read a data
+    exception and a missing file a file exception; a scene component holding the file's path or a
+    machine made in code, which the codec leaves out, the current state the machine sets, a
+    parameters holder shared by copies, and calls to set a value or a flag, fire a trigger and read
+    a parameter, a scene holding the path and the state so a level saved mid-run restarts in its
+    state and the parameters set again by the game; the runner internal to the models' rendering,
+    stepped before the draws' play for each entity with both components and only when the world
+    counts any machine, a machine compiled once by its path or through a weak table for one made in
+    code into each state's transitions in the order tried, entering its start or the saved state
+    once the model has clips, entering a state setting the model's clip, speed, time and blend so
+    the draws' blend on a change of clip is the fade, a looping state finished once its time comes
+    round, a state played once held at its last frame with the speed at zero in the frame the time
+    would pass it and finished the frame after so the held pose is drawn once, a trigger used up
+    when its transition is taken, and a machine whose names do not hold together or whose file
+    cannot be read logging an error once and running nothing. The cost of a step with no transition
+    due 82.5 ns with three transitions and no allocation, one closure's 88 bytes a step taken out on
+    the way, and a world with no machine paying one count read a frame. Eight tests on the arm
+    model's two clips, a value above and below with the fade read in the blend and a fade of zero
+    cutting, a flag each way, a trigger used up, a play-once clip from any state holding its last
+    frame then finishing, a loop finishing as it comes round, a file saved and read back identical
+    and run from its start with a scene holding the path and state, a bad machine logging once and
+    the cost; a live hidden run on the robot went from idle to walk by speed, to a jump by trigger
+    with its blend and back to idle and walk after the clip's end with no error. The animation
+    guide's section, the cheat sheet's hand sentence, the upgrading guide's entry and 42 lines of
+    the surface listing follow, and Tumble's robot keeps its own choice with a remark saying why,
+    its walk and run blended by speed, its aim a layer and its rise from the ragdoll's pose, none of
+    which a machine of whole clips holds.
 
 ## Verdicts
 
@@ -3573,7 +3613,8 @@ the runs of `9f9180b7` and `82dd08f2` on 2026-10-20, said under it. Verdicts 75 
     first read two frames after the go; the Linux games job had passed the same drive on that run.
     Settled when the games' step passes Span on macOS on the next pack run and two after. The macOS
     job of the pack run of `2cc516fc` passed at 15:24 on 2026-10-20 with every game played, Span
-    among them, the first of three.
+    among them, the first of three. The macOS job of the pack run of `b19f09dc` passed at 17:31 on
+    2026-10-20 with every game played, the second of three.
 
 77. **The siege's drive on the Linux games job found the banner standing after eight bombs, where it
     fell after three on the development machine and on its lavapipe.** On the pack run of

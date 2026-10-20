@@ -305,6 +305,12 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A state machine of clips.** `AnimationStateMachine`, of `AnimationMachineState` and
+  `AnimationMachineTransition` taken on an `AnimationCondition`, read and written with `Load`,
+  `Save`, `Read` and `Write` as a file of its `Format` and `Version`, chooses an entity's
+  `AnimatedModel` clip through an `AnimationMachine` beside it, whose `Set`, `Trigger` and `Get`
+  are its parameters, as [A state machine of clips](models-and-animation.md#a-state-machine-of-clips)
+  shows.
 - **What the mouse does to an entity.** `Camera.Picking` on the camera drawing the window triggers a
   `Pointer<TEvent>` on the mesh entity under the mouse, an `IPointerEvent` of `Over`, `Out`, `Move`,
   `Press`, `Release`, `Click`, `DragStart`, `Drag` or `DragEnd`, those over it carrying a
