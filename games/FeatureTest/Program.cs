@@ -8,23 +8,29 @@ using Engine;
 using FeatureTest;
 using static Engine.E3D;
 
+Crash.Install();
 InitWindow(1280, 720, "Feature test");
 SetTargetFPS(60);
+if (Crash.Last() is { } crashed) TraceLog(LogLevel.Info, $"FeatureTest: the last crash is written in {crashed} beside the program.");
 
 // The ground under the whole map, and light from a low sun.
 CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(400, 1, 400));
 SetAmbientLight(new Color(160, 175, 210), 0.5f);
-CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), new Color(255, 244, 228), 2, castsShadows: true);
+var sun = CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), new Color(255, 244, 228), 2, castsShadows: true);
 SetShadowDistance(50);
 
 Zones.All = [new Hub(), new Drawing(), new Course()];
 var player = new Player(Zones.All[0].Start, Zones.All[0].Facing);
+var panel = new Panel(sun, Crash.Last());
+FeatureCommands.Admin = panel;
 
 while (!WindowShouldClose())
 {
     var dt = GetFrameTime();
     FeatureCommands.Apply(player);
+    panel.Update();
     var here = Zones.Around(player.Feet);
+    player.Deaf = Panel.Typing;
     player.Update(dt, here);
     foreach (var zone in Zones.All) zone.Update(dt, player);
     FeatureCommands.Publish(player, here);
@@ -41,7 +47,9 @@ while (!WindowShouldClose())
     EndMode3D();
     foreach (var zone in Zones.All) zone.DrawScreen(camera);
     Heading(here);
+    panel.Draw(player);
     EndDrawing();
+    if (FeatureCommands.CrashAsked) throw new InvalidOperationException("The feature test was asked to crash by feature.crash, to write its crash file.");
 }
 
 CloseWindow();

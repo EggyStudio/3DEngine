@@ -26,6 +26,25 @@ green once you reach it.
 | R | go back to the start of the zone you are in |
 | Tab | hold the mouse in the window to look with it |
 | Arrows | look |
+| F1 | the panel |
+| F2 | the engine's performance window |
+
+## The panel
+
+F1 opens it, an ImGui window the keyboard and a gamepad move through as well as the mouse, and while
+it holds the keyboard you are not walked by it. Its Frame part shows the frame's costs as the
+profile averages them, the frame, the program's update and drawing, the render graph and the GPU's
+passes, and opens the engine's profile window with all of them. Its Engine part turns the sun's
+shadows, ambient occlusion, FXAA and the frame rate's cap on and off. Each zone has a part of its
+own with its status, its features to turn on and off, and buttons that take you to its start and its
+spots.
+
+## When something goes wrong
+
+An exception nothing catches ends the program and writes `crash-` and the time, `.txt`, beside it:
+what was thrown, where you stood, each zone's last status, the frame's costs, the system and the last
+lines of the engine's log. The next run names the newest one in its log and on the panel. Send it
+with a report. The engine writes its own `logs/Crash.log` there too, with the exception alone.
 
 ## The console
 
@@ -42,6 +61,11 @@ at the pixels its shapes were drawn at, and the course's from the triggers its s
 ./e3d command player                      # where you stand, how you move and which zone you are in
 ./e3d command player.put 0 0 7 0          # stand somewhere, facing a bearing from north
 ./e3d command player.fly on
+./e3d command feature.toggles             # every feature the panel turns on and off
+./e3d command feature.toggle engine shadows off
+./e3d command feature.costs               # the frame's costs the panel shows
+./e3d command feature.panel on
+./e3d command feature.crash               # throw at the next frame, to see the crash file written
 ```
 
 `build/drive-game.sh FeatureTest` walks it as the workflow does, and fails at the first zone or

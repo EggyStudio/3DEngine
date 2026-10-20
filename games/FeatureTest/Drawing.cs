@@ -20,6 +20,8 @@ sealed class Drawing : Zone
     private static readonly Color Paper = new(245, 240, 228);
     private readonly RenderTexture2D _easel = LoadRenderTexture(Side, Side);
     private readonly (string Name, Action<Vector3> Draw)[] _shapes;
+    private readonly Toggle _drawn = new("shapes", "The 3D shapes");
+    private readonly Toggle _painted = new("easel", "The easel, drawn and read back");
     private float _time;
     private int _frames, _reads, _found = -1;
     private string _missing = "";
@@ -77,6 +79,7 @@ sealed class Drawing : Zone
     }
 
     public override string Name => "Drawing";
+    public override IReadOnlyList<Toggle> Toggles => [_drawn, _painted];
     public override Vector3 Center => Zones.At(270);
     public override Vector3 Start => Center + new Vector3(14, 0, 0);
 
@@ -86,7 +89,14 @@ sealed class Drawing : Zone
     public override void Update(float dt, Player player)
     {
         _time += dt;
-        // The texture is read once it has been drawn a few frames, and every two seconds after.
+        // The texture is read once it has been drawn a few frames, and every two seconds after, and
+        // read afresh once it is turned on again.
+        if (!_painted.On)
+        {
+            _frames = 0;
+            _found = -1;
+            return;
+        }
         if (++_frames % 120 != 10) return;
         var image = LoadImageFromTexture(_easel.Texture);
         if (!IsImageValid(image)) return;
@@ -113,6 +123,7 @@ sealed class Drawing : Zone
 
     public override void DrawOffscreen()
     {
+        if (!_painted.On) return;
         BeginTextureMode(_easel);
         ClearBackground(Paper);
         DrawRectangle(16, 16, 72, 48, Marks[0].Color);
@@ -137,17 +148,18 @@ sealed class Drawing : Zone
         {
             var plinth = Plinth(i);
             DrawCube(plinth + new Vector3(0, 0.5f, 0), 1.3f, 1, 1.3f, new Color(170, 165, 155));
-            _shapes[i].Draw(plinth + new Vector3(0, 1.75f, 0));
+            if (_drawn.On) _shapes[i].Draw(plinth + new Vector3(0, 1.75f, 0));
         }
         DrawCylinder(Center + new Vector3(-1, 0, 0), 0.06f, 0.06f, 1.2f, 6, new Color(110, 80, 50));
-        DrawBillboard(camera, _easel.Texture, Center + new Vector3(-1, 2.6f, 0), 3, Color.White);
+        if (_painted.On) DrawBillboard(camera, _easel.Texture, Center + new Vector3(-1, 2.6f, 0), 3, Color.White);
     }
 
     public override string Status()
     {
-        var easel = _found < 0
-            ? "the easel not read yet"
+        var easel = !_painted.On ? "the easel off"
+            : _found < 0 ? "the easel not read yet"
             : $"the easel's {_found} of {Marks.Length + 2} shapes found at their pixels{(_missing.Length > 0 ? $", missing {_missing}" : "")} in {_reads} reads";
-        return $"{_shapes.Length + 1} 3D calls a frame, {easel}{(_found == Marks.Length + 2 ? ", easel ok" : "")}";
+        var shapes = _drawn.On ? $"{_shapes.Length + 1} 3D calls a frame" : "the 3D shapes off";
+        return $"{shapes}, {easel}{(_found == Marks.Length + 2 ? ", easel ok" : "")}";
     }
 }

@@ -321,7 +321,11 @@ flying, R going back to the zone's start, Tab holding the mouse to look and the 
 The drawing zone draws every 3D shape and an easel of 2D shapes and text drawn into a texture, and
 the course tries the character on a ramp, stairs, a gap, a moving platform, crates and a low
 tunnel. Each zone says what it found in a line the console reads, the easel's from its texture read
-back from the GPU and the course's from the triggers at the ends of its stations:
+back from the GPU and the course's from the triggers at the ends of its stations. F1 opens an admin
+panel in ImGui, which shows the frame's costs as the profile averages them and turns the engine's
+and each zone's features on and off, and an exception nothing catches writes `crash-` and the time
+beside the program, with where the player stood and each zone's last status, which the next run
+names:
 
 ```bash
 build/pack.sh
@@ -333,8 +337,9 @@ dotnet restore games/FeatureTest --force-evaluate && dotnet build games/FeatureT
 ```
 
 `build/drive-game.sh FeatureTest` walks it as the workflow's games job does, reading the hub,
-walking along the road into the drawing zone and running each station of the course by its keys,
-and the job soaks it and resizes it with the games.
+walking along the road into the drawing zone, running each station of the course by its keys and
+reading the panel's switches back in what they act on. The job then asks it to crash and reads the
+file it wrote, and soaks it and resizes it with the games.
 
 ### Shipping a game
 

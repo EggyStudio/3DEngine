@@ -41,6 +41,9 @@ sealed class Player
     public float Heading { get; private set; }
 
     public bool Flying { get; private set; }
+
+    /// <summary>Whether the keys are left alone, as while the panel holds the keyboard.</summary>
+    public bool Deaf { get; set; }
     public bool Crouching => _height < Tall;
     public bool Grounded => IsPhysicsCharacterGrounded(Body);
     public Vector3 Feet => GetPhysicsBodyPosition(Body) - new Vector3(0, _height / 2, 0);
@@ -62,7 +65,7 @@ sealed class Player
     /// <summary>Reads the keys and the mouse and gives the character the velocity they ask for.</summary>
     public void Update(float dt, Zone? here)
     {
-        if (IsKeyPressed(Key.Tab))
+        if (Pressed(Key.Tab))
         {
             if (IsCursorHidden()) EnableCursor();
             else DisableCursor();
@@ -77,11 +80,11 @@ sealed class Player
         Yaw = (Yaw % 360 + 360) % 360;
         Pitch = Math.Clamp(Pitch + (Held(Key.Down) - Held(Key.Up)) * 45 * dt, -10, 70);
 
-        if (IsKeyPressed(Key.F)) Fly(!Flying);
+        if (Pressed(Key.F)) Fly(!Flying);
         var ahead = Zone.Ahead(Yaw);
         var right = new Vector3(-ahead.Z, 0, ahead.X);
         var wish = ahead * (Held(Key.W) - Held(Key.S)) + right * (Held(Key.D) - Held(Key.A));
-        var speed = Flying ? FlySpeed : IsKeyDown(Key.LeftShift) ? RunSpeed : WalkSpeed;
+        var speed = Flying ? FlySpeed : Held(Key.LeftShift) == 1 ? RunSpeed : WalkSpeed;
         var velocity = wish == Vector3.Zero ? Vector3.Zero : Vector3.Normalize(wish) * speed;
         if (wish != Vector3.Zero) Heading = Zone.Bearing(Vector3.Zero, wish);
 
@@ -89,13 +92,13 @@ sealed class Player
         else
         {
             // A height with no room for it overhead is asked for again each frame until there is.
-            var wanted = IsKeyDown(Key.C) ? Low : Tall;
+            var wanted = Held(Key.C) == 1 ? Low : Tall;
             if (MathF.Abs(wanted - _height) > 0.01f && SetPhysicsCharacterHeight(Body, wanted)) _height = wanted;
-            if (IsKeyPressed(Key.Space) && Grounded) JumpPhysicsCharacter(Body, JumpSpeed);
+            if (Pressed(Key.Space) && Grounded) JumpPhysicsCharacter(Body, JumpSpeed);
         }
         MovePhysicsCharacter(Body, velocity);
 
-        if (IsKeyPressed(Key.R) || Feet.Y < -20)
+        if (Pressed(Key.R) || Feet.Y < -20)
         {
             var zone = here ?? Zones.All[0];
             Put(zone.Start, zone.Facing);
@@ -128,5 +131,6 @@ sealed class Player
         return $"at {feet.X:0.00} {feet.Y:0.00} {feet.Z:0.00}, {moving}{(Crouching ? ", crouching" : "")}, in {here?.Name ?? "the roads"}, facing {Heading:0}";
     }
 
-    private static int Held(Key key) => IsKeyDown(key) ? 1 : 0;
+    private int Held(Key key) => !Deaf && IsKeyDown(key) ? 1 : 0;
+    private bool Pressed(Key key) => !Deaf && IsKeyPressed(key);
 }

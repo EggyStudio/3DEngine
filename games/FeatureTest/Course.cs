@@ -23,6 +23,8 @@ sealed class Course : Zone
     private readonly List<Station> _stations = [];
     private readonly List<(PhysicsBody Body, Vector3 Start)> _crates = [];
     private readonly Dictionary<string, (Vector3 Feet, float Facing)> _spots = [];
+    private readonly Toggle _moving = new("platform", "The platform moves");
+    private readonly Toggle _shown = new("triggers", "The triggers drawn");
     private PhysicsBody _platform;
     private float _ride;
 
@@ -39,6 +41,7 @@ sealed class Course : Zone
     public override float Reach => 24;
     public override Vector3 Start => new(Center.X - 18, 0, 0);
     public override IReadOnlyDictionary<string, (Vector3 Feet, float Facing)> Spots => _spots;
+    public override IReadOnlyList<Toggle> Toggles => [_moving, _shown];
 
     public Course()
     {
@@ -126,10 +129,10 @@ sealed class Course : Zone
         // The platform waits at its near end, crosses, waits at its far end and comes back, its
         // velocity set so what stands on it rides along, and put at each end exactly as it stops.
         var before = _ride % Cycle;
-        _ride += dt;
+        if (_moving.On) _ride += dt;
         var now = _ride % Cycle;
         var going = (Far - Near) / Speed;
-        float velocity = now switch
+        float velocity = !_moving.On ? 0 : now switch
         {
             _ when now < Wait => 0,
             _ when now < Wait + going => Speed,
@@ -153,6 +156,7 @@ sealed class Course : Zone
         foreach (var (body, _) in _crates) Box(GetPhysicsBodyTransform(body), new Vector3(0.8f), new Color(200, 150, 70));
         foreach (var station in _stations)
         {
+            if (!_shown.On) break;
             var at = GetPhysicsBodyPosition(station.Trigger);
             DrawCubeWires(at, 1.5f, 1.8f, 3, station.Reached ? new Color(60, 200, 90) : new Color(220, 220, 220));
         }
@@ -182,6 +186,7 @@ sealed class Course : Zone
         var moved = _crates.Count(crate => Vector3.Distance(GetPhysicsBodyPosition(crate.Body), crate.Start) > 0.5f);
         var awake = _crates.Count(crate => crate.Body.IsAwake) + (_platform.IsAwake ? 1 : 0);
         var stations = string.Join(", ", _stations.Select(s => $"{s.Name} {(s.Reached ? "reached" : "not reached")}"));
-        return $"{stations}, {moved} of {_crates.Count} crates moved, {_solid.Count + _crates.Count + _stations.Count + 1} bodies, {awake} awake";
+        return $"{stations}, {moved} of {_crates.Count} crates moved, {_solid.Count + _crates.Count + _stations.Count + 1} bodies, {awake} awake"
+               + (_moving.On ? "" : ", the platform held still");
     }
 }

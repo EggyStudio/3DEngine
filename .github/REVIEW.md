@@ -10,20 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b1265b6a`, item 56 and nothing else, 24 files, carrying the review's and the
+Reviewed up to `7d7ecba6`, item 57's first part, the feature test's hub, character and two zones,
+and nothing else, carrying the review's and the ledger's files, in the shape and with the tests and
+numbers said before it. Read at 21:46; its push with `b1265b6a` waits for the build run of
+`ac77ef83` to end. Next part 2, the admin panel and the crash log, its shape said before its commit.
+Item 6 waits on the owner's word.
+
+Before it, `b1265b6a` came, item 56 and nothing else, 24 files, carrying the review's and the
 ledger's files, in the form and with the tests and numbers said before it; the suite gave 1,822
-plain and shuffled and the strict build is clean. Read at 21:25; its push waits for the build run of
-`ac77ef83` to end. SHARED.md's row says both engines have it. Next item 57 from the ledger, the
-feature-test program, read for its parts first. Item 6 waits on the owner's word.
+plain and shuffled and the strict build is clean.
 
 Before it, `ac77ef83` came, item 55 and nothing else, carrying the review's and the ledger's files,
 in the form said before it; the strict build is clean, the suite gave 1,817 plain and shuffled by
 the day's seed, two more, and the physics and upgrading guides' 23 blocks built on a fresh pack.
 Pushed at 20:56 with item 54's.
-
-Before it, `02d89f18` came, item 54 and nothing else, carrying the review's file, in the form said
-before it; the suite gave 1,815 plain and 1,815 shuffled by the day's seed, the strict build is
-clean and the behaviors guide's blocks build on the fresh pack.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2946,7 +2946,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the easel found whole on its first read, so the read-back and the drawing share their
     coordinates. The soak of 120 seconds offscreen gave 42 turns and 13 readings with the check
     passing and nothing growing, the storm captured after it with no validation error, the norm and
-    document tests pass and the workflow and scripts parse.
+    document tests pass and the workflow and scripts parse. Part 1 done at `7d7ecba6` on 2026-10-20,
+    as the head says.
 
 ## Verdicts
 

@@ -11,13 +11,16 @@ namespace FeatureTest;
 public static class FeatureCommands
 {
     internal static readonly Dictionary<string, string> Statuses = new(StringComparer.OrdinalIgnoreCase);
-    internal static string Where = "";
+    internal static string Where = "", Costs = "";
+    internal static int Frames;
+    internal static Panel? Admin;
 
     // What was asked for and not yet done, the zone and spot to go to, a place to be put at, or
     // flight turned on or off.
     internal static (Zone Zone, string? Spot)? Go;
     internal static (Vector3 Feet, float Facing)? Put;
     internal static bool? Fly;
+    internal static bool CrashAsked;
 
     [Command("feature.status", "Each zone's status, a line each, or one zone's: feature.status [zone]")]
     internal static string Status(string zone = "")
@@ -56,6 +59,44 @@ public static class FeatureCommands
         return $"flying {state}";
     }
 
+    [Command("feature.toggles", "Every feature the panel turns on and off, by group, the engine's and each zone's")]
+    internal static string Toggles() =>
+        string.Join("\n", Groups().Select(group => $"{group.Name}: {string.Join(", ", group.Toggles)}"));
+
+    [Command("feature.toggle", "Turns a feature on or off, as the panel does: feature.toggle <engine|zone> <feature> <on|off>")]
+    internal static string Switch(string group, string feature, string state)
+    {
+        if (state is not ("on" or "off")) return $"a feature is on or off, not {state}";
+        if (Groups().FirstOrDefault(g => g.Name.Equals(group, StringComparison.OrdinalIgnoreCase)) is not { Name: not null } found)
+            return $"there is no group called {group}, only {string.Join(", ", Groups().Select(g => g.Name))}";
+        if (found.Toggles.FirstOrDefault(t => t.Key.Equals(feature, StringComparison.OrdinalIgnoreCase)) is not { } toggle)
+            return $"{found.Name} has no feature called {feature}, only {string.Join(", ", found.Toggles.Select(t => t.Key))}";
+        toggle.Set(state == "on");
+        return $"{found.Name}: {toggle}";
+    }
+
+    [Command("feature.panel", "Opens or closes the admin panel, as F1 does: feature.panel <on|off>")]
+    internal static string ShowPanel(string state)
+    {
+        if (state is not ("on" or "off") || Admin is null) return $"the panel is on or off, not {state}";
+        Admin.Open = state == "on";
+        return $"the panel {(Admin.Open ? "open" : "closed")}";
+    }
+
+    [Command("feature.costs", "The frame's costs the panel shows, each averaged by the profile, and whether the panel is open and how many frames it was drawn in")]
+    internal static string Cost() => Costs;
+
+    [Command("feature.crash", "Throws an exception nothing catches at the next frame, which ends the program and writes its crash file beside it")]
+    internal static string Fail()
+    {
+        CrashAsked = true;
+        return "throwing at the next frame";
+    }
+
+    // The engine's switches and each zone's toggles, by their group's name.
+    private static IEnumerable<(string Name, IReadOnlyList<Toggle> Toggles)> Groups() =>
+        Zones.All.Select(zone => (zone.Name, zone.Toggles)).Prepend(("Engine", Admin?.Engine ?? []));
+
     /// <summary>Carries out what was asked since the last frame.</summary>
     internal static void Apply(Player player)
     {
@@ -83,5 +124,7 @@ public static class FeatureCommands
     {
         foreach (var zone in Zones.All) Statuses[zone.Name] = zone.Status();
         Where = player.Line(here);
+        Frames++;
+        Costs = $"{Panel.Costs()}, the panel {(Admin?.Open == true ? "open" : "closed")} and drawn in {Admin?.Drawn ?? 0} frames";
     }
 }

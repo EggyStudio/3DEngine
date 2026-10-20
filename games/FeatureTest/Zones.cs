@@ -27,6 +27,9 @@ abstract class Zone
     /// <summary>The bearing the player faces on arriving, toward the middle.</summary>
     public virtual float Facing => Bearing(Start, Center);
 
+    /// <summary>The zone's features the panel and the console turn on and off.</summary>
+    public virtual IReadOnlyList<Toggle> Toggles { get; } = [];
+
     /// <summary>Places a run puts the player at, each with the bearing it faces there.</summary>
     public virtual IReadOnlyDictionary<string, (Vector3 Feet, float Facing)> Spots { get; } =
         new Dictionary<string, (Vector3, float)>();
@@ -59,6 +62,26 @@ abstract class Zone
         var radians = float.DegreesToRadians(bearing);
         return new Vector3(MathF.Sin(radians), 0, -MathF.Cos(radians));
     }
+}
+
+/// <summary>
+/// A feature the panel and the console turn on and off, named by a word the console takes and a
+/// label the panel shows, which may act on the engine as it changes.
+/// </summary>
+sealed class Toggle(string key, string label, bool on = true, Action<bool>? changed = null)
+{
+    public string Key { get; } = key;
+    public string Label { get; } = label;
+    public bool On { get; private set; } = on;
+
+    public void Set(bool on)
+    {
+        if (on == On) return;
+        On = on;
+        changed?.Invoke(on);
+    }
+
+    public override string ToString() => $"{Key} {(On ? "on" : "off")}";
 }
 
 /// <summary>The zones, the hub first, and which one a point is in.</summary>
@@ -102,6 +125,7 @@ sealed class Hub : Zone
     private readonly Model _road = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
     private readonly Model _cube = LoadModelFromMesh(GenMeshCube(1.6f, 1.6f, 1.6f));
     private readonly Model _board = LoadModelFromMesh(GenMeshCube(1.6f, 0.5f, 0.1f));
+    private readonly Toggle _turning = new("turning", "The cube turns");
     private float _turned;
     private int _named;
 
@@ -111,7 +135,12 @@ sealed class Hub : Zone
     public override Vector3 Start => new(0, 0, 7);
     public override float Facing => 0;
 
-    public override void Update(float dt, Player player) => _turned += 40 * dt;
+    public override IReadOnlyList<Toggle> Toggles => [_turning];
+
+    public override void Update(float dt, Player player)
+    {
+        if (_turning.On) _turned += 40 * dt;
+    }
 
     // Each zone's road from the plaza's edge to the zone's, and its signpost on the plaza.
     private IEnumerable<(Zone Zone, Vector3 Sign, float Bearing)> Roads() =>
@@ -152,5 +181,5 @@ sealed class Hub : Zone
     }
 
     public override string Status() =>
-        $"the cube turned {_turned % 360:0} degrees, {All().Count()} signposts and roads, {_named} named on the screen";
+        $"the cube turned {_turned % 360:0} degrees{(_turning.On ? "" : " and held still")}, {All().Count()} signposts and roads, {_named} named on the screen";
 }

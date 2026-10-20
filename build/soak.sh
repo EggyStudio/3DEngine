@@ -177,7 +177,9 @@ turn() {
       wait_frames 60 ;;
     featuretest)
       # The player put at each zone in turn and walked a little there, the course's crates pushed
-      # and its platform ridden from the start each time, and every zone's status read.
+      # and its platform ridden from the start each time, the panel shown every fourth turn, and
+      # every zone's status read.
+      if (( i % 4 == 1 )); then cmd feature.panel on; else cmd feature.panel off; fi
       case $(( i % 4 )) in
         0) cmd feature.zone hub; key W 60 ;;
         1) cmd feature.zone drawing; key W 60 ;;

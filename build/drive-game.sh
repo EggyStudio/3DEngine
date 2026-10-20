@@ -214,6 +214,7 @@ folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
   "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt" \
   "$folder/tones-recording.wav"
+rm -f "$folder"/crash-*.txt
 
 # The budget is kept by a watcher that wakes every five seconds, so it ends soon after the game
 # does. It starts before the opening, so a game that hangs there is stopped at its budget too.
@@ -706,6 +707,35 @@ case "$game" in
     for part in ramp stairs gap platform crates tunnel; do
       case "$course" in *"$part reached"*) ;; *) fail "the course's $part was not reached, $course" ;; esac
     done
+    # The panel's switches, each read back in what it acts on: the easel off and read afresh once on
+    # again, the cube held still, the sun's shadows off until their pass costs the GPU nothing, and
+    # the panel open and drawn.
+    cmd feature.toggle drawing easel off
+    cmd feature.toggle hub turning off
+    cmd frames.wait 5
+    statuses=$(ask feature.status)
+    echo "$statuses"
+    case "$statuses" in *"the easel off"*"held still"*|*"held still"*"the easel off"*) ;; *) fail "the easel and the cube were not turned off, $statuses" ;; esac
+    cmd feature.toggle drawing easel on
+    cmd feature.toggle hub turning on
+    shadows() { printf '%s\n' "$1" | sed -n 's/.*GPU shadows \([0-9.]*\) ms.*/\1/p'; }
+    cast=$(ask feature.costs)
+    cmd feature.toggle engine shadows off
+    cmd frames.wait 240
+    costs=$(ask feature.costs)
+    echo "$cast / $costs"
+    # Off, the pass is left a tenth of its cost or less, where lavapipe still clears its maps, and a
+    # device that measures no time on the GPU reads nothing either way.
+    awk -v on="$(shadows "$cast")" -v off="$(shadows "$costs")" 'BEGIN { exit !(on == 0 || off < on / 10) }' ||
+      fail "the sun's shadows turned off still cost their pass, $(shadows "$cast") ms then $(shadows "$costs") ms"
+    drawing=$(ask feature.status drawing)
+    case "$drawing" in *"easel ok"*) ;; *) fail "the easel turned on again was not read back, $drawing" ;; esac
+    cmd feature.toggle engine shadows on
+    cmd feature.panel on
+    cmd frames.wait 10
+    costs=$(ask feature.costs)
+    echo "$costs"
+    case "$costs" in *"the panel open and drawn in 0 frames"*|*"panel closed"*) fail "the panel was not drawn, $costs" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

@@ -1314,19 +1314,39 @@ jobs:
           build/webp.sh captures/tones.png captures/tones.webp lossy 800x450
 
       # The feature test, by build/drive-game.sh as Windows and macOS play it, the hub read, a walk
-      # along the road into the drawing zone, whose easel is read back from the GPU, and each station
-      # of the course run by its keys and read reached by its trigger, and then captured in the
-      # drawing zone.
+      # along the road into the drawing zone, whose easel is read back from the GPU, each station of
+      # the course run by its keys and read reached by its trigger, and the panel's switches read back
+      # in what they act on. Then it is captured in the drawing zone with the panel open, asked to
+      # throw an exception nothing catches, its crash file read beside it, and opened again, where its
+      # log names that file.
       - name: Build and walk the feature test from the package
         run: |
           build/drive-game.sh FeatureTest
-          build/open-game.sh games/FeatureTest/bin/Debug/net10.0/FeatureTest --offscreen
+          program=games/FeatureTest/bin/Debug/net10.0
+          build/open-game.sh "$program/FeatureTest" --offscreen
           ./e3d command time.frame 0.0166667 --quiet
           ./e3d command feature.zone drawing --quiet
+          ./e3d command feature.panel on --quiet
           ./e3d command frames.wait 30 --quiet
           ./e3d shot captures/featuretest.png --quiet
-          ./e3d stop --quiet
           build/webp.sh captures/featuretest.png captures/featuretest.webp lossy 800x450
+          ./e3d command feature.crash --quiet
+          for _ in $(seq 1 30); do ls "$program"/crash-*.txt > /dev/null 2>&1 && break; sleep 1; done
+          crash=$(ls -t "$program"/crash-*.txt 2> /dev/null | head -n 1 || true)
+          if [ -z "$crash" ] || ! grep -q "asked to crash by feature.crash" "$crash" || ! grep -q "^The player: at" "$crash" || ! grep -q "^  Course: " "$crash"; then
+            echo "::error title=feature test::no crash file beside the program said what was thrown, where the player stood and each zone's status"
+            exit 1
+          fi
+          cp "$crash" captures/featuretest-crash.txt
+          # The file is written before the process has ended, which the shell that started it says.
+          for _ in $(seq 1 60); do [ -s build/sessions/FeatureTest.ended ] && break; sleep 1; done
+          grep -q "exit code 134" build/sessions/FeatureTest.ended ||
+            { echo "::error title=feature test::the program did not end on the exception, $(head -n 1 build/sessions/FeatureTest.ended 2> /dev/null)"; exit 1; }
+          build/open-game.sh "$program/FeatureTest" --offscreen
+          ./e3d command frames.wait 5 --quiet
+          ./e3d stop --quiet
+          grep -q "the last crash is written in $(basename "$crash")" build/sessions/FeatureTest.log ||
+            { echo "::error title=feature test::the run after the crash did not name its crash file"; exit 1; }
 
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
