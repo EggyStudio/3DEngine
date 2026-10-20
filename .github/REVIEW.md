@@ -10,46 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ac77ef83`, item 55 and nothing else, carrying the review's and the ledger's files,
+Reviewed up to `b1265b6a`, item 56 and nothing else, 24 files, carrying the review's and the
+ledger's files, in the form and with the tests and numbers said before it; the suite gave 1,822
+plain and shuffled and the strict build is clean. Read at 21:25; its push waits for the build run of
+`ac77ef83` to end. SHARED.md's row says both engines have it. Next item 57 from the ledger, the
+feature-test program, read for its parts first. Item 6 waits on the owner's word.
+
+Before it, `ac77ef83` came, item 55 and nothing else, carrying the review's and the ledger's files,
 in the form said before it; the strict build is clean, the suite gave 1,817 plain and shuffled by
 the day's seed, two more, and the physics and upgrading guides' 23 blocks built on a fresh pack.
-Read at 20:09. The pack run of `b3922179` ended green whole at 20:53 and pushed `5.2.190` to
-nuget.org through the policy, the day's package with the five games and items 40 to 53, its Windows
-suite in its parts in 68 minutes 28 seconds, 1,748 passed, the job with the games in 106 minutes;
-the feed listed it by 21:03, ten minutes after the push, its nuspec naming `b3922179` with 33 lines
-of notes, the 33 engine commits since `5.2.155`'s `9f9180b7` and none of the review's, item 37
-proven again; the build run of `b3922179` had ended green before the push. So `02d89f18` and this
-head were pushed at 20:56. SHARED.md's row says both engines have it. At 20:39 the pack run had its
-games job green at 20:30, the siege and Tones' soak passing, Verdict 77's second and Verdict 79's
-first, and both captures green, its Windows job alone running in its 95th minute with the games to
-play after its suite. Next item 56 from the ledger, data files by an id surviving a rename. Item 6
-waits on the owner's word.
+Pushed at 20:56 with item 54's.
 
 Before it, `02d89f18` came, item 54 and nothing else, carrying the review's file, in the form said
 before it; the suite gave 1,815 plain and 1,815 shuffled by the day's seed, the strict build is
 clean and the behaviors guide's blocks build on the fresh pack.
-
-Before it, `b3922179` came, Verdict 79's mend and nothing else, carrying the review's and the
-ledger's files. The run's own readings showed one step and no climb, the live managed bytes going
-3.73, 4.28 and 4.79 MB and then 8.23 at 63 seconds and holding, the heap 7.72 to 13.94 at the same
-reading and holding, the step landing after the first quarter of the readings so the check read it
-as a climb, the runner's turns taking about 30 seconds where the machine's took five; a recording's
-buffers were sized by how long it ran and held until the next, 19 MB for 30 seconds, the list's
-spare capacity that a clear keeps and two copies, the drawing's and the read-back wave's, nothing
-climbing but a recording without a bound, which a player would meet too, the engine freeing what it
-should. The mend: Tones keeps a recording's first fifteen seconds, the list's capacity made that
-size once at the start so it is in the baseline, the recording read back held once and shared by the
-drawing and the sound with no copy, two 30-second recordings leaving the managed heap at 6.52, 8.02
-and 8.41 MB against 23 before; the soak's turn records a note alone at the start of every fourth
-turn from the first, so the first recording's hold is in before the first quarter ends however slow
-the turns and each later one holds as much as the first; the README and the head comment say the
-fifteen seconds; compacting the large object heap in the collect command was tried and reverted,
-since it did not settle the reading and would move every game's soak. Checked on lavapipe from a
-fresh pack: the drive passing with the tail at 0.060 and 0.000, the soak at full speed holding 7.82
-MB against a bound of 11.10 and pinned to one core 8.75 against 12.16, no engine file changed.
-Pushed at 19:05 after the three before it, and the pack run with publish on started anew on this
-head for the day's batch, its games job Verdict 79's first and Verdict 77's second, its macOS games
-Verdict 76's third.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -2879,7 +2853,100 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     with no reference the same allocation before and after the table is built with the holder's
     lookups at zero. The reviewer asks one sentence more in the look's remark, the count of files
     the look read where it was more than a few hundred, said in the warning, so a large folder's
-    cost is seen.
+    cost is seen. The tests and numbers said by 21:24 and taken, with three changes to the form: the
+    look covers the folder of the scene or data file that names the id, added only when a reference
+    resolves, since a fresh run's table is empty and a level loaded from beside its data could not
+    otherwise find a renamed file; the write context gains nothing, the generator writing a
+    reference as its id, since a new nullable member had flipped the class's nullable context and
+    the surface writer rendered two unchanged members otherwise, the read context keeping its file
+    non-nullable for the same reason; and the id-of-file call is dropped, the reference's id giving
+    it; a look reading more than 500 files warns with the count and the folders. Five tests: a file
+    saved with its twelve-hex id and read back by name after the table forgets it, its fields
+    folded, a second save keeping the id and the old reference seeing the new value; a file written
+    by hand lacking a field keeping the default's value and given its id, then found by it; a
+    machine saved, referred to through the component's file in a saved scene, moved into a subfolder
+    and renamed with the table forgetting it, the scene read finding it by id at the new path, and
+    the same id asked for as another type reading as none naming the type; a missing file reading as
+    none with the id kept, the problem naming it, the default's value, the warning in the log and
+    the scene written again holding the id; and the cost, the least allocation of five reads of a
+    scene with a null reference the same before and after the table holds files, the asked count not
+    moving. The generator's probe takes a data asset, the every-field-kind test the reference and an
+    array of them, the bad-file rows a machine file with its id and missing, empty and random files
+    reading as none, and the machine's saved file carries its id after the version. Breaking the
+    look fails the rename test and counting a null id fails the cost test. The strict build is
+    clean, the suite gave 1,822 plain and shuffled, five more, 26 blocks of three guides built on a
+    fresh pack, and a check program on that pack saved and loaded in two processes with the data
+    file moved and found by id through the level's folder; the test host's folder holds seven JSON
+    files, so its look reads seven heads. Done at `b1265b6a` on 2026-10-20, as the head says, the
+    ledger's row saying both engines have it.
+
+57. **A feature-test program puts every feature on one map, a capsule character on test courses, an
+    admin panel and a console, with a crash log beside the executable.** SHARED.md's row, where
+    BevyCSharp has its feature test in parts, the hub and its zones, the gallery, the player, the
+    course, the panel and the console, the crash log and the portable build, and this engine is to
+    consider, taken on 2026-10-20 after item 56 as the last substantial row: the games each show a
+    few areas, and the coverage reading under item 7 found most of the surface shown by none, so a
+    program in the repository beside the games, built on the package as they are, puts every feature
+    area on one map in zones a capsule character walks between, a zone each for drawing, models and
+    animation, lights and shadows, global illumination, physics with a course, audio, text,
+    particles, scenes and saves, the interface and the effects, each zone exercising its area's
+    calls with a status the console reads; an admin panel in ImGui toggling the features and reading
+    the frame's costs; the console as the games' commands through e3d; a crash log written beside
+    the executable on an unhandled exception; and a scripted run walking every zone and reading its
+    status, in the games job, with the soak and storm lists taking it. Read first BevyCSharp's
+    feature test for the model, never edited, and say the parts in order with the first part's shape
+    before its commit, the hub and the character with two zones as the first; each part a commit,
+    wired in as the games are, with its README and BUILDING.md's paragraph; the portable build for
+    testers waits on the owner's word, since the games ship through the pack run already. The parts
+    said by 21:28 on 2026-10-20 and taken, BevyCSharp's feature test read for the model: the program
+    lives under the games' folder beside them, built on the package by the same project shape as
+    Summit, its commands prefixed as the feature's and the player's, the engine's own crash log
+    landing beside the executable already and the program's own crash file coming with part 2. Six
+    parts, each a commit with its README section, BUILDING.md's paragraph grown and its zones in the
+    scripted run: the hub, the capsule character and two zones, drawing and the physics course, with
+    the status and teleport commands and the whole wiring; the admin panel in ImGui toggling every
+    zone's features and reading the frame's costs, with the crash log and a command that throws to
+    prove it; models and animation with a skinned walker on a state machine, morph targets and
+    instancing, and lights and shadows of each kind with cascades and probes; global illumination
+    with a room at each quality, particles of each kind with collision against the field, and the
+    effects; audio with positional sound, music, a stream and a recording read back, and text with
+    fonts, shaping, right to left, color emoji and measuring; and scenes and saves with a scene
+    round trip, a saved game, a persistent value and a data reference found after a rename, and the
+    interface with an ImGui window, 2D HUD widgets, states and screens. Part 1's shape: a ground of
+    one static box, a hub plaza with a turning cube and a signpost per zone with its name drawn
+    above, roads out to each zone on a ring of 40 m; a capsule character of radius 0.35 and height
+    1.8 with a third-person orbit camera, walking relative to the camera, sprinting, jumping,
+    crouching by the height, flying by item 55's call and put back at the zone's start by its place
+    call, a fall below minus 20 putting it back too; a zone base with name, centre, start, facing
+    and spots and its build, update, draw, screen draw and status, the zone found by position; the
+    drawing zone every 3D shape call on plinths and an easel showing a render texture 2D shapes and
+    text are drawn into each frame, its status reading the texture back at known pixels so the
+    easel's ok is a fact; the course zone stations along x each with a trigger at its end, a ramp,
+    stairs, a gap, a moving platform, crates and a low tunnel, its status naming each station
+    reached; the commands for the status of all zones or one, a teleport to a zone and spot, the
+    player's place and state, a put and a fly switch; a HUD of the zone's name and status, the frame
+    rate and the keys. The wiring: the drive script's case walking from the hub to the drawing zone
+    on its road by held keys with the zone asserted, the easel's ok asserted and each course station
+    run from its start by keys; the games job's step building and walking it from the package with a
+    capture; the three per-system loops, the soak list with a turn teleporting through the zones and
+    the storm list; BUILDING.md's paragraph and the README. It stays out of the README's gallery and
+    the table script's games, a test program and not a game to show, as the coder proposed; the
+    portable build waits on the owner. Part 1's tests and numbers said by 21:46 and taken: the
+    program's files as set out, the drive script's case with its ask passing all its arguments where
+    a two-word command had reached the client as one, a soak turn through the hub, the drawing zone,
+    the crates and the platform with a status read each, the workflow's loops, soak and storm lists
+    and the games job's step with a capture in the drawing zone as an artifact only, and
+    BUILDING.md's section before the shipping one. The drive on the development machine's GPU under
+    the validation layer passes in 50 seconds, the hub's cube turned with two signposts and roads
+    named on the screen, the walk from the hub reaching the drawing zone grounded, the drawing line
+    of 23 calls a frame with the easel's ten of ten shapes found at their pixels in six reads, each
+    course station run from its spot by keys and reached with four of four crates moved, and no
+    validation error; on lavapipe in 1 minute 20 seconds; the negatives hold by hand, the gap
+    unjumped, the tunnel walked standing and the platform walked off each stopping short of reached;
+    the easel found whole on its first read, so the read-back and the drawing share their
+    coordinates. The soak of 120 seconds offscreen gave 42 turns and 13 readings with the check
+    passing and nothing growing, the storm captured after it with no validation error, the norm and
+    document tests pass and the workflow and scripts parse.
 
 ## Verdicts
 

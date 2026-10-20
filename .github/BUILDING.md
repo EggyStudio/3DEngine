@@ -311,6 +311,31 @@ The program at the top of the README then goes into `Program.cs`. `build/readme-
 folder>` follows the README's commands with both templates and these steps with that program, each
 in a new folder, and CI runs it.
 
+### The feature test
+
+`games/FeatureTest` puts every area of the engine on one map, built on the package as the games
+are, for a tester to try a build with and for the workflow to walk. A hub in the middle has a road
+and a signpost to each zone, and the tester walks between them as a capsule on the character
+controller, W A S D walking relative to the camera, Shift running, Space jumping, C crouching, F
+flying, R going back to the zone's start, Tab holding the mouse to look and the arrows looking too.
+The drawing zone draws every 3D shape and an easel of 2D shapes and text drawn into a texture, and
+the course tries the character on a ramp, stairs, a gap, a moving platform, crates and a low
+tunnel. Each zone says what it found in a line the console reads, the easel's from its texture read
+back from the GPU and the course's from the triggers at the ends of its stations:
+
+```bash
+build/pack.sh
+dotnet restore games/FeatureTest --force-evaluate && dotnet build games/FeatureTest --no-restore
+./e3d open games/FeatureTest/bin/Debug/net10.0/FeatureTest --hidden
+./e3d command feature.status            # each zone's line
+./e3d command feature.zone course gap   # the player at a station, which is tried afresh
+./e3d command player                    # where the player stands and how it moves
+```
+
+`build/drive-game.sh FeatureTest` walks it as the workflow's games job does, reading the hub,
+walking along the road into the drawing zone and running each station of the course by its keys,
+and the job soaks it and resizes it with the games.
+
 ### Shipping a game
 
 A game is shipped with `dotnet publish`, as a folder with the .NET runtime in it or as one native

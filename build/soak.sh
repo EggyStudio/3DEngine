@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble|tones> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble|tones|featuretest> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -175,6 +175,17 @@ turn() {
       if (( i % 4 == 0 )); then cmd tones.record start; key A 10; cmd tones.record stop; wait_frames 2; key Four 2; fi
       key A 10; key D 10; key Z 2; key G 10; key X 2; key K 20
       wait_frames 60 ;;
+    featuretest)
+      # The player put at each zone in turn and walked a little there, the course's crates pushed
+      # and its platform ridden from the start each time, and every zone's status read.
+      case $(( i % 4 )) in
+        0) cmd feature.zone hub; key W 60 ;;
+        1) cmd feature.zone drawing; key W 60 ;;
+        2) cmd feature.zone course crates; key W 120 ;;
+        3) cmd feature.zone course platform; wait_frames 120 ;;
+      esac
+      cmd feature.status
+      wait_frames 30 ;;
   esac
 }
 

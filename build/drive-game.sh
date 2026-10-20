@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble|Tones> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble|Tones|FeatureTest> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -193,7 +193,7 @@ said="captures/$name-said.txt"
 cmd() { ./e3d command "$@" --quiet --timeout 600 2> "$said" || fail "./e3d command $* ended with $?, $(head -n 1 "$said")"; }
 ask() {
   local answer
-  answer=$(./e3d command "$1" --timeout 600 2> "$said") || fail "./e3d command $1 ended with $?, $(head -n 1 "$said")"
+  answer=$(./e3d command "$@" --timeout 600 2> "$said") || fail "./e3d command $* ended with $?, $(head -n 1 "$said")"
   printf '%s\n' "$answer" > "$last"
   printf '%s\n' "$answer"
 }
@@ -657,6 +657,55 @@ case "$game" in
     awk -v p="$(value "$dry" peak)" 'BEGIN { exit !(p > 0.05) }' || fail "the recording read back holds no note, $dry"
     awk -v d="$(value "$dry" tail)" -v w="$(value "$status" tail)" 'BEGIN { exit !(d < 0.01 && w > 0.02) }' ||
       fail "the echo was not read after the note, $dry then $status"
+    ;;
+  FeatureTest)
+    # Each frame a step, the hub's status read, a walk west along the road into the drawing zone,
+    # its easel's shapes read back from the GPU, and each station of the course run from its spot
+    # by its keys and read reached by the trigger at its end, the gap jumped from a run, the
+    # platform ridden to its far end and stepped off, and the tunnel walked through crouched.
+    cmd time.frame 0.0166667
+    cmd frames.wait 30
+    hub=$(ask feature.status hub)
+    echo "$hub"
+    case "$hub" in "Hub: the cube turned"*) ;; *) fail "the hub has no status, $hub" ;; esac
+    cmd player.put -40 0 0 270
+    cmd frames.wait 5
+    cmd input.key W 330
+    walked=$(ask player)
+    echo "$walked"
+    case "$walked" in *"in Drawing"*) ;; *) fail "the walk west did not reach the drawing zone, $walked" ;; esac
+    cmd frames.wait 130
+    drawing=$(ask feature.status drawing)
+    echo "$drawing"
+    case "$drawing" in *"easel ok"*) ;; *) fail "the easel's shapes were not all read back, $drawing" ;; esac
+    station() { cmd feature.zone course "$1"; cmd frames.wait 10; }
+    # A key held in the background while the commands that follow press another.
+    holding() { ./e3d command input.key "$1" "$2" --quiet --timeout 600 2> "captures/$name-held.txt" & held=$!; }
+    released() { wait "$held" || fail "holding a key ended with $?, $(head -n 1 "captures/$name-held.txt")"; }
+    station ramp
+    cmd input.key W 200
+    station stairs
+    cmd input.key W 200
+    station gap
+    holding W 220
+    cmd frames.wait 65
+    cmd input.key Space 3
+    released
+    station platform
+    cmd frames.wait 300
+    cmd input.key W 90
+    station crates
+    cmd input.key W 230
+    station tunnel
+    holding C 300
+    cmd frames.wait 2
+    cmd input.key W 240
+    released
+    course=$(ask feature.status course)
+    echo "$course"
+    for part in ramp stairs gap platform crates tunnel; do
+      case "$course" in *"$part reached"*) ;; *) fail "the course's $part was not reached, $course" ;; esac
+    done
     ;;
   *)
     fail "is not a game this script plays"
