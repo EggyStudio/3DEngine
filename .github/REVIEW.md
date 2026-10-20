@@ -10,7 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `40283221`, item 43 at `006ff3ba` and Verdict 76's mend at `40283221`, the first
+Reviewed up to `4789ebde`, item 44 and nothing else, carrying the review's file. The TrueType font
+reads the kern table, Microsoft's and Apple's first format, horizontal and along the line; a font
+loaded from a file keeps a Latin shaping read once at load for the glyphs of the characters it is
+baked with, its ligature rules lookup by lookup, the pair adjustments of its kern feature by glyph
+or by class, or its kern table where the feature kerns nothing; the ligature glyphs are baked beyond
+the plane under their joined keys or drawn as a character where one asked for maps to them, in all
+three file loaders and the SDF path; the placed keys shape text with nothing read right to left, and
+the two drawing calls, the image drawing call and both measuring calls read those keys so layout
+stays true; a call turns ligatures off in a font and its larger bakes, kerning staying; a ligature
+or a pair chosen by context is not read, said in the guide and TODO.md. The cost: shaping each new
+string through the general substitution and positioning engine took 265 microseconds a string in
+Lato, so the tables are read once at load and a new string costs 4.1 against 2.0 drawn plainly,
+steady with tiering off, a string drawn again coming from the font's cache, and the right-to-left
+test gains an early out for text with no character from U+0590 on, 5.9 microseconds to 0.3 on ASCII.
+Two test fonts join the color test fonts' script, and five tests read AV and To kerned by the
+feature and by the kern table against the fonts' own values, 15 and 10 px at 100, the fi ligature
+baked at 55 px and turned off and on, both measuring calls and the Latin-1 load path, and a ligature
+of a letter not baked staying apart; a reference frame of kerned and joined Latin; the
+font-from-file frame rewritten on lavapipe since Lato is kerned and the word file takes its
+ligature, 3.4 percent of pixels. The strict build is clean, the suite gave 1,762, and all nine text
+reference frames pass on lavapipe under validation. Against raylib the Unicode ranges example went
+from 9.1 to 11.4 percent apart, its text reading the same but its atlas holding the CJK font's five
+ligatures in a strip below, 512 by 277 where 512 by 256, raised in the machine's measure file and in
+the CI's by hand with the triage line saying why, which the reviewer sends back to the run, said
+under item 44; ten other text examples held their shares; the captures of the fonts and Unicode
+ranges examples and their thumbnails are refreshed; the sprite fonts example's stored capture was
+stale already by 4 percent with its share unchanged and is left. The games that draw Lato are kerned
+and joined once repacked, none measuring text by prefix or character. The text guide's paragraph and
+snippet, the cheat sheet, the surface listing, the upgrading guide, seven that still compile and the
+added entry, and the raylib comparison's new row follow. Read at 14:17; the push of the three
+commits from `006ff3ba` waits for the build run of `fd484ead` to end, the pack run with publish on
+then started anew on the head. Item 6 waits on the owner's word.
+
+Before it, `40283221` came, item 43 at `006ff3ba` and Verdict 76's mend at `40283221`, the first
 carrying the review's file. The audio backend's interface gains the device's sample rate and
 channels, 0 by default so a program's own backend still compiles, the SDL backend giving the spec it
 kept and 0 while not initialized, and two flat calls read them, 0 unless the device is ready, their
@@ -31,33 +64,7 @@ the go's answer sees the old state, and on the macOS runner a round trip of 0.32
 saw the build state six times in six; the mend is two frames waited after the go before the first
 read, which answers only once those frames have run, so the game has taken the go on any runner at
 any speed, the read then seeing the build state no time in six and the full run passing, and the
-other games' drives already wait frames between a command and the read it is judged by. Read at
-13:44; the pack run of `b4b798d4` was cancelled, its pack job unable to run with macOS red, and the
-push of the two commits waits for the build run of `fd484ead` to end, the pack run with publish on
-then started anew on the head. TODO.md's order was read and its next entry with work left is item
-44, Latin kerning and ligatures. Item 6 waits on the owner's word.
-
-Before it, `fd484ead` came, Tones, item 7's fifth game, the sound toy, and nothing else, carrying
-the review's file, nothing in the engine changed. The instrument sets the stream buffer's default to
-2,048, loads a stream at 44,100 Hz in 32 bits mono and feeds it in 512-frame blocks while the stream
-is processed, at most eight a frame; keys play an organ of three partials or a plucked string by
-Karplus-Strong under an envelope, three keys hit drums made as waves at 22,050 Hz, loaded, converted
-to 44,100 mono and read out as samples; pitch, pan and volume by keys, pause and resume with the
-playing state in the status; stream processors, an echo of a third of a second at 0.55 feedback and
-a one-pole 600 Hz low pass, then a recorder, all detached and attached again in order whenever one
-changes since an attached one runs after those before it; a mixed processor reads the device's peak
-on the audio thread into a shared float; a recording is a wave the program builds, saved, read back
-as samples, drawn and played as a sound; status, effect and record commands. The scripted run
-records a note with the echo off and then on, each saved and read back, asserting notes played, more
-than 44,100 samples saved and read, a peak over 0.05 and the tail, the loudest sample from half a
-second to a second and a half after the note was let go by the sample index so no runner's timing
-moves it, 0.000 dry and 0.060 to 0.063 with the echo in four runs, passing on the development
-machine's card and on lavapipe on SDL's dummy driver under validation with no errors, the mixed
-processor hearing 0.103 to 0.134 while a note played; the soak's 28 turns and its check pass, the
-storm passes, the suite gave 1,754, the game is wired in as Tumble was with the recording's file on
-the drive script's list to remove, BUILDING.md says eighteen and the audio guide lists it. A finding
-taken as item 43: a mixed processor cannot know the rate or the channels of the samples it gets.
-Pushed at 13:24 with Siege and Tumble.
+other games' drives already wait frames between a command and the read it is judged by.
 
 Before it, `39103995` came, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying
 the review's file, nothing in the engine changed. The robot model is carried in the game's resources
@@ -2453,7 +2460,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     none of this; tests on a font with a known kern pair and an fi ligature compared against the
     font's own tables, a reference frame and the text guide's paragraph. One commit unless it grows.
     Devanagari's shaping, the reph, the matras and the conjuncts, is a larger second step left for a
-    game that asks.
+    game that asks. Done at `4789ebde` on 2026-10-20, as the head says. One thing sent back: the CI
+    measure of the Unicode ranges example was raised by hand to the machine's 11.4, where a CI
+    measure is recorded from the captures job's run; the line goes back to its 9.1 in a commit of
+    its own, and the figure is recorded from the next pack run's captures job, which measures
+    against raylib and says the share in its summary without failing, so the file says what a run
+    measured. The sprite fonts example's stale capture is taken again with it, documents and
+    captures alone.
 
 ## Verdicts
 
