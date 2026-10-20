@@ -26,7 +26,9 @@ said under item 30, so (c) stands as named with no mend; the thin walls' term ha
 read. The push cancels the build run of `448aa3fc`; the pack run with publish on of `448aa3fc` is
 kept running, twenty minutes in on three suites, since a restart on this head would cost that for a
 hedge against a trough that has come once in the day's Windows suites, and the package it makes is
-the same engine. Next the thin walls' term read on the GPU, then by the rule and the cost.
+the same engine. The thin walls' term was read again by 04:58 and named anew, said under item 30,
+the near-start candidate out and two others to read. Next those two by the rule and the cost, and
+the panel-alone readings' labels checked.
 
 Before it, `b35bcb8f` came, item 30's parallax read and nothing else, with the review's commits
 between. The merge shader's remark replaces the bilinear fix's sentence, naming the merge's
@@ -1885,7 +1887,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     ceiling hit within about a tenth of a unit of a thin wall's inner face starts the march past the
     wall and takes the outside lamp's full light; the coder reads the thin room's world probes on
     the head and with the march starting half a cell out, keeping the two cells it stops short of
-    the lamp, then the rule and the cost as for the parallax.
+    the lamp, then the rule and the cost as for the parallax. The thin walls' term read again by
+    04:58 on 2026-10-20, and its naming changes; the near-start candidate is out. The thin room's
+    world probes do not take the outside lamp's light: five of them, by the right wall, its foot,
+    mid-room and the far wall, read the same to the digit with the outside lamp at zero, 0.267
+    against 0.242, 10 over, while the probe outside the wall goes from 7.67 to 0, and at one bounce
+    their own rays match the reference at none, 0.074 against 0.075 and 0.100 against 0.100, so
+    their 10 over is the inside lamp's light past the first bounce, the gain a bounce read before,
+    even over every face and way and as large by the far wall; the earlier naming, the world probes'
+    own rays taking the lamp's light through the thin walls, was wrong, and the hidden lamp light's
+    march start changes nothing at them. The frame does take it at the thin wall's edges: at view 2
+    at High at 800 by 450, where the reference is identical with the lamp on and off, the engine's
+    thin wall facing minus x reads 15.1 over with the lamp on and 7.2 off, every other region moving
+    0.5 to 3 points and the whole frame from 10.9 over to 8.0; on the wall in blocks of 20 pixels
+    the lamp gives 1 to 2 percent of the reference in the middle, 50 to 62 along the foot, 20 to 30
+    along the ceiling and 15 to 22 at the corner with the front wall. A screen probe on the wall by
+    the front corner gains 6.6 percent of its light from the lamp, its rays meeting surfaces within
+    about 0.4 of the thin wall each gaining it, 0.338 on against 0.206 off where the reference reads
+    0.183, their own light the same on and off, so all of it past the first bounce; the screen
+    probes' hits read the world probes through the bounced read weighed by the sight test with a
+    slack of half a spacing, 0.6, and the probes 0.55 beyond the 0.1 wall reach its outer face, the
+    slack passing them as seeing the hit, so their faces, 7.67 lit by the lamp, light the hits on
+    this side, while the world probes' own hits march to their probes and do not take it, the model
+    pass's tick at the corner having been the same fault in pixels, mended by (f). So the term is
+    named anew: screen probes' hits beside a wall thinner than half the probes' spacing take the
+    light of the probes beyond it through the reach's slack. Two candidates, read next by the rule
+    and the cost: (a) the sight test's slack held to a cell or two in place of half a spacing, at no
+    cost, which every reader of the bounced read takes, the screen probes' hits, the model pass and
+    its reflections; (b) the screen probes' hits through the seen read's marches, (c)'s seen
+    variant, 0.26 ms more at High in the Cornell box with no change at the block's front. A thing to
+    settle beside it: the readings labelled the panel alone in the cone and strip work set entity
+    1's light to zero, and entity 1 is the sun, not the Cornell box's lamp, entity 2, so those
+    readings were the lamp and the panel without the sun; the coder finds whether any figure from
+    them reached RENDERING.md or a commit, and a figure that did is corrected in a commit naming the
+    mislabel.
 
 31. **An example shows raylib's picture and none of the engine's making, the gamepad's controller
     first (Decision 44), done at `29eb2eca`.** The owner said on 2026-10-18 at 22:25 that the
