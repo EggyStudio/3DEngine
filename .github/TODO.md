@@ -303,11 +303,10 @@ the reference first appears, and again in place of that copy when the file is wr
 level runs. The models, textures and parsed scene files a level loads through its references are
 let go some seconds after no entity uses them (`AssetRelease`), so a level streamed in as the
 player nears holds what is near. `SceneLightPayload` and `Light` hold what the model pass reads,
-and the model pass reads every field of `SceneMaterialPayload`. What is missing:
-
-- **An older file is read by keeping the fields it has, with no migration.** A field renamed or a
-  component split leaves the old file's value behind. BevyCSharp has files that outlive a renamed
-  type, which SHARED.md keeps to consider.
+and the model pass reads every field of `SceneMaterialPayload`. A component or a field renamed is
+read from its former name (`[FormerName]`), and a component whose layout changed is brought up from
+the version a file was saved at by its own migration (`[DataVersion]`), a file from a later version
+saved back with the values this build does not read.
 
 ## Platform
 
