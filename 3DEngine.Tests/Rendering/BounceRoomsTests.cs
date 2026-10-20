@@ -66,7 +66,9 @@ public sealed class BounceRoomsTests : IDisposable
     // reference by their own rays through walls thinner than a cell, and the grazing floor's at
     // High 0.086 where 0.058, its walls 8% over where 8% under, the merge's parallax, each read
     // under by the fixed ways before, which also had the strip's read 0.234, 0.245 and 0.244 where
-    // 0.216, 0.240 and 0.218.
+    // 0.216, 0.240 and 0.218. With the probes above read toward what the rays would meet (the
+    // merge's parallax), the thin walls' view reads 0.090, 0.094 and 0.098, their walls thinner than
+    // a cell, and the window's, the grazing floor's and the strip's narrow.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
@@ -241,6 +243,36 @@ public sealed class BounceRoomsTests : IDisposable
         var shares = Enumerable.Range(0, 6).Select(f => Luminance(probe!.Faces[f]) / Luminance(probe.FacesReference[f]) - 1).ToArray();
         var read = string.Join(", ", Enumerable.Range(0, 6).Select(f => $"{names[f]} {shares[f]:+0.00;-0.00}"));
         shares.Should().OnlyContain(share => Math.Abs(share) < 0.3f, $"each face reads the light its texels hold, not a spot under the lamp for a whole texel, {read}");
+    }
+
+    // The first cascade's probe in the Cornell box's pocket, as the test above reads it, its upward
+    // face's part from the cascade above, the ways that met nothing within its interval. Read along
+    // the same way from where they stand, the probes above lent the ceiling nearer the lamp that
+    // they meet, 171% over the path-traced reference on the development machine's GPU; read toward
+    // the point of the pocket's ray nearest where their own met a surface, 61% over.
+    [NeedsRayQueryFact]
+    public void The_Pocket_Probes_Light_From_The_Cascade_Above_Is_Read_Toward_What_Its_Own_Rays_Would_Meet()
+    {
+        var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        using var rooms = new Rooms();
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(Rooms.Views[0]);
+            rooms.Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(0.6f, 0.6f, 1.8f), 256, -1, 0, out var why);
+        probe.Should().NotBeNull(why);
+        static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
+        var above = probe!.Each.Where(way => way.Met == 2).Select(way => (Weight: Math.Max(way.Way.Y, 0) * way.Share, way.Merged, way.Reference)).ToArray();
+        var lent = above.Sum(way => Luminance(way.Merged) * way.Weight) / above.Sum(way => Luminance(way.Reference) * way.Weight);
+        lent.Should().BeLessThan(2, $"the probes above are read toward what the pocket's own rays would meet, {lent:0.00} of the reference");
     }
 
     // The screen probe on the Cornell box's back wall beside the red wall's corner in

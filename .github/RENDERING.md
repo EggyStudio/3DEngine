@@ -2039,6 +2039,25 @@ probes pinned anew (BounceRoomsTests). A still view changes by 0.04% at most in 
 one frame to the next, where 0.03%, and global illumination costs nothing more, the same sixteen
 rays.
 
+**The merge's parallax, read on 2026-10-20.** A probe whose ray met nothing within its interval
+takes the light along that way of the eight probes of the cascade above around it, each of which
+sees from where it stands what lies along the way, so a probe above standing elsewhere lent the
+light of a surface the ray itself would not meet. Each probe above is read toward the point of the
+ray nearest where its own ray along the way met a surface, by the reach the gather writes for each
+of its eight by eight ways, and along the way itself where its ray met nothing (`gi_merge.slang`).
+At the Cornell box's pocket the first cascade's probe's upward face takes from the cascade above
+1.61 times the reference's light where 2.71 (BounceRoomsTests) and its face toward −x 1.29 where
+2.63, at no cost worth measuring, global illumination within 0.03 ms of what it was at both
+qualities in the Cornell box and within 0.04 in the window's room. The bounce rooms' views narrow at
+both sizes, the window's by 0.013 to 0.019 at 160 by 90 and 0.015 to 0.025 at 800 by 450, the
+grazing floor's by 0.008 to 0.015 and 0.008 to 0.013, the strip's by 0.005 to 0.009 and 0.007 to
+0.016 and the carried lamp's room's by up to 0.005, but the thin walls', which widen by 0.004 to
+0.005 and 0.003 to 0.005, their walls thinner than a cell reading a point further over at `Low`.
+Marching instead from the ray's point twice the spacing out to each probe above's as far out, a
+texel's own sight of each in place of the probe's, the bilinear fix, took the pocket's upward face
+to 2.16 at 0.24 to 0.29 ms more at `High`. The small block's front (c) reads 1.20 and 1.10 of the
+reference at `High` and `Low` where 1.18 and 1.13.
+
 **The light past the first bounce at the world probes' own hits, read on 2026-10-19.** Seventeen
 faces of eleven world probes were read against the reference by bounce and by where their ways were
 met, the faces the walls take their light from beside the walls the sampling term's candidates lit

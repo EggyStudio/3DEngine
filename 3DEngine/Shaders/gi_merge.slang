@@ -9,8 +9,15 @@
 // surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark,
 // since the surface lies nearer that probe than this one's ray reaches, so the light it sees there
 // is not the light along this ray, and taken it read a ceiling beside a lamp for one two units off,
-// up to 26 times too bright in a Cornell box. The bilinear fix, tracing from this probe toward each
-// probe above, would take its place.
+// up to 26 times too bright in a Cornell box. Each probe above is read toward the point of this
+// probe's ray nearest where its own ray along the way met a surface the frame before (its reach),
+// and not along the same way, so a probe above standing elsewhere lends the light of what this ray
+// would meet and not of what it sees from where it stands, the merge's parallax. Read along the same
+// way, the first cascade's probe in a Cornell box's pocket between the floor and the small block
+// took for its upward face the ceiling nearer the lamp that the probe above meets, its part from the
+// cascade above 171% over a path-traced reference, where read so 61%, at no cost worth measuring;
+// a trace from this ray toward each probe above, the bilinear fix, read it 116% over at a tenth of
+// global illumination's time more (gi.probe, ./e3d command profile).
 import gi;
 import scenefield;
 
@@ -44,6 +51,25 @@ RWTexture3D<float> mergedSky;
 [[vk::binding(7, 0)]]
 Texture3D<float> aboveSky;
 
+// The cascade above's probes' reach, the nearest ray's distance along each of their eight by eight
+// directions, as the gather wrote it the frame before.
+[[vk::binding(8, 0)]]
+Texture3D<float> reachAbove;
+
+// The texel of an octahedron of `texels` along each side at t, folded across its edges.
+int2 foldedAt(int2 t, int texels)
+{
+    if (t.x < 0)
+        t = int2(0, texels - 1 - t.y);
+    else if (t.x >= texels)
+        t = int2(texels - 1, texels - 1 - t.y);
+    if (t.y < 0)
+        t = int2(texels - 1 - t.x, 0);
+    else if (t.y >= texels)
+        t = int2(texels - 1 - t.x, texels - 1);
+    return t;
+}
+
 float4 placeOf(int3 at, uint c, uint probes)
 {
     return held[int3(3 * int(probes) + at.x, at.y, int(c * probes) + at.z)];
@@ -58,6 +84,7 @@ struct MergePush
     // nothing from the cascade above. z: the one cascade whose rays' light alone reaches the first,
     // plus one, or 0 for every cascade, the cascades above it giving nothing and those below it
     // passing on its light where their rays meet nothing and nothing where they meet a surface.
+    // w: where the cascade above's interval ends, which its ray that met nothing reached.
     float4 spacing;
 };
 
@@ -143,6 +170,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     // passed over where it is inside a mesh or a surface hides it from this one.
     float3 f = q - float3(base);
     uint factor = upper / texels;
+    float3 d = fromOctahedron((float2(texel) + 0.5) / float(texels));
     float3 sum = float3(0.0);
     float sky = 0.0;
     float weights = 0.0;
@@ -152,12 +180,27 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
         float weight = lerps.x * lerps.y * lerps.z * float(seen[slot * 8u + uint(corner)]) / float(factor * factor);
+        // The probe above read toward the point of this ray nearest where its own ray along the way
+        // met a surface, and along the way itself where it met nothing.
+        float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, min(c + 1u, 7u), probes).xyz) * (ac.w * push.spacing.x);
+        int2 rt = min(int2(octahedron(d) * float(ReachTexels)), int2(ReachTexels - 1));
+        float r = reachAbove.Load(int4(neighbor.xy * ReachTexels + rt, int(c + 1u) * int(probes) + neighbor.z, 0));
+        float3 way = d;
+        if (r > 0.0 && r < push.spacing.w * 0.999)
+        {
+            float3 met = upperAt + d * r;
+            float3 toward = origin + d * max(dot(met - origin, d), 0.0) - upperAt;
+            if (dot(toward, toward) > 1e-8)
+                way = normalize(toward);
+        }
+        int2 first = int2(floor(octahedron(way) * float(upper) - float(factor) * 0.5 + 0.5));
         // The texels of the cascade above that lie inside this one's, one or four of them, those
         // that met a surface before their interval dark, and those inside a mesh passed over.
         for (uint v = 0u; v < factor; v++)
             for (uint u = 0u; u < factor; u++)
             {
-                int4 from = int4(int2(uint2(neighbor.xy) * upper + texel * factor + uint2(u, v)), neighbor.z, 0);
+                int2 tt = foldedAt(first + int2(int(u), int(v)), int(upper));
+                int4 from = int4(int2(neighbor.xy) * int(upper) + tt, neighbor.z, 0);
                 float4 child = above.Load(from);
                 if (child.a > 0.75)
                 {
