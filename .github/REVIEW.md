@@ -10,15 +10,45 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f3949ba6`, Siege, item 7's third game, and nothing else, carrying the review's file.
-The catapult arm, 4.5 m and 120 kg, hangs on a hinge to a kinematic pivot driven by its motor at
-60,000 newton-meters; the shot is welded to the cup and the weld destroyed at the chosen angle, a 60
-kg stone as a convex hull or a 40 kg bomb as a capsule, both continuous, the arc drawn by the sphere
-cast along each stretch to the first body; the castle is 190 blocks, boxes and hull columns with a
-slab, a hull roof and a banner, joined by 342 welds, the lowest to a kinematic foundation; a weld
-breaks where the joint's force passes 8,000 N, static loads peaking at 5,064 to 6,513 and a stone
-strike putting 9,000 to 14,000 on the welds near it; a stone wears the blocks it presses by the
-contact impulse at a toughness of 450, a hard throw pressing 430 to 480 a step; a bomb bursts on
+Reviewed up to `39103995`, Tumble, item 7's fourth game, the ragdoll, and nothing else, carrying the
+review's file, nothing in the engine changed. The robot model is carried in the game's resources
+byte-identical to raylib's at the pinned commit with a notice beside it naming its author, CC0 and
+the commit, said in the README. The robot is a character controller of radius 0.35 and 1.8 m drawn
+at half the model's size, its idle, walk and run chosen and timed by speed; the upper body is a
+one-keyframe clip the game builds each frame, the idle's keyframe or the punch's while a punch
+lasts, the torso and every bone below it turned about the torso's joint toward the pointer within a
+quarter turn, laid over the legs as a layer from the torso; a crouch is the character's height at
+1.1 with the sitting clip held at a frame, standing only where nothing is over it. The ragdoll is
+eleven capsules from the pose the robot was last given, on a layer that does not collide with
+itself, ball joints with cone limits at the waist, neck, shoulders and hips and hinges about the
+body's across at the knees and elbows, each of the 43 bones carried by its nearest part with its
+offset taken at the fall, the model posed from the bodies' transforms through a one-keyframe clip
+each frame, the blow an impulse at a point on the part nearest the contact; once the parts lie still
+for 0.6 s after at least 1.5, or after 6, the ragdoll is let go, the character made where the hips
+lie facing the feet, and a blend goes from the lying clip to the standing clip's seated first frame
+over 0.7 s, then standing over 0.9, then idle. Cannons fire at the chest, a kinematic bar sweeps the
+middle at 1.5 to 1.8 m and stars are triggers to collect; a ball faster than 3 m a second knocks the
+robot down and so does the bar, on a contact starting or a continuing push read by the contact
+impulse; a punch at the striking part of its swing sends a ball near the fist away; status, strike
+and hazards commands. The scripted run asserts a walk over 1.5 m by a key, a fall from the strike
+and a rise, passing on the development machine's card and on lavapipe in 29 seconds under validation
+with no errors; crouched through 12 seconds of the bar alone there are no falls and standing it is
+knocked down; the soak's 23 turns and its check pass, the storm passes, the suite gave 1,754, the
+game is wired in as Siege was, BUILDING.md says seventeen and the animation and physics guides list
+it. No engine finding came from it, the layer and blend calls and the model-space keyframes doing
+what their documents say. Read at 13:03; its push with Siege waits for the build run of `b4b798d4`
+to end, the pack run with publish on running on. The sound toy is next by item 7. Item 6 waits on
+the owner's word.
+
+Before it, `f3949ba6` came, Siege, item 7's third game, and nothing else, carrying the review's
+file. The catapult arm, 4.5 m and 120 kg, hangs on a hinge to a kinematic pivot driven by its motor
+at 60,000 newton-meters; the shot is welded to the cup and the weld destroyed at the chosen angle, a
+60 kg stone as a convex hull or a 40 kg bomb as a capsule, both continuous, the arc drawn by the
+sphere cast along each stretch to the first body; the castle is 190 blocks, boxes and hull columns
+with a slab, a hull roof and a banner, joined by 342 welds, the lowest to a kinematic foundation; a
+weld breaks where the joint's force passes 8,000 N, static loads peaking at 5,064 to 6,513 and a
+stone strike putting 9,000 to 14,000 on the welds near it; a stone wears the blocks it presses by
+the contact impulse at a toughness of 450, a hard throw pressing 430 to 480 a step; a bomb bursts on
 contact, pushing every block and stone within 3.5 by the bodies in a sphere with an impulse at a
 point from the side facing the burst and a point light's flash; the banner entering a kinematic
 trigger box ends the siege; a spot light with shadows sweeps the keep by its direction with a 4,096
@@ -32,10 +62,7 @@ its check pass, the storm passes, and a rebuild after the fall stands whole, 190
 at 15.8 and the columns in place, item 42 at work; the suite gave 1,754, the game wired in as Span
 was, BUILDING.md saying sixteen. The weld's reading held no further surprise once it read the force
 alone; the catapult's release in the frame and not the step is a limit of the flat API, which has no
-per-step hook, worked around and named only if another game meets it. Read at 12:32; its push waits
-for the build run of `b4b798d4` to end, the pack run with publish on running on it. Nothing of the
-coder's is open; the next game by item 7's measure is said under it. Item 6 waits on the owner's
-word.
+per-step hook, worked around and named only if another game meets it.
 
 Before it, `b4b798d4` came, item 42 and nothing else, carrying the review's file. The convex hull
 and the static model transform the vertices by the scale alone, posed for a skinned model as before,
@@ -48,17 +75,6 @@ body hit, the hull test failing on the old line, checked by swapping it back for
 were the strict build, the suite, 1,754, the related filters, 83, and the animation tests that shape
 a posed skinned arm. Pushed at 12:26 with the three before it, and the pack run with publish on
 started on them.
-
-Before it, `df03842b` came, item 41 and nothing else, carrying the review's file and the ledger's.
-The contact impulse read multiplies the last substep's push by the solver's substep count, the
-cached value for a sleeping pair included, so at the default of one substep nothing changes and
-above it the value is the step's push, which divided by the step is the force at any substep count,
-the read staying an impulse as its name says; the internal and public remarks say so, the physics
-guide says at any number of substeps, the upgrading guide's section becomes five that still compile
-with an entry saying 5.1 gave the last substep's push and a game with a substep count above one
-reads that many times more; a new test at substeps 1 and 4 reads a 2 kg box resting on a static
-floor as its weight times the step within a percent, a quarter at 4 without the change. Checked were
-the strict build and the suite, 1,753.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -633,7 +649,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    tells the owner, who may have it fetched in the game's build instead. The model has 43 joints and
    clips for idling, walking, running, a punch, death and standing; the ragdoll's pose is a
    one-keyframe animation the game fills from the bodies each frame, getting up a blend from it to
-   standing, and the upper body a layer over the walk from the torso.
+   standing, and the upper body a layer over the walk from the torso. Tumble done at `39103995` on
+   2026-10-20, as the head says, seventeen games and no engine finding. The fifth, the sound toy: a
+   program pushing its own samples through the audio stream, the stream's pitch, pan, volume, pause
+   and resume, the mixed and stream processors, and waves loaded and read as samples, as an
+   instrument played by keys with an echo and a filter as processors and a recording saved as a
+   wave, the scripted run asserting a note played, a processor's effect read in the samples and the
+   wave saved and read back.
 
 8. **An opaque material's hidden fragments are rejected before they are lit; measured, the hidden
    land costs geometry, not fragments; done at `c81eca54`.** The model pass discards a fragment for

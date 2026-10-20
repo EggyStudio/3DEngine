@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble|tones> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -162,6 +162,15 @@ turn() {
       key W 40; key D 30; key S 40; key A 30
       if (( i % 3 == 2 )); then cmd tumble.strike; key C 60; fi
       cmd input.click 640 300
+      wait_frames 60 ;;
+    tones)
+      # Notes and drums played under the echo and the filter turned on and off in turn, a recording
+      # made, saved, read back and played every few turns, the sound made of it let go each time.
+      if (( i % 2 == 0 )); then cmd tones.effect echo on; else cmd tones.effect echo off; fi
+      if (( i % 3 == 0 )); then cmd tones.effect filter on; else cmd tones.effect filter off; fi
+      if (( i % 4 == 0 )); then cmd tones.record start; fi
+      key A 10; key D 10; key Z 2; key G 10; key X 2; key K 20
+      if (( i % 4 == 0 )); then cmd tones.record stop; wait_frames 2; key Four 2; fi
       wait_frames 60 ;;
   esac
 }

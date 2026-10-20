@@ -352,7 +352,7 @@ package and draws 300 frames of it offscreen, failing on an error the layer repo
 toolchain, Visual Studio's on Windows and Xcode's on macOS, as the examples job does on Linux, and
 draws it the same way, a failure named in an error annotation with the compiler's or the linker's
 own lines. On Windows and macOS `build/drive-game.sh <game>` then plays Slide through `./e3d` on a
-push, and each of the seventeen games in the pack run, offscreen at 480 by 270, as the Linux jobs play
+push, and each of the eighteen games in the pack run, offscreen at 480 by 270, as the Linux jobs play
 them, each asserting its walk or its win, so a game's input, its sound and the session `./e3d`
 controls are tried there, and a game that fails says why in an error annotation naming the system.
 Slide's gestures are timed on the game's clock, so its scripted run sets each frame to a sixtieth of

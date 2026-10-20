@@ -246,8 +246,10 @@ The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and 
   [`audio_stream_callback`](../3DEngine.Examples/Audio/AudioStreamCallback.cs)
 - The game [`games/Tempo`](../games/Tempo/Program.cs), played to its music's time, and
   [`games/Wordfall`](../games/Wordfall/Program.cs), every sound of which a stream's callback makes
-  as it plays, and [`games/Slide`](../games/Slide/Program.cs), whose sounds are waves it makes, cuts
-  and converts
+  as it plays, [`games/Slide`](../games/Slide/Program.cs), whose sounds are waves it makes, cuts
+  and converts, and [`games/Tones`](../games/Tones/Program.cs), an instrument whose samples it
+  pushes through a stream under an echo and a filter as processors, recorded, saved as a wave and
+  read back
 - The cheatsheet's [Audio](../CHEATSHEET.md#audio)
 - Previous: [Shaders and compute](shaders-and-compute.md)
 - Next: [Input](input.md)

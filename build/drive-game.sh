@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble|Tones> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -212,7 +212,8 @@ dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from 
 dotnet build-server shutdown > /dev/null 2>&1 || true
 folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
-  "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt"
+  "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt" \
+  "$folder/tones-recording.wav"
 
 # The budget is kept by a watcher that wakes every five seconds, so it ends soon after the game
 # does. It starts before the opening, so a game that hangs there is stopped at its budget too.
@@ -627,6 +628,31 @@ case "$game" in
     done
     echo "$status"
     case "$status" in Up*" rises 1 "*) ;; *) fail "the robot did not stand up again, $status" ;; esac
+    ;;
+  Tones)
+    # A note played and recorded with the echo off and again with it on, each recording saved as a
+    # wave and read back, the note found in the samples read and the echo in what follows the note
+    # once its own release has ended, where the dry recording is silent.
+    status=""
+    dry=""
+    for echo in off on; do
+      cmd tones.effect echo "$echo"
+      cmd tones.record start
+      cmd frames.wait 5
+      cmd input.key A 20
+      cmd frames.wait 100
+      cmd tones.record stop
+      cmd frames.wait 3
+      status=$(ask tones.status)
+      echo "echo $echo: $status"
+      if [ "$echo" = off ]; then dry="$status"; fi
+    done
+    value() { printf '%s\n' "$1" | sed -n "s/.* $2 \([0-9.]*\).*/\1/p"; }
+    awk -v n="$(value "$status" notes)" 'BEGIN { exit !(n >= 2) }' || fail "no note was played, $status"
+    awk -v s="$(value "$dry" saved)" 'BEGIN { exit !(s > 44100) }' || fail "the recording was not saved and read back, $dry"
+    awk -v p="$(value "$dry" peak)" 'BEGIN { exit !(p > 0.05) }' || fail "the recording read back holds no note, $dry"
+    awk -v d="$(value "$dry" tail)" -v w="$(value "$status" tail)" 'BEGIN { exit !(d < 0.01 && w > 0.02) }' ||
+      fail "the echo was not read after the note, $dry then $status"
     ;;
   *)
     fail "is not a game this script plays"

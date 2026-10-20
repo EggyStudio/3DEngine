@@ -52,7 +52,7 @@ MADE_FROM = os.path.join(GALLERY, "captures.tsv")
 THUMBNAIL = (260, 146)
 
 # The games under games/, in the order the workflows play them, the gallery's last row.
-GAMES = ["Hopper", "Summit", "Swarm", "Rally", "Manor", "Tactics", "Tempo", "Sumo", "Wordfall", "Slide", "Jelly", "Wick", "Ore", "Pinball", "Span", "Siege", "Tumble"]
+GAMES = ["Hopper", "Summit", "Swarm", "Rally", "Manor", "Tactics", "Tempo", "Sumo", "Wordfall", "Slide", "Jelly", "Wick", "Ore", "Pinball", "Span", "Siege", "Tumble", "Tones"]
 
 # The lines the gallery stands between in the README.
 GALLERY_START, GALLERY_END = "<!-- example-gallery -->", "<!-- /example-gallery -->"

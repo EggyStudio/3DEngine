@@ -274,7 +274,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -402,7 +402,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -561,7 +561,7 @@ jobs:
       # every game in the pack run.
       - name: Build every game from the package and play the puzzle of gestures
         run: |
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones; do
             dotnet restore "games/$game" --force-evaluate
             dotnet build "games/$game" --no-restore
           done
@@ -1275,6 +1275,31 @@ jobs:
           ./e3d stop --quiet
           build/webp.sh captures/tumble.png captures/tumble.webp lossy 800x450
 
+      # The instrument, by build/drive-game.sh as Windows and macOS play it, a note recorded with
+      # the echo off and on, each saved as a wave and read back, the echo read in what follows the
+      # note, and then captured as a chord is held over a recording of an arpeggio, on SDL's dummy
+      # audio driver, which takes the samples at the rate a device plays them.
+      - name: Build and play the instrument from the package
+        run: |
+          build/drive-game.sh Tones
+          build/open-game.sh games/Tones/bin/Debug/net10.0/Tones --offscreen
+          ./e3d command tones.effect echo on --quiet
+          ./e3d command tones.record start --quiet
+          ./e3d command input.key A 12 --quiet
+          ./e3d command input.key D 12 --quiet
+          ./e3d command input.key G 12 --quiet
+          ./e3d command input.key K 30 --quiet
+          ./e3d command frames.wait 60 --quiet
+          ./e3d command tones.record stop --quiet
+          ./e3d command input.key D 50 --quiet &
+          ./e3d command input.key G 50 --quiet &
+          ./e3d command input.key K 50 --quiet &
+          ./e3d command frames.wait 18 --quiet
+          ./e3d shot captures/tones.png --quiet
+          wait
+          ./e3d stop --quiet
+          build/webp.sh captures/tones.png captures/tones.webp lossy 800x450
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
@@ -1282,7 +1307,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble)
+          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -1306,7 +1331,7 @@ jobs:
                          games/Jelly/bin/Debug/net10.0/Jelly games/Wick/bin/Debug/net10.0/Wick \
                          games/Ore/bin/Debug/net10.0/Ore games/Pinball/bin/Debug/net10.0/Pinball \
                          games/Span/bin/Debug/net10.0/Span games/Siege/bin/Debug/net10.0/Siege \
-                         games/Tumble/bin/Debug/net10.0/Tumble \
+                         games/Tumble/bin/Debug/net10.0/Tumble games/Tones/bin/Debug/net10.0/Tones \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done
