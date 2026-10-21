@@ -151,6 +151,24 @@ public static partial class E3D
         if (Recorder.Stop() is null) ApiLogger.Warn("StopRecording: nothing is being recorded.");
     }
 
+    /// <summary>
+    /// Sets the key that writes a screenshot in every program, F2 until moved, as Minecraft takes
+    /// one, or turns it off with <see cref="Key.Null"/>.
+    /// </summary>
+    /// <remarks>
+    /// The key writes the frame being drawn as a PNG into a <c>screenshots</c> folder beside the
+    /// program, made on first use, named by the time as <c>2026-10-21_03.45.12.png</c>, a second in
+    /// the same second <c>_2</c>, through <see cref="TakeScreenshot"/>, with a line in the log saying
+    /// where. The press reaches the program too, which reads the key as any other.
+    /// </remarks>
+    public static void SetScreenshotKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Screenshot = key;
+
+    /// <summary>
+    /// Sets the key that shows and hides the engine's performance window, F3 until moved, or turns
+    /// it off with <see cref="Key.Null"/>, as a program whose own F3 does something does.
+    /// </summary>
+    public static void SetProfileWindowKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).ProfileWindow = key;
+
     // -- Timing
 
     /// <summary>Caps the frame rate. <see cref="EndDrawing"/> waits out the rest of each frame. Zero removes the cap.</summary>

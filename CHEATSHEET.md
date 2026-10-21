@@ -50,6 +50,12 @@ void StartRecording(string fileName, int intervalMs = 100, float scale = 1); // 
                                                                              // examples record a GIF
 void StopRecording();                                    // Stops the recording StartRecording started, whose file is
                                                          // written once its last pictures are back
+void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, F2
+                                                         // until moved, as Minecraft takes one, or turns it off with
+                                                         // Key.Null
+void SetProfileWindowKey(Key key);                       // Sets the key that shows and hides the engine's performance
+                                                         // window, F3 until moved, or turns it off with Key.Null, as a
+                                                         // program whose own F3 does something does
 
 void SetTargetFPS(int fps);                              // Caps the frame rate
 float GetFrameTime();                                    // Seconds the last frame took
@@ -2309,4 +2315,5 @@ bool QuaternionEquals(Quaternion p, Quaternion q);       // Whether two rotation
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
 is drawn over everything else. The keyboard moves through its widgets, and the first gamepad too
 once `SetImGuiGamepadNavigation(true)` is called.
-F2 shows the engine's performance window.
+F3 shows the engine's performance window and F2 writes a screenshot, keys `SetProfileWindowKey` and
+`SetScreenshotKey` move.

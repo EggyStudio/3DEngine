@@ -34,6 +34,10 @@ public static class Text3DDrawing
 
         SetConfigFlags(ConfigFlags.Msaa4xHint | ConfigFlags.VsyncHint);
         InitWindow(screenWidth, screenHeight, "[text] 3d drawing");
+        // F2 and F3 are this example's own, as raylib's, so the engine's screenshot and performance
+        // window are turned off.
+        SetScreenshotKey(Key.Null);
+        SetProfileWindowKey(Key.Null);
 
         bool spin = true;        // Spin the camera?
         bool multicolor = false; // Multicolor mode

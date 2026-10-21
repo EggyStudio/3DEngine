@@ -204,6 +204,14 @@ writes into an animated GIF every few frames. Frames are kept for it from its fi
 first call gives the window in its clear color. The `e3d` tool in the repository controls a running
 program from the terminal, which is how the examples' pictures are taken.
 
+Every program writes a screenshot when F2 is pressed, as Minecraft does, the frame being drawn as a
+PNG in a `screenshots` folder beside the program, made on first use, named by the time as
+`2026-10-21_03.45.12.png`, a second in the same second `_2` and a third `_3`, with a line in the log
+saying where. The press reaches the program as well. `SetScreenshotKey(Key.F12)` moves it and
+`SetScreenshotKey(Key.Null)` turns it off, and F3, Minecraft's debug key, shows the engine's
+performance window, which `SetProfileWindowKey` moves or turns off for a program whose own F3 does
+something.
+
 A run is recorded as an animation, a GIF or an animated PNG by the file's extension, a picture
 every so many milliseconds of the app's clock until it is stopped:
 

@@ -305,6 +305,13 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A screenshot on F2, and the performance window on F3.** F2 writes the frame being drawn into a
+  `screenshots` folder beside the program in every program, `SetScreenshotKey` moving it or turning
+  it off, and the engine's performance window moves from F2 to F3, which `SetProfileWindowKey`
+  moves or turns off, as
+  [Without a window on the screen](window-and-frame.md#without-a-window-on-the-screen) shows. A game
+  that read F2 or F3 for something of its own still reads them, and moves the engine's off where
+  both would act.
 - **A run recorded as an animation.** `StartRecording` records the window as an animated GIF or an
   animated PNG, a picture at a step of the app's clock until `StopRecording`, and the `record`
   command records for a length, as

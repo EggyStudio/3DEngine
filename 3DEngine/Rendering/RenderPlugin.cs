@@ -103,6 +103,9 @@ internal sealed class RenderPlugin : IPlugin
         // frame, and writes what it took where the app ends while it records.
         app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
+        // F2 writes a screenshot in every program, once the frame's input is in.
+        app.World.InitResource<DebugKeys>();
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
 

@@ -49,7 +49,8 @@ a health bar and a gauge in 2D.
 | Enter, P | in the interface zone, start from the title and pause |
 | Backspace | in the interface zone, take back a character from the sign |
 | F1 | the panel |
-| F2 | the engine's performance window |
+| F2 | a screenshot, into a `screenshots` folder beside the program |
+| F3 | the engine's performance window |
 
 ## The panel
 

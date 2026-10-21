@@ -586,3 +586,60 @@ Review: item 79 of REVIEW.md, 2026-10-21; the shadow pass cuts a mask material's
 texture's alpha at the cutoff for a draw through a program's own shader, by the program's own
 fragment stage for the shadow where it gives one or by the material's texture at the coordinate the
 vertex stage gives, for the sun's cascades and the spot and point lights alike; after item 73.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: the sky's light on the scene cannot be set apart from the sky drawn
+
+The owner asks for the game's light to look as the owner's modpack's shader, Aurora's Shaders after
+Complementary, draws its light with the owner's settings. Its ambient light is the sky's color to
+the power of 0.65 times 0.85, whitened, and its AMBIENT_MULT of 50 against a default of 150 leaves a
+surface in full shade at noon 0.55 of that and the default 1.45. Read at the game's `fa7fba0` on the
+3DEngine 5.2.190 package, offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, with the default
+packs on, on the flat world, `voxel.world flat 1`, after `voxel.still on`, `voxel.hud off`,
+`voxel.fly on`, `voxel.kill all` and `voxel.clouds off`. A wall of cobblestone, `voxel.fill 0 4 -10 0
+11 0 cobblestone`, at hour 9, its east face in the sun from `voxel.tp 6.5 6 -4.5` and `voxel.look 270
+0` and its west face in shade from `voxel.tp -5.5 6 -4.5` and `voxel.look 90 0`, each face's mean
+over 200 by 200 pixels at the window's middle after 240 frames.
+
+| | sunlit face, sRGB | shaded face, sRGB | shade to sun |
+|---|---|---|---|
+| the modpack's picture 0, the same cobblestone | 146, 112, 94 | 45, 43, 53 | 0.38 |
+| the game, its sun warmed as the shader colors it | 165, 151, 140 | 49, 70, 93 | 0.45 |
+
+The shade-to-sun ratios are of sRGB luminance; in linear light the modpack's is 0.15. So the game's
+shade is lighter and far bluer than the shader's, its sky's light the sky's own blue at full
+strength. `SetEnvironmentMap`'s intensity lowers the light and the sky drawn together. The sky
+looking up at hour 9 reads 81, 137 and 218 at an intensity of 1 and 59, 102 and 170 at 0.5, so the
+game cannot lower or whiten its sky's light without darkening the sky the player sees.
+
+The engine lacks a way to set the sky's light on the scene apart from the sky drawn, its strength
+and its tint or saturation, as `SetEnvironmentLight(intensity, tint)` would. Meanwhile the game
+lights with its sky as it draws it, and takes the shader's share and whiteness when the call comes.
+
+Review: item 81 of REVIEW.md, 2026-10-21; `SetEnvironmentLight(intensity, tint)`, the share and the
+tint of the environment map's light on the scene with the drawn sky unchanged, read by the model
+pass and the global illumination's sky term alike; after item 80.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: the frame's curve cannot be the one the owner's modpack's shader draws
+
+The owner asks for the game's frame to be graded as the owner's modpack's shader, Aurora's Shaders
+after Complementary, grades it with the owner's settings. Its BSL tonemap, read as numbers, takes a
+light c times its exposure, then c / (c^w + 1)^(1/w) with w its white curve, then c to the power of
+its lower curve in the darks to its upper in the lights, mixed by the square root of c, then gamma
+1/2.2, then each channel times its saturation less the channels' mean times the saturation less 1.
+The owner's settings are an exposure of 0.90, a white curve of 1.3, a lower curve of 1.05, an upper
+curve of 1.00 and a saturation of 1.05, against the shader's defaults of 1.40, 2.0, 1.20, 1.50 and
+1.55. In sRGB levels at lights of 0.05, 0.1, 0.25, 0.5, 1, 2 and 4, the curve reads 0.230, 0.317,
+0.475, 0.620, 0.763, 0.874 and 0.941. The nearest of the engine's curves, each at its best exposure,
+is Reinhard's at 1.05, 0.023 off on the mean of the squares' root, then ACES's fit at 0.54, 0.055
+off, and a cut at 1 at 0.64, 0.062 off.
+
+The engine lacks a curve a program sets by the four numbers, or a tonemap pass through a program's
+own shader. Meanwhile the game tonemaps by Reinhard's curve at an exposure of 1.7 with
+`SetColorGrading(1.12, 1.4, white)`, the nearest of three grades of a plains village set beside
+the modpack's picture, since the shader's warmer light and deeper shade saturate its frame more
+than its own saturation of 1.05 does.
+
+
+Review: item 80 of REVIEW.md, 2026-10-21; `SetTonemapCurve(exposure, white, lower, upper)` in the
+shader's form beside the other tonemaps, and `SetTonemapShader(shader)` running a program's own
+fragment stage over the frame in the tonemap's place; after item 79.

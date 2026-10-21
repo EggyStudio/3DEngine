@@ -10,29 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `31444e1e`, item 70's first commit, the recorder, and nothing else, carrying the
-review's files and the asks, in the form said before it with BevyCSharp's words throughout: the
-recorder in First taking pictures by the device's capture at the step, the capture given to every
-callback asked in a frame, the GIF and animated PNG writers ported so the two engines' files agree,
-record, record.stop and record.status, StartRecording and StopRecording, the cap of 1,000, the
-cleanup writing on an app's end; nine tests on lavapipe as on the device, the guide's paragraph, the
-cheat sheet lines, the surface listing and the upgrading entry; the suite 1,849 passed plain and
-shuffled. Read at 07:22 on 2026-10-21. Not pushed: the build run of `2f57b341` is still running, and
-the head is pushed when it ends. The second commit is written and under its checks, the client's
-record step and animate verb ported from BevyCSharp's, the animate script with the engine's names,
-six tests skipped by probes where Pillow or the built client is absent, E3D.md's rows and the
-command-line guide's paragraph, and the README's first animation, Ore turning from day to night in
-50 frames at 480 by 270 and 112 KB above the gallery's count paragraph, the delays by the machine's
-clock summing to five seconds. Then 73, 79, 80, the tonemap curve the game asks for its modpack's
-grade at 07:38, the rest of 71, 78, 72, 74, 75, 76, then Decision 51's items 59 and 60, then 77,
-then 61 to 66. Item 6 and the feature test's portable build wait on the owner's word.
+Reviewed up to `0f281481`, item 70's second commit, the client's record step and the animate script,
+and nothing else, carrying the review's files and the asks: `./e3d record` with its flags sending
+the line and asking the status every quarter second until the file is written, `./e3d animate` over
+the engine's writers, the script with the engine's names and the Git bash launcher on Windows, six
+tests skipped by probes where Pillow or the built client is absent so the script never builds a
+client, E3D.md's rows, the command-line guide's paragraph and the client's help, and the README's
+first animation, Ore turning from day to night in 50 frames at 480 by 270 and 112 KB above the
+gallery's count paragraph; the suite 1,855 passed plain and shuffled, the examples table's check
+green. Read at 07:52 on 2026-10-21. The build run of `2f57b341` ended at 08:13, Linux, macOS and the
+examples green and Windows red on the readback pool's test again, 1,776 passed in 72 minutes 48
+seconds and the mended test finding 5 buffers over the base against its 4, so Verdict 82's mend did
+not hold on the runner and the verdict stays open; both heads were pushed at 08:15; the pack run of
+`2f57b341` runs beside it and its Windows suite will fail the same, so no package comes from it, the
+next pack run following the mend that holds. The same suite's log carries 117 validation warnings
+that a dispatch reads the field's faces image, bound as 8-bit, through a shader declaring it 32-bit,
+with every load undefined, which goes to item 71's reading of the blotches and the leak. Item 70 is
+done. Item 73's form said at the same time and taken: a resource of the debug keys, F2 for the
+screenshot and F3 for the performance window, the calls setting them with the null key turning
+either off, a system after the frame's input taking the screenshot through the capture without
+consuming the press, the folder beside the program made on first use and a field a test points
+elsewhere, the names by the local time with `_2` and `_3` as the source counts them and the names
+given this run remembered, the performance window's compile-time key become a run-time one, the file
+read on the device and the rest without one. Then 79, 80, 81, the sky's light apart from the drawn
+sky the game asks at 08:01, the rest of 71, 78, 72, 74, 75, 76, then Decision 51's items 59 and 60,
+then 77, then 61 to 66. Item 6 and the feature test's portable build wait on the owner's word. The
+pack run 39546802297 of `2f57b341`, read at 08:33: the Windows suite red on the readback pool's test
+alone, 1,776 passed and 1 failed in 75 minutes 33 seconds, Verdict 82 as foreseen, the fieldFaces
+R8_UINT warning 117 times on it as item 71 has it; Linux, macOS, the examples, both captures jobs
+and the games job green, Ore played, soaked and stormed on the package with no validation error; the
+pack job skipped, so no package until the second mend holds, and a new pack run starts after it.
+
+Before it, `31444e1e` came, item 70's first commit, the recorder with its writers, the commands and
+the calls, and nothing else, carrying the review's files and the asks, the suite 1,849 passed.
 
 Before it, `2f57b341` came, Verdict 82's mend, after `ee6cf5ee`, item 69's second part, and nothing
 else, each carrying the review's file. Both pushed at 06:56, the pack run with publish on started
 then, run 39546802297.
-
-Before it, `ee6cf5ee` came, item 69's second part, the field's read of a mesh over a shader's
-buffers, and nothing else, carrying the review's file, the suite 1,840 passed plain and shuffled.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3358,8 +3372,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     engine's reader frame by frame, a palette of a known picture within a distance of its colors,
     and the script run over three captures in the suite. Two commits, the recorder with its formats
     and the command, then the client's step and the script. One or two days, after item 69 and
-    before item 59. First commit done at `31444e1e` on 2026-10-21, the recorder with its writers,
-    the commands and the calls, as the head says; the client's step and the script follow.
+    before item 59. Done at `31444e1e` and `0f281481` on 2026-10-21, the recorder with its writers,
+    the commands and the calls, then the client's step, the script and Ore's day to night in the
+    README, as the heads say.
 
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
@@ -3421,7 +3436,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the frame still over 120 frames; so the blotches are the light of the small emitters carried as
     lights, in the cascades and in the screen's probes alike, where a full emissive block's light is
     smooth, read to the probes that gather a small emitter's light near a surface, and mended under
-    the rule or named.
+    the rule or named. The Windows suite of `2f57b341` logged 117 validation warnings that a
+    dispatch reads the field's faces image, bound with the 8-bit unsigned format, through a shader
+    declaring the image 32-bit unsigned, every load undefined to the whole image; read with the
+    blotches and the leak first, since an undefined read of the faces could be either.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -3585,7 +3603,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the game's entry's capture as the reading. Tests: a masked quad's shadow on a floor read
     narrower than the quad on the device, through the engine's material and through a program's
     shader, and the null device recording the shadow draw with the texture bound. One commit, small,
-    after item 73.
+    after item 73. Form approved at 08:25: the loader keeps a fragment entry named `shadowMain`
+    apart from the program's fragment stage, its bindings merged into the program's set; a masked
+    batch through a program with a vertex stage of its own or a `shadowMain` is drawn into every
+    shadow map and into the depth the ambient occlusion and the screen's probes read, with the
+    program's vertex stage given the light's view-projection in the camera's place and the program's
+    `shadowMain` where it has one, else shadow.slang's cut at the coordinate the stage gives, the
+    batch's own set, streams, CUSTOM0 feed and zeros bound as the model pass binds them, a pipeline
+    a shader and its streams kept until the shader unloads; solid shadows and programs with neither
+    stage drawn as before, so a voxel world's chunks pay nothing new. The guide says the stage runs
+    with the light in the camera's place, so a stage reading the camera's position casts the shadow
+    of the surface as the light sees it. The null device makes no pipelines, so without a GPU the
+    loader's `shadowMain` and the draw list's masked draw with its texture are read, the shadow
+    draws on the device alone; the game's capture comes from its own item 55 once the package
+    carries this, no capture of the game from here.
 
 80. **A tonemap curve a program sets by its numbers, or a tonemap through a program's own shader.**
     Asked by the voxel game on 2026-10-21 at 07:38 for its item 58, matching the modpack's shader
@@ -3602,6 +3633,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     from 0.05 to 4 against the formula on the null device, and a program's shader tonemapping a
     frame to a known color on the device. One commit, small, after item 79; its Review line under
     the game's entry when the entry is written.
+
+81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
+    for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
+    darkens the drawn sky with it, the sky reading 81, 137 and 218 at an intensity of 1 and 59, 102
+    and 170 at a half, so a program that wants the sky's ambient at a third as the owner's modpack
+    has it, or whiter than the sky, must draw its own sky and hand the engine a map for the light
+    alone. The mend: `SetEnvironmentLight(float intensity, Color tint)`, the share and the tint of
+    the environment map's light on the scene, the drawn sky unchanged, one and white by default,
+    read by the model pass and the global illumination's sky term alike; the cheat sheet line
+    through the script, the surface listing, the lighting guide's paragraph beside the environment
+    map and the upgrading entry. Tests: a white wall's shaded side at a half the light with the
+    drawn sky's pixels unchanged, on the device, and the null device recording the values. One
+    commit, small, after item 80; its Review line under the game's entry when the entry is written.
 
 ## Verdicts
 
@@ -4707,8 +4751,18 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     Windows suite green. The cause, read before the mend: the test's device count held the last
     dispatch's uniform buffer too, kept until the next dispatch or a wait for compute retires it,
     the fifth beside a pool at four, which the machine's pool at two hid. Mended at `2f57b341` on
-    2026-10-21 in that form, the test waiting for compute before both counts, as the head says.
-    Settles on the next Windows suite green.
+    2026-10-21 in that form, the test waiting for compute before both counts, as the head says. The
+    mend did not hold: the Windows suite of `2f57b341` on 2026-10-21 found 5 buffers over the base
+    against the cap of 4 again, the test waiting for compute before both counts since the mend, so
+    the fifth is not the dispatch's uniform buffer alone, or not it on the runner. The second mend,
+    under N 3.5: the test names the buffers over the base in its failure, each by its size and
+    usage, so the runner says what it holds; the pool's count is asserted against the pool's own
+    counter rather than the device's total, which holds the device's other transients; and the leak
+    is caught by the device's count returning to the base after a wait for idle at the end, which
+    depends on nothing in flight. One commit, before the next pack run. The pack run 39546802297 of
+    `2f57b341`, started before its Windows suite was read, ended red on this test alone, 5 over the
+    base of 4 again, 1,776 passed in 75 minutes 33 seconds, read at 08:33, the pack job skipped.
+    Mended again at `?`.
 
 ## Decisions
 
