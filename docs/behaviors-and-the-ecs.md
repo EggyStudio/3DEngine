@@ -207,7 +207,7 @@ Attributes narrow which entities a method visits, and whether it runs at all.
 | `[Changed(typeof(Health))]` | Visits an entity only when these changed since the method last ran |
 | `[Added(typeof(Enemy))]` | Visits an entity only when it got these since then |
 | `[RunIf(nameof(Running))]` | Runs only while a static `bool` of the behavior is true |
-| `[ToggleKey(Key.F3)]` | Is turned on and off by a key, as a debug overlay is |
+| `[ToggleKey(Key.F4)]` | Is turned on and off by a key, as a debug overlay is |
 
 The examples run in one program, so each startup method carries `[RunIf(nameof(Running))]`, true
 only for the example chosen:

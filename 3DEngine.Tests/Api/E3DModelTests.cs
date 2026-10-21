@@ -445,6 +445,23 @@ public sealed class E3DModelTests : IDisposable
     }
 
     [Fact]
+    public void A_Masked_Draw_Through_A_Programs_Shader_Is_Recorded_With_Its_Texture_And_Its_Shadow()
+    {
+        _app.World.InitResource<DrawList>();
+        _app.World.InitResource<ModelDrawList>();
+        _app.World.InitResource<ShaderStore>();
+        var square = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
+        var texture = LoadTextureFromImage(new Image([255, 255, 255, 40, 255, 255, 255, 230], 2, 1));
+        square.Materials[0] = new ModelMaterial(Color.White, texture) { AlphaMode = MaterialAlphaMode.Mask, Shader = new Shader(7) };
+
+        DrawModel(square, Vector3.Zero, 1, Color.White);
+
+        var draw = _app.World.Resource<ModelDrawList>().Draws.Should().ContainSingle().Subject;
+        (draw.Shader, draw.Texture, draw.AlphaMode, draw.AlphaCutoff, draw.CastsShadow).Should().Be((7, texture.Id, MaterialAlphaMode.Mask, 0.5f, true),
+            "the shadow pass cuts the surface by the program's stages and the texture the draw carries");
+    }
+
+    [Fact]
     public void Second_Texture_Coordinates_Written_To_A_Mesh_Without_Them_Bring_White_Colors()
     {
         var plane = GenMeshPlane(2, 2, 1, 1);

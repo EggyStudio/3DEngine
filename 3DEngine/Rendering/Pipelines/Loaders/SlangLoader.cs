@@ -4,7 +4,8 @@ namespace Engine;
 
 /// <summary>
 /// Asset loader that compiles a <c>.slang</c> file into a <see cref="ShaderProgram"/>, one stage
-/// per function marked <c>[shader("vertex")]</c> or <c>[shader("fragment")]</c>.
+/// per function marked <c>[shader("vertex")]</c> or <c>[shader("fragment")]</c>, a fragment stage
+/// named <c>shadowMain</c> kept apart as the one the shadow pass cuts a masked surface by.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -79,6 +80,9 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// </summary>
     internal static readonly string[] Alone = ["NO_BOUNCE"];
 
+    /// <summary>The name of the fragment stage the shadow pass cuts a masked surface by, kept apart from the one that colors it.</summary>
+    internal const string ShadowEntryPoint = "shadowMain";
+
     /// <summary>Compiles every entry point in <paramref name="source"/>.</summary>
     /// <param name="source">The Slang source.</param>
     /// <param name="fileName">The file's name, for messages and cache entries.</param>
@@ -94,11 +98,13 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         var images = new Dictionary<string, ShaderTexture>();
         var bindings = new Dictionary<(int Set, int Binding), (ShaderBinding Binding, ShaderStageFlags Stages)>();
         IReadOnlyList<ShaderInput> vertexInputs = [];
+        byte[]? shadowFragment = null;
         foreach (var (entryPoint, stage) in EntryPoints(source))
         {
             var compiled = SlangCompiler.CompileStage(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory,
                 SlangCompiler.CompilerPath, defines ?? []);
-            stages[stage] = compiled.Spirv;
+            if (stage == ShaderStage.Fragment && entryPoint == ShadowEntryPoint) shadowFragment = compiled.Spirv;
+            else stages[stage] = compiled.Spirv;
             if (stage == ShaderStage.Vertex) vertexInputs = compiled.Inputs ?? [];
             // Both stages see the same top-level uniforms, laid out the same.
             foreach (var uniform in compiled.Uniforms) uniforms[uniform.Name] = uniform;
@@ -118,7 +124,7 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
                 $"'{fileName}' has no function marked [shader(\"vertex\")], [shader(\"fragment\")] or [shader(\"compute\")].");
 
         return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)],
-            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)], [.. bindings.Values], vertexInputs);
+            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)], [.. bindings.Values], vertexInputs, shadowFragment);
     }
 
     /// <summary>

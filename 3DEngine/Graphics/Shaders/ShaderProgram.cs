@@ -18,10 +18,13 @@ internal sealed class ShaderProgram
     /// <param name="images">The images its compute stage writes in the first descriptor set, by name and binding.</param>
     /// <param name="bindings">Every descriptor its stages declare, in every set, with the stages that declare it.</param>
     /// <param name="vertexInputs">The inputs its vertex stage takes by their semantics, none where they are not known so.</param>
+    /// <param name="shadowFragment">The SPIR-V of its fragment stage named <c>shadowMain</c>, or null where it has none.</param>
     public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null,
         IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null,
-        IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)>? bindings = null, IReadOnlyList<ShaderInput>? vertexInputs = null)
+        IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)>? bindings = null, IReadOnlyList<ShaderInput>? vertexInputs = null,
+        byte[]? shadowFragment = null)
     {
+        ShadowFragment = shadowFragment;
         VertexInputs = vertexInputs ?? [];
         Bindings = bindings ?? [];
         Buffers = buffers ?? [];
@@ -72,6 +75,16 @@ internal sealed class ShaderProgram
 
     /// <summary>The SPIR-V of each stage the file defines.</summary>
     public IReadOnlyDictionary<ShaderStage, byte[]> Stages { get; }
+
+    /// <summary>
+    /// The SPIR-V of the fragment stage named <c>shadowMain</c>, which cuts a masked surface drawn
+    /// with the program out of the shadow maps, or null where the file has none.
+    /// </summary>
+    /// <remarks>
+    /// Kept apart from <see cref="Stages"/>, whose fragment stage colors the surface, since a file
+    /// holds the two side by side.
+    /// </remarks>
+    public byte[]? ShadowFragment { get; }
 
     /// <summary>Every descriptor the program's stages declare, in every set, with the stages that declare it.</summary>
     public IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)> Bindings { get; }

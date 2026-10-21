@@ -231,7 +231,7 @@ once, so the picture is tuned while it is looked at:
 bool showEffects = false;
 -->
 ```csharp
-if (IsKeyPressed(Key.F3)) showEffects = !showEffects;
+if (IsKeyPressed(Key.F4)) showEffects = !showEffects;
 // ...
 if (showEffects) DrawPostProcessWindow();
 var (contrast, saturation, tint) = GetColorGrading();
@@ -308,6 +308,11 @@ differing from itself drawn alone at a quarter of a percent of its pixels, along
 `SetShadowMapSize` sets how many texels wide each tile of the shadow map is, 2048 unless set, which
 is the shadow quality a game's settings offer. A size of 4096 sharpens every shadow at four times
 the memory, and 1024 softens them for a slower machine.
+
+A masked material casts the shadow of what it keeps, the light passing through its holes, and a
+blended one a shadow as dark as it is opaque. A surface drawn with a shader of the program's own is
+cut the same way, at the texture coordinate its vertex stage gives, or by its own `shadowMain`, as
+[Moving vertices](shaders-and-compute.md#moving-vertices) shows.
 
 Shapes drawn with `DrawCube` and the others cast no shadow, and models do. The shadow map example
 draws its lamp as a shape for that reason, since a model around the lamp would shadow everything

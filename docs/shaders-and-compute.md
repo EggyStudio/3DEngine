@@ -198,7 +198,26 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 ```
 
 A vertex stage that moves vertices, as grass in the wind does, casts the shadow of its mesh as it
-was before the stage moved it.
+was before the stage moved it, unless its material is masked. A masked surface drawn with a shader
+of the program's own that has a vertex stage, or a fragment stage named `shadowMain`, is drawn into
+the shadow maps, and into the depth ambient occlusion reads, by the vertex stage it is drawn with,
+the program's own where it has one, run with the light in the camera's place, so a stage that reads
+the camera's position casts the shadow of the surface as the light sees it. It is cut by the
+program's `shadowMain` where it has one, and otherwise by the material's texture at the coordinate
+the stage gives, at the material's cutoff, as the model pass cuts it. So plants whose stage gives
+each corner its tile's coordinate in an atlas cast the shadows of their blades, and a shader that
+samples an atlas of its own cuts the shadow by it as its fragment stage cuts the surface:
+
+```slang
+Sampler2D atlas;
+
+[shader("fragment")]
+void shadowMain(ModelVertexOutput input)
+{
+    if (atlas.Sample(input.uv).a < 0.5)
+        discard;
+}
+```
 
 A mesh drawn with a shader of the program's own is drawn whole in every pass, the camera's, the
 depth's, each shadow cascade's and the lights', since its vertex stage may move the vertices past

@@ -109,7 +109,9 @@ internal sealed partial class ModelRenderer
             _custom[id].Fragment.Dispose();
             _custom.Remove(id);
             if (_heldFragments.Remove(id, out var heldFragment)) heldFragment.Dispose();
+            if (_shadowFragments.Remove(id, out var shadowFragment)) shadowFragment.Dispose();
             foreach (var key in _customPipelines.Keys.Where(k => k.Shader == id).ToArray()) _customPipelines.Remove(key);
+            foreach (var key in _ownShadowPipelines.Keys.Where(k => k.Shader == id).ToArray()) _ownShadowPipelines.Remove(key);
             // Its sets may still be read by a frame in flight.
             if (_shaderSets.Remove(id, out var sets)) _retiredShaderSets.Add((_frames, sets));
         }

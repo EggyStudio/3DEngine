@@ -700,6 +700,7 @@ internal sealed partial class ModelRenderer : IDisposable
             fragment.Dispose();
         }
         foreach (var fragment in _heldFragments.Values) fragment.Dispose();
+        foreach (var fragment in _shadowFragments.Values) fragment.Dispose();
         foreach (var (set, _) in _materialSets.Values) set.Dispose();
         foreach (var (_, buffer) in _retiredBuffers) buffer.Dispose();
         foreach (var (_, map) in _retiredMaps) map.Dispose();

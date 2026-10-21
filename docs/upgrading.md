@@ -305,6 +305,11 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A masked surface's shadow cut through a program's shader.** A masked material drawn with a
+  shader of the program's own that has a vertex stage casts the shadow of what the texture keeps at
+  the coordinate that stage gives, where it cast the whole of its mesh before, and a fragment stage
+  named `shadowMain` cuts the shadow as the program likes, as
+  [Moving vertices](shaders-and-compute.md#moving-vertices) shows.
 - **A screenshot on F2, and the performance window on F3.** F2 writes the frame being drawn into a
   `screenshots` folder beside the program in every program, `SetScreenshotKey` moving it or turning
   it off, and the engine's performance window moves from F2 to F3, which `SetProfileWindowKey`

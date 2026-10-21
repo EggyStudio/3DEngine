@@ -153,6 +153,46 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Fragment_Stage_Named_ShadowMain_Is_Kept_Apart_From_The_One_That_Colors_With_Its_Texture_The_Programs()
+    {
+        const string plants = """
+            Sampler2D atlas;
+
+            struct Output { float4 position : SV_Position; float2 uv : TEXCOORD0; };
+
+            [shader("vertex")]
+            Output vertexMain(float3 position : POSITION, float2 uv : TEXCOORD0)
+            {
+                Output output;
+                output.position = float4(position, 1.0);
+                output.uv = uv;
+                return output;
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(Output input) : SV_Target
+            {
+                return float4(1.0, 0.5, 0.25, 1.0);
+            }
+
+            [shader("fragment")]
+            void shadowMain(Output input)
+            {
+                if (atlas.Sample(input.uv).a < 0.5)
+                    discard;
+            }
+            """;
+        var program = new SlangLoader(_folder.Path).Compile(plants, "plants.slang");
+
+        program.Stages.Keys.Should().BeEquivalentTo([ShaderStage.Vertex, ShaderStage.Fragment]);
+        program.ShadowFragment.Should().NotBeNull().And.NotEqual(program.Fragment, "the fragment stage that colors the surface is the other");
+        program.ShadowFragment![..4].Should().Equal(SpirvMagic);
+        var atlas = program.Textures.Should().ContainSingle(t => t.Name == "atlas", "the shadow stage's texture is the program's as any stage's is").Subject;
+        program.Bindings.Should().Contain(b => b.Binding.Set == 0 && b.Binding.Binding == atlas.Binding && b.Stages.HasFlag(ShaderStageFlags.Fragment));
+        new SlangLoader(_folder.Path).Compile(Source, "plain.slang").ShadowFragment.Should().BeNull("a file without one has none");
+    }
+
+    [NeedsSlangFact]
     public void The_Model_Pass_Sets_Are_Read_From_Its_Shader()
     {
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");

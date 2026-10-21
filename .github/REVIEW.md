@@ -10,35 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `eba9c35a`, item 73, the screenshot key and the performance window's key, and nothing
-else, carrying the review's file and the asks with their Review lines: `SetScreenshotKey(key)` and
-`SetProfileWindowKey(key)` on the window's page, F2 and F3 until moved and `Key.Null` turning either
-off, a DebugKeys resource holding the two keys, the folder `screenshots` beside the program and the
-clock a test holds still; the key writes the frame as a PNG named by the time with `_2` and `_3` in
-the same second as Minecraft names its own, through the capture's request, a line in the log saying
-where it went or why none was taken; the performance window's key read by a `[RunIf]` condition on
-the hud's system rather than in its body, since the first suite run failed five tests whose apps
-have no Time once the `[ToggleKey]` gate was gone, the condition flipping the window on the key and
-answering before the context is built, so a hidden window costs nothing and needs no clock; the
-cheat sheet, the listing, the window guide, an upgrading entry, the feature test's README and the
-text example's line follow. Measured: 1,859 passed in 9 minutes 6 seconds and the same shuffled by
-20261020 in 9 minutes 27 seconds, the strict build clean, the two guides' 7 blocks building on the
-package, the screenshot key, recording and validation tests 14 of 14 under lavapipe with the layer
-required. Read at 08:52 on 2026-10-21. The build run 39554359618 of `0f281481` ended before 09:16,
-Linux, macOS, the digest and the examples green and Windows red on the readback pool's test alone,
-1,788 passed and 1 failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Not pushed: the
-head waits a few minutes for Verdict 82's second mend, whose commit follows its suites, so the two
-go in one push and one build run, and the pack run with publish on starts on that push. Order from
-here unchanged: Verdict 82's second mend, then a pack run with publish on, 79, 80, 81, the rest of
-71 with the blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+Reviewed up to `ec87f64b`, Verdict 82's second mend, after `eba9c35a`, item 73, and nothing else,
+the mend changing the test file alone and carrying the review's files as they stood: the readback
+pool's test draws a frame holding a dispatch in every slot before its base, the frames in flight and
+one, waits for idle and takes a census of the device's buffers by maker, asserts the pool against
+its own cap through the loop, and after it waits for idle and for compute and holds the device's
+count less the pool's to the base exactly, the failure naming each maker's buffers over the start by
+count, size, usage and line; 1,859 passed in 9 minutes 26 seconds and the same shuffled by 20261020
+in 9 minutes 24 seconds, the strict build clean, 5 of 5 readback tests and the layer's own under
+lavapipe with the layer required. The build run 39554359618 of `0f281481` ended before 09:16, Linux,
+macOS, the digest and the examples green and Windows red on the readback pool's test alone, 1,788
+passed and 1 failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Both heads pushed at
+09:24 after that run ended, and the pack run 39561720109 with publish on started at 09:24 on this
+head, Verdict 82 to settle on its Windows suite and on the push's, the package the voxel game waits
+on for its items 55, 38 and 54 to come from it. Order from here: 79, 80, 81, the rest of 71 with the
+blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+
+Before it, `eba9c35a` came, item 73, the screenshot key and the performance window's key, and
+nothing else, carrying the review's file and the asks with their Review lines. Read at 08:52, pushed
+at 09:24 with `ec87f64b`.
 
 Before it, `0f281481` came, item 70's second commit, the client's record step and the animate
 script, and nothing else, carrying the review's files and the asks. Pushed at 08:15 with `31444e1e`;
 its build run 39554359618 ended with Windows red on the readback pool's test alone, Verdict 82, and
 the rest green.
-
-Before it, `31444e1e` came, item 70's first commit, the recorder with its writers, the commands and
-the calls, and nothing else, carrying the review's files and the asks, the suite 1,849 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3625,7 +3620,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     guide's paragraph and the upgrading entry. Tests: the parametric curve's output at a few levels
     from 0.05 to 4 against the formula on the null device, and a program's shader tonemapping a
     frame to a known color on the device. One commit, small, after item 79; its Review line under
-    the game's entry when the entry is written.
+    the game's entry when the entry is written. Form approved at 09:31: `Tonemap.Curve` at the end
+    of the enum, the four numbers in FrameEffects with `GetTonemapCurve()` reading them back, the
+    shader's defaults 1.40, 2.0, 1.20 and 1.50 when the curve is chosen alone, the exposure clamped
+    at 0 and the white and the two curves at 0.01, the curve in composite.slang to its gamma of
+    1/2.2 and the pass returning that value decoded so its encoding gives the curve's display value
+    exactly, the modpack's saturation being `SetColorGrading`'s in linear light as the guide says;
+    `SetTonemapShader(shader)` drawing a program's fragment stage in the composite's place over the
+    engine's fullscreen triangle, a vertex stage of the program's ignored with one warning, the
+    program importing a built-in `frame` module that declares the pass's inputs in set 1 and gives
+    `frameLight(uv)` and `frameShown(color, uv)` as the input and the output, composite.slang
+    importing the same module so the two cannot drift, FXAA through the same choice; the post
+    window's combo and sliders, the bloom example's T key; the null device reading the numbers and a
+    reference of the formula at the ask's seven levels within 0.001, the device the window's pixel
+    within 2 of 255 at each and a program's shader's color read exactly.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -4766,7 +4774,8 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     pool's back at the base exactly after the loop, naming each line of the census over the start in
     the failure; 3 of 3 on the RTX 4070 and 5 of 5 under lavapipe with the layer, a planted leak of
     every released buffer failing with its line named. The engine is unchanged, the test file alone.
-    Mended again at `?`.
+    Mended again at `ec87f64b` on 2026-10-21 in that form, the test file alone; settles on the
+    Windows suites of its push and of the pack run 39561720109 started at 09:24.
 
 ## Decisions
 
