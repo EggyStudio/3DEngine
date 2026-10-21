@@ -120,6 +120,8 @@ public sealed class ComputeReadbackTests : IDisposable
     {
         var (shader, values) = Written();
         Frame();
+        // The dispatches' own buffers let go first, as they are again before the count after.
+        Device.WaitForCompute();
         var buffers = Device.Usage.Buffers;
         var pending = new Queue<ShaderReadback>();
         for (var frame = 0; frame < 100; frame++)
@@ -140,9 +142,12 @@ public sealed class ComputeReadbackTests : IDisposable
         }
         foreach (var left in pending) UnloadShaderReadback(left);
         for (var frame = 0; frame < 5; frame++) Frame();
+        Device.WaitForCompute();
 
-        Device.ReadbackStagingCount.Should().BeLessThanOrEqualTo(4, "the buffers asked in flight go back to the pool and are taken again");
-        (Device.Usage.Buffers - buffers).Should().BeLessThanOrEqualTo(4, "the device holds no buffer a frame more than the pool keeps");
+        // The pool keeps as many of a size as frames can be in flight and one, however many a
+        // device's timing has waiting at once, so a leak of one a frame shows past it.
+        Device.ReadbackStagingCount.Should().BeLessThanOrEqualTo(GraphicsDevice.ReadbackStagingKept, "the buffers asked in flight go back to the pool and are taken again");
+        (Device.Usage.Buffers - buffers).Should().BeLessThanOrEqualTo(GraphicsDevice.ReadbackStagingKept, "the device holds no buffer a frame more than the pool keeps");
         UnloadShaderBuffer(values);
         UnloadShader(shader);
     }

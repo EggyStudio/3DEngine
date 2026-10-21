@@ -50,7 +50,13 @@ internal sealed unsafe partial class GraphicsDevice
     // reading every frame asks for the same sizes again and again, so it reuses a few buffers
     // rather than making one a frame.
     private const int MinStaging = 256;
-    private const int StagingKeptASize = 4;
+
+    /// <summary>
+    /// How many staging buffers of a size the pool keeps, the frames in flight and one, as many as a
+    /// game asking every frame has waiting on the GPU at once and the one it asks next, a buffer
+    /// let go past them freed.
+    /// </summary>
+    internal const int ReadbackStagingKept = MaxFramesInFlight + 1;
     private readonly Dictionary<int, Stack<IBuffer>> _stagingPool = [];
     private int _stagingLive;
 
@@ -205,7 +211,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var bucket = (int)buffer.Description.Size;
         if (!_stagingPool.TryGetValue(bucket, out var kept)) _stagingPool[bucket] = kept = new Stack<IBuffer>();
-        if (kept.Count < StagingKeptASize)
+        if (kept.Count < ReadbackStagingKept)
         {
             kept.Push(buffer);
             return;

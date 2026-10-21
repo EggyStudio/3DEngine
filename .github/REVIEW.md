@@ -10,40 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `50b3aa6f`, item 69's first part, the mesh over a shader's buffers drawn everywhere,
-and nothing else, carrying the review's files: `LoadMeshFromShaderBuffers` and `SetMeshBoundingBox`,
-the arena of indirect records in chunks of 4,096 a frame in flight, a batch ahead of the frame
-copying each mesh's four bytes of count into a list and one dispatch a chunk clamping every record
-to its mesh's capacity with a barrier to the indirect and vertex stages, a counted mesh drawn by an
-indirect draw a run so the block culling holds, the shadow, subsurface and motion passes skipping
-its index buffer, the profile naming the batch on both sides with timestamps of its own; one
-difference from the form, a mesh with no box set drawn whole rather than nowhere, since a first
-program would see nothing with no reason, said in the guide; `UnloadShaderBuffer` unloading the
-meshes over a buffer with a warning; tests of counts of 12, 6, 0 and 30 at a capacity of 6, a
-square's shadow under 0.6 of the open floor, the null device recording the draw, all with the
-readback's on lavapipe; 500 meshes under a sun at 0.020 ms on the GPU and 0.093 on the CPU, 50 at
-0.008 and 0.032, the guide giving the 500; the example `shaders_compute_mesh` meshing a hill of
-12,000 vertices on the GPU each frame and reading its count back a frame later, with its capture and
-table rows; the suite 1,839 passed plain and shuffled, the strict build clean. Read at 04:58 on
-2026-10-21. Not pushed: the build run of `dc487681` has its Linux and macOS suites green and its
-Windows suite red at 05:32 on one test, the readback pool's bound of four buffers found five on the
-runner, Verdict 82, its examples job green at 05:38, so the head was pushed at 05:39, its own
-Windows suite to fail the same test; Verdict 82's mend comes after item 69's second part and before
-the pack run. Next item 69's second part, the field's read in the form changed at 04:59, the count
-read back without a wait when a counted mesh's version changes and the mesh pooled with exactly its
-triangles a frame or two on, converted by one dispatch a mesh when pooled, the splat unchanged, the
-ray scene passing it over, and the test of a compute-written wall casting its shadow in the global
-illumination and tinting a block; a package after it. Then 70, 73, the rest of 71, 72, then item 74,
-the field's budget in triangles found by item 69's reading, then Decision 51's items 59 to 66. Item
-6 and the feature test's portable build wait on the owner's word.
+Reviewed up to `ee6cf5ee`, item 69's second part, the field's read of a mesh over a shader's
+buffers, and nothing else, carrying the review's file, in the form changed at 04:59: the count read
+back without a wait when a counted mesh's version changes, the mesh entering the plan a frame or two
+on with its count known and pooled with exactly its triangles, one dispatch a mesh converting its
+positions and the stream's colors when it is pooled, the splat unchanged, the ray scene passing it
+over; the red wall a compute shader wrote tinting the block's side to 212.8 red against 97.6 with a
+count of 0, 500 sections pooled in one frame with 500 conversion dispatches at 2.6 to 3.4 ms once
+and the pool at 48 MB against the reserved form's 384, in the guide; the GI, field, counted and
+readback tests on lavapipe under the layer 75 passed; the suite 1,840 passed plain and shuffled, the
+strict build clean. Read at 05:51 on 2026-10-21. Not pushed: the build run of `50b3aa6f` is still
+running, and the head is pushed when it ends with Verdict 82's mend, whose commit follows its
+suites, the cause found to be the last dispatch's uniform buffer held until the next dispatch or a
+wait beside a pool at four, the pool's cap named from the frames in flight and one, the test waiting
+for compute before both counts and holding both to the cap, a leak still failing it; then the pack
+run with publish on, the package the voxel game waits on. Then 70, 73, the rest of 71, 72, 74, then
+Decision 51's items 59 to 66. Item 6 and the feature test's portable build wait on the owner's word.
+
+Before it, `50b3aa6f` came, item 69's first part, the mesh over a shader's buffers drawn everywhere,
+and nothing else, carrying the review's files. Pushed at 05:39.
 
 Before it, `dc487681` came, item 68, the readback without a wait, and nothing else, carrying the
-review's file, the suite 1,833 passed plain and shuffled. Pushed at 04:40, its build run red on
-Windows on the readback pool's test, Verdict 82, green on Linux and macOS.
-
-Before it, `0a4928d3` came, the glow lights' bound of item 71's second part, and nothing else,
-carrying the review's file, Ore at night from 9.67 to 2.50 ms with 64 lights lit. Pushed at 03:26,
-its build run green at 04:37.
+review's file. Pushed at 04:40, its build run red on Windows on the readback pool's test, Verdict
+82, green on Linux and macOS.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3337,7 +3326,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     at 212.8 red against 97.6 with a count of 0, the 500 sections pooled in one frame with 500
     conversion dispatches at 2.6 to 3.4 ms once, the pool 48 MB where reserving the capacities would
     hold 384 MB as the pool rounds up; the builds of 512,000 triangles in that frame at 77 to 81 ms
-    are item 74.
+    are item 74. Done at `50b3aa6f` and `ee6cf5ee` on 2026-10-21, the mesh drawn everywhere, then
+    the field's read, as the heads say.
 
 70. **An animated capture of a run, frames taken at an interval and written as one file, and one
     made from captures on disk (Decision 53).** The owner asked at about 00:29 on 2026-10-21 for
