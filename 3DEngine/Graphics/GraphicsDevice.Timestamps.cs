@@ -15,7 +15,7 @@ internal sealed unsafe partial class GraphicsDevice
     private readonly List<string>[] _timestampLabels = Enumerable.Range(0, MaxFramesInFlight).Select(_ => new List<string>()).ToArray();
     private readonly bool[] _timestampsWritten = new bool[MaxFramesInFlight];
 
-    /// <summary>Whether the device's graphics queue writes timestamps, which <see cref="Timestamp"/> needs.</summary>
+    /// <summary>Whether the device's graphics queue writes timestamps, which <see cref="Timestamp(ICommandBuffer, int, string)"/> needs.</summary>
     public bool TimestampsSupported
     {
         get
@@ -81,6 +81,9 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdWriteTimestamp(vkCmd.Handle, VkPipelineStageFlags.BottomOfPipe, _timestampPool, (uint)(slot * TimestampsPerFrame + labels.Count));
         labels.Add(label);
     }
+
+    /// <summary>Marks a point inside a node's commands in the frame being recorded, which the profile names by its label up to it.</summary>
+    public void Timestamp(ICommandBuffer commandBuffer, string label) => Timestamp(commandBuffer, _currentFrame, label);
 
     private void DestroyTimestamps()
     {

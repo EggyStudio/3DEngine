@@ -416,8 +416,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         {
             _rays ??= device.CreateRayScene();
             var copies = new List<RayInstance>(fields.Drawn.Count);
+            // A mesh over shader buffers, whose triangles the CPU does not hold, is passed over.
             foreach (var (instance, skinned) in fields.Drawn)
-                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
+                if (!skinned && fields.HoldsTriangles(instance.Vertices)) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
                     plan is not null && fields.Carried(instance, plan.CellSize)));
             _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
                 mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));

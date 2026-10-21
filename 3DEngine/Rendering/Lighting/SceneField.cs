@@ -70,6 +70,62 @@ internal sealed class SceneFieldRenderer : IDisposable
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box?[]> _limbs = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Part[]?> _parts = new(ReferenceEqualityComparer.Instance);
 
+    // The meshes over shader buffers, whose vertices only the GPU holds. Each stands in the plan as
+    // the corners of the box the program gave it, an array a version, a dispatch binding its
+    // buffers making a new version, once its count for that version has been read back without a
+    // wait, and is pooled with as many triangles as the count says, which a dispatch converts from
+    // its positions (RecordCountedCorners). One rewritten every frame is a new array each time its
+    // count comes back, so the plan stamps it as its box, as a mesh that moves.
+    private sealed class CountedState
+    {
+        public ModelVertex[]? Vertices;
+        public ShaderReadbackTicket? Asked;
+        public int AskedVersion = -1;
+        public int Version = -1;
+    }
+    private readonly Dictionary<int, CountedState> _countedStates = [];
+    private readonly Dictionary<ModelVertex[], (MeshStore.Counted Mesh, int Vertices)> _countedMeshes = new(ReferenceEqualityComparer.Instance);
+    private readonly List<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices)> _countedPending = [];
+    private GraphicsDevice? _device;
+
+    /// <summary>How many counted meshes the last frame that pooled any wrote into the pool, a dispatch each.</summary>
+    internal int CountedConverted { get; private set; }
+
+    /// <summary>The bytes of GPU memory the pool of triangles holds, 48 a triangle of its capacity.</summary>
+    internal long PoolBytes => (long)_cornerCapacity * 48;
+
+    /// <summary>Whether a mesh's triangles are held on the CPU, which a counted mesh's are not, so the device's ray tracing passes it over.</summary>
+    internal bool HoldsTriangles(ModelVertex[] vertices) => _indices.ContainsKey(vertices);
+
+    // The array a counted mesh stands in the plan by, once its count for a version is known, asking
+    // that count back where the mesh has a newer version, or null for one with no box or no count yet.
+    private ModelVertex[]? CountedVertices(GraphicsDevice? device, MeshStore store, MeshStore.Counted counted)
+    {
+        if (store.CountedBoxOf(counted.Id) is not { } box) return null;
+        if (!_countedStates.TryGetValue(counted.Id, out var state)) _countedStates[counted.Id] = state = new CountedState();
+        if (state.Asked is { } asked && device is not null && device.IsReadbackReady(asked))
+        {
+            Span<uint> read = stackalloc uint[1];
+            device.ReadReadback(asked, System.Runtime.InteropServices.MemoryMarshal.AsBytes(read));
+            device.ReleaseReadback(asked);
+            state.Asked = null;
+            var count = (int)Math.Min(read[0], counted.Capacity) / 3 * 3;
+            ModelVertex[] corners =
+            [
+                .. new[] { box.Min, box.Max }.SelectMany(a => new[] { box.Min, box.Max }.SelectMany(b => new[] { box.Min, box.Max }
+                    .Select(c => new ModelVertex(new Vector3(a.X, b.Y, c.Z), Vector3.Zero, Vector2.Zero)))),
+            ];
+            if (state.Vertices is { } before) _countedMeshes.Remove(before);
+            state.Vertices = corners;
+            state.Version = state.AskedVersion;
+            _countedMeshes[corners] = (counted, count);
+        }
+        var version = store.CountedVersion(counted.Id);
+        if (state.Version != version && state.Asked is null && device is not null)
+            (state.Asked, state.AskedVersion) = (device.ReadBack(counted.Count, 0, 4), version);
+        return state.Vertices;
+    }
+
     /// <summary>
     /// The meshes drawn into the window this frame that cast shadows, or the render targets' where
     /// the window draws none, each with whether it is skinned, as the field gathered them.
@@ -151,7 +207,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         if (view is null) return;
         Eye = view.Eye;
 
-        Gather(renderWorld, windowDraws);
+        Gather(renderWorld, windowDraws, device);
         var plan = _plan!;
         plan.Update(view.Eye, _drawn, Ahead(view));
         var repaints = Repaints(plan);
@@ -164,6 +220,14 @@ internal sealed class SceneFieldRenderer : IDisposable
         if (plan.Builds.Count > 0 || repaints.Count > 0)
         {
             var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances).Concat(repaints.SelectMany(repaint => repaint.Instances)));
+            if (_countedPending.Count > 0)
+            {
+                Hold(device.RecordCountedCorners(commands, corners, _countedPending));
+                CountedConverted = _countedPending.Count;
+                _countedPending.Clear();
+                // The profile names the conversions apart from the builds, as field_counted.
+                device.Timestamp(commands, "field_counted");
+            }
             foreach (var build in plan.Builds)
             {
                 var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell);
@@ -230,8 +294,9 @@ internal sealed class SceneFieldRenderer : IDisposable
     // The meshes drawn into the window this frame that cast shadows and take part in global
     // illumination, or where the window draws none those drawn into the render targets, each with
     // whether it is skinned, whose posed shape no vertices on the CPU hold.
-    private void Gather(RenderWorld renderWorld, bool windowAlone = true)
+    private void Gather(RenderWorld renderWorld, bool windowAlone, GraphicsDevice device)
     {
+        _device = device;
         _drawn.Clear();
         _indices.Clear();
         _meshOf.Clear();
@@ -241,6 +306,8 @@ internal sealed class SceneFieldRenderer : IDisposable
         if (_glowParts.Count > 4096) _glowParts.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
         _store = store;
+        // The counted meshes unloaded since, and their readbacks, let go.
+        if (_countedStates.Count > 0) ForgetCounted(id => store.CountedOf(id) is null);
         var textures = renderWorld.TryGet<TextureStore>();
         // The joints of the skinned meshes posed this frame, kept for the frames after.
         foreach (var (id, joints, _) in renderWorld.TryGet<GpuMeshes>()?.Poses ?? []) _joints[id] = joints;
@@ -249,8 +316,19 @@ internal sealed class SceneFieldRenderer : IDisposable
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
         {
-            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points
-                || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points) continue;
+            if (store.CountedOf(draw.Mesh) is { } counted)
+            {
+                if (CountedVertices(device, store, counted) is { } standing)
+                {
+                    var tint = ModelRenderer.Instance.Linear;
+                    _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, standing, draw.World, draw.DoubleSided,
+                        Textured(new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]), draw.Texture), draw.Emission,
+                        null, draw.Roughness, draw.Metallic), false));
+                }
+                continue;
+            }
+            if (!store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             _meshOf[vertices] = draw.Mesh;
             var linear = ModelRenderer.Instance.Linear;
@@ -262,11 +340,21 @@ internal sealed class SceneFieldRenderer : IDisposable
         foreach (var group in draws.Groups)
         {
             var template = group.Template;
-            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || !template.BouncesLight || template.Points
-                || !store.TryGetData(template.Mesh, out var vertices, out var indices)) continue;
-            _indices[vertices] = indices;
-            _meshOf[vertices] = template.Mesh;
-            var skinned = store.IsSkinned(template.Mesh);
+            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || !template.BouncesLight || template.Points) continue;
+            ModelVertex[] vertices;
+            bool skinned;
+            if (store.CountedOf(template.Mesh) is { } counted)
+            {
+                if (CountedVertices(device, store, counted) is not { } standing) continue;
+                (vertices, skinned) = (standing, false);
+            }
+            else
+            {
+                if (!store.TryGetData(template.Mesh, out vertices, out var indices)) continue;
+                _indices[vertices] = indices;
+                _meshOf[vertices] = template.Mesh;
+                skinned = store.IsSkinned(template.Mesh);
+            }
             var limbs = skinned ? Limbs(store, template.Mesh, vertices) : null;
             if (_groupInstances.Length < group.Count) _groupInstances = new ModelRenderer.Instance[Math.Max(group.Count, _groupInstances.Length * 2)];
             group.CopyTo(_groupInstances);
@@ -458,20 +546,32 @@ internal sealed class SceneFieldRenderer : IDisposable
         var meshes = needed.DistinctBy(instance => instance.Vertices, ReferenceEqualityComparer.Instance)
             .Select(instance => (instance.Vertices, instance.Mesh)).ToList();
         var adding = meshes.Where(mesh => !_pooled.ContainsKey(mesh.Vertices)).ToList();
-        var more = adding.Sum(mesh => _indices.GetValueOrDefault(mesh.Vertices)?.Length / 3 ?? 0);
+        // A mesh's triangles, its indices' or the count a counted mesh's read back gave.
+        int Triangles(ModelVertex[] vertices) =>
+            _indices.TryGetValue(vertices, out var indices) ? indices.Length / 3 : _countedMeshes.TryGetValue(vertices, out var counted) ? counted.Vertices / 3 : 0;
+        var more = adding.Sum(mesh => Triangles(mesh.Vertices));
         if (_corners is null || _cornerCount + more > _cornerCapacity)
         {
             // Made again with the meshes this frame needs, which drops the ones no longer built from.
             if (_corners is not null) Hold(_corners);
             _pooled.Clear();
             _cornerCount = 0;
-            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(m => _indices.GetValueOrDefault(m.Vertices)?.Length / 3 ?? 0) * 2)));
+            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(m => Triangles(m.Vertices)) * 2)));
             _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage, CpuAccessMode.Write));
             adding = meshes;
         }
         var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(_corners));
         foreach (var (vertices, mesh) in adding)
         {
+            // A counted mesh's corners are written on the GPU from its positions before the builds.
+            if (_countedMeshes.TryGetValue(vertices, out var counted))
+            {
+                var tinted = counted.Mesh.Stream is { Format: MeshStreamFormat.UNorm8x4 } stream ? stream.Buffer : null;
+                _countedPending.Add((counted.Mesh.Positions, tinted, _cornerCount * 3, counted.Vertices));
+                _pooled[vertices] = (_cornerCount, counted.Vertices / 3);
+                _cornerCount += counted.Vertices / 3;
+                continue;
+            }
             if (!_indices.TryGetValue(vertices, out var indices)) continue;
             var count = indices.Length / 3;
             // Each corner's place, and in w its vertex's color, three sRGB bytes, white for a mesh
@@ -615,6 +715,19 @@ internal sealed class SceneFieldRenderer : IDisposable
         _limbs.Clear();
         _parts.Clear();
         _glowParts.Clear();
+        ForgetCounted(_ => true);
+    }
+
+    // Lets go the counted meshes a test picks by id, their readbacks asked with them.
+    private void ForgetCounted(Func<int, bool> which)
+    {
+        foreach (var (id, state) in _countedStates.Where(entry => which(entry.Key)).ToList())
+        {
+            if (state.Asked is { } asked) _device?.ReleaseReadback(asked);
+            if (state.Vertices is { } vertices) _countedMeshes.Remove(vertices);
+            _countedStates.Remove(id);
+        }
+        _countedPending.Clear();
     }
 
     // Destroys what was let go once the frames in flight that might read it have finished.

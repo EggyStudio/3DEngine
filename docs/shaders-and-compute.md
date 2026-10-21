@@ -451,8 +451,18 @@ The mesh is drawn by `DrawMesh`, casts its shadow and is culled by the box `SetM
 gives it, drawn wherever it is until it has one. The model pass's own shader lights it by a zero
 normal, as it lights any mesh of positions alone, so a shader of the program's own unpacks its
 normal from the stream it reads as `CUSTOM0`, as the example's `packed.slang` does. Its vertices
-are on the GPU alone, so picking, bodies and global illumination pass it over. `UnloadMesh` frees
-the mesh and not its buffers, and a buffer unloaded first unloads the meshes over it.
+are on the GPU alone, so picking and bodies pass it over, and a reflection traced through the
+device's rays does not see it. `UnloadMesh` frees the mesh and not its buffers, and a buffer
+unloaded first unloads the meshes over it.
+
+Global illumination reads its triangles into the scene's distance field, in the color of a stream
+of `UNorm8x4` where it has one, once the mesh has a box. A dispatch that binds the mesh's buffers
+marks it written, its count is read back without a wait, and a frame or two later the field takes
+as many triangles as the count says, written into the field's own buffer on the GPU from the
+positions. A mesh written again every frame is taken as its box, as a mesh that moves is. Five
+hundred meshes of 1,024 triangles took 500 dispatches and 2.6 to 3.4 ms of the GPU in the frame
+they were taken in, once, and 48 MB of the field's buffer, where keeping room for each one's
+capacity of 24,000 vertices would have held 192 MB.
 
 ## Writing a texture
 

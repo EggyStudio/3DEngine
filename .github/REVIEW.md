@@ -10,43 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `dc487681`, item 68, the readback without a wait, and nothing else, carrying the
-review's file, in the form said before it: `ReadShaderBufferAsync` answering a `ShaderReadback`
-handle with a fence of its batch, `IsShaderReadbackReady`, `GetShaderReadback` waiting for its batch
-alone where asked early, `UnloadShaderReadback`, the readback batch flushed after the uploads and
-retired when done, the staging buffers pooled by power of two, the storage buffers taking the
-transfer-source usage; the readback tests on the device and on lavapipe, not ready in its frame, a
-dispatch after the ask not read, ready on the first check after, a hundred frames leaving the pool
-at two; the guide's section, the cheat sheet lines, the surface listing and the upgrading entry; the
-suite 1,833 passed plain and shuffled. Read at 03:39 on 2026-10-21 and pushed at 04:40; the build
-run of `0a4928d3` had ended green at 04:37, macOS in 26 minutes, Linux in 50 and Windows in 71; the
-pack run of `b5db84f3` ended green at 03:54, every job, the Linux and macOS suites in 51 minutes,
-the Windows suite's tests in 54 minutes 47 seconds and its games step after them to 1 hour 38, the
-games job in 43 minutes with its soak through, the captures on both systems, the examples and the
-pack job, which pushed `5.2.204` at 03:51, listed by 04:00 with its nuspec naming `b5db84f3` and 14
-lines of notes from the feature test's parts, the spatial sound, the gamepad, the screen probes'
-call and the two mends; Verdicts 79, 80 and 81 settle on it and none is open. Item 69's form said at
-03:39 and taken in two commits, the mesh drawn everywhere, then the field's read, the package after
-the second; a draw being indexed with its own instance range and no copy allowed inside a pass, the
-vertex count the GPU writes reaches the draw through an arena of indirect records, one ring slot a
-frame in flight, the instance count written while the pass records and the vertex count filled by a
-batch submitted before the frame that clamps the program's count to the capacity and copies it into
-each record, with a barrier to the indirect and vertex stages; the mesh culled by its box whole,
-drawn by the model pass from its positions with the stream at the custom slot, left out of picking;
-the field reserving a third of the capacity in triangles and copying the positions on the GPU, the
-splat reading each instance's live count, the color from the stream or the material, and the mesh
-marked changed whenever a dispatch binds its positions or count buffer so the field builds it again
-under the budget. Then 70, then 73, the F2 screenshot the owner asked for shortly before 03:42, the
-rest of 71, 72, then Decision 51's items 59 to 66. Item 6 and the feature test's portable build wait
-on the owner's word.
+Reviewed up to `50b3aa6f`, item 69's first part, the mesh over a shader's buffers drawn everywhere,
+and nothing else, carrying the review's files: `LoadMeshFromShaderBuffers` and `SetMeshBoundingBox`,
+the arena of indirect records in chunks of 4,096 a frame in flight, a batch ahead of the frame
+copying each mesh's four bytes of count into a list and one dispatch a chunk clamping every record
+to its mesh's capacity with a barrier to the indirect and vertex stages, a counted mesh drawn by an
+indirect draw a run so the block culling holds, the shadow, subsurface and motion passes skipping
+its index buffer, the profile naming the batch on both sides with timestamps of its own; one
+difference from the form, a mesh with no box set drawn whole rather than nowhere, since a first
+program would see nothing with no reason, said in the guide; `UnloadShaderBuffer` unloading the
+meshes over a buffer with a warning; tests of counts of 12, 6, 0 and 30 at a capacity of 6, a
+square's shadow under 0.6 of the open floor, the null device recording the draw, all with the
+readback's on lavapipe; 500 meshes under a sun at 0.020 ms on the GPU and 0.093 on the CPU, 50 at
+0.008 and 0.032, the guide giving the 500; the example `shaders_compute_mesh` meshing a hill of
+12,000 vertices on the GPU each frame and reading its count back a frame later, with its capture and
+table rows; the suite 1,839 passed plain and shuffled, the strict build clean. Read at 04:58 on
+2026-10-21. Not pushed: the build run of `dc487681` has its Linux and macOS suites green and its
+Windows suite red at 05:32 on one test, the readback pool's bound of four buffers found five on the
+runner, Verdict 82, its examples job green at 05:38, so the head was pushed at 05:39, its own
+Windows suite to fail the same test; Verdict 82's mend comes after item 69's second part and before
+the pack run. Next item 69's second part, the field's read in the form changed at 04:59, the count
+read back without a wait when a counted mesh's version changes and the mesh pooled with exactly its
+triangles a frame or two on, converted by one dispatch a mesh when pooled, the splat unchanged, the
+ray scene passing it over, and the test of a compute-written wall casting its shadow in the global
+illumination and tinting a block; a package after it. Then 70, 73, the rest of 71, 72, then item 74,
+the field's budget in triangles found by item 69's reading, then Decision 51's items 59 to 66. Item
+6 and the feature test's portable build wait on the owner's word.
+
+Before it, `dc487681` came, item 68, the readback without a wait, and nothing else, carrying the
+review's file, the suite 1,833 passed plain and shuffled. Pushed at 04:40, its build run red on
+Windows on the readback pool's test, Verdict 82, green on Linux and macOS.
 
 Before it, `0a4928d3` came, the glow lights' bound of item 71's second part, and nothing else,
 carrying the review's file, Ore at night from 9.67 to 2.50 ms with 64 lights lit. Pushed at 03:26,
 its build run green at 04:37.
-
-Before it, `b5db84f3` came, Verdict 81's mend, after `55141a42`, Verdict 80's mend, and `10503abe`,
-item 71's first part, and nothing else. The three pushed at 02:02, their build run green at 03:25,
-the pack run with publish on started then, run 39518866382.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3324,7 +3321,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     draw. The game's entry of 00:33 reads the mesher's 4 ms budget through `UploadMesh` and
     `UpdateMeshBuffer`, the update at 10.2 to 14.0 ms of a 21.4 to 28.8 ms frame flying at 12
     columns, and the render graph at 6.7 to 9.2 ms there against 5.3 to 5.5 standing. One commit,
-    after item 68 and before item 59, since the game waits on it.
+    after item 68 and before item 59, since the game waits on it. First part done at `50b3aa6f` on
+    2026-10-21, the mesh drawn everywhere with its tests and the example, a mesh with no box drawn
+    whole, as the head says; the field's read follows. The field's read changed at 04:59 before it
+    was written and taken: reserving each counted mesh's capacity in the corner pool would cost 48
+    bytes a triangle of capacity, 190 MB for 500 voxel sections of 24,000 vertices mostly not there,
+    so the field instead asks a readback of a counted mesh's four bytes of count when its version
+    changes, with no wait, and once it is ready a frame or two on the mesh enters the plan at that
+    version with its count known on the CPU, pooled with exactly its triangles, one small dispatch a
+    mesh converting its positions into the pool's corners with the stream's colors where the format
+    says so, run once a version when the mesh is pooled and not each frame, the splat shader
+    unchanged; a mesh rewritten every frame stamped as its box as a moving mesh is; the count of
+    conversion dispatches and their GPU time when the pool is made again with 500 sections read and
+    given beside the reserved form's memory. The second part's reading at 05:07: the red wall's side
+    at 212.8 red against 97.6 with a count of 0, the 500 sections pooled in one frame with 500
+    conversion dispatches at 2.6 to 3.4 ms once, the pool 48 MB where reserving the capacities would
+    hold 384 MB as the pool rounds up; the builds of 512,000 triangles in that frame at 77 to 81 ms
+    are item 74.
 
 70. **An animated capture of a run, frames taken at an interval and written as one file, and one
     made from captures on disk (Decision 53).** The owner asked at about 00:29 on 2026-10-21 for
@@ -3454,6 +3467,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     something, the voxel game among them, moves or turns the window's key off through the call,
     which its item 40 does.
 
+74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
+    not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
+    1,024 triangles pooled in one frame, the field's builds took 77 to 81 ms in that frame, 512,000
+    triangles splatted into four cascades at once under a budget of four cascades, which is the
+    splat's cost for so many triangles in one frame whatever kind of mesh they come from, so a game
+    streaming hundreds of sections in at once, as the voxel game does on a teleport or a first load,
+    sees that hitch. The mend: the field's budget counted in triangles a frame beside the cascades,
+    `SetSceneField` taking it with a default read from the Cornell box and Ore so a frame's builds
+    stay under a few milliseconds on the device the readings name, the pending meshes built over as
+    many frames as the budget takes, nearest the eye first, and the cascades a frame as today where
+    fewer triangles are pending; the guide's paragraph on the budget, the cheat sheet line through
+    the script, the surface listing and the upgrading entry. Tests: 500 meshes pooled in one frame
+    built over several with no frame's field time over the budget's worth, read through the
+    profile's mark on the null device's counts and on lavapipe, and the nearest built first. One
+    commit, after item 72.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -3473,7 +3502,7 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
 runs of `b3922179`, `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, said under it. Verdict 77
 is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 2026-10-20 and
 2026-10-21 and the games job before them, said under it. Verdicts 79, 80 and 81 are settled on the
-pack run of `b5db84f3` on 2026-10-21, said under each. No verdict is open.
+pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -4540,6 +4569,22 @@ pack run of `b5db84f3` on 2026-10-21, said under each. No verdict is open.
     before the glow lights' bound and before the next pack run. Mended at `b5db84f3` on 2026-10-21
     in that form, as the head says. Settles on the next pack run's soak green. Settled on the pack
     run of `b5db84f3` on 2026-10-21, the soak of all nineteen through.
+
+82. **The Windows suite of the push of `dc487681` fails the readback pool's test, five buffers kept
+    where the test allows four.** On the build run 39534320588 on 2026-10-21, the Linux and macOS
+    suites passed and the Windows suite, 1,769 passed in 37 minutes 44 seconds, failed one test, the
+    readback asked and unloaded every frame for a hundred frames keeping a few buffers and no more:
+    the device held 5 buffers over where it began, where the test's bound is 4 because the device
+    holds no buffer a frame more than the pool keeps, and on the machine the pool had stood at 2
+    with the device within 4. The pool keeps a few staging buffers a size and returns one released
+    before its batch finished when the batch retires, so how many stand at a moment depends on how
+    many batches are in flight, which the Windows runner's lavapipe drew out by a frame. The fault
+    is a bound of 4 read off one machine's timing, under N 3.5. The mend is one thing: the pool's
+    cap is a number the pool itself keeps, the frames in flight and one, with a release past it
+    freeing the buffer, and the test holds the device's count to that cap read from the pool rather
+    than a figure, so the bound follows the pool wherever it runs and a leak still fails it. One
+    commit, after item 69's second part and before the pack run, since the pack job needs the
+    Windows suite green. Mended at `?`.
 
 ## Decisions
 

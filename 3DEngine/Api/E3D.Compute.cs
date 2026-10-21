@@ -287,6 +287,10 @@ public static partial class E3D
             ComputePipelines[shader.Id] = pipeline = device.CreateComputePipeline(spirv, program.UniformSize, [.. program.Buffers.Select(b => b.Binding)],
                 [.. program.Images.Select(i => i.Binding)], [.. program.Textures.Select(t => (t.Binding, t.Type))]);
         device.Dispatch(pipeline, UniformValues.GetValueOrDefault(shader.Id) ?? [], buffers, (uint)groupsX, (uint)groupsY, (uint)groupsZ, images, textures);
+        // A mesh over a buffer the dispatch bound may have new triangles, which global illumination
+        // reads again.
+        if (TryRes<MeshStore>(out var meshes) && meshes.AnyCounted)
+            foreach (var (_, gpu) in buffers) meshes.TouchCounted(gpu);
     }
 
     // A compute shader's pipeline goes with it.

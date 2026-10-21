@@ -59,6 +59,9 @@ internal sealed class MeshStore
     private readonly Dictionary<int, BoundingBox> _countedBoxes = [];
     private readonly List<Counted> _countedUploads = [];
     private readonly List<(int Id, BoundingBox Box)> _boxChanges = [];
+    // How many times a dispatch has bound each such mesh's buffers, which global illumination reads
+    // its triangles again by.
+    private readonly Dictionary<int, int> _countedVersions = [];
 
     private readonly Dictionary<int, Skin> _skins = [];
     private readonly Dictionary<int, (System.Numerics.Matrix4x4[] Joints, float[]? Weights)> _poses = [];
@@ -101,6 +104,31 @@ internal sealed class MeshStore
     internal Counted? CountedOf(int id)
     {
         lock (_gate) return _counted.GetValueOrDefault(id);
+    }
+
+    /// <summary>Whether any mesh over shader buffers is loaded, which a dispatch asks before it marks them.</summary>
+    internal bool AnyCounted
+    {
+        get { lock (_gate) return _counted.Count > 0; }
+    }
+
+    /// <summary>
+    /// Marks the meshes over a shader buffer a dispatch bound as written, so what reads their
+    /// triangles reads them again, since the CPU cannot tell what the dispatch wrote.
+    /// </summary>
+    internal void TouchCounted(IBuffer buffer)
+    {
+        lock (_gate)
+            foreach (var counted in _counted.Values)
+                if (ReferenceEquals(counted.Positions, buffer) || ReferenceEquals(counted.Count, buffer)
+                    || counted.Stream is { } stream && ReferenceEquals(stream.Buffer, buffer))
+                    _countedVersions[counted.Id] = _countedVersions.GetValueOrDefault(counted.Id) + 1;
+    }
+
+    /// <summary>How many times a dispatch has bound a mesh over shader buffers' buffers since it was made.</summary>
+    internal int CountedVersion(int id)
+    {
+        lock (_gate) return _countedVersions.GetValueOrDefault(id);
     }
 
     /// <summary>
@@ -307,6 +335,7 @@ internal sealed class MeshStore
             if (_counted.Remove(id))
             {
                 _countedBoxes.Remove(id);
+                _countedVersions.Remove(id);
                 _countedUploads.RemoveAll(c => c.Id == id);
                 _boxChanges.RemoveAll(b => b.Id == id);
                 _removals.Add(id);

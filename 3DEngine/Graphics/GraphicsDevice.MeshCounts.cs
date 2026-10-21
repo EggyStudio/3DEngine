@@ -228,7 +228,106 @@ internal sealed unsafe partial class GraphicsDevice
         MeshCountsCpuMs = System.Diagnostics.Stopwatch.GetElapsedTime(mark).TotalMilliseconds;
     }
 
-    // Frees the records, the lists and the pipeline, with the queue idle, before the device goes.
+    private VkPipeline _cornersPipeline;
+    private VkPipelineLayout _cornersLayout;
+    private VkDescriptorSetLayout _cornersSetLayout;
+    private static readonly VkDescriptorType[] CornersDescriptors = [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer];
+
+    /// <summary>Makes the pipeline that writes a counted mesh's triangles into the scene field's pool from <c>field_counted.slang</c>, once.</summary>
+    public void InitializeCountedCorners(ReadOnlySpan<byte> spirv)
+    {
+        if (!IsInitialized || _cornersPipeline.Handle != 0) return;
+        var bindings = stackalloc VkDescriptorSetLayoutBinding[3];
+        for (uint b = 0; b < 3; b++)
+            bindings[b] = new VkDescriptorSetLayoutBinding { binding = b, descriptorType = VkDescriptorType.StorageBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 3, pBindings = bindings };
+        _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
+        _cornersSetLayout = setLayout;
+        var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = 12 };
+        var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = 1, pSetLayouts = &setLayout, pushConstantRangeCount = 1, pPushConstantRanges = &push };
+        _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out _cornersLayout).CheckResult();
+
+        VkShaderModule module;
+        fixed (byte* code = spirv)
+        {
+            var moduleInfo = new VkShaderModuleCreateInfo { codeSize = (nuint)spirv.Length, pCode = (uint*)code };
+            _deviceApi.vkCreateShaderModule(&moduleInfo, null, out module).CheckResult();
+        }
+        var main = "main"u8;
+        VkPipeline pipeline;
+        fixed (byte* name = main)
+        {
+            var info = new VkComputePipelineCreateInfo
+            {
+                stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
+                layout = _cornersLayout,
+            };
+            _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
+        }
+        _cornersPipeline = pipeline;
+        _deviceApi.vkDestroyShaderModule(module);
+    }
+
+    /// <summary>
+    /// Records the writing of meshes over shader buffers into the scene field's pool of corners, a
+    /// dispatch a mesh, each from its first corner as many vertices as its count read back said,
+    /// after what wrote their buffers and before the builds that read the pool.
+    /// </summary>
+    /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
+    public IDisposable RecordCountedCorners(ICommandBuffer commandBuffer, IBuffer corners,
+        IReadOnlyList<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices)> meshes)
+    {
+        if (commandBuffer is not VulkanCommandBuffer vkCmd)
+            throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
+        var pool = MakeDescriptorPool([(CornersDescriptors, Math.Max(1, meshes.Count))]);
+        var hold = new DescriptorPoolHold(this, pool);
+        if (meshes.Count == 0 || _cornersPipeline.Handle == 0) return hold;
+        var cmd = vkCmd.Handle;
+        MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.MemoryWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+        _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _cornersPipeline);
+        var setLayout = _cornersSetLayout;
+        var infos = stackalloc VkDescriptorBufferInfo[3];
+        var writes = stackalloc VkWriteDescriptorSet[3];
+        var values = stackalloc uint[3];
+        foreach (var (positions, colors, first, vertices) in meshes)
+        {
+            if (vertices <= 0) continue;
+            var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
+            VkDescriptorSet set;
+            _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
+            IBuffer[] bound = [positions, colors ?? positions, corners];
+            for (var b = 0; b < 3; b++)
+            {
+                var buffer = (VulkanBuffer)bound[b];
+                infos[b] = new VkDescriptorBufferInfo { buffer = buffer.Buffer, offset = 0, range = buffer.Description.Size };
+                writes[b] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)b, descriptorCount = 1, descriptorType = VkDescriptorType.StorageBuffer, pBufferInfo = &infos[b] };
+            }
+            _deviceApi.vkUpdateDescriptorSets(3, writes, 0, null);
+            _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _cornersLayout, 0, 1, &set, 0, null);
+            (values[0], values[1], values[2]) = ((uint)first, (uint)vertices, colors is null ? 0u : 1u);
+            _deviceApi.vkCmdPushConstants(cmd, _cornersLayout, VkShaderStageFlags.Compute, 0, 12, values);
+            _deviceApi.vkCmdDispatch(cmd, ((uint)vertices + 63) / 64, 1, 1);
+        }
+        // The builds after read the corners.
+        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+        return hold;
+    }
+
+    // A descriptor pool a recording's sets came from, destroyed once no frame in flight reads them.
+    private sealed class DescriptorPoolHold(GraphicsDevice device, VkDescriptorPool pool) : IDisposable
+    {
+        private bool _gone;
+
+        public void Dispose()
+        {
+            if (_gone) return;
+            _gone = true;
+            device.DestroyDescriptorPool(pool);
+        }
+    }
+
+    // Frees the records, the lists and the pipelines, with the queue idle, before the device goes.
     private void DestroyMeshCounts()
     {
         lock (_countGate)
@@ -250,6 +349,14 @@ internal sealed unsafe partial class GraphicsDevice
             if (_countLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_countLayout);
             if (_countSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_countSetLayout);
             (_countPipeline, _countLayout, _countSetLayout) = (default, default, default);
+            if (_cornersPipeline.Handle != 0)
+            {
+                _deviceApi.vkDestroyPipeline(_cornersPipeline);
+                DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
+            }
+            if (_cornersLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_cornersLayout);
+            if (_cornersSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_cornersSetLayout);
+            (_cornersPipeline, _cornersLayout, _cornersSetLayout) = (default, default, default);
         }
     }
 }
