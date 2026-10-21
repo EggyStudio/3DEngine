@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A run recorded as an animation.** `StartRecording` records the window as an animated GIF or an
+  animated PNG, a picture at a step of the app's clock until `StopRecording`, and the `record`
+  command records for a length, as
+  [Without a window on the screen](window-and-frame.md#without-a-window-on-the-screen) shows.
 - **A mesh a compute shader writes.** `LoadMeshFromShaderBuffers` makes a mesh of the positions, the
   stream and the vertex count shader buffers hold, drawn by its count with no copy and no wait and
   read by global illumination, and `SetMeshBoundingBox` gives it the box it is culled by, as

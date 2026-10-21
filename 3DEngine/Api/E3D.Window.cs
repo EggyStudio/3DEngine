@@ -112,6 +112,45 @@ public static partial class E3D
             Log.Category("Engine.Api").Warn($"TakeScreenshot: {refusal}");
     }
 
+    /// <summary>
+    /// Starts recording what the window shows as an animated GIF or PNG, by the extension of
+    /// <paramref name="fileName"/>, a picture every <paramref name="intervalMs"/> milliseconds of the
+    /// app's clock, until <see cref="StopRecording"/>, as raylib's examples record a GIF.
+    /// </summary>
+    /// <param name="fileName">Where the file goes, ending in <c>.gif</c> or <c>.png</c>.</param>
+    /// <param name="intervalMs">How often a picture is taken, each shown for that long as it plays.</param>
+    /// <param name="scale">How much smaller each picture is kept, above 0 and up to 1.</param>
+    /// <remarks>
+    /// Each picture is the frame <see cref="TakeScreenshot"/> would capture, kept in memory, at most
+    /// a thousand. The file is written on a worker once the last pictures are back, under its own
+    /// name only when whole, with a line in the log saying where. The <c>record</c> command records
+    /// for a length as well. A file of neither extension, a second recording while one is made,
+    /// and a run with no renderer are each left out with a warning.
+    /// </remarks>
+    public static void StartRecording(string fileName, int intervalMs = 100, float scale = 1)
+    {
+        if (!TryRes<Renderer>(out var renderer) || !renderer.Context.IsInitialized)
+        {
+            ApiLogger.Warn("StartRecording: there is no renderer to record from (a headless run draws nothing).");
+            return;
+        }
+        try
+        {
+            Recorder.Start(new Recorder.Request(Path.GetFullPath(fileName), new Recorder.Measure(Math.Max(1, intervalMs) / 1000.0, false), null, null,
+                Math.Clamp(scale, 0.01f, 1f), null));
+        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException)
+        {
+            ApiLogger.Warn($"StartRecording: {error.Message}");
+        }
+    }
+
+    /// <summary>Stops the recording <see cref="StartRecording"/> started, whose file is written once its last pictures are back.</summary>
+    public static void StopRecording()
+    {
+        if (Recorder.Stop() is null) ApiLogger.Warn("StopRecording: nothing is being recorded.");
+    }
+
     // -- Timing
 
     /// <summary>Caps the frame rate. <see cref="EndDrawing"/> waits out the rest of each frame. Zero removes the cap.</summary>

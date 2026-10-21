@@ -204,6 +204,28 @@ writes into an animated GIF every few frames. Frames are kept for it from its fi
 first call gives the window in its clear color. The `e3d` tool in the repository controls a running
 program from the terminal, which is how the examples' pictures are taken.
 
+A run is recorded as an animation, a GIF or an animated PNG by the file's extension, a picture
+every so many milliseconds of the app's clock until it is stopped:
+
+<!-- compiled with:
+var done = false;
+-->
+```csharp
+StartRecording("walk.gif", 250);     // a picture every quarter of a second
+// ...
+if (done) StopRecording();
+```
+
+Each picture is the frame `TakeScreenshot` would write, and plays for as long as it was apart from
+the next, so a step of a second plays at a second, and a third argument keeps each picture smaller,
+`0.5` at half the window's size. The file is written once the last picture is back from the GPU,
+under its own name only when whole, with a line in the log saying where. The GIF holds one palette
+of 255 colors cut over every frame, so a capture of a few flat colors comes back exactly, and each
+frame after the first only the part that changed; the animated PNG keeps every color, which GitHub's
+pages play as they play a GIF. The `record` command does the same from outside for a length:
+`./e3d command record walk.gif 5s every 250ms` takes twenty pictures, `record.status` says when the
+file is written, and `record.stop` ends one sooner.
+
 ## The app underneath
 
 `InitWindow` builds an `App`, and `BeginDrawing` and `EndDrawing` run its stages. `GetApp()` hands

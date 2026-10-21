@@ -99,6 +99,10 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();
         app.World.InitResource<ShaderBufferStore>();
+        // A recording asks for its pictures before the frame's systems draw, so each is of this
+        // frame, and writes what it took where the app ends while it records.
+        app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
+        app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
 

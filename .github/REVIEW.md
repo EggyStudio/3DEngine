@@ -10,29 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ee6cf5ee`, item 69's second part, the field's read of a mesh over a shader's
-buffers, and nothing else, carrying the review's file, in the form changed at 04:59: the count read
-back without a wait when a counted mesh's version changes, the mesh entering the plan a frame or two
-on with its count known and pooled with exactly its triangles, one dispatch a mesh converting its
-positions and the stream's colors when it is pooled, the splat unchanged, the ray scene passing it
-over; the red wall a compute shader wrote tinting the block's side to 212.8 red against 97.6 with a
-count of 0, 500 sections pooled in one frame with 500 conversion dispatches at 2.6 to 3.4 ms once
-and the pool at 48 MB against the reserved form's 384, in the guide; the GI, field, counted and
-readback tests on lavapipe under the layer 75 passed; the suite 1,840 passed plain and shuffled, the
-strict build clean. Read at 05:51 on 2026-10-21. Not pushed: the build run of `50b3aa6f` is still
-running, and the head is pushed when it ends with Verdict 82's mend, whose commit follows its
-suites, the cause found to be the last dispatch's uniform buffer held until the next dispatch or a
-wait beside a pool at four, the pool's cap named from the frames in flight and one, the test waiting
-for compute before both counts and holding both to the cap, a leak still failing it; then the pack
-run with publish on, the package the voxel game waits on. Then 70, 73, the rest of 71, 72, 74, then
-Decision 51's items 59 to 66. Item 6 and the feature test's portable build wait on the owner's word.
+Reviewed up to `2f57b341`, Verdict 82's mend, after `ee6cf5ee`, item 69's second part, the field's
+read of a mesh over a shader's buffers, and nothing else, each carrying the review's file. The mend:
+the pool's cap named from the frames in flight and one, a buffer let go past it freed, the test
+waiting for compute before both counts so the dispatches' own buffers are retired on either side and
+holding the staging count and the device's to the cap, a leak still failing it, the readback tests
+passing on the device and on lavapipe, the suite 1,840 passed plain and shuffled. Item 69's second
+part, in the form changed at 04:59: the count read back without a wait when a counted mesh's version
+changes, the mesh entering the plan a frame or two on with its count known and pooled with exactly
+its triangles, one dispatch a mesh converting its positions and the stream's colors when it is
+pooled, the splat unchanged, the ray scene passing it over; the red wall a compute shader wrote
+tinting the block's side to 212.8 red against 97.6 with a count of 0, 500 sections pooled in one
+frame with 500 conversion dispatches at 2.6 to 3.4 ms once and the pool at 48 MB against the
+reserved form's 384, in the guide; the GI, field, counted and readback tests on lavapipe under the
+layer 75 passed; the suite 1,840 passed plain and shuffled, the strict build clean. Read at 05:51 on
+2026-10-21. Read at 06:25 on 2026-10-21. The build run of `50b3aa6f` ended at 06:54, Linux, macOS
+and the examples green and Windows red on the pool test as expected, 1,775 passed in 71 minutes, so
+both heads were pushed at 06:56, run 39546772464, and the pack run with publish on started at 06:56,
+run 39546802297, the package the voxel game waits on, Verdict 82 to settle on its Windows suite.
+Item 70's form said at the same time and taken in two commits, the recorder with its GIF and
+animated PNG writers, the catalog's record and record.stop and the flat calls, then the client's
+step and the animate script, the recorder tested with given frames where there is no GPU and the
+window recorded on the device, the README's animation Ore's day turning to night, the record line's
+play taking a time as BevyCSharp's does and the client's step taking the play flag too, so the two
+engines' words agree. At 06:39 the game's entry of a lantern's light in blotches joined item 71's
+second part as its first fault left, the owner having seen it in the game's captures. Then 70, 73,
+the rest of 71, then item 78, the F1 and F3 keys the owner asked for shortly before 07:06, then 72,
+74, then items 75 and 76, the sky's horizon and the frame's reading learned from the game on the
+owner's word of 06:54, then Decision 51's items 59 and 60, then item 77, the day sky, then 61 to 66.
+Item 6 and the feature test's portable build wait on the owner's word.
+
+Before it, `ee6cf5ee` came, item 69's second part, the field's read of a mesh over a shader's
+buffers, and nothing else, carrying the review's file, the suite 1,840 passed plain and shuffled.
 
 Before it, `50b3aa6f` came, item 69's first part, the mesh over a shader's buffers drawn everywhere,
-and nothing else, carrying the review's files. Pushed at 05:39.
-
-Before it, `dc487681` came, item 68, the readback without a wait, and nothing else, carrying the
-review's file. Pushed at 04:40, its build run red on Windows on the readback pool's test, Verdict
-82, green on Linux and macOS.
+and nothing else, carrying the review's files. Pushed at 05:39, its build run red on Windows on the
+pool test as expected, green elsewhere.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3210,14 +3223,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of three rooms, a corridor, stairs between two floors, a window and two doors, made from one
     recipe file of some forty lines in the game's resources and rebuilt at load, in the prototype
     materials; a character walking it through `CreatePhysicsCharacter` and `MovePhysicsCharacter`
-    with mouse look as Manor has, the level solid through the built collider; F1 opening the
-    modeling window on the level's edit mesh so the level is reshaped while walking in it, the
-    collider rebuilt on a change, and F5 saving the recipe; a sun and the global illumination on, so
-    the grid walls show the light. Commands `blockout.status` and `blockout.autopilot` for the drive
-    and the soak, the drive walking the stairs to the upper floor and reading the character's
-    height, cutting a window by a command and reading the counts, and a capture; the game joins the
-    build-all, drive, soak and storm lists and the README's gallery with its capture, and the
-    guide's page names it. One commit.
+    with mouse look as Manor has, the level solid through the built collider; Tab opening and
+    closing the modeling window, Blender's key for edit mode, F1 to F3 being the engine's on the
+    level's edit mesh so the level is reshaped while walking in it, the collider rebuilt on a
+    change, and F5 saving the recipe; a sun and the global illumination on, so the grid walls show
+    the light. Commands `blockout.status` and `blockout.autopilot` for the drive and the soak, the
+    drive walking the stairs to the upper floor and reading the character's height, cutting a window
+    by a command and reading the counts, and a capture; the game joins the build-all, drive, soak
+    and storm lists and the README's gallery with its capture, and the guide's page names it. One
+    commit.
 
 64. **Modeling operations on faces and edges, Blender's kinds (Decision 51).** The owner's later
     wave: selecting a face, insetting and pulling it, merging, beveling. On the kernel: bevel of the
@@ -3407,7 +3421,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     glow texels bring the look back. The glow lights' bound done at `0a4928d3` on 2026-10-21 in that
     form, Ore at night from 9.67 to 2.50 ms with 64 lights lit and the capture smooth, as the head
     says; the edge leak, the stepped edges, the noise, the z-fighting and the shift remain, after
-    item 70.
+    item 70. A seventh term from the game's entry of 06:39 on 2026-10-21, first among the faults
+    left: a lantern's or a torch's light lies in soft round blotches about 40 pixels across standing
+    still on a room's ceiling and walls, which the owner saw in the game's captures and called
+    fireflies; the game's reading in a room of oak planks with a hanging lantern and two wall
+    torches at hour 21 on 5.2.190, the ceiling's luminance less a Gaussian blur of 20 pixels
+    counting spots of 40 pixels or more at 4 levels or more over the blur, 8 spots at High with the
+    largest 10 levels over and the same 60 frames later, 3 with the screen's probes toggled off, 3
+    at Medium, 5 at Low with 18 over, none with global illumination off, 4 with the lantern alone
+    and 5 with the torches alone, a glowstone in the lantern's place leaving the ceiling smooth, and
+    the frame still over 120 frames; so the blotches are the light of the small emitters carried as
+    lights, in the cascades and in the screen's probes alike, where a full emissive block's light is
+    smooth, read to the probes that gather a small emitter's light near a surface, and mended under
+    the rule or named.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -3472,6 +3498,90 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     built over several with no frame's field time over the budget's worth, read through the
     profile's mark on the null device's counts and on lavapipe, and the nearest built first. One
     commit, after item 72.
+
+75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
+    into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
+    distance fog fades its land into the fog's color and then meets the image's dark lower half past
+    the last thing drawn, which Hopper shows as the game did. Whenever fog is on, the sky pass draws
+    everything below the horizon in the fog's color, blended into the image over a few degrees above
+    the horizon, the image's lower half still lighting the scene through the environment map; a
+    program with a sky image and no fog asks for a horizon color with `SetSkyHorizon(Color color,
+    float blendDegrees)`, which the fog sets by itself, and `SetSkyHorizon` with a clear color turns
+    it off. The cheat sheet line through the script, the surface listing, the drawing guide's
+    paragraph beside the sky, the upgrading entry, and Hopper's capture taken again. Tests: a
+    frame's pixels read across the horizon with fog on showing no step over a pixel on the null
+    device's sky, and the horizon color drawn where asked without fog. One commit, small, after item
+    74.
+
+76. **A command reads a rectangle of the last frame, its mean color and its largest step, so a drive
+    asserts a picture without downloading it (Decision 57).** Learned from the voxel game's
+    `voxel.color` and `voxel.edge`, which proved its dome and its mobs' shade: `frame.read <x> <y>
+    <w> <h>` answers the rectangle's mean sRGB color and the largest difference between neighboring
+    pixels along its middle row and its middle column, and `frame.read` with no measures the whole
+    frame's, through the same capture `shot` takes, the answer a line a script reads. The catalog's
+    row in the e3d guide, and the drive's guide paragraph on asserting a picture. Tests: a frame of
+    a known clear color read back as it, a frame of two halves giving the step at the middle, on the
+    null device and on lavapipe. One commit, small, after item 75.
+
+77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
+    and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
+    under a static sky image; the voxel game built a day with a sun and a moon, square with a glow,
+    a star field, a gradient at dusk and the fog following the hour. The engine offers it to every
+    program: `SetSkyTime(float hours)` and `SetSkyDay(SkyDay day)` with the day's length, the sun's
+    path and color by hour, white at noon, warm low and red at the edge of night, the sun light's
+    direction and color following, the moon's phase by the day, 3,000 stars as squares faded in the
+    lowest 20 degrees and hidden near the sun and the moon, the dusk's gradient, and the fog's and
+    the horizon's colors of item 75 following the hour; a program draws its own things over it as
+    before; the environment map built from the sky each frame it changes, under a budget. The
+    numbers the game settled with the owner, read from its code as a model, nothing of its resource
+    packs. An example `core_day_sky` with its capture at four hours, the cheat sheet lines, the
+    surface listing, the drawing guide's section and the upgrading entry; Hopper takes it as its
+    sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
+    stars' count and spread, and a capture of the example at dawn read against its record. Two
+    commits, the sun, the light and the gradient, then the moon, the stars and the example. After
+    item 60.
+
+78. **F1 hides the interface, F3 shows a debug overlay like the newest Minecraft's with sections a
+    program adds, and Shift+F3 the profiler with it (Decision 58).** The owner asked shortly before
+    07:05 on 2026-10-21 for F1 to hide the interface as Minecraft does, as an engine feature, F2 the
+    screenshot, and F3 a debug overlay like the newest Minecraft's, sorted in parts logically with
+    modules a game adds, world generation among them, showing the system, the camera and the
+    renderer, memory, fps and frametime with a graph like the RivaTuner overlay's, both for
+    BevyCSharp and 3DEngine, F1 hiding the interface and ImGui but not the F3 overlay so everything
+    hides but the overlay over the renderer, and Shift+F3 showing the frame debugger too; and
+    answered the reviewer's questions shortly before 07:06: the interface hidden by a scope, F3 the
+    overlay's on its release alone with any chord left to the program, the look Minecraft's with no
+    header, window styling or border, text on a transparent backing, and the order as the reviewer
+    sees fit. The keys, engine-wide by default: F1 hides what the program draws inside the scope,
+    its HUD and any ImGui window submitted inside it, and nothing outside it, so a pause screen, a
+    menu or an inventory drawn outside the scope stays whatever F1 says, as Minecraft hides its HUD
+    and never its screens, the engine's overlay staying, the world drawing on; F3 on its release
+    with no other key pressed during its hold toggles the overlay, so a program's own F3 chords
+    stand and the overlay never opens on one; Shift+F3 toggles the overlay with the profiler's pass
+    timings under it. The overlay is the engine's own text and lines, never an ImGui window, in
+    Minecraft's look, two columns of lines in the engine's font on a dark half-clear backing a line,
+    no header, no border, no window: the left column the engine's version and build, the fps and the
+    frametime with a strip of the last 240 frames' times under it as the RivaTuner overlay draws it,
+    the current, the average and the one percent low beside it and the GPU time as a second line,
+    the camera's position, facing and field of view, the entities and the world's counts, then the
+    program's sections; the right column the system, OS, CPU and its cores, memory in use and the
+    managed heap, GPU, driver and its memory in use, the display mode, then the renderer, passes,
+    draw calls, triangles, lights, shadows, global illumination's state and the frame's GPU time,
+    the frame's times from the engine's clock and the passes' GPU times from the profile. The calls:
+    `BeginUi()` and `EndUi()` around a program's own 2D drawing of its interface, whose draws are
+    dropped while hidden, `IsUiHidden()`, `SetUiHiddenKey` and `SetDebugOverlayKey` moving the keys
+    or turning them off with `KeyboardKey.Null`, and `AddDebugOverlaySection(string name,
+    Func<IEnumerable<string>> lines)` with a remove, the sections drawn in the left column under the
+    engine's own in the order added; the performance window of item 73's F3 folded into the
+    overlay's renderer section and the Shift+F3 profiler, its call and key gone. The same keys,
+    layout, words and registration in both engines. The guides' section on the debug keys, the cheat
+    sheet lines through the script, the surface listing and the upgrading entry; the feature test
+    adding a section and the voxel game its own when the package comes. Tests: F1 dropping the
+    scope's draws and the ImGui windows and keeping the overlay, read from the frame's pixels on the
+    device; F3's release alone toggling and a chord not; a section's lines in the overlay's text;
+    the graph's strip holding the last 240 times. Two commits, F1 and the overlay's columns, then
+    the graph, the profiler and the sections' registration. After item 71's second part, before item
+    72.
 
 ## Verdicts
 
@@ -4574,7 +4684,11 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     freeing the buffer, and the test holds the device's count to that cap read from the pool rather
     than a figure, so the bound follows the pool wherever it runs and a leak still fails it. One
     commit, after item 69's second part and before the pack run, since the pack job needs the
-    Windows suite green. Mended at `?`.
+    Windows suite green. The cause, read before the mend: the test's device count held the last
+    dispatch's uniform buffer too, kept until the next dispatch or a wait for compute retires it,
+    the fifth beside a pool at four, which the machine's pool at two hid. Mended at `2f57b341` on
+    2026-10-21 in that form, the test waiting for compute before both counts, as the head says.
+    Settles on the next Windows suite green.
 
 ## Decisions
 
@@ -5035,6 +5149,35 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     the captures put in the root or a subfolder. So item 73 in this engine, item 47 in BevyCSharp
     and item 40 in the voxel game: a built-in key writing the frame into a screenshots folder beside
     the program, named by the time as the source names its own, movable and off by a call.
+
+57. **What the engine learns from the voxel game.** The owner asked shortly before 06:54 on
+    2026-10-21 what the engine can learn from the voxel game, naming the darker lower hemisphere of
+    the skybox overlaid with the horizon's color as an engine fix since Hopper has the same dark
+    lower sky, and what else there could be, and said to do it as the reviewer sees fit and write it
+    down. So items 75 to 77: the sky below the horizon in the fog's color after item 74, a command
+    reading a rectangle of the last frame for the drives after it, and a day sky driven by the hour
+    with the sun, the moon, the stars and the dusk from the game's numbers after item 60. F2, the
+    recorder, the readback, the GPU mesh, the glow lights' bound, the cascade faults, the field's
+    budget and the fill cascades already came from the game's asks; the resource pack reader, the
+    in-wall overlay and the block lighting stay the game's own; the water's surface is judged when
+    the game's exists.
+
+58. **F1 hides the interface and F3 shows the debug overlay, in both engines.** The owner asked
+    shortly before 07:05 on 2026-10-21 for F1 to hide the interface as Minecraft does, as an engine
+    feature, F2 the screenshot, and F3 a debug overlay like the newest Minecraft's, sorted in parts
+    logically with modules a game adds, world generation among them, showing the system, the camera
+    and the renderer, memory, fps and frametime with a graph like the RivaTuner overlay's, both for
+    BevyCSharp and 3DEngine, F1 hiding the interface and ImGui but not the F3 overlay so everything
+    hides but the overlay over the renderer, and Shift+F3 showing the frame debugger too; and
+    answered the reviewer's questions shortly before 07:06: the interface hidden by a scope, F3 the
+    overlay's on its release alone with any chord left to the program, the look Minecraft's with no
+    header, window styling or border, text on a transparent backing, and the order as the reviewer
+    sees fit. So item 78 here and item 49 in BevyCSharp, the same in both, after item 71's second
+    part here and after Blockout there, and the voxel game taking them when the package comes.
+    Shortly before 07:10 the owner added that Minecraft hides its HUD only while the player's camera
+    shows and not in the pause or any other screen, so hiding every panel at any point, even in
+    menus, would be wrong; the scope gives that, the HUD inside it hidden and a screen drawn outside
+    it never, which the items say.
 
 ## Replies
 

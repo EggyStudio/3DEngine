@@ -15,14 +15,15 @@ internal sealed unsafe partial class GraphicsDevice
     /// <remarks>
     /// The frame is copied out of the swapchain image after it is drawn and before it is
     /// presented, and the submit waits for that copy, so a capture costs the frame a stall. A second
-    /// request before the first is served replaces it.
+    /// request before the first is served is given the same frame, as a screenshot asked in a
+    /// frame a recording takes a picture of is.
     /// </remarks>
     /// <exception cref="NotSupportedException">The surface does not allow its images to be copied from.</exception>
     public void RequestCapture(Action<byte[], int, int> onCaptured)
     {
         if (!_swapchainCopyable)
             throw new NotSupportedException("This surface does not allow its images to be copied, so frames cannot be captured.");
-        _captureRequest = onCaptured;
+        _captureRequest = _captureRequest is null ? onCaptured : _captureRequest + onCaptured;
     }
 
     // Records the copy of the presented image into a host-visible buffer, if a capture was asked

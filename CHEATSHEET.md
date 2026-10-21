@@ -42,6 +42,14 @@ int GetScreenHeight();                                   // The window's height,
                                                          // drawing use
 void TakeScreenshot(string fileName);                    // Writes the frame being drawn to a PNG file, once it is
                                                          // presented at EndDrawing
+void StartRecording(string fileName, int intervalMs = 100, float scale = 1); // Starts recording what the window shows
+                                                                             // as an animated GIF or PNG, by the
+                                                                             // extension of fileName, a picture every
+                                                                             // intervalMs milliseconds of the app's
+                                                                             // clock, until StopRecording, as raylib's
+                                                                             // examples record a GIF
+void StopRecording();                                    // Stops the recording StartRecording started, whose file is
+                                                         // written once its last pictures are back
 
 void SetTargetFPS(int fps);                              // Caps the frame rate
 float GetFrameTime();                                    // Seconds the last frame took

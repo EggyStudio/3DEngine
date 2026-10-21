@@ -503,3 +503,53 @@ of the glow lights a screen tile sees or a coarse glow pass without the probes, 
 the game waits on both; then, after the compute asks and the animated capture, the edge leak, the
 stepped edges, the noise and the shift, each reproduced in the engine's own scenes and mended under
 the rule that no view's distance to its reference widens, or named where the method stops.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: a lantern's or a torch's light lies in blotches
+
+The owner sees what read as fireflies in the game's captures of a room lit at night, soft round
+blotches of light about 40 pixels across standing still on the ceiling and the walls. Each was read
+at the game's `6845654` on the 3DEngine 5.2.190 package, with `voxel.gi high`, the game's default,
+offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, on seed 1 opened by `./e3d open
+VoxelSandbox/bin/Debug/net10.0/VoxelSandbox --offscreen --transient`, after `voxel.cycle off`,
+`voxel.still on`, `voxel.hud off`, `voxel.clouds off`, `voxel.fly on` and `voxel.kill all`. The room
+is built in the air, `voxel.room 300 100 300 308 105 308 oak_planks`, lit by a lantern hanging from
+the middle of its ceiling, `voxel.set 304 104 304 hanging_lantern`, and two torches on its far
+walls, `voxel.set 307 102 304 wall_torch_west` and `voxel.set 304 102 307 wall_torch_north`, at hour
+21, the eye in a corner, `voxel.tp 301.5 101.4 301.5` and `voxel.look 135 -4`, after 240 frames.
+`gi.state` carries 141 small emitters as lights, the 64 nearest the eye lit.
+
+The blotches are read on the flat ceiling either side of the lantern, in strips of 520 by 90 pixels
+from 40, 15 and 720, 15, each pixel's luminance less a Gaussian blur of the strip of 20 pixels, as
+the largest excess in sRGB levels and as how many spots of 40 pixels or more stand 4 levels or more
+over the blur.
+
+| light | spots | largest excess |
+|---|---|---|
+| high, as the game plays | 8 | 10 |
+| the same 60 frames later | 8 | 10 |
+| high, `gi.toggle screen off` | 3 | 11 |
+| medium | 3 | 9 |
+| low | 5 | 18 |
+| off | 0 | 2 |
+| high, the lantern alone | 4 | 8 |
+| high, the two torches alone | 5 | 11 |
+
+A glowstone in the lantern's place with the torches taken away, a whole emissive block, leaves the
+ceiling smooth in the capture, though the strips reach the block itself and so read 48. Still for
+120 frames, `voxel.flicker 120 0 0 20 <file>`, each frame changed from the one before by 0.02 to
+0.06 levels on the mean and 0.009 percent of the pixels by more than 8, so the blotches stand still
+rather than flicker. So they are global illumination's light from the small emitters, the flames
+and the lantern's glass, with or without the screen's probes, and a whole emissive block's light
+lies smooth
+([capture](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/blotches.webp)).
+
+The engine lacks indirect light from a small emitter that lies as smooth on the surfaces around it
+as a whole emissive block's. Meanwhile the game keeps its lanterns and torches as they are and
+changes nothing in its light.
+
+
+Review: item 71 of REVIEW.md, 2026-10-21, its second part's first fault left after the glow lights'
+bound; the blotches reproduced in the engine's own scene, a room with a small emitter near its
+ceiling, read to their cause in the probes that gather a small emitter's light near a surface, in
+the cascades and the screen's probes alike, and mended under the rule that no view's distance to its
+reference widens, or named where the method stops; after item 70.
