@@ -133,6 +133,7 @@ table also answers whether the two agree.
 | A shader buffer read back without holding the program, asked for in one frame and collected in a later one by a handle with a ready flag, the staging buffers pooled | to check | to take (item 68) |
 | A mesh over buffers a compute shader wrote, positions and a stream with a count the shader writes, drawn by an indirect draw with no copy and no wait, culled by a box the program sets | to check | to take (item 69) |
 | An animated capture, frames taken from the frame being drawn at a step in milliseconds or frames for a length, written as a GIF or an animated PNG by encoders of the engine's own with the frames' times as the delays, a `record` command and a client step for it, and a script assembling captures on disk into one | to take (item 46) | to take (item 70) |
+| F2 takes a screenshot in every program by default, the frame written as a PNG into a `screenshots` folder beside the program named by the time as Minecraft names its own, the key movable and off by a call | to take (item 47) | to take (item 73) |
 
 ### Modeling
 

@@ -1158,7 +1158,7 @@ Shader LoadComputeShaderFromMemory(string code, string name = "compute.slang"); 
 ShaderBuffer LoadShaderBuffer(int size);                 // Makes a storage buffer of size bytes, zeroed
 ShaderBuffer LoadShaderBuffer<T>(ReadOnlySpan<T> data);  // Makes a storage buffer holding data
 void UnloadShaderBuffer(ShaderBuffer buffer);            // Frees a storage buffer, once the dispatches using it have
-                                                         // finished
+                                                         // finished, and the meshes over it
 bool IsShaderBufferValid(ShaderBuffer buffer);           // Whether buffer is loaded
 void UpdateShaderBuffer<T>(ShaderBuffer buffer, ReadOnlySpan<T> data, int offset = 0); // Writes data into a storage
                                                                                        // buffer, starting offset bytes
@@ -1338,6 +1338,14 @@ void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int of
                                                                                        // MeshStreamBuffer its stream of
                                                                                        // the program's own, in the
                                                                                        // stream's format
+ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity);
+                                                         // Makes a mesh of the vertices compute shaders write into
+                                                         // storage buffers, drawn as many as a shader wrote into the
+                                                         // first four bytes of count, at most capacity, with no copy
+                                                         // through the CPU and no wait
+void SetMeshBoundingBox(ModelMesh mesh, BoundingBox box); // Sets the box in its own space a mesh over shader buffers is
+                                                          // culled by, which GetMeshBoundingBox then gives, since the
+                                                          // CPU knows nothing of its vertices
 void UnloadMesh(ModelMesh mesh);                         // Frees a mesh
 
 void SetEnvironmentMap(Image equirectangular, float intensity = 1); // Lights models from all around by an

@@ -82,10 +82,12 @@ public static partial class E3D
         return buffer;
     }
 
-    /// <summary>Frees a storage buffer, once the dispatches using it have finished.</summary>
+    /// <summary>Frees a storage buffer, once the dispatches using it have finished, and the meshes over it.</summary>
     public static void UnloadShaderBuffer(ShaderBuffer buffer)
     {
         if (!ShaderBuffers.Remove(buffer.Id, out var gpu)) return;
+        if (TryRes<MeshStore>(out var meshes) && meshes.RemoveCountedOver(gpu!) is > 0 and var over)
+            ApiLogger.Warn($"UnloadShaderBuffer: {over} mesh{(over == 1 ? "" : "es")} over the buffer {(over == 1 ? "was" : "were")} unloaded with it, a mesh being unloaded before its buffers.");
         // A frame in flight may still draw with it, as a dispatch may still write it.
         if (ComputeDevice is { } device)
         {

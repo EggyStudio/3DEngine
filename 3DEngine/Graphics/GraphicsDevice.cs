@@ -192,6 +192,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         DisposeKeptScreen();
         DestroyReadbacks();
         DestroyCompute();
+        DestroyMeshCounts();
         DestroySkinning();
         DisposeProbeFilter();
         DestroySceneField();

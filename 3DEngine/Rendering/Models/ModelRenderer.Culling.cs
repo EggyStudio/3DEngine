@@ -109,12 +109,20 @@ internal sealed partial class ModelRenderer
     }
 
     // Draws a batch, the blocks a view sees as runs of calls and a batch with none as one, and
-    // answers how many calls it made.
+    // answers how many calls it made. A mesh over shader buffers is drawn by its count, without
+    // indices (DrawCounted).
     private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, in Frustum frustum)
     {
+        var (counted, indexCount) = (batch.Mesh.Counted, batch.Mesh.IndexCount);
+        void Draw(uint count, uint first)
+        {
+            if (counted is { } held) pass.DrawCounted(held.Count, held.Capacity, count, first);
+            else pass.DrawIndexed(indexCount, count, 0, 0, first);
+        }
+
         if (batch.BlockCount == 0)
         {
-            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+            Draw(batch.Count, batch.First);
             return 1;
         }
 
@@ -132,14 +140,14 @@ internal sealed partial class ModelRenderer
             }
             if (runCount > 0)
             {
-                pass.DrawIndexed(batch.Mesh.IndexCount, runCount, 0, 0, runFirst);
+                Draw(runCount, runFirst);
                 calls++;
             }
             (runFirst, runCount) = seen ? (block.First, block.Count) : (0u, 0u);
         }
         if (runCount > 0)
         {
-            pass.DrawIndexed(batch.Mesh.IndexCount, runCount, 0, 0, runFirst);
+            Draw(runCount, runFirst);
             calls++;
         }
         return calls;

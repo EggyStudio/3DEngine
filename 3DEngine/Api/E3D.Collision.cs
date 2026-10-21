@@ -203,5 +203,7 @@ public static partial class E3D
     }
 
     /// <summary>The box around a mesh's vertices, in its own space.</summary>
-    public static BoundingBox GetMeshBoundingBox(ModelMesh mesh) => mesh.Bounds;
+    /// <remarks>A mesh over shader buffers has the box <see cref="SetMeshBoundingBox"/> gave it, or none.</remarks>
+    public static BoundingBox GetMeshBoundingBox(ModelMesh mesh) =>
+        mesh.IsValid && TryRes<MeshStore>(out var meshes) && meshes.CountedBoxOf(mesh.Id) is { } box ? box : mesh.Bounds;
 }

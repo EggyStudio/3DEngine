@@ -500,7 +500,7 @@ internal sealed partial class ModelRenderer : IDisposable
             if (feed is { } fed)
                 pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : Zeros(gfx)], [0]);
             if (positions) pass.SetVertexBuffer(6, [Zeros(gfx)], [0]);
-            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count(target == 0 ? "camera" : "targets", DrawSeen(pass, batch, blocks, frustum));
         }
         if (scissored is not null) pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);

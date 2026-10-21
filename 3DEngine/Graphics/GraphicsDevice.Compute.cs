@@ -134,7 +134,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public IBuffer CreateStorageBuffer(int size)
     {
-        var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(4, size), BufferUsage.Storage | BufferUsage.TransferSrc, CpuAccessMode.ReadWrite));
+        var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(4, size), BufferUsage.Storage | BufferUsage.TransferSrc | BufferUsage.Vertex, CpuAccessMode.ReadWrite));
         Map(buffer).Clear();
         return buffer;
     }

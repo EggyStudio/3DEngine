@@ -416,6 +416,44 @@ EndShaderMode();
 A model shader drawn with `DrawMeshInstanced` reads a buffer the same way, each copy picking its
 values by `SV_InstanceID`, so particles moved by a compute shader are drawn as meshes.
 
+## A mesh a compute shader writes
+
+A mesher in compute writes a mesh's vertices and how many there are into shader buffers, which
+`LoadMeshFromShaderBuffers` makes a mesh of with nothing read back. The `shaders_compute_mesh`
+example meshes a hill of voxels each frame as waves roll across it:
+
+<!-- compiled with:
+const int Capacity = 96 * 1024;
+Shader mesher = default;
+ModelMaterial material = new(Color.White);
+-->
+```csharp
+var positions = LoadShaderBuffer(Capacity * 12);   // three floats a vertex
+var packed = LoadShaderBuffer(Capacity * 4);       // four bytes a vertex its shader unpacks
+var counter = LoadShaderBuffer(4);                 // how many vertices, a uint
+var hill = LoadMeshFromShaderBuffers(positions, packed, MeshStreamFormat.UInt, counter, Capacity);
+SetMeshBoundingBox(hill, new BoundingBox(new Vector3(-12, 0, -12), new Vector3(12, 12, 12)));
+// ...
+ComputeShaderDispatch(mesher, 3, 3, 1);
+DrawMesh(hill, material, Matrix4x4.Identity);
+```
+
+The shader writes three floats a vertex, every three vertices a triangle with no indices, and the
+count into the first four bytes of its buffer. One that adds each face's six vertices to the count,
+as the example's `mesher.slang` does with `InterlockedAdd`, puts the faces wherever they fall. The
+engine turns the count into the draw's arguments on the GPU before the frame draws, held to the
+capacity, so a dispatch and the draw after it share the buffers with no copy and no wait. For a
+frame of 500 such meshes under a sun that casts shadows that takes 0.02 ms of the GPU and 0.09 ms of
+the CPU at 800 by 450 on an RTX 4070 Laptop GPU, as `./e3d command profile` gives it under
+`mesh_counts`.
+
+The mesh is drawn by `DrawMesh`, casts its shadow and is culled by the box `SetMeshBoundingBox`
+gives it, drawn wherever it is until it has one. The model pass's own shader lights it by a zero
+normal, as it lights any mesh of positions alone, so a shader of the program's own unpacks its
+normal from the stream it reads as `CUSTOM0`, as the example's `packed.slang` does. Its vertices
+are on the GPU alone, so picking, bodies and global illumination pass it over. `UnloadMesh` frees
+the mesh and not its buffers, and a buffer unloaded first unloads the meshes over it.
+
 ## Writing a texture
 
 A compute shader also writes a texture it declares as `RWTexture2D<float4>`, set with
@@ -450,7 +488,8 @@ texture's first level, and the dispatch makes the smaller levels again from it.
   [`shaders_mesh_instancing`](../3DEngine.Examples/Shaders/ShadersMeshInstancing.cs),
   [`shaders_instance_hues`](../3DEngine.Examples/Shaders/ShadersInstanceHues.cs),
   [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs),
-  [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs), and the shaders
+  [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs),
+  [`shaders_compute_mesh`](../3DEngine.Examples/Shaders/ShadersComputeMesh.cs), and the shaders
   they load in [`resources/shaders`](../3DEngine.Examples/resources/shaders)
 - The game [`games/Sumo`](../games/Sumo/Program.cs), whose marbles, crowd and floor are drawn by
   shaders of its own and whose floor a compute shader paints each frame

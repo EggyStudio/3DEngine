@@ -19,7 +19,9 @@ internal enum BufferUsage
     /// <summary>Buffer can be used as a transfer destination.</summary>
     TransferDst = 1 << 4,
     /// <summary>Buffer is used for CPU→GPU staging transfers.</summary>
-    Staging = 1 << 5
+    Staging = 1 << 5,
+    /// <summary>Buffer can hold the arguments of an indirect draw.</summary>
+    Indirect = 1 << 7,
 }
 
 /// <summary>CPU access mode for buffer memory mapping.</summary>

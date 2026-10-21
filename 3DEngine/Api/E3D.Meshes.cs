@@ -166,6 +166,80 @@ public static partial class E3D
         }
     }
 
+    /// <summary>
+    /// Makes a mesh of the vertices compute shaders write into storage buffers, drawn as many as a
+    /// shader wrote into the first four bytes of <paramref name="count"/>, at most
+    /// <paramref name="capacity"/>, with no copy through the CPU and no wait.
+    /// </summary>
+    /// <param name="positions">
+    /// Each vertex's position in the mesh's own space, three floats a vertex, which a shader writes
+    /// as a <c>RWStructuredBuffer&lt;float&gt;</c> three to a vertex, every three vertices a triangle.
+    /// </param>
+    /// <param name="stream">
+    /// The vertices' stream of the program's own, one <paramref name="format"/> a vertex, which a
+    /// vertex stage of the program's own reads as <c>CUSTOM0</c>, or a default buffer for none.
+    /// </param>
+    /// <param name="format">What each vertex of <paramref name="stream"/> holds.</param>
+    /// <param name="count">The buffer whose first four bytes, a <c>uint</c>, a shader writes the vertex count into.</param>
+    /// <param name="capacity">The most vertices drawn, which a larger count is held to, as many as <paramref name="positions"/> holds at most.</param>
+    /// <returns>The mesh, or an invalid one where a buffer is not loaded or is too small for the capacity, with the reason in the log.</returns>
+    /// <remarks>
+    /// <para>
+    /// A dispatch writes the buffers and a draw reads them in the same frame, the count turned into
+    /// an indirect draw's arguments by the GPU before the frame draws, so a mesher in compute puts a
+    /// mesh on the screen with nothing read back. The mesh is drawn by <see cref="DrawMesh"/>, its
+    /// shadow cast and its depth drawn as any mesh's, and lit by the model pass's own shader by a zero
+    /// normal, as a mesh uploaded from its positions alone is, so a shader of the program's own
+    /// unpacks its normal from the stream.
+    /// </para>
+    /// <para>
+    /// It is culled by the box <see cref="SetMeshBoundingBox"/> gives it, and drawn wherever it is
+    /// until one is given. Its vertices are on the GPU alone, so picking, bodies and the functions that
+    /// read a mesh's vertices pass it over. <see cref="UnloadMesh"/> frees the mesh and not the
+    /// buffers, and a buffer unloaded first unloads the meshes over it.
+    /// </para>
+    /// </remarks>
+    public static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity)
+    {
+        if (!TryRes<ShaderBufferStore>(out var buffers) || buffers.Get(positions.Id) is not { } held || buffers.Get(count.Id) is not { } counter)
+        {
+            ApiLogger.Warn("LoadMeshFromShaderBuffers: the positions or the count buffer is not loaded, so no mesh is made.");
+            return default;
+        }
+        if (capacity <= 0 || capacity % 3 != 0 || (ulong)capacity * 12 > held.Description.Size)
+        {
+            ApiLogger.Warn($"LoadMeshFromShaderBuffers: a capacity of {capacity} is not a whole number of triangles the positions' {held.Description.Size} bytes hold, twelve a vertex, so no mesh is made.");
+            return default;
+        }
+        (IBuffer, MeshStreamFormat)? own = null;
+        if (stream.IsValid)
+        {
+            if (buffers.Get(stream.Id) is not { } streamed || (ulong)capacity * (ulong)MeshStream.SizeOf(format) > streamed.Description.Size)
+            {
+                ApiLogger.Warn($"LoadMeshFromShaderBuffers: the stream holds fewer than {capacity} vertices of {format}, so no mesh is made.");
+                return default;
+            }
+            own = (streamed, format);
+        }
+        var id = Meshes.AddCounted(held, own, counter, (uint)capacity);
+        return new ModelMesh(id, capacity, capacity / 3, default);
+    }
+
+    /// <summary>
+    /// Sets the box in its own space a mesh over shader buffers is culled by, which
+    /// <see cref="GetMeshBoundingBox"/> then gives, since the CPU knows nothing of its vertices.
+    /// </summary>
+    /// <remarks>
+    /// Such a mesh is drawn wherever it is until it is given one. A mesh of vertices on the CPU takes
+    /// its box from them, and is left as it is with a warning.
+    /// </remarks>
+    public static void SetMeshBoundingBox(ModelMesh mesh, BoundingBox box)
+    {
+        if (!mesh.IsValid) return;
+        if (!Meshes.SetCountedBox(mesh.Id, box))
+            ApiLogger.Warn("SetMeshBoundingBox: the mesh's box comes from its vertices, a box being set for a mesh over shader buffers alone, so it is left as it is.");
+    }
+
     /// <summary>Frees a mesh. Drawing it afterward draws nothing.</summary>
     public static void UnloadMesh(ModelMesh mesh)
     {

@@ -183,7 +183,7 @@ internal sealed partial class ModelRenderer
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             if (batch.Mesh.PositionsOnly) pass.SetVertexBuffer(6, [Zeros(device)], [0]);
-            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count("depth", DrawSeen(pass, batch, view.Blocks, frustum));
         }
     }
@@ -213,7 +213,7 @@ internal sealed partial class ModelRenderer
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             if (batch.Mesh.PositionsOnly) pass.SetVertexBuffer(6, [Zeros(_shadowMaking!.Value.Device)], [0]);
-            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             calls += DrawSeen(pass, batch, view.Blocks, frustum);
         }
         return calls;

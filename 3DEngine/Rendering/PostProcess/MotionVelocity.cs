@@ -106,8 +106,13 @@ internal sealed class MotionVelocity : IDisposable
                 bound = pipeline;
             }
             pass.SetVertexBuffer(0, [mesh.Vertices, buffer], [0, 0]);
-            pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
-            pass.DrawIndexed(mesh.IndexCount, (uint)count, firstInstance: (uint)first);
+            if (mesh.Counted is { } counted)
+                pass.DrawCounted(counted.Count, counted.Capacity, (uint)count, (uint)first);
+            else
+            {
+                pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
+                pass.DrawIndexed(mesh.IndexCount, (uint)count, firstInstance: (uint)first);
+            }
         }
     }
 

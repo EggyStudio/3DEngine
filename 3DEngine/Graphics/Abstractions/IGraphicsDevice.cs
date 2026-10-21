@@ -168,6 +168,18 @@ internal interface IGraphicsDevice : IDisposable
     /// <param name="firstInstance">Index of the first instance.</param>
     void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1, uint firstIndex = 0, int vertexOffset = 0, uint firstInstance = 0);
 
+    /// <summary>
+    /// Draws a mesh of no indices whose vertex count a shader wrote into the first four bytes of
+    /// <paramref name="count"/>, at most <paramref name="capacity"/>, by an indirect draw, so the CPU
+    /// never waits for the count.
+    /// </summary>
+    /// <param name="commandBuffer">The active command buffer.</param>
+    /// <param name="count">The buffer whose first four bytes hold the vertex count.</param>
+    /// <param name="capacity">The most vertices drawn, which a larger count is held to.</param>
+    /// <param name="instanceCount">Number of instances to draw.</param>
+    /// <param name="firstInstance">Index of the first instance.</param>
+    void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance);
+
     /// <summary>Binds one or more vertex buffers to the command buffer.</summary>
     /// <param name="commandBuffer">The active command buffer.</param>
     /// <param name="firstBinding">First binding slot index.</param>

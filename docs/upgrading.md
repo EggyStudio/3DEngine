@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A mesh a compute shader writes.** `LoadMeshFromShaderBuffers` makes a mesh of the positions, the
+  stream and the vertex count shader buffers hold, drawn by its count with no copy and no wait, and
+  `SetMeshBoundingBox` gives it the box it is culled by, as
+  [A mesh a compute shader writes](shaders-and-compute.md#a-mesh-a-compute-shader-writes) shows.
 - **A buffer read back without a wait.** `ReadShaderBufferAsync` asks for a storage buffer's bytes
   to be copied out after the dispatches before it, answering a `ShaderReadback` with its
   `ShaderReadback.Id`, `ShaderReadback.Size` and `ShaderReadback.IsValid`, which

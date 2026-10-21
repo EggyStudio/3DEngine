@@ -107,7 +107,7 @@ internal sealed partial class ModelRenderer
             var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, view.Ring!, colors, texcoords2, profiles.Buffer],
                 [0, view.Offset, 0, 0, profiles.Offset + (ulong)(index++ * 32)]);
-            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count("subsurface", DrawSeen(pass, batch, view.Blocks, frustum));
         }
         return marked;

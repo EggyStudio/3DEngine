@@ -46,6 +46,20 @@ internal sealed class MeshStore
     /// </summary>
     public sealed record Skin(ushort[] Joints, float[] Weights, int JointCount, System.Numerics.Vector4[]? Morphs = null, int MorphCount = 0);
 
+    /// <summary>
+    /// A mesh over shader buffers, its positions twelve bytes a vertex and its stream of the
+    /// program's own where it has one, drawn without indices as many vertices as a shader wrote into
+    /// the first four bytes of its count buffer, at most its capacity. Nothing of it is kept here,
+    /// so the readers of a mesh's vertices on the CPU pass it over.
+    /// </summary>
+    public sealed record Counted(int Id, IBuffer Positions, (IBuffer Buffer, MeshStreamFormat Format)? Stream, IBuffer Count, uint Capacity);
+
+    // The meshes over shader buffers, those to make on the GPU, and the boxes the program set them.
+    private readonly Dictionary<int, Counted> _counted = [];
+    private readonly Dictionary<int, BoundingBox> _countedBoxes = [];
+    private readonly List<Counted> _countedUploads = [];
+    private readonly List<(int Id, BoundingBox Box)> _boxChanges = [];
+
     private readonly Dictionary<int, Skin> _skins = [];
     private readonly Dictionary<int, (System.Numerics.Matrix4x4[] Joints, float[]? Weights)> _poses = [];
 
@@ -67,7 +81,70 @@ internal sealed class MeshStore
     /// <summary>How many meshes are loaded.</summary>
     public int Count
     {
-        get { lock (_gate) return _live.Count; }
+        get { lock (_gate) return _live.Count + _counted.Count; }
+    }
+
+    /// <summary>Queues a mesh over shader buffers, which the program's dispatches write, and returns its id.</summary>
+    public int AddCounted(IBuffer positions, (IBuffer Buffer, MeshStreamFormat Format)? stream, IBuffer count, uint capacity)
+    {
+        lock (_gate)
+        {
+            var id = _next++;
+            var counted = new Counted(id, positions, stream, count, capacity);
+            _counted[id] = counted;
+            _countedUploads.Add(counted);
+            return id;
+        }
+    }
+
+    /// <summary>A mesh over shader buffers, or null for any other.</summary>
+    internal Counted? CountedOf(int id)
+    {
+        lock (_gate) return _counted.GetValueOrDefault(id);
+    }
+
+    /// <summary>
+    /// Sets the box a mesh over shader buffers is culled by, in its own space, and answers whether
+    /// <paramref name="id"/> names one.
+    /// </summary>
+    internal bool SetCountedBox(int id, BoundingBox box)
+    {
+        lock (_gate)
+        {
+            if (!_counted.ContainsKey(id)) return false;
+            _countedBoxes[id] = box;
+            _boxChanges.Add((id, box));
+            return true;
+        }
+    }
+
+    /// <summary>The box a mesh over shader buffers was given, or null for none or for another mesh.</summary>
+    internal BoundingBox? CountedBoxOf(int id)
+    {
+        lock (_gate) return _countedBoxes.TryGetValue(id, out var box) ? box : null;
+    }
+
+    /// <summary>Unloads the meshes over a shader buffer, before it is freed, and answers how many there were.</summary>
+    internal int RemoveCountedOver(IBuffer buffer)
+    {
+        int[] over;
+        lock (_gate)
+            over = [.. _counted.Values.Where(c => ReferenceEquals(c.Positions, buffer) || ReferenceEquals(c.Count, buffer)
+                                                  || c.Stream is { } stream && ReferenceEquals(stream.Buffer, buffer)).Select(c => c.Id)];
+        foreach (var id in over) Remove(id);
+        return over.Length;
+    }
+
+    /// <summary>Hands the meshes over shader buffers to make on the GPU and the boxes set since, and empties the queues.</summary>
+    internal (Counted[] Made, (int Id, BoundingBox Box)[] Boxes) TakeCounted()
+    {
+        lock (_gate)
+        {
+            var taken = (_countedUploads.ToArray(), _boxChanges.ToArray());
+            _countedUploads.Clear();
+            _boxChanges.Clear();
+            return taken;
+        }
     }
 
     /// <summary>
@@ -207,7 +284,7 @@ internal sealed class MeshStore
     /// <summary>Whether <paramref name="id"/> names a loaded mesh.</summary>
     public bool Contains(int id)
     {
-        lock (_gate) return _live.ContainsKey(id);
+        lock (_gate) return _live.ContainsKey(id) || _counted.ContainsKey(id);
     }
 
     /// <summary>A loaded mesh's vertices and triangle indices, which the caller must not change.</summary>
@@ -227,6 +304,14 @@ internal sealed class MeshStore
     {
         lock (_gate)
         {
+            if (_counted.Remove(id))
+            {
+                _countedBoxes.Remove(id);
+                _countedUploads.RemoveAll(c => c.Id == id);
+                _boxChanges.RemoveAll(b => b.Id == id);
+                _removals.Add(id);
+                return true;
+            }
             if (!_live.Remove(id)) return false;
             _skins.Remove(id);
             _streams.Remove(id);
@@ -384,6 +469,13 @@ internal sealed class GpuMeshes : IDisposable
         /// what the pass sees, or null where the CPU does not know them, as a skin the GPU poses.
         /// </summary>
         internal (Vector3 Min, Vector3 Max)? Box { get; init; }
+
+        /// <summary>
+        /// The buffer whose first four bytes a shader writes the vertex count into and the most
+        /// vertices drawn, for a mesh over shader buffers, drawn without indices by an indirect draw,
+        /// or null for any other. Its buffers are the program's, freed by it.
+        /// </summary>
+        internal (IBuffer Count, uint Capacity)? Counted { get; init; }
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
@@ -407,6 +499,15 @@ internal sealed class GpuMeshes : IDisposable
             var (uploads, removals) = store.Take();
             foreach (var id in removals)
                 if (_entries.Remove(id, out var gone)) Retire(gone, vertices: true);
+
+            // A mesh over shader buffers draws them as they are, its positions in place of the
+            // indices it has none of, which no draw binds.
+            var (counted, boxes) = store.TakeCounted();
+            foreach (var made in counted)
+                _entries[made.Id] = new Entry(made.Positions, made.Positions, 0)
+                    { PositionsOnly = true, Custom = made.Stream, Counted = (made.Count, made.Capacity) };
+            foreach (var (id, box) in boxes)
+                if (_entries.TryGetValue(id, out var boxed)) _entries[id] = boxed with { Box = (box.Min, box.Max) };
 
             foreach (var upload in uploads)
             {
@@ -504,6 +605,8 @@ internal sealed class GpuMeshes : IDisposable
     // Hands a mesh's buffers to the retired list, which destroys them once no frame can read them.
     private void Retire(Entry entry, bool vertices, bool indices = true)
     {
+        // A mesh over shader buffers holds the program's buffers, which it frees.
+        if (entry.Counted is not null) return;
         if (vertices)
         {
             // A skin owns its vertex buffer.

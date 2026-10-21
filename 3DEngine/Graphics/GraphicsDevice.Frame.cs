@@ -94,6 +94,8 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkResetFences(_inFlightFences[_currentFrame]).CheckResult();
+        // The counted draws' vertex counts, filled by a batch sent ahead of the frame with the uploads.
+        RecordMeshCounts();
         FlushUploads();
         _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]).CheckResult();
 

@@ -10,34 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0a4928d3`, the glow lights' bound of item 71's second part, and nothing else,
-carrying the review's file, in the form said before it: with the screen's probes left out and a glow
-light lit, probes stand for the glow lights alone, marching to them once a tile and tracing nothing
-else, so a pixel reads their light at a cost the lights do not change, the lighting buffer saying
-the glow texels are read, nothing made with no glow light in view; the test in the strip's room
-reading the floor within 6 of the marched frame and the probes made only with the lights on;
-RENDERING.md's paragraph with the capture of Ore's ground at night in the three forms, the guide's
-numbers for the Cornell box and Ore, 2.50 ms where 9.67 with 64 lights lit; N 1.3 caught the global
-illumination tests past 800 lines, so the two screen-probe tests moved to a partial of their own;
-the suite 1,829 passed plain and shuffled. Read at 03:04 on 2026-10-21. The build run of `b5db84f3`
-ended green at 03:25, macOS in 27 minutes, Linux in 43 and Windows in 83 on a slow runner, so the
-head was pushed at 03:26; the pack run of `b5db84f3`, the day's package, is on its Windows suite
-since 02:02 and its games and captures jobs, its Linux, macOS and examples green. Item 68 is written
-in the form taken, the flush taking the readback batch after the uploads and retiring the batches
-done, an early collect flushing and waiting for its batch alone, its four tests passing on the
-device, and its checks running; then 69, 70, the rest of 71, then item 72, the fill cascades and the
-distant ambient the owner asked for shortly before 03:17, then Decision 51's items 59 to 66, the
-modeling work, in order, the recipe's words from BevyCSharp's Replies. Item 6 and the feature test's
-portable build wait on the owner's word.
+Reviewed up to `dc487681`, item 68, the readback without a wait, and nothing else, carrying the
+review's file, in the form said before it: `ReadShaderBufferAsync` answering a `ShaderReadback`
+handle with a fence of its batch, `IsShaderReadbackReady`, `GetShaderReadback` waiting for its batch
+alone where asked early, `UnloadShaderReadback`, the readback batch flushed after the uploads and
+retired when done, the staging buffers pooled by power of two, the storage buffers taking the
+transfer-source usage; the readback tests on the device and on lavapipe, not ready in its frame, a
+dispatch after the ask not read, ready on the first check after, a hundred frames leaving the pool
+at two; the guide's section, the cheat sheet lines, the surface listing and the upgrading entry; the
+suite 1,833 passed plain and shuffled. Read at 03:39 on 2026-10-21 and pushed at 04:40; the build
+run of `0a4928d3` had ended green at 04:37, macOS in 26 minutes, Linux in 50 and Windows in 71; the
+pack run of `b5db84f3` ended green at 03:54, every job, the Linux and macOS suites in 51 minutes,
+the Windows suite's tests in 54 minutes 47 seconds and its games step after them to 1 hour 38, the
+games job in 43 minutes with its soak through, the captures on both systems, the examples and the
+pack job, which pushed `5.2.204` at 03:51, listed by 04:00 with its nuspec naming `b5db84f3` and 14
+lines of notes from the feature test's parts, the spatial sound, the gamepad, the screen probes'
+call and the two mends; Verdicts 79, 80 and 81 settle on it and none is open. Item 69's form said at
+03:39 and taken in two commits, the mesh drawn everywhere, then the field's read, the package after
+the second; a draw being indexed with its own instance range and no copy allowed inside a pass, the
+vertex count the GPU writes reaches the draw through an arena of indirect records, one ring slot a
+frame in flight, the instance count written while the pass records and the vertex count filled by a
+batch submitted before the frame that clamps the program's count to the capacity and copies it into
+each record, with a barrier to the indirect and vertex stages; the mesh culled by its box whole,
+drawn by the model pass from its positions with the stream at the custom slot, left out of picking;
+the field reserving a third of the capacity in triangles and copying the positions on the GPU, the
+splat reading each instance's live count, the color from the stream or the material, and the mesh
+marked changed whenever a dispatch binds its positions or count buffer so the field builds it again
+under the budget. Then 70, then 73, the F2 screenshot the owner asked for shortly before 03:42, the
+rest of 71, 72, then Decision 51's items 59 to 66. Item 6 and the feature test's portable build wait
+on the owner's word.
+
+Before it, `0a4928d3` came, the glow lights' bound of item 71's second part, and nothing else,
+carrying the review's file, Ore at night from 9.67 to 2.50 ms with 64 lights lit. Pushed at 03:26,
+its build run green at 04:37.
 
 Before it, `b5db84f3` came, Verdict 81's mend, after `55141a42`, Verdict 80's mend, and `10503abe`,
-item 71's first part, the call leaving the screen probes out, and nothing else. The three pushed at
-02:02, the pack run with publish on started then, run 39518866382. Their build run green at 03:25,
-Windows in 83 minutes.
-
-Before it, `b47d20d6` came, item 67, the first gamepad moving through ImGui only once a program
-asks, and nothing else, carrying the review's files and the asks. Pushed at 01:12 with `c2b8c0e9`,
-the feature test whole, their build run green at 02:00.
+item 71's first part, and nothing else. The three pushed at 02:02, their build run green at 03:25,
+the pack run with publish on started then, run 39518866382.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3293,7 +3302,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and its read back at once at 1.08 to 1.71 ms on the main thread, on a frame of 16.9 ms with 4.8
     ms of wait, so a read takes up to a third of what a standing frame has left, and its flights at
     12 columns put the frame at 21.4 to 28.8 ms. One commit, after item 67 and before item 59, since
-    the game waits on it.
+    the game waits on it. Done at `dc487681` on 2026-10-21, as the head says.
 
 69. **A mesh drawn from buffers a compute shader wrote, with a count the shader writes.** Asked by
     the voxel game on 2026-10-21 for its meshing on the GPU (ASKS.md, the entry of that day): a mesh
@@ -3426,6 +3435,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cheat sheet lines through the script, the surface listing and the upgrading entries. After item
     71's second part. Three commits, one a part.
 
+73. **F2 takes a screenshot in every program, to a screenshots folder beside it (Decision 56).** The
+    owner wrote shortly before 03:42 on 2026-10-21 that, as in Minecraft, a screenshot is to be
+    taken in the game with F2, the same for BevyCSharp, the captures put in the root or a subfolder.
+    The engine gains a built-in key: F2 writes the frame being drawn as a PNG into a `screenshots`
+    folder beside the program, made on first use, the file named by the time as the source names its
+    own, `2026-10-21_03.45.12.png` and a count where two fall in one second, the second file `_2`
+    and the third `_3` as the source's own code counts, read by the game's coder, through
+    `TakeScreenshot`; a line in the log says the path; `SetScreenshotKey(KeyboardKey key)` moves it
+    or turns it off with `KeyboardKey.Null`, and a program that reads F2 itself still sees the
+    press. The cheat sheet line through the script, the surface listing, the window guide's
+    paragraph beside `TakeScreenshot` and the upgrading entry. Tests: a press through the input
+    writing a file of the frame's size into the folder on the null device, two in one second given
+    two names, the key moved and turned off. One commit, after item 70. F2 is the engine's own key
+    for its performance window today, so the window moves to F3, the debug screen's key in the game
+    the owner names, with `SetProfileWindowKey(KeyboardKey key)` to match the screenshot's call, the
+    move said in the upgrading entry and the cheat sheet's ImGui prose; a program whose own F3 does
+    something, the voxel game among them, moves or turns the window's key off through the call,
+    which its item 40 does.
+
 ## Verdicts
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -3444,7 +3472,8 @@ pack run of `b19f09dc` on 2026-10-20, said under it. Verdict 76 is settled on th
 `2cc516fc`, `b19f09dc` and `b3922179` on 2026-10-20, said under it. Verdict 75 is settled on the
 runs of `b3922179`, `ac77ef83`, `086d9a00` and `afbe81cf` on 2026-10-20, said under it. Verdict 77
 is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 2026-10-20 and
-2026-10-21 and the games job before them, said under it. Verdicts 79, 80 and 81 are open.
+2026-10-21 and the games job before them, said under it. Verdicts 79, 80 and 81 are settled on the
+pack run of `b5db84f3` on 2026-10-21, said under each. No verdict is open.
 
 56. **The pack run's examples job fails in the strategy game's step on a wait without a timeout.**
     On the pack run of `82b23f8c`, 2026-10-12, the step built Tactics from the package, played its
@@ -4468,7 +4497,8 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     fifteen seconds and held once; the pack run started on it is the first of three. Settled when
     the games job's soak passes Tones on three pack runs in a row. The games job of the pack run of
     `b3922179` passed the soak at 20:30 on 2026-10-20, the first of three. The games job of the pack
-    run of `f78b8c58` on 2026-10-21 played Tones through, the second of three.
+    run of `f78b8c58` on 2026-10-21 played Tones through, the second of three. Settled on the pack
+    run of `b5db84f3` on 2026-10-21, Tones played through the third time after the mend.
 
 80. **The pack run's Windows suite loses its games step to the feature test's audio zone, whose
     music had played 0.6 seconds where its rule asks for more than one.** On the pack run of
@@ -4489,7 +4519,8 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     fails. The pack job did not run, so no package comes from this run; the next pack run with
     publish on follows the mend. Mended at `55141a42` on 2026-10-21 in that form, the drive from the
     package giving audio ok at 3.6 s of music, as the head says. Settles on the next pack run's
-    Windows games step green.
+    Windows games step green. Settled on the pack run of `b5db84f3` on 2026-10-21, the Windows games
+    step green with the audio zone's ok.
 
 81. **The pack run's games job loses its soak to Sumo and the feature test, which could not be
     opened.** On the pack run of `f78b8c58`, 39506383679, on 2026-10-21, the games job played every
@@ -4507,7 +4538,8 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     for the soak, five minutes, through a variable the script reads, the step's log saying how long
     each took to serve; a program that never serves still fails. It gates the package, so it comes
     before the glow lights' bound and before the next pack run. Mended at `b5db84f3` on 2026-10-21
-    in that form, as the head says. Settles on the next pack run's soak green.
+    in that form, as the head says. Settles on the next pack run's soak green. Settled on the pack
+    run of `b5db84f3` on 2026-10-21, the soak of all nineteen through.
 
 ## Decisions
 
@@ -4962,6 +4994,12 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     of doubling at the cost of one cascade with coarse cells that suit far land, and that the
     surfaces past the field want a sky and ground ambient faded in at the edge so the border never
     shows; the owner said yes. So item 72, after the cascade faults.
+
+56. **A screenshot on F2 in every program.** The owner wrote shortly before 03:42 on 2026-10-21
+    that, as in Minecraft, a screenshot is to be taken in the game with F2, the same for BevyCSharp,
+    the captures put in the root or a subfolder. So item 73 in this engine, item 47 in BevyCSharp
+    and item 40 in the voxel game: a built-in key writing the frame into a screenshots folder beside
+    the program, named by the time as the source names its own, movable and off by a call.
 
 ## Replies
 

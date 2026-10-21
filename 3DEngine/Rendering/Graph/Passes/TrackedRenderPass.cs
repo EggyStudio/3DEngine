@@ -68,6 +68,10 @@ internal sealed class TrackedRenderPass : IDisposable
     public void DrawIndexed(uint indexCount, uint instanceCount = 1, uint firstIndex = 0, int vertexOffset = 0, uint firstInstance = 0)
         => _gfx.DrawIndexed(_cmd, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 
+    /// <summary>Draws a mesh of no indices whose vertex count a shader wrote into <paramref name="count"/>, at most <paramref name="capacity"/>.</summary>
+    public void DrawCounted(IBuffer count, uint capacity, uint instanceCount, uint firstInstance)
+        => _gfx.DrawCounted(_cmd, count, capacity, instanceCount, firstInstance);
+
     /// <summary>Uploads push constant data.</summary>
     public void PushConstants(IPipeline pipeline, ShaderStageFlags stages, uint offset, ReadOnlySpan<byte> data)
         => _gfx.PushConstants(_cmd, pipeline, stages, offset, data);

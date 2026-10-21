@@ -181,6 +181,12 @@ internal sealed class FrameProfilePlugin : IPlugin
                 profile.Add("render.fence", device.FenceWaitMs);
                 profile.Add("render.acquire", device.AcquireMs);
                 profile.Add("render.present", device.PresentMs);
+                // The batch ahead of the frame that fills the counted draws' vertex counts.
+                if (device.MeshCountsCpuMs > 0)
+                {
+                    profile.Add("render.mesh_counts", device.MeshCountsCpuMs);
+                    profile.Add("gpu.mesh_counts", device.MeshCountsGpuMs);
+                }
             }
             foreach (var (system, ms) in t.PrepareCpu) profile.Add($"prepare.{system}", ms);
             foreach (var (node, ms) in t.NodeCpu) profile.Add($"cpu.{node}", ms);
