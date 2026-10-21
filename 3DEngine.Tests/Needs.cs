@@ -191,6 +191,27 @@ internal static class Probes
         return null;
     });
 
+    // Whether the Python found has Pillow, which build/animate.py writes with where it is installed.
+    public static readonly Lazy<bool> Pillow = new(() =>
+    {
+        if (Python.Value is not { } python) return false;
+        using var check = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(python, "-c \"import PIL\"") { RedirectStandardOutput = true, RedirectStandardError = true });
+        if (check is null) return false;
+        if (check.WaitForExit(60_000)) return check.ExitCode == 0;
+        check.Kill(entireProcessTree: true);
+        return false;
+    });
+
+    // The e3d client the suite's own build made in the suite's configuration, or null where there is
+    // none, which build/animate.py runs in place of building one. The tests run from
+    // 3DEngine.Tests/bin/<configuration>/<framework>, and the client is built beside them in the same two.
+    public static readonly Lazy<string?> Client = new(() =>
+    {
+        var framework = new DirectoryInfo(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        var client = Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Cli", "bin", framework.Parent!.Name, framework.Name, OperatingSystem.IsWindows() ? "e3d.exe" : "e3d");
+        return File.Exists(client) ? client : null;
+    });
+
     // Which of cwebp and ImageMagick build/webp.sh finds, cwebp first as it takes it, or null for neither.
     public static readonly Lazy<string?> WebP = new(() =>
     {
@@ -262,6 +283,32 @@ public sealed class NeedsPythonFactAttribute : FactAttribute
     public NeedsPythonFactAttribute()
     {
         if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
+    }
+}
+
+/// <summary>
+/// Skipped where neither <c>python3</c> nor <c>python</c> runs, or where the writer a test of
+/// <c>build/animate.py</c> asks for is not there, the engine's through the client the suite's build
+/// made or Pillow.
+/// </summary>
+public sealed class NeedsAnimateTheoryAttribute : TheoryAttribute
+{
+    public NeedsAnimateTheoryAttribute(bool pillow = false)
+    {
+        if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
+        else if (pillow && !Probes.Pillow.Value) Skip = "Pillow is not installed for build/animate.py to write with.";
+        else if (!pillow && Probes.Client.Value is null) Skip = "No e3d client is built beside the suite, which the build of the solution makes.";
+    }
+}
+
+/// <inheritdoc cref="NeedsAnimateTheoryAttribute"/>
+public sealed class NeedsAnimateFactAttribute : FactAttribute
+{
+    public NeedsAnimateFactAttribute(bool pillow = false)
+    {
+        if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
+        else if (pillow && !Probes.Pillow.Value) Skip = "Pillow is not installed for build/animate.py to write with.";
+        else if (!pillow && Probes.Client.Value is null) Skip = "No e3d client is built beside the suite, which the build of the solution makes.";
     }
 }
 

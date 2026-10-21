@@ -17,6 +17,8 @@ return rest[0] switch
     "command" or "cmd" => Verbs.Command(options, rest[1..]),
     "eval" => Verbs.Eval(options, rest[1..]),
     "shot" or "screenshot" => Verbs.Shot(options, rest[1..]),
+    "record" => Animations.Record(options, rest[1..]),
+    "animate" => Animations.Animate(options, rest[1..]),
     "stop" => Verbs.Stop(options),
     "open" => Launch.Open(options, rest[1..]),
     "logs" => Launch.Logs(options, rest[1..]),

@@ -82,6 +82,10 @@ internal static class Help
               e3d eval <code>                compile C# against the running app and run it
               e3d eval -f <file.cs>          the same for a file
               e3d shot <path.png>            capture the window
+              e3d record <path> <length>     record it as an animated GIF or PNG, and wait for the file
+                  [--every <step>] [--scale <s>] [--play <time>]
+              e3d animate <out> <pictures...> --delay <ms> [--loop <n>] [--scale <s>]
+                                             make PNG captures into an animated GIF or PNG
               e3d logs [-n <lines>]          the app's log
               e3d stop                       close the app
               e3d doctor                     remove session files of apps that are gone

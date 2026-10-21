@@ -46,6 +46,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `app.quit` | closes the app, as its close button does (`./e3d stop` does this and waits) |
 | `frames.wait <n>` | answers once n more frames have run |
 | `shot <path>` | writes the frame being drawn to a PNG and answers once it is written, with the frame's number (`./e3d shot <path>`) |
+| `record <path> <length> [every <step>] [scale <s>] [play <time>]`, `record.stop`, `record.status` | records the window as an animated GIF or PNG, a picture each step of the app's clock (`250ms`, `15f`) for a length (`5s`, `120f`, or a count of pictures), says how it stands, and stops it sooner (`./e3d record <path> <length> --every <step>` waits for the file) |
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |
 | `entity.find <name>` | the id of the first entity with that name |

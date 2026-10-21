@@ -136,6 +136,23 @@ the machine and `games/Sumo`'s second player is controlled on pad 1. `./e3d comm
 to 30 seconds, and `--timeout 600` waits longer, both in the terminal and in the program, as a long
 wait on a device that draws slowly needs.
 
+A run is recorded as an animated GIF or PNG, by the file's extension, and the client waits for the
+file, however long the app's clock takes to reach the length on the machine:
+
+```bash
+./e3d record walk.gif 5s --every 250ms              # twenty pictures a quarter second apart
+./e3d record walk.png 120f --every 15f --scale 0.5  # by frames of the clock, at half the size
+./e3d record walk.gif 8 --play 100ms                # eight pictures, each played for a tenth
+```
+
+Captures already on disk are made into one animation by `build/animate.py`, a GIF, an animated PNG
+or an animated WebP by the extension, with Pillow where it is installed and the engine's own
+writers through `./e3d animate` where it is not, for PNG pictures and a GIF or an animated PNG:
+
+```bash
+python3 build/animate.py build/walk.gif captures/walk-*.png --delay 250
+```
+
 ## The log
 
 `./e3d logs -n 50` gives the program's last fifty lines, from its own log, so a shader that did not

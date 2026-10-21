@@ -553,3 +553,36 @@ bound; the blotches reproduced in the engine's own scene, a room with a small em
 ceiling, read to their cause in the probes that gather a small emitter's light near a surface, in
 the cascades and the screen's probes alike, and mended under the rule that no view's distance to its
 reference widens, or named where the method stops; after item 70.
+
+### 2026-10-21, the voxel game in `Voxel-Sandbox`: a masked surface drawn through a program's shader casts a whole quad's shadow
+
+The owner asks for the plants' shadows, the grass's blades and the flowers stepping with the pixels
+of the sun's map, which fit the game's look. The game's plants are a mesh of flat walls drawn
+through its own shader, `VoxelSandbox/resources/shaders/terrain.slang`, with a `ModelMaterial` of
+`AlphaMode` Mask and `BouncesLight` off, its fragment stage cutting each blade out by its tile's
+alpha in an atlas the shader declares itself. Read at the game's `fc38219` on the 3DEngine 5.2.190
+package, offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, on the flat world, `voxel.world flat
+1`, after `voxel.still on`, `voxel.hud off`, `voxel.fly on`, `voxel.kill all` and `voxel.clouds
+off`, with Bare Bones on. A row of nine plants, `voxel.set 0 4 -6 short_grass` and on along x to 8
+with tall grass, a poppy, a dandelion, a fern, a cornflower, short grass, an oxeye daisy and a blue
+orchid, and a row of short grass at z -8, at hour 7.5, seen from `voxel.tp 4.5 7 -2.5` and
+`voxel.look 0 -50`.
+
+With `CastsShadows` on, each plant's shadow on the grass is its two walls' whole quads, dark shapes
+a block wide with straight edges, and not its blades. It stays so with the material's `Texture` set
+to the atlas and the vertex stage handing `transformModelVertex` each wall's corner in its tile's
+cell of the atlas, 0 and 1 across and down from the lower left corner round, so the shadow pass had
+the texture and the coordinates a masked material's own draw gives it
+([capture](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/plant-shadows.webp)).
+So the shadow pass does not cut a masked surface drawn through a program's own shader out of the
+sun's map.
+
+The engine lacks a masked surface's cut out of the shadow maps for a draw through a program's own
+shader, by the program's own fragment stage or by the material's texture at the coordinate its
+vertex stage gives. Meanwhile the plants cast no shadow, as before.
+
+
+Review: item 79 of REVIEW.md, 2026-10-21; the shadow pass cuts a mask material's surface by its
+texture's alpha at the cutoff for a draw through a program's own shader, by the program's own
+fragment stage for the shadow where it gives one or by the material's texture at the coordinate the
+vertex stage gives, for the sun's cascades and the spot and point lights alike; after item 73.

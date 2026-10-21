@@ -10,42 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2f57b341`, Verdict 82's mend, after `ee6cf5ee`, item 69's second part, the field's
-read of a mesh over a shader's buffers, and nothing else, each carrying the review's file. The mend:
-the pool's cap named from the frames in flight and one, a buffer let go past it freed, the test
-waiting for compute before both counts so the dispatches' own buffers are retired on either side and
-holding the staging count and the device's to the cap, a leak still failing it, the readback tests
-passing on the device and on lavapipe, the suite 1,840 passed plain and shuffled. Item 69's second
-part, in the form changed at 04:59: the count read back without a wait when a counted mesh's version
-changes, the mesh entering the plan a frame or two on with its count known and pooled with exactly
-its triangles, one dispatch a mesh converting its positions and the stream's colors when it is
-pooled, the splat unchanged, the ray scene passing it over; the red wall a compute shader wrote
-tinting the block's side to 212.8 red against 97.6 with a count of 0, 500 sections pooled in one
-frame with 500 conversion dispatches at 2.6 to 3.4 ms once and the pool at 48 MB against the
-reserved form's 384, in the guide; the GI, field, counted and readback tests on lavapipe under the
-layer 75 passed; the suite 1,840 passed plain and shuffled, the strict build clean. Read at 05:51 on
-2026-10-21. Read at 06:25 on 2026-10-21. The build run of `50b3aa6f` ended at 06:54, Linux, macOS
-and the examples green and Windows red on the pool test as expected, 1,775 passed in 71 minutes, so
-both heads were pushed at 06:56, run 39546772464, and the pack run with publish on started at 06:56,
-run 39546802297, the package the voxel game waits on, Verdict 82 to settle on its Windows suite.
-Item 70's form said at the same time and taken in two commits, the recorder with its GIF and
-animated PNG writers, the catalog's record and record.stop and the flat calls, then the client's
-step and the animate script, the recorder tested with given frames where there is no GPU and the
-window recorded on the device, the README's animation Ore's day turning to night, the record line's
-play taking a time as BevyCSharp's does and the client's step taking the play flag too, so the two
-engines' words agree. At 06:39 the game's entry of a lantern's light in blotches joined item 71's
-second part as its first fault left, the owner having seen it in the game's captures. Then 70, 73,
-the rest of 71, then item 78, the F1 and F3 keys the owner asked for shortly before 07:06, then 72,
-74, then items 75 and 76, the sky's horizon and the frame's reading learned from the game on the
-owner's word of 06:54, then Decision 51's items 59 and 60, then item 77, the day sky, then 61 to 66.
-Item 6 and the feature test's portable build wait on the owner's word.
+Reviewed up to `31444e1e`, item 70's first commit, the recorder, and nothing else, carrying the
+review's files and the asks, in the form said before it with BevyCSharp's words throughout: the
+recorder in First taking pictures by the device's capture at the step, the capture given to every
+callback asked in a frame, the GIF and animated PNG writers ported so the two engines' files agree,
+record, record.stop and record.status, StartRecording and StopRecording, the cap of 1,000, the
+cleanup writing on an app's end; nine tests on lavapipe as on the device, the guide's paragraph, the
+cheat sheet lines, the surface listing and the upgrading entry; the suite 1,849 passed plain and
+shuffled. Read at 07:22 on 2026-10-21. Not pushed: the build run of `2f57b341` is still running, and
+the head is pushed when it ends. The second commit is written and under its checks, the client's
+record step and animate verb ported from BevyCSharp's, the animate script with the engine's names,
+six tests skipped by probes where Pillow or the built client is absent, E3D.md's rows and the
+command-line guide's paragraph, and the README's first animation, Ore turning from day to night in
+50 frames at 480 by 270 and 112 KB above the gallery's count paragraph, the delays by the machine's
+clock summing to five seconds. Then 73, 79, 80, the tonemap curve the game asks for its modpack's
+grade at 07:38, the rest of 71, 78, 72, 74, 75, 76, then Decision 51's items 59 and 60, then 77,
+then 61 to 66. Item 6 and the feature test's portable build wait on the owner's word.
+
+Before it, `2f57b341` came, Verdict 82's mend, after `ee6cf5ee`, item 69's second part, and nothing
+else, each carrying the review's file. Both pushed at 06:56, the pack run with publish on started
+then, run 39546802297.
 
 Before it, `ee6cf5ee` came, item 69's second part, the field's read of a mesh over a shader's
 buffers, and nothing else, carrying the review's file, the suite 1,840 passed plain and shuffled.
-
-Before it, `50b3aa6f` came, item 69's first part, the mesh over a shader's buffers drawn everywhere,
-and nothing else, carrying the review's files. Pushed at 05:39, its build run red on Windows on the
-pool test as expected, green elsewhere.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3371,7 +3358,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     engine's reader frame by frame, a palette of a known picture within a distance of its colors,
     and the script run over three captures in the suite. Two commits, the recorder with its formats
     and the command, then the client's step and the script. One or two days, after item 69 and
-    before item 59.
+    before item 59. First commit done at `31444e1e` on 2026-10-21, the recorder with its writers,
+    the commands and the calls, as the head says; the client's step and the script follow.
 
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
@@ -3582,6 +3570,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the graph's strip holding the last 240 times. Two commits, F1 and the overlay's columns, then
     the graph, the profiler and the sections' registration. After item 71's second part, before item
     72.
+
+79. **A masked surface drawn through a program's own shader is cut out of the shadow maps by its
+    texture.** Asked by the voxel game on 2026-10-21 at 07:19 (ASKS.md, its last entry): with its
+    plants' mask material casting shadows, each plant's shadow is its two crossed walls' whole
+    quads, the same after the material takes the atlas and the vertex stage gives each corner its
+    tile's coordinate, so the shadow pass draws a masked surface through a program's own shader with
+    its own depth stage and no cut, where the model pass discards by the alpha cutoff. The mend: the
+    shadow pass, the sun's cascades and the spot and point lights' alike, cuts a mask material's
+    surface by its texture's alpha at the cutoff for a draw through a program's own shader, by the
+    program's own fragment stage where the program gives one for the shadow or by the material's
+    texture sampled at the coordinate the program's vertex stage gives, the engine's own masked
+    materials already cut the same way confirmed; the shadow guide's paragraph, the upgrading entry,
+    and the game's entry's capture as the reading. Tests: a masked quad's shadow on a floor read
+    narrower than the quad on the device, through the engine's material and through a program's
+    shader, and the null device recording the shadow draw with the texture bound. One commit, small,
+    after item 73.
+
+80. **A tonemap curve a program sets by its numbers, or a tonemap through a program's own shader.**
+    Asked by the voxel game on 2026-10-21 at 07:38 for its item 58, matching the modpack's shader
+    whose settings the owner set: `SetTonemap` offers the engine's curve, ACES and Bevy's eight,
+    none of them the shader's curve, which multiplies by an exposure, divides by one plus the color
+    to a white curve's power to its inverse root, raises to a power from a lower curve in the darks
+    to an upper in the lights mixed by the root of the color, takes the gamma and sets the
+    saturation about the channels' mean. The mend: a parametric tonemap, `SetTonemapCurve(float
+    exposure, float white, float lower, float upper)` in that form, as a tonemap beside the others,
+    and `SetTonemapShader(Shader shader)` running a program's own fragment stage over the frame in
+    the tonemap's place for a curve the parameters cannot say, the pass's input and output as the
+    post guide names them; the cheat sheet lines through the script, the surface listing, the
+    guide's paragraph and the upgrading entry. Tests: the parametric curve's output at a few levels
+    from 0.05 to 4 against the formula on the null device, and a program's shader tonemapping a
+    frame to a known color on the device. One commit, small, after item 79; its Review line under
+    the game's entry when the entry is written.
 
 ## Verdicts
 
