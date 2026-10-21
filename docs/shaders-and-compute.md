@@ -345,6 +345,39 @@ A dispatch runs on the GPU before the frame being drawn, while the program goes 
 cells, and `ReadShaderBuffer` reads one back, waiting for the dispatches before it, which costs a
 wait and is kept for what the CPU needs to know.
 
+## Reading a buffer back without a wait
+
+`ReadShaderBuffer` waits for the dispatches before it, which holds the program until the GPU has
+caught up, a millisecond or more a read. That is for what the CPU needs at once. What it can take a
+frame or two later, as the blocks a generator on the GPU worked out for a column of a world, is
+asked for with `ReadShaderBufferAsync` and read once it is ready, the program going on meanwhile:
+
+<!-- compiled with:
+Shader generate = default;
+ShaderBuffer cells = default;
+var asked = new Queue<ShaderReadback>();
+void Place(uint[] column) { }
+-->
+```csharp
+ComputeShaderDispatch(generate, 512, 1, 1);
+asked.Enqueue(ReadShaderBufferAsync(cells));
+// ...
+while (asked.Count > 0 && IsShaderReadbackReady(asked.Peek()))
+{
+    var readback = asked.Dequeue();
+    var column = new uint[readback.Size / 4];
+    GetShaderReadback<uint>(readback, column);
+    UnloadShaderReadback(readback);
+    Place(column);
+}
+```
+
+The copy goes to the GPU with the frame, after every dispatch asked before it and before any after,
+so the readback is ready a frame or two on, never in the frame it was asked in. Each holds a buffer
+of its own until it is unloaded, which goes back to a pool the next readback of its size takes from,
+so a game asking every frame keeps a few. `GetShaderReadback` on one not yet ready waits for it, as
+`ReadShaderBuffer` waits. A size of 0 reads from the offset to the buffer's end.
+
 ## Drawing what a compute shader wrote
 
 A shader that draws reads the same buffer as a `StructuredBuffer`, so what a dispatch wrote reaches

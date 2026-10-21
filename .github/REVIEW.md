@@ -10,49 +10,34 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b5db84f3`, Verdict 81's mend, after `55141a42`, Verdict 80's mend, and `10503abe`,
-item 71's first part, and nothing else, the first carrying the review's files and the asks. Verdict
-81's mend: the open script waits the seconds `E3D_OPEN_WAIT` gives, a minute without it, and says
-after how many seconds a program serves, a program that never serves failing within them; the soak
-step starts its games three seconds apart with a wait of 300, its comment naming the run that
-failed; Sumo and the feature test started three seconds apart served after 6 and 2 seconds and
-soaked. The call, `SetGlobalIlluminationScreenProbes`, in the form said before it, a `ScreenProbes`
-flag on the settings apart from the diagnostic toggle, the renderer neither making nor tracing the
-window's or a target's screen probes when off, the model pass reading the cascades alone with the
-glow lights taken at each pixel, the frame without them pixel for pixel the toggle's frame, the
-guide's paragraph with the cost on the Cornell box, 1.15 to 0.38 ms at Low and 1.49 to 0.58 at High
-without glow lights and the model pass from 0.31 to 1.01 ms with four, the cheat sheet line, the
-surface listing and the upgrading entry; the suite 1,828 passed plain and shuffled. The mend: the
-audio zone's status says the sounds are not heard yet, with the music's seconds of the one it is to
-play, until the wave, the music over a second, the stream's asks and the side hold, and past Alone
-plus 1,200 frames gives the full status ending with what fell short; the drive waits its 300 frames
-and then reads the status every 60 frames up to 20 more times while it says not heard yet; the drive
-from the package under the layer gave audio ok at 3.6 s of music, and a live session read 1.0 s at
-the old judging frame and ok at 1.8 s on the next read. Read at 01:44 on 2026-10-21. The build run
-of `b47d20d6` ended green at 02:00, macOS in 23 minutes, Linux in 38 and Windows in 42 with the
-examples job after them, so the three heads were pushed at 02:02, run 39518830032, and the pack run
-with publish on started at 02:02, run 39518866382, which is Verdict 79's third, Verdict 80's and
-Verdict 81's proof and the day's package. The pack run of `f78b8c58` has its captures green, its
-games job played every game through, which settles Verdict 77 and is Verdict 79's second, and then
-lost its soak to Sumo and the feature test not opening, Verdict 81, the nineteen soaks started at
-once on four cores stretching two opens past the script's minute, its mend before the glow lights'
-bound and the next pack run; the run ended at 01:53, its macOS captures green. Next the glow lights'
-bound of item 71's second part, its form said and taken, its first readings at 02:00 showing no view
-widening against the per-pixel form at either size on the Cornell box, the strip and the emissive
-block, the model pass back from 1.01 to 0.29 ms with four emitters for 0.12 ms more of global
-illumination, the field of ore at night still to read; then items 68 and 69, the readback without a
-wait and the mesh over a shader's buffers, a package due after them; then item 70, the animated
-capture; then the rest of item 71's second part, the cascades' faults from the game's entry; then
-Decision 51's items 59 to 66, the modeling work, in order, the recipe's words from BevyCSharp's
-Replies at `08d03b4d`. Item 6 and the feature test's portable build wait on the owner's word.
+Reviewed up to `0a4928d3`, the glow lights' bound of item 71's second part, and nothing else,
+carrying the review's file, in the form said before it: with the screen's probes left out and a glow
+light lit, probes stand for the glow lights alone, marching to them once a tile and tracing nothing
+else, so a pixel reads their light at a cost the lights do not change, the lighting buffer saying
+the glow texels are read, nothing made with no glow light in view; the test in the strip's room
+reading the floor within 6 of the marched frame and the probes made only with the lights on;
+RENDERING.md's paragraph with the capture of Ore's ground at night in the three forms, the guide's
+numbers for the Cornell box and Ore, 2.50 ms where 9.67 with 64 lights lit; N 1.3 caught the global
+illumination tests past 800 lines, so the two screen-probe tests moved to a partial of their own;
+the suite 1,829 passed plain and shuffled. Read at 03:04 on 2026-10-21. The build run of `b5db84f3`
+ended green at 03:25, macOS in 27 minutes, Linux in 43 and Windows in 83 on a slow runner, so the
+head was pushed at 03:26; the pack run of `b5db84f3`, the day's package, is on its Windows suite
+since 02:02 and its games and captures jobs, its Linux, macOS and examples green. Item 68 is written
+in the form taken, the flush taking the readback batch after the uploads and retiring the batches
+done, an early collect flushing and waiting for its batch alone, its four tests passing on the
+device, and its checks running; then 69, 70, the rest of 71, then item 72, the fill cascades and the
+distant ambient the owner asked for shortly before 03:17, then Decision 51's items 59 to 66, the
+modeling work, in order, the recipe's words from BevyCSharp's Replies. Item 6 and the feature test's
+portable build wait on the owner's word.
 
-Before it, `55141a42` came, Verdict 80's mend, and nothing else: the audio zone's status saying the
-sounds are not heard yet until the music has played over a second, within 1,200 frames, and the
-drive reading it every 60 frames up to 20 more times, audio ok at 3.6 s of music from the package.
+Before it, `b5db84f3` came, Verdict 81's mend, after `55141a42`, Verdict 80's mend, and `10503abe`,
+item 71's first part, the call leaving the screen probes out, and nothing else. The three pushed at
+02:02, the pack run with publish on started then, run 39518866382. Their build run green at 03:25,
+Windows in 83 minutes.
 
-Before it, `10503abe` came, item 71's first part, the call leaving the screen probes out, and
-nothing else, carrying the review's files and the asks, in the form said before it, the suite 1,828
-passed plain and shuffled.
+Before it, `b47d20d6` came, item 67, the first gamepad moving through ImGui only once a program
+asks, and nothing else, carrying the review's files and the asks. Pushed at 01:12 with `c2b8c0e9`,
+the feature test whole, their build run green at 02:00.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3407,7 +3392,39 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cost does not grow with them, the room's glow within the rule against the probes-on frame, the
     costs read with 4 and with 40 emitters, and a capture of the field of 40 in the glow-only form
     beside the per-pixel form and the probes-on frame in the record, so the owner judges whether the
-    glow texels bring the look back.
+    glow texels bring the look back. The glow lights' bound done at `0a4928d3` on 2026-10-21 in that
+    form, Ore at night from 9.67 to 2.50 ms with 64 lights lit and the capture smooth, as the head
+    says; the edge leak, the stepped edges, the noise, the z-fighting and the shift remain, after
+    item 70.
+
+72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
+    counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
+    before 03:17 on 2026-10-21 why the global illumination in the voxel game ends at a range while
+    the clouds go on to the far plane, and proposed that the last cascade fill from where it ends up
+    to the far plane without counting in the cascade count, for the shadow maps as well as the
+    field. The reading: the field's cascades each double the one inside them at the same probe
+    count, four of 0.25 reaching 128 across, so the last ends 64 from the eye where the game draws
+    384 across, and a surface past it reads no probe and is lit by the sun and the sky alone, the
+    border scrolling with the eye; the sun's cascades fit the camera up to the shadow distance, 150
+    by default, and nothing past it has a shadow, the contact shadows through the field reaching
+    only as far as the field. The mend in three parts. First, the shadows: a fill cascade from the
+    shadow distance to the camera's far plane, one more depth render of the scene at the tile's
+    size, its texel covering meters where the surfaces are a few pixels wide, taken with
+    `SetShadowFill(bool)`, on by default, and not counted in the cascades; a test that a shadow
+    falls at twice the shadow distance with it and none without. Second, the field: a far cascade
+    whose cell is sized so its extent reaches a distance the program gives, the camera's far plane
+    by default, in place of doubling, with the same probe count and merged into the stack as the
+    others, so a ray leaving the counted cascades reads it before the sky, taken with a parameter of
+    `SetSceneField`, `farCascade`, off by default and not counted; its rebuild under the budget as
+    the others, and a reading of the field's cost and memory with it in the Cornell box and in Ore
+    at the game's distances. Third, the distant ambient: a surface past the last cascade takes a sky
+    and ground hemisphere term in the field's absence, lit by the sun's shadow where the shadows
+    reach, faded in over the outer tenth of the field's extent, so the field's edge never shows as a
+    line on movement; a test reading a floor across the field's edge with no step in its light over
+    a pixel, and a capture of Ore from a height with the field's edge in view, before and after.
+    RENDERING.md says the three, the guide's sections on shadows and on the field say the calls, the
+    cheat sheet lines through the script, the surface listing and the upgrading entries. After item
+    71's second part. Three commits, one a part.
 
 ## Verdicts
 
@@ -4932,6 +4949,19 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     which the game takes as its default, and the faults reproduced from the game's repros in the
     engine's own scenes, read to their causes and mended one by one under the rule the readings
     keep, or named where the method stops.
+
+55. **A fill cascade to the far plane for the shadows and the field, not counted.** The owner asked
+    shortly before 03:17 on 2026-10-21 why the global illumination ends at a range in the voxel game
+    while the clouds reach the far plane, took the cause to be the scene field's cascades not
+    reaching it, and proposed that the last cascade be followed by one filling up to the far plane
+    that does not count in the cascade count, for the shadow maps, which they had never understood
+    to end short of the far plane, and for the field alike, asking to be corrected if it is not
+    feasible. The reviewer answered that the reading is right, the field reaching 64 from the eye
+    where the game draws 192, that a fill cascade is what engines do for the sun and costs one depth
+    render at low resolution, that the field can take a far cascade sized to the far plane in place
+    of doubling at the cost of one cascade with coarse cells that suit far land, and that the
+    surfaces past the field want a sky and ground ambient faded in at the edge so the border never
+    shows; the owner said yes. So item 72, after the cascade faults.
 
 ## Replies
 

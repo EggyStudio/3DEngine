@@ -397,6 +397,20 @@ internal sealed unsafe partial class GraphicsDevice
     // draws, whose barriers order them after the uploads, sample what was written.
     private void FlushUploads()
     {
+        // The readbacks asked since the last submission go after the uploads, so a readback reads
+        // what every submission before it wrote, as an upload is ahead of what follows it.
+        try
+        {
+            FlushUploadBatch();
+        }
+        finally
+        {
+            FlushReadbacks();
+        }
+    }
+
+    private void FlushUploadBatch()
+    {
         if (_uploadBatch is not { } cmd) return;
         _uploadBatch = null;
         _deviceApi.vkEndCommandBuffer(cmd).CheckResult();

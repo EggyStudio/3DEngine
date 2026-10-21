@@ -128,10 +128,13 @@ internal sealed unsafe partial class GraphicsDevice
         return created;
     }
 
-    /// <summary>Creates a storage buffer of <paramref name="size"/> bytes, zeroed, that the CPU maps to fill and read.</summary>
+    /// <summary>
+    /// Creates a storage buffer of <paramref name="size"/> bytes, zeroed, that the CPU maps to fill
+    /// and read, and a readback copies out of (<see cref="ReadBack"/>).
+    /// </summary>
     public IBuffer CreateStorageBuffer(int size)
     {
-        var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(4, size), BufferUsage.Storage, CpuAccessMode.ReadWrite));
+        var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(4, size), BufferUsage.Storage | BufferUsage.TransferSrc, CpuAccessMode.ReadWrite));
         Map(buffer).Clear();
         return buffer;
     }

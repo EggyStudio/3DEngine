@@ -1166,6 +1166,17 @@ void UpdateShaderBuffer<T>(ShaderBuffer buffer, ReadOnlySpan<T> data, int offset
 void ReadShaderBuffer<T>(ShaderBuffer buffer, Span<T> destination, int offset = 0); // Reads a storage buffer into
                                                                                     // destination, starting offset
                                                                                     // bytes in
+ShaderReadback ReadShaderBufferAsync(ShaderBuffer buffer, int offset = 0, int size = 0); // Asks for a storage buffer's
+                                                                                         // bytes to be copied out after
+                                                                                         // the dispatches before it,
+                                                                                         // without waiting, to read a
+                                                                                         // frame or two later
+bool IsShaderReadbackReady(ShaderReadback readback);     // Whether a readback's bytes have been copied out, so
+                                                         // GetShaderReadback reads them without waiting
+void GetShaderReadback<T>(ShaderReadback readback, Span<T> destination); // Copies a readback's bytes into destination,
+                                                                         // as many as it holds
+void UnloadShaderReadback(ShaderReadback readback);      // Lets a readback go, its buffer back to the pool once the GPU
+                                                         // has copied into it
 void SetShaderValueBuffer(Shader shader, int location, ShaderBuffer buffer); // Sets a storage buffer the shader uses,
                                                                              // found by name with GetShaderLocation,
                                                                              // for the dispatches and draws after it,

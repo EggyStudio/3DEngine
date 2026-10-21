@@ -128,6 +128,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         FlushUploads();
         _deviceApi.vkDeviceWaitIdle();
         RetireUploads(all: true);
+        lock (_readbackGate) RetireReadbacks(wait: false);
     }
 
     /// <inheritdoc />
@@ -189,6 +190,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Debug("Destroying swapchain resources (image views, depth buffer, command pool)...");
         DestroySwapchainResources();
         DisposeKeptScreen();
+        DestroyReadbacks();
         DestroyCompute();
         DestroySkinning();
         DisposeProbeFilter();

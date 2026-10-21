@@ -832,6 +832,7 @@ static class Engine.E3D
   static Shader LoadShaderFromMemory(string code, string name = "shader.slang")
   static ShaderBuffer LoadShaderBuffer(int size)
   static ShaderBuffer LoadShaderBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
+  static ShaderReadback ReadShaderBufferAsync(ShaderBuffer buffer, int offset = 0, int size = 0)
   static Sound LoadSound(string fileName)
   static Sound LoadSoundAlias(Sound source)
   static Sound LoadSoundFromWave(Wave wave)
@@ -954,6 +955,7 @@ static class Engine.E3D
   static bool IsReflectionProbeReady(ReflectionProbeHandle probe)
   static bool IsRenderTextureValid(RenderTexture2D target)
   static bool IsShaderBufferValid(ShaderBuffer buffer)
+  static bool IsShaderReadbackReady(ShaderReadback readback)
   static bool IsShaderValid(Shader shader)
   static bool IsSoundPlaying(Sound sound)
   static bool IsSoundValid(Sound sound)
@@ -1199,6 +1201,7 @@ static class Engine.E3D
   static void EndTextureMode()
   static void EndVrStereoMode()
   static void GenTextureMipmaps(ref Texture2D texture)
+  static void GetShaderReadback<T>(ShaderReadback readback, Span<T> destination) where T : unmanaged
   static void HideCursor()
   static void ImageAlphaClear(ref Image image, Color color, float threshold)
   static void ImageAlphaCrop(ref Image image, float threshold)
@@ -1421,6 +1424,7 @@ static class Engine.E3D
   static void UnloadRenderTexture(RenderTexture2D target)
   static void UnloadShader(Shader shader)
   static void UnloadShaderBuffer(ShaderBuffer buffer)
+  static void UnloadShaderReadback(ShaderReadback readback)
   static void UnloadSound(Sound sound)
   static void UnloadSoundAlias(Sound alias)
   static void UnloadTexture(Texture2D texture)
@@ -3088,6 +3092,18 @@ readonly struct Engine.ShaderBuffer : IEquatable<ShaderBuffer>
   override string ToString()
   static bool op_Equality(ShaderBuffer left, ShaderBuffer right)
   static bool op_Inequality(ShaderBuffer left, ShaderBuffer right)
+  void Deconstruct(out int Id, out int Size)
+readonly struct Engine.ShaderReadback : IEquatable<ShaderReadback>
+  ShaderReadback(int Id, int Size)
+  bool Equals(ShaderReadback other)
+  bool IsValid { get; }
+  int Id { get; init; }
+  int Size { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ShaderReadback left, ShaderReadback right)
+  static bool op_Inequality(ShaderReadback left, ShaderReadback right)
   void Deconstruct(out int Id, out int Size)
 sealed class Engine.Sound
   Sound()

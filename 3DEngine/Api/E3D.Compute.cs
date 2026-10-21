@@ -125,6 +125,73 @@ public static partial class E3D
         source.Slice(offset, Math.Min(bytes.Length, source.Length - offset)).CopyTo(bytes);
     }
 
+    // The readbacks asked for and not yet unloaded, by id.
+    private static readonly Dictionary<int, ShaderReadbackTicket> Readbacks = [];
+    private static int _nextReadback = 1;
+
+    /// <summary>
+    /// Asks for a storage buffer's bytes to be copied out after the dispatches before it, without
+    /// waiting, to read a frame or two later.
+    /// </summary>
+    /// <param name="buffer">The buffer.</param>
+    /// <param name="offset">The first byte read.</param>
+    /// <param name="size">How many bytes are read, 0 for the rest of the buffer, and no more than it holds past the offset.</param>
+    /// <returns>The readback, or an invalid one where the buffer is not loaded or the offset lies past its end, with the reason in the log.</returns>
+    /// <remarks>
+    /// <para>
+    /// The copy goes to the GPU with the next submission, the frame's as a rule, after every dispatch
+    /// submitted before it was asked and before any after, so it is never made in the frame it was
+    /// asked in. <see cref="IsShaderReadbackReady"/> says when it is, without waiting, and
+    /// <see cref="GetShaderReadback{T}"/> reads it. A game that places what a dispatch generated on
+    /// the CPU a frame or two after asking reads this way and never holds the program, where
+    /// <see cref="ReadShaderBuffer{T}"/> waits for the GPU, which is for what the CPU needs at once.
+    /// </para>
+    /// <para>
+    /// Each readback holds a buffer of its own until <see cref="UnloadShaderReadback"/>, which goes
+    /// back to a pool the next readback of its size takes from, so a game asking every frame makes
+    /// a few and no more.
+    /// </para>
+    /// </remarks>
+    public static ShaderReadback ReadShaderBufferAsync(ShaderBuffer buffer, int offset = 0, int size = 0)
+    {
+        if (ShaderBuffers.Get(buffer.Id) is not { } gpu || ComputeDevice is not { } device)
+        {
+            ApiLogger.Warn("ReadShaderBufferAsync: the buffer is not loaded, so nothing is read.");
+            return default;
+        }
+        var length = (int)gpu.Description.Size;
+        if (offset < 0 || offset >= length)
+        {
+            ApiLogger.Warn($"ReadShaderBufferAsync: the offset {offset} lies outside the buffer's {length} bytes, so nothing is read.");
+            return default;
+        }
+        size = size <= 0 ? length - offset : Math.Min(size, length - offset);
+        var id = _nextReadback++;
+        Readbacks[id] = device.ReadBack(gpu, offset, size);
+        return new ShaderReadback(id, size);
+    }
+
+    /// <summary>Whether a readback's bytes have been copied out, so <see cref="GetShaderReadback{T}"/> reads them without waiting.</summary>
+    public static bool IsShaderReadbackReady(ShaderReadback readback) =>
+        Readbacks.TryGetValue(readback.Id, out var ticket) && ComputeDevice is { } device && device.IsReadbackReady(ticket);
+
+    /// <summary>Copies a readback's bytes into <paramref name="destination"/>, as many as it holds.</summary>
+    /// <remarks>
+    /// A readback not yet ready is sent to the GPU and waited for, as <see cref="ReadShaderBuffer{T}"/>
+    /// waits, so one read in the frame it was asked in holds the program as that does.
+    /// </remarks>
+    public static void GetShaderReadback<T>(ShaderReadback readback, Span<T> destination) where T : unmanaged
+    {
+        if (!Readbacks.TryGetValue(readback.Id, out var ticket) || ComputeDevice is not { } device) return;
+        device.ReadReadback(ticket, MemoryMarshal.AsBytes(destination));
+    }
+
+    /// <summary>Lets a readback go, its buffer back to the pool once the GPU has copied into it.</summary>
+    public static void UnloadShaderReadback(ShaderReadback readback)
+    {
+        if (Readbacks.Remove(readback.Id, out var ticket)) ComputeDevice?.ReleaseReadback(ticket);
+    }
+
     /// <summary>
     /// Sets a storage buffer the shader uses, found by name with <see cref="GetShaderLocation"/>,
     /// for the dispatches and draws after it, as raylib's <c>rlBindShaderBuffer</c>.
@@ -230,6 +297,8 @@ public static partial class E3D
     // Frees the buffers and pipelines a program left loaded, before the device they belong to goes.
     private static void ForgetCompute()
     {
+        foreach (var ticket in Readbacks.Values) ComputeDevice?.ReleaseReadback(ticket);
+        Readbacks.Clear();
         ComputeDevice?.WaitForCompute();
         if (TryRes<ShaderBufferStore>(out var buffers))
             foreach (var buffer in buffers.TakeAll()) buffer.Dispose();
