@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>
 /// The effects over the frame besides bloom, a world resource the renderer reads each frame, which
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
-/// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
+/// <c>SetTonemapCurve</c>, <c>SetTonemapShader</c>, <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
 /// <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
@@ -32,6 +32,21 @@ internal sealed class FrameEffects
 
     /// <summary>The curve the light is brought under 1 by.</summary>
     public Tonemap Tonemap { get; set; } = Tonemap.Engine;
+
+    /// <summary>
+    /// The numbers of <see cref="Tonemap.Curve"/>, its exposure, white curve, lower curve and upper
+    /// curve, BSL's shader's defaults until set.
+    /// </summary>
+    public Vector4 Curve { get; set; } = new(1.4f, 2, 1.2f, 1.5f);
+
+    /// <summary>The program's shader drawn in the curve's place, by its id, or 0 for the curve.</summary>
+    public int TonemapShader { get; set; }
+
+    /// <summary>The values of that shader's uniforms as the program last set them, the bytes of its uniform buffer.</summary>
+    public byte[]? TonemapUniforms { get; set; }
+
+    /// <summary>The textures and buffers that shader was last given, as a draw through it is given them.</summary>
+    public int[]? TonemapTextures { get; set; }
 
     /// <summary>How far each channel is pushed from the middle gray after the curve, 1 for as it is.</summary>
     public float Contrast { get; set; } = 1;

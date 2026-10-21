@@ -107,6 +107,9 @@ public static partial class E3D
         TextureValues.Remove(shader.Id);
         ImageValues.Remove(shader.Id);
         ForgetComputeShader(shader.Id);
+        // The curve comes back where it was the frame's tonemap shader.
+        if (TryRes<FrameEffects>(out var effects) && effects.TonemapShader == shader.Id)
+            (effects.TonemapShader, effects.TonemapUniforms, effects.TonemapTextures) = (0, null, null);
     }
 
     /// <summary>Draws the following shapes, textures and text with <paramref name="shader"/> until <see cref="EndShaderMode"/>.</summary>
@@ -181,7 +184,7 @@ public static partial class E3D
         if (index < 0 || index >= program.Textures.Count) return;
         if (!TextureValues.TryGetValue(shader.Id, out var values)) TextureValues[shader.Id] = values = new int[program.Textures.Count];
         values[index] = texture.IsValid ? texture.Id : 0;
-        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
+        Refresh(shader);
     }
 
     // A copy of a shader's textures for one draw, followed by its storage buffers, so textures and
@@ -243,8 +246,16 @@ public static partial class E3D
             throw new InvalidOperationException($"'{uniform.Name}' of '{program.Name}' is {uniform.Size} bytes at offset {uniform.Offset}, "
                                                 + $"past the end of its uniform block of {block.Length} bytes.");
         value[..written].CopyTo(block.AsSpan(uniform.Offset));
-        // Inside the shader's mode, what is drawn after takes the new values.
+        Refresh(shader);
+    }
+
+    // Inside the shader's mode, what is drawn after takes its new values, and as the frame's tonemap
+    // shader, the frames drawn after.
+    private static void Refresh(Shader shader)
+    {
         if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
+        if (TryRes<FrameEffects>(out var effects) && effects.TonemapShader == shader.Id)
+            (effects.TonemapUniforms, effects.TonemapTextures) = (UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
     // A copy of a shader's uniform values for one draw, so values set after it reach only later draws.
@@ -269,7 +280,7 @@ public static partial class E3D
         if (!shader.IsValid || slot is < 0 or > 3) return;
         var values = ShaderValues.GetValueOrDefault(shader.Id).With(slot, value);
         ShaderValues[shader.Id] = values;
-        if (_shader == shader) DrawList.SetShader(shader.Id, values, UniformSnapshot(shader), TextureSnapshot(shader));
+        Refresh(shader);
     }
 
     /// <summary>Sets slot <paramref name="slot"/> to (<paramref name="value"/>, 0, 0, 0).</summary>

@@ -10,30 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ec87f64b`, Verdict 82's second mend, after `eba9c35a`, item 73, and nothing else,
-the mend changing the test file alone and carrying the review's files as they stood: the readback
-pool's test draws a frame holding a dispatch in every slot before its base, the frames in flight and
-one, waits for idle and takes a census of the device's buffers by maker, asserts the pool against
-its own cap through the loop, and after it waits for idle and for compute and holds the device's
-count less the pool's to the base exactly, the failure naming each maker's buffers over the start by
-count, size, usage and line; 1,859 passed in 9 minutes 26 seconds and the same shuffled by 20261020
-in 9 minutes 24 seconds, the strict build clean, 5 of 5 readback tests and the layer's own under
-lavapipe with the layer required. The build run 39554359618 of `0f281481` ended before 09:16, Linux,
-macOS, the digest and the examples green and Windows red on the readback pool's test alone, 1,788
-passed and 1 failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Both heads pushed at
-09:24 after that run ended, and the pack run 39561720109 with publish on started at 09:24 on this
-head, Verdict 82 to settle on its Windows suite and on the push's, the package the voxel game waits
-on for its items 55, 38 and 54 to come from it. Order from here: 79, 80, 81, the rest of 71 with the
-blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+Reviewed up to `3e83c817`, item 79, the masked shadow through a program's shader, and nothing else,
+carrying the review's file: the loader keeps a `shadowMain` entry apart as
+ShaderProgram.ShadowFragment with its bindings merged, a masked batch through a program with a
+vertex stage of its own or a `shadowMain` is drawn into every shadow map and into the depth the
+ambient occlusion and the probes read with the program's stage under the light's view-projection,
+cut by its `shadowMain` or by shadow.slang's fragment at the coordinate the stage gives, the batch's
+set, streams, CUSTOM0 feed and zeros bound as the model pass binds them, a pipeline a shader and its
+streams kept until it unloads, solid shadows and plain programs drawn as before; the guides'
+sentence names the stage the surface is drawn with, the program's own where it has one and
+model.slang's for a program with a `shadowMain` alone, and the depth the ambient occlusion reads;
+the effects guide's toggled window and the behaviors guide's ToggleKey row move from F3 to F4, since
+item 73 gave F3 the performance window. Measured: 1,863 passed in 10 minutes 1 second and the same
+shuffled by 20261020 in 9 minutes 54 seconds, the strict build clean, the four guides' 40 blocks
+building on the package, 55 of 55 shadow, stream, ambient occlusion and masked tests under lavapipe
+with the layer, and on the RTX 4070 with the path turned off for a moment both new tests failing as
+the ask describes, the atlas cut by `shadowMain` casting the whole quad and the positions-only quad
+casting none since the pass's own stage read the cut texel at zero, both passing with it on. Read at
+09:58 on 2026-10-21. The build run 39554359618 of `0f281481` ended before 09:16, Linux, macOS, the
+digest and the examples green and Windows red on the readback pool's test alone, 1,788 passed and 1
+failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Both heads pushed at 09:24 after
+that run ended, and the pack run 39561720109 with publish on started at 09:24 on this head, Verdict
+82 to settle on its Windows suite and on the push's, the package the voxel game waits on for its
+items 55, 38 and 54 to come from it. The build run 39561719650 of `ec87f64b`, read at 10:20: macOS
+green, Linux red on the suite shuffled by the day's seed alone, the data assets' cost test 160 bytes
+over, Verdict 83, the plain suite green, Windows still running; the pack run's Linux and macOS
+suites green, its Windows and the four jobs after running. Not pushed: the head is pushed when the
+build run ends, Verdict 83's mend with it if it has come. Order from here: 80, 81, the rest of 71
+with the blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+
+Before it, `ec87f64b` came, Verdict 82's second mend, the test file alone, and nothing else,
+carrying the review's files as they stood. Pushed at 09:24 with `eba9c35a`, the pack run 39561720109
+with publish on started on it at 09:24.
 
 Before it, `eba9c35a` came, item 73, the screenshot key and the performance window's key, and
 nothing else, carrying the review's file and the asks with their Review lines. Read at 08:52, pushed
 at 09:24 with `ec87f64b`.
-
-Before it, `0f281481` came, item 70's second commit, the client's record step and the animate
-script, and nothing else, carrying the review's files and the asks. Pushed at 08:15 with `31444e1e`;
-its build run 39554359618 ended with Windows red on the readback pool's test alone, Verdict 82, and
-the rest green.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3219,7 +3231,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     drive walking the stairs to the upper floor and reading the character's height, cutting a window
     by a command and reading the counts, and a capture; the game joins the build-all, drive, soak
     and storm lists and the README's gallery with its capture, and the guide's page names it. One
-    commit.
+    commit. BevyCSharp's Blockout came at `09fc95dd` on 2026-10-21 with its level file of 48 lines
+    in the shared recipe words, carved from one block, which this game takes as it is, and with
+    `union`, `subtract` and `intersect` taking a solid primitive's line as `cut` does, a primitive
+    made for a boolean in the mesh's first slot, refused with an `at` of the boolean's own, since
+    stairs added as a second solid had their welded edges counted open by a later boolean; item 60's
+    booleans take the same form, and its Shared line under Replies holds the level's every number.
 
 64. **Modeling operations on faces and edges, Blender's kinds (Decision 51).** The owner's later
     wave: selecting a face, insetting and pulling it, merging, beveling. On the kernel: bevel of the
@@ -3575,7 +3592,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     device; F3's release alone toggling and a chord not; a section's lines in the overlay's text;
     the graph's strip holding the last 240 times. Two commits, F1 and the overlay's columns, then
     the graph, the profiler and the sections' registration. After item 71's second part, before item
-    72.
+    72. The scope's shape, settled with BevyCSharp's coder at 10:05 for both engines: ImGui's public
+    API cannot leave out windows begun between two calls, alpha zero leaves windows that take the
+    pointer, and a second context doubles the runtime, so the opening call answers whether the scope
+    draws this frame, false while hidden, and a program writes its interface inside an `if` on it as
+    it writes `if (ImGui.Begin(...))`; what the engine itself draws or holds inside the scope is
+    dropped or hidden by the engine whatever the program does, its 2D draws here and its interface
+    nodes in BevyCSharp, and a program's ImGui windows are left to the `if`, so a hidden interface
+    costs nothing. So `BeginUi()` returns a bool here.
 
 79. **A masked surface drawn through a program's own shader is cut out of the shadow maps by its
     texture.** Asked by the voxel game on 2026-10-21 at 07:19 (ASKS.md, its last entry): with its
@@ -3604,7 +3628,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of the surface as the light sees it. The null device makes no pipelines, so without a GPU the
     loader's `shadowMain` and the draw list's masked draw with its texture are read, the shadow
     draws on the device alone; the game's capture comes from its own item 55 once the package
-    carries this, no capture of the game from here.
+    carries this, no capture of the game from here. Done at `3e83c817` on 2026-10-21, as the head
+    says; the game's capture comes with its item 55 once the package carries this.
 
 80. **A tonemap curve a program sets by its numbers, or a tonemap through a program's own shader.**
     Asked by the voxel game on 2026-10-21 at 07:38 for its item 58, matching the modpack's shader
@@ -3638,7 +3663,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
     darkens the drawn sky with it, the sky reading 81, 137 and 218 at an intensity of 1 and 59, 102
-    and 170 at a half, so a program that wants the sky's ambient at a third as the owner's modpack
+    and 170 at a half, so a program asking for the sky's ambient at a third as the owner's modpack
     has it, or whiter than the sky, must draw its own sky and hand the engine a map for the light
     alone. The mend: `SetEnvironmentLight(float intensity, Color tint)`, the share and the tint of
     the environment map's light on the scene, the drawn sky unchanged, one and white by default,
@@ -3647,6 +3672,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     map and the upgrading entry. Tests: a white wall's shaded side at a half the light with the
     drawn sky's pixels unchanged, on the device, and the null device recording the values. One
     commit, small, after item 80; its Review line under the game's entry when the entry is written.
+    Form approved at 10:11: `SetEnvironmentLight(float intensity, Color tint)`, 1 and white by
+    default, the intensity clamped at 0, and `GetEnvironmentLight()` reading them back, held in an
+    EnvironmentLight resource of their own extracted beside the map so a later `SetEnvironmentMap`
+    leaves them; a float4 `environmentLight` at the end of the lighting buffer, the intensity times
+    the tint in linear light, every field before keeping its offset, filled beside the map's; the
+    model pass's environment term and lights.slang's irradiance multiplying by it, sky.slang reading
+    the map's own intensity alone so the drawn sky is unchanged; the global illumination's sky term
+    and the bounce reference taking it on the CPU so the cascades and the reference agree; the
+    probes' captures following it since they draw through the model pass, as the room's own surfaces
+    do; the cheat sheet, the listing, the lighting guide's paragraph and the upgrading entry; on the
+    device a white wall under a flat map and no light reading half at 0.5 and red alone under a red
+    tint with the drawn sky's pixels unchanged in the same frame, without a GPU the setter, the
+    getter, the clamp, the resource surviving a new map and the buffer's values read from the
+    prepare's output. Settled at 10:12: the share scales the map's whole term, the diffuse
+    irradiance and the specular reflection from the prefiltered cube alike, so the map's light stays
+    consistent between a plaster wall and a rough metal beside it, as the modpack dims reflections
+    with its sky light; a reflection traced through the window that meets the drawn sky shows it as
+    drawn, and where the trace misses and falls back to the map, a mirror reflects the map at the
+    share, which the guide says.
 
 ## Verdicts
 
@@ -4776,6 +4820,21 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     every released buffer failing with its line named. The engine is unchanged, the test file alone.
     Mended again at `ec87f64b` on 2026-10-21 in that form, the test file alone; settles on the
     Windows suites of its push and of the pack run 39561720109 started at 09:24.
+
+83. **The Linux suite shuffled by the day's seed fails the data assets' cost test, a scene with no
+    reference costing 160 bytes more once some data files are known.** On the build run 39561719650
+    of `ec87f64b` on 2026-10-21 the plain Linux suite passed, 1,802 passed in 24 minutes 38 seconds,
+    and the suite shuffled by the seed 20261021 failed one test, 1,801 passed in 23 minutes 56
+    seconds: the scene with no reference asking nothing of the data files and costing no more once
+    some are known read 1,112 bytes known against the 952 expected, 160 over, where the same suite
+    shuffled by 20261020 passed on the machine before the push and the pack run's Linux suite of the
+    same head passed. So the cost the test reads moves with the order of the stage's systems, under
+    N 3.7: either the reading takes in work of a system the shuffle placed between the test's two
+    measurements, which the test should fence out or measure alone, or a system's place in the order
+    changes what a scene with no reference costs, which is the engine's fault. Read first with
+    `build/test.py --shuffle-seed 20261021` on the machine, the 160 bytes named by what allocates
+    them; then the mend, the test's measurement made its own or the engine's order dependence
+    removed, under N 3.5. One commit, before the next push. Mended at `?`.
 
 ## Decisions
 

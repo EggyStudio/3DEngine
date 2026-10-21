@@ -693,6 +693,7 @@ static class Engine.E3D
   static (float, float) GetVignette()
   static (float, float, Color) GetColorGrading()
   static (float, float, float) GetDepthOfField()
+  static (float, float, float, float) GetTonemapCurve()
   static App GetApp()
   static AudioStream LoadAudioStream(int sampleRate, int sampleSize, int channels)
   static AutomationEventList LoadAutomationEventList(string? fileName)
@@ -827,6 +828,7 @@ static class Engine.E3D
   static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
   static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format)
   static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format, int samples)
+  static Shader GetTonemapShader()
   static Shader LoadComputeShader(string fileName)
   static Shader LoadComputeShaderFromMemory(string code, string name = "compute.slang")
   static Shader LoadShader(string fileName)
@@ -1384,6 +1386,8 @@ static class Engine.E3D
   static void SetTextureFilter(Texture2D texture, TextureFilter filter)
   static void SetTextureWrap(Texture2D texture, TextureWrap wrap)
   static void SetTonemap(Tonemap curve)
+  static void SetTonemapCurve(float exposure, float white, float lower, float upper)
+  static void SetTonemapShader(Shader shader)
   static void SetTraceLogCallback(Action<LogLevel, string>? callback)
   static void SetTraceLogLevel(LogLevel level)
   static void SetVignette(float intensity, float radius = 0.5f)
@@ -3280,6 +3284,7 @@ enum Engine.Tonemap : int
   AgX = 7
   BlenderFilmic = 10
   Clamp = 3
+  Curve = 11
   Engine = 0
   None = 4
   Reinhard = 1

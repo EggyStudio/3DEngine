@@ -158,6 +158,8 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
 | `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
 | `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
+| `SetTonemapCurve(0.9f, 1.3f, 1.05f, 1)` | A curve set by four numbers, as the BSL shader draws it, below |
+| `SetTonemapShader(curve)` | Draws a shader of the program's own in the curve's place, below |
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
@@ -184,6 +186,48 @@ McMapface's and 2.4 for Blender's, the best of five reads warm, and they hold 25
 MB of the GPU's memory. Looking the light up costs the pass that brings the frame into the window
 about 0.002 ms more on the development machine's laptop GPU at 800 by 450, 0.015 ms against 0.013 to
 0.014 for the engine's curve, as `./e3d command profile` gives `main_pass` in `shaders_bloom`.
+
+`SetTonemapCurve(exposure, white, lower, upper)` chooses `Tonemap.Curve`, a curve set by four
+numbers as the BSL shader draws it, which Complementary's shaders for Minecraft grade a frame by:
+the light times its exposure, then c / (c^w + 1)^(1/w) with w the white curve, then c to the power
+of the lower curve in the darks and the upper in the lights, mixed by c's square root, shown with a
+gamma of 2.2, so the value the curve gives is the value the window shows. `SetTonemap(Tonemap.Curve)`
+alone draws the shader's defaults, 1.4, 2, 1.2 and 1.5. The shader's saturation is
+`SetColorGrading`'s, which works in linear light where the shader works on the value shown, so the
+same number reads a little apart:
+
+```csharp
+SetTonemapCurve(0.9f, 1.3f, 1.05f, 1);
+SetColorGrading(1, 1.05f, Color.White);
+```
+
+For a curve no setting gives, `SetTonemapShader(shader)` draws a shader of the program's own in the
+curve's place, over a triangle covering the window. It imports `frame`, takes a `FullscreenOutput`,
+and reads its input through `frameLight(uv)`, the scene's linear light with the bloom added and
+times the exposure, and returns its output through `frameShown(color, uv)`, which grades, encodes
+and vignettes a linear color under 1 as the window shows every curve's. Its own uniforms and
+textures are set as any shader's are, and reach the frames drawn after them:
+
+```slang
+import frame;
+
+uniform float strength;
+
+[shader("fragment")]
+float4 fragmentMain(FullscreenOutput input) : SV_Target
+{
+    float3 light = frameLight(input.uv);
+    return frameShown(light / (1.0 + light) * strength, input.uv);
+}
+```
+
+```csharp
+var curve = LoadShader("resources/shaders/curve.slang");
+SetShaderValue(curve, GetShaderLocation(curve, "strength"), 0.9f);
+SetTonemapShader(curve);
+```
+
+`SetTonemapShader(default)` gives the chosen curve back, as unloading the shader does.
 
 The `shaders_bloom` example gives each a key:
 
@@ -220,12 +264,13 @@ SetAutoExposure(true, min: 0.3f, max: 6, speed: 1.5f);
 The field is dazzling for a moment on the way out, and the tunnel dark on the way back in, until the
 exposure catches up.
 
-Each effect is read back as its setter left it, by `GetTonemap`, `GetExposure`, `GetAutoExposure`,
-`GetColorGrading`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom`,
-those of several values as a tuple named as the setter's arguments are. `DrawPostProcessWindow()`,
-called between `BeginDrawing` and `EndDrawing` as any ImGui window is, shows every one of them in a
-window of its own, a choice of the curve, a slider or a check for the rest, each calling its setter at
-once, so the picture is tuned while it is looked at:
+Each effect is read back as its setter left it, by `GetTonemap`, `GetTonemapCurve`,
+`GetTonemapShader`, `GetExposure`, `GetAutoExposure`, `GetColorGrading`, `GetVignette`,
+`IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom`, those of several values as a
+tuple named as the setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
+and `EndDrawing` as any ImGui window is, shows every one of them in a window of its own, a choice of
+the curve with a slider for each number of the one set by them, a slider or a check for the rest,
+each calling its setter at once, so the picture is tuned while it is looked at:
 
 <!-- compiled with:
 bool showEffects = false;

@@ -4,8 +4,8 @@ namespace Engine;
 
 /// <summary>
 /// A curve that brings the HDR frame's light past 1 under it, for <see cref="FrameEffects.Tonemap"/>:
-/// the engine's own, Narkowicz's fit of ACES and a cut at 1, and the eight Bevy offers, named as
-/// BevyCSharp names them and drawn as Bevy draws them.
+/// the engine's own, Narkowicz's fit of ACES and a cut at 1, the eight Bevy offers, named as
+/// BevyCSharp names them and drawn as Bevy draws them, and one set by its numbers.
 /// </summary>
 /// <remarks>
 /// <see cref="AgX"/>, <see cref="TonyMcMapface"/> and <see cref="BlenderFilmic"/> look the light up
@@ -51,4 +51,11 @@ public enum Tonemap
 
     /// <summary>Blender's filmic view transform, for matching a render done there, from Bevy's table.</summary>
     BlenderFilmic,
+
+    /// <summary>
+    /// A curve set by four numbers, as BSL's shader draws it, which <see cref="E3D.SetTonemapCurve"/>
+    /// chooses, an exposure of 1.4, a white curve of 2, a lower curve of 1.2 and an upper of 1.5 until
+    /// set.
+    /// </summary>
+    Curve,
 }

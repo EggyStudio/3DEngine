@@ -305,6 +305,12 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **A tonemap set by its numbers, or drawn by a program's shader.** `SetTonemapCurve` chooses
+  `Tonemap.Curve`, a curve of four numbers as the BSL shader draws it, which `GetTonemapCurve`
+  reads back, and `SetTonemapShader` draws a shader of the program's own in the curve's place,
+  which `GetTonemapShader` reads back, reading the frame through the `frame` module's `frameLight`
+  and returning it through `frameShown`, as [Effects over the frame](materials-light-and-shadows.md#effects-over-the-frame)
+  shows.
 - **A masked surface's shadow cut through a program's shader.** A masked material drawn with a
   shader of the program's own that has a vertex stage casts the shadow of what the texture keeps at
   the coordinate that stage gives, where it cast the whole of its mesh before, and a fragment stage

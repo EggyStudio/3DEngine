@@ -54,7 +54,7 @@ internal sealed record BloomFrame(int Split);
 /// adds as much light as was past the threshold, spread.
 /// </para>
 /// </remarks>
-internal sealed class BloomRenderer : IDisposable
+internal sealed partial class BloomRenderer : IDisposable
 {
     private const int MaxLevels = 5;
 
@@ -89,11 +89,11 @@ internal sealed class BloomRenderer : IDisposable
     // The width and height of the target the frame's luminance is measured into, as exposure.slang has it.
     private const int MeasuredSize = 64;
 
-    // As composite.slang reads it.
+    // As frame.slang reads it.
     [StructLayout(LayoutKind.Sequential)]
     private struct CompositePush
     {
-        public Vector4 Bloom, Grade, Tint, Exposure;
+        public Vector4 Bloom, Grade, Tint, Exposure, Curve;
     }
 
     // The luminance a scene's mean is brought to by the exposure that follows it, about what the
@@ -225,7 +225,8 @@ internal sealed class BloomRenderer : IDisposable
         (_blurVertexSpv, _blurFragmentSpv) = (motionBlur.Vertex, motionBlur.Fragment);
         (_exposureVertexSpv, _exposureFragmentSpv, _exposureBindings) = (exposure.Vertex, exposure.Fragment, exposure.LayoutOf(0));
         (_bloomVertexSpv, _bloomFragmentSpv, _bloomBindings) = (bloom.Vertex, bloom.Fragment, bloom.LayoutOf(0));
-        (_compositeVertexSpv, _compositeFragmentSpv, _compositeBindings) = (composite.Vertex, composite.Fragment, composite.LayoutOf(0));
+        // The composite's inputs are frame.slang's, in set 1.
+        (_compositeVertexSpv, _compositeFragmentSpv, _compositeBindings) = (composite.Vertex, composite.Fragment, composite.LayoutOf(1));
         (_fxaaVertexSpv, _fxaaFragmentSpv, _fxaaBindings) = (fxaa.Vertex, fxaa.Fragment, fxaa.LayoutOf(0));
     }
 
@@ -370,17 +371,19 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Draws the HDR target into the whole of <paramref name="pass"/>, decoded, with the bloom
-    /// added, scaled by the exposure, brought under 1 by the curve, graded, encoded and vignetted as
-    /// <paramref name="bloom"/> and <paramref name="effects"/> say.
+    /// added, scaled by the exposure, brought under 1 by the curve or through the program's shader
+    /// drawn in its place, graded, encoded and vignetted as <paramref name="bloom"/> and
+    /// <paramref name="effects"/> say.
     /// </summary>
-    public void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
+    public void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, BloomSettings? bloom,
+        FrameEffects? effects)
     {
         if (_sized is not { } sized || renderContext.Device is not GraphicsDevice device) return;
-        if (!_composites.TryGetValue(renderPass, out var pipeline))
-            _composites[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _compositeVertex!, _compositeFragment!, _twoTextures!,
-                additive: false, Marshal.SizeOf<CompositePush>());
-        var first = sized.Levels[0].Extent;
         effects ??= new FrameEffects();
+        var program = TonemapShader(device, renderPass, renderContext, renderWorld, effects);
+        if (!_composites.TryGetValue(renderPass, out var pipeline))
+            _composites[renderPass] = pipeline = CompositePipeline(device, renderPass, _compositeFragment!, _noOwnSet ??= device.CreateDescriptorSetLayout([]));
+        var first = sized.Levels[0].Extent;
         var tint = Linear(effects.Tint);
         var curve = effects.Tonemap == Tonemap.Engine && !_bends ? Tonemap.Clamp : effects.Tonemap;
         var push = new CompositePush
@@ -390,15 +393,22 @@ internal sealed class BloomRenderer : IDisposable
             Grade = new Vector4(effects.Contrast, effects.Saturation, (float)curve, effects.Vignette),
             Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
             Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, _shownLinear ? 0 : 1, 0),
+            Curve = effects.Curve,
         };
-        pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve))[_adaptedLast]);
+        if (program is { } own)
+        {
+            pipeline = own.Pipeline;
+            pass.SetPipeline(pipeline);
+            pass.SetBindGroup(pipeline, own.Set, 0);
+        }
+        else pass.SetPipeline(pipeline);
+        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve))[_adaptedLast], 1);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
 
     /// <summary>Composites into the 8-bit frame FXAA reads, made the first time it is asked for.</summary>
-    public void CompositeForFxaa(RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
+    public void CompositeForFxaa(RenderContext renderContext, RenderWorld renderWorld, BloomSettings? bloom, FrameEffects? effects)
     {
         if (_sized is not { } sized || renderContext.Device is not GraphicsDevice device) return;
         if (sized.Shown is null)
@@ -412,7 +422,7 @@ internal sealed class BloomRenderer : IDisposable
             target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-        Composite(pass, target.RenderPass, renderContext, bloom, effects);
+        Composite(pass, target.RenderPass, renderContext, renderWorld, bloom, effects);
     }
 
     /// <summary>Draws the composited frame through FXAA over the whole of <paramref name="pass"/>, the window's.</summary>
@@ -758,6 +768,7 @@ internal sealed class BloomRenderer : IDisposable
         _bloomFragment?.Dispose();
         _compositeVertex?.Dispose();
         _compositeFragment?.Dispose();
+        DisposeTonemapPrograms();
         _oneTexture?.Dispose();
         _twoTextures?.Dispose();
         _fxaaLayout?.Dispose();

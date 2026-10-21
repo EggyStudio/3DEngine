@@ -211,7 +211,7 @@ public static partial class E3D
         if (index < 0 || index >= program.Buffers.Count) return;
         if (!BufferValues.TryGetValue(shader.Id, out var values)) BufferValues[shader.Id] = values = new int[program.Buffers.Count];
         values[index] = buffer.Id;
-        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
+        Refresh(shader);
     }
 
     /// <summary>

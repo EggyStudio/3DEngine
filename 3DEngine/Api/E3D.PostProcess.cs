@@ -92,6 +92,69 @@ public static partial class E3D
     public static Tonemap GetTonemap() => Effects.Tonemap;
 
     /// <summary>
+    /// Brings the scene's light under 1 by a curve set by four numbers, as the BSL shader draws it,
+    /// and chooses that curve, <see cref="Tonemap.Curve"/>.
+    /// </summary>
+    /// <remarks>
+    /// The curve takes the light times <paramref name="exposure"/>, then c / (c^w + 1)^(1/w) with w
+    /// the <paramref name="white"/> curve, then c to the power of the <paramref name="lower"/> curve
+    /// in the darks and the <paramref name="upper"/> in the lights, mixed by c's square root, shown
+    /// with a gamma of 2.2, so the value it gives is the value shown, as the shader writes it to the
+    /// screen. The shader's defaults are 1.4, 2, 1.2 and 1.5. Its saturation is
+    /// <see cref="SetColorGrading"/>'s, which works in linear light. <see cref="SetExposure"/> and
+    /// the exposure that follows the scene multiply the light before the curve's own exposure.
+    /// </remarks>
+    public static void SetTonemapCurve(float exposure, float white, float lower, float upper)
+    {
+        var effects = Effects;
+        effects.Curve = new System.Numerics.Vector4(Math.Max(0, exposure), Math.Max(0.01f, white), Math.Max(0.01f, lower), Math.Max(0.01f, upper));
+        effects.Tonemap = Tonemap.Curve;
+    }
+
+    /// <summary>
+    /// The numbers of the curve <see cref="SetTonemapCurve"/> sets, as it left them, 1.4, 2, 1.2 and
+    /// 1.5 unless set, whether or not that curve is the one chosen.
+    /// </summary>
+    public static (float Exposure, float White, float Lower, float Upper) GetTonemapCurve()
+    {
+        var curve = Effects.Curve;
+        return (curve.X, curve.Y, curve.Z, curve.W);
+    }
+
+    /// <summary>
+    /// Draws the window's scene through <paramref name="shader"/>'s fragment stage in the curve's
+    /// place, for a curve no other setting gives, or the chosen curve again with the default shader.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The shader imports the engine's <c>frame</c> module and draws over a triangle that covers the
+    /// window, taking a <c>FullscreenOutput</c>. <c>frameLight(uv)</c> is its input, the scene's
+    /// linear light with the bloom added and times the exposure, and <c>frameShown(color, uv)</c> its
+    /// output, which grades, encodes and vignettes a linear color under 1 as every curve's is. Its
+    /// own uniforms and textures are set as any shader's, and the values set reach the frames drawn
+    /// after.
+    /// </para>
+    /// <para>
+    /// A vertex stage of the shader's own is not used. A shader with no fragment stage leaves the
+    /// curve in place, with a warning.
+    /// </para>
+    /// </remarks>
+    public static void SetTonemapShader(Shader shader)
+    {
+        var effects = Effects;
+        if (shader.IsValid && Res<ShaderStore>().Get(shader.Id) is { } program && !program.Stages.ContainsKey(ShaderStage.Fragment))
+        {
+            ApiLogger.Warn($"SetTonemapShader: '{program.Name}' has no fragment stage, so the curve is kept.");
+            shader = default;
+        }
+        effects.TonemapShader = shader.Id;
+        (effects.TonemapUniforms, effects.TonemapTextures) = shader.IsValid ? (UniformSnapshot(shader), TextureSnapshot(shader)) : (null, null);
+    }
+
+    /// <summary>The shader <see cref="SetTonemapShader"/> draws the scene through in the curve's place, or the default shader for the curve.</summary>
+    public static Shader GetTonemapShader() => new(Effects.TonemapShader);
+
+    /// <summary>
     /// Grades the scene's color. <paramref name="contrast"/> pushes each channel from the middle gray,
     /// <paramref name="saturation"/> takes color away toward gray below 1 and adds it above, and
     /// <paramref name="tint"/> multiplies it, white for none. 1, 1 and white leave it as it is.
@@ -233,6 +296,15 @@ public static partial class E3D
         var names = curves.Select(curve => curve.ToString()).ToArray();
         var curve = Array.IndexOf(curves, GetTonemap());
         if (ImGuiNET.ImGui.Combo("Curve", ref curve, names, names.Length)) SetTonemap(curves[curve]);
+        if (GetTonemap() == Tonemap.Curve)
+        {
+            var (curveExposure, white, lower, upper) = GetTonemapCurve();
+            var numbered = ImGuiNET.ImGui.SliderFloat("Curve's exposure", ref curveExposure, 0.05f, 8, "%.2f", logarithmic);
+            numbered |= ImGuiNET.ImGui.SliderFloat("White curve", ref white, 0.1f, 4, "%.2f");
+            numbered |= ImGuiNET.ImGui.SliderFloat("Lower curve", ref lower, 0.1f, 3, "%.2f");
+            numbered |= ImGuiNET.ImGui.SliderFloat("Upper curve", ref upper, 0.1f, 3, "%.2f");
+            if (numbered) SetTonemapCurve(curveExposure, white, lower, upper);
+        }
         var exposure = GetExposure();
         if (ImGuiNET.ImGui.SliderFloat("Exposure", ref exposure, 0.05f, 8, "%.2f", logarithmic)) SetExposure(exposure);
 

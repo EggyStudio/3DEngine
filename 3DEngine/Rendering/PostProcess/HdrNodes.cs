@@ -65,6 +65,6 @@ internal sealed class BloomNode : INode
         // knows the camera of the frame before once it is turned on.
         renderer.Lens(renderContext, renderWorld, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
         // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
-        if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, bloom, effects);
+        if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, renderWorld, bloom, effects);
     }
 }

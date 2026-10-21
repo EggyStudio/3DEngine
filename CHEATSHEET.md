@@ -1584,6 +1584,19 @@ void SetTonemap(Tonemap curve);                          // Chooses the curve th
                                                          // eight Bevy offers, drawn as Bevy draws them
 Tonemap GetTonemap();                                    // The curve the scene's light past 1 is brought under by,
                                                          // Tonemap.Engine unless set
+void SetTonemapCurve(float exposure, float white, float lower, float upper); // Brings the scene's light under 1 by a
+                                                                             // curve set by four numbers, as the BSL
+                                                                             // shader draws it, and chooses that curve,
+                                                                             // Tonemap.Curve
+(float Exposure, float White, float Lower, float Upper) GetTonemapCurve(); // The numbers of the curve SetTonemapCurve
+                                                                           // sets, as it left them, 1.4, 2, 1.2 and 1.5
+                                                                           // unless set, whether or not that curve is
+                                                                           // the one chosen
+void SetTonemapShader(Shader shader);                    // Draws the window's scene through shader's fragment stage in
+                                                         // the curve's place, for a curve no other setting gives, or
+                                                         // the chosen curve again with the default shader
+Shader GetTonemapShader();                               // The shader SetTonemapShader draws the scene through in the
+                                                         // curve's place, or the default shader for the curve
 void SetColorGrading(float contrast, float saturation, Color tint); // Grades the scene's color
 (float Contrast, float Saturation, Color Tint) GetColorGrading(); // The contrast, saturation and tint SetColorGrading
                                                                   // left, 1, 1 and white unless set

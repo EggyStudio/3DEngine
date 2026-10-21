@@ -35,7 +35,7 @@ internal sealed class MainPassNode : INode
         {
             var effects = renderWorld.TryGet<FrameEffects>();
             if (effects is { Fxaa: true }) renderer.Fxaa(pass, swapchainTarget.RenderPass, renderContext);
-            else renderer.Composite(pass, swapchainTarget.RenderPass, renderContext, renderWorld.TryGet<BloomSettings>(), effects);
+            else renderer.Composite(pass, swapchainTarget.RenderPass, renderContext, renderWorld, renderWorld.TryGet<BloomSettings>(), effects);
         }
 
         renderWorld.Set(new ActiveSwapchainPass(pass, extent));
