@@ -1717,6 +1717,23 @@ holds what stands between, every point sees the lamps, and a texel under a shado
 some hundred frames, which the tests draw past. A frame with no glow light skips the pass, which
 cost a frame of an app of a cube 0.09 s on lavapipe at 320 by 180.
 
+**The glow lights with the screen's probes left out, read on 2026-10-21.** A program that leaves the
+screen's probes out (`SetGlobalIlluminationScreenProbes`) left each pixel to march to every glow
+light in view itself, a cost that grows with the lights: the Cornell box's model pass took 1.01 ms at
+800 by 450 where 0.30 with the probes, and 2.24 at 1280 by 720, the strip's room 1.13 where 0.29,
+`games/Ore` at night, sixty-four lit, 5.65 where 0.61, and the voxel game 12.9 with forty glowstones
+in view where 1.8. While a glow light is lit, the screen's probes now stand for the glow lights
+alone, placed and marching to them once a tile as they do, with no ray traced, filtered or held, and
+the glow pass makes the depth's texels from them, which a pixel reads at a cost the lights do not
+change (`GlobalIlluminationRenderer.GlowOnly`). The model pass is back to 0.29 and 0.63 ms in the
+Cornell box, 0.29 in the strip's room and 0.53 in Ore, for 0.12 ms more of global illumination in
+the Cornell box than with nothing of the screen's, and Ore's whole global illumination 1.73 ms where
+3.61 with the probes. Every view with a glow light reads as far from its reference as the march
+did at both sizes, the Cornell box 0.083 at `Low` and 0.089 at `High`, the strip's room 0.116 and
+the emissive block's 0.057 and 0.056, and the stepped penumbrae the march left on Ore's ground are
+gone, the probes' tiles showing nowhere on its ore.
+![Ore's ground beside a block at night, with the screen's probes, marched at each pixel, and with probes standing for the glow lights alone](assets/cascades/glow-only-ore.webp)
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

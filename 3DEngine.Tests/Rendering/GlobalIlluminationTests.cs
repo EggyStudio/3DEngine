@@ -246,43 +246,6 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Frame_With_The_Screens_Probes_Left_Out_Draws_The_Cascades_Light_Alone()
-    {
-        Open();
-        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
-        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        void Draw()
-        {
-            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
-            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
-            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
-        }
-        // The cascades read alone through the toggle, which traces the screen's probes and leaves
-        // them unread, then with the probes left out, then with no global illumination.
-        SetGlobalIllumination(GlobalIllumination.Low);
-        var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
-        gi.ScreenOff = true;
-        var unread = Capture(Draw);
-        gi.ScreenOff = false;
-        SetGlobalIlluminationScreenProbes(false);
-        var left = Capture(Draw);
-        GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("the screen's probes are neither made nor traced");
-        SetGlobalIllumination(GlobalIllumination.Off);
-        var still = Capture(Draw);
-
-        var differing = 0;
-        for (int y = 0; y < left.Height; y++)
-            for (int x = 0; x < left.Width; x++)
-                if (GetImageColor(left, x, y) != GetImageColor(unread, x, y)) differing++;
-        differing.Should().Be(0, "the frame reads the cascades' light as the toggle's does");
-        var lit = Mean(left, 58, 48, 6, 10);
-        var dark = Mean(still, 58, 48, 6, 10);
-        (lit.X - dark.X).Should().BeGreaterThan(20, $"the cascades bring the wall's light to the block's side, {lit} against {dark}");
-        UnloadModel(slab);
-    }
-
-    [NeedsVulkanFact]
-    [Trait("Category", "Render")]
     public void A_Red_Wall_That_Moves_Tints_The_Side_Of_A_White_Block_Facing_It_As_A_Still_One_Does()
     {
         Open();

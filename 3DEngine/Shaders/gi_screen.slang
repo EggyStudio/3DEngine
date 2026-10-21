@@ -82,7 +82,8 @@ struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
-    // w: unused.
+    // w: 1 where the program left the screen's probes out and they stand for the glow lights alone,
+    // their surfaces and what they see of each light written and no ray traced.
     uint4 texels;
 };
 
@@ -374,6 +375,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     glowSeen[first + 16u] = asuint(faint.r);
     glowSeen[first + 17u] = asuint(faint.g);
     glowSeen[first + 18u] = asuint(faint.b);
+    if (push.texels.w != 0u)
+    {
+        irradiance[id.xy] = float4(0.0);
+        return;
+    }
     // The world's first cascade's probes give the light from beyond the rays, or past it its second's,
     // so the screen's probes reach as far as the second cascade does. Ending at the first, a surface
     // past it took the world's probes alone, and a step showed along that edge, as a slanted ceiling

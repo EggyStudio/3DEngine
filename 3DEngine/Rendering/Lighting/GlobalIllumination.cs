@@ -144,6 +144,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
     private GpuIllumination? _gi;
     private GpuScreenProbes? _screen;
+    // Whether the window's screen probes stand for the glow lights alone.
+    private bool _screenGlowOnly;
 
     // The window's camera the screen's probes were last placed through, which their blend finds a
     // probe's place in the frame before by, or null where the probes were laid out again since.
@@ -172,6 +174,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         public GpuScreenProbes Screen { get; } = screen;
         public (Matrix4x4 ViewProjection, Vector3 Eye)? Last { get; set; }
         public long Drawn { get; set; }
+        public bool GlowOnly { get; init; }
 
         public void Dispose() => Screen.Dispose();
     }
@@ -241,6 +244,20 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var cell = cells[(int)(frame % 16)];
         return new Vector2(((cell & 3) + 0.5f) / 4 - 0.5f, ((cell >> 2) + 0.5f) / 4 - 0.5f) * tile;
     }
+
+    /// <summary>
+    /// Whether the screen's probes stand for the glow lights alone this frame, which they do where
+    /// the program left them out and some glow light is lit.
+    /// </summary>
+    /// <remarks>
+    /// Without them each pixel marches to every glow light in view itself, which took the model pass
+    /// from 0.31 to 1.01 ms at Low on the Cornell box's four small emitters at 800 by 450 on the
+    /// development machine's GPU, and the voxel game's from 1.8 to 12.9 ms with forty glowstones in
+    /// view, so they are marched to once a tile, as the screen's probes march to them, and a pixel
+    /// reads the texels around it, its cost the same however many lights there are.
+    /// </remarks>
+    internal bool GlowOnly(RenderWorld renderWorld) =>
+        _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: false };
 
     /// <summary>The pixels along each side of the tile a screen probe stands in, at a quality.</summary>
     internal static int TileAt(GlobalIllumination quality) => quality switch
@@ -358,23 +375,28 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying)));
 
-        // The screen's probes, where the window has a depth to stand them on and the program has not
-        // left them out, the first interval theirs.
+        // The screen's probes, where the window has a depth to stand them on, the first interval
+        // theirs. Where the program left them out they stand for the glow lights alone while some
+        // are lit, each marching to the lights once a tile and tracing no ray (GlowOnly).
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
-        if (renderWorld.TryGet<GlobalIlluminationSettings>()!.ScreenProbes && renderWorld.TryGet<WindowDepth>() is { } depth && renderWorld.TryGet<WindowView>() is { } window
-            && renderWorld.TryGet<SwapchainTarget>() is { } swapchain && Matrix4x4.Invert(window.ViewProjection, out var inverse))
+        var glowOnly = GlowOnly(renderWorld);
+        if ((renderWorld.TryGet<GlobalIlluminationSettings>()!.ScreenProbes || glowOnly) && renderWorld.TryGet<WindowDepth>() is { } depth
+            && renderWorld.TryGet<WindowView>() is { } window && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
+            && Matrix4x4.Invert(window.ViewProjection, out var inverse))
         {
             var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality));
-            if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile)
+            if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile
+                || _screenGlowOnly != glowOnly)
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
                 _screen = device.CreateScreenProbes(width, height, tile);
+                _screenGlowOnly = glowOnly;
                 _lastScreen = null;
             }
             var jitter = JitterAt(_frame, tile);
             var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
             _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
-                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1)));
+                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly)));
             _lastScreen = (window.ViewProjection, window.Eye);
         }
         else if (_screen is not null)
@@ -427,26 +449,29 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             || !Matrix4x4.Invert(camera, out var inverse)) return;
         var targets = renderWorld.TryGet<TargetIllumination>();
         if (targets is null) renderWorld.Set(targets = new TargetIllumination());
-        // A program that left the screen's probes out has the target read the world's probes alone.
-        if (!settings.ScreenProbes)
+        // A program that left the screen's probes out has the target read the world's probes alone,
+        // and its glow lights from probes standing for them alone while some are lit, as the window.
+        var glowOnly = GlowOnly(renderWorld);
+        if (!settings.ScreenProbes && !glowOnly)
         {
             if (_targets.Remove(id, out var left)) _retired.Add((_frame, left));
             targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, null, depth, GlowLights: _glowCount);
             return;
         }
         var tile = TileAt(settings.Quality);
-        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile
+        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.GlowOnly != glowOnly
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile));
+            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
         var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
         var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
-        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0)));
+        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
+            glowOnly: glowOnly)));
         state.Last = (camera, at);
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }

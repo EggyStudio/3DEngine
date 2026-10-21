@@ -133,10 +133,11 @@ They are then neither made nor traced, for the window or a render texture, and e
 the cascades' light alone, smoother and coarser, with nothing of the light under a table that is
 smaller than the probes' spacing. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an
 RTX 4070 Laptop GPU, the screen's probes take 0.77 ms of the GPU at `Low` and 0.92 at `High` where
-no emissive surface is carried as a light. Where some are, the screen's probes carry their light
-too, and without them each pixel works it out itself: the room's four small emitters took the model
-pass from 0.31 to 1.01 ms at `Low`, of the 1.34 ms the screen's probes took, so the frame still came
-out 0.6 ms shorter.
+no emissive surface is carried as a light. Where some are, probes stand for those lights alone,
+marching to them once a tile and tracing nothing else, so a pixel reads their light at the same cost
+however many there are: with the room's four small emitters global illumination took 0.55 ms at
+`Low` where the screen's probes took 1.74, the model pass 0.29 ms as with them, and in `games/Ore`
+at night, sixty-four lit, 1.73 and 0.53 ms where with the screen's probes 3.61 and 0.61.
 
 ## Emissive surfaces
 

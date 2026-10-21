@@ -10,42 +10,49 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `55141a42`, Verdict 80's mend, after `10503abe`, item 71's first part, and nothing
-else, the first carrying the review's files and the asks. The call,
-`SetGlobalIlluminationScreenProbes`, in the form said before it, a `ScreenProbes` flag on the
-settings apart from the diagnostic toggle, the renderer neither making nor tracing the window's or a
-target's screen probes when off, the model pass reading the cascades alone with the glow lights
-taken at each pixel, the frame without them pixel for pixel the toggle's frame, the guide's
-paragraph with the cost on the Cornell box, 1.15 to 0.38 ms at Low and 1.49 to 0.58 at High without
-glow lights and the model pass from 0.31 to 1.01 ms with four, the cheat sheet line, the surface
-listing and the upgrading entry; the suite 1,828 passed plain and shuffled. The mend: the audio
-zone's status says the sounds are not heard yet, with the music's seconds of the one it is to play,
-until the wave, the music over a second, the stream's asks and the side hold, and past Alone plus
-1,200 frames gives the full status ending with what fell short; the drive waits its 300 frames and
-then reads the status every 60 frames up to 20 more times while it says not heard yet; the drive
+Reviewed up to `b5db84f3`, Verdict 81's mend, after `55141a42`, Verdict 80's mend, and `10503abe`,
+item 71's first part, and nothing else, the first carrying the review's files and the asks. Verdict
+81's mend: the open script waits the seconds `E3D_OPEN_WAIT` gives, a minute without it, and says
+after how many seconds a program serves, a program that never serves failing within them; the soak
+step starts its games three seconds apart with a wait of 300, its comment naming the run that
+failed; Sumo and the feature test started three seconds apart served after 6 and 2 seconds and
+soaked. The call, `SetGlobalIlluminationScreenProbes`, in the form said before it, a `ScreenProbes`
+flag on the settings apart from the diagnostic toggle, the renderer neither making nor tracing the
+window's or a target's screen probes when off, the model pass reading the cascades alone with the
+glow lights taken at each pixel, the frame without them pixel for pixel the toggle's frame, the
+guide's paragraph with the cost on the Cornell box, 1.15 to 0.38 ms at Low and 1.49 to 0.58 at High
+without glow lights and the model pass from 0.31 to 1.01 ms with four, the cheat sheet line, the
+surface listing and the upgrading entry; the suite 1,828 passed plain and shuffled. The mend: the
+audio zone's status says the sounds are not heard yet, with the music's seconds of the one it is to
+play, until the wave, the music over a second, the stream's asks and the side hold, and past Alone
+plus 1,200 frames gives the full status ending with what fell short; the drive waits its 300 frames
+and then reads the status every 60 frames up to 20 more times while it says not heard yet; the drive
 from the package under the layer gave audio ok at 3.6 s of music, and a live session read 1.0 s at
-the old judging frame and ok at 1.8 s on the next read. Read at 01:44 on 2026-10-21. Not pushed: the
-build run of `b47d20d6` has its macOS suite green in 23 minutes and its Linux and Windows suites
-running, and both heads are pushed when it ends, the next pack run with publish on started then. The
-pack run of `f78b8c58` has its captures green, its games job played every game through, which
-settles Verdict 77 and is Verdict 79's second, and then lost its soak to Sumo and the feature test
-not opening, Verdict 81, the nineteen soaks started at once on four cores stretching two opens past
-the script's minute, its mend before the glow lights' bound and the next pack run; the run ended at
-01:53, its macOS captures green. Next Verdict 81's mend, one commit, pushed with the two heads and
-the pack run with publish on started then; then the glow lights' bound of item 71's second part, its
-form said and taken; then items 68 and 69, the readback without a wait and the mesh over a shader's
-buffers, a package due after them; then item 70, the animated capture; then the rest of item 71's
-second part, the cascades' faults from the game's entry; then Decision 51's items 59 to 66, the
-modeling work, in order, the recipe's words from BevyCSharp's Replies at `08d03b4d`. Item 6 and the
-feature test's portable build wait on the owner's word.
+the old judging frame and ok at 1.8 s on the next read. Read at 01:44 on 2026-10-21. The build run
+of `b47d20d6` ended green at 02:00, macOS in 23 minutes, Linux in 38 and Windows in 42 with the
+examples job after them, so the three heads were pushed at 02:02, run 39518830032, and the pack run
+with publish on started at 02:02, run 39518866382, which is Verdict 79's third, Verdict 80's and
+Verdict 81's proof and the day's package. The pack run of `f78b8c58` has its captures green, its
+games job played every game through, which settles Verdict 77 and is Verdict 79's second, and then
+lost its soak to Sumo and the feature test not opening, Verdict 81, the nineteen soaks started at
+once on four cores stretching two opens past the script's minute, its mend before the glow lights'
+bound and the next pack run; the run ended at 01:53, its macOS captures green. Next the glow lights'
+bound of item 71's second part, its form said and taken, its first readings at 02:00 showing no view
+widening against the per-pixel form at either size on the Cornell box, the strip and the emissive
+block, the model pass back from 1.01 to 0.29 ms with four emitters for 0.12 ms more of global
+illumination, the field of ore at night still to read; then items 68 and 69, the readback without a
+wait and the mesh over a shader's buffers, a package due after them; then item 70, the animated
+capture; then the rest of item 71's second part, the cascades' faults from the game's entry; then
+Decision 51's items 59 to 66, the modeling work, in order, the recipe's words from BevyCSharp's
+Replies at `08d03b4d`. Item 6 and the feature test's portable build wait on the owner's word.
+
+Before it, `55141a42` came, Verdict 80's mend, and nothing else: the audio zone's status saying the
+sounds are not heard yet until the music has played over a second, within 1,200 frames, and the
+drive reading it every 60 frames up to 20 more times, audio ok at 3.6 s of music from the package.
 
 Before it, `10503abe` came, item 71's first part, the call leaving the screen probes out, and
 nothing else, carrying the review's files and the asks, in the form said before it, the suite 1,828
 passed plain and shuffled.
-
-Before it, `b47d20d6` came, item 67, the first gamepad moving through ImGui only once a program
-asks, and nothing else, carrying the review's files and the asks. Pushed at 01:12 with `c2b8c0e9`,
-item 57's sixth part, the feature test whole.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -4482,7 +4489,8 @@ is settled on the games jobs of the pack runs of `b3922179` and `f78b8c58` on 20
     the soak step starts the programs a few seconds apart and gives the open script a longer wait
     for the soak, five minutes, through a variable the script reads, the step's log saying how long
     each took to serve; a program that never serves still fails. It gates the package, so it comes
-    before the glow lights' bound and before the next pack run. Mended at `?`.
+    before the glow lights' bound and before the next pack run. Mended at `b5db84f3` on 2026-10-21
+    in that form, as the head says. Settles on the next pack run's soak green.
 
 ## Decisions
 
