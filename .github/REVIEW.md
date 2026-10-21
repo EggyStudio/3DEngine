@@ -10,43 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0f281481`, item 70's second commit, the client's record step and the animate script,
-and nothing else, carrying the review's files and the asks: `./e3d record` with its flags sending
-the line and asking the status every quarter second until the file is written, `./e3d animate` over
-the engine's writers, the script with the engine's names and the Git bash launcher on Windows, six
-tests skipped by probes where Pillow or the built client is absent so the script never builds a
-client, E3D.md's rows, the command-line guide's paragraph and the client's help, and the README's
-first animation, Ore turning from day to night in 50 frames at 480 by 270 and 112 KB above the
-gallery's count paragraph; the suite 1,855 passed plain and shuffled, the examples table's check
-green. Read at 07:52 on 2026-10-21. The build run of `2f57b341` ended at 08:13, Linux, macOS and the
-examples green and Windows red on the readback pool's test again, 1,776 passed in 72 minutes 48
-seconds and the mended test finding 5 buffers over the base against its 4, so Verdict 82's mend did
-not hold on the runner and the verdict stays open; both heads were pushed at 08:15; the pack run of
-`2f57b341` runs beside it and its Windows suite will fail the same, so no package comes from it, the
-next pack run following the mend that holds. The same suite's log carries 117 validation warnings
-that a dispatch reads the field's faces image, bound as 8-bit, through a shader declaring it 32-bit,
-with every load undefined, which goes to item 71's reading of the blotches and the leak. Item 70 is
-done. Item 73's form said at the same time and taken: a resource of the debug keys, F2 for the
-screenshot and F3 for the performance window, the calls setting them with the null key turning
-either off, a system after the frame's input taking the screenshot through the capture without
-consuming the press, the folder beside the program made on first use and a field a test points
-elsewhere, the names by the local time with `_2` and `_3` as the source counts them and the names
-given this run remembered, the performance window's compile-time key become a run-time one, the file
-read on the device and the rest without one. Then 79, 80, 81, the sky's light apart from the drawn
-sky the game asks at 08:01, the rest of 71, 78, 72, 74, 75, 76, then Decision 51's items 59 and 60,
-then 77, then 61 to 66. Item 6 and the feature test's portable build wait on the owner's word. The
-pack run 39546802297 of `2f57b341`, read at 08:33: the Windows suite red on the readback pool's test
-alone, 1,776 passed and 1 failed in 75 minutes 33 seconds, Verdict 82 as foreseen, the fieldFaces
-R8_UINT warning 117 times on it as item 71 has it; Linux, macOS, the examples, both captures jobs
-and the games job green, Ore played, soaked and stormed on the package with no validation error; the
-pack job skipped, so no package until the second mend holds, and a new pack run starts after it.
+Reviewed up to `eba9c35a`, item 73, the screenshot key and the performance window's key, and nothing
+else, carrying the review's file and the asks with their Review lines: `SetScreenshotKey(key)` and
+`SetProfileWindowKey(key)` on the window's page, F2 and F3 until moved and `Key.Null` turning either
+off, a DebugKeys resource holding the two keys, the folder `screenshots` beside the program and the
+clock a test holds still; the key writes the frame as a PNG named by the time with `_2` and `_3` in
+the same second as Minecraft names its own, through the capture's request, a line in the log saying
+where it went or why none was taken; the performance window's key read by a `[RunIf]` condition on
+the hud's system rather than in its body, since the first suite run failed five tests whose apps
+have no Time once the `[ToggleKey]` gate was gone, the condition flipping the window on the key and
+answering before the context is built, so a hidden window costs nothing and needs no clock; the
+cheat sheet, the listing, the window guide, an upgrading entry, the feature test's README and the
+text example's line follow. Measured: 1,859 passed in 9 minutes 6 seconds and the same shuffled by
+20261020 in 9 minutes 27 seconds, the strict build clean, the two guides' 7 blocks building on the
+package, the screenshot key, recording and validation tests 14 of 14 under lavapipe with the layer
+required. Read at 08:52 on 2026-10-21. The build run 39554359618 of `0f281481` ended before 09:16,
+Linux, macOS, the digest and the examples green and Windows red on the readback pool's test alone,
+1,788 passed and 1 failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Not pushed: the
+head waits a few minutes for Verdict 82's second mend, whose commit follows its suites, so the two
+go in one push and one build run, and the pack run with publish on starts on that push. Order from
+here unchanged: Verdict 82's second mend, then a pack run with publish on, 79, 80, 81, the rest of
+71 with the blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+
+Before it, `0f281481` came, item 70's second commit, the client's record step and the animate
+script, and nothing else, carrying the review's files and the asks. Pushed at 08:15 with `31444e1e`;
+its build run 39554359618 ended with Windows red on the readback pool's test alone, Verdict 82, and
+the rest green.
 
 Before it, `31444e1e` came, item 70's first commit, the recorder with its writers, the commands and
 the calls, and nothing else, carrying the review's files and the asks, the suite 1,849 passed.
-
-Before it, `2f57b341` came, Verdict 82's mend, after `ee6cf5ee`, item 69's second part, and nothing
-else, each carrying the review's file. Both pushed at 06:56, the pack run with publish on started
-then, run 39546802297.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3487,7 +3479,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the owner names, with `SetProfileWindowKey(KeyboardKey key)` to match the screenshot's call, the
     move said in the upgrading entry and the cheat sheet's ImGui prose; a program whose own F3 does
     something, the voxel game among them, moves or turns the window's key off through the call,
-    which its item 40 does.
+    which its item 40 does. Done at `eba9c35a` on 2026-10-21, as the head says, the window's key
+    read by a `[RunIf]` condition.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -4761,7 +4754,18 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     is caught by the device's count returning to the base after a wait for idle at the end, which
     depends on nothing in flight. One commit, before the next pack run. The pack run 39546802297 of
     `2f57b341`, started before its Windows suite was read, ended red on this test alone, 5 over the
-    base of 4 again, 1,776 passed in 75 minutes 33 seconds, read at 08:33, the pack job skipped.
+    base of 4 again, 1,776 passed in 75 minutes 33 seconds, read at 08:33, the pack job skipped. The
+    cause, read shortly before 08:56 by the census the mended test prints: over the start the device
+    held two uniform buffers of the frame arena and two staging buffers of the pool, each frame slot
+    making its uniform buffer the first time a frame in it holds a dispatch, which the base frame
+    did not, so the delta was the pool's count plus the arenas' two, 4 on the machine against the
+    bound of 4 and 5 on the runner with the pool at 3; the arenas' working set, kept, not in flight
+    and no leak, which no wait takes away. So the mend draws a frame holding a dispatch in every
+    slot before the base, the frames in flight and one, then waits for idle and for compute before
+    the count and the census, asserts the pool against its own cap and the device's count less the
+    pool's back at the base exactly after the loop, naming each line of the census over the start in
+    the failure; 3 of 3 on the RTX 4070 and 5 of 5 under lavapipe with the layer, a planted leak of
+    every released buffer failing with its line named. The engine is unchanged, the test file alone.
     Mended again at `?`.
 
 ## Decisions
@@ -5252,6 +5256,22 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     shows and not in the pause or any other screen, so hiding every panel at any point, even in
     menus, would be wrong; the scope gives that, the HUD inside it hidden and a screen drawn outside
     it never, which the items say.
+
+59. **A denoiser for the ray-traced tier of global illumination, beside the cascades, in both
+    engines.** The owner asked at 08:42 on 2026-10-21 why BevyCSharp has no denoiser, was answered
+    that Bevy's Solari at 0.20 knows only DLSS Ray Reconstruction, which the bridge does not build,
+    ReSTIR halving the noise meanwhile, and said shortly before 08:56 that a denoiser for Solari is
+    necessary as the higher-definition solution for global illumination beside the radiance
+    cascades, and that it is implemented for both engines in the future. So the engines carry two
+    tiers, the cascades everywhere, which need no denoiser since they integrate over directions, and
+    a ray-traced lighting with a denoiser where the GPU has ray queries, in BevyCSharp over Solari's
+    output as its item 54 and here over a ray-traced lighting pass of the engine's own once the
+    cascades settle, items 71, 72 and 74 mended, the path-traced reference the engine draws being
+    the seed of such a pass; no item yet, written when the cascades are settled. The owner holds the
+    source of H-Trace, a Unity asset received from its developer as a patron; it is read for the
+    method's shape and its constants as the modpack's shaders were read by the voxel game, and
+    nothing of its code enters either repository, the license being the owner's to use and not to
+    publish, unless the developer grants it in writing, which the owner may ask.
 
 ## Replies
 

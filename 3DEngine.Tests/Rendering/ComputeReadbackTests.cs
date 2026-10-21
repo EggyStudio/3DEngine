@@ -119,10 +119,21 @@ public sealed class ComputeReadbackTests : IDisposable
     public void A_Readback_Asked_And_Unloaded_Every_Frame_Keeps_A_Few_Buffers_And_No_More()
     {
         var (shader, values) = Written();
-        Frame();
+        // Each frame slot's arena makes the buffer a frame's dispatch takes its uniforms from the
+        // first time the slot draws one, and keeps it for the slot's later frames, so a frame of
+        // the loop's own work in every slot comes before the count the device returns to.
+        for (var frame = 0; frame < GraphicsDevice.ReadbackStagingKept; frame++)
+        {
+            BeginDrawing();
+            Dispatch(shader, 0);
+            ClearBackground(Color.Black);
+            EndDrawing();
+        }
         // The dispatches' own buffers let go first, as they are again before the count after.
+        Device.WaitIdle();
         Device.WaitForCompute();
         var buffers = Device.Usage.Buffers;
+        var census = Device.BufferCensus();
         var pending = new Queue<ShaderReadback>();
         for (var frame = 0; frame < 100; frame++)
         {
@@ -142,14 +153,33 @@ public sealed class ComputeReadbackTests : IDisposable
         }
         foreach (var left in pending) UnloadShaderReadback(left);
         for (var frame = 0; frame < 5; frame++) Frame();
-        Device.WaitForCompute();
 
-        // The pool keeps as many of a size as frames can be in flight and one, however many a
-        // device's timing has waiting at once, so a leak of one a frame shows past it.
+        // The pool's own count, which holds nothing of the device's other transients, keeps as many
+        // of a size as frames can be in flight and one, however many a device's timing has waiting
+        // at once.
         Device.ReadbackStagingCount.Should().BeLessThanOrEqualTo(GraphicsDevice.ReadbackStagingKept, "the buffers asked in flight go back to the pool and are taken again");
-        (Device.Usage.Buffers - buffers).Should().BeLessThanOrEqualTo(GraphicsDevice.ReadbackStagingKept, "the device holds no buffer a frame more than the pool keeps");
+
+        // With the device idle nothing is in flight, so it holds what it held at the start and the
+        // pool's buffers, whatever a machine's timing, and a leak of one a frame shows past them.
+        Device.WaitIdle();
+        Device.WaitForCompute();
+        (Device.Usage.Buffers - Device.ReadbackStagingCount).Should().Be(buffers,
+            $"the device holds no buffer past the pool's once idle, and over the start it holds {OverStart(census)}");
         UnloadShaderBuffer(values);
         UnloadShader(shader);
+    }
+
+    // The buffers the device holds over the census taken at the start, each by its size and use and
+    // where it was made, so a run that fails says what it kept.
+    private static string OverStart(IReadOnlyList<BufferCount> start)
+    {
+        var before = start.ToDictionary(line => line.Maker, line => line.Count);
+        var over = Device.BufferCensus()
+            .Select(line => (line, Count: line.Count - before.GetValueOrDefault(line.Maker)))
+            .Where(entry => entry.Count != 0)
+            .Select(entry => $"{entry.Count} of {entry.line.Bytes / entry.line.Count} bytes for {entry.line.Maker.Usage} from {Path.GetFileName(entry.line.Maker.File)}:{entry.line.Maker.Line}")
+            .ToArray();
+        return over.Length == 0 ? "nothing" : string.Join(", ", over);
     }
 
     [NeedsVulkanFact]
