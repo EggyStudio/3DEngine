@@ -40,7 +40,7 @@ internal sealed partial class EditMeshData
             if (face.Corners.All(corner => MathF.Abs(Vector3.Dot(_positions[corner] - pivot, normal)) <= OnPlane)) continue;
             var corners = face.Corners.Select(Copy).ToArray();
             Array.Reverse(corners);
-            made.Add(AddFace(corners, face.Slot, face.Smooth));
+            made.Add(AddFace(corners, face.Slot, face.Smooth, face.Uvs?.Reverse().ToArray()));
         }
 
         _selectedFaces.Clear();

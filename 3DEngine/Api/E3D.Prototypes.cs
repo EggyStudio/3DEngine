@@ -61,11 +61,12 @@ public static partial class E3D
         return _prototypeGrid = texture;
     }
 
-    // Frees the prototype grid before the window closes, so it is not counted among the program's
-    // textures left loaded.
+    // Frees the prototype grid and the textures edit meshes' slots named before the window closes, so
+    // they are not counted among the program's textures left loaded.
     private static void ForgetPrototypes()
     {
         if (_prototypeGrid.IsValid && IsTextureValid(_prototypeGrid)) UnloadTexture(_prototypeGrid);
         _prototypeGrid = default;
+        ForgetSlotTextures();
     }
 }

@@ -157,6 +157,8 @@ internal sealed partial class EditMeshData
         _faces.AddRange(mesh._faces);
         _slots.Clear();
         _slots.AddRange(mesh._slots);
+        _looks.Clear();
+        _looks.AddRange(mesh._looks);
         _selectedVertices.Clear();
         _selectedFaces.Clear();
         _modifiers.RemoveAt(index);
@@ -176,9 +178,11 @@ internal sealed partial class EditMeshData
     {
         var copy = new EditMeshData { GridStep = GridStep };
         copy._positions.AddRange(_positions);
-        foreach (var face in _faces) copy._faces.Add(new Face([.. face.Corners], face.Slot, face.Smooth));
+        foreach (var face in _faces) copy._faces.Add(new Face([.. face.Corners], face.Slot, face.Smooth, face.Uvs is { } uvs ? [.. uvs] : null));
         copy._slots.Clear();
         copy._slots.AddRange(_slots);
+        copy._looks.Clear();
+        copy._looks.AddRange(_looks);
         return copy;
     }
 
@@ -190,7 +194,7 @@ internal sealed partial class EditMeshData
         {
             var first = _positions.Count;
             foreach (var position in positions) _positions.Add(position + offset);
-            foreach (var face in faces) AddFace(face.Corners.Select(corner => corner + first).ToArray(), face.Slot, face.Smooth);
+            foreach (var face in faces) AddFace(face.Corners.Select(corner => corner + first).ToArray(), face.Slot, face.Smooth, face.Uvs is { } uvs ? [.. uvs] : null);
         }
         Changed();
     }
@@ -256,6 +260,7 @@ internal sealed partial class EditMeshData
 
         // The new vertices, the old ones first at their new places, then an edge's, then a face's.
         var faces0 = _faces.ToArray();
+        var carried = faces0.Select(CarryOf).ToArray();
         for (int v = 0; v < vertexPoints.Length; v++) _positions[v] = vertexPoints[v];
         var edgeVertices = edgePoints.ToDictionary(pair => pair.Key, pair => AddVertex(pair.Value));
         var faceVertices = facePoints.Select(AddVertex).ToArray();
@@ -268,7 +273,7 @@ internal sealed partial class EditMeshData
             for (int k = 0; k < c.Length; k++)
             {
                 var (before, at, after) = (c[(k + c.Length - 1) % c.Length], c[k], c[(k + 1) % c.Length]);
-                AddFace([at, EdgeVertex(at, after), faceVertices[f], EdgeVertex(before, at)], faces0[f].Slot, faces0[f].Smooth);
+                _faces.Add(Piece(carried[f], faces0[f], [at, EdgeVertex(at, after), faceVertices[f], EdgeVertex(before, at)]));
             }
         }
         _selectedFaces.Clear();
@@ -301,9 +306,18 @@ internal sealed partial class EditMeshData
             var copy = face.Corners.Select(corner => corner + count).ToArray();
             // The surface the thickness goes out from faces into the solid unless the copy is the
             // one below it, so one of the two is wound the other way.
-            if (thickness > 0) Array.Reverse(face.Corners);
-            else Array.Reverse(copy);
-            AddFace(copy, face.Slot, face.Smooth);
+            var uvs = face.Uvs is { } own ? (Vector2[])own.Clone() : null;
+            if (thickness > 0)
+            {
+                Array.Reverse(face.Corners);
+                if (face.Uvs is not null) Array.Reverse(face.Uvs);
+            }
+            else
+            {
+                Array.Reverse(copy);
+                if (uvs is not null) Array.Reverse(uvs);
+            }
+            AddFace(copy, face.Slot, face.Smooth, uvs);
 
             var c = copy.Select(corner => corner - count).ToArray();
             if (thickness < 0) Array.Reverse(c);

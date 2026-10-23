@@ -151,7 +151,7 @@ internal sealed partial class EditMeshData
                     replaced.Add(slid[(at, after)]);
                 }
             }
-            face.Corners = [.. replaced.Where((corner, k) => corner != replaced[(k + 1) % replaced.Count])];
+            Recorner(face, [.. replaced.Where((corner, k) => corner != replaced[(k + 1) % replaced.Count])]);
         }
 
         // A band across each edge, from the rail of the face running along it from its lower end to

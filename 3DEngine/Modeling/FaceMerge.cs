@@ -2,8 +2,9 @@ namespace Engine;
 
 /// <summary>
 /// Makes the convex pieces a boolean leaves into faces again, the vertices welded, the pieces in one
-/// plane and one slot joined along the edges they share, and the corners that only lie along a
-/// straight edge taken away, so a window cut from a wall is a few faces and not a hundred pieces.
+/// plane, one slot and one face's texture coordinates joined along the edges they share, and the
+/// corners that only lie along a straight edge taken away, so a window cut from a wall is a few faces
+/// and not a hundred pieces.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -58,7 +59,7 @@ internal static class FaceMerge
             normal = normal.Unit;
             var offset = Csg.Point.Dot(normal, points[corners[0]]);
 
-            var group = groups.FindIndex(known => known.Source.Slot == source.Slot && known.Source.Smooth == source.Smooth
+            var group = groups.FindIndex(known => known.Source.Slot == source.Slot && known.Source.Smooth == source.Smooth && known.Source.Uvs == source.Uvs
                 && Csg.Point.Dot(known.Normal, normal) > 1 - 1e-6 && Math.Abs(known.Offset - offset) < weld);
             if (group < 0)
             {

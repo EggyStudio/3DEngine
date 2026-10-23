@@ -221,11 +221,11 @@ grid tinted by any color. The materials share one texture of 1024 pixels a meter
 levels, repeating and filtered along a slanted surface so its lines stay sharp down a corridor,
 which `CloseWindow` frees, so a prototype material is not unloaded by the program.
 
-A model built from an edit mesh draws each slot with the prototype material of the slot's name, so
-faces put in the slots `floor` and `wall` read as a floor and walls with no material set. A face's
-texture coordinates are its corners' places in meters seen along the axis its normal is nearest, so
-the grid shows a meter on every face, a face two meters wide spanning two cells, and carries on
-across faces meeting along a line:
+A model built from an edit mesh draws each slot with the prototype material of the slot's name,
+until [Slot looks](#slot-looks) give it another, so faces put in the slots `floor` and `wall` read
+as a floor and walls with no material set. A face's texture coordinates are its corners' places in
+meters seen along the axis its normal is nearest, so the grid shows a meter on every face, a face
+two meters wide spanning two cells, and carries on across faces meeting along a line:
 
 ```csharp
 var cell = LoadEditMesh();
@@ -235,6 +235,75 @@ EditMeshSelectFacing(cell, -Vector3.UnitY);
 EditMeshMaterial(cell, "floor");
 var model = LoadModelFromEditMesh(cell);    // the walls a pale warm gray, the floor a gray
 ```
+
+## Slot looks
+
+A slot is given a look of the engine's material, which a model built from the mesh draws its faces
+with in place of the prototype. `EditMeshSlotColor(mesh, "wall", color)`, or `slot color wall 0.8
+0.75 0.7`, tints the grid, or the slot's texture where it has one, and an alpha below one draws it
+blended. `EditMeshSlotMap(mesh, "wall", MaterialMapIndex.Albedo, "textures/bricks.png")`, or `slot
+texture wall textures/bricks.png`, gives the faces a picture in the grid's place, and the normal,
+occlusion, metalness and roughness, and emission maps are given the same way, as
+`SetMaterialTexture` gives a material's, by the words `normal-map`, `occlusion-map`,
+`metallic-roughness-map` and `emissive-map`, `none` taking one away.
+`EditMeshSlotEmissive(mesh, "lamp", new Vector3(4, 3.5f, 3))` gives a light in linear numbers that
+may pass one, and `EditMeshSlotMetallic` and `EditMeshSlotRoughness` the surface:
+
+<!-- compiled with:
+var cell = LoadEditMesh();
+-->
+```csharp
+EditMeshSlotMap(cell, "wall", MaterialMapIndex.Albedo, "textures/bricks.png");
+EditMeshSlotMap(cell, "wall", MaterialMapIndex.Normal, "textures/bricks_n.png");
+EditMeshSlotMap(cell, "floor", MaterialMapIndex.Albedo, "textures/planks.png");
+EditMeshSlotRoughness(cell, "floor", 0.6f);
+var model = LoadModelFromEditMesh(cell);    // brick walls on a wooden floor
+```
+
+A texture's path is read when the model is built, beside the program or in the working directory,
+and each file is loaded once, repeating with its mip levels, and freed by `CloseWindow`. A missing
+file is said in the log then, the slot drawn on the grid, and looked for again at the next build. `LoadMaterialFromEditMeshSlot`
+gives the material a slot is drawn with. `UpdateModelFromEditMesh` makes again the material of a
+slot whose look or name changed, and keeps the one the program gave a slot that stayed as it was.
+
+`EditMeshSlotAdd(mesh, "trim")` adds a slot no face is in, `EditMeshSlotRename(mesh, "default",
+"wall")` names one again, its faces and look kept, and `EditMeshSlotRemove(mesh, "trim")` takes one
+away, its faces given the first slot, which stays. Each is a line of the recipe, `slot add trim`,
+`slot rename default wall` and `slot remove trim`, so a saved model is drawn as it was left.
+
+## Texture coordinates
+
+A face's texture coordinates are the world-aligned default until the selection's are shaped,
+each operation a line of the recipe. `EditMeshUvPlanar(mesh, facing)`, or `uv planar +z`, is a
+planar projection of the selected faces along a direction, in meters, so a projection along an axis
+gives the faces facing it their default. `EditMeshUvBox(mesh)`, or `uv box`, writes the default
+onto the faces, `EditMeshUvCylinder(mesh, axis)`, or `uv cylinder y`, is a cylindrical projection
+about an axis, and `EditMeshUvSphere(mesh)`, or `uv sphere`, a spherical one about a point, a face
+across the seam taken from its own middle so it is not stretched the whole way round.
+
+`EditMeshUvMove(mesh, offset)`, `EditMeshUvScale(mesh, factor)` and `EditMeshUvRotate(mesh,
+degrees)`, or `uv move 0.5 0`, `uv scale 2` and `uv rotate 90`, move, scale and turn the
+coordinates about the middle of the selection's, or about each face's own with `each: true`, or
+`uv rotate 90 each`. `EditMeshUvDensity(mesh, 256)` scales them so the texture of the first
+selected face's slot shows 256 of its pixels a meter, a two meter face of a 512 pixel texture then
+spanning the texture once, and the recipe keeps the width it read, as `uv density 256 512`, so the
+line makes the same coordinates without the file. `EditMeshUvReset(mesh)`, or `uv reset`, puts the
+default back:
+
+<!-- compiled with:
+var cell = LoadEditMesh();
+-->
+```csharp
+EditMeshSelectFacing(cell, -Vector3.UnitY);
+EditMeshUvDensity(cell, 256, 512);          // the floor's planks at 256 pixels a meter
+EditMeshUvRotate(cell, 90);                 // running across the room
+var uvs = GetEditMeshFaceUvs(cell, 0);
+```
+
+A face with coordinates of its own keeps them on its corners as they move, where the default
+follows a face to the grid of the place it moves to. A cut, an inset, a
+subdivision or a boolean gives the corners it makes on a face the coordinates the face had there,
+so a window cut in a brick wall leaves the bricks where they were.
 
 ## Booleans and openings
 
@@ -497,9 +566,11 @@ it, so an undo is right for every operation and the selection is the one those l
 `ExportEditMesh(mesh, "level.gltf")` writes what the mesh builds into, its modifiers applied, as a
 glTF 2.0 file, positions, normals, texture coordinates and triangles, one primitive a material
 slot with faces and a material named as the slot is, so a level shaped in the game is opened in
-Blender and finished there. Its buffer is written beside it as `level.bin`, or into the file itself
-with `ExportEditMesh(mesh, "level.gltf", embedBuffer: true)`. The writer is the engine's own and
-writes the JSON form, `.gltf`, and not `.glb`.
+Blender and finished there. A material holds its slot's color, metalness, roughness and light, and
+its textures as images named by their paths from the file's folder, and a slot with no look its
+prototype's color without the grid. Its buffer is written beside it as `level.bin`, or into the file
+itself with `ExportEditMesh(mesh, "level.gltf", embedBuffer: true)`. The writer is the engine's own
+and writes the JSON form, `.gltf`, and not `.glb`.
 
 `EditMeshImport(mesh, "rock.gltf")`, or `import rock.gltf`, adds the meshes of a model file, read as
 `LoadModel` reads it, so a glTF, an FBX, an OBJ or any of the others, and selects them. The file's
@@ -528,7 +599,8 @@ the recipe runs.
 ## Building a model
 
 `LoadModelFromEditMesh(mesh)` builds the mesh into a `Model`, a mesh for each material slot drawn
-with the prototype material of the slot's name, as [Grid prototyping](#grid-prototyping) shows,
+with its look, or the prototype material of the slot's name where it has none, as
+[Slot looks](#slot-looks) and [Grid prototyping](#grid-prototyping) show,
 which is drawn and given materials as any model is:
 
 <!-- compiled with:
@@ -602,7 +674,9 @@ house` and `model.redo house` take back a line and do it again. `model.save` wri
 `model.load house models/house.model` makes the model again from it in place of the one of its
 name, and `model.export` writes a glTF file, each path read from the program's working directory as
 the console's other files are and the answer naming the file written. `model.free house` forgets
-the model and takes away the entity drawing it.
+the model and takes away the entity drawing it. `model.slot house texture wall textures/bricks.png`
+gives a slot its look and `model.uv house density 256` scales the selection's texture coordinates,
+the width read from the slot's texture, so the house takes its textures from the terminal too.
 
 A line that fails is refused with a code, `NO_SUCH_MODEL`, `BAD_ARGUMENT` with the reason the
 operation gave, `NOTHING_TO_UNDO`, `NO_SUCH_FILE` or `BAD_FILE`, and `./e3d` exits with 6 for each,
@@ -629,7 +703,8 @@ the commands made is freed with its name.
 `DrawModelingWindow(mesh)` draws an ImGui window that shapes the mesh by hand in the program's own
 frame, since the engine has no editor. It lists the recipe, the lines taken back grayed after it,
 with Undo and Redo buttons and a field that runs any line, says the counts of the mesh and of its
-selection, and offers each operation with its measures as fields and a button. A button runs the
+selection, and offers each operation with its measures as fields and a button, a slot's look among
+them, and the selection's texture coordinates drawn over its slot's texture. A button runs the
 operation's line, so the window writes the recipe the calls and the model commands write, and a
 line the mesh refuses is shown with the reason.
 

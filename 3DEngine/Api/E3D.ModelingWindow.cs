@@ -16,7 +16,9 @@ public static partial class E3D
     /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c> after the frame's first
     /// <c>BeginMode3D</c>, whose camera the pointer's ray is cast through, as any ImGui window is
     /// drawn. The window lists the recipe with buttons to undo and redo its lines, says the
-    /// selection's counts and offers each operation with its measures as fields and a button. Each
+    /// selection's counts and offers each operation with its measures as fields and a button, a
+    /// slot's look and the selection's texture coordinates among them, the coordinates drawn over the
+    /// texture of the first selected face's slot. Each
     /// button runs the operation's line of the recipe, so the window writes the lines the calls and
     /// the model commands write, and a line the mesh refuses is shown with the reason.
     /// </para>
@@ -83,7 +85,13 @@ public static partial class E3D
         public int Sides = 8, Steps = 8, Segments = 1, Cuts = 1, Axis = 1;
         public float Distance = 1, Inset = 0.25f, Bevel = 0.1f, Degrees = 90, Scale = 2, Merge = 0.001f;
         public float OpeningWidth = 1.2f, OpeningHeight = 1, Along = 1, Sill = 1, DoorHeight = 2.1f;
-        public string Slot = "wall";
+        public string Slot = "wall", Rename = "", Texture = "";
+        public Vector4 Color = Vector4.One;
+        public float Metallic, Roughness = 0.85f, UvDensity = 256;
+        public Vector2 UvMove, UvScale = new(2, 2);
+        public float UvDegrees = 90;
+        public bool UvEach;
+        public int UvAxis = 1, UvWidth = 512;
         public float Grid = 1;
         public int Hovered = -1, Version;
         public ModelingDrag? Drag;
@@ -329,7 +337,95 @@ public static partial class E3D
             ModelingButton(panel, data, "Grid", $"grid {EditMeshData.F(panel.Grid)}", () => ImGui.InputFloat("step", ref panel.Grid));
             if (ImGui.Button("Snap")) ModelingRun(panel, data, "snap");
         }
+
+        if (ImGui.CollapsingHeader("Slot's look")) ModelingLook(panel, data);
+        if (ImGui.CollapsingHeader("Texture coordinates")) ModelingUvs(panel, data);
         ImGui.End();
+    }
+
+    // The slot named in the window's field, added, renamed, taken away and given a look.
+    private static void ModelingLook(ModelingPanel panel, EditMeshData data)
+    {
+        var slot = panel.Slot.Trim();
+        var index = data.Slots.ToList().IndexOf(slot);
+        ImGui.TextUnformatted(index < 0 ? $"{slot} is not a slot yet, and a look given makes it"
+            : data.LookAt(index).IsPrototype ? $"{slot} is drawn with its prototype" : $"{slot}, {data.LookAt(index).Words()}");
+        if (ImGui.Button("Add")) ModelingRun(panel, data, $"slot add {slot}");
+        ImGui.SameLine();
+        if (ImGui.Button("Remove")) ModelingRun(panel, data, $"slot remove {slot}");
+        ModelingButton(panel, data, "Rename", $"slot rename {slot} {panel.Rename.Trim()}", () => ImGui.InputText("to##rename", ref panel.Rename, 64));
+        var c = panel.Color;
+        ModelingButton(panel, data, "Color", $"slot color {slot} {EditMeshData.F(c.X)} {EditMeshData.F(c.Y)} {EditMeshData.F(c.Z)} {EditMeshData.F(c.W)}",
+            () => ImGui.ColorEdit4("##color", ref panel.Color));
+        var texture = panel.Texture.Trim();
+        ModelingButton(panel, data, "Texture", $"slot texture {slot} {(texture.Length == 0 ? "none" : texture)}", () => ImGui.InputText("path##texture", ref panel.Texture, 256));
+        ModelingButton(panel, data, "Metallic", $"slot metallic {slot} {EditMeshData.F(panel.Metallic)}", () => ImGui.SliderFloat("##metallic", ref panel.Metallic, 0, 1));
+        ModelingButton(panel, data, "Roughness", $"slot roughness {slot} {EditMeshData.F(panel.Roughness)}", () => ImGui.SliderFloat("##roughness", ref panel.Roughness, 0, 1));
+    }
+
+    // The operations on the selection's texture coordinates, and the coordinates drawn over the
+    // texture of the first selected face's slot, repeated over the whole units they span.
+    private static void ModelingUvs(ModelingPanel panel, EditMeshData data)
+    {
+        foreach (var way in new[] { "+x", "-x", "+y", "-y", "+z", "-z" })
+        {
+            if (ImGui.Button($"{way}##planar")) ModelingRun(panel, data, $"uv planar {way}");
+            ImGui.SameLine();
+        }
+        ImGui.TextUnformatted("planar");
+        if (ImGui.Button("box")) ModelingRun(panel, data, "uv box");
+        ImGui.SameLine();
+        if (ImGui.Button("sphere")) ModelingRun(panel, data, "uv sphere");
+        ImGui.SameLine();
+        if (ImGui.Button("reset")) ModelingRun(panel, data, "uv reset");
+        ModelingButton(panel, data, "Cylinder", $"uv cylinder {"xyz"[Math.Clamp(panel.UvAxis, 0, 2)]}", () => ImGui.Combo("axis##cylinder", ref panel.UvAxis, "x\0y\0z\0"));
+        ModelingButton(panel, data, "Move", $"uv move {EditMeshData.F(panel.UvMove.X)} {EditMeshData.F(panel.UvMove.Y)}", () => ImGui.InputFloat2("by##uvmove", ref panel.UvMove));
+        var each = panel.UvEach ? " each" : "";
+        ModelingButton(panel, data, "Scale", $"uv scale {EditMeshData.F(panel.UvScale.X)} {EditMeshData.F(panel.UvScale.Y)}{each}", () => ImGui.InputFloat2("by##uvscale", ref panel.UvScale));
+        ModelingButton(panel, data, "Rotate", $"uv rotate {EditMeshData.F(panel.UvDegrees)}{each}", () => ImGui.InputFloat("degrees##uvrotate", ref panel.UvDegrees));
+        ImGui.Checkbox("each face about its own middle", ref panel.UvEach);
+        var known = data.SelectedTextureWidth();
+        ModelingButton(panel, data, "Density", $"uv density {EditMeshData.F(panel.UvDensity)} {known ?? panel.UvWidth}", () =>
+        {
+            ImGui.InputFloat("pixels a meter", ref panel.UvDensity);
+            if (known is { } width) ImGui.TextUnformatted($"of the slot's texture, {width} wide");
+            else ImGui.InputInt("texture width", ref panel.UvWidth);
+        });
+
+        var faces = Enumerable.Range(0, data.FaceCount).Where(data.IsFaceSelected).ToArray();
+        if (faces.Length == 0)
+        {
+            ImGui.TextDisabled("Select faces to see their coordinates.");
+            return;
+        }
+
+        var loops = faces.Select(data.UvsOf).ToArray();
+        var (low, high) = (new Vector2(float.MaxValue), new Vector2(float.MinValue));
+        foreach (var uv in loops.SelectMany(loop => loop)) (low, high) = (Vector2.Min(low, uv), Vector2.Max(high, uv));
+        ImGui.TextUnformatted($"u {EditMeshData.F(MathF.Round(low.X, 3))} to {EditMeshData.F(MathF.Round(high.X, 3))}, v {EditMeshData.F(MathF.Round(low.Y, 3))} to {EditMeshData.F(MathF.Round(high.Y, 3))}");
+
+        // The whole units the coordinates span, at most eight across, fitted square into the canvas.
+        var (from, to) = (new Vector2(MathF.Floor(low.X), MathF.Floor(low.Y)), new Vector2(MathF.Ceiling(high.X), MathF.Ceiling(high.Y)));
+        to = Vector2.Max(to, from + Vector2.One);
+        to = Vector2.Min(to, from + new Vector2(8));
+        var span = MathF.Max(to.X - from.X, to.Y - from.Y);
+        var side = MathF.Min(ImGui.GetContentRegionAvail().X, 320);
+        var origin = ImGui.GetCursorScreenPos();
+        var scale = side / span;
+        Vector2 At(Vector2 uv) => origin + (uv - from) * scale;
+
+        var draw = ImGui.GetWindowDrawList();
+        var slot = data.SlotIndexOf(faces[0]);
+        var look = data.LookAt(slot);
+        var picture = look.Texture is { } path ? SlotTexture(path) : default;
+        var id = GetImGuiTextureId(picture.IsValid ? picture : PrototypeGrid());
+        for (var u = from.X; u < from.X + span; u++)
+            for (var v = from.Y; v < from.Y + span; v++)
+                draw.AddImage(id, At(new Vector2(u, v)), At(new Vector2(u + 1, v + 1)));
+        var outline = ImGui.GetColorU32(new Vector4(1, 0.63f, 0.16f, 1));
+        foreach (var loop in loops)
+            for (int i = 0; i < loop.Length; i++) draw.AddLine(At(loop[i]), At(loop[(i + 1) % loop.Length]), outline, 1.5f);
+        ImGui.Dummy(new Vector2(side, side));
     }
 
     // A button that runs an operation's line, beside the fields of its measures, which are drawn

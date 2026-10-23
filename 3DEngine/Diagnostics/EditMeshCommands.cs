@@ -56,7 +56,7 @@ internal static class EditMeshCommands
             Counts(name, mesh),
             string.Create(culture, $"bounds ({low.X}, {low.Y}, {low.Z}) to ({high.X}, {high.Y}, {high.Z})"),
             string.Create(culture, $"volume {mesh.Volume} cubic meters, {mesh.OpenEdges} open edges, {(mesh.OpenEdges == 0 && mesh.FaceCount > 0 ? "closed" : "open")}"),
-            $"slots {string.Join(", ", mesh.Slots)}",
+            $"slots {string.Join(", ", mesh.Slots.Select((slot, index) => mesh.LookAt(index).IsPrototype ? slot : $"{slot} ({mesh.LookAt(index).Words()})"))}",
             string.Create(culture, $"grid {mesh.GridStep}, epsilon {mesh.BooleanEpsilon}, {mesh.Recipe.Count} lines of recipe"));
     }
 
@@ -274,6 +274,25 @@ internal static class EditMeshCommands
 
     [Command("model.epsilon", "Sets how near a point is to a plane to lie in it: model.epsilon <name> <distance>")]
     internal static string Epsilon(string line) => Run("epsilon", line);
+
+    // A density typed with one number takes the width of the texture of the first selected face's
+    // slot, which the line run is given, so the recipe makes the same coordinates without it.
+    [Command("model.uv", "Shapes the selected faces' texture coordinates: model.uv <name> planar +x..-z|<x y z>|box|cylinder x|y|z|<x y z> [at <x> <y> <z>]|sphere [at <x> <y> <z>]|move <u> <v>|scale <s> [<t>] [each]|rotate <degrees> [each]|density <pixels a meter> [<texture width>]|reset")]
+    internal static string Uv(string line)
+    {
+        var (name, rest) = NameAndRest(line);
+        var words = rest.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words is ["density", var density] && Names.Find(name) is { } named)
+        {
+            if (Data(named.Mesh).SelectedTextureWidth() is not { } width)
+                return Refuse("BAD_ARGUMENT", $"uv density on {name}: the first selected face's slot has no texture to read the width of, so the width is given after the density.");
+            return Run("uv", $"{name} density {density} {width}");
+        }
+        return Run("uv", line);
+    }
+
+    [Command("model.slot", "Changes a material slot: model.slot <name> add|remove <slot>|rename <slot> <new>|color <slot> <r> <g> <b> [a]|texture|normal-map|occlusion-map|metallic-roughness-map|emissive-map <slot> <path>|none|emissive <slot> <r> <g> <b>|metallic|roughness <slot> <value>")]
+    internal static string Slot(string line) => Run("slot", line);
 
     private static EditMeshNames Names => EditMeshNames.Of(ConsoleHost.World!);
 

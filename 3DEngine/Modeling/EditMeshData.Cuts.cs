@@ -92,8 +92,9 @@ internal sealed partial class EditMeshData
                     ring.Add(c[k]);
                     ring.AddRange(Along(c[k], c[(k + 1) % c.Length]));
                 }
+                var carried = CarryOf(face);
                 var middle = AddVertex(c.Aggregate(Vector3.Zero, (sum, corner) => sum + _positions[corner]) / c.Length);
-                for (int k = 0; k < ring.Count; k++) made.Add(new Face([ring[k], ring[(k + 1) % ring.Count], middle], face.Slot, face.Smooth));
+                for (int k = 0; k < ring.Count; k++) made.Add(Piece(carried, face, [ring[k], ring[(k + 1) % ring.Count], middle]));
             }
         }
 
@@ -153,8 +154,9 @@ internal sealed partial class EditMeshData
             var c = face.Corners;
             var on = Enumerable.Range(0, c.Length).Where(k => along.Contains(c[k]) || MathF.Abs(Side(c[k])) <= On).ToArray();
             if (on is not [var first, var second] || second - first == 1 || (first == 0 && second == c.Length - 1)) continue;
-            face.Corners = c[first..(second + 1)];
-            _faces.Add(new Face([.. c[second..], .. c[..(first + 1)]], face.Slot, face.Smooth));
+            var carried = CarryOf(face);
+            Recorner(face, c[first..(second + 1)]);
+            _faces.Add(Piece(carried, face, [.. c[second..], .. c[..(first + 1)]]));
             along.UnionWith([c[first], c[second]]);
         }
 
@@ -211,8 +213,9 @@ internal sealed partial class EditMeshData
             var c = face.Corners;
             int Point(int a, int b) => points[a < b ? (a, b) : (b, a)][0];
             var (entering, leaving) = (Point(c[k], c[(k + 1) % 4]), Point(c[(k + 2) % 4], c[(k + 3) % 4]));
-            kept.Add(new Face([c[k], entering, leaving, c[(k + 3) % 4]], face.Slot, face.Smooth));
-            kept.Add(new Face([entering, c[(k + 1) % 4], c[(k + 2) % 4], leaving], face.Slot, face.Smooth));
+            var carried = CarryOf(face);
+            kept.Add(Piece(carried, face, [c[k], entering, leaving, c[(k + 3) % 4]]));
+            kept.Add(Piece(carried, face, [entering, c[(k + 1) % 4], c[(k + 2) % 4], leaving]));
         }
 
         // The faces off the ring whose edges the ring crossed take its vertices, as a face at the
@@ -239,7 +242,7 @@ internal sealed partial class EditMeshData
                 if (a < b && points.TryGetValue((a, b), out var forward)) corners.AddRange(forward);
                 else if (a > b && points.TryGetValue((b, a), out var backward)) corners.AddRange(backward.Reverse());
             }
-            face.Corners = [.. corners];
+            if (corners.Count != c.Length) Recorner(face, [.. corners]);
         }
     }
 
@@ -259,6 +262,7 @@ internal sealed partial class EditMeshData
     private IEnumerable<Face> GridOf(Face face, Func<int, int, int[]> along, int parts)
     {
         var c = face.Corners;
+        var carried = CarryOf(face);
         var (c0, c1, c2, c3) = (_positions[c[0]], _positions[c[1]], _positions[c[2]], _positions[c[3]]);
 
         // The grid runs from the first corner along the first edge, and from it along the last edge.
@@ -278,13 +282,14 @@ internal sealed partial class EditMeshData
 
         for (int i = 0; i < parts; i++)
             for (int j = 0; j < parts; j++)
-                yield return new Face([grid[i, j], grid[i + 1, j], grid[i + 1, j + 1], grid[i, j + 1]], face.Slot, face.Smooth);
+                yield return Piece(carried, face, [grid[i, j], grid[i + 1, j], grid[i + 1, j + 1], grid[i, j + 1]]);
     }
 
     /// <summary>A triangle cut into a grid of triangles, the given number along each side.</summary>
     private IEnumerable<Face> TrianglesOf(Face face, Func<int, int, int[]> along, int parts)
     {
         var c = face.Corners;
+        var carried = CarryOf(face);
         var (a, b, d) = (_positions[c[0]], _positions[c[1]], _positions[c[2]]);
 
         // A point is so many parts along the first edge and so many along the last, from the first corner.
@@ -299,8 +304,8 @@ internal sealed partial class EditMeshData
         for (int i = 0; i < parts; i++)
             for (int j = 0; i + j < parts; j++)
             {
-                yield return new Face([grid[i, j], grid[i + 1, j], grid[i, j + 1]], face.Slot, face.Smooth);
-                if (i + j < parts - 1) yield return new Face([grid[i + 1, j], grid[i + 1, j + 1], grid[i, j + 1]], face.Slot, face.Smooth);
+                yield return Piece(carried, face, [grid[i, j], grid[i + 1, j], grid[i, j + 1]]);
+                if (i + j < parts - 1) yield return Piece(carried, face, [grid[i + 1, j], grid[i + 1, j + 1], grid[i, j + 1]]);
             }
     }
 }

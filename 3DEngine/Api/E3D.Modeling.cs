@@ -552,6 +552,12 @@ public static partial class E3D
     /// <c>.bin</c> file of the same name, or into the file itself where
     /// <paramref name="embedBuffer"/> is set. A relative name is beside the program.
     /// </para>
+    /// <para>
+    /// A material holds its slot's color, metalness, roughness and emission, and its textures as
+    /// images the file names by their paths from its own folder, so the file opens with them where
+    /// they are. A slot with no look has its prototype's color and no texture, since the grid is the
+    /// engine's.
+    /// </para>
     /// <para>The writer is the engine's own, in managed code, and writes the JSON form, <c>.gltf</c>, and not <c>.glb</c>.</para>
     /// </remarks>
     public static bool ExportEditMesh(EditMesh mesh, string fileName, bool embedBuffer = false)
@@ -561,7 +567,7 @@ public static partial class E3D
         var used = Enumerable.Range(0, modified.FaceCount).Select(modified.SlotIndexOf).ToHashSet();
         var built = EditMeshBuild.Slots(data);
         var primitives = Enumerable.Range(0, built.Length).Where(used.Contains)
-            .Select(slot => new GltfWriter.Primitive(modified.Slots[slot], Vector4.One, built[slot].Vertices, built[slot].Indices)).ToArray();
+            .Select(slot => SlotPrimitive(data, slot, built[slot].Vertices, built[slot].Indices)).ToArray();
         try
         {
             GltfWriter.Write(fileName, Path.GetFileNameWithoutExtension(fileName), primitives, embedBuffer);
@@ -608,7 +614,7 @@ public static partial class E3D
 
     // -- Building a model to draw and collide with
 
-    /// <summary>Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with the prototype material of its slot's name.</summary>
+    /// <summary>Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with its slot's look or the prototype material of its slot's name.</summary>
     /// <remarks>
     /// <para>
     /// Each face is cut into triangles by ear clipping, so a concave face is cut inside its outline,
@@ -618,7 +624,9 @@ public static partial class E3D
     /// is nearest, so a texture of a meter's grid shows a meter on every face.
     /// </para>
     /// <para>
-    /// A slot named <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>,
+    /// A slot given a look by <see cref="EditMeshSlotColor"/>, <see cref="EditMeshSlotMap"/> and the
+    /// calls beside them is drawn with it (<see cref="LoadMaterialFromEditMeshSlot"/>). A slot with
+    /// none named <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>,
     /// <c>window</c> or <c>hazard</c> shows the grid of a meter in that part's color
     /// (<see cref="LoadMaterialPrototype(string)"/>), and any other the grid's own gray, so a level
     /// blocked out reads by color. The materials are the program's to change, as any model's are.
@@ -637,17 +645,19 @@ public static partial class E3D
         return new Model
         {
             Meshes = built.Select(slot => UploadMesh(slot.Vertices, slot.Indices)).ToArray(),
-            Materials = Enumerable.Range(0, built.Length).Select(slot => LoadMaterialPrototype(data.Slots[slot])).ToArray(),
+            Materials = Enumerable.Range(0, built.Length).Select(slot => SlotMaterial(data, slot)).ToArray(),
             MeshMaterial = Enumerable.Range(0, built.Length).ToArray(),
+            EditMeshSlots = SlotsOf(data),
         };
     }
 
     /// <summary>Writes a model built by <see cref="LoadModelFromEditMesh"/> again from the mesh, its meshes in place, after the mesh changed.</summary>
     /// <remarks>
     /// Each slot's mesh keeps its id and takes the new shape, so whatever draws it draws the change,
-    /// and the materials the program gave the model stay with their slots. A slot added since gets a
-    /// mesh and the prototype material of its name, and the mesh of a slot taken away, as by
-    /// <see cref="EditMeshClear"/>, is freed. A body made from the model stays as it was made, so a
+    /// and the materials the program gave the model stay with their slots while their names and
+    /// looks stay as they were. A slot added since, renamed or given another look gets the material
+    /// of its look or its name, and the mesh of a slot taken away, as by <see cref="EditMeshClear"/>,
+    /// is freed. A body made from the model stays as it was made, so a
     /// collider follows the change by being made again.
     /// </remarks>
     public static void UpdateModelFromEditMesh(Model model, EditMesh mesh)
@@ -665,16 +675,25 @@ public static partial class E3D
                 ? new ModelMesh(model.Meshes[slot].Id, vertices.Length, indices.Length / 3, bounds)
                 : UploadMesh(vertices, indices);
 
-            if (slot < model.MeshMaterial.Length && model.MeshMaterial[slot] < materials.Count) meshMaterial[slot] = model.MeshMaterial[slot];
+            var same = slot < model.EditMeshSlots.Length && model.EditMeshSlots[slot] == (data.Slots[slot], data.LookAt(slot));
+            if (slot < model.MeshMaterial.Length && model.MeshMaterial[slot] < materials.Count)
+            {
+                meshMaterial[slot] = model.MeshMaterial[slot];
+                if (!same) materials[meshMaterial[slot]] = SlotMaterial(data, slot);
+            }
             else
             {
-                materials.Add(LoadMaterialPrototype(data.Slots[slot]));
+                materials.Add(SlotMaterial(data, slot));
                 meshMaterial[slot] = materials.Count - 1;
             }
         }
         for (int slot = built.Length; slot < model.Meshes.Length; slot++) UnloadMesh(model.Meshes[slot]);
         model.Replace(meshes, [.. materials], meshMaterial);
+        model.EditMeshSlots = SlotsOf(data);
     }
+
+    private static (string Name, SlotLook Look)[] SlotsOf(EditMeshData data) =>
+        [.. Enumerable.Range(0, data.Slots.Count).Select(slot => (data.Slots[slot], data.LookAt(slot)))];
 
     // The edit mesh a call works on, or null with a warning naming the call where it is not loaded,
     // so an operation on a freed mesh is found in the log and the frame goes on.

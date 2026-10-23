@@ -752,7 +752,7 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 
 ## Modeling
 
-<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs, E3D.ModelingNames.cs, E3D.ModelingWindow.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs, E3D.ModelingSlots.cs, E3D.ModelingUvs.cs, E3D.ModelingNames.cs, E3D.ModelingWindow.cs -->
 ```csharp
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations then shape
 void UnloadEditMesh(EditMesh mesh);                      // Frees an edit mesh
@@ -837,7 +837,7 @@ EditMeshInfo GetEditMeshModifiedInfo(EditMesh mesh);     // What the mesh builds
 bool ExportEditMesh(EditMesh mesh, string fileName, bool embedBuffer = false);  // Writes what the mesh builds into, its modifiers applied, as a glTF 2.0 file, one primitive a material slot, and says whether it was written
 bool EditMeshImport(EditMesh mesh, string fileName);     // Adds the meshes of a model file, as LoadModel reads it, to the mesh as faces, its triangles in one plane joined back into faces, and selects them
 
-Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with the prototype material of its slot's name
+Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with its slot's look or the prototype material of its slot's name
 void UpdateModelFromEditMesh(Model model, EditMesh mesh);  // Writes a model built by LoadModelFromEditMesh again from the mesh, its meshes in place, after the mesh changed
 
 bool EditMeshUnion(EditMesh mesh, string fileOrPrimitive, Vector3 at = default);  // Joins another solid into the mesh where they overlap, a model's recipe file moved by at, or a solid primitive's line
@@ -854,6 +854,28 @@ Color GetPrototypeColor(string name);                    // The color of the pro
 ModelMaterial LoadMaterialPrototype(string name);        // The prototype material of a part of a level, the grid tinted by the color GetPrototypeColor gives its name
 ModelMaterial LoadMaterialPrototype(Color color);        // A material of the grid of a meter's cells tinted by a color, rough and not metal, for blocking out a level
 
+void EditMeshSlotAdd(EditMesh mesh, string slot);        // Adds a material slot no face is in yet, drawn with the prototype material of its name until it is given a look
+void EditMeshSlotRename(EditMesh mesh, string slot, string name);  // Gives a material slot another name, its faces and its look kept
+void EditMeshSlotRemove(EditMesh mesh, string slot);     // Takes a material slot away, its faces given the first slot, and the slots after it moving down by one
+void EditMeshSlotColor(EditMesh mesh, string slot, Color color);  // Gives a material slot a color, which tints its texture, or tints the grid in its place where it has none, an alpha below 255 drawing it blended
+void EditMeshSlotMap(EditMesh mesh, string slot, MaterialMapIndex map, string? fileName);  // Gives a material slot a texture or a map from its file, which its faces show by their texture coordinates, or takes it away with null
+void EditMeshSlotEmissive(EditMesh mesh, string slot, Vector3 color);  // Gives a material slot an emissive color, in linear numbers that may pass one for a light that blooms past white
+void EditMeshSlotMetallic(EditMesh mesh, string slot, float metallic);  // Sets how metal a material slot's faces are, from zero to one
+void EditMeshSlotRoughness(EditMesh mesh, string slot, float roughness);  // Sets how rough a material slot's faces are, from zero, a mirror, to one
+ModelMaterial LoadMaterialFromEditMeshSlot(EditMesh mesh, string slot);  // The material a slot of an edit mesh is drawn with, its look's, or the prototype material of its name where it has none
+
+Vector2[] GetEditMeshFaceUvs(EditMesh mesh, int face);   // A face's texture coordinates, one for each of its corners in their order, its own or the world-aligned default
+void EditMeshUvPlanar(EditMesh mesh, Vector3 facing);    // Gives the selected faces texture coordinates by a planar projection along a direction, in meters
+void EditMeshUvBox(EditMesh mesh);                       // Gives the selected faces the world-aligned default as texture coordinates of their own, which then follow their corners
+void EditMeshUvCylinder(EditMesh mesh, Vector3 axis, Vector3? center = null);  // Gives the selected faces texture coordinates by a cylindrical projection about an axis
+void EditMeshUvSphere(EditMesh mesh, Vector3? center = null);  // Gives the selected faces texture coordinates by a spherical projection about a point
+void EditMeshUvMove(EditMesh mesh, Vector2 offset);      // Moves the selected faces' texture coordinates, a whole number leaving a repeating texture where it was
+void EditMeshUvScale(EditMesh mesh, Vector2 factor, bool each = false);  // Scales the selected faces' texture coordinates about their middle, two showing the picture twice as often, as a whole or each face about its own middle
+void EditMeshUvRotate(EditMesh mesh, float degrees, bool each = false);  // Turns the selected faces' texture coordinates about their middle, from the first coordinate toward the second, as a whole or each face about its own middle
+void EditMeshUvDensity(EditMesh mesh, float pixelsPerMeter, int texturePixels);  // Scales the selected faces' texture coordinates so a texture of a width shows so many of its pixels a meter
+bool EditMeshUvDensity(EditMesh mesh, float pixelsPerMeter);  // Scales the selected faces' texture coordinates so the texture of the first selected face's slot shows so many of its pixels a meter, and says whether it had one to read the width of
+void EditMeshUvReset(EditMesh mesh);                     // Puts the selected faces' texture coordinates back on the world-aligned default
+
 void SetEditMeshName(EditMesh mesh, string name);        // Gives an edit mesh a name the console's model commands reach it by, so a program's level is shaped from the terminal
 EditMesh GetEditMeshByName(string name);                 // The edit mesh of a name, given by SetEditMeshName or by the model commands that made it, or one that is not loaded where none has the name
 
@@ -868,8 +890,11 @@ whether every edge is shared by two faces running along it in opposite direction
 takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`. A saved model is its recipe, a
 `.model` file of one operation a line starting with `model 1`, made again when it loads, and a
 model built from the mesh has a mesh for each material slot, drawn with the prototype material of
-the slot's name, the grid of a meter tinted by the color of a part of a level, which
-`CreatePhysicsStaticModel` makes a collider of. The console's `model.*` commands run the recipe's
+the slot's name, the grid of a meter tinted by the color of a part of a level, until the slot is
+given a look of a color, a texture and the maps of the engine's material, and which
+`CreatePhysicsStaticModel` makes a collider of. A face's texture coordinates are its place in
+meters until the `EditMeshUv` calls project, move, scale, turn or set them to a texel density, each
+a line of the recipe as a slot's look is. The console's `model.*` commands run the recipe's
 lines on a mesh by its name, as `./e3d command model.cut house window 1.2 1 4.5 1`, and
 `model.show` draws it as it changes. `DrawModelingWindow` shapes one by hand in an ImGui window,
 its faces picked by the pointer's ray.

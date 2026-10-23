@@ -113,7 +113,7 @@ internal sealed partial class EditMeshData
         {
             if (group.Length < 2 || Loops(group) is not [var loop]) continue;
             going.UnionWith(group);
-            made.Add(new Face([.. loop], _faces[group[0]].Slot, _faces[group[0]].Smooth));
+            made.Add(Piece(CarryOf(_faces[group[0]]), _faces[group[0]], [.. loop]));
         }
 
         RemoveFaces(going);

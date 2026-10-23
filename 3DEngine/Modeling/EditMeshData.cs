@@ -15,7 +15,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A face's texture coordinates are its corners' places in meters, seen along the axis its normal
-/// is nearest, read when the mesh is built, so they follow its corners wherever they move.
+/// is nearest, read when the mesh is built, so they follow its corners wherever they move, until a
+/// <c>uv</c> operation gives it coordinates of its own, which stay on its corners as they move and
+/// are carried to the corners a cut gives it.
 /// </para>
 /// <para>
 /// The selection is a set of vertices and a set of faces. Selecting a face selects its corners, so
@@ -49,14 +51,17 @@ internal sealed partial class EditMeshData
     // every operation that moves a corner between faces would otherwise have to mend them.
     private Dictionary<(int Low, int High), EdgeUse>? _edges;
 
-    /// <summary>A face, its corners in order round it, its slot and the angle it is smoothed across.</summary>
-    private sealed class Face(int[] corners, int slot, float smooth = 0f)
+    /// <summary>A face, its corners in order round it, its slot, the angle it is smoothed across and its own texture coordinates.</summary>
+    private sealed class Face(int[] corners, int slot, float smooth = 0f, Vector2[]? uvs = null)
     {
         public int[] Corners = corners;
         public int Slot = slot;
 
         /// <summary>The angle in degrees up to which its corners share a normal with the faces beside them, or zero for flat.</summary>
         public float Smooth = smooth;
+
+        /// <summary>The texture coordinates of its corners, in their order, or null for the world-aligned default.</summary>
+        public Vector2[]? Uvs = uvs;
     }
 
     /// <summary>How often the faces run along an edge from its lower vertex and from its higher.</summary>
@@ -164,6 +169,7 @@ internal sealed partial class EditMeshData
         _positions.Clear();
         _faces.Clear();
         _slots.RemoveRange(1, _slots.Count - 1);
+        _looks.RemoveRange(1, _looks.Count - 1);
         _selectedVertices.Clear();
         _selectedFaces.Clear();
         Changed();
@@ -235,9 +241,9 @@ internal sealed partial class EditMeshData
         return _positions.Count - 1;
     }
 
-    private int AddFace(int[] corners, int slot = 0, float smooth = 0f)
+    private int AddFace(int[] corners, int slot = 0, float smooth = 0f, Vector2[]? uvs = null)
     {
-        _faces.Add(new Face(corners, slot, smooth));
+        _faces.Add(new Face(corners, slot, smooth, uvs));
         return _faces.Count - 1;
     }
 }

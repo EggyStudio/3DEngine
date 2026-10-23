@@ -118,15 +118,6 @@ internal sealed partial class EditMeshData
         Did(smooth ? $"shade smooth {F(degrees)}" : "shade flat");
     }
 
-    /// <summary>The index of a slot, made where the mesh has none of its name.</summary>
-    private int SlotIndex(string slot)
-    {
-        var index = _slots.IndexOf(slot);
-        if (index >= 0) return index;
-        _slots.Add(slot);
-        return _slots.Count - 1;
-    }
-
     /// <summary>Refuses a name a recipe's line could not hold as one word.</summary>
     private static void OneWord(string name, string parameter)
     {

@@ -177,7 +177,8 @@ internal sealed partial class EditMeshData
         _selectedVertices.Clear();
         foreach (var (corners, source) in faces)
         {
-            var face = AddFace(corners, SlotIndex(source.Slot), source.Smooth);
+            var uvs = source.Uvs is { } map ? corners.Select(corner => map.At(_positions[corner])).ToArray() : null;
+            var face = AddFace(corners, SlotIndex(source.Slot, source.Look), source.Smooth, uvs);
             if (!source.Second) continue;
             _selectedFaces.Add(face);
             _selectedVertices.UnionWith(corners);
@@ -192,7 +193,7 @@ internal sealed partial class EditMeshData
         {
             var points = face.Corners.Select(corner => mesh._positions[corner]).ToArray();
             var triangles = EarClipping.Cut(points, mesh.Newell(face.Corners));
-            var source = new Csg.Source(mesh._slots[face.Slot], face.Smooth, second);
+            var source = new Csg.Source(mesh._slots[face.Slot], face.Smooth, second, mesh._looks[face.Slot], mesh.FitOf(face));
             for (int t = 0; t < triangles.Length; t += 3)
             {
                 var (a, b, c) = (Point(points[triangles[t]]), Point(points[triangles[t + 1]]), Point(points[triangles[t + 2]]));

@@ -12,11 +12,11 @@ namespace Engine;
 /// so a cylinder's sides are round and its ends flat.
 /// </para>
 /// <para>
-/// A face's texture coordinates are its corners' places in meters, seen along the axis its normal is
-/// nearest, so a texture of a meter's grid shows a meter on every face and carries on across faces
-/// meeting along a line, and a face moved shows the grid of the place it was moved to. The model
-/// pass works a normal map's frame out from the texture coordinates as it draws, so the vertices
-/// carry no tangents.
+/// A face's texture coordinates are its own where a <c>uv</c> operation gave it some, and otherwise
+/// its corners' places in meters, seen along the axis its normal is nearest, so a texture of a
+/// meter's grid shows a meter on every face and carries on across faces meeting along a line, and a
+/// face moved shows the grid of the place it was moved to. The model pass works a normal map's frame
+/// out from the texture coordinates as it draws, so the vertices carry no tangents.
 /// </para>
 /// </remarks>
 internal static class EditMeshBuild
@@ -51,14 +51,14 @@ internal static class EditMeshBuild
             var normal = areas[face] == Vector3.Zero ? Vector3.Zero : Vector3.Normalize(areas[face]);
             var smooth = mesh.SmoothOf(face);
             var first = (uint)vertices[slot].Count;
-            var (u, v) = BoxAxes(areas[face]);
+            var uvs = mesh.UvsOf(face);
 
             var points = new Vector3[corners.Length];
             for (int i = 0; i < corners.Length; i++) points[i] = mesh.Position(corners[i]);
             for (int i = 0; i < corners.Length; i++)
             {
                 var cornerNormal = smooth > 0 ? Smoothed(mesh, corners[i], normal, smooth, areas, around) : normal;
-                vertices[slot].Add(new ModelVertex(points[i], cornerNormal, new Vector2(Vector3.Dot(points[i], u), Vector3.Dot(points[i], v))));
+                vertices[slot].Add(new ModelVertex(points[i], cornerNormal, uvs[i]));
             }
             foreach (var index in EarClipping.Cut(points, areas[face])) indices[slot].Add(first + (uint)index);
         }

@@ -60,6 +60,13 @@ public sealed class Model
     /// <summary>Textures the model loaded itself, which <see cref="E3D.UnloadModel"/> frees.</summary>
     internal Texture2D[] OwnedTextures { get; init; } = [];
 
+    /// <summary>
+    /// The name and look of each slot of the edit mesh the model was built from, as they were when
+    /// its materials were last made, so an update makes again only the material of a slot whose name
+    /// or look changed.
+    /// </summary>
+    internal (string Name, SlotLook Look)[] EditMeshSlots { get; set; } = [];
+
     /// <summary>Whether the model has a mesh to draw.</summary>
     public bool IsValid => Meshes.Length > 0;
 }

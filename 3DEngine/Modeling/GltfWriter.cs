@@ -14,13 +14,29 @@ namespace Engine;
 /// glTF's do and the engine's do, so they are written as they are.
 /// </para>
 /// <para>
-/// Each material is a base color, not metal and fully rough, named as its slot is.
+/// Each material is named as its slot is, with its base color, metalness, roughness and emission,
+/// and its textures as images the file names by their paths from its folder, so the file and the
+/// pictures beside the program open together in Blender. An emission past one is written with
+/// <c>KHR_materials_emissive_strength</c>, which glTF's own factor cannot hold.
 /// </para>
 /// </remarks>
 internal static class GltfWriter
 {
-    /// <summary>One primitive, its material's name and color, and its vertices and triangles.</summary>
-    public sealed record Primitive(string Material, Vector4 Color, ModelVertex[] Vertices, uint[] Indices);
+    /// <summary>
+    /// One primitive, its material's name, its base color in linear numbers with its alpha, its
+    /// vertices and triangles, and the rest of its material, each texture a full path or null.
+    /// </summary>
+    public sealed record Primitive(string Material, Vector4 Color, ModelVertex[] Vertices, uint[] Indices)
+    {
+        public float Metallic { get; init; }
+        public float Roughness { get; init; } = 1;
+        public Vector3 Emissive { get; init; }
+        public string? Texture { get; init; }
+        public string? NormalMap { get; init; }
+        public string? OcclusionMap { get; init; }
+        public string? MetallicRoughnessMap { get; init; }
+        public string? EmissiveMap { get; init; }
+    }
 
     /// <summary>Writes the primitives to a <c>.gltf</c> file, and its buffer beside it unless <paramref name="embed"/> puts it in the file.</summary>
     /// <remarks>Each file is written under a name of its own and moved into place, so a reader sees the old file or the new one whole.</remarks>
@@ -79,6 +95,22 @@ internal static class GltfWriter
         var full = Path.IsPathRooted(path) ? path : Path.Combine(AppContext.BaseDirectory, path);
         if (Path.GetDirectoryName(full) is { Length: > 0 } folder) Directory.CreateDirectory(folder);
         var bin = Path.ChangeExtension(full, ".bin");
+
+        // Each picture once, as an image and a texture of the same index, named by its path from the
+        // file's folder with forward slashes, as glTF's URIs are.
+        var images = new List<string>();
+        int? Image(string? picture)
+        {
+            if (picture is null) return null;
+            var at = images.IndexOf(picture);
+            if (at >= 0) return at;
+            images.Add(picture);
+            return images.Count - 1;
+        }
+        var looks = primitives.Select(primitive => (Texture: Image(primitive.Texture), Normal: Image(primitive.NormalMap), Occlusion: Image(primitive.OcclusionMap),
+            MetallicRoughness: Image(primitive.MetallicRoughnessMap), Emissive: Image(primitive.EmissiveMap))).ToArray();
+        var strong = primitives.Any(primitive => Peak(primitive.Emissive) > 1);
+        var home = Path.GetDirectoryName(full) ?? "";
         var uri = embed ? "data:application/octet-stream;base64," + Convert.ToBase64String(buffer.GetBuffer(), 0, (int)buffer.Length) : Path.GetFileName(bin);
 
         var text = new MemoryStream();
@@ -89,6 +121,12 @@ internal static class GltfWriter
             json.WriteString("version", "2.0");
             json.WriteString("generator", "3DEngine");
             json.WriteEndObject();
+            if (strong)
+            {
+                json.WriteStartArray("extensionsUsed");
+                json.WriteStringValue("KHR_materials_emissive_strength");
+                json.WriteEndArray();
+            }
             json.WriteNumber("scene", 0);
             json.WriteStartArray("scenes");
             json.WriteStartObject();
@@ -126,20 +164,73 @@ internal static class GltfWriter
             json.WriteEndArray();
 
             json.WriteStartArray("materials");
-            foreach (var primitive in primitives)
+            for (int p = 0; p < primitives.Count; p++)
             {
+                var (primitive, look) = (primitives[p], looks[p]);
                 json.WriteStartObject();
                 json.WriteString("name", primitive.Material);
                 json.WriteStartObject("pbrMetallicRoughness");
                 json.WriteStartArray("baseColorFactor");
                 foreach (var channel in new[] { primitive.Color.X, primitive.Color.Y, primitive.Color.Z, primitive.Color.W }) json.WriteNumberValue(channel);
                 json.WriteEndArray();
-                json.WriteNumber("metallicFactor", 0);
-                json.WriteNumber("roughnessFactor", 1);
+                WriteTexture(json, "baseColorTexture", look.Texture);
+                json.WriteNumber("metallicFactor", primitive.Metallic);
+                json.WriteNumber("roughnessFactor", primitive.Roughness);
+                WriteTexture(json, "metallicRoughnessTexture", look.MetallicRoughness);
                 json.WriteEndObject();
+                WriteTexture(json, "normalTexture", look.Normal);
+                WriteTexture(json, "occlusionTexture", look.Occlusion);
+                WriteTexture(json, "emissiveTexture", look.Emissive);
+                var peak = Peak(primitive.Emissive);
+                if (primitive.Emissive != Vector3.Zero || look.Emissive is not null)
+                {
+                    // A map alone shows its own colors, as the engine's material draws it.
+                    var factor = primitive.Emissive == Vector3.Zero ? Vector3.One : primitive.Emissive / Math.Max(1, peak);
+                    WriteVector(json, "emissiveFactor", factor);
+                }
+                if (peak > 1)
+                {
+                    json.WriteStartObject("extensions");
+                    json.WriteStartObject("KHR_materials_emissive_strength");
+                    json.WriteNumber("emissiveStrength", peak);
+                    json.WriteEndObject();
+                    json.WriteEndObject();
+                }
+                if (primitive.Color.W < 1) json.WriteString("alphaMode", "BLEND");
                 json.WriteEndObject();
             }
             json.WriteEndArray();
+
+            if (images.Count > 0)
+            {
+                json.WriteStartArray("images");
+                foreach (var image in images)
+                {
+                    json.WriteStartObject();
+                    var relative = (Path.IsPathRooted(image) ? Path.GetRelativePath(home, image) : image).Replace('\\', '/');
+                    json.WriteString("uri", string.Join('/', relative.Split('/').Select(Uri.EscapeDataString)));
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+                json.WriteStartArray("samplers");
+                json.WriteStartObject();
+                // Linear between mip levels and repeating, as a face's coordinates run past one.
+                json.WriteNumber("magFilter", 9729);
+                json.WriteNumber("minFilter", 9987);
+                json.WriteNumber("wrapS", 10497);
+                json.WriteNumber("wrapT", 10497);
+                json.WriteEndObject();
+                json.WriteEndArray();
+                json.WriteStartArray("textures");
+                for (int i = 0; i < images.Count; i++)
+                {
+                    json.WriteStartObject();
+                    json.WriteNumber("sampler", 0);
+                    json.WriteNumber("source", i);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+            }
 
             json.WriteStartArray("buffers");
             json.WriteStartObject();
@@ -169,6 +260,16 @@ internal static class GltfWriter
         if (!embed) Replace(bin, buffer.ToArray());
         Replace(full, text.ToArray());
     }
+
+    private static void WriteTexture(Utf8JsonWriter json, string name, int? texture)
+    {
+        if (texture is not { } index) return;
+        json.WriteStartObject(name);
+        json.WriteNumber("index", index);
+        json.WriteEndObject();
+    }
+
+    private static float Peak(Vector3 value) => MathF.Max(value.X, MathF.Max(value.Y, value.Z));
 
     private static void WriteVector(Utf8JsonWriter json, string name, Vector3 value)
     {

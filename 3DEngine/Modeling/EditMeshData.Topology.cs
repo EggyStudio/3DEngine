@@ -76,12 +76,15 @@ internal sealed partial class EditMeshData
                 var offset = meet > 1e-4f ? (inFromBefore + inFromAfter) * (distance / meet) : inFromBefore * distance;
                 inner[i] = AddVertex(at + offset);
             }
+            // The ring lies in the face's plane, so it takes the face's own coordinates where it has
+            // them, the texture running on across it.
+            var carried = CarryOf(face);
             for (int i = 0; i < corners.Length; i++)
             {
                 var next = (i + 1) % corners.Length;
-                AddFace([corners[i], corners[next], inner[next], inner[i]], face.Slot, face.Smooth);
+                _faces.Add(Piece(carried, face, [corners[i], corners[next], inner[next], inner[i]]));
             }
-            face.Corners = inner;
+            Recorner(face, inner);
             _selectedVertices.UnionWith(inner);
         }
 
@@ -205,7 +208,7 @@ internal sealed partial class EditMeshData
                 for (int i = corners.Count - 1; i >= 0 && corners.Count > 1; i--)
                     if (corners[i] == corners[(i + 1) % corners.Count]) corners.RemoveAt(i);
                 if (corners.Count < 3) gone.Add(index);
-                else face.Corners = [.. corners];
+                else Recorner(face, [.. corners]);
             }
             _selectedVertices.ExceptWith(into.Keys);
             RemoveFaces(gone);
@@ -218,7 +221,11 @@ internal sealed partial class EditMeshData
     /// <summary>Turns the selected faces to face the other way, their corners run backwards.</summary>
     public void Flip()
     {
-        foreach (var face in _selectedFaces) Array.Reverse(_faces[face].Corners);
+        foreach (var face in _selectedFaces)
+        {
+            Array.Reverse(_faces[face].Corners);
+            if (_faces[face].Uvs is { } uvs) Array.Reverse(uvs);
+        }
         Changed();
         Did("flip");
     }
@@ -237,10 +244,14 @@ internal sealed partial class EditMeshData
             if (face.Corners.Length == 3) continue;
 
             var corners = face.Corners;
+            var carried = CarryOf(face);
             var triangles = EarClipping.Cut(corners.Select(corner => _positions[corner]).ToArray(), Newell(corners));
-            face.Corners = [corners[triangles[0]], corners[triangles[1]], corners[triangles[2]]];
             for (int t = 3; t < triangles.Length; t += 3)
-                _selectedFaces.Add(AddFace([corners[triangles[t]], corners[triangles[t + 1]], corners[triangles[t + 2]]], face.Slot, face.Smooth));
+            {
+                _faces.Add(Piece(carried, face, [corners[triangles[t]], corners[triangles[t + 1]], corners[triangles[t + 2]]]));
+                _selectedFaces.Add(_faces.Count - 1);
+            }
+            Recorner(face, [corners[triangles[0]], corners[triangles[1]], corners[triangles[2]]]);
         }
         Changed();
         Did("triangulate");
@@ -259,7 +270,7 @@ internal sealed partial class EditMeshData
                 if (!copies.TryGetValue(corner, out var copy)) copies[corner] = copy = AddVertex(_positions[corner]);
                 return copy;
             }).ToArray();
-            made.Add(AddFace(corners, face.Slot, face.Smooth));
+            made.Add(AddFace(corners, face.Slot, face.Smooth, face.Uvs is { } uvs ? [.. uvs] : null));
         }
 
         _selectedFaces.Clear();
@@ -288,7 +299,8 @@ internal sealed partial class EditMeshData
         _positions.AddRange(other._positions);
         var made = new List<int>();
         foreach (var face in other._faces)
-            made.Add(AddFace(face.Corners.Select(corner => corner + offset).ToArray(), SlotIndex(other._slots[face.Slot]), face.Smooth));
+            made.Add(AddFace(face.Corners.Select(corner => corner + offset).ToArray(), SlotIndex(other._slots[face.Slot], other._looks[face.Slot]), face.Smooth,
+                face.Uvs is { } uvs ? [.. uvs] : null));
 
         _selectedFaces.Clear();
         _selectedFaces.UnionWith(made);

@@ -53,8 +53,8 @@ internal static class Csg
         public Point Unit => this * (1.0 / Length);
     }
 
-    /// <summary>What a polygon came from, carried through every split.</summary>
-    internal readonly record struct Source(string Slot, float Smooth, bool Second);
+    /// <summary>What a polygon came from, carried through every split, with its slot's look and its face's own texture coordinates where it has them.</summary>
+    internal readonly record struct Source(string Slot, float Smooth, bool Second, SlotLook? Look = null, EditMeshData.UvMap? Uvs = null);
 
     /// <summary>A plane, its normal of a length of one and how far along it from the origin.</summary>
     internal sealed class Plane(Point normal, double w)
