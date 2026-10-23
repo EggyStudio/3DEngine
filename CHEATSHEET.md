@@ -7,7 +7,7 @@ a function's line the first sentence of its documentation, and the text around t
 
 ## Window and timing
 
-<!-- written by build/cheatsheet.sh from E3D.ConfigFlags.cs, E3D.Window.cs, E3D.Display.cs, E3D.cs, E3D.Profile.cs, E3D.Random.cs -->
+<!-- written by build/cheatsheet.sh from E3D.ConfigFlags.cs, E3D.Window.cs, E3D.DebugOverlay.cs, E3D.Display.cs, E3D.cs, E3D.Profile.cs, E3D.Random.cs -->
 ```csharp
 void SetConfigFlags(ConfigFlags flags);                  // Asks the next InitWindow for these flags, added to any asked before, as raylib's does
 void SetConfigSamples(int samples);                      // How many samples a pixel of the next window is drawn with, 1 for none or 2, 4 or 8, rounded down to what the device can do
@@ -29,7 +29,6 @@ void TakeScreenshot(string fileName);                    // Writes the frame bei
 void StartRecording(string fileName, int intervalMs = 100, float scale = 1);  // Starts recording what the window shows as an animated GIF or PNG, by the extension of fileName, a picture every intervalMs milliseconds of the app's clock, until StopRecording, as raylib's examples record a GIF
 void StopRecording();                                    // Stops the recording StartRecording started, whose file is written once its last pictures are back
 void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, F2 until moved, as Minecraft takes one, or turns it off with Key.Null
-void SetProfileWindowKey(Key key);                       // Sets the key that shows and hides the engine's performance window, F3 until moved, or turns it off with Key.Null, as a program whose own F3 does something does
 
 void SetTargetFPS(int fps);                              // Caps the frame rate
 float GetFrameTime();                                    // Seconds the last frame took
@@ -37,6 +36,12 @@ double GetTime();                                        // Seconds since the wi
 int GetFPS();                                            // Frames per second, smoothed over the last few frames
 void PollInputEvents();                                  // Processes the window's pending events, as raylib's PollInputEvents does, unless the frame has already, which WindowShouldClose and BeginDrawing do
 void SwapScreenBuffer();                                 // Shows the frame drawn, as raylib's SwapScreenBuffer does, which EndDrawing has done already
+
+bool BeginUi();                                          // Opens the scope of the program's interface, which F1 hides, and answers whether it is drawn this frame, false while it is hidden
+void EndUi();                                            // Closes the scope BeginUi opened, dropping what was drawn inside it while the interface is hidden
+bool IsUiHidden();                                       // Whether F1 has hidden the interface drawn inside BeginUi
+void SetUiHiddenKey(Key key);                            // Sets the key that hides and shows the program's interface, F1 until moved, as Minecraft hides its HUD, or turns it off with Key.Null
+void SetDebugOverlayKey(Key key);                        // Sets the key that shows and hides the engine's debug overlay, F3 until moved, as Minecraft's debug screen, or turns it off with Key.Null
 
 bool IsWindowResized();                                  // Whether the window's size changed in the events of this frame
 bool IsWindowFullscreen();                               // Whether the window covers its monitor in fullscreen, by ToggleFullscreen or the flag for it, rather than as ToggleBorderlessWindowed covers it, as raylib's tells the two apart
@@ -1367,5 +1372,5 @@ bool QuaternionEquals(Quaternion p, Quaternion q);       // Whether two rotation
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
 is drawn over everything else. The keyboard moves through its widgets, and the first gamepad too
 once `SetImGuiGamepadNavigation(true)` is called.
-F3 shows the engine's performance window and F2 writes a screenshot, keys `SetProfileWindowKey` and
-`SetScreenshotKey` move.
+F1 hides the interface a program draws inside `BeginUi`, F2 writes a screenshot and F3 shows the
+engine's debug overlay, keys `SetUiHiddenKey`, `SetScreenshotKey` and `SetDebugOverlayKey` move.

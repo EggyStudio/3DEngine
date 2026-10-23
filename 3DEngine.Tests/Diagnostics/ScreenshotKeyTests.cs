@@ -6,8 +6,8 @@ namespace Engine.Tests.Diagnostics;
 
 /// <summary>
 /// F2 writing a screenshot in every program into a folder beside it, named by the time as Minecraft
-/// names its own, the key moved or turned off, the press still the program's, and F3 the
-/// performance window's key.
+/// names its own, the key moved or turned off, the press still the program's, and F1 and F3 the
+/// keys of the hidden interface and the debug overlay beside it.
 /// </summary>
 /// <remarks>
 /// A run with no GPU has no frame to write, so the files are read on the device, offscreen, and
@@ -72,7 +72,7 @@ public sealed class ScreenshotKeyTests : IDisposable
     {
         UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
         Keys.Folder = _folder.Path;
-        (Keys.Screenshot, Keys.ProfileWindow).Should().Be((Key.F2, Key.F3), "F2 and F3 are Minecraft's keys for the two");
+        (Keys.HideUi, Keys.Screenshot, Keys.Overlay).Should().Be((Key.F1, Key.F2, Key.F3), "F1, F2 and F3 are Minecraft's keys for the three");
 
         Input.SetKey(Key.F2, true);
         BeginDrawing();
@@ -82,8 +82,9 @@ public sealed class ScreenshotKeyTests : IDisposable
         Directory.EnumerateFiles(_folder.Path).Should().BeEmpty("a run with no renderer has no frame to write");
 
         SetScreenshotKey(Key.F12);
-        SetProfileWindowKey(Key.Null);
-        (Keys.Screenshot, Keys.ProfileWindow).Should().Be((Key.F12, Key.Null));
+        SetDebugOverlayKey(Key.Null);
+        SetUiHiddenKey(Key.F9);
+        (Keys.HideUi, Keys.Screenshot, Keys.Overlay).Should().Be((Key.F9, Key.F12, Key.Null));
         SetScreenshotKey(Key.Null);
         Keys.Screenshot.Should().Be(Key.Null);
     }
@@ -121,20 +122,5 @@ public sealed class ScreenshotKeyTests : IDisposable
         Press(Key.F2);
         Frames(5);
         Directory.EnumerateFiles(_folder.Path, "*.png").Should().HaveCount(3, "a key turned off writes nothing");
-    }
-
-    [Fact]
-    [Trait("Category", "Integration")]
-    public void F3_Shows_And_Hides_The_Performance_Window_Which_F2_No_Longer_Does()
-    {
-        UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
-        Frames(1);
-        var shown = PerformanceHud.Shown;
-        Press(Key.F2);
-        PerformanceHud.Shown.Should().Be(shown, "F2 is the screenshot's key");
-        Press(Key.F3);
-        PerformanceHud.Shown.Should().Be(!shown, "F3 flips the window");
-        Press(Key.F3);
-        PerformanceHud.Shown.Should().Be(shown);
     }
 }

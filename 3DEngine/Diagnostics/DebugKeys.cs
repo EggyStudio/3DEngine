@@ -3,21 +3,25 @@ using System.Globalization;
 namespace Engine;
 
 /// <summary>
-/// The keys every program answers of the engine's own, F2 writing a screenshot and F3 showing the
-/// performance window, which <see cref="E3D.SetScreenshotKey"/> and
-/// <see cref="E3D.SetProfileWindowKey"/> move or turn off, a world resource.
+/// The keys every program answers of the engine's own, F1 hiding the interface, F2 writing a
+/// screenshot and F3 showing the debug overlay, which <see cref="E3D.SetUiHiddenKey"/>,
+/// <see cref="E3D.SetScreenshotKey"/> and <see cref="E3D.SetDebugOverlayKey"/> move or turn off, a
+/// world resource.
 /// </summary>
 /// <remarks>
-/// F2 and F3 are Minecraft's keys for the two, so a player of games made on the engine finds them
-/// where that game put them. A press reaches the program as well, which reads it as any key.
+/// F1, F2 and F3 are Minecraft's keys for the three, so a player of games made on the engine finds
+/// them where that game put them. A press reaches the program as well, which reads it as any key.
 /// </remarks>
 internal sealed class DebugKeys
 {
+    /// <summary>The key that hides and shows the interface drawn inside <see cref="E3D.BeginUi"/>, or <see cref="Key.Null"/> for none.</summary>
+    public Key HideUi { get; set; } = Key.F1;
+
     /// <summary>The key that writes a screenshot, or <see cref="Key.Null"/> for none.</summary>
     public Key Screenshot { get; set; } = Key.F2;
 
-    /// <summary>The key that shows and hides the performance window, or <see cref="Key.Null"/> for none.</summary>
-    public Key ProfileWindow { get; set; } = Key.F3;
+    /// <summary>The key that shows and hides the debug overlay, with Shift its profiler, or <see cref="Key.Null"/> for none.</summary>
+    public Key Overlay { get; set; } = Key.F3;
 
     /// <summary>The folder screenshots go into, <c>screenshots</c> beside the program unless a test points it elsewhere.</summary>
     public string Folder { get; set; } = Path.Combine(AppContext.BaseDirectory, "screenshots");

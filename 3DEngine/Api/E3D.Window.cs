@@ -165,12 +165,6 @@ public static partial class E3D
     /// </remarks>
     public static void SetScreenshotKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Screenshot = key;
 
-    /// <summary>
-    /// Sets the key that shows and hides the engine's performance window, F3 until moved, or turns
-    /// it off with <see cref="Key.Null"/>, as a program whose own F3 does something does.
-    /// </summary>
-    public static void SetProfileWindowKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).ProfileWindow = key;
-
     // -- Timing
 
     /// <summary>Caps the frame rate. <see cref="EndDrawing"/> waits out the rest of each frame. Zero removes the cap.</summary>

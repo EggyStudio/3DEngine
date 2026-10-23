@@ -50,7 +50,7 @@ a health bar and a gauge in 2D.
 | Backspace | in the interface zone, take back a character from the sign |
 | F1 | the panel |
 | F2 | a screenshot, into a `screenshots` folder beside the program |
-| F3 | the engine's performance window |
+| F3 | the engine's debug overlay |
 
 ## The panel
 

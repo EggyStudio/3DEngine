@@ -62,7 +62,9 @@ internal sealed unsafe partial class GraphicsDevice
                     Utf8(new ReadOnlySpan<byte>(props.deviceName, MaxPhysicalDeviceNameSize)),
                     props.vendorID,
                     props.deviceID,
-                    ToDeviceType(props.deviceType));
+                    ToDeviceType(props.deviceType),
+                    GraphicsAdapterInfo.DriverOf(props.vendorID, (uint)props.driverVersion),
+                    $"{props.apiVersion.Major}.{props.apiVersion.Minor}.{props.apiVersion.Patch}");
             }
         }
 

@@ -204,14 +204,6 @@ writes into an animated GIF every few frames. Frames are kept for it from its fi
 first call gives the window in its clear color. The `e3d` tool in the repository controls a running
 program from the terminal, which is how the examples' pictures are taken.
 
-Every program writes a screenshot when F2 is pressed, as Minecraft does, the frame being drawn as a
-PNG in a `screenshots` folder beside the program, made on first use, named by the time as
-`2026-10-21_03.45.12.png`, a second in the same second `_2` and a third `_3`, with a line in the log
-saying where. The press reaches the program as well. `SetScreenshotKey(Key.F12)` moves it and
-`SetScreenshotKey(Key.Null)` turns it off, and F3, Minecraft's debug key, shows the engine's
-performance window, which `SetProfileWindowKey` moves or turns off for a program whose own F3 does
-something.
-
 A run is recorded as an animation, a GIF or an animated PNG by the file's extension, a picture
 every so many milliseconds of the app's clock until it is stopped:
 
@@ -233,6 +225,53 @@ frame after the first only the part that changed; the animated PNG keeps every c
 pages play as they play a GIF. The `record` command does the same from outside for a length:
 `./e3d command record walk.gif 5s every 250ms` takes twenty pictures, `record.status` says when the
 file is written, and `record.stop` ends one sooner.
+
+## The debug keys
+
+Every program answers three of Minecraft's keys, F1, F2 and F3, each moved by a call or turned off
+with `Key.Null`, and the program sees each press as it sees any key, so a program that takes one for
+itself moves it. None is taken while a field of an ImGui window has the caret.
+
+F1 hides the program's interface, what it draws between `BeginUi()` and `EndUi()`, so the world is
+seen alone, as Minecraft hides its HUD. While it is hidden the engine drops every 2D shape and text
+drawn inside the scope, and `BeginUi()` answers false, so the program's ImGui windows, which ImGui
+draws whatever a frame submits, go inside an `if` on it:
+
+<!-- compiled with:
+int health = 100;
+-->
+```csharp
+if (BeginUi())
+{
+    ImGui.Begin("Inventory");
+    ImGui.End();
+}
+DrawText($"Health {health}", 10, 10, 20, Color.White);    // dropped while hidden
+EndUi();
+```
+
+A pause screen, a menu or a map drawn outside the scope stays whatever F1 says, as Minecraft's
+screens do, and the world and the debug overlay draw on. `IsUiHidden()` says whether it is hidden,
+and `SetUiHiddenKey` moves the key.
+
+F2 writes a screenshot, the frame being drawn as a PNG in a `screenshots` folder beside the program,
+made on first use, named by the time as `2026-10-21_03.45.12.png`, a second in the same second `_2`
+and a third `_3`, with a line in the log saying where. `SetScreenshotKey(Key.F12)` moves it and
+`SetScreenshotKey(Key.Null)` turns it off.
+
+F3 shows the engine's debug overlay over the frame, as Minecraft's debug screen, two columns of lines
+in the engine's font, each on a dark half-clear backing, with no window, header or border, drawn
+after everything else the frame draws in 2D and outside the interface's scope, so F1 leaves it. The
+left column says the engine's version and build, the frame rate, the frame's time and its number,
+the camera's place, its facing in Minecraft's words, north being minus Z, and its field of view, and
+the entities, meshes, textures and assets the program holds. The right column says the runtime, the
+OS, the CPU and its logical cores, the memory in use of the machine's and the managed heap, the GPU,
+its driver, its Vulkan version and its memory in use, the display's size, refresh, scale and vsync,
+and the renderer's passes and draw calls, the triangles of the frame's model draws, the lights and
+those casting shadows, the shadow maps, global illumination's state and the GPU's time a frame. Its
+lines are written again four times a second, so a number stays still long enough to read. The key
+is taken as it is let go, where no other key went down while it was held, so a program's own chords
+on F3 stand and never open it, and `SetDebugOverlayKey` moves it.
 
 ## The app underneath
 

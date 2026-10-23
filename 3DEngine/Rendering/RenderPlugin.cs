@@ -103,9 +103,14 @@ internal sealed class RenderPlugin : IPlugin
         // frame, and writes what it took where the app ends while it records.
         app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
-        // F2 writes a screenshot in every program, once the frame's input is in.
+        // F2 writes a screenshot in every program, F1 hides its interface and F3 shows the debug
+        // overlay, once the frame's input is in.
         app.World.InitResource<DebugKeys>();
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugOverlay.Keys, "RenderPlugin.DebugOverlayKeys").MainThreadOnly().Read<Input>());
+        // The overlay is drawn over everything else in 2D, after the frame's systems and before the
+        // frame is rendered where it is.
+        SystemDescriptor Overlay() => new SystemDescriptor(world => DebugOverlay.Draw(world, app), "RenderPlugin.DebugOverlay").MainThreadOnly();
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
         // The edit meshes model.show put in the world, built again as the commands change them.
@@ -120,6 +125,7 @@ internal sealed class RenderPlugin : IPlugin
         if (!app.World.TryGetResource<AppWindow>(out var window) && !renderer.Context.IsInitialized)
         {
             Logger.Info("RenderPlugin: No window (headless run), so the renderer stays uninitialized.");
+            app.AddSystem(Stage.Last, Overlay());
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(world => world.RemoveResource<Renderer>(), "RenderPlugin.Cleanup").MainThreadOnly());
             return;
         }
@@ -163,6 +169,8 @@ internal sealed class RenderPlugin : IPlugin
         // system tries to attach nodes/edges to it.
         if (renderer.Context.IsInitialized)
             renderer.Initialize(app.World);
+
+        app.AddSystem(Stage.Last, Overlay().Before("RenderPlugin.Render"));
 
         // GPU submission runs in Stage.Last so it executes after every Stage.Render system
         // has emitted ImGui UI / per-frame data. Also resolves debounced resize.

@@ -251,6 +251,42 @@ internal sealed class DrawList
     }
 
     /// <summary>
+    /// Where the recording stands, its vertices, indices and batches with the open one closed, and
+    /// the last batch's count, which <see cref="Rewind"/> goes back to.
+    /// </summary>
+    public (int Vertices, int Indices, int Batches, int LastCount) Here()
+    {
+        using (Enter())
+        {
+            Close();
+            return (_count, _indexCount, _batches.Count, _batches.Count > 0 ? _batches[^1].IndexCount : 0);
+        }
+    }
+
+    /// <summary>
+    /// Forgets every shape recorded since <paramref name="here"/>, the transform, target and the rest
+    /// of the state they were recorded with kept, as the interface F1 hides drops its draws.
+    /// </summary>
+    /// <remarks>
+    /// The last batch at <paramref name="here"/> may have been extended by a shape recorded after it,
+    /// so its count goes back too, and no batch is left open, so the next shape opens one with the
+    /// state as it stands.
+    /// </remarks>
+    public void Rewind((int Vertices, int Indices, int Batches, int LastCount) here)
+    {
+        using (Enter())
+        {
+            // A list cleared since, as a frame ends, has nothing of the scope's to forget.
+            Close();
+            if (_count < here.Vertices || _batches.Count < here.Batches) return;
+            _count = here.Vertices;
+            _indexCount = here.Indices;
+            _batches.RemoveRange(here.Batches, _batches.Count - here.Batches);
+            if (here.Batches > 0) _batches[^1] = _batches[^1] with { IndexCount = here.LastCount };
+        }
+    }
+
+    /// <summary>
     /// Records again each batch from <paramref name="from"/> on that was drawn through
     /// <paramref name="transform"/>, through <paramref name="other"/> and kept to
     /// <paramref name="scissor"/>, sharing its vertices, as raylib's rlgl draws a stereo frame's
