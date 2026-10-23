@@ -108,6 +108,8 @@ internal sealed class RenderPlugin : IPlugin
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
+        // The edit meshes model.show put in the world, built again as the commands change them.
+        app.AddSystem(Stage.Render, new SystemDescriptor(world => EditMeshNames.Draw(world, app), "RenderPlugin.EditMeshDraws").MainThreadOnly());
 
         // An offscreen run has no window either, and renders into the device's own images.
         if (cfg.Offscreen && !app.World.ContainsResource<AppWindow>() && cfg.Graphics == GraphicsBackend.Vulkan)

@@ -569,6 +569,61 @@ DestroyPhysicsBody(floor);
 floor = CreatePhysicsStaticModel(model, Vector3.Zero);
 ```
 
+## Blocking out from the terminal
+
+The console's `model.*` commands run the recipe's lines on a model by its name, so a level is
+blocked out from the terminal while the program runs, through `./e3d command` as
+[The command line](command-line.md) shows. Each takes the model's name and then the line's words,
+`model.box room 8 3 6` running `box 8 3 6` on the model called room, and answers with the model's
+counts after it, so a script reads what each line did. A primitive, `model.join`, `model.import` or
+`model.union` makes the model where no model has the name, and any other operation on a name none
+has is refused, so a mistyped name makes no model. The house of [Booleans and
+openings](#booleans-and-openings), with walls and a floor of their own, is these lines:
+
+```bash
+./e3d command model.room house 6 3 5 0.2              # house: 16 vertices, 24 edges, 12 faces, 12 faces and 16 vertices selected
+./e3d command model.material house wall
+./e3d command model.select house box 0 0.1 0 6 0.3 5  # the floor inside
+./e3d command model.material house floor
+./e3d command model.select house +z                    # the front wall's outside, and the back wall's inside
+./e3d command model.cut house window 1.2 1 4.5 1
+./e3d command model.select house +z
+./e3d command model.cut house door 1 2.1 1.5           # house: 35 vertices, 57 edges, 22 faces, 4 faces and 10 vertices selected
+./e3d command model.show house 0 0 0
+./e3d command model.save house models/house.model
+```
+
+`model.show house 0 0 0` spawns an entity named `Model house` that draws the model at the point, in
+its slots' prototype materials, through the camera mesh entities are drawn through, and builds the
+model again after each line, so the house is seen as it is cut. Shown again, the entity moves.
+`model.info house` answers the counts, the bounds, the volume, the open edges, the slots and the
+grid, `model.recipe house` the lines, `model.list` every model with its counts, and `model.undo
+house` and `model.redo house` take back a line and do it again. `model.save` writes the recipe,
+`model.load house models/house.model` makes the model again from it in place of the one of its
+name, and `model.export` writes a glTF file, each path read from the program's working directory as
+the console's other files are and the answer naming the file written. `model.free house` forgets
+the model and takes away the entity drawing it.
+
+A line that fails is refused with a code, `NO_SUCH_MODEL`, `BAD_ARGUMENT` with the reason the
+operation gave, `NOTHING_TO_UNDO`, `NO_SUCH_FILE` or `BAD_FILE`, and `./e3d` exits with 6 for each,
+so a script run with `set -e` stops at the line that failed. `./e3d list` gives every command with
+what it takes.
+
+A program's own mesh answers to the commands once it has a name, so a level the game holds is cut
+from the terminal and the game sees each change the next time it builds the mesh, and a mesh made
+from the terminal is read by the program by its name:
+
+```csharp
+var level = LoadEditMesh("models/level.model");
+SetEditMeshName(level, "level");      // ./e3d command model.cut level window 1 1 2 0.9
+// ...
+var house = GetEditMeshByName("house");
+if (IsEditMeshValid(house)) SaveEditMesh(house, "models/house.model");
+```
+
+The names last while the app runs. A mesh the program named stays the program's to free, and one
+the commands made is freed with its name.
+
 ## See also
 
 - Examples: [`models_edit_mesh`](../3DEngine.Examples/Models/ModelsEditMesh.cs), the seven
@@ -580,6 +635,7 @@ floor = CreatePhysicsStaticModel(model, Vector3.Zero);
   a door and a stair blocked out in prototype materials
 - [Models and animation](models-and-animation.md), for drawing a model and its materials, and
   [Physics](physics.md), for the bodies a built model collides as
+- [The command line](command-line.md), for `./e3d` and the console's other commands
 - The cheatsheet's [Modeling](../CHEATSHEET.md#modeling)
 - Previous: [Models and animation](models-and-animation.md)
 - Next: [Materials, light and shadows](materials-light-and-shadows.md)

@@ -80,6 +80,11 @@ slowest frame since it was last asked, every stage, system and render phase meas
 stall of one frame shows with what held it, the program's own work or a wait on the GPU or the
 display (BUILDING.md, Timing a program).
 
+`model.room house 6 3 5 0.2`, `model.select house +z`, `model.cut house window 1.2 1 4.5 1` and the
+other `model.*` commands run the lines of an edit mesh's recipe on a model by its name, each
+answering the model's counts, and `model.show house 0 0 0` draws it as it is cut, so a level is
+blocked out from the terminal ([Modeling](modeling.md#blocking-out-from-the-terminal)).
+
 Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
 window as the field holds the scene, `-1` none, `field.state` says where each cascade lies and how
 many meshes are in it, and `field.rebuild 400` builds a cascade every frame for four hundred frames,

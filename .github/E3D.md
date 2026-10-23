@@ -66,6 +66,10 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `input.state` | the keys and buttons down, the pointer and the gamepads, as the engine sees them |
 | `input.button <pad> <button> <frames>` | holds a gamepad button (`RightFaceDown`, `RightFaceRight`, `LeftFaceUp`, `MiddleRight`), on a console pad when none is connected |
 | `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
+| `model.<operation> <name> <words>` | runs a line of an edit mesh's recipe on the model of that name (`model.box room 8 3 6`, `model.select room +y`, `model.cut room window 1 1 2 0.5`), making it for a primitive, and answers its counts |
+| `model.new`, `model.list`, `model.info`, `model.recipe`, `model.undo`, `model.redo`, `model.free` `<name>` | makes, lists, reads, steps back and forth through and forgets the models by name |
+| `model.save`, `model.load`, `model.export` `<name> <path>` | writes a model's recipe, makes a model from one, or writes it as glTF |
+| `model.show <name> [<x> <y> <z>]` | draws a model at a point, following its edits, by an entity named `Model <name>` |
 
 A game adds its own with a static method:
 

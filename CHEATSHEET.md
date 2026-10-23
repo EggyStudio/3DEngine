@@ -1446,7 +1446,7 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 
 ## Modeling
 
-<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs, E3D.ModelingNames.cs -->
 ```csharp
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
                                                          // then shape
@@ -1686,6 +1686,12 @@ ModelMaterial LoadMaterialPrototype(string name);        // The prototype materi
                                                          // by the color GetPrototypeColor gives its name
 ModelMaterial LoadMaterialPrototype(Color color);        // A material of the grid of a meter's cells tinted by a color,
                                                          // rough and not metal, for blocking out a level
+
+void SetEditMeshName(EditMesh mesh, string name);        // Gives an edit mesh a name the console's model commands reach
+                                                         // it by, so a program's level is shaped from the terminal
+EditMesh GetEditMeshByName(string name);                 // The edit mesh of a name, given by SetEditMeshName or by the
+                                                         // model commands that made it, or one that is not loaded where
+                                                         // none has the name
 ```
 
 An `EditMesh` is a polygon mesh of faces of any count, shaped by primitives and by operations on
@@ -1696,7 +1702,9 @@ takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`. A saved mod
 `.model` file of one operation a line starting with `model 1`, made again when it loads, and a
 model built from the mesh has a mesh for each material slot, drawn with the prototype material of
 the slot's name, the grid of a meter tinted by the color of a part of a level, which
-`CreatePhysicsStaticModel` makes a collider of.
+`CreatePhysicsStaticModel` makes a collider of. The console's `model.*` commands run the recipe's
+lines on a mesh by its name, as `./e3d command model.cut house window 1.2 1 4.5 1`, and
+`model.show` draws it as it changes.
 
 ## States
 
