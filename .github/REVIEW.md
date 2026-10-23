@@ -10,31 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3bdf68be`, item 82, the drawsBacks constant as approved, after `185a79a8`, item 87,
-the draw list cleared in the last stage on the headless path with the render system clearing through
-the same method, and `511e0fed`, item 78's pixel tests on the device and item 76's device test on
-the 4070, carrying the review's files; with the old turn put back for a moment the sample above the
-eye read 0 against 187 below it; 2,037 passed plain and shuffled by 20261023, the strict build
-clean, 149 of 149 under lavapipe, 18 blocks on the package. Read at 23:03 on 2026-10-23. Not pushed:
-the build run of `b48762bb` is running, and the three heads are pushed when it ends. Next the rest
-of 71 with the blotches first, 72, 74, items 75, 77 and 63 are the cloud session's from 22:41; item
-78 was the cloud session's from 21:58 and is whole on its branch, and item 76 is its from 22:23. At
-19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and accepted,
-and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder as the
-first part of item 83's batch with their authors reset, the example and the capture taken. At 21:36
-the owner dropped the upgrading page's rule for names gained and lost, item 85 and Decision 64, so
-the eleven heads need no longer wait for the entries' commit and are pushed with the room's capture
-when it is in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`, was read
-and accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63, Blockout, the
-local coder's once 62 is on main.
+Reviewed up to `fade1730`, item 71's faces image warning, after `3bdf68be`, item 82, `185a79a8`,
+item 87, and `511e0fed`, item 78's pixel tests, and nothing else: the three sampled integer faces
+images had no format attribute, so Slang declared them R32ui against the R8Uint view, the warning on
+every draw under the layer and none with the formats said, 65 of 65 field and GI tests passing on
+lavapipe, while on the RTX 4070 the bounce rooms capture is pixel-identical with and without the
+fix, so the mend removes undefined reads where a driver honors the declared format and is not the
+blotches' cause on this GPU; a test reads every integer image of a built-in shader for its format;
+2,038 passed plain and shuffled, the strict build clean. Read at 23:37 on 2026-10-23. The build run
+40022246128 of `b48762bb` ended green on the three systems and the examples, Windows in 67 minutes,
+so the four heads were pushed at 23:58. Next the blotches, read in an engine room of the game's kind
+with small emitters at the game's spot measure, then 72, 74, items 75, 77 and 63 are the cloud
+session's from 22:41; item 78 was the cloud session's from 21:58 and is whole on its branch, and
+item 76 is its from 22:23. At 19:59 the cloud session's first commit of item 59, `a066610d` on its
+branch, was read and accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in
+order by the local coder as the first part of item 83's batch with their authors reset, the example
+and the capture taken. At 21:36 the owner dropped the upgrading page's rule for names gained and
+lost, item 85 and Decision 64, so the eleven heads need no longer wait for the entries' commit and
+are pushed with the room's capture when it is in or before it. At 21:57 the cloud session's item 62,
+`de53648` on `modeling`, was read and accepted, the modeling items 59 to 62 and 64 to 66 all written
+there and item 63, Blockout, the local coder's once 62 is on main. Read at 23:51: the cloud branch's
+own run of `35938065` ended red on Linux's upgrading test, which item 85 removed on main after the
+branch's merge, and on macOS's ConsoleEvalTests, the eval of the entity count answering "eval
+failed. Object reference not set to an instance of an object" with the console logging a
+NullReferenceException from the eval command, in the same process right before the overlay's frame
+test, which main's run of `b48762bb` did not show on macOS; watched on the next main run, a verdict
+if it comes there. The coder read the eval failure at 23:55 as a race between the Console and E3D
+test collections over ConsoleHost's static lend, item 88. At 00:15 on 2026-10-24 the cloud session
+reported its whole suite on lavapipe over the branch's tree at `35938065`, 1,987 passed, none failed
+and 30 skipped in 23 minutes, the skips the ray query, audio, package and WebP cases by count, its
+render tests among the passed, and the eval test passing there, as a race does by timing.
+
+Before it, `3bdf68be` came, item 82, with item 87 and item 78's pixel tests, read at 23:03 on
+2026-10-23 and pushed at 23:58 with `fade1730` after the build run of `b48762bb` ended green.
 
 Before it, `b48762bb` came, the cherry-picks of items 78 and 76 with item 62's capture and the five
 before, ten commits. Pushed at 22:49 on 2026-10-23, the build run of `a0e5964e` having ended green
 and Verdict 84 settled.
-
-Before it, `5a4028d9` came, item 62's cherry-pick, with items 85 and 86, the window's pixel tests
-and item 61's cherry-picks, read at 22:19 on 2026-10-23 and held for the build run of `a0e5964e`,
-which ended green.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1083,7 +1095,59 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the rule or named. The Windows suite of `2f57b341` logged 117 validation warnings that a
     dispatch reads the field's faces image, bound with the 8-bit unsigned format, through a shader
     declaring the image 32-bit unsigned, every load undefined to the whole image; read with the
-    blotches and the leak first, since an undefined read of the faces could be either.
+    blotches and the leak first, since an undefined read of the faces could be either. The faces
+    image warning mended at `fade1730` on 2026-10-23, the sampled integer images given their r8ui
+    format with a test over every built-in shader's integer images, the capture pixel-identical on
+    the 4070 so the blotches have another cause, read next in an engine room of the game's kind at
+    the game's spot measure. The blotches read at 23:43 in an engine room of the game's kind, a
+    plank shell at night with a lantern under the ceiling and two torches on the walls, field cell
+    0.25, High: round spots of 20 to 40 pixels on the walls and the ceiling away from the emitters,
+    still over 60 frames, nearly gone with the screen probes off and brought mostly by a torch
+    against a wall; a probe at a spot's center reads 0.643 against a reference of 0.079 over its
+    hemisphere while its neighbor reads 43 percent under, since one of its sixteen rays meets the
+    field on the blur of torch and wall a few centimeters wide where the glow light's bound does not
+    hold and the torch's light reaches the hit from no distance, and the tiles' sixteen places are
+    fixed so the same probes catch the patch every frame and the filter's 5 by 5 blend spreads it to
+    its footprint. Form approved: the tiles' places turn each frame so a tile holds each place once
+    in sixteen frames, and the filter's history, a fifth of this frame against four fifths of the
+    last within this frame's spread, carries a hot patch's light across the probes and frames, the
+    frame's count reaching the screen pass through a second uint4 of its push at no cost in rays; if
+    spots over 4 levels remain, a ray's hit lit by a glow light nearer than a cell to its box takes
+    that light at a cell's distance at nearest, taken only if the covered-fault rule holds; each
+    step measured in the room and the bounce rooms 1 to 8 by the spot count at the game's measure
+    and each view's distance to its path-traced reference at both sizes, which must not widen, with
+    the model and screen passes' GPU times; a device test of a room with a small torch counting the
+    ceiling's spots under a bound, the GI and reference tests unchanged, and RENDERING.md gaining
+    the term, a small emitter's near field read by a few fixed rays. The reading's scene is scratch
+    and goes in no commit. Step 1 measured at 00:02 on 2026-10-24 and reverted, failing the rule:
+    over 16 frames at 160 by 90 the thin walls' view widens by 0.006 at High, 0.013 at Medium and
+    0.016 at Low with single frames at Low up to 0.099 against the test's 0.09, view 3 at High by
+    0.004 and view 6 at Low by 0.003 while views 1, 4 and 7 narrow, and a still view flickers, the
+    99th part of pixels moving by 4 to 5 percent of the mean light a frame in the Cornell box
+    against 0.03 percent held, the candidate RENDERING.md already records as dropped; the spots in
+    the scratch room fell from 8 to 5 and the GPU time held level. Step 2 is measured on its own
+    over the held places, a probe ray's hit taking a glow light at a cell's distance at nearest by
+    moving the hit straight away from the light's box. Step 2 read at 00:07 and not kept, failing
+    the rule: the strip's room alone moves and widens, 0.207, 0.233 and 0.213 to 0.259, 0.263 and
+    0.279 at Low, Medium and High at 160 by 90 and 0.101 to 0.169 and 0.109 to 0.180 at 800 by 450,
+    every other view within 0.001, the scratch room's spots from 8 to 6 with its distance a hair
+    wider, since the light a small emitter throws on the wall it is mounted on lies within a cell of
+    it and a hit moved out a cell drops it from every probe ray meeting the wall there,
+    RENDERING.md's term for the strip. A third step is read: a hit within a cell of a glow light's
+    box takes the light's irradiance as its mean over a cell square about it on its plane, 2 by 2
+    points at a quarter cell, keeping the energy step 2 dropped while lowering the peak one fixed
+    ray catches; kept only if the rule holds, else the blotches are named as the term in
+    RENDERING.md with the three steps' numbers and the item's blotches part stops there. Step 3 read
+    at 00:13: it holds the rule to three places, every view level at 160 by 90 but the strip's room,
+    which narrows from 0.233 to 0.217 at Medium and 0.213 to 0.201 at High, and at 800 by 450
+    narrows by 0.016 at High and 0.008 at Low with the rest level, the Cornell box at Low wider by
+    0.00006 at five places, the GPU times level; but the blotches stay, the scratch room's spots
+    from 8 to 7 and the round spots on the wall and ceiling as before. So the blotches are named as
+    the term in RENDERING.md, a small emitter's near field read by a few fixed rays, with the three
+    steps' numbers, and the blotches part of the item stops there; step 3 is kept as a mend of its
+    own for the strip room's near field, committed apart from the term with its numbers, since it
+    narrows a view and holds the others at the test's precision. The item's other faults follow, the
+    edge leak, the stepped edges, the noise, the z-fighting and the shift.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -1151,7 +1215,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it, the environment map's lighting unchanged, a clear color turning it off, the tests reading
     pixels across the horizon on lavapipe for no step over a pixel and the color where asked, and
     Summit, which draws the skybox, the game that shows it; a fog the engine sets the horizon by is
-    no item until a game asks for one.
+    no item until a game asks for one. Commit `bfaa056` on `modeling`, read at 00:22 on 2026-10-24,
+    the owner's identity: `SetSkyHorizon(color, blendDegrees)` a world resource the sky's draw reads
+    as two uniforms, the color below the horizon blended into the map's image over the degrees above
+    by a smoothstep of the elevation and mixed as light before the display encoding, the color drawn
+    as given with the map's intensity scaling the image alone and the map's light on the scene
+    untouched, kept through a change of map, a clear color taking it away; tests on the null device
+    and lavapipe, the step across the horizon from 131 to at most 16 with an 8 degree blend, the
+    color exact where asked, a cube lit the same with and without it; the guide's paragraph, the
+    cheat sheet and the listing; Summit setting a gray blue over 6 degrees, drawn 120 frames on
+    lavapipe with its log clean. Summit's capture falls to the local coder at the cherry-pick.
 
 76. **A command reads a rectangle of the last frame, its mean color and its largest step, so a drive
     asserts a picture without downloading it (Decision 57).** Learned from the voxel game's
@@ -1192,7 +1265,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
     stars' count and spread, and a capture of the example at dawn read against its record. Two
     commits, the sun, the light and the gradient, then the moon, the stars and the example. After
-    item 60. Given at 22:41 to the cloud session after item 75, the same way.
+    item 60. Given at 22:41 to the cloud session after item 75, the same way. Form approved at 00:25
+    on 2026-10-24 for the cloud session, with the voxel game's Sky and SkyArt as the model and
+    nothing of its packs: `SetSkyTime(hours)` counting from the first midnight with the day the
+    hours over 24 and the moon's phase following, `GetSkyTime`, `SetSkyDay(day)` with the day's
+    length in minutes, 0 holding the hour, and the sun path's lean toward the south; the day sky
+    owning one shadowed directional light, the sun's by day and the moon's by night, or moving a
+    light the program names where it has one of its own, painting the environment map from the hour
+    once the hour has moved by 0.05 and setting item 75's horizon to the hour's color, read back by
+    `GetSkyHorizon` for a program's fog, `SetEnvironmentMap` or `UnloadEnvironmentMap` ending it;
+    two commits, the sun, the light and the gradient, then the moon, the stars, the core_day_sky
+    example and Summit in Hopper's place; the captures the local coder's. First commit `46b5269` on
+    `modeling` at 00:38, the clock, the two lights, the gradient and the horizon following the hour
+    with the program's own light named in SkyDay.Light, its report with the second. Settled: the
+    capture at four hours is one gallery picture of four views at 6, 12, 18 and 0, the example
+    taking the hour from a key and a command, taken by the local coder; the dawn test is a device
+    test drawing the example's scene at 6:15 and reading rectangles of the frame, the sky by the
+    sun, the sun's square and the ground, against numbers measured on lavapipe and written in the
+    test.
 
 78. **F1 hides the interface, F3 shows a debug overlay like the newest Minecraft's with sections a
     program adds, and Shift+F3 the profiler with it (Decision 58).** The owner asked shortly before
@@ -1406,6 +1496,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     EndDrawing or a system registered in its place, and a headless test drawing for a hundred frames
     reading the list's counts still. One commit, small, after item 62's capture. Done at `185a79a8`
     on 2026-10-23, two headless tests reading the list from a system of their own before the clear.
+
+88. **The tests that lend the console run in one collection, and an eval with no world lent refuses
+    rather than throws.** Read by the coder at 23:55 on 2026-10-23 from the cloud branch's macOS
+    run: ConsoleHost's lent World, App and Failure are static for the process, eval's Run reads the
+    world and asks it for a resource, and ConsoleEvalTests in the Console collection runs in
+    parallel with the E3D collection, whose RecordingTests, EditMeshCommandsTests,
+    GeneratorAttributeTests, FrameReadTests, WindowResizeTests, ModelingWindowTests,
+    ModelingWindowOutlineTests and SlotTests lend the console too, so one disposing its scope while
+    eval runs puts back null and eval throws the NullReferenceException the run logged; main has the
+    same race and shows it by timing. The mend, under N 3.5: every test that lends the console in
+    one collection, so no two lend at once, rather than a thread-static lend, which a fragment
+    awaiting and then calling an accessor on another thread would read as null; and eval's Run
+    refusing with a code of its own where no world is lent, so a race left anywhere names itself
+    instead of throwing; a test of the refusal. One commit, small, with the local coder's next
+    batch.
 
 ## Verdicts
 

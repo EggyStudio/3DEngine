@@ -606,7 +606,14 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 }
 
 // The same at a probe's ray's hit, the ray along `way`, a light the ray passed through right before
-// it met the field giving the hit none of its light (glowLightPassed).
+// it met the field giving the hit none of its light (glowLightPassed). A hit within a cell of a
+// light's box takes the light as its mean over a square a cell wide about the hit on its plane, at
+// the middles of the square's four quarters, since a light thinner than a cell lights the wall it
+// stands against within a few hundredths of a block of its box, a patch one probe's ray meets and
+// the next probe's misses. Taken at the hit alone, the strip's room of shaders_bounce_rooms read
+// 0.233 and 0.213 of its light apart from its path-traced reference at Medium and High at 160 by
+// 90, where with the mean 0.217 and 0.201; taken at a cell's distance from the box, 0.263 and
+// 0.279, since the strip's light on its own wall is light the reference has.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way)
 {
     int count = min(int(lights.glowCounts.x), MostGlowLights);
@@ -624,7 +631,19 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
         float faded = glowLightFade(light, p, n);
         if (faded <= 0.0 || (dot(way, way) > 0.0 && glowLightPassed(light, p, way, 2.0 * margin)))
             continue;
-        float3 arrived = glowLightIrradiance(light, p, n, margin) * faded;
+        float3 arrived;
+        if (dot(way, way) > 0.0 && cell > 0.0 && glowLightDistance(light, p) < cell)
+        {
+            if (glowLightOn(light, p, n, margin))
+                continue;
+            float3 along = normalize(abs(n.y) < 0.9 ? cross(n, float3(0.0, 1.0, 0.0)) : cross(n, float3(1.0, 0.0, 0.0)));
+            float3 across = cross(n, along);
+            float q = cell * 0.25;
+            arrived = (glowLightIrradiance(light, p + (along + across) * q, n, margin) + glowLightIrradiance(light, p + (along - across) * q, n, margin)
+                + glowLightIrradiance(light, p - (along + across) * q, n, margin) + glowLightIrradiance(light, p - (along - across) * q, n, margin)) * (0.25 * faded);
+        }
+        else
+            arrived = glowLightIrradiance(light, p, n, margin) * faded;
         unhidden += arrived;
         float b = luminance(arrived);
         int one = i;

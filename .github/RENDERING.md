@@ -2372,6 +2372,20 @@ draws its mirror floor and its metal spheres as rough, so it judges the wall alo
 noise of a wide penumbra shows in none of these frames apart from a's patches.
 ![The wax sphere of shaders_subsurface, its terminator](assets/cascades/subsurface-terminator.webp)
 
+**A glow light's near field at a probe's hit, read on 2026-10-24.** A light thinner than a cell,
+such as the strip of `shaders_bounce_rooms` or a torch on a wall, lights the wall it stands against
+within a few hundredths of a block of its box, a patch one probe's ray meets and the next probe's
+misses. A hit within a cell of a light's box takes the light as its mean over a square a cell wide
+about the hit on its plane, at the middles of the square's four quarters (`glowLightsAt`). The
+strip's view reads 0.207, 0.217 and 0.201 at `Low`, `Medium` and `High` at 160 by 90 where 0.207,
+0.233 and 0.213, and 0.093 over blocks of 4 pixels at 800 by 450 at `Low` and `High` where 0.101
+and 0.109, every other view within 0.001 at both sizes, the Cornell box 0.00006 further at `Low`
+over blocks of 4 pixels, and global illumination's GPU time within 0.05 ms on the development
+machine's GPU (`gi.compare` against references of 2048 paths a pixel, BounceRoomsTests with its
+bounds at zero, `./e3d command profile` with the frames unlimited). Taken at a cell's distance from
+the box instead, the hit moved straight away from it, the strip's view read 0.259, 0.263 and 0.279
+at 160 by 90, the strip's light on its own wall lost, which the reference has.
+
 **Where the method stops, read to 2026-10-20.** Five terms of the radiance cascades as the engine
 draws them stand unmended, each named by its cause in the readings above. Every form read against
 one was out by the rule that no view's distance to its reference widens at 800 by 450 or at 160 by

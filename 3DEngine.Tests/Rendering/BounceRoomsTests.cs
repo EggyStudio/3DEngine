@@ -79,7 +79,9 @@ public sealed class BounceRoomsTests : IDisposable
     // gain past the first bounce. With the screen's probes' rays past their reach marched on
     // through the field where their world probes give nothing (gi_screen.slang), the corridor's
     // view reads 0.213, 0.222 and 0.215, its first cascade's probes holding nothing along it since
-    // no probe of a coarser cascade stands inside it.
+    // no probe of a coarser cascade stands inside it. With a probe's hit within a cell of a glow
+    // light taking the light's mean over a cell's square about it (glowLightsAt), the strip's view
+    // reads 0.207, 0.217 and 0.201 where 0.207, 0.233 and 0.213.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
