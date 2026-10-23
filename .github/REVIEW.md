@@ -10,30 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `52e67199`, the cherry-picks of items 66 and 60 from the cloud session's branch,
-`32ad500d`, `9c6a4711` and `52e67199` for `d571da73`, `985badd6` and `4662382c` with their stats
-matching, after `8d1ec295`, the captures of items 64 and 65 as two examples, a box beveled, inset
-and loop cut and a box rounded through a bevel and a subdivision, with the upgrading page naming
-their calls, and after the seven commits before, every author the owner's. Read at 21:17 on
-2026-10-23. The build run 40005121932 of `4c3f01ef` has macOS green and Linux red on the upgrading
-page's test alone, the 52 modeling names of the cherry-picks having no Added entry at that commit,
-Verdict 84, which `91c8d363` mends in this batch; Windows green in 45 minutes, the run ended at
-21:25. Not pushed: the eleven heads are pushed once the room's capture commit is in, since that
-commit carries the upgrading entries for the 15 names the cherry-picks of items 66 and 60 add, as
-Verdict 84's lesson asks. Next 82, the rest of 71 with the blotches first, 78, 72, 74, 75, 76, 60,
-77, 61 to 63; item 66 comes from the cloud session's branch. At 19:59 the cloud session's first
-commit of item 59, `a066610d` on its branch, was read and accepted, and at 20:11 its second,
-`9989c44a`, both to be cherry-picked in order by the local coder as the first part of item 83's
-batch with their authors reset, the example and the capture taken. At 21:36 the owner dropped the
-upgrading page's rule for names gained and lost, item 85 and Decision 64, so the eleven heads need
-no longer wait for the entries' commit and are pushed with the room's capture when it is in or
-before it.
+Reviewed up to `b12133f6`, the cherry-picks of item 61's two commits from the cloud session's
+branch, `5f1e0f6e` and `b12133f6` for `0e9d7213` and `80605793` with their stats matching, the
+owner's identity, and nothing else, the review's files uncommitted in the local coder's tree. Read
+at 21:46 on 2026-10-23. Not pushed: the build run 40012951798 of `a0e5964e` is still running, and
+the two heads are pushed when it ends. Next then item 85 with the window's pixel tests and the room
+taken again if the door's fix changes it, then 82, the rest of 71 with the blotches first, 72, 74,
+75, 76, 77, then 63, the pixel tests of 78 at its cherry-pick; item 78 is the cloud session's from
+21:58. At 19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and
+accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder
+as the first part of item 83's batch with their authors reset, the example and the capture taken. At
+21:36 the owner dropped the upgrading page's rule for names gained and lost, item 85 and Decision
+64, so the eleven heads need no longer wait for the entries' commit and are pushed with the room's
+capture when it is in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`,
+was read and accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63,
+Blockout, the local coder's once 62 is on main.
 
-Before it, `f66d4d4a` came, the cherry-picks of items 64 and 65 and item 83's batch, seven commits,
-read at 20:47 on 2026-10-23 and held for the build run of `4c3f01ef`.
+Before it, `a0e5964e` came, the cherry-pick of item 60's door fix after `1093ae32`, the room's
+capture, and the eleven before, thirteen commits, every author the owner's. Pushed at 21:38 on
+2026-10-23.
 
-Before it, `4c3f01ef` came, item 59's two commits cherry-picked from the cloud session's branch,
-after `c6bb1f3e`, item 81, and nothing else. Pushed at 20:39 on 2026-10-23.
+Before it, `52e67199` came, the cherry-picks of items 66 and 60 and the captures of 64 and 65, after
+item 83's batch, read at 21:17 on 2026-10-23 and held for the build run of `4c3f01ef` and the
+entries' commit.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -838,7 +837,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     0.002 short; the cutter's part behind the wall stops at the floor found by a ray down behind the
     wall, sloping up from where floor meets wall, a test failing before and passing after, the docs
     saying a door goes down to the ground outside and steps up to the floor inside; cherry-picked
-    after the room's capture.
+    after the room's capture. Capture done at `1093ae32`, the example models_edit_mesh_room; item 60
+    done but for the door's fix `bc9e23a5` to cherry-pick.
 
 61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
     to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
@@ -881,7 +881,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and Slot sections; departures taken, the position parameter and the bool return; five tests, two
     headless frames through the console's synthetic input, 1,626 passed on the null device, 21
     blocks on a local pack; the outlines' pixel tests fall to the local coder. The item's code is
-    whole on the branch.
+    whole on the branch. On main as `5f1e0f6e` and `b12133f6`, unpushed; the window's pixel tests to
+    come in the local coder's next commit.
 
 62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
     processing and adding textures to surfaces. The selection's texture coordinates by projection,
@@ -896,7 +897,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     coordinates over the slot's texture. Tests: each projection's coordinates on a box's known face,
     the density on a two meter face with a 512 pixel texture, and a capture of a room with a brick
     wall and a wooden floor from the examples' resources. One commit. Given at 20:49 to the cloud
-    session after item 61, the device tests and captures the local coder's.
+    session after item 61, the device tests and captures the local coder's. Commit `de53648` on
+    `modeling`, read at 21:57 on 2026-10-23, the owner's identity, no upgrading entry under Decision
+    64: a face's own texture coordinates or the world-aligned default, the planar, box, cylinder and
+    sphere projections, move, scale, rotate, density by a texture's width and reset as flat calls
+    and recipe lines, carried through every operation that reshapes a face by a least-squares affine
+    fit; slots added, renamed, removed, given a color, the five maps in the material's form,
+    emissive, metallic and roughness, `LoadMaterialFromEditMeshSlot` public, the build drawing each
+    slot's look over or in place of the grid and the update remaking a changed slot's material
+    alone, textures loaded once a file and looked for again when missing, the glTF writer taking the
+    slot's color, factors and textures; the model.uv and model.slot commands, the window's two new
+    sections, the guide's sections; 19 tests, 1,645 passed on the null device, 23 blocks on a local
+    pack. Departures taken, the import not taking a file's textures into looks; the capture of a
+    room with a brick wall and a wooden floor falls to the local coder, with textures added to the
+    examples' resources or made by GenImage first.
 
 63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
     otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
@@ -1198,7 +1212,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it writes `if (ImGui.Begin(...))`; what the engine itself draws or holds inside the scope is
     dropped or hidden by the engine whatever the program does, its 2D draws here and its interface
     nodes in BevyCSharp, and a program's ImGui windows are left to the `if`, so a hidden interface
-    costs nothing. So `BeginUi()` returns a bool here.
+    costs nothing. So `BeginUi()` returns a bool here. Given at 21:58 on 2026-10-23 to the cloud
+    session on `modeling`, its modeling items being written: the scope, the keys, the overlay's text
+    and lines, the strip, the profiler's timings and the sections' registration, with BevyCSharp's
+    Ui.Hidden.cs and Debug.Overlay.cs as the model where the owner gave it that repository, the null
+    device's tests there; the pixel tests of the hidden scope, the overlay and the strip and item
+    73's window folded away fall to the local coder at the cherry-pick.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -1313,6 +1332,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     upgrading entries follow, and the norm's row if one names them. One commit, small, with the
     local coder's next batch; from this item the reviewer pushes a cherry-pick without waiting for
     an entry commit.
+
+86. **The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).** The owner wrote
+    at 21:39 on 2026-10-23 that the cheat sheets are to be coherent: 3DEngine's lines one-liners as
+    BevyCSharp's are, and BevyCSharp's section headers as 3DEngine's, plain words without the code
+    styling. Here each line's comment wraps onto continuation lines aligned under the first, written
+    so by build/cheatsheet.sh. The mend: the script writes the signature, two spaces, `//` and the
+    first sentence on one line however long, no continuation, and the page is written again; the
+    cheat sheet test holds the form, one member a line and every line with its comment. One commit,
+    small, with the local coder's next batch.
 
 ## Verdicts
 
@@ -1884,6 +1912,14 @@ Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; 84 is open,
     kept for an older caller; the package's release notes written from the commit messages are the
     record of what changed, and the upgrading page keeps its Changed section alone, its tests for
     names gained and lost going as item 85. The owner's word ends this at the full release.
+
+65. **The two cheat sheets have one form.** The owner wrote at 21:39 on 2026-10-23 that the cheat
+    sheets are to be coherent: 3DEngine's lines one-liners as BevyCSharp's are, and BevyCSharp's
+    section headers as 3DEngine's, plain words without the code styling. So both pages are a `#
+    Cheatsheet` heading, a paragraph saying what the page is and what writes it, then `## Group`
+    headings in plain words, each group a guide link line and one fenced block, and in the block one
+    line a member, the signature and then `//` and the first sentence of its documentation on the
+    same line however long, no continuation lines and no sub-heading a type.
 
 ## Replies
 
