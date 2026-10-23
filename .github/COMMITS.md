@@ -5,9 +5,17 @@ How work is committed in this repository, by hand or by an agent working through
 ## When
 
 Each logical batch of work is committed on its own once it is finished, its tests pass and its
-documentation says what it does. Commits are made on `main` and kept local. The owner pushes
-`main` from their own tools, as they confirmed on 2026-10-04, so a session never pushes, and the
-local `legacy-modules` branch stays local.
+documentation says what it does. Commits are made on `main`, and the reviewing session pushes them
+once the build run of the push before has ended, as it has since 2026-10-19, so a working session
+never pushes. The local `legacy-modules` branch stays local.
+
+A branch exists only while a second session writes to this repository beside the one on `main`,
+and is named for its work, such as `modeling`, never under `claude/` nor by a random string. Its
+commits come onto `main` by a plain `git cherry-pick`, never with `-x`, which adds a trailer, and
+the reviewing session deletes the branch once its commits are on `main`. Every commit's author and
+committer are the repository's identity, the owner's, on every branch, so the author of a commit
+from a branch is read before it is taken, and one made under another identity is amended with
+`git commit --amend --reset-author --no-edit` as it is taken.
 
 A batch is one thing somebody would want to read, revert or cherry-pick alone, such as a fix, a
 feature with its tests and its docs, or a refactor. Work that is still half done stays uncommitted
