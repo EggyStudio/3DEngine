@@ -141,6 +141,7 @@ var examples = new Dictionary<string, Action>
     ["models_loading"] = ModelsLoading.Run,
     ["models_skybox_rendering"] = ModelsSkyboxRendering.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
+    ["models_edit_mesh"] = ModelsEditMesh.Run,
     ["models_terrain"] = ModelsTerrain.Run,
     ["models_skybox"] = ModelsSkybox.Run,
     ["models_reflection_probe"] = ModelsReflectionProbe.Run,

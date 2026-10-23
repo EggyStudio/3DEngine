@@ -10,28 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `36cae0c2`, Verdict 83's mend, the test file alone, after `d3473746`, item 80, and
-nothing else, carrying the review's file: the test of a scene with no data reference records the
-process's log sinks, the file provider and a listener, before its first count and after its second
-and takes the pair again from the same start where they changed, up to three pairs, the planted cost
-still failing; 1,866 passed plain and 1,866 shuffled by 20261021, in 9 minutes 58 seconds and 9
-minutes 54 seconds, the strict build clean. Read and pushed at 19:12 on 2026-10-23, no build run in
-flight, the pack run 39992268286 of `d3473746` running beside it. The pack run 39561720109 of
-`ec87f64b` of 2026-10-21 ended green on every job and published 3DEngine 5.2.213, Verdict 82
-settled; the build run 39572594125 of `d3473746` ended green on the three systems and the examples.
-On 2026-10-23 the owner wrote what they saw playing the voxel game, two faults of the engine's among
-it, items 82 and 83 and Decision 60. Order from here: 81, 83, 82, the rest of 71 with the blotches
-first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66. At 19:35 on 2026-10-23 the owner's cloud session on
-this engine took item 59 on its branch, Decision 61, the local coder's order unchanged but for
-cherry-picking the branch as the first part of a batch when the reviewer says so.
+Reviewed up to `4c3f01ef`, item 59's two commits cherry-picked from the cloud session's branch,
+`ffb15cb6` and `4c3f01ef` for `a066610d` and `9989c44a`, with the repository's author and the
+messages as they were, after `c6bb1f3e`, item 81, and nothing else, the review's files uncommitted
+in the local coder's tree. Pushed at 20:39 on 2026-10-23, the build run 39993188056 of `36cae0c2`
+having ended green on the three systems and the examples, its Linux suite shuffled by the day's seed
+among them, so Verdict 83 is settled. The local coder's batch of item 83 goes on, the example of
+item 59 with its capture, item 84 and item 83's own commit, pushed when this build run ends. Order
+from here: 83, 84, 82, the rest of 71 with the blotches first, 78, 72, 74, 75, 76, 60, 77, 61 to 63;
+items 59 and 64 to 66 come from the cloud session's branch. At 19:59 the cloud session's first
+commit of item 59, `a066610d` on its branch, was read and accepted, and at 20:11 its second,
+`9989c44a`, both to be cherry-picked in order by the local coder as the first part of item 83's
+batch with their authors reset, the example and the capture taken.
 
-Before it, `d3473746` came, item 80, the tonemap curve and a program's own tonemap, after
-`3e83c817`, item 79, and nothing else, carrying the review's files. Read at 10:52 on 2026-10-21 and
-pushed at 10:52 with `3e83c817`, their build run green on the three systems and the examples; the
-pack run with publish on of 2026-10-23 at 19:05 is on this head.
+Before it, `c6bb1f3e` came, item 81, the environment map's light set apart from the drawn sky, and
+nothing else, carrying the review's files, the archive and its norm entry. Read at 19:41 on
+2026-10-23, pushed at 20:39 with the two cherry-picks.
 
-Before it, `3e83c817` came, item 79, the masked shadow through a program's shader, and nothing else,
-carrying the review's file. Read at 09:58, pushed at 10:52 with `d3473746`.
+Before it, `36cae0c2` came, Verdict 83's mend, the test file alone, and nothing else, carrying the
+review's file. Read and pushed at 19:12 on 2026-10-23.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -753,7 +750,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     19:35 on 2026-10-23 by the owner's cloud session on its branch (Decision 61), BevyCSharp's edit
     mesh, recipe and build the model once the owner gives the session that repository, the suite on
     the null device there; the gallery capture and the device tests fall to the local coder when it
-    cherry-picks the branch; items 64, 65 and 66 follow there in that order once this lands.
+    cherry-picks the branch; items 64, 65 and 66 follow there in that order once this lands. First
+    commit `a066610d` on the branch, read at 19:59 on 2026-10-23: the edit mesh, the seven
+    primitives, the six selects and the transforms as void calls on an `EditMesh` handle in
+    E3D.Modeling.cs, the data an internal `EditMeshData` under `3DEngine/Modeling` ported from
+    BevyCSharp's to System.Numerics with a process-wide store, AGENTS.md's row for the folder, the
+    cheat sheet and the listing written by their scripts; departures taken, measures as given and
+    `EditMeshSnap` putting the selection on the grid as BevyCSharp decided, an operation on an
+    unloaded mesh warning and doing nothing, the smooth flag landing here; 24 new tests, the null
+    device suite 1,509 passed and 322 skipped against 1,482 and 324 before, the strict build and
+    NormTests clean. The message is COMMITS.md's form; the author is the cloud environment's
+    identity, which the local coder resets when it cherry-picks. The second commit, the topology
+    operations, the recipe, the build and the collider, follows. Second commit `9989c44a` on the
+    branch, read at 20:11: extrude, inset, delete, merge, flip, triangulate, duplicate and join, the
+    recipe as the undo and as a `.model` file with the header `model 1`, saved through a part file,
+    run, undone and redone by rebuilding from the lines as BevyCSharp does, the build into a model
+    of a mesh and a white material a slot through UploadMesh and written again in place keeping each
+    slot's mesh id and the program's materials, the collider through the static model with triangles
+    of no area left out; ear clipping ported so the indices match BevyCSharp's; departures taken,
+    world-aligned box coordinates and no tangents since the vertex has none, join taking a model's
+    file so the recipe runs again, a slot with no faces built as one triangle of no area, the
+    recipe's error with a comma; docs/modeling.md in the guide chain with a README row and the cheat
+    sheet's paragraph, 11 blocks building on a package; 40 new tests, the suite 1,550 passed and 322
+    skipped on the null device, the strict build and NormTests clean, every file under 800 lines.
+    The item's code is whole on the branch; the example and the gallery capture of each primitive,
+    the Vulkan row of BadFileTests and the device tests fall to the local coder at the cherry-pick.
+    On main as `ffb15cb6` and `4c3f01ef` with the owner's identity, the example models_edit_mesh and
+    its capture in the local coder's batch of item 83, pushed when the build run of `36cae0c2` ends.
 
 60. **Grid prototyping: materials that show a meter, texture coordinates aligned to the world, and
     openings cut by booleans (Decision 51).** The owner's first use: blocking out a level with
@@ -850,7 +873,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     measures. Tests: each operation's counts on a box, a bevel of a box's twelve edges with two
     segments watertight and the volume between the box's and its inscribed one, a mirror of a half
     giving a whole with no doubled vertices; a capture of a beveled, inset and loop-cut box. Two
-    commits, the bevel, the loop cut and the subdivision, then the rest.
+    commits, the bevel, the loop cut and the subdivision, then the rest. First commit `9a76c50b` on
+    the cloud session's branch `modeling`, read at 20:28 on 2026-10-23 with the owner's identity as
+    author and committer after the rewrite of Decision 63: the bevel where both ends are selected
+    and two faces run along the edge, the band on the circle tangent to both faces, a hole round a
+    beveled vertex closed with one face, the loop cut through four-cornered faces both ways by a
+    fraction from the lower end, the subdivision as a grid, a triangle grid or a fan; departures
+    taken, a corner of three beveled edges closed flat, a one-edge bevel's end coplanar, no count of
+    cuts for the loop cut; 14 new tests, 1,563 passed on the null device, the strict build and
+    NormTests clean. Written fresh since BevyCSharp's item 43 was not on main then. The capture
+    falls to the local coder, who cherry-picks it with its next batch; the second commit follows on
+    the branch. Second commit `c38de99b` on `modeling`, read at 20:33, the owner's identity as
+    author and committer: bridge, fill, dissolve of faces and of edges, knife, mirror, spin and
+    smooth in the recipe and the flat API, the commands and the window waiting for item 61;
+    departures taken, a spin of faces following extrude's orientation, mirror's pivot at the origin,
+    a hole's group left as it was; 19 new tests, a bridge of two boxes 16 vertices, 28 edges and 14
+    faces closed, the spun face a closed ring of 32, 64 and 32, a smoothed box of four thirds; 1,582
+    passed on the null device, the strict build and NormTests clean, 15 blocks of docs/modeling.md
+    on a local pack. The item's code is whole on the branch; the capture falls to the local coder at
+    the cherry-pick.
 
 65. **Modifiers, a stack applied at the build and never baked until asked (Decision 51).** The owner
     asked for Blender-like modifiers. An edit mesh holds a list of modifiers applied in order at the
@@ -862,7 +903,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lines and in the commands and the window, the build's time for a stack read in a test against a
     budget. Tests: a mirror on a half box giving a box's counts, an array of three, a subdivision of
     a box to level one giving 26 vertices and level two 98, a solidified plane watertight, and a
-    capture of a subdivided and beveled shape. One commit.
+    capture of a subdivided and beveled shape. One commit. Commit `735e58e8` on `modeling`, read at
+    20:41 on 2026-10-23, the owner's identity as author and committer: the stack kept as recipe
+    lines and applied in order at the build on a copy of the base, cached on the mesh's version so
+    the base stays editable, mirror, array by an offset or along a curve, bevel past an angle,
+    Catmull-Clark subdivision keeping an open outline, solidify along area-weighted normals,
+    triangulate, moved, removed and applied; departures taken, the boolean modifier left for item 60
+    since the engine has no booleans yet, the commands and the window for item 61, the budget test's
+    Stopwatch on the N 3.3 list; 10 tests, subdivision 5 with mirror and array 4 building 98,304
+    triangles in 176 to 205 ms against a budget of 1,500; 1,592 passed on the null device, the
+    strict build and NormTests clean, 16 blocks of docs/modeling.md on a fresh pack. The capture
+    falls to the local coder at the cherry-pick.
 
 66. **What is modeled is exported for Blender and imported from it (Decision 51).** The built mesh
     and its materials written as a glTF 2.0 file, a JSON with its buffer beside or embedded,
@@ -1106,7 +1157,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     consistent between a plaster wall and a rough metal beside it, as the modpack dims reflections
     with its sky light; a reflection traced through the window that meets the drawn sky shows it as
     drawn, and where the trace misses and falls back to the map, a mirror reflects the map at the
-    share, which the guide says.
+    share, which the guide says. Done at `c6bb1f3e` on 2026-10-23, as the head says; the voxel
+    game's ambient share follows with the package after the pack run of `d3473746`.
 
 82. **A light sample a program takes with a normal of its own keeps that normal (Decision 60).**
     Found by the voxel game on 2026-10-21 under its items 63 and 70: modelpass.slang's
@@ -1120,7 +1172,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it was given, or the helper takes the turn as a flag the pass alone sets; the shaders guide says
     a program's sample is lit by the normal it hands over. Tests: on the device, a program sampling
     with an upward normal above and below the eye's height reading the same light, and a
-    double-sided plane's back still lit as its front. One commit, small, after item 83.
+    double-sided plane's back still lit as its front. One commit, small, after item 83. Form
+    approved at 19:59, the second shape: a specialization constant `drawsBacks` beside the solid
+    one, true for a pipeline that culls no faces or the front ones, a double-sided material, a pass
+    culling nothing or an outline drawn from inside, false for the default back-face cull, carried
+    by the pipeline description and set by the model pass and a program's pipelines from their cull
+    mode; `surfaceNormal` turns a normal facing away from the eye only where it holds, so a
+    single-sided surface's sample keeps its normal and a double-sided material's back stays lit as
+    its front, the one departure, said in the guide, since there the pass cannot tell a program's
+    sample from its surface, the voxel game setting DoubleSided nowhere; the shaders guide's
+    sentence and an upgrading entry under Added; on the device a program's shader on a single-sided
+    wall reading the same light above and below the eye and a double-sided plane's back lit as its
+    front. Item 83's tests passed on the device with the low-sun test failing with the clamp off, 83
+    of 83 under lavapipe, and no seam remained at suns of 10 and 5 degrees, so its offset and band
+    stay.
 
 83. **The sun's cascades hold a long shadow across their seams at a low sun (Decision 60).** The
     owner wrote on 2026-10-23 that the shadow cascades are weird, the band between two cascades
@@ -1136,39 +1201,35 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     receiver's slope rather than the cascade's texel, and the band taking the farther cascade's
     shadow where the nearer has none; a test on the device of a tall thin caster's shadow at a sun
     10 degrees up, continuous across a cascade seam and reaching its full length. One commit, after
-    item 81.
+    item 81. Read at 19:49 in an engine scene, the game being driven by another session: a trunk and
+    crown under a sun 10 degrees up, cameras along the shadow at 45, 55 and 65 units, the shadow
+    whole at 45, the trunk's stopping partway at 55 and the crown's near shadow gone at 65; the near
+    cascade's tile reaches about 5.8 radii along the ground toward the sun but keeps casters only 5
+    radii toward the light from its middle, the tree past that culled on the CPU and clipped on the
+    GPU while the pass reads that ground from the near cascade, and a receiver before a cascade's
+    near plane compared at a negative depth reads lit. Form approved: shadow maps drawn with
+    Vulkan's depth clamp where the device has it, a pipeline flag, so casters before a light's near
+    plane are drawn onto it for the cascades, spot tiles, point faces and item 79's program
+    pipelines alike, the depth the ambient occlusion and the probes read keeping unclamped twins,
+    the engine's shadow stage clamping its own depth where the feature is absent; the CPU cull
+    keeping blocks before the near plane with the side and far planes tested, the frustum gaining a
+    mode and the culling comment corrected; a receiver before a cascade's near plane handed to the
+    next; the offset and the band read again after, mended in the same commit only if a seam
+    remains; the scene's shadow read dark along its whole length across both seams on the device,
+    the cull's two cases without a GPU, the shadows guide's sentence, no upgrading entry. The game's
+    tree at 19:30 is the game's own reading once the package carries this.
+
+84. **The README's animated capture of Ore goes.** The owner wrote at 20:22 on 2026-10-23 that the
+    small section at the top of both engines' READMEs showing that they capture GIFs, BevyCSharp's
+    of a game and 3DEngine's of Ore, is not necessary information and is to be removed. The mend:
+    the Ore picture and the paragraph under the Examples heading saying it was recorded with `./e3d
+    record` go from the README, and `.github/assets/animations/ore-dusk.gif` is deleted since
+    nothing else references it; the recording guide keeps its own words. One commit, small, with the
+    local coder's next batch.
 
 ## Verdicts
 
-Verdicts 56 to 82 are settled, said under each in REVIEW-ARCHIVE.md; 83 is open.
-
-83. **The Linux suite shuffled by the day's seed fails the data assets' cost test, a scene with no
-    reference costing 160 bytes more once some data files are known.** On the build run 39561719650
-    of `ec87f64b` on 2026-10-21 the plain Linux suite passed, 1,802 passed in 24 minutes 38 seconds,
-    and the suite shuffled by the seed 20261021 failed one test, 1,801 passed in 23 minutes 56
-    seconds: the scene with no reference asking nothing of the data files and costing no more once
-    some are known read 1,112 bytes known against the 952 expected, 160 over, where the same suite
-    shuffled by 20261020 passed on the machine before the push and the pack run's Linux suite of the
-    same head passed. So the cost the test reads moves with the order of the stage's systems, under
-    N 3.7: either the reading takes in work of a system the shuffle placed between the test's two
-    measurements, which the test should fence out or measure alone, or a system's place in the order
-    changes what a scene with no reference costs, which is the engine's fault. Read first with
-    `build/test.py --shuffle-seed 20261021` on the machine, the 160 bytes named by what allocates
-    them; then the mend, the test's measurement made its own or the engine's order dependence
-    removed, under N 3.5. One commit, before the next push. The cause, read before 10:55: neither
-    the seed nor the table but the log file, since the scene read writes one debug line and the
-    logger sends every line to the file once the file provider stands, which the process's first App
-    opens and keeps; on the runner a test of another collection made that first app between this
-    test's two counts, so the second count alone paid the file's write, 160 bytes, the runner's
-    exact numbers given on the machine by initializing the provider between the counts and equal
-    counts with it before both, the JIT ruled out under tiering, PGO and quick JIT off. The first of
-    the two readings, then, the engine's table costing nothing. The mend, the test file alone under
-    N 3.5: the test records the process's log sinks before the first count and after the second and,
-    where they changed, takes the pair again from the same start up to three times, the file never
-    closing so a second pair stands still; a cost planted in the table's path, a 100-byte array,
-    still fails with 1,080 against 952, and the file begun inside the first pair passes on the
-    second. Mended at `36cae0c2` on 2026-10-23 in that form, pushed at 19:12; settles on the Linux
-    suites of its push and of the pack run after it.
+Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -1695,6 +1756,26 @@ Verdicts 56 to 82 are settled, said under each in REVIEW-ARCHIVE.md; 83 is open.
     branch, and the local coder cherry-picks them onto main as the first part of its next batch,
     taking the captures and the device tests the cloud cannot, so main keeps one writer and the
     pushes stay the reviewer's.
+
+62. **Branches are named for their work, never claude/ or a random string, and work stays on main
+    where one session writes.** The owner wrote at 20:16 on 2026-10-23 not to create branches named
+    claude or the like and not to name them with random characters, but to work on main, or, where
+    several sessions on one repository make a branch necessary, on a branch with a descriptive name
+    and no claude/ prefix. So the cloud session's work moves to a branch named modeling, and its
+    claude/ branch is deleted once its commits are on main; a branch exists only while a second
+    writer needs one.
+
+63. **Every commit carries the owner's identity, and the cloud sessions' branches were deleted for
+    not carrying it.** At 20:27 on 2026-10-23 the owner saw that the commits on the cloud sessions'
+    branches named Claude as their sole contributor, said no to it and asked for the branches to be
+    deleted and gone for good; the reviewer deleted `claude/eloquent-brahmagupta-ljq2ri` and
+    `modeling` and their workflow runs. N 7.6 holds the rule: every commit's author and committer
+    are the owner's identity on every branch, a session setting it before its first commit, a commit
+    with another identity pushed nowhere and rewritten first. The cherry-picks on main, `ffb15cb6`
+    and `4c3f01ef` for item 59, carry the owner's identity. The cloud sessions were told to stop
+    pushing, set the identity, rewrite the authors of every local commit not on main and push
+    nothing until that is done, then push `modeling` again, which the owner confirmed in that
+    session.
 
 ## Replies
 

@@ -327,6 +327,8 @@ floor = CreatePhysicsStaticModel(model, Vector3.Zero);
 
 ## See also
 
+- Example: [`models_edit_mesh`](../3DEngine.Examples/Models/ModelsEditMesh.cs), the seven primitives
+  each built into a model
 - [Models and animation](models-and-animation.md), for drawing a model and its materials, and
   [Physics](physics.md), for the bodies a built model collides as
 - The cheatsheet's [Modeling](../CHEATSHEET.md#modeling)

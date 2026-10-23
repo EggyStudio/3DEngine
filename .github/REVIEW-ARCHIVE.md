@@ -3720,3 +3720,33 @@ at `36cae0c2`.
     suite passed on 2026-10-21, 1,793 in 75 minutes 30 seconds; the pack run's is awaited. Settled
     on the pack run 39561720109 of 2026-10-21, its Windows suite green in 118 minutes, the run
     publishing 5.2.213, read at 19:05 on 2026-10-23.
+
+83. **The Linux suite shuffled by the day's seed fails the data assets' cost test, a scene with no
+    reference costing 160 bytes more once some data files are known.** On the build run 39561719650
+    of `ec87f64b` on 2026-10-21 the plain Linux suite passed, 1,802 passed in 24 minutes 38 seconds,
+    and the suite shuffled by the seed 20261021 failed one test, 1,801 passed in 23 minutes 56
+    seconds: the scene with no reference asking nothing of the data files and costing no more once
+    some are known read 1,112 bytes known against the 952 expected, 160 over, where the same suite
+    shuffled by 20261020 passed on the machine before the push and the pack run's Linux suite of the
+    same head passed. So the cost the test reads moves with the order of the stage's systems, under
+    N 3.7: either the reading takes in work of a system the shuffle placed between the test's two
+    measurements, which the test should fence out or measure alone, or a system's place in the order
+    changes what a scene with no reference costs, which is the engine's fault. Read first with
+    `build/test.py --shuffle-seed 20261021` on the machine, the 160 bytes named by what allocates
+    them; then the mend, the test's measurement made its own or the engine's order dependence
+    removed, under N 3.5. One commit, before the next push. The cause, read before 10:55: neither
+    the seed nor the table but the log file, since the scene read writes one debug line and the
+    logger sends every line to the file once the file provider stands, which the process's first App
+    opens and keeps; on the runner a test of another collection made that first app between this
+    test's two counts, so the second count alone paid the file's write, 160 bytes, the runner's
+    exact numbers given on the machine by initializing the provider between the counts and equal
+    counts with it before both, the JIT ruled out under tiering, PGO and quick JIT off. The first of
+    the two readings, then, the engine's table costing nothing. The mend, the test file alone under
+    N 3.5: the test records the process's log sinks before the first count and after the second and,
+    where they changed, takes the pair again from the same start up to three times, the file never
+    closing so a second pair stands still; a cost planted in the table's path, a 100-byte array,
+    still fails with 1,080 against 952, and the file begun inside the first pair passes on the
+    second. Mended at `36cae0c2` on 2026-10-23 in that form, pushed at 19:12; settles on the Linux
+    suites of its push and of the pack run after it. Settled on the Linux suites of the build run
+    39993188056 of `36cae0c2`, shuffled by 20261023, and of the pack run 39992268286, read at 20:39
+    on 2026-10-23.

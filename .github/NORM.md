@@ -266,8 +266,9 @@ and one that dies.
 
 ## 7 Working
 
-**N 7.1 Commits stay local, and the owner pushes.** The owner decides what is published and when.
-By review.
+**N 7.1 Commits are made on `main`, and the reviewing session pushes them once the previous build
+run of the repository has ended.** The owner gave the pushes to the reviewing session on 2026-10-19,
+so a coder never pushes and no run is cancelled midway by a push. By review.
 
 **N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The history
 is read by its descriptions, and release notes are written from them. A test reads the messages
@@ -282,6 +283,21 @@ session writes under Replies.** Two sessions editing one file write over each ot
 
 **N 7.4 AGENTS.md changes on the owner's word, apart from a row of its table of areas that N 1.5
 asks for.** Every session reads it first. By review.
+
+**N 7.5 A branch is named for its work, never `claude/` nor a random string, and exists only while a
+second session writes to the repository.** A session with `main` to itself commits on `main`. A
+second writer, a cloud session among them, works on a branch such as `modeling`; the local session
+cherry-picks its commits onto `main` with the repository's author and without a trailer, and the
+reviewing session deletes the branch once its commits are on `main`. The owner asked for it on
+2026-10-23. By review.
+
+**N 7.6 Every commit's author and committer are the owner's identity, on every branch.** A session
+sets `user.name` and `user.email` to the owner's before its first commit, a cloud session among
+them, and a commit with any other identity is pushed nowhere; one that was is rewritten before it
+goes anywhere, and a branch that carried one is deleted with its workflow runs. The owner asked for
+it on 2026-10-23, having seen the cloud sessions' branches name another author as their sole
+contributor. By review, the reviewing session reading the author of every commit it pushes or has
+cherry-picked.
 
 ## Conformance
 
@@ -308,7 +324,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.10 | checked, `NormTests` | checked, `NormTests` |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
-| N 3.3 | checked, `NormTests`, 7 left out | checked, `NormTests`, 6 left out |
+| N 3.3 | checked, `NormTests`, 8 left out | checked, `NormTests`, 7 left out |
 | N 3.4 | checked, `NormTests` | listed 39, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
@@ -335,6 +351,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 7.2 | checked, `NormTests`, 3 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
+| N 7.5 | by review | by review |
+| N 7.6 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
 | B 3 | | checked, `NormTests`, 15 left out |
