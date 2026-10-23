@@ -537,6 +537,71 @@ public static partial class E3D
         return new EditMeshInfo(modified.VertexCount, modified.EdgeCount, modified.FaceCount, modified.OpenEdges, 0, 0, 0, modified.Volume, modified.Bounds, modified.GridStep);
     }
 
+    // -- Models of other programs, written for Blender and read from it
+
+    /// <summary>Writes what the mesh builds into, its modifiers applied, as a glTF 2.0 file, one primitive a material slot, and says whether it was written.</summary>
+    /// <remarks>
+    /// <para>
+    /// The file holds the positions, normals, texture coordinates and triangles the mesh builds
+    /// into, and a material for each slot with faces, named as the slot is, so a level shaped in a
+    /// game is opened in Blender and finished there. Its buffer is written beside it as a
+    /// <c>.bin</c> file of the same name, or into the file itself where
+    /// <paramref name="embedBuffer"/> is set. A relative name is beside the program.
+    /// </para>
+    /// <para>The writer is the engine's own, in managed code, and writes the JSON form, <c>.gltf</c>, and not <c>.glb</c>.</para>
+    /// </remarks>
+    public static bool ExportEditMesh(EditMesh mesh, string fileName, bool embedBuffer = false)
+    {
+        if (Edited(mesh, nameof(ExportEditMesh)) is not { } data) return false;
+        var modified = data.Modified();
+        var used = Enumerable.Range(0, modified.FaceCount).Select(modified.SlotIndexOf).ToHashSet();
+        var built = EditMeshBuild.Slots(data);
+        var primitives = Enumerable.Range(0, built.Length).Where(used.Contains)
+            .Select(slot => new GltfWriter.Primitive(modified.Slots[slot], Vector4.One, built[slot].Vertices, built[slot].Indices)).ToArray();
+        try
+        {
+            GltfWriter.Write(fileName, Path.GetFileNameWithoutExtension(fileName), primitives, embedBuffer);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"ExportEditMesh: '{fileName}' could not be written. {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Adds the meshes of a model file, as <see cref="LoadModel"/> reads it, to the mesh as faces, its triangles in one plane joined back into faces, and selects them.</summary>
+    /// <remarks>
+    /// <para>
+    /// A file's meshes are placed as its nodes place them, its vertices in one place joined, and
+    /// triangles in one plane and one material that share an edge joined into one face round them,
+    /// so a box from Blender is six faces again and is cut and shaped in the game. A material is a
+    /// slot of its name, its words joined by hyphens.
+    /// </para>
+    /// <para>
+    /// The recipe keeps the file's name, so the mesh is read again from the file when the recipe
+    /// runs. The recipe's line is <c>import models/rock.gltf</c>.
+    /// </para>
+    /// </remarks>
+    /// <returns>Whether the file was read in, a file that is missing or not a model leaving the mesh as it was, with a warning naming it.</returns>
+    public static bool EditMeshImport(EditMesh mesh, string fileName)
+    {
+        if (Edited(mesh, nameof(EditMeshImport)) is not { } data) return false;
+        try
+        {
+            data.Import(fileName);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException)
+        {
+            ApiLogger.Warn($"EditMeshImport: '{fileName}' could not be read into the edit mesh. {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>A model file read for an edit mesh, as <see cref="LoadModel"/> reads it, or null with the reason logged.</summary>
+    internal static Scene? ReadSceneForEditMesh(string fileName) => ReadModelScene(fileName, nameof(EditMeshImport));
+
     // -- Building a model to draw and collide with
 
     /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>

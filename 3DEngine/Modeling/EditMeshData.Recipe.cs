@@ -213,6 +213,7 @@ internal sealed partial class EditMeshData
                 case "spin": mesh.Spin(Axis(), Number(), Count(), Pivot() ?? Vector3.Zero); break;
                 case "smooth": mesh.Smooth(Number()); break;
                 case "modifier": Modifier(mesh); break;
+                case "import": mesh.Import(Word("a model file's path")); break;
                 default: throw new FormatException($"{words[0]} is not an operation of a model's recipe.");
             }
 

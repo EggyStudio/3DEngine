@@ -415,6 +415,39 @@ operation were called, the line it writes being the line given.
 it, so an undo is right for every operation and the selection is the one those lines left, and
 `EditMeshRedo(mesh)` does it again. An operation done after an undo forgets what was taken back.
 
+## Blender and other programs
+
+`ExportEditMesh(mesh, "level.gltf")` writes what the mesh builds into, its modifiers applied, as a
+glTF 2.0 file, positions, normals, texture coordinates and triangles, one primitive a material
+slot with faces and a material named as the slot is, so a level shaped in the game is opened in
+Blender and finished there. Its buffer is written beside it as `level.bin`, or into the file itself
+with `ExportEditMesh(mesh, "level.gltf", embedBuffer: true)`. The writer is the engine's own and
+writes the JSON form, `.gltf`, and not `.glb`.
+
+`EditMeshImport(mesh, "rock.gltf")`, or `import rock.gltf`, adds the meshes of a model file, read as
+`LoadModel` reads it, so a glTF, an FBX, an OBJ or any of the others, and selects them. The file's
+meshes are placed as its nodes place them, its vertices in one place joined, and triangles in one
+plane and one material that share an edge are joined back into one face round them, so a box made
+in Blender is six faces again and is cut and shaped in the game. A material is a slot of its name,
+its words joined by hyphens, so "Stone Wall" is the slot `Stone-Wall`:
+
+<!-- compiled with:
+var level = LoadEditMesh();
+-->
+```csharp
+var rock = LoadEditMesh();
+if (EditMeshImport(rock, "models/rock.gltf"))
+{
+    EditMeshSelectFacing(rock, -Vector3.UnitY);
+    EditMeshDelete(rock, fill: true);       // its underside made one flat face
+}
+ExportEditMesh(level, "level.gltf");
+```
+
+A file that is missing or is not a model leaves the mesh as it was and is answered with false and a
+warning naming it. The recipe keeps the file's name, so the mesh is read again from the file when
+the recipe runs.
+
 ## Building a model
 
 `LoadModelFromEditMesh(mesh)` builds the mesh into a `Model`, a mesh and a white material for each

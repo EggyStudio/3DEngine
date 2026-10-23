@@ -1627,6 +1627,14 @@ EditMeshInfo GetEditMeshModifiedInfo(EditMesh mesh);     // What the mesh builds
                                                          // counts, volume and bounds, as GetEditMeshInfo reads the mesh
                                                          // itself
 
+bool ExportEditMesh(EditMesh mesh, string fileName, bool embedBuffer = false); // Writes what the mesh builds into, its
+                                                                               // modifiers applied, as a glTF 2.0 file,
+                                                                               // one primitive a material slot, and
+                                                                               // says whether it was written
+bool EditMeshImport(EditMesh mesh, string fileName);     // Adds the meshes of a model file, as LoadModel reads it, to
+                                                         // the mesh as faces, its triangles in one plane joined back
+                                                         // into faces, and selects them
+
 Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
                                                          // material for each material slot, in the order of the slots
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from

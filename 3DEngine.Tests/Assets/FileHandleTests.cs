@@ -34,7 +34,7 @@ public sealed class FileHandleTests : IDisposable
 
     // Each loader, the files it reads from the examples' resources, and whether what it gave back
     // was loaded, so a load that failed early does not pass for one that let go.
-    public static TheoryData<string> Loaders => new() { "model", "model glTF", "model by the asset server", "texture", "image", "wave", "music, unloaded", "font", "scene", "edit mesh" };
+    public static TheoryData<string> Loaders => new() { "model", "model glTF", "model by the asset server", "texture", "image", "wave", "music, unloaded", "font", "scene", "edit mesh", "edit mesh import" };
 
     [NeedsOpenFilesTheory]
     [MemberData(nameof(Loaders))]
@@ -54,6 +54,7 @@ public sealed class FileHandleTests : IDisposable
             "font" => Load(["fonts/Lato-Regular.ttf"], f => IsFontValid(LoadFont(f[0]))),
             "scene" => Scene(),
             "edit mesh" => EditMeshFile(),
+            "edit mesh import" => Imported(),
             _ => throw new ArgumentOutOfRangeException(nameof(loader)),
         };
 
@@ -170,6 +171,16 @@ public sealed class FileHandleTests : IDisposable
         File.Copy(Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Tests", "Modeling", "room.model"), file);
         var mesh = LoadEditMesh(file);
         IsEditMeshValid(mesh).Should().BeTrue();
+        UnloadEditMesh(mesh);
+        return [file];
+    }
+
+    private string[] Imported()
+    {
+        var file = _folder.File("two-pieces.gltf");
+        File.Copy(Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Tests", "Modeling", "two-pieces.gltf"), file);
+        var mesh = LoadEditMesh();
+        EditMeshImport(mesh, file).Should().BeTrue();
         UnloadEditMesh(mesh);
         return [file];
     }
