@@ -1008,6 +1008,7 @@ static class Engine.E3D
   static bool IsWindowResized()
   static bool IsWindowState(ConfigFlags flags)
   static bool QuaternionEquals(Quaternion p, Quaternion q)
+  static bool RemoveDebugOverlaySection(string name)
   static bool SaveEditMesh(EditMesh mesh, string fileName)
   static bool SaveFileData(string fileName, ReadOnlySpan<byte> data)
   static bool SaveFileText(string fileName, string text)
@@ -1094,6 +1095,7 @@ static class Engine.E3D
   static string[] LoadDroppedFiles()
   static uint ComputeCRC32(ReadOnlySpan<byte> data)
   static void AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
+  static void AddDebugOverlaySection(string name, Func<IEnumerable<string>> lines)
   static void AddState<TState>(TState initial) where TState : struct, Enum
   static void AddSubState<TSub, TParent>(TParent whileIn, TSub initial) where TSub : struct, Enum where TParent : struct, Enum
   static void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse)

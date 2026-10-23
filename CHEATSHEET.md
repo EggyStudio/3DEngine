@@ -42,6 +42,8 @@ void EndUi();                                            // Closes the scope Beg
 bool IsUiHidden();                                       // Whether F1 has hidden the interface drawn inside BeginUi
 void SetUiHiddenKey(Key key);                            // Sets the key that hides and shows the program's interface, F1 until moved, as Minecraft hides its HUD, or turns it off with Key.Null
 void SetDebugOverlayKey(Key key);                        // Sets the key that shows and hides the engine's debug overlay, F3 until moved, as Minecraft's debug screen, or turns it off with Key.Null
+void AddDebugOverlaySection(string name, Func<IEnumerable<string>> lines);  // Adds a section of the program's own to the debug overlay's left column, under the engine's lines and any section added before, in place of one of the same name
+bool RemoveDebugOverlaySection(string name);             // Takes a section of the debug overlay away by its name, and says whether there was one
 
 bool IsWindowResized();                                  // Whether the window's size changed in the events of this frame
 bool IsWindowFullscreen();                               // Whether the window covers its monitor in fullscreen, by ToggleFullscreen or the flag for it, rather than as ToggleBorderlessWindowed covers it, as raylib's tells the two apart

@@ -273,6 +273,33 @@ lines are written again four times a second, so a number stays still long enough
 is taken as it is let go, where no other key went down while it was held, so a program's own chords
 on F3 stand and never open it, and `SetDebugOverlayKey` moves it.
 
+Under the frame rate a strip of the last 240 frames' times stands as the RivaTuner overlay draws its
+graph, a bar a frame, green to 60 frames a second, yellow to 30 and red past it, with faint rows at
+the two, and beside it the last frame's time, the average and the one percent low, the rate the
+slowest hundredth of the frames came at, which a game that stutters shows where its average does
+not, with the GPU's time a frame under them. Every frame's time is kept whether the overlay shows or
+not, so it opens on the last four seconds. Shift held as F3 is let go shows the profiler under the
+right column, the render graph's passes the slowest first by their GPU and CPU times over the last
+second, and the overlay with it, as Minecraft's Shift+F3 does, and F3 alone hiding the overlay hides
+the profiler too.
+
+A program adds sections of its own to the left column, under the engine's lines in the order added,
+each a heading and its lines, asked four times a second while the overlay shows, as a world
+generator's seed and the chunk the player stands in:
+
+<!-- compiled with:
+int seed = 42;
+var chunk = (X: 3, Z: -1);
+-->
+```csharp
+AddDebugOverlaySection("World", () => [$"Seed {seed}", $"Chunk {chunk.X} {chunk.Z}"]);
+// ...
+RemoveDebugOverlaySection("World");
+```
+
+A section added again under its name takes the place of the first, and one whose lines throw says
+why in a line where its lines would be.
+
 ## The app underneath
 
 `InitWindow` builds an `App`, and `BeginDrawing` and `EndDrawing` run its stages. `GetApp()` hands

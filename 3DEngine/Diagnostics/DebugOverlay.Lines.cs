@@ -5,18 +5,23 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 // What each line of the overlay says, in the words BevyCSharp's overlay says them, the engine and
-// the frame over the left column, the camera and the world under them, and the system, the GPU, the
-// display and the renderer down the right.
+// the frame over the left column, the frame times beside the strip, the camera, the world and the
+// program's sections under them, and the system, the GPU, the display, the renderer and the
+// profiler's passes down the right.
 internal sealed partial class DebugOverlay
 {
     /// <summary>What the overlay says, a list for each place a line goes, an empty line the gap between two parts.</summary>
-    /// <param name="Head">The engine's version and the frame, at the top of the left column.</param>
-    /// <param name="Left">The camera, the world and the program's sections, under the head.</param>
-    /// <param name="Right">The system, the GPU, the display and the renderer.</param>
-    internal sealed record Said(List<string> Head, List<string> Left, List<string> Right);
+    /// <param name="Head">The engine's version and the frame, over the strip.</param>
+    /// <param name="Beside">The frames' times and the GPU's, beside the strip.</param>
+    /// <param name="Left">The camera, the world and the program's sections, under the strip.</param>
+    /// <param name="Right">The system, the GPU, the display and the renderer, with the profiler's passes under them.</param>
+    internal sealed record Said(List<string> Head, List<string> Beside, List<string> Left, List<string> Right);
+
+    /// <summary>The passes the profiler lists, the slowest, with a line saying how many more there are.</summary>
+    private const int ProfilerPasses = 24;
 
     /// <summary>What the overlay says of a world as it stands.</summary>
-    internal static Said Lines(World world)
+    internal Said Lines(World world)
     {
         world.TryGetResource<Time>(out var time);
         world.TryGetResource<Renderer>(out var renderer);
@@ -28,12 +33,20 @@ internal sealed partial class DebugOverlay
             time is null ? "No clock" : Say($"{time.SmoothedFps:0} fps, {time.DeltaSeconds * 1000:0.0} ms a frame, frame {time.FrameCount}"),
         };
 
+        var (now, average, lowFps) = Stats(FrameTimes());
+        var beside = new List<string>
+        {
+            Say($"Now {now:0.0} ms, average {average:0.0} ms, 1% low {lowFps:0} fps"),
+            GpuTime(world),
+        };
+
         var left = new List<string>();
         left.AddRange(CameraLines(world));
         left.Add("");
         world.TryGetResource<EcsWorld>(out var ecs);
         left.Add(Say($"Entities {ecs?.EntityCount ?? 0}"));
         left.Add(Say($"Meshes {Count<MeshStore>(world, store => store.Count)}, textures {Count<TextureStore>(world, store => store.Count)}, assets {Count<AssetServer>(world, server => server.TrackedAssetCount)}"));
+        AddSections(left);
 
         var right = new List<string>
         {
@@ -47,7 +60,64 @@ internal sealed partial class DebugOverlay
         right.Add(Display(world, device));
         right.Add("");
         right.AddRange(RendererLines(world, renderer, ecs));
-        return new Said(head, left, right);
+        if (ProfilerShown) AddPasses(right, world);
+        return new Said(head, beside, left, right);
+    }
+
+    /// <summary>
+    /// The program's sections, each after a gap, its name and then its lines, or why it said nothing
+    /// where its lines threw.
+    /// </summary>
+    /// <remarks>
+    /// The list is copied before any section is asked, so a section that adds or removes one, its own
+    /// among them, changes the next writing and not this one.
+    /// </remarks>
+    private void AddSections(List<string> left)
+    {
+        foreach (var (name, lines) in _sections.ToArray())
+        {
+            left.Add("");
+            left.Add(name);
+            try
+            {
+                left.AddRange(lines());
+            }
+            catch (Exception error)
+            {
+                // Said where its lines would be rather than logged, since a section asked four times
+                // a second would fill the log, and the overlay is where its author looks.
+                left.Add($"{name}: {error.GetType().Name}, {error.Message}");
+            }
+        }
+    }
+
+    /// <summary>The profiler's lines, the render graph's passes the slowest first by the GPU's time, then the CPU's, averaged over the profile's last second.</summary>
+    private static void AddPasses(List<string> right, World world)
+    {
+        right.Add("");
+        var timings = new Dictionary<string, (double? Gpu, double? Cpu)>(StringComparer.Ordinal);
+        if (world.TryGetResource<FrameProfile>(out var profile))
+            foreach (var (group, averages) in profile.Snapshot().Groups)
+            {
+                if (group is not ("gpu" or "cpu")) continue;
+                foreach (var (name, ms) in averages)
+                {
+                    var pass = name[(group.Length + 1)..];
+                    var known = timings.GetValueOrDefault(pass);
+                    timings[pass] = group == "gpu" ? (ms, known.Cpu) : (known.Gpu, ms);
+                }
+            }
+        if (timings.Count == 0)
+        {
+            right.Add("Pass timings not measured, as no frame is rendered");
+            return;
+        }
+
+        right.Add("Passes, the slowest first");
+        var slowest = timings.OrderByDescending(pass => pass.Value.Gpu ?? -1).ThenByDescending(pass => pass.Value.Cpu ?? -1).ToList();
+        foreach (var (name, (gpu, cpu)) in slowest.Take(ProfilerPasses))
+            right.Add($"{name} {(gpu is { } g ? Say($"GPU {g:0.00} ms") : "GPU none")}, {(cpu is { } c ? Say($"CPU {c:0.00} ms") : "CPU none")}");
+        if (slowest.Count > ProfilerPasses) right.Add(Say($"and {slowest.Count - ProfilerPasses} more"));
     }
 
     // Where the window's camera stands and faces, a camera entity's or the frame's first
@@ -144,8 +214,6 @@ internal sealed partial class DebugOverlay
 
         var illumination = SceneFieldCommands.IlluminationState(world).Split('\n')[0];
         lines.Add(illumination.StartsWith("global illumination is off", StringComparison.Ordinal) ? "Global illumination off" : $"Global illumination {illumination}");
-
-        lines.Add(GpuTime(world));
         return lines;
     }
 
