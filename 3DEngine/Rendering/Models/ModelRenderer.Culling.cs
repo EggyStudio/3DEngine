@@ -69,33 +69,35 @@ internal sealed partial class ModelRenderer
 
     /// <summary>
     /// Whether a view through <paramref name="viewProjection"/> may see a box, by its four side
-    /// planes, and by its near and far planes too for a light's pass (<paramref name="light"/>).
+    /// planes, and by its far plane too for a light's pass (<paramref name="light"/>), and its near
+    /// one where the pass clips depth there (<paramref name="clipsNear"/>).
     /// </summary>
-    internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max, bool light = false) => new Frustum(viewProjection, light).Sees(min, max);
+    internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max, bool light = false, bool clipsNear = true) =>
+        new Frustum(viewProjection, light, clipsNear).Sees(min, max);
 
     // The planes a pass leaves blocks out by, made once for each view-projection it draws through.
     // A camera's pass uses the four sides alone, so its depth convention never leaves out what it
-    // draws. A light's pass (depth) also leaves out a block before its near plane or past its far
-    // one, Vulkan keeping depths from 0 to w, the shadow shader writing the position as the
-    // light's matrix gives it and no pipeline clamping depth, so such a block is clipped whole
-    // whether drawn or not; a cascade's box, which reaches far toward the light, holds every caster
-    // that can shadow it.
+    // draws. A light's pass (depth) also leaves out a block past its far plane, Vulkan keeping
+    // depths up to w. A shadow map clamps a depth before its near plane onto it, so a caster nearer
+    // the light than a cascade's box still shadows what the box holds, which at a low sun is ground
+    // far along the light from the cascade's slice of the view, and such a block is left out only
+    // where the device clips there instead (clipsNear).
     private readonly struct Frustum
     {
         private readonly Vector4 _left, _right, _bottom, _top, _near, _far;
-        private readonly bool _depth;
+        private readonly bool _depth, _clipsNear;
 
-        public Frustum(in Matrix4x4 viewProjection, bool depth)
+        public Frustum(in Matrix4x4 viewProjection, bool depth, bool clipsNear = true)
         {
             (_left, _right, _bottom, _top) = Planes(viewProjection);
             _near = new Vector4(viewProjection.M13, viewProjection.M23, viewProjection.M33, viewProjection.M43);
             _far = new Vector4(viewProjection.M14, viewProjection.M24, viewProjection.M34, viewProjection.M44) - _near;
-            _depth = depth;
+            (_depth, _clipsNear) = (depth, clipsNear);
         }
 
         public bool Sees(Vector3 min, Vector3 max) =>
             !(Outside(_left, min, max) || Outside(_right, min, max) || Outside(_bottom, min, max) || Outside(_top, min, max)
-              || _depth && (Outside(_near, min, max) || Outside(_far, min, max)));
+              || _depth && (_clipsNear && Outside(_near, min, max) || Outside(_far, min, max)));
 
         // Whether the pass draws any of a batch, a batch with no blocks always, so a batch it draws
         // none of is passed over before its buffers are bound.

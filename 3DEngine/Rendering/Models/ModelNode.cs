@@ -145,7 +145,6 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly ReadOnlyMemory<byte> _shadowMaskSpv;
     private IShader? _shadowVertexShader;
     private IShader? _shadowMaskShader;
-    private IPipeline? _shadowMaskPipeline;
     private IShader? _vertexShader;
     // The fragment stages of each build, model.slang's and model_streams.slang's, by ModelBuild,
     // none for a build that was not made, whose frames draw with the whole.
@@ -324,7 +323,6 @@ internal sealed partial class ModelRenderer : IDisposable
     // Cubes, probes' maps, the environment's image and the descriptor sets of filters let go, each
     // freed once no frame in flight reads it.
     private readonly List<(long Frame, IDisposable Cube)> _retiredCubes = [];
-    private IPipeline? _shadowPipeline;
     private readonly List<Batch> _shadowBatches = [];
 
     // A shader with textures of its own past the material's five maps has a material layout of its

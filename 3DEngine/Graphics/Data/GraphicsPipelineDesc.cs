@@ -43,6 +43,9 @@ internal enum CompareOp
 /// <param name="Solid">Whether the fragment stage's specialization constant 0 is set, which the
 /// model pass's shaders read as a material that cuts nothing out, so their alpha test folds away
 /// and the device's early depth test rejects a hidden fragment before it is shaded.</param>
+/// <param name="DepthClamp">Whether a depth before the near plane or past the far one is clamped onto
+/// it rather than clipped, where the device can, so a shadow map holds a caster nearer the light than
+/// its near plane.</param>
 internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -61,7 +64,8 @@ internal readonly record struct GraphicsPipelineDesc(
     BlendMode Blend = BlendMode.Alpha,
     bool Points = false,
     BlendFactors Factors = default,
-    bool Solid = false);
+    bool Solid = false,
+    bool DepthClamp = false);
 
 /// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
 internal enum CullMode

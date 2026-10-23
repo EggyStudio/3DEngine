@@ -214,6 +214,7 @@ internal sealed unsafe partial class GraphicsDevice
             polygonMode = desc.Points && CanDrawPoints ? VkPolygonMode.Point : VkPolygonMode.Fill,
             cullMode = desc.Cull switch { CullMode.Back => VkCullModeFlags.Back, CullMode.Front => VkCullModeFlags.Front, _ => VkCullModeFlags.None },
             frontFace = VkFrontFace.CounterClockwise,
+            depthClampEnable = desc.DepthClamp && CanClampDepth,
             lineWidth = 1.0f
         };
 

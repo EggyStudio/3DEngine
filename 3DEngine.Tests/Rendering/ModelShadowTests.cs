@@ -107,6 +107,51 @@ public sealed class ModelShadowTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Low_Suns_Long_Shadow_Is_Cast_Whole_Across_The_Cascades_Seen_From_Its_Far_End()
+    {
+        // A trunk a unit across and six high under a crown three units wide, under a sun 10 degrees
+        // up, whose shadows run along the ground to x = -34 and from x = -30 to -50, seen from the
+        // far end of the shadow looking back at the tree. At so low a sun the near cascade's tile
+        // reaches far along the ground toward the sun, past its own near plane, before which the
+        // tree was left out and clipped, so ground in the shadow read lit: from 55 units out the
+        // trunk's shadow stopped partway, and from 65 the crown's was gone near the camera.
+        var config = Config.Default.WithWindow("low sun test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        var elevation = 10 * MathF.PI / 180;
+        CreateDirectionalLight(new Vector3(-MathF.Cos(elevation), -MathF.Sin(elevation), 0), Color.White, 1, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(400, 400, 1, 1));
+        var trunk = LoadModelFromMesh(GenMeshCube(1, 6, 1));
+        var crown = LoadModelFromMesh(GenMeshCube(3, 3, 3));
+
+        foreach (var from in new[] { -55f, -65f })
+        {
+            var camera = new Camera3D(new Vector3(from, 4, 3), new Vector3(from + 55, 2, 0), Vector3.UnitY, 60);
+            var image = Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(ground, Vector3.Zero, 1, Color.White);
+                DrawModel(trunk, new Vector3(0, 3, 0), 1, Color.White);
+                DrawModel(crown, new Vector3(0, 7, 0), 1, Color.White);
+                EndMode3D();
+            }, $"low-sun-{-from}");
+            int Red(Vector3 at)
+            {
+                var pixel = GetWorldToScreen(at, camera);
+                return GetImageColor(image, (int)pixel.X, (int)pixel.Y).R;
+            }
+            // Along the middle of the shadow, the trunk's to -30 and the crown's past it, each
+            // against the ground six units beside it.
+            foreach (var x in new[] { -6f, -12f, -18f, -24f, -30f, -36f, -42f, -46f })
+                Red(new Vector3(x, 0, 0)).Should().BeLessThan((byte)(Red(new Vector3(x, 0, 6)) / 3),
+                    $"the ground at x = {x} lies in the tree's shadow, seen from x = {from}");
+        }
+        UnloadModel(ground);
+        UnloadModel(trunk);
+        UnloadModel(crown);
+    }
+
+    [NeedsVulkanFact]
     public void A_Material_That_Casts_No_Shadow_Leaves_The_Floor_Under_It_Lit()
     {
         var config = Config.Default.WithWindow("shadow test", 160, 120) with { Headless = true, Offscreen = true, Samples = 4 };

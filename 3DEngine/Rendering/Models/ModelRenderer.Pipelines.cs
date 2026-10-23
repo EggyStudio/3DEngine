@@ -330,7 +330,7 @@ internal sealed partial class ModelRenderer
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false)
+        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false, bool clamp = false)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -368,7 +368,8 @@ internal sealed partial class ModelRenderer
             DescriptorSetLayouts: [material ?? MaterialLayout(gfx), LightsLayout(gfx)],
             DepthTestEnabled: true,
             DepthWriteEnabled: depth,
-            DepthCompareOp: CompareOp.LessOrEqual);
+            DepthCompareOp: CompareOp.LessOrEqual,
+            DepthClamp: clamp);
 
         return renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)

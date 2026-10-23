@@ -63,7 +63,8 @@ public float3 arriving(Light light, float3 world, float3 n)
 }
 
 // How much of the shadowed light reaches this point through cascade c, from 0 to 1, or -1 when the
-// cascade's tile does not hold it. Each cascade is a quarter of the map, two tiles on a side. The
+// cascade's tile does not hold it, or the point lies before its near plane, where its casters are
+// clamped onto that plane, so the next cascade, reaching farther toward the light, reads it. Each cascade is a quarter of the map, two tiles on a side. The
 // point is moved off its surface along the normal by a texel and a half of that cascade before it
 // is compared, so a surface does not shadow itself where the map's texels slant across it, and
 // nine depths around it are compared and averaged, which softens the stair steps of the texels into
@@ -75,7 +76,7 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
     edge = 1.0;
     float4 clip = mul(lighting.shadowCascades[c], float4(world + n * lighting.shadowTexels[c] * 1.5, 1.0));
     float3 p = clip.xyz / clip.w;
-    if (any(abs(p.xy) > 0.995) || p.z > 1.0)
+    if (any(abs(p.xy) > 0.995) || p.z > 1.0 || p.z < 0.0)
         return -1.0;
 
     edge = max(abs(p.x), abs(p.y)) / 0.995;

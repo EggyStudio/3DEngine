@@ -68,5 +68,12 @@ public class ViewCullingTests
         ByLight(new Vector3(0, -60, 0)).Should().BeFalse("it lies past the far plane, where its shadow could fall on nothing the box holds");
         ByLight(new Vector3(0, 60, 0)).Should().BeFalse("it lies before the near plane, which the GPU clips it by");
         Seen(light, new Vector3(0, -60, 0)).Should().BeTrue("a camera's pass leaves near and far to the depth test");
+
+        // A shadow map that clamps depth draws a caster before its near plane onto it.
+        bool ByClampingLight(Vector3 at) => ModelRenderer.Seen(light, at - Half, at + Half, light: true, clipsNear: false);
+        ByClampingLight(new Vector3(0, 60, 0)).Should().BeTrue("a caster nearer the light than the box still shadows what the box holds");
+        ByClampingLight(new Vector3(0, 400, 0)).Should().BeTrue();
+        ByClampingLight(new Vector3(0, -60, 0)).Should().BeFalse("past the far plane it still shadows nothing the box holds");
+        ByClampingLight(new Vector3(30, 60, 0)).Should().BeFalse("beside the box it is left out as before");
     }
 }

@@ -84,52 +84,56 @@ internal sealed partial class ModelRenderer
         }
     }
 
-    // The shadow pass's pipelines, a solid one and one a material cuts out, made the first time a
-    // depth-only pass draws, for the depth-only passes every shadow map and depth target share.
+    // The shadow pass's stages, made the first time a depth-only pass draws, for the depth-only
+    // passes every shadow map and depth target share, whose pipelines are made as first drawn.
     private bool EnsureShadowPipelines(GraphicsDevice device, IRenderPass depthOnly, RenderWorld renderWorld)
     {
         if (_shadowVertexSpv.IsEmpty) return false;
-        if (_shadowPipeline is not null) return true;
+        if (_shadowVertexShader is not null) return true;
         _shadowMaking = (device, depthOnly, renderWorld);
         _shadowVertexShader = device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _shadowVertexSpv));
-        _shadowPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, fragment: null, shadow: true);
-        if (!_shadowMaskSpv.IsEmpty)
-        {
-            _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
-            _shadowMaskPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, _shadowMaskShader, shadow: true);
-        }
+        if (!_shadowMaskSpv.IsEmpty) _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
         return true;
     }
 
-    // What the shadow pass's pipelines are made with, kept for the pair that reads positions alone
-    // and for those of the program's own shaders.
+    // What the shadow pass's pipelines are made with, kept for those made as first drawn.
     private (GraphicsDevice Device, IRenderPass DepthOnly, RenderWorld RenderWorld)? _shadowMaking;
-    private IPipeline? _shadowPositionsPipeline, _shadowMaskPositionsPipeline;
 
-    // How the shadow pass draws a masked surface through a program's shader, the pipeline of the
-    // program's vertex stage and the cut, and how it reads the mesh's streams and CUSTOM0.
-    private readonly record struct OwnShadow(IPipeline Pipeline, Streams Streams, StreamFeed? Feed);
+    // The pass's own shadow pipelines, by whether the material cuts the surface out, whether the
+    // mesh is of positions alone, and whether depth is clamped, which a shadow map's is, so a
+    // caster nearer the light than its box still shadows what the box holds, and the depth the
+    // ambient occlusion and the screen's probes read is not, so what the camera's near plane clips
+    // stays out of it.
+    private readonly IPipeline?[] _shadowPipelines = new IPipeline?[8];
+
+    // How the shadow pass draws a masked surface through a program's shader, the shader, how its
+    // vertex stage reads the mesh's streams and CUSTOM0, and whether the mesh is of positions alone.
+    private readonly record struct OwnShadow(int Shader, ShaderProgram Program, Streams Streams, StreamFeed? Feed, bool Positions);
 
     // The program's shadowMain stages by ShaderStore id, and the pipelines its masked surfaces cast
-    // their shadows through, by the shader and how they read the mesh.
+    // their shadows through, by the shader, how they read the mesh, and whether depth is clamped.
     private readonly Dictionary<int, IShader> _shadowFragments = [];
-    private readonly Dictionary<(int Shader, Streams Streams, StreamFeed? Feed, bool Positions), IPipeline> _ownShadowPipelines = [];
+    private readonly Dictionary<(int Shader, Streams Streams, StreamFeed? Feed, bool Positions, bool Clamp), IPipeline> _ownShadowPipelines = [];
 
     // Beside each of _shadowBatches, the program's way of drawing it, or null for the pass's own.
     private readonly List<OwnShadow?> _ownShadows = [];
 
     // The shadow pass's pipeline for a batch, solid or cut out by its material, reading the mesh's
     // whole vertex or, for a mesh of positions alone, its positions with the rest zeros at binding
-    // 6, that pair made the first time such a mesh casts a shadow.
-    private IPipeline ShadowPipeline(in Batch batch)
+    // 6, clamping depth for a shadow map, each made the first time it is drawn with.
+    private IPipeline ShadowPipeline(in Batch batch, bool clamp)
     {
         var masked = batch.Shadow == ShadowKind.Masked;
-        if (!batch.Mesh.PositionsOnly) return masked ? _shadowMaskPipeline! : _shadowPipeline!;
+        var positions = batch.Mesh.PositionsOnly;
         var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
-        return masked
-            ? _shadowMaskPositionsPipeline ??= MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader!, _shadowMaskShader, shadow: true, positions: true)
-            : _shadowPositionsPipeline ??= MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader!, fragment: null, shadow: true, positions: true);
+        return _shadowPipelines[(masked ? 4 : 0) + (positions ? 2 : 0) + (clamp ? 1 : 0)] ??= MakePipeline(device, depthOnly, renderWorld,
+            _shadowVertexShader!, masked ? _shadowMaskShader : null, shadow: true, positions: positions, clamp: clamp);
     }
+
+    // A batch's pipeline for a shadow map (clamp) or the depth target, through a program's own
+    // stages where own is given and the pass's otherwise.
+    private IPipeline ShadowPipeline(in Batch batch, OwnShadow? own, bool clamp) =>
+        own is { } program ? OwnShadowPipeline(program, clamp) : ShadowPipeline(batch, clamp);
 
     // The view's batches, which its model pass draws after, those that cast a shadow gathered into
     // _shadowBatches as the kind of shadow their draws cast, a masked one with its maps, which its
@@ -145,7 +149,7 @@ internal sealed partial class ModelRenderer
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (batch.Shadow == ShadowKind.None) continue;
-            var own = batch.Shadow == ShadowKind.Masked && batch.Custom >= 0 ? OwnShadowOf(device, renderWorld, store, draws.Span[batch.Custom], batch.Mesh) : null;
+            var own = batch.Shadow == ShadowKind.Masked && batch.Custom >= 0 ? OwnShadowOf(device, store, draws.Span[batch.Custom], batch.Mesh) : null;
             _ownShadows.Add(own);
             _shadowBatches.Add(own is not null
                 ? batch with { Set = DrawSet(device, renderContext, renderWorld, textures, draws.Span[batch.Custom], store!.Get(draws.Span[batch.Custom].Shader)!) }
@@ -162,29 +166,35 @@ internal sealed partial class ModelRenderer
     // likes. The program's vertex stage is drawn with the light's view-projection pushed in the
     // camera's place, and its shadowMain or shadow.slang's cut after it. Null for a program with
     // neither, whose shadow the pass's own stages draw.
-    private OwnShadow? OwnShadowOf(GraphicsDevice device, RenderWorld renderWorld, ShaderStore? store, in ModelDraw draw, GpuMeshes.Entry mesh)
+    private OwnShadow? OwnShadowOf(GraphicsDevice device, ShaderStore? store, in ModelDraw draw, GpuMeshes.Entry mesh)
     {
         if (store?.Get(draw.Shader) is not { } program || _shadowMaskShader is null) return null;
-        var hasVertex = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
-        if (!hasVertex && program.ShadowFragment is null) return null;
+        if (!program.Stages.ContainsKey(ShaderStage.Vertex) && program.ShadowFragment is null) return null;
 
         var modules = CustomModules(device, draw.Shader, program);
         var streams = !modules.ReadsStreams ? Streams.None : mesh.Colors is null ? Streams.Default : Streams.PerVertex;
         StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, mesh.Custom?.Format) : null;
-        var key = (draw.Shader, streams, feed, mesh.PositionsOnly);
-        if (!_ownShadowPipelines.TryGetValue(key, out var pipeline))
-        {
-            var fragment = program.ShadowFragment is not { } spv ? _shadowMaskShader
-                : _shadowFragments.TryGetValue(draw.Shader, out var made) ? made
-                : _shadowFragments[draw.Shader] = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, spv));
-            var (_, depthOnly, _) = _shadowMaking!.Value;
-            // The instance's every row, which the program's stage takes as the model pass gives it.
-            _ownShadowPipelines[key] = pipeline = MakePipeline(device, depthOnly, renderWorld, modules.Vertex, fragment,
-                material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(device, draw.Shader, program).Layout : null,
-                streams: streams, inputs: hasVertex ? ShaderProgram.InputLocationSet(vertex!) : null, named: hasVertex ? program.VertexInputs : [],
-                shaderName: program.Name, feed: feed, positions: mesh.PositionsOnly);
-        }
-        return new OwnShadow(pipeline, streams, feed);
+        return new OwnShadow(draw.Shader, program, streams, feed, mesh.PositionsOnly);
+    }
+
+    // The pipeline of a program's stages for a shadow map (clamp) or the depth target, made the
+    // first time it is drawn with.
+    private IPipeline OwnShadowPipeline(in OwnShadow own, bool clamp)
+    {
+        var key = (own.Shader, own.Streams, own.Feed, own.Positions, clamp);
+        if (_ownShadowPipelines.TryGetValue(key, out var pipeline)) return pipeline;
+        var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
+        var program = own.Program;
+        var modules = CustomModules(device, own.Shader, program);
+        var hasVertex = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
+        var fragment = program.ShadowFragment is not { } spv ? _shadowMaskShader
+            : _shadowFragments.TryGetValue(own.Shader, out var made) ? made
+            : _shadowFragments[own.Shader] = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, spv));
+        // The instance's every row, which the program's stage takes as the model pass gives it.
+        return _ownShadowPipelines[key] = MakePipeline(device, depthOnly, renderWorld, modules.Vertex, fragment,
+            material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(device, own.Shader, program).Layout : null,
+            streams: own.Streams, inputs: hasVertex ? ShaderProgram.InputLocationSet(vertex!) : null, named: hasVertex ? program.VertexInputs : [],
+            shaderName: program.Name, feed: own.Feed, positions: own.Positions, clamp: clamp);
     }
 
     // A batch's mesh and instances for a shadow or a depth, with the streams and CUSTOM0 a program's
@@ -239,7 +249,7 @@ internal sealed partial class ModelRenderer
             if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var own = _ownShadows[i];
-            var pipeline = own?.Pipeline ?? ShadowPipeline(batch);
+            var pipeline = ShadowPipeline(batch, own, clamp: false);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -265,17 +275,17 @@ internal sealed partial class ModelRenderer
         var calls = 0;
         var (ring, offset) = (view.Ring!, view.Offset);
         var push = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in lightViewProjection));
-        pass.SetPipeline(_shadowPipeline!);
-        pass.PushConstants(_shadowPipeline!, ShaderStageFlags.Vertex, 0, push);
-        IPipeline bound = _shadowPipeline!;
-        var frustum = new Frustum(lightViewProjection, depth: true);
+        IPipeline? bound = null;
+        // A caster before the light's near plane is drawn onto it where the device clamps depth.
+        var clamp = _shadowMaking!.Value.Device.CanClampDepth;
+        var frustum = new Frustum(lightViewProjection, depth: true, clipsNear: !clamp);
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
         for (int i = 0; i < batches.Length; i++)
         {
             ref readonly var batch = ref batches[i];
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var own = _ownShadows[i];
-            var pipeline = own?.Pipeline ?? ShadowPipeline(batch);
+            var pipeline = ShadowPipeline(batch, own, clamp);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);

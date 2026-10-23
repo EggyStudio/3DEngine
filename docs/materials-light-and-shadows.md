@@ -333,14 +333,15 @@ intensity 1 lights white as white, and a lamp is brighter near it and dimmer awa
 
 A light made with `castsShadows: true`, or turned on later with `SetLightCastsShadows`, darkens what
 other models hide from it. The first directional light that casts shadows casts the sun's, out to
-150 units from the camera and sharpest near it. `SetShadowDistance` brings that in for a small
-scene, which sharpens it, or out for a wide one. Ten spot lights and twelve point lights that cast
-shadows cast theirs too, a point light's all around it, those a camera sees first, the window's or a
-render texture's, and then those whose light reaches a camera brightest, weighed by how much of its
-picture each lights, so a level of a dozen torches shadows each and a lamp lighting a wall across
-the view keeps its shadows over a brighter one lighting a corner. The ones that matter most get the
-sharpest shadows. Past four, the first two spot lights and the first four point lights keep their
-texels, and the rest share theirs at half the width.
+150 units from the camera and sharpest near it, and a low sun's long shadows are cast whole, a tree
+at the far end of the field shadowing the ground at the camera's feet. `SetShadowDistance` brings
+that in for a small scene, which sharpens it, or out for a wide one. Ten spot lights and twelve
+point lights that cast shadows cast theirs too, a point light's all around it, those a camera sees
+first, the window's or a render texture's, and then those whose light reaches a camera brightest,
+weighed by how much of its picture each lights, so a level of a dozen torches shadows each and a
+lamp lighting a wall across the view keeps its shadows over a brighter one lighting a corner. The
+ones that matter most get the sharpest shadows. Past four, the first two spot lights and the first
+four point lights keep their texels, and the rest share theirs at half the width.
 
 A render texture that draws models through a camera of its own, as each half of a split screen,
 has the sun's cascades fitted to its camera, and views whose cameras are near enough share one set

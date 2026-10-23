@@ -13,6 +13,13 @@ internal sealed unsafe partial class GraphicsDevice
     public bool CanDrawPoints { get; private set; }
 
     /// <summary>
+    /// Whether a pipeline can clamp depths onto its near and far planes rather than clip them
+    /// (<see cref="GraphicsPipelineDesc.DepthClamp"/>), which every desktop driver, lavapipe and
+    /// MoltenVK can.
+    /// </summary>
+    public bool CanClampDepth { get; private set; }
+
+    /// <summary>
     /// Whether lines are drawn by the diamond rule OpenGL draws raylib's lines by, which needs a line
     /// rasterization extension with its bresenhamLines.
     /// </summary>
@@ -94,6 +101,9 @@ internal sealed unsafe partial class GraphicsDevice
         CanDrawPoints = supported.fillModeNonSolid;
         // Each image of a target of several masked apart, which every desktop driver and lavapipe have.
         CanBlendEachAttachment = supported.independentBlend;
+        // Depths clamped rather than clipped, which a shadow map's pipelines take, on every desktop
+        // driver, lavapipe and MoltenVK.
+        CanClampDepth = supported.depthClamp;
         VkPhysicalDeviceFeatures features = new()
         {
             samplerAnisotropy = true,
@@ -101,6 +111,7 @@ internal sealed unsafe partial class GraphicsDevice
             shaderStorageImageWriteWithoutFormat = CanWriteImages,
             fillModeNonSolid = CanDrawPoints,
             independentBlend = CanBlendEachAttachment,
+            depthClamp = CanClampDepth,
         };
 
         // A shader reading SV_InstanceID counts from the draw's first instance, which Slang reads
