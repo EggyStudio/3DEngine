@@ -43,6 +43,9 @@ internal enum CompareOp
 /// <param name="Solid">Whether the fragment stage's specialization constant 0 is set, which the
 /// model pass's shaders read as a material that cuts nothing out, so their alpha test folds away
 /// and the device's early depth test rejects a hidden fragment before it is shaded.</param>
+/// <param name="DrawsBacks">Whether the pipeline draws faces' backs, culling none or the front
+/// ones, which the fragment stage's specialization constant 1 says, so the model pass turns a normal
+/// that faces away from the eye toward it only where a back can be what is drawn.</param>
 /// <param name="DepthClamp">Whether a depth before the near plane or past the far one is clamped onto
 /// it rather than clipped, where the device can, so a shadow map holds a caster nearer the light than
 /// its near plane.</param>
@@ -65,7 +68,8 @@ internal readonly record struct GraphicsPipelineDesc(
     bool Points = false,
     BlendFactors Factors = default,
     bool Solid = false,
-    bool DepthClamp = false);
+    bool DepthClamp = false,
+    bool DrawsBacks = false);
 
 /// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
 internal enum CullMode

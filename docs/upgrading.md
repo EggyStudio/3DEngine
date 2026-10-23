@@ -311,6 +311,11 @@ guide that shows it, as far as the surface had come before it began to change wi
   by the color `GetPrototypeColor` gives a part of a level, a floor, a wall or the stairs, which a
   model built from an edit mesh draws each slot of that name with, as [Grid
   prototyping](modeling.md#grid-prototyping) shows.
+- **A program's light sample keeps its normal.** `lit` and `litLight` turn a normal that faces
+  away from the eye toward it only on a double-sided material, whose backs are drawn, so a shader
+  that hands them an input of its own on a single-sided one, a normal turned up above the eye's
+  height, is lit by that normal, where it was lit as a face turned down before, as
+  [A shader for a model](shaders-and-compute.md#a-shader-for-a-model) shows.
 - **Modeling.** An `EditMesh`, made by `LoadEditMesh`, `LoadEditMeshFromMemory` or from a `.model`
   file and freed by `UnloadEditMesh`, is shaped from the primitives `EditMeshBox`, `EditMeshPlane`,
   `EditMeshCylinder`, `EditMeshCone`, `EditMeshWedge`, `EditMeshStairs` and `EditMeshArch`, through

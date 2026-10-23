@@ -133,11 +133,16 @@ internal sealed unsafe partial class GraphicsDevice
             module = vs.Module,
             pName = entryName
         };
-        // Constant 0 of the fragment stage, set for a material that cuts nothing out. A stage that
-        // declares no such constant ignores it.
-        uint solid = 1;
-        var solidEntry = new VkSpecializationMapEntry { constantID = 0, offset = 0, size = sizeof(uint) };
-        var solidInfo = new VkSpecializationInfo { mapEntryCount = 1, pMapEntries = &solidEntry, dataSize = sizeof(uint), pData = &solid };
+        // Constants 0 and 1 of the fragment stage, the first set for a material that cuts nothing
+        // out and the second for a pipeline that draws faces' backs. A stage that declares neither
+        // ignores them.
+        var constants = stackalloc uint[] { desc.Solid ? 1u : 0u, desc.DrawsBacks ? 1u : 0u };
+        var constantEntries = stackalloc VkSpecializationMapEntry[]
+        {
+            new() { constantID = 0, offset = 0, size = sizeof(uint) },
+            new() { constantID = 1, offset = sizeof(uint), size = sizeof(uint) },
+        };
+        var constantInfo = new VkSpecializationInfo { mapEntryCount = 2, pMapEntries = constantEntries, dataSize = 2 * sizeof(uint), pData = constants };
         // A pipeline with no fragment stage writes depth only.
         if (fs is not null)
             stages[1] = new VkPipelineShaderStageCreateInfo
@@ -145,7 +150,7 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = VkShaderStageFlags.Fragment,
                 module = fs.Module,
                 pName = entryName,
-                pSpecializationInfo = desc.Solid ? &solidInfo : null
+                pSpecializationInfo = &constantInfo
             };
 
         // The vertex input, from the bindings and attributes given when there are any.

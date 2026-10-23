@@ -167,6 +167,12 @@ SetShaderValue(toon, viewer, camera.Position);
 `lit` returns a color ready for the screen. A shader that works on the light itself, as this one
 does, encodes its result with `toDisplay`.
 
+`lit` lights the input by the normal it holds, so a shader may sample the light some other face
+would take by handing it an input of its own, such as one with its normal turned up for the light
+a face turned to the sky takes, wherever the point lies. On a double-sided material alone, whose
+backs are drawn, a normal facing away from the eye is turned toward it first, so a back is lit as
+its front, a sample's normal with it.
+
 ## Moving vertices
 
 A model shader may have a vertex stage of its own, which takes the mesh's position, normal and

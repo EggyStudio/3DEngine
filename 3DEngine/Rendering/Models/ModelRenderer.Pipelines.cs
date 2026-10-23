@@ -369,7 +369,8 @@ internal sealed partial class ModelRenderer
             DepthTestEnabled: true,
             DepthWriteEnabled: depth,
             DepthCompareOp: CompareOp.LessOrEqual,
-            DepthClamp: clamp);
+            DepthClamp: clamp,
+            DrawsBacks: cull != CullMode.Back);
 
         return renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)

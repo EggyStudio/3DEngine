@@ -398,6 +398,12 @@ public float4 baseColor(ModelStreamsOutput input)
 [vk::constant_id(0)]
 public const bool solidMaterial = false;
 
+// Set by a pipeline that draws faces' backs, a double-sided material's, a pass that culls nothing
+// and an outline drawn from inside, where surfaceNormal turns a normal facing away from the eye
+// toward it. True unless set, as a pass that sets nothing turned it before.
+[vk::constant_id(1)]
+public const bool drawsBacks = true;
+
 // The color as the material's alpha mode means it. Alpha is ignored for an opaque material, cut
 // out below the cutoff for a masked one and solid above it, and kept for a blended one, whose
 // clear parts are cut out so they leave the depth buffer alone. The mode rides in the
@@ -428,8 +434,10 @@ public float3 surfaceNormal(ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
     // The back of a double-sided face is lit as its front, by the normal turned toward the viewer,
-    // as glTF has it. A single-sided face's back is never drawn.
-    if (dot(n, input.toEye) < 0.0)
+    // as glTF has it, in a pipeline that draws backs alone. A single-sided face's back is never
+    // drawn, so a normal there is left as it was given, as a shader's sample of the light a face
+    // turned up takes keeps its normal above the eye's height.
+    if (drawsBacks && dot(n, input.toEye) < 0.0)
         n = -n;
     float strength = materialNormalScale(input);
     if (strength <= 0.0)
