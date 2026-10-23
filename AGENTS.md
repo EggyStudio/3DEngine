@@ -82,6 +82,7 @@ pushed.
 | `3DEngine/Assets` | `AssetServer`, handles, textures (StbImageSharp), models (Assimp), materials |
 | `3DEngine/Scenes` | The scene model a reader produces, and the spawner that turns it into entities |
 | `3DEngine/Physics` | Rigid bodies over BepuPhysics |
+| `3DEngine/Modeling` | The edit meshes the flat API shapes by operations, and their store |
 | `3DEngine/Shaders` | Built-in Slang shaders, staged under `source/shaders` beside every program |
 | `build/` | `fetch-slang.sh`, and the compiler it downloads under `tools/` |
 | `3DEngine.Generator` | The behavior and command source generators. The engine also compiles the behavior one in for scripts |

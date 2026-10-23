@@ -1438,6 +1438,97 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 `Save`), on the parameters the game sets with `machine.Set("speed", 2f)` and
 `machine.Trigger("jump")`.
 
+## Modeling
+
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs -->
+```csharp
+EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
+                                                         // then shape
+void UnloadEditMesh(EditMesh mesh);                      // Frees an edit mesh
+bool IsEditMeshValid(EditMesh mesh);                     // Whether mesh names an edit mesh that is loaded
+EditMeshInfo GetEditMeshInfo(EditMesh mesh);             // The mesh's counts of vertices, edges and faces, its open
+                                                         // edges, its selection, its volume, its bounds and its grid
+                                                         // step
+Vector3 GetEditMeshVertex(EditMesh mesh, int vertex);    // Where a vertex of the mesh is, by its index from zero
+int[] GetEditMeshFace(EditMesh mesh, int face);          // A face's vertices, by the face's index from zero, in order
+                                                         // round it, counterclockwise seen from the side it faces
+Vector3 GetEditMeshFaceNormal(EditMesh mesh, int face);  // The way a face faces, a length of one, or zero for a face
+                                                         // with no area
+string GetEditMeshFaceSlot(EditMesh mesh, int face);     // The name of the material slot a face is in
+string[] GetEditMeshSlots(EditMesh mesh);                // The names of the mesh's material slots, the first of which,
+                                                         // default, every new face takes
+bool IsEditMeshFaceSelected(EditMesh mesh, int face);    // Whether a face of the mesh is selected
+bool IsEditMeshVertexSelected(EditMesh mesh, int vertex); // Whether a vertex of the mesh is selected
+
+void EditMeshBox(EditMesh mesh, Vector3 size, Vector3 at = default, bool centered = false); // Adds a box as wide along
+                                                                                            // X, tall along Y and deep
+                                                                                            // along Z as size, eight
+                                                                                            // vertices and six faces
+void EditMeshPlane(EditMesh mesh, float width, float depth, Vector3 at = default, bool centered = false);
+                                                         // Adds a flat rectangle facing up, as wide along X and deep
+                                                         // along Z as given, one face whose four edges are open
+void EditMeshCylinder(EditMesh mesh, float radius, float height, int sides, Vector3 at = default, bool centered = false);
+                                                         // Adds a cylinder standing along Y, its round side made of
+                                                         // flat sides
+void EditMeshCone(EditMesh mesh, float radius, float height, int sides, Vector3 at = default, bool centered = false);
+                                                         // Adds a cone standing along Y on a base of flat sides, its
+                                                         // point over the middle of the base
+void EditMeshWedge(EditMesh mesh, Vector3 size, Vector3 at = default, bool centered = false);
+                                                         // Adds a wedge, a box cut from one bottom edge to the opposite
+                                                         // top edge, rising along Z from nothing to its full height
+void EditMeshStairs(EditMesh mesh, int steps, float rise, float run, float width, Vector3 at = default, bool centered = false);
+                                                         // Adds a flight of stairs rising along Z, each step rise high
+                                                         // and run deep, closed underneath
+void EditMeshArch(EditMesh mesh, float radius, float thickness, float depth, int sides, Vector3 at = default, bool centered = false);
+                                                         // Adds an arch, half a ring standing on its two feet with its
+                                                         // opening along Z, its curve made of flat sides
+void EditMeshClear(EditMesh mesh);                       // Takes away every vertex, face and material slot but the
+                                                         // first, and the selection with them
+
+void EditMeshSelectAll(EditMesh mesh);                   // Selects every vertex and every face
+void EditMeshSelectNone(EditMesh mesh);                  // Selects nothing
+void EditMeshSelectInvert(EditMesh mesh);                // Selects what was not selected and leaves what was, faces
+                                                         // with their corners
+void EditMeshSelectFaces(EditMesh mesh, ReadOnlySpan<int> faces, SelectionMode mode = SelectionMode.Replace);
+                                                         // Selects faces by their indices from zero
+void EditMeshSelectFacing(EditMesh mesh, Vector3 direction, SelectionMode mode = SelectionMode.Replace);
+                                                         // Selects the faces whose normals are nearest one way along an
+                                                         // axis, so Vector3.UnitY selects the floors
+void EditMeshSelectInside(EditMesh mesh, Vector3 corner, Vector3 opposite, SelectionMode mode = SelectionMode.Replace);
+                                                         // Selects the vertices inside a box given by two opposite
+                                                         // corners, and the faces all of whose corners are inside it
+void EditMeshSelectSlot(EditMesh mesh, string slot, SelectionMode mode = SelectionMode.Replace);
+                                                         // Selects the faces in a material slot, a name no slot has
+                                                         // selecting none
+
+void EditMeshMove(EditMesh mesh, Vector3 by);            // Moves the selected vertices by a distance along each axis,
+                                                         // in meters
+void EditMeshRotate(EditMesh mesh, Vector3 axis, float degrees, Vector3? pivot = null); // Turns the selected vertices
+                                                                                        // about an axis by a number of
+                                                                                        // degrees, through a pivot or
+                                                                                        // the middle of the box holding
+                                                                                        // them
+void EditMeshScale(EditMesh mesh, Vector3 factor, Vector3? pivot = null); // Scales the selected vertices by a factor
+                                                                          // along each axis, about a pivot or the
+                                                                          // middle of the box holding them
+void EditMeshGrid(EditMesh mesh, float step);            // Sets the mesh's grid step, a meter or a power of two of it
+                                                         // from a sixteenth to sixty-four, which EditMeshSnap rounds to
+void EditMeshSnap(EditMesh mesh);                        // Puts each selected vertex on the nearest point of the mesh's
+                                                         // grid
+void EditMeshMaterial(EditMesh mesh, string slot);       // Puts the selected faces in a material slot of that name,
+                                                         // made where the mesh has none
+void EditMeshShade(EditMesh mesh, bool smooth, float degrees = 30f); // Smooths the selected faces into one another
+                                                                     // where two meet at under an angle in degrees, or
+                                                                     // draws them flat, so a cylinder's sides are round
+                                                                     // and its ends stay flat
+```
+
+An `EditMesh` is a polygon mesh of faces of any count, shaped by primitives and by operations on
+its selection, each of which writes its line to the mesh's recipe. `GetEditMeshInfo` reads its
+counts, its selection, its volume and its bounds as an `EditMeshInfo`, whose `IsClosed` says
+whether every edge is shared by two faces running along it in opposite directions. A selection
+takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`.
+
 ## States
 
 <!-- written by build/cheatsheet.sh from E3D.States.cs -->

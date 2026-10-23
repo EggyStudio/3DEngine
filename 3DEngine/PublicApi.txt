@@ -713,6 +713,8 @@ static class Engine.E3D
   static Color GetImageColor(Image image, int x, int y)
   static Color[] LoadImageColors(Image image)
   static Color[] LoadImagePalette(Image image, int maxPaletteSize)
+  static EditMesh LoadEditMesh()
+  static EditMeshInfo GetEditMeshInfo(EditMesh mesh)
   static Font GetFontDefault()
   static Font GetFontDefault(int size)
   static Font LoadFont(string fileName)
@@ -874,6 +876,8 @@ static class Engine.E3D
   static Vector3 GetCameraForward(Camera3D camera)
   static Vector3 GetCameraRight(Camera3D camera)
   static Vector3 GetCameraUp(Camera3D camera)
+  static Vector3 GetEditMeshFaceNormal(EditMesh mesh, int face)
+  static Vector3 GetEditMeshVertex(EditMesh mesh, int vertex)
   static Vector3 GetGamepadAccelerometer(int gamepad)
   static Vector3 GetGamepadGyro(int gamepad)
   static Vector3 GetPhysicsBodyAngularVelocity(PhysicsBody body)
@@ -925,6 +929,9 @@ static class Engine.E3D
   static bool IsAudioStreamValid(AudioStream stream)
   static bool IsCursorHidden()
   static bool IsCursorOnScreen()
+  static bool IsEditMeshFaceSelected(EditMesh mesh, int face)
+  static bool IsEditMeshValid(EditMesh mesh)
+  static bool IsEditMeshVertexSelected(EditMesh mesh, int vertex)
   static bool IsFileDropped()
   static bool IsFontValid(Font font)
   static bool IsFxaaEnabled()
@@ -1042,16 +1049,19 @@ static class Engine.E3D
   static int GetTouchY()
   static int MeasureText(string text, int fontSize)
   static int SetGamepadMappings(string mappings)
+  static int[] GetEditMeshFace(EditMesh mesh, int face)
   static int[] LoadCodepoints(string text)
   static int[] LoadRandomSequence(int count, int min, int max)
   static nint GetImGuiTextureId(Texture2D texture)
   static nint GetWindowHandle()
   static string GetApplicationDirectory()
   static string GetClipboardText()
+  static string GetEditMeshFaceSlot(EditMesh mesh, int face)
   static string GetGamepadName(int gamepad)
   static string GetKeyName(Key key)
   static string GetMonitorName(int monitor)
   static string? LoadFileText(string fileName)
+  static string[] GetEditMeshSlots(EditMesh mesh)
   static string[] LoadDroppedFiles()
   static uint ComputeCRC32(ReadOnlySpan<byte> data)
   static void AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
@@ -1193,6 +1203,28 @@ static class Engine.E3D
   static void DrawTriangleLinesEx(Vector2 v1, Vector2 v2, Vector2 v3, float thick, Color color)
   static void DrawTriangleStrip(ReadOnlySpan<Vector2> points, Color color)
   static void DrawTriangleStrip3D(ReadOnlySpan<Vector3> points, Color color)
+  static void EditMeshArch(EditMesh mesh, float radius, float thickness, float depth, int sides, Vector3 at = default, bool centered = false)
+  static void EditMeshBox(EditMesh mesh, Vector3 size, Vector3 at = default, bool centered = false)
+  static void EditMeshClear(EditMesh mesh)
+  static void EditMeshCone(EditMesh mesh, float radius, float height, int sides, Vector3 at = default, bool centered = false)
+  static void EditMeshCylinder(EditMesh mesh, float radius, float height, int sides, Vector3 at = default, bool centered = false)
+  static void EditMeshGrid(EditMesh mesh, float step)
+  static void EditMeshMaterial(EditMesh mesh, string slot)
+  static void EditMeshMove(EditMesh mesh, Vector3 by)
+  static void EditMeshPlane(EditMesh mesh, float width, float depth, Vector3 at = default, bool centered = false)
+  static void EditMeshRotate(EditMesh mesh, Vector3 axis, float degrees, Vector3? pivot = null)
+  static void EditMeshScale(EditMesh mesh, Vector3 factor, Vector3? pivot = null)
+  static void EditMeshSelectAll(EditMesh mesh)
+  static void EditMeshSelectFaces(EditMesh mesh, ReadOnlySpan<int> faces, SelectionMode mode = SelectionMode.Replace)
+  static void EditMeshSelectFacing(EditMesh mesh, Vector3 direction, SelectionMode mode = SelectionMode.Replace)
+  static void EditMeshSelectInside(EditMesh mesh, Vector3 corner, Vector3 opposite, SelectionMode mode = SelectionMode.Replace)
+  static void EditMeshSelectInvert(EditMesh mesh)
+  static void EditMeshSelectNone(EditMesh mesh)
+  static void EditMeshSelectSlot(EditMesh mesh, string slot, SelectionMode mode = SelectionMode.Replace)
+  static void EditMeshShade(EditMesh mesh, bool smooth, float degrees = 30f)
+  static void EditMeshSnap(EditMesh mesh)
+  static void EditMeshStairs(EditMesh mesh, int steps, float rise, float run, float width, Vector3 at = default, bool centered = false)
+  static void EditMeshWedge(EditMesh mesh, Vector3 size, Vector3 at = default, bool centered = false)
   static void EmitParticles(ParticleEmitterHandle emitter, int count)
   static void EnableCursor()
   static void EnableEventWaiting()
@@ -1421,6 +1453,7 @@ static class Engine.E3D
   static void UnloadAudioStream(AudioStream stream)
   static void UnloadAutomationEventList(AutomationEventList list)
   static void UnloadDroppedFiles()
+  static void UnloadEditMesh(EditMesh mesh)
   static void UnloadEnvironmentMap()
   static void UnloadFont(Font font)
   static void UnloadImage(Image image)
@@ -1711,6 +1744,37 @@ readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>
 struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
   EcsWorld.RefComponents<T1, T2, T3> Current { get; }
   bool MoveNext()
+readonly struct Engine.EditMesh : IEquatable<EditMesh>
+  EditMesh(int Id)
+  bool Equals(EditMesh other)
+  bool IsValid { get; }
+  int Id { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(EditMesh left, EditMesh right)
+  static bool op_Inequality(EditMesh left, EditMesh right)
+  void Deconstruct(out int Id)
+readonly struct Engine.EditMeshInfo : IEquatable<EditMeshInfo>
+  BoundingBox Bounds { get; init; }
+  EditMeshInfo(int VertexCount, int EdgeCount, int FaceCount, int OpenEdges, int SelectedVertexCount, int SelectedEdgeCount, int SelectedFaceCount, float Volume, BoundingBox Bounds, float GridStep)
+  bool Equals(EditMeshInfo other)
+  bool IsClosed { get; }
+  float GridStep { get; init; }
+  float Volume { get; init; }
+  int EdgeCount { get; init; }
+  int FaceCount { get; init; }
+  int OpenEdges { get; init; }
+  int SelectedEdgeCount { get; init; }
+  int SelectedFaceCount { get; init; }
+  int SelectedVertexCount { get; init; }
+  int VertexCount { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(EditMeshInfo left, EditMeshInfo right)
+  static bool op_Inequality(EditMeshInfo left, EditMeshInfo right)
+  void Deconstruct(out int VertexCount, out int EdgeCount, out int FaceCount, out int OpenEdges, out int SelectedVertexCount, out int SelectedEdgeCount, out int SelectedFaceCount, out float Volume, out BoundingBox Bounds, out float GridStep)
 readonly struct Engine.Entity : IEquatable<Entity>
   Entity(int Index, int Generation)
   bool Equals(Entity other)
@@ -3082,6 +3146,10 @@ sealed class Engine.Schedule
   Schedule()
   int TotalSystemCount { get; }
   void Run(World world)
+enum Engine.SelectionMode : int
+  Add = 1
+  Remove = 2
+  Replace = 0
 readonly struct Engine.Shader : IEquatable<Shader>
   Shader(int Id)
   bool Equals(Shader other)
