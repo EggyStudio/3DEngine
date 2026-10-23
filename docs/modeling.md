@@ -742,9 +742,11 @@ face a ray meets first and where, for a program's own tools.
   primitives each built into a model,
   [`models_edit_mesh_cuts`](../3DEngine.Examples/Models/ModelsEditMeshCuts.cs), a box beveled, inset
   and loop cut, [`models_edit_mesh_modifiers`](../3DEngine.Examples/Models/ModelsEditMeshModifiers.cs),
-  a box built through a bevel and a subdivision modifier, and
+  a box built through a bevel and a subdivision modifier,
   [`models_edit_mesh_room`](../3DEngine.Examples/Models/ModelsEditMeshRoom.cs), a room with a window,
-  a door and a stair blocked out in prototype materials
+  a door and a stair blocked out in prototype materials, and
+  [`models_edit_mesh_looks`](../3DEngine.Examples/Models/ModelsEditMeshLooks.cs), a room whose slots
+  are given brick walls and a floor of planks
 - [Models and animation](models-and-animation.md), for drawing a model and its materials, and
   [Physics](physics.md), for the bodies a built model collides as
 - [The command line](command-line.md), for `./e3d` and the console's other commands

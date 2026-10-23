@@ -10,29 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b12133f6`, the cherry-picks of item 61's two commits from the cloud session's
-branch, `5f1e0f6e` and `b12133f6` for `0e9d7213` and `80605793` with their stats matching, the
-owner's identity, and nothing else, the review's files uncommitted in the local coder's tree. Read
-at 21:46 on 2026-10-23. Not pushed: the build run 40012951798 of `a0e5964e` is still running, and
-the two heads are pushed when it ends. Next then item 85 with the window's pixel tests and the room
-taken again if the door's fix changes it, then 82, the rest of 71 with the blotches first, 72, 74,
-75, 76, 77, then 63, the pixel tests of 78 at its cherry-pick; item 78 is the cloud session's from
-21:58. At 19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and
-accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder
-as the first part of item 83's batch with their authors reset, the example and the capture taken. At
-21:36 the owner dropped the upgrading page's rule for names gained and lost, item 85 and Decision
-64, so the eleven heads need no longer wait for the entries' commit and are pushed with the room's
-capture when it is in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`,
-was read and accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63,
-Blockout, the local coder's once 62 is on main.
+Reviewed up to `5a4028d9`, the cherry-pick of item 62's `de536483` with the owner's identity, its
+listing and cheat sheet written again by their scripts over item 86's one-liners, after `e8d52f80`,
+item 86, and the four before, and nothing else, the review's files uncommitted in the local coder's
+tree. Read at 22:19 on 2026-10-23. Not pushed: the build run 40012951798 of `a0e5964e` is still
+running, and the six heads are pushed when it ends. Next item 62's capture, then 87, 82, the rest of
+71 with the blotches first, 72, 74, 75, 77, then 63, the pixel tests of 78 and the lavapipe test of
+76 at their cherry-picks; item 78 was the cloud session's from 21:58 and is whole on its branch, and
+item 76 is its from 22:23. At 19:59 the cloud session's first commit of item 59, `a066610d` on its
+branch, was read and accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in
+order by the local coder as the first part of item 83's batch with their authors reset, the example
+and the capture taken. At 21:36 the owner dropped the upgrading page's rule for names gained and
+lost, item 85 and Decision 64, so the eleven heads need no longer wait for the entries' commit and
+are pushed with the room's capture when it is in or before it. At 21:57 the cloud session's item 62,
+`de53648` on `modeling`, was read and accepted, the modeling items 59 to 62 and 64 to 66 all written
+there and item 63, Blockout, the local coder's once 62 is on main.
 
-Before it, `a0e5964e` came, the cherry-pick of item 60's door fix after `1093ae32`, the room's
-capture, and the eleven before, thirteen commits, every author the owner's. Pushed at 21:38 on
-2026-10-23.
+Before it, `e8d52f80` came, item 86, with item 85, the window's pixel tests and item 61's two
+cherry-picks, read at 22:05 on 2026-10-23 and held for the build run of `a0e5964e`.
 
-Before it, `52e67199` came, the cherry-picks of items 66 and 60 and the captures of 64 and 65, after
-item 83's batch, read at 21:17 on 2026-10-23 and held for the build run of `4c3f01ef` and the
-entries' commit.
+Before it, `b12133f6` came, the cherry-picks of item 61's two commits, read at 21:46 on 2026-10-23
+and held for the build run of `a0e5964e`.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -838,7 +836,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     wall, sloping up from where floor meets wall, a test failing before and passing after, the docs
     saying a door goes down to the ground outside and steps up to the floor inside; cherry-picked
     after the room's capture. Capture done at `1093ae32`, the example models_edit_mesh_room; item 60
-    done but for the door's fix `bc9e23a5` to cherry-pick.
+    done but for the door's fix `bc9e23a5` to cherry-pick. The room's capture taken again at
+    `e4e808dd` after the door's fix; item 60 done.
 
 61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
     to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
@@ -882,7 +881,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     headless frames through the console's synthetic input, 1,626 passed on the null device, 21
     blocks on a local pack; the outlines' pixel tests fall to the local coder. The item's code is
     whole on the branch. On main as `5f1e0f6e` and `b12133f6`, unpushed; the window's pixel tests to
-    come in the local coder's next commit.
+    come in the local coder's next commit. The outlines' pixel tests at `e4e808dd`; item 61 done.
 
 62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
     processing and adding textures to surfaces. The selection's texture coordinates by projection,
@@ -910,7 +909,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sections, the guide's sections; 19 tests, 1,645 passed on the null device, 23 blocks on a local
     pack. Departures taken, the import not taking a file's textures into looks; the capture of a
     room with a brick wall and a wooden floor falls to the local coder, with textures added to the
-    examples' resources or made by GenImage first.
+    examples' resources or made by GenImage first. On main as `5a4028d9`, unpushed; the textured
+    room's capture to come.
 
 63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
     otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
@@ -1145,7 +1145,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     frame's, through the same capture `shot` takes, the answer a line a script reads. The catalog's
     row in the e3d guide, and the drive's guide paragraph on asserting a picture. Tests: a frame of
     a known clear color read back as it, a frame of two halves giving the step at the middle, on the
-    null device and on lavapipe. One commit, small, after item 75.
+    null device and on lavapipe. One commit, small, after item 75. Given at 22:23 on 2026-10-23 to
+    the cloud session on `modeling`, its item 78 being whole: the command, the rectangle's reading,
+    the mean and the largest step and the null device's test there; the lavapipe test falls to the
+    local coder at the cherry-pick.
 
 77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
     and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
@@ -1217,7 +1220,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and lines, the strip, the profiler's timings and the sections' registration, with BevyCSharp's
     Ui.Hidden.cs and Debug.Overlay.cs as the model where the owner gave it that repository, the null
     device's tests there; the pixel tests of the hidden scope, the overlay and the strip and item
-    73's window folded away fall to the local coder at the cherry-pick.
+    73's window folded away fall to the local coder at the cherry-pick. First commit `ded39966` on
+    `modeling`, read at 22:19, the owner's identity, after a merge of main into the branch,
+    `f19b3593`, which took main's sixteen commits with the branch's files kept where both added them
+    and the listing and the cheat sheet written again, so the cherry-picks stand as they are:
+    `BeginUi()` returning false while hidden with the draw list rewound to where the scope opened,
+    scopes nesting, `EndUi()` refusing with none open, `IsUiHidden()`, the two key setters with
+    `Key.Null` for off, F1 on its press and F3 on its release with no other key down during its hold
+    and neither while ImGui takes text; the overlay a world resource writing its head, left and
+    right lines in BevyCSharp's words four times a second and drawn in a last-stage system before
+    the render with rectangles and text, the lines as the item has them with the CPU's name read per
+    system and the driver decoded by vendor; the performance window and its key gone,
+    DrawProfileWindow staying as a program's window, the debug keys' guide section; six headless
+    tests, 1,651 passed on the null device, 8 blocks on a local pack; the pixels fall to the local
+    coder. The strip, the profiler and the sections follow in the second commit. Second commit
+    `72b76de` on `modeling`, read at 22:23, the owner's identity: the strip of the last 240 frames'
+    times in a ring kept whether the overlay shows or not, a bar a frame green to 60 fps, yellow to
+    30 and red past with rows at 60 and 30, the line beside it of the current, the average and the
+    one percent low as BevyCSharp counts them and the GPU's time moved there; Shift held as F3 is
+    let go turning the profiler over with the overlay, the slowest 24 render graph nodes by GPU then
+    CPU from the profile's averages over the last second; `AddDebugOverlaySection(name, lines)` and
+    `RemoveDebugOverlaySection(name)` on the overlay resource, a section a gap, its name and its
+    lines in the order added, a throwing section saying its exception where its lines would be; the
+    guide's paragraphs with a compiled block, the cheat sheet and the listing; eleven tests, 1,656
+    passed on the null device, 9 blocks on a local pack. The item's code is whole on the branch; the
+    pixel tests of the overlay and the strip fall to the local coder at the cherry-pick of both
+    commits.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -1331,7 +1359,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Added section stands as it is with no duty to grow; the guides' and COMMITS.md's words on
     upgrading entries follow, and the norm's row if one names them. One commit, small, with the
     local coder's next batch; from this item the reviewer pushes a cherry-pick without waiting for
-    an entry commit.
+    an entry commit. Done at `a400a723` on 2026-10-23, UpgradingTests gone whole with the build's
+    fetch of the 5.1 commit.
 
 86. **The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).** The owner wrote
     at 21:39 on 2026-10-23 that the cheat sheets are to be coherent: 3DEngine's lines one-liners as
@@ -1340,7 +1369,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     so by build/cheatsheet.sh. The mend: the script writes the signature, two spaces, `//` and the
     first sentence on one line however long, no continuation, and the page is written again; the
     cheat sheet test holds the form, one member a line and every line with its comment. One commit,
-    small, with the local coder's next batch.
+    small, with the local coder's next batch. Done at `e8d52f80` on 2026-10-23, padded to column 57
+    or two spaces past a longer signature, the writer's test holding the form.
+
+87. **A headless app's draw list is cleared each frame.** Found by the cloud session under item 78
+    on 2026-10-23: the DrawList's clearing sits in RenderPlugin.Render, which a headless run does
+    not add, so a headless program that draws grows the list frame by frame for as long as it runs.
+    The mend: the list cleared at the frame's end wherever the render system is absent, by
+    EndDrawing or a system registered in its place, and a headless test drawing for a hundred frames
+    reading the list's counts still. One commit, small, after item 62's capture.
 
 ## Verdicts
 
