@@ -207,6 +207,35 @@ another where two meet at under the angle, thirty degrees where none is given, s
 are round and its ends stay flat, and `EditMeshShade(mesh, false)`, or `shade flat`, draws them
 flat.
 
+## Grid prototyping
+
+A level is blocked out in textures that show a meter and say by their color what each surface is
+for, as the dev textures of the engines of the 2000s did. `GenImageGrid(pixelsPerMeter, face,
+line, fine)` makes the image of one meter's cell, its edges a line and a finer line every tenth of
+a meter, beside `GenImageChecked`, and `GenImageGrid(1024)` the same in its default grays.
+
+`LoadMaterialPrototype(name)` is the grid tinted by the color of a part of a level, the names
+`floor`, `wall`, `ceiling`, `stairs`, `door`, `window` and `hazard` each a color of its own
+(`GetPrototypeColor`) and any other name the grid's gray, and `LoadMaterialPrototype(color)` the
+grid tinted by any color. The materials share one texture of 1024 pixels a meter with its mip
+levels, repeating and filtered along a slanted surface so its lines stay sharp down a corridor,
+which `CloseWindow` frees, so a prototype material is not unloaded by the program.
+
+A model built from an edit mesh draws each slot with the prototype material of the slot's name, so
+faces put in the slots `floor` and `wall` read as a floor and walls with no material set. A face's
+texture coordinates are its corners' places in meters seen along the axis its normal is nearest, so
+the grid shows a meter on every face, a face two meters wide spanning two cells, and carries on
+across faces meeting along a line:
+
+```csharp
+var cell = LoadEditMesh();
+EditMeshBox(cell, new Vector3(6, 3, 6));
+EditMeshMaterial(cell, "wall");
+EditMeshSelectFacing(cell, -Vector3.UnitY);
+EditMeshMaterial(cell, "floor");
+var model = LoadModelFromEditMesh(cell);    // the walls a pale warm gray, the floor a gray
+```
+
 ## Extrude and inset
 
 `EditMeshExtrude(mesh, distance)`, or `extrude 1`, pushes the selected faces out along their
@@ -386,7 +415,8 @@ undo after an apply brings the modifier back.
 `EditMeshJoin(mesh, "models/pillar.model")`, or `join models/pillar.model`, adds the model a recipe's
 file makes and selects it, its faces keeping their slots by name. The recipe keeps the file's name
 rather than what it held, so a change to the pillar's model reaches every model that joins it the
-next time each is made. A model that joins itself is refused with a `FormatException`.
+next time each is made. A file that is missing, is not a model's recipe or joins itself leaves the
+mesh as it was and is answered with false and a warning naming it.
 
 ## The recipe
 
@@ -450,8 +480,9 @@ the recipe runs.
 
 ## Building a model
 
-`LoadModelFromEditMesh(mesh)` builds the mesh into a `Model`, a mesh and a white material for each
-material slot, which is drawn and given materials as any model is:
+`LoadModelFromEditMesh(mesh)` builds the mesh into a `Model`, a mesh for each material slot drawn
+with the prototype material of the slot's name, as [Grid prototyping](#grid-prototyping) shows,
+which is drawn and given materials as any model is:
 
 <!-- compiled with:
 var room = LoadEditMesh();

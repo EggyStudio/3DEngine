@@ -687,6 +687,7 @@ readonly struct Engine.DragStart : IEquatable<DragStart>, IPointerEvent
 static class Engine.E3D
   const int AnimationFps = 60
   const int MeshStreamBuffer = 9
+  const int PrototypePixelsPerMeter = 1024
   static (bool, float, float, float) GetAutoExposure()
   static (float, Color) GetEnvironmentLight()
   static (float, bool) GetMotionBlur()
@@ -711,6 +712,7 @@ static class Engine.E3D
   static Color Fade(Color color, float alpha)
   static Color GetColor(uint hexValue)
   static Color GetImageColor(Image image, int x, int y)
+  static Color GetPrototypeColor(string name)
   static Color[] LoadImageColors(Image image)
   static Color[] LoadImagePalette(Image image, int maxPaletteSize)
   static EditMesh LoadEditMesh()
@@ -738,6 +740,8 @@ static class Engine.E3D
   static Image GenImageGradientLinear(int width, int height, int direction, Color start, Color end)
   static Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer)
   static Image GenImageGradientSquare(int width, int height, float density, Color inner, Color outer)
+  static Image GenImageGrid(int pixelsPerMeter)
+  static Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine)
   static Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale)
   static Image GenImageText(int width, int height, string text)
   static Image GenImageWhiteNoise(int width, int height, float factor)
@@ -772,6 +776,8 @@ static class Engine.E3D
   static Model LoadModelFromMesh(ModelMesh mesh)
   static ModelAnimation[] LoadModelAnimations(string fileName)
   static ModelMaterial LoadMaterialDefault()
+  static ModelMaterial LoadMaterialPrototype(Color color)
+  static ModelMaterial LoadMaterialPrototype(string name)
   static ModelMaterial[] LoadMaterials(string fileName)
   static ModelMesh GenMeshCone(float radius, float height, int slices)
   static ModelMesh GenMeshCube(float width, float height, float length)
@@ -922,6 +928,7 @@ static class Engine.E3D
   static bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2)
   static bool ColorIsEqual(Color col1, Color col2)
   static bool EditMeshImport(EditMesh mesh, string fileName)
+  static bool EditMeshJoin(EditMesh mesh, string fileName)
   static bool EditMeshRedo(EditMesh mesh)
   static bool EditMeshUndo(EditMesh mesh)
   static bool ExportAutomationEventList(AutomationEventList list, string fileName)
@@ -1231,7 +1238,6 @@ static class Engine.E3D
   static void EditMeshFlip(EditMesh mesh)
   static void EditMeshGrid(EditMesh mesh, float step)
   static void EditMeshInset(EditMesh mesh, float distance)
-  static void EditMeshJoin(EditMesh mesh, string fileName)
   static void EditMeshKnife(EditMesh mesh, Vector3 normal, Vector3 point = default)
   static void EditMeshLoopCut(EditMesh mesh, float fraction = 0.5f)
   static void EditMeshMaterial(EditMesh mesh, string slot)

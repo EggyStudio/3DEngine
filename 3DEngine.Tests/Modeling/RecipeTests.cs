@@ -153,7 +153,7 @@ public sealed class RecipeTests : IDisposable
 
         var hall = Kept(LoadEditMesh());
         EditMeshBox(hall, new Vector3(10, 3, 10));
-        EditMeshJoin(hall, pillarPath);
+        EditMeshJoin(hall, pillarPath).Should().BeTrue();
         EditMeshMove(hall, new Vector3(5, 0, 5));
 
         var info = GetEditMeshInfo(hall);
@@ -165,8 +165,9 @@ public sealed class RecipeTests : IDisposable
         // A model that joins itself is refused rather than read until the stack runs out.
         var loop = _folder.File("loop.model");
         File.WriteAllText(loop, $"model 1\nbox 1 1 1\njoin {loop}\n");
-        var joinsItself = () => EditMeshJoin(hall, loop);
-        joinsItself.Should().Throw<FormatException>();
+        EditMeshJoin(hall, loop).Should().BeFalse("a model reading itself is refused with a warning");
+        EditMeshJoin(hall, _folder.File("none.model")).Should().BeFalse("a missing file is refused with a warning");
+        GetEditMeshInfo(hall).FaceCount.Should().Be(6 + 10, "a join refused leaves the mesh as it was");
         IsEditMeshValid(LoadEditMesh(loop)).Should().BeFalse("its load is refused with a warning");
     }
 

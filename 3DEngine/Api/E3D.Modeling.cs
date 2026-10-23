@@ -339,18 +339,22 @@ public static partial class E3D
     /// reaches every model that joins it the next time each is made. The recipe's line is
     /// <c>join models/pillar.model</c>.
     /// </remarks>
-    /// <exception cref="FileNotFoundException">There is no such file.</exception>
-    /// <exception cref="FormatException">The file is not a model's recipe, or a model joins itself.</exception>
-    public static void EditMeshJoin(EditMesh mesh, string fileName)
+    /// <returns>
+    /// Whether the model was joined, a file that is missing, is not a model's recipe or joins itself
+    /// leaving the mesh as it was, with a warning naming it.
+    /// </returns>
+    public static bool EditMeshJoin(EditMesh mesh, string fileName)
     {
-        if (Edited(mesh, nameof(EditMeshJoin)) is not { } data) return;
+        if (Edited(mesh, nameof(EditMeshJoin)) is not { } data) return false;
         try
         {
             data.Join(fileName);
+            return true;
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException or InvalidOperationException)
         {
-            throw new FormatException(ex.Message, ex);
+            ApiLogger.Warn($"EditMeshJoin: '{fileName}' could not be joined to the edit mesh. {ex.Message}");
+            return false;
         }
     }
 
@@ -604,7 +608,7 @@ public static partial class E3D
 
     // -- Building a model to draw and collide with
 
-    /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>
+    /// <summary>Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with the prototype material of its slot's name.</summary>
     /// <remarks>
     /// <para>
     /// Each face is cut into triangles by ear clipping, so a concave face is cut inside its outline,
@@ -612,6 +616,12 @@ public static partial class E3D
     /// face's corners take the mean of the smoothed faces' normals round them within its angle.
     /// Texture coordinates are each corner's place in meters seen along the axis the face's normal
     /// is nearest, so a texture of a meter's grid shows a meter on every face.
+    /// </para>
+    /// <para>
+    /// A slot named <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>,
+    /// <c>window</c> or <c>hazard</c> shows the grid of a meter in that part's color
+    /// (<see cref="LoadMaterialPrototype(string)"/>), and any other the grid's own gray, so a level
+    /// blocked out reads by color. The materials are the program's to change, as any model's are.
     /// </para>
     /// <para>
     /// <c>CreatePhysicsStaticModel(model, position)</c> makes the collider from the built model. A
@@ -627,7 +637,7 @@ public static partial class E3D
         return new Model
         {
             Meshes = built.Select(slot => UploadMesh(slot.Vertices, slot.Indices)).ToArray(),
-            Materials = built.Select(_ => new ModelMaterial(Color.White)).ToArray(),
+            Materials = Enumerable.Range(0, built.Length).Select(slot => LoadMaterialPrototype(data.Slots[slot])).ToArray(),
             MeshMaterial = Enumerable.Range(0, built.Length).ToArray(),
         };
     }
@@ -636,7 +646,7 @@ public static partial class E3D
     /// <remarks>
     /// Each slot's mesh keeps its id and takes the new shape, so whatever draws it draws the change,
     /// and the materials the program gave the model stay with their slots. A slot added since gets a
-    /// mesh and a white material of its own, and the mesh of a slot taken away, as by
+    /// mesh and the prototype material of its name, and the mesh of a slot taken away, as by
     /// <see cref="EditMeshClear"/>, is freed. A body made from the model stays as it was made, so a
     /// collider follows the change by being made again.
     /// </remarks>
@@ -658,7 +668,7 @@ public static partial class E3D
             if (slot < model.MeshMaterial.Length && model.MeshMaterial[slot] < materials.Count) meshMaterial[slot] = model.MeshMaterial[slot];
             else
             {
-                materials.Add(new ModelMaterial(Color.White));
+                materials.Add(LoadMaterialPrototype(data.Slots[slot]));
                 meshMaterial[slot] = materials.Count - 1;
             }
         }

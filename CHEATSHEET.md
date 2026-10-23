@@ -802,6 +802,12 @@ Image GenImageText(int width, int height, string text);  // Makes a grayscale im
 Image GenImageColor(int width, int height, Color color); // Makes an image of one color
 Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second);
                                                          // Makes a checkerboard of squares checksX by checksY pixels
+Image GenImageGrid(int pixelsPerMeter);                  // Makes the image of one meter's cell of a grid, in its
+                                                         // default colors, a light gray face with darker lines
+Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine); // Makes the image of one meter's cell of a
+                                                                            // grid, its edges a line and a finer line
+                                                                            // every tenth of a meter, to tile faces
+                                                                            // whose texture coordinates are in meters
 Color GetImageColor(Image image, int x, int y);          // The color of one pixel
 Color[] LoadImageColors(Image image);                    // Every pixel of an image as a color, row by row from the top
                                                          // left
@@ -1440,7 +1446,7 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 
 ## Modeling
 
-<!-- written by build/cheatsheet.sh from E3D.Modeling.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Prototypes.cs -->
 ```csharp
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
                                                          // then shape
@@ -1557,7 +1563,7 @@ void EditMeshTriangulate(EditMesh mesh);                 // Cuts each selected f
                                                          // selected after
 void EditMeshDuplicate(EditMesh mesh);                   // Copies the selected faces where they are, with vertices of
                                                          // their own, and selects the copy
-void EditMeshJoin(EditMesh mesh, string fileName);       // Adds another model, made from its recipe's file, to the mesh
+bool EditMeshJoin(EditMesh mesh, string fileName);       // Adds another model, made from its recipe's file, to the mesh
                                                          // and selects it, its faces keeping their slots by name
 
 void EditMeshBevel(EditMesh mesh, float width, int segments = 1); // Cuts each selected edge back by a width into a band
@@ -1635,10 +1641,18 @@ bool EditMeshImport(EditMesh mesh, string fileName);     // Adds the meshes of a
                                                          // the mesh as faces, its triangles in one plane joined back
                                                          // into faces, and selects them
 
-Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
-                                                         // material for each material slot, in the order of the slots
+Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh for each material
+                                                         // slot in the order of the slots, each drawn with the
+                                                         // prototype material of its slot's name
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from
                                                           // the mesh, its meshes in place, after the mesh changed
+
+Color GetPrototypeColor(string name);                    // The color of the prototype material for a part of a level,
+                                                         // by the name of the material slot its faces are in
+ModelMaterial LoadMaterialPrototype(string name);        // The prototype material of a part of a level, the grid tinted
+                                                         // by the color GetPrototypeColor gives its name
+ModelMaterial LoadMaterialPrototype(Color color);        // A material of the grid of a meter's cells tinted by a color,
+                                                         // rough and not metal, for blocking out a level
 ```
 
 An `EditMesh` is a polygon mesh of faces of any count, shaped by primitives and by operations on
@@ -1647,7 +1661,8 @@ counts, its selection, its volume and its bounds as an `EditMeshInfo`, whose `Is
 whether every edge is shared by two faces running along it in opposite directions. A selection
 takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`. A saved model is its recipe, a
 `.model` file of one operation a line starting with `model 1`, made again when it loads, and a
-model built from the mesh has a mesh and a material for each material slot, which
+model built from the mesh has a mesh for each material slot, drawn with the prototype material of
+the slot's name, the grid of a meter tinted by the color of a part of a level, which
 `CreatePhysicsStaticModel` makes a collider of.
 
 ## States

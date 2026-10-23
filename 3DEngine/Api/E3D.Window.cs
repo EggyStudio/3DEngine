@@ -44,6 +44,7 @@ public static partial class E3D
         {
             ApiLogger.Info("CloseWindow was called, so the app shuts down.");
             ForgetDefaultFonts();
+            ForgetPrototypes();
             ForgetCompute();
         }
         ForgetSky();

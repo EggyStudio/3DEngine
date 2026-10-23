@@ -81,6 +81,68 @@ public static partial class E3D
         return new Image(data, width, height);
     }
 
+    /// <summary>Makes the image of one meter's cell of a grid, in its default colors, a light gray face with darker lines.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The size is under 16 or over 4096 pixels.</exception>
+    public static Image GenImageGrid(int pixelsPerMeter) => GenImageGrid(pixelsPerMeter, GridFace, GridLine, GridFine);
+
+    /// <summary>
+    /// Makes the image of one meter's cell of a grid, its edges a line and a finer line every tenth
+    /// of a meter, to tile faces whose texture coordinates are in meters.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The grid of the prototype textures of the engines of the 2000s, which tells a reader of a
+    /// level blocked out in it how big each thing is, as an edit mesh's faces carry their texture
+    /// coordinates in meters. A meter's line is a 128th of the cell wide, two pixels at least, half
+    /// on each edge of the cell, so cells tiled side by side make it whole, and a tenth's line a
+    /// quarter of that, a pixel at least, centered on its tenth.
+    /// </para>
+    /// <para>
+    /// A pixel on a meter's line is <paramref name="line"/>, else one on a tenth's line is
+    /// <paramref name="fine"/>, else the cell's <paramref name="face"/>. As a texture it is given
+    /// mip levels and a repeating, anisotropic sampler, as <see cref="LoadMaterialPrototype(Color)"/>
+    /// gives it, so a floor running into the distance fades into its face's tone.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The size is under 16 or over 4096 pixels.</exception>
+    public static Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pixelsPerMeter, 16);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(pixelsPerMeter, 4096);
+
+        var size = pixelsPerMeter;
+        var half = Math.Max(2, size / 128) / 2;
+        var fineWidth = Math.Max(1, size / 512);
+
+        // What each column, and so each row, is, 2 a meter's line, 1 a tenth's and 0 the face.
+        var kind = new byte[size];
+        for (int at = 0; at < size; at++)
+            if (at < half || at >= size - half) kind[at] = 2;
+        for (int tenth = 1; tenth < 10; tenth++)
+        {
+            var start = (int)Math.Round(tenth * size / 10.0 - fineWidth / 2.0, MidpointRounding.AwayFromZero);
+            for (int at = start; at < start + fineWidth; at++)
+                if (kind[at] == 0) kind[at] = 1;
+        }
+
+        var data = new byte[size * size * 4];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                var which = Math.Max(kind[x], kind[y]);
+                var c = which == 2 ? line : which == 1 ? fine : face;
+                var i = (y * size + x) * 4;
+                (data[i], data[i + 1], data[i + 2], data[i + 3]) = (c.R, c.G, c.B, c.A);
+            }
+        return new Image(data, size, size);
+    }
+
+    // The grid's colors where none are given, a light gray face, so a tint shows as itself, dark
+    // gray lines a meter apart and lighter ones a tenth apart.
+    private static readonly Color GridFace = new(230, 230, 230, 255);
+    private static readonly Color GridLine = new(89, 89, 89, 255);
+    private static readonly Color GridFine = new(173, 173, 173, 255);
+
     /// <summary>The color of one pixel.</summary>
     public static Color GetImageColor(Image image, int x, int y)
     {
