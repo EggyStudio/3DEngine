@@ -205,6 +205,28 @@ batch.
     holds the row at the table's head and the older cheat sheet row at its foot, so the one at the
     foot goes with it. Done at `ffa3ec48`.
 
+17. **The radiance cascades said in the README and in a guide page of their own (Decision 33)., done
+    at `2172090b`.** The owner asked on 2026-10-11 at 17:40. The README's prose says in a sentence
+    or two that the engine lights its scenes with real-time global illumination by radiance
+    cascades, the indirect light of every surface, with a line on what that brings a game, and the
+    guide table gains the page's row after the materials guide's. The page,
+    `docs/global-illumination.md` or a name the working session finds better, is for somebody using
+    the engine and goes into the detail the materials guide, which holds the bounce in fifty-three
+    mentions today, cannot: what radiance cascades are and why the engine chose them, the scene
+    distance field the probes trace through and `SetSceneField`'s cascades, cell and budget, the
+    world probes in cascades and their reach, the screen probes and what they add, emissive
+    materials carried as box lights, the quality tiers of `SetGlobalIllumination` and what each
+    costs on the development machine's GPU in plain words, how a glossy reflection and the sky's
+    share read the probes, the limits a game meets, the field's reach behind the eye and a cave
+    wider than the last cascade among them, and the tools, the bounce window, `gi.show`, `gi.state`,
+    `gi.toggle`, `gi.probe`, `gi.rays`, and `gi.compare` with `gi.reference` for reading a scene
+    against a path-traced reference; built on an example that runs, the bounce rooms or the Cornell
+    box, with blocks that compile under the guides' check, and the materials guide pointing to it
+    where it speaks of the bounce rather than saying it twice; RENDERING.md stays the renderer's own
+    record. The cheat sheet's grouping follows the pages, so the page's functions group under it. A
+    batch of its own after item 15, since the page names the API and the rename comes first; the
+    owner's eye judges the text.
+
 18. **The examples' counts under the Examples heading, and a count on each folder's heading
     (Decision 34), done at `043b3af1`.** The owner asked on 2026-10-11 at 19:35, as of BevyCSharp.
     Under the Examples heading, after its paragraph and before the gallery, a line says the counts
@@ -2402,6 +2424,285 @@ batch.
     the camera each frame and keeps its check, reading 2.31 left and 1.40 right alone where the same
     placement had read 14.28 and 14.56. Done at `f78b8c58` on 2026-10-21, as the head says.
 
+59. **An edit mesh a program shapes by operations, with a recipe that rebuilds it, built into what
+    the engine draws and collides with (Decision 51).** The owner asked for modeling in both
+    engines, Blender's kind, from the command line as well as in a game, grid prototyping first;
+    this item is the kernel the rest stands on. An edit mesh is a polygon mesh of vertices, faces as
+    loops of vertex indices of any count, a texture coordinate at each face corner, a material slot
+    and a smooth flag a face, and edges read from the faces; a selection of vertices, edges or faces
+    as sets; and its history as the list of operations that made it, the recipe, so undo drops the
+    last line and rebuilds, and a saved model is its recipe, a text file `*.model` of one operation
+    a line in the words the commands of item 61 use, read back and rebuilt at load, so a level's
+    models are small files a reader understands and a diff reads. The operations of this item: new
+    and free; the primitives box, plane, cylinder, cone, wedge, stairs with a count of steps, a
+    rise, a run and a width and closed underneath, and arch, each placed by its lowest corner or its
+    center on the grid; select all, none, invert, faces by index, faces by the direction their
+    normal faces nearest (`+y`, `-x`), vertices and faces inside a box, and the faces sharing a
+    material slot; move, rotate about an axis through the selection's center or a given pivot, and
+    scale, of the selection, snapped to a grid step the mesh holds (one meter by default, any power
+    of two of it down to a sixteenth); extrude faces along their normals by a distance or by a
+    vector, the sides filled; inset faces by a distance; delete the selection, the faces left open
+    or the hole filled; merge vertices within a distance; flip the selection's normals; triangulate;
+    duplicate the selection in place; and join another edit mesh in. The build: faces triangulated
+    with ear clipping, so a concave face triangulates right, normals per face or averaged where the
+    smooth flag is set and the edge's angle under a threshold, tangents from the texture
+    coordinates, one mesh a material slot, through `LoadModelFromEditMesh`, a model with one mesh a
+    material slot and a default material each, `UploadMesh` underneath, and
+    `UpdateModelFromEditMesh` writing the meshes again in place after a change, and a collider
+    through `CreatePhysicsStaticModel` from the built model. The surface is a resource struct
+    `EditMesh` holding an id, with the calls in a new area file `E3D.Modeling.cs`, named as raylib
+    would name them where it has the operation and plainly where it has none, each with its cheat
+    sheet line through the script and the surface listing, and a guide page `docs/modeling.md` with
+    a section an operation showing the recipe and what it makes. Tests: a test an operation on exact
+    counts of vertices, edges and faces, the signed volume of a closed mesh (a two by three by four
+    box 24, a stairs the sum of its steps), and watertightness, every edge shared by two faces with
+    opposite winding, and a recipe written and read back making the same counts; a capture of each
+    primitive in the gallery row. Two commits, the mesh and the primitives with the selection and
+    the transforms, then the topology operations, the recipe, the build and the collider. Taken at
+    19:35 on 2026-10-23 by the owner's cloud session on its branch (Decision 61), BevyCSharp's edit
+    mesh, recipe and build the model once the owner gives the session that repository, the suite on
+    the null device there; the gallery capture and the device tests fall to the local coder when it
+    cherry-picks the branch; items 64, 65 and 66 follow there in that order once this lands. First
+    commit `a066610d` on the branch, read at 19:59 on 2026-10-23: the edit mesh, the seven
+    primitives, the six selects and the transforms as void calls on an `EditMesh` handle in
+    E3D.Modeling.cs, the data an internal `EditMeshData` under `3DEngine/Modeling` ported from
+    BevyCSharp's to System.Numerics with a process-wide store, AGENTS.md's row for the folder, the
+    cheat sheet and the listing written by their scripts; departures taken, measures as given and
+    `EditMeshSnap` putting the selection on the grid as BevyCSharp decided, an operation on an
+    unloaded mesh warning and doing nothing, the smooth flag landing here; 24 new tests, the null
+    device suite 1,509 passed and 322 skipped against 1,482 and 324 before, the strict build and
+    NormTests clean. The message is COMMITS.md's form; the author is the cloud environment's
+    identity, which the local coder resets when it cherry-picks. The second commit, the topology
+    operations, the recipe, the build and the collider, follows. Second commit `9989c44a` on the
+    branch, read at 20:11: extrude, inset, delete, merge, flip, triangulate, duplicate and join, the
+    recipe as the undo and as a `.model` file with the header `model 1`, saved through a part file,
+    run, undone and redone by rebuilding from the lines as BevyCSharp does, the build into a model
+    of a mesh and a white material a slot through UploadMesh and written again in place keeping each
+    slot's mesh id and the program's materials, the collider through the static model with triangles
+    of no area left out; ear clipping ported so the indices match BevyCSharp's; departures taken,
+    world-aligned box coordinates and no tangents since the vertex has none, join taking a model's
+    file so the recipe runs again, a slot with no faces built as one triangle of no area, the
+    recipe's error with a comma; docs/modeling.md in the guide chain with a README row and the cheat
+    sheet's paragraph, 11 blocks building on a package; 40 new tests, the suite 1,550 passed and 322
+    skipped on the null device, the strict build and NormTests clean, every file under 800 lines.
+    The item's code is whole on the branch; the example and the gallery capture of each primitive,
+    the Vulkan row of BadFileTests and the device tests fall to the local coder at the cherry-pick.
+    On main as `ffb15cb6` and `4c3f01ef` with the owner's identity, the example models_edit_mesh and
+    its capture in the local coder's batch of item 83, pushed when the build run of `36cae0c2` ends.
+    The example models_edit_mesh with its capture and the upgrading entry at `91c8d363`; item 59
+    done.
+
+60. **Grid prototyping: materials that show a meter, texture coordinates aligned to the world, and
+    openings cut by booleans (Decision 51).** The owner's first use: blocking out a level with
+    textures of different colors showing a grid of about a meter, stairs, and windows cut by boolean
+    operations. The engine makes the grid image, `GenImageGrid(int pixelsPerMeter, Color face, Color
+    line, Color fine)`, an image of one meter's cell with its edge lines and lines every tenth of a
+    meter in a finer tone, beside `GenImageChecked`, 1024 pixels a meter by default with mipmaps,
+    and a prototype material from a color, the grid image tinted, in a small set of named colors for
+    floors, walls, ceilings, stairs, doors, windows, and a hazard, so a level reads by color as the
+    dev textures of the engines of the 2000s read; a face's texture coordinates by world-aligned box
+    mapping, each face projected along the axis its normal faces nearest, in meters, so the grid
+    shows one meter everywhere and continues across faces, which is the default of every primitive
+    and of every face a boolean makes. Booleans: union, difference and intersection of two edit
+    meshes, the second placed by a transform, written in the engine as the binary space partition
+    algorithm of csg.js, each mesh split by the other's planes, the parts kept by the operation, the
+    triangles then merged back into faces where coplanar and sharing edges and the vertices merged,
+    so a window cut from a wall is a few faces and not a hundred triangles; coplanar faces of the
+    two meshes handled by the algorithm's classification with an epsilon the mesh holds, and the
+    limit said in the guide that two faces in one plane are cut as the algorithm cuts them, so an
+    opening is cut with a box a little deeper than the wall. The new primitives on it: a room, a box
+    with its inside hollowed by a wall thickness, a door and a window, each a cut of a box through a
+    wall selected or named, a ramp. Tests: a box cut by a box through its wall has the faces
+    counted, is watertight and has the volume of the two less their overlap; a union of two boxes
+    sharing a face; the grid image's lines at the right pixels; the box mapping giving a two meter
+    face coordinates spanning two; a capture of a room with a window and a door and stairs in it.
+    Two commits, the grid image, the materials and the mapping, then the booleans and the openings.
+    Given at 20:49 on 2026-10-23 to the cloud session on `modeling`, the booleans and the grid
+    material's shader written there with the null device's tests, the captures and the device tests
+    the local coder's at the cherry-pick. First commit `985badd` on `modeling`, read at 20:56 on
+    2026-10-23, the owner's identity: `GenImageGrid` beside the checked image with BevyCSharp's
+    pixel rule, the seven prototype colors, `LoadMaterialPrototype` by name or color on one shared
+    grid texture of 1024 with mipmaps and anisotropy, freed at CloseWindow, the edit mesh's slots
+    drawn in their prototypes, the world-aligned box mapping of item 59 tested across faces meeting
+    along a line, and `EditMeshJoin` returning false with a warning on a missing or foreign file
+    under N 2.6, a void to bool change on unpublished surface; departure taken, no grid shader since
+    the model pass samples a base-color texture with mipmaps already, the grid an image as in
+    BevyCSharp; six tests, 1,605 passed on the null device, the strict build and NormTests clean, 18
+    blocks of docs/modeling.md. The booleans follow in the second commit with csg.js's notice; the
+    room's capture falls to the local coder. Second commit `4662382` on `modeling`, read at 21:03,
+    the owner's identity: csg.js's partition in doubles with its MIT notice at the file's head and
+    in THIRD-PARTY-NOTICES.md, the face merge, union, subtract and intersect of a file moved by at
+    or a solid primitive's line returning false with a warning on a bad file, cut, window and door
+    measured on the selected wall, room, ramp and epsilon, the recipe lines as BevyCSharp writes
+    them, the guide's section with a house that compiles; departure taken, the primitive line's slot
+    tested as the default alone until item 62 names slots; nine tests ported from BevyCSharp's,
+    1,614 passed on the null device, the strict build and NormTests clean, 19 blocks of the guide.
+    The item's code is whole on the branch; the room's capture falls to the local coder at the
+    cherry-pick. On main as `9c6a4711` and `52e67199`, unpushed, the room's capture to come. A fault
+    of its own found by the cloud session writing the guide's house through the commands and mended
+    at `bc9e23a5` on `modeling`, read at 21:25: a door cut through a room's wall went a centimeter
+    past the wall's inner face all the way down and slit the floor along the threshold, the volume
+    0.002 short; the cutter's part behind the wall stops at the floor found by a ray down behind the
+    wall, sloping up from where floor meets wall, a test failing before and passing after, the docs
+    saying a door goes down to the ground outside and steps up to the floor inside; cherry-picked
+    after the room's capture. Capture done at `1093ae32`, the example models_edit_mesh_room; item 60
+    done but for the door's fix `bc9e23a5` to cherry-pick. The room's capture taken again at
+    `e4e808dd` after the door's fix; item 60 done.
+
+61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
+    to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
+    line, simple to use. The engine's catalog gains `model.*` commands, one an operation, each
+    taking the model's name first and then the operation's measures in the recipe's words, so a line
+    typed is a line of the recipe: `model.box room 8 3 6`, `model.select room +y`, `model.extrude
+    room 1`, `model.cut room window 1 1 2 0.5`, `model.material room wall`, `model.undo room`,
+    `model.save room resources/models/room.model`, `model.load room <path>`, `model.show room 0 0 0`
+    spawning or moving an entity that draws the model and follows its edits, `model.info room`
+    answering the counts, the bounds, the volume and the open edges, and `model.list`; a command
+    answers the counts after it, so a script reads what it did, and `./e3d command model.<op>`
+    reaches each as the catalog does. The window: an ImGui window a program draws with one call,
+    `DrawModelingWindow(EditMesh)`, as `DrawBounceWindow` is drawn, since the engine has no editor
+    (DESIGN.md §7); it lists the recipe with the last lines undone and redone by buttons, shows the
+    selection's counts, offers each operation with its measures as fields and a button, and takes
+    the mouse in the 3D view: a click selects the face under the pointer by a ray tested against the
+    edit mesh's faces one by one, with shift adding and control removing, a drag along the face's
+    normal extrudes or moves the selection by the grid step with the distance shown, and the hovered
+    face and the selection drawn as outlines over the model, the way the voxel game's aim outlines a
+    block. A guide section on blocking out a level from the terminal, as a script of `./e3d command`
+    lines making a room with a window. Tests: the commands through the console host making the room
+    of the guide and reading its counts, a load after a save giving the same, and the window's
+    picking tested through the ray against a known face. Two commits, the commands, then the window.
+    Given at 20:49 to the cloud session after item 60, the commands and the window's code written
+    there, the window's pixel tests the local coder's. First commit `0e9d7213` on `modeling`, read
+    at 21:25, the owner's identity: one `[Command]` a recipe word plus model.new, free, list, info,
+    recipe, undo, redo, save, load, export and show, the counts and refusal codes as BevyCSharp's,
+    the names a world resource with `SetEditMeshName` and `GetEditMeshByName`, model.show spawning
+    an entity whose model is rebuilt in place as the mesh's version moves through a Render-stage
+    system, paths read from the working directory, the guide's section blocking out from the
+    terminal with the house as command lines, the E3D.md rows and the cheat sheet; six tests, 1,621
+    passed on the null device, 21 blocks on a local pack. The window follows in the second commit.
+    Second commit `8060579` on `modeling`, read at 21:35, the owner's identity:
+    `DrawModelingWindow(mesh, position)` answering whether the mesh's shape or slots changed since
+    the last draw so a program rebuilds its model on true, the pointer's ray through the frame's
+    first 3D camera, picking public as `GetRayCollisionEditMesh`, click, shift and control selecting
+    as recipe lines, a drag along the normal in whole grid steps extruding or moving on release with
+    the selection outlined at its dragged place, the panel with the counts, the recipe and its
+    undone lines grayed, a line field with the refusal in red, and the Select, Add, Shape, Openings
+    and Slot sections; departures taken, the position parameter and the bool return; five tests, two
+    headless frames through the console's synthetic input, 1,626 passed on the null device, 21
+    blocks on a local pack; the outlines' pixel tests fall to the local coder. The item's code is
+    whole on the branch. On main as `5f1e0f6e` and `b12133f6`, unpushed; the window's pixel tests to
+    come in the local coder's next commit. The outlines' pixel tests at `e4e808dd`; item 61 done.
+
+62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
+    processing and adding textures to surfaces. The selection's texture coordinates by projection,
+    planar along an axis or the view, box as item 60's default, cylindrical about an axis, and
+    spherical; moved, scaled and rotated as a whole or about their center; set to a texel density,
+    so many pixels a meter, read from the material's texture; and reset to the world-aligned
+    default. A material slot takes a material of the engine's, a color with a texture and the maps
+    the engine's material has, so a face is given a texture by giving its slot one, the built
+    model's meshes drawn with each slot's; slots added, renamed and removed, and the faces of a
+    removed slot given the first. The texture coordinates of the recipe's operations are recorded as
+    operations too, so a saved recipe rebuilds them. A section of the window shows the selection's
+    coordinates over the slot's texture. Tests: each projection's coordinates on a box's known face,
+    the density on a two meter face with a 512 pixel texture, and a capture of a room with a brick
+    wall and a wooden floor from the examples' resources. One commit. Given at 20:49 to the cloud
+    session after item 61, the device tests and captures the local coder's. Commit `de53648` on
+    `modeling`, read at 21:57 on 2026-10-23, the owner's identity, no upgrading entry under Decision
+    64: a face's own texture coordinates or the world-aligned default, the planar, box, cylinder and
+    sphere projections, move, scale, rotate, density by a texture's width and reset as flat calls
+    and recipe lines, carried through every operation that reshapes a face by a least-squares affine
+    fit; slots added, renamed, removed, given a color, the five maps in the material's form,
+    emissive, metallic and roughness, `LoadMaterialFromEditMeshSlot` public, the build drawing each
+    slot's look over or in place of the grid and the update remaking a changed slot's material
+    alone, textures loaded once a file and looked for again when missing, the glTF writer taking the
+    slot's color, factors and textures; the model.uv and model.slot commands, the window's two new
+    sections, the guide's sections; 19 tests, 1,645 passed on the null device, 23 blocks on a local
+    pack. Departures taken, the import not taking a file's textures into looks; the capture of a
+    room with a brick wall and a wooden floor falls to the local coder, with textures added to the
+    examples' resources or made by GenImage first. On main as `5a4028d9`, unpushed; the textured
+    room's capture to come. Capture done at `80e83eb6`; item 62 done, pushed at 22:49.
+
+64. **Modeling operations on faces and edges, Blender's kinds (Decision 51).** The owner's later
+    wave: selecting a face, insetting and pulling it, merging, beveling. On the kernel: bevel of the
+    selected edges by a width with a count of segments, the profile round; loop cut, a cut around a
+    ring of faces at a fraction; subdivide the selected faces by a count; bridge two selected face
+    loops of the same count; fill a hole of selected edges with one face; dissolve the selected
+    faces into one, or the selected edges, keeping the shape; knife, a cut of the selected faces by
+    a plane; mirror of the selection across an axis through a pivot, merging on the plane; spin of
+    the selected edges about an axis by an angle in steps; and smooth, the vertices moved toward
+    their neighbors' mean by a factor. Each in the recipe and the commands, in the window with its
+    measures. Tests: each operation's counts on a box, a bevel of a box's twelve edges with two
+    segments watertight and the volume between the box's and its inscribed one, a mirror of a half
+    giving a whole with no doubled vertices; a capture of a beveled, inset and loop-cut box. Two
+    commits, the bevel, the loop cut and the subdivision, then the rest. First commit `9a76c50b` on
+    the cloud session's branch `modeling`, read at 20:28 on 2026-10-23 with the owner's identity as
+    author and committer after the rewrite of Decision 63: the bevel where both ends are selected
+    and two faces run along the edge, the band on the circle tangent to both faces, a hole round a
+    beveled vertex closed with one face, the loop cut through four-cornered faces both ways by a
+    fraction from the lower end, the subdivision as a grid, a triangle grid or a fan; departures
+    taken, a corner of three beveled edges closed flat, a one-edge bevel's end coplanar, no count of
+    cuts for the loop cut; 14 new tests, 1,563 passed on the null device, the strict build and
+    NormTests clean. Written fresh since BevyCSharp's item 43 was not on main then. The capture
+    falls to the local coder, who cherry-picks it with its next batch; the second commit follows on
+    the branch. Second commit `c38de99b` on `modeling`, read at 20:33, the owner's identity as
+    author and committer: bridge, fill, dissolve of faces and of edges, knife, mirror, spin and
+    smooth in the recipe and the flat API, the commands and the window waiting for item 61;
+    departures taken, a spin of faces following extrude's orientation, mirror's pivot at the origin,
+    a hole's group left as it was; 19 new tests, a bridge of two boxes 16 vertices, 28 edges and 14
+    faces closed, the spun face a closed ring of 32, 64 and 32, a smoothed box of four thirds; 1,582
+    passed on the null device, the strict build and NormTests clean, 15 blocks of docs/modeling.md
+    on a local pack. The item's code is whole on the branch; the capture falls to the local coder at
+    the cherry-pick. On main as `d506e92e` and `cc1b490f`, the capture to come in the local coder's
+    next commit. Capture done at `8d1ec295`, the example models_edit_mesh_cuts; item 64 done.
+
+65. **Modifiers, a stack applied at the build and never baked until asked (Decision 51).** The owner
+    asked for Blender-like modifiers. An edit mesh holds a list of modifiers applied in order at the
+    build over the base, which stays editable: mirror across axes, array by a count and an offset or
+    along a curve of positions, bevel as item 64's over every edge or the edges past an angle,
+    subdivision by Catmull-Clark to a level, solidify by a thickness inward or outward, boolean with
+    another edit mesh placed by a transform, and triangulate; each added, reordered, removed and
+    applied, applying baking its result into the base and dropping it; in the recipe as `modifier`
+    lines and in the commands and the window, the build's time for a stack read in a test against a
+    budget. Tests: a mirror on a half box giving a box's counts, an array of three, a subdivision of
+    a box to level one giving 26 vertices and level two 98, a solidified plane watertight, and a
+    capture of a subdivided and beveled shape. One commit. Commit `735e58e8` on `modeling`, read at
+    20:41 on 2026-10-23, the owner's identity as author and committer: the stack kept as recipe
+    lines and applied in order at the build on a copy of the base, cached on the mesh's version so
+    the base stays editable, mirror, array by an offset or along a curve, bevel past an angle,
+    Catmull-Clark subdivision keeping an open outline, solidify along area-weighted normals,
+    triangulate, moved, removed and applied; departures taken, the boolean modifier left for item 60
+    since the engine has no booleans yet, the commands and the window for item 61, the budget test's
+    Stopwatch on the N 3.3 list; 10 tests, subdivision 5 with mirror and array 4 building 98,304
+    triangles in 176 to 205 ms against a budget of 1,500; 1,592 passed on the null device, the
+    strict build and NormTests clean, 16 blocks of docs/modeling.md on a fresh pack. The capture
+    falls to the local coder at the cherry-pick. On main as `f66d4d4a`, the capture to come in the
+    local coder's next commit. Capture done at `8d1ec295`, the example models_edit_mesh_modifiers;
+    item 65 done.
+
+66. **What is modeled is exported for Blender and imported from it (Decision 51).** The built mesh
+    and its materials written as a glTF 2.0 file, a JSON with its buffer beside or embedded,
+    positions, normals, texture coordinates, indices, one primitive a material slot with the slot's
+    color and its texture referenced by path, by a writer of the engine's own in managed code, so a
+    level blocked out in the game is opened and finished in Blender; and a model file read into an
+    edit mesh through Assimp, which reads the formats `LoadModel` reads, triangles merged back into
+    faces where coplanar and sharing edges, materials into slots, so a model from Blender is cut and
+    shaped in the game. `model.export` and `model.import` beside the save and the load. Tests: a box
+    exported and read back with the engine's own reader having the same counts, a file validated
+    against the glTF schema's required fields, and a known glTF's import counted. One commit. Commit
+    `d571da7` on `modeling`, read at 20:49 on 2026-10-23, the owner's identity:
+    `ExportEditMesh(mesh, fileName, embedBuffer)` writing what the mesh builds into, modifiers
+    applied, as glTF 2.0 through a writer of the engine's own with no package added, a primitive and
+    a white material a slot that has faces, the buffer beside or embedded, both written through a
+    part file; `EditMeshImport(mesh, fileName)` and the recipe line reading through the same scene
+    reader as LoadModel, welding within 0.01 mm and joining coplanar triangles of one material into
+    faces, a material a slot of its name; departures taken, the slot's color and texture unwritten
+    until item 62, no .glb written, the import answering a missing file with false and a warning
+    under N 2.6 where `EditMeshJoin` still throws, the commands waiting for item 61; six tests with
+    a known file made by build/make-modeling-gltf.py, the schema's required fields held; 1,599
+    passed on the null device, the strict build and NormTests clean, 17 blocks on a fresh pack. The
+    cloud session's items 59 and 64 to 66 are all on the branch; `EditMeshJoin` is aligned with N
+    2.6 in its next commit. On main as `32ad500d`, unpushed; item 66 done.
+
 67. **The first gamepad moves through ImGui only when the program asks.** Found by the feature
     test's interface zone on 2026-10-21: the engine feeds the first pad to ImGui's navigation, so
     the pad's lower face button presses the focused ImGui button as well as reaching the game, and
@@ -2527,6 +2828,109 @@ batch.
     which its item 40 does. Done at `eba9c35a` on 2026-10-21, as the head says, the window's key
     read by a `[RunIf]` condition.
 
+76. **A command reads a rectangle of the last frame, its mean color and its largest step, so a drive
+    asserts a picture without downloading it (Decision 57).** Learned from the voxel game's
+    `voxel.color` and `voxel.edge`, which proved its dome and its mobs' shade: `frame.read <x> <y>
+    <w> <h>` answers the rectangle's mean sRGB color and the largest difference between neighboring
+    pixels along its middle row and its middle column, and `frame.read` with no measures the whole
+    frame's, through the same capture `shot` takes, the answer a line a script reads. The catalog's
+    row in the e3d guide, and the drive's guide paragraph on asserting a picture. Tests: a frame of
+    a known clear color read back as it, a frame of two halves giving the step at the middle, on the
+    null device and on lavapipe. One commit, small, after item 75. Given at 22:23 on 2026-10-23 to
+    the cloud session on `modeling`, its item 78 being whole: the command, the rectangle's reading,
+    the mean and the largest step and the null device's test there; the lavapipe test falls to the
+    local coder at the cherry-pick. Commit `3593806` on `modeling`, read at 22:40, the owner's
+    identity: `frame.read` with a rectangle in window pixels or the whole frame, refused for bad
+    measures, a rectangle past the frame or no device, through the capture's path split out so shot,
+    F2 and the command take one path, answered later as shot is with the mean of each sRGB channel
+    and the largest step along the middle row and column with where it lies; the E3D.md row, the
+    command-line guide's block and paragraph, the cheat sheet's line; four tests, the device one run
+    on lavapipe in the cloud since github.com answers it and slangc was fetched, 45 passing in that
+    run with the screenshot and recording tests; the whole lavapipe suite running there and reported
+    when it ends. The item's code is whole on the branch. On main as `b48762bb`, pushed at 22:49;
+    the lavapipe test on the device to come. The device test passed on the 4070 at `511e0fed`; item
+    76 done.
+
+78. **F1 hides the interface, F3 shows a debug overlay like the newest Minecraft's with sections a
+    program adds, and Shift+F3 the profiler with it (Decision 58).** The owner asked shortly before
+    07:05 on 2026-10-21 for F1 to hide the interface as Minecraft does, as an engine feature, F2 the
+    screenshot, and F3 a debug overlay like the newest Minecraft's, sorted in parts logically with
+    modules a game adds, world generation among them, showing the system, the camera and the
+    renderer, memory, fps and frametime with a graph like the RivaTuner overlay's, both for
+    BevyCSharp and 3DEngine, F1 hiding the interface and ImGui but not the F3 overlay so everything
+    hides but the overlay over the renderer, and Shift+F3 showing the frame debugger too; and
+    answered the reviewer's questions shortly before 07:06: the interface hidden by a scope, F3 the
+    overlay's on its release alone with any chord left to the program, the look Minecraft's with no
+    header, window styling or border, text on a transparent backing, and the order as the reviewer
+    sees fit. The keys, engine-wide by default: F1 hides what the program draws inside the scope,
+    its HUD and any ImGui window submitted inside it, and nothing outside it, so a pause screen, a
+    menu or an inventory drawn outside the scope stays whatever F1 says, as Minecraft hides its HUD
+    and never its screens, the engine's overlay staying, the world drawing on; F3 on its release
+    with no other key pressed during its hold toggles the overlay, so a program's own F3 chords
+    stand and the overlay never opens on one; Shift+F3 toggles the overlay with the profiler's pass
+    timings under it. The overlay is the engine's own text and lines, never an ImGui window, in
+    Minecraft's look, two columns of lines in the engine's font on a dark half-clear backing a line,
+    no header, no border, no window: the left column the engine's version and build, the fps and the
+    frametime with a strip of the last 240 frames' times under it as the RivaTuner overlay draws it,
+    the current, the average and the one percent low beside it and the GPU time as a second line,
+    the camera's position, facing and field of view, the entities and the world's counts, then the
+    program's sections; the right column the system, OS, CPU and its cores, memory in use and the
+    managed heap, GPU, driver and its memory in use, the display mode, then the renderer, passes,
+    draw calls, triangles, lights, shadows, global illumination's state and the frame's GPU time,
+    the frame's times from the engine's clock and the passes' GPU times from the profile. The calls:
+    `BeginUi()` and `EndUi()` around a program's own 2D drawing of its interface, whose draws are
+    dropped while hidden, `IsUiHidden()`, `SetUiHiddenKey` and `SetDebugOverlayKey` moving the keys
+    or turning them off with `KeyboardKey.Null`, and `AddDebugOverlaySection(string name,
+    Func<IEnumerable<string>> lines)` with a remove, the sections drawn in the left column under the
+    engine's own in the order added; the performance window of item 73's F3 folded into the
+    overlay's renderer section and the Shift+F3 profiler, its call and key gone. The same keys,
+    layout, words and registration in both engines. The guides' section on the debug keys, the cheat
+    sheet lines through the script, the surface listing and the upgrading entry; the feature test
+    adding a section and the voxel game its own when the package comes. Tests: F1 dropping the
+    scope's draws and the ImGui windows and keeping the overlay, read from the frame's pixels on the
+    device; F3's release alone toggling and a chord not; a section's lines in the overlay's text;
+    the graph's strip holding the last 240 times. Two commits, F1 and the overlay's columns, then
+    the graph, the profiler and the sections' registration. After item 71's second part, before item
+    72. The scope's shape, settled with BevyCSharp's coder at 10:05 for both engines: ImGui's public
+    API cannot leave out windows begun between two calls, alpha zero leaves windows that take the
+    pointer, and a second context doubles the runtime, so the opening call answers whether the scope
+    draws this frame, false while hidden, and a program writes its interface inside an `if` on it as
+    it writes `if (ImGui.Begin(...))`; what the engine itself draws or holds inside the scope is
+    dropped or hidden by the engine whatever the program does, its 2D draws here and its interface
+    nodes in BevyCSharp, and a program's ImGui windows are left to the `if`, so a hidden interface
+    costs nothing. So `BeginUi()` returns a bool here. Given at 21:58 on 2026-10-23 to the cloud
+    session on `modeling`, its modeling items being written: the scope, the keys, the overlay's text
+    and lines, the strip, the profiler's timings and the sections' registration, with BevyCSharp's
+    Ui.Hidden.cs and Debug.Overlay.cs as the model where the owner gave it that repository, the null
+    device's tests there; the pixel tests of the hidden scope, the overlay and the strip and item
+    73's window folded away fall to the local coder at the cherry-pick. First commit `ded39966` on
+    `modeling`, read at 22:19, the owner's identity, after a merge of main into the branch,
+    `f19b3593`, which took main's sixteen commits with the branch's files kept where both added them
+    and the listing and the cheat sheet written again, so the cherry-picks stand as they are:
+    `BeginUi()` returning false while hidden with the draw list rewound to where the scope opened,
+    scopes nesting, `EndUi()` refusing with none open, `IsUiHidden()`, the two key setters with
+    `Key.Null` for off, F1 on its press and F3 on its release with no other key down during its hold
+    and neither while ImGui takes text; the overlay a world resource writing its head, left and
+    right lines in BevyCSharp's words four times a second and drawn in a last-stage system before
+    the render with rectangles and text, the lines as the item has them with the CPU's name read per
+    system and the driver decoded by vendor; the performance window and its key gone,
+    DrawProfileWindow staying as a program's window, the debug keys' guide section; six headless
+    tests, 1,651 passed on the null device, 8 blocks on a local pack; the pixels fall to the local
+    coder. The strip, the profiler and the sections follow in the second commit. Second commit
+    `72b76de` on `modeling`, read at 22:23, the owner's identity: the strip of the last 240 frames'
+    times in a ring kept whether the overlay shows or not, a bar a frame green to 60 fps, yellow to
+    30 and red past with rows at 60 and 30, the line beside it of the current, the average and the
+    one percent low as BevyCSharp counts them and the GPU's time moved there; Shift held as F3 is
+    let go turning the profiler over with the overlay, the slowest 24 render graph nodes by GPU then
+    CPU from the profile's averages over the last second; `AddDebugOverlaySection(name, lines)` and
+    `RemoveDebugOverlaySection(name)` on the overlay resource, a section a gap, its name and its
+    lines in the order added, a throwing section saying its exception where its lines would be; the
+    guide's paragraphs with a compiled block, the cheat sheet and the listing; eleven tests, 1,656
+    passed on the null device, 9 blocks on a local pack. The item's code is whole on the branch; the
+    pixel tests of the overlay and the strip fall to the local coder at the cherry-pick of both
+    commits. On main as `f44eeae0` and `1f563f15`, pushed at 22:49; the pixel tests to come in the
+    local coder's next commit. Pixel tests done at `511e0fed`; item 78 done.
+
 79. **A masked surface drawn through a program's own shader is cut out of the shadow maps by its
     texture.** Asked by the voxel game on 2026-10-21 at 07:19 (ASKS.md, its last entry): with its
     plants' mask material casting shadows, each plant's shadow is its two crossed walls' whole
@@ -2586,6 +2990,139 @@ batch.
     reference of the formula at the ask's seven levels within 0.001, the device the window's pixel
     within 2 of 255 at each and a program's shader's color read exactly. Done at `d3473746` on
     2026-10-21, as the head says.
+
+81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
+    for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
+    darkens the drawn sky with it, the sky reading 81, 137 and 218 at an intensity of 1 and 59, 102
+    and 170 at a half, so a program asking for the sky's ambient at a third as the owner's modpack
+    has it, or whiter than the sky, must draw its own sky and hand the engine a map for the light
+    alone. The mend: `SetEnvironmentLight(float intensity, Color tint)`, the share and the tint of
+    the environment map's light on the scene, the drawn sky unchanged, one and white by default,
+    read by the model pass and the global illumination's sky term alike; the cheat sheet line
+    through the script, the surface listing, the lighting guide's paragraph beside the environment
+    map and the upgrading entry. Tests: a white wall's shaded side at a half the light with the
+    drawn sky's pixels unchanged, on the device, and the null device recording the values. One
+    commit, small, after item 80; its Review line under the game's entry when the entry is written.
+    Form approved at 10:11: `SetEnvironmentLight(float intensity, Color tint)`, 1 and white by
+    default, the intensity clamped at 0, and `GetEnvironmentLight()` reading them back, held in an
+    EnvironmentLight resource of their own extracted beside the map so a later `SetEnvironmentMap`
+    leaves them; a float4 `environmentLight` at the end of the lighting buffer, the intensity times
+    the tint in linear light, every field before keeping its offset, filled beside the map's; the
+    model pass's environment term and lights.slang's irradiance multiplying by it, sky.slang reading
+    the map's own intensity alone so the drawn sky is unchanged; the global illumination's sky term
+    and the bounce reference taking it on the CPU so the cascades and the reference agree; the
+    probes' captures following it since they draw through the model pass, as the room's own surfaces
+    do; the cheat sheet, the listing, the lighting guide's paragraph and the upgrading entry; on the
+    device a white wall under a flat map and no light reading half at 0.5 and red alone under a red
+    tint with the drawn sky's pixels unchanged in the same frame, without a GPU the setter, the
+    getter, the clamp, the resource surviving a new map and the buffer's values read from the
+    prepare's output. Settled at 10:12: the share scales the map's whole term, the diffuse
+    irradiance and the specular reflection from the prefiltered cube alike, so the map's light stays
+    consistent between a plaster wall and a rough metal beside it, as the modpack dims reflections
+    with its sky light; a reflection traced through the window that meets the drawn sky shows it as
+    drawn, and where the trace misses and falls back to the map, a mirror reflects the map at the
+    share, which the guide says. Done at `c6bb1f3e` on 2026-10-23, as the head says; the voxel
+    game's ambient share follows with the package after the pack run of `d3473746`.
+
+82. **A light sample a program takes with a normal of its own keeps that normal (Decision 60).**
+    Found by the voxel game on 2026-10-21 under its items 63 and 70: modelpass.slang's
+    `surfaceNormal` turns a normal that points away from the eye over, as the back of a double-sided
+    face is lit, and the lit helpers a program's shader calls through the pass's input take that
+    turned normal, so a program sampling the light a face turned up would take, at a point above the
+    eye's height, is lit as a face turned down, the game's mobs darkening above the owner's eye line
+    and its land doing the same; the game's shaders look straight down for the sample as a way
+    around. The mend: the turn belongs to the model pass's own fragment where a double-sided
+    material's back is drawn, and a lit helper called with an input a program built keeps the normal
+    it was given, or the helper takes the turn as a flag the pass alone sets; the shaders guide says
+    a program's sample is lit by the normal it hands over. Tests: on the device, a program sampling
+    with an upward normal above and below the eye's height reading the same light, and a
+    double-sided plane's back still lit as its front. One commit, small, after item 83. Form
+    approved at 19:59, the second shape: a specialization constant `drawsBacks` beside the solid
+    one, true for a pipeline that culls no faces or the front ones, a double-sided material, a pass
+    culling nothing or an outline drawn from inside, false for the default back-face cull, carried
+    by the pipeline description and set by the model pass and a program's pipelines from their cull
+    mode; `surfaceNormal` turns a normal facing away from the eye only where it holds, so a
+    single-sided surface's sample keeps its normal and a double-sided material's back stays lit as
+    its front, the one departure, said in the guide, since there the pass cannot tell a program's
+    sample from its surface, the voxel game setting DoubleSided nowhere; the shaders guide's
+    sentence and an upgrading entry under Added; on the device a program's shader on a single-sided
+    wall reading the same light above and below the eye and a double-sided plane's back lit as its
+    front. Item 83's tests passed on the device with the low-sun test failing with the clamp off, 83
+    of 83 under lavapipe, and no seam remained at suns of 10 and 5 degrees, so its offset and band
+    stay. Done at `3bdf68be` on 2026-10-23, as approved.
+
+83. **The sun's cascades hold a long shadow across their seams at a low sun (Decision 60).** The
+    owner wrote on 2026-10-23 that the shadow cascades are weird, the band between two cascades
+    empty of shadow, the next fading in, and a tree's long shadow at 19:30 in the voxel game cut off
+    in the middle. The cascades split at 12 and 45 units, blend across the outer fifth of a tile and
+    fade past the last, the receiver moved off its surface by a texel and a half of the cascade
+    read. To read first, on the game's flat world at its 19:30 by a tree through the package, the
+    sun low: whether a caster behind the receiver's tile in the light's direction falls outside the
+    cascade's depth range and is clipped, whether the far cascade's offset of a texel and a half
+    lifts a receiver out of a thin shadow, and whether the blend band reads shadow from the nearer
+    cascade alone where the farther holds it. The mend by the reading, under N 3.5: casters beyond
+    the light's near plane clamped onto it so a long shadow is cast whole, the offset bounded by the
+    receiver's slope rather than the cascade's texel, and the band taking the farther cascade's
+    shadow where the nearer has none; a test on the device of a tall thin caster's shadow at a sun
+    10 degrees up, continuous across a cascade seam and reaching its full length. One commit, after
+    item 81. Read at 19:49 in an engine scene, the game being driven by another session: a trunk and
+    crown under a sun 10 degrees up, cameras along the shadow at 45, 55 and 65 units, the shadow
+    whole at 45, the trunk's stopping partway at 55 and the crown's near shadow gone at 65; the near
+    cascade's tile reaches about 5.8 radii along the ground toward the sun but keeps casters only 5
+    radii toward the light from its middle, the tree past that culled on the CPU and clipped on the
+    GPU while the pass reads that ground from the near cascade, and a receiver before a cascade's
+    near plane compared at a negative depth reads lit. Form approved: shadow maps drawn with
+    Vulkan's depth clamp where the device has it, a pipeline flag, so casters before a light's near
+    plane are drawn onto it for the cascades, spot tiles, point faces and item 79's program
+    pipelines alike, the depth the ambient occlusion and the probes read keeping unclamped twins,
+    the engine's shadow stage clamping its own depth where the feature is absent; the CPU cull
+    keeping blocks before the near plane with the side and far planes tested, the frustum gaining a
+    mode and the culling comment corrected; a receiver before a cascade's near plane handed to the
+    next; the offset and the band read again after, mended in the same commit only if a seam
+    remains; the scene's shadow read dark along its whole length across both seams on the device,
+    the cull's two cases without a GPU, the shadows guide's sentence, no upgrading entry. The game's
+    tree at 19:30 is the game's own reading once the package carries this. Done at `d980d237` on
+    2026-10-23, as approved, the offset and the band unchanged.
+
+84. **The README's animated capture of Ore goes.** The owner wrote at 20:22 on 2026-10-23 that the
+    small section at the top of both engines' READMEs showing that they capture GIFs, BevyCSharp's
+    of a game and 3DEngine's of Ore, is not necessary information and is to be removed. The mend:
+    the Ore picture and the paragraph under the Examples heading saying it was recorded with `./e3d
+    record` go from the README, and `.github/assets/animations/ore-dusk.gif` is deleted since
+    nothing else references it; the recording guide keeps its own words. One commit, small, with the
+    local coder's next batch. Done at `21c1b31f` on 2026-10-23.
+
+85. **The upgrading page's tests for names gained and lost go, and the page keeps changed behavior
+    alone (Decision 64).** The owner said "Drop" at 21:36 on 2026-10-23 to the rule that every
+    public name gained since 5.1 has its line on docs/upgrading.md, the test that failed the push of
+    `4c3f01ef` as Verdict 84 and holds every cherry-pick to its entry commit, nobody using the
+    engine until a full release. The mend: UpgradingTests' tests that every name gained or lost
+    since 5.1 is on the page and that the Added section names no member the surface lacks go, with
+    the test that no other document writes a lost name; the page keeps its Changed section for a
+    behavior that changed under an unchanged name, where a sentence saves a reader a day, and its
+    Added section stands as it is with no duty to grow; the guides' and COMMITS.md's words on
+    upgrading entries follow, and the norm's row if one names them. One commit, small, with the
+    local coder's next batch; from this item the reviewer pushes a cherry-pick without waiting for
+    an entry commit. Done at `a400a723` on 2026-10-23, UpgradingTests gone whole with the build's
+    fetch of the 5.1 commit.
+
+86. **The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).** The owner wrote
+    at 21:39 on 2026-10-23 that the cheat sheets are to be coherent: 3DEngine's lines one-liners as
+    BevyCSharp's are, and BevyCSharp's section headers as 3DEngine's, plain words without the code
+    styling. Here each line's comment wraps onto continuation lines aligned under the first, written
+    so by build/cheatsheet.sh. The mend: the script writes the signature, two spaces, `//` and the
+    first sentence on one line however long, no continuation, and the page is written again; the
+    cheat sheet test holds the form, one member a line and every line with its comment. One commit,
+    small, with the local coder's next batch. Done at `e8d52f80` on 2026-10-23, padded to column 57
+    or two spaces past a longer signature, the writer's test holding the form.
+
+87. **A headless app's draw list is cleared each frame.** Found by the cloud session under item 78
+    on 2026-10-23: the DrawList's clearing sits in RenderPlugin.Render, which a headless run does
+    not add, so a headless program that draws grows the list frame by frame for as long as it runs.
+    The mend: the list cleared at the frame's end wherever the render system is absent, by
+    EndDrawing or a system registered in its place, and a headless test drawing for a hundred frames
+    reading the list's counts still. One commit, small, after item 62's capture. Done at `185a79a8`
+    on 2026-10-23, two headless tests reading the list from a system of their own before the clear.
 
 ## Verdicts settled
 
