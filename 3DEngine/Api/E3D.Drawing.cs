@@ -59,6 +59,7 @@ public static partial class E3D
         if (TryRes<Mode3DCamera>(out var mode3D))
         {
             mode3D.ViewProjection = null;
+            mode3D.Camera = null;
             mode3D.Targets.Clear();
         }
         FeedAudioStreams();
@@ -263,7 +264,7 @@ public static partial class E3D
         _camera3D = camera;
         var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
         if (_target.IsValid) mode3D.Targets.TryAdd(_target.Texture.Id, (viewProjection, camera.Position));
-        else if (mode3D.ViewProjection is null) (mode3D.ViewProjection, mode3D.Eye) = (viewProjection, camera.Position);
+        else if (mode3D.ViewProjection is null) (mode3D.ViewProjection, mode3D.Eye, mode3D.Camera) = (viewProjection, camera.Position, camera);
     }
 
     // The camera of the BeginMode3D in effect, which DrawSkybox centers its cube on.

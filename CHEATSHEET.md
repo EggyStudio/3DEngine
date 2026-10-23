@@ -1446,7 +1446,7 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 
 ## Modeling
 
-<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs, E3D.ModelingNames.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs, E3D.ModelingNames.cs, E3D.ModelingWindow.cs -->
 ```csharp
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
                                                          // then shape
@@ -1692,6 +1692,14 @@ void SetEditMeshName(EditMesh mesh, string name);        // Gives an edit mesh a
 EditMesh GetEditMeshByName(string name);                 // The edit mesh of a name, given by SetEditMeshName or by the
                                                          // model commands that made it, or one that is not loaded where
                                                          // none has the name
+
+bool DrawModelingWindow(EditMesh mesh, Vector3 position = default); // Draws an ImGui window that shapes an edit mesh by
+                                                                    // hand, by buttons for its operations and by the
+                                                                    // mouse selecting and dragging its faces in the 3D
+                                                                    // view
+RayCollision GetRayCollisionEditMesh(Ray ray, EditMesh mesh, Vector3 position, out int face);
+                                                         // The face of an edit mesh a ray meets first, from either
+                                                         // side, the mesh placed at position, with where it meets it
 ```
 
 An `EditMesh` is a polygon mesh of faces of any count, shaped by primitives and by operations on
@@ -1704,7 +1712,8 @@ model built from the mesh has a mesh for each material slot, drawn with the prot
 the slot's name, the grid of a meter tinted by the color of a part of a level, which
 `CreatePhysicsStaticModel` makes a collider of. The console's `model.*` commands run the recipe's
 lines on a mesh by its name, as `./e3d command model.cut house window 1.2 1 4.5 1`, and
-`model.show` draws it as it changes.
+`model.show` draws it as it changes. `DrawModelingWindow` shapes one by hand in an ImGui window,
+its faces picked by the pointer's ray.
 
 ## States
 

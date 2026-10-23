@@ -18,6 +18,9 @@ internal sealed partial class EditMeshData
     private readonly Stack<string> _undone = new();
     private bool _replaying;
 
+    /// <summary>The lines taken back and not done again, the next to be done again first.</summary>
+    public IReadOnlyCollection<string> Undone => _undone;
+
     /// <summary>The recipe as the text of its file, its header first.</summary>
     public string RecipeText
     {

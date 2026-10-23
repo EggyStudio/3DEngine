@@ -20,11 +20,11 @@ internal sealed partial class EditMeshData
         if (!_replaying) _undone.Clear();
     }
 
-    private static string F(float value) => value.ToString(CultureInfo.InvariantCulture);
+    internal static string F(float value) => value.ToString(CultureInfo.InvariantCulture);
 
-    private static string V(Vector3 value) => $"{F(value.X)} {F(value.Y)} {F(value.Z)}";
+    internal static string V(Vector3 value) => $"{F(value.X)} {F(value.Y)} {F(value.Z)}";
 
-    private static string Placement(Vector3 at, bool centered) => (at == Vector3.Zero ? "" : " at " + V(at)) + (centered ? " center" : "");
+    internal static string Placement(Vector3 at, bool centered) => (at == Vector3.Zero ? "" : " at " + V(at)) + (centered ? " center" : "");
 
     private static string Pivot(Vector3? pivot) => pivot is { } at ? " at " + V(at) : "";
 

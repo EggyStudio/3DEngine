@@ -624,6 +624,43 @@ if (IsEditMeshValid(house)) SaveEditMesh(house, "models/house.model");
 The names last while the app runs. A mesh the program named stays the program's to free, and one
 the commands made is freed with its name.
 
+## The modeling window
+
+`DrawModelingWindow(mesh)` draws an ImGui window that shapes the mesh by hand in the program's own
+frame, since the engine has no editor. It lists the recipe, the lines taken back grayed after it,
+with Undo and Redo buttons and a field that runs any line, says the counts of the mesh and of its
+selection, and offers each operation with its measures as fields and a button. A button runs the
+operation's line, so the window writes the recipe the calls and the model commands write, and a
+line the mesh refuses is shown with the reason.
+
+The pointer works in the 3D view through the camera of the frame's first `BeginMode3D`. A click
+selects the face under it, shift adds the face to the selection and control takes it away, and a
+press on a selected face dragged along the face's normal extrudes the selection, or moves it where
+the window says so, by whole steps of the grid when the button is let go, the distance shown beside
+the pointer while it is held. The face under the pointer and the selection are outlined over the
+model. The window answers whether the mesh's shape or slots changed since it was last drawn, by the
+window, the program or the model commands, so the program builds its model again then:
+
+<!-- compiled with:
+var level = LoadEditMesh();
+var model = LoadModelFromEditMesh(level);
+Camera3D camera = default;
+-->
+```csharp
+BeginDrawing();
+ClearBackground(Color.RayWhite);
+BeginMode3D(camera);
+DrawModel(model, Vector3.Zero, 1, Color.White);
+EndMode3D();
+if (DrawModelingWindow(level)) UpdateModelFromEditMesh(model, level);
+EndDrawing();
+```
+
+A model drawn elsewhere than the origin is given to the window by where it is drawn, as
+`DrawModelingWindow(level, new Vector3(20, 0, 0))`, so the pointer's ray is taken to it.
+`GetRayCollisionEditMesh(ray, mesh, position, out face)` is the test the window picks with, the
+face a ray meets first and where, for a program's own tools.
+
 ## See also
 
 - Examples: [`models_edit_mesh`](../3DEngine.Examples/Models/ModelsEditMesh.cs), the seven
