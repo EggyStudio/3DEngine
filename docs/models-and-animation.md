@@ -378,6 +378,14 @@ a program's own fog, and paints the map again once the hour has moved three minu
 most four times a second. `SetEnvironmentMap` or `UnloadEnvironmentMap` ends it, with the light it
 made and the horizon it set.
 
+`DrawSkybox` draws the sun and the moon on it, each a square body of eight pixels with a glow about
+it, the moon in one of eight phases, full on the first night and a phase a day after, and 3,000
+stars as squares, which come out as the day fades, thin over the lowest 20 degrees and keep clear of
+the sun and the moon. They turn with the sky, behind everything the world draws, and dim as they
+sink into the horizon's band. The `core_day_sky` example stands in a ring of stones looking toward
+the sun by day and the moon by night, and `./e3d command sky.time 18` sets any program's day sky
+to an hour, as the example's pictures are taken at 6, noon, 18 and midnight.
+
 ## Many copies of one mesh
 
 Each `DrawModel` is a draw of its own, and the renderer gathers draws of the same mesh and material

@@ -84,6 +84,7 @@ public static partial class E3D
         TryRes<EnvironmentLight>(out var light) ? (light.Intensity, light.Tint) : (1, Color.White);
 
     private static ModelMesh _skyMesh;
+    private static Texture2D _skySun, _skyMoon;
     private static Shader _skyShader;
     private static bool _skyShaderFailed;
 
@@ -111,6 +112,48 @@ public static partial class E3D
         SetShaderValue(shader, GetShaderLocation(shader, "horizonBlend"), horizon?.BlendDegrees ?? 0);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,
             UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, CastsShadow: false));
+        if (TryRes<DaySky>(out var day)) DrawSkyBodies(day, camera.Position, horizon?.BlendDegrees ?? 0);
+    }
+
+    // The day sky's stars, added to the sky the model pass drew, so a faint one brightens the sky
+    // behind it and never darkens it, and its sun and moon laid over it by their alpha, so their
+    // pixels keep their colors where adding a pale core to a bright sky would pass white and take the
+    // sky's hue through the tonemap. None writes depth, so what the world draws hides them. The draw
+    // list's blend, depth mask and transform are put back as the program left them.
+    private static void DrawSkyBodies(DaySky day, Vector3 eye, float blendDegrees)
+    {
+        if (!_skySun.IsValid)
+        {
+            _skySun = SkyTexture(SkyArt.SunPixels(), SkyArt.Texels, SkyArt.Texels);
+            _skyMoon = SkyTexture(SkyArt.MoonPixels(), SkyArt.Cell * 4, SkyArt.Cell * 2);
+        }
+        var list = DrawList;
+        var (blend, factors, depthMask, transform, depthTest) = (list.Blend, list.Factors, list.DepthMask, list.Transform, list.DepthTest);
+        list.SetBlend(BlendMode.Additive, RlBlendFactorsFor(BlendMode.Additive));
+        list.SetDepthMask(false);
+        list.SetTransform(DaySky.Turn(day.Hour) * Matrix4x4.CreateTranslation(eye) * transform, depthTest: true);
+        try
+        {
+            day.DrawStars(list.Primitive, blendDegrees);
+            list.SetBlend(BlendMode.Alpha, RlBlendFactorsFor(BlendMode.Alpha));
+            day.DrawSunAndMoon(list.Primitive, blendDegrees, _skySun.Id, _skyMoon.Id);
+        }
+        finally
+        {
+            list.SetTransform(transform, depthTest);
+            list.SetDepthMask(depthMask);
+            list.SetBlend(blend, factors);
+        }
+    }
+
+    // A picture of the day sky's, sampled without filtering so its pixels stay square however large
+    // they are drawn.
+    private static Texture2D SkyTexture(byte[] pixels, int width, int height)
+    {
+        var texture = LoadTextureFromImage(new Image(pixels, width, height));
+        SetTextureFilter(texture, TextureFilter.Point);
+        SetTextureWrap(texture, TextureWrap.Clamp);
+        return texture;
     }
 
     /// <summary>Draws the environment map as the sky behind everything, untinted.</summary>
@@ -163,10 +206,14 @@ public static partial class E3D
         return _skyShader;
     }
 
-    // The sky's mesh and shader went with the window's stores.
+    // The sky's mesh and shader went with the window's stores. The day sky's pictures are the
+    // engine's, unloaded before the window counts what the program left loaded.
     private static void ForgetSky()
     {
         _skyMesh = default;
+        foreach (var picture in (ReadOnlySpan<Texture2D>)[_skySun, _skyMoon])
+            if (_app is not null && picture.IsValid && IsTextureValid(picture)) UnloadTexture(picture);
+        (_skySun, _skyMoon) = (default, default);
         _skyShader = default;
         _skyShaderFailed = false;
         _camera3D = null;

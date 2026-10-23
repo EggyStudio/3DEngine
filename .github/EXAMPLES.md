@@ -281,6 +281,7 @@ The programs here that are no example of raylib's, each showing what the engine 
 | Example | Here |
 |---|---|
 | [`audio_sound`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSound.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound.webp" width="200"/> |
+| [`core_day_sky`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreDaySky.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_day_sky.webp" width="200"/> |
 | [`core_window_toggles`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreWindowToggles.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_window_toggles.webp" width="200"/> |
 | [`ecs_animated_models`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsAnimatedModels.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_animated_models.webp" width="200"/> |
 | [`ecs_behaviors`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsBehaviors.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_behaviors.webp" width="200"/> |

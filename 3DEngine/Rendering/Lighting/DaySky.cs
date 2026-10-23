@@ -25,7 +25,7 @@ namespace Engine;
 /// each painting, so the drawn sky below the horizon follows the hour.
 /// </para>
 /// </remarks>
-internal sealed class DaySky
+internal sealed partial class DaySky
 {
     /// <summary>The painted map's width and height in pixels, a degree and a half a pixel, which a smooth gradient needs no more than.</summary>
     internal const int Width = 256, Height = 128;

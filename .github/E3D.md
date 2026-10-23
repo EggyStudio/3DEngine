@@ -47,6 +47,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `frames.wait <n>` | answers once n more frames have run |
 | `shot <path>` | writes the frame being drawn to a PNG and answers once it is written, with the frame's number (`./e3d shot <path>`) |
 | `frame.read [<x> <y> <w> <h>]` | reads a rectangle of the next frame drawn, in window pixels from the top left, or the whole frame, and answers its mean sRGB color, the largest step between neighboring pixels along its middle row and column with the pixel it starts at, and the frame's number, as `mean 81 137 218 step 0 at 0 0 frame 94` |
+| `sky.time [<hours>]` | sets the hour of the day sky the program runs, in hours from its first midnight, or with nothing reads it, and answers the time, the hour of the day, the day, the sun's height in degrees and the moon's phase, as `time 30.00 hour 6.00 day 1 sun 0.0 moon 0` |
 | `record <path> <length> [every <step>] [scale <s>] [play <time>]`, `record.stop`, `record.status` | records the window as an animated GIF or PNG, a picture each step of the app's clock (`250ms`, `15f`) for a length (`5s`, `120f`, or a count of pictures), says how it stands, and stops it sooner (`./e3d record <path> <length> --every <step>` waits for the file) |
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |

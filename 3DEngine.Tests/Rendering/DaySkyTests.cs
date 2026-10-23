@@ -227,4 +227,164 @@ public sealed class DaySkyTests : IDisposable
             folder.Dispose();
         }
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void The_Moon_Is_Full_On_The_First_Night_Goes_Through_Eight_Phases_And_Changes_While_It_Is_Down()
+    {
+        DaySky.MoonPhase(0, 20).Should().Be(0, "the first night's moon is full");
+        DaySky.MoonPhase(1, 3).Should().Be(0, "the hours before noon belong to the night that began the evening before");
+        DaySky.MoonPhase(1, 20).Should().Be(1);
+        DaySky.MoonPhase(2, 22).Should().Be(2, "two days on, the third night's moon is a third quarter");
+        DaySky.MoonPhase(8, 22).Should().Be(0, "eight days bring it round");
+        DaySky.MoonPhase(0, 3).Should().Be(7, "the hours before the first noon show the night before it");
+
+        // Lit whole when full and dark when new, the left half alone at the last quarter and the right
+        // at the first.
+        bool Lit(int phase, int x) => SkyArt.Lit(phase, x, SkyArt.Size / 2);
+        Enumerable.Range(0, SkyArt.Size).All(x => Lit(0, x)).Should().BeTrue();
+        Enumerable.Range(0, SkyArt.Size).Any(x => Lit(4, x)).Should().BeFalse();
+        (Lit(2, 0) && !Lit(2, SkyArt.Size - 1)).Should().BeTrue("the waning moon is lit on the left");
+        (!Lit(6, 0) && Lit(6, SkyArt.Size - 1)).Should().BeTrue("the waxing moon is lit on the right");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Three_Thousand_Stars_Of_028_Degrees_Spread_Evenly_Over_The_Sky_Most_Faint_And_A_Few_Bright()
+    {
+        DaySky.Stars.Should().HaveCount(3000);
+        var half = DaySky.StarDistance * MathF.Tan(float.DegreesToRadians(0.28f)) / 2;
+        DaySky.Stars.Should().OnlyContain(star => MathF.Abs(star.Right.Length() - half) < 1e-3f && MathF.Abs(star.Up.Length() - half) < 1e-3f
+            && MathF.Abs(star.Way.Length() - 1) < 1e-4f, "each a square 0.28 degrees across");
+
+        // As many on each side of the sky's three axes, within a few percent of half.
+        foreach (var axis in new[] { Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ })
+            (DaySky.Stars.Count(star => Vector3.Dot(star.Way, axis) > 0) / 3000f).Should().BeInRange(0.47f, 0.53f, $"along {axis}");
+
+        // Most are faint and a few bright, the brightest of a cool white.
+        var levels = DaySky.Stars.Select(star => star.Color.Z).OrderBy(z => z).ToArray();
+        levels[1500].Should().BeLessThan(0.35f, "the middle star is faint");
+        DaySky.Stars.Count(star => star.Color.Z > 0.9f).Should().BeInRange(1, 150, "a few are bright");
+        DaySky.Stars.Should().OnlyContain(star => star.Color.Z >= star.Color.X, "each a cool white, its blue the most");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void By_Day_The_Sun_Is_One_Quad_And_No_Star_Shows_By_Night_The_Moon_And_The_Stars_Above_And_A_Setting_Sun_Dims_In_The_Band()
+    {
+        var sky = new DaySky { Day = new SkyDay { Tilt = Tilt } };
+        var textures = new List<int>();
+        void Quad(ReadOnlySpan<ImmediateVertex> corners, int texture) => textures.Add(texture);
+        (int Stars, int Bodies) At(float hours)
+        {
+            sky.Hours = hours;
+            textures.Clear();
+            return (sky.DrawStars(Quad, DaySky.HorizonBlendDegrees), sky.DrawSunAndMoon(Quad, DaySky.HorizonBlendDegrees, 1, 2));
+        }
+
+        At(12).Should().Be((0, 1), "at noon the sun is one quad, the moon below the horizon and no star shown");
+        textures.Should().Equal(1);
+
+        var midnight = At(24);
+        midnight.Bodies.Should().Be(1, "at midnight the moon is up and the sun down");
+        textures.Last().Should().Be(2);
+        midnight.Stars.Should().BeInRange(1000, 1500, "the stars above the horizon, thinned near it");
+
+        At(18).Bodies.Should().BeGreaterThan(1, "the setting sun is a grid of a quad to each pixel, dimming through the horizon band");
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public void The_Sky_Time_Command_Reads_And_Sets_The_Hour_And_Says_When_No_Day_Sky_Runs()
+    {
+        Headless();
+        string Run(string line, out string? code)
+        {
+            using (ConsoleHost.Lend(GetApp().World, GetApp()))
+            {
+                var answer = ConsoleCommands.Run(line) ?? "";
+                code = ConsoleHost.Failure?.Code;
+                return answer;
+            }
+        }
+
+        Run("sky.time", out var none);
+        none.Should().Be("NO_DAY_SKY");
+        SetSkyDay(new SkyDay { Minutes = 0, Tilt = Tilt });
+        Run("sky.time 6 7", out var two);
+        two.Should().Be("BAD_ARGUMENT");
+        Run("sky.time dawn", out var word);
+        word.Should().Be("BAD_ARGUMENT");
+
+        Run("sky.time 70", out var code).Should().Be("time 70.00 hour 22.00 day 2 sun -56.0 moon 2");
+        code.Should().BeNull();
+        GetSkyTime().Should().Be(70);
+        Run("sky.time", out _).Should().Be("time 70.00 hour 22.00 day 2 sun -56.0 moon 2");
+        Run("sky.time 18", out _).Should().Be("time 18.00 hour 18.00 day 0 sun 0.0 moon 0", "a sun on the horizon is at 0.0 degrees, never -0.0");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Examples_Scene_At_A_Quarter_Past_Six_Reads_As_Its_Record_On_The_Device()
+    {
+        var config = Config.Default.WithWindow("day sky dawn", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        // The scene core_day_sky draws, its ring of stones about the eye and the eye looking toward
+        // the sun, tipped up 25 degrees, with the day standing at a quarter past six.
+        SetSkyDay(new SkyDay { Minutes = 0, Tilt = 35 });
+        SetSkyTime(6.25f);
+        SetShadowDistance(60);
+        var ground = LoadModelFromMesh(GenMeshPlane(400, 400, 1, 1));
+        ground.Materials[0] = new ModelMaterial(new Color(105, 135, 80)) { Roughness = 0.9f };
+        var stone = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        stone.Materials[0] = new ModelMaterial(new Color(170, 165, 155)) { Roughness = 0.8f };
+        var toSun = DaySky.SunToward(6.25f, 35);
+        var eye = new Vector3(0, 1.7f, 0);
+        var camera = new Camera3D(eye, eye + Vector3.Normalize(new Vector3(toSun.X, 0, toSun.Z)) + Vector3.UnitY * MathF.Tan(float.DegreesToRadians(25)), Vector3.UnitY, 70);
+
+        var folder = new TestFolder("engine-day-sky-dawn-");
+        try
+        {
+            var path = Path.Combine(folder.Path, "dawn.png");
+            for (int frame = 0; frame < 14 && !File.Exists(path); frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawSkybox();
+                DrawModel(ground, Vector3.Zero, 1, Color.White);
+                for (int i = 0; i < 12; i++)
+                {
+                    var (at, height) = (new Vector3(MathF.Cos((i + 0.5f) * MathF.Tau / 12), 0, MathF.Sin((i + 0.5f) * MathF.Tau / 12)) * 16, 2.5f + i % 3);
+                    DrawModelEx(stone, at + new Vector3(0, height / 2, 0), Vector3.UnitY, 0, new Vector3(1.2f, height, 0.8f), Color.White);
+                }
+                EndMode3D();
+                if (frame == 4) TakeScreenshot(path);
+                EndDrawing();
+            }
+            File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+            var dawn = LoadImage(path);
+            FrameReadCommands.Reading Read(int x, int y, int w, int h) => FrameReadCommands.Measure(dawn.Data, dawn.Width, x, y, w, h);
+            static int Apart(FrameReadCommands.Reading a, Color b) => Math.Max(Math.Abs(a.Red - b.R), Math.Max(Math.Abs(a.Green - b.G), Math.Abs(a.Blue - b.B)));
+
+            // The record, read on lavapipe, each rectangle's mean within a few levels of it.
+            var sun = Read(392, 346, 16, 16);
+            var sky = Read(150, 320, 80, 20);
+            var field = Read(600, 400, 100, 30);
+            Apart(sun, SunRecord).Should().BeLessThanOrEqualTo(6, $"the sun's square, {sun}");
+            Apart(sky, SkyRecord).Should().BeLessThanOrEqualTo(6, $"the dawn sky beside the sun, {sky}");
+            Apart(field, GroundRecord).Should().BeLessThanOrEqualTo(6, $"the ground in the low light, {field}");
+            (sun.Red > sky.Red && sun.Green > sky.Green).Should().BeTrue("the sun stands out of the sky about it");
+        }
+        finally
+        {
+            folder.Dispose();
+            UnloadModel(ground);
+            UnloadModel(stone);
+        }
+    }
+
+    // The dawn frame's rectangles as lavapipe reads them, the sun's square dimmed by the horizon band it
+    // is rising through, the sky by it in the dusk's rose and the ground in the low orange light.
+    private static readonly Color SunRecord = new(227, 199, 176), SkyRecord = new(156, 124, 132), GroundRecord = new(95, 80, 66);
 }

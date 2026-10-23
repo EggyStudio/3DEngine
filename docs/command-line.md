@@ -132,6 +132,7 @@ through the engine itself, so they reach a hidden or offscreen program that no d
 ./e3d command input.button 0 RightFaceDown 30       # press a gamepad's bottom face button
 ./e3d shot after.png                                # the frame being drawn, as a PNG, with its number
 ./e3d command frame.read 0 0 64 64                  # a rectangle of the next frame, its mean color and largest step
+./e3d command sky.time 18                           # the day sky at six in the evening
 ```
 
 `input.key` and `input.click` answer once the input is released, so a `shot` after them sees what
@@ -142,7 +143,10 @@ between neighboring pixels along its middle row and column with the pixel the st
 the frame's number, as `mean 81 137 218 step 0 at 0 0 frame 94`. A sky's color is read as the color
 it was cleared to, and the edge of a shape or a shadow shows as a step, so `frame.read` over a box's
 side says whether it is lit, and over the line where it meets the floor whether its shadow is
-there. `input.button` and `input.axis` make pads up to the one they name where fewer are
+there. `sky.time 18` sets the hour of the day sky a program runs, so a script takes its pictures at
+the hours it names, and answers where the sky stands, its time, the hour of the day, the day, the
+sun's height in degrees and the moon's phase, as `time 18.00 hour 18.00 day 0 sun 0.0 moon 0`.
+`input.button` and `input.axis` make pads up to the one they name where fewer are
 connected, four at most, which is how the `core_input_gamepad` example is captured with no pad on
 the machine and `games/Sumo`'s second player is controlled on pad 1. `./e3d command frames.wait
 60` waits for sixty frames, for a scene to settle before it is captured. An answer is waited for up

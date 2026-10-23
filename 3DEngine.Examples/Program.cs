@@ -55,6 +55,7 @@ var examples = new Dictionary<string, Action>
     ["core_clipboard_text"] = CoreClipboardText.Run,
     ["core_compute_hash"] = CoreComputeHash.Run,
     ["core_vr_simulator"] = CoreVrSimulator.Run,
+    ["core_day_sky"] = CoreDaySky.Run,
     ["shapes_basic_shapes"] = ShapesBasicShapes.Run,
     ["shapes_bouncing_ball"] = ShapesBouncingBall.Run,
     ["shapes_colors_palette"] = ShapesColorsPalette.Run,
