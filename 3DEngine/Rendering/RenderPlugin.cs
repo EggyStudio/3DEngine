@@ -117,6 +117,9 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<DebugKeys>();
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugOverlay.Keys, "RenderPlugin.DebugOverlayKeys").MainThreadOnly().Read<Input>());
+        // The day sky moves its hour, its light and its map after the program's frame, so an hour the
+        // program set in it is drawn in it.
+        app.AddSystem(Stage.PostUpdate, new SystemDescriptor(world => DaySky.Run(world, app), "RenderPlugin.DaySky").MainThreadOnly());
         // The overlay is drawn over everything else in 2D, after the frame's systems and before the
         // frame is rendered where it is.
         SystemDescriptor Overlay() => new SystemDescriptor(world => DebugOverlay.Draw(world, app), "RenderPlugin.DebugOverlay").MainThreadOnly();

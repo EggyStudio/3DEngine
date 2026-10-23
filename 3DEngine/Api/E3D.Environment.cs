@@ -12,11 +12,15 @@ public static partial class E3D
     /// The image is decoded here, and the next frame uploads it and filters it by roughness on the
     /// GPU into a cube map with faces 64 texels wide, so a map can change while a level runs. With a
     /// map set, models are lit by it and the ECS's light entities, where with neither they are
-    /// drawn unlit. <see cref="DrawSkybox()"/> draws it as a background.
+    /// drawn unlit. <see cref="DrawSkybox()"/> draws it as a background. A map set here takes the
+    /// place of the day sky <see cref="SetSkyTime"/> starts, ending it.
     /// </remarks>
     /// <exception cref="ArgumentException">The image is empty.</exception>
-    public static void SetEnvironmentMap(Image equirectangular, float intensity = 1) =>
+    public static void SetEnvironmentMap(Image equirectangular, float intensity = 1)
+    {
         World.InsertResource(EnvironmentMap.FromEquirectangular(equirectangular, intensity));
+        EndDaySky();
+    }
 
     /// <summary>
     /// Lights models from all around by an equirectangular image file. A Radiance <c>.hdr</c> keeps
@@ -38,6 +42,7 @@ public static partial class E3D
                 World.InsertResource(EnvironmentMap.FromHdrFile(File.ReadAllBytes(path), intensity));
             else
                 World.InsertResource(EnvironmentMap.FromEquirectangular(LoadImage(path), intensity));
+            EndDaySky();
             return true;
         }
         catch (Exception ex) when (ex is ArgumentException or IOException)
@@ -47,8 +52,12 @@ public static partial class E3D
         }
     }
 
-    /// <summary>Stops lighting models by an environment map.</summary>
-    public static void UnloadEnvironmentMap() => World.RemoveResource<EnvironmentMap>();
+    /// <summary>Stops lighting models by an environment map, and ends the day sky where it runs.</summary>
+    public static void UnloadEnvironmentMap()
+    {
+        World.RemoveResource<EnvironmentMap>();
+        EndDaySky();
+    }
 
     /// <summary>
     /// Sets how much of the environment map's light reaches the scene, <paramref name="intensity"/>
@@ -131,6 +140,14 @@ public static partial class E3D
         horizon.Color = color;
         horizon.BlendDegrees = float.IsFinite(blendDegrees) ? Math.Clamp(blendDegrees, 0, 90) : 0;
     }
+
+    /// <summary>
+    /// The color the sky is drawn in below the horizon and the degrees it blends over, as
+    /// <see cref="SetSkyHorizon"/> or the day sky left them, or a clear color and 0 where none is set.
+    /// </summary>
+    /// <remarks>A program's own fog reads it to fade its land into the color the day sky draws at the hour.</remarks>
+    public static (Color Color, float BlendDegrees) GetSkyHorizon() =>
+        TryRes<SkyHorizon>(out var horizon) ? (horizon.Color, horizon.BlendDegrees) : (Color.Blank, 0);
 
     // The sky's model shader, compiled once per window from the staged sky.slang.
     private static Shader SkyShader()

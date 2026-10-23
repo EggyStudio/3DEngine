@@ -688,6 +688,7 @@ static class Engine.E3D
   const int AnimationFps = 60
   const int MeshStreamBuffer = 9
   const int PrototypePixelsPerMeter = 1024
+  static (Color, float) GetSkyHorizon()
   static (bool, float, float, float) GetAutoExposure()
   static (float, Color) GetEnvironmentLight()
   static (float, bool) GetMotionBlur()
@@ -852,6 +853,7 @@ static class Engine.E3D
   static ShaderBuffer LoadShaderBuffer(int size)
   static ShaderBuffer LoadShaderBuffer<T>(ReadOnlySpan<T> data) where T : unmanaged
   static ShaderReadback ReadShaderBufferAsync(ShaderBuffer buffer, int offset = 0, int size = 0)
+  static SkyDay GetSkyDay()
   static Sound LoadSound(string fileName)
   static Sound LoadSoundAlias(Sound source)
   static Sound LoadSoundFromWave(Wave wave)
@@ -1038,6 +1040,7 @@ static class Engine.E3D
   static float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b)
   static float GetPhysicsJointForce(PhysicsJoint joint)
   static float GetPhysicsSliderPosition(PhysicsJoint slider)
+  static float GetSkyTime()
   static float MatrixTrace(Matrix4x4 mat)
   static float Normalize(float value, float start, float end)
   static float Remap(float value, float inputStart, float inputEnd, float outputStart, float outputEnd)
@@ -1495,7 +1498,9 @@ static class Engine.E3D
   static void SetShaderValueV<T>(Shader shader, int location, ReadOnlySpan<T> values) where T : unmanaged
   static void SetShadowDistance(float distance)
   static void SetShadowMapSize(int size)
+  static void SetSkyDay(SkyDay day)
   static void SetSkyHorizon(Color color, float blendDegrees)
+  static void SetSkyTime(float hours)
   static void SetSoundPan(Sound sound, float pan)
   static void SetSoundPitch(Sound sound, float pitch)
   static void SetSoundVolume(Sound sound, float volume)
@@ -3274,6 +3279,17 @@ readonly struct Engine.ShaderReadback : IEquatable<ShaderReadback>
   static bool op_Equality(ShaderReadback left, ShaderReadback right)
   static bool op_Inequality(ShaderReadback left, ShaderReadback right)
   void Deconstruct(out int Id, out int Size)
+readonly struct Engine.SkyDay : IEquatable<SkyDay>
+  LightHandle Light { get; init; }
+  SkyDay()
+  bool Equals(SkyDay other)
+  float Minutes { get; init; }
+  float Tilt { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(SkyDay left, SkyDay right)
+  static bool op_Inequality(SkyDay left, SkyDay right)
 sealed class Engine.Sound
   Sound()
   double DurationSeconds { get; }

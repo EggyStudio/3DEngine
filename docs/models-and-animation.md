@@ -347,6 +347,37 @@ from below, and a clear color draws the image as it is again:
 SetSkyHorizon(new Color(200, 210, 225), blendDegrees: 6);
 ```
 
+## A day sky
+
+`SetSkyTime` starts a day sky at an hour counted from its first midnight. It paints the environment
+map from the hour, a blue gradient by day, an orange horizon at dawn and dusk and a dark violet by
+night, and turns a directional light that casts shadows, the sun's by day, a warm white at noon and
+an orange low, and the moon's by night. `DrawSkybox` draws it, and a program draws its own things
+over it as before:
+
+<!-- compiled with:
+Camera3D camera = default;
+-->
+```csharp
+SetSkyTime(9);
+SetSkyDay(new SkyDay { Minutes = 10 });
+// ...
+BeginMode3D(camera);
+DrawSkybox();
+```
+
+The hour moves on by itself, a whole day in `SkyDay.Minutes` of the program's time, twenty unless
+set, and a day of 0 minutes stands at the hour `SetSkyTime` sets, 30 being six in the morning of the
+second day. The sun rises in the east, along +X, at 6, passes `SkyDay.Tilt` degrees south of the
+zenith, toward +Z, at noon, and sets in the west at 18. A program with a sun of its own names it in
+`SkyDay.Light`, and the sky turns and colors that light in place of making one of its own, so the
+world holds one sun.
+
+The sky sets the horizon `SetSkyHorizon` sets to the hour's color, which `GetSkyHorizon` reads for
+a program's own fog, and paints the map again once the hour has moved three minutes of its day, at
+most four times a second. `SetEnvironmentMap` or `UnloadEnvironmentMap` ends it, with the light it
+made and the horizon it set.
+
 ## Many copies of one mesh
 
 Each `DrawModel` is a draw of its own, and the renderer gathers draws of the same mesh and material

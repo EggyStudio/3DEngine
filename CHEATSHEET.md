@@ -668,7 +668,7 @@ model shader drawn with `DrawMeshInstanced` picks each copy's values from it by 
 
 ## Models and meshes
 
-<!-- written by build/cheatsheet.sh from E3D.Models.cs, E3D.MeshGen.cs, E3D.Meshes.cs, E3D.Environment.cs, E3D.Animation.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Models.cs, E3D.MeshGen.cs, E3D.Meshes.cs, E3D.Environment.cs, E3D.DaySky.cs, E3D.Animation.cs -->
 ```csharp
 ModelMesh GenMeshCube(float width, float height, float length);  // Makes a box centered on the origin, with a normal and texture coordinates per face
 ModelMesh GenMeshSphere(float radius, int rings, int slices);  // Makes a sphere centered on the origin, its poles on the Z axis, as raylib's is
@@ -720,12 +720,18 @@ void UnloadMesh(ModelMesh mesh);                         // Frees a mesh
 
 void SetEnvironmentMap(Image equirectangular, float intensity = 1);  // Lights models from all around by an equirectangular image of sRGB color, a sky photo or a painted gradient, which smooth and metal surfaces reflect and rough ones scatter
 bool SetEnvironmentMap(string fileName, float intensity = 1);  // Lights models from all around by an equirectangular image file
-void UnloadEnvironmentMap();                             // Stops lighting models by an environment map
+void UnloadEnvironmentMap();                             // Stops lighting models by an environment map, and ends the day sky where it runs
 void SetEnvironmentLight(float intensity, Color tint);   // Sets how much of the environment map's light reaches the scene, intensity of it times tint, apart from the sky the map draws, 1 and white unless set
 (float Intensity, Color Tint) GetEnvironmentLight();     // The share and tint of the environment map's light on the scene as SetEnvironmentLight left them, 1 and white unless set
 void DrawSkybox(Color tint);                             // Draws the environment map as the sky behind everything, through the camera of the BeginMode3D it is called inside
 void DrawSkybox();                                       // Draws the environment map as the sky behind everything, untinted
 void SetSkyHorizon(Color color, float blendDegrees);     // Draws the sky below the horizon in color, blended into the environment map's image over blendDegrees above it, so land a program fades into fog of that color meets the same color past the last thing drawn
+(Color Color, float BlendDegrees) GetSkyHorizon();       // The color the sky is drawn in below the horizon and the degrees it blends over, as SetSkyHorizon or the day sky left them, or a clear color and 0 where none is set
+
+void SetSkyTime(float hours);                            // Sets the day sky's time in hours from its first midnight, starting the day sky where it was not running, so the environment map, the light and the horizon follow the hour, 30 being six in the morning of the second day
+float GetSkyTime();                                      // The day sky's time in hours from its first midnight, or 0 where none runs
+void SetSkyDay(SkyDay day);                              // Sets how the day sky's day runs, the minutes it lasts, the lean of the sun's path and the light it turns, starting the day sky at midnight where it was not running
+SkyDay GetSkyDay();                                      // How the day sky's day runs, as SetSkyDay left it, or the day it runs unless set
 
 ModelAnimation[] LoadModelAnimations(string fileName);   // Loads every clip of a model file (glTF, FBX, COLLADA and the rest Assimp reads), each sampled into poses at AnimationFps frames a second
 void UpdateModelAnimation(Model model, ModelAnimation animation, float frame);  // Poses model as animation has it at frame, counted round the clip's length, by moving each skinned mesh's vertices from their rest
