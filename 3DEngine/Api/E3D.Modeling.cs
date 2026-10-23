@@ -393,6 +393,64 @@ public static partial class E3D
     /// <exception cref="ArgumentOutOfRangeException">The count is not from 1 to 64.</exception>
     public static void EditMeshSubdivide(EditMesh mesh, int cuts = 1) => Edited(mesh, nameof(EditMeshSubdivide))?.Subdivide(cuts);
 
+    // -- Joining faces, closing holes, mirroring, sweeping and smoothing
+
+    /// <summary>Joins the loops round two regions of selected faces with a band of four-cornered faces, taking the selected faces away.</summary>
+    /// <remarks>
+    /// Each region has one loop round it of the same count of vertices, as two faces facing each
+    /// other across a gap have, and the band runs straight across between them. The band is
+    /// selected after. The recipe's line is <c>bridge</c>.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The selected faces are not two regions with loops of the same count.</exception>
+    public static void EditMeshBridge(EditMesh mesh) => Edited(mesh, nameof(EditMeshBridge))?.Bridge();
+
+    /// <summary>Closes each hole whose edges all have both ends selected with one face, facing the way the faces round it face.</summary>
+    /// <remarks>The recipe's line is <c>fill</c>.</remarks>
+    public static void EditMeshFill(EditMesh mesh) => Edited(mesh, nameof(EditMeshFill))?.Fill();
+
+    /// <summary>Joins each region of selected faces into one face round it, the edges and vertices inside it taken away and its shape kept.</summary>
+    /// <remarks>A region with a hole in it is left as it was. The recipe's line is <c>dissolve</c>.</remarks>
+    public static void EditMeshDissolve(EditMesh mesh) => Edited(mesh, nameof(EditMeshDissolve))?.Dissolve();
+
+    /// <summary>Takes away each selected edge that two faces run along, joining the faces on either side into one, its shape kept.</summary>
+    /// <remarks>The recipe's line is <c>dissolve edges</c>.</remarks>
+    public static void EditMeshDissolveEdges(EditMesh mesh) => Edited(mesh, nameof(EditMeshDissolveEdges))?.DissolveEdges();
+
+    /// <summary>Cuts the selected faces along the plane through <paramref name="point"/> square to <paramref name="normal"/>, each face it crosses split in two.</summary>
+    /// <remarks>
+    /// The faces beside a cut edge take its new vertex, so the mesh stays closed, and the vertices
+    /// along the cut are selected after. The recipe's line is <c>knife y at 0 1.5 0</c>, or the
+    /// normal's three numbers, the point the origin where it says none.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The normal is zero.</exception>
+    public static void EditMeshKnife(EditMesh mesh, Vector3 normal, Vector3 point = default) => Edited(mesh, nameof(EditMeshKnife))?.Knife(normal, point);
+
+    /// <summary>Copies the selected faces mirrored across the plane through a pivot square to an axis, the vertices on the plane shared, and selects the copy.</summary>
+    /// <remarks>
+    /// A half whose open side lies on the plane mirrored makes a whole with no vertex twice, and a
+    /// face lying in the plane is not copied. The recipe's line is <c>mirror x</c>, ending in
+    /// <c>at X Y Z</c> where the plane does not pass through the origin.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The axis is zero.</exception>
+    public static void EditMeshMirror(EditMesh mesh, Vector3 axis, Vector3 pivot = default) => Edited(mesh, nameof(EditMeshMirror))?.Mirror(axis, pivot);
+
+    /// <summary>Sweeps the selected faces, or the selected edges where no face is selected, round an axis through a point by an angle in a number of steps.</summary>
+    /// <remarks>
+    /// The faces turn as an extrude moves them, a band of faces swept each step, and a whole turn
+    /// joins the sweep's end to its start, so a face beside the axis spun round is a closed ring.
+    /// Edges alone each sweep a band, as a lathe turns a profile. The recipe's line is
+    /// <c>spin y 360 16</c>, ending in <c>at X Y Z</c> where the axis does not pass through the origin.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The axis is zero.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The angle is zero or past a whole turn, or the steps are not from 1 to 256.</exception>
+    public static void EditMeshSpin(EditMesh mesh, Vector3 axis, float degrees, int steps, Vector3 center = default) =>
+        Edited(mesh, nameof(EditMeshSpin))?.Spin(axis, degrees, steps, center);
+
+    /// <summary>Moves each selected vertex toward the mean of the vertices it shares an edge with, by a factor from zero to one.</summary>
+    /// <remarks>The recipe's line is <c>smooth 0.5</c>.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The factor is not from zero to one.</exception>
+    public static void EditMeshSmooth(EditMesh mesh, float factor = 0.5f) => Edited(mesh, nameof(EditMeshSmooth))?.Smooth(factor);
+
     // -- Building a model to draw and collide with
 
     /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>

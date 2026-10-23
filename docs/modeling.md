@@ -272,6 +272,63 @@ triangle a grid of triangles, and a face of more corners a fan of triangles from
 beside one subdivided takes the new vertices on the edge they share as corners of its own, so the
 mesh stays closed, and a box subdivided once has 26 vertices and 24 faces.
 
+## Knife
+
+`EditMeshKnife(mesh, normal, point)`, or `knife y at 0 1.5 0`, cuts the selected faces along the
+plane through the point square to the normal, the point the origin where the line says none. Each
+selected face the plane crosses is split in two along it, the faces beside a cut edge take its new
+vertex so the mesh stays closed, and the vertices along the cut are selected after. A box cut with
+every face selected has a loop round it, and cut with its top alone has its top split in two.
+
+## Bridge, fill and dissolve
+
+`EditMeshBridge(mesh)`, or `bridge`, joins the loops round two regions of selected faces with a band
+of four-cornered faces and takes the selected faces away. Each region has one loop round it of the
+same count of vertices, as two faces facing each other across a gap have, and the band runs
+straight across between them, so two boxes bridged at their facing sides are one solid:
+
+```csharp
+var dumbbell = LoadEditMesh();
+EditMeshBox(dumbbell, Vector3.One);
+EditMeshBox(dumbbell, Vector3.One, at: new Vector3(3, 0, 0));
+EditMeshSelectInside(dumbbell, new Vector3(1, 0, 0), new Vector3(3, 1, 1));   // the two facing sides
+EditMeshBridge(dumbbell);
+```
+
+`EditMeshFill(mesh)`, or `fill`, closes each hole whose edges all have both ends selected with one
+face, facing the way the faces round it face. `EditMeshDissolve(mesh)`, or `dissolve`, joins each
+region of selected faces into one face round it, taking away the edges and vertices inside it, and
+`EditMeshDissolveEdges(mesh)`, or `dissolve edges`, takes away each selected edge two faces run
+along, joining them. Each keeps the shape, the vertices on the joined face's outline staying, and a
+region with a hole in it is left as it was.
+
+## Mirror, spin and smooth
+
+`EditMeshMirror(mesh, axis, pivot)`, or `mirror x`, copies the selected faces mirrored across the
+plane through the pivot square to the axis, the origin where none is given, and selects the copy.
+The vertices on the plane are shared by both halves, so a half whose open side lies on the plane
+makes a whole with no vertex twice. A face lying in the plane is not copied, so a half to be
+mirrored is left open there:
+
+```csharp
+var slab = LoadEditMesh();
+EditMeshBox(slab, new Vector3(1, 2, 2));
+EditMeshSelectFacing(slab, -Vector3.UnitX);
+EditMeshDelete(slab);                          // the half, open on the plane x = 0
+EditMeshSelectAll(slab);
+EditMeshMirror(slab, Vector3.UnitX);           // the whole, two meters wide
+```
+
+`EditMeshSpin(mesh, axis, degrees, steps, center)`, or `spin y 360 16`, sweeps the selected faces
+round the axis through the center by the angle in the number of steps. The faces turn as an extrude
+moves them, a band of faces swept each step, and a whole turn joins the sweep's end to its start, so
+a face beside the axis spun round is a closed ring. With no face selected, each selected edge sweeps
+a band of its own, as a lathe turns a profile.
+
+`EditMeshSmooth(mesh, factor)`, or `smooth 0.5`, moves each selected vertex toward the mean of the
+vertices it shares an edge with, by the factor from zero to one, so smoothing a subdivided box
+rounds it and smoothing a box's own eight corners by a half draws it in to a smaller box.
+
 ## Delete, merge, flip, triangulate and duplicate
 
 `EditMeshDelete(mesh)`, or `delete`, takes away the selected faces, or where none is selected the

@@ -1569,6 +1569,29 @@ void EditMeshLoopCut(EditMesh mesh, float fraction = 0.5f); // Cuts round the ri
 void EditMeshSubdivide(EditMesh mesh, int cuts = 1);     // Cuts each selected face into a grid, each of its edges into
                                                          // one more part than the count of cuts
 
+void EditMeshBridge(EditMesh mesh);                      // Joins the loops round two regions of selected faces with a
+                                                         // band of four-cornered faces, taking the selected faces away
+void EditMeshFill(EditMesh mesh);                        // Closes each hole whose edges all have both ends selected
+                                                         // with one face, facing the way the faces round it face
+void EditMeshDissolve(EditMesh mesh);                    // Joins each region of selected faces into one face round it,
+                                                         // the edges and vertices inside it taken away and its shape
+                                                         // kept
+void EditMeshDissolveEdges(EditMesh mesh);               // Takes away each selected edge that two faces run along,
+                                                         // joining the faces on either side into one, its shape kept
+void EditMeshKnife(EditMesh mesh, Vector3 normal, Vector3 point = default); // Cuts the selected faces along the plane
+                                                                            // through point square to normal, each face
+                                                                            // it crosses split in two
+void EditMeshMirror(EditMesh mesh, Vector3 axis, Vector3 pivot = default); // Copies the selected faces mirrored across
+                                                                           // the plane through a pivot square to an
+                                                                           // axis, the vertices on the plane shared,
+                                                                           // and selects the copy
+void EditMeshSpin(EditMesh mesh, Vector3 axis, float degrees, int steps, Vector3 center = default);
+                                                         // Sweeps the selected faces, or the selected edges where no
+                                                         // face is selected, round an axis through a point by an angle
+                                                         // in a number of steps
+void EditMeshSmooth(EditMesh mesh, float factor = 0.5f); // Moves each selected vertex toward the mean of the vertices
+                                                         // it shares an edge with, by a factor from zero to one
+
 Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
                                                          // material for each material slot, in the order of the slots
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from

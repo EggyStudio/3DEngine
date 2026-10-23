@@ -112,6 +112,59 @@ internal sealed partial class EditMeshData
         Did($"subdivide {cuts}");
     }
 
+    /// <summary>Cuts the selected faces along a plane through a point, each face the plane crosses split in two along it.</summary>
+    /// <remarks>
+    /// Each edge of a selected face the plane crosses takes a vertex where it does, which a face
+    /// beside it takes too, and a face whose outline meets the plane at two corners not side by side
+    /// is split between them, so a box cut across its middle with every face selected has a loop
+    /// round it. A face the plane meets more often, as a concave one may be, takes the vertices and
+    /// stays whole. The vertices along the cut are selected after.
+    /// </remarks>
+    public void Knife(Vector3 normal, Vector3 point)
+    {
+        if (normal == Vector3.Zero) throw new ArgumentException("A knife's plane faces a direction that is not zero.", nameof(normal));
+        if (!float.IsFinite(point.X) || !float.IsFinite(point.Y) || !float.IsFinite(point.Z))
+            throw new ArgumentOutOfRangeException(nameof(point), point, "A knife's plane passes through a finite point.");
+
+        // A vertex within a tenth of a millimeter of the plane is on it.
+        const float On = 1e-4f;
+        var unit = Vector3.Normalize(normal);
+        float Side(int vertex) => Vector3.Dot(_positions[vertex] - point, unit);
+
+        var picked = _selectedFaces.Order().Select(index => _faces[index]).ToList();
+        var points = new Dictionary<(int Low, int High), int[]>();
+        foreach (var face in picked)
+        {
+            var c = face.Corners;
+            for (int k = 0; k < c.Length; k++)
+            {
+                var (a, b) = (c[k], c[(k + 1) % c.Length]);
+                var key = a < b ? (a, b) : (b, a);
+                var (low, high) = (Side(key.Item1), Side(key.Item2));
+                if (points.ContainsKey(key) || !((low > On && high < -On) || (low < -On && high > On))) continue;
+                points[key] = [AddVertex(Vector3.Lerp(_positions[key.Item1], _positions[key.Item2], low / (low - high)))];
+            }
+        }
+        InsertAlongEdges(points);
+
+        var along = new HashSet<int>(points.Values.Select(made => made[0]));
+        foreach (var face in picked)
+        {
+            var c = face.Corners;
+            var on = Enumerable.Range(0, c.Length).Where(k => along.Contains(c[k]) || MathF.Abs(Side(c[k])) <= On).ToArray();
+            if (on is not [var first, var second] || second - first == 1 || (first == 0 && second == c.Length - 1)) continue;
+            face.Corners = c[first..(second + 1)];
+            _faces.Add(new Face([.. c[second..], .. c[..(first + 1)]], face.Slot, face.Smooth));
+            along.UnionWith([c[first], c[second]]);
+        }
+
+        _selectedFaces.Clear();
+        _selectedVertices.Clear();
+        _selectedVertices.UnionWith(along);
+        Changed();
+        Did($"knife {AxisWords(normal)}{(point == Vector3.Zero ? "" : " at " + V(point))}");
+    }
+
     // Cuts the ring of faces across one edge, and answers the vertices it made.
     private List<int> CutRing((int Low, int High) start, float fraction)
     {
