@@ -18,8 +18,19 @@ namespace Engine.Tests.Diagnostics;
 [Trait("Category", "Integration")]
 public sealed class DebugOverlayTests : IDisposable
 {
-    public DebugOverlayTests() =>
-        UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));
+    // The vertices the frame's list holds once the overlay has drawn, read before the list is let go
+    // at the frame's end, as a headless run lets it go with nothing rendered.
+    private int _atEnd;
+
+    public DebugOverlayTests()
+    {
+        var app = new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins());
+        app.AddSystem(Stage.Last, new SystemDescriptor(world => _atEnd = world.Resource<DrawList>().Vertices.Length, "DebugOverlayTests.AtEnd")
+            .After("RenderPlugin.DebugOverlay")
+            .Before("RenderPlugin.ClearDraws")
+            .MainThreadOnly());
+        UseApp(app);
+    }
 
     public void Dispose()
     {
@@ -164,7 +175,7 @@ public sealed class DebugOverlayTests : IDisposable
             after = Draws.Vertices.Length;
         });
         after.Should().Be(before, "the text drawn in the hidden scope is dropped");
-        Draws.Vertices.Length.Should().BeGreaterThan(after, "the overlay's lines are drawn after the program's, over the hidden interface");
+        _atEnd.Should().BeGreaterThan(after, "the overlay's lines are drawn after the program's, over the hidden interface");
 
         var said = Overlay.Written!;
         said.Head[0].Should().StartWith("3DEngine ").And.Contain("no device");
@@ -273,10 +284,10 @@ public sealed class DebugOverlayTests : IDisposable
         AddDebugOverlaySection("World", () => ["Seed 42"]);
         Tap(Key.F3);
 
-        var before = Draws.Vertices.Length;
         Frames(1);
         Overlay.Written!.Left.Should().Contain("Seed 42");
-        // The strip's backing, its two rules and a bar a frame, besides every line's backing and text.
-        (Draws.Vertices.Length - before).Should().BeGreaterThan(4 * (3 + 2));
+        // The strip's backing, its two rules and a bar a frame, besides every line's backing and
+        // text, in a frame that draws nothing of its own.
+        _atEnd.Should().BeGreaterThan(4 * (3 + 2));
     }
 }

@@ -61,6 +61,15 @@ internal sealed class RenderPlugin : IPlugin
         }
     }
 
+    // The frame's draws let go once it is rendered, or would have been, rather than as the next
+    // begins, so what a program draws between frames, into a render texture before BeginDrawing as
+    // raylib's examples do, is drawn in the next frame.
+    private static void ClearDraws(World world)
+    {
+        world.Resource<DrawList>().Clear();
+        world.Resource<ModelDrawList>().Clear();
+    }
+
     /// <inheritdoc />
     public void Build(App app)
     {
@@ -126,6 +135,13 @@ internal sealed class RenderPlugin : IPlugin
         {
             Logger.Info("RenderPlugin: No window (headless run), so the renderer stays uninitialized.");
             app.AddSystem(Stage.Last, Overlay());
+            // What a program draws is let go at the frame's end here too, which nothing renders, so
+            // a headless program that draws each frame does not grow its lists frame by frame.
+            app.AddSystem(Stage.Last, new SystemDescriptor(ClearDraws, "RenderPlugin.ClearDraws")
+                .After("RenderPlugin.DebugOverlay")
+                .MainThreadOnly()
+                .Write<DrawList>()
+                .Write<ModelDrawList>());
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(world => world.RemoveResource<Renderer>(), "RenderPlugin.Cleanup").MainThreadOnly());
             return;
         }
@@ -182,11 +198,7 @@ internal sealed class RenderPlugin : IPlugin
                 }
                 finally
                 {
-                    // Cleared once the frame is rendered, or would have been, rather than as the next
-                    // begins, so what a program draws between frames, into a render texture before
-                    // BeginDrawing as raylib's examples do, is drawn in the next frame.
-                    world.Resource<DrawList>().Clear();
-                    world.Resource<ModelDrawList>().Clear();
+                    ClearDraws(world);
                 }
             }, "RenderPlugin.Render")
             .MainThreadOnly()
