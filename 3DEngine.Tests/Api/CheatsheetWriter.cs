@@ -30,16 +30,10 @@ namespace Engine.Tests.Api;
 internal static partial class CheatsheetWriter
 {
     // Where a line's comment starts after a shorter declaration, so a function added or changed
-    // moves its own line alone.
+    // moves its own line alone. A longer one is followed by two spaces, and the comment runs on to
+    // its end on the one line, as BevyCSharp's cheat sheet writes its lines, so a line is found
+    // whole by a search for the function.
     private const int CommentColumn = 57;
-
-    // How wide the page's lines are, past which a comment goes on at its column on the lines below,
-    // so a list is read down its comments rather than across.
-    private const int Width = 120;
-
-    // The fewest characters of a comment beside its declaration, under which the comment starts on
-    // the line below at the comment column instead, as after a declaration near or past the width.
-    private const int FewestBeside = 24;
 
     /// <summary>The page with each list written again from the source under <paramref name="root"/>.</summary>
     /// <exception cref="InvalidDataException">A list names a file with no functions, or twice, or a file is named by no list.</exception>
@@ -127,32 +121,7 @@ internal static partial class CheatsheetWriter
         var summary = Summary(method, all);
         if (summary.Length == 0) return declaration;
 
-        var column = Math.Max(CommentColumn, declaration.Length + 1);
-        var lines = new List<string>();
-        if (column + "// ".Length + FewestBeside > Width)
-        {
-            lines.Add(declaration);
-            column = CommentColumn;
-        }
-        foreach (var part in Wrapped(summary, Width - column - "// ".Length))
-            lines.Add((lines.Count == 0 ? declaration.PadRight(column) : new string(' ', column)) + "// " + part);
-        return string.Join("\n", lines);
-    }
-
-    // The words of text in lines of at most width characters, a word longer than that on its own.
-    private static IEnumerable<string> Wrapped(string text, int width)
-    {
-        var line = "";
-        foreach (var word in text.Split(' '))
-        {
-            if (line.Length > 0 && line.Length + 1 + word.Length > width)
-            {
-                yield return line;
-                line = "";
-            }
-            line = line.Length == 0 ? word : line + " " + word;
-        }
-        yield return line;
+        return declaration.PadRight(Math.Max(CommentColumn, declaration.Length + 2)) + "// " + summary;
     }
 
     private static string Declaration(MethodDeclarationSyntax method)
