@@ -10,30 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b48762bb`, the cherry-pick of item 76's `35938065`, after `1f563f15` and `f44eeae0`,
-the cherry-picks of item 78's `72b76de6` and `ded39966` with small differences from the merge the
-branch took, `80e83eb6`, item 62's capture as the example models_edit_mesh_looks with brick and
-plank pictures drawn by the image calls, `5a4028d9`, item 62's cherry-pick, and the five before, ten
-commits, every author the owner's. The build run 40012951798 of `a0e5964e` ended green on the three
-systems and the examples, so Verdict 84 is settled and no verdict is open. Pushed at 22:49 on
-2026-10-23. Next the pixel tests of 78 and the lavapipe test of 76, then 87, 82, the rest of 71 with
-the blotches first, 72, 74, items 75, 77 and 63 are the cloud session's from 22:41; item 78 was the
-cloud session's from 21:58 and is whole on its branch, and item 76 is its from 22:23. At 19:59 the
-cloud session's first commit of item 59, `a066610d` on its branch, was read and accepted, and at
-20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder as the first part
-of item 83's batch with their authors reset, the example and the capture taken. At 21:36 the owner
-dropped the upgrading page's rule for names gained and lost, item 85 and Decision 64, so the eleven
-heads need no longer wait for the entries' commit and are pushed with the room's capture when it is
-in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`, was read and
-accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63, Blockout, the
+Reviewed up to `3bdf68be`, item 82, the drawsBacks constant as approved, after `185a79a8`, item 87,
+the draw list cleared in the last stage on the headless path with the render system clearing through
+the same method, and `511e0fed`, item 78's pixel tests on the device and item 76's device test on
+the 4070, carrying the review's files; with the old turn put back for a moment the sample above the
+eye read 0 against 187 below it; 2,037 passed plain and shuffled by 20261023, the strict build
+clean, 149 of 149 under lavapipe, 18 blocks on the package. Read at 23:03 on 2026-10-23. Not pushed:
+the build run of `b48762bb` is running, and the three heads are pushed when it ends. Next the rest
+of 71 with the blotches first, 72, 74, items 75, 77 and 63 are the cloud session's from 22:41; item
+78 was the cloud session's from 21:58 and is whole on its branch, and item 76 is its from 22:23. At
+19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and accepted,
+and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder as the
+first part of item 83's batch with their authors reset, the example and the capture taken. At 21:36
+the owner dropped the upgrading page's rule for names gained and lost, item 85 and Decision 64, so
+the eleven heads need no longer wait for the entries' commit and are pushed with the room's capture
+when it is in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`, was read
+and accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63, Blockout, the
 local coder's once 62 is on main.
+
+Before it, `b48762bb` came, the cherry-picks of items 78 and 76 with item 62's capture and the five
+before, ten commits. Pushed at 22:49 on 2026-10-23, the build run of `a0e5964e` having ended green
+and Verdict 84 settled.
 
 Before it, `5a4028d9` came, item 62's cherry-pick, with items 85 and 86, the window's pixel tests
 and item 61's cherry-picks, read at 22:19 on 2026-10-23 and held for the build run of `a0e5964e`,
 which ended green.
-
-Before it, `e8d52f80` came, item 86, with item 85, the window's pixel tests and item 61's two
-cherry-picks, read at 22:05 on 2026-10-23 and held for the build run of `a0e5964e`.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1172,7 +1173,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on lavapipe in the cloud since github.com answers it and slangc was fetched, 45 passing in that
     run with the screenshot and recording tests; the whole lavapipe suite running there and reported
     when it ends. The item's code is whole on the branch. On main as `b48762bb`, pushed at 22:49;
-    the lavapipe test on the device to come.
+    the lavapipe test on the device to come. The device test passed on the 4070 at `511e0fed`; item
+    76 done.
 
 77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
     and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
@@ -1270,7 +1272,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     passed on the null device, 9 blocks on a local pack. The item's code is whole on the branch; the
     pixel tests of the overlay and the strip fall to the local coder at the cherry-pick of both
     commits. On main as `f44eeae0` and `1f563f15`, pushed at 22:49; the pixel tests to come in the
-    local coder's next commit.
+    local coder's next commit. Pixel tests done at `511e0fed`; item 78 done.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -1330,7 +1332,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     wall reading the same light above and below the eye and a double-sided plane's back lit as its
     front. Item 83's tests passed on the device with the low-sun test failing with the clamp off, 83
     of 83 under lavapipe, and no seam remained at suns of 10 and 5 degrees, so its offset and band
-    stay.
+    stay. Done at `3bdf68be` on 2026-10-23, as approved.
 
 83. **The sun's cascades hold a long shadow across their seams at a low sun (Decision 60).** The
     owner wrote on 2026-10-23 that the shadow cascades are weird, the band between two cascades
@@ -1402,7 +1404,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     not add, so a headless program that draws grows the list frame by frame for as long as it runs.
     The mend: the list cleared at the frame's end wherever the render system is absent, by
     EndDrawing or a system registered in its place, and a headless test drawing for a hundred frames
-    reading the list's counts still. One commit, small, after item 62's capture.
+    reading the list's counts still. One commit, small, after item 62's capture. Done at `185a79a8`
+    on 2026-10-23, two headless tests reading the list from a system of their own before the clear.
 
 ## Verdicts
 

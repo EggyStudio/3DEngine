@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace Engine.Tests.Graphics;
 
 [Trait("Category", "Unit")]
-public class SlangCompilerTests : IDisposable
+public partial class SlangCompilerTests : IDisposable
 {
     private const string Source = """
         struct Output { float4 position : SV_Position; };
@@ -123,6 +123,29 @@ public class SlangCompilerTests : IDisposable
             program.Stages.Keys.Should().BeEquivalentTo([ShaderStage.Vertex, ShaderStage.Fragment], file);
         }
     }
+
+    [Fact]
+    public void Every_Integer_Image_Of_A_Built_In_Shader_Says_Its_Format()
+    {
+        // Slang gives an integer image its 32-bit format where none is said, which Vulkan reads an
+        // image of 8 bits through as undefined, every load to the whole image, as the field's faces
+        // were read on lavapipe until each named its own.
+        var shaders = Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
+        var unsaid = new List<string>();
+        foreach (var file in Directory.GetFiles(shaders, "*.slang"))
+        {
+            var lines = File.ReadAllLines(file);
+            for (int i = 0; i < lines.Length; i++)
+                if (IntegerImage().IsMatch(lines[i]) && !lines[i].Contains("[format(", StringComparison.Ordinal)
+                    && !(i > 0 && lines[i - 1].Contains("[format(", StringComparison.Ordinal)))
+                    unsaid.Add($"{Path.GetFileName(file)}:{i + 1}");
+        }
+        unsaid.Should().BeEmpty("each integer image says the format of the image bound to it");
+    }
+
+    // A global image of integers, as `RWTexture3D<uint> faces;` declares one.
+    [System.Text.RegularExpressions.GeneratedRegex(@"^\s*(public\s+)?(RW)?Texture(1D|2D|3D|Cube)(Array)?<u?int\d?>\s+\w+\s*;")]
+    private static partial System.Text.RegularExpressions.Regex IntegerImage();
 
     [NeedsSlangFact]
     public void No_Stage_Of_A_Built_In_Shader_Reads_More_Samplers_Than_Metal_Allows_A_Stage()

@@ -54,7 +54,7 @@ float3 cornerColor(float4 corner)
 [[vk::binding(3, 0)]]
 RWTexture2D<float4> sums;
 
-[[vk::binding(4, 0)]]
+[[vk::binding(4, 0)]] [format("r32ui")]
 RWTexture2D<uint> regions;
 
 struct Lamp

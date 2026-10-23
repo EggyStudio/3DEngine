@@ -84,7 +84,7 @@ RWTexture3D<float4> held;
 RWTexture3D<float4> partial;
 
 // The way each cell's nearest face looks, which a hit takes its color from cells by.
-[[vk::binding(11, 0)]]
+[[vk::binding(11, 0)]] [format("r8ui")]
 Texture3D<uint> fieldFaces;
 
 struct TracePush
