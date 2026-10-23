@@ -10,27 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5a4028d9`, the cherry-pick of item 62's `de536483` with the owner's identity, its
-listing and cheat sheet written again by their scripts over item 86's one-liners, after `e8d52f80`,
-item 86, and the four before, and nothing else, the review's files uncommitted in the local coder's
-tree. Read at 22:19 on 2026-10-23. Not pushed: the build run 40012951798 of `a0e5964e` is still
-running, and the six heads are pushed when it ends. Next item 62's capture, then 87, 82, the rest of
-71 with the blotches first, 72, 74, 75, 77, then 63, the pixel tests of 78 and the lavapipe test of
-76 at their cherry-picks; item 78 was the cloud session's from 21:58 and is whole on its branch, and
-item 76 is its from 22:23. At 19:59 the cloud session's first commit of item 59, `a066610d` on its
-branch, was read and accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in
-order by the local coder as the first part of item 83's batch with their authors reset, the example
-and the capture taken. At 21:36 the owner dropped the upgrading page's rule for names gained and
-lost, item 85 and Decision 64, so the eleven heads need no longer wait for the entries' commit and
-are pushed with the room's capture when it is in or before it. At 21:57 the cloud session's item 62,
-`de53648` on `modeling`, was read and accepted, the modeling items 59 to 62 and 64 to 66 all written
-there and item 63, Blockout, the local coder's once 62 is on main.
+Reviewed up to `b48762bb`, the cherry-pick of item 76's `35938065`, after `1f563f15` and `f44eeae0`,
+the cherry-picks of item 78's `72b76de6` and `ded39966` with small differences from the merge the
+branch took, `80e83eb6`, item 62's capture as the example models_edit_mesh_looks with brick and
+plank pictures drawn by the image calls, `5a4028d9`, item 62's cherry-pick, and the five before, ten
+commits, every author the owner's. The build run 40012951798 of `a0e5964e` ended green on the three
+systems and the examples, so Verdict 84 is settled and no verdict is open. Pushed at 22:49 on
+2026-10-23. Next the pixel tests of 78 and the lavapipe test of 76, then 87, 82, the rest of 71 with
+the blotches first, 72, 74, items 75, 77 and 63 are the cloud session's from 22:41; item 78 was the
+cloud session's from 21:58 and is whole on its branch, and item 76 is its from 22:23. At 19:59 the
+cloud session's first commit of item 59, `a066610d` on its branch, was read and accepted, and at
+20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder as the first part
+of item 83's batch with their authors reset, the example and the capture taken. At 21:36 the owner
+dropped the upgrading page's rule for names gained and lost, item 85 and Decision 64, so the eleven
+heads need no longer wait for the entries' commit and are pushed with the room's capture when it is
+in or before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`, was read and
+accepted, the modeling items 59 to 62 and 64 to 66 all written there and item 63, Blockout, the
+local coder's once 62 is on main.
+
+Before it, `5a4028d9` came, item 62's cherry-pick, with items 85 and 86, the window's pixel tests
+and item 61's cherry-picks, read at 22:19 on 2026-10-23 and held for the build run of `a0e5964e`,
+which ended green.
 
 Before it, `e8d52f80` came, item 86, with item 85, the window's pixel tests and item 61's two
 cherry-picks, read at 22:05 on 2026-10-23 and held for the build run of `a0e5964e`.
-
-Before it, `b12133f6` came, the cherry-picks of item 61's two commits, read at 21:46 on 2026-10-23
-and held for the build run of `a0e5964e`.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -910,7 +913,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pack. Departures taken, the import not taking a file's textures into looks; the capture of a
     room with a brick wall and a wooden floor falls to the local coder, with textures added to the
     examples' resources or made by GenImage first. On main as `5a4028d9`, unpushed; the textured
-    room's capture to come.
+    room's capture to come. Capture done at `80e83eb6`; item 62 done, pushed at 22:49.
 
 63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
     otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
@@ -931,6 +934,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     made for a boolean in the mesh's first slot, refused with an `at` of the boolean's own, since
     stairs added as a second solid had their welded edges counted open by a later boolean; item 60's
     booleans take the same form, and its Shared line under Replies holds the level's every number.
+    Given at 22:41 to the cloud session after items 75 and 77, items 59 to 62 and 64 to 66 being on
+    main or on its branch, the game's code, its recipe and its scripts written and played on
+    lavapipe there; the capture and the play on the device the local coder's at the cherry-pick.
 
 64. **Modeling operations on faces and edges, Blender's kinds (Decision 51).** The owner's later
     wave: selecting a face, insetting and pulling it, merging, beveling. On the kernel: bevel of the
@@ -1135,7 +1141,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     paragraph beside the sky, the upgrading entry, and Hopper's capture taken again. Tests: a
     frame's pixels read across the horizon with fog on showing no step over a pixel on the null
     device's sky, and the horizon color drawn where asked without fog. One commit, small, after item
-    74.
+    74. Given at 22:41 on 2026-10-23 to the cloud session on `modeling`, which runs lavapipe since
+    github.com answers it, the device test there and the capture's reading by the owner's eye at the
+    cherry-pick. Settled at 22:44 on the cloud session's reading: the engine has no fog of its own,
+    the word standing only in a render texture's remark and a game's fog of war, and Hopper here is
+    the 2D game, so the item is `SetSkyHorizon(Color color, float blendDegrees)` in the sky pass,
+    the sky below the horizon drawn in the color and blended into the image over the degrees above
+    it, the environment map's lighting unchanged, a clear color turning it off, the tests reading
+    pixels across the horizon on lavapipe for no step over a pixel and the color where asked, and
+    Summit, which draws the skybox, the game that shows it; a fog the engine sets the horizon by is
+    no item until a game asks for one.
 
 76. **A command reads a rectangle of the last frame, its mean color and its largest step, so a drive
     asserts a picture without downloading it (Decision 57).** Learned from the voxel game's
@@ -1148,7 +1163,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     null device and on lavapipe. One commit, small, after item 75. Given at 22:23 on 2026-10-23 to
     the cloud session on `modeling`, its item 78 being whole: the command, the rectangle's reading,
     the mean and the largest step and the null device's test there; the lavapipe test falls to the
-    local coder at the cherry-pick.
+    local coder at the cherry-pick. Commit `3593806` on `modeling`, read at 22:40, the owner's
+    identity: `frame.read` with a rectangle in window pixels or the whole frame, refused for bad
+    measures, a rectangle past the frame or no device, through the capture's path split out so shot,
+    F2 and the command take one path, answered later as shot is with the mean of each sRGB channel
+    and the largest step along the middle row and column with where it lies; the E3D.md row, the
+    command-line guide's block and paragraph, the cheat sheet's line; four tests, the device one run
+    on lavapipe in the cloud since github.com answers it and slangc was fetched, 45 passing in that
+    run with the screenshot and recording tests; the whole lavapipe suite running there and reported
+    when it ends. The item's code is whole on the branch. On main as `b48762bb`, pushed at 22:49;
+    the lavapipe test on the device to come.
 
 77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
     and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
@@ -1166,7 +1190,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
     stars' count and spread, and a capture of the example at dawn read against its record. Two
     commits, the sun, the light and the gradient, then the moon, the stars and the example. After
-    item 60.
+    item 60. Given at 22:41 to the cloud session after item 75, the same way.
 
 78. **F1 hides the interface, F3 shows a debug overlay like the newest Minecraft's with sections a
     program adds, and Shift+F3 the profiler with it (Decision 58).** The owner asked shortly before
@@ -1245,7 +1269,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     guide's paragraphs with a compiled block, the cheat sheet and the listing; eleven tests, 1,656
     passed on the null device, 9 blocks on a local pack. The item's code is whole on the branch; the
     pixel tests of the overlay and the strip fall to the local coder at the cherry-pick of both
-    commits.
+    commits. On main as `f44eeae0` and `1f563f15`, pushed at 22:49; the pixel tests to come in the
+    local coder's next commit.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -1381,19 +1406,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; 84 is open, mended at
-`91c8d363`.
-
-84. **The Linux suite of the push of `4c3f01ef` fails the upgrading page's test, the 52 modeling
-    names of item 59's cherry-picks having no Added entry.** On the build run 40005121932 on
-    2026-10-23 the Linux suite, 1,875 passed in 25 minutes 19 seconds, failed the test that every
-    name the public surface gained since 5.1 is on the upgrading page, naming the 52 edit mesh calls
-    and types, while macOS passed; the test needs the history and so skipped in the cloud, and the
-    reviewer pushed the two cherry-picks before the batch's commit carrying the entry. Mended at
-    `91c8d363`, the example's commit adding the Modeling entry for the names, read on the machine
-    with the suite green plain and shuffled; settles on the Linux suite of the push carrying it. The
-    lesson is the reviewer's: a cherry-pick that adds public names is pushed only with the commit
-    that carries its upgrading entry.
+Verdicts 56 to 84 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

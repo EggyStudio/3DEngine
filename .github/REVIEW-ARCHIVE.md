@@ -3750,3 +3750,15 @@ at `36cae0c2`.
     suites of its push and of the pack run after it. Settled on the Linux suites of the build run
     39993188056 of `36cae0c2`, shuffled by 20261023, and of the pack run 39992268286, read at 20:39
     on 2026-10-23.
+
+84. **The Linux suite of the push of `4c3f01ef` fails the upgrading page's test, the 52 modeling
+    names of item 59's cherry-picks having no Added entry.** On the build run 40005121932 on
+    2026-10-23 the Linux suite, 1,875 passed in 25 minutes 19 seconds, failed the test that every
+    name the public surface gained since 5.1 is on the upgrading page, naming the 52 edit mesh calls
+    and types, while macOS passed; the test needs the history and so skipped in the cloud, and the
+    reviewer pushed the two cherry-picks before the batch's commit carrying the entry. Mended at
+    `91c8d363`, the example's commit adding the Modeling entry for the names, read on the machine
+    with the suite green plain and shuffled; settles on the Linux suite of the push carrying it. The
+    lesson is the reviewer's: a cherry-pick that adds public names is pushed only with the commit
+    that carries its upgrading entry. Settled on the Linux suite of the build run 40012951798 of
+    `a0e5964e`, green on 2026-10-23, read at 22:49.
