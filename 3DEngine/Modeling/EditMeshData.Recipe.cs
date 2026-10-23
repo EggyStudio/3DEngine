@@ -199,6 +199,9 @@ internal sealed partial class EditMeshData
                 case "triangulate": mesh.Triangulate(); break;
                 case "duplicate": mesh.Duplicate(); break;
                 case "join": mesh.Join(Word("a model's path")); break;
+                case "bevel": mesh.Bevel(Number(), _at < words.Length ? Count() : 1); break;
+                case "loopcut": mesh.LoopCut(Number()); break;
+                case "subdivide": mesh.Subdivide(_at < words.Length ? Count() : 1); break;
                 default: throw new FormatException($"{words[0]} is not an operation of a model's recipe.");
             }
 

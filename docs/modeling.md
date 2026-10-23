@@ -231,6 +231,47 @@ EditMeshExtrude(wall, -0.2f);   // a recess two tenths deep
 The top of a box of two by three by four extruded a meter makes a box of twelve vertices and ten
 faces that holds 32 cubic meters, and an inset of its top changes nothing it holds.
 
+## Bevel
+
+`EditMeshBevel(mesh, width, segments)`, or `bevel 0.1 3`, cuts each selected edge back by the
+width into a band of faces, round across in the number of segments, one where none is given. An
+edge is beveled where both its ends are selected and two faces run along it, so selecting all of a
+box bevels its twelve edges and selecting its top bevels the four round the top. The band follows
+the arc tangent to both faces at the width from the edge, a quarter circle across a box's edge, and
+a single segment is a flat chamfer. Where three or more beveled edges meet, as at a box's corner,
+the corner is closed with one face, and the bands and the corners are selected after:
+
+```csharp
+var crate = LoadEditMesh();
+EditMeshBox(crate, new Vector3(2, 2, 2));
+EditMeshBevel(crate, 0.25f, 2);   // 48 vertices, 84 edges and 38 faces
+```
+
+An edge that is not beveled, at a corner where one is, gives up the end of it the bevel needs, so a
+box with its top beveled keeps its upright edges, shorter by the width.
+
+## Loop cut and subdivide
+
+`EditMeshLoopCut(mesh, fraction)`, or `loopcut 0.5`, cuts round the ring of four-cornered faces a
+selected edge crosses. The ring runs from the edge through the faces beside it to their opposite
+edges and on, both ways, until it comes round again or meets a face that has not four corners, and
+each edge it crosses takes a vertex at the fraction along it, measured from the selected edge's
+lower-numbered end. A box's upright edge cut at a half makes a loop round its middle, whose
+vertices are selected after:
+
+```csharp
+var pillar = LoadEditMesh();
+EditMeshBox(pillar, new Vector3(1, 4, 1));
+EditMeshSelectInside(pillar, Vector3.Zero, new Vector3(0, 4, 0));   // one upright edge
+EditMeshLoopCut(pillar, 0.5f);
+```
+
+`EditMeshSubdivide(mesh, cuts)`, or `subdivide 2`, cuts each selected face into a grid, each of its
+edges into one more part than the count. A face of four corners becomes a grid of them and a
+triangle a grid of triangles, and a face of more corners a fan of triangles from its middle. A face
+beside one subdivided takes the new vertices on the edge they share as corners of its own, so the
+mesh stays closed, and a box subdivided once has 26 vertices and 24 faces.
+
 ## Delete, merge, flip, triangulate and duplicate
 
 `EditMeshDelete(mesh)`, or `delete`, takes away the selected faces, or where none is selected the

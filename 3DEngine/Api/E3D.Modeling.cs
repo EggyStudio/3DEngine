@@ -354,6 +354,45 @@ public static partial class E3D
         }
     }
 
+    // -- Bevels and cuts
+
+    /// <summary>Cuts each selected edge back by a width into a band of faces, round across in a number of segments, and closes each corner with one face.</summary>
+    /// <remarks>
+    /// <para>
+    /// An edge is beveled where both its ends are selected and two faces run along it, so selecting
+    /// all of a box bevels its twelve edges. The band follows the arc tangent to both faces at the
+    /// width from the edge, a quarter circle across a box's edge, and one segment is a flat chamfer.
+    /// Where three or more beveled edges meet, as at a box's corner, the corner is closed with one
+    /// face. The bands and the corners are selected after.
+    /// </para>
+    /// <para>The recipe's line is <c>bevel 0.1 3</c>, the width and the segments, one where it says none.</para>
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The width is not above zero, or the segments are not from 1 to 64.</exception>
+    public static void EditMeshBevel(EditMesh mesh, float width, int segments = 1) => Edited(mesh, nameof(EditMeshBevel))?.Bevel(width, segments);
+
+    /// <summary>Cuts round the ring of four-cornered faces each selected edge crosses, at a fraction along the edges the ring crosses.</summary>
+    /// <remarks>
+    /// <para>
+    /// The ring runs from the selected edge through the faces beside it to their opposite edges and
+    /// on, both ways, until it comes round again or meets a face that has not four corners, so a
+    /// box's upright edge cut at a half makes a loop round its middle. The fraction is measured from
+    /// the selected edge's lower-numbered end. The new loop's vertices are selected after.
+    /// </para>
+    /// <para>The recipe's line is <c>loopcut 0.5</c>.</para>
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The fraction is not between zero and one.</exception>
+    public static void EditMeshLoopCut(EditMesh mesh, float fraction = 0.5f) => Edited(mesh, nameof(EditMeshLoopCut))?.LoopCut(fraction);
+
+    /// <summary>Cuts each selected face into a grid, each of its edges into one more part than the count of cuts.</summary>
+    /// <remarks>
+    /// A face of four corners becomes a grid of them and a triangle a grid of triangles, and a face
+    /// of more corners a fan of triangles from its middle. A face beside one subdivided takes the new
+    /// vertices on the edge they share, so the mesh stays closed. The grid's faces are selected
+    /// after. The recipe's line is <c>subdivide 2</c>.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The count is not from 1 to 64.</exception>
+    public static void EditMeshSubdivide(EditMesh mesh, int cuts = 1) => Edited(mesh, nameof(EditMeshSubdivide))?.Subdivide(cuts);
+
     // -- Building a model to draw and collide with
 
     /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>

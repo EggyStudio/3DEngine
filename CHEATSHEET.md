@@ -1560,6 +1560,15 @@ void EditMeshDuplicate(EditMesh mesh);                   // Copies the selected 
 void EditMeshJoin(EditMesh mesh, string fileName);       // Adds another model, made from its recipe's file, to the mesh
                                                          // and selects it, its faces keeping their slots by name
 
+void EditMeshBevel(EditMesh mesh, float width, int segments = 1); // Cuts each selected edge back by a width into a band
+                                                                  // of faces, round across in a number of segments, and
+                                                                  // closes each corner with one face
+void EditMeshLoopCut(EditMesh mesh, float fraction = 0.5f); // Cuts round the ring of four-cornered faces each selected
+                                                            // edge crosses, at a fraction along the edges the ring
+                                                            // crosses
+void EditMeshSubdivide(EditMesh mesh, int cuts = 1);     // Cuts each selected face into a grid, each of its edges into
+                                                         // one more part than the count of cuts
+
 Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
                                                          // material for each material slot, in the order of the slots
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from
