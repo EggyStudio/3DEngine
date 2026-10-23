@@ -126,11 +126,6 @@ raylib's own examples, and what is written of it here, is a row of
 folder's row scrolls sideways where it is wider than the page. The games, the last row, are built
 from the package as a game of your own would be, each with a README of what it shows.
 
-[![Ore turning from day to night](https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/animations/ore-dusk.gif)](https://github.com/EggyStudio/3DEngine/blob/main/games/Ore/Program.cs)
-
-`games/Ore` turning from day to night, the ore the only light once the sun is down, recorded with
-`./e3d record ore-dusk.gif 5s --every 100ms --scale 0.5`.
-
 **Of raylib's 222 examples 221 are written here and 1 does not apply, and beside them are 38
 examples of the engine's own and 18 games.**
 
