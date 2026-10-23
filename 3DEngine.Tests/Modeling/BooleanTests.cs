@@ -165,6 +165,26 @@ public sealed class BooleanTests : IDisposable
     }
 
     [Fact]
+    public void A_Door_Cut_Down_Through_A_Rooms_Slab_Leaves_The_Floor_Behind_The_Wall_Whole()
+    {
+        var room = New();
+        EditMeshRoom(room, new Vector3(6, 3, 5), 0.2f);
+        var before = Info(room).Volume;
+        EditMeshSelectFacing(room, Vector3.UnitZ);
+        EditMeshCutDoor(room, 1, 2.1f, 1.5f);
+
+        // The door goes through the wall from the ground, a step up to the floor inside, and the
+        // cutter's centimeter past the wall stops above the floor, so no slit goes down through the
+        // slab along the threshold.
+        Info(room).IsClosed.Should().BeTrue();
+        Info(room).Volume.Should().BeApproximately(before - 1 * 2.1f * 0.2f, Close);
+        var floor = Enumerable.Range(0, Info(room).FaceCount)
+            .Where(face => GetEditMeshFaceNormal(room, face) == Vector3.UnitY && MathF.Abs(Center(room, face).Y - 0.2f) < Close).ToArray();
+        floor.Should().ContainSingle("the floor inside is one face, uncut");
+        GetEditMeshFace(room, floor[0]).Should().HaveCount(6, "its edge along the front wall takes a corner where each of the door's sides meets it");
+    }
+
+    [Fact]
     public void A_Flight_Joined_By_Its_Line_Is_One_Solid_With_The_Floor_And_The_Wall_It_Stands_On()
     {
         // A hall's floor and wall the flight stands on and against.

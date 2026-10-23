@@ -59,8 +59,10 @@ public static partial class E3D
     /// Its middle is <paramref name="along"/> from the wall's left edge seen from in front and its
     /// bottom <paramref name="sill"/> above the wall's bottom. The opening is a box cut a centimeter
     /// past the wall on each side, as deep as a ray from the face finds the wall's other side, so a
-    /// room's wall is cut through and the wall across the room is not. A wall an earlier opening cut
-    /// into pieces is measured whole where its pieces are selected.
+    /// room's wall is cut through and the wall across the room is not. Behind the wall it stops above
+    /// a floor that rises over its bottom, so an opening cut down through a room's slab leaves the
+    /// floor inside whole. A wall an earlier opening cut into pieces is measured whole where its
+    /// pieces are selected.
     /// </para>
     /// <para>The opening's sides are selected after. The recipe's line is <c>cut window 1.6 1.2 2.9 1</c>.</para>
     /// </remarks>
@@ -69,7 +71,10 @@ public static partial class E3D
         Edited(mesh, nameof(EditMeshCutWindow))?.Window(width, height, along, sill);
 
     /// <summary>Cuts a door through the wall whose face was selected first, standing on the wall's bottom, as deep as the wall.</summary>
-    /// <remarks>As <see cref="EditMeshCutWindow"/>, from the wall's bottom. The recipe's line is <c>cut door 1.2 2.2 3.8</c>.</remarks>
+    /// <remarks>
+    /// As <see cref="EditMeshCutWindow"/>, from the wall's bottom, so a room's door goes down to the
+    /// ground outside and steps up to the floor inside. The recipe's line is <c>cut door 1.2 2.2 3.8</c>.
+    /// </remarks>
     /// <exception cref="InvalidOperationException">No face is selected, or the face is a floor or a ceiling rather than a wall.</exception>
     public static void EditMeshCutDoor(EditMesh mesh, float width, float height, float along) =>
         Edited(mesh, nameof(EditMeshCutDoor))?.Door(width, height, along);

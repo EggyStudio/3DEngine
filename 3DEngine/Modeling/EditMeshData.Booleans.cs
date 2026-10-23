@@ -62,8 +62,10 @@ internal sealed partial class EditMeshData
     /// The opening is a box cut through the wall a centimeter past each of its faces, as deep as a
     /// ray from the face finds the wall's other side, so a room's wall is cut through and the wall
     /// across the room is not, and no side of the opening lies in a plane of the wall's, which the
-    /// booleans would cut as their planes say. Its middle is <paramref name="along"/> from the wall's
-    /// left edge seen from in front, and its bottom <paramref name="sill"/> above the wall's bottom.
+    /// booleans would cut as their planes say. Behind the wall it stops above a floor that rises over
+    /// its bottom, so an opening cut down through a room's slab leaves the floor inside whole. Its
+    /// middle is <paramref name="along"/> from the wall's left edge seen from in front, and its bottom
+    /// <paramref name="sill"/> above the wall's bottom.
     /// </remarks>
     /// <exception cref="InvalidOperationException">No face is selected, or the face is a floor or a ceiling rather than a wall.</exception>
     public void Window(float width, float height, float along, float sill)
@@ -73,7 +75,10 @@ internal sealed partial class EditMeshData
     }
 
     /// <summary>Cuts a door through the wall whose face was selected first, from its bottom, as deep as the wall.</summary>
-    /// <remarks>As <see cref="Window"/>, the box going a centimeter below the face's bottom, so the door stands on the floor.</remarks>
+    /// <remarks>
+    /// As <see cref="Window"/>, from a centimeter below the face's bottom, so a room's door goes down to
+    /// the ground outside and steps up to the floor inside.
+    /// </remarks>
     /// <exception cref="InvalidOperationException">No face is selected, or the face is a floor or a ceiling rather than a wall.</exception>
     public void Door(float width, float height, float along)
     {
@@ -239,10 +244,21 @@ internal sealed partial class EditMeshData
             ? far.Distance - OpeningMargin
             : (bounds.Max - bounds.Min).Length();
 
-        var cutter = new EditMeshData();
-        cutter.Box(new Vector3(width, tall, depth + 2 * OpeningMargin), Vector3.Zero, false);
-        cutter._slots[0] = _slots[0];
+        // The cutter in the opening's own frame, across it, up and out from a centimeter behind the
+        // wall. Where a floor behind the wall rises above the opening's foot, as a room's does over
+        // the slab a door is cut down through, the part behind the wall stops at the floor, sloping
+        // up from where the floor meets the wall, so the door does not cut a slit through the floor.
         var origin = right * (left + along - width / 2) + up * foot + normal * (plane - depth - OpeningMargin);
+        var reach = depth + 2 * OpeningMargin;
+        var behind = origin + right * (width / 2) + up * tall + normal * (OpeningMargin / 2);
+        var floor = Cast(behind, -up, other => Vector3.Dot(Normal(other), up) > 0) is { } below ? tall - below.Distance : 0;
+        Vector2[] outline = floor > OpeningMargin && floor < tall - OpeningMargin
+            ? [new(0, OpeningMargin), new(floor, OpeningMargin), new(floor + OpeningMargin, 0), new(tall, 0), new(tall, reach), new(0, reach)]
+            : [new(0, 0), new(tall, 0), new(tall, reach), new(0, reach)];
+
+        var cutter = new EditMeshData();
+        cutter.AddPrism(outline, Axis.X, 0, width);
+        cutter._slots[0] = _slots[0];
         for (int vertex = 0; vertex < cutter._positions.Count; vertex++)
         {
             var local = cutter._positions[vertex];

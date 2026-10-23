@@ -263,9 +263,11 @@ BevyCSharp is, so every cut works on one closed solid.
 walls' thickness. `EditMeshCutWindow(mesh, width, height, along, sill)`, or `cut window 1.6 1.2 2.9 1`,
 cuts a window through the wall whose face was selected first, its middle `along` from the wall's left
 edge seen from in front and its bottom `sill` above the wall's, and `EditMeshCutDoor(mesh, width,
-height, along)`, or `cut door 1.2 2.2 3.8`, a door standing on the wall's bottom. Each goes a
-centimeter past the wall on each side and as deep as the wall, so the wall across a room is not cut,
-and a wall an earlier opening cut into pieces is measured whole where its pieces are selected.
+height, along)`, or `cut door 1.2 2.2 3.8`, a door standing on the wall's bottom, which in a room
+goes down to the ground outside and steps up to the floor inside. Each goes a centimeter past the
+wall on each side and as deep as the wall, so the wall across a room is not cut, and stops above a
+floor behind the wall, which a door cut down through a room's slab leaves whole. A wall an earlier
+opening cut into pieces is measured whole where its pieces are selected.
 `EditMeshRamp(mesh, rise, run, width)`, or `ramp 1 3 2`, adds a wedge in a flight of stairs' words:
 
 ```csharp
