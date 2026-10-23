@@ -70,8 +70,9 @@ public class LightingUniformPackingTests
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ReflectViewProjection)).Should().Be(afterProbes + 64);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ReflectLastViewProjection)).Should().Be(afterProbes + 64 + 2 * 64);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Reflection)).Should().Be(afterProbes + 64 + 4 * 64);
-        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 64 + 4 * 64 + 32,
-            "the output flag, the occlusion flag, global illumination and the cameras a reflection is traced through come last");
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.EnvironmentLight)).Should().Be(afterProbes + 64 + 4 * 64 + 32);
+        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 64 + 4 * 64 + 48,
+            "the output flag, the occlusion flag, global illumination, the cameras a reflection is traced through and the environment's light on the scene come last");
     }
 
     [Fact]

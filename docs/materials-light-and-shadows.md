@@ -379,6 +379,20 @@ sky and a rough one takes its colors. The
 [Models and animation](models-and-animation.md#a-sky-around-the-world) page loads one. With a map
 set models are lit by it, whether or not there are lights.
 
+The map's intensity scales its light and the sky `DrawSkybox` draws alike. `SetEnvironmentLight`
+sets the light on the scene apart from the sky, a share of it and a tint, 1 and white unless set,
+so a scene takes a third of its sky's light under a sky drawn as bright as ever, or a whiter light
+than the sky, and keeps them through a change of map:
+
+```csharp
+SetEnvironmentLight(0.35f, new Color(255, 248, 235));
+```
+
+The share and tint scale the map's whole light on a surface, what a rough one scatters and a smooth
+one reflects, the global illumination's sky and what a reflection probe captures. A mirror reflects
+the map at the share where its reflection is not traced through the window, and the drawn sky where
+it is. `GetEnvironmentLight` reads them back.
+
 ## Darker corners
 
 Light from all around, the ambient light, a sky's and a probe's, reaches a room's corner as well

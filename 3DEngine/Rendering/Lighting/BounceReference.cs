@@ -556,7 +556,8 @@ internal static class BounceReference
         var sky = Vector3.Zero;
         if (environment && render.TryGet<EnvironmentMap>() is { } map)
         {
-            sky = new Vector3(map.Intensity);
+            // The map's light on the scene, at the share and tint the program set for it, as the cascades take it.
+            sky = map.Intensity * EnvironmentLight.In(render);
             floats[11] = 1;
         }
         else

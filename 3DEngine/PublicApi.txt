@@ -688,6 +688,7 @@ static class Engine.E3D
   const int AnimationFps = 60
   const int MeshStreamBuffer = 9
   static (bool, float, float, float) GetAutoExposure()
+  static (float, Color) GetEnvironmentLight()
   static (float, bool) GetMotionBlur()
   static (float, float) GetBloom()
   static (float, float) GetVignette()
@@ -1302,6 +1303,7 @@ static class Engine.E3D
   static void SetConfigSamples(int samples)
   static void SetContactShadows(ContactShadows contactShadows)
   static void SetDepthOfField(float focusDistance, float focusRange, float blur)
+  static void SetEnvironmentLight(float intensity, Color tint)
   static void SetEnvironmentMap(Image equirectangular, float intensity = 1f)
   static void SetExitKey(Key key)
   static void SetExposure(float exposure)

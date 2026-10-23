@@ -117,8 +117,15 @@ internal struct LightingUbo
     /// </summary>
     public Vector4 Reflection;
 
-    /// <summary>x: how far a reflection is traced through the window's depth, in world units. Last, so the fields before keep their offsets.</summary>
+    /// <summary>x: how far a reflection is traced through the window's depth, in world units.</summary>
     public Vector4 ReflectionReach;
+
+    /// <summary>
+    /// rgb: what the environment map's light on the scene is multiplied by, the share and the tint
+    /// <see cref="E3D.SetEnvironmentLight"/> set, linear, apart from the sky the map draws. Last, so
+    /// the fields before keep their offsets.
+    /// </summary>
+    public Vector4 EnvironmentLight;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

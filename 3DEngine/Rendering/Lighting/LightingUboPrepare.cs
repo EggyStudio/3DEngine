@@ -26,7 +26,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
         var environment = renderWorld.TryGet<EnvironmentMap>();
         if (environment is not null)
+        {
             ubo.Environment = new System.Numerics.Vector4(environment.Intensity, environment.MipLevels - 1, 1, 0);
+            ubo.EnvironmentLight = new System.Numerics.Vector4(EnvironmentLight.In(renderWorld), 0);
+        }
 
         var draws = renderWorld.TryGet<ModelDrawList>();
         var first = draws?.WindowViewProjection ?? (draws?.Targets() is [var t, ..] ? draws.ViewProjectionOf(t) : null);

@@ -567,7 +567,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = environmentIrradiance(n) * (1.0 - held);
-        float strength = lighting.environment.x * occlusion;
+        // The map's light times the share and tint the program set for the scene, which the sky
+        // drawn from the same map does not take.
+        float3 strength = lighting.environment.x * lighting.environmentLight.rgb * occlusion;
         // Where global illumination is on, by the share of the sky the probes around the surface
         // see along its mirror direction, so a room sealed from the sky reflects none of it, where
         // the occlusion alone left a rough wall in a sealed cave a blue sheen.

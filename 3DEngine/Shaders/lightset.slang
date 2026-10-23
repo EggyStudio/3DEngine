@@ -88,6 +88,9 @@ public struct Lighting
     // x: how far a reflection is traced through the window's depth. y: 1 when a reflection the
     // field misses is traced through rayScene, where the device traces rays. zw: unused.
     public float4 reflectionReach;
+    // rgb: what the environment map's light on the scene is multiplied by, the share and the tint
+    // the program set, linear, apart from the sky the map draws, which reads environment.x alone.
+    public float4 environmentLight;
 };
 
 [[vk::binding(0, 1)]]

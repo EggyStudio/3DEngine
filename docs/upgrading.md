@@ -305,6 +305,10 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **The sky's light on the scene apart from the sky drawn.** `SetEnvironmentLight` sets the share
+  and tint of the environment map's light on the scene, the sky `DrawSkybox` draws unchanged, which
+  `GetEnvironmentLight` reads back, as
+  [Light from a sky](materials-light-and-shadows.md#light-from-a-sky) shows.
 - **A tonemap set by its numbers, or drawn by a program's shader.** `SetTonemapCurve` chooses
   `Tonemap.Curve`, a curve of four numbers as the BSL shader draws it, which `GetTonemapCurve`
   reads back, and `SetTonemapShader` draws a shader of the program's own in the curve's place,

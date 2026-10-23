@@ -566,7 +566,7 @@ float4 rayReflection(float3 p, float3 way)
     float held = bouncedHold(bouncedField, hit, n, lighting.indirect.y, lighting.indirect.w);
     if (held > 0.0)
         arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) * held;
-    arrived += (lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi) * (1.0 - held);
+    arrived += (lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * lighting.environmentLight.rgb * Pi : reflectLights.sky.rgb * Pi) * (1.0 - held);
     // The copy's color times its mesh's vertices' colors at the hit, as the model pass blends them.
     float2 between = query.CommittedTriangleBarycentrics();
     float3 color = surface.color.rgb * (rayCornerColor(rayCorners[corner]) * (1.0 - between.x - between.y)

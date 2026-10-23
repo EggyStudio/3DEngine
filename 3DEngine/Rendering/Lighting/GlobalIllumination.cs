@@ -551,7 +551,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var sky = Vector3.Zero;
         if (environment && renderWorld.TryGet<EnvironmentMap>() is { } map)
         {
-            sky = new Vector3(map.Intensity);
+            // The map's light on the scene, at the share and tint the program set for it.
+            sky = map.Intensity * EnvironmentLight.In(renderWorld);
             floats[11] = 1;
         }
         else

@@ -50,6 +50,30 @@ public static partial class E3D
     /// <summary>Stops lighting models by an environment map.</summary>
     public static void UnloadEnvironmentMap() => World.RemoveResource<EnvironmentMap>();
 
+    /// <summary>
+    /// Sets how much of the environment map's light reaches the scene, <paramref name="intensity"/>
+    /// of it times <paramref name="tint"/>, apart from the sky the map draws, 1 and white unless set.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SetEnvironmentMap(Image, float)"/>'s intensity scales the map's light and the sky
+    /// <see cref="DrawSkybox()"/> draws alike, and this the light alone, so a scene takes a third of
+    /// its sky's light under a sky drawn as bright as ever, or a whiter light than the sky. The
+    /// share and tint stay through a change of map. They scale the map's whole light on a surface,
+    /// what a rough one scatters and a smooth one reflects, the global illumination's sky and what
+    /// a reflection probe captures, so a mirror reflects the map at the share where its reflection
+    /// is not traced through the window, and the drawn sky where it is.
+    /// </remarks>
+    public static void SetEnvironmentLight(float intensity, Color tint)
+    {
+        var light = World.GetOrInsertResource(static () => new EnvironmentLight());
+        light.Intensity = Math.Max(0, intensity);
+        light.Tint = tint;
+    }
+
+    /// <summary>The share and tint of the environment map's light on the scene as <see cref="SetEnvironmentLight"/> left them, 1 and white unless set.</summary>
+    public static (float Intensity, Color Tint) GetEnvironmentLight() =>
+        TryRes<EnvironmentLight>(out var light) ? (light.Intensity, light.Tint) : (1, Color.White);
+
     private static ModelMesh _skyMesh;
     private static Shader _skyShader;
     private static bool _skyShaderFailed;

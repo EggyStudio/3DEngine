@@ -1369,6 +1369,12 @@ void SetEnvironmentMap(Image equirectangular, float intensity = 1); // Lights mo
 bool SetEnvironmentMap(string fileName, float intensity = 1); // Lights models from all around by an equirectangular
                                                               // image file
 void UnloadEnvironmentMap();                             // Stops lighting models by an environment map
+void SetEnvironmentLight(float intensity, Color tint);   // Sets how much of the environment map's light reaches the
+                                                         // scene, intensity of it times tint, apart from the sky the
+                                                         // map draws, 1 and white unless set
+(float Intensity, Color Tint) GetEnvironmentLight();     // The share and tint of the environment map's light on the
+                                                         // scene as SetEnvironmentLight left them, 1 and white unless
+                                                         // set
 void DrawSkybox(Color tint);                             // Draws the environment map as the sky behind everything,
                                                          // through the camera of the BeginMode3D it is called inside
 void DrawSkybox();                                       // Draws the environment map as the sky behind everything,
