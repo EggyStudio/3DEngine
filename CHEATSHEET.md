@@ -725,6 +725,7 @@ void SetEnvironmentLight(float intensity, Color tint);   // Sets how much of the
 (float Intensity, Color Tint) GetEnvironmentLight();     // The share and tint of the environment map's light on the scene as SetEnvironmentLight left them, 1 and white unless set
 void DrawSkybox(Color tint);                             // Draws the environment map as the sky behind everything, through the camera of the BeginMode3D it is called inside
 void DrawSkybox();                                       // Draws the environment map as the sky behind everything, untinted
+void SetSkyHorizon(Color color, float blendDegrees);     // Draws the sky below the horizon in color, blended into the environment map's image over blendDegrees above it, so land a program fades into fog of that color meets the same color past the last thing drawn
 
 ModelAnimation[] LoadModelAnimations(string fileName);   // Loads every clip of a model file (glTF, FBX, COLLADA and the rest Assimp reads), each sampled into poses at AnimationFps frames a second
 void UpdateModelAnimation(Model model, ModelAnimation animation, float frame);  // Poses model as animation has it at frame, counted round the clip's length, by moving each skinned mesh's vertices from their rest

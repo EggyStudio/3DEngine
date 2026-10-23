@@ -94,12 +94,43 @@ public static partial class E3D
         if (!_skyMesh.IsValid) _skyMesh = GenMeshCube(2, 2, 2);
         // Far enough out that no side is cut by the near plane, and well inside the far one.
         var world = Matrix4x4.CreateScale(100) * Matrix4x4.CreateTranslation(camera.Position);
+        // The horizon as SetSkyHorizon left it, 1 in the color's w where there is one, written each
+        // draw, so a program that changes it between two cameras draws each sky with its own.
+        var horizon = TryRes<SkyHorizon>(out var set) ? set : null;
+        SetShaderValue(shader, GetShaderLocation(shader, "horizonColor"),
+            horizon is null ? Vector4.Zero : new Vector4(horizon.Color.R / 255f, horizon.Color.G / 255f, horizon.Color.B / 255f, 1));
+        SetShaderValue(shader, GetShaderLocation(shader, "horizonBlend"), horizon?.BlendDegrees ?? 0);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,
-            AlphaMode: MaterialAlphaMode.Opaque, CastsShadow: false));
+            UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, CastsShadow: false));
     }
 
     /// <summary>Draws the environment map as the sky behind everything, untinted.</summary>
     public static void DrawSkybox() => DrawSkybox(Color.White);
+
+    /// <summary>
+    /// Draws the sky below the horizon in <paramref name="color"/>, blended into the environment
+    /// map's image over <paramref name="blendDegrees"/> above it, so land a program fades into fog
+    /// of that color meets the same color past the last thing drawn. A clear color draws the image
+    /// as it is again.
+    /// </summary>
+    /// <remarks>
+    /// It changes the sky <see cref="DrawSkybox()"/> draws and nothing else, so the image's lower half
+    /// still lights the scene from below through the map. The color is drawn as given, apart from
+    /// <see cref="DrawSkybox(Color)"/>'s tint and the map's intensity, which scale the image alone,
+    /// so it matches the color the program's own fog fades into. A blend of 0 meets the image at a
+    /// sharp edge, and a few degrees leave no edge where they meet. It stays through a change of map.
+    /// </remarks>
+    public static void SetSkyHorizon(Color color, float blendDegrees)
+    {
+        if (color.A == 0)
+        {
+            World.RemoveResource<SkyHorizon>();
+            return;
+        }
+        var horizon = World.GetOrInsertResource(static () => new SkyHorizon());
+        horizon.Color = color;
+        horizon.BlendDegrees = float.IsFinite(blendDegrees) ? Math.Clamp(blendDegrees, 0, 90) : 0;
+    }
 
     // The sky's model shader, compiled once per window from the staged sky.slang.
     private static Shader SkyShader()

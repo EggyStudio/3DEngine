@@ -337,6 +337,16 @@ DrawSkybox();
 `SetEnvironmentMap("sky.hdr")` loads a Radiance file, which keeps light brighter than white, as the
 sun is. `UnloadEnvironmentMap` goes back to the light entities alone, or to drawing unlit with none.
 
+A sky image's lower half is its ground, darker than its sky, and a program that fades its land
+into distance fog shows that dark half past the last thing it draws. `SetSkyHorizon` draws the sky
+below the horizon in a color of its own, the fog's, blended into the image over the degrees given
+above it, so the fog meets a sky of its own color. The image's lower half still lights the scene
+from below, and a clear color draws the image as it is again:
+
+```csharp
+SetSkyHorizon(new Color(200, 210, 225), blendDegrees: 6);
+```
+
 ## Many copies of one mesh
 
 Each `DrawModel` is a draw of its own, and the renderer gathers draws of the same mesh and material

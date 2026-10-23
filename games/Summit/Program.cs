@@ -53,6 +53,10 @@ ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 20
 ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
     0, 64, Color.White);
 SetEnvironmentMap(sky, intensity: 0.5f);
+// Past the island's edge the map's ground showed dark below the horizon, so the sky below it is a
+// gray blue a little lighter than the map's sky at the horizon, and the ground still lights the
+// island from below.
+SetSkyHorizon(new Color(165, 178, 192), blendDegrees: 6);
 // The room reflects itself rather than the sky, which the brass ball by the exit shows.
 CreateReflectionProbe(new Vector3(12, 7.6f, -38), new Vector3(8, 3.2f, 8));
 SetBloom(0.7f);

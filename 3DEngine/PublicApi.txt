@@ -1495,6 +1495,7 @@ static class Engine.E3D
   static void SetShaderValueV<T>(Shader shader, int location, ReadOnlySpan<T> values) where T : unmanaged
   static void SetShadowDistance(float distance)
   static void SetShadowMapSize(int size)
+  static void SetSkyHorizon(Color color, float blendDegrees)
   static void SetSoundPan(Sound sound, float pan)
   static void SetSoundPitch(Sound sound, float pitch)
   static void SetSoundVolume(Sound sound, float volume)
