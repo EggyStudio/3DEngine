@@ -236,6 +236,51 @@ EditMeshMaterial(cell, "floor");
 var model = LoadModelFromEditMesh(cell);    // the walls a pale warm gray, the floor a gray
 ```
 
+## Booleans and openings
+
+`EditMeshUnion(mesh, other)`, `EditMeshSubtract(mesh, other)` and `EditMeshIntersect(mesh, other)`,
+or `union`, `subtract` and `intersect`, join another solid into the mesh, take it away, or keep
+what the two both hold. The other is a `.model` file moved by an offset, as
+`union models/pillar.model at 2 0 2`, or a solid primitive's line placed by its own words, as
+`union stairs 16 0.2 0.3 1.2 at 0.2 0.2 0.6`, which a box, cylinder, cone, wedge, stairs, arch, room
+or ramp is. `EditMeshCut(mesh, "box 1 1 1 at 1.5 1 -0.25")`, or `cut box 1 1 1 at 1.5 1 -0.25`, takes
+a primitive away. The other's faces are selected after, the sides of the hole for a cut.
+
+They are csg.js's binary space partition, written in the engine. Each solid is cut by the other's
+planes, the parts the operation keeps are joined back into faces where they lie in one plane and
+one slot, and the vertices are joined where they meet, so a window cut from a wall is a few faces
+and not a hundred triangles, and two boxes side by side united are a box of eight vertices. Both
+are closed solids, as a boolean needs. A point within a hundredth of a millimeter of a plane lies
+in it, which `EditMeshEpsilon(mesh, distance)`, or `epsilon 0.0001`, changes. Two faces in one plane
+are cut as the planes say, so an opening is cut with a solid a little deeper than the wall.
+
+A stair joined by its line stands on its floor and against its wall as one solid with them, where
+one added beside them as a primitive is a second solid whose edges a later boolean welds to theirs,
+four faces then along each. A level is cut from one block, as `games/Blockout`'s level in
+BevyCSharp is, so every cut works on one closed solid.
+
+`EditMeshRoom(mesh, size, thickness)`, or `room 6 3 5 0.2`, adds a room, a box hollowed out by its
+walls' thickness. `EditMeshCutWindow(mesh, width, height, along, sill)`, or `cut window 1.6 1.2 2.9 1`,
+cuts a window through the wall whose face was selected first, its middle `along` from the wall's left
+edge seen from in front and its bottom `sill` above the wall's, and `EditMeshCutDoor(mesh, width,
+height, along)`, or `cut door 1.2 2.2 3.8`, a door standing on the wall's bottom. Each goes a
+centimeter past the wall on each side and as deep as the wall, so the wall across a room is not cut,
+and a wall an earlier opening cut into pieces is measured whole where its pieces are selected.
+`EditMeshRamp(mesh, rise, run, width)`, or `ramp 1 3 2`, adds a wedge in a flight of stairs' words:
+
+```csharp
+var house = LoadEditMesh();
+EditMeshRoom(house, new Vector3(6, 3, 5), 0.2f);
+EditMeshSelectFacing(house, Vector3.UnitZ);             // the front wall's outside
+EditMeshCutWindow(house, 1.2f, 1, 4.5f, 1);
+EditMeshSelectFacing(house, Vector3.UnitZ);
+EditMeshCutDoor(house, 1, 2.1f, 1.5f);
+EditMeshUnion(house, "stairs 6 0.2 0.3 1 at 0.2 0.2 2");
+```
+
+A file that is missing or not a recipe, given to a boolean, leaves the mesh as it was and is
+answered with false and a warning naming it.
+
 ## Extrude and inset
 
 `EditMeshExtrude(mesh, distance)`, or `extrude 1`, pushes the selected faces out along their

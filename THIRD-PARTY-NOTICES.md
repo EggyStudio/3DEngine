@@ -1,8 +1,8 @@
 # Third-party notices
 
 3DEngine is under the Mozilla Public License 2.0 (`LICENSE`). The `3DEngine` package carries the
-engine's own code, its generator, the shaders compiled from its own sources and three of Bevy's
-tonemapping tables, below, and it depends on the packages below, which a restore fetches with their own license files. They are named here
+engine's own code, its generator, the shaders compiled from its own sources, csg.js's partition
+written in C# and three of Bevy's tonemapping tables, below, and it depends on the packages below, which a restore fetches with their own license files. They are named here
 with their licenses, so a game shipped on the engine can say what it carries.
 
 | Library | Used for | License | Source |
@@ -23,6 +23,32 @@ with their licenses, so a game shipped on the engine can say what it carries.
 The shaders in the package were compiled with Slang (Apache 2.0 with LLVM exceptions,
 https://github.com/shader-slang/slang), which the package does not carry. The Vulkan loader is
 the system's, or MoltenVK's on macOS, and is not carried either.
+
+## csg.js
+
+The edit mesh's booleans, in `3DEngine/Modeling/Csg.cs`, are csg.js's binary space partition
+(https://github.com/evanw/csg.js) written in C# after it, under csg.js's MIT license, whose notice is
+carried at the head of that file and here.
+
+```text
+csg.js, Constructive Solid Geometry (CSG) in JavaScript
+Copyright (c) 2011 Evan Wallace (http://madebyevan.com/), under the MIT license.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
 
 ## Bevy's tonemapping
 

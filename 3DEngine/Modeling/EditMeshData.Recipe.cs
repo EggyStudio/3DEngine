@@ -150,6 +150,7 @@ internal sealed partial class EditMeshData
         _modifiers.Clear();
         _modified = null;
         GridStep = 1;
+        BooleanEpsilon = DefaultEpsilon;
         Changed();
 
         _replaying = true;
@@ -214,6 +215,13 @@ internal sealed partial class EditMeshData
                 case "smooth": mesh.Smooth(Number()); break;
                 case "modifier": Modifier(mesh); break;
                 case "import": mesh.Import(Word("a model file's path")); break;
+                case "union": mesh.Union(PathOrSolid(), Pivot() ?? Vector3.Zero); break;
+                case "subtract": mesh.Subtract(PathOrSolid(), Pivot() ?? Vector3.Zero); break;
+                case "intersect": mesh.Intersect(PathOrSolid(), Pivot() ?? Vector3.Zero); break;
+                case "cut": Cut(mesh); break;
+                case "room": mesh.Room(Vector(), Number(), Where(out centered), centered); break;
+                case "ramp": mesh.Ramp(Number(), Number(), Number(), Where(out centered), centered); break;
+                case "epsilon": mesh.Epsilon(Number()); break;
                 default: throw new FormatException($"{words[0]} is not an operation of a model's recipe.");
             }
 
@@ -258,6 +266,33 @@ internal sealed partial class EditMeshData
                     return;
                 default:
                     throw new FormatException($"select {what} is none of all, none, invert, face, box, slot or a way along an axis such as +y.");
+            }
+        }
+
+        /// <summary>A model's path, or the rest of the line where it is a solid primitive's, read by the primitive's own words.</summary>
+        private string PathOrSolid()
+        {
+            if (_at >= words.Length || !Solids.Contains(words[_at])) return Word("a model's path or a solid primitive's line");
+            var solid = string.Join(' ', words[_at..]);
+            _at = words.Length;
+            return solid;
+        }
+
+        private void Cut(EditMeshData mesh)
+        {
+            switch (Word("window, door or a solid primitive's line"))
+            {
+                case "window":
+                    mesh.Window(Number(), Number(), Number(), Number());
+                    return;
+                case "door":
+                    mesh.Door(Number(), Number(), Number());
+                    return;
+                default:
+                    // The rest of the line is the primitive's own, which is read by its own words.
+                    mesh.Cut(string.Join(' ', words[(_at - 1)..]));
+                    _at = words.Length;
+                    return;
             }
         }
 

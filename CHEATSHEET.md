@@ -1446,7 +1446,7 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 
 ## Modeling
 
-<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Prototypes.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Modeling.cs, E3D.Booleans.cs, E3D.Prototypes.cs -->
 ```csharp
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
                                                          // then shape
@@ -1646,6 +1646,39 @@ Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into
                                                          // prototype material of its slot's name
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from
                                                           // the mesh, its meshes in place, after the mesh changed
+
+bool EditMeshUnion(EditMesh mesh, string fileOrPrimitive, Vector3 at = default); // Joins another solid into the mesh
+                                                                                 // where they overlap, a model's recipe
+                                                                                 // file moved by at, or a solid
+                                                                                 // primitive's line
+bool EditMeshSubtract(EditMesh mesh, string fileOrPrimitive, Vector3 at = default); // Takes another solid away from the
+                                                                                    // mesh, a model's recipe file moved
+                                                                                    // by at, or a solid primitive's
+                                                                                    // line
+bool EditMeshIntersect(EditMesh mesh, string fileOrPrimitive, Vector3 at = default); // Keeps what the mesh and another
+                                                                                     // solid both hold, a model's
+                                                                                     // recipe file moved by at, or a
+                                                                                     // solid primitive's line
+void EditMeshCut(EditMesh mesh, string primitive);       // Takes a solid primitive, made where its line places it, away
+                                                         // from the mesh, as "box 1 1 1 at 1.5 1 -0.25"
+void EditMeshCutWindow(EditMesh mesh, float width, float height, float along, float sill); // Cuts a window through the
+                                                                                           // wall whose face was
+                                                                                           // selected first, measured
+                                                                                           // on every selected face in
+                                                                                           // its plane, as deep as the
+                                                                                           // wall
+void EditMeshCutDoor(EditMesh mesh, float width, float height, float along); // Cuts a door through the wall whose face
+                                                                             // was selected first, standing on the
+                                                                             // wall's bottom, as deep as the wall
+void EditMeshRoom(EditMesh mesh, Vector3 size, float thickness, Vector3 at = default, bool centered = false);
+                                                         // Adds a room, a box hollowed out by a thickness of wall,
+                                                         // floor and ceiling, which windows and doors are cut through
+void EditMeshRamp(EditMesh mesh, float rise, float run, float width, Vector3 at = default, bool centered = false);
+                                                         // Adds a ramp rising along Z, a wedge given in the words of a
+                                                         // flight of stairs, its rise, its run and its width
+void EditMeshEpsilon(EditMesh mesh, float distance);     // Sets how near a point is to a plane to lie in it for the
+                                                         // mesh's booleans, a hundredth of a millimeter until set, up
+                                                         // to a centimeter
 
 Color GetPrototypeColor(string name);                    // The color of the prototype material for a part of a level,
                                                          // by the name of the material slot its faces are in
