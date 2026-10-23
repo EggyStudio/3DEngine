@@ -153,7 +153,11 @@ internal static class ConsoleEval
     private static string Run(Assembly assembly)
     {
         var scope = assembly.GetType("FragmentScope")!;
-        var world = ConsoleHost.World!;
+        // A console lent no world, as where eval runs outside a command or a scope on another
+        // thread put back what it lent while this one compiled, refuses with a code of its own
+        // rather than throwing on the world it lacks, so a race left anywhere names itself.
+        if (ConsoleHost.World is not { } world)
+            return Refuse("EVAL_NO_WORLD", "eval runs as a console command between frames, and no world is lent to the console.", "not run");
         scope.GetField("world")!.SetValue(null, world);
         scope.GetField("ecs")!.SetValue(null, world.TryGetResource<EcsWorld>(out var ecs) ? ecs : null);
         scope.GetField("app")!.SetValue(null, ConsoleHost.App);

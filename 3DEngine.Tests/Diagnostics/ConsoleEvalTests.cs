@@ -3,7 +3,9 @@ using FluentAssertions;
 namespace Engine.Tests.Diagnostics;
 
 /// <summary>C# typed at a running program through the console's <c>eval</c>.</summary>
-[Collection("Console")]
+// In the E3D collection with every test that lends the console, since the world it lends is the
+// process's, and one test putting its lend back while another's command runs leaves that one none.
+[Collection("E3D")]
 [Trait("Category", "Integration")]
 public sealed class ConsoleEvalTests
 {
@@ -25,6 +27,20 @@ public sealed class ConsoleEvalTests
             var answer = ConsoleCommands.Run("eval " + code) ?? "";
             return (answer, ConsoleHost.Failure?.Code);
         }
+    }
+
+    [Fact]
+    public void A_Fragment_Run_With_No_World_Lent_Refuses_With_Its_Code_Rather_Than_Throwing()
+    {
+        var app = Setup();
+        Eval(app, "1 + 1").Should().Be(("2", null), "a lent world runs the fragment");
+
+        // Outside any lend, as a command run while another thread's scope has put the world back.
+        ConsoleHost.World.Should().BeNull("no test of this collection lends the console while this one runs");
+        var answer = ConsoleCommands.Run("eval 1 + 1");
+        answer.Should().Be("not run");
+        ConsoleHost.Failure.Should().NotBeNull("the refusal is a failure a script reads by its code");
+        ConsoleHost.Failure!.Value.Code.Should().Be("EVAL_NO_WORLD");
     }
 
     [Fact]

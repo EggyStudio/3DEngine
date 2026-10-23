@@ -4,7 +4,9 @@ using StbImageSharp;
 
 namespace Engine.Tests.Cli;
 
-[Collection("Console")]
+// In the E3D collection with every test that lends the console, since the world it lends is the
+// process's, and one test putting its lend back while another's command runs leaves that one none.
+[Collection("E3D")]
 [Trait("Category", "Unit")]
 public sealed class CliTests : IDisposable
 {
