@@ -17,8 +17,79 @@ public static partial class E3D
     /// <summary>Frees an edit mesh. A model built from it stays as it was built, and is the program's to free.</summary>
     public static void UnloadEditMesh(EditMesh mesh) => EditMeshStore.Remove(mesh);
 
+    /// <summary>Makes an edit mesh from a recipe's file, a <c>.model</c> file of one operation a line, found beside the program or in the working directory.</summary>
+    /// <remarks>
+    /// A saved model is its recipe, the lines that made it starting with <c>model 1</c>, so a level's
+    /// models are short files a reader follows and a diff reads, and the mesh is made again from the
+    /// lines as it loads, its undo going back through them. A file that is missing, does not start
+    /// with <c>model 1</c> or holds a line that is not an operation gives an edit mesh that is not
+    /// loaded, with a warning naming the file and the line.
+    /// </remarks>
+    public static EditMesh LoadEditMesh(string fileName)
+    {
+        try
+        {
+            return EditMeshStore.Add(EditMeshData.Load(fileName));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException)
+        {
+            ApiLogger.Warn($"LoadEditMesh: '{fileName}' could not be read as a model's recipe. {ex.Message}");
+            return default;
+        }
+    }
+
+    /// <summary>Makes an edit mesh from a recipe's text, one operation a line, its <c>model 1</c> header first or left out.</summary>
+    /// <remarks>Blank lines and comments after <c>#</c> are skipped.</remarks>
+    /// <exception cref="FormatException">A line is not an operation or fails, the message naming the line.</exception>
+    public static EditMesh LoadEditMeshFromMemory(string recipe) => EditMeshStore.Add(EditMeshData.FromRecipe(recipe));
+
+    /// <summary>Writes an edit mesh's recipe to a <c>.model</c> file, beside the program where the name is relative, and says whether it was written.</summary>
+    /// <remarks>
+    /// The file is written under a name of its own and moved into place, so a program reading it
+    /// while it is written reads the old file or the new one whole. <see cref="LoadEditMesh(string)"/>
+    /// makes the mesh again from it.
+    /// </remarks>
+    public static bool SaveEditMesh(EditMesh mesh, string fileName)
+    {
+        if (Edited(mesh, nameof(SaveEditMesh)) is not { } data) return false;
+        try
+        {
+            data.Save(fileName);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"SaveEditMesh: '{fileName}' could not be written. {ex.Message}");
+            return false;
+        }
+    }
+
     /// <summary>Whether <paramref name="mesh"/> names an edit mesh that is loaded.</summary>
     public static bool IsEditMeshValid(EditMesh mesh) => EditMeshStore.TryGet(mesh, out _);
+
+    /// <summary>The mesh's recipe as the text of its file, its <c>model 1</c> header and then the operations that made it, a line each.</summary>
+    public static string GetEditMeshRecipe(EditMesh mesh) =>
+        Edited(mesh, nameof(GetEditMeshRecipe)) is { } data ? data.RecipeText : "";
+
+    /// <summary>Runs one line of a recipe on the mesh, as though its operation were called, as <c>box 8 3 6</c> or <c>select +y</c>.</summary>
+    /// <remarks>
+    /// A line written is the line the operation writes, so a line a program reads from a player or a
+    /// file is the recipe's own. A comment after <c>#</c> is left out.
+    /// </remarks>
+    /// <exception cref="FormatException">The line is not an operation, or its measures are not the operation's.</exception>
+    /// <exception cref="ArgumentException">A measure is out of the operation's range.</exception>
+    public static void EditMeshRun(EditMesh mesh, string line) => Edited(mesh, nameof(EditMeshRun))?.Run(line);
+
+    /// <summary>Takes back the last operation of the mesh's recipe and says whether there was one.</summary>
+    /// <remarks>
+    /// The mesh is made again from the lines before the last, so an undo is right for every
+    /// operation, and the selection is the one those lines left.
+    /// </remarks>
+    public static bool EditMeshUndo(EditMesh mesh) => Edited(mesh, nameof(EditMeshUndo))?.Undo() ?? false;
+
+    /// <summary>Does again the operation last taken back and says whether there was one.</summary>
+    /// <remarks>An operation done after an undo forgets what was taken back.</remarks>
+    public static bool EditMeshRedo(EditMesh mesh) => Edited(mesh, nameof(EditMeshRedo))?.Redo() ?? false;
 
     /// <summary>The mesh's counts of vertices, edges and faces, its open edges, its selection, its volume, its bounds and its grid step.</summary>
     /// <remarks>An edit mesh that is not loaded gives zeros.</remarks>
@@ -218,6 +289,134 @@ public static partial class E3D
     /// <exception cref="ArgumentOutOfRangeException">The angle is not above zero and up to 180 degrees.</exception>
     public static void EditMeshShade(EditMesh mesh, bool smooth, float degrees = EditMeshData.DefaultSmoothAngle) =>
         Edited(mesh, nameof(EditMeshShade))?.Shade(smooth, degrees);
+
+    // -- Operations that change which vertices and faces there are
+
+    /// <summary>Pushes the selected faces out along their normals by a distance, filling the sides, the faces moved staying selected.</summary>
+    /// <remarks>
+    /// The faces move together as one region, so two side by side stay joined, and a corner where
+    /// they meet at an angle moves so each goes the whole distance along its own normal. A negative
+    /// distance pushes them in. The recipe's line is <c>extrude 1</c>.
+    /// </remarks>
+    public static void EditMeshExtrude(EditMesh mesh, float distance) => Edited(mesh, nameof(EditMeshExtrude))?.Extrude(distance);
+
+    /// <summary>Pushes the selected faces out by one vector, filling the sides, as a wall is pushed up from a floor's edge.</summary>
+    /// <remarks>The recipe's line is <c>extrude 0 1 0</c>.</remarks>
+    public static void EditMeshExtrude(EditMesh mesh, Vector3 by) => Edited(mesh, nameof(EditMeshExtrude))?.Extrude(by);
+
+    /// <summary>Makes each selected face a smaller face inside it by a distance, with a band of faces round it, the smaller faces selected after.</summary>
+    /// <remarks>An extrude after an inset pulls out a panel or pushes in a recess. The recipe's line is <c>inset 0.25</c>.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The distance is not above zero.</exception>
+    public static void EditMeshInset(EditMesh mesh, float distance) => Edited(mesh, nameof(EditMeshInset))?.Inset(distance);
+
+    /// <summary>Takes away the selected faces, or where none is selected the selected vertices and every face using them.</summary>
+    /// <remarks>
+    /// Where <paramref name="fill"/> is set, each hole left is closed with one face, which is selected
+    /// after. A vertex no face uses is taken away too. The recipe's line is <c>delete</c> or
+    /// <c>delete fill</c>.
+    /// </remarks>
+    public static void EditMeshDelete(EditMesh mesh, bool fill = false) => Edited(mesh, nameof(EditMeshDelete))?.Delete(fill);
+
+    /// <summary>Joins the selected vertices nearer one another than a distance into one, faces left with fewer than three corners taken away.</summary>
+    /// <remarks>The recipe's line is <c>merge 0.001</c>.</remarks>
+    public static void EditMeshMerge(EditMesh mesh, float distance) => Edited(mesh, nameof(EditMeshMerge))?.Merge(distance);
+
+    /// <summary>Turns the selected faces to face the other way.</summary>
+    /// <remarks>The recipe's line is <c>flip</c>.</remarks>
+    public static void EditMeshFlip(EditMesh mesh) => Edited(mesh, nameof(EditMeshFlip))?.Flip();
+
+    /// <summary>Cuts each selected face of more than three corners into triangles, a concave face inside its outline, the triangles selected after.</summary>
+    /// <remarks>The recipe's line is <c>triangulate</c>.</remarks>
+    public static void EditMeshTriangulate(EditMesh mesh) => Edited(mesh, nameof(EditMeshTriangulate))?.Triangulate();
+
+    /// <summary>Copies the selected faces where they are, with vertices of their own, and selects the copy.</summary>
+    /// <remarks>The recipe's line is <c>duplicate</c>.</remarks>
+    public static void EditMeshDuplicate(EditMesh mesh) => Edited(mesh, nameof(EditMeshDuplicate))?.Duplicate();
+
+    /// <summary>Adds another model, made from its recipe's file, to the mesh and selects it, its faces keeping their slots by name.</summary>
+    /// <remarks>
+    /// The recipe keeps the file's name rather than what it held, so a change to the joined model
+    /// reaches every model that joins it the next time each is made. The recipe's line is
+    /// <c>join models/pillar.model</c>.
+    /// </remarks>
+    /// <exception cref="FileNotFoundException">There is no such file.</exception>
+    /// <exception cref="FormatException">The file is not a model's recipe, or a model joins itself.</exception>
+    public static void EditMeshJoin(EditMesh mesh, string fileName)
+    {
+        if (Edited(mesh, nameof(EditMeshJoin)) is not { } data) return;
+        try
+        {
+            data.Join(fileName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new FormatException(ex.Message, ex);
+        }
+    }
+
+    // -- Building a model to draw and collide with
+
+    /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>
+    /// <remarks>
+    /// <para>
+    /// Each face is cut into triangles by ear clipping, so a concave face is cut inside its outline,
+    /// and has corners of its own, so its normal and texture coordinates are its own. A smoothed
+    /// face's corners take the mean of the smoothed faces' normals round them within its angle.
+    /// Texture coordinates are each corner's place in meters seen along the axis the face's normal
+    /// is nearest, so a texture of a meter's grid shows a meter on every face.
+    /// </para>
+    /// <para>
+    /// <c>CreatePhysicsStaticModel(model, position)</c> makes the collider from the built model. A
+    /// slot no face is in is a mesh of one triangle with no area, which draws nothing and which the
+    /// collider leaves out. <see cref="UpdateModelFromEditMesh"/> writes the meshes again after the
+    /// mesh changes.
+    /// </para>
+    /// </remarks>
+    public static Model LoadModelFromEditMesh(EditMesh mesh)
+    {
+        if (Edited(mesh, nameof(LoadModelFromEditMesh)) is not { } data) return new Model();
+        var built = EditMeshBuild.Slots(data);
+        return new Model
+        {
+            Meshes = built.Select(slot => UploadMesh(slot.Vertices, slot.Indices)).ToArray(),
+            Materials = built.Select(_ => new ModelMaterial(Color.White)).ToArray(),
+            MeshMaterial = Enumerable.Range(0, built.Length).ToArray(),
+        };
+    }
+
+    /// <summary>Writes a model built by <see cref="LoadModelFromEditMesh"/> again from the mesh, its meshes in place, after the mesh changed.</summary>
+    /// <remarks>
+    /// Each slot's mesh keeps its id and takes the new shape, so whatever draws it draws the change,
+    /// and the materials the program gave the model stay with their slots. A slot added since gets a
+    /// mesh and a white material of its own, and the mesh of a slot taken away, as by
+    /// <see cref="EditMeshClear"/>, is freed. A body made from the model stays as it was made, so a
+    /// collider follows the change by being made again.
+    /// </remarks>
+    public static void UpdateModelFromEditMesh(Model model, EditMesh mesh)
+    {
+        if (Edited(mesh, nameof(UpdateModelFromEditMesh)) is not { } data) return;
+        var built = EditMeshBuild.Slots(data);
+        var meshes = new ModelMesh[built.Length];
+        var materials = model.Materials.ToList();
+        var meshMaterial = new int[built.Length];
+        for (int slot = 0; slot < built.Length; slot++)
+        {
+            var (vertices, indices) = built[slot];
+            var bounds = BoundingBox.Around(vertices.Select(vertex => vertex.Position).ToArray());
+            meshes[slot] = slot < model.Meshes.Length && Meshes.Replace(model.Meshes[slot].Id, vertices, indices)
+                ? new ModelMesh(model.Meshes[slot].Id, vertices.Length, indices.Length / 3, bounds)
+                : UploadMesh(vertices, indices);
+
+            if (slot < model.MeshMaterial.Length && model.MeshMaterial[slot] < materials.Count) meshMaterial[slot] = model.MeshMaterial[slot];
+            else
+            {
+                materials.Add(new ModelMaterial(Color.White));
+                meshMaterial[slot] = materials.Count - 1;
+            }
+        }
+        for (int slot = built.Length; slot < model.Meshes.Length; slot++) UnloadMesh(model.Meshes[slot]);
+        model.Replace(meshes, [.. materials], meshMaterial);
+    }
 
     // The edit mesh a call works on, or null with a warning naming the call where it is not loaded,
     // so an operation on a freed mesh is found in the log and the frame goes on.

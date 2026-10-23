@@ -555,5 +555,5 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   illumination reads, walked in the first person, its emissive ore the only light at night
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and
   [Models and meshes](../CHEATSHEET.md#models-and-meshes)
-- Previous: [Models and animation](models-and-animation.md)
+- Previous: [Modeling](modeling.md)
 - Next: [Global illumination](global-illumination.md)

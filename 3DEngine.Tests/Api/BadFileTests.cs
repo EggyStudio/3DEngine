@@ -74,6 +74,7 @@ public sealed class BadFileTests : IDisposable
         ("LoadShader", ".slang", "3DEngine.Examples/resources/shaders/grayscale.slang", f => Usable(LoadShader(f), IsShaderValid, UnloadShader), Refused),
         ("LoadComputeShader", ".slang", "3DEngine.Examples/resources/shaders/plasma.slang", f => Usable(LoadComputeShader(f), IsShaderValid, UnloadShader), Refused),
         ("LoadScene", ".json", "games/Summit/resources/level.json", f => LoadScene(f).Count > 0, Refused),
+        ("LoadEditMesh", ".model", "3DEngine.Tests/Modeling/room.model", f => Usable(LoadEditMesh(f), IsEditMeshValid, UnloadEditMesh), Refused),
         ("DataAssets.Load", ".json", "3DEngine.Tests/Scenes/robot.machine.json", f => !DataAssets.Load<AnimationStateMachine>(f).IsNone, Refused),
         ("LoadFileText", ".txt", "3DEngine.Examples/resources/torus.mtl", f => LoadFileText(f) is not null, ["missing"]),
         ("LoadFileData", ".bin", "3DEngine.Examples/resources/coin.wav", f => LoadFileData(f) is not null, ["missing"]),

@@ -387,4 +387,4 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
   bodies and stands up by a blend from the pose it lies in
 - The cheatsheet's [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Text and fonts](text-and-fonts.md)
-- Next: [Materials, light and shadows](materials-light-and-shadows.md)
+- Next: [Modeling](modeling.md)

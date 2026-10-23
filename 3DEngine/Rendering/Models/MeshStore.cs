@@ -309,6 +309,38 @@ internal sealed class MeshStore
         }
     }
 
+    /// <summary>
+    /// Replaces a loaded mesh's vertices and triangles, of any count, keeping its id, so whatever
+    /// draws the mesh draws the new shape, as a model built from an edit mesh does after an edit.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    /// <remarks>
+    /// The mesh is uploaded whole again, its old buffers destroyed once no frame in flight reads
+    /// them. It is for a mesh of plain vertices, and a stream, colors or a skin it had are dropped.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The indices are not whole triangles, or one is out of range.</exception>
+    internal bool Replace(int id, ModelVertex[] vertices, uint[] indices)
+    {
+        if (indices.Length == 0 || indices.Length % 3 != 0)
+            throw new ArgumentException("A mesh needs a whole number of triangles.", nameof(indices));
+        foreach (var index in indices)
+            if (index >= vertices.Length)
+                throw new ArgumentException($"Index {index} is past the {vertices.Length} vertices.", nameof(indices));
+
+        lock (_gate)
+        {
+            if (!_live.ContainsKey(id)) return false;
+            _live[id] = (vertices, indices);
+            _skins.Remove(id);
+            _streams.Remove(id);
+            _custom.Remove(id);
+            _positionsOnly.Remove(id);
+            _uploads.RemoveAll(u => u.Id == id);
+            _uploads.Add(new Upload(id, vertices, indices));
+            return true;
+        }
+    }
+
     /// <summary>Whether <paramref name="id"/> names a loaded mesh.</summary>
     public bool Contains(int id)
     {

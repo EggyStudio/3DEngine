@@ -60,9 +60,13 @@ public static partial class E3D
             var first = points.Count;
             foreach (var vertex in Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
             // A model's front faces wind counterclockwise and Bepu's clockwise, so each triangle is
-            // turned over.
+            // turned over. A triangle with no area collides with nothing and has no normal to
+            // collide by, as a model built from an edit mesh has for a slot with no faces, so it
+            // is left out.
             for (int i = 0; i + 2 < indices.Length; i += 3)
             {
+                var (a, b, c) = (points[first + (int)indices[i]], points[first + (int)indices[i + 1]], points[first + (int)indices[i + 2]]);
+                if (Vector3.Cross(b - a, c - a) == Vector3.Zero) continue;
                 triangles.Add(first + (int)indices[i]);
                 triangles.Add(first + (int)indices[i + 2]);
                 triangles.Add(first + (int)indices[i + 1]);

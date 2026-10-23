@@ -1,0 +1,10 @@
+model 1
+# A room of eight by six, three high, with its ceiling a slot of its own and a panel pushed up in it.
+box 8 3 6
+select +y
+material ceiling
+inset 1
+extrude 0.5
+select -y
+material floor
+select none

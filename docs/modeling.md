@@ -1,0 +1,334 @@
+# Modeling
+
+An `EditMesh` is a polygon mesh shaped by operations, for blocking out a level or a prop from code.
+It starts empty, takes primitives, and is changed through a selection, each call acting on what is
+selected:
+
+```csharp
+var room = LoadEditMesh();
+EditMeshBox(room, new Vector3(8, 3, 6));
+EditMeshSelectFacing(room, Vector3.UnitY);
+EditMeshMove(room, new Vector3(0, 1, 0));      // the ceiling a meter higher
+```
+
+Each operation writes a line to the mesh's recipe, so those three calls are these three lines, and
+the lines run from an empty mesh make it again:
+
+```text
+box 8 3 6
+select +y
+move 0 1 0
+```
+
+The recipe is the mesh's history, its undo and its file, as [The recipe](#the-recipe) shows, and
+each section here gives an operation's line beside its call. The same words make the same mesh in
+BevyCSharp's edit mesh.
+
+A vertex is a point, and a face is a loop of three or more vertices, wound counterclockwise seen
+from the side it faces. A face of any count is kept whole, so a box's side is one face of four
+corners and a staircase's side is one face of many, and it is cut into triangles only when the mesh
+is built into a model. Edges are read from the faces, each pair of corners that follow one another
+round a face.
+
+What a mesh holds is read from it:
+
+<!-- compiled with:
+var room = LoadEditMesh();
+-->
+```csharp
+var info = GetEditMeshInfo(room);
+Console.WriteLine($"{info.VertexCount} vertices, {info.EdgeCount} edges, {info.FaceCount} faces");
+Console.WriteLine($"{info.Volume} cubic meters, {info.OpenEdges} open edges, closed {info.IsClosed}");
+```
+
+`Volume` is the space a closed mesh holds, positive when its faces face out. `OpenEdges` counts the
+edges not shared by two faces running along them in opposite directions, the edge of a hole, an
+edge three faces meet at, or one beside a face turned the wrong way, and `IsClosed` is true where
+there are none, which a solid needs for its volume and its collider to mean anything.
+`GetEditMeshVertex`, `GetEditMeshFace`, `GetEditMeshFaceNormal` and `GetEditMeshFaceSlot` read a
+vertex and a face by index. An edit mesh is data on the CPU, so it is made and shaped before
+`InitWindow` as well as after it, and `UnloadEditMesh` frees it.
+
+## Primitives
+
+Each primitive is added to what the mesh holds and selected, so the call after it acts on it. Each
+is placed by its lowest corner, at the origin unless `at` says otherwise, or by its middle where
+`centered` is set:
+
+```csharp
+var mesh = LoadEditMesh();
+EditMeshBox(mesh, new Vector3(2, 3, 4));                                       // from (0, 0, 0) to (2, 3, 4)
+EditMeshBox(mesh, Vector3.One, at: new Vector3(5, 0, 0));                      // its corner at (5, 0, 0)
+EditMeshBox(mesh, Vector3.One, at: new Vector3(0, 5, 0), centered: true);      // its middle at (0, 5, 0)
+```
+
+A primitive's line ends in `at X Y Z` where it is placed elsewhere and `center` where it is placed
+by its middle, as `box 1 1 1 at 0 5 0 center`. A measure is above zero, and one that is not is
+refused with an `ArgumentOutOfRangeException`.
+
+### Box
+
+`EditMeshBox(mesh, size)`, or `box X Y Z`, is eight vertices and six faces of four corners, as wide
+along X, as tall along Y and as deep along Z as `size` says. A box of two by three by four holds 24
+cubic meters.
+
+### Plane
+
+`EditMeshPlane(mesh, width, depth)`, or `plane X Z`, is one face of four corners lying flat and
+facing up, as wide along X and as deep along Z as given. Its four edges are open, as a floor's are
+before walls meet it.
+
+### Cylinder and cone
+
+`EditMeshCylinder(mesh, radius, height, sides)`, or `cylinder RADIUS HEIGHT SIDES`, stands along Y,
+its round side made of `sides` flat sides, and `EditMeshCone(mesh, radius, height, sides)`, or
+`cone RADIUS HEIGHT SIDES`, stands on a base of as many sides with its point over the middle. Their
+corners stand half a side round from the axes, so a cylinder of four sides is a box with its sides
+facing along X and Z, and one of eight has a flat side facing each way along them. A cylinder of
+eight sides has 16 vertices, 24 edges and 10 faces, and a cone of six 7, 12 and 7.
+
+### Wedge
+
+`EditMeshWedge(mesh, size)`, or `wedge X Y Z`, is a box cut through from one bottom edge to the
+opposite top edge. It is nothing tall at its lowest Z and its full height at its highest, so it
+rises along Z as stairs do, and a wedge laid over a flight of stairs makes their ramp.
+
+### Stairs
+
+`EditMeshStairs(mesh, steps, rise, run, width)`, or `stairs STEPS RISE RUN WIDTH`, is a flight
+rising along Z, each step `rise` high and `run` deep, as wide along X as `width`. It is closed
+underneath, a back face as tall as the flight at its far end and a floor under it, so it is a solid
+that stands on the ground and against a wall:
+
+<!-- compiled with:
+var mesh = LoadEditMesh();
+-->
+```csharp
+EditMeshStairs(mesh, 12, 0.25f, 0.3f, 2);   // three meters up over 3.6
+```
+
+Its two sides are faces of one outline each, a step's corner at a time. A flight of four steps has
+twenty vertices, thirty edges and twelve faces, and holds the sum of its steps, each as tall as it
+stands.
+
+### Arch
+
+`EditMeshArch(mesh, radius, thickness, depth, sides)`, or `arch RADIUS THICKNESS DEPTH SIDES`, is
+half a ring standing on its two feet, its curve made of `sides` flat sides and its opening along Z.
+It is twice its radius wide and its radius tall, so it stands over a doorway as wide as its inside,
+`radius - thickness` either side of its middle.
+
+### Clear
+
+`EditMeshClear(mesh)`, or `clear`, takes away every vertex, face and material slot but the first.
+It is a line of the recipe like the others, so an undo after it brings back what it took.
+
+## The selection
+
+Operations act on what is selected, a set of vertices and a set of faces. Selecting a face selects
+its corners, so moving the vertices selected moves the faces selected, and an edge is selected
+where both its ends are.
+
+| Call | Line | Selects |
+|---|---|---|
+| `EditMeshSelectAll(mesh)`, `EditMeshSelectNone(mesh)` | `select all`, `select none` | Everything, or nothing |
+| `EditMeshSelectInvert(mesh)` | `select invert` | What was not selected, faces with their corners |
+| `EditMeshSelectFaces(mesh, [0, 3])` | `select face 0 3` | Faces by their indices |
+| `EditMeshSelectFacing(mesh, Vector3.UnitY)` | `select +y` | The faces facing nearest a way along an axis, here up |
+| `EditMeshSelectInside(mesh, corner, opposite)` | `select box 0 0 0 4 3 4` | The vertices inside a box, and the faces all of whose corners are |
+| `EditMeshSelectSlot(mesh, "wall")` | `select slot wall` | The faces in a material slot |
+
+Each but the first three takes a `SelectionMode` after it, `Replace` unless it says `Add` or
+`Remove`, which a line says after `select`, as `select add -y`. `EditMeshSelectFacing` sorts a face
+by which of the six directions along the axes its normal is nearest, so every face is a floor, a
+ceiling or one of four walls. A slope rising exactly as far as it runs, at forty-five degrees, is
+taken as a floor, where a character walks it.
+
+```csharp
+var hall = LoadEditMesh();
+EditMeshBox(hall, new Vector3(10, 3, 4));
+EditMeshSelectFacing(hall, Vector3.UnitX);
+EditMeshSelectFacing(hall, -Vector3.UnitX, SelectionMode.Add);   // both ends of the hall
+```
+
+## Moving, turning and scaling
+
+`EditMeshMove(mesh, by)` moves the selected vertices, `EditMeshRotate(mesh, axis, degrees)` turns
+them about an axis and `EditMeshScale(mesh, factor)` stretches them along each axis, the lines
+`move X Y Z`, `rotate y 90` (or an axis's three numbers, `rotate 1 0 1 45`) and `scale 2` or
+`scale 1 2 1`, each ending in `at X Y Z` where a pivot is given. A turn or a scale is about the
+middle of the box holding the selection unless a pivot is given, so a part turned a quarter in
+place stays on the grid it stood on, and a negative scale mirrors the selection with its faces
+still facing out.
+
+```csharp
+var tower = LoadEditMesh();
+EditMeshBox(tower, new Vector3(4, 12, 4));
+EditMeshSelectFacing(tower, Vector3.UnitY);
+EditMeshScale(tower, new Vector3(0.5f, 1, 0.5f));               // the top drawn in, a taper
+EditMeshSelectAll(tower);
+EditMeshRotate(tower, Vector3.UnitY, 45, pivot: Vector3.Zero);   // the whole turned about the origin
+```
+
+## The grid
+
+A mesh holds a grid step, a meter unless `EditMeshGrid(mesh, step)`, or `grid STEP`, sets a power
+of two of one from a sixteenth to sixty-four. A measure typed is taken as given, so a move of a
+fifth of a meter moves a fifth of a meter whatever the step. `EditMeshSnap(mesh)`, or `snap`, puts
+each selected vertex on the nearest point of the grid, which mends what turns and scales left off
+it:
+
+```csharp
+var crate = LoadEditMesh();
+EditMeshBox(crate, Vector3.One);
+EditMeshRotate(crate, Vector3.UnitY, 30);
+EditMeshGrid(crate, 0.25f);
+EditMeshSnap(crate);
+```
+
+## Material slots and smoothing
+
+Each face has a material slot, a name, the first of which, `default`, every new face takes.
+`EditMeshMaterial(mesh, "wall")`, or `material wall`, puts the selected faces in the slot of that
+name, made where there is none, so a mesh's faces are sorted into floors, walls and trims before
+what each is drawn with is decided. A model built from the mesh has a mesh and a material for each
+slot, in the order `GetEditMeshSlots` gives:
+
+```csharp
+var cell = LoadEditMesh();
+EditMeshBox(cell, new Vector3(6, 3, 6));
+EditMeshMaterial(cell, "wall");
+EditMeshSelectFacing(cell, -Vector3.UnitY);
+EditMeshMaterial(cell, "floor");
+```
+
+`EditMeshShade(mesh, true, degrees)`, or `shade smooth 30`, smooths the selected faces into one
+another where two meet at under the angle, thirty degrees where none is given, so a cylinder's sides
+are round and its ends stay flat, and `EditMeshShade(mesh, false)`, or `shade flat`, draws them
+flat.
+
+## Extrude and inset
+
+`EditMeshExtrude(mesh, distance)`, or `extrude 1`, pushes the selected faces out along their
+normals, the sides between them and what they left filled. The faces move together as one region,
+so two side by side stay joined, and a corner where they meet at an angle moves so each goes the
+whole distance along its own normal. The faces moved stay selected, so a second extrude pushes them
+further, and a negative distance pushes them in. `EditMeshExtrude(mesh, by)`, or `extrude 0 1 0`,
+moves every corner of the region by one vector, as a wall is pushed up from a floor's edge.
+
+`EditMeshInset(mesh, distance)`, or `inset 0.25`, makes each selected face a smaller face inside it
+with a band of faces round it, the smaller faces selected after, so an extrude after it pulls out a
+panel or pushes in a recess:
+
+```csharp
+var wall = LoadEditMesh();
+EditMeshBox(wall, new Vector3(4, 3, 0.4f));
+EditMeshSelectFacing(wall, Vector3.UnitZ);
+EditMeshInset(wall, 0.5f);
+EditMeshExtrude(wall, -0.2f);   // a recess two tenths deep
+```
+
+The top of a box of two by three by four extruded a meter makes a box of twelve vertices and ten
+faces that holds 32 cubic meters, and an inset of its top changes nothing it holds.
+
+## Delete, merge, flip, triangulate and duplicate
+
+`EditMeshDelete(mesh)`, or `delete`, takes away the selected faces, or where none is selected the
+selected vertices and every face using them, and `EditMeshDelete(mesh, fill: true)`, or
+`delete fill`, closes each hole left with one face, which is selected after. A vertex no face uses
+is taken away with them.
+
+`EditMeshMerge(mesh, distance)`, or `merge 0.001`, joins the selected vertices nearer one another
+than the distance into one, and a face left with fewer than three corners is taken away, so a top
+moved onto the bottom of a box and merged leaves two faces on four vertices.
+
+`EditMeshFlip(mesh)`, or `flip`, turns the selected faces to face the other way.
+`EditMeshTriangulate(mesh)`, or `triangulate`, cuts each selected face of more than three corners
+into triangles by ear clipping, a concave face inside its outline, as the build cuts it.
+`EditMeshDuplicate(mesh)`, or `duplicate`, copies the selected faces where they are, with vertices
+of their own, and selects the copy, which then moves alone.
+
+## Joining another model
+
+`EditMeshJoin(mesh, "models/pillar.model")`, or `join models/pillar.model`, adds the model a recipe's
+file makes and selects it, its faces keeping their slots by name. The recipe keeps the file's name
+rather than what it held, so a change to the pillar's model reaches every model that joins it the
+next time each is made. A model that joins itself is refused with a `FormatException`.
+
+## The recipe
+
+`GetEditMeshRecipe(mesh)` gives the recipe as the text of its file, its `model 1` header first and
+then a line an operation. `SaveEditMesh(mesh, "models/room.model")` writes it, beside the program
+where the name is relative, and `LoadEditMesh("models/room.model")` makes the mesh again from it,
+so a level's models are short files a reader follows and a diff reads:
+
+```text
+model 1
+# The hall, its ceiling a slot of its own with a panel pushed up in it.
+box 8 3 6
+select +y
+material ceiling
+inset 1
+extrude 0.5
+```
+
+Blank lines and comments after `#` are skipped. A file that does not start with `model 1`, or
+holds a line that is not an operation, gives an edit mesh `IsEditMeshValid` says is not loaded,
+with a warning naming the file and the line. `LoadEditMeshFromMemory(text)` reads a recipe from a
+string, its header optional, and `EditMeshRun(mesh, "extrude 1")` runs one line as though its
+operation were called, the line it writes being the line given.
+
+`EditMeshUndo(mesh)` takes back the last operation by making the mesh again from the lines before
+it, so an undo is right for every operation and the selection is the one those lines left, and
+`EditMeshRedo(mesh)` does it again. An operation done after an undo forgets what was taken back.
+
+## Building a model
+
+`LoadModelFromEditMesh(mesh)` builds the mesh into a `Model`, a mesh and a white material for each
+material slot, which is drawn and given materials as any model is:
+
+<!-- compiled with:
+var room = LoadEditMesh();
+Camera3D camera = default;
+-->
+```csharp
+var model = LoadModelFromEditMesh(room);
+var floor = CreatePhysicsStaticModel(model, Vector3.Zero);
+// ...
+BeginMode3D(camera);
+DrawModel(model, Vector3.Zero, 1, Color.White);
+EndMode3D();
+```
+
+Each face is cut into triangles by ear clipping and has corners of its own, so its normal is its
+own, or the mean of the smoothed faces' normals round a corner within its angle. Its texture
+coordinates are each corner's place in meters seen along the axis the face's normal is nearest, so
+a texture of a meter's grid shows a meter on every face and carries on across faces meeting along a
+line. A slot no face is in is a mesh of one triangle with no area, which draws nothing.
+
+After the mesh changes, `UpdateModelFromEditMesh(model, mesh)` writes the model's meshes again in
+place, each keeping its id, so whatever draws the model draws the change, and the materials the
+program gave it stay with their slots. `CreatePhysicsStaticModel(model, position)` makes a body of
+the built model's triangles, the floors and walls a character walks, and a body made before a
+change is destroyed and made again to follow it:
+
+<!-- compiled with:
+var room = LoadEditMesh();
+var model = LoadModelFromEditMesh(room);
+var floor = CreatePhysicsStaticModel(model, Vector3.Zero);
+-->
+```csharp
+EditMeshSelectFacing(room, Vector3.UnitY);
+EditMeshExtrude(room, 1);
+UpdateModelFromEditMesh(model, room);
+DestroyPhysicsBody(floor);
+floor = CreatePhysicsStaticModel(model, Vector3.Zero);
+```
+
+## See also
+
+- [Models and animation](models-and-animation.md), for drawing a model and its materials, and
+  [Physics](physics.md), for the bodies a built model collides as
+- The cheatsheet's [Modeling](../CHEATSHEET.md#modeling)
+- Previous: [Models and animation](models-and-animation.md)
+- Next: [Materials, light and shadows](materials-light-and-shadows.md)

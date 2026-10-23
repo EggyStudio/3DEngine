@@ -13,8 +13,12 @@ internal sealed partial class EditMeshData
     /// <summary>The operations that made the mesh, a line each, the oldest first.</summary>
     public IReadOnlyList<string> Recipe => _recipe;
 
-    /// <summary>Writes an operation's line to the recipe.</summary>
-    private void Did(string line) => _recipe.Add(line);
+    /// <summary>Writes an operation's line to the recipe, which forgets what was undone unless the line is one done again.</summary>
+    private void Did(string line)
+    {
+        _recipe.Add(line);
+        if (!_replaying) _undone.Clear();
+    }
 
     private static string F(float value) => value.ToString(CultureInfo.InvariantCulture);
 

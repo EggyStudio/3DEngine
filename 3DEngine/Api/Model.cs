@@ -20,13 +20,24 @@ namespace Engine;
 public sealed class Model
 {
     /// <summary>The model's meshes.</summary>
-    public ModelMesh[] Meshes { get; init; } = [];
+    public ModelMesh[] Meshes { get => _meshes; init => _meshes = value; }
+
+    // The arrays behind the three properties here, which a model built from an edit mesh replaces
+    // when the mesh gains or loses a material slot, the public init kept for a program that makes a
+    // model of its own.
+    private ModelMesh[] _meshes = [];
+    private ModelMaterial[] _materials = [];
+    private int[] _meshMaterial = [];
 
     /// <summary>The model's materials.</summary>
-    public ModelMaterial[] Materials { get; init; } = [];
+    public ModelMaterial[] Materials { get => _materials; init => _materials = value; }
 
     /// <summary>For each mesh, the index of its material in <see cref="Materials"/>.</summary>
-    public int[] MeshMaterial { get; init; } = [];
+    public int[] MeshMaterial { get => _meshMaterial; init => _meshMaterial = value; }
+
+    /// <summary>Gives the model other meshes and materials, each mesh with its material's index, for a model built again from an edit mesh.</summary>
+    internal void Replace(ModelMesh[] meshes, ModelMaterial[] materials, int[] meshMaterial) =>
+        (_meshes, _materials, _meshMaterial) = (meshes, materials, meshMaterial);
 
     /// <summary>Applied before the position, rotation and scale a draw call gives.</summary>
     public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;

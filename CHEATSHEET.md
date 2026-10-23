@@ -1445,7 +1445,23 @@ An entity's `AnimatedModel` plays a clip, and an `AnimationMachine` beside it ch
 EditMesh LoadEditMesh();                                 // Makes an empty edit mesh, which primitives and operations
                                                          // then shape
 void UnloadEditMesh(EditMesh mesh);                      // Frees an edit mesh
+EditMesh LoadEditMesh(string fileName);                  // Makes an edit mesh from a recipe's file, a .model file of
+                                                         // one operation a line, found beside the program or in the
+                                                         // working directory
+EditMesh LoadEditMeshFromMemory(string recipe);          // Makes an edit mesh from a recipe's text, one operation a
+                                                         // line, its model 1 header first or left out
+bool SaveEditMesh(EditMesh mesh, string fileName);       // Writes an edit mesh's recipe to a .model file, beside the
+                                                         // program where the name is relative, and says whether it was
+                                                         // written
 bool IsEditMeshValid(EditMesh mesh);                     // Whether mesh names an edit mesh that is loaded
+string GetEditMeshRecipe(EditMesh mesh);                 // The mesh's recipe as the text of its file, its model 1
+                                                         // header and then the operations that made it, a line each
+void EditMeshRun(EditMesh mesh, string line);            // Runs one line of a recipe on the mesh, as though its
+                                                         // operation were called, as box 8 3 6 or select +y
+bool EditMeshUndo(EditMesh mesh);                        // Takes back the last operation of the mesh's recipe and says
+                                                         // whether there was one
+bool EditMeshRedo(EditMesh mesh);                        // Does again the operation last taken back and says whether
+                                                         // there was one
 EditMeshInfo GetEditMeshInfo(EditMesh mesh);             // The mesh's counts of vertices, edges and faces, its open
                                                          // edges, its selection, its volume, its bounds and its grid
                                                          // step
@@ -1521,13 +1537,43 @@ void EditMeshShade(EditMesh mesh, bool smooth, float degrees = 30f); // Smooths 
                                                                      // where two meet at under an angle in degrees, or
                                                                      // draws them flat, so a cylinder's sides are round
                                                                      // and its ends stay flat
+
+void EditMeshExtrude(EditMesh mesh, float distance);     // Pushes the selected faces out along their normals by a
+                                                         // distance, filling the sides, the faces moved staying
+                                                         // selected
+void EditMeshExtrude(EditMesh mesh, Vector3 by);         // Pushes the selected faces out by one vector, filling the
+                                                         // sides, as a wall is pushed up from a floor's edge
+void EditMeshInset(EditMesh mesh, float distance);       // Makes each selected face a smaller face inside it by a
+                                                         // distance, with a band of faces round it, the smaller faces
+                                                         // selected after
+void EditMeshDelete(EditMesh mesh, bool fill = false);   // Takes away the selected faces, or where none is selected the
+                                                         // selected vertices and every face using them
+void EditMeshMerge(EditMesh mesh, float distance);       // Joins the selected vertices nearer one another than a
+                                                         // distance into one, faces left with fewer than three corners
+                                                         // taken away
+void EditMeshFlip(EditMesh mesh);                        // Turns the selected faces to face the other way
+void EditMeshTriangulate(EditMesh mesh);                 // Cuts each selected face of more than three corners into
+                                                         // triangles, a concave face inside its outline, the triangles
+                                                         // selected after
+void EditMeshDuplicate(EditMesh mesh);                   // Copies the selected faces where they are, with vertices of
+                                                         // their own, and selects the copy
+void EditMeshJoin(EditMesh mesh, string fileName);       // Adds another model, made from its recipe's file, to the mesh
+                                                         // and selects it, its faces keeping their slots by name
+
+Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
+                                                         // material for each material slot, in the order of the slots
+void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from
+                                                          // the mesh, its meshes in place, after the mesh changed
 ```
 
 An `EditMesh` is a polygon mesh of faces of any count, shaped by primitives and by operations on
 its selection, each of which writes its line to the mesh's recipe. `GetEditMeshInfo` reads its
 counts, its selection, its volume and its bounds as an `EditMeshInfo`, whose `IsClosed` says
 whether every edge is shared by two faces running along it in opposite directions. A selection
-takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`.
+takes a `SelectionMode`, `Replace` unless it says `Add` or `Remove`. A saved model is its recipe, a
+`.model` file of one operation a line starting with `model 1`, made again when it loads, and a
+model built from the mesh has a mesh and a material for each material slot, which
+`CreatePhysicsStaticModel` makes a collider of.
 
 ## States
 

@@ -34,7 +34,7 @@ public sealed class FileHandleTests : IDisposable
 
     // Each loader, the files it reads from the examples' resources, and whether what it gave back
     // was loaded, so a load that failed early does not pass for one that let go.
-    public static TheoryData<string> Loaders => new() { "model", "model glTF", "model by the asset server", "texture", "image", "wave", "music, unloaded", "font", "scene" };
+    public static TheoryData<string> Loaders => new() { "model", "model glTF", "model by the asset server", "texture", "image", "wave", "music, unloaded", "font", "scene", "edit mesh" };
 
     [NeedsOpenFilesTheory]
     [MemberData(nameof(Loaders))]
@@ -53,6 +53,7 @@ public sealed class FileHandleTests : IDisposable
             "music, unloaded" => Load(["drone.ogg"], f => LoadMusicStream(f[0]) is var music && IsMusicValid(music) && Unload(music)),
             "font" => Load(["fonts/Lato-Regular.ttf"], f => IsFontValid(LoadFont(f[0]))),
             "scene" => Scene(),
+            "edit mesh" => EditMeshFile(),
             _ => throw new ArgumentOutOfRangeException(nameof(loader)),
         };
 
@@ -160,6 +161,16 @@ public sealed class FileHandleTests : IDisposable
         var file = _folder.File("level.json");
         File.WriteAllText(file, """{ "format": "3dengine-scene", "version": 1, "entities": [ { "components": { "Transform": { "Position": [1, 2, 3] } } } ] }""");
         LoadScene(file).Should().ContainSingle();
+        return [file];
+    }
+
+    private string[] EditMeshFile()
+    {
+        var file = _folder.File("room.model");
+        File.Copy(Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Tests", "Modeling", "room.model"), file);
+        var mesh = LoadEditMesh(file);
+        IsEditMeshValid(mesh).Should().BeTrue();
+        UnloadEditMesh(mesh);
         return [file];
     }
 
