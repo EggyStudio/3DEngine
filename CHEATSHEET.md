@@ -547,7 +547,9 @@ or `UpdateTexture`.
 
 `LoadImageFromScreen` reads the frame before, inside a frame as well, since a frame is drawn on the
 GPU as `EndDrawing` ends it. Frames are kept from its first call on, so that first call reads the
-window's size in the last color it was cleared to.
+window's size in the last color it was cleared to. From outside, `./e3d command frame.read x y w h`
+reads a rectangle of the next frame as its mean sRGB color and its largest step between neighboring
+pixels, so a script asserts a picture without downloading it.
 
 A file name is looked for as given, then beside the program, then under `source/` beside it. A file
 that cannot be read gives an invalid image or texture and a warning in the log, and drawing an
