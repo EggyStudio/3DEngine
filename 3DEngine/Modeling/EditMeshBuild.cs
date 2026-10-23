@@ -29,6 +29,8 @@ internal static class EditMeshBuild
     /// </remarks>
     public static (ModelVertex[] Vertices, uint[] Indices)[] Slots(EditMeshData mesh)
     {
+        // What is built is the mesh with its modifiers applied, which leave it as it was shaped.
+        mesh = mesh.Modified();
         var slots = mesh.Slots.Count;
         var vertices = new List<ModelVertex>[slots];
         var indices = new List<uint>[slots];

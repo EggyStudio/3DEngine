@@ -1592,6 +1592,41 @@ void EditMeshSpin(EditMesh mesh, Vector3 axis, float degrees, int steps, Vector3
 void EditMeshSmooth(EditMesh mesh, float factor = 0.5f); // Moves each selected vertex toward the mean of the vertices
                                                          // it shares an edge with, by a factor from zero to one
 
+void EditMeshModifierMirror(EditMesh mesh, string axes, Vector3 pivot = default); // Adds a modifier that mirrors the
+                                                                                  // mesh across the planes through a
+                                                                                  // pivot square to each axis named, as
+                                                                                  // "x" or "xz"
+void EditMeshModifierArray(EditMesh mesh, int count, Vector3 offset); // Adds a modifier that repeats the mesh a number
+                                                                      // of times in all, each copy an offset further on
+void EditMeshModifierArrayCurve(EditMesh mesh, ReadOnlySpan<Vector3> positions); // Adds a modifier that repeats the
+                                                                                 // mesh at each of a curve's positions,
+                                                                                 // moved by the position's offset from
+                                                                                 // the first, which is the mesh itself
+void EditMeshModifierBevel(EditMesh mesh, float width, int segments = 1, float angle = 0); // Adds a modifier that
+                                                                                           // bevels every edge two
+                                                                                           // faces run along, or where
+                                                                                           // an angle is given those
+                                                                                           // whose faces meet at more
+                                                                                           // than it
+void EditMeshModifierSubdivision(EditMesh mesh, int level); // Adds a modifier that subdivides the mesh by Catmull and
+                                                            // Clark's rule to a level, each level making every face
+                                                            // four-cornered and rounding the shape
+void EditMeshModifierSolidify(EditMesh mesh, float thickness); // Adds a modifier that gives the mesh a thickness, out
+                                                               // along its normals or in where the thickness is below
+                                                               // zero, its open edges joined across it
+void EditMeshModifierTriangulate(EditMesh mesh);         // Adds a modifier that cuts every face of more than three
+                                                         // corners into triangles
+void EditMeshModifierMove(EditMesh mesh, int from, int to); // Moves a modifier from one place in the stack to another,
+                                                            // by their indices from zero
+void EditMeshModifierRemove(EditMesh mesh, int index);   // Takes a modifier out of the stack, by its index from zero
+void EditMeshModifierApply(EditMesh mesh, int index);    // Does a modifier to the mesh itself, as though it were first
+                                                         // in the stack, and takes it out of the stack
+string[] GetEditMeshModifiers(EditMesh mesh);            // The mesh's modifiers in the order they apply, each as its
+                                                         // words after modifier in the recipe
+EditMeshInfo GetEditMeshModifiedInfo(EditMesh mesh);     // What the mesh builds into with its modifiers applied, its
+                                                         // counts, volume and bounds, as GetEditMeshInfo reads the mesh
+                                                         // itself
+
 Model LoadModelFromEditMesh(EditMesh mesh);              // Builds the mesh into a model, one mesh and one white
                                                          // material for each material slot, in the order of the slots
 void UpdateModelFromEditMesh(Model model, EditMesh mesh); // Writes a model built by LoadModelFromEditMesh again from

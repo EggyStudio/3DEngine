@@ -147,6 +147,8 @@ internal sealed partial class EditMeshData
         _selectedVertices.Clear();
         _selectedFaces.Clear();
         _recipe.Clear();
+        _modifiers.Clear();
+        _modified = null;
         GridStep = 1;
         Changed();
 
@@ -210,6 +212,7 @@ internal sealed partial class EditMeshData
                 case "mirror": mesh.Mirror(Axis(), Pivot() ?? Vector3.Zero); break;
                 case "spin": mesh.Spin(Axis(), Number(), Count(), Pivot() ?? Vector3.Zero); break;
                 case "smooth": mesh.Smooth(Number()); break;
+                case "modifier": Modifier(mesh); break;
                 default: throw new FormatException($"{words[0]} is not an operation of a model's recipe.");
             }
 
@@ -254,6 +257,50 @@ internal sealed partial class EditMeshData
                     return;
                 default:
                     throw new FormatException($"select {what} is none of all, none, invert, face, box, slot or a way along an axis such as +y.");
+            }
+        }
+
+        private void Modifier(EditMeshData mesh)
+        {
+            var what = Word("a modifier");
+            switch (what)
+            {
+                case "mirror":
+                    mesh.ModifierMirror(Word("the axes, as xz"), Pivot() ?? Vector3.Zero);
+                    return;
+                case "array" when Optional("curve"):
+                    var points = new List<Vector3>();
+                    while (_at < words.Length) points.Add(Vector());
+                    mesh.ModifierArrayCurve([.. points]);
+                    return;
+                case "array":
+                    mesh.ModifierArray(Count(), Vector());
+                    return;
+                case "bevel":
+                    var width = Number();
+                    var segments = _at < words.Length ? Count() : 1;
+                    mesh.ModifierBevel(width, segments, _at < words.Length ? Number() : 0);
+                    return;
+                case "subdivision":
+                    mesh.ModifierSubdivision(Count());
+                    return;
+                case "solidify":
+                    mesh.ModifierSolidify(Number());
+                    return;
+                case "triangulate":
+                    mesh.ModifierTriangulate();
+                    return;
+                case "move":
+                    mesh.ModifierMove(Count(), Count());
+                    return;
+                case "remove":
+                    mesh.ModifierRemove(Count());
+                    return;
+                case "apply":
+                    mesh.ModifierApply(Count());
+                    return;
+                default:
+                    throw new FormatException($"modifier {what} is none of mirror, array, bevel, subdivision, solidify, triangulate, move, remove or apply.");
             }
         }
 

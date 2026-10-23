@@ -451,6 +451,92 @@ public static partial class E3D
     /// <exception cref="ArgumentOutOfRangeException">The factor is not from zero to one.</exception>
     public static void EditMeshSmooth(EditMesh mesh, float factor = 0.5f) => Edited(mesh, nameof(EditMeshSmooth))?.Smooth(factor);
 
+    // -- Modifiers, applied in order to a copy of the mesh when it is built, so the mesh stays as it
+    // was shaped. Each is a line of the recipe beginning modifier.
+
+    /// <summary>Adds a modifier that mirrors the mesh across the planes through a pivot square to each axis named, as <c>"x"</c> or <c>"xz"</c>.</summary>
+    /// <remarks>
+    /// Each mirror shares the vertices on its plane, as <see cref="EditMeshMirror"/> does, so a half
+    /// shaped with its open side on the plane builds whole. The recipe's line is
+    /// <c>modifier mirror xz</c>, ending in <c>at X Y Z</c> where the pivot is not the origin.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The axes are not x, y and z, each once.</exception>
+    public static void EditMeshModifierMirror(EditMesh mesh, string axes, Vector3 pivot = default) =>
+        Edited(mesh, nameof(EditMeshModifierMirror))?.ModifierMirror(axes, pivot);
+
+    /// <summary>Adds a modifier that repeats the mesh a number of times in all, each copy an offset further on.</summary>
+    /// <remarks>The recipe's line is <c>modifier array 3 2 0 0</c>, the count and the offset.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The count is not from 1 to 1024.</exception>
+    public static void EditMeshModifierArray(EditMesh mesh, int count, Vector3 offset) =>
+        Edited(mesh, nameof(EditMeshModifierArray))?.ModifierArray(count, offset);
+
+    /// <summary>Adds a modifier that repeats the mesh at each of a curve's positions, moved by the position's offset from the first, which is the mesh itself.</summary>
+    /// <remarks>The recipe's line is <c>modifier array curve 0 0 0 2 0 1 4 0 0</c>, the positions in order.</remarks>
+    /// <exception cref="ArgumentException">There are fewer than two positions.</exception>
+    public static void EditMeshModifierArrayCurve(EditMesh mesh, ReadOnlySpan<Vector3> positions) =>
+        Edited(mesh, nameof(EditMeshModifierArrayCurve))?.ModifierArrayCurve(positions);
+
+    /// <summary>Adds a modifier that bevels every edge two faces run along, or where an angle is given those whose faces meet at more than it.</summary>
+    /// <remarks>
+    /// The bevel is <see cref="EditMeshBevel"/>'s, so an angle of thirty degrees rounds a box's edges
+    /// and leaves the edges inside its flat faces alone. The recipe's line is
+    /// <c>modifier bevel 0.1 2 30</c>, the width, the segments and the angle, none given meaning every edge.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The width is not above zero, the segments not from 1 to 64, or the angle not from 0 to under 180.</exception>
+    public static void EditMeshModifierBevel(EditMesh mesh, float width, int segments = 1, float angle = 0) =>
+        Edited(mesh, nameof(EditMeshModifierBevel))?.ModifierBevel(width, segments, angle);
+
+    /// <summary>Adds a modifier that subdivides the mesh by Catmull and Clark's rule to a level, each level making every face four-cornered and rounding the shape.</summary>
+    /// <remarks>
+    /// A box subdivided to level one has 26 vertices and to level two 98. An open edge keeps its
+    /// outline. The recipe's line is <c>modifier subdivision 2</c>.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The level is not from 1 to 6.</exception>
+    public static void EditMeshModifierSubdivision(EditMesh mesh, int level) =>
+        Edited(mesh, nameof(EditMeshModifierSubdivision))?.ModifierSubdivision(level);
+
+    /// <summary>Adds a modifier that gives the mesh a thickness, out along its normals or in where the thickness is below zero, its open edges joined across it.</summary>
+    /// <remarks>A plane solidified is a closed slab. The recipe's line is <c>modifier solidify 0.1</c>.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The thickness is zero.</exception>
+    public static void EditMeshModifierSolidify(EditMesh mesh, float thickness) =>
+        Edited(mesh, nameof(EditMeshModifierSolidify))?.ModifierSolidify(thickness);
+
+    /// <summary>Adds a modifier that cuts every face of more than three corners into triangles.</summary>
+    /// <remarks>The recipe's line is <c>modifier triangulate</c>.</remarks>
+    public static void EditMeshModifierTriangulate(EditMesh mesh) => Edited(mesh, nameof(EditMeshModifierTriangulate))?.ModifierTriangulate();
+
+    /// <summary>Moves a modifier from one place in the stack to another, by their indices from zero.</summary>
+    /// <remarks>The recipe's line is <c>modifier move 2 0</c>.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The stack has no such place.</exception>
+    public static void EditMeshModifierMove(EditMesh mesh, int from, int to) => Edited(mesh, nameof(EditMeshModifierMove))?.ModifierMove(from, to);
+
+    /// <summary>Takes a modifier out of the stack, by its index from zero.</summary>
+    /// <remarks>The recipe's line is <c>modifier remove 1</c>.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The stack has no such modifier.</exception>
+    public static void EditMeshModifierRemove(EditMesh mesh, int index) => Edited(mesh, nameof(EditMeshModifierRemove))?.ModifierRemove(index);
+
+    /// <summary>Does a modifier to the mesh itself, as though it were first in the stack, and takes it out of the stack.</summary>
+    /// <remarks>
+    /// What the modifier made is shaped from then on as any of the mesh is, and nothing is selected
+    /// after. The recipe's line is <c>modifier apply 0</c>.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The stack has no such modifier.</exception>
+    public static void EditMeshModifierApply(EditMesh mesh, int index) => Edited(mesh, nameof(EditMeshModifierApply))?.ModifierApply(index);
+
+    /// <summary>The mesh's modifiers in the order they apply, each as its words after <c>modifier</c> in the recipe.</summary>
+    public static string[] GetEditMeshModifiers(EditMesh mesh) =>
+        Edited(mesh, nameof(GetEditMeshModifiers)) is { } data ? [.. data.Modifiers] : [];
+
+    /// <summary>What the mesh builds into with its modifiers applied, its counts, volume and bounds, as <see cref="GetEditMeshInfo"/> reads the mesh itself.</summary>
+    /// <remarks>The selection's counts are zero, since what the modifiers make is not selected. A mesh with no modifier answers as itself.</remarks>
+    public static EditMeshInfo GetEditMeshModifiedInfo(EditMesh mesh)
+    {
+        if (!EditMeshStore.TryGet(mesh, out var data)) return default;
+        var modified = data.Modified();
+        if (ReferenceEquals(modified, data)) return GetEditMeshInfo(mesh);
+        return new EditMeshInfo(modified.VertexCount, modified.EdgeCount, modified.FaceCount, modified.OpenEdges, 0, 0, 0, modified.Volume, modified.Bounds, modified.GridStep);
+    }
+
     // -- Building a model to draw and collide with
 
     /// <summary>Builds the mesh into a model, one mesh and one white material for each material slot, in the order of the slots.</summary>

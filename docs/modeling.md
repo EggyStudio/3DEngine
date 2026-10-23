@@ -346,6 +346,41 @@ into triangles by ear clipping, a concave face inside its outline, as the build 
 `EditMeshDuplicate(mesh)`, or `duplicate`, copies the selected faces where they are, with vertices
 of their own, and selects the copy, which then moves alone.
 
+## Modifiers
+
+A mesh holds a stack of modifiers, which apply in order to a copy of it when it is built, so the
+mesh stays as it was shaped and every change to it is built with them again. Each is a recipe line
+beginning `modifier`:
+
+| Call | Line | Does |
+|---|---|---|
+| `EditMeshModifierMirror(mesh, "xz")` | `modifier mirror xz` | Mirrors the mesh across the plane square to each axis named, through the origin or `at X Y Z` |
+| `EditMeshModifierArray(mesh, 3, new Vector3(2, 0, 0))` | `modifier array 3 2 0 0` | Repeats the mesh, three in all, each two meters along X from the last |
+| `EditMeshModifierArrayCurve(mesh, positions)` | `modifier array curve 0 0 0 2 0 1` | Repeats it at each position, moved by the position's offset from the first |
+| `EditMeshModifierBevel(mesh, 0.1f, 2, 30)` | `modifier bevel 0.1 2 30` | Bevels the edges whose faces meet at more than thirty degrees, or every edge with no angle |
+| `EditMeshModifierSubdivision(mesh, 2)` | `modifier subdivision 2` | Subdivides it by Catmull and Clark's rule to level two, rounding it |
+| `EditMeshModifierSolidify(mesh, 0.1f)` | `modifier solidify 0.1` | Gives it a thickness out along its normals, or in for a thickness below zero |
+| `EditMeshModifierTriangulate(mesh)` | `modifier triangulate` | Cuts every face into triangles |
+
+A half shaped with its open side on the plane and a mirror modifier builds whole while it is shaped
+as a half, and a box subdivided to level one has 26 vertices and to level two 98:
+
+```csharp
+var pebble = LoadEditMesh();
+EditMeshBox(pebble, new Vector3(2, 1, 1.5f));
+EditMeshModifierBevel(pebble, 0.1f);
+EditMeshModifierSubdivision(pebble, 2);
+var model = LoadModelFromEditMesh(pebble);      // the box rounded, the box itself left to shape
+```
+
+`GetEditMeshModifiers(mesh)` lists the stack as its lines' words, and `GetEditMeshModifiedInfo(mesh)`
+reads what the mesh builds into, as `GetEditMeshInfo` reads the mesh itself.
+`EditMeshModifierMove(mesh, from, to)` moves a modifier in the stack, `EditMeshModifierRemove(mesh,
+index)` takes one out, and `EditMeshModifierApply(mesh, index)` does one to the mesh itself, as
+though it were first, and takes it out, so what it made is shaped from then on, the lines
+`modifier move 1 0`, `modifier remove 1` and `modifier apply 0`. Each is a line of the recipe, so an
+undo after an apply brings the modifier back.
+
 ## Joining another model
 
 `EditMeshJoin(mesh, "models/pillar.model")`, or `join models/pillar.model`, adds the model a recipe's
