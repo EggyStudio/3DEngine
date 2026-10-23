@@ -10,29 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f66d4d4a`, the cherry-picks of items 64 and 65 from the cloud session's branch,
-`d506e92e`, `cc1b490f` and `f66d4d4a` for `9a76c50b`, `c38de99b` and `735e58e8` with their stats
-matching, after item 83's batch, `91c8d363` the example models_edit_mesh of item 59 with its
-capture, the gallery and the upgrading entry for the 52 modeling names, `21c1b31f` item 84,
-`bbcadfe2` COMMITS.md's When section with the push, branch and author rules and AGENTS.md's archive
-row on the owner's word given in the coder's session, and `d980d237` item 83 as approved with the
-offset and the band unchanged since no seam remained; 1,934 passed plain and shuffled by 20261023,
-the strict build clean, 98 of 98 under lavapipe, 31 blocks on the package; every author the owner's.
-Read at 20:47 on 2026-10-23. The pack run 39992268286 of `d3473746` ended green on every job and
-pushed 3DEngine 5.2.215, items 79 and 80 in it as its two notes lines, listed on the feed at 21:10.
-Not pushed: the build run 40005121932 of `4c3f01ef` is still running, and the seven heads are pushed
-when it ends. Next the captures of items 64 and 65 in one commit, then 82, the rest of 71 with the
-blotches first, 78, 72, 74, 75, 76, 60, 77, 61 to 63; item 66 comes from the cloud session's branch.
-At 19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and
-accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder
-as the first part of item 83's batch with their authors reset, the example and the capture taken.
+Reviewed up to `52e67199`, the cherry-picks of items 66 and 60 from the cloud session's branch,
+`32ad500d`, `9c6a4711` and `52e67199` for `d571da73`, `985badd6` and `4662382c` with their stats
+matching, after `8d1ec295`, the captures of items 64 and 65 as two examples, a box beveled, inset
+and loop cut and a box rounded through a bevel and a subdivision, with the upgrading page naming
+their calls, and after the seven commits before, every author the owner's. Read at 21:17 on
+2026-10-23. The build run 40005121932 of `4c3f01ef` has macOS green and Linux red on the upgrading
+page's test alone, the 52 modeling names of the cherry-picks having no Added entry at that commit,
+Verdict 84, which `91c8d363` mends in this batch; Windows green in 45 minutes, the run ended at
+21:25. Not pushed: the eleven heads are pushed once the room's capture commit is in, since that
+commit carries the upgrading entries for the 15 names the cherry-picks of items 66 and 60 add, as
+Verdict 84's lesson asks. Next 82, the rest of 71 with the blotches first, 78, 72, 74, 75, 76, 60,
+77, 61 to 63; item 66 comes from the cloud session's branch. At 19:59 the cloud session's first
+commit of item 59, `a066610d` on its branch, was read and accepted, and at 20:11 its second,
+`9989c44a`, both to be cherry-picked in order by the local coder as the first part of item 83's
+batch with their authors reset, the example and the capture taken. At 21:36 the owner dropped the
+upgrading page's rule for names gained and lost, item 85 and Decision 64, so the eleven heads need
+no longer wait for the entries' commit and are pushed with the room's capture when it is in or
+before it.
+
+Before it, `f66d4d4a` came, the cherry-picks of items 64 and 65 and item 83's batch, seven commits,
+read at 20:47 on 2026-10-23 and held for the build run of `4c3f01ef`.
 
 Before it, `4c3f01ef` came, item 59's two commits cherry-picked from the cloud session's branch,
 after `c6bb1f3e`, item 81, and nothing else. Pushed at 20:39 on 2026-10-23.
-
-Before it, `c6bb1f3e` came, item 81, the environment map's light set apart from the drawn sky, and
-nothing else, carrying the review's files, the archive and its norm entry. Read at 19:41 on
-2026-10-23, pushed at 20:39 with the two cherry-picks.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -830,7 +831,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     tested as the default alone until item 62 names slots; nine tests ported from BevyCSharp's,
     1,614 passed on the null device, the strict build and NormTests clean, 19 blocks of the guide.
     The item's code is whole on the branch; the room's capture falls to the local coder at the
-    cherry-pick.
+    cherry-pick. On main as `9c6a4711` and `52e67199`, unpushed, the room's capture to come. A fault
+    of its own found by the cloud session writing the guide's house through the commands and mended
+    at `bc9e23a5` on `modeling`, read at 21:25: a door cut through a room's wall went a centimeter
+    past the wall's inner face all the way down and slit the floor along the threshold, the volume
+    0.002 short; the cutter's part behind the wall stops at the floor found by a ray down behind the
+    wall, sloping up from where floor meets wall, a test failing before and passing after, the docs
+    saying a door goes down to the ground outside and steps up to the floor inside; cherry-picked
+    after the room's capture.
 
 61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
     to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
@@ -855,7 +863,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of the guide and reading its counts, a load after a save giving the same, and the window's
     picking tested through the ray against a known face. Two commits, the commands, then the window.
     Given at 20:49 to the cloud session after item 60, the commands and the window's code written
-    there, the window's pixel tests the local coder's.
+    there, the window's pixel tests the local coder's. First commit `0e9d7213` on `modeling`, read
+    at 21:25, the owner's identity: one `[Command]` a recipe word plus model.new, free, list, info,
+    recipe, undo, redo, save, load, export and show, the counts and refusal codes as BevyCSharp's,
+    the names a world resource with `SetEditMeshName` and `GetEditMeshByName`, model.show spawning
+    an entity whose model is rebuilt in place as the mesh's version moves through a Render-stage
+    system, paths read from the working directory, the guide's section blocking out from the
+    terminal with the house as command lines, the E3D.md rows and the cheat sheet; six tests, 1,621
+    passed on the null device, 21 blocks on a local pack. The window follows in the second commit.
+    Second commit `8060579` on `modeling`, read at 21:35, the owner's identity:
+    `DrawModelingWindow(mesh, position)` answering whether the mesh's shape or slots changed since
+    the last draw so a program rebuilds its model on true, the pointer's ray through the frame's
+    first 3D camera, picking public as `GetRayCollisionEditMesh`, click, shift and control selecting
+    as recipe lines, a drag along the normal in whole grid steps extruding or moving on release with
+    the selection outlined at its dragged place, the panel with the counts, the recipe and its
+    undone lines grayed, a line field with the refusal in red, and the Select, Add, Shape, Openings
+    and Slot sections; departures taken, the position parameter and the bool return; five tests, two
+    headless frames through the console's synthetic input, 1,626 passed on the null device, 21
+    blocks on a local pack; the outlines' pixel tests fall to the local coder. The item's code is
+    whole on the branch.
 
 62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
     processing and adding textures to surfaces. The selection's texture coordinates by projection,
@@ -923,7 +949,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     passed on the null device, the strict build and NormTests clean, 15 blocks of docs/modeling.md
     on a local pack. The item's code is whole on the branch; the capture falls to the local coder at
     the cherry-pick. On main as `d506e92e` and `cc1b490f`, the capture to come in the local coder's
-    next commit.
+    next commit. Capture done at `8d1ec295`, the example models_edit_mesh_cuts; item 64 done.
 
 65. **Modifiers, a stack applied at the build and never baked until asked (Decision 51).** The owner
     asked for Blender-like modifiers. An edit mesh holds a list of modifiers applied in order at the
@@ -946,7 +972,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     triangles in 176 to 205 ms against a budget of 1,500; 1,592 passed on the null device, the
     strict build and NormTests clean, 16 blocks of docs/modeling.md on a fresh pack. The capture
     falls to the local coder at the cherry-pick. On main as `f66d4d4a`, the capture to come in the
-    local coder's next commit.
+    local coder's next commit. Capture done at `8d1ec295`, the example models_edit_mesh_modifiers;
+    item 65 done.
 
 66. **What is modeled is exported for Blender and imported from it (Decision 51).** The built mesh
     and its materials written as a glTF 2.0 file, a JSON with its buffer beside or embedded,
@@ -970,7 +997,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     a known file made by build/make-modeling-gltf.py, the schema's required fields held; 1,599
     passed on the null device, the strict build and NormTests clean, 17 blocks on a fresh pack. The
     cloud session's items 59 and 64 to 66 are all on the branch; `EditMeshJoin` is aligned with N
-    2.6 in its next commit.
+    2.6 in its next commit. On main as `32ad500d`, unpushed; item 66 done.
 
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
@@ -1274,9 +1301,34 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     nothing else references it; the recording guide keeps its own words. One commit, small, with the
     local coder's next batch. Done at `21c1b31f` on 2026-10-23.
 
+85. **The upgrading page's tests for names gained and lost go, and the page keeps changed behavior
+    alone (Decision 64).** The owner said "Drop" at 21:36 on 2026-10-23 to the rule that every
+    public name gained since 5.1 has its line on docs/upgrading.md, the test that failed the push of
+    `4c3f01ef` as Verdict 84 and holds every cherry-pick to its entry commit, nobody using the
+    engine until a full release. The mend: UpgradingTests' tests that every name gained or lost
+    since 5.1 is on the page and that the Added section names no member the surface lacks go, with
+    the test that no other document writes a lost name; the page keeps its Changed section for a
+    behavior that changed under an unchanged name, where a sentence saves a reader a day, and its
+    Added section stands as it is with no duty to grow; the guides' and COMMITS.md's words on
+    upgrading entries follow, and the norm's row if one names them. One commit, small, with the
+    local coder's next batch; from this item the reviewer pushes a cherry-pick without waiting for
+    an entry commit.
+
 ## Verdicts
 
-Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; 84 is open, mended at
+`91c8d363`.
+
+84. **The Linux suite of the push of `4c3f01ef` fails the upgrading page's test, the 52 modeling
+    names of item 59's cherry-picks having no Added entry.** On the build run 40005121932 on
+    2026-10-23 the Linux suite, 1,875 passed in 25 minutes 19 seconds, failed the test that every
+    name the public surface gained since 5.1 is on the upgrading page, naming the 52 edit mesh calls
+    and types, while macOS passed; the test needs the history and so skipped in the cloud, and the
+    reviewer pushed the two cherry-picks before the batch's commit carrying the entry. Mended at
+    `91c8d363`, the example's commit adding the Modeling entry for the names, read on the machine
+    with the suite green plain and shuffled; settles on the Linux suite of the push carrying it. The
+    lesson is the reviewer's: a cherry-pick that adds public names is pushed only with the commit
+    that carries its upgrading entry.
 
 ## Decisions
 
@@ -1823,6 +1875,15 @@ Verdicts 56 to 83 are settled, said under each in REVIEW-ARCHIVE.md; none is ope
     pushing, set the identity, rewrite the authors of every local commit not on main and push
     nothing until that is done, then push `modeling` again, which the owner confirmed in that
     session.
+
+64. **Until a full release, both engines are used by nobody.** The owner wrote at 21:36 on
+    2026-10-23 that an upgrading entry is not needed since nobody uses the engine, said "Drop" to
+    the rule that every new public name has its line on 3DEngine's upgrading page, and added that
+    until a full release both engines are to be considered used by no one. So a change of the public
+    surface is made outright, with no entry for a name gained or lost, no deprecation and no path
+    kept for an older caller; the package's release notes written from the commit messages are the
+    record of what changed, and the upgrading page keeps its Changed section alone, its tests for
+    names gained and lost going as item 85. The owner's word ends this at the full release.
 
 ## Replies
 

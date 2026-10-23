@@ -305,6 +305,11 @@ guide that shows it.
   `EcsWorld.Trigger`, one naming an entity an `IEntityEvent` and one going on up its parents an
   `IPropagatingEvent`, which `On.Propagate` stops, as
   [Observers](behaviors-and-the-ecs.md#observers) shows.
+- **Grid prototyping.** `GenImageGrid` makes the image of a meter's cell with its tenths, at
+  `PrototypePixelsPerMeter` unless given, and `LoadMaterialPrototype` a material of that grid tinted
+  by the color `GetPrototypeColor` gives a part of a level, a floor, a wall or the stairs, which a
+  model built from an edit mesh draws each slot of that name with, as [Grid
+  prototyping](modeling.md#grid-prototyping) shows.
 - **Modeling.** An `EditMesh`, made by `LoadEditMesh`, `LoadEditMeshFromMemory` or from a `.model`
   file and freed by `UnloadEditMesh`, is shaped from the primitives `EditMeshBox`, `EditMeshPlane`,
   `EditMeshCylinder`, `EditMeshCone`, `EditMeshWedge`, `EditMeshStairs` and `EditMeshArch`, through
@@ -320,13 +325,18 @@ guide that shows it.
   `EditMeshModifierBevel`, `EditMeshModifierSubdivision`, `EditMeshModifierSolidify` and
   `EditMeshModifierTriangulate`, applies when it is built, which `EditMeshModifierMove`,
   `EditMeshModifierRemove` and `EditMeshModifierApply` change, `GetEditMeshModifiers` lists and
-  `GetEditMeshModifiedInfo` reads the result of. Each call is a line of its recipe, which
-  `GetEditMeshRecipe` reads, `EditMeshRun` runs, `EditMeshUndo` and `EditMeshRedo` step through and
-  `SaveEditMesh` writes. `GetEditMeshInfo` gives an `EditMeshInfo` of its counts, its volume and its
-  open edges, and `GetEditMeshVertex`, `GetEditMeshFace`, `GetEditMeshFaceNormal`,
-  `GetEditMeshFaceSlot`, `GetEditMeshSlots`, `IsEditMeshFaceSelected`, `IsEditMeshVertexSelected`
-  and `IsEditMeshValid` read it. `LoadModelFromEditMesh` builds it into a model, which
-  `UpdateModelFromEditMesh` writes again after a change, as [Modeling](modeling.md) shows.
+  `GetEditMeshModifiedInfo` reads the result of. `EditMeshUnion`, `EditMeshSubtract` and
+  `EditMeshIntersect` join, take away and keep another solid, `EditMeshCut` takes a primitive away,
+  `EditMeshEpsilon` sets the distance a point lies in a plane within, and `EditMeshRoom`,
+  `EditMeshRamp`, `EditMeshCutWindow` and `EditMeshCutDoor` block out rooms and their openings.
+  `ExportEditMesh` writes it as a glTF file and `EditMeshImport` reads a model file into it. Each
+  call is a line of its recipe, which `GetEditMeshRecipe` reads, `EditMeshRun` runs, `EditMeshUndo`
+  and `EditMeshRedo` step through and `SaveEditMesh` writes. `GetEditMeshInfo` gives an
+  `EditMeshInfo` of its counts, its volume and its open edges, and `GetEditMeshVertex`,
+  `GetEditMeshFace`, `GetEditMeshFaceNormal`, `GetEditMeshFaceSlot`, `GetEditMeshSlots`,
+  `IsEditMeshFaceSelected`, `IsEditMeshVertexSelected` and `IsEditMeshValid` read it.
+  `LoadModelFromEditMesh` builds it into a model, which `UpdateModelFromEditMesh` writes again after
+  a change, as [Modeling](modeling.md) shows.
 - **The sky's light on the scene apart from the sky drawn.** `SetEnvironmentLight` sets the share
   and tint of the environment map's light on the scene, the sky `DrawSkybox` draws unchanged, which
   `GetEnvironmentLight` reads back, as

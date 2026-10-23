@@ -144,6 +144,7 @@ var examples = new Dictionary<string, Action>
     ["models_edit_mesh"] = ModelsEditMesh.Run,
     ["models_edit_mesh_cuts"] = ModelsEditMeshCuts.Run,
     ["models_edit_mesh_modifiers"] = ModelsEditMeshModifiers.Run,
+    ["models_edit_mesh_room"] = ModelsEditMeshRoom.Run,
     ["models_terrain"] = ModelsTerrain.Run,
     ["models_skybox"] = ModelsSkybox.Run,
     ["models_reflection_probe"] = ModelsReflectionProbe.Run,
