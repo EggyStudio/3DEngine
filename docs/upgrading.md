@@ -8,9 +8,10 @@ page counts from 5.1.116, the 5.1 package these changes came after, and the pack
 since carry some of them already.
 
 Each change is a row saying what a game wrote and what it writes. A build of a game of 5.1 against
-6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time, and
-nothing else a game calls has changed. Seven changes still compile and do something else, and they
-come first.
+6.0 fails at each name a row starts with, so the compiler's errors lead here a line at a time. Seven
+changes still compile and do something else, and they come first. Until 6.0 is released the
+surface changes with no row here, and the release notes, written from the commits, say what each
+package changed.
 
 ## Seven that still compile
 
@@ -169,9 +170,9 @@ A model's bones are its skeleton's, and a clip's poses are its keyframes, as ray
 
 ## Added
 
-Nothing a game of 5.1 writes changes for these. They are the functions and types 6.0 has that 5.1
+Nothing a game of 5.1 writes changes for these. They are functions and types 6.0 has that 5.1
 lacked, grouped by what they do, and what calls 5.1 had do now that they did not, each with the
-guide that shows it.
+guide that shows it, as far as the surface had come before it began to change with no entry here.
 
 - **The scene as a distance field.** `SetSceneField` builds a distance field of the meshes that
   cast shadows, in cascades around the camera on the GPU, which ambient occlusion reads beside the
