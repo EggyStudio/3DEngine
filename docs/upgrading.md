@@ -313,13 +313,20 @@ guide that shows it.
   make with a `SelectionMode`, by `EditMeshMove`, `EditMeshRotate`, `EditMeshScale`, `EditMeshGrid`
   and `EditMeshSnap`, and by `EditMeshExtrude`, `EditMeshInset`, `EditMeshDelete`, `EditMeshMerge`,
   `EditMeshFlip`, `EditMeshTriangulate`, `EditMeshDuplicate`, `EditMeshJoin`, `EditMeshMaterial`,
-  `EditMeshShade` and `EditMeshClear`. Each call is a line of its recipe, which `GetEditMeshRecipe`
-  reads, `EditMeshRun` runs, `EditMeshUndo` and `EditMeshRedo` step through and `SaveEditMesh`
-  writes. `GetEditMeshInfo` gives an `EditMeshInfo` of its counts, its volume and its open edges,
-  and `GetEditMeshVertex`, `GetEditMeshFace`, `GetEditMeshFaceNormal`, `GetEditMeshFaceSlot`,
-  `GetEditMeshSlots`, `IsEditMeshFaceSelected`, `IsEditMeshVertexSelected` and `IsEditMeshValid`
-  read it. `LoadModelFromEditMesh` builds it into a model, which `UpdateModelFromEditMesh` writes
-  again after a change, as [Modeling](modeling.md) shows.
+  `EditMeshShade` and `EditMeshClear`. `EditMeshBevel`, `EditMeshLoopCut`, `EditMeshSubdivide`,
+  `EditMeshKnife`, `EditMeshBridge`, `EditMeshFill`, `EditMeshDissolve`, `EditMeshDissolveEdges`,
+  `EditMeshMirror`, `EditMeshSpin` and `EditMeshSmooth` cut, join and sweep it, and a stack of
+  modifiers, `EditMeshModifierMirror`, `EditMeshModifierArray`, `EditMeshModifierArrayCurve`,
+  `EditMeshModifierBevel`, `EditMeshModifierSubdivision`, `EditMeshModifierSolidify` and
+  `EditMeshModifierTriangulate`, applies when it is built, which `EditMeshModifierMove`,
+  `EditMeshModifierRemove` and `EditMeshModifierApply` change, `GetEditMeshModifiers` lists and
+  `GetEditMeshModifiedInfo` reads the result of. Each call is a line of its recipe, which
+  `GetEditMeshRecipe` reads, `EditMeshRun` runs, `EditMeshUndo` and `EditMeshRedo` step through and
+  `SaveEditMesh` writes. `GetEditMeshInfo` gives an `EditMeshInfo` of its counts, its volume and its
+  open edges, and `GetEditMeshVertex`, `GetEditMeshFace`, `GetEditMeshFaceNormal`,
+  `GetEditMeshFaceSlot`, `GetEditMeshSlots`, `IsEditMeshFaceSelected`, `IsEditMeshVertexSelected`
+  and `IsEditMeshValid` read it. `LoadModelFromEditMesh` builds it into a model, which
+  `UpdateModelFromEditMesh` writes again after a change, as [Modeling](modeling.md) shows.
 - **The sky's light on the scene apart from the sky drawn.** `SetEnvironmentLight` sets the share
   and tint of the environment map's light on the scene, the sky `DrawSkybox` draws unchanged, which
   `GetEnvironmentLight` reads back, as

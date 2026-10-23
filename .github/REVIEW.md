@@ -10,25 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4c3f01ef`, item 59's two commits cherry-picked from the cloud session's branch,
-`ffb15cb6` and `4c3f01ef` for `a066610d` and `9989c44a`, with the repository's author and the
-messages as they were, after `c6bb1f3e`, item 81, and nothing else, the review's files uncommitted
-in the local coder's tree. Pushed at 20:39 on 2026-10-23, the build run 39993188056 of `36cae0c2`
-having ended green on the three systems and the examples, its Linux suite shuffled by the day's seed
-among them, so Verdict 83 is settled. The local coder's batch of item 83 goes on, the example of
-item 59 with its capture, item 84 and item 83's own commit, pushed when this build run ends. Order
-from here: 83, 84, 82, the rest of 71 with the blotches first, 78, 72, 74, 75, 76, 60, 77, 61 to 63;
-items 59 and 64 to 66 come from the cloud session's branch. At 19:59 the cloud session's first
-commit of item 59, `a066610d` on its branch, was read and accepted, and at 20:11 its second,
-`9989c44a`, both to be cherry-picked in order by the local coder as the first part of item 83's
-batch with their authors reset, the example and the capture taken.
+Reviewed up to `f66d4d4a`, the cherry-picks of items 64 and 65 from the cloud session's branch,
+`d506e92e`, `cc1b490f` and `f66d4d4a` for `9a76c50b`, `c38de99b` and `735e58e8` with their stats
+matching, after item 83's batch, `91c8d363` the example models_edit_mesh of item 59 with its
+capture, the gallery and the upgrading entry for the 52 modeling names, `21c1b31f` item 84,
+`bbcadfe2` COMMITS.md's When section with the push, branch and author rules and AGENTS.md's archive
+row on the owner's word given in the coder's session, and `d980d237` item 83 as approved with the
+offset and the band unchanged since no seam remained; 1,934 passed plain and shuffled by 20261023,
+the strict build clean, 98 of 98 under lavapipe, 31 blocks on the package; every author the owner's.
+Read at 20:47 on 2026-10-23. The pack run 39992268286 of `d3473746` ended green on every job and
+pushed 3DEngine 5.2.215, items 79 and 80 in it as its two notes lines, listed on the feed at 21:10.
+Not pushed: the build run 40005121932 of `4c3f01ef` is still running, and the seven heads are pushed
+when it ends. Next the captures of items 64 and 65 in one commit, then 82, the rest of 71 with the
+blotches first, 78, 72, 74, 75, 76, 60, 77, 61 to 63; item 66 comes from the cloud session's branch.
+At 19:59 the cloud session's first commit of item 59, `a066610d` on its branch, was read and
+accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in order by the local coder
+as the first part of item 83's batch with their authors reset, the example and the capture taken.
+
+Before it, `4c3f01ef` came, item 59's two commits cherry-picked from the cloud session's branch,
+after `c6bb1f3e`, item 81, and nothing else. Pushed at 20:39 on 2026-10-23.
 
 Before it, `c6bb1f3e` came, item 81, the environment map's light set apart from the drawn sky, and
 nothing else, carrying the review's files, the archive and its norm entry. Read at 19:41 on
 2026-10-23, pushed at 20:39 with the two cherry-picks.
-
-Before it, `36cae0c2` came, Verdict 83's mend, the test file alone, and nothing else, carrying the
-review's file. Read and pushed at 19:12 on 2026-10-23.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -777,6 +781,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the Vulkan row of BadFileTests and the device tests fall to the local coder at the cherry-pick.
     On main as `ffb15cb6` and `4c3f01ef` with the owner's identity, the example models_edit_mesh and
     its capture in the local coder's batch of item 83, pushed when the build run of `36cae0c2` ends.
+    The example models_edit_mesh with its capture and the upgrading entry at `91c8d363`; item 59
+    done.
 
 60. **Grid prototyping: materials that show a meter, texture coordinates aligned to the world, and
     openings cut by booleans (Decision 51).** The owner's first use: blocking out a level with
@@ -803,6 +809,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sharing a face; the grid image's lines at the right pixels; the box mapping giving a two meter
     face coordinates spanning two; a capture of a room with a window and a door and stairs in it.
     Two commits, the grid image, the materials and the mapping, then the booleans and the openings.
+    Given at 20:49 on 2026-10-23 to the cloud session on `modeling`, the booleans and the grid
+    material's shader written there with the null device's tests, the captures and the device tests
+    the local coder's at the cherry-pick. First commit `985badd` on `modeling`, read at 20:56 on
+    2026-10-23, the owner's identity: `GenImageGrid` beside the checked image with BevyCSharp's
+    pixel rule, the seven prototype colors, `LoadMaterialPrototype` by name or color on one shared
+    grid texture of 1024 with mipmaps and anisotropy, freed at CloseWindow, the edit mesh's slots
+    drawn in their prototypes, the world-aligned box mapping of item 59 tested across faces meeting
+    along a line, and `EditMeshJoin` returning false with a warning on a missing or foreign file
+    under N 2.6, a void to bool change on unpublished surface; departure taken, no grid shader since
+    the model pass samples a base-color texture with mipmaps already, the grid an image as in
+    BevyCSharp; six tests, 1,605 passed on the null device, the strict build and NormTests clean, 18
+    blocks of docs/modeling.md. The booleans follow in the second commit with csg.js's notice; the
+    room's capture falls to the local coder. Second commit `4662382` on `modeling`, read at 21:03,
+    the owner's identity: csg.js's partition in doubles with its MIT notice at the file's head and
+    in THIRD-PARTY-NOTICES.md, the face merge, union, subtract and intersect of a file moved by at
+    or a solid primitive's line returning false with a warning on a bad file, cut, window and door
+    measured on the selected wall, room, ramp and epsilon, the recipe lines as BevyCSharp writes
+    them, the guide's section with a house that compiles; departure taken, the primitive line's slot
+    tested as the default alone until item 62 names slots; nine tests ported from BevyCSharp's,
+    1,614 passed on the null device, the strict build and NormTests clean, 19 blocks of the guide.
+    The item's code is whole on the branch; the room's capture falls to the local coder at the
+    cherry-pick.
 
 61. **The modeling commands, so a level is blocked out from the terminal, and a window in the game
     to shape by hand (Decision 51).** The owner asked that all of it be possible from the command
@@ -826,6 +854,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lines making a room with a window. Tests: the commands through the console host making the room
     of the guide and reading its counts, a load after a save giving the same, and the window's
     picking tested through the ray against a known face. Two commits, the commands, then the window.
+    Given at 20:49 to the cloud session after item 60, the commands and the window's code written
+    there, the window's pixel tests the local coder's.
 
 62. **Texture coordinates shaped and textures given to faces (Decision 51).** The owner asked for UV
     processing and adding textures to surfaces. The selection's texture coordinates by projection,
@@ -839,7 +869,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     operations too, so a saved recipe rebuilds them. A section of the window shows the selection's
     coordinates over the slot's texture. Tests: each projection's coordinates on a box's known face,
     the density on a two meter face with a 512 pixel texture, and a capture of a room with a brick
-    wall and a wooden floor from the examples' resources. One commit.
+    wall and a wooden floor from the examples' resources. One commit. Given at 20:49 to the cloud
+    session after item 61, the device tests and captures the local coder's.
 
 63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
     otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
@@ -891,7 +922,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     faces closed, the spun face a closed ring of 32, 64 and 32, a smoothed box of four thirds; 1,582
     passed on the null device, the strict build and NormTests clean, 15 blocks of docs/modeling.md
     on a local pack. The item's code is whole on the branch; the capture falls to the local coder at
-    the cherry-pick.
+    the cherry-pick. On main as `d506e92e` and `cc1b490f`, the capture to come in the local coder's
+    next commit.
 
 65. **Modifiers, a stack applied at the build and never baked until asked (Decision 51).** The owner
     asked for Blender-like modifiers. An edit mesh holds a list of modifiers applied in order at the
@@ -913,7 +945,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Stopwatch on the N 3.3 list; 10 tests, subdivision 5 with mirror and array 4 building 98,304
     triangles in 176 to 205 ms against a budget of 1,500; 1,592 passed on the null device, the
     strict build and NormTests clean, 16 blocks of docs/modeling.md on a fresh pack. The capture
-    falls to the local coder at the cherry-pick.
+    falls to the local coder at the cherry-pick. On main as `f66d4d4a`, the capture to come in the
+    local coder's next commit.
 
 66. **What is modeled is exported for Blender and imported from it (Decision 51).** The built mesh
     and its materials written as a glTF 2.0 file, a JSON with its buffer beside or embedded,
@@ -924,7 +957,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     faces where coplanar and sharing edges, materials into slots, so a model from Blender is cut and
     shaped in the game. `model.export` and `model.import` beside the save and the load. Tests: a box
     exported and read back with the engine's own reader having the same counts, a file validated
-    against the glTF schema's required fields, and a known glTF's import counted. One commit.
+    against the glTF schema's required fields, and a known glTF's import counted. One commit. Commit
+    `d571da7` on `modeling`, read at 20:49 on 2026-10-23, the owner's identity:
+    `ExportEditMesh(mesh, fileName, embedBuffer)` writing what the mesh builds into, modifiers
+    applied, as glTF 2.0 through a writer of the engine's own with no package added, a primitive and
+    a white material a slot that has faces, the buffer beside or embedded, both written through a
+    part file; `EditMeshImport(mesh, fileName)` and the recipe line reading through the same scene
+    reader as LoadModel, welding within 0.01 mm and joining coplanar triangles of one material into
+    faces, a material a slot of its name; departures taken, the slot's color and texture unwritten
+    until item 62, no .glb written, the import answering a missing file with false and a warning
+    under N 2.6 where `EditMeshJoin` still throws, the commands waiting for item 61; six tests with
+    a known file made by build/make-modeling-gltf.py, the schema's required fields held; 1,599
+    passed on the null device, the strict build and NormTests clean, 17 blocks on a fresh pack. The
+    cloud session's items 59 and 64 to 66 are all on the branch; `EditMeshJoin` is aligned with N
+    2.6 in its next commit.
 
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
@@ -1217,7 +1263,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     next; the offset and the band read again after, mended in the same commit only if a seam
     remains; the scene's shadow read dark along its whole length across both seams on the device,
     the cull's two cases without a GPU, the shadows guide's sentence, no upgrading entry. The game's
-    tree at 19:30 is the game's own reading once the package carries this.
+    tree at 19:30 is the game's own reading once the package carries this. Done at `d980d237` on
+    2026-10-23, as approved, the offset and the band unchanged.
 
 84. **The README's animated capture of Ore goes.** The owner wrote at 20:22 on 2026-10-23 that the
     small section at the top of both engines' READMEs showing that they capture GIFs, BevyCSharp's
@@ -1225,7 +1272,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the Ore picture and the paragraph under the Examples heading saying it was recorded with `./e3d
     record` go from the README, and `.github/assets/animations/ore-dusk.gif` is deleted since
     nothing else references it; the recording guide keeps its own words. One commit, small, with the
-    local coder's next batch.
+    local coder's next batch. Done at `21c1b31f` on 2026-10-23.
 
 ## Verdicts
 
