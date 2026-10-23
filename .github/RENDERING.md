@@ -2386,11 +2386,11 @@ bounds at zero, `./e3d command profile` with the frames unlimited). Taken at a c
 the box instead, the hit moved straight away from it, the strip's view read 0.259, 0.263 and 0.279
 at 160 by 90, the strip's light on its own wall lost, which the reference has.
 
-**Where the method stops, read to 2026-10-20.** Five terms of the radiance cascades as the engine
+**Where the method stops, read to 2026-10-24.** Six terms of the radiance cascades as the engine
 draws them stand unmended, each named by its cause in the readings above. Every form read against
 one was out by the rule that no view's distance to its reference widens at 800 by 450 or at 160 by
 90 (`gi.compare` against references of 2048 paths a pixel, BounceRoomsTests with its bounds at
-zero), or cost more than it gave.
+zero), or cost more than it gave, or left the term as it was.
 
 - **The gain past the first bounce.** A hit reads the probes around it where 11 to 64% more light
   arrives for its normal than at the hit itself, the light rising away from the surface the hit lies
@@ -2428,6 +2428,31 @@ zero), or cost more than it gave.
   twentieth of a weight `bouncedAt` keeps for an unseen probe takes it to 2.81, so the model pass's
   read of the probes there lends it the lamp's light by a way not yet named. The screen's probes
   cover it, the corner reading within its test's bound with them.
+- **A small emitter's near field read by a few fixed rays.** A torch or a lantern carried as a glow
+  light lights the wall it stands against within a few hundredths of a block of its box, and of a
+  probe's sixteen rays, fixed for its tile, one meets that patch where the probes beside it miss it,
+  so the probe reads far over its hemisphere's light and its neighbors under, and the window's
+  filter spreads the excess over its 5 by 5 probes into round spots 20 to 40 pixels across that
+  stand still from frame to frame. In a plank room seven blocks across and four high with a lantern
+  under its ceiling and two torches on its walls, field cell 0.25, at `High` and 960 by 540, a
+  ceiling probe reads 0.643 over its hemisphere where a path-traced reference reads 0.079, its ray
+  through a torch's patch bringing 1.42 where the reference along it brings 0.659, its neighbors
+  read 43 to 46% under (`gi.screenprobe`), and the room shows 8 spots by the voxel game's measure,
+  the luminance less a Gaussian blur of 20 pixels counting spots of 40 pixels or more at 4 levels
+  or more over it. Three forms were read against it in that room and in the bounce rooms
+  (`gi.compare` against references of 2048 paths a pixel, BounceRoomsTests with its bounds at
+  zero). The tiles' places in their texels turned each frame, sixteen frames holding each place
+  once, took the room's spots to 5 at the same distance from its reference, but over the mean of 16
+  frames at 160 by 90 widened the thin walls' view by 0.006 to 0.016, the corridor's at `High` by
+  0.004 and the strip's at `Low` by 0.003, and a still view's pixels changed from one frame to the
+  next by 4.2 to 5.2% of its mean light at their 99th part in the Cornell box and by 2.6 to 3.3% in
+  the carried lamp's room, where with the places held they change by 0.03% at most, as the sixteen
+  ways' reading (above) found. A hit taking a glow light at a cell's distance from its box at
+  nearest took the spots to 6 and 7 and widened the strip's view by 0.030 to 0.066 at 160 by 90 and
+  by 0.068 to 0.071 at 800 by 450. A hit within a cell of a light's box taking the light's mean over
+  a cell's square about it (a glow light's near field at a probe's hit, above) took them to 7, the
+  round spots on the wall and the ceiling standing as before. Each held global illumination's GPU
+  time within 0.1 ms.
 
 ## 5. Render targets and post processing
 
