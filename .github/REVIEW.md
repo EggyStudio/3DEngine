@@ -10,43 +10,46 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fade1730`, item 71's faces image warning, after `3bdf68be`, item 82, `185a79a8`,
-item 87, and `511e0fed`, item 78's pixel tests, and nothing else: the three sampled integer faces
-images had no format attribute, so Slang declared them R32ui against the R8Uint view, the warning on
-every draw under the layer and none with the formats said, 65 of 65 field and GI tests passing on
-lavapipe, while on the RTX 4070 the bounce rooms capture is pixel-identical with and without the
-fix, so the mend removes undefined reads where a driver honors the declared format and is not the
-blotches' cause on this GPU; a test reads every integer image of a built-in shader for its format;
-2,038 passed plain and shuffled, the strict build clean. Read at 23:37 on 2026-10-23. The build run
-40022246128 of `b48762bb` ended green on the three systems and the examples, Windows in 67 minutes,
-so the four heads were pushed at 23:58. Next the blotches, read in an engine room of the game's kind
-with small emitters at the game's spot measure, then 72, 74, items 75, 77 and 63 are the cloud
-session's from 22:41; item 78 was the cloud session's from 21:58 and is whole on its branch, and
-item 76 is its from 22:23. At 19:59 the cloud session's first commit of item 59, `a066610d` on its
-branch, was read and accepted, and at 20:11 its second, `9989c44a`, both to be cherry-picked in
-order by the local coder as the first part of item 83's batch with their authors reset, the example
-and the capture taken. At 21:36 the owner dropped the upgrading page's rule for names gained and
-lost, item 85 and Decision 64, so the eleven heads need no longer wait for the entries' commit and
-are pushed with the room's capture when it is in or before it. At 21:57 the cloud session's item 62,
-`de53648` on `modeling`, was read and accepted, the modeling items 59 to 62 and 64 to 66 all written
-there and item 63, Blockout, the local coder's once 62 is on main. Read at 23:51: the cloud branch's
-own run of `35938065` ended red on Linux's upgrading test, which item 85 removed on main after the
-branch's merge, and on macOS's ConsoleEvalTests, the eval of the entity count answering "eval
-failed. Object reference not set to an instance of an object" with the console logging a
-NullReferenceException from the eval command, in the same process right before the overlay's frame
-test, which main's run of `b48762bb` did not show on macOS; watched on the next main run, a verdict
-if it comes there. The coder read the eval failure at 23:55 as a race between the Console and E3D
-test collections over ConsoleHost's static lend, item 88. At 00:15 on 2026-10-24 the cloud session
-reported its whole suite on lavapipe over the branch's tree at `35938065`, 1,987 passed, none failed
-and 30 skipped in 23 minutes, the skips the ray query, audio, package and WebP cases by count, its
-render tests among the passed, and the eval test passing there, as a race does by timing.
+Reviewed up to `5af77a40`, the blotches named as the sixth term where the method stops in
+RENDERING.md with the three forms' numbers, after `d303032d`, the near field of a glow light at a
+probe's hit as a mend of its own, a hit within a cell of the light taking its mean over a cell
+square, a line in the bounce rooms' note with no bound moved and the paragraph in RENDERING.md, and
+`fade1730`, and nothing else, carrying the review's file; no device test of the torch room since the
+part stops at the term, the scratch harness in no commit; 2,038 passed plain and shuffled, the
+strict build clean, 117 GI, glow, reference, bounce and field tests passing under lavapipe with the
+layer. Read at 00:49 on 2026-10-24. The build run 40030496277 of `fade1730` has Linux and Windows
+green and macOS red on item 78's pixel test, the strip's newest bar red on the runner where the test
+asks green, Verdict 85, read at 00:55, its examples job green at 01:01 and the run ended; the two
+heads wait a few minutes for the verdict's mend, in the coder's tree, so the three go in one push
+and one run. Next item 75's cherry-pick with Summit's capture, 88, then item 71's edge leak, then
+72, 74, items 75, 77 and 63 are the cloud session's from 22:41; item 78 was the cloud session's from
+21:58 and is whole on its branch, and item 76 is its from 22:23. At 19:59 the cloud session's first
+commit of item 59, `a066610d` on its branch, was read and accepted, and at 20:11 its second,
+`9989c44a`, both to be cherry-picked in order by the local coder as the first part of item 83's
+batch with their authors reset, the example and the capture taken. At 21:36 the owner dropped the
+upgrading page's rule for names gained and lost, item 85 and Decision 64, so the eleven heads need
+no longer wait for the entries' commit and are pushed with the room's capture when it is in or
+before it. At 21:57 the cloud session's item 62, `de53648` on `modeling`, was read and accepted, the
+modeling items 59 to 62 and 64 to 66 all written there and item 63, Blockout, the local coder's once
+62 is on main. Read at 23:51: the cloud branch's own run of `35938065` ended red on Linux's
+upgrading test, which item 85 removed on main after the branch's merge, and on macOS's
+ConsoleEvalTests, the eval of the entity count answering "eval failed. Object reference not set to
+an instance of an object" with the console logging a NullReferenceException from the eval command,
+in the same process right before the overlay's frame test, which main's run of `b48762bb` did not
+show on macOS; watched on the next main run, a verdict if it comes there. The coder read the eval
+failure at 23:55 as a race between the Console and E3D test collections over ConsoleHost's static
+lend, item 88. At 00:15 on 2026-10-24 the cloud session reported its whole suite on lavapipe over
+the branch's tree at `35938065`, 1,987 passed, none failed and 30 skipped in 23 minutes, the skips
+the ray query, audio, package and WebP cases by count, its render tests among the passed, and the
+eval test passing there, as a race does by timing. At 00:55 the cloud session's item 77, `46b5269`
+and `94256c4` on `modeling` with the owner's identity, was read and accepted, to be cherry-picked by
+the local coder with the four hours' picture and Summit's capture.
+
+Before it, `fade1730` came, item 71's faces image formats, with items 82, 87 and 78's pixel tests,
+read at 23:37 on 2026-10-23, pushed at 23:58 after the build run of `b48762bb` ended green.
 
 Before it, `3bdf68be` came, item 82, with item 87 and item 78's pixel tests, read at 23:03 on
 2026-10-23 and pushed at 23:58 with `fade1730` after the build run of `b48762bb` ended green.
-
-Before it, `b48762bb` came, the cherry-picks of items 78 and 76 with item 62's capture and the five
-before, ten commits. Pushed at 22:49 on 2026-10-23, the build run of `a0e5964e` having ended green
-and Verdict 84 settled.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1147,7 +1150,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     steps' numbers, and the blotches part of the item stops there; step 3 is kept as a mend of its
     own for the strip room's near field, committed apart from the term with its numbers, since it
     narrows a view and holds the others at the test's precision. The item's other faults follow, the
-    edge leak, the stepped edges, the noise, the z-fighting and the shift.
+    edge leak, the stepped edges, the noise, the z-fighting and the shift. The near field mend at
+    `d303032d` and the term at `5af77a40` on 2026-10-24; the blotches part done as a term, the edge
+    leak next.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -1282,7 +1287,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     taking the hour from a key and a command, taken by the local coder; the dawn test is a device
     test drawing the example's scene at 6:15 and reading rectangles of the frame, the sky by the
     sun, the sun's square and the ground, against numbers measured on lavapipe and written in the
-    test.
+    test. Both commits on `modeling` read at 00:55: the first the clock, the two lights with the
+    program's own named in SkyDay.Light, the gradient painted from the hour within a budget and the
+    horizon following it, the second the sun and the moon in its phases as the game's pixel art laid
+    over the sky by alpha, 3,000 stars added as the game adds them, the sky.time command, the
+    core_day_sky example in a ring of stones with Left, Right and Space, and Summit naming its own
+    sun with a day of 40 minutes from 9:30; departures taken, the noon light a warm white and the
+    horizon's an orange with the red the dusk sky's, and the sun and moon by alpha since adding them
+    passed white and turned blue under the tonemap; 205 tests on lavapipe with the dawn scene read
+    against its record within 6. The item's code is whole on the branch; the four hours' picture,
+    the example's table row and Summit's capture fall to the local coder.
 
 78. **F1 hides the interface, F3 shows a debug overlay like the newest Minecraft's with sections a
     program adds, and Shift+F3 the profiler with it (Decision 58).** The owner asked shortly before
@@ -1514,7 +1528,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 84 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 84 are settled, said under each in REVIEW-ARCHIVE.md; 85 is open.
+
+85. **The macOS suite of the push of `fade1730` fails item 78's pixel test, the strip's newest bar
+    red where the test asks green.** On the build run 40030496277 on 2026-10-24 the macOS suite,
+    1,958 passed in 17 minutes 18 seconds, failed
+    F1_Takes_The_Interface_Away_And_F3_Lays_The_Overlay_Over_The_World at its reading of the strip's
+    newest bar, 240, 80 and 70 where a green bar was asked, since the bar's color is the frame's
+    time against 60 and 30 fps and the runner's frame took longer than a thirtieth, while Linux and
+    Windows passed; the test holds the runner's speed, which no test may, under N 3.3 and N 3.5. The
+    mend: the strip's test reads a bar's presence in the newest column, of any of the three colors,
+    or feeds the strip a frame time it sets, and asks the color only there; the overlay's other
+    readings stay. One commit, small, before the next push. Mended at `?`.
 
 ## Decisions
 

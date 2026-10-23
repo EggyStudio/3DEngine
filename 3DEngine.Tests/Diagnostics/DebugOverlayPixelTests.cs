@@ -125,9 +125,11 @@ public sealed class DebugOverlayPixelTests : IDisposable
         backing.Should().BeGreaterThan(200, "the line stands on a dark half-clear backing");
         ink.Should().BeGreaterThan(30, "its text is light gray over the backing");
 
-        // The strip under the two head lines, its newest bar at its right end, green for a frame
-        // faster than 60 a second, standing from the strip's floor.
+        // The strip under the two head lines, its newest bar at its right end standing from the
+        // strip's floor, green, yellow or red by the frame's time, which the machine sets, a
+        // runner's frame slower than a thirtieth of a second drawing it red.
         var bar = GetImageColor(overlaid, 2 + 239, 2 + 2 * 18 + 47);
-        (bar.G > bar.R + 60 && bar.G > bar.B + 60).Should().BeTrue($"the newest frame's bar is green, {bar}");
+        new[] { new Color(80, 220, 100), new Color(240, 200, 60), new Color(240, 80, 70) }.Any(color => Near(bar, color, 8))
+            .Should().BeTrue($"the newest frame's bar stands in one of the strip's three colors, {bar}");
     }
 }
