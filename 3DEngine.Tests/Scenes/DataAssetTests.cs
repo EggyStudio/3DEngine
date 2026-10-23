@@ -200,18 +200,33 @@ public sealed class DataAssetTests : IDisposable
         // may register a codec, which the registry's next lookup builds its index again for.
         long Least() => Enumerable.Range(0, 5).Min(_ => Read());
 
+        // The log's sinks the process holds, which the read's debug line reaches on this thread: the
+        // file the process's first app opens, kept from then on, and a test's listener. One begun by
+        // a test beside this one between the two counts adds its cost to the second alone, 160 bytes
+        // on the build run of ec87f64b, so the pair is taken again until the sinks stood still
+        // through both.
+        static (bool File, bool Heard) Sinks() => (FileLoggerProvider.Instance is not null, Logger.Heard is not null);
+
         Read();
-        var asked = DataAssets.Asked;
-        var unknown = Least();
-        DataAssets.Asked.Should().Be(asked, "a scene with no reference asks nothing of the data files");
+        DataRef<Weapon> shield = default;
+        var (unknown, known) = (0L, 0L);
+        for (int pair = 0; pair < 3; pair++)
+        {
+            var sinks = Sinks();
+            var asked = DataAssets.Asked;
+            unknown = Least();
+            DataAssets.Asked.Should().Be(asked, "a scene with no reference asks nothing of the data files");
 
-        var shield = DataAssets.Save(_folder.File("shield.json"), new Weapon { Damage = 0, Title = "Shield" });
-        DataAssets.Forget(shield.Id!);
-        DataAssets.Find<Weapon>(shield.Id!).IsNone.Should().BeFalse();
-        asked = DataAssets.Asked;
-        var known = Least();
-
-        DataAssets.Asked.Should().Be(asked, "nor once the table holds files");
+            if (pair == 0) shield = DataAssets.Save(_folder.File("shield.json"), new Weapon { Damage = 0, Title = "Shield" });
+            DataAssets.Forget(shield.Id!);
+            DataAssets.Find<Weapon>(shield.Id!).IsNone.Should().BeFalse();
+            asked = DataAssets.Asked;
+            known = Least();
+            DataAssets.Asked.Should().Be(asked, "nor once the table holds files");
+            if (Sinks() == sinks) break;
+            // Forgotten, so the next pair starts as this one did, from a table without it.
+            DataAssets.Forget(shield.Id!);
+        }
         known.Should().Be(unknown, "a scene with no reference costs the same whatever the table holds");
     }
 }

@@ -10,42 +10,39 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3e83c817`, item 79, the masked shadow through a program's shader, and nothing else,
-carrying the review's file: the loader keeps a `shadowMain` entry apart as
-ShaderProgram.ShadowFragment with its bindings merged, a masked batch through a program with a
-vertex stage of its own or a `shadowMain` is drawn into every shadow map and into the depth the
-ambient occlusion and the probes read with the program's stage under the light's view-projection,
-cut by its `shadowMain` or by shadow.slang's fragment at the coordinate the stage gives, the batch's
-set, streams, CUSTOM0 feed and zeros bound as the model pass binds them, a pipeline a shader and its
-streams kept until it unloads, solid shadows and plain programs drawn as before; the guides'
-sentence names the stage the surface is drawn with, the program's own where it has one and
-model.slang's for a program with a `shadowMain` alone, and the depth the ambient occlusion reads;
-the effects guide's toggled window and the behaviors guide's ToggleKey row move from F3 to F4, since
-item 73 gave F3 the performance window. Measured: 1,863 passed in 10 minutes 1 second and the same
-shuffled by 20261020 in 9 minutes 54 seconds, the strict build clean, the four guides' 40 blocks
-building on the package, 55 of 55 shadow, stream, ambient occlusion and masked tests under lavapipe
-with the layer, and on the RTX 4070 with the path turned off for a moment both new tests failing as
-the ask describes, the atlas cut by `shadowMain` casting the whole quad and the positions-only quad
-casting none since the pass's own stage read the cut texel at zero, both passing with it on. Read at
-09:58 on 2026-10-21. The build run 39554359618 of `0f281481` ended before 09:16, Linux, macOS, the
-digest and the examples green and Windows red on the readback pool's test alone, 1,788 passed and 1
-failed in 36 minutes 56 seconds, Verdict 82 as before the mend. Both heads pushed at 09:24 after
-that run ended, and the pack run 39561720109 with publish on started at 09:24 on this head, Verdict
-82 to settle on its Windows suite and on the push's, the package the voxel game waits on for its
-items 55, 38 and 54 to come from it. The build run 39561719650 of `ec87f64b`, read at 10:20: macOS
-green, Linux red on the suite shuffled by the day's seed alone, the data assets' cost test 160 bytes
-over, Verdict 83, the plain suite green, Windows still running; the pack run's Linux and macOS
-suites green, its Windows and the four jobs after running. Not pushed: the head is pushed when the
-build run ends, Verdict 83's mend with it if it has come. Order from here: 80, 81, the rest of 71
-with the blotches first, 78, 72, 74, 75, 76, 59, 60, 77, 61 to 66.
+Reviewed up to `d3473746`, item 80, the tonemap curve and a program's own tonemap, after `3e83c817`,
+item 79, and nothing else, carrying the review's files: `Tonemap.Curve` at the end of the enum,
+`SetTonemapCurve(exposure, white, lower, upper)` and `GetTonemapCurve()` on the post-process page
+with the numbers in FrameEffects, the shader's defaults when the curve is chosen alone and the
+clamps, composite.slang's curve to its gamma and back so the pass's encoding gives the curve's
+display value exactly; `SetTonemapShader(shader)` and `GetTonemapShader()` drawing a program's
+fragment stage in the composite's place over the engine's fullscreen triangle through the new
+built-in `frame` module, which declares the pass's inputs in set 1 and gives `frameLight(uv)` and
+`frameShown(color, uv)`, composite.slang importing the same module; the lighting guide's rows and
+paragraph, the upgrading entry, the cheat sheet and the listing, the commit's words naming the BSL
+shader the curve follows. Measured, as the coder reported before the commit: the three new tests on
+the RTX 4070, 61 of 61 under lavapipe with the layer, the strict build clean, the guides building on
+a fresh package. Read at 10:52 on 2026-10-21. The build run 39561719650 of `ec87f64b` ended: Windows
+green, 1,793 passed in 75 minutes 30 seconds with the readback pool's test holding, so Verdict 82's
+second mend held on the push's suite; macOS green; Linux red on the suite shuffled by the day's seed
+alone, Verdict 83, its mend in the coder's tree. Both heads pushed at 10:52. Read at 19:05 on
+2026-10-23, the sessions having stood idle since 10:55 on 2026-10-21: the pack run 39561720109 of
+`ec87f64b` ended green on every job, its Windows suite in 118 minutes, and published 3DEngine
+5.2.213, nine notes lines from the pool's test to the glow probes, listed on the feed; Verdict 82 is
+settled. The build run 39572594125 of `d3473746` ended green on the three systems and the examples,
+Linux in 32 minutes, Windows in 87, nothing red. Verdict 83's mend stands uncommitted in the coder's
+tree. A pack run with publish on started at 19:05 on 2026-10-23 on `d3473746`, so items 79 and 80
+reach the voxel game for its items 55 and 58. On 2026-10-23 the owner wrote what they saw playing
+the voxel game, two faults of the engine's among it, items 82 and 83 and Decision 60. Order from
+here: Verdict 83's mend, then 81, 83, 82, the rest of 71 with the blotches first, 78, 72, 74, 75,
+76, 59, 60, 77, 61 to 66.
+
+Before it, `3e83c817` came, item 79, the masked shadow through a program's shader, and nothing else,
+carrying the review's file. Read at 09:58, pushed at 10:52 with `d3473746`.
 
 Before it, `ec87f64b` came, Verdict 82's second mend, the test file alone, and nothing else,
 carrying the review's files as they stood. Pushed at 09:24 with `eba9c35a`, the pack run 39561720109
 with publish on started on it at 09:24.
-
-Before it, `eba9c35a` came, item 73, the screenshot key and the performance window's key, and
-nothing else, carrying the review's file and the asks with their Review lines. Read at 08:52, pushed
-at 09:24 with `ec87f64b`.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -3658,7 +3655,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     importing the same module so the two cannot drift, FXAA through the same choice; the post
     window's combo and sliders, the bloom example's T key; the null device reading the numbers and a
     reference of the formula at the ask's seven levels within 0.001, the device the window's pixel
-    within 2 of 255 at each and a program's shader's color read exactly.
+    within 2 of 255 at each and a program's shader's color read exactly. Done at `d3473746` on
+    2026-10-21, as the head says.
 
 81. **The sky's light set apart from the drawn sky.** Asked by the voxel game on 2026-10-21 at 08:01
     for its item 58: `SetEnvironmentMap`'s intensity scales the light the sky gives the scene and
@@ -3691,6 +3689,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     with its sky light; a reflection traced through the window that meets the drawn sky shows it as
     drawn, and where the trace misses and falls back to the map, a mirror reflects the map at the
     share, which the guide says.
+
+82. **A light sample a program takes with a normal of its own keeps that normal (Decision 60).**
+    Found by the voxel game on 2026-10-21 under its items 63 and 70: modelpass.slang's
+    `surfaceNormal` turns a normal that points away from the eye over, as the back of a double-sided
+    face is lit, and the lit helpers a program's shader calls through the pass's input take that
+    turned normal, so a program sampling the light a face turned up would take, at a point above the
+    eye's height, is lit as a face turned down, the game's mobs darkening above the owner's eye line
+    and its land doing the same; the game's shaders look straight down for the sample as a way
+    around. The mend: the turn belongs to the model pass's own fragment where a double-sided
+    material's back is drawn, and a lit helper called with an input a program built keeps the normal
+    it was given, or the helper takes the turn as a flag the pass alone sets; the shaders guide says
+    a program's sample is lit by the normal it hands over. Tests: on the device, a program sampling
+    with an upward normal above and below the eye's height reading the same light, and a
+    double-sided plane's back still lit as its front. One commit, small, after item 83.
+
+83. **The sun's cascades hold a long shadow across their seams at a low sun (Decision 60).** The
+    owner wrote on 2026-10-23 that the shadow cascades are weird, the band between two cascades
+    empty of shadow, the next fading in, and a tree's long shadow at 19:30 in the voxel game cut off
+    in the middle. The cascades split at 12 and 45 units, blend across the outer fifth of a tile and
+    fade past the last, the receiver moved off its surface by a texel and a half of the cascade
+    read. To read first, on the game's flat world at its 19:30 by a tree through the package, the
+    sun low: whether a caster behind the receiver's tile in the light's direction falls outside the
+    cascade's depth range and is clipped, whether the far cascade's offset of a texel and a half
+    lifts a receiver out of a thin shadow, and whether the blend band reads shadow from the nearer
+    cascade alone where the farther holds it. The mend by the reading, under N 3.5: casters beyond
+    the light's near plane clamped onto it so a long shadow is cast whole, the offset bounded by the
+    receiver's slope rather than the cascade's texel, and the band taking the farther cascade's
+    shadow where the nearer has none; a test on the device of a tall thin caster's shadow at a sun
+    10 degrees up, continuous across a cascade seam and reaching its full length. One commit, after
+    item 81.
 
 ## Verdicts
 
@@ -4819,7 +4847,10 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     the failure; 3 of 3 on the RTX 4070 and 5 of 5 under lavapipe with the layer, a planted leak of
     every released buffer failing with its line named. The engine is unchanged, the test file alone.
     Mended again at `ec87f64b` on 2026-10-21 in that form, the test file alone; settles on the
-    Windows suites of its push and of the pack run 39561720109 started at 09:24.
+    Windows suites of its push and of the pack run 39561720109 started at 09:24. The push's Windows
+    suite passed on 2026-10-21, 1,793 in 75 minutes 30 seconds; the pack run's is awaited. Settled
+    on the pack run 39561720109 of 2026-10-21, its Windows suite green in 118 minutes, the run
+    publishing 5.2.213, read at 19:05 on 2026-10-23.
 
 83. **The Linux suite shuffled by the day's seed fails the data assets' cost test, a scene with no
     reference costing 160 bytes more once some data files are known.** On the build run 39561719650
@@ -4834,7 +4865,19 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     changes what a scene with no reference costs, which is the engine's fault. Read first with
     `build/test.py --shuffle-seed 20261021` on the machine, the 160 bytes named by what allocates
     them; then the mend, the test's measurement made its own or the engine's order dependence
-    removed, under N 3.5. One commit, before the next push. Mended at `?`.
+    removed, under N 3.5. One commit, before the next push. The cause, read before 10:55: neither
+    the seed nor the table but the log file, since the scene read writes one debug line and the
+    logger sends every line to the file once the file provider stands, which the process's first App
+    opens and keeps; on the runner a test of another collection made that first app between this
+    test's two counts, so the second count alone paid the file's write, 160 bytes, the runner's
+    exact numbers given on the machine by initializing the provider between the counts and equal
+    counts with it before both, the JIT ruled out under tiering, PGO and quick JIT off. The first of
+    the two readings, then, the engine's table costing nothing. The mend, the test file alone under
+    N 3.5: the test records the process's log sinks before the first count and after the second and,
+    where they changed, takes the pair again from the same start up to three times, the file never
+    closing so a second pair stands still; a cost planted in the table's path, a 100-byte array,
+    still fails with 1,080 against 952, and the file begun inside the first pair passes on the
+    second. Mended at `?`.
 
 ## Decisions
 
@@ -5340,6 +5383,14 @@ pack run of `b5db84f3` on 2026-10-21, said under each. Verdict 82 is open.
     method's shape and its constants as the modpack's shaders were read by the voxel game, and
     nothing of its code enters either repository, the license being the owner's to use and not to
     publish, unless the developer grants it in writing, which the owner may ask.
+
+60. **What the owner saw in the voxel game on 2026-10-23 that is the engine's.** The owner, having
+    played the game, wrote of a visual fault with the height where the land below a line is lighter
+    and above darker, the same fault the game's mobs had, and of the shadow cascades, the band
+    between two cascades empty and a tree's long shadow at 19:30 cut off in the middle; the first is
+    the model pass's normal turn reaching a program's own samples, item 82, and the second the
+    cascades at a low sun, item 83, both after item 81 and before the rest of item 71. The game's
+    own items of that list stand in its REVIEW.md.
 
 ## Replies
 
