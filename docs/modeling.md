@@ -747,6 +747,8 @@ face a ray meets first and where, for a program's own tools.
   a door and a stair blocked out in prototype materials, and
   [`models_edit_mesh_looks`](../3DEngine.Examples/Models/ModelsEditMeshLooks.cs), a room whose slots
   are given brick walls and a floor of planks
+- [`games/Blockout`](../games/Blockout/Program.cs), a level of three rooms, a corridor and stairs made
+  from one recipe and walked in, reshaped in the modeling window on Tab and saved on F5
 - [Models and animation](models-and-animation.md), for drawing a model and its materials, and
   [Physics](physics.md), for the bodies a built model collides as
 - [The command line](command-line.md), for `./e3d` and the console's other commands

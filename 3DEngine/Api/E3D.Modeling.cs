@@ -100,6 +100,17 @@ public static partial class E3D
             data.SelectedEdgeCount, data.SelectedFaceCount, data.Volume, data.Bounds, data.GridStep);
     }
 
+    /// <summary>
+    /// A count that moves on with every change to what the mesh builds into, its shape and its
+    /// slots, by the program, the modeling window or the model commands, and not with its selection.
+    /// </summary>
+    /// <remarks>
+    /// A program keeps the version it built the mesh's model and collider at and builds them again
+    /// where it moved, so a change a command made while no window was open reaches them too. An edit
+    /// mesh that is not loaded gives 0.
+    /// </remarks>
+    public static int GetEditMeshVersion(EditMesh mesh) => EditMeshStore.TryGet(mesh, out var data) ? data.Version : 0;
+
     /// <summary>Where a vertex of the mesh is, by its index from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The mesh has no such vertex.</exception>
     public static Vector3 GetEditMeshVertex(EditMesh mesh, int vertex) =>

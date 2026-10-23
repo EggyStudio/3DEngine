@@ -781,6 +781,7 @@ void EditMeshRun(EditMesh mesh, string line);            // Runs one line of a r
 bool EditMeshUndo(EditMesh mesh);                        // Takes back the last operation of the mesh's recipe and says whether there was one
 bool EditMeshRedo(EditMesh mesh);                        // Does again the operation last taken back and says whether there was one
 EditMeshInfo GetEditMeshInfo(EditMesh mesh);             // The mesh's counts of vertices, edges and faces, its open edges, its selection, its volume, its bounds and its grid step
+int GetEditMeshVersion(EditMesh mesh);                   // A count that moves on with every change to what the mesh builds into, its shape and its slots, by the program, the modeling window or the model commands, and not with its selection
 Vector3 GetEditMeshVertex(EditMesh mesh, int vertex);    // Where a vertex of the mesh is, by its index from zero
 int[] GetEditMeshFace(EditMesh mesh, int face);          // A face's vertices, by the face's index from zero, in order round it, counterclockwise seen from the side it faces
 Vector3 GetEditMeshFaceNormal(EditMesh mesh, int face);  // The way a face faces, a length of one, or zero for a face with no area

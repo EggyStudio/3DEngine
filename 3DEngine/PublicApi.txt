@@ -1055,6 +1055,7 @@ static class Engine.E3D
   static int GetAudioDeviceSampleRate()
   static int GetCharPressed()
   static int GetCurrentMonitor()
+  static int GetEditMeshVersion(EditMesh mesh)
   static int GetFPS()
   static int GetGamepadAxisCount(int gamepad)
   static int GetGamepadTouchCount(int gamepad)

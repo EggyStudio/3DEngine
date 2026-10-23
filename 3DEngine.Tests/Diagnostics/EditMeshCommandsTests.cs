@@ -143,8 +143,13 @@ public sealed class EditMeshCommandsTests : IDisposable
         EditMeshBox(level, new Vector3(8, 3, 6));
         SetEditMeshName(level, "level");
 
+        // The version moves with what the mesh builds into and not with its selection, so a program
+        // builds its model and collider again after a command changed the mesh.
+        var built = GetEditMeshVersion(level);
         Run("model.select level +y");
+        GetEditMeshVersion(level).Should().Be(built, "a selection changes nothing the mesh builds into");
         Run("model.extrude level 1").Should().Be("level: 12 vertices, 20 edges, 10 faces, 1 faces and 4 vertices selected");
+        GetEditMeshVersion(level).Should().BeGreaterThan(built, "the extrusion changed the shape");
         GetEditMeshInfo(level).Bounds.Max.Y.Should().Be(4, "the commands changed the mesh the program holds");
         GetEditMeshByName("level").Should().Be(level);
 
@@ -152,6 +157,7 @@ public sealed class EditMeshCommandsTests : IDisposable
         IsEditMeshValid(level).Should().BeTrue("a mesh the program named is the program's to free");
         GetEditMeshByName("level").IsValid.Should().BeFalse();
         UnloadEditMesh(level);
+        GetEditMeshVersion(level).Should().Be(0, "a mesh that is not loaded has no version");
 
         var bad = () => SetEditMeshName(level, "two words");
         bad.Should().Throw<ArgumentException>();

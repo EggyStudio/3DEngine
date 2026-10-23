@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble|tones|featuretest> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly|wick|ore|pinball|span|siege|tumble|tones|blockout|featuretest> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -175,6 +175,22 @@ turn() {
       if (( i % 4 == 0 )); then cmd tones.record start; key A 10; cmd tones.record stop; wait_frames 2; key Four 2; fi
       key A 10; key D 10; key Z 2; key G 10; key X 2; key K 20
       wait_frames 60 ;;
+    blockout)
+      # The walker walks out from the middle of the hall and back, a window is cut through the
+      # room over it and taken back with its selection, and the modeling window is opened and
+      # closed, so the level's model and its collider are made again each turn from the same
+      # recipe.
+      cmd blockout.autopilot loop
+      wait_frames 120
+      cmd model.select level box 0.2 3.4 7.8 9.8 6.6 7.8
+      cmd model.cut level window 1.4 1.2 4 1
+      wait_frames 30
+      cmd model.undo level
+      cmd model.undo level
+      key Tab 2
+      wait_frames 30
+      key Tab 2
+      wait_frames 30 ;;
     featuretest)
       # The player put at each zone in turn and walked a little there, the course's crates pushed
       # and its platform ridden from the start each time, global illumination turned on in its room

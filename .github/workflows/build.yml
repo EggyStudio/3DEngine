@@ -282,7 +282,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones FeatureTest; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones Blockout FeatureTest; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -410,7 +410,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones FeatureTest; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones Blockout FeatureTest; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -569,7 +569,7 @@ jobs:
       # every game in the pack run.
       - name: Build every game from the package and play the puzzle of gestures
         run: |
-          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones FeatureTest; do
+          for game in Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones Blockout FeatureTest; do
             dotnet restore "games/$game" --force-evaluate
             dotnet build "games/$game" --no-restore
           done
@@ -1308,6 +1308,21 @@ jobs:
           ./e3d stop --quiet
           build/webp.sh captures/tones.png captures/tones.webp lossy 800x450
 
+      # The level blocked out with the modeling tools, by build/drive-game.sh as Windows and macOS
+      # play it, walked up its stairs, a window cut in it by a command and its recipe saved on F5,
+      # and then captured from the hall turned to the door into the corridor.
+      - name: Build and walk the blocked-out level from the package
+        run: |
+          build/drive-game.sh Blockout
+          build/open-game.sh games/Blockout/bin/Debug/net10.0/Blockout --offscreen
+          ./e3d command time.frame 0.0166667 --quiet
+          ./e3d command frames.wait 120 --quiet --timeout 600
+          ./e3d command input.key Right 47 --quiet --timeout 600
+          ./e3d command frames.wait 30 --quiet --timeout 600
+          ./e3d shot captures/blockout.png --quiet --timeout 600
+          ./e3d stop --quiet
+          build/webp.sh captures/blockout.png captures/blockout.webp lossy 800x450
+
       # The feature test, by build/drive-game.sh as Windows and macOS play it, the hub read, a walk
       # along the road into the drawing zone, whose easel is read back from the GPU, each station of
       # the course run by its keys and read reached by its trigger, and the panel's switches read back
@@ -1352,7 +1367,7 @@ jobs:
       # opening is given on the pack run of f78b8c58; each log says how long its game took.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones FeatureTest)
+          games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones Blockout FeatureTest)
           pids=()
           for game in "${games[@]}"; do
             E3D_OPEN_WAIT=300 build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -1378,7 +1393,7 @@ jobs:
                          games/Ore/bin/Debug/net10.0/Ore games/Pinball/bin/Debug/net10.0/Pinball \
                          games/Span/bin/Debug/net10.0/Span games/Siege/bin/Debug/net10.0/Siege \
                          games/Tumble/bin/Debug/net10.0/Tumble games/Tones/bin/Debug/net10.0/Tones \
-                         games/FeatureTest/bin/Debug/net10.0/FeatureTest \
+                         games/Blockout/bin/Debug/net10.0/Blockout games/FeatureTest/bin/Debug/net10.0/FeatureTest \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

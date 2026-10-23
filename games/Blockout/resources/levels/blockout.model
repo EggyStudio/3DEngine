@@ -1,0 +1,47 @@
+model 1
+# Blockout's level, a hall with a room over it, a corridor and a second room on the ground floor,
+# two doors, a window, a lamp and stairs from the hall up to the room over it, cut from one block so
+# every cut works on one closed solid. Meters, the block's corner at the origin.
+box 22 6.6 8
+# The block over the corridor and the second room taken away, which leaves them one floor.
+cut box 12.4 3.6 8.4 at 10 3.4 -0.2
+# The hall, its ceiling the floor of the room over it, and that room, open to the sky.
+cut box 9.6 3 7.6 at 0.2 0.2 0.2
+cut box 9.6 3.6 7.6 at 0.2 3.4 0.2
+# The corridor, its walls what is left where the block on either side is taken away, and the
+# second room.
+cut box 5.8 3.6 2 at 10 0.2 3
+cut box 5.8 3.8 3 at 10 -0.2 -0.2
+cut box 5.8 3.8 3 at 10 -0.2 5.2
+cut box 5.8 3.6 7.6 at 16 0.2 0.2
+# A hole in the hall's ceiling over the stairs from their third step, room for the head of one
+# climbing them, a little wider than they are, so no step touches its side along a line.
+cut box 1.4 0.6 4.2 at 0.2 3 2
+# Floors up, ceilings down and every other face a wall, before the openings, whose sides are theirs.
+select +y
+material floor
+select -y
+material ceiling
+slot rename default wall
+# The door from the hall into the corridor, through the hall's east wall.
+select box 9.8 0.2 0.2 9.8 3.2 7.8
+cut door 1.2 2.2 3.8
+material door
+# The door from the corridor into the second room, through its west wall.
+select box 16 0.2 0.2 16 3.4 7.8
+cut door 1.2 2.2 3.8
+material door
+# A window in the second room's south wall.
+select box 16 0.2 0.2 21.8 3.4 0.2
+cut window 1.6 1.2 2.9 1
+material window
+# A lamp under the middle of the hall's ceiling, an emissive panel joined to it, which lights the
+# hall where the room over it keeps the sun out.
+union box 1.2 0.08 1.2 at 4.4 3.12 3.4
+material lamp
+slot emissive lamp 40000 36000 30000
+# The stairs, sixteen steps of a fifth of a meter from the hall's floor to the room over it,
+# joined into the level.
+union stairs 16 0.2 0.3 1.2 at 0.2 0.2 1.4
+material stairs
+select none

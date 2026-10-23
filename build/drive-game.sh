@@ -7,7 +7,7 @@
 # window on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried
 # there.
 #
-#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble|Tones|FeatureTest> [offscreen|window]
+#   build/drive-game.sh <Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick|Ore|Pinball|Span|Siege|Tumble|Tones|Blockout|FeatureTest> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -658,6 +658,65 @@ case "$game" in
     awk -v p="$(value "$dry" peak)" 'BEGIN { exit !(p > 0.05) }' || fail "the recording read back holds no note, $dry"
     awk -v d="$(value "$dry" tail)" -v w="$(value "$status" tail)" 'BEGIN { exit !(d < 0.01 && w > 0.02) }' ||
       fail "the echo was not read after the note, $dry then $status"
+    ;;
+  Blockout)
+    # Each frame a sixtieth of the game's time, the level made from its recipe with the walker on
+    # the ground floor, the walk up the stairs to the room over the hall read at that floor's
+    # height, a window cut through the room's north wall by a command with the counts read and the
+    # collider made again, the window captured, the modeling window opened on Tab and closed, the
+    # recipe saved on F5 with the window's line in it, and the walk back down. The level's file the
+    # save wrote over is put back as it was built.
+    restore="cp games/Blockout/resources/levels/blockout.model '$folder/resources/levels/blockout.model'"
+    cmd time.frame 0.0166667
+    cmd frames.wait 60
+    grep -q "^\[blockout\] resources/levels/blockout.model, [0-9]* faces from [0-9]* lines" "$log" || fail "the level was not made from its recipe"
+    status=$(ask blockout.status)
+    echo "$status"
+    case "$status" in *"on the ground floor"*) ;; *) fail "the walker does not stand on the ground floor, $status" ;; esac
+    # A route walked by the game's autopilot, its status read after each second of the game, failing
+    # where the walker is stuck or the route takes longer than two minutes of the game.
+    route() {
+      cmd blockout.autopilot "$1"
+      for i in $(seq 1 120); do
+        cmd frames.wait 60
+        status=$(ask blockout.status)
+        case "$status" in *"autopilot $1 done"*) return 0 ;; *stuck*) fail "the walker was stuck walking $1, $(printf '%s' "$status" | tr '\n' ' ')" ;; esac
+      done
+      fail "the walker did not finish $1 in two minutes of the game, $(printf '%s' "$status" | tr '\n' ' ')"
+    }
+    route upstairs
+    up=$(printf '%s\n' "$status" | sed -n 's/^at [^ ]* \([^ ]*\) .*/\1/p')
+    echo "upstairs, the feet $up meters up"
+    awk -v y="$up" 'BEGIN { exit !(y > 3.3 && y < 3.6) }' || fail "the walker stands $up meters up after the stairs, where the floor over the hall is 3.4"
+    # The faces a model's answer counts, its third number, read by sed from the first line, since
+    # head would close the pipe on the answer's other lines, which pipefail takes for a failure.
+    faces() { sed -n '1s/^[^:]*: [0-9]* vertices, [0-9]* edges, \([0-9]*\) faces.*/\1/p'; }
+    before=$(ask model.info level | faces)
+    made=$(ask blockout.status | sed -n 's/.*collider made \([0-9]*\) times/\1/p')
+    cmd model.select level box 0.2 3.4 7.8 9.8 6.6 7.8
+    cut=$(ask model.cut level window 1.4 1.2 4 1)
+    echo "$cut"
+    case "$cut" in *"4 faces and"*) ;; *) fail "the window's cut did not leave its four sides selected, $cut" ;; esac
+    after=$(printf '%s\n' "$cut" | faces)
+    [ "$after" -gt "$before" ] || fail "the window's cut left $after faces of $before"
+    cmd frames.wait 5
+    status=$(ask blockout.status)
+    case "$status" in *"collider made $(( made + 1 )) times"*) ;; *) fail "the collider was not made again after the cut, $status" ;; esac
+    # Turned round to the wall, a half turn at two radians a second, so the window is captured.
+    cmd input.key Left 94
+    cmd frames.wait 10
+    ./e3d shot "captures/$name-window.png" --quiet --timeout 600 || fail "the window was not captured"
+    cmd input.key Tab 1
+    cmd frames.wait 5
+    case "$(ask blockout.status)" in *"modeling window open"*) ;; *) fail "Tab did not open the modeling window" ;; esac
+    cmd input.key Tab 1
+    cmd frames.wait 5
+    cmd input.key F5 1
+    cmd frames.wait 5
+    grep -q "^\[blockout\] saved the level to" "$log" || fail "F5 did not save the level"
+    grep -q "^cut window 1.4 1.2 4 1$" "$folder/resources/levels/blockout.model" || fail "the saved recipe holds no window's line"
+    route downstairs
+    case "$status" in *"on the ground floor"*) ;; *) fail "the walker did not come back down to the ground floor, $status" ;; esac
     ;;
   FeatureTest)
     # Each frame a step, the hub's status read, a walk west along the road into the drawing zone,
