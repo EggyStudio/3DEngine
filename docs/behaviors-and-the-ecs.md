@@ -43,6 +43,13 @@ a frame, as a spawner or a rule over the whole game does. A source generator tur
 into the engine's systems as the program compiles, so a behavior needs no registering, and runs in
 any program that references the engine.
 
+A field holds the entity's own data by value. One that holds a reference shares what it points to
+with every copy of the behavior, and the entities run on several threads at once, so the generator
+warns of it (E3D006) unless nothing can change what it points to, as nothing can change a string,
+or a record or sealed class whose every field is readonly and holds such a value, as the item a
+dropped stack holds. A stack then keeps its `Item` itself, where it would keep the item's id and
+look it up each frame.
+
 ## Stages
 
 A frame runs its stages in order, and a method's attribute says which it runs in.

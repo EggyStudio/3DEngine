@@ -3400,6 +3400,14 @@ batch.
     Done at `267d3886` on 2026-10-24, App.AddPlugin and Frame public, the guide's section and its
     test, Dispose mended on the way; the departure in the head.
 
+105. **A Query reaches past three components.** From the voxel game's first ECS piece, the drops as
+    entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of 2026-10-24; a gap
+    the port finds comes to the engine first, Decision 68. Query stops at three components and the
+    game's mobs will need more. Query takes up to six, or a tuple of any count where the generator
+    allows it, with the same iteration and ref access, the cheat sheet's line and the guide's page
+    following; a test over a query of five components. One commit, small, after item 104. Done at
+    `f0574e89` on 2026-10-24, up to six components in the three forms with the test.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

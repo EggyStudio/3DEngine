@@ -111,6 +111,40 @@ public class BehaviorGeneratorTests
     }
 
     [Fact]
+    public void A_Field_Holding_A_Record_Nothing_Can_Change_Is_Not_Warned_Of_And_One_That_Can_Change_Is()
+    {
+        // The item a stack holds, as the voxel game's drops hold theirs, a record of readonly
+        // values and another record of them, shared by every copy of the behavior, and records
+        // whose property can be set, whose list can be changed, or whose base can.
+        var (result, _) = Generate("""
+            using Engine;
+            public enum Kind { Block, Tool }
+            public readonly struct Look { public readonly int Tile; }
+            public sealed record Recipe(string Name, int Makes);
+            public record Item(string Name, int MostInStack, Kind Kind, Look Look, Recipe? MadeBy);
+            public record Settable { public int Count { get; set; } }
+            public record Listed(System.Collections.Generic.List<int> Counts);
+            public class Open { public readonly int Count; }
+            public sealed class Closed { public readonly int Count; }
+            [Behavior]
+            public struct Stack
+            {
+                public Item Item;
+                public Closed Sealed;
+                public Settable ToSet;
+                public Listed List;
+                public Open Derivable;
+                public int Count;
+                [OnUpdate] public void Tick(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Where(d => d.Id == "E3D006").Select(d => d.GetMessage()).Should().HaveCount(3)
+            .And.Contain(m => m.Contains("Stack.ToSet")).And.Contain(m => m.Contains("Stack.List")).And.Contain(m => m.Contains("Stack.Derivable"));
+        result.Compile.Should().BeEmpty();
+    }
+
+    [Fact]
     public void A_Fixed_Update_Method_Registers_On_The_Fixed_Stage()
     {
         var (result, output) = Generate("""

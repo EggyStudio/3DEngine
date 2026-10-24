@@ -900,3 +900,18 @@ never written can sit in the struct. The game keeps ids meanwhile.
 
 Review: item 106 of REVIEW.md, 2026-10-24; the reason read and said, then the analyzer allowing a
 reference to an immutable record or the guide saying the id pattern is the way; after item 105.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, an entity cannot be found by a key of the game's, as the cell a fire burns in
+
+Read at the game's tree after `299aa33` on the 3DEngine 5.2.283 package, where each fire became an
+entity with a `Fire` behavior of its cell, age and wait. The voxel world names every cell set to fire
+each frame, those the fires spread themselves among them, and the game must start a fire's entity
+only where its cell has none. The ECS finds an entity by its id alone, so the game gathers every
+fire's cell into a set each frame the world names one, a walk over all the fires, 41 of them four
+blocks of planks into a burn in an offscreen flat world, and hundreds in a forest. The engine lacks a
+lookup of an entity by a key a component holds, kept as the component changes, as a cell, a column
+or a chunk, which the mobs will need too for their columns. The game walks the fires meanwhile and
+keeps no index of its own.
+
+Review: item 107 of REVIEW.md, 2026-10-24; an index the world keeps for a component type that names
+its key, with a query by key and a contains; after item 106.

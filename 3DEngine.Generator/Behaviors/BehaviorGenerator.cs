@@ -21,8 +21,10 @@ namespace Engine;
 /// condition. An instance method may take its entity's other components after its context, by ref
 /// to write one or by in to read it, and runs only for entities with them. A method the generator
 /// cannot call is reported (E3D001 to E3D005, and E3D008 for a parameter that cannot be a
-/// component) and left out, so the error is on the method rather than in generated code. A field holding a reference other
-/// than a string is warned of (E3D006), since every copy of the behavior shares it. An enum with
+/// component) and left out, so the error is on the method rather than in generated code. A field holding a reference to
+/// what can change is warned of (E3D006), since every copy of the behavior shares it, where a
+/// string, or a record or sealed class every field of which is readonly and holds what nothing can
+/// change, as the item a stack of a voxel game holds, is shared safely. An enum with
 /// <c>[SubStateOf]</c> and a method with <c>[ComputedState]</c> are added as states by the same
 /// registration, ahead of the behaviors, and one that cannot be is reported (E3D007).
 /// </para>
@@ -112,7 +114,7 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor SharedField = new(
         "E3D006",
         "A behavior's field holds a reference",
-        "'{0}.{1}' holds a {2}, which every copy of the behavior shares, so entities run in parallel can change it at once; keep the data in the struct, or in a resource",
+        "'{0}.{1}' holds a {2}, which every copy of the behavior shares and which can change, so entities run in parallel can change it at once; keep the data in the struct, in a resource, or in a record whose every field is readonly and holds what nothing can change",
         "Behaviors", DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
     /// <summary>Configures syntax providers, collects candidate structs, and registers source outputs.</summary>
@@ -170,15 +172,39 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
 
     // -- Model extraction
 
+    /// <summary>
+    /// Whether nothing can change a value of the type once it is made, as with a string, a primitive
+    /// or an enum, a record or sealed class every instance field of which, its bases' too, is
+    /// readonly and holds such a value, or a struct whose fields hold such values, since a readonly
+    /// field holds a struct by value. A class that is neither a record nor sealed may be derived from by one that
+    /// can change, and an array, an interface, a delegate or a type parameter may be anything.
+    /// </summary>
+    private static bool Unchangeable(ITypeSymbol type, HashSet<ITypeSymbol> seen)
+    {
+        if (type.SpecialType == SpecialType.System_String || type.TypeKind == TypeKind.Enum) return true;
+        if (type.IsValueType && type.SpecialType != SpecialType.None) return true;
+        if (type is not INamedTypeSymbol named || named.TypeKind is not (TypeKind.Class or TypeKind.Struct)) return false;
+        if (named.TypeKind == TypeKind.Class && !named.IsRecord && !named.IsSealed) return false;
+        // A type that holds itself is judged by the rest of its fields.
+        if (!seen.Add(named)) return true;
+        for (var at = named; at is not null && at.SpecialType is not (SpecialType.System_Object or SpecialType.System_ValueType); at = at.BaseType)
+            foreach (var field in at.GetMembers().OfType<IFieldSymbol>())
+            {
+                if (field.IsStatic || field.IsConst) continue;
+                if (named.TypeKind == TypeKind.Class && !field.IsReadOnly || !Unchangeable(field.Type, seen)) return false;
+            }
+        return true;
+    }
+
     /// <summary>Builds a behavior model from a type symbol, reporting and skipping methods that cannot run.</summary>
     private static BehaviorModel BuildModel(INamedTypeSymbol type, SourceProductionContext spc)
     {
         var ns = type.ContainingNamespace.IsGlobalNamespace ? "Engine" : type.ContainingNamespace.ToDisplayString();
         var methods = new List<StageMethod>();
 
-        // A string is shared too, but nothing can change it.
+        // What nothing can change is shared too, harmlessly, as a string is.
         foreach (var field in type.GetMembers().OfType<IFieldSymbol>())
-            if (!field.IsStatic && !field.IsConst && field.Type.IsReferenceType && field.Type.SpecialType != SpecialType.System_String)
+            if (!field.IsStatic && !field.IsConst && field.Type.IsReferenceType && !Unchangeable(field.Type, new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default)))
                 spc.ReportDiagnostic(Diagnostic.Create(SharedField, field.Locations.FirstOrDefault(),
                     type.Name, field.Name, field.Type.ToDisplayString()));
 

@@ -10,55 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `267d3886`, item 104, a test running an app's behaviors through the package, read at
-20:02 on 2026-10-24, carrying the review's files. App.AddPlugin and App.Frame are public, in
-PublicApi.txt, so a game's test builds an App on Config.Default with Headless and FrameSeconds set,
-adds DefaultPlugins and steps it a frame a call, reading the world between; App.Dispose disposed the
-world alone and skipped Cleanup, logging an error on a headless app's renderer, and runs Shutdown as
-CloseWindow does. AppSteppingTests, in the E3D collection since the default plugins hold ImGui's one
-context, steps a system three frames, the counts 1, 2 and 3, the time a tenth a frame and Startup
-once; the behaviors guide's section on testing a behavior holds a real example built on the packed
-package, printing 2.5, 1.5, 0.5 and 0 as a console program, and says a game's behaviors register as
-their assembly loads and such tests run one at a time. Departure, the engine's own test steps an
-AddSystem system rather than a generated behavior, the test assembly having no generator. 2,077
-plain and shuffled, the strict build clean. Held with `e5ad8d28` until the build run of `1b497b3b`
-ends, then pushed. After `e5ad8d28`, item 101, the draw into the shadow maps alone, read at 19:22 on
-2026-10-24, carrying REVIEW.md, NORM.md, ASKS.md, DEVLOG.md and three pictures under N 4.8 with
-their captions. ModelMaterial.ShadowOnly, false by default, reaches ModelDraw.ShadowOnly; such a
-draw casts the shadow kinds SolidAlone or MaskedAlone and batches apart, the view pass, the
-subsurface pass and the window's half-size depth skip those kinds, the shadow maps draw them as
-solid or masked, and the scene field leaves the draw out with the glow lights, the reference and the
-ray-traced instances; one with CastsShadows false draws nothing. ModelShadowTests stands slabs 4 to
-90 out with the eye 30 up inside a cave under a roof 45 over the floor, the tops over 100 with no
-roof at shadow distances 96 and 150 and the tops and the floor under 8 with the roof ShadowOnly, the
-roof's top not drawn from above and the floor in its shadow, two mutations failing it; the guide's
-shadows paragraph, the cheat sheet's material paragraph and PublicApi.txt say it. 2,076 plain and
-shuffled, the strict build clean, lavapipe with validation 87 passed. Held until the build run of
-`1b497b3b` ends, then pushed. After `1b497b3b`, item 96's third mend, the glow lights' box, read at
-18:50 on 2026-10-24, carrying REVIEW.md and ASKS.md. The branch colouring at the grove at 1920 by
-1080 read glowLightsHere's exits, an alike texel 57.9 percent of the pixels, any texel 2.5, marched
-with no texel 22.3, the far land drawn with the game's blended haze material and the clouds both
-missing from the window's depth, marched for an ask 0.34, no glow lights 0, sky or unlit 17;
-glowCounts.yzw and a new glowHigh hold the box every glow light's reach lies in, GlowLights.Head 32
-bytes, and glowLightsAt returns none for a point outside it before the loop over the lights, the
-same light since every fade is 0 there; the scene pass 8.4 ms where 9.1 stood, 9.5 where 10.2 in the
-noisier pair, the frames differing by 2 to 8 pixels with and without, within two runs of the same
-shaders; GlowLightsTests asserts the box. 2,075 plain and shuffled, lavapipe with validation 60
-passed and 12 skipped. Pushed at 19:11 on 2026-10-24 after the build run of `89154675` went green
-whole, the run watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry
-grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs per
-fragment from the variant's registers, the window's depth at half size and the scene pass shading
-with overdraw pointing at a half-size pass over the window's depth with a two by two depth and
-normal read, as the glow pass has. Next 105 and 106, the ECS gaps the game's drops found, then 102,
-the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of
-the cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of
-the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
-and the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the
-light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items
-all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `f0574e89`, item 105, a Query past three components, read at 20:37 on 2026-10-24,
+carrying the review's files and SHARED.md. Query and QueryReadOnly over four to six components are
+public and QueryRef internal as the smaller arities' are, each walking the store with the fewest
+components and filtered by With, Without, Changed and Added, the four-to-six ref forms in
+EcsWorld.WideRefIterators.cs to keep N 1.3's 800 lines; the test over five and six components beside
+a hundred velocity-only entities reads the right entities and copied values, Without and With, an
+absent store giving none, the read-only and ref forms with the ref writing through, and a walk
+allocating nothing; the guide says up to six. 2,078 plain and shuffled, the strict build clean. The
+three pushed at 20:48 on 2026-10-24 after the build run of `1b497b3b` went green whole, the run
+watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
+1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 106, then 107, the lookup by a component's key, the ECS gaps the game's drops
+found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene
+pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 93, the
+colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
+light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
+acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
-Before it, `89154675` came, item 96's second mend, the sky fold, pushed at 17:58 on 2026-10-24, its
-build run green whole at 19:08, Linux in 61 minutes, Windows in 57 and macOS in 29.
+Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
+2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
 
 Before it, `e2a203d9` came, item 99, pushed at 15:26 on 2026-10-24, its build run green whole at
 16:42, Windows in 75 minutes, Linux in 57 and macOS in 36.
@@ -1224,13 +1198,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
 
-105. **A Query reaches past three components.** From the voxel game's first ECS piece, the drops as
-    entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of 2026-10-24; a gap
-    the port finds comes to the engine first, Decision 68. Query stops at three components and the
-    game's mobs will need more. Query takes up to six, or a tuple of any count where the generator
-    allows it, with the same iteration and ref access, the cheat sheet's line and the guide's page
-    following; a test over a query of five components. One commit, small, after item 104.
-
 106. **A behavior holds what it needs, or the guide says why not.** From the voxel game's first ECS
     piece, the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
     2026-10-24; a gap the port finds comes to the engine first, Decision 68. E3D006 forbids a
@@ -1240,6 +1207,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the rule's text saying when, or the guide's page saying the id pattern is the way and why, with
     the voxel game's drops as the example; the game's record follows whichever. One commit, small,
     after item 105 and before 102.
+
+107. **An entity is found by a component's key, so a game keeps no index of its own.** From the
+    voxel game's fires as entities at its `9a70f28` on 2026-10-24, read at 20:47, its ASKS.md entry
+    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The world
+    names every fire cell it sets and the game must skip a cell that has its fire, and with no
+    lookup by cell it walks every fire into a set each frame the world names one. The engine gives a
+    lookup by a component's key, an index the world keeps for a component type that names its key,
+    kept on spawn, change and despawn, with a query by key and a contains, the cheat sheet's line
+    and the guide's page saying it; a test over a thousand entities finding one by key and none
+    after its despawn, allocating nothing on the lookup. One commit, small, after item 106 and
+    before 102.
 
 ## Verdicts
 
