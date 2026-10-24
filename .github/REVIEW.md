@@ -10,46 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8ae947ee`, item 109, the highlights' knee, read at 23:29 on 2026-10-24, carrying the
-review's files, ASKS.md, SHARED.md and two pictures. SetHighlightKnee(knee, strength) and
-GetHighlightKnee, 0.8 and 1 by default; the knee is part of the engine's own curve, each channel
-past the knee bending toward 1 along the shape the curve bends the brightest by, mixed with the
-hue-holding curve by the strength, the other curves taking none of it since applied before every
-curve it bent Bevy's and BSL's and their tests failed, a scene with no light still clamping as
-raylib draws it, the window's composite and a render texture's toDisplay taking it alike. Against
-gi.reference at 512 paths at 800 by 450 High, the strip's brightest percent 255, 230, 186 off, 255,
-255, 254 on and 255, 255, 255 in the reference, the window's sun patch 252, 242, 222 off, 248, 244,
-228 on and 255, 250, 229, the displayed distance over the frame 21.74 to 21.41 levels for the strip
-and 7.80 both for the window, no view widening, the rooms' linear distances untouched; seven
-reference frames written again with 0 pixels under 231 levels moved past 2, only the highlights;
-HighlightKneeTests, the bands under the knee identical and above it the spread smaller by over 20
-with the brightest under 12 where off it is over 100, a render texture's block white; three tests of
-the old curve changed, the bloom test's white 247 for 251 and the hue and glow-only tests with the
-knee off; the guide's display table and the cheat sheet have the call. The engine's sun patch lies
-nearer the window than the reference's, a geometry difference outside the item. 2,086 plain and
-shuffled, the strict build clean, lavapipe 47 passed; the lit examples' highlights move toward white
-in the pack run's captures. Both pushed at 00:16 on 2026-10-25 after the build run of `e3d554b1`
-ended, its Windows job cancelled at the old limit again, the run watched for Verdict 88's settling.
-Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
-part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
-registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
-half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
-has. Next 110, a behavior's order and states, then 113, the wheel in a behavior's input, then 108,
-the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the far
-cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
-cascades and the shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra,
-then 112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's
-words on the loop and the ECS, then the glow light's non-number and the history's guard, then 95,
-the e3d help, then item 89, the plant walls' acne, then 97, the light at the camera's point on
-lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud
-sessions stand by.
+Reviewed up to `31d1fcb6`, item 110, a behavior's order and states, read at 01:29 on 2026-10-25,
+carrying the review's files, ASKS.md and SHARED.md. After and Before, a behavior's method by type
+and name or a system's name, reach the descriptor's After and Before, and a method may carry InState
+more than once meaning all of them; GeneratorAttributeTests gains three behaviors added A, B and C
+running C, B, A and a method gated on two states running only while both hold, each attribute with a
+coverage case and three E3D009 cases for a missing method, a method with no stage and a type that is
+no behavior. Departures, E3D009 reports an After or Before whose type and method name no behavior's
+stage method, a name given as a string checked when the app starts as AddSystem's are; the guide's
+naming text corrected to the generator's Spin_Generated_Update_Turn; ARCHITECTURE.md gains E3D009,
+the order attributes, the repeated InState and E3D006's present wording. The strict build clean,
+2,090 plain and shuffled on the GPU, the guide's 18 blocks building on the package; a full lavapipe
+run ran out of its 40 minutes in the Rendering group with the global illumination tests at 20 to 90
+s each on the CPU, the limit and not a hang, nothing in the item drawing. Pushed at 01:34 on
+2026-10-25 after the build run of `8ae947ee` went green whole, the run watched. Item 96 begins with
+a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
+per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
+window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
+over the window's depth with a two by two depth and normal read, as the glow pass has. Next 113, the
+wheel in a behavior's input, then 108, the mesh entity as a game's section, then 114 to 116, the
+particles' gaps, the ECS gaps the game's drops found, then 102, the far cascade's slab, then 103,
+the screen probes' one switch, then 96, the scene pass's read of the cascades and the shadow fill,
+then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the planar
+reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the
+ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then item 89,
+the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling`
+was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
-Before it, `e3d554b1` came, item 108's first phase with `a0d3d7f7`, item 107, and `df0c7b50`, item
-106, pushed at 22:32 on 2026-10-24, its build run ending at 00:13 with Linux, macOS and the examples
-green and the Windows job cancelled at the 100-minute limit before Verdict 88's mend, its pack run
-green whole at 01:03 on 2026-10-25, the Windows job in 148 minutes under the old limit of 180, and
-5.2.291 pushed to nuget.org, the third package of the day, carrying items 101, 104 to 107 and 108's
-first phase.
+Before it, `8ae947ee` came, item 109 with `342fed10`, Verdict 88's mend, pushed at 00:16 on
+2026-10-25, its build run green whole at 01:30, Windows in 74 minutes under the new limit, Linux in
+58 and macOS in 28, Verdict 88 settled on it.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1063,17 +1053,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
 
-110. **A behavior's system says what it runs after or before, and in more than one state.** From the
-    voxel game's states as entities at its `2926dda` on 2026-10-24, read at 22:08, its ASKS.md entry
-    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. No behavior
-    attribute reaches SystemDescriptor.After or Before and InState names one state a method, so the
-    game's ordered steps, the aim before the hand's work on it, the player's move before either and
-    the answering of the mobs, stay inside one system. The generator takes After and Before
-    attributes naming another system, and InState more than once on a method meaning all of them,
-    carried into the descriptor as AddSystem's are, the guide's page on behaviors showing both and
-    the cheat sheet's line; a test of three behaviors ordered against the stage's default and one
-    gated on two states. One commit, small, after item 109 and before 108.
-
 111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
     at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
     low sun with long soft shadows, and the package has no soft-shadow call beside
@@ -1107,6 +1086,30 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cheat sheet's line and the guide's page following, a test stepping a behavior with a wheel move
     queued. One commit, small, after item 110 and before 108's second phase.
 
+114. **An empty emitter costs nothing.** From the voxel game's ambient particles at its `7443bdc` on
+    2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree. The engine steps, sorts and
+    draws every emitter to its full capacity whether or not a particle is alive, 20 fixed emitters
+    reading 3.5 ms of CPU and 2.1 of GPU with nothing alive, so the game makes emitters when a burst
+    needs one and unloads them once their particles die. The step, the sort and the draw take the
+    alive count, an emitter with none skipped and one with few costing its few; a test of 20 empty
+    emitters reading the step and the draw near 0 and a reading on the game's particle screen. One
+    commit, small, after item 108 and before 102.
+
+115. **A particle can face a set direction rather than the camera.** From the voxel game's ambient
+    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
+    Every particle faces the camera, so the game's rings on water are a flat mesh rebuilt each frame
+    from a sheet. An emitter takes a facing, the camera, a fixed normal such as up, or the
+    velocity's way, and the particle's quad lies in it with the sheet's frame; a test reading a ring
+    laid flat from above and edge-on, and the guide's particles page. One commit, small, after item
+    114.
+
+116. **A program's profile value can be a mean over a window.** From the voxel game's ambient
+    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
+    The profile shows a program's value as last set, so a count that leaps a frame reads as noise
+    and the game eases its particle counts itself. A profile value takes a window in seconds and
+    shows the mean over it, the game's eased counts then its own; a test of a value set to 0 and 100
+    by turns reading its mean. One commit, small, after item 115 and before 102.
+
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
     entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
@@ -1126,27 +1129,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     DrawMesh read on a scene of a thousand meshes. Two or three commits, after item 107 and before
     102. The first phase at `e3d554b1` on 2026-10-24, the mesh with a program's streams and indices,
     looks and meshes kept; the second after items 109 and 110, the shader on the Material, Visible
-    and ShadowOnly and the draws in the profile; the third the guide and the cost.
+    and ShadowOnly and the draws in the profile; the third the guide and the cost. The second phase
+    also mends picking, which read an indexed mesh's positions three at a time since the first
+    phase.
 
 ## Verdicts
 
-Verdict 88 is open. Verdicts 56 to 87 are settled, said under each in REVIEW-ARCHIVE.md.
-
-88. **The Windows suite outgrows its job's 100-minute limit on a slow runner.** Read at 22:32 on
-    2026-10-24 from the build run of `f0574e89`, Linux, macOS and the examples green and the Windows
-    job cancelled at 22:28 at its limit of 100 minutes, the suite's step having passed in 94 minutes
-    with 2,078 tests and the game's steps after it, the native publish cut short and the rest
-    skipped. The same step took 60, 50 and 83 minutes on the day's three earlier Windows runs,
-    Verdict 86's runner variance of 0.87 to 1.7 times on a suite that grows, so a slow runner passes
-    the limit set near 55 minutes before the split. The mend is the push job's limit raised to 150
-    minutes with its reason in the comment as N 6.8 asks, the pack job's 180 read against the
-    suite's 94 and the twelve games and raised where it would not hold, and the parts' times read
-    from this run's artifact for a part grown past its share, split as Rendering was where one has.
-    One commit, small, first, before item 109. Mended at `342fed10`, read at 22:39, the push job's
-    limit 150 and the pack job's 240 with the runs' numbers in the comment, no part split again
-    since each half sat inside its share. The build run of `e3d554b1`, before the mend, had its
-    Windows job cancelled at the old limit again at 00:13 on 2026-10-25. Settled when the Windows
-    job is green on a push with the mend, `8ae947ee`'s run.
+Verdicts 56 to 88 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

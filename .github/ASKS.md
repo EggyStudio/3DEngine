@@ -1022,3 +1022,44 @@ through `GetMouseWheelMove` meanwhile.
 
 Review: item 113 of REVIEW.md, 2026-10-25; the context's input gaining the wheel's move; after item
 110.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, an emitter holding no particles costs the frame as much as a full one
+
+Read on the 3DEngine 5.2.283 package for the game's item 32, the rain's splashes, the falling leaves,
+the cave's dust and the wakes. An emitter bursts where it stands in the frame after `EmitParticles`,
+so a kind bursting at several places a frame needs several emitters, and the game first held twenty
+alive, all laid over by alpha, most of them empty most of the time. `./e3d command profile` read
+`cpu.particles` 3.5 ms and `gpu.particles` 2.1 ms at the forest's spawn of seed 1 with every
+density at none, so not one particle alive, against 0.005 and 0.000 ms with no emitter, since
+`Particles.Step` dispatches each emitter's step and its sort and `Draw` draws its whole
+`MaxParticles` whether it holds any or not. The engine lacks an emitter that costs nothing while it
+holds no particles, or a burst given its own place (`EmitParticles(emitter, count, at)`), so one
+emitter serves a kind. The game makes an emitter as a burst needs one and unloads it once its last
+particles have died, at most three of a kind, which reads 0.04 ms and 0.03 ms in the rain.
+
+Review: item 114 of REVIEW.md, 2026-10-25; the step, the sort and the draw taking the alive count;
+after item 108.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a particle always faces the camera
+
+Read on the 3DEngine 5.2.283 package for the game's item 32, the rings a raindrop leaves on water.
+`particles.slang` turns every particle's square toward the eye, so a ring stands up off the water
+rather than lying on it, and `ParticleEmitter` has no way to lay its particles in a plane. The
+engine lacks particles facing a direction the emitter gives, as up for a ripple or a decal. The game
+draws the rings as a mesh of flat squares it builds each frame meanwhile, each showing the frame of
+a sheet its age has reached.
+
+Review: item 115 of REVIEW.md, 2026-10-25; an emitter's facing, the camera, a fixed normal or the
+velocity's way; after item 114.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, the profile shows a program's value as its last frame's
+
+Read on the 3DEngine 5.2.283 package for the game's item 32. `profile` averages the frame's times
+over about a second, and a value given through `SetProfileValue` is shown as it was last set, as
+`FrameProfile.Set` says, so a count of what a frame gave off, a leaf now and then, read 347 in one
+call and 0 in the next two, 13 frames apart. The engine lacks a program's value averaged as its own
+times are, which `SetProfileValue` could be asked for by a flag. The game eases its particle counts
+over about a second before it gives them meanwhile.
+
+Review: item 116 of REVIEW.md, 2026-10-25; a profile value with a window showing its mean; after
+item 115.

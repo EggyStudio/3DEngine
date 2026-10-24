@@ -250,6 +250,10 @@ Pads are indexed in the order they connected. Buttons are named by position, as 
 them (`RightFaceDown` for A or the cross, `RightFaceRight`, `LeftFaceUp` on the directional pad,
 `LeftTrigger1`, `MiddleRight` for start, ...), rather than by the letter printed on them.
 
+A behavior reads its input through `ctx.Input`, `KeyDown(Key.W)`, `KeyPressed`, `MousePosition`,
+`MouseDelta` and `MouseWheel`, the wheel's turn on both axes as `GetMouseWheelMoveV` gives it, and
+the rest through the flat functions.
+
 ## 2D shapes
 
 <!-- written by build/cheatsheet.sh from E3D.Shapes.cs, E3D.Splines.cs -->

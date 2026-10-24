@@ -227,15 +227,19 @@ ImGui from a keyboard either way.
 
 ## Input in the ECS
 
-A behavior reads the same input through its context, `ctx.Input`, as the `ecs_behaviors` example
-does to spawn more balls:
+A behavior reads the same input through its context, `ctx.Input`, its keys by `KeyDown` and
+`KeyPressed`, the pointer by `MousePosition` and `MouseDelta`, and the wheel by `MouseWheel`, as
+the `ecs_behaviors` example does to spawn more balls, and as a camera zooms by the wheel:
 
 <!-- compiled with:
 BehaviorContext ctx = null!;
 void Spawn(BehaviorContext context, int count) { }
+float fov = 60;
 -->
 ```csharp
 if (ctx.Input.KeyPressed(Key.Space)) Spawn(ctx, 100);
+var (_, wheel) = ctx.Input.MouseWheel;
+fov = Math.Clamp(fov - wheel * 5, 30, 90);
 ```
 
 ## Scripting input from outside

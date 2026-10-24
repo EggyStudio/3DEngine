@@ -23,11 +23,11 @@ namespace Engine;
 ///             Console.WriteLine("Jump!");
 ///         if (ctx.Input.KeyDown(Key.W))
 ///             MoveForward();
-///         if (ctx.Input.MousePressed(MouseButton.Left))
-///             Shoot(ctx.Input.MouseX, ctx.Input.MouseY);
 ///
 ///         var (dx, dy) = ctx.Input.MouseDelta;
 ///         RotateCamera(dx, dy);
+///         var (_, wheel) = ctx.Input.MouseWheel;
+///         Zoom(wheel);
 ///     }
 /// }
 /// </code>
@@ -41,8 +41,6 @@ namespace Engine;
 ///         Console.WriteLine("Jump!");
 ///     if (input.KeyDown(Key.W))
 ///         MoveForward();
-///     if (input.MousePressed(MouseButton.Left))
-///         Shoot(input.MouseX, input.MouseY);
 ///
 ///     var (dx, dy) = input.MouseDelta;
 ///     RotateCamera(dx, dy);
@@ -90,6 +88,12 @@ public sealed class Input
 
     /// <summary>Vertical scroll wheel input accumulated this frame.</summary>
     internal float WheelY { get; private set; }
+
+    /// <summary>
+    /// How far the wheel turned this frame as an (X, Y) tuple, Y positive away from the user and X
+    /// for a wheel or trackpad that scrolls sideways, as <c>GetMouseWheelMoveV</c> gives it.
+    /// </summary>
+    public (float X, float Y) MouseWheel => (WheelX, WheelY);
 
     private readonly List<char> _textInput = [];
     

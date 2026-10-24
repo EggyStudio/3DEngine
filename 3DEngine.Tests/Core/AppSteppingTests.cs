@@ -49,4 +49,23 @@ public sealed class AppSteppingTests
         }
         started.Should().Be(1, "the first frame runs Startup, once");
     }
+
+    [Fact]
+    public void A_Behavior_Reads_The_Wheels_Turn_Through_Its_Context_In_The_Frame_It_Turned()
+    {
+        using var app = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
+        var read = new List<(float X, float Y)>();
+        // As a behavior's registration adds its method, with the context its generated code makes.
+        app.AddSystem(Stage.Update, world => read.Add(new BehaviorContext(world).Input.MouseWheel));
+        var input = app.World.Resource<Input>();
+
+        app.Frame();
+        // As input.wheel queues it, applied where a loop polls the window's events before a frame.
+        SyntheticInput.Wheel(input, -2);
+        input.ApplyQueued();
+        app.Frame();
+        app.Frame();
+
+        read.Should().Equal([(0f, 0f), (0f, -2f), (0f, 0f)], "the turn is the frame's alone, cleared as it ends");
+    }
 }

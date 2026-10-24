@@ -3598,6 +3598,19 @@ batch.
     255, 255, 254 against the reference's white, the reference frames moved in their highlights
     alone.
 
+110. **A behavior's system says what it runs after or before, and in more than one state.** From the
+    voxel game's states as entities at its `2926dda` on 2026-10-24, read at 22:08, its ASKS.md entry
+    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. No behavior
+    attribute reaches SystemDescriptor.After or Before and InState names one state a method, so the
+    game's ordered steps, the aim before the hand's work on it, the player's move before either and
+    the answering of the mobs, stay inside one system. The generator takes After and Before
+    attributes naming another system, and InState more than once on a method meaning all of them,
+    carried into the descriptor as AddSystem's are, the guide's page on behaviors showing both and
+    the cheat sheet's line; a test of three behaviors ordered against the stage's default and one
+    gated on two states. One commit, small, after item 109 and before 108. Done at `31d1fcb6` on
+    2026-10-25, After, Before and the repeated InState through the generator with E3D009 for a wrong
+    name, the departures in the head.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -4867,3 +4880,19 @@ at `36cae0c2`.
     no fall back, the named case in `StartVideo`'s test; pushed at 14:08 with item 98's commit.
     Settled at 15:18 on 2026-10-24, the Linux suite green on the build run and the pack run of
     `391bbfd7`.
+
+88. **The Windows suite outgrows its job's 100-minute limit on a slow runner.** Read at 22:32 on
+    2026-10-24 from the build run of `f0574e89`, Linux, macOS and the examples green and the Windows
+    job cancelled at 22:28 at its limit of 100 minutes, the suite's step having passed in 94 minutes
+    with 2,078 tests and the game's steps after it, the native publish cut short and the rest
+    skipped. The same step took 60, 50 and 83 minutes on the day's three earlier Windows runs,
+    Verdict 86's runner variance of 0.87 to 1.7 times on a suite that grows, so a slow runner passes
+    the limit set near 55 minutes before the split. The mend is the push job's limit raised to 150
+    minutes with its reason in the comment as N 6.8 asks, the pack job's 180 read against the
+    suite's 94 and the twelve games and raised where it would not hold, and the parts' times read
+    from this run's artifact for a part grown past its share, split as Rendering was where one has.
+    One commit, small, first, before item 109. Mended at `342fed10`, read at 22:39, the push job's
+    limit 150 and the pack job's 240 with the runs' numbers in the comment, no part split again
+    since each half sat inside its share. The build run of `e3d554b1`, before the mend, had its
+    Windows job cancelled at the old limit again at 00:13 on 2026-10-25. Settled at 01:34 on
+    2026-10-25, the Windows job green in 74 minutes on the build run of `8ae947ee`.
