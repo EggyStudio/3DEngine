@@ -1,0 +1,817 @@
+# 3DEngine devlog
+
+What landed in 3DEngine, by day and newest first, with the pictures taken on the way: the captures
+the repository keeps under `.github/assets`, and the pictures made while an item was built, kept
+here as WebP files named by their day. A line under Done names the item of REVIEW.md or
+REVIEW-ARCHIVE.md and the commit that closed it.
+
+## 2026-10-24
+
+![](../assets/examples/blockout.webp)
+Blockout's capture looks from the hall up its stairs, and the README's gallery shows it among the
+games. (`ddc20382`)
+
+![](../assets/examples/core_day_sky.webp)
+The day sky example's capture holds it at six, at noon, at eighteen and at midnight in one picture,
+Summit's is taken again under its day sky, and the README's gallery shows the example. (`49d834e1`)
+
+Done:
+
+- Item 63 at `b6d822ee`. A game that is a level blocked out with the tools, Blockout (Decision 51).
+- Item 75 at `6ee3c87b`. The sky below the horizon takes the fog's color, so a fogged edge meets the
+  color it fades into (Decision 57).
+- Item 77 at `7549a0f9`. A day sky driven by the hour, the sun's light following it, with the sun,
+  the moon, the stars and the dusk, from the voxel game's numbers (Decision 57).
+- Item 88 at `26dbc6da`. The tests that lend the console run in one collection, and an eval with no
+  world lent refuses rather than throws.
+
+## 2026-10-23
+
+![](../assets/examples/models_edit_mesh_looks.webp)
+The models_edit_mesh_looks example gives a room's slots looks of brick walls and a floor of planks,
+both pictures drawn with the image calls, shown at 256 of their pixels a meter. (`80e83eb6`)
+
+![](../assets/examples/models_edit_mesh_room.webp)
+The models_edit_mesh_room example blocks out a room with a window, a door and a stair in prototype
+materials, and the upgrading page names the booleans, the openings, glTF and the prototypes.
+(`1093ae32`)
+
+![](../assets/examples/models_edit_mesh_cuts.webp)
+![](../assets/examples/models_edit_mesh_modifiers.webp)
+Two examples show an edit mesh's cuts and modifiers, a box beveled, inset and loop cut and a box
+rounded through a bevel and a subdivision, and the upgrading page names their calls. (`8d1ec295`)
+
+![](../assets/examples/models_edit_mesh.webp)
+The models_edit_mesh example shows the seven primitives of an edit mesh, each built into a model and
+named with its faces, and the upgrading page names every modeling call. (`91c8d363`)
+
+Done:
+
+- Item 59 at `ffb15cb6`. An edit mesh a program shapes by operations, with a recipe that rebuilds
+  it, built into what the engine draws and collides with (Decision 51).
+- Item 60 at `1093ae32`. Grid prototyping: materials that show a meter, texture coordinates aligned
+  to the world, and openings cut by booleans (Decision 51).
+- Item 61 at `5f1e0f6e`. The modeling commands, so a level is blocked out from the terminal, and a
+  window in the game to shape by hand (Decision 51).
+- Item 62 at `80e83eb6`. Texture coordinates shaped and textures given to faces (Decision 51).
+- Item 64 at `8d1ec295`. Modeling operations on faces and edges, Blender's kinds (Decision 51).
+- Item 65 at `8d1ec295`. Modifiers, a stack applied at the build and never baked until asked
+  (Decision 51).
+- Item 66 at `32ad500d`. What is modeled is exported for Blender and imported from it (Decision 51).
+- Item 76 at `b48762bb`. A command reads a rectangle of the last frame, its mean color and its
+  largest step, so a drive asserts a picture without downloading it (Decision 57).
+- Item 78 at `511e0fed`. F1 hides the interface, F3 shows a debug overlay like the newest
+  Minecraft's with sections a program adds, and Shift+F3 the profiler with it (Decision 58).
+- Item 81 at `c6bb1f3e`. The sky's light set apart from the drawn sky.
+- Item 82 at `3bdf68be`. A light sample a program takes with a normal of its own keeps that normal
+  (Decision 60).
+- Item 83 at `d980d237`. The sun's cascades hold a long shadow across their seams at a low sun
+  (Decision 60).
+- Item 84 at `21c1b31f`. The README's animated capture of Ore goes.
+- Item 85 at `a400a723`. The upgrading page's tests for names gained and lost go, and the page keeps
+  changed behavior alone (Decision 64).
+- Item 86 at `e8d52f80`. The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).
+- Item 87 at `185a79a8`. A headless app's draw list is cleared each frame.
+
+## 2026-10-21
+
+![](../assets/examples/shaders_compute_mesh.webp)
+A mesh is drawn from shader buffers a compute shader wrote through LoadMeshFromShaderBuffers, its
+vertex count turned into an indirect draw's arguments by one dispatch over the frame's draws ahead
+of the frame, culled by the box SetMeshBoundingBox gives it, with the shaders_compute_mesh example
+meshing a hill on the GPU each frame. (`50b3aa6f`)
+
+![](../assets/cascades/glow-only-ore.webp)
+With the screen's probes left out and a glow light lit, probes stand for the glow lights alone,
+marching to them once a tile and tracing nothing else, so a pixel reads their light at a cost the
+lights do not change, Ore at night with sixty-four lit drawing in 2.50 ms where 9.67. (`0a4928d3`)
+
+Done:
+
+- Item 57 at `c2b8c0e9`. A feature-test program puts every feature on one map, a capsule character
+  on test courses, an admin panel and a console, with a crash log beside the executable.
+- Item 58 at `f78b8c58`. A sound placed by its position is heard from its side and fainter with
+  distance, as the audio guide says.
+- Item 67 at `b47d20d6`. The first gamepad moves through ImGui only when the program asks.
+- Item 68 at `dc487681`. A shader buffer is read back without holding the program.
+- Item 69 at `50b3aa6f`. A mesh drawn from buffers a compute shader wrote, with a count the shader
+  writes.
+- Item 70 at `31444e1e`. An animated capture of a run, frames taken at an interval and written as
+  one file, and one made from captures on disk (Decision 53).
+- Item 71 at `0a4928d3`. A program leaves the screen probes out of its global illumination, and the
+  radiance cascades' faults seen in the voxel game are read and mended (Decision 54).
+- Item 73 at `eba9c35a`. F2 takes a screenshot in every program, to a screenshots folder beside it
+  (Decision 56).
+- Item 79 at `3e83c817`. A masked surface drawn through a program's own shader is cut out of the
+  shadow maps by its texture.
+- Item 80 at `d3473746`. A tonemap curve a program sets by its numbers, or a tonemap through a
+  program's own shader.
+
+## 2026-10-20
+
+![](../assets/examples/tones.webp)
+Tones joins the games, an instrument whose samples it pushes through an audio stream with its pitch,
+pan, volume and pause, an echo and a filter as the stream's processors and a meter over the mixed
+samples, drums read from waves and recordings saved as waves and read back, played, soaked, resized
+and captured with the others. (`fd484ead`)
+
+![](../assets/examples/tumble.webp)
+Tumble joins the games, a robot walked by blending its clips and aimed on a layer of its upper body,
+crouching by the character's height, which falls as a ragdoll of capsules on ball joints in cones
+and hinges when struck and stands up by a blend from the pose it lies in, played, soaked, resized
+and captured with the others. (`39103995`)
+
+![](../assets/examples/siege.webp)
+Siege joins the games, a castle of welded boxes and convex hulls thrown at by a catapult on a hinge
+driven by its motor until its banner falls, its welds broken past a force and its bombs pushing what
+is near them, played, soaked, resized and captured with the others. (`f3949ba6`)
+
+![](../assets/examples/span.webp)
+Span joins the games, a bridge of planks on hinges and ropes built over a gap for a load to roll
+across, whose joints break past 7,000 newtons read through GetPhysicsJointForce, played, soaked,
+resized and captured with the others. (`f74e087f`)
+
+![](../assets/examples/pinball.webp)
+Pinball joins the games, a table of bumpers, slingshots and two flippers whose ball is a continuous
+body, its flippers on hinges driven by their motors and its plunger on a slider driven by its own,
+played, soaked, resized and captured with the others. (`2271cdea`)
+
+Done:
+
+- Item 7 at `fd484ead`. A game is written meanwhile.
+- Item 30 at `b35bcb8f`. The radiance cascades look as good as they can (Decision 44), the week's
+  work, one part a commit.
+- Item 35 at `9fd38dd9`. The README's centered parts are markdown inside one centering block
+  (Decision 45), and nuget.org draws them.
+- Item 36 at `089761fb`. A draw through a program's own shader is culled by its mesh's box where the
+  program says the vertex stage keeps the positions (ASKS.md, Voxel-Sandbox's fourth entry).
+- Item 39 at `82dd08f2`. RENDERING.md names the terms of the global illumination's method that stand
+  unmended, with their figures.
+- Item 40 at `d03d0e53`. A program reads a joint's force, `GetPhysicsJointForce`.
+- Item 41 at `df03842b`. The contact impulse read is scaled as the joint's force is, so both are the
+  force over the step at any substep count.
+- Item 42 at `b4b798d4`. A convex hull and a static model are shaped from the mesh and the scale
+  alone, the model's transform left out.
+- Item 43 at `006ff3ba`. A program reads the audio device's sample rate and channels, so a mixed
+  processor knows the samples it gets.
+- Item 44 at `4789ebde`. Latin text is kerned and its standard ligatures made, in drawing and in
+  measuring alike.
+- Item 45 at `00c820ce`. A renamed or reshaped type still reads its old scene files, from
+  BevyCSharp's former names and data versions.
+- Item 46 at `748779fc`. A run that shows no window makes no sound, its audio going to a device of
+  silence while every sound runs.
+- Item 47 at `b371b65c`. The cheat sheet is written by a tool from each call's documentation, so the
+  two cannot differ.
+- Item 48 at `6a289059`. The suite runs once with the schedule's order shuffled by a seed, so a test
+  that leaned on an order nothing asked for is found.
+- Item 49 at `ec39331c`. An observer is told when a component is added to or removed from an entity,
+  or when an event of the game's own is sent to it.
+- Item 50 at `e510f268`. A game observes what a pointer does to an entity as events on that entity,
+  climbing its parents until stopped.
+- Item 51 at `414e6f77`. An animation state machine as a data asset, states each a clip and how it
+  plays, transitions tried in order on a parameter.
+- Item 52 at `43ace92a`. A message after a load, so a game builds once what a file does not hold.
+- Item 53 at `8e31620c`. A saved game laid over the scenes it started from, and a setting read over
+  its default.
+- Item 54 at `02d89f18`. An order among the systems of one stage, one before or after another or a
+  chain, kept under the shuffle.
+- Item 55 at `ac77ef83`. A character flies at its move with gravity held off, what it meets still
+  stopping it, and a dynamic body is put at a point at rest by one call.
+- Item 56 at `b1265b6a`. Data in files of its own, referred to by an id that survives a rename.
+
+## 2026-10-19
+
+Done:
+
+- Item 34 at `c6914ab3`. An ImGui draw command binds the texture it names, so a window draws a
+  program's `Texture2D` (ASKS.md, 2026-10-18).
+- Item 37 at `c9e1a5ac`. A package's release notes are the commits since the package last published
+  (Decision 47).
+- Item 38 at `4af3cdde`. The pack run publishes through nuget.org's trusted publishing and no stored
+  key (Decision 48).
+
+## 2026-10-18
+
+![](../assets/examples/ecs_parented_particles.webp)
+A particle emitter may keep its particles in its entity's space, turning with it and its parent, and
+hold particles the program places at points there, which an example of a turning sky shows.
+(`f5035acd`)
+
+![](../assets/cascades/cornell-corner.webp)
+![](../assets/cascades/cornell-small-block-front.webp)
+![](../assets/cascades/ore-ground-cloud.webp)
+![](../assets/cascades/room-wall-foot-and-far-wall.webp)
+![](../assets/cascades/subsurface-terminator.webp)
+![](../assets/cascades/thin-walls-corner-leak.webp)
+The light global illumination gives is read against path-traced references in the examples that draw
+it and in Ore, with six faults pictured, measured and placed in the cascades. (`4fa51a9c`)
+
+![](../assets/examples/ore.webp)
+Ore joins the games, a voxel landscape of 48 by 48 columns under global illumination whose emissive
+ore is its only light at night, walked in the first person, and played, soaked, resized and captured
+with the others. (`4c6630a4`)
+
+Done:
+
+- Item 26 at `4d5db9df`. Two workflows an engine, `build.yml` on a push and `pack.yml` by hand
+  (Decision 40), committed at `534a1c2b`, done on 2026-10-18 with the pack run of `4d5db9df` whole
+  green after the push run of `683e6e9d`.
+- Item 27 at `b40a788d`. The voxel game leaves for its own repository (Decision 41).
+- Item 28 at `4c6630a4`. A tiny sample, `games/Ore`, a voxel landscape, a character and the light
+  that bounces.
+- Item 31 at `29eb2eca`. An example shows raylib's picture and none of the engine's making, the
+  gamepad's controller first (Decision 44).
+- Item 32 at `f5035acd`. Particles that live in their emitter's space and stand where the program
+  puts them, for the game's stars (ASKS.md, 2026-10-18).
+- Item 33 at `a2df7bb4`. A setting turns the sun's contact shadows off, or leaves them out where the
+  shadow map holds the point (ASKS.md, 2026-10-18).
+
+## 2026-10-17
+
+Done:
+
+- Item 29 at `7b2486a5`. The register: STYLE.md's rule and the sweep (Decision 43).
+
+## 2026-10-12
+
+Done:
+
+- Item 2 at `c54d64eb`. Four things seen in the voxel game on 2026-10-10 (Decision 27), before item
+  3's remainder.
+- Item 3 at `42b3e9ce`. Subsurface scattering, the first of Decision 16's spectral experiments
+  (Decision 18), in three batches, each measured, what of its first batch stands alone committed
+  before item 2 begins;.
+- Item 4 at `82b23f8c`. The animated model's meshes in the world (Decision 21), after subsurface
+  scattering;.
+- Item 8 at `c81eca54`. An opaque material's hidden fragments are rejected before they are lit;
+  measured, the hidden land costs geometry, not fragments;.
+- Item 9 at `feec07a2`. A color stream written in place reaches the bounce.
+- Item 10 at `c54d64eb`. A post-processing window in the overlay, which a game opens as it opens its
+  performance window (Decision 28).
+- Item 15 at `35322cfe`. `Engine3D` becomes `E3D` (Decision 32).
+- Item 17 at `2172090b`. The radiance cascades said in the README and in a guide page of their own
+  (Decision 33)..
+- Item 21 at `86fba7ad`. The colors of a mesh of positions alone serve the light field alone and
+  reach no buffer.
+- Item 22 at `e424550c`. The wall before the pillar blends in probes standing at the pillar's dark
+  face; the screen's probes reach the pillar themselves;.
+- Item 23 at `6a36b2b5`. A mesh casts the sun's shadow and stays out of the light field, and a
+  moving mesh's stamp costs less;.
+- Item 24 at `2a14ab13`. The glow lights' shadow past a box's edge is a step where a penumbra
+  belongs;.
+- Item 25 at `9a3e2e2a`. The macOS captures move to the pack run (Decision 38);.
+
+## 2026-10-11
+
+![](../assets/examples/shaders_packed_vertices.webp)
+Lets a mesh carry a vertex stream of the program's own, read as CUSTOM0 and written in place, and
+makes the pack wait on the examples job. (`958a3eb3`)
+
+![](../assets/asks/voxel-penumbra-blotches.webp)
+![](../assets/asks/voxel-penumbra-edge.webp)
+![](../assets/asks/voxel-penumbra-owner-seam-parts.webp)
+![](../assets/asks/voxel-penumbra-owner-seam.webp)
+![](../assets/asks/voxel-penumbra-redwall.webp)
+Lights the floor under a block floating below a row of joined lamps by halving a level face along
+its longer side where neither side rises from the surface, and by stepping out of a surface across
+the march as well as along the surface's normal. (`56db892b`)
+
+![](../assets/asks/voxel-cave-sky-leak.webp)
+![](../assets/asks/voxel-penumbra-spot.webp)
+Keeps a closed cave from taking the sky's light by ending every cascade's band short of the eye and
+reading the bounce's hold at the surface where that holds more, passes over probes whose rays meet
+more faces from behind than in front, holds the bounce while the last cascade is unbuilt, and drops
+a young glow blend where the field was built again under it. (`64fd2f14`)
+
+![](../assets/asks/voxel-end-rod-step.webp)
+A pixel reads the glow lights its probes mark alone, an eighth of their light or more, with the
+probes weighed once, and the march ends inside a wall by its own condition, so the model pass's
+share in a room of sixteen lamps falls from 0.47 ms to 0.25. (`0f5cdbcf`)
+
+Done:
+
+- Item 5 at `1fa88e8b`. The first shares recorded from the workflow's own device.
+- Item 11 at `e28064f7`. The README's examples as one scrolling row a folder, the games' text under
+  them gone.
+- Item 12 at `7a69c936`. The e3d skill left the `.claude` folder.
+- Item 13 at `ffa3ec48`. `games/Pusher` is gone.
+- Item 14 at `e910f4f4`. The development machine's GPU is named nowhere a user reads (Decision 32).
+- Item 16 at `ffa3ec48`. The README's guide table opens with the cheat sheet's row.
+- Item 18 at `043b3af1`. The examples' counts under the Examples heading, and a count on each
+  folder's heading (Decision 34).
+- Item 19 at `7798d5e5`. A push plays one game, and the pack run plays them all (Decision 35).
+- Item 20 at `958a3eb3`. A vertex stream of the game's own beside the mesh's vertex, and a vertex of
+  positions alone (Decisions 36 and 37).
+
+## 2026-10-10
+
+![](../assets/asks/voxel-lobes-cell0125.webp)
+![](../assets/asks/voxel-lobes-cell025.webp)
+![](../assets/asks/voxel-pool-10.webp)
+![](../assets/asks/voxel-pool-20.webp)
+![](../assets/asks/voxel-pool-40.webp)
+![](../assets/asks/voxel-pool-5.webp)
+The drive script says where a command finds no session whether the game's process still runs and,
+ended, its exit code and the crash Windows logged of it. (`e50fd247`)
+
+![](../assets/asks/voxel-border-sunset-cell05.webp)
+![](../assets/asks/voxel-border-sunset.webp)
+![](../assets/asks/voxel-flicker-difference.webp)
+![](../assets/asks/voxel-flicker-stopped.webp)
+![](../assets/asks/voxel-spokes-high.webp)
+![](../assets/asks/voxel-spokes-low.webp)
+![](../assets/asks/voxel-spokes-medium.webp)
+A material's own thickness, which a glTF file's KHR_materials_volume sets, caps the thickness the
+light from behind is measured to cross, and a spot or point light that casts shadows measures it
+from its own map where the scene's field is coarse. (`63961dbb`)
+
+![](../assets/examples/shaders_subsurface.webp)
+The light under a surface is spread at the quality SetSubsurfaceQuality sets, a new example shows
+it, and the light that comes through a thin part is measured without the bands, scallops and stripes
+drawing it found. (`94c4bf3b`)
+
+![](../assets/bounce/cornell-ceiling.webp)
+![](../assets/bounce/cornell-floor-bands.webp)
+![](../assets/bounce/cornell-red-wall-foot.webp)
+![](../assets/bounce/cornell-small-block.webp)
+![](../assets/bounce/grazing-screen-step.webp)
+The light that bounces is measured against references of one, two and every bounce and at its
+probes, which places most of its loss in a pi missing from the light a ray's hit sends on, with four
+artifacts pictured and measured. (`0499c115`)
+
+## 2026-10-09
+
+![](../assets/examples/shaders_bounce_rooms.webp)
+A level of the eight rooms the light that bounces finds hardest, each with a fixed view, and a
+script that measures each view at each quality against its path-traced reference. (`575f5f66`)
+
+## 2026-10-08
+
+![](../assets/examples/wick.webp)
+A thirteenth game, Wick, is a puzzle in a dark house lit by a lamp the player carries, whose light
+reaches round corners and through doorways only as light that bounces. (`11368439`)
+
+## 2026-10-07
+
+![](../assets/examples/shaders_reflections.webp)
+Glossy surfaces trace their reflections through the window's depth, reading the frame before's
+picture, and on through the scene's distance field, falling back to the probes and the environment
+as they grow rough. (`80227981`)
+
+![](../assets/examples/shaders_cornell_box.webp)
+Light bounces between surfaces through the scene's distance field as hybrid Radiance Cascades, in
+three qualities measured for their memory and GPU time, with a Cornell box and Manor's library as
+reference frames. (`3e00ac64`)
+
+![](../assets/examples/shaders_scene_field.webp)
+A distance field of the scene around the camera, built on the GPU from the meshes that cast shadows
+and stamped with those that move, darkens ambient occlusion beside the screen's, gives the sun soft
+contact shadows and lets particles bounce off what the window does not show. (`f2d99b65`)
+
+![](../assets/examples/jelly.webp)
+A twelfth game, a runner, squashes and stretches by its model's morph targets and records each run
+as automation events, watched again to the same end in the session and from a file in a new one.
+(`37064205`)
+
+![](../assets/examples/slide.webp)
+An eleventh game, the puzzle of merging tiles, is played by gestures, draws its tiles' faces into
+images and makes its sounds as waves, and input.click takes a count so a double tap can be driven.
+(`a9ff8c1b`)
+
+![](../assets/examples/wordfall.webp)
+A tenth game played by typing takes its words from a dropped file, falls them along splines, makes
+its sounds in a stream's callback and copies its result to the clipboard, and a run with no window
+keeps a clipboard of its own. (`01bfcae8`)
+
+![](../assets/examples/sumo.webp)
+A ninth game for two players on one screen splits the window between two cameras drawing into render
+textures, draws with shaders of its own and paints its floor with a compute shader, and e3d makes
+console pads up to the one named so a second player is driven. (`2b5b0873`)
+
+![](../assets/examples/tempo.webp)
+An eighth game, a rhythm game whose notes are judged by the time of the music heard, its song a
+tracker module and its chart written from the same rows, played through by its autopilot, soaked and
+stormed by CI. (`48939b42`)
+
+## 2026-10-06
+
+![](../assets/examples/core_vr_simulator.webp)
+raylib's VR stereo is carried, the 3D of a BeginMode3D drawn once for each eye into each half as
+rlgl draws it, and core_vr_simulator is written with raylib's distortion shader in Slang.
+(`1e26d438`)
+
+![](../assets/examples/audio_module_playing.webp)
+Music opens XM and MOD modules, played by a tracker player of the engine's own that follows
+raylib's, and audio_module_playing is written. (`56564fe2`)
+
+![](../assets/examples/models_skybox_rendering.webp)
+LoadTextureCubemap makes a cube texture a shader's SamplerCube samples, models honor
+rlDisableDepthMask, and models_skybox_rendering is written. (`586670cd`)
+
+![](../assets/examples/core_screen_recording.webp)
+LoadImageFromScreen reads the last frame presented, kept from its first call on, and
+core_screen_recording is written with a GIF writer of its own. (`53d99c7e`)
+
+![](../assets/examples/core_automation_events.webp)
+raylib's automation events are carried, recording each frame's input into its text format and
+playing it back, and core_automation_events is written. (`3082aad5`)
+
+![](../assets/examples/shaders_instance_hues.webp)
+![](../assets/examples/shaders_scene_passes.webp)
+The shaders examples are measured, mesh instancing and postprocessing are raylib's own programs with
+the engine's kept under names of their own, the cube lays its texture as raylib's does, and normals
+under a scaled node keep to their surface. (`0f26acf3`)
+
+![](../assets/examples/shaders_deferred_rendering.webp)
+Draws a render texture into up to four images of their own formats at once, as a G-buffer is,
+carries rlgl's color blend switch, and ports shaders_deferred_rendering. (`692cefee`)
+
+![](../assets/examples/models_loading_m3d.webp)
+Reads Model 3D files as raylib does through m3d.h, a mesh for each run of faces of one material with
+raylib's last bone and its actions posed every 17 milliseconds, and ports models_loading_m3d.
+(`e5ea2a22`)
+
+![](../assets/examples/models_loading_iqm.webp)
+Reads Inter-Quake Models as raylib does, an IQM's skeleton into LoadModel and its clips at the
+file's own frames into LoadModelAnimations, has IsModelAnimationValid compare counts and parents
+with names where a clip has them, and ports models_loading_iqm. (`52304768`)
+
+![](../assets/examples/shaders_lightmap_rendering.webp)
+Carries UpdateMeshBuffer by raylib's index for a mesh's arrays, giving a mesh colors and second
+texture coordinates it lacks, and ports shaders_lightmap_rendering. (`6c0b07ca`)
+
+![](../assets/examples/models_loading_vox.webp)
+Gives a mesh a color and a second texture coordinate at each vertex in buffers of their own, read
+through a second vertex stage only for a mesh that has them, reads MagicaVoxel's files as raylib
+does, and ports models_loading_vox. (`cac05ded`)
+
+![](../assets/examples/core_custom_frame_control.webp)
+![](../assets/examples/core_monitor_detector.webp)
+Carries the monitor's size as raylib's SDL3 backend reckons it, PollInputEvents and SwapScreenBuffer
+for raylib's custom frame control, reads GetTime from the clock as raylib does, and ports
+core_monitor_detector and core_custom_frame_control. (`5916882f`)
+
+![](../assets/examples/audio_mixed_processor.webp)
+![](../assets/examples/audio_stream_effects.webp)
+Carries raylib's audio processors, the mixed ones on SDL3's postmix callback on the audio thread and
+a stream's or a piece of music's as it queues its samples, and ports audio_mixed_processor and
+audio_stream_effects. (`0ea9401c`)
+
+![](../assets/examples/textures_image_processing.webp)
+![](../assets/examples/textures_raw_data.webp)
+Carries raylib's PixelFormat with LoadImageRaw, which reads a format into an image's four bytes a
+pixel, and ImageFormat, which keeps what a format keeps, and ports textures_raw_data and
+textures_image_processing. (`6639650a`)
+
+![](../assets/examples/shaders_depth_writing.webp)
+![](../assets/examples/shaders_hybrid_rendering.webp)
+![](../assets/examples/textures_portal_window.webp)
+Carries rlgl's depth test and mask as draw-list states, its matrix modes with a projection of a
+program's own, and a shader's written depth, and ports shaders_depth_writing,
+shaders_hybrid_rendering and textures_portal_window. (`5e6f1722`)
+
+![](../assets/examples/text_font_loading.webp)
+![](../assets/examples/text_unicode_emojis.webp)
+Reads BMFont's .fnt files in LoadFont, its pages stacked into one atlas and a gray page drawn white
+as raylib does, and ports text_font_loading and text_unicode_emojis. (`c732ac54`)
+
+![](../assets/examples/shapes_top_down_lights.webp)
+![](../assets/examples/textures_magnifying_glass.webp)
+Carries rlgl's custom blend factors and modes into the immediate pass, discards clear texels in 3D
+alone as raylib blends them in 2D, and ports shapes_top_down_lights and textures_magnifying_glass.
+(`73ab123c`)
+
+![](../assets/examples/core_highdpi_demo.webp)
+![](../assets/examples/core_highdpi_testbed.webp)
+![](../assets/examples/core_window_flags.webp)
+Carries raylib's high density, transparent, unfocused, always-run and borderless window flags, tells
+fullscreen from borderless as raylib does, keeps a hidden run's window hidden, and ports
+core_highdpi_demo, core_highdpi_testbed and core_window_flags. (`42f3dfea`)
+
+![](../assets/examples/models_point_rendering.webp)
+![](../assets/examples/shaders_cel_shading.webp)
+![](../assets/examples/shapes_rlgl_triangle.webp)
+Carries rlgl's culling and point mode as states of the draw list and the model pass, winds every
+shape, texture and text as raylib's rshapes.c does so culling keeps them, and ports
+shapes_rlgl_triangle, models_point_rendering and shaders_cel_shading. (`6673c8bd`)
+
+![](../assets/examples/text_3d_drawing.webp)
+![](../assets/examples/text_inline_styling.webp)
+![](../assets/examples/text_rectangle_bounds.webp)
+raylib's three text examples that read glyphs by index are written with GetGlyphInfo by code point,
+and a font's tab draws as raylib's does. (`5c89a408`)
+
+![](../assets/examples/core_2d_camera_mouse_zoom.webp)
+![](../assets/examples/models_rlgl_solar_system.webp)
+![](../assets/examples/models_textured_cube.webp)
+![](../assets/examples/shapes_rectangle_advanced.webp)
+![](../assets/examples/shapes_rlgl_color_wheel.webp)
+![](../assets/examples/textures_polygon_drawing.webp)
+![](../assets/examples/textures_textured_curve.webp)
+rlgl's vertices given one at a time and its matrix stack are carried as raylib's examples call them,
+and seven of those examples are written. (`bdf197ce`)
+
+![](../assets/examples/models_animation_blend_custom.webp)
+![](../assets/examples/models_animation_blending.webp)
+![](../assets/examples/models_animation_gpu_skinning.webp)
+![](../assets/examples/models_decals.webp)
+![](../assets/examples/models_mesh_uv_painting.webp)
+![](../assets/examples/models_procedural_decals.webp)
+The last of raylib's models examples that can be written are, an OBJ's dissolve and a clip's frame
+count are raylib's, and the timing example's keyframe marks show over its bar. (`d52d9651`)
+
+![](../assets/examples/audio_spectrum_visualizer.webp)
+![](../assets/examples/shaders_basic_lighting.webp)
+![](../assets/examples/shaders_basic_pbr.webp)
+![](../assets/examples/shaders_depth_rendering.webp)
+![](../assets/examples/shaders_fog_rendering.webp)
+![](../assets/examples/shaders_game_of_life.webp)
+![](../assets/examples/shaders_lights_bloom.webp)
+![](../assets/examples/shaders_normalmap_rendering.webp)
+![](../assets/examples/shaders_rlgl_compute.webp)
+![](../assets/examples/shaders_shadowmap_rendering.webp)
+![](../assets/examples/shaders_vertex_displacement.webp)
+The rest of raylib's shaders examples and its spectrum visualizer are written, GenImagePerlinNoise,
+DrawSphereWires and the far plane are raylib's, pixels written into a render texture keep their
+place among its drawing, and ImGui is given the mouse buttons in its own order. (`ef042886`)
+
+![](../assets/examples/shaders_ascii_rendering.webp)
+![](../assets/examples/shaders_color_correction.webp)
+![](../assets/examples/shaders_custom_uniform.webp)
+![](../assets/examples/shaders_hot_reloading.webp)
+![](../assets/examples/shaders_julia_set.webp)
+![](../assets/examples/shaders_mandelbrot_set.webp)
+![](../assets/examples/shaders_model_shader.webp)
+![](../assets/examples/shaders_raymarching_rendering.webp)
+![](../assets/examples/shaders_rounded_rectangle.webp)
+![](../assets/examples/shaders_spotlight_rendering.webp)
+Ten more of raylib's shaders examples are written, GetShaderLocation finds array elements and struct
+fields by GLSL's names, and models_mesh_generation is raylib's. (`579b2194`)
+
+![](../assets/examples/shaders_eratosthenes_sieve.webp)
+![](../assets/examples/shaders_multi_sample2d.webp)
+![](../assets/examples/shaders_palette_switch.webp)
+![](../assets/examples/shaders_shapes_textures.webp)
+![](../assets/examples/shaders_simple_mask.webp)
+![](../assets/examples/shaders_texture_outline.webp)
+![](../assets/examples/shaders_texture_rendering.webp)
+![](../assets/examples/shaders_texture_tiling.webp)
+![](../assets/examples/shaders_texture_waves.webp)
+Nine of raylib's shaders examples are written with their GLSL in Slang, and the torus and knot take
+raylib's numbers and planes. (`fc8c3f9c`)
+
+![](../assets/examples/audio_amp_envelope.webp)
+![](../assets/examples/audio_music_stream.webp)
+![](../assets/examples/audio_sound_loading.webp)
+![](../assets/examples/audio_sound_multi.webp)
+![](../assets/examples/audio_sound_positioning.webp)
+![](../assets/examples/audio_stream_callback.webp)
+Six of raylib's audio examples are written from its source, their sounds fetched from raylib's
+examples. (`141eb8eb`)
+
+![](../assets/examples/models_animation_timing.webp)
+![](../assets/examples/models_basic_voxel.webp)
+![](../assets/examples/models_bone_socket.webp)
+![](../assets/examples/models_mesh_picking.webp)
+![](../assets/examples/models_tesseract_view.webp)
+Five more of raylib's models examples are written, and a bone named as a mesh, a joint that weighs
+nothing and a frame between two answer as raylib's do. (`1e47d1af`)
+
+![](../assets/examples/models_billboard_rendering.webp)
+![](../assets/examples/models_box_collisions.webp)
+![](../assets/examples/models_cubicmap_rendering.webp)
+![](../assets/examples/models_directional_billboard.webp)
+![](../assets/examples/models_first_person_maze.webp)
+![](../assets/examples/models_geometric_shapes.webp)
+![](../assets/examples/models_heightmap_rendering.webp)
+![](../assets/examples/models_loading_gltf.webp)
+![](../assets/examples/models_orthographic_projection.webp)
+![](../assets/examples/models_rotating_cube.webp)
+![](../assets/examples/models_waving_cubes.webp)
+![](../assets/examples/models_yaw_pitch_roll.webp)
+Twelve of raylib's models examples are written, shapes_basic_3d takes raylib's name, and the
+cubicmap, single-sided materials and the sphere's winding answer as raylib's do. (`dc13ca69`)
+
+## 2026-10-05
+
+![](../assets/examples/textures_background_scrolling.webp)
+![](../assets/examples/textures_blend_modes.webp)
+![](../assets/examples/textures_cellular_automata.webp)
+![](../assets/examples/textures_clipboard_image.webp)
+![](../assets/examples/textures_fog_of_war.webp)
+![](../assets/examples/textures_framebuffer_rendering.webp)
+![](../assets/examples/textures_gif_player.webp)
+![](../assets/examples/textures_image_channel.webp)
+![](../assets/examples/textures_image_generation.webp)
+![](../assets/examples/textures_image_kernel.webp)
+![](../assets/examples/textures_image_loading.webp)
+![](../assets/examples/textures_image_rotate.webp)
+![](../assets/examples/textures_image_text.webp)
+![](../assets/examples/textures_logo_raylib.webp)
+![](../assets/examples/textures_mouse_painting.webp)
+![](../assets/examples/textures_npatch_drawing.webp)
+![](../assets/examples/textures_particles_blending.webp)
+![](../assets/examples/textures_screen_buffer.webp)
+![](../assets/examples/textures_sprite_animation.webp)
+![](../assets/examples/textures_sprite_button.webp)
+![](../assets/examples/textures_sprite_explosion.webp)
+![](../assets/examples/textures_sprite_stacking.webp)
+![](../assets/examples/textures_srcrec_dstrec.webp)
+![](../assets/examples/textures_tiled_drawing.webp)
+![](../assets/examples/textures_to_image.webp)
+The 25 of raylib's textures examples the flat API can carry are written, and a texture loaded since
+the last frame reads back at once as raylib's does. (`7ba078c8`)
+
+![](../assets/examples/text_codepoints_loading.webp)
+![](../assets/examples/text_font_filters.webp)
+![](../assets/examples/text_font_spritefont.webp)
+![](../assets/examples/text_format_text.webp)
+![](../assets/examples/text_sprite_fonts.webp)
+![](../assets/examples/text_strings_management.webp)
+![](../assets/examples/text_unicode_ranges.webp)
+![](../assets/examples/text_words_alignment.webp)
+![](../assets/examples/text_writing_anim.webp)
+Nine of raylib's text examples are written, and a missing glyph, repeated code points and texture
+filters answer as raylib's do. (`4c7b3f06`)
+
+![](../assets/examples/core_clipboard_text.webp)
+![](../assets/examples/core_compute_hash.webp)
+![](../assets/examples/core_directory_files.webp)
+![](../assets/examples/shapes_kaleidoscope.webp)
+![](../assets/examples/shapes_math_sine_cosine.webp)
+![](../assets/examples/shapes_outlines_testbed.webp)
+![](../assets/examples/shapes_pie_chart.webp)
+![](../assets/examples/shapes_splines_drawing.webp)
+The last eight of raylib's examples that use raygui are written with ImGui in its place, and default
+text below ten pixels and the frame rate's color answer as raylib's do. (`590b9ac3`)
+
+![](../assets/examples/shapes_circle_sector_drawing.webp)
+![](../assets/examples/shapes_hilbert_curve.webp)
+![](../assets/examples/shapes_outlines_thickness.webp)
+![](../assets/examples/shapes_recursive_tree.webp)
+![](../assets/examples/shapes_ring_drawing.webp)
+![](../assets/examples/shapes_rounded_rectangle_drawing.webp)
+![](../assets/examples/shapes_triangle_strip.webp)
+Seven of raylib's shapes examples that use raygui are written with ImGui's controls where raygui's
+stand, in ImGui's light style. (`5ba111bd`)
+
+![](../assets/examples/shapes_ball_physics.webp)
+![](../assets/examples/shapes_clock_of_clocks.webp)
+![](../assets/examples/shapes_drag_puzzle.webp)
+![](../assets/examples/shapes_ellipse_collision.webp)
+![](../assets/examples/shapes_lines_drawing.webp)
+![](../assets/examples/shapes_math_angle_rotation.webp)
+![](../assets/examples/shapes_mouse_trail.webp)
+![](../assets/examples/shapes_penrose_tile.webp)
+![](../assets/examples/shapes_polygon_lines.webp)
+![](../assets/examples/shapes_simple_particles.webp)
+![](../assets/examples/shapes_starfield_effect.webp)
+Eleven more of raylib's shapes examples are written again, among them the clock of clocks, the ball
+physics and the Penrose tiling. (`817e4cea`)
+
+![](../assets/examples/shapes_bullet_hell.webp)
+![](../assets/examples/shapes_dashed_line.webp)
+![](../assets/examples/shapes_digital_clock.webp)
+![](../assets/examples/shapes_double_pendulum.webp)
+![](../assets/examples/shapes_easings_ball.webp)
+![](../assets/examples/shapes_easings_box.webp)
+![](../assets/examples/shapes_easings_rectangles.webp)
+![](../assets/examples/shapes_easings_testbed.webp)
+![](../assets/examples/shapes_vector_angle.webp)
+Nine more of raylib's shapes examples are written again, with raylib's easing functions and two of
+its raymath functions beside them for the examples that call them. (`71dcbdeb`)
+
+![](../assets/examples/shapes_basic_shapes.webp)
+![](../assets/examples/shapes_bouncing_ball.webp)
+![](../assets/examples/shapes_collision_area.webp)
+![](../assets/examples/shapes_colors_palette.webp)
+![](../assets/examples/shapes_following_eyes.webp)
+![](../assets/examples/shapes_lines_bezier.webp)
+![](../assets/examples/shapes_logo_raylib.webp)
+![](../assets/examples/shapes_logo_raylib_anim.webp)
+![](../assets/examples/shapes_rectangle_scaling.webp)
+Nine of raylib's shapes examples are written again, shapes_basic_2d among them under raylib's name
+shapes_basic_shapes, and DrawCircleGradient takes its center as raylib's does now. (`d17fb83d`)
+
+![](../assets/examples/core_input_gestures_testbed.webp)
+![](../assets/examples/core_input_virtual_controls.webp)
+core_input_gestures_testbed and core_input_virtual_controls are raylib's examples written again.
+(`4be25c8e`)
+
+![](../assets/examples/core_2d_camera_platformer.webp)
+![](../assets/examples/core_viewport_scaling.webp)
+core_2d_camera_platformer and core_viewport_scaling are raylib's examples written again, and the
+comparison with raylib names the default filter and samples that differ from its. (`a77f6e5c`)
+
+![](../assets/examples/core_3d_camera_fps.webp)
+The flat API carries raylib's rcamera functions, UpdateCamera moves a camera as raylib's does, and
+core_3d_camera_first_person and core_3d_camera_fps are raylib's examples written again. (`71224507`)
+
+![](../assets/examples/core_2d_camera_split_screen.webp)
+![](../assets/examples/core_3d_camera_mode.webp)
+![](../assets/examples/core_3d_camera_split_screen.webp)
+![](../assets/examples/core_3d_picking.webp)
+![](../assets/examples/core_basic_screen_manager.webp)
+![](../assets/examples/core_custom_logging.webp)
+![](../assets/examples/core_delta_time.webp)
+![](../assets/examples/core_input_actions.webp)
+![](../assets/examples/core_input_keys.webp)
+![](../assets/examples/core_input_mouse.webp)
+![](../assets/examples/core_input_mouse_wheel.webp)
+![](../assets/examples/core_input_multitouch.webp)
+![](../assets/examples/core_keyboard_testbed.webp)
+![](../assets/examples/core_random_sequence.webp)
+![](../assets/examples/core_random_values.webp)
+![](../assets/examples/core_render_texture.webp)
+![](../assets/examples/core_scissor_test.webp)
+![](../assets/examples/core_smooth_pixelperfect.webp)
+![](../assets/examples/core_storage_values.webp)
+![](../assets/examples/core_text_file_loading.webp)
+![](../assets/examples/core_undo_redo.webp)
+![](../assets/examples/core_window_letterbox.webp)
+![](../assets/examples/core_window_should_close.webp)
+![](../assets/examples/core_world_screen.webp)
+Twenty-eight of raylib's core examples are written from its source, and what a program draws between
+frames, into a render texture before BeginDrawing, is drawn. (`14c8b4a1`)
+
+![](../assets/first-game/01.webp)
+![](../assets/first-game/02.webp)
+![](../assets/first-game/03.webp)
+![](../assets/first-game/04.webp)
+![](../assets/first-game/05.webp)
+![](../assets/first-game/06.webp)
+![](../assets/first-game/07.webp)
+![](../assets/first-game/08.webp)
+![](../assets/first-game/09.webp)
+![](../assets/first-game/10.webp)
+![](../assets/first-game/11.webp)
+A first game told from an empty folder in twelve steps, each a whole program the workflow builds and
+runs and the page is tested against. (`d5d2578d`)
+
+![](../assets/examples/tactics.webp)
+A seventh game, a strategy board seen from above with ray picking, a box selection listed in ImGui,
+fog, paths by Dijkstra and A*, a saved match and an opponent, played, soaked and stormed by CI.
+(`7a8360ae`)
+
+![](../assets/examples/manor.webp)
+Manor walks a house of six rooms and its grounds for six lanterns, its cells streamed in and let go,
+its doors on hinges, its menus and settings played with a gamepad alone, and CI plays, soaks and
+storms it. (`9c21b066`)
+
+![](../assets/examples/rally.webp)
+A racing game drives a car of one box on four rays as springs round a dirt road through gates that
+are triggers, physics gains pushes at a point and a body's turn, and rays go through triggers.
+(`b5eb3642`)
+
+![](../assets/examples/shaders_particles.webp)
+Particle emitters, a component and seven flat functions, give off particles a compute shader steps
+and the model pass lights, shown by a campfire example and checked by pixels and a reference.
+(`8aeb778b`)
+
+![](../assets/examples/audio_raw_stream.webp)
+![](../assets/examples/audio_sound.webp)
+![](../assets/examples/core_2d_camera.webp)
+![](../assets/examples/core_3d_camera_first_person.webp)
+![](../assets/examples/core_3d_camera_free.webp)
+![](../assets/examples/core_basic_window.webp)
+![](../assets/examples/core_drop_files.webp)
+![](../assets/examples/core_input_gamepad.webp)
+![](../assets/examples/core_input_gestures.webp)
+![](../assets/examples/core_window_flags.webp)
+![](../assets/examples/ecs_animated_models.webp)
+![](../assets/examples/ecs_behaviors.webp)
+![](../assets/examples/ecs_mesh_entities.webp)
+![](../assets/examples/ecs_physics.webp)
+![](../assets/examples/ecs_states.webp)
+![](../assets/examples/gui_imgui_window.webp)
+![](../assets/examples/hopper.webp)
+![](../assets/examples/models_animation.webp)
+![](../assets/examples/models_loading.webp)
+![](../assets/examples/models_mesh_generation.webp)
+![](../assets/examples/models_morph_and_layers.webp)
+![](../assets/examples/models_reflection_probe.webp)
+![](../assets/examples/models_skybox.webp)
+![](../assets/examples/models_stress.webp)
+![](../assets/examples/models_terrain.webp)
+![](../assets/examples/physics_boxes.webp)
+![](../assets/examples/scenes_level.webp)
+![](../assets/examples/shaders_auto_exposure.webp)
+![](../assets/examples/shaders_bloom.webp)
+![](../assets/examples/shaders_compute_life.webp)
+![](../assets/examples/shaders_compute_texture.webp)
+![](../assets/examples/shaders_mesh_instancing.webp)
+![](../assets/examples/shaders_model.webp)
+![](../assets/examples/shaders_postprocessing.webp)
+![](../assets/examples/shaders_shadowmap.webp)
+![](../assets/examples/summit.webp)
+![](../assets/examples/swarm.webp)
+![](../assets/examples/text_font_sdf.webp)
+![](../assets/examples/text_fonts.webp)
+![](../assets/examples/text_input_box.webp)
+![](../assets/examples/textures_basic.webp)
+![](../assets/examples/textures_bunnymark.webp)
+![](../assets/examples/textures_image_drawing.webp)
+![](../assets/examples/textures_mipmaps.webp)
+![](../assets/examples/textures_render_target.webp)
+The gallery's captures are WebP at the size their window is drawn, lossy for a lit 3D scene and
+lossless for flat color, which takes the folder from 3.4 MB to 876 KB. (`e673197a`)

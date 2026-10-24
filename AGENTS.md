@@ -36,6 +36,7 @@ before scripting a session.
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/REVIEW-ARCHIVE.md](.github/REVIEW-ARCHIVE.md) | What REVIEW.md no longer carries, the items done and the verdicts settled, each under its number |
+| [.github/devlog/README.md](.github/devlog/README.md) | What landed by day, newest first, with the pictures taken on the way |
 | [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
 | [.github/NORM.md](.github/NORM.md) | The numbered rules this engine and BevyCSharp keep, each with what checks it |
 | [.github/ASKS.md](.github/ASKS.md) | What the games built on the engine ask of it, written by the sessions making them and turned into Now items by the reviewing session |
