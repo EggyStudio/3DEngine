@@ -10,29 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `26dbc6da`, item 88's cherry-pick of `e2062092`, its patch the branch's to the line,
-after `ddc20382`, Blockout's capture, and `b6d822ee`, item 63's cherry-pick of `fcfe5bd6`, and
-nothing else, carrying the review's files: the pick's conflicts the cheat sheet, taken as main's and
-written again by its script, and the modeling guide's see-also keeping both lines; on the device 300
-frames and the drive's every assert with no validation error, the capture taken by hand from the
-hall up the stairs, the table at Games 19 and 283 pictures with its check passing; 2,053 passed
-plain and shuffled for item 63 and 2,054 for item 88, reported at 02:5x with no departure. Read at
-02:38 on 2026-10-24. Pushed at 03:22 after the build run of `49d834e1` ended green whole; the run
-watched. Next 71's edge leak with the Blockout spots read as the blotches' fourth form, then 74's
-and 72's cherry-picks; the cloud session has item 72 from 02:33, item 2's cache commit having been
-made at `f4c62380` on 2026-10-20. Items 63, 75 and 77 are whole on `modeling` under the owner's
-identity, read and accepted at 22:41, 00:55 and 01:27; items 88 and 74 are whole on `modeling` from
-the cloud session, `e2062092` and `629c1643`. The branch's own run of `35938065` ended red on
-macOS's ConsoleEvalTests, the eval of the entity count failing on a null reference in the same
-process before the overlay's frame test, read by the coder as the race of item 88 and watched on
-main's runs; the cloud session's whole suite on lavapipe passed 1,987 there at 00:15 on 2026-10-24.
+Reviewed up to `a8f34b35`, item 71's edge leak mended in field_resolve.slang, and nothing else,
+carrying the review's file: the checkerboard cell two blocks meeting at an edge leave is held inside
+at its distance; the bounce rooms at 160 by 90 level to three places in all 27 cases and at 800 by
+450 level to five in every view but the Cornell box at Low, 0.00001 further over blocks of 4, within
+the 2048-path references' own noise, so the covered-fault rule holds; a cascade's build 0.578 ms
+where 0.557 and nothing per frame; the edge room at High 21 to 2 and 20 to 0 with the probes off and
+on, the closed edge 2 and 0; the test a sectioned room as the game meshes it at 640 by 360, since
+the leak is under 4 levels at 320 by 180, reading 2 open and 2 closed where 10 and 7 without,
+failing without the mend; RENDERING.md's line on the resolve with the numbers; 2,055 passed plain
+and shuffled, 116 on lavapipe with the layer. Read at 04:14 on 2026-10-24. Not pushed, the build run
+of `26dbc6da` running; pushed when it ends. Next 71's stepped edges with the Blockout spots read on
+the way, then the noise, the z-fighting and the shift, then 74's and 72's cherry-picks with the
+default's device readings and Ore's capture. Item 74 and item 72's first two parts are whole on
+`modeling`, `629c1643`, `e164ccaa` and `0e908bdf`, the third part in work there under the owner's
+identity; the branch's items 59 to 66, 75 to 78 and 88 are on main.
+
+Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
+at 03:22 on 2026-10-24, their run in flight.
 
 Before it, `49d834e1` came, item 77's captures, pushed at 02:29 on 2026-10-24 with the four of items
 75 and 77, its run green whole.
-
-Before it, `adefc7c1` and `7549a0f9` came, item 77's two cherry-picks, `4e120e87`, Summit's capture,
-and `6ee3c87b`, item 75's cherry-pick, read against the branch at 01:58 on 2026-10-24, pushed at
-02:29 with the head.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -763,7 +761,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     surface whose neighbors along two axes lie inside and whose diagonal lies outside, the
     checkerboard two blocks meeting at an edge leave, reads the open edge as the closed one at no
     cost per frame; the bounce rooms at both sizes and the build's cost running before a commit,
-    under the covered-fault rule.
+    under the covered-fault rule. The edge leak mended at `a8f34b35` on 2026-10-24 under the rule,
+    the numbers in the head; the stepped edges next, the Blockout spots read on the way, then the
+    noise, the z-fighting and the shift. The Blockout spots read at 04:2x on 2026-10-24 as the
+    screen probes' own, smooth with gi.toggle screen off: three probes on the wall 48 px apart read
+    0.40, 0.40 and 0.46 where the hemisphere's reference reads 0.57 to 0.61, each texel's one fixed
+    ray meeting or missing the bright ceiling half a block over the point light, the filter
+    spreading the differences into still spots; the sixth term's mechanism under another source, so
+    its words widen to a bright patch narrower than a probe's texel read by a few fixed rays, the
+    small emitter's near field and the ceiling over a point light its two forms, no new mend, one
+    small commit.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly

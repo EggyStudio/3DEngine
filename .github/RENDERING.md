@@ -2439,13 +2439,15 @@ zero), or cost more than it gave, or left the term as it was.
   twentieth of a weight `bouncedAt` keeps for an unseen probe takes it to 2.81, so the model pass's
   read of the probes there lends it the lamp's light by a way not yet named. The screen's probes
   cover it, the corner reading within its test's bound with them.
-- **A small emitter's near field read by a few fixed rays.** A torch or a lantern carried as a glow
-  light lights the wall it stands against within a few hundredths of a block of its box, and of a
-  probe's sixteen rays, fixed for its tile, one meets that patch where the probes beside it miss it,
-  so the probe reads far over its hemisphere's light and its neighbors under, and the window's
-  filter spreads the excess over its 5 by 5 probes into round spots 20 to 40 pixels across that
-  stand still from frame to frame. In a plank room seven blocks across and four high with a lantern
-  under its ceiling and two torches on its walls, field cell 0.25, at `High` and 960 by 540, a
+- **A bright patch narrower than a probe's texel read by a few fixed rays.** Of a screen probe's
+  sixteen rays, fixed for its tile, one crosses each of its texels, and where a texel holds a
+  bright patch far narrower than it, one probe's ray meets the patch where the probes beside it miss
+  it, so the probe reads far over its hemisphere's light and its neighbors under, and the window's
+  filter spreads the difference over its 5 by 5 probes into round spots 20 to 40 pixels across that
+  stand still from frame to frame. The screen's probes make the spots, and with them left out
+  (`gi.toggle screen off`) the surfaces read smooth. Two forms of it are read. A torch or a lantern
+  carried as a glow light lights the wall it stands against within a few hundredths of a block of
+  its box. In a plank room seven blocks across and four high with a lantern under its ceiling and two torches on its walls, field cell 0.25, at `High` and 960 by 540, a
   ceiling probe reads 0.643 over its hemisphere where a path-traced reference reads 0.079, its ray
   through a torch's patch bringing 1.42 where the reference along it brings 0.659, its neighbors
   read 43 to 46% under (`gi.screenprobe`), and the room shows 8 spots by the voxel game's measure,
@@ -2463,7 +2465,13 @@ zero), or cost more than it gave, or left the term as it was.
   by 0.068 to 0.071 at 800 by 450. A hit within a cell of a light's box taking the light's mean over
   a cell's square about it (a glow light's near field at a probe's hit, above) took them to 7, the
   round spots on the wall and the ceiling standing as before. Each held global illumination's GPU
-  time within 0.1 ms.
+  time within 0.1 ms. A point light a third of a block under a ceiling lights the ceiling over it
+  as brightly. In `games/Blockout`'s hall, whose lamp is a point light 0.3 under the ceiling beside
+  an emissive panel joined to it, three screen probes on the far wall 48 pixels apart read 0.40,
+  0.40 and 0.46 at `High` where the path-traced reference over their hemispheres reads 0.57 to
+  0.61, the texel of each toward the lamp reading 0.94 to 1.06 in the reference over its whole and
+  0.07, 0.23 and 0.39 along its one way, by whether that way meets the bright ceiling about the lamp
+  (`gi.screenprobe` at 1280 by 720).
 
 ## 5. Render targets and post processing
 
