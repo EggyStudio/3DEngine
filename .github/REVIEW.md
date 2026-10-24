@@ -10,30 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `49d834e1`, item 77's captures, and nothing else, carrying the review's files:
-core_day_sky.webp four views in one picture at 6, 12, 18 and 0 by sky.time after 90 frames each, the
-sun at 0, 55, 0 and minus 55 degrees, Summit's capture taken again under its day sky, the gallery
-pictures, captures.tsv and the README's row written by the table script with its check passing, the
-four hours picture made by a scratch script since capture-example.sh takes one view; 2,053 passed
-plain and shuffled for the two cherry-picks, 45 sky and reference tests on lavapipe with the layer,
-the strict build, the pack and the docs check clean. Read at 02:08 on 2026-10-24. Pushed at 02:29
-with the four below after the build run of `b0f652cc` ended green whole at 02:28, its run watched.
-Next 63's cherry-pick, `fcfe5bd6`, with its capture, the device play and the gallery's table run,
-then 88's, `e2062092`, then 71's edge leak, then 74's and 72's cherry-picks; the cloud session has
-item 72 from 02:33, item 2's cache commit having been made at `f4c62380` on 2026-10-20. Items 63, 75
-and 77 are whole on `modeling` under the owner's identity, read and accepted at 22:41, 00:55 and
-01:27; items 88 and 74 are whole on `modeling` from the cloud session, `e2062092` and `629c1643`.
-The branch's own run of `35938065` ended red on macOS's ConsoleEvalTests, the eval of the entity
-count failing on a null reference in the same process before the overlay's frame test, read by the
-coder as the race of item 88 and watched on main's runs; the cloud session's whole suite on lavapipe
-passed 1,987 there at 00:15 on 2026-10-24.
+Reviewed up to `26dbc6da`, item 88's cherry-pick of `e2062092`, its patch the branch's to the line,
+after `ddc20382`, Blockout's capture, and `b6d822ee`, item 63's cherry-pick of `fcfe5bd6`, and
+nothing else, carrying the review's files: the pick's conflicts the cheat sheet, taken as main's and
+written again by its script, and the modeling guide's see-also keeping both lines; on the device 300
+frames and the drive's every assert with no validation error, the capture taken by hand from the
+hall up the stairs, the table at Games 19 and 283 pictures with its check passing; 2,053 passed
+plain and shuffled for item 63 and 2,054 for item 88, reported at 02:5x with no departure. Read at
+02:38 on 2026-10-24. Pushed at 03:22 after the build run of `49d834e1` ended green whole; the run
+watched. Next 71's edge leak with the Blockout spots read as the blotches' fourth form, then 74's
+and 72's cherry-picks; the cloud session has item 72 from 02:33, item 2's cache commit having been
+made at `f4c62380` on 2026-10-20. Items 63, 75 and 77 are whole on `modeling` under the owner's
+identity, read and accepted at 22:41, 00:55 and 01:27; items 88 and 74 are whole on `modeling` from
+the cloud session, `e2062092` and `629c1643`. The branch's own run of `35938065` ended red on
+macOS's ConsoleEvalTests, the eval of the entity count failing on a null reference in the same
+process before the overlay's frame test, read by the coder as the race of item 88 and watched on
+main's runs; the cloud session's whole suite on lavapipe passed 1,987 there at 00:15 on 2026-10-24.
+
+Before it, `49d834e1` came, item 77's captures, pushed at 02:29 on 2026-10-24 with the four of items
+75 and 77, its run green whole.
 
 Before it, `adefc7c1` and `7549a0f9` came, item 77's two cherry-picks, `4e120e87`, Summit's capture,
 and `6ee3c87b`, item 75's cherry-pick, read against the branch at 01:58 on 2026-10-24, pushed at
 02:29 with the head.
-
-Before it, `b0f652cc` came, Verdict 85's mend, pushed at 01:18 on 2026-10-24 with `5af77a40` and
-`d303032d`, its run green whole at 02:28 on 2026-10-24, Verdict 85 settled.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -628,7 +627,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     linear light here, and an unknown route answered in words since a game cannot set a command's
     error code; played on lavapipe through drive-game.sh, the soak and the storm, 239 tests. To
     cherry-pick after items 75 and 77's, with the capture, the device play and the gallery's table
-    run.
+    run. On main as `b6d822ee` with the capture at `ddc20382` on 2026-10-24, held for the push; item
+    63 done.
 
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
@@ -747,7 +747,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     narrows a view and holds the others at the test's precision. The item's other faults follow, the
     edge leak, the stepped edges, the noise, the z-fighting and the shift. The near field mend at
     `d303032d` and the term at `5af77a40` on 2026-10-24; the blotches part done as a term, the edge
-    leak next.
+    leak next. Read by the coder at 02:38 on 2026-10-24 in Blockout at Medium, field 2 cascades of
+    0.25: round spots about 40 px across on every wall, the floor and the stairs at all headings,
+    its lamp a point light of 7 half a meter under the ceiling with no glow light, so outside the
+    sixth term's small emitter; read as the blotches' fourth form after the edge leak, the ceiling's
+    hot patch a bright surface caught by a few fixed probe rays, against the term's words first and
+    a mend under the covered-fault rule only where the words do not cover it. The edge leak read at
+    03:2x on 2026-10-24 in the game's room at High, 4 cascades of 0.25: over 500 by 400 px about the
+    edge's foot the brightest 21 levels open against 2 closed and 0 in the reference, the glow
+    light's own march, since the signed field interpolates to zero or above along the line where two
+    blocks meet so a march through the edge never goes inside, the cone estimate reading a grazed
+    half-seen edge as a faint fan and a march starting within a tenth of a block crossing before its
+    first step as the bright fan at the foot; a march-side share d over cone removed the fan alone
+    at 0.05 to 0.33 ms and is dropped, and a resolve-side rule holding inside a cell outside every
+    surface whose neighbors along two axes lie inside and whose diagonal lies outside, the
+    checkerboard two blocks meeting at an edge leave, reads the open edge as the closed one at no
+    cost per frame; the bounce rooms at both sizes and the build's cost running before a commit,
+    under the covered-fault rule.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -779,7 +795,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     71's second part. Three commits, one a part. Given at 02:33 on 2026-10-24 to the cloud session
     on `modeling` after item 2's commit, the tests on the null device and lavapipe there, Ore's
     capture from a height the local coder's at the cherry-pick; its order against item 71's second
-    part is the cherry-pick's, no upgrading entries (Decision 64).
+    part is the cherry-pick's, no upgrading entries (Decision 64). The first part on `modeling` as
+    `e164ccaa` under the owner's identity after the branch's merge of main at `147a40bc`, 18 files,
+    read at 03:11 on 2026-10-24: the fill cascade fitted to the sphere about the views' slice from
+    the shadow distance to the far planes, drawn into a depth image of its own of one tile after the
+    map and bound beside it, the white texture in its place with no fill, its matrix and texel width
+    in the lighting buffer's slot after the counted cascades' and read as the cascade after the
+    last, blended across the last's outer fifth, the contact shadows counting the cascades alone; at
+    the default camera its texels 3.8 units against the last cascade's 0.11 and its bias 11.7, said
+    in RENDERING.md, the overlay's shadow line and models.draws naming it; a square's shadow at
+    twice the distance dark with the fill and lit without, two fit tests, and three ground tests
+    past the distance setting the fill off since they hold the cascades' end; 521 passed on
+    lavapipe. The field's far cascade under way. The third part's phrase read with the cloud session
+    at 03:2x on 2026-10-24: the ground half of the hemisphere term takes the sun through the shadow
+    map at the point, the sky half untouched by the shadow, the fade across the last cascade's outer
+    eighth as CascadeEdgeTests holds it, the item's tenth a round word. The shadow read not at the
+    surface's own point, where every face turned from the sun reads shadowed, but at the ground the
+    face looks at, the point moved along its normal by a cell of the coarsest built cascade, nine
+    taps more for the pixels past the probes alone, so a hill's shaded side takes the sunlit ground
+    before it as it does inside the field; the cloud session's proposal, taken at 03:2x. The second
+    part on `modeling` as `0e908bd` under the owner's identity, read at 03:48 on 2026-10-24:
+    SetSceneField's farCascade and SceneFieldConfig.FarCascade add a far cascade of 64 cells a side
+    after the counted ones, its cell as wide as reaching the distance ahead takes, held to the far
+    plane, at least twice the last counted cascade's and rounded to a sixteenth of that so a far
+    plane read from the matrix gives the same cells each frame, 0 by default; planned, built,
+    stamped and budgeted as the others, finest first, with a cascade of probes after the quality's
+    following the one before's directions; field.state naming it and the field's memory; a
+    first-cascade probe toward a black wall 40 units off reading 1.14 of a sky of pi with it against
+    3.14 without; on lavapipe the Cornell box's global illumination 222 to 263 ms for a third more
+    rays and Ore's 445 to 509 for a quarter more, the memory 27 to 32.5 MB; 940 passed. The distant
+    ambient next.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -908,7 +953,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     ConsoleBuiltinsTests, ConsoleEvalTests, FrameProfileTests and CliTests move to the E3D
     collection, the Console collection left empty, eval answering EVAL_NO_WORLD, named in E3D.md,
     with the test failing without the mend; 291 tests of the lending folders pass on lavapipe. To
-    cherry-pick after item 63's.
+    cherry-pick after item 63's. On main as `26dbc6da` on 2026-10-24, the patch the branch's to the
+    line, held for the push; item 88 done.
 
 ## Verdicts
 

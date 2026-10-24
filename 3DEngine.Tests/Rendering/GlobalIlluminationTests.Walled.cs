@@ -63,6 +63,74 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(cube);
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void Two_Blocks_Meeting_Along_An_Edge_Close_It_To_A_Glow_Lights_Light()
+    {
+        // The voxel game's room of stone whose wall steps a block east halfway, its two halves
+        // meeting along one edge alone, with a glowstone west of the edge and the eye east of it, so
+        // no ray from the glowstone reaches what the eye sees but through the edge itself. The
+        // field's cells about the edge lay inside the blocks on one diagonal and outside them on the
+        // other, the distance between them never below zero along the edge, and the march from the
+        // floor to the glowstone saw half of it through the edge, the floor about the edge's foot 10
+        // sRGB levels at 640 by 360 at High on the development machine's GPU and 7 with the edge
+        // closed by a block, where a path-traced reference reads none. With the cells about such an
+        // edge held inside it reads 2 either way.
+        var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetGlobalIlluminationScreenProbes(false);
+        SetAmbientLight(Color.Black, 0);
+        var glowstone = (X: 15, Y: 5, Z: -14);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0].Emissive = new Color(255, 200, 120);
+        cube.Materials[0].EmissiveIntensity = 4;
+        // The game's eye 1.62 over the block it stands on, facing 225 degrees and 32 down.
+        var eye = new Vector3(21.2f, 6.62f, -20.2f);
+        float heading = 225 * MathF.PI / 180, pitch = -32 * MathF.PI / 180;
+        var camera = new Camera3D(eye, eye + new Vector3(MathF.Sin(heading) * MathF.Cos(pitch), MathF.Sin(pitch), -MathF.Cos(heading) * MathF.Cos(pitch)), Vector3.UnitY, 70);
+        int Brightest(bool closed)
+        {
+            // voxel.room 10 4 -22 22 11 -10 stone, a shell a block thick, and the wall's halves.
+            var stone = new HashSet<(int X, int Y, int Z)>();
+            for (int x = 10; x <= 22; x++)
+                for (int y = 4; y <= 11; y++)
+                    for (int z = -22; z <= -10; z++)
+                        if (x is 10 or 22 || y is 4 or 11 || z is -22 or -10)
+                            stone.Add((x, y, z));
+            for (int y = 5; y <= 10; y++)
+            {
+                for (int z = -21; z <= -16; z++) stone.Add((16, y, z));
+                for (int z = -15; z <= -11; z++) stone.Add((17, y, z));
+                if (closed) stone.Add((16, y, -15));
+            }
+            var section = LoadModelFromMesh(Section(stone, [glowstone]));
+            var frame = Capture(() =>
+            {
+                DrawModel(section, Vector3.Zero, 1, new Color(130, 130, 130));
+                DrawModel(cube, new Vector3(glowstone.X + 0.5f, glowstone.Y + 0.5f, glowstone.Z + 0.5f), 1, new Color(181, 154, 87));
+            }, camera);
+            UnloadModel(section);
+            // The brightest pixel about the edge's foot, where the light through the edge fanned
+            // over the floor.
+            var foot = GetWorldToScreenEx(new Vector3(17, 5, -15), camera, frame.Width, frame.Height);
+            var most = 0;
+            for (int y = Math.Max(0, (int)foot.Y - 50); y < Math.Min(frame.Height, (int)foot.Y + 150); y++)
+                for (int x = Math.Max(0, (int)foot.X - 125); x < Math.Min(frame.Width, (int)foot.X + 125); x++)
+                {
+                    var c = GetImageColor(frame, x, y);
+                    most = Math.Max(most, (c.R * 299 + c.G * 587 + c.B * 114) / 1000);
+                }
+            return most;
+        }
+
+        var (open, shut) = (Brightest(false), Brightest(true));
+        open.Should().BeLessThanOrEqualTo(shut + 2, $"no light passes the edge the wall's halves meet along, the brightest about its foot {open} levels with it open and {shut} with it closed");
+        open.Should().BeLessThanOrEqualTo(4, "the floor about the edge's foot is as dark as a path-traced reference's, but for a level or two");
+        UnloadModel(cube);
+    }
+
     // The faces of the blocks given, a unit cube each at its corner, where no block of their own or
     // of those drawn apart lies against them.
     private static ModelMesh Section(HashSet<(int X, int Y, int Z)> blocks, (int X, int Y, int Z)[] apart)

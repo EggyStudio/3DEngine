@@ -591,7 +591,18 @@ from OBJ files, need. A closed wall thinner than a cell may have no cell's middl
 and a cell in front of one face and less than a cell before another straight behind it that looks
 the other way takes the middle of the two, less half a cell, so the wall is held as the sheet is.
 The faces of a box's edge, which meet square, are not taken for a wall. It took a cascade's build
-in `shaders_scene_field` from 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
+in `shaders_scene_field` from 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A cell
+outside every surface whose neighbors along two axes lie inside one while the cell across the
+diagonal from it lies outside, the pattern the cells about an edge two blocks meet along make and
+no single face makes, is held inside at its distance. Between the four cells about such an edge
+the distance never fell below zero, so in the voxel game's room of stone whose wall steps a block
+over halfway, its halves meeting along one edge, a march from the floor east of the wall saw half
+of a glowstone west of it through the edge, and the floor about the edge's foot read 21 sRGB
+levels at 1280 by 720 at `High` with the screen's probes left out and 20 with them, where a
+path-traced reference reads none and the edge closed by a block 2 and 0; held inside, it reads 2
+and 0 (`GlobalIlluminationTests`). No view of the bounce rooms moves from its reference by 0.001 at
+800 by 450 or at 160 by 90, and a cascade's build in `shaders_scene_field` takes 0.578 ms where
+0.557 on the development machine's GPU (`field.rebuild 4000`). A second
 dispatch of the splat paints each cell the color and the emission of the triangle whose word
 it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), times its vertices' colors where its mesh has them, each corner's

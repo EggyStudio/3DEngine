@@ -78,14 +78,10 @@ float3 way(uint bits)
     return normalize(n);
 }
 
-[shader("compute")]
-[numthreads(4, 4, 4)]
-void computeMain(uint3 id : SV_DispatchThreadID)
+// The distance a cell holds, from the code field_splat.slang left it and the face it lies behind.
+float resolvedAt(uint3 c, uint size)
 {
-    uint size = uint(push.cascade.y);
-    if (any(id >= size))
-        return;
-    uint code = cells[(id.z * size + id.y) * size + id.x];
+    uint code = cells[(c.z * size + c.y) * size + c.x];
     float d = min(float(code >> 10) / 1024.0, push.cascade.w) * push.cascade.z;
     // A cell in front of one face and straight behind another that looks the other way, less than
     // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
@@ -94,7 +90,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // one. Held so only below half a cell, a wall of two thirds of a cell lay between two cells'
     // middles, each a sixth of a cell outside it, which a trace stepped over, and the lamp outside
     // a room of such walls lit its floor through them.
-    uint hidden = behind[(id.z * size + id.y) * size + id.x];
+    uint hidden = behind[(c.z * size + c.y) * size + c.x];
     float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
     bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
@@ -103,6 +99,49 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     else if (thin)
         d = (d + beyond) * 0.5 - push.cascade.z * 0.5;
     else if ((code & 0x100u) == 0u)
+        d = -d;
+    return d;
+}
+
+// Whether a cell outside every surface lies between two cells beside it along two axes that lie
+// inside one while the cell across the diagonal from it lies outside, the pattern two blocks that
+// meet along an edge leave in the cells about it, which no single face makes.
+bool pinched(uint3 c, uint size)
+{
+    int3 axes[3] = { int3(1, 0, 0), int3(0, 1, 0), int3(0, 0, 1) };
+    [loop]
+    for (int a = 0; a < 3; a++)
+        [loop]
+        for (int b = a + 1; b < 3; b++)
+            [loop]
+            for (int signs = 0; signs < 4; signs++)
+            {
+                int3 one = int3(c) + axes[a] * ((signs & 1) != 0 ? 1 : -1);
+                int3 other = int3(c) + axes[b] * ((signs & 2) != 0 ? 1 : -1);
+                int3 across = one + other - int3(c);
+                if (any(min(min(one, other), across) < 0) || any(max(max(one, other), across) >= int(size)))
+                    continue;
+                if (resolvedAt(uint3(one), size) < 0.0 && resolvedAt(uint3(other), size) < 0.0 && resolvedAt(uint3(across), size) > 0.0)
+                    return true;
+            }
+    return false;
+}
+
+[shader("compute")]
+[numthreads(4, 4, 4)]
+void computeMain(uint3 id : SV_DispatchThreadID)
+{
+    uint size = uint(push.cascade.y);
+    if (any(id >= size))
+        return;
+    uint code = cells[(id.z * size + id.y) * size + id.x];
+    // Such a cell is held inside at its distance, so a march through the edge between the two
+    // blocks meets the field there, where between the four cells about the edge the distance never
+    // fell below zero, and a march from the floor east of a wall whose halves met along one edge
+    // saw half of a glowstone west of it, the floor about the edge 21 sRGB levels where a
+    // path-traced reference reads none (GlobalIlluminationTests).
+    float d = resolvedAt(id, size);
+    if (d > 0.0 && pinched(id, size))
         d = -d;
     uint3 at = uint3(id.xy, id.z + uint(push.cascade.x) * size);
     stillField[at] = d;
