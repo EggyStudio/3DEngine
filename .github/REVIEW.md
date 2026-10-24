@@ -10,30 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `89154675`, item 96's second mend, the sky's share folded into the world probes'
-gather, read at 17:31 on 2026-10-24, carrying REVIEW.md. bouncedIn takes the skies' faces the ray
-looks toward in the same gather, bouncedAndSkyAt gives both, and litLight takes the sky there where
-it reads the world probes and keeps the seen sky elsewhere; the grove at 1920 by 1080 at High reads
-the scene pass 8.9 ms where 10.1 stood at matched clocks; the far scene identical, the day sky at
-hour 16 differing in 309 and 31 of 230,400 pixels by one level of 255, the reordered sum's rounding.
-2,075 plain and shuffled, the strict build clean, lavapipe with validation 118 passed and 12 skipped
-over the global illumination, field, bounce room, cascade edge and reference frame tests. Pushed at
-17:58 on 2026-10-24 after the build run of `ff2c5175` went green whole, the run watched. Item 96
-begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of
-the per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
-window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
-over the window's depth with a two by two depth and normal read, as the glow pass has. Next 101, the
-shadow-only draw for the game's culled casters, then 102, the far cascade's slab, then 103, the
-screen probes' one switch, then 96, the scene pass's read of the cascades and the shadow fill, then
-100, the field's foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words
-on the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
-help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
-branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
-by.
+Reviewed up to `1b497b3b`, item 96's third mend, the glow lights' box, read at 18:50 on 2026-10-24,
+carrying REVIEW.md and ASKS.md. The branch colouring at the grove at 1920 by 1080 read
+glowLightsHere's exits, an alike texel 57.9 percent of the pixels, any texel 2.5, marched with no
+texel 22.3, the far land drawn with the game's blended haze material and the clouds both missing
+from the window's depth, marched for an ask 0.34, no glow lights 0, sky or unlit 17; glowCounts.yzw
+and a new glowHigh hold the box every glow light's reach lies in, GlowLights.Head 32 bytes, and
+glowLightsAt returns none for a point outside it before the loop over the lights, the same light
+since every fade is 0 there; the scene pass 8.4 ms where 9.1 stood, 9.5 where 10.2 in the noisier
+pair, the frames differing by 2 to 8 pixels with and without, within two runs of the same shaders;
+GlowLightsTests asserts the box. 2,075 plain and shuffled, lavapipe with validation 60 passed and 12
+skipped. Pushed at 19:11 on 2026-10-24 after the build run of `89154675` went green whole, the run
+watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
+1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 101, the shadow-only draw for the game's culled casters, then 104 to 106, the
+ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one
+switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the field's
+foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and
+the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then item
+89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch
+`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
-Before it, `ff2c5175` came, item 96's first mend, pushed at 16:45 on 2026-10-24, its build run green
-whole at 17:54, Windows in 69 minutes, Linux in 58 and macOS in 31, its pack run in flight for the
-second package.
+Before it, `89154675` came, item 96's second mend, the sky fold, pushed at 17:58 on 2026-10-24, its
+build run green whole at 19:08, Linux in 61 minutes, Windows in 57 and macOS in 29.
 
 Before it, `e2a203d9` came, item 99, pushed at 15:26 on 2026-10-24, its build run green whole at
 16:42, Windows in 75 minutes, Linux in 57 and macOS in 36.
@@ -1131,26 +1132,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     about 1 and the rough light per texel about 0.6), the trace 0.2 and the ground read 0. The
     second mend at `89154675`, the sky's share folded into the gather, the scene pass 8.9 ms where
     10.1 stood, exact to a level's rounding. The game read 5.2.281's shadow fill at about 4 ms of
-    the shadows pass at the grove, 5.2 to 5.9 against 1.0, a cut to read beside the others. Next by
-    gain for cost, the glow lights' fallback march read for which texels send pixels to it and cut
-    where the reading says, then a half-size pass over the window's depth writing the world probes'
-    light and the sky's share, read two by two by depth and normal with the per-pixel read where no
-    texel is alike, about 2 to 2.5 ms, a new stage with its images and bindings, the bounce rooms
-    against their references at both sizes and the grove's edges captured against the full-size
-    read.
+    the shadows pass at the grove, 5.2 to 5.9 against 1.0, a cut to read beside the others. The
+    third mend at `1b497b3b`, read at 18:50, the glow lights' box skipping the loop for a point
+    outside every light's reach, the scene pass 8.4 ms where 9.1 stood, the march's share read as
+    22.3 percent of the pixels marched with no texel, the far land's haze material and the clouds
+    missing from the window's depth, which the game's side may take. Next a half-size pass over the
+    window's depth writing the world probes' light and the sky's share, read two by two by depth and
+    normal with the per-pixel read where no texel is alike, about 2 to 2.5 ms, a new stage with its
+    images and bindings, the bounce rooms against their references at both sizes and the grove's
+    edges captured against the full-size read.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
-    voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry to come. The game moved its
-    held light to the eye's point and the play job on lavapipe read the lit roof black at its probe,
-    the frame shot through with black specks, where the GPU shaded it 109, 68, 29; the shadow cube,
-    the contact shadows and the global illumination each off left the specks, and the light a third
-    of a block under the eye made the frame clean, so the fault is in the engine's shading of a
-    point light whose point is the camera's, a value undefined where the light's vector and the
-    view's coincide or the light's point in view space is the origin, as item 90's normal was. The
-    cause read on lavapipe with the validation layer, the mend a guard at the degenerate value as
-    item 90's, and a test in the Linux suite lighting a bounce room by a point light at the camera's
-    own point and reading the frame for black pixels, red before the mend. One commit, after item
-    95.
+    voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game
+    moved its held light to the eye's point and the play job on lavapipe read the lit roof black at
+    its probe, the frame shot through with black specks, where the GPU shaded it 109, 68, 29; the
+    shadow cube, the contact shadows and the global illumination each off left the specks, and the
+    light a third of a block under the eye made the frame clean, so the fault is in the engine's
+    shading of a point light whose point is the camera's, a value undefined where the light's vector
+    and the view's coincide or the light's point in view space is the origin, as item 90's normal
+    was. The cause read on lavapipe with the validation layer, the mend a guard at the degenerate
+    value as item 90's, and a test in the Linux suite lighting a bounce room by a point light at the
+    camera's own point and reading the frame for black pixels, red before the mend. One commit,
+    after item 95.
 
 100. **The field lets a share of light through a cell marked as foliage.** From the voxel game's
     reading of 2026-10-24, read at 14:02, its ASKS.md entry of 2026-10-24 carrying the table of its
@@ -1225,6 +1228,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     debug toggles with a line saying it is for reading the trace's cost; the game's F3 checkbox then
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
+
+104. **A test runs an app's behaviors through the package.** From the voxel game's first ECS piece,
+    the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
+    2026-10-24; a gap the port finds comes to the engine first, Decision 68. App.AddPlugin and Frame
+    are internal in the package, so the game's tests step a bare EcsWorld through twins of its
+    systems that take the world as an argument. The engine gives a test the way to build an App with
+    its plugins and step its frames without a window, through the package's public surface, as the
+    engine's own tests do inside, with the guide's page on testing a game showing it; a test in the
+    engine's suite stepping a behavior through it. One commit, small, after item 101 and before 102.
+
+105. **A Query reaches past three components.** From the voxel game's first ECS piece, the drops as
+    entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of 2026-10-24; a gap
+    the port finds comes to the engine first, Decision 68. Query stops at three components and the
+    game's mobs will need more. Query takes up to six, or a tuple of any count where the generator
+    allows it, with the same iteration and ref access, the cheat sheet's line and the guide's page
+    following; a test over a query of five components. One commit, small, after item 104.
+
+106. **A behavior holds what it needs, or the guide says why not.** From the voxel game's first ECS
+    piece, the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
+    2026-10-24; a gap the port finds comes to the engine first, Decision 68. E3D006 forbids a
+    reference-type field in a behavior, so a stack keeps an ItemId and looks the Item up each time.
+    The reason read and said, whether the ECS's storage copies behaviors so a reference would be
+    shared or stale, and then either the analyzer allowing a reference to an immutable record with
+    the rule's text saying when, or the guide's page saying the id pattern is the way and why, with
+    the voxel game's drops as the example; the game's record follows whichever. One commit, small,
+    after item 105 and before 102.
 
 ## Verdicts
 
@@ -1837,6 +1866,16 @@ Verdicts 56 to 87 are settled, said under each in REVIEW-ARCHIVE.md; none is ope
     GTK plugin, installed on the owner's machine, draws a GTK3-style frame with rounded top corners,
     square bottom corners and its own drop shadow inside the app. Item 92; the user's own
     environment variable keeps precedence, and a session without X11 falls back to what SDL finds.
+
+70. **A session saves the pictures of its work in the repository, N 4.8.** The owner wrote at about
+    18:5x on 2026-10-24 that BevyCSharp's session had kept none of the day's radiance cascade
+    captures, which they would have loved to see, the session answering that no document said the
+    pictures in progress should be saved, and asked for the rule written where the sessions read it
+    and the same in the three repositories, as the voxel game does and the engine partly did. N 4.8
+    says it, one text in both engines' NORM.md and the game's, the engines' pictures under
+    .github/assets/readings/ and the game's under .github/devlog/, each a WebP named by the date and
+    the item in the commit of its work with the commit's sentence as its caption, DEVLOG.md
+    generated from them.
 
 ## Replies
 

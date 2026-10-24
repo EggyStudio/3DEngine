@@ -1,0 +1,3 @@
+2026-10-24-item-96-glow-branches.webp | The voxel game's cherry grove at 1920 by 1080 with each pixel colored by how the glow lights' read left it, green for a texel like its own, yellow for any texel, red for a march an ask sent it to and magenta for a march with no texel, the far land and the clouds a fifth of the frame.
+2026-10-24-item-96-grove.webp | The cherry grove the scene pass is timed at, drawn on 5.2.215 above and on the engine's HEAD below.
+2026-10-24-item-101-cave-culling.webp | The deep cave's tops 45 blocks in at noon, above with the game drawing only the sections its eye sees and the sun on the tops and their edges, below with every section drawn, the levels three times their own.

@@ -148,6 +148,61 @@ public sealed class ModelShadowTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Roof_Drawn_Into_The_Shadow_Maps_Alone_Keeps_The_Sun_Off_A_Cave_And_Is_Seen_Nowhere()
+    {
+        // A cave's floor with slabs on it 4 to 90 units out and its roof 45 units over the floor,
+        // which a game drawing only what its eye sees leaves out of the view from inside, as the
+        // voxel game leaves out the rock over its caves, the eye 30 units up looking down so each
+        // slab's top is a few pixels deep. Left out, the sun reaches the tops at the game's shadow
+        // distances, as it reached the game's at 45 blocks; drawn into the shadow maps alone, the
+        // roof keeps them dark and shows nowhere, so from above the floor is seen through it in its
+        // shadow.
+        var config = Config.Default.WithWindow("cave roof test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetAmbientLight(Color.Black, 0);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.3f, -1, 0.2f)), Color.White, 3, castsShadows: true);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var roof = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        roof.Materials[0] = new ModelMaterial(Color.Gray) { ShadowOnly = true };
+        var eye = new Vector3(0, 30, 0);
+        var inside = new Camera3D(eye, eye + new Vector3(0, -0.766f, -0.643f), Vector3.UnitY, 70);
+        var above = new Camera3D(new Vector3(0, 90, 20), new Vector3(0, 0, -20), Vector3.UnitY, 50);
+        float[] distances = [4, 10, 25, 45, 90];
+        Image Drawn(Camera3D camera, bool roofed, string name) => Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(block, new Vector3(0, -0.5f, -150), Vector3.UnitY, 0, new Vector3(400, 1, 400), Color.Gray);
+            foreach (var d in distances) DrawModelEx(block, new Vector3(0, 0.5f, -d), Vector3.UnitY, 0, new Vector3(4, 1, 4), Color.White);
+            if (roofed) DrawModelEx(roof, new Vector3(0, 50, -150), Vector3.UnitY, 0, new Vector3(400, 10, 400), Color.Gray);
+            EndMode3D();
+        }, name);
+        int Lit(Image image, Camera3D camera, Vector3 at)
+        {
+            var pixel = GetWorldToScreenEx(at, camera, 640, 360);
+            var c = GetImageColor(image, (int)pixel.X, (int)pixel.Y);
+            return Math.Max(c.R, Math.Max(c.G, c.B));
+        }
+
+        foreach (var reach in new[] { 96f, 150f })
+        {
+            SetShadowDistance(reach);
+            var open = Drawn(inside, false, $"open-{reach}");
+            var roofed = Drawn(inside, true, $"roofed-{reach}");
+            foreach (var d in distances)
+            {
+                Lit(open, inside, new Vector3(0, 1, -d)).Should().BeGreaterThan(100, $"with no roof the sun reaches the block {d} units out at a shadow distance of {reach}");
+                Lit(roofed, inside, new Vector3(0, 1, -d)).Should().BeLessThan(8, $"the roof drawn into the shadow maps alone keeps the sun off the block {d} units out at {reach}");
+                Lit(roofed, inside, new Vector3(3.5f, 0, -d)).Should().BeLessThan(8, $"and off the floor {d} units out at {reach}");
+            }
+        }
+        var fromAbove = Drawn(above, true, "above");
+        Lit(fromAbove, above, new Vector3(5, 55, -20)).Should().BeLessThan(8, "the roof's sunlit top is not drawn, and the floor seen through it lies in its shadow");
+        UnloadModel(block);
+        UnloadModel(roof);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shader_That_Reads_The_Suns_Shadow_Itself_Lights_By_Its_Read_In_Place_Of_The_Point()
     {
         // A block two units high on a floor under a sun along x and down, whose shadow lies from

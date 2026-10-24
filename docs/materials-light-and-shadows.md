@@ -71,7 +71,10 @@ untouched. `shaders_bloom` runs it, with B turning it off and on. An emissive or
 shadow like any surface unless its material's `CastsShadows` is false, as `games/Summit`'s orbs'
 are. A material's `BouncesLight`, true unless set, says whether global illumination holds the
 surface, and a mesh with it false casts its shadow all the same, as
-[The scene as a distance field](#the-scene-as-a-distance-field) says.
+[The scene as a distance field](#the-scene-as-a-distance-field) says. A game that draws only what
+its view can see, as the voxel game leaves out the rock over a cave, draws what it leaves out
+between the view and the sun through a material with `ShadowOnly` set, which casts the shadow and
+is drawn nowhere else, so the sun stays off the cave's floor.
 
 ```csharp
 SetBloom(0.8f);

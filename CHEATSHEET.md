@@ -755,8 +755,9 @@ a `Texture`, so `model.Materials[0].Texture = texture;` textures a mesh, with `M
 `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets, `CastsShadows` (true
 by default), false for an emissive mesh that leaves no shadow, `BouncesLight` (true by default),
 false for a mesh that moves in most frames, as an animal, which casts its shadow and is left out of
-global illumination, and a `SubsurfaceRadius` in world units with
-its `SubsurfaceColor`, how far each color travels under skin, wax or marble before it leaves, which
+global illumination, `ShadowOnly` (false by default), true for a mesh drawn into the shadow maps
+alone, as the rock a game's view leaves out between the view and the sun, and a `SubsurfaceRadius`
+in world units with its `SubsurfaceColor`, how far each color travels under skin, wax or marble before it leaves, which
 the window's frame spreads, and a `SubsurfaceThickness`, how thick its parts are at most for the
 light from behind, as a glTF file's `KHR_materials_volume` says. Models are drawn unlit, as raylib
 draws them, until the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.

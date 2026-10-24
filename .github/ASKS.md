@@ -739,6 +739,10 @@ and moving the light off the camera's point clears them. The engine lacks a guar
 the camera's own point, whatever term divides by its distance there. The game keeps its held light
 a third of a block under the eye meanwhile, still at the player's own place.
 
+Review: item 97 of REVIEW.md, 2026-10-24; the cause read on lavapipe with the validation layer, a
+guard at the degenerate value as item 90's, a test in the Linux suite lighting a room by a point
+light at the camera's point; after item 89.
+
 ### 2026-10-24, the voxel game in `Voxel-Sandbox`, the sun's shadow cannot be read at a point of the program's choosing within `litLight`
 
 The game's terrain shader steps the sun's shadow along an eight-by-eight grid on each face, as the
@@ -858,3 +862,41 @@ draws. The game leaves the far cascade off meanwhile.
 Review: item 102 of REVIEW.md, 2026-10-24; the far cascade read only by a ray that leaves the
 counted cascades, its near cells taking no part within the counted reach, the cost read; after item
 101.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a test cannot run a behavior's systems through the engine's frame
+
+Read at the game's `5113176` on the 3DEngine 5.2.281 package, where a stack lying in the world became
+an entity with an `ItemDrop` behavior and a `Body`, its systems `[OnPreUpdate] Fall`,
+`[OnUpdate] PickUp` and `[OnPostUpdate] Gather`. `App.AddPlugin` and `App.Frame` are internal in the
+package, and `Engine3D.UseApp` with them, so a test in the game's own project can build an
+`EcsWorld` but cannot add `BehaviorsPlugin` to an `App` and step a frame, and no test reads the
+order of the stages or a resource reaching a system as the game's frame gives it. The engine lacks
+a public way for a test to step an app's schedule a frame at a time without a window. The game
+gives each system a twin that takes the `EcsWorld` and its inputs as arguments, which the tests call
+in the stages' order by hand, 288 tests in about 14 s.
+
+Review: item 104 of REVIEW.md, 2026-10-24; a test builds an app with its plugins and steps its
+frames without a window through the package's public surface; after item 101.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a query reaches three components at most
+
+`EcsWorld.Query` takes one to three component types (`3DEngine/Ecs/EcsWorld.API.cs`, `Query<T1, T2,
+T3>`). The stacks need two, an `ItemDrop` and a `Body`, and the mobs to come carry a body, a kind,
+health, an aim, a path and a pose, read together each tick. The engine lacks a query over four or
+more components, or one whose further components are read by `GetRef` at no lookup's cost. The game
+will query the two or three read most and fetch the rest by `GetRef` per entity meanwhile.
+
+Review: item 105 of REVIEW.md, 2026-10-24; Query over up to six components, or a tuple of any count,
+with the same iteration and ref access; after item 104.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a behavior cannot hold a reference to data no entity changes
+
+E3D006, a warning the game's strict build fails on, refuses a field of a reference type in a
+behavior, since entities run in parallel could change it at once. A stack's item is a class the game
+keeps one of for each item and never changes while it plays, so the stack holds the item's id and
+looks it up in `Items.All` at each read. The engine lacks a way to say a field's reference is read
+only, as an attribute on the field or a type the generator accepts as immutable, so data shared and
+never written can sit in the struct. The game keeps ids meanwhile.
+
+Review: item 106 of REVIEW.md, 2026-10-24; the reason read and said, then the analyzer allowing a
+reference to an immutable record or the guide saying the id pattern is the way; after item 105.

@@ -2570,6 +2570,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   bool CastsShadows { get; set; }
   bool DoubleSided { get; set; }
   bool Equals(ModelMaterial other)
+  bool ShadowOnly { get; set; }
   float AlphaCutoff { get; set; }
   float EmissiveIntensity { get; set; }
   float Metallic { get; set; }

@@ -204,6 +204,16 @@ asked, allowed, admitted, wants, sets, files or publishes, and for `REVIEW.md` i
 author reads; a word that means a thing's owner in the code, a widget's or a handle's, is not a
 name.
 
+**N 4.8 A picture a session makes while it works, a reading, a pair before and after a mend or a
+capture sent to the owner, is saved in the repository in the commit of the work it belongs to.** The
+pictures are the devlog's substance, and one left in a session's scratch space is gone with the
+session, as a day's radiance cascade captures were. Each is a WebP under `.github/assets/readings/`,
+named by the date and the item, as `2026-10-24-item-51-emitters.webp`, and its caption in DEVLOG.md,
+which is generated from them, is the line the folder's `captions.md` gives it, the file's name then
+a bar then one sentence, or the commit's sentence where the file has none; a picture of no item
+takes the day and a name. By review, the reviewer reading each commit for the pictures its report
+names.
+
 ## 5 Examples and games
 
 **N 5.1 An example has the followed engine's name for it where that engine has one, is opened by
@@ -336,6 +346,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.5 | checked, `NormTests`, 20 left out | checked, `NormTests` |
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
+| N 4.8 | by review | by review |
 | N 5.1 | checked, the pack workflow's capture of every example | checked, the pack workflow's capture of every example |
 | N 5.2 | checked, `NormTests.N_5_2` before a commit and `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the pack workflow's games | checked, the pack workflow's Courtyard |

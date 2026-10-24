@@ -136,7 +136,7 @@ internal sealed partial class ModelRenderer
     // 6, clamping depth for a shadow map, each made the first time it is drawn with.
     private IPipeline ShadowPipeline(in Batch batch, bool clamp)
     {
-        var masked = batch.Shadow == ShadowKind.Masked;
+        var masked = IsMasked(batch.Shadow);
         var positions = batch.Mesh.PositionsOnly;
         var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
         return _shadowPipelines[(masked ? 4 : 0) + (positions ? 2 : 0) + (clamp ? 1 : 0)] ??= MakePipeline(device, depthOnly, renderWorld,
@@ -162,11 +162,11 @@ internal sealed partial class ModelRenderer
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (batch.Shadow == ShadowKind.None) continue;
-            var own = batch.Shadow == ShadowKind.Masked && batch.Custom >= 0 ? OwnShadowOf(device, store, draws.Span[batch.Custom], batch.Mesh) : null;
+            var own = IsMasked(batch.Shadow) && batch.Custom >= 0 ? OwnShadowOf(device, store, draws.Span[batch.Custom], batch.Mesh) : null;
             _ownShadows.Add(own);
             _shadowBatches.Add(own is not null
                 ? batch with { Set = DrawSet(device, renderContext, renderWorld, textures, draws.Span[batch.Custom], store!.Get(draws.Span[batch.Custom].Shader)!) }
-                : batch.Shadow == ShadowKind.Masked && batch.Set is null
+                : IsMasked(batch.Shadow) && batch.Set is null
                     ? batch with { Set = MaterialSet(device, textures, draws.Span[batch.Custom]) }
                     : batch);
         }
@@ -259,6 +259,8 @@ internal sealed partial class ModelRenderer
         for (int i = 0; i < batches.Length; i++)
         {
             ref readonly var batch = ref batches[i];
+            // A mesh drawn into the shadow maps alone is seen nowhere, so the view's depth holds none.
+            if (IsAlone(batch.Shadow)) continue;
             if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var own = _ownShadows[i];
@@ -274,7 +276,7 @@ internal sealed partial class ModelRenderer
                 pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
                 pushed = viewProjection;
             }
-            if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
+            if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
             BindShadowVertices(pass, device, batch, own, ring, offset);
             Count("depth", DrawSeen(pass, batch, view.Blocks, frustum));
         }
@@ -305,7 +307,7 @@ internal sealed partial class ModelRenderer
                 pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, push);
                 bound = pipeline;
             }
-            if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
+            if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
             BindShadowVertices(pass, _shadowMaking!.Value.Device, batch, own, ring, offset);
             calls += DrawSeen(pass, batch, view.Blocks, frustum);
         }

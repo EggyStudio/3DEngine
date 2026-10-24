@@ -55,6 +55,20 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     public bool CastsShadows { get; set; } = true;
 
     /// <summary>
+    /// Whether the surface is drawn into the shadow maps alone, casting its shadow and seen nowhere,
+    /// false unless set, as a game draws what its view leaves out between that view and a light.
+    /// </summary>
+    /// <remarks>
+    /// A game that draws only what its eye can see, as the voxel game leaves out the rock over a
+    /// cave, leaves it out of the sun's shadow maps too, and the sun reached a cave's floor through
+    /// seventy blocks of rock. Drawn through a material with this set, a mesh casts its shadow and
+    /// is drawn into nothing else, not the view, a render texture or a probe's faces, not the
+    /// window's depth that occlusion and global illumination read, and not the scene's field. With
+    /// <see cref="CastsShadows"/> false as well it draws nothing.
+    /// </remarks>
+    public bool ShadowOnly { get; set; }
+
+    /// <summary>
     /// Whether global illumination holds the surface, true unless set, so it sends on the light
     /// that reaches it and stands in the way of the light behind it, false for a mesh that moves
     /// often and matters little to the light around it, as a game's animals and people.

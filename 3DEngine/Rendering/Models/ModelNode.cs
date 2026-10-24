@@ -447,6 +447,7 @@ internal sealed partial class ModelRenderer : IDisposable
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(batches))
         {
+            if (IsAlone(batch.Shadow)) continue;
             var through = viewProjection ?? batch.ViewProjection;
             if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
             if (!frustum.SeesAny(batch, blocks)) continue;
@@ -537,7 +538,13 @@ internal sealed partial class ModelRenderer : IDisposable
         return view;
     }
 
-    private enum ShadowKind : byte { None, Solid, Masked }
+    // A batch drawn into the shadow maps alone (ModelDraw.ShadowOnly) casts SolidAlone or
+    // MaskedAlone, which the passes that draw a view or its depth pass over.
+    private enum ShadowKind : byte { None, Solid, Masked, SolidAlone, MaskedAlone }
+
+    private static bool IsMasked(ShadowKind kind) => kind is ShadowKind.Masked or ShadowKind.MaskedAlone;
+
+    private static bool IsAlone(ShadowKind kind) => kind is ShadowKind.SolidAlone or ShadowKind.MaskedAlone;
 
     // What a draw is to one call. It is left out, a batch of its own, or batched with the draws
     // that share its mesh and set.
@@ -561,7 +568,8 @@ internal sealed partial class ModelRenderer : IDisposable
         // A blended surface that is clear anywhere goes through the masked stage too, which drops
         // its shadow in a pattern as dense as it is opaque.
         ShadowKind ShadowOf(in ModelDraw draw) => !shadowKinds || !draw.CastsShadow ? ShadowKind.None
-            : masks && (draw.AlphaMode == MaterialAlphaMode.Mask || draw.IsTranslucent) ? ShadowKind.Masked : ShadowKind.Solid;
+            : masks && (draw.AlphaMode == MaterialAlphaMode.Mask || draw.IsTranslucent) ? draw.ShadowOnly ? ShadowKind.MaskedAlone : ShadowKind.Masked
+            : draw.ShadowOnly ? ShadowKind.SolidAlone : ShadowKind.Solid;
 
         _batches.Clear();
         _drawBatch.Clear();
@@ -571,6 +579,8 @@ internal sealed partial class ModelRenderer : IDisposable
         {
             ref readonly var draw = ref draws[i];
             var (kind, set) = classify(in draw);
+            // A draw into the shadow maps alone that casts none is drawn nowhere.
+            if (draw.ShadowOnly && ShadowOf(draw) == ShadowKind.None) kind = Kind.Skip;
             _classified.Add((kind, set));
             // A mesh unloaded after its draw was recorded is skipped.
             if (kind == Kind.Skip || meshes.Get(draw.Mesh) is not { } mesh)
@@ -601,7 +611,7 @@ internal sealed partial class ModelRenderer : IDisposable
             var group = groups[g];
             if (group.Count == 0) continue;
             var (kind, set) = classify(in group.Template);
-            if (kind != Kind.Batched || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
+            if (kind != Kind.Batched || group.Template.ShadowOnly && ShadowOf(group.Template) == ShadowKind.None || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
             var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor,
                 group.Template.Subsurface, ThicknessOf(in group.Template));
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
@@ -647,7 +657,7 @@ internal sealed partial class ModelRenderer : IDisposable
         ref readonly var a = ref draws[first];
         ref readonly var b = ref draws[i];
         return a.Shader == b.Shader && a.Mesh == b.Mesh && a.Target == b.Target && a.ViewProjection == b.ViewProjection && a.Scissor == b.Scissor && a.DoubleSided == b.DoubleSided
-            && a.CastsShadow == b.CastsShadow && a.AlphaMode == b.AlphaMode && a.IsTranslucent == b.IsTranslucent
+            && a.CastsShadow == b.CastsShadow && a.ShadowOnly == b.ShadowOnly && a.AlphaMode == b.AlphaMode && a.IsTranslucent == b.IsTranslucent
             && a.Texture == b.Texture && a.NormalMap == b.NormalMap && a.MetallicRoughnessMap == b.MetallicRoughnessMap
             && a.EmissiveMap == b.EmissiveMap && a.OcclusionMap == b.OcclusionMap
             && a.CullFront == b.CullFront && a.Points == b.Points && a.ColorBlend == b.ColorBlend && a.DepthWrite == b.DepthWrite
