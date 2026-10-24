@@ -10,27 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b0f652cc`, Verdict 85's mend, and nothing else, carrying the review's file: the
-overlay's pixel test reads the newest bar in any of the strip's three colors within 8, no frame time
-fed, the comment saying the machine sets the color; 2,038 passed plain and shuffled at seed
-20261023, the strict build clean. Read at 01:17 on 2026-10-24 and pushed at 01:18 with `5af77a40`
-and `d303032d` after the build run of `fade1730` ended, Linux, Windows and the examples green and
-macOS red by the verdict. Next item 75's cherry-pick from `modeling` with Summit's capture, then
-item 77's two, `46b5269` and `94256c4`, with the four hours picture and the example's row, then
-63's, `fcfe5bd6`, with its capture, the device play and the gallery's table run, then 88's,
-`e2062092`, then 71's edge leak and 72, then 74's cherry-pick. Items 63, 75 and 77 are whole on
-`modeling` under the owner's identity, read and accepted at 22:41, 00:55 and 01:27; the cloud
-session has items 88 and 74 from 01:28. The branch's own run of `35938065` ended red on macOS's
-ConsoleEvalTests, the eval of the entity count failing on a null reference in the same process
-before the overlay's frame test, read by the coder as the race of item 88 and watched on main's
-runs; the cloud session's whole suite on lavapipe passed 1,987 there at 00:15 on 2026-10-24.
+Reviewed up to `adefc7c1`, item 77's second cherry-pick, after `7549a0f9`, its first, `4e120e87`,
+Summit's capture and gallery picture taken again with the horizon's gray blue and carrying the
+review's files, and `6ee3c87b`, item 75's cherry-pick, and nothing else: the three cherry-picks
+match the branch's `bfaa056b`, `46b52694` and `94256c4f` but for the cheat sheet's one-liner form,
+read against the branch at 01:58 on 2026-10-24 rather than reported, the author and committer the
+owner's. Not pushed, the build run of `b0f652cc` running; the four go when it ends. Next item 77's
+four hours picture and the example's row, then 63's cherry-pick, `fcfe5bd6`, with its capture, the
+device play and the gallery's table run, then 88's, `e2062092`, then 71's edge leak and 72, then
+74's cherry-pick. Items 63, 75 and 77 are whole on `modeling` under the owner's identity, read and
+accepted at 22:41, 00:55 and 01:27; the cloud session has items 88 and 74 from 01:28. The branch's
+own run of `35938065` ended red on macOS's ConsoleEvalTests, the eval of the entity count failing on
+a null reference in the same process before the overlay's frame test, read by the coder as the race
+of item 88 and watched on main's runs; the cloud session's whole suite on lavapipe passed 1,987
+there at 00:15 on 2026-10-24.
+
+Before it, `b0f652cc` came, Verdict 85's mend, pushed at 01:18 on 2026-10-24 with `5af77a40` and
+`d303032d`, its run in flight, the verdict settling on macOS.
 
 Before it, `5af77a40` and `d303032d` came, the blotches named as the sixth term where the method
 stops and the near field of a glow light at a probe's hit as a mend of its own, read at 00:49 on
 2026-10-24 and pushed at 01:18 with `b0f652cc`.
-
-Before it, `fade1730` came, item 71's faces image formats, with items 82, 87 and 78's pixel tests,
-read at 23:37 on 2026-10-23, pushed at 23:58 after the build run of `b48762bb` ended green.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -918,7 +918,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and lavapipe, the step across the horizon from 131 to at most 16 with an 8 degree blend, the
     color exact where asked, a cube lit the same with and without it; the guide's paragraph, the
     cheat sheet and the listing; Summit setting a gray blue over 6 degrees, drawn 120 frames on
-    lavapipe with its log clean. Summit's capture falls to the local coder at the cherry-pick.
+    lavapipe with its log clean. Summit's capture falls to the local coder at the cherry-pick. On
+    main as `6ee3c87b` with Summit's capture at `4e120e87` on 2026-10-24, held for the push; item 75
+    done.
 
 77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
     and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
@@ -962,7 +964,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     horizon's an orange with the red the dusk sky's, and the sun and moon by alpha since adding them
     passed white and turned blue under the tonemap; 205 tests on lavapipe with the dawn scene read
     against its record within 6. The item's code is whole on the branch; the four hours' picture,
-    the example's table row and Summit's capture fall to the local coder.
+    the example's table row and Summit's capture fall to the local coder. On main as `7549a0f9` and
+    `adefc7c1` on 2026-10-24, held for the push; the four hours picture and the example's row to
+    come.
 
 88. **The tests that lend the console run in one collection, and an eval with no world lent refuses
     rather than throws.** Read by the coder at 23:55 on 2026-10-23 from the cloud branch's macOS
