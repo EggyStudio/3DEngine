@@ -10,27 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e2a203d9`, item 99, read at 14:59 on 2026-10-24, carrying the review's files and
-ASKS.md. `litLight(albedo, input, shadow = -1, shadowHeld = 0)` takes a caller's read in place of
-the one at the point, the existing callers unchanged; the test draws a floor through a shader
-handing over lightReaching at the point moved by a shift, pixel-identical to litLight's own read
-with no shift and the shadow one unit back with one; the guide's page on a shader for a model shows
-the stepped read and its block compiles. 2,075 plain and shuffled, lavapipe with validation 22
-passed. Pushed at 15:26 on 2026-10-24 after the build run of `391bbfd7` went green whole, the run
-watched; a second pack run follows item 96's first mend, since the running pack run packs item 98's
-20 ms. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
-1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
-variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 96, the scene pass's read of the cascades, then 100, the field's foliage share,
-then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then
-the glow light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant
-walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted
-at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `ff2c5175`, item 96's first mend, read at 15:57 on 2026-10-24, carrying the review's
+files. `probesOf` is gone; `cascadeAt(info, c, probes)` and `cascadesOf` take the uniform info with
+the probes' count, `fieldCascade`, `fieldCoarsestBuilt`, `bandHold`, `cascadeHold` and `probesHold`
+take the count defaulting to 0, bouncedAt, bouncedIn, skyAt and the seen-probes read pass it, the
+trace's gatheredAt writes the frame before's corners where cascadeAt reads them, and RENDERING.md
+and SceneFieldPlan name cascadeAt; the FieldCascade[9] locals in the SPIR-V go from 22 to 0 in the
+model pass, 25 to 0 in gi_screen, 2 to 0 in the merge and 8 to 2 in the trace, the package's. The
+grove at 1920 by 1080 at High with the clocks matched reads the scene pass 10.4 ms where 20.6 stood,
+the global illumination pass 2.43 where 2.75, off 4.2, a noisier repeat 12.0 to 12.6 where 21.2 to
+23.0, 6.5 per depth time as 5.2.215; the far scene at 640 by 360 bit-identical before and after with
+and without the far cascade. 2,075 plain and shuffled, the strict build clean, lavapipe with
+validation 88 passed and 12 skipped. Pushed at 16:45 on 2026-10-24 after the build run of `e2a203d9`
+went green whole, the run watched, and the second pack run started at 16:45 on it, the sky fold and
+the later cuts for a package after it. Item 96 begins with a reading on the game's 5.2.215 build at
+the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs
+per fragment from the variant's registers, the window's depth at half size and the scene pass
+shading with overdraw pointing at a half-size pass over the window's depth with a two by two depth
+and normal read, as the glow pass has. Next 96, the scene pass's read of the cascades, then 100, the
+field's foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words on the
+loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help,
+then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
+
+Before it, `e2a203d9` came, item 99, pushed at 15:26 on 2026-10-24, its build run green whole at
+16:42, Windows in 75 minutes, Linux in 57 and macOS in 36.
 
 Before it, `391bbfd7` came, item 98, with `ea74b21d`, Verdict 87's mend, and `b5741f88`, item 94's
 test, pushed at 14:08 on 2026-10-24, its build run green whole at 15:24, Windows in 76 minutes,
-Linux in 58 and macOS in 29, its pack run in flight for the package after 5.2.215.
+Linux in 58 and macOS in 29, its pack run green whole at 16:43 and 5.2.281 pushed to nuget.org, the
+package after 5.2.215, with items 83, 72, 90 and 92 and item 98's scene pass at twice 5.2.215's; the
+second package from `ff2c5175` follows.
 
 Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
 their run and the pack run red on Linux alone on one test, Verdict 87, the pack run packing nothing.
@@ -1117,8 +1128,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     into thread memory to be indexed, 22 FieldCascade[9] locals in the model pass and 47 in
     gi_screen against none in the package. The first mend, written, makes no info, cascadeAt(info,
     c, probes) and the cascade lookups taking the uniform info and the probes' count, the model
-    pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; timed
-    and read for exactness next.
+    pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; at
+    `ff2c5175`, read at 15:57, the scene pass 10.4 ms at the grove where 20.6 stood and 18.4 before
+    it, the package's cost, the far scene bit-identical. The cut reading on these shaders next, the
+    sky's share folded into the world probes' gather one candidate, exact since a face's alpha holds
+    the same move on both faces of an axis, each cut by gain for cost.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry to come. The game moved its

@@ -425,7 +425,41 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
     {
         float share = k == 0 ? own : 1.0 - own;
         if (share > 0.0)
-            light += bouncedIn(cubes, reach, info, p, n, probes, spacing, c + k, int(cascades)) * share;
+        {
+            float sky;
+            light += bouncedIn<V, false>(cubes, cubes, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
+        }
+    }
+    return light;
+}
+
+// The light bouncedAt gives with the share of the sky the surface sees along r beside it, as skyAt
+// gives it from the finest cascade around p, taken from the faces r looks toward in the same gather
+// of that cascade's probes, which the two weigh alike, since a face's alpha holds its probe's move
+// along the face's axis on both faces of it. Read apart, the share took a second gather of the eight
+// probes, and the voxel game's cherry grove at 1920 by 1080 drew its scene pass in 10.1 ms on the
+// development machine's GPU where it takes 8.9.
+public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing,
+    float cascades, out float sky)
+{
+    sky = 1.0;
+    int c = fieldCascade(info, p, 1.0, int(cascades));
+    if (c < 0 || c >= int(cascades))
+        return float3(0.0);
+    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1, int(cascades)).w > 0.0 ? cascadeHold(info, c, p, int(cascades)) : 1.0;
+    float3 light = float3(0.0);
+    // The finest cascade's gather is made for its sky's share where its light takes no share.
+    [loop]
+    for (int k = 0; k < 2; k++)
+    {
+        float share = k == 0 ? own : 1.0 - own;
+        if (k == 0 || share > 0.0)
+        {
+            float seen;
+            light += bouncedIn<V, true>(cubes, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen) * share;
+            if (k == 0)
+                sky = seen;
+        }
     }
     return light;
 }
@@ -437,15 +471,20 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
 // not see keeps a twentieth of its weight, as one behind its plane keeps a little, since cut to
 // nothing a pixel left with one or two probes around it seen took their light alone and a Cornell
 // box showed a notch beside its tall block, and a surface that sees none of them, as one wedged
-// between two meshes may, blends them by that twentieth, so it is not left dark.
-float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c, int cascades)
+// between two meshes may, blends them by that twentieth, so it is not left dark. With Sky, the share
+// of the sky the probes' faces r looks toward saw, blended alike, as skyAt blends it, or the whole
+// sky where the weights are none.
+float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
+    int cascades, out float sky)
 {
     float4 oc = cascadeAt(info, c, cascades);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
+    float3 r2 = r * r;
     float3 sum = float3(0.0);
+    float skySum = 0.0;
     float weights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
@@ -453,6 +492,7 @@ float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, f
         int3 at = min(base + offset, int3(int(probes) - 1));
         float3 lerps = lerp(1.0 - f, f, float3(offset));
         float3 light = float3(0.0);
+        float seen = 0.0;
         float valid = 1.0;
         float3 moved = float3(0.0);
         for (int axis = 0; axis < 3; axis++)
@@ -462,13 +502,17 @@ float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, f
             light += texel.rgb * n2[axis];
             valid = min(valid, faceHolds(texel.a));
             moved[axis] = faceMove(texel.a);
+            if (Sky)
+                seen += skies.loadAt(int3((axis * 2 + (r[axis] < 0.0 ? 1 : 0)) * int(probes) + at.x, at.y, c * int(probes) + at.z)).x * r2[axis];
         }
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
         sum += light * weight;
+        skySum += seen * weight;
         weights += weight;
     }
+    sky = weights > 1e-5 ? skySum / weights : 1.0;
     return weights > 1e-5 ? sum / weights : float3(0.0);
 }
 

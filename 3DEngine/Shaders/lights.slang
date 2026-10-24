@@ -429,6 +429,19 @@ public float3 bounced(float3 p, float3 n)
     return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
+// The light bounced gives with the share of the sky the surface sees along r as skySeen gives it,
+// from one gather of the probes (bouncedAndSkyAt in gi.slang), or -1 and the whole sky where no
+// cascade of probes holds p.
+public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
+{
+    sky = 1.0;
+    int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
+    if (c < 0 || c >= int(lighting.indirect.w))
+        return float3(-1.0);
+    return bouncedAndSkyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField,
+        p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, sky) / 3.14159265;
+}
+
 // The indirect light reaching a surface at p facing n, irradiance over pi, from those of the world's
 // probes around it it sees with nothing the field holds between (bouncedSeenAt), or from them all as
 // bounced reads them where it sees none, or -1 where no cascade of probes holds p. A pixel no screen

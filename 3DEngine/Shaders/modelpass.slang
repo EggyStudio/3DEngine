@@ -518,6 +518,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // which stands in for the diffuse share of the light from all around, the environment's, a
     // probe's and the ambient lights', its rays having met that light where they met nothing.
     float3 bouncedHere = float3(-1.0);
+    // The share of the sky the probes around the surface see along its mirror direction, taken in
+    // the world probes' gather where the pixel reads them, or -1 where it does not.
+    float skyHere = -1.0;
     bool screen = Bouncing && lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
     ScreenProbesHere probes = screenProbesHere(input, normalize(input.normal));
     if (Bouncing && lighting.indirect.x > 0.0)
@@ -533,7 +536,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // A pixel the screen's probes stand around on no surface like its own, as at a corner,
             // reads the world's probes it sees through the field (bouncedSeen).
             bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0;
-            float3 world = edge ? bouncedSeen(input.world, n) : bounced(input.world, n);
+            float3 world = edge ? bouncedSeen(input.world, n) : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
             if (world.x >= 0.0)
                 bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
         }
@@ -590,7 +593,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // Where global illumination is on, by the share of the sky the probes around the surface
         // see along its mirror direction, so a room sealed from the sky reflects none of it, where
         // the occlusion alone left a rough wall in a sealed cave a blue sheen.
-        float sky = bounces ? lerp(1.0, skySeen(input.world, n, reflect(-v, n)), held) : 1.0;
+        float sky = bounces ? lerp(1.0, skyHere >= 0.0 ? skyHere : skySeen(input.world, n, reflect(-v, n)), held) : 1.0;
         light.diffuse += strength * diffuseColor * around;
         light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
     }
