@@ -971,3 +971,19 @@ states and run conditions only the systems whose order does not matter.
 
 Review: item 110 of REVIEW.md, 2026-10-24; After and Before attributes on a behavior's system and
 InState more than once on a method; after item 109.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the sun's shadows have one softness at every distance from their caster
+
+Read on the 3DEngine 5.2.283 package for the game's item 43, the look of a warm low sun with long soft
+shadows. The package sets the sun's shadows by their reach, their fill and their map's size
+(`SetShadowDistance`, `SetShadowFill`, `SetShadowMapSize`) and filters each the same few texels about
+its point, so a tree's shadow at its trunk and the same shadow's tip twenty blocks off at a low sun
+have one edge, where the sun's disc widens an edge with the distance from the caster to the ground,
+as the source's shader packs draw it. The engine lacks a penumbra that widens with that distance, as
+percentage-closer soft shadows find it from the blockers' depth, with a setting of the sun's angular
+size and a way for a program to set it or turn it off, and the sharpness kept near the caster so the
+blocks' edges read. The game keeps the engine's one softness meanwhile.
+
+Review: item 111 of REVIEW.md, 2026-10-24; a penumbra widening with the distance from the caster as
+percentage-closer soft shadows give it, SetShadowSoftness with a default keeping the present look;
+after item 100.

@@ -155,10 +155,14 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    # The job took 75 minutes on the push of fc5fdc97, 46 of them the suite and 20 the twelve games,
-    # so a push, which plays Slide alone, has 100, and the pack run, which plays the twelve, 180, the
-    # suite's parts held to 70 each below and the games' step to 110.
-    timeout-minutes: ${{ inputs.pack && 180 || 100 }}
+    # The suite's parts run one after another, and their sum follows the runner. On 2026-10-24 the
+    # step took 50 to 94 minutes on four pushes of the same suite, the slowest on f0574e89 with the
+    # Rendering halves at 46 and 38 minutes where 89154675's, run some hours before, took 24 and 18,
+    # and it ran out a push's 100 with the game's steps after it cut short. The pack run of that day
+    # took 58 minutes for the suite and 33 for the twelve games. So a push, which plays Slide alone,
+    # has 150, and the pack run 240, the slowest suite seen and the games' step at its own 110 with
+    # the builds between, the suite's parts held to 70 each below.
+    timeout-minutes: ${{ inputs.pack && 240 || 150 }}
     defaults:
       run:
         shell: bash

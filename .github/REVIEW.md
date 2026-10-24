@@ -10,50 +10,42 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a0d3d7f7`, item 107, the lookup by a component's key, read at 21:41 on 2026-10-24,
-carrying ASKS.md and the review's files. A component names its key through IKeyed of a key type,
-ecs.Index makes the world's KeyIndex from the entities already there and returns the same after, its
-TryGet, Contains and Count dictionary lookups, ComponentStore keeping it on Add, Update, SetBoxed,
-Remove and TryRemove so the world's calls, commands, scenes and despawns all reach it, a key changed
-in place through a reference not seen but a lookup holding the found entity's current key against
-the asked one so it is never mistaken for another, one entity a key with the last given it holding
-it; the test over a thousand fires by cell finds one and not a missing cell, a hundred lookups
-allocating nothing, none after despawn, one added after the index found, Update moving its key,
-Remove dropping it and an in-place change found by the old key no more; the guide and the cheat
-sheet say it, IKeyed.cs apart for N 1.2, the docs building on the package. 2,080 plain and shuffled,
-the strict build clean. Held with `df0c7b50` until the build run of `f0574e89` ends, then pushed and
-the pack run started on them. After `df0c7b50`, item 106, a behavior holding a reference to what
-nothing can change, read at 21:01 on 2026-10-24, carrying ASKS.md and the review's files. E3D006
-warns because every copy of a behavior shares a referenced object and entities run on several
-threads, so a mutable one can be changed by two at once; the analyzer spares any type nothing can
-change, a string, a primitive or an enum, a record or sealed class whose every instance field and
-its bases' is readonly and holds such a value, a positional record's init-only properties counting,
-or a struct whose fields do, and still warns of a record with a settable property, one holding a
-List and a class neither sealed nor a record; the rule's message, the generator's remarks and the
-guide's page on a behavior say when, the dropped stack keeping its Item, and the generator's test
-covers the cases. 2,079 plain and shuffled, the strict build clean. Held until the build run of
-`f0574e89` ends, then pushed and the pack run started on it for the game's items 105, 123 and the
-mobs' third commit. After `f0574e89`, item 105, a Query past three components, read at 20:37 on
-2026-10-24, carrying the review's files and SHARED.md. Query and QueryReadOnly over four to six
-components are public and QueryRef internal as the smaller arities' are, each walking the store with
-the fewest components and filtered by With, Without, Changed and Added, the four-to-six ref forms in
-EcsWorld.WideRefIterators.cs to keep N 1.3's 800 lines; the test over five and six components beside
-a hundred velocity-only entities reads the right entities and copied values, Without and With, an
-absent store giving none, the read-only and ref forms with the ref writing through, and a walk
-allocating nothing; the guide says up to six. 2,078 plain and shuffled, the strict build clean. The
-three pushed at 20:48 on 2026-10-24 after the build run of `1b497b3b` went green whole, the run
-watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
-1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
-variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 109, the highlights' knee, then 110, a behavior's order and states, then 108,
-the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the far
-cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
-cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of the
-documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
-the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
-at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
-main, N 7.5; the cloud sessions stand by.
+Reviewed up to `e3d554b1`, item 108's first phase, the mesh, read at 22:22 on 2026-10-24, carrying
+ASKS.md and the review's files. Mesh.Uploaded takes a ModelMesh from UploadMesh with its own streams
+and indices, the program owning it and scenes skipping it; Mesh.Indices serves arrays, normals with
+indices defaulting to the mean of each vertex's faces and triangles naming a missing vertex dropped;
+a mesh is kept while an entity holds it, drawn or not, marked seen before material or visibility,
+and a frame with mesh entities but no camera frees nothing; MaxLooks is gone, a freed array mesh or
+an uploaded one no entity names dropping its looks and groups into free lists with a stamp on each
+look slot against aliasing; on the chunk threads an entity finds an existing look by a read-only
+lookup so only a missing look or an upload waits for the main thread. Tests, 5,000 looks keeping
+both chunks, a replaced mesh leaving the other chunk kept, a mesh staying with its material removed
+and with no camera, an uploaded mesh drawn under its id with a sphere from its bounds and its look
+gone at despawn, indexed arrays uploading four vertices and six indices; the file split for N 1.3.
+2,084 plain and shuffled, lavapipe with validation 34 passed. The phases, this mesh, then a
+program's shader on the Material with the Visible and ShadowOnly components and the entity draws as
+a profile value, then the guide's page with a voxel section and the cost against DrawMesh on a
+thousand meshes. The three pushed at 22:32 on 2026-10-24 after the build run of `f0574e89` ended,
+its Windows job cancelled at its limit, Verdict 88, the run watched, and the pack run started at the
+same time for the package carrying items 101, 104 to 107 and 108's first phase, the game waiting on
+it. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080,
+each part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
+registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
+half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
+has. Next Verdict 88's mend, the Windows job's limit, then 109, the highlights' knee, then 110, a
+behavior's order and states, then 108, the mesh entity as a game's section, the ECS gaps the game's
+drops found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the
+scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then
+111, the shadow's penumbra, then 93, the colons out of the documents, then 91, DESIGN.md's words on
+the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
+help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
+
+Before it, `f0574e89` came, item 105 with `267d3886`, item 104, and `e5ad8d28`, item 101, pushed at
+20:48 on 2026-10-24, its build run ending at 22:29 with Linux, macOS and the examples green and the
+Windows job cancelled at its 100-minute limit after the suite's step passed in 94 minutes, Verdict
+88.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1250,6 +1242,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the cheat sheet's line; a test of three behaviors ordered against the stage's default and one
     gated on two states. One commit, small, after item 109 and before 108.
 
+111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
+    at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
+    low sun with long soft shadows, and the package has no soft-shadow call beside
+    SetShadowDistance, SetShadowFill and SetShadowMapSize. The shadow map gains a penumbra widening
+    with the distance between the receiver and its caster, read from the map's depths about the
+    sample as percentage-closer soft shadows do, with the sun's angular size as its scale through
+    SetShadowSoftness(size) and a default that keeps the present look, the contact shadows
+    unchanged; the cost read on the voxel game's grove and the bounce rooms against their references
+    with the softness at the default and at the sun's size, and a test reading a pole's shadow
+    sharper at its foot than at its tip; the guide's shadows paragraph and the cheat sheet's line.
+    One commit, after item 100 and before 93.
+
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
     entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
@@ -1267,11 +1271,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     ShadowOnly one as item 101's flag, and the entity draws as a profile value; the guide's page on
     mesh entities says it with a voxel section as the example, tests for each, and the cost against
     DrawMesh read on a scene of a thousand meshes. Two or three commits, after item 107 and before
-    102.
+    102. The first phase at `e3d554b1` on 2026-10-24, the mesh with a program's streams and indices,
+    looks and meshes kept; the second after items 109 and 110, the shader on the Material, Visible
+    and ShadowOnly and the draws in the profile; the third the guide and the cost.
 
 ## Verdicts
 
-Verdicts 56 to 87 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdict 88 is open. Verdicts 56 to 87 are settled, said under each in REVIEW-ARCHIVE.md.
+
+88. **The Windows suite outgrows its job's 100-minute limit on a slow runner.** Read at 22:32 on
+    2026-10-24 from the build run of `f0574e89`, Linux, macOS and the examples green and the Windows
+    job cancelled at 22:28 at its limit of 100 minutes, the suite's step having passed in 94 minutes
+    with 2,078 tests and the game's steps after it, the native publish cut short and the rest
+    skipped. The same step took 60, 50 and 83 minutes on the day's three earlier Windows runs,
+    Verdict 86's runner variance of 0.87 to 1.7 times on a suite that grows, so a slow runner passes
+    the limit set near 55 minutes before the split. The mend is the push job's limit raised to 150
+    minutes with its reason in the comment as N 6.8 asks, the pack job's 180 read against the
+    suite's 94 and the twelve games and raised where it would not hold, and the parts' times read
+    from this run's artifact for a part grown past its share, split as Rendering was where one has.
+    One commit, small, first, before item 109. Mended at `?`.
 
 ## Decisions
 
