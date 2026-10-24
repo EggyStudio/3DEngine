@@ -10,29 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `26818786`, the upgrading page's F3 line saying the debug overlay comes through
-SetDebugOverlayKey, doc only, read from the log, after `d52d1781`, item 90, the glow light's
-non-number mended at its source and guarded, and nothing else, carrying the review's files,
-DEVLOG.md and ASKS.md as the game's session recast it. Item 90. The normal from the depth's two
-steps faces the eye where their cross has no length or more than a float holds, in the glow pass's
-texel normal and the screen pass's probe and glow normals; the probes' spatial blend and the frame
-before skip a non-finite light and write one as none, the glow pass the same for its fainter lights
-and its frame before; a test hook letting the logged probe write a non-number; two tests failing
-without the mend, the desert scene 10,000 from the origin reading no more black than at the origin
-where 26,043 against 6,571 before, and a probe fed a non-number leaving the light it blends into
-finite; the covered-fault rule held at both sizes, the GPU within 0.1 ms; RENDERING.md's paragraph
-giving the cause and the spread in full and TODO.md the later effect, the owner's word; 2,070 passed
-plain and shuffled, 94 on lavapipe with the layer. Read at 10:39 and 11:00 on 2026-10-24. Not
-pushed, the build run of `98cf2ded` running, Linux, macOS and the examples green and Windows in
-flight with the two halves; the two go when it ends, and a pack run follows once the split's Windows
-is green so the game takes it with items 72 and 74. Next item 90's second reading, the placed
-emitter, then 94, the sun in caves, then item 92, the window under X11 on Linux, then 93, the colons
-out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's
-non-number and the history's guard, then item 89, the plant walls' acne. The branch `modeling` was
-deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `b888b242`, item 92, SdlWindow's start setting SDL's video driver hint to x11 on
+Linux before SDL starts, the hint reset and SDL started again where that fails, the log's line
+naming the driver the window got and the fallback, the reason in the remarks naming no one,
+BUILDING.md's row and paragraph with the override, two tests of the hint and the fallback,
+core_basic_window logging x11 on the device and wayland with the variable set; after `26818786`, the
+upgrading page's F3 line saying the debug overlay comes through SetDebugOverlayKey, doc only, and
+`d52d1781`, item 90, the glow light's non-number mended at its source and guarded, and nothing else,
+carrying the review's files, DEVLOG.md and ASKS.md as the game's session recast it. Item 90. The
+normal from the depth's two steps faces the eye where their cross has no length or more than a float
+holds, in the glow pass's texel normal and the screen pass's probe and glow normals; the probes'
+spatial blend and the frame before skip a non-finite light and write one as none, the glow pass the
+same for its fainter lights and its frame before; a test hook letting the logged probe write a
+non-number; two tests failing without the mend, the desert scene 10,000 from the origin reading no
+more black than at the origin where 26,043 against 6,571 before, and a probe fed a non-number
+leaving the light it blends into finite; the covered-fault rule held at both sizes, the GPU within
+0.1 ms; RENDERING.md's paragraph giving the cause and the spread in full and TODO.md the later
+effect, the owner's word; 2,070 passed plain and shuffled, 94 on lavapipe with the layer. 2,072
+passed plain and shuffled. Read at 10:39, 11:00 and 11:10 on 2026-10-24. Pushed at 11:15, the three,
+after the build run of `98cf2ded` ended green whole, Windows passing 2,005 in 65 minutes 22 seconds
+with the Rendering part in its two halves, Verdict 86 settled, and a pack run with publish on
+started at 11:15 on this head; the runs watched, and a pack run follows once the split's Windows is
+green so the game takes it with items 72 and 74. Item 90's second reading found no second source,
+the item done and archived. Next 94's test alone, the sun in caves being item 83's mend missing from
+5.2.215, then 96, the scene pass's read of the cascades, then 93, the colons out of the documents,
+then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the
+history's guard, then item 89, the plant walls' acne. The branch `modeling` was deleted at 07:23
+with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `98cf2ded` came, Verdict 86's mend, the Rendering part split in two for Windows, pushed
-at 09:56 on 2026-10-24, its run in flight.
+at 09:56 on 2026-10-24, its run green whole, Windows in 65 minutes with the two halves, Verdict 86
+settled.
 
 Before it, `e15cb271` came, the devlog's move, pushed at 08:28 on 2026-10-24, its run green but for
 Windows, Verdict 86's limit again.
@@ -1051,53 +1059,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
     commit, after items 74 and 72's cherry-picks.
 
-90. **A small emitter's light never reaches the screen's probes as a non-number, and whatever gives
-    one is mended.** From the voxel game's ASKS.md entry of 2026-10-24, read at 05:57: seed 1's
-    desert village at a field of view of 40 degrees, 56 torches as the small emitters' lights, draws
-    215,459 pixels pure black at High on the 4070, 596,201 six hundred frames later, 320 with the
-    screen probes' history off, 36 with the glow lights off as well and none with them off from the
-    start, so a glow light's light gives a value that is not a number, which the history keeps and
-    every blend spreads over the land; neither global illumination off and on nor the view widened
-    clears it, a teleport does. Two parts in one commit: the cause, read at that view in the game's
-    checkout on the device and in an engine scene built to it, a division or a root of a negative in
-    the glow light's math at a grazing hit or in the near-field mean, mended at its source; and the
-    guard, the screen probes' history and the glow-only pass taking a non-finite light as none, as
-    the denoiser of BevyCSharp does, so a fault left anywhere darkens one texel for one frame and
-    never spreads. Tests: a glow light placed as the cause is found gives a finite light, failing
-    without the mend, and a probe fed a non-number holds a finite history. The covered-fault rule
-    across the bounce rooms at both sizes; RENDERING.md's line under the screen probes; the game's
-    entry closed by its Review line. First after the batch of items 74 and 72, before item 89. The
-    cause so far, read by the coder at 06:5x in the game's build with markers in the glow pass at
-    the entry's view, the history off: of about 200 black pixels 171 are glow texels whose normal is
-    a non-number, the normalized cross of the ways along the depth's two axes where the way along x
-    is exactly zero, a far texel's neighbor reading as the same world point at a field of view of 40
-    as the depth's precision and the far uv step round away; the other 23 to 25 are texels whose
-    rough light is a non-number with a finite normal, still being read. The mend in sight: the
-    normal from the depth falling back to facing the eye where the cross is degenerate, in the glow
-    pass and gi_screen.slang's two like normals, and the guard as the item says. At 09:4x the mend
-    stands in the coder's tree, the normal's fallback in gi.slang used by the glow pass and twice in
-    gi_screen.slang, the guard in the filter and the glow pass, and the two tests; the engine scene
-    at 3,000 from the origin reads 120,638 black against 27,157 with the mend at 1280 by 720 over
-    240 frames, the smallest scene that shows it being found for the test. The owner asked at about
-    10:3x what the black comes from, and said it is mended first, its cause known and written in a
-    document for why and how it happened, and not put back, since a game might later use such a
-    spread as an effect of its own, a horror game's world glitching out; so the commit's
-    RENDERING.md paragraph under the screen probes says the cause and the spread in full, the normal
-    from the depth's two axis steps where a step is exactly zero at a far texel, in the glow pass's
-    texel normal and the screen pass's probe and glow normals, and the histories blending each such
-    texel's light into its neighbors frame by frame until the land is black, and TODO.md gains a
-    line for a later effect that reproduces the spread on purpose under a program's call. Corrected
-    by the coder at 10:3x, the cause is one, the degenerate normal; the marks taken for a rough
-    light's non-number were the desert's sunlit sand under its color test. Done at `d52d1781` on
-    2026-10-24, held for the push; the game turns its screen probes on again by the owner's eye when
-    the package comes. The owner tested again at about 10:48 on 2026-10-24 and saw the black
-    spreading with the screen probes unchecked as well, on placing a magma block by hand; so the
-    glow-only path spreads it too, through the glow pass's own history, which the mend's guard
-    covers, and a placed emitter beside the eye is a second trigger to read before the push, whether
-    the degenerate normal again or another non-number of the glow march at no distance or the
-    near-field mean, mended at its source in a second commit where it is another; the guard stops
-    the spread either way.
-
 91. **DESIGN.md says the loop and the ECS are both the engine's way, each where it fits, with the
     voxel game as the model (Decision 68).** DESIGN.md's opening and its fifth section say the ECS
     is underneath for a program that grows into it; the owner's word of 2026-10-24 is that both are
@@ -1127,7 +1088,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     SDL started again so a session without XWayland still opens a window, the log saying which
     driver the window got. A test reading the hint set on Linux through the null device's start or
     the log's line; BUILDING.md's Linux section says it in two sentences with the override. One
-    commit, small, after item 90 and before item 91; the game takes it with the next package.
+    commit, small, after item 90 and before item 91; the game takes it with the next package. Done
+    at `b888b242` on 2026-10-24, pushed at 11:15.
 
 93. **No running sentence holds a colon, across the documents, the comments and the scripts.** The
     owner wrote at about 10:34 on 2026-10-24 that some documents join sentences with a colon and
@@ -1178,69 +1140,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cv-<hour>-<gi>-<shadows>.png and lines-eye-size.png. So this item's mend is two things of the
     map, the casters above the view's slice kept and the edge rows closed, the receiver's bias or
     the filter's taps at a face's edge read against the map's texels, and the rest is item 72's in
-    the package with the game setting the far cascade.
+    the package with the game setting the far cascade. Read by the coder at 11:26: the near leak is
+    item 83's, mended at `d980d237` where casters before a cascade's near plane are drawn onto it
+    through the device's depth clamp and the light's cull no longer clips the near plane, which
+    5.2.215, packed from `d3473746`, predates; its scene, blocks under a roof ten units thick with
+    the camera inside, reads 255 on the near tops and 210 on the floor before that commit with the
+    roof 70 up and 0 everywhere at HEAD, the one-pixel lines inside that leak and gone at HEAD too;
+    the far part is item 72's fill in the same package. So no new mend, the test alone committed,
+    ModelShadowTests' cave under ten units of stone seventy up, and the game reads its cave and the
+    edge lines again on the new package, any edge line left there this item's second part.
+
+95. **A verb of ./e3d with --help prints its help and opens nothing.** At about 11:11 on 2026-10-24,
+    and once before at 10:0x, `./e3d open --help` passed --help and --serve through to the default
+    example and opened core_3d_camera_free in a shown window on the owner's desktop, which they
+    noticed. The client answers --help on any verb with that verb's usage from E3D.md's words and
+    exits, before any process is started; a test of the client's open with --help starting no
+    process. One commit, small, with the next batch.
+
+96. **The scene pass reads the cascades' light at a cost under the trace's, not twice it.** From the
+    voxel game's ASKS.md entry of 2026-10-24, read at 11:26. At 1920 by 1080 on the development
+    machine's GPU the game's frame is 18.6 ms at High and 11.9 with global illumination off, the
+    scene pass 11.6 against 6.0, so 5.6 ms of the pass is the per-pixel read of the cascades' light
+    where the trace itself takes 2.9; at 1280 by 720 the pass is 8.3 of a 14.9 ms frame. The read
+    gathers the eight probes about each pixel's surface with their traced bits and weights, per
+    pixel at the window's size, and the mend by the reading is one of three the entry names or a
+    fourth the coder finds, the read at a coarser size with a bilateral upsample by depth and
+    normal, one gather shared per tile of pixels, or the gathered light written once a frame into a
+    screen-sized image the pass samples; the readings of the bounce rooms against their references
+    under the covered-fault rule at both sizes, the game's two views read on the device before and
+    after, and the quality tiers' costs on the Cornell box in the guide changed. One or two commits,
+    after item 94.
 
 ## Verdicts
 
-86. **The Windows suite's Rendering part was lost at its limit in the run of `26dbc6da`.** Read at
-    04:25 on 2026-10-24 from the run's Windows job: the Rendering part, 347 passed and none failed,
-    lost to a test that hung after 45 minutes 23 seconds, in
-    GlobalIlluminationTests.Global_Illumination_Holds_Still_As_The_Camera_Slides, the host killed at
-    the limit, the slowest tests that ended GlowPillarTests' lamp past a pillar at 4 minutes 42
-    seconds and GlowLightsTests' emissive block in a room at 4 minutes 25 seconds; Linux and macOS
-    green, the job 59 minutes where the run before took 49. The push carried items 63 and 88 and no
-    Rendering test, so either the test hangs on Windows by timing or the part has grown past its 45
-    minutes on lavapipe without a cache. The reading: the part's output in the run's artifact, read
-    from the scratchpad's art-3de-40049505326 folder, says where the test stood and what the part's
-    tests took; the run of the four pushed after it says whether it repeats. The mend by the cause:
-    a hang mended where it hangs, or the part split or its slowest tests given the null device where
-    they read nothing of the device, as N 6.8 and item 2's readings allow; no test loosened. One
-    commit, before the next push. The cause read by the coder at 04:5x from the trx: the runner's
-    hang limit of five minutes without a result, blame's, while
-    Global_Illumination_Holds_Still_As_The_Camera_Slides opened fifteen apps whose first frames each
-    recompiled the shaders on Windows's cacheless lavapipe, three and a half minutes locally without
-    the cache. Mended at `37bd6f76`, the fifteen slides drawn in one app with the bound unchanged
-    and the reading the same, 52 seconds there; GlowPillarTests at 4.7 minutes and GlowLightsTests'
-    shut-in block at 4.4 on Windows stand near the limit and take a second commit; it settles when a
-    Windows run is green with both. The run of `783213f3`, pushed before the mends, lost the part
-    the same way at 45 minutes 18 seconds in the same test, 350 passed. The second commit at
-    `68545bcf`: GlowPillarTests settling in 150 frames where 400, the same reading to the last digit
-    on the 4070 and lavapipe, 43 seconds without the cache where 84; the shut-in glowstone keeping
-    its 360 frames and the Windows job's call taking ten hang minutes with the reason. Both pushed
-    at 05:30; settles on that run's Windows. That run, read at 06:58: no hang, and the Rendering
-    part ended at its own limit of 70 minutes with 420 passed and 10 skipped, 475 tests without a
-    result, the slowest the shut-in glowstone at 4 minutes 21 seconds, where the whole Windows suite
-    of `49d834e1` took 43 minutes; so the part has grown past its limit on Windows's cacheless
-    lavapipe since then, between `b6d822ee` and `68545bcf`. The reading: the two runs'
-    results-Rendering.trx, in the scratchpad's art-3de-40058591496 and art-3de-40045246232 folders,
-    compared test by test for the growth, the new tests and the slowed ones named; the mend by the
-    cause, a test's frames or size cut where its reading keeps, the null device where a test reads
-    nothing of the device, or the part split for Windows alone, no test loosened. Before item 90's
-    commit. Read against the job log of `49d834e1`'s green run at 07:1x: the Windows job runs the
-    parts one after another from the start, each held to 70 minutes, and the Rendering part there
-    passed 454 and skipped 20 in 35 minutes 40 seconds, so the part is some 474 tests and its time
-    doubled by the run of `26dbc6da`, whose first 370 tests took 40 minutes where the whole part
-    took 36 before, the 475 without a result being the other parts' tests; the growth lies between
-    `49d834e1` and `26dbc6da`, Blockout's two commits and item 88's collections, or in the runner,
-    and is measured locally on lavapipe without the cache at each of the three commits before any
-    split. The run of `522c662a`, read at 08:27: the part at its 70 minutes again with 374 passed
-    where 420 the run before, the shut-in glowstone at 6 minutes 42 seconds where 4 minutes 21, the
-    sliding test at 3 minutes 18 where 2 minutes 31, so the same tests run half again as slow from
-    one Windows runner to the next; the part needs room for that variance, which says the split for
-    Windows alone, two halves under the limit with room, whatever the worktrees say of the code.
-    HEAD's part locally with the cache off 43 minutes 59 seconds for 488 tests. The three timings at
-    09:1x, one after another on a quiet machine: `49d834e1` 474 tests in 40 minutes 51 seconds,
-    `26dbc6da` 474 in 41 minutes 11, HEAD 488 in 43 minutes 59, the three minutes the fourteen tests
-    of items 71, 72 and 74 and the glow classes about a minute slower by item 72; so no code doubled
-    the part, and Windows's runners read 0.87 of local at `49d834e1` and 1.6 to 1.7 since. The mend:
-    build/test.py's --split PART=N runs a part in N processes, its classes sorted by name and dealt
-    in turn, a lost run's rerun mapping each test to its half, and the Windows call takes --split
-    Rendering=2 with the reason, the halves 207 and 307 tests at 24.4 and 19.6 local minutes, under
-    70 at two and a half times local; the suite run through the new path on the device before the
-    commit. Mended at `98cf2ded` on 2026-10-24, held for the push; settles when its run's Windows is
-    green with the two halves.
-
-Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
+Verdicts 56 to 86 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

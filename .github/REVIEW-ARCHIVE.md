@@ -3221,6 +3221,62 @@ batch.
     reading the list's counts still. One commit, small, after item 62's capture. Done at `185a79a8`
     on 2026-10-23, two headless tests reading the list from a system of their own before the clear.
 
+90. **A small emitter's light never reaches the screen's probes as a non-number, and whatever gives
+    one is mended.** From the voxel game's ASKS.md entry of 2026-10-24, read at 05:57: seed 1's
+    desert village at a field of view of 40 degrees, 56 torches as the small emitters' lights, draws
+    215,459 pixels pure black at High on the 4070, 596,201 six hundred frames later, 320 with the
+    screen probes' history off, 36 with the glow lights off as well and none with them off from the
+    start, so a glow light's light gives a value that is not a number, which the history keeps and
+    every blend spreads over the land; neither global illumination off and on nor the view widened
+    clears it, a teleport does. Two parts in one commit: the cause, read at that view in the game's
+    checkout on the device and in an engine scene built to it, a division or a root of a negative in
+    the glow light's math at a grazing hit or in the near-field mean, mended at its source; and the
+    guard, the screen probes' history and the glow-only pass taking a non-finite light as none, as
+    the denoiser of BevyCSharp does, so a fault left anywhere darkens one texel for one frame and
+    never spreads. Tests: a glow light placed as the cause is found gives a finite light, failing
+    without the mend, and a probe fed a non-number holds a finite history. The covered-fault rule
+    across the bounce rooms at both sizes; RENDERING.md's line under the screen probes; the game's
+    entry closed by its Review line. First after the batch of items 74 and 72, before item 89. The
+    cause so far, read by the coder at 06:5x in the game's build with markers in the glow pass at
+    the entry's view, the history off: of about 200 black pixels 171 are glow texels whose normal is
+    a non-number, the normalized cross of the ways along the depth's two axes where the way along x
+    is exactly zero, a far texel's neighbor reading as the same world point at a field of view of 40
+    as the depth's precision and the far uv step round away; the other 23 to 25 are texels whose
+    rough light is a non-number with a finite normal, still being read. The mend in sight: the
+    normal from the depth falling back to facing the eye where the cross is degenerate, in the glow
+    pass and gi_screen.slang's two like normals, and the guard as the item says. At 09:4x the mend
+    stands in the coder's tree, the normal's fallback in gi.slang used by the glow pass and twice in
+    gi_screen.slang, the guard in the filter and the glow pass, and the two tests; the engine scene
+    at 3,000 from the origin reads 120,638 black against 27,157 with the mend at 1280 by 720 over
+    240 frames, the smallest scene that shows it being found for the test. The owner asked at about
+    10:3x what the black comes from, and said it is mended first, its cause known and written in a
+    document for why and how it happened, and not put back, since a game might later use such a
+    spread as an effect of its own, a horror game's world glitching out; so the commit's
+    RENDERING.md paragraph under the screen probes says the cause and the spread in full, the normal
+    from the depth's two axis steps where a step is exactly zero at a far texel, in the glow pass's
+    texel normal and the screen pass's probe and glow normals, and the histories blending each such
+    texel's light into its neighbors frame by frame until the land is black, and TODO.md gains a
+    line for a later effect that reproduces the spread on purpose under a program's call. Corrected
+    by the coder at 10:3x, the cause is one, the degenerate normal; the marks taken for a rough
+    light's non-number were the desert's sunlit sand under its color test. Done at `d52d1781` on
+    2026-10-24, pushed at 11:15; the game turns its screen probes on again by the owner's eye when
+    the package comes. The owner tested again at about 10:48 on 2026-10-24 and saw the black
+    spreading with the screen probes unchecked as well, on placing a magma block by hand; so the
+    glow-only path spreads it too, through the glow pass's own history, which the mend's guard
+    covers, and a placed emitter beside the eye is a second trigger to read before the push, whether
+    the degenerate normal again or another non-number of the glow march at no distance or the
+    near-field mean, mended at its source in a second commit where it is another; the guard stops
+    the spread either way. The second reading at 11:19, in copies of the game's build on 5.2.215,
+    one untouched and one with the mend in its shaders, the probes off as the game leaves them and
+    marks where a light would not be finite. The desert village at 40 degrees reads 379,420 pixels
+    black untouched and 379,410 after a magma block is set two blocks off, 0 and 0 mended with no
+    mark; a flat world at the origin with a magma block at 1 to 5 blocks and a glowstone reads 0
+    either way; the overworld 6,000 blocks out at 70 degrees 798 then 47, the land's own shadows,
+    the same either way. So the probes-off path draws its texels through the same glow pass and the
+    screen pass's normals in glow-only mode, a placed magma block being what first lights that path
+    where no other glow light was, and the one cause stands; no second commit. Item 90 done, pushed
+    at 11:15, settling with the package in the game.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -4411,3 +4467,63 @@ at `36cae0c2`.
     the newest bar in any of the three colors within 8; it settles when the run of the push is green
     on macOS. Settled: the run of `b0f652cc` green on macOS and Windows at 02:08 on 2026-10-24,
     whole at 02:28.
+
+
+86. **The Windows suite's Rendering part was lost at its limit in the run of `26dbc6da`.** Read at
+    04:25 on 2026-10-24 from the run's Windows job: the Rendering part, 347 passed and none failed,
+    lost to a test that hung after 45 minutes 23 seconds, in
+    GlobalIlluminationTests.Global_Illumination_Holds_Still_As_The_Camera_Slides, the host killed at
+    the limit, the slowest tests that ended GlowPillarTests' lamp past a pillar at 4 minutes 42
+    seconds and GlowLightsTests' emissive block in a room at 4 minutes 25 seconds; Linux and macOS
+    green, the job 59 minutes where the run before took 49. The push carried items 63 and 88 and no
+    Rendering test, so either the test hangs on Windows by timing or the part has grown past its 45
+    minutes on lavapipe without a cache. The reading: the part's output in the run's artifact, read
+    from the scratchpad's art-3de-40049505326 folder, says where the test stood and what the part's
+    tests took; the run of the four pushed after it says whether it repeats. The mend by the cause:
+    a hang mended where it hangs, or the part split or its slowest tests given the null device where
+    they read nothing of the device, as N 6.8 and item 2's readings allow; no test loosened. One
+    commit, before the next push. The cause read by the coder at 04:5x from the trx: the runner's
+    hang limit of five minutes without a result, blame's, while
+    Global_Illumination_Holds_Still_As_The_Camera_Slides opened fifteen apps whose first frames each
+    recompiled the shaders on Windows's cacheless lavapipe, three and a half minutes locally without
+    the cache. Mended at `37bd6f76`, the fifteen slides drawn in one app with the bound unchanged
+    and the reading the same, 52 seconds there; GlowPillarTests at 4.7 minutes and GlowLightsTests'
+    shut-in block at 4.4 on Windows stand near the limit and take a second commit; it settles when a
+    Windows run is green with both. The run of `783213f3`, pushed before the mends, lost the part
+    the same way at 45 minutes 18 seconds in the same test, 350 passed. The second commit at
+    `68545bcf`: GlowPillarTests settling in 150 frames where 400, the same reading to the last digit
+    on the 4070 and lavapipe, 43 seconds without the cache where 84; the shut-in glowstone keeping
+    its 360 frames and the Windows job's call taking ten hang minutes with the reason. Both pushed
+    at 05:30; settles on that run's Windows. That run, read at 06:58: no hang, and the Rendering
+    part ended at its own limit of 70 minutes with 420 passed and 10 skipped, 475 tests without a
+    result, the slowest the shut-in glowstone at 4 minutes 21 seconds, where the whole Windows suite
+    of `49d834e1` took 43 minutes; so the part has grown past its limit on Windows's cacheless
+    lavapipe since then, between `b6d822ee` and `68545bcf`. The reading: the two runs'
+    results-Rendering.trx, in the scratchpad's art-3de-40058591496 and art-3de-40045246232 folders,
+    compared test by test for the growth, the new tests and the slowed ones named; the mend by the
+    cause, a test's frames or size cut where its reading keeps, the null device where a test reads
+    nothing of the device, or the part split for Windows alone, no test loosened. Before item 90's
+    commit. Read against the job log of `49d834e1`'s green run at 07:1x: the Windows job runs the
+    parts one after another from the start, each held to 70 minutes, and the Rendering part there
+    passed 454 and skipped 20 in 35 minutes 40 seconds, so the part is some 474 tests and its time
+    doubled by the run of `26dbc6da`, whose first 370 tests took 40 minutes where the whole part
+    took 36 before, the 475 without a result being the other parts' tests; the growth lies between
+    `49d834e1` and `26dbc6da`, Blockout's two commits and item 88's collections, or in the runner,
+    and is measured locally on lavapipe without the cache at each of the three commits before any
+    split. The run of `522c662a`, read at 08:27: the part at its 70 minutes again with 374 passed
+    where 420 the run before, the shut-in glowstone at 6 minutes 42 seconds where 4 minutes 21, the
+    sliding test at 3 minutes 18 where 2 minutes 31, so the same tests run half again as slow from
+    one Windows runner to the next; the part needs room for that variance, which says the split for
+    Windows alone, two halves under the limit with room, whatever the worktrees say of the code.
+    HEAD's part locally with the cache off 43 minutes 59 seconds for 488 tests. The three timings at
+    09:1x, one after another on a quiet machine: `49d834e1` 474 tests in 40 minutes 51 seconds,
+    `26dbc6da` 474 in 41 minutes 11, HEAD 488 in 43 minutes 59, the three minutes the fourteen tests
+    of items 71, 72 and 74 and the glow classes about a minute slower by item 72; so no code doubled
+    the part, and Windows's runners read 0.87 of local at `49d834e1` and 1.6 to 1.7 since. The mend:
+    build/test.py's --split PART=N runs a part in N processes, its classes sorted by name and dealt
+    in turn, a lost run's rerun mapping each test to its half, and the Windows call takes --split
+    Rendering=2 with the reason, the halves 207 and 307 tests at 24.4 and 19.6 local minutes, under
+    70 at two and a half times local; the suite run through the new path on the device before the
+    commit. Mended at `98cf2ded` on 2026-10-24, held for the push; settles when its run's Windows is
+    green with the two halves. Settled by the run of `98cf2ded`, green whole at 11:11 on 2026-10-24,
+    Windows passing 2,005 in 65 minutes 22 seconds with the halves of 207 and 307 tests.

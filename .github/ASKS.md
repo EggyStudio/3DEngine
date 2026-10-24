@@ -686,3 +686,33 @@ Review: item 90 of REVIEW.md, 2026-10-24; the cause of the non-number at that vi
 source, and the screen probes' history and the glow-only pass taking a non-finite light as none, so
 a fault left anywhere darkens one texel for one frame and never spreads; first after the batch in
 hand.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the scene pass spends a third of its time reading global illumination's cascades per pixel
+
+The game's frame at the owner's settings, render distance 12, global illumination High, the three
+default packs and the screen's probes off, is bound by the GPU, and the scene pass is most of it.
+Read with `./e3d command profile` over 300 frames at an unlimited rate, the Release build at
+`2263618` on the 5.2.215 package, offscreen on the development machine's RTX 4070 Laptop GPU, seed 1's
+cherry grove from -736, 79, -960 facing 345 and pitched -12 at hour 16, 1683 draws and 1.18 million
+triangles.
+
+| resolution, light | frame | scene pass | global illumination | shadows | window depth |
+|---|---|---|---|---|---|
+| 1280 by 720, High | 14.9 | 8.3 | 2.6 | 2.3 | 1.5 |
+| 1920 by 1080, High | 18.6 | 11.6 | 2.9 | 2.2 | 1.6 |
+| 1920 by 1080, off | 11.9 | 6.0 | 0 | 3.0 | 2.3 |
+
+At 1920 by 1080 turning global illumination off takes the scene pass from 11.6 ms to 6.0, so 5.6 ms
+of the scene pass is the model pass reading the cascades' probes at each pixel, twice the 2.9 ms the
+cascades themselves take to trace. The plains village from 550.5, 72, -356.5 reads the same, its
+scene pass 13.3 ms at 1920 by 1080 with the light on. The pass would hold the frame under 16.7 ms
+at 1920 by 1080 with that read at a third of its cost. The engine lacks a cheaper way for a pixel to
+take the cascades' light, a coarser read, one shared by the pixels of a tile, or one made once a
+frame into a screen-sized image the scene pass samples. The game draws as it does meanwhile, and
+cuts its own costs, the sun's shadow taken once a pixel in its terrain shader and a shorter shadow
+distance, by the reading under its own item 93.
+
+Review: item 96 of REVIEW.md, 2026-10-24; the scene pass's per-pixel read of the cascades' light
+made cheaper than the trace, by a coarser read with a bilateral upsample, a gather shared per tile,
+or the light written once a frame into a screen-sized image, whichever the reading keeps under the
+covered-fault rule; after item 94.

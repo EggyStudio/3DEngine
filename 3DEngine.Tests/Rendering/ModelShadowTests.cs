@@ -108,6 +108,46 @@ public sealed class ModelShadowTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Cave_Under_Ten_Units_Of_Stone_Seventy_Up_Takes_No_Sun_On_Its_Floor_Or_Its_Blocks_Tops()
+    {
+        // A cave's floor with a block on it 4, 10, 25, 50 and 90 units out, a cascade or more apart,
+        // under a roof ten units thick 70 units up, as the voxel game's ground over its caves, seen
+        // from inside looking down. A roof that far above the view's slice lay before the near
+        // cascades' near plane, where the map left it out, so the sun lit the floor and the near
+        // blocks' tops through it, 255 and 210 on the development machine's GPU before the casters
+        // there were drawn onto the near plane; the game's caves read 34 to 20 on their tops.
+        var config = Config.Default.WithWindow("cave test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetAmbientLight(Color.Black, 0);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.3f, -1, 0.2f)), Color.White, 3, castsShadows: true);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var eye = new Vector3(0, 3, 0);
+        var camera = new Camera3D(eye, eye + new Vector3(0, -0.45f, -1), Vector3.UnitY, 70);
+        float[] distances = [4, 10, 25, 50, 90];
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(block, new Vector3(0, -0.5f, -150), Vector3.UnitY, 0, new Vector3(400, 1, 400), Color.Gray);
+            foreach (var d in distances) DrawModelEx(block, new Vector3(0, 0.5f, -d), Vector3.UnitY, 0, Vector3.One, Color.White);
+            DrawModelEx(block, new Vector3(0, 75, -150), Vector3.UnitY, 0, new Vector3(400, 10, 400), Color.Gray);
+            EndMode3D();
+        }, "cave");
+        int Lit(Vector3 at)
+        {
+            var pixel = GetWorldToScreenEx(at, camera, 640, 360);
+            var c = GetImageColor(image, (int)pixel.X, (int)pixel.Y);
+            return Math.Max(c.R, Math.Max(c.G, c.B));
+        }
+        foreach (var d in distances)
+        {
+            Lit(new Vector3(0, 1, -d)).Should().BeLessThan(8, $"the block {d} units out lies under the roof, its top unlit");
+            Lit(new Vector3(1.5f, 0, -d)).Should().BeLessThan(8, $"the floor {d} units out lies under the roof");
+        }
+        UnloadModel(block);
+    }
+
+    [NeedsVulkanFact]
     public void A_Low_Suns_Long_Shadow_Is_Cast_Whole_Across_The_Cascades_Seen_From_Its_Far_End()
     {
         // A trunk a unit across and six high under a crown three units wide, under a sun 10 degrees
