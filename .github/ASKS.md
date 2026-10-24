@@ -645,3 +645,44 @@ than its own saturation of 1.05 does.
 Review: item 80 of REVIEW.md, 2026-10-21; `SetTonemapCurve(exposure, white, lower, upper)` in the
 shader's form beside the other tonemaps, and `SetTonemapShader(shader)` running a program's own
 fragment stage over the frame in the tonemap's place; after item 79.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`: a small emitter's light gives black pixels, which the screen's probes keep and spread
+
+The README's pictures are taken again at a field of view of 40 degrees (REVIEW.md item 46), and the
+view of seed 1's desert village draws most of its land pure black. It was read at the game's
+`edbc3b2` on the 3DEngine 5.2.215 package, with `voxel.gi high`, offscreen at 1280 by 720 on the
+RTX 4070 Laptop GPU, driver 615.78.08, the game opened as `build/pictures.sh` opens it, with its
+three default packs, `voxel.world overworld 1`, `voxel.still on`, `voxel.hud off`, `voxel.fly on` and
+`voxel.fov 40`, the eye's feet at 728.8, 69, -678.2, `voxel.look 315 -18`, hour 17, 240 frames after
+the place is meshed. `gi.state` carries 56 small emitters as lights, the village's torches, the 56
+nearest the eye lit.
+
+Each capture's pixels darker than 1 percent are counted, with ImageMagick's `-threshold 1%`.
+
+| light | black pixels |
+|---|---|
+| high, the field of view 70 | 303 |
+| high, the field of view 40 | 215,459 |
+| the same, 600 frames later | 596,201 |
+| `voxel.gi off` and then `high` again | 215,442 |
+| then the field of view 70 again | 407,389 |
+| `gi.toggle again off`, after the black | 215,445 |
+| `gi.toggle history off`, after the black | 320 |
+| `gi.toggle glow off` as well | 36 |
+| `gi.toggle glow off` from the start, the field of view 40 | 0 |
+| `gi.rays off`, `gi.toggle filter off` or `gi.toggle again off` from the start | 215,442, 215,434 and 215,429 |
+| `voxel.gi off` | 0 |
+
+With the screen's probes' history off, a few hundred pixels are black each frame, and with the small
+emitters' lights left out too, nearly none are, so the black comes from the light of a small emitter,
+and the frame before's light in the screen's probes keeps it and spreads it over the land, as a
+value that is not a number spreads through every blend it enters. Neither turning global illumination off and on
+again nor widening the view clears what the history holds, and a teleport out of the place does.
+The engine lacks a guard that keeps a light's result from reaching the history when it is not a
+number, and whatever gives it at this view. The game takes this view from another place meanwhile,
+where a run shows none black.
+
+Review: item 90 of REVIEW.md, 2026-10-24; the cause of the non-number at that view mended at its
+source, and the screen probes' history and the glow-only pass taking a non-finite light as none, so
+a fault left anywhere darkens one texel for one frame and never spreads; first after the batch in
+hand.

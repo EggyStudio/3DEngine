@@ -21,13 +21,18 @@ reading as before on the 4070 and lavapipe and taking 52 seconds without the cac
 apps took three and a half minutes, and nothing else, carrying the review's files; 2,055 passed
 plain and shuffled, the norm tests 16 with the row. Read at 05:01 and 05:29 on 2026-10-24. Pushed at
 05:30, the four, after the build run of `783213f3` ended, Linux, macOS and the examples green and
-Windows red again on the same limit; the run watched, Verdict 86 settling on it. Held behind them:
-`4c629a7c`, item 74's cherry-pick of `629c1643`, which waits for the cloud session's fix of its
-macOS test and goes with 72's three. Next 71's shift as the term's line on motion, then the noise,
-the z-fighting and the shift, then 74's and 72's cherry-picks with the default's device readings and
-Ore's capture, then item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`,
-`0e908bdf` and `54d7c3e`, under the owner's identity, the cloud session standing by; the branch's
-items 59 to 66, 75 to 78 and 88 are on main.
+Windows red again on the same limit; the run watched, Verdict 86 settling on it. Held behind them,
+read at 05:32: `4c629a7c`, item 74's cherry-pick of `629c1643`, which waits for the cloud session's
+fix of its macOS test, and `a2b4fe0f` on top of it, the sixth term's line on motion with the flicker
+numbers, which closes item 71; and, read at 05:48, item 72's three picks `d03a0634`, `00968660` and
+`fbb0bf89` of `e164ccaa`, `0e908bdf` and `54d7c3e7`, and `34e9a8a5`, the pick of the cloud session's
+fix `14338c8f`, the model pass sets' list taking the fill's map at 37 and the budget's device test
+holding where the device gives no field time; the six go in one push with the guide's budget numbers
+and Ore's capture, after the run of `68545bcf`. Next the noise, the z-fighting and the shift, then
+the batch's push, then item 90, the glow light's non-number and the history's guard, then item 89.
+Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and `54d7c3e`,
+under the owner's identity, the cloud session standing by; the branch's items 59 to 66, 75 to 78 and
+88 are on main.
 
 Before it, `783213f3` came, item 71's noise line, with `17f13440`, `2dd40fe4` and `a8f34b35`, the
 stepped edges' line, the widened term and the edge leak's mend, pushed at 04:27 on 2026-10-24, their
@@ -801,7 +806,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     with global illumination off and gone with the shadows off, the bounce rooms' pattern under a
     level; named in RENDERING.md under the lights and shadows, the plants' acne item 89, the pond's
     steps the game's own grid of eight a block by its Decision 29. The shift next. The z-fighting's
-    line at `239bd67e` on 2026-10-24; the shift last.
+    line at `239bd67e` on 2026-10-24; the shift last. The shift read at 05:2x in the game's plank
+    room with a lantern and two torches at hour 23: voxel.flicker's half-block steps change a frame
+    by 0.27 to 0.30 levels with the probes and one frame by 0.73, the ceiling's round spots standing
+    at new places after the step while the lamps move by parallax alone, nothing of it with the
+    probes unread; the term's line on motion at `a2b4fe0f` on 2026-10-24, no mend. Item 71 done, its
+    parts the near-field mend, the edge leak's mend, the sixth term with its three forms and its
+    lines on the stepped edges, the noise, the z-fighting and the shift, held for the push.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -876,7 +887,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sets test fails on the three systems, the lights' set holding one binding more than its list
     since the first part bound the fill cascade's map at 37 and the list was not moved; a fix commit
     on `modeling` from the cloud session before the cherry-pick. The Windows Rendering part there
-    was lost in GlowPillarTests at the runner's hang limit, Verdict 86's second commit.
+    was lost in GlowPillarTests at the runner's hang limit, Verdict 86's second commit. The fix on
+    `modeling` as `14338c8f` after its merge of main at `22f5c0c2`, under the owner's identity; on
+    main as `d03a0634`, `00968660`, `fbb0bf89` and `34e9a8a5` on 2026-10-24, held for the batch's
+    push.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -908,7 +922,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the device test of the five hundred meshes, the field times reading 0.0 ms there so the slowest
     frame is asked to be under 0; the test skips with its reason where the device gives no field
     time, or reads the counts alone there; a fix commit on `modeling` from the cloud session before
-    the cherry-pick.
+    the cherry-pick. On main as `4c629a7c`, held. The default read on the 4070 at 05:3x on
+    2026-10-24 with the frames unlimited: the 500 sections take 41.8 ms in one frame unbounded, a
+    slowest frame of 4.0 to 4.4 ms over 14 frames at 65,536 and 2.5 to 6.5 over 27 at the default,
+    every frame a sixth of the whole at most; Ore at 4 cascades of 0.5 splats 18,824 a frame within
+    the default, gpu.scene_field 0.62 to 0.68 ms either way; the Cornell box 180 triangles at 0.42
+    ms, nowhere near. The device numbers go into the guide's budget paragraph in the picks' batch.
+    The macOS test's fix in `14338c8f`, picked as `34e9a8a5`.
 
 75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
     into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
@@ -1025,6 +1045,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lit face for stripes, the variance along it under a bound, failing without the mend;
     RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
     commit, after items 74 and 72's cherry-picks.
+
+90. **A small emitter's light never reaches the screen's probes as a non-number, and whatever gives
+    one is mended.** From the voxel game's ASKS.md entry of 2026-10-24, read at 05:57: seed 1's
+    desert village at a field of view of 40 degrees, 56 torches as the small emitters' lights, draws
+    215,459 pixels pure black at High on the 4070, 596,201 six hundred frames later, 320 with the
+    screen probes' history off, 36 with the glow lights off as well and none with them off from the
+    start, so a glow light's light gives a value that is not a number, which the history keeps and
+    every blend spreads over the land; neither global illumination off and on nor the view widened
+    clears it, a teleport does. Two parts in one commit: the cause, read at that view in the game's
+    checkout on the device and in an engine scene built to it, a division or a root of a negative in
+    the glow light's math at a grazing hit or in the near-field mean, mended at its source; and the
+    guard, the screen probes' history and the glow-only pass taking a non-finite light as none, as
+    the denoiser of BevyCSharp does, so a fault left anywhere darkens one texel for one frame and
+    never spreads. Tests: a glow light placed as the cause is found gives a finite light, failing
+    without the mend, and a probe fed a non-number holds a finite history. The covered-fault rule
+    across the bounce rooms at both sizes; RENDERING.md's line under the screen probes; the game's
+    entry closed by its Review line. First after the batch of items 74 and 72, before item 89.
 
 ## Verdicts
 

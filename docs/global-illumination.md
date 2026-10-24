@@ -86,7 +86,10 @@ A frame's builds splat 32,768 triangles at most unless `triangleBudget` says oth
 within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames
 after, its cascade holding what it was last built with until the build ends and the meshes not yet
 built in held as boxes meanwhile, so hundreds of sections of a world streamed in at once, on a
-teleport or a first load, are built over several frames rather than stalling one. A scene of fewer
+teleport or a first load, are built over several frames rather than stalling one. On an RTX 4070
+Laptop GPU, 500 sections of 1,024 triangles arriving at once took the field 41.8 ms in one frame
+with no budget, and 2.5 to 6.5 ms at most a frame over 27 frames at the default. `games/Ore` splats
+18,824 triangles a build, within the default, so its builds go as before. A scene of fewer
 triangles builds as many cascades a frame as `updateBudget` says. The frame profile
 names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
 budget for its own device.
