@@ -10,27 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `adefc7c1`, item 77's second cherry-pick, after `7549a0f9`, its first, `4e120e87`,
-Summit's capture and gallery picture taken again with the horizon's gray blue and carrying the
-review's files, and `6ee3c87b`, item 75's cherry-pick, and nothing else: the three cherry-picks
-match the branch's `bfaa056b`, `46b52694` and `94256c4f` but for the cheat sheet's one-liner form,
-read against the branch at 01:58 on 2026-10-24 rather than reported, the author and committer the
-owner's. Not pushed, the build run of `b0f652cc` running; the four go when it ends. Next item 77's
-four hours picture and the example's row, then 63's cherry-pick, `fcfe5bd6`, with its capture, the
-device play and the gallery's table run, then 88's, `e2062092`, then 71's edge leak and 72, then
-74's cherry-pick. Items 63, 75 and 77 are whole on `modeling` under the owner's identity, read and
-accepted at 22:41, 00:55 and 01:27; the cloud session has items 88 and 74 from 01:28. The branch's
-own run of `35938065` ended red on macOS's ConsoleEvalTests, the eval of the entity count failing on
-a null reference in the same process before the overlay's frame test, read by the coder as the race
-of item 88 and watched on main's runs; the cloud session's whole suite on lavapipe passed 1,987
-there at 00:15 on 2026-10-24.
+Reviewed up to `49d834e1`, item 77's captures, and nothing else, carrying the review's files:
+core_day_sky.webp four views in one picture at 6, 12, 18 and 0 by sky.time after 90 frames each, the
+sun at 0, 55, 0 and minus 55 degrees, Summit's capture taken again under its day sky, the gallery
+pictures, captures.tsv and the README's row written by the table script with its check passing, the
+four hours picture made by a scratch script since capture-example.sh takes one view; 2,053 passed
+plain and shuffled for the two cherry-picks, 45 sky and reference tests on lavapipe with the layer,
+the strict build, the pack and the docs check clean. Read at 02:08 on 2026-10-24. Pushed at 02:29
+with the four below after the build run of `b0f652cc` ended green whole at 02:28, its run watched.
+Next 63's cherry-pick, `fcfe5bd6`, with its capture, the device play and the gallery's table run,
+then 88's, `e2062092`, then 71's edge leak, then 74's and 72's cherry-picks; the cloud session has
+item 72 from 02:33, item 2's cache commit having been made at `f4c62380` on 2026-10-20. Items 63, 75
+and 77 are whole on `modeling` under the owner's identity, read and accepted at 22:41, 00:55 and
+01:27; items 88 and 74 are whole on `modeling` from the cloud session, `e2062092` and `629c1643`.
+The branch's own run of `35938065` ended red on macOS's ConsoleEvalTests, the eval of the entity
+count failing on a null reference in the same process before the overlay's frame test, read by the
+coder as the race of item 88 and watched on main's runs; the cloud session's whole suite on lavapipe
+passed 1,987 there at 00:15 on 2026-10-24.
+
+Before it, `adefc7c1` and `7549a0f9` came, item 77's two cherry-picks, `4e120e87`, Summit's capture,
+and `6ee3c87b`, item 75's cherry-pick, read against the branch at 01:58 on 2026-10-24, pushed at
+02:29 with the head.
 
 Before it, `b0f652cc` came, Verdict 85's mend, pushed at 01:18 on 2026-10-24 with `5af77a40` and
-`d303032d`, its run in flight, the verdict settling on macOS.
-
-Before it, `5af77a40` and `d303032d` came, the blotches named as the sixth term where the method
-stops and the near field of a glow light at a probe's hit as a mend of its own, read at 00:49 on
-2026-10-24 and pushed at 01:18 with `b0f652cc`.
+`d303032d`, its run green whole at 02:28 on 2026-10-24, Verdict 85 settled.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -116,57 +119,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    lacks (Verdict 52), its tests green, and `e28064f7`'s macOS job green; the macOS captures of
    `aa9fe773` green; the runs of `ea9a23cd` and `ffa3ec48` wait in the queue. Each push's run is
    read by the reviewing session, and a failure it names comes first here.
-
-2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
-    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
-    changed, each a commit of its own with its numbers before and after and a test that holds the
-    measure, the voxel game's read through the testbed at eight columns, and the game's session
-    asked to write what it measures of them in ASKS.md. The game's session measured b, c and d on
-    the game and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with
-    that file. The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's
-    lobes gone at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone
-    farther off, so b closes with its commit, d gains its lever and e is added. At 23:40 the owner
-    looked at `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part,
-    which is part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the
-    sky's light enter it by the heading alone, which is part g and comes first (Decision 28). At
-    10:55 the owner looked at the tree with g's mend and found it right at every heading and tier
-    but one window at High, and found the indirect light noisy and spotted where a penumbra is wide,
-    which is part h. The apparatus first: `BounceReference` traces a mesh's flat color times its
-    texture's average and not the vertex colors the field and the model pass read, so the game's
-    rooms of white concrete, one white material with each block's color in its vertices, read a
-    third brighter in the reference than in the frame and the comparison cannot tell the bounce's
-    error from the color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since
-    `3c7fe822`, blended by the hit's barycentrics as the model pass blends them, a colored slab
-    within 1% where 0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run
-    whether the measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left
-    thing, then item 10, item 9 and item 8, the others being done; the game's session measured g and
-    h in the game and wrote them in ASKS.md, as it measured d at both cells and e along the
-    distance, and reads g on `64fd2f14`. Read again by 08:07 on 2026-10-20 from the record and the
-    history: h's shadow depth and wall are done at `56db892b` and `8118e2c7`, the tiles' blotches at
-    0.30 percent and the seam's teeth of about ten pixels left for the owner's eye on `623bdc47`,
-    and the wall's dark side behind the pillar at 0.80 of the reference is the near occlusion term
-    from its other side, named under item 39; Verdict 49's steps and pairs are done and the verdict
-    settled; f's second left thing is done at `a25edfa7`; items 10, 9 and 8 are done at `c54d64eb`,
-    `feec07a2` and `c81eca54`; Verdict 48's two remedies stand unmade, the lamps' passes compiled
-    once and shared by the apps of a process, where the pipeline cache is per render world and no
-    Vulkan pipeline cache is shared across apps, and the leak test's lampless app given no lamp pass
-    to compile, and with the Windows job cold on every run since lavapipe's Windows build keeps no
-    cache they are next, read first for how much of the Windows suite's time each app's compiles
-    hold. Then item 7. Verdict 48's two remedies read by 09:40 on 2026-10-20 and taken as read with
-    nothing to mend: on lavapipe under the required layer the Rendering and Core parts take 35
-    minutes 43 seconds with Mesa's cache off as on Windows, 16 minutes 21 seconds filling and 15
-    minutes 48 warm, so 56 percent of their time is the same shaders compiled again for each app,
-    the leak test's app 1.32 seconds cold against 0.56 warm, 0.11 of it the making of its seven
-    pipelines and most of the rest the first frame, 830 ms cold against 164, where lavapipe compiles
-    its variants at the first draw and dispatch; a pipeline cache made with each device from the one
-    before changes nothing, 199 seconds against 195 over the hundred apps, since lavapipe's cache
-    keeps nothing of its compiled code across devices and its draw-time compiles are not in it, so
-    sharing compiles needs the device kept from app to app, which the leak tests exist to forbid;
-    the lampless app already makes no lamp or bounce pass, seven pipelines in 109 ms; and pal1000's
-    Windows builds of Mesa 26.2.4, the MSVC one the job takes and the MinGW one, lack the disk cache
-    altogether, their lavapipe carrying a stub's name where the Linux one carries the cache's, so no
-    variable, folder or step can warm the Windows suite. The Windows job's cache steps go in a small
-    commit with the finding in their place, then item 7.
 
    **a. The dark ring at the terminator and skin's jagged edge, done at `9064685a`.** Measured
    first: no dark ring of its own but a bright line six degrees past the terminator, the thickness
@@ -648,50 +600,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    from 16.2 ms to 4, so the engine's occlusion culling stays out until a game of another shape
    asks.
 
-22. **The wall before the pillar blends in probes standing at the pillar's dark face; the screen's
-    probes reach the pillar themselves; done at `e424550c`, its second part read and closed.** Read
-    at `82b40646` and measured at `f889a559`: a wall two units before the pillar reads 0.68 of the
-    reference's bounce with the pillar and 1.05 without, a gap of 37 points, 47 to 51 with the
-    screen's probes off; probes at half the spacing narrow it to 15, and the merge's trace in place
-    of the dark reading, measured and not taken, lifts both rooms and leaves it at 34 while taking
-    the 27 bounce-room cases from 4.006 to 4.298 of summed error. The gather sees the eight probes
-    around a surface by a traced bit each and weighs them by how near they stand and whether they
-    face it, and the probes at the pillar's dark face pass both, their light being right for where
-    they stand and wrong for the wall. Measured both ways at 05:05 and chosen so. The screen's
-    probes' rays to twice the first spacing take the gap at x 7 from 37 points to 22, 0.79 with the
-    pillar and 1.01 without, x 7.5 from 35 to 21 and every other point within 13, doubled depth
-    steps changing nothing and three or four spacings overshooting to 1.75 of the reference at x
-    9.5; the 27 cases sum to 3.739 where 4.006, the corridor from 17% under to 2 to 9%, the strip
-    falling to 7 to 9% under where it held within 2, and the carried lamp to 7.5% under where 5; the
-    GPU's cost at High in the bounce rooms 0.03 to 0.06 ms in most views and 0.11 to 0.13 in the
-    corridor. The gather weight, each probe's reach along the surface's normal and four leaning ways
-    against its distance, moves x 7 from 0.68 to 0.72 alone and to 0.80 with the reach, and with the
-    screen's probes off the gap stands at 0.54 to 0.56, so the probes at the pillar's face are not
-    the gap's main cause and the weight is not taken. The reach at two spacings is taken for the
-    rooms' gain, the marks of 15 points and a tenth of a millisecond missed and said: the gap at 22,
-    the corridor's cost at 0.13, the strip and the lamp a few points further under, written in
-    RENDERING.md as the trade, the glowstone room's GPU time read before the commit, and the strip
-    read for why the longer rays take from it. What remains is the probe beside the wall reading its
-    face toward the pillar 21% low, of which the merge's dark reading was half, which is the item's
-    second part: that face's shortfall read ray by ray against the reference and mended where the
-    cause is the engine's, measured by the gap at x 7 and the 27 cases' sum, which must not rise
-    above 3.778, the sum since the first part's leak remedies. The first part is done at `e424550c`.
-    The second part was read ray by ray at 06:50 and closed with nothing kept: passing over a
-    cascade-1 probe whose ray met a surface early takes the probe's face toward the wall from 21%
-    under to 7, but the frame does not follow, x 7 reading 0.83 with the pillar and 1.05 without,
-    the same 22 points, and the 27 cases rise to 3.859, since the wall's pixels read their own
-    screen rays out to four units and the probe's face no longer sets the gap; 64 screen rays read
-    lower still and finer glow marches at a hit change nothing, so what the rays bring is short
-    rather than few. What is left is the probes' resolution: the floor in the one-unit gap between
-    the lamp and the pillar is lit by the pillar's bright west face, the wall sees it past the
-    pillar's edge, and probes two units apart cannot hold it; and the carried lamp's red wall is the
-    same, the probe beside the green inner wall reading 0.11 toward the lamp's corner where the
-    reference has 0.84, its one ray in that texel meeting the green wall's unlit end face half a
-    unit off while the reference's cone takes in the lit corner past the edge, one ray a texel
-    sampling a steep light past a thin edge. The gap at 22 stands as that limit; a game that needs
-    the light in such a gap takes a finer cell, which stands the probes closer, as probes at half
-    the spacing read the gap at 15 here.
-
 63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
     otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
     of three rooms, a corridor, stairs between two floors, a window and two doors, made from one
@@ -868,7 +776,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     a pixel, and a capture of Ore from a height with the field's edge in view, before and after.
     RENDERING.md says the three, the guide's sections on shadows and on the field say the calls, the
     cheat sheet lines through the script, the surface listing and the upgrading entries. After item
-    71's second part. Three commits, one a part.
+    71's second part. Three commits, one a part. Given at 02:33 on 2026-10-24 to the cloud session
+    on `modeling` after item 2's commit, the tests on the null device and lavapipe there, Ore's
+    capture from a height the local coder's at the cherry-pick; its order against item 71's second
+    part is the cherry-pick's, no upgrading entries (Decision 64).
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -886,7 +797,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     profile's mark on the null device's counts and on lavapipe, and the nearest built first. One
     commit, after item 72. Given at 01:28 on 2026-10-24 to the cloud session on `modeling` after
     item 88, the test on the null device's counts and lavapipe there, the default's device readings
-    the local coder's at the cherry-pick; its order against item 72 is the cherry-pick's.
+    the local coder's at the cherry-pick; its order against item 72 is the cherry-pick's. On
+    `modeling` as `629c1643` under the owner's identity, 13 files, read at 02:32 on 2026-10-24: a
+    cascade's build a job spanning frames, clear, splats nearest first up to the budget with a mesh
+    at least, resolve, the passes reading the cascade as last built meanwhile and the unsplatted
+    meshes stamped as boxes, a newcomer joining and a splatted leaver restarting the job, a finer
+    cascade gone dirty taking a coarser job's place; SetSceneField's fourth argument and
+    SceneFieldConfig.TriangleBudget, field.state answering the frame's splatted and waiting
+    triangles, the default 32,768 the least power of two above Ore's 18,824 a frame; the builds in
+    SceneFieldPlan.Builds.cs under N 1.3; tests of the 500 sections under the budget, on lavapipe
+    5,565 ms at once against 312 at most over 27 frames; 159 lighting tests there. To cherry-pick
+    after 88's, the default's device readings at it.
 
 75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
     into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
@@ -966,7 +887,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     against its record within 6. The item's code is whole on the branch; the four hours' picture,
     the example's table row and Summit's capture fall to the local coder. On main as `7549a0f9` and
     `adefc7c1` on 2026-10-24, held for the push; the four hours picture and the example's row to
-    come.
+    come. Captures and the row at `49d834e1` on 2026-10-24, held for the push; item 77 done.
 
 88. **The tests that lend the console run in one collection, and an eval with no world lent refuses
     rather than throws.** Read by the coder at 23:55 on 2026-10-23 from the cloud branch's macOS
@@ -991,20 +912,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 84 are settled, said under each in REVIEW-ARCHIVE.md; 85 is open.
-
-85. **The macOS suite of the push of `fade1730` fails item 78's pixel test, the strip's newest bar
-    red where the test asks green.** On the build run 40030496277 on 2026-10-24 the macOS suite,
-    1,958 passed in 17 minutes 18 seconds, failed
-    F1_Takes_The_Interface_Away_And_F3_Lays_The_Overlay_Over_The_World at its reading of the strip's
-    newest bar, 240, 80 and 70 where a green bar was asked, since the bar's color is the frame's
-    time against 60 and 30 fps and the runner's frame took longer than a thirtieth, while Linux and
-    Windows passed; the test holds the runner's speed, which no test may, under N 3.3 and N 3.5. The
-    mend: the strip's test reads a bar's presence in the newest column, of any of the three colors,
-    or feeds the strip a frame time it sets, and asks the color only there; the overlay's other
-    readings stay. One commit, small, before the next push. Mended at `b0f652cc`, the test reading
-    the newest bar in any of the three colors within 8; it settles when the run of the push is green
-    on macOS.
+Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -1591,15 +1499,3 @@ under `"$version"` once past 1, a versioned type with no migration warned of (E3
 that adds one, and a component of a later version read as it is and saved back at that version
 with the values this build did not read and the fields it knows set from the entity (item 45, the
 versions). SHARED.md's row 120 can say both have it.
-
-
-
-
-
-
-
-
-
-
-
-

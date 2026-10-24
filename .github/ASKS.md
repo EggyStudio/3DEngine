@@ -582,10 +582,12 @@ shader, by the program's own fragment stage or by the material's texture at the 
 vertex stage gives. Meanwhile the plants cast no shadow, as before.
 
 
-Review: item 79 of REVIEW.md, 2026-10-21; the shadow pass cuts a mask material's surface by its
+ Review: item 79 of REVIEW.md, 2026-10-21; the shadow pass cuts a mask material's surface by its
 texture's alpha at the cutoff for a draw through a program's own shader, by the program's own
 fragment stage for the shadow where it gives one or by the material's texture at the coordinate the
 vertex stage gives, for the sun's cascades and the spot and point lights alike; after item 73.
+Shipped in 5.2.215 and taken by the game at `d7c4892` on 2026-10-24, the terrain shader cutting each
+wall's shadow by its tile's alpha, at 2.3 ms of GPU a frame on the development machine.
 
 ### 2026-10-21, the voxel game in `Voxel-Sandbox`: the sky's light on the scene cannot be set apart from the sky drawn
 

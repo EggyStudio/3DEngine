@@ -7,6 +7,59 @@ batch.
 
 ## Items done
 
+2. **What the owner saw on 2026-10-10 (Decision 27), before item 3's remainder.** The owner looked
+    at `shaders_subsurface` and at the voxel game and found four things, each measured before it is
+    changed, each a commit of its own with its numbers before and after and a test that holds the
+    measure, the voxel game's read through the testbed at eight columns, and the game's session
+    asked to write what it measures of them in ASKS.md. The game's session measured b, c and d on
+    the game and wrote them in ASKS.md with captures under `.github/assets/asks`, which go in with
+    that file. The owner looked again at 17:20 on the tree: the bounce stable in motion, the lamp's
+    lobes gone at a cell of 0.125, and a lamp's light at a distance aliased at its border and gone
+    farther off, so b closes with its commit, d gains its lever and e is added. At 23:40 the owner
+    looked at `98a1edca` and found the bounce awesome and the screen's probes its one unsteady part,
+    which is part f. At 10:05 on 2026-10-11 the owner, standing in a cave of the voxel game, saw the
+    sky's light enter it by the heading alone, which is part g and comes first (Decision 28). At
+    10:55 the owner looked at the tree with g's mend and found it right at every heading and tier
+    but one window at High, and found the indirect light noisy and spotted where a penumbra is wide,
+    which is part h. The apparatus first: `BounceReference` traces a mesh's flat color times its
+    texture's average and not the vertex colors the field and the model pass read, so the game's
+    rooms of white concrete, one white material with each block's color in its vertices, read a
+    third brighter in the reference than in the frame and the comparison cannot tell the bounce's
+    error from the color's (ASKS.md, 2026-10-11); the reference takes a hit's vertex colors since
+    `3c7fe822`, blended by the hit's barycentrics as the model pass blends them, a colored slab
+    within 1% where 0.58 apart, with a test. The order of work: h, with Verdict 49's steps that run
+    whether the measure holds, then Verdict 49's pairs, Verdict 48's two remedies, f's second left
+    thing, then item 10, item 9 and item 8, the others being done; the game's session measured g and
+    h in the game and wrote them in ASKS.md, as it measured d at both cells and e along the
+    distance, and reads g on `64fd2f14`. Read again by 08:07 on 2026-10-20 from the record and the
+    history: h's shadow depth and wall are done at `56db892b` and `8118e2c7`, the tiles' blotches at
+    0.30 percent and the seam's teeth of about ten pixels left for the owner's eye on `623bdc47`,
+    and the wall's dark side behind the pillar at 0.80 of the reference is the near occlusion term
+    from its other side, named under item 39; Verdict 49's steps and pairs are done and the verdict
+    settled; f's second left thing is done at `a25edfa7`; items 10, 9 and 8 are done at `c54d64eb`,
+    `feec07a2` and `c81eca54`; Verdict 48's two remedies stand unmade, the lamps' passes compiled
+    once and shared by the apps of a process, where the pipeline cache is per render world and no
+    Vulkan pipeline cache is shared across apps, and the leak test's lampless app given no lamp pass
+    to compile, and with the Windows job cold on every run since lavapipe's Windows build keeps no
+    cache they are next, read first for how much of the Windows suite's time each app's compiles
+    hold. Then item 7. Verdict 48's two remedies read by 09:40 on 2026-10-20 and taken as read with
+    nothing to mend: on lavapipe under the required layer the Rendering and Core parts take 35
+    minutes 43 seconds with Mesa's cache off as on Windows, 16 minutes 21 seconds filling and 15
+    minutes 48 warm, so 56 percent of their time is the same shaders compiled again for each app,
+    the leak test's app 1.32 seconds cold against 0.56 warm, 0.11 of it the making of its seven
+    pipelines and most of the rest the first frame, 830 ms cold against 164, where lavapipe compiles
+    its variants at the first draw and dispatch; a pipeline cache made with each device from the one
+    before changes nothing, 199 seconds against 195 over the hundred apps, since lavapipe's cache
+    keeps nothing of its compiled code across devices and its draw-time compiles are not in it, so
+    sharing compiles needs the device kept from app to app, which the leak tests exist to forbid;
+    the lampless app already makes no lamp or bounce pass, seven pipelines in 109 ms; and pal1000's
+    Windows builds of Mesa 26.2.4, the MSVC one the job takes and the MinGW one, lack the disk cache
+    altogether, their lavapipe carrying a stub's name where the Linux one carries the cache's, so no
+    variable, folder or step can warm the Windows suite. The Windows job's cache steps went at
+    `f4c62380` on 2026-10-20 with the finding in their place, under Verdict 72's settling in the
+    archive, which this record missed until the cloud session read it on 2026-10-24; item 2 done,
+    item 7 going on.
+
 5. **The first shares recorded from the workflow's own device.** The examples job's first green run
    puts every pair measured for the first time into notices, which the public listing of the job's
    annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's own,
@@ -334,6 +387,50 @@ batch.
     upload with colors keeps them for the readers and queues no stream buffers, and the Vulkan fact
     of stage 2 unchanged. The game then measures its land again, 20 bytes a vertex and about 40 MB
     expected where 63. Done at `86fba7ad`; the game measures again.
+
+22. **The wall before the pillar blends in probes standing at the pillar's dark face; the screen's
+    probes reach the pillar themselves; done at `e424550c`, its second part read and closed.** Read
+    at `82b40646` and measured at `f889a559`: a wall two units before the pillar reads 0.68 of the
+    reference's bounce with the pillar and 1.05 without, a gap of 37 points, 47 to 51 with the
+    screen's probes off; probes at half the spacing narrow it to 15, and the merge's trace in place
+    of the dark reading, measured and not taken, lifts both rooms and leaves it at 34 while taking
+    the 27 bounce-room cases from 4.006 to 4.298 of summed error. The gather sees the eight probes
+    around a surface by a traced bit each and weighs them by how near they stand and whether they
+    face it, and the probes at the pillar's dark face pass both, their light being right for where
+    they stand and wrong for the wall. Measured both ways at 05:05 and chosen so. The screen's
+    probes' rays to twice the first spacing take the gap at x 7 from 37 points to 22, 0.79 with the
+    pillar and 1.01 without, x 7.5 from 35 to 21 and every other point within 13, doubled depth
+    steps changing nothing and three or four spacings overshooting to 1.75 of the reference at x
+    9.5; the 27 cases sum to 3.739 where 4.006, the corridor from 17% under to 2 to 9%, the strip
+    falling to 7 to 9% under where it held within 2, and the carried lamp to 7.5% under where 5; the
+    GPU's cost at High in the bounce rooms 0.03 to 0.06 ms in most views and 0.11 to 0.13 in the
+    corridor. The gather weight, each probe's reach along the surface's normal and four leaning ways
+    against its distance, moves x 7 from 0.68 to 0.72 alone and to 0.80 with the reach, and with the
+    screen's probes off the gap stands at 0.54 to 0.56, so the probes at the pillar's face are not
+    the gap's main cause and the weight is not taken. The reach at two spacings is taken for the
+    rooms' gain, the marks of 15 points and a tenth of a millisecond missed and said: the gap at 22,
+    the corridor's cost at 0.13, the strip and the lamp a few points further under, written in
+    RENDERING.md as the trade, the glowstone room's GPU time read before the commit, and the strip
+    read for why the longer rays take from it. What remains is the probe beside the wall reading its
+    face toward the pillar 21% low, of which the merge's dark reading was half, which is the item's
+    second part: that face's shortfall read ray by ray against the reference and mended where the
+    cause is the engine's, measured by the gap at x 7 and the 27 cases' sum, which must not rise
+    above 3.778, the sum since the first part's leak remedies. The first part is done at `e424550c`.
+    The second part was read ray by ray at 06:50 and closed with nothing kept: passing over a
+    cascade-1 probe whose ray met a surface early takes the probe's face toward the wall from 21%
+    under to 7, but the frame does not follow, x 7 reading 0.83 with the pillar and 1.05 without,
+    the same 22 points, and the 27 cases rise to 3.859, since the wall's pixels read their own
+    screen rays out to four units and the probe's face no longer sets the gap; 64 screen rays read
+    lower still and finer glow marches at a hit change nothing, so what the rays bring is short
+    rather than few. What is left is the probes' resolution: the floor in the one-unit gap between
+    the lamp and the pillar is lit by the pillar's bright west face, the wall sees it past the
+    pillar's edge, and probes two units apart cannot hold it; and the carried lamp's red wall is the
+    same, the probe beside the green inner wall reading 0.11 toward the lamp's corner where the
+    reference has 0.84, its one ray in that texel meeting the green wall's unlit end face half a
+    unit off while the reference's cone takes in the lit corner past the edge, one ray a texel
+    sampling a steep light past a thin edge. The gap at 22 stands as that limit; a game that needs
+    the light in such a gap takes a finer cell, which stands the probes closer, as probes at half
+    the spacing read the gap at 15 here.
 
 23. **A mesh casts the sun's shadow and stays out of the light field, and a moving mesh's stamp
     costs less; done at `6a36b2b5` and `089ac771`.** The game's entry of 2026-10-12 in ASKS.md: its
@@ -4299,3 +4396,18 @@ at `36cae0c2`.
     lesson is the reviewer's: a cherry-pick that adds public names is pushed only with the commit
     that carries its upgrading entry. Settled on the Linux suite of the build run 40012951798 of
     `a0e5964e`, green on 2026-10-23, read at 22:49.
+
+
+85. **The macOS suite of the push of `fade1730` fails item 78's pixel test, the strip's newest bar
+    red where the test asks green.** On the build run 40030496277 on 2026-10-24 the macOS suite,
+    1,958 passed in 17 minutes 18 seconds, failed
+    F1_Takes_The_Interface_Away_And_F3_Lays_The_Overlay_Over_The_World at its reading of the strip's
+    newest bar, 240, 80 and 70 where a green bar was asked, since the bar's color is the frame's
+    time against 60 and 30 fps and the runner's frame took longer than a thirtieth, while Linux and
+    Windows passed; the test holds the runner's speed, which no test may, under N 3.3 and N 3.5. The
+    mend: the strip's test reads a bar's presence in the newest column, of any of the three colors,
+    or feeds the strip a frame time it sets, and asks the color only there; the overlay's other
+    readings stay. One commit, small, before the next push. Mended at `b0f652cc`, the test reading
+    the newest bar in any of the three colors within 8; it settles when the run of the push is green
+    on macOS. Settled: the run of `b0f652cc` green on macOS and Windows at 02:08 on 2026-10-24,
+    whole at 02:28.
