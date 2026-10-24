@@ -50,7 +50,7 @@ internal static class GlowLights
     public const int Bytes = 80;
 
     /// <summary>Where the lights start in the lights of global illumination, after the sun, the sky, the lamps and the cascades' corners, their count first.</summary>
-    public const int Offset = 64 + 16 * 64 + 4 * 16;
+    public const int Offset = 64 + 16 * 64 + GlobalIlluminationRenderer.MostCascades * 16;
 
     /// <summary>The bytes the count and the lights take.</summary>
     public const int Size = 16 + Most * Bytes;

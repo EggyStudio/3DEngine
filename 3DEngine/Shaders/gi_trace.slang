@@ -1,5 +1,6 @@
 // Traces the rays of one cascade of light probes through the scene's distance field, a thread a
-// ray. A cascade's probes lie every eight cells of the field's cascade of the same number, and each
+// ray. A cascade's probes lie every eight cells of the field's cascade of the same number, or of
+// its far cascade for the last where it has one (probesOf), and each
 // sends a ray along each texel of an octahedron of directions across its interval, from as far as
 // the probes are apart to four times that, the last cascade's on to the field's edge, so the next
 // cascade, twice as coarse, carries on from half way along it, and a surface nearer a probe of the
@@ -115,8 +116,9 @@ groupshared bool walledIn;
 // find itself again after a turn moved every cascade.
 SceneFieldInfo gatheredAt()
 {
-    SceneFieldInfo then = fieldInfo;
-    for (int c = 0; c < 4; c++)
+    int cascades = int(push.interval.w);
+    SceneFieldInfo then = probesOf(fieldInfo, cascades);
+    for (int c = 0; c < min(cascades, MostProbeCascades); c++)
         then.cascades[c].originAndCell.xyz = lights.before[c].xyz;
     return then;
 }
@@ -222,7 +224,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // The probe's share, before any ray of the group leaves the rest.
     float3 share = kept(at, int(push.cascade.x), int(probes), lane);
 
-    float4 oc = fieldInfo.cascades[push.cascade.x].originAndCell;
+    float4 oc = probesOf(fieldInfo, int(push.interval.w)).cascades[push.cascade.x].originAndCell;
     float apart = oc.w * push.interval.z;
     float3 spot = oc.xyz + (float3(at) + 0.5) * apart;
     // The probe moved into the open by the group's first ray, for every ray of it. One the gather

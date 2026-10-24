@@ -1,5 +1,6 @@
 // The scene's distance field as the passes that read it see it. Cascades of cells around the
-// camera, each twice as coarse and as wide as the one before, hold how far each cell's middle is
+// camera, each twice as coarse and as wide as the one before, and after them the far cascade where
+// the program asks for one, its cells as wide as its reach takes, hold how far each cell's middle is
 // from the nearest surface of the meshes that cast shadows, below zero inside a mesh with an inside,
 // exact within a few cells of a surface and held at that many beyond. They lie one after another
 // along z in one texture, so a pass binds the field once, and a cascade not yet built has a cell
@@ -48,9 +49,10 @@ public struct FieldCascade
 public struct SceneFieldInfo
 {
     // x: how many cascades the texture holds, 0 where the field is off. y: the cells along each
-    // side of a cascade. z: how many cells from a surface the distances are exact. w: unused.
+    // side of a cascade. z: how many cells from a surface the distances are exact. w: the far
+    // cascade's place, the last, or 0 where there is none.
     public float4 counts;
-    public FieldCascade cascades[8];
+    public FieldCascade cascades[9];
     // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
     // (bandHold). w: unused.
     public float4 eye;
@@ -60,6 +62,23 @@ public struct SceneFieldInfo
 public bool fieldOn(SceneFieldInfo info)
 {
     return info.counts.x > 0.5;
+}
+
+// The field's cascades the world's `probes` cascades of probes stand in, the field's own in order
+// but for the last, which stands in the far cascade where the field has one, so a cascade of probes
+// lies where its cascade does and the probes holding a point are found as the field's cascades
+// holding it are. The probes are read through it and the field's distances through the field's own
+// info, since past the cascades of probes it holds neither the field's count nor its places in the
+// texture.
+public SceneFieldInfo probesOf(SceneFieldInfo info, int probes)
+{
+    SceneFieldInfo probed = info;
+    int far = int(info.counts.w);
+    if (far > 0 && probes > 0)
+        probed.cascades[probes - 1] = info.cascades[far];
+    probed.counts.x = float(min(probes, int(info.counts.x)));
+    probed.counts.w = 0.0;
+    return probed;
 }
 
 // The cells of the field's last cascade's outer band, across which a pass that reads the field's

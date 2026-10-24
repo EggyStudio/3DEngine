@@ -10,7 +10,7 @@ struct ProbesPush
 {
     // World to clip space, the window's camera's.
     float4x4 viewProjection;
-    // x: the cascade. y: its probes along each side. zw: unused.
+    // x: the cascade. y: its probes along each side. z: how many cascades. w: unused.
     uint4 cascade;
     // x: the probes' spacing in cells. y: a cube's half side as a share of the spacing. zw: unused.
     float4 size;
@@ -45,7 +45,7 @@ ProbeVertex vertexMain(uint id : SV_VertexID, uint instance : SV_InstanceID)
     uint probes = push.cascade.y;
     uint c = push.cascade.x;
     uint3 at = uint3(instance % probes, (instance / probes) % probes, instance / (probes * probes));
-    float4 oc = fieldInfo.cascades[c].originAndCell;
+    float4 oc = probesOf(fieldInfo, int(push.cascade.z)).cascades[c].originAndCell;
     float spacing = oc.w * push.size.x;
     // Moved as its faces' alpha says, two more than its move along each axis in its spacing, 0 for
     // a probe inside a mesh (faceMove in gi.slang).

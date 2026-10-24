@@ -40,15 +40,26 @@ public static partial class E3D
     /// rather than stalling one, and a scene of fewer triangles builds as many cascades a frame as
     /// <paramref name="updateBudget"/> says.
     /// </para>
+    /// <para>
+    /// A <paramref name="farCascade"/> distance past the others' reach adds a far cascade, which
+    /// <paramref name="cascades"/> leaves out of its count, 64 cells a side as each is, its cells as
+    /// wide as reaching that far ahead of the camera takes in place of twice the last's, and held to
+    /// the camera's far plane, so <see cref="float.PositiveInfinity"/> reaches that plane. Global
+    /// illumination's probes stand in it as in the others, so a ray that leaves the counted cascades
+    /// meets the hills and buildings it holds before the sky, and the passes that read the field to
+    /// its edge read on through it. It is built under the budgets as the others are, and its coarse
+    /// cells suit far land and lose what is thinner than they are.
+    /// </para>
     /// </remarks>
     public static void SetSceneField(int cascades, float cellSize = SceneFieldConfig.DefaultCellSize, int updateBudget = SceneFieldConfig.DefaultUpdateBudget,
-        int triangleBudget = SceneFieldConfig.DefaultTriangleBudget)
+        int triangleBudget = SceneFieldConfig.DefaultTriangleBudget, float farCascade = 0)
     {
         var field = World.GetOrInsertResource(static () => new SceneFieldSettings());
         field.Cascades = Math.Clamp(cascades, 0, 8);
         field.CellSize = Math.Max(1e-3f, cellSize);
         field.UpdateBudget = Math.Max(1, updateBudget);
         field.TriangleBudget = Math.Max(1, triangleBudget);
+        field.FarCascade = float.IsNaN(farCascade) ? 0 : Math.Max(0, farCascade);
     }
 
     /// <summary>

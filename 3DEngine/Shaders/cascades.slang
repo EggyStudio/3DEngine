@@ -1,5 +1,5 @@
 // Where a point lies in the cascades of the world's probes, which stand in the field's cascades of
-// the same number, and how much of the light from all around them the probes give it across each
+// the same number but the far one's (probesOf), and how much of the light from all around them the probes give it across each
 // one's outer band (gi.slang, the model pass).
 module cascades;
 
@@ -56,8 +56,8 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
 
 // How much of the light from all around a surface at p facing n the probes give rather than what
 // lies past them, the environment's and the ambient lights' unhidden, through as many cascades as
-// `cascades` (probesHold).
+// `cascades` (probesHold), the probes found where the field's cascades they stand in lie (probesOf).
 public float bouncedHold(SceneFieldInfo info, float3 p, float3 n, float spacing, float cascades)
 {
-    return probesHold(info, p, n, spacing, int(cascades) - 1);
+    return probesHold(probesOf(info, int(cascades)), p, n, spacing, int(cascades) - 1);
 }

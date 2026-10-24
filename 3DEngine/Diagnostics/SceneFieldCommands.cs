@@ -207,16 +207,20 @@ internal static class SceneFieldCommands
         return off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
     }
 
-    [Command("field.state", "Where each cascade of the scene's distance field lies, how many meshes are still in it, what this frame stamped, and the triangles its builds splatted and those left waiting for later frames")]
+    [Command("field.state", "Where each cascade of the scene's distance field lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, and the triangles its builds splatted and those left waiting for later frames")]
     internal static string State()
     {
         if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
             || renderer.RenderWorld.TryGet<SceneFieldRenderer>()?.Plan is not { } plan)
             return "the scene's distance field is not built";
+        // The far cascade, after the counted ones, says so after its place.
+        string Far(int c) => plan.HasFar && c == plan.Cascades - 1 ? " (far)" : "";
         var cascades = Enumerable.Range(0, plan.Cascades).Select(c => plan.BuiltOrigin(c) is { } origin
-            ? $"cascade {c}: {plan.CellOf(c)} a cell from {origin.X:0.##},{origin.Y:0.##},{origin.Z:0.##}"
-            : $"cascade {c}: not built");
-        return string.Join("\n", cascades.Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
+            ? $"cascade {c}: {plan.CellOf(c)} a cell from {origin.X:0.##},{origin.Y:0.##},{origin.Z:0.##}{Far(c)}"
+            : $"cascade {c}: not built{Far(c)}");
+        var bytes = GpuSceneField.MemoryBytes(plan.Cascades, SceneFieldPlan.Resolution);
+        return string.Join("\n", cascades.Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
+            .Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
             .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}, {plan.Waiting} waiting"));
     }
 }

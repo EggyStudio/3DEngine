@@ -71,7 +71,7 @@ illumination shares it with the occlusion, the sun's contact shadows and the par
 as [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field) in
 the materials guide says.
 
-`SetSceneField(cascades, cellSize, updateBudget, triangleBudget)` sets its shape. The field is cascades of 64 cells
+`SetSceneField(cascades, cellSize, updateBudget, triangleBudget, farCascade)` sets its shape. The field is cascades of 64 cells
 a side, each twice as coarse and as wide as the one before, so four cascades of a quarter reach 16
 units across in the first and 128 in the last, and the probes stand in the same cascades. The cell
 is the finest detail global illumination sees. A wall thinner than a cell is held about its middle
@@ -90,6 +90,16 @@ teleport or a first load, are built over several frames rather than stalling one
 triangles builds as many cascades a frame as `updateBudget` says. The frame profile
 names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
 budget for its own device.
+
+`farCascade` adds a far cascade past the others, which `cascades` leaves out of its count, 64 cells
+a side as each is, its cells as wide as reaching that many units ahead of the camera takes. It is
+held to the camera's far plane, so `float.PositiveInfinity` reaches that plane, and the world's
+probes stand in it as in the others. A ray that leaves the counted cascades meets the hills and
+buildings it holds before the sky, so a valley past the near field is not lit as open ground, and
+the occlusion, the contact shadows and the glow lights' marches read on through it. Its cells are
+coarse, so it holds land and buildings and loses what is thinner than they are, and it is built
+under the budgets as the others are. It takes 5.5 MB of the GPU's memory beside the 27 of four
+cascades, and its probes 2.6 MB at High, as `field.state` and `gi.state` say.
 
 Each cascade lies mostly ahead of the eye, its middle 0.35 of its width in front, so its side behind
 the eye is between 1.6 and 9.6 of its cells back. What stands behind the camera farther than that is

@@ -67,7 +67,7 @@ internal sealed class BounceViewRenderer : IDisposable
     private struct ProbesPush
     {
         public Matrix4x4 ViewProjection;
-        public uint Cascade, Probes, Unused0, Unused1;
+        public uint Cascade, Probes, Cascades, Unused;
         public Vector4 Size;
     }
 
@@ -186,7 +186,7 @@ internal sealed class BounceViewRenderer : IDisposable
         var push = new ProbesPush
         {
             ViewProjection = view.ViewProjection,
-            Cascade = (uint)Math.Clamp(settings.ShownCascade, 0, binding.Probes.Cascades - 1), Probes = (uint)p,
+            Cascade = (uint)Math.Clamp(settings.ShownCascade, 0, binding.Probes.Cascades - 1), Probes = (uint)p, Cascades = (uint)binding.Probes.Cascades,
             Size = new Vector4(GlobalIlluminationRenderer.ProbeSpacing, CubeSize, 0, 0),
         };
         pass.SetPipeline(_probesPipeline);

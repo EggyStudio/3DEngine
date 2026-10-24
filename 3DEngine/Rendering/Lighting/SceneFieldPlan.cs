@@ -228,12 +228,16 @@ internal sealed partial class SceneFieldPlan
     /// </param>
     /// <param name="triangleBudget">How many triangles the builds splat a frame at most, a mesh at least.</param>
     /// <param name="triangles">How many triangles a mesh has, a third of its vertices unless given.</param>
+    /// <param name="farCell">The width of a cell of the far cascade after the others, or 0 for none.</param>
     public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null,
-        Func<Instance, Vector3>? tint = null, int triangleBudget = SceneFieldConfig.DefaultTriangleBudget, Func<ModelVertex[], int>? triangles = null)
+        Func<Instance, Vector3>? tint = null, int triangleBudget = SceneFieldConfig.DefaultTriangleBudget, Func<ModelVertex[], int>? triangles = null,
+        float farCell = 0)
     {
         _parts = parts ?? (_ => null);
         _tint = tint ?? (_ => Vector3.One);
-        Cascades = Math.Clamp(cascades, 1, 8);
+        Counted = Math.Clamp(cascades, 1, 8);
+        FarCell = farCell > 0 ? farCell : 0;
+        Cascades = Counted + (FarCell > 0 ? 1 : 0);
         CellSize = cellSize;
         Budget = Math.Max(1, budget);
         TriangleBudget = Math.Max(1, triangleBudget);
@@ -245,8 +249,17 @@ internal sealed partial class SceneFieldPlan
         _changed = new Box?[Cascades];
     }
 
-    /// <summary>How many cascades.</summary>
+    /// <summary>How many cascades, the far one among them where there is one.</summary>
     public int Cascades { get; }
+
+    /// <summary>How many cascades there are but the far one, each twice as coarse as the one before.</summary>
+    public int Counted { get; }
+
+    /// <summary>The width of a cell of the far cascade, the last, or 0 where there is none.</summary>
+    public float FarCell { get; }
+
+    /// <summary>Whether the last cascade is a far one, its cells <see cref="FarCell"/> wide.</summary>
+    public bool HasFar => FarCell > 0;
 
     /// <summary>The width of a cell of the finest cascade.</summary>
     public float CellSize { get; }
@@ -290,8 +303,34 @@ internal sealed partial class SceneFieldPlan
     /// <summary>Whether the last frame drew the meshes the frame before did in the same order, and was read by place.</summary>
     public bool ReadByPlace { get; private set; }
 
+    /// <summary>
+    /// The cascade the probes of cascade <paramref name="probes"/> of <paramref name="cascades"/>
+    /// stand in, its own number but for the last, which stands in the far cascade where there is one,
+    /// as <c>scenefield.slang</c>'s <c>probesOf</c> has it.
+    /// </summary>
+    public int CascadeOfProbes(int probes, int cascades) => HasFar && probes == cascades - 1 ? Cascades - 1 : probes;
+
     /// <summary>The width of a cell of a cascade.</summary>
-    public float CellOf(int cascade) => CellSize * (1 << cascade);
+    public float CellOf(int cascade) => cascade >= Counted && HasFar ? FarCell : CellSize * (1 << cascade);
+
+    /// <summary>
+    /// The width of a cell of a far cascade reaching <paramref name="reach"/> ahead of the eye from
+    /// its middle's lead, so its side ahead lies there, and at least twice as wide as the last
+    /// counted cascade's of <paramref name="cascades"/> from <paramref name="cellSize"/>, or 0 for a
+    /// reach of none or past every finite distance.
+    /// </summary>
+    /// <remarks>
+    /// It is rounded up to a sixteenth of twice the last's cell, so a reach read from a camera's far
+    /// plane, which rounding moves a little from frame to frame, gives the same cell and the field is
+    /// not made again.
+    /// </remarks>
+    public static float FarCellFor(float reach, int cascades, float cellSize)
+    {
+        if (!(reach > 0) || !float.IsFinite(reach)) return 0;
+        var doubled = cellSize * (1 << Math.Clamp(cascades, 1, 8));
+        var step = doubled / 16;
+        return Math.Max(doubled, MathF.Ceiling(reach / ((0.5f + Lead) * Resolution) / step) * step);
+    }
 
     /// <summary>The eye the cascades lie around this frame, as <see cref="Update"/> was last given it.</summary>
     public Vector3 Eye { get; private set; }

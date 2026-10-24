@@ -102,6 +102,7 @@ internal sealed class RenderPlugin : IPlugin
                 CellSize = cfg.SceneField.CellSize,
                 UpdateBudget = cfg.SceneField.UpdateBudget,
                 TriangleBudget = cfg.SceneField.TriangleBudget,
+                FarCascade = cfg.SceneField.FarCascade,
             });
         if (cfg.GlobalIllumination != GlobalIllumination.Off)
             app.World.InsertResource(new GlobalIlluminationSettings { Quality = cfg.GlobalIllumination });

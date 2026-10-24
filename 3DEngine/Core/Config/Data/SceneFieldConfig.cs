@@ -8,14 +8,19 @@ namespace Engine;
 /// <remarks>
 /// <see cref="E3D.SetSceneField"/> changes it while the app runs. Each cascade is 64 cells a
 /// side and twice as coarse and as wide as the one before, so four cascades of 0.25 units reach 128
-/// units across and take 4 MB of the GPU's memory.
+/// units across and take 27 MB of the GPU's memory, and the far cascade 5.5 MB more.
 /// </remarks>
 /// <param name="Cascades">How many cascades, from 1 to 8, or 0 for no field.</param>
 /// <param name="CellSize">The width of a cell of the finest cascade, in world units.</param>
 /// <param name="UpdateBudget">How many cascades are built again in one frame at most, where the camera has moved past them or a mesh came or went.</param>
 /// <param name="TriangleBudget">How many triangles the cascades' builds splat in one frame at most, a mesh at least, a build of more going on over the frames after.</param>
+/// <param name="FarCascade">
+/// How far ahead of the camera, in world units, a far cascade past the others reaches, which their
+/// count leaves out, held to the camera's far plane, so <see cref="float.PositiveInfinity"/>
+/// reaches that plane, or 0 for none.
+/// </param>
 public sealed record SceneFieldConfig(int Cascades = 0, float CellSize = SceneFieldConfig.DefaultCellSize, int UpdateBudget = SceneFieldConfig.DefaultUpdateBudget,
-    int TriangleBudget = SceneFieldConfig.DefaultTriangleBudget)
+    int TriangleBudget = SceneFieldConfig.DefaultTriangleBudget, float FarCascade = 0)
 {
     /// <summary>The width of a cell of the finest cascade unless one is given, in world units.</summary>
     public const float DefaultCellSize = 0.25f;

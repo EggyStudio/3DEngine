@@ -136,6 +136,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>How many cells of their field cascade the probes lie apart.</summary>
     public const int ProbeSpacing = 8;
 
+    /// <summary>The most cascades of probes, the four High traces and the far cascade's.</summary>
+    public const int MostCascades = 5;
+
     /// <summary>
     /// The roughness from which a surface traces no reflection, the probes and the environment
     /// reflecting alone, its traced reflection fading out from half of it.
@@ -271,11 +274,28 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// How many cascades of probes global illumination traces for the window this frame, which the
     /// window's lighting buffer tells the model pass, 0 where global illumination is off.
     /// </summary>
+    /// <remarks>
+    /// The field's far cascade, where it has one, has a cascade of probes of its own after those the
+    /// quality traces, which stand in the field's first cascades.
+    /// </remarks>
     internal static int CascadesIn(RenderWorld renderWorld) =>
         renderWorld.TryGet<GlobalIlluminationSettings>() is { Quality: not GlobalIllumination.Off } settings
         && renderWorld.TryGet<SceneFieldSettings>() is { On: true } field
-            ? Math.Min(TexelsAt(settings.Quality).Length, Math.Clamp(field.Cascades, 1, 8))
+            ? Math.Min(TexelsAt(settings.Quality).Length, Math.Clamp(field.Cascades, 1, 8)) + (FarIn(renderWorld) ? 1 : 0)
             : 0;
+
+    // Whether the field the probes stand in has a far cascade this frame.
+    private static bool FarIn(RenderWorld renderWorld) => renderWorld.TryGet<SceneFieldRenderer>()?.Plan is { HasFar: true };
+
+    /// <summary>
+    /// Each of <paramref name="cascades"/> cascades' octahedron's texels at a quality, the far
+    /// cascade's, the last where <paramref name="far"/>, as many as the cascade before it.
+    /// </summary>
+    internal static int[] TexelsFor(GlobalIllumination quality, int cascades, bool far)
+    {
+        var texels = TexelsAt(quality);
+        return far ? [.. texels[..(cascades - 1)], texels[cascades - 2 < 0 ? 0 : cascades - 2]] : texels[..cascades];
+    }
 
     /// <summary>Traces, merges and gathers the frame's probes, binding them for the model pass, or lets them go where light does not bounce.</summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
@@ -305,10 +325,12 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         }
 
         var wanted = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
+        var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
+        var far = FarIn(renderWorld);
         if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades)
         {
             Release();
-            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsAt(wanted)[..cascades]);
+            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far));
             _made = (field.Field, wanted, cascades);
         }
 
@@ -326,12 +348,18 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // room 35% under a path-traced reference where High's, with a third cascade past it, read
         // 21%. Its rays go on until they meet a surface or leave the field, and read the sky there
         // as a ray leaving the field does.
-        var fieldEdge = SceneFieldPlan.Resolution * fieldSettings.CellSize * (1 << (Math.Clamp(fieldSettings.Cascades, 1, 8) - 1)) * MathF.Sqrt(3);
+        //
+        // The far cascade's probes stand in the field's far cascade, their spacing that of its cells,
+        // and its interval begins half way along the one before's, as each cascade's does, so a ray
+        // that leaves the cascade before meets what it holds before the sky.
+        var fieldEdge = SceneFieldPlan.Resolution * (plan?.CellOf(plan.Cascades - 1)
+            ?? fieldSettings.CellSize * (1 << (Math.Clamp(fieldSettings.Cascades, 1, 8) - 1))) * MathF.Sqrt(3);
         var intervals = new (float Start, float End)[cascades];
         for (int c = 0; c < cascades; c++)
         {
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
-            intervals[c] = (c == 0 ? 0 : spacing, c == cascades - 1 ? fieldEdge : 4 * spacing);
+            var start = c == 0 ? 0 : far && c == cascades - 1 ? 2 * ProbeSpacing * fieldSettings.CellSize * (1 << (c - 1)) : spacing;
+            intervals[c] = (start, c == cascades - 1 ? fieldEdge : 4 * spacing);
         }
         // The screen's probes' rays reach twice as far as the world's probes are apart before they
         // take the light from beyond from them, where they end in the finest cascade
@@ -351,7 +379,6 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
         // Each cascade lying where it lay the frame before, its probes the same, so a probe's own
         // light of the frame before is its own.
-        var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
         _fieldRebuilt = 0;
         foreach (var build in plan?.Builds ?? [])
             if (build.Changed is { } changed)
@@ -363,10 +390,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var lying = new bool[cascades];
         // And where each lay the frame before, which the rays read the faces of the light that
         // bounced at, since they were gathered there.
-        var corners = MemoryMarshal.Cast<byte, Vector4>(lights.AsSpan(64 + 16 * 64, 4 * 16));
+        var corners = MemoryMarshal.Cast<byte, Vector4>(lights.AsSpan(64 + 16 * 64, MostCascades * 16));
         for (int c = 0; c < cascades; c++)
         {
-            origins[c] = plan?.BuiltOrigin(c);
+            origins[c] = plan?.BuiltOrigin(plan.CascadeOfProbes(c, cascades));
             lying[c] = origins[c] is not null && c < _origins.Length && _origins[c] == origins[c];
             if (c < corners.Length && ((c < _origins.Length ? _origins[c] : null) ?? origins[c]) is { } then)
                 corners[c] = new Vector4(then, 0);

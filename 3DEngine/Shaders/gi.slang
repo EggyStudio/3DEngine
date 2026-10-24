@@ -93,6 +93,10 @@ public struct GiLight
     public float4 cone;
 };
 
+// The most cascades of probes, the four High traces and the far cascade's, as
+// GlobalIlluminationRenderer.MostCascades.
+public static const int MostProbeCascades = 5;
+
 public struct GiLights
 {
     // xyz: the way toward the sun. w: 1 where there is a sun.
@@ -108,7 +112,7 @@ public struct GiLights
     public GiLight lights[16];
     // xyz: the corner each cascade of probes lay at the frame before, where the faces the probes'
     // rays read were gathered, its own corner where it lay nowhere. w: unused.
-    public float4 before[4];
+    public float4 before[MostProbeCascades];
     // x: how many of glows hold a light.
     public float4 glowCounts;
     public GlowLight glows[MostGlowLights];
@@ -396,9 +400,11 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 // The indirect light reaching a surface at p facing n, irradiance, from the finest cascade of
 // probes that holds it, fading to the next cascade's across its outer band (cascadeHold) where that
 // one is built, or none where no cascade of probes holds p. The two cascades are read in a loop
-// kept from unrolling, so a shader holds one read of a cascade.
-public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+// kept from unrolling, so a shader holds one read of a cascade. The probes are found where the
+// field's cascades they stand in lie (probesOf).
+public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo field, float3 p, float3 n, float probes, float spacing, float cascades)
 {
+    SceneFieldInfo info = probesOf(field, int(cascades));
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
@@ -460,8 +466,9 @@ float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, f
 // the sky by (gi_ambient.slang), blended between the eight probes around it as bouncedAt blends
 // their light, the three faces r looks toward weighed by the square of r along each, or the whole
 // sky where no cascade of probes holds p.
-public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, float cascades)
+public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo field, float3 p, float3 n, float3 r, float probes, float spacing, float cascades)
 {
+    SceneFieldInfo info = probesOf(field, int(cascades));
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return 1.0;
@@ -506,9 +513,10 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
 // probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
 // bouncedAt. The faces are read where the probes stood as gathered says, the frame before's corners
 // for the world's probes' rays, and the field marched as info has it.
-public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
+public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gatheredField, V cubes, float3 p, float3 n, float probes, float spacing,
     float cascades)
 {
+    SceneFieldInfo gathered = probesOf(gatheredField, int(cascades));
     int c = fieldCascade(gathered, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
@@ -518,7 +526,7 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 
 // The sum bouncedSeenAt divides for cascade c, the light of the probes seen times their weights,
 // and the weights, which a reader that takes another light where no probe is seen, or blends two
-// cascades, tells apart from dark.
+// cascades, tells apart from dark. gathered places the probes as probesOf does.
 public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
     int c)
 {

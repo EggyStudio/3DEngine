@@ -1485,7 +1485,7 @@ static class Engine.E3D
   static void SetProfileValue(string name, double value)
   static void SetRandomSeed(uint seed)
   static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
-  static void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, int triangleBudget = 32768)
+  static void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, int triangleBudget = 32768, float farCascade = 0f)
   static void SetScreenshotKey(Key key)
   static void SetShaderKeepsPositions(Shader shader, bool keepsPositions)
   static void SetShaderValue(Shader shader, int location, int value)
@@ -3147,12 +3147,13 @@ sealed class Engine.SceneEmbeddedTexture : IEquatable<SceneEmbeddedTexture>
   string? FileName { get; init; }
   void Deconstruct(out string? FileName, out byte[]? Encoded, out string FormatHint, out int Width, out int Height, out byte[]? Rgba)
 sealed class Engine.SceneFieldConfig : IEquatable<SceneFieldConfig>
-  SceneFieldConfig(int Cascades = 0, float CellSize = 0.25f, int UpdateBudget = 1, int TriangleBudget = 32768)
+  SceneFieldConfig(int Cascades = 0, float CellSize = 0.25f, int UpdateBudget = 1, int TriangleBudget = 32768, float FarCascade = 0f)
   bool Equals(SceneFieldConfig? other)
   const float DefaultCellSize = 0.25f
   const int DefaultTriangleBudget = 32768
   const int DefaultUpdateBudget = 1
   float CellSize { get; init; }
+  float FarCascade { get; init; }
   int Cascades { get; init; }
   int TriangleBudget { get; init; }
   int UpdateBudget { get; init; }
@@ -3161,7 +3162,7 @@ sealed class Engine.SceneFieldConfig : IEquatable<SceneFieldConfig>
   override string ToString()
   static bool op_Equality(SceneFieldConfig? left, SceneFieldConfig? right)
   static bool op_Inequality(SceneFieldConfig? left, SceneFieldConfig? right)
-  void Deconstruct(out int Cascades, out float CellSize, out int UpdateBudget, out int TriangleBudget)
+  void Deconstruct(out int Cascades, out float CellSize, out int UpdateBudget, out int TriangleBudget, out float FarCascade)
 static class Engine.SceneFile
   const int Version = 1
   const string Format = "3dengine-scene"

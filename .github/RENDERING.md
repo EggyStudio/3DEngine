@@ -571,6 +571,29 @@ lies (`scenefield.slang`). A cell holds its distance to the nearest surface in w
 zero behind a face of a mesh that is not double-sided, exact within four cells and held at four
 beyond, so a trace through it steps at least that far through open space.
 
+A far cascade past the counted ones, which `SetSceneField`'s `farCascade` asks for and its count
+leaves out, lies last in the image, 64 cells a side as each is. Its cells are as wide as reaching
+that distance ahead of the eye from its lead takes, held to the window's camera's far plane, at
+least twice the last counted cascade's and rounded up to a sixteenth of that, so a far plane read
+from the camera's matrix gives the same cells each frame (`SceneFieldPlan.FarCellFor`). The uniform
+buffer's counts give its place in their fourth component, and nine cascades fit. It is planned,
+built and stamped as the others are, under the cascades' and the triangles' budgets, the finest
+first. Global illumination gives it a cascade of probes after those the quality traces, as many
+directions as the cascade before it, standing in it where each other stands in the field's cascade
+of its number (`probesOf` in `scenefield.slang`, `SceneFieldPlan.CascadeOfProbes`), so at `Low` with
+four counted cascades its probes follow the second's. Its interval begins half way along the one
+before's and ends at the far cascade's diagonal, so the cascade before it ends at four times its
+spacing and its rays that meet nothing take the far probes' light where they took the sky. A probe
+of the first cascade facing a black wall 40 units off, past two counted cascades of 0.15, read 1.14
+of a sky of pi where it read 3.14 without the far cascade (`GlobalIlluminationTests`). On lavapipe,
+by `./e3d command profile`, the Cornell box's field at its three cascades and a far one to the far
+plane took 27.0 MB in place of 21.5 and its probes 8.68 in place of 6.04, global illumination 263 to
+282 ms in place of 222 to 231 for a third more rays, and a frame building two cascades 17.4 ms in
+place of 17.1. Ore's at its four cascades of half a block and a far one to 384, cells of 8, took
+32.5 MB in place of 27.0 and its probes 11.32 in place of 8.68, global illumination 509 to 532 ms in
+place of 445 to 460 for a quarter more rays, and the field's builds 61 ms a frame in place of 66, the
+same within the noise.
+
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone
 that far, and where it moves, or a still mesh came into it or left, it is built again, as many a
 frame as the budget allows, the finest first (`SceneFieldPlan`). Until then a cascade keeps the

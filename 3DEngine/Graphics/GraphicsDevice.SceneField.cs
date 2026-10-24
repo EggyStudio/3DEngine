@@ -68,7 +68,20 @@ internal sealed class GpuSceneField : IDisposable
     public IBuffer Info { get; }
 
     /// <summary>The bytes of <see cref="Info"/>.</summary>
-    public const int InfoBytes = 16 + 8 * 16 + 16;
+    public const int InfoBytes = 16 + MaxCascades * 16 + 16;
+
+    /// <summary>The most cascades the info carries, eight counted and the far one.</summary>
+    public const int MaxCascades = 9;
+
+    /// <summary>
+    /// The bytes of GPU memory a field of <paramref name="cascades"/> cascades of
+    /// <paramref name="resolution"/> cells a side takes, its images' 22 bytes a cell, the still and
+    /// the read distances in two each, the still and the read colors in four each, the emission in
+    /// eight and the faces in one each, and the four buffers a build splats a cascade into, 20 a cell
+    /// of one cascade.
+    /// </summary>
+    public static long MemoryBytes(int cascades, int resolution) =>
+        (long)resolution * resolution * resolution * (22L * Math.Max(1, cascades) + 20);
 
     /// <summary>
     /// The color of each cell's nearest still surface, linear, its alpha 1 where a surface painted

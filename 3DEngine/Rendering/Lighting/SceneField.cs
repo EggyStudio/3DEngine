@@ -19,6 +19,9 @@ internal sealed class SceneFieldSettings
     /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
     public int TriangleBudget { get; set; } = SceneFieldConfig.DefaultTriangleBudget;
 
+    /// <summary>How far ahead of the eye the far cascade reaches, held to the camera's far plane, or 0 for none.</summary>
+    public float FarCascade { get; set; }
+
     /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for none.</summary>
     public int Shown { get; set; } = -1;
 
@@ -50,7 +53,7 @@ internal sealed class SceneFieldRenderer : IDisposable
 {
     private GpuSceneField? _field, _off;
     private SceneFieldPlan? _plan;
-    private (int Cascades, float CellSize, int Budget, int Triangles) _made;
+    private (int Cascades, float CellSize, int Budget, int Triangles, float FarCell) _made;
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
@@ -196,15 +199,6 @@ internal sealed class SceneFieldRenderer : IDisposable
             return;
         }
 
-        var wanted = (Math.Clamp(settings.Cascades, 1, 8), settings.CellSize, Math.Max(1, settings.UpdateBudget), Math.Max(1, settings.TriangleBudget));
-        if (_field is null || _made != wanted)
-        {
-            Release();
-            _made = wanted;
-            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf);
-            _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
-        }
-        renderWorld.Set(new SceneFieldBinding(_field, true));
         // Around the window's camera, or where the window draws no mesh, as a game that draws its
         // scene into a render texture and shows the texture, the first target's that does, whose
         // meshes the field then holds.
@@ -212,6 +206,22 @@ internal sealed class SceneFieldRenderer : IDisposable
         var windowDraws = draws?.WindowViewProjection is not null;
         var view = windowDraws || draws?.Targets() is not [var first, ..] ? renderWorld.TryGet<WindowView>()
             : draws.ViewProjectionOf(first) is { } camera && LightingUboPrepare.EyeOf(camera) is { } eye ? new WindowView(camera, eye) : null;
+
+        // The far cascade's cells from its reach, held to the camera's far plane, and kept as they
+        // were in a frame with no camera to read the plane from.
+        var counted = Math.Clamp(settings.Cascades, 1, 8);
+        var farCell = settings.FarCascade <= 0 ? 0
+            : view is null ? _made.FarCell
+            : SceneFieldPlan.FarCellFor(MathF.Min(settings.FarCascade, FarPlane(view)), counted, settings.CellSize);
+        var wanted = (counted, settings.CellSize, Math.Max(1, settings.UpdateBudget), Math.Max(1, settings.TriangleBudget), farCell);
+        if (_field is null || _made != wanted)
+        {
+            Release();
+            _made = wanted;
+            _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell);
+            _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
+        }
+        renderWorld.Set(new SceneFieldBinding(_field, true));
         if (view is null) return;
         Eye = view.Eye;
 
@@ -381,6 +391,15 @@ internal sealed class SceneFieldRenderer : IDisposable
         }
     }
 
+    // How far the window's camera's far plane lies from its eye, at its middle, or no finite
+    // distance where the camera has none or it cannot be told.
+    private static float FarPlane(WindowView view)
+    {
+        if (!Matrix4x4.Invert(view.ViewProjection, out var inverse)) return float.PositiveInfinity;
+        var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
+        return MathF.Abs(far.W) < 1e-12f ? float.PositiveInfinity : Vector3.Distance(new Vector3(far.X, far.Y, far.Z) / far.W, view.Eye);
+    }
+
     // The way the window's camera looks, from its far plane's middle, or zero where it cannot be told.
     private static Vector3 Ahead(WindowView view)
     {
@@ -541,11 +560,13 @@ internal sealed class SceneFieldRenderer : IDisposable
     private static byte[] Info(SceneFieldPlan plan)
     {
         var values = new float[GpuSceneField.InfoBytes / 4];
-        (values[0], values[1], values[2]) = (plan.Cascades, SceneFieldPlan.Resolution, SceneFieldPlan.Band);
+        // w: the far cascade's place, the last, or 0 where there is none.
+        (values[0], values[1], values[2], values[3]) = (plan.Cascades, SceneFieldPlan.Resolution, SceneFieldPlan.Band, plan.HasFar ? plan.Cascades - 1 : 0);
         for (int c = 0; c < plan.Cascades; c++)
             if (plan.BuiltOrigin(c) is { } origin)
                 (values[4 + c * 4], values[5 + c * 4], values[6 + c * 4], values[7 + c * 4]) = (origin.X, origin.Y, origin.Z, plan.CellOf(c));
-        (values[36], values[37], values[38]) = (plan.Eye.X, plan.Eye.Y, plan.Eye.Z);
+        var eyeAt = 4 + GpuSceneField.MaxCascades * 4;
+        (values[eyeAt], values[eyeAt + 1], values[eyeAt + 2]) = (plan.Eye.X, plan.Eye.Y, plan.Eye.Z);
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 

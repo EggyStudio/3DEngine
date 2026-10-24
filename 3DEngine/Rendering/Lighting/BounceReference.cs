@@ -194,14 +194,15 @@ internal static class BounceReference
             return null;
         }
         var c = Math.Clamp(cascade, 0, gi.Cascades - 1);
-        if (plan.BuiltOrigin(c) is not { } origin)
+        var standing = plan.CascadeOfProbes(c, gi.Cascades);
+        if (plan.BuiltOrigin(standing) is not { } origin)
         {
-            why = $"cascade {c} of the field is not built";
+            why = $"cascade {standing} of the field is not built";
             return null;
         }
 
         var (p, n) = (gi.Probes, gi.Texels[c]);
-        var spacing = plan.CellOf(c) * GlobalIlluminationRenderer.ProbeSpacing;
+        var spacing = plan.CellOf(standing) * GlobalIlluminationRenderer.ProbeSpacing;
         var at = Vector3.Clamp(new Vector3(MathF.Floor((point.X - origin.X) / spacing), MathF.Floor((point.Y - origin.Y) / spacing),
             MathF.Floor((point.Z - origin.Z) / spacing)), Vector3.Zero, new Vector3(p - 1));
         var middle = origin + (at + new Vector3(0.5f)) * spacing;

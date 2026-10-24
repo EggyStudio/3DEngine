@@ -86,6 +86,8 @@ struct MergePush
     // passing on its light where their rays meet nothing and nothing where they meet a surface.
     // w: where the cascade above's interval ends, which its ray that met nothing reached.
     float4 spacing;
+    // x: how many cascades. yzw: unused.
+    uint4 counts;
 };
 
 [[vk::push_constant]]
@@ -111,11 +113,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
 
     uint c = push.cascade.x;
     uint upper = push.cascade.w;
-    float4 oc = fieldInfo.cascades[c].originAndCell;
+    // The probes where the field's cascades they stand in lie, the far one's for the last.
+    SceneFieldInfo probed = probesOf(fieldInfo, int(push.counts.x));
+    float4 oc = probed.cascades[c].originAndCell;
     float3 spot = oc.xyz + (float3(at) + 0.5) * (oc.w * push.spacing.x);
     float4 here = probe < probes * probes * probes ? placeOf(int3(at), c, probes) : float4(0.0);
     float3 origin = spot + here.xyz * (oc.w * push.spacing.x);
-    float4 ac = fieldInfo.cascades[min(c + 1u, 7u)].originAndCell;
+    uint upperCascade = min(c + 1u, push.counts.x - 1u);
+    float4 ac = probed.cascades[upperCascade].originAndCell;
     float3 q = (spot - ac.xyz) / (ac.w * push.spacing.x) - 0.5;
     int3 base = int3(floor(q));
 
@@ -128,7 +133,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     {
         int3 offset = int3(traced & 1u, (traced >> 1) & 1u, traced >> 2);
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
-        float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, min(c + 1u, 7u), probes).xyz) * (ac.w * push.spacing.x);
+        float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         seen[slot * 8u + traced] = upper > 0u && probe < probes * probes * probes && oc.w > 0.0
             && seesThrough(sceneField, fieldInfo, origin, upperProbe, oc.w * 0.5) ? 1u : 0u;
     }
@@ -182,7 +187,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         float weight = lerps.x * lerps.y * lerps.z * float(seen[slot * 8u + uint(corner)]) / float(factor * factor);
         // The probe above read toward the point of this ray nearest where its own ray along the way
         // met a surface, and along the way itself where it met nothing.
-        float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, min(c + 1u, 7u), probes).xyz) * (ac.w * push.spacing.x);
+        float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         int2 rt = min(int2(octahedron(d) * float(ReachTexels)), int2(ReachTexels - 1));
         float r = reachAbove.Load(int4(neighbor.xy * ReachTexels + rt, int(c + 1u) * int(probes) + neighbor.z, 0));
         float3 way = d;
