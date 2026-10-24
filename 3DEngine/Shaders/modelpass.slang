@@ -533,9 +533,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         }
     }
     bool bounces = bouncedHere.x >= 0.0;
-    // Across the last cascade's outer band the indirect light fades to the light from beyond
-    // the probes, the environment's and the ambient lights' unhidden, which past it takes its place
-    // whole (bouncedHold), so the near does not step into the far where the probes end.
+    // Across the last cascade's outer band, an eighth of its width, the indirect light fades to
+    // the light from beyond the probes, which past it takes its place whole (bouncedHold), so the
+    // near does not step into the far where the probes end. Where global illumination is on that
+    // light is a sky over a ground (distantAround), the environment's and the ambient lights' light
+    // from above and the ground's under it, which the directional lights add their share of.
+    bool distant = Bouncing && lighting.indirect.x > 0.0;
     float held = bounces ? bouncedHold(bouncedField, input.world, n, lighting.indirect.y, lighting.indirect.w) : 0.0;
     if (bounces)
         light.diffuse += occlusion * diffuseColor * bouncedHere * held;
@@ -574,7 +577,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
-        float3 around = environmentIrradiance(n) * (1.0 - held);
+        float3 around = (distant ? distantAround(environmentIrradiance(float3(0.0, 1.0, 0.0)), n, diffuseColor) : environmentIrradiance(n)) * (1.0 - held);
         // The map's light times the share and tint the program set for the scene, which the sky
         // drawn from the same map does not take.
         float3 strength = lighting.environment.x * lighting.environmentLight.rgb * occlusion;
@@ -592,9 +595,18 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
         float3 arrived = arriving(lamp, input.world, n);
         if (int(lamp.positionAndKind.w) == Ambient)
         {
-            light.diffuse += arrived * occlusion * diffuseColor * (1.0 - held);
+            light.diffuse += (distant ? distantAround(arrived, n, diffuseColor) : arrived) * occlusion * diffuseColor * (1.0 - held);
             light.specular += arrived * occlusion * specularShare * (1.0 - gloss);
             continue;
+        }
+
+        // A directional light's share of the ground's light past the probes' reach, the shadowed
+        // one's read where the ground the face looks at lies (groundReached), and none for a face
+        // that sees no ground, so a floor takes no second read of the map.
+        if (distant && held < 1.0 && n.y < 1.0 && int(lamp.positionAndKind.w) == Directional)
+        {
+            float reached = i == lighting.shadowLight ? groundReached(input.world, n) : 1.0;
+            light.diffuse += distantSun(lamp, n, diffuseColor, reached) * occlusion * diffuseColor * (1.0 - held);
         }
 
         if (i == lighting.shadowLight)

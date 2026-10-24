@@ -14,7 +14,7 @@ namespace Engine.Tests.Rendering;
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
-public sealed class CascadeEdgeTests : IDisposable
+public sealed partial class CascadeEdgeTests : IDisposable
 {
     public void Dispose()
     {

@@ -150,6 +150,42 @@ public float lightReaching(float3 world, float3 n, out float held)
     return 1.0;
 }
 
+// The light from all around a surface facing n that global illumination's probes leave to what
+// lies past them, past the field's cascades, as a sky over a ground, the sky's light from above,
+// `sky`, on the share of the sphere above the surface's horizon, (1 + n.y) / 2 of it, and below its
+// horizon the light the ground sends back, the ground's color times the sky's light on it, the
+// ground's color taken as the surface's own (`ground`). The directional lights add their share of
+// the ground's light (distantSun). Taken as the environment's irradiance along n, a wall past the
+// field took the map's light below its horizon whole, and as the ambient lights' whole, all of it,
+// where global illumination inside the field gives it half the sky and the ground's light.
+public float3 distantAround(float3 sky, float3 n, float3 ground)
+{
+    float above = saturate(n.y * 0.5 + 0.5);
+    return sky * (above + ground * (1.0 - above));
+}
+
+// The light the ground under a surface facing n sends it of a directional light, the ground's
+// color times the light the lamp gives a floor where `reached` of it reaches the ground, on the
+// share of the sphere below the surface's horizon (distantAround).
+public float3 distantSun(Light lamp, float3 n, float3 ground, float reached)
+{
+    return ground * arriving(lamp, float3(0.0), float3(0.0, 1.0, 0.0)) * (reached * saturate(0.5 - n.y * 0.5));
+}
+
+// How much of the shadowed light reaches the ground a surface at p facing n looks at, read where
+// the point moved along n by a cell of the field's coarsest built cascade lies, as a floor. Read at
+// the point itself, a face turned from the sun lies behind its own mesh as the sun sees it and is
+// always in shadow, so a wall with the sun behind it took none of the sunlit ground before it,
+// which global illumination inside the field gives it; read there, it takes the ground lit where
+// its own shadow ends short of the point and shadowed where the shadow reaches past it, as a
+// hill's shaded side in its own long shadow at a low sun.
+public float groundReached(float3 p, float3 n)
+{
+    int c = fieldCoarsestBuilt(bouncedField, int(bouncedField.counts.x) - 1);
+    float cell = c < 0 ? 0.0 : bouncedField.cascades[c].originAndCell.w;
+    return lightReaching(p + n * cell, float3(0.0, 1.0, 0.0));
+}
+
 // Where the shadowed spot light in slot (counted from 0) lies in the map. The last tile is the
 // map's lower right quarter, split by rank as ShadowFit.SpotTileArea splits it, whole for one light,
 // quarters for up to four, and past four quarters for the first two and sixteenths in its lower

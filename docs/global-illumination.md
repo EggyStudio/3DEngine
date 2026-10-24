@@ -106,6 +106,12 @@ the eye is between 1.6 and 9.6 of its cells back. What stands behind the camera 
 held by the coarser cascades alone. `./e3d command field.show 0` draws the first cascade over the
 window as the field holds the scene, and `field.state` says where each cascade lies.
 
+Past the probes' reach a surface takes a sky over a ground in place of their light, the sky's light
+from above on the part of the sphere above its horizon and the ground's under it, the ground taken
+as the surface's own color lit by the sky and by the sun where the shadow map lets the sun reach the
+ground before it. It fades in across the last cascade's outer eighth, so a floor or a wall seen
+across the field's edge changes from one pixel to the next by under 1%.
+
 ## The world's probes
 
 The world's probes stand eight cells of their cascade apart, two units at a cell of a quarter in the

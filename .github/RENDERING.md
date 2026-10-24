@@ -1292,8 +1292,8 @@ levels 18 frames on and 0.9 at 30.
 
 Each cascade's light fades into the next across its outer band, eight of its cells, a probes'
 spacing (`CascadeBand`), the screen's probes' into the world's across the second cascade's, and the
-last cascade's into the light from beyond the probes, the environment's and the ambient lights'
-unhidden, which takes the place of global illumination past it (`bouncedHold`); a surface's depth in
+last cascade's into the light from beyond the probes, a sky over a ground (below), which takes the
+place of global illumination past it (`bouncedHold`); a surface's depth in
 a cascade is that of its point leaned off it as the probes are read for it, so a floor on a
 cascade's lower side, its probes half a spacing over it, lies half a spacing inside. The passes that
 read the field to its edge, the occlusion from it, the sun's contact shadows and the glow lights'
@@ -1325,6 +1325,28 @@ at `High`, 10% at the third cascade's and 15% at the last's, by 18% twice at `Me
 1.0 of the sky's light where the last ended; faded, the canyon's floor changes from row to row by
 3.7%, 3.8% and 1.9% at most at 320 by 180 (`CascadeEdgeTests`) and by 2.9%, 3.0% and 1.0% at 640 by
 360.
+
+The light from beyond the probes is a sky over a ground, the distant ambient (`distantAround` in
+`lights.slang`), faded in across the last cascade's band, an eighth of its width. The sky's light
+from above, the environment's irradiance straight up or the ambient lights' light, lights the share
+of the sphere above a surface's horizon, (1 + n.y) / 2 of it, and below the horizon the ground sends
+back its color times the sky's light on it and each directional light's on a floor
+(`distantSun`), the ground's color taken as the surface's own. The shadowed light's share is read
+through the shadow map where the ground the face looks at lies, the point moved along its normal by
+a cell of the field's coarsest built cascade and read as a floor (`groundReached`), since at the
+point itself a face turned from the sun lies behind its own mesh as the sun sees it and would take
+none of the sunlit ground before it. So a wall with the sun behind it takes the ground lit where its
+own shadow ends short of that point and shadowed where it reaches past, as a hill's shaded side in
+its own long shadow at a low sun does, at nine more taps of the map for the pixels past the probes
+that face some ground. A floor takes the sky's light from above alone, which the environment's
+irradiance along its normal gives it too, and a wall half the sky and the ground's light, where the
+irradiance along its normal gave it the map's light below its horizon whole and the ambient lights
+all of theirs. Along a wall facing
+the sun beside a floor under a sky, seen across the field's edge at 320 by 180, the largest change
+from one pixel to the next fell from 2.32% to 0.88% at `High`, where the last cascade ends, and the
+wall past the field read 2.8% darker than inside it where 6.3%; the floor's 0.27% is the same
+(`CascadeEdgeTests`). With global illumination off a surface takes the environment's irradiance
+along its normal and the ambient lights' light whole.
 
 The ninth gives the field the light of an emitter thinner than a cell. A strip 0.06 thick on a wall,
 under cells of 0.15, painted no cell its own, the wall nearer every cell's middle, so its light was
