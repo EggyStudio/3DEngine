@@ -517,6 +517,17 @@ ending at a line. A spot light's texels widen with distance from it, so its offs
 distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
 before that stage moved it.
 
+What looks like faces fighting in a sunlit scene of the voxel game is the sun's map read where it
+is coarse or where a face shadows itself, and global illumination has no part in it. In a flat
+world at ten in the morning at 1280 by 720 at `High`, a field of wheat, whose thin walls are
+two-sided and masked, carries speckled stripes of dark and light that move as the eye turns, the
+walls shadowing themselves, and a pond beside it takes the wheat's shadow in square steps, the grid
+of eight texels a block the game chooses for its shadows. Both stand as they were with global
+illumination off and go with the sun's shadows off, and no face of the game's blocks, its water or
+its leaves fights another. The pattern the screen's probes leave on the grazing floor of
+`shaders_bounce_rooms`, rows of scallops at their tiles, reads under a level of sRGB light, seen
+only with its contrast stretched.
+
 Twelve point lights with `CastsShadows` set, chosen and ranked the same way, shadow everything
 around them, each in six faces, a little wider than a right angle so the nine comparisons near a
 face's edge stay on it. The first four have faces of a quarter of a tile, 512 texels by default, a
