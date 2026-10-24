@@ -2657,10 +2657,14 @@ enum Engine.MaterialMapIndex : int
   Prefilter = 9
   Roughness = 3
 struct Engine.Mesh
+  Mesh(ModelMesh uploaded)
   Mesh(Vector3[] positions, Vector3[]? normals = null, Vector2[]? uvs = null)
+  Mesh(Vector3[] positions, uint[] indices, Vector3[]? normals = null, Vector2[]? uvs = null)
+  ModelMesh Uploaded
   Vector2[]? Uvs
   Vector3[] Positions
   Vector3[]? Normals
+  uint[]? Indices
 sealed class Engine.MeshStream : IEquatable<MeshStream>
   MeshStream(MeshStreamFormat Format, byte[] Data)
   MeshStreamFormat Format { get; init; }

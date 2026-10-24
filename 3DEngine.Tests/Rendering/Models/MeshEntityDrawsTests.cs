@@ -167,6 +167,115 @@ public class MeshEntityDrawsTests
     }
 
     [Fact]
+    public void Looks_Past_Four_Thousand_Are_Kept_From_Frame_To_Frame()
+    {
+        // Five thousand entities in two chunks, each of its own color. Past 4,096 looks every look
+        // was forgotten and built again each frame, and no chunk was kept.
+        var (world, ecs) = Scene();
+        for (int i = 0; i < 5000; i++) SpawnMesh(ecs, Triangle, new Vector3(i, 0, 0), new Vector4(i / 5000f, 1, 0, 1));
+        var draws = world.Resource<ModelDrawList>();
+        var self = world.GetOrInsertResource(static () => new MeshEntityDraws());
+        for (int frame = 0; frame < 3; frame++)
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+        self.LookCount.Should().Be(5000);
+        self.ChunksKept.Should().Be(2, "no look was forgotten, so both chunks keep what they gathered");
+        Drawn(world).Should().HaveCount(5000);
+    }
+
+    [Fact]
+    public void A_Mesh_Is_Kept_While_Its_Entity_Holds_It_And_One_Replaced_Leaves_The_Other_Chunks_As_They_Were()
+    {
+        var (world, ecs) = Scene();
+        for (int i = 0; i < 5000; i++) SpawnMesh(ecs, Triangle, new Vector3(i, 0, 0), new Vector4(0, 1, 0, 1));
+        Vector3[] own = [new(0, 0, 0), new(2, 0, 0), new(0, 2, 0)];
+        var apart = SpawnMesh(ecs, own, new Vector3(-1, 0, 0), new Vector4(1, 0, 0, 1));
+        var draws = world.Resource<ModelDrawList>();
+        var self = world.GetOrInsertResource(static () => new MeshEntityDraws());
+        void Frame()
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+        for (int frame = 0; frame < 3; frame++) Frame();
+        self.MeshCount.Should().Be(2);
+
+        ecs.Remove<Material>(apart);
+        Frame();
+        self.MeshCount.Should().Be(2, "an entity drawn without a material still holds its mesh");
+        ecs.Add(apart, new Material(new Vector4(1, 0, 0, 1)));
+
+        ecs.Update(apart, new Mesh([new(0, 0, 0), new(3, 0, 0), new(0, 3, 0)]));
+        Frame();
+        self.MeshCount.Should().Be(2, "the replaced mesh is freed and its replacement uploaded");
+        Frame();
+        self.ChunksKept.Should().Be(1, "the chunk of the entity whose mesh was replaced is gathered again, the other kept as it was");
+        self.LookCount.Should().Be(2, "the replaced mesh's look went with it");
+
+        var camera = ecs.Query<Camera>().Single().Entity;
+        ecs.Despawn(camera);
+        Frame();
+        self.MeshCount.Should().Be(2, "a frame with no camera lets no mesh go");
+    }
+
+    [Fact]
+    public void An_Entity_Draws_A_Mesh_The_Program_Uploaded_And_Its_Looks_Go_When_No_Entity_Holds_It()
+    {
+        var (world, ecs) = Scene();
+        var store = world.Resource<MeshStore>();
+        var id = store.Add([new ModelVertex(new Vector3(0, 0, 0), Vector3.UnitZ, default), new ModelVertex(new Vector3(4, 0, 0), Vector3.UnitZ, default),
+            new ModelVertex(new Vector3(0, 4, 0), Vector3.UnitZ, default)], [0, 1, 2]);
+        var uploaded = new ModelMesh(id, 3, 1, new BoundingBox(Vector3.Zero, new Vector3(4, 4, 0)));
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Mesh(uploaded));
+        ecs.Add(entity, new Material(new Vector4(1, 1, 1, 1)));
+        ecs.Add(entity, new Transform(new Vector3(1, 2, 0)));
+        var draws = world.Resource<ModelDrawList>();
+        var self = world.GetOrInsertResource(static () => new MeshEntityDraws());
+        void Frame()
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+
+        Frame();
+        var drawn = Drawn(world).Should().ContainSingle().Subject;
+        drawn.Mesh.Should().Be(id, "the program's mesh is drawn under its own id");
+        drawn.World.Translation.Should().Be(new Vector3(1, 2, 0));
+        draws.Groups.Single(g => g.Count > 0).Sphere.Radius.Should().BeApproximately(MathF.Sqrt(8), 1e-5f, "the group is culled by a sphere about the mesh's bounds");
+        self.MeshCount.Should().Be(0, "the engine uploads nothing of its own for it");
+        self.LookCount.Should().Be(1);
+
+        ecs.Despawn(entity);
+        Frame();
+        self.LookCount.Should().Be(0, "no entity holds the program's mesh");
+        store.TryGetData(id, out _, out _).Should().BeTrue("the program frees its mesh itself");
+    }
+
+    [Fact]
+    public void A_Mesh_Of_Indexed_Vertices_Is_Uploaded_Once_With_Its_Triangles()
+    {
+        var (world, ecs) = Scene();
+        Vector3[] square = [new(0, 0, 0), new(1, 0, 0), new(1, 1, 0), new(0, 1, 0)];
+        var entity = ecs.Spawn();
+        // The third triangle names a vertex the positions do not hold and is left out.
+        ecs.Add(entity, new Mesh(square, [0, 1, 2, 0, 2, 3, 0, 2, 9]));
+        ecs.Add(entity, new Material(new Vector4(1, 1, 1, 1)));
+        MeshEntityDraws.Run(world);
+
+        var mesh = Drawn(world).Should().ContainSingle().Subject.Mesh;
+        world.Resource<MeshStore>().TryGetData(mesh, out var vertices, out var indices).Should().BeTrue();
+        vertices.Select(v => v.Position).Should().Equal(square);
+        indices.Should().Equal(0u, 1u, 2u, 0u, 2u, 3u);
+        vertices.Should().OnlyContain(v => Vector3.Distance(v.Normal, Vector3.UnitZ) < 1e-5f, "a vertex with no normal of its own takes its faces'");
+    }
+
+    [Fact]
     public void Entities_Standing_Still_Are_Drawn_From_What_Was_Gathered_The_Frame_Before()
     {
         var (world, ecs) = Scene();

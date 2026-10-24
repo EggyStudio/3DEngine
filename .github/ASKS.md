@@ -952,3 +952,22 @@ pass alone, and its draws counted where a program reads them. The game draws its
 Review: item 108 of REVIEW.md, 2026-10-24; the mesh entity path carrying a program's shader and
 streams, looks and meshes kept, Visible and ShadowOnly components and the draws in the profile;
 after item 107.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a behavior's system cannot ask to run after or before another in its stage
+
+Read on the 3DEngine 5.2.283 package and the engine's source, splitting the game's frame into
+behaviors for the game's item 96. The schedule orders a stage's systems by `SystemDescriptor.After`
+and `Before` and otherwise by the order they were added, and shuffles that order by a seed so a
+system that leans on an order nothing asked for meets another (`Core/Schedule/Schedule.Order.cs`,
+`Schedule.Shuffle.cs`), but no behavior attribute reaches `After` or `Before`, and `InState` is one to a
+method (`AllowMultiple = false`). The game's update holds ifs whose order is its rule: the block aimed
+at is found before the hand works on it, the player moves before either, and the vitals are taken in
+survival before the mobs answer. Each of those split into a system of its own would run in an order
+no one asked for, and the controller cannot move into the update stage after the states' transition
+while it must come before the aim. The engine lacks an attribute naming the systems a behavior's
+system runs after or before, as `[After(nameof(Steer))]` on a static system, and more than one state a
+system is gated on. The game keeps the ordered ifs inside one update system meanwhile, and gates by
+states and run conditions only the systems whose order does not matter.
+
+Review: item 110 of REVIEW.md, 2026-10-24; After and Before attributes on a behavior's system and
+InState more than once on a method; after item 109.

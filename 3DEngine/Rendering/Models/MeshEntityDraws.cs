@@ -25,7 +25,8 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A mesh's arrays are uploaded to <see cref="MeshStore"/> the first time they are drawn and freed
-/// on the first frame no entity draws them. A material's base color texture is copied from the
+/// on the first frame no entity holds them, drawn or not, and a mesh the program uploaded is drawn
+/// as it is and never freed here. A material's base color texture is copied from the
 /// asset store into <see cref="TextureStore"/> once it has loaded, and copied again when the asset
 /// is reloaded. Only the first mip level of an RGBA8 texture is copied, and the GPU makes the rest.
 /// </para>
@@ -36,8 +37,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Each entity's draw is kept from frame to frame and built again only when its mesh or material
-/// differs from what it was built from, a texture it names was still loading, or a texture or
-/// mesh was replaced. An opaque entity's instance is then written straight into the
+/// differs from what it was built from, a texture it names was still loading, or a texture was
+/// replaced. A mesh no entity holds lets go of its own looks and groups alone, so a voxel game's
+/// section built again as a block changes leaves the other entities' looks and chunks as they were. An opaque entity's instance is then written straight into the
 /// <see cref="InstanceGroup"/> of its mesh and maps, from the kept instance with the frame's
 /// world matrix, and the model pass copies each group as it is and draws it as one batch
 /// (RENDERING.md section 6). An instance holds nothing of the camera, so the entities are gathered
@@ -50,7 +52,7 @@ namespace Engine;
 /// chunks read.
 /// </para>
 /// </remarks>
-internal sealed class MeshEntityDraws
+internal sealed partial class MeshEntityDraws
 {
     private readonly Dictionary<Vector3[], int> _meshes = new(ReferenceEqualityComparer.Instance);
 
@@ -68,8 +70,10 @@ internal sealed class MeshEntityDraws
     // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
     private readonly Dictionary<Vector4, Color> _colors = [];
 
-    // Each entity's look as last found, by entity id. A kept look of an older generation was found
-    // before the looks were forgotten. Twelve bytes, since a frame reads every entity's.
+    // Each entity's look as last found, by entity id, with the stamp its slot had then. A kept look
+    // of an older generation was found before the looks were forgotten, and one whose slot's stamp
+    // has moved on was let go with its mesh, its slot perhaps another's since. Sixteen bytes, since
+    // a frame reads every entity's.
     private Kept[] _kept = [];
     private int _generation = 1;
     private long _frame;
@@ -79,7 +83,22 @@ internal sealed class MeshEntityDraws
         public int Generation;
         public int Mesh;
         public int Look;
+        public int Stamp;
     }
+
+    // The look and group slots let go with their meshes, used again before the arrays grow, and
+    // the stamps a look slot takes each time it is taken or let go.
+    private readonly Stack<int> _freeLooks = new();
+    private readonly Stack<int> _freeGroups = new();
+    private int _stamps;
+
+    // The meshes the program uploaded that entities held this frame and the frame before, by id,
+    // with the bounds each sphere was made from, and the ids any entity holds, gathered as a
+    // frame lets go of the looks of the rest.
+    private readonly HashSet<int> _uploadedSeen = [];
+    private HashSet<int> _uploadedLast = [];
+    private readonly Dictionary<int, BoundingBox> _uploadedBounds = [];
+    private readonly HashSet<int> _live = [];
 
     // Each mesh and material entities are drawn with, built once, the draw with the world matrix
     // and camera left to the frame, the instance with the material's factors, and the group it is
@@ -100,6 +119,9 @@ internal sealed class MeshEntityDraws
         // A texture it names was still loading, so it is built again on a later frame.
         public bool Pending;
         public long Built;
+        // Taken from _stamps as the slot is taken or let go, and whether it is let go.
+        public int Stamp;
+        public bool Free;
     }
 
     // What the groups opaque entities are written into share, by index, kept from frame to frame,
@@ -124,6 +146,8 @@ internal sealed class MeshEntityDraws
     private sealed class Chunk
     {
         public readonly HashSet<Vector3[]> Seen = new(ReferenceEqualityComparer.Instance);
+        public readonly HashSet<int> UploadedSeen = [];
+        public int LastUploaded;
         public readonly List<ModelDraw> Translucent = [];
         public readonly List<int> Deferred = [];
         public Vector3[]? LastPositions;
@@ -172,6 +196,8 @@ internal sealed class MeshEntityDraws
         public void Clear()
         {
             Seen.Clear();
+            UploadedSeen.Clear();
+            LastUploaded = 0;
             Translucent.Clear();
             Deferred.Clear();
             LastPositions = null;
@@ -180,15 +206,14 @@ internal sealed class MeshEntityDraws
         }
     }
 
-    // A look or a group past this many is a sign of materials made anew each frame, as a color
-    // that flashes, and every look and group is forgotten rather than kept growing.
-    private const int MaxLooks = 4096;
-
     /// <summary>How many meshes are uploaded for entities.</summary>
     public int MeshCount => _meshes.Count;
 
     /// <summary>How many texture assets are copied for entities.</summary>
     public int TextureCount => _textures.Count;
+
+    /// <summary>How many looks are kept, each a mesh and material some entity was drawn with, those let go with their meshes left out.</summary>
+    internal int LookCount => _lookCount - _freeLooks.Count;
 
     /// <summary>The system, for <see cref="Stage.Render"/>.</summary>
     public static void Run(World world)
@@ -207,11 +232,16 @@ internal sealed class MeshEntityDraws
 
         _frame++;
         _seen.Clear();
+        _uploadedSeen.Clear();
         _translucent.Clear();
         _sorted.Clear();
         if (_colors.Count > 4096) _colors.Clear();
+        // With no mesh entity nothing holds a mesh, and with some every one they hold is seen as
+        // they are gathered.
+        var gathered = ecs.Count<Mesh>() == 0;
         if (ecs.Count<Mesh>() > 0 && Cameras(world, ecs) is { Count: > 0 } cameras)
         {
+            gathered = true;
             var count = ecs.GetStorePublic<Mesh>().Count;
             var entities = ecs.GetStorePublic<Mesh>().EntitiesArray;
             var last = 0;
@@ -233,10 +263,20 @@ internal sealed class MeshEntityDraws
                 RecordMoving(frame, count, draws);
             for (int index = 0; index < cameras.Count; index++)
                 DrawThrough(index, cameras[index].ViewProjection, cameras[index].Eye, cameras[index].Target, draws);
-            if (_lookCount > MaxLooks || _groups.Count > MaxLooks) Forget();
         }
 
-        // A mesh no entity drew this frame was despawned or replaced, and its id may be given out again.
+        // A frame with mesh entities and no camera to gather them for saw none held and lets none go.
+        if (gathered) Release(meshes);
+    }
+
+    // Frees the arrays' meshes no entity holds any longer, despawned or replaced, whose ids may be
+    // given out again, and lets go of the looks and groups of every mesh no entity holds, those
+    // freed and those the program uploaded that no entity names, so a voxel game's section built
+    // again as a block changes leaves no look behind. Forgetting every look, as a freed mesh did,
+    // built every entity's again on the main thread the next frame.
+    private void Release(MeshStore meshes)
+    {
+        var dropped = false;
         if (_meshes.Count > _seen.Count)
         {
             foreach (var positions in _meshes.Keys.Where(p => !_seen.Contains(p)).ToArray())
@@ -245,7 +285,39 @@ internal sealed class MeshEntityDraws
                 _spheres.Remove(_meshes[positions]);
                 _meshes.Remove(positions);
             }
-            Forget();
+            dropped = true;
+        }
+        if (!_uploadedSeen.SetEquals(_uploadedLast))
+        {
+            _uploadedLast.Clear();
+            _uploadedLast.UnionWith(_uploadedSeen);
+            dropped = true;
+        }
+        if (!dropped) return;
+
+        _live.Clear();
+        foreach (var id in _meshes.Values) _live.Add(id);
+        _live.UnionWith(_uploadedSeen);
+        foreach (var id in _uploadedBounds.Keys.Where(id => !_live.Contains(id)).ToArray())
+        {
+            _uploadedBounds.Remove(id);
+            _spheres.Remove(id);
+        }
+        for (int l = 0; l < _lookCount; l++)
+        {
+            ref var look = ref _looks[l];
+            if (look.Free || _live.Contains(look.Draw.Mesh)) continue;
+            _lookOf.Remove((look.Draw.Mesh, look.Material));
+            look = new Look { Free = true, Stamp = ++_stamps };
+            _freeLooks.Push(l);
+        }
+        for (int g = 0; g < _groups.Count; g++)
+        {
+            var draw = _groups[g];
+            if (draw.Mesh == 0 || _live.Contains(draw.Mesh)) continue;
+            _groupOf.Remove(KeyOf(draw));
+            _groups[g] = default;
+            _freeGroups.Push(g);
         }
     }
 
@@ -299,9 +371,9 @@ internal sealed class MeshEntityDraws
         }
     }
 
-    // Forgets every look and group, after a mesh or texture they name was replaced or once there
-    // are too many, and with them every entity's kept look, which is found again on its next frame.
-    // The groups recorded this frame stay in the draw list until it is cleared.
+    // Forgets every look and group, after a texture they name was replaced, and with them every
+    // entity's kept look, which is found again on its next frame. The groups recorded this frame
+    // stay in the draw list until it is cleared.
     private void Forget()
     {
         _lookCount = 0;
@@ -309,6 +381,8 @@ internal sealed class MeshEntityDraws
         _groups.Clear();
         _groupOf.Clear();
         _cameraGroups.Clear();
+        _freeLooks.Clear();
+        _freeGroups.Clear();
         _generation++;
     }
 
@@ -350,7 +424,11 @@ internal sealed class MeshEntityDraws
             foreach (var dense in _chunks[c].Deferred)
                 Place(dense, late, canBuild: true, frame);
 
-        for (int c = 0; c <= chunks; c++) _seen.UnionWith(_chunks[c].Seen);
+        for (int c = 0; c <= chunks; c++)
+        {
+            _seen.UnionWith(_chunks[c].Seen);
+            _uploadedSeen.UnionWith(_chunks[c].UploadedSeen);
+        }
     }
 
     // The gathered entities through one camera, into its target, the window's at 0, the opaque
@@ -441,39 +519,69 @@ internal sealed class MeshEntityDraws
     private bool Place(int dense, Chunk state, bool canBuild, in Frame frame)
     {
         ref readonly var mesh = ref frame.Meshes.ComponentRefByDenseIndex(dense);
-        if (mesh.Positions is not { Length: >= 3 } positions) return true;
         var entity = frame.Meshes.EntityByDenseIndex(dense);
+        int id;
+        if (mesh.Uploaded.IsValid)
+        {
+            // A mesh the program uploaded is drawn as it is, its sphere made from its bounds, again
+            // where the program uploaded another under the same id.
+            id = mesh.Uploaded.Id;
+            if (id != state.LastUploaded)
+            {
+                if (!_uploadedBounds.TryGetValue(id, out var bounds) || bounds != mesh.Uploaded.Bounds)
+                {
+                    if (!canBuild) return false;
+                    _uploadedBounds[id] = mesh.Uploaded.Bounds;
+                    _spheres[id] = Sphere([mesh.Uploaded.Bounds.Min, mesh.Uploaded.Bounds.Max]);
+                }
+                state.LastUploaded = id;
+                state.UploadedSeen.Add(id);
+            }
+        }
+        else
+        {
+            if (mesh.Positions is not { Length: >= 3 } positions) return true;
+            // Entities spawned together usually share one positions array, so the mesh of the entity
+            // before is checked first. The array is held whether or not the entity is drawn, so it
+            // is seen before anything else is asked of the entity.
+            if (!ReferenceEquals(positions, state.LastPositions))
+            {
+                state.Seen.Add(positions);
+                if (!_meshes.TryGetValue(positions, out var found))
+                {
+                    if (!canBuild) return false;
+                    _meshes[positions] = found = frame.MeshStore.Add(Vertices(mesh), Indices(mesh));
+                    _spheres[found] = Sphere(positions);
+                }
+                state.LastPositions = positions;
+                state.LastMesh = found;
+            }
+            id = state.LastMesh;
+        }
         var materialAt = frame.Materials.DenseIndexOf(entity);
         if (materialAt < 0) return true;
         ref readonly var material = ref frame.Materials.ComponentRefByDenseIndex(materialAt);
 
-        // Entities spawned together usually share one positions array, so the mesh of the entity
-        // before is checked first.
-        if (!ReferenceEquals(positions, state.LastPositions))
+        ref var kept = ref _kept[entity];
+        if (kept.Generation != _generation || kept.Mesh != id || _looks[kept.Look].Stamp != kept.Stamp || !_looks[kept.Look].Material.Equals(material))
         {
-            if (!_meshes.TryGetValue(positions, out var found))
+            // A look another entity of the mesh and material made is found on any thread, since the
+            // looks are only read while the chunks run, and only a look not yet made waits for the
+            // pass after them.
+            if (!_lookOf.TryGetValue((id, material), out var found))
             {
                 if (!canBuild) return false;
-                _meshes[positions] = found = frame.MeshStore.Add(Vertices(mesh), Sequence(positions.Length / 3 * 3));
-                _spheres[found] = Sphere(positions);
+                found = LookFor(id, material, frame.Assets, frame.Textures);
             }
-            state.LastPositions = positions;
-            state.LastMesh = found;
-            state.Seen.Add(positions);
-        }
-        var id = state.LastMesh;
-
-        ref var kept = ref _kept[entity];
-        if (kept.Generation != _generation || kept.Mesh != id || !_looks[kept.Look].Material.Equals(material))
-        {
-            if (!canBuild) return false;
-            kept = new Kept { Generation = _generation, Mesh = id, Look = LookFor(id, material, frame.Assets, frame.Textures) };
+            kept = new Kept { Generation = _generation, Mesh = id, Look = found, Stamp = _looks[found].Stamp };
         }
         ref var look = ref _looks[kept.Look];
         if (look.Pending && look.Built != _frame)
         {
             if (!canBuild) return false;
+            var stamp = look.Stamp;
             look = Build(id, look.Material, frame.Assets, frame.Textures);
+            look.Stamp = stamp;
         }
         // A look waiting on a texture is built again each frame until it has it, which may change
         // its group, so its chunk is gathered again too.
@@ -497,29 +605,19 @@ internal sealed class MeshEntityDraws
         return true;
     }
 
-    // The sphere around a mesh's positions, at the middle of their box.
-    private static (Vector3 Center, float Radius) Sphere(Vector3[] positions)
-    {
-        var min = new Vector3(float.MaxValue);
-        var max = new Vector3(float.MinValue);
-        foreach (var p in positions)
-        {
-            min = Vector3.Min(min, p);
-            max = Vector3.Max(max, p);
-        }
-        var center = (min + max) / 2;
-        var radius = 0f;
-        foreach (var p in positions) radius = MathF.Max(radius, Vector3.DistanceSquared(p, center));
-        return (center, MathF.Sqrt(radius));
-    }
-
     // The look of a mesh and material, built the first time an entity is drawn with them.
     private int LookFor(int mesh, in Material material, Assets<TextureAsset>? assets, TextureStore textures)
     {
         if (_lookOf.TryGetValue((mesh, material), out var index)) return index;
-        if (_lookCount == _looks.Length) Array.Resize(ref _looks, _looks.Length * 2);
-        _looks[_lookCount] = Build(mesh, material, assets, textures);
-        return _lookOf[(mesh, material)] = _lookCount++;
+        if (_freeLooks.Count > 0) index = _freeLooks.Pop();
+        else
+        {
+            if (_lookCount == _looks.Length) Array.Resize(ref _looks, _looks.Length * 2);
+            index = _lookCount++;
+        }
+        _looks[index] = Build(mesh, material, assets, textures);
+        _looks[index].Stamp = ++_stamps;
+        return _lookOf[(mesh, material)] = index;
     }
 
     // A look from a material, its draw with the world matrix and camera left for the frame.
@@ -571,12 +669,19 @@ internal sealed class MeshEntityDraws
     // its surface, made the first time one is drawn.
     private int GroupOf(in ModelDraw draw)
     {
-        var key = new GroupKey(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
-            draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface);
+        var key = KeyOf(draw);
         if (_groupOf.TryGetValue(key, out var index)) return index;
-        _groups.Add(draw);
-        return _groupOf[key] = _groups.Count - 1;
+        if (_freeGroups.Count > 0) _groups[index = _freeGroups.Pop()] = draw;
+        else
+        {
+            _groups.Add(draw);
+            index = _groups.Count - 1;
+        }
+        return _groupOf[key] = index;
     }
+
+    private static GroupKey KeyOf(in ModelDraw draw) => new(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
+        draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface);
 
     // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
     private Color Encoded(Vector4 albedo)
@@ -589,63 +694,6 @@ internal sealed class MeshEntityDraws
 
     private static float LinearToSrgb(float c) =>
         c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
-
-    // The cameras mesh entities are drawn through, the first without a render texture into the
-    // window, then each with one into it, whose target is cleared to its background unless the
-    // program clears it itself.
-    internal static List<(Matrix4x4 ViewProjection, Vector3 Eye, int Target)> Cameras(World world, EcsWorld ecs)
-    {
-        var cameras = new List<(Matrix4x4, Vector3, int)>();
-        var window = false;
-        foreach (var (entity, camera) in ecs.Query<Camera>())
-        {
-            var target = camera.Target.IsValid ? camera.Target.Texture.Id : 0;
-            if (target == 0 && window) continue;
-            var (viewProjection, eye) = Through(world, ecs, entity, camera);
-            var seen = (viewProjection, eye, target);
-            if (target == 0)
-            {
-                window = true;
-                cameras.Insert(0, seen);
-            }
-            else
-            {
-                cameras.Add(seen);
-                world.TryGetResource<DrawList>(out var drawList);
-                drawList?.UseTarget(target, camera.Background);
-            }
-        }
-        if (!window && world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } flatViewProjection)
-            cameras.Insert(0, (flatViewProjection, flat.Eye, 0));
-        return cameras;
-    }
-
-    // A camera entity's view-projection and eye. The shape is its render texture's, or the
-    // window's, or with no window (an offscreen run) the size the config asked for, at which
-    // the frames are drawn. Assuming square there stretched every mesh entity in an offscreen
-    // capture while the 2D drawing beside it was right.
-    private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
-    {
-        var (width, height) = camera.Target.IsValid ? (camera.Target.Texture.Width, camera.Target.Texture.Height)
-            : world.TryGetResource<AppWindow>(out var appWindow) ? (appWindow.Sdl.Width, appWindow.Sdl.Height)
-            : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
-            : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
-        var aspect = height > 0 ? (float)width / height : 1f;
-        var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
-        return (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
-    }
-
-    /// <summary>
-    /// The camera the window is drawn through, as <see cref="Cameras"/> gives it first, the first
-    /// camera entity without a render texture or the frame's <c>BeginMode3D</c>, or null for none.
-    /// </summary>
-    internal static (Matrix4x4 ViewProjection, Vector3 Eye)? WindowCamera(World world, EcsWorld? ecs)
-    {
-        if (ecs is not null)
-            foreach (var (entity, camera) in ecs.Query<Camera>())
-                if (!camera.Target.IsValid) return Through(world, ecs, entity, camera);
-        return world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } viewProjection ? (viewProjection, flat.Eye) : null;
-    }
 
     private int TextureFor(Handle<TextureAsset> handle, Assets<TextureAsset>? assets, TextureStore textures)
     {
@@ -676,54 +724,4 @@ internal sealed class MeshEntityDraws
             Forget();
         }
     }
-
-    private static ModelVertex[] Vertices(in Mesh mesh)
-    {
-        var count = mesh.Positions.Length / 3 * 3;
-        var vertices = new ModelVertex[count];
-        for (int i = 0; i < count; i += 3)
-        {
-            var (a, b, c) = (mesh.Positions[i], mesh.Positions[i + 1], mesh.Positions[i + 2]);
-            // A triangle with no normals of its own is lit flat, by the normal of its face.
-            var face = Vector3.Cross(b - a, c - a);
-            face = face.LengthSquared() > 0 ? Vector3.Normalize(face) : Vector3.UnitY;
-            for (int k = 0; k < 3; k++)
-            {
-                var n = mesh.Normals is { } normals && i + k < normals.Length ? normals[i + k] : face;
-                var uv = mesh.Uvs is { } uvs && i + k < uvs.Length ? uvs[i + k] : Vector2.Zero;
-                vertices[i + k] = new ModelVertex(mesh.Positions[i + k], n, uv);
-            }
-        }
-        return vertices;
-    }
-
-    private static uint[] Sequence(int count)
-    {
-        var indices = new uint[count];
-        for (uint i = 0; i < count; i++) indices[i] = i;
-        return indices;
-    }
-}
-
-/// <summary>
-/// The camera of the first <c>BeginMode3D</c> of the frame drawn into the window, a world resource
-/// <see cref="MeshEntityDraws"/> draws mesh entities through when no <see cref="Camera"/> entity
-/// draws the window, cleared as each frame begins.
-/// </summary>
-internal sealed class Mode3DCamera
-{
-    /// <summary>The camera's view and projection, or null when no <c>BeginMode3D</c> has drawn into the window this frame.</summary>
-    public Matrix4x4? ViewProjection { get; set; }
-
-    /// <summary>Where the camera is, which the mesh entities are sorted from.</summary>
-    public Vector3 Eye { get; set; }
-
-    /// <summary>The camera itself, which the modeling window casts the pointer's ray through, or null with the view and projection.</summary>
-    public Camera3D? Camera { get; set; }
-
-    /// <summary>
-    /// The first camera each render target was drawn through in 3D this frame, by its texture id,
-    /// which particles are drawn into it through.
-    /// </summary>
-    public Dictionary<int, (Matrix4x4 ViewProjection, Vector3 Eye)> Targets { get; } = [];
 }

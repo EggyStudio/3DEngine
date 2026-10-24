@@ -3419,6 +3419,18 @@ batch.
     after item 105 and before 102. Done at `df0c7b50` on 2026-10-24, the analyzer sparing what
     nothing can change, the reason in the rule's message and the guide.
 
+107. **An entity is found by a component's key, so a game keeps no index of its own.** From the
+    voxel game's fires as entities at its `9a70f28` on 2026-10-24, read at 20:47, its ASKS.md entry
+    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The world
+    names every fire cell it sets and the game must skip a cell that has its fire, and with no
+    lookup by cell it walks every fire into a set each frame the world names one. The engine gives a
+    lookup by a component's key, an index the world keeps for a component type that names its key,
+    kept on spawn, change and despawn, with a query by key and a contains, the cheat sheet's line
+    and the guide's page saying it; a test over a thousand entities finding one by key and none
+    after its despawn, allocating nothing on the lookup. One commit, small, after item 106 and
+    before 102. Done at `a0d3d7f7` on 2026-10-24, IKeyed and the world's KeyIndex kept by the store,
+    with the test.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

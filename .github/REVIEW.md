@@ -10,32 +10,45 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `df0c7b50`, item 106, a behavior holding a reference to what nothing can change, read
-at 21:01 on 2026-10-24, carrying ASKS.md and the review's files. E3D006 warns because every copy of
-a behavior shares a referenced object and entities run on several threads, so a mutable one can be
-changed by two at once; the analyzer spares any type nothing can change, a string, a primitive or an
-enum, a record or sealed class whose every instance field and its bases' is readonly and holds such
-a value, a positional record's init-only properties counting, or a struct whose fields do, and still
-warns of a record with a settable property, one holding a List and a class neither sealed nor a
-record; the rule's message, the generator's remarks and the guide's page on a behavior say when, the
-dropped stack keeping its Item, and the generator's test covers the cases. 2,079 plain and shuffled,
-the strict build clean. Held until the build run of `f0574e89` ends, then pushed and the pack run
-started on it for the game's items 105, 123 and the mobs' third commit. After `f0574e89`, item 105,
-a Query past three components, read at 20:37 on 2026-10-24, carrying the review's files and
-SHARED.md. Query and QueryReadOnly over four to six components are public and QueryRef internal as
-the smaller arities' are, each walking the store with the fewest components and filtered by With,
-Without, Changed and Added, the four-to-six ref forms in EcsWorld.WideRefIterators.cs to keep N
-1.3's 800 lines; the test over five and six components beside a hundred velocity-only entities reads
-the right entities and copied values, Without and With, an absent store giving none, the read-only
-and ref forms with the ref writing through, and a walk allocating nothing; the guide says up to six.
-2,078 plain and shuffled, the strict build clean. The three pushed at 20:48 on 2026-10-24 after the
-build run of `1b497b3b` went green whole, the run watched. Item 96 begins with a reading on the
-game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in
-turn to tell what runs per fragment from the variant's registers, the window's depth at half size
-and the scene pass shading with overdraw pointing at a half-size pass over the window's depth with a
-two by two depth and normal read, as the glow pass has. Next 107, the lookup by a component's key,
-then 108, the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the
-far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
+Reviewed up to `a0d3d7f7`, item 107, the lookup by a component's key, read at 21:41 on 2026-10-24,
+carrying ASKS.md and the review's files. A component names its key through IKeyed of a key type,
+ecs.Index makes the world's KeyIndex from the entities already there and returns the same after, its
+TryGet, Contains and Count dictionary lookups, ComponentStore keeping it on Add, Update, SetBoxed,
+Remove and TryRemove so the world's calls, commands, scenes and despawns all reach it, a key changed
+in place through a reference not seen but a lookup holding the found entity's current key against
+the asked one so it is never mistaken for another, one entity a key with the last given it holding
+it; the test over a thousand fires by cell finds one and not a missing cell, a hundred lookups
+allocating nothing, none after despawn, one added after the index found, Update moving its key,
+Remove dropping it and an in-place change found by the old key no more; the guide and the cheat
+sheet say it, IKeyed.cs apart for N 1.2, the docs building on the package. 2,080 plain and shuffled,
+the strict build clean. Held with `df0c7b50` until the build run of `f0574e89` ends, then pushed and
+the pack run started on them. After `df0c7b50`, item 106, a behavior holding a reference to what
+nothing can change, read at 21:01 on 2026-10-24, carrying ASKS.md and the review's files. E3D006
+warns because every copy of a behavior shares a referenced object and entities run on several
+threads, so a mutable one can be changed by two at once; the analyzer spares any type nothing can
+change, a string, a primitive or an enum, a record or sealed class whose every instance field and
+its bases' is readonly and holds such a value, a positional record's init-only properties counting,
+or a struct whose fields do, and still warns of a record with a settable property, one holding a
+List and a class neither sealed nor a record; the rule's message, the generator's remarks and the
+guide's page on a behavior say when, the dropped stack keeping its Item, and the generator's test
+covers the cases. 2,079 plain and shuffled, the strict build clean. Held until the build run of
+`f0574e89` ends, then pushed and the pack run started on it for the game's items 105, 123 and the
+mobs' third commit. After `f0574e89`, item 105, a Query past three components, read at 20:37 on
+2026-10-24, carrying the review's files and SHARED.md. Query and QueryReadOnly over four to six
+components are public and QueryRef internal as the smaller arities' are, each walking the store with
+the fewest components and filtered by With, Without, Changed and Added, the four-to-six ref forms in
+EcsWorld.WideRefIterators.cs to keep N 1.3's 800 lines; the test over five and six components beside
+a hundred velocity-only entities reads the right entities and copied values, Without and With, an
+absent store giving none, the read-only and ref forms with the ref writing through, and a walk
+allocating nothing; the guide says up to six. 2,078 plain and shuffled, the strict build clean. The
+three pushed at 20:48 on 2026-10-24 after the build run of `1b497b3b` went green whole, the run
+watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
+1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 109, the highlights' knee, then 110, a behavior's order and states, then 108,
+the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the far
+cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
 cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of the
 documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
 the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
@@ -1209,16 +1222,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
 
-107. **An entity is found by a component's key, so a game keeps no index of its own.** From the
-    voxel game's fires as entities at its `9a70f28` on 2026-10-24, read at 20:47, its ASKS.md entry
-    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The world
-    names every fire cell it sets and the game must skip a cell that has its fire, and with no
-    lookup by cell it walks every fire into a set each frame the world names one. The engine gives a
-    lookup by a component's key, an index the world keeps for a component type that names its key,
-    kept on spawn, change and despawn, with a query by key and a contains, the cheat sheet's line
-    and the guide's page saying it; a test over a thousand entities finding one by key and none
-    after its despawn, allocating nothing on the lookup. One commit, small, after item 106 and
-    before 102.
+109. **Highlights roll off to white a channel at a time above a knee, the rest of the picture as it
+    is.** The owner wrote at 22:01 on 2026-10-24, with the bounce rooms' strip beside its
+    path-traced reference, that the reference's highlight goes toward white, which is right, while
+    the engine's views keep it cream, and that a tonemap changes the whole picture, the voxel game
+    then needing its exposure raised or darkening under Reinhard, and asked for a way nearer the
+    reference. The reference clips each channel at white, so a bright saturated emitter goes to
+    white as the three channels reach 1, where the engine's curve holds the hue; the display
+    transform gains a shoulder a channel above a knee, a pixel under the knee untouched and each
+    channel above it bent toward 1 on its own, so the strip and the sun's patch go to white as the
+    reference's do and nothing under the knee moves, with SetHighlightKnee(knee, strength) beside
+    the tonemap, on by default at a knee of 0.8, and the window's frame and a render texture taking
+    it alike; the bounce rooms' views read against their references with the knee on and off, the
+    strip's and the sunlit floor's distances shrinking and no view widening, a test of a gradient
+    through the transform reading the knee's below unchanged and the above desaturated, the guide's
+    post-processing page saying it and the cheat sheet's line. One commit, small, first, before item
+    108.
+
+110. **A behavior's system says what it runs after or before, and in more than one state.** From the
+    voxel game's states as entities at its `2926dda` on 2026-10-24, read at 22:08, its ASKS.md entry
+    in the engine's tree; a gap the port finds comes to the engine first, Decision 68. No behavior
+    attribute reaches SystemDescriptor.After or Before and InState names one state a method, so the
+    game's ordered steps, the aim before the hand's work on it, the player's move before either and
+    the answering of the mobs, stay inside one system. The generator takes After and Before
+    attributes naming another system, and InState more than once on a method meaning all of them,
+    carried into the descriptor as AddSystem's are, the guide's page on behaviors showing both and
+    the cheat sheet's line; a test of three behaviors ordered against the stage's default and one
+    gated on two states. One commit, small, after item 109 and before 108.
 
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
