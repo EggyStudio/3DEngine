@@ -2451,7 +2451,7 @@ zero), or cost more than it gave, or left the term as it was.
   it, so the probe reads far over its hemisphere's light and its neighbors under, and the window's
   filter spreads the difference over its 5 by 5 probes into round spots 20 to 40 pixels across that
   stand still from frame to frame. The screen's probes make the spots, and with them left out
-  (`gi.toggle screen off`) the surfaces read smooth. Two forms of it are read. A torch or a lantern
+  (`gi.toggle screen off`) the surfaces read smooth. Three forms of it are read. A torch or a lantern
   carried as a glow light lights the wall it stands against within a few hundredths of a block of
   its box. In a plank room seven blocks across and four high with a lantern under its ceiling and two torches on its walls, field cell 0.25, at `High` and 960 by 540, a
   ceiling probe reads 0.643 over its hemisphere where a path-traced reference reads 0.079, its ray
@@ -2477,7 +2477,13 @@ zero), or cost more than it gave, or left the term as it was.
   0.40 and 0.46 at `High` where the path-traced reference over their hemispheres reads 0.57 to
   0.61, the texel of each toward the lamp reading 0.94 to 1.06 in the reference over its whole and
   0.07, 0.23 and 0.39 along its one way, by whether that way meets the bright ceiling about the lamp
-  (`gi.screenprobe` at 1280 by 720).
+  (`gi.screenprobe` at 1280 by 720). The sun on a floor under a window is the third, narrower than
+  a texel of a probe on the room's far wall. The noise seen in the bounce rooms 3 to 6 is the
+  term's still spots. At `High` at 800 by 450, by the voxel game's measure over the frame's middle,
+  the sun's room holds 9 spots with the screen's probes and 6 without and the strip's room 16 and
+  7, its walls smooth without them as the references are, and the corridor's and the red walls'
+  views hold their scenes' own edges, 7 and 5, either way. Two frames 60 apart hold the same spots,
+  and a still view's pixels change from one frame to the next by 0.03% at most (above).
 
 ## 5. Render targets and post processing
 

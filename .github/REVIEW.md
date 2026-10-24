@@ -10,24 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2dd40fe4`, the sixth term widened in RENDERING.md to a bright patch narrower than a
-probe's texel read by a few fixed rays, the small emitter's near field and the ceiling over
-Blockout's lamp its two forms with their numbers, the screen probes making the spots, after
-`a8f34b35`, item 71's edge leak mended in field_resolve.slang, and nothing else, carrying the
-review's files. The mend: the checkerboard cell two blocks meeting at an edge leave is held inside
-at its distance; the bounce rooms at 160 by 90 level to three places in all 27 cases and at 800 by
-450 level to five in every view but the Cornell box at Low, 0.00001 further over blocks of 4, within
-the 2048-path references' own noise, so the covered-fault rule holds; a cascade's build 0.578 ms
-where 0.557 and nothing per frame; the edge room at High 21 to 2 and 20 to 0 with the probes off and
-on, the closed edge 2 and 0; the test a sectioned room as the game meshes it at 640 by 360, since
-the leak is under 4 levels at 320 by 180, reading 2 open and 2 closed where 10 and 7 without,
-failing without the mend; RENDERING.md's line on the resolve with the numbers; 2,055 passed plain
-and shuffled, 116 on lavapipe with the layer. Read at 04:14 on 2026-10-24. The term read at 04:19.
-Not pushed, the build run of `26dbc6da` running; the two go when it ends. Next 71's stepped edges,
-then the noise, the z-fighting and the shift, then 74's and 72's cherry-picks with the default's
-device readings and Ore's capture. Items 74 and 72 are whole on `modeling`, `629c1643`, then
-`e164ccaa`, `0e908bdf` and `54d7c3e`, under the owner's identity, the cloud session standing by; the
-branch's items 59 to 66, 75 to 78 and 88 are on main.
+Reviewed up to `17f13440`, the stepped edges' line in RENDERING.md's paragraph on the glow lights, a
+pixel marching to a glow light's face halves under gi.toggle screen off and where no texel holds a
+point like its own, a shadow's edge stepping there where the probes' texels read it smooth, the
+game's capture of 2026-10-21 having taken the toggle's path, after `2dd40fe4`, the sixth term
+widened in RENDERING.md to a bright patch narrower than a probe's texel read by a few fixed rays,
+the small emitter's near field and the ceiling over Blockout's lamp its two forms with their
+numbers, the screen probes making the spots, after `a8f34b35`, item 71's edge leak mended in
+field_resolve.slang, and nothing else, carrying the review's files. The mend: the checkerboard cell
+two blocks meeting at an edge leave is held inside at its distance; the bounce rooms at 160 by 90
+level to three places in all 27 cases and at 800 by 450 level to five in every view but the Cornell
+box at Low, 0.00001 further over blocks of 4, within the 2048-path references' own noise, so the
+covered-fault rule holds; a cascade's build 0.578 ms where 0.557 and nothing per frame; the edge
+room at High 21 to 2 and 20 to 0 with the probes off and on, the closed edge 2 and 0; the test a
+sectioned room as the game meshes it at 640 by 360, since the leak is under 4 levels at 320 by 180,
+reading 2 open and 2 closed where 10 and 7 without, failing without the mend; RENDERING.md's line on
+the resolve with the numbers; 2,055 passed plain and shuffled, 116 on lavapipe with the layer. Read
+at 04:14 on 2026-10-24. The term and the line read at 04:19 and 04:21. Not pushed, the build run of
+`26dbc6da` running; the three go when it ends. Next 71's noise in the bounce rooms 3 to 6, then the
+z-fighting and the shift, then the noise, the z-fighting and the shift, then 74's and 72's
+cherry-picks with the default's device readings and Ore's capture. Items 74 and 72 are whole on
+`modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and `54d7c3e`, under the owner's identity, the
+cloud session standing by; the branch's items 59 to 66, 75 to 78 and 88 are on main.
 
 Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
 at 03:22 on 2026-10-24, their run in flight.
@@ -781,7 +785,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     light's face halves itself, while the glow-only texels read smooth and the probes on waver
     mildly as the game ships; no mend, a line under the glow lights in RENDERING.md with the
     reading. The engine's shadow there reads wider and softer than the reference's, a reading no
-    entry names, kept here for a later item.
+    entry names, kept here for a later item. The line at `17f13440` on 2026-10-24; the stepped edges
+    closed. The noise next. The noise read at 04:2x on 2026-10-24 in the bounce rooms 3 to 6 at
+    High, 800 by 450, with the probes on and left out beside the references: the screen probes'
+    still spots, nothing moving, two frames 60 apart matching spot for spot and a still view
+    changing 0.03% at most; view 4's sunlit floor under the window a bright patch narrower than a
+    far wall probe's texel, 9 spots against 6 without the probes, view 6's strip the near field, 16
+    against 7, views 3 and 5 their own edges either way; no mend, the term gaining the line and the
+    sunlit floor as its third form. The z-fighting next.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
