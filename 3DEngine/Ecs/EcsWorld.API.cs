@@ -488,6 +488,42 @@ public sealed partial class EcsWorld
         return RefEnumerable<T1, T2, T3>.From(s1, s2, s3, markOnIterate: true, this);
     }
 
+    /// <summary>Returns a zero-allocation ref-enumerable over entities that have all four component types.</summary>
+    internal RefEnumerable<T1, T2, T3, T4> QueryRef<T1, T2, T3, T4>()
+    {
+        var s1 = GetStore<T1>(create: false);
+        var s2 = GetStore<T2>(create: false);
+        var s3 = GetStore<T3>(create: false);
+        var s4 = GetStore<T4>(create: false);
+        if (s1 == null || s2 == null || s3 == null || s4 == null) return RefEnumerable<T1, T2, T3, T4>.Empty();
+        return RefEnumerable<T1, T2, T3, T4>.From(s1, s2, s3, s4, markOnIterate: true, this);
+    }
+
+    /// <summary>Returns a zero-allocation ref-enumerable over entities that have all five component types.</summary>
+    internal RefEnumerable<T1, T2, T3, T4, T5> QueryRef<T1, T2, T3, T4, T5>()
+    {
+        var s1 = GetStore<T1>(create: false);
+        var s2 = GetStore<T2>(create: false);
+        var s3 = GetStore<T3>(create: false);
+        var s4 = GetStore<T4>(create: false);
+        var s5 = GetStore<T5>(create: false);
+        if (s1 == null || s2 == null || s3 == null || s4 == null || s5 == null) return RefEnumerable<T1, T2, T3, T4, T5>.Empty();
+        return RefEnumerable<T1, T2, T3, T4, T5>.From(s1, s2, s3, s4, s5, markOnIterate: true, this);
+    }
+
+    /// <summary>Returns a zero-allocation ref-enumerable over entities that have all six component types.</summary>
+    internal RefEnumerable<T1, T2, T3, T4, T5, T6> QueryRef<T1, T2, T3, T4, T5, T6>()
+    {
+        var s1 = GetStore<T1>(create: false);
+        var s2 = GetStore<T2>(create: false);
+        var s3 = GetStore<T3>(create: false);
+        var s4 = GetStore<T4>(create: false);
+        var s5 = GetStore<T5>(create: false);
+        var s6 = GetStore<T6>(create: false);
+        if (s1 == null || s2 == null || s3 == null || s4 == null || s5 == null || s6 == null) return RefEnumerable<T1, T2, T3, T4, T5, T6>.Empty();
+        return RefEnumerable<T1, T2, T3, T4, T5, T6>.From(s1, s2, s3, s4, s5, s6, markOnIterate: true, this);
+    }
+
     /// <summary>Returns a writable span view of all components of type <typeparamref name="T"/> for raw iteration.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <returns>A <see cref="ComponentSpan{T}"/> containing parallel entity ID and component spans.</returns>
@@ -534,6 +570,15 @@ public sealed partial class EcsWorld
 
     /// <summary>Every entity with a <typeparamref name="T1"/>, a <typeparamref name="T2"/> and a <typeparamref name="T3"/>, with a copy of each, walking the smallest store.</summary>
     public CopyQuery<T1, T2, T3> Query<T1, T2, T3>() => new(this);
+
+    /// <summary>Every entity with all four component types, with a copy of each, walking the smallest store.</summary>
+    public CopyQuery<T1, T2, T3, T4> Query<T1, T2, T3, T4>() => new(this);
+
+    /// <summary>Every entity with all five component types, with a copy of each, walking the smallest store.</summary>
+    public CopyQuery<T1, T2, T3, T4, T5> Query<T1, T2, T3, T4, T5>() => new(this);
+
+    /// <summary>Every entity with all six component types, with a copy of each, walking the smallest store.</summary>
+    public CopyQuery<T1, T2, T3, T4, T5, T6> Query<T1, T2, T3, T4, T5, T6>() => new(this);
 
     /// <summary>Enumerates components of type <typeparamref name="T"/> that match a predicate.</summary>
     /// <typeparam name="T">The component type.</typeparam>

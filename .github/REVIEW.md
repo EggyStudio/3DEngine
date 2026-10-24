@@ -10,7 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e5ad8d28`, item 101, the draw into the shadow maps alone, read at 19:22 on
+Reviewed up to `267d3886`, item 104, a test running an app's behaviors through the package, read at
+20:02 on 2026-10-24, carrying the review's files. App.AddPlugin and App.Frame are public, in
+PublicApi.txt, so a game's test builds an App on Config.Default with Headless and FrameSeconds set,
+adds DefaultPlugins and steps it a frame a call, reading the world between; App.Dispose disposed the
+world alone and skipped Cleanup, logging an error on a headless app's renderer, and runs Shutdown as
+CloseWindow does. AppSteppingTests, in the E3D collection since the default plugins hold ImGui's one
+context, steps a system three frames, the counts 1, 2 and 3, the time a tenth a frame and Startup
+once; the behaviors guide's section on testing a behavior holds a real example built on the packed
+package, printing 2.5, 1.5, 0.5 and 0 as a console program, and says a game's behaviors register as
+their assembly loads and such tests run one at a time. Departure, the engine's own test steps an
+AddSystem system rather than a generated behavior, the test assembly having no generator. 2,077
+plain and shuffled, the strict build clean. Held with `e5ad8d28` until the build run of `1b497b3b`
+ends, then pushed. After `e5ad8d28`, item 101, the draw into the shadow maps alone, read at 19:22 on
 2026-10-24, carrying REVIEW.md, NORM.md, ASKS.md, DEVLOG.md and three pictures under N 4.8 with
 their captions. ModelMaterial.ShadowOnly, false by default, reaches ModelDraw.ShadowOnly; such a
 draw casts the shadow kinds SolidAlone or MaskedAlone and batches apart, the view pass, the
@@ -37,7 +49,7 @@ whole, the run watched. Item 96 begins with a reading on the game's 5.2.215 buil
 grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs per
 fragment from the variant's registers, the window's depth at half size and the scene pass shading
 with overdraw pointing at a half-size pass over the window's depth with a two by two depth and
-normal read, as the glow pass has. Next 104 to 106, the ECS gaps the game's drops found, then 102,
+normal read, as the glow pass has. Next 105 and 106, the ECS gaps the game's drops found, then 102,
 the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of
 the cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of
 the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
@@ -1211,15 +1223,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     debug toggles with a line saying it is for reading the trace's cost; the game's F3 checkbox then
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
-
-104. **A test runs an app's behaviors through the package.** From the voxel game's first ECS piece,
-    the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
-    2026-10-24; a gap the port finds comes to the engine first, Decision 68. App.AddPlugin and Frame
-    are internal in the package, so the game's tests step a bare EcsWorld through twins of its
-    systems that take the world as an argument. The engine gives a test the way to build an App with
-    its plugins and step its frames without a window, through the package's public surface, as the
-    engine's own tests do inside, with the guide's page on testing a game showing it; a test in the
-    engine's suite stepping a behavior through it. One commit, small, after item 101 and before 102.
 
 105. **A Query reaches past three components.** From the voxel game's first ECS piece, the drops as
     entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of 2026-10-24; a gap

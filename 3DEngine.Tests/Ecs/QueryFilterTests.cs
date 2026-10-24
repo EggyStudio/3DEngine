@@ -10,6 +10,8 @@ public class QueryFilterTests
     private struct Grounded;
     private struct Never;
     private struct Mass { public float Kg; }
+    private struct Heat { public float C; }
+    private struct Size { public float M; }
 
     private static (EcsWorld Ecs, int Falling, int Landed, int Floating) World()
     {
@@ -167,6 +169,51 @@ public class QueryFilterTests
         foreach (var _ in ecs.Query<Velocity, Mass>().Without<Grounded>()) seen++;
         GC.GetAllocatedBytesForCurrentThread().Should().Be(before, "the query and its enumerator are structs");
         seen.Should().Be(2);
+    }
+
+    [Fact]
+    public void A_Query_Of_Five_Or_Six_Components_Finds_The_Entities_With_Them_All_And_Filters_As_The_Smaller_Do()
+    {
+        // A hundred entities with a velocity alone, so a walk of the velocities would visit them
+        // all, and three with more: the whole five, four of them, and the five on the ground.
+        var ecs = new EcsWorld();
+        for (int i = 0; i < 100; i++) ecs.Add(ecs.Spawn(), new Velocity());
+        int Make(bool sized, bool grounded)
+        {
+            var entity = ecs.Spawn();
+            ecs.Add(entity, new Velocity { Y = entity });
+            ecs.Add(entity, new Falls());
+            ecs.Add(entity, new Mass { Kg = 2 });
+            ecs.Add(entity, new Heat { C = 20 });
+            if (sized) ecs.Add(entity, new Size { M = 0.5f });
+            if (grounded) ecs.Add(entity, new Grounded());
+            return entity;
+        }
+        var whole = Make(sized: true, grounded: false);
+        Make(sized: false, grounded: false);
+        var landed = Make(sized: true, grounded: true);
+
+        ecs.Query<Velocity, Falls, Mass, Heat, Size>().Select(r => r.Entity).Should().Equal(whole, landed);
+        var row = ecs.Query<Velocity, Falls, Mass, Heat, Size>().Without<Grounded>().Single();
+        (row.Entity, row.C1.Y, row.C3.Kg, row.C4.C, row.C5.M).Should().Be((whole, whole, 2f, 20f, 0.5f));
+        ecs.Query<Velocity, Falls, Mass, Heat, Size, Grounded>().Single().Entity.Should().Be(landed);
+        ecs.Query<Velocity, Falls, Mass, Never, Size>().Should().BeEmpty("no entity has a Never, whose store does not exist");
+
+        var read = new List<(int, float)>();
+        foreach (var r in ecs.QueryReadOnly<Velocity, Falls, Mass, Heat, Size>().With<Grounded>()) read.Add((r.Entity, r.C5.M));
+        read.Should().Equal((landed, 0.5f));
+
+        foreach (var r in ecs.QueryRef<Velocity, Falls, Mass, Heat, Size>()) r.C4.C += 1;
+        ecs.GetRef<Heat>(whole).C.Should().Be(21, "the by-reference query writes through");
+        ecs.GetRef<Heat>(landed).C.Should().Be(21);
+
+        // Warmed once, so the JIT's own allocations are behind it.
+        int seen = 0;
+        foreach (var _ in ecs.Query<Velocity, Falls, Mass, Heat, Size>()) seen++;
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        foreach (var _ in ecs.Query<Velocity, Falls, Mass, Heat, Size>().Without<Grounded>()) seen++;
+        GC.GetAllocatedBytesForCurrentThread().Should().Be(before, "the query and its enumerator are structs");
+        seen.Should().Be(3);
     }
 
     [Fact]

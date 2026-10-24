@@ -1639,9 +1639,15 @@ sealed class Engine.EcsCommands
 sealed class Engine.EcsWorld : IDisposable
   EcsWorld()
   EcsWorld.ComponentStore<T?> GetStorePublic<T>()
+  EcsWorld.CopyQuery<T1, T2, T3, T4, T5, T6> Query<T1, T2, T3, T4, T5, T6>()
+  EcsWorld.CopyQuery<T1, T2, T3, T4, T5> Query<T1, T2, T3, T4, T5>()
+  EcsWorld.CopyQuery<T1, T2, T3, T4> Query<T1, T2, T3, T4>()
   EcsWorld.CopyQuery<T1, T2, T3> Query<T1, T2, T3>()
   EcsWorld.CopyQuery<T1, T2> Query<T1, T2>()
   EcsWorld.CopyQuery<T> Query<T>()
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5, T6> QueryReadOnly<T1, T2, T3, T4, T5, T6>()
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5> QueryReadOnly<T1, T2, T3, T4, T5>()
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4> QueryReadOnly<T1, T2, T3, T4>()
   EcsWorld.ReadOnlyEnumerable<T1, T2, T3> QueryReadOnly<T1, T2, T3>()
   EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
   EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
@@ -1755,6 +1761,39 @@ struct Engine.EcsWorld.CopyQuery<T1, T2, T3>.Enumerator : IDisposable, IEnumerat
   bool MoveNext()
   void Dispose()
   void Reset()
+readonly struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4> : IEnumerable, IEnumerable<(int, T1, T2, T3, T4)>
+  EcsWorld.CopyQuery<T1, T2, T3, T4>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?> Added<TAdded>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?> With<TWith>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2, T3, T4)>
+  (int, T1, T2, T3, T4) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
+readonly struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4, T5> : IEnumerable, IEnumerable<(int, T1, T2, T3, T4, T5)>
+  EcsWorld.CopyQuery<T1, T2, T3, T4, T5>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?> Added<TAdded>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?> With<TWith>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4, T5>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2, T3, T4, T5)>
+  (int, T1, T2, T3, T4, T5) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
+readonly struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4, T5, T6> : IEnumerable, IEnumerable<(int, T1, T2, T3, T4, T5, T6)>
+  EcsWorld.CopyQuery<T1, T2, T3, T4, T5, T6>.Enumerator GetEnumerator()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?, T6?> Added<TAdded>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?, T6?> Changed<TChanged>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?, T6?> With<TWith>()
+  EcsWorld.CopyQuery<T1?, T2?, T3?, T4?, T5?, T6?> Without<TWithout>()
+struct Engine.EcsWorld.CopyQuery<T1, T2, T3, T4, T5, T6>.Enumerator : IDisposable, IEnumerator, IEnumerator<(int, T1, T2, T3, T4, T5, T6)>
+  (int, T1, T2, T3, T4, T5, T6) Current { get; }
+  bool MoveNext()
+  void Dispose()
+  void Reset()
 readonly struct Engine.EcsWorld.QueryFilter
   bool IsEmpty { get; }
   bool Passes(int entity)
@@ -1774,6 +1813,27 @@ readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3>
   T1? C1 { get; }
   T2? C2 { get; }
   T3? C3 { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3, T4>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3, T4, T5>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  T5? C5 { get; }
+  int Entity { get; }
+readonly struct Engine.EcsWorld.ReadOnlyComponents<T1, T2, T3, T4, T5, T6>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  T5? C5 { get; }
+  T6? C6 { get; }
   int Entity { get; }
 readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T>
   EcsWorld.ReadOnlyEnumerable<T>.Enumerator GetEnumerator()
@@ -1802,6 +1862,33 @@ readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>
 struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3>.Enumerator
   EcsWorld.ReadOnlyComponents<T1, T2, T3> Current { get; }
   bool MoveNext()
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4>
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4>.Enumerator
+  EcsWorld.ReadOnlyComponents<T1, T2, T3, T4> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5>
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5>.Enumerator
+  EcsWorld.ReadOnlyComponents<T1, T2, T3, T4, T5> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5, T6>
+  EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5, T6>.Enumerator GetEnumerator()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Added<TAdded>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Changed<TChanged>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> With<TWith>()
+  EcsWorld.ReadOnlyEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Without<TWithout>()
+struct Engine.EcsWorld.ReadOnlyEnumerable<T1, T2, T3, T4, T5, T6>.Enumerator
+  EcsWorld.ReadOnlyComponents<T1, T2, T3, T4, T5, T6> Current { get; }
+  bool MoveNext()
 readonly struct Engine.EcsWorld.RefComponent<T>
   T? Component { get; }
   readonly int Entity
@@ -1813,6 +1900,27 @@ readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3>
   T1? C1 { get; }
   T2? C2 { get; }
   T3? C3 { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3, T4>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3, T4, T5>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  T5? C5 { get; }
+  readonly int Entity
+readonly struct Engine.EcsWorld.RefComponents<T1, T2, T3, T4, T5, T6>
+  T1? C1 { get; }
+  T2? C2 { get; }
+  T3? C3 { get; }
+  T4? C4 { get; }
+  T5? C5 { get; }
+  T6? C6 { get; }
   readonly int Entity
 readonly struct Engine.EcsWorld.RefEnumerable<T>
   EcsWorld.RefEnumerable<T>.RefEnumerator GetEnumerator()
@@ -1841,6 +1949,33 @@ readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>
   EcsWorld.RefEnumerable<T1?, T2?, T3?> Without<TWithout>()
 struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
   EcsWorld.RefComponents<T1, T2, T3> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4>
+  EcsWorld.RefEnumerable<T1, T2, T3, T4>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?> With<TWith>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?> Without<TWithout>()
+struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4>.RefEnumerator
+  EcsWorld.RefComponents<T1, T2, T3, T4> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4, T5>
+  EcsWorld.RefEnumerable<T1, T2, T3, T4, T5>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?> With<TWith>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?> Without<TWithout>()
+struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4, T5>.RefEnumerator
+  EcsWorld.RefComponents<T1, T2, T3, T4, T5> Current { get; }
+  bool MoveNext()
+readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4, T5, T6>
+  EcsWorld.RefEnumerable<T1, T2, T3, T4, T5, T6>.RefEnumerator GetEnumerator()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Added<TAdded>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Changed<TChanged>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> With<TWith>()
+  EcsWorld.RefEnumerable<T1?, T2?, T3?, T4?, T5?, T6?> Without<TWithout>()
+struct Engine.EcsWorld.RefEnumerable<T1, T2, T3, T4, T5, T6>.RefEnumerator
+  EcsWorld.RefComponents<T1, T2, T3, T4, T5, T6> Current { get; }
   bool MoveNext()
 readonly struct Engine.EditMesh : IEquatable<EditMesh>
   EditMesh(int Id)

@@ -3389,6 +3389,17 @@ batch.
     ModelMaterial.ShadowOnly with its test and its lines; the game's item 123 takes it with the
     package.
 
+104. **A test runs an app's behaviors through the package.** From the voxel game's first ECS piece,
+    the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
+    2026-10-24; a gap the port finds comes to the engine first, Decision 68. App.AddPlugin and Frame
+    are internal in the package, so the game's tests step a bare EcsWorld through twins of its
+    systems that take the world as an argument. The engine gives a test the way to build an App with
+    its plugins and step its frames without a window, through the package's public surface, as the
+    engine's own tests do inside, with the guide's page on testing a game showing it; a test in the
+    engine's suite stepping a behavior through it. One commit, small, after item 101 and before 102.
+    Done at `267d3886` on 2026-10-24, App.AddPlugin and Frame public, the guide's section and its
+    test, Dispose mended on the way; the departure in the head.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

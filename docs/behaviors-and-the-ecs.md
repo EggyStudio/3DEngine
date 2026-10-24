@@ -392,7 +392,7 @@ DrawText($"{ecs.Count<Ball>()} balls. Space adds a hundred.", 10, 10, 20, Color.
 ```
 
 `Query<T>()` walks every entity with a component, and `Query<T1, T2>()` those with both, each
-with its id. An id is the frame's own, and a program keeping an entity across frames keeps the
+with its id, up to six components, the store with the fewest walked and the others looked up. An id is the frame's own, and a program keeping an entity across frames keeps the
 `Entity` handle `ecs.Handle(id)` gives, which knows when the entity it names is gone.
 
 A behavior reaches the rest of the engine through its context, `ctx.Input` for input,
