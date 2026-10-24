@@ -987,3 +987,21 @@ blocks' edges read. The game keeps the engine's one softness meanwhile.
 Review: item 111 of REVIEW.md, 2026-10-24; a penumbra widening with the distance from the caster as
 percentage-closer soft shadows give it, SetShadowSoftness with a default keeping the present look;
 after item 100.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a flat surface of water mirrors nothing of the shore or the sky
+
+Read on the 3DEngine 5.2.283 package for the game's item 42, water that mirrors the sky and the shore,
+offscreen at 1280 by 720 on the RTX 4070 Laptop GPU with the default packs. The game's water is its
+terrain shader's see-through material, blended, at a roughness of 1 since its `10cf3f3`. Set to a
+roughness of 0.05 in a live session, as glossy as the engine traces for (`tracedReflection` under
+0.5), the water of seed 1's river by its plains village, from 550.5, 72, -356.5 facing 45 and
+pitched -17, reads the same at noon and at 17 as the rough water beside it, the shore and the sky
+showing in none of it, and a pool of the flat world beside a wall of red concrete at noon reads 143,
+128, 183 where the wall's mirror image would lie, a faint purple of the wall's red through the
+water's blue rather than the wall, the trace through the frame before's picture and the field's
+coarse cells giving no image of either. The box probes (`CreateReflectionProbe`) suit a room and not
+open water. The engine lacks a planar reflection at a height a program sets, the scene drawn from
+the camera mirrored in that plane at a lower resolution with its shadows and light reused and given
+to a material as a texture, usable from the transparent pass, as the source's shader packs mirror
+calm water. The game draws its water with the sky's color by the view's angle, the bed through it
+darkened with depth and a soft edge meanwhile, and keeps the shore's mirror for that package.

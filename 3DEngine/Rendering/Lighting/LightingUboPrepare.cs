@@ -24,6 +24,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // Always upload (even with zero lights) so the shader can rely on the binding
         // existing, since the shader iterates against the count.
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
+        // A render texture's light is bent and encoded by the model pass, its highlights as the
+        // window's composite bends them.
+        var effects = renderWorld.TryGet<FrameEffects>() ?? new FrameEffects();
+        ubo.Output = new System.Numerics.Vector4(0, 0, effects.HighlightKnee, effects.HighlightStrength);
         var environment = renderWorld.TryGet<EnvironmentMap>();
         if (environment is not null)
         {

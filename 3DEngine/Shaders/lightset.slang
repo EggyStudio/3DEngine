@@ -60,7 +60,8 @@ public struct Lighting
     public Probe probes[4];
     // 1 in x when toDisplay leaves the view's light linear, a reflection probe's faces, and 1 in y
     // when it encodes it on past 1 with no tonemap, the window's frame, which a pass after the
-    // scene bends. Neither for a render texture, whose light toDisplay bends and encodes.
+    // scene bends. Neither for a render texture, whose light toDisplay bends and encodes, its
+    // channels past the knee in z bent toward 1 on their own by the strength in w (tonemapKnee).
     public float4 output;
     // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's or a
     // render texture's drawn through a camera, never a probe's faces, and 1 in y when the shadowed

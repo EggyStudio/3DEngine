@@ -161,6 +161,7 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
 | `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
 | `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
+| `SetHighlightKnee(0.8f, 1)` | Has the engine's own curve bend each channel past the knee toward 1 on its own, so a light bright in every channel goes toward white as a camera's film and a path-traced reference take it, on at 0.8 unless set and off at a strength of 0, colors under the knee shown as they are |
 | `SetTonemapCurve(0.9f, 1.3f, 1.05f, 1)` | A curve set by four numbers, as the BSL shader draws it, below |
 | `SetTonemapShader(curve)` | Draws a shader of the program's own in the curve's place, below |
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |

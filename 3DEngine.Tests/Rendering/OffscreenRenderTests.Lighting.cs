@@ -154,6 +154,9 @@ public sealed partial class OffscreenRenderTests
     public void Light_Summed_Past_One_Keeps_Its_Hue_Instead_Of_Clamping_To_White()
     {
         Open(64, 64);
+        // The curve's own hue, with the highlights' knee off, which takes a light this bright
+        // toward white by default (HighlightKneeTests).
+        SetHighlightKnee(0.8f, 0);
         var ecs = GetApp().World.Resource<EcsWorld>();
         SpawnWallAndCamera(ecs);
 

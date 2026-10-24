@@ -256,6 +256,6 @@ public sealed class BloomTests : IDisposable
         var lit = Capture(Cube, "lit");
 
         GetImageColor(unlit, 80, 60).Should().Be(Color.White, "a frame no light reaches clamps its light, which leaves white as it is");
-        GetImageColor(lit, 80, 60).R.Should().BeInRange(249, 252, "the curve brings 1 to about 0.963, 251 encoded, once a light is made");
+        GetImageColor(lit, 80, 60).R.Should().BeInRange(245, 249, "the curve, each channel bent past the knee of 0.8, brings 1 to about 0.926, 247 encoded, once a light is made");
     }
 }

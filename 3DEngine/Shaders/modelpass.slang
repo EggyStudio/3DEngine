@@ -103,7 +103,7 @@ public float3 toDisplay(float3 linear)
         return linear * exposure;
     if (lighting.output.y > 0.0)
         return linearToSrgbPastWhite(linear * exposure);
-    return linearToSrgb(tonemap(linear * exposure));
+    return linearToSrgb(tonemapKnee(linear * exposure, lighting.output.z, lighting.output.w));
 }
 
 // The material's factors at this point, which its instance carried through the vertex stage.

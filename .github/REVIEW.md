@@ -10,37 +10,46 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e3d554b1`, item 108's first phase, the mesh, read at 22:22 on 2026-10-24, carrying
-ASKS.md and the review's files. Mesh.Uploaded takes a ModelMesh from UploadMesh with its own streams
-and indices, the program owning it and scenes skipping it; Mesh.Indices serves arrays, normals with
-indices defaulting to the mean of each vertex's faces and triangles naming a missing vertex dropped;
-a mesh is kept while an entity holds it, drawn or not, marked seen before material or visibility,
-and a frame with mesh entities but no camera frees nothing; MaxLooks is gone, a freed array mesh or
-an uploaded one no entity names dropping its looks and groups into free lists with a stamp on each
-look slot against aliasing; on the chunk threads an entity finds an existing look by a read-only
-lookup so only a missing look or an upload waits for the main thread. Tests, 5,000 looks keeping
-both chunks, a replaced mesh leaving the other chunk kept, a mesh staying with its material removed
-and with no camera, an uploaded mesh drawn under its id with a sphere from its bounds and its look
-gone at despawn, indexed arrays uploading four vertices and six indices; the file split for N 1.3.
-2,084 plain and shuffled, lavapipe with validation 34 passed. The phases, this mesh, then a
-program's shader on the Material with the Visible and ShadowOnly components and the entity draws as
-a profile value, then the guide's page with a voxel section and the cost against DrawMesh on a
-thousand meshes. The three pushed at 22:32 on 2026-10-24 after the build run of `f0574e89` ended,
-its Windows job cancelled at its limit, Verdict 88, the run watched, and the pack run started at the
-same time for the package carrying items 101, 104 to 107 and 108's first phase, the game waiting on
-it. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080,
-each part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
-registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
-half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
-has. Next Verdict 88's mend, the Windows job's limit, then 109, the highlights' knee, then 110, a
-behavior's order and states, then 108, the mesh entity as a game's section, the ECS gaps the game's
-drops found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the
-scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then
-111, the shadow's penumbra, then 93, the colons out of the documents, then 91, DESIGN.md's words on
-the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
-help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
-branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
-by.
+Reviewed up to `342fed10`, Verdict 88's mend, read at 22:39 on 2026-10-24, carrying REVIEW.md and
+ASKS.md. The Windows parts run one after another, the suite's step their sum, 5,663 s on `f0574e89`
+with Rendering 1 at 2,730, Rendering 2 at 2,250 and Core at 408 against 1,413 and 1,082 for the
+halves on `89154675` hours before, the same suite on a runner about 1.9 times slower, each half
+inside its 70-minute part limit, so no part is split again; the last pack run's Windows job took 99
+minutes, the suite 58 and the twelve games 33, about 94 and 63 on the slow runner and 212 with the
+games at their step's own 110, so the job's limit is 240 for the pack and 150 for a push with the
+numbers in the comment for N 6.8; the YAML parses and ScriptTests, StepScriptTests and NormTests
+pass, the suite not rerun for a workflow-only change with item 109's work in the tree. Held until
+the build run of `e3d554b1` ends, then pushed. After `e3d554b1`, item 108's first phase, the mesh,
+read at 22:22 on 2026-10-24, carrying ASKS.md and the review's files. Mesh.Uploaded takes a
+ModelMesh from UploadMesh with its own streams and indices, the program owning it and scenes
+skipping it; Mesh.Indices serves arrays, normals with indices defaulting to the mean of each
+vertex's faces and triangles naming a missing vertex dropped; a mesh is kept while an entity holds
+it, drawn or not, marked seen before material or visibility, and a frame with mesh entities but no
+camera frees nothing; MaxLooks is gone, a freed array mesh or an uploaded one no entity names
+dropping its looks and groups into free lists with a stamp on each look slot against aliasing; on
+the chunk threads an entity finds an existing look by a read-only lookup so only a missing look or
+an upload waits for the main thread. Tests, 5,000 looks keeping both chunks, a replaced mesh leaving
+the other chunk kept, a mesh staying with its material removed and with no camera, an uploaded mesh
+drawn under its id with a sphere from its bounds and its look gone at despawn, indexed arrays
+uploading four vertices and six indices; the file split for N 1.3. 2,084 plain and shuffled,
+lavapipe with validation 34 passed. The phases, this mesh, then a program's shader on the Material
+with the Visible and ShadowOnly components and the entity draws as a profile value, then the guide's
+page with a voxel section and the cost against DrawMesh on a thousand meshes. The three pushed at
+22:32 on 2026-10-24 after the build run of `f0574e89` ended, its Windows job cancelled at its limit,
+Verdict 88, the run watched, and the pack run started at the same time for the package carrying
+items 101, 104 to 107 and 108's first phase, the game waiting on it. Item 96 begins with a reading
+on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
+out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
+size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
+with a two by two depth and normal read, as the glow pass has. Next 109, the highlights' knee, then
+110, a behavior's order and states, then 108, the mesh entity as a game's section, the ECS gaps the
+game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then
+96, the scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share,
+then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the
+documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
+the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
+at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
+main, N 7.5; the cloud sessions stand by.
 
 Before it, `f0574e89` came, item 105 with `267d3886`, item 104, and `e5ad8d28`, item 101, pushed at
 20:48 on 2026-10-24, its build run ending at 22:29 with Linux, macOS and the examples green and the
@@ -50,12 +59,6 @@ Windows job cancelled at its 100-minute limit after the suite's step passed in 9
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
 
-Before it, `e2a203d9` came, item 99, pushed at 15:26 on 2026-10-24, its build run green whole at
-16:42, Windows in 75 minutes, Linux in 57 and macOS in 36.
-
-Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
-their run and the pack run red on Linux alone on one test, Verdict 87, the pack run packing nothing.
-
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
 read whole before a batch; the archive is read when an item or a verdict named here is wanted in
@@ -63,7 +66,6 @@ full.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
-
 
 ## Now
 
@@ -621,37 +623,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
    from 16.2 ms to 4, so the engine's occlusion culling stays out until a game of another shape
    asks.
 
-63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
-    otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
-    of three rooms, a corridor, stairs between two floors, a window and two doors, made from one
-    recipe file of some forty lines in the game's resources and rebuilt at load, in the prototype
-    materials; a character walking it through `CreatePhysicsCharacter` and `MovePhysicsCharacter`
-    with mouse look as Manor has, the level solid through the built collider; Tab opening and
-    closing the modeling window, Blender's key for edit mode, F1 to F3 being the engine's on the
-    level's edit mesh so the level is reshaped while walking in it, the collider rebuilt on a
-    change, and F5 saving the recipe; a sun and the global illumination on, so the grid walls show
-    the light. Commands `blockout.status` and `blockout.autopilot` for the drive and the soak, the
-    drive walking the stairs to the upper floor and reading the character's height, cutting a window
-    by a command and reading the counts, and a capture; the game joins the build-all, drive, soak
-    and storm lists and the README's gallery with its capture, and the guide's page names it. One
-    commit. BevyCSharp's Blockout came at `09fc95dd` on 2026-10-21 with its level file of 48 lines
-    in the shared recipe words, carved from one block, which this game takes as it is, and with
-    `union`, `subtract` and `intersect` taking a solid primitive's line as `cut` does, a primitive
-    made for a boolean in the mesh's first slot, refused with an `at` of the boolean's own, since
-    stairs added as a second solid had their welded edges counted open by a later boolean; item 60's
-    booleans take the same form, and its Shared line under Replies holds the level's every number.
-    Given at 22:41 to the cloud session after items 75 and 77, items 59 to 62 and 64 to 66 being on
-    main or on its branch, the game's code, its recipe and its scripts written and played on
-    lavapipe there; the capture and the play on the device the local coder's at the cherry-pick. On
-    `modeling` as `fcfe5bd6` under the owner's identity, 14 files and 499 lines, read at 01:27 on
-    2026-10-24; its departures GetEditMeshVersion added to the flat API with its test, the lamp's
-    emissive slot drawn at a ten-thousandth since the slot's unit is luminance in BevyCSharp and
-    linear light here, and an unknown route answered in words since a game cannot set a command's
-    error code; played on lavapipe through drive-game.sh, the soak and the storm, 239 tests. To
-    cherry-pick after items 75 and 77's, with the capture, the device play and the gallery's table
-    run. On main as `b6d822ee` with the capture at `ddc20382` on 2026-10-24, held for the push; item
-    63 done.
-
 71. **A program leaves the screen probes out of its global illumination, and the radiance cascades'
     faults the owner sees in the voxel game are read and mended (Decision 54).** The owner wrote at
     about 01:00 on 2026-10-21 that the voxel game is not to enable the screen probes, which give a
@@ -954,108 +925,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     The macOS test's fix in `14338c8f`, picked as `34e9a8a5`. The device numbers in the guide at
     `3a2ccc0b`; item 74 done, held for the push.
 
-75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
-    into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
-    distance fog fades its land into the fog's color and then meets the image's dark lower half past
-    the last thing drawn, which Hopper shows as the game did. Whenever fog is on, the sky pass draws
-    everything below the horizon in the fog's color, blended into the image over a few degrees above
-    the horizon, the image's lower half still lighting the scene through the environment map; a
-    program with a sky image and no fog asks for a horizon color with `SetSkyHorizon(Color color,
-    float blendDegrees)`, which the fog sets by itself, and `SetSkyHorizon` with a clear color turns
-    it off. The cheat sheet line through the script, the surface listing, the drawing guide's
-    paragraph beside the sky, the upgrading entry, and Hopper's capture taken again. Tests: a
-    frame's pixels read across the horizon with fog on showing no step over a pixel on the null
-    device's sky, and the horizon color drawn where asked without fog. One commit, small, after item
-    74. Given at 22:41 on 2026-10-23 to the cloud session on `modeling`, which runs lavapipe since
-    github.com answers it, the device test there and the capture's reading by the owner's eye at the
-    cherry-pick. Settled at 22:44 on the cloud session's reading: the engine has no fog of its own,
-    the word standing only in a render texture's remark and a game's fog of war, and Hopper here is
-    the 2D game, so the item is `SetSkyHorizon(Color color, float blendDegrees)` in the sky pass,
-    the sky below the horizon drawn in the color and blended into the image over the degrees above
-    it, the environment map's lighting unchanged, a clear color turning it off, the tests reading
-    pixels across the horizon on lavapipe for no step over a pixel and the color where asked, and
-    Summit, which draws the skybox, the game that shows it; a fog the engine sets the horizon by is
-    no item until a game asks for one. Commit `bfaa056` on `modeling`, read at 00:22 on 2026-10-24,
-    the owner's identity: `SetSkyHorizon(color, blendDegrees)` a world resource the sky's draw reads
-    as two uniforms, the color below the horizon blended into the map's image over the degrees above
-    by a smoothstep of the elevation and mixed as light before the display encoding, the color drawn
-    as given with the map's intensity scaling the image alone and the map's light on the scene
-    untouched, kept through a change of map, a clear color taking it away; tests on the null device
-    and lavapipe, the step across the horizon from 131 to at most 16 with an 8 degree blend, the
-    color exact where asked, a cube lit the same with and without it; the guide's paragraph, the
-    cheat sheet and the listing; Summit setting a gray blue over 6 degrees, drawn 120 frames on
-    lavapipe with its log clean. Summit's capture falls to the local coder at the cherry-pick. On
-    main as `6ee3c87b` with Summit's capture at `4e120e87` on 2026-10-24, held for the push; item 75
-    done.
-
-77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
-    and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
-    under a static sky image; the voxel game built a day with a sun and a moon, square with a glow,
-    a star field, a gradient at dusk and the fog following the hour. The engine offers it to every
-    program: `SetSkyTime(float hours)` and `SetSkyDay(SkyDay day)` with the day's length, the sun's
-    path and color by hour, white at noon, warm low and red at the edge of night, the sun light's
-    direction and color following, the moon's phase by the day, 3,000 stars as squares faded in the
-    lowest 20 degrees and hidden near the sun and the moon, the dusk's gradient, and the fog's and
-    the horizon's colors of item 75 following the hour; a program draws its own things over it as
-    before; the environment map built from the sky each frame it changes, under a budget. The
-    numbers the game settled with the owner, read from its code as a model, nothing of its resource
-    packs. An example `core_day_sky` with its capture at four hours, the cheat sheet lines, the
-    surface listing, the drawing guide's section and the upgrading entry; Hopper takes it as its
-    sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
-    stars' count and spread, and a capture of the example at dawn read against its record. Two
-    commits, the sun, the light and the gradient, then the moon, the stars and the example. After
-    item 60. Given at 22:41 to the cloud session after item 75, the same way. Form approved at 00:25
-    on 2026-10-24 for the cloud session, with the voxel game's Sky and SkyArt as the model and
-    nothing of its packs: `SetSkyTime(hours)` counting from the first midnight with the day the
-    hours over 24 and the moon's phase following, `GetSkyTime`, `SetSkyDay(day)` with the day's
-    length in minutes, 0 holding the hour, and the sun path's lean toward the south; the day sky
-    owning one shadowed directional light, the sun's by day and the moon's by night, or moving a
-    light the program names where it has one of its own, painting the environment map from the hour
-    once the hour has moved by 0.05 and setting item 75's horizon to the hour's color, read back by
-    `GetSkyHorizon` for a program's fog, `SetEnvironmentMap` or `UnloadEnvironmentMap` ending it;
-    two commits, the sun, the light and the gradient, then the moon, the stars, the core_day_sky
-    example and Summit in Hopper's place; the captures the local coder's. First commit `46b5269` on
-    `modeling` at 00:38, the clock, the two lights, the gradient and the horizon following the hour
-    with the program's own light named in SkyDay.Light, its report with the second. Settled: the
-    capture at four hours is one gallery picture of four views at 6, 12, 18 and 0, the example
-    taking the hour from a key and a command, taken by the local coder; the dawn test is a device
-    test drawing the example's scene at 6:15 and reading rectangles of the frame, the sky by the
-    sun, the sun's square and the ground, against numbers measured on lavapipe and written in the
-    test. Both commits on `modeling` read at 00:55: the first the clock, the two lights with the
-    program's own named in SkyDay.Light, the gradient painted from the hour within a budget and the
-    horizon following it, the second the sun and the moon in its phases as the game's pixel art laid
-    over the sky by alpha, 3,000 stars added as the game adds them, the sky.time command, the
-    core_day_sky example in a ring of stones with Left, Right and Space, and Summit naming its own
-    sun with a day of 40 minutes from 9:30; departures taken, the noon light a warm white and the
-    horizon's an orange with the red the dusk sky's, and the sun and moon by alpha since adding them
-    passed white and turned blue under the tonemap; 205 tests on lavapipe with the dawn scene read
-    against its record within 6. The item's code is whole on the branch; the four hours' picture,
-    the example's table row and Summit's capture fall to the local coder. On main as `7549a0f9` and
-    `adefc7c1` on 2026-10-24, held for the push; the four hours picture and the example's row to
-    come. Captures and the row at `49d834e1` on 2026-10-24, held for the push; item 77 done.
-
-88. **The tests that lend the console run in one collection, and an eval with no world lent refuses
-    rather than throws.** Read by the coder at 23:55 on 2026-10-23 from the cloud branch's macOS
-    run: ConsoleHost's lent World, App and Failure are static for the process, eval's Run reads the
-    world and asks it for a resource, and ConsoleEvalTests in the Console collection runs in
-    parallel with the E3D collection, whose RecordingTests, EditMeshCommandsTests,
-    GeneratorAttributeTests, FrameReadTests, WindowResizeTests, ModelingWindowTests,
-    ModelingWindowOutlineTests and SlotTests lend the console too, so one disposing its scope while
-    eval runs puts back null and eval throws the NullReferenceException the run logged; main has the
-    same race and shows it by timing. The mend, under N 3.5: every test that lends the console in
-    one collection, so no two lend at once, rather than a thread-static lend, which a fragment
-    awaiting and then calling an accessor on another thread would read as null; and eval's Run
-    refusing with a code of its own where no world is lent, so a race left anywhere names itself
-    instead of throwing; a test of the refusal. One commit, small, with the local coder's next
-    batch. Given at 01:28 on 2026-10-24 to the cloud session on `modeling`, the local coder's queue
-    being long; to cherry-pick. On `modeling` as `e2062092` under the owner's identity, 6 files,
-    read at 01:38 on 2026-10-24, after the branch's merge of main at `97988fb5`;
-    ConsoleBuiltinsTests, ConsoleEvalTests, FrameProfileTests and CliTests move to the E3D
-    collection, the Console collection left empty, eval answering EVAL_NO_WORLD, named in E3D.md,
-    with the test failing without the mend; 291 tests of the lending folders pass on lavapipe. To
-    cherry-pick after item 63's. On main as `26dbc6da` on 2026-10-24, the patch the branch's to the
-    line, held for the push; item 88 done.
-
 89. **Thin two-sided masked faces carry no shadow acne.** Read under item 71 on 2026-10-24 in the
     voxel game: a wheat field's thin cutout walls shadow themselves in speckled dark and light
     stripes that shift as the eye turns, the map's bias of three texels along the normal being
@@ -1086,21 +955,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     README's sentence on the ECS says the same in a line. The engine's own small games stay as they
     are. One commit, docs only, after item 90; the gaps the game's port finds come to this engine
     through ASKS.md as items ahead of its other work, by the Decision.
-
-92. **The window runs under X11 on Linux for the present (Decision 69).** The owner found on
-    2026-10-24 that the window looks better run with SDL_VIDEO_DRIVER=x11: under Wayland SDL3 draws
-    the window's frame itself through libdecor, whose GTK plugin, where it is installed, draws a
-    GTK3-style frame with rounded top corners, square bottom corners and its own drop shadow inside
-    the app, where under X11 the desktop draws the frame. So on Linux the window sets SDL's video
-    driver hint to x11 before SDL starts, in the platform's window code with the reason in its
-    comment, named as above without naming anyone; an environment variable the user sets keeps its
-    precedence over the hint, as SDL's hints have it, so SDL_VIDEO_DRIVER=wayland still chooses
-    Wayland; and where X11 is not there, SDL's start failing under the hint, the hint is cleared and
-    SDL started again so a session without XWayland still opens a window, the log saying which
-    driver the window got. A test reading the hint set on Linux through the null device's start or
-    the log's line; BUILDING.md's Linux section says it in two sentences with the override. One
-    commit, small, after item 90 and before item 91; the game takes it with the next package. Done
-    at `b888b242` on 2026-10-24, pushed at 11:15.
 
 93. **No running sentence holds a colon, across the documents, the comments and the scripts.** The
     owner wrote at about 10:34 on 2026-10-24 that some documents join sentences with a colon and
@@ -1254,6 +1108,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sharper at its foot than at its tip; the guide's shadows paragraph and the cheat sheet's line.
     One commit, after item 100 and before 93.
 
+112. **A flat surface mirrors the scene through a planar reflection a program sets.** From the voxel
+    game's item 42 at 22:46 on 2026-10-24, its ASKS.md entry to come; the look the owner aims at has
+    calm water mirroring the sky and the shore, and the engine's traced reflection makes no mirror
+    of a flat surface, the game's pool reading a blur of a red wall where its image would lie, while
+    the box probes suit a room. The engine takes a mirror plane from a program,
+    SetReflectionPlane(height, normal) or one on a material, draws the scene into it from the
+    mirrored camera at a lower resolution with the shadows and the light reused and clipped at the
+    plane, and gives the material the texture to sample by the screen's place, with a fade by
+    distance and a roughness blur, usable from the transparent pass; the cost read on the game's
+    river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
+    image mirrored, and the guide's page on reflections saying when the plane, the probes and the
+    trace each fit. One or two commits, after item 111 and before 93.
+
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
     entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
@@ -1289,7 +1156,9 @@ Verdict 88 is open. Verdicts 56 to 87 are settled, said under each in REVIEW-ARC
     minutes with its reason in the comment as N 6.8 asks, the pack job's 180 read against the
     suite's 94 and the twelve games and raised where it would not hold, and the parts' times read
     from this run's artifact for a part grown past its share, split as Rendering was where one has.
-    One commit, small, first, before item 109. Mended at `?`.
+    One commit, small, first, before item 109. Mended at `342fed10`, read at 22:39, the push job's
+    limit 150 and the pack job's 240 with the runs' numbers in the comment, no part split again
+    since each half sat inside its share. Settled when the Windows job is green on a push with it.
 
 ## Decisions
 

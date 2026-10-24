@@ -33,6 +33,12 @@ internal sealed class FrameEffects
     /// <summary>The curve the light is brought under 1 by.</summary>
     public Tonemap Tonemap { get; set; } = Tonemap.Engine;
 
+    /// <summary>The level past which the engine's curve bends each channel of the light toward 1 on its own.</summary>
+    public float HighlightKnee { get; set; } = 0.8f;
+
+    /// <summary>How much the channels past <see cref="HighlightKnee"/> are bent, from 0 for none to 1.</summary>
+    public float HighlightStrength { get; set; } = 1;
+
     /// <summary>
     /// The numbers of <see cref="Tonemap.Curve"/>, its exposure, white curve, lower curve and upper
     /// curve, BSL's shader's defaults until set.

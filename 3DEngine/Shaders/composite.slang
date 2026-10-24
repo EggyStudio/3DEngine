@@ -117,7 +117,7 @@ float3 curve(float3 c, int which)
     case 9: return tonyMcMapface(c);
     case 10: return blenderFilmic(c);
     case 11: return numbered(c, framePush.curve);
-    default: return tonemap(c);
+    default: return tonemapKnee(c, framePush.highlight.x, framePush.highlight.y);
     }
 }
 

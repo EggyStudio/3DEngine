@@ -33,6 +33,8 @@ public struct FramePush
     public float4 exposure;
     // The curve set by its numbers, its exposure, white curve, lower curve and upper curve.
     public float4 curve;
+    // x: the knee each channel past which the engine's curve bends toward 1 on its own. y: how much (tonemapKnee).
+    public float4 highlight;
 };
 
 [[vk::push_constant]]

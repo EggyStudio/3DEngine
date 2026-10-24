@@ -36,3 +36,18 @@ public float3 tonemap(float3 color)
     float bent = knee + (1.0 - knee) * (1.0 - exp(-(peak - knee) / (1.0 - knee)));
     return max(color, 0.0) * (bent / peak);
 }
+
+// The engine's curve with its highlights' hue let go by strength, each channel past knee bent toward
+// 1 on its own along the curve tonemap bends the brightest by, so a light bright in all three goes
+// toward white as a camera's film and the path-traced reference's clip at white take it, where
+// tonemap keeps its hue and the bounce rooms' strip lamp showed cream beside its reference's white.
+// A light with every channel under the knee is as it was, and strength 0 is tonemap alone.
+public float3 tonemapKnee(float3 color, float knee, float strength)
+{
+    float3 held = tonemap(color);
+    if (strength <= 0.0 || knee >= 1.0)
+        return held;
+    float3 c = max(color, 0.0);
+    float3 bent = select(c > knee, knee + (1.0 - knee) * (1.0 - exp(-(c - knee) / (1.0 - knee))), c);
+    return lerp(held, bent, strength);
+}

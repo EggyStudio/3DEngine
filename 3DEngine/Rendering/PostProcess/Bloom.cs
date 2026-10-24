@@ -93,7 +93,7 @@ internal sealed partial class BloomRenderer : IDisposable
     [StructLayout(LayoutKind.Sequential)]
     private struct CompositePush
     {
-        public Vector4 Bloom, Grade, Tint, Exposure, Curve;
+        public Vector4 Bloom, Grade, Tint, Exposure, Curve, Highlight;
     }
 
     // The luminance a scene's mean is brought to by the exposure that follows it, about what the
@@ -394,6 +394,7 @@ internal sealed partial class BloomRenderer : IDisposable
             Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
             Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, _shownLinear ? 0 : 1, 0),
             Curve = effects.Curve,
+            Highlight = new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
         };
         if (program is { } own)
         {

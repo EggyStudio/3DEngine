@@ -55,6 +55,8 @@ public sealed partial class GlobalIlluminationTests
         // probes traced and left unread through the toggle, and with no glow light none are made.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
+        // The two reads' light compared as they give it, with no knee bending the floor's brightest.
+        SetHighlightKnee(0.8f, 0);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var strip = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         strip.Materials[0].Emissive = new Color(255, 230, 190);

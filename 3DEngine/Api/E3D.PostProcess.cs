@@ -92,6 +92,30 @@ public static partial class E3D
     public static Tonemap GetTonemap() => Effects.Tonemap;
 
     /// <summary>
+    /// Has the engine's curve bend each channel of the scene's light past <paramref name="knee"/>
+    /// toward 1 on its own, by <paramref name="strength"/> from 0 for none to 1, so a light bright in
+    /// every channel goes toward white as a camera's film takes it. A knee of 0.8 at full strength
+    /// unless set.
+    /// </summary>
+    /// <remarks>
+    /// The engine's curve, <see cref="Tonemap.Engine"/>, bends the brightest channel past 0.9 and
+    /// scales the other two with it, so a bright orange lamp stays orange where a path-traced
+    /// reference, clipping each channel at white, shows it white, as the bounce rooms' strip lamp
+    /// did beside its own. A color whose channels all lie under the knee is shown as it was. The
+    /// window's frame and a render texture take it alike, and the other curves, which bend their
+    /// highlights as their makers chose, take none of it.
+    /// </remarks>
+    public static void SetHighlightKnee(float knee, float strength = 1)
+    {
+        var effects = Effects;
+        effects.HighlightKnee = Math.Clamp(knee, 0, 1);
+        effects.HighlightStrength = Math.Clamp(strength, 0, 1);
+    }
+
+    /// <summary>The knee and strength <see cref="SetHighlightKnee"/> left, 0.8 and 1 unless set.</summary>
+    public static (float Knee, float Strength) GetHighlightKnee() => (Effects.HighlightKnee, Effects.HighlightStrength);
+
+    /// <summary>
     /// Brings the scene's light under 1 by a curve set by four numbers, as the BSL shader draws it,
     /// and chooses that curve, <see cref="Tonemap.Curve"/>.
     /// </summary>

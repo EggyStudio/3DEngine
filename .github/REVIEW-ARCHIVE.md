@@ -3431,6 +3431,154 @@ batch.
     before 102. Done at `a0d3d7f7` on 2026-10-24, IKeyed and the world's KeyIndex kept by the store,
     with the test.
 
+92. **The window runs under X11 on Linux for the present (Decision 69).** The owner found on
+    2026-10-24 that the window looks better run with SDL_VIDEO_DRIVER=x11: under Wayland SDL3 draws
+    the window's frame itself through libdecor, whose GTK plugin, where it is installed, draws a
+    GTK3-style frame with rounded top corners, square bottom corners and its own drop shadow inside
+    the app, where under X11 the desktop draws the frame. So on Linux the window sets SDL's video
+    driver hint to x11 before SDL starts, in the platform's window code with the reason in its
+    comment, named as above without naming anyone; an environment variable the user sets keeps its
+    precedence over the hint, as SDL's hints have it, so SDL_VIDEO_DRIVER=wayland still chooses
+    Wayland; and where X11 is not there, SDL's start failing under the hint, the hint is cleared and
+    SDL started again so a session without XWayland still opens a window, the log saying which
+    driver the window got. A test reading the hint set on Linux through the null device's start or
+    the log's line; BUILDING.md's Linux section says it in two sentences with the override. One
+    commit, small, after item 90 and before item 91; the game takes it with the next package. Done
+    at `b888b242` on 2026-10-24, pushed at 11:15.
+
+88. **The tests that lend the console run in one collection, and an eval with no world lent refuses
+    rather than throws.** Read by the coder at 23:55 on 2026-10-23 from the cloud branch's macOS
+    run: ConsoleHost's lent World, App and Failure are static for the process, eval's Run reads the
+    world and asks it for a resource, and ConsoleEvalTests in the Console collection runs in
+    parallel with the E3D collection, whose RecordingTests, EditMeshCommandsTests,
+    GeneratorAttributeTests, FrameReadTests, WindowResizeTests, ModelingWindowTests,
+    ModelingWindowOutlineTests and SlotTests lend the console too, so one disposing its scope while
+    eval runs puts back null and eval throws the NullReferenceException the run logged; main has the
+    same race and shows it by timing. The mend, under N 3.5: every test that lends the console in
+    one collection, so no two lend at once, rather than a thread-static lend, which a fragment
+    awaiting and then calling an accessor on another thread would read as null; and eval's Run
+    refusing with a code of its own where no world is lent, so a race left anywhere names itself
+    instead of throwing; a test of the refusal. One commit, small, with the local coder's next
+    batch. Given at 01:28 on 2026-10-24 to the cloud session on `modeling`, the local coder's queue
+    being long; to cherry-pick. On `modeling` as `e2062092` under the owner's identity, 6 files,
+    read at 01:38 on 2026-10-24, after the branch's merge of main at `97988fb5`;
+    ConsoleBuiltinsTests, ConsoleEvalTests, FrameProfileTests and CliTests move to the E3D
+    collection, the Console collection left empty, eval answering EVAL_NO_WORLD, named in E3D.md,
+    with the test failing without the mend; 291 tests of the lending folders pass on lavapipe. To
+    cherry-pick after item 63's. On main as `26dbc6da` on 2026-10-24, the patch the branch's to the
+    line, held for the push; item 88 done.
+
+77. **A day sky driven by the hour, the sun's light following it, with the sun, the moon, the stars
+    and the dusk, from the voxel game's numbers (Decision 57).** Every game of the engine stands
+    under a static sky image; the voxel game built a day with a sun and a moon, square with a glow,
+    a star field, a gradient at dusk and the fog following the hour. The engine offers it to every
+    program: `SetSkyTime(float hours)` and `SetSkyDay(SkyDay day)` with the day's length, the sun's
+    path and color by hour, white at noon, warm low and red at the edge of night, the sun light's
+    direction and color following, the moon's phase by the day, 3,000 stars as squares faded in the
+    lowest 20 degrees and hidden near the sun and the moon, the dusk's gradient, and the fog's and
+    the horizon's colors of item 75 following the hour; a program draws its own things over it as
+    before; the environment map built from the sky each frame it changes, under a budget. The
+    numbers the game settled with the owner, read from its code as a model, nothing of its resource
+    packs. An example `core_day_sky` with its capture at four hours, the cheat sheet lines, the
+    surface listing, the drawing guide's section and the upgrading entry; Hopper takes it as its
+    sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
+    stars' count and spread, and a capture of the example at dawn read against its record. Two
+    commits, the sun, the light and the gradient, then the moon, the stars and the example. After
+    item 60. Given at 22:41 to the cloud session after item 75, the same way. Form approved at 00:25
+    on 2026-10-24 for the cloud session, with the voxel game's Sky and SkyArt as the model and
+    nothing of its packs: `SetSkyTime(hours)` counting from the first midnight with the day the
+    hours over 24 and the moon's phase following, `GetSkyTime`, `SetSkyDay(day)` with the day's
+    length in minutes, 0 holding the hour, and the sun path's lean toward the south; the day sky
+    owning one shadowed directional light, the sun's by day and the moon's by night, or moving a
+    light the program names where it has one of its own, painting the environment map from the hour
+    once the hour has moved by 0.05 and setting item 75's horizon to the hour's color, read back by
+    `GetSkyHorizon` for a program's fog, `SetEnvironmentMap` or `UnloadEnvironmentMap` ending it;
+    two commits, the sun, the light and the gradient, then the moon, the stars, the core_day_sky
+    example and Summit in Hopper's place; the captures the local coder's. First commit `46b5269` on
+    `modeling` at 00:38, the clock, the two lights, the gradient and the horizon following the hour
+    with the program's own light named in SkyDay.Light, its report with the second. Settled: the
+    capture at four hours is one gallery picture of four views at 6, 12, 18 and 0, the example
+    taking the hour from a key and a command, taken by the local coder; the dawn test is a device
+    test drawing the example's scene at 6:15 and reading rectangles of the frame, the sky by the
+    sun, the sun's square and the ground, against numbers measured on lavapipe and written in the
+    test. Both commits on `modeling` read at 00:55: the first the clock, the two lights with the
+    program's own named in SkyDay.Light, the gradient painted from the hour within a budget and the
+    horizon following it, the second the sun and the moon in its phases as the game's pixel art laid
+    over the sky by alpha, 3,000 stars added as the game adds them, the sky.time command, the
+    core_day_sky example in a ring of stones with Left, Right and Space, and Summit naming its own
+    sun with a day of 40 minutes from 9:30; departures taken, the noon light a warm white and the
+    horizon's an orange with the red the dusk sky's, and the sun and moon by alpha since adding them
+    passed white and turned blue under the tonemap; 205 tests on lavapipe with the dawn scene read
+    against its record within 6. The item's code is whole on the branch; the four hours' picture,
+    the example's table row and Summit's capture fall to the local coder. On main as `7549a0f9` and
+    `adefc7c1` on 2026-10-24, held for the push; the four hours picture and the example's row to
+    come. Captures and the row at `49d834e1` on 2026-10-24, held for the push; item 77 done.
+
+75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
+    into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
+    distance fog fades its land into the fog's color and then meets the image's dark lower half past
+    the last thing drawn, which Hopper shows as the game did. Whenever fog is on, the sky pass draws
+    everything below the horizon in the fog's color, blended into the image over a few degrees above
+    the horizon, the image's lower half still lighting the scene through the environment map; a
+    program with a sky image and no fog asks for a horizon color with `SetSkyHorizon(Color color,
+    float blendDegrees)`, which the fog sets by itself, and `SetSkyHorizon` with a clear color turns
+    it off. The cheat sheet line through the script, the surface listing, the drawing guide's
+    paragraph beside the sky, the upgrading entry, and Hopper's capture taken again. Tests: a
+    frame's pixels read across the horizon with fog on showing no step over a pixel on the null
+    device's sky, and the horizon color drawn where asked without fog. One commit, small, after item
+    74. Given at 22:41 on 2026-10-23 to the cloud session on `modeling`, which runs lavapipe since
+    github.com answers it, the device test there and the capture's reading by the owner's eye at the
+    cherry-pick. Settled at 22:44 on the cloud session's reading: the engine has no fog of its own,
+    the word standing only in a render texture's remark and a game's fog of war, and Hopper here is
+    the 2D game, so the item is `SetSkyHorizon(Color color, float blendDegrees)` in the sky pass,
+    the sky below the horizon drawn in the color and blended into the image over the degrees above
+    it, the environment map's lighting unchanged, a clear color turning it off, the tests reading
+    pixels across the horizon on lavapipe for no step over a pixel and the color where asked, and
+    Summit, which draws the skybox, the game that shows it; a fog the engine sets the horizon by is
+    no item until a game asks for one. Commit `bfaa056` on `modeling`, read at 00:22 on 2026-10-24,
+    the owner's identity: `SetSkyHorizon(color, blendDegrees)` a world resource the sky's draw reads
+    as two uniforms, the color below the horizon blended into the map's image over the degrees above
+    by a smoothstep of the elevation and mixed as light before the display encoding, the color drawn
+    as given with the map's intensity scaling the image alone and the map's light on the scene
+    untouched, kept through a change of map, a clear color taking it away; tests on the null device
+    and lavapipe, the step across the horizon from 131 to at most 16 with an 8 degree blend, the
+    color exact where asked, a cube lit the same with and without it; the guide's paragraph, the
+    cheat sheet and the listing; Summit setting a gray blue over 6 degrees, drawn 120 frames on
+    lavapipe with its log clean. Summit's capture falls to the local coder at the cherry-pick. On
+    main as `6ee3c87b` with Summit's capture at `4e120e87` on 2026-10-24, held for the push; item 75
+    done.
+
+63. **A game that is a level blocked out with the tools, Blockout unless the owner names it
+    otherwise (Decision 51).** A game under `games/` built on the package as the others are: a level
+    of three rooms, a corridor, stairs between two floors, a window and two doors, made from one
+    recipe file of some forty lines in the game's resources and rebuilt at load, in the prototype
+    materials; a character walking it through `CreatePhysicsCharacter` and `MovePhysicsCharacter`
+    with mouse look as Manor has, the level solid through the built collider; Tab opening and
+    closing the modeling window, Blender's key for edit mode, F1 to F3 being the engine's on the
+    level's edit mesh so the level is reshaped while walking in it, the collider rebuilt on a
+    change, and F5 saving the recipe; a sun and the global illumination on, so the grid walls show
+    the light. Commands `blockout.status` and `blockout.autopilot` for the drive and the soak, the
+    drive walking the stairs to the upper floor and reading the character's height, cutting a window
+    by a command and reading the counts, and a capture; the game joins the build-all, drive, soak
+    and storm lists and the README's gallery with its capture, and the guide's page names it. One
+    commit. BevyCSharp's Blockout came at `09fc95dd` on 2026-10-21 with its level file of 48 lines
+    in the shared recipe words, carved from one block, which this game takes as it is, and with
+    `union`, `subtract` and `intersect` taking a solid primitive's line as `cut` does, a primitive
+    made for a boolean in the mesh's first slot, refused with an `at` of the boolean's own, since
+    stairs added as a second solid had their welded edges counted open by a later boolean; item 60's
+    booleans take the same form, and its Shared line under Replies holds the level's every number.
+    Given at 22:41 to the cloud session after items 75 and 77, items 59 to 62 and 64 to 66 being on
+    main or on its branch, the game's code, its recipe and its scripts written and played on
+    lavapipe there; the capture and the play on the device the local coder's at the cherry-pick. On
+    `modeling` as `fcfe5bd6` under the owner's identity, 14 files and 499 lines, read at 01:27 on
+    2026-10-24; its departures GetEditMeshVersion added to the flat API with its test, the lamp's
+    emissive slot drawn at a ten-thousandth since the slot's unit is luminance in BevyCSharp and
+    linear light here, and an unknown route answered in words since a game cannot set a command's
+    error code; played on lavapipe through drive-game.sh, the soak and the storm, 239 tests. To
+    cherry-pick after items 75 and 77's, with the capture, the device play and the gallery's table
+    run. On main as `b6d822ee` with the capture at `ddc20382` on 2026-10-24, held for the push; item
+    63 done.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
