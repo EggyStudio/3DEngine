@@ -177,17 +177,24 @@ emits a system per method, so a behavior may have several methods on one stage:
   entities that have them all. The generated loop finds each by its dense index, once an entity.
 
 `[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]`
-gates a method on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]`
-lets a key switch it on and off, and when a method has several of these it runs only when all pass.
+gates a method on a static bool, `[InState(Screen.Playing)]` gates it on a state, once for each of
+several states, and `[ToggleKey]` lets a key switch it on and off, and when a method has several of
+these it runs only when all pass. `[After]` and `[Before]` order it against another system of its
+stage, a behavior's method named by its type and name or a system by its name, and are carried into
+its `SystemDescriptor` as `AddSystem`'s are, the generator naming a behavior's system
+`{Type}_Generated_{Stage}_{Method}`.
 `[OnEnter(value)]`, `[OnExit(value)]` and `[OnTransition(from, to)]` take the place of a stage and
 register the method on a state transition. A method with the wrong signature, two stage attributes,
 a `[RunIf]` naming nothing usable, a state attribute whose argument is not an enum value or a filter
 naming a type no entity can have (an interface, a static class, an open generic) is reported on the
 method (E3D001 to E3D005) and left out of what is generated, and so is a parameter after the context
 that cannot be a component, one taken by value or `out`, not a struct, the behavior itself, a type
-taken twice, or any on a static method (E3D008). A field holding a reference other than
-a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
-state declaration that cannot be registered is reported on the enum or method (E3D007).
+taken twice, or any on a static method (E3D008), or an `[After]` or `[Before]` whose type and
+method name no behavior's stage method (E3D009). A field holding a reference to what can change is
+warned of (E3D006), since every copy of the behavior shares what it points to, where a string, or a
+record or sealed class every field of which is readonly and holds what nothing can change, is shared
+safely, and a state declaration that cannot be registered is reported on the enum or method
+(E3D007).
 `3DEngine.CodeFixes` offers an editor's fixes where the change is clear, a stage method given its
 `BehaviorContext` first, keeping the parameters taken by `ref` or `in` (E3D001), one stage kept of
 several (E3D002), a command made static (E3D100) or internal (E3D101), and a `Migrate` to fill in

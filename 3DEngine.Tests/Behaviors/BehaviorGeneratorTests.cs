@@ -203,6 +203,9 @@ public class BehaviorGeneratorTests
     [InlineData("public enum A { X } [ComputedState] public static int Wrong(A a) => 0;", "E3D007")]
     [InlineData("public enum A { X } public enum C { Z } [ComputedState] public C? Wrong(A a) => null;", "E3D007")]
     [InlineData("public enum A { X } [SubStateOf(A.X, Initial = A.X)] public enum Wrong { P }", "E3D007")]
+    [InlineData("[OnUpdate, After(typeof(Faulty), \"Missing\")] public static void Wrong(BehaviorContext ctx) { }", "E3D009")]
+    [InlineData("public static void Plain() { } [OnUpdate, Before(typeof(Faulty), nameof(Plain))] public static void Wrong(BehaviorContext ctx) { }", "E3D009")]
+    [InlineData("[OnUpdate, After(typeof(Transform), \"Translate\")] public static void Wrong(BehaviorContext ctx) { }", "E3D009")]
     public void A_Method_That_Cannot_Run_Is_Reported_On_The_Method(string member, string id)
     {
         var (result, _) = Generate($$"""

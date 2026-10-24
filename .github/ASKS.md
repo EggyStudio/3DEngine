@@ -1005,3 +1005,20 @@ the camera mirrored in that plane at a lower resolution with its shadows and lig
 to a material as a texture, usable from the transparent pass, as the source's shader packs mirror
 calm water. The game draws its water with the sky's color by the view's angle, the bed through it
 darkened with depth and a soft edge meanwhile, and keeps the shore's mirror for that package.
+
+Review: item 112 of REVIEW.md, 2026-10-24; a planar reflection at a height a program sets, drawn
+from the mirrored camera at a lower resolution and given to the material as a texture, usable from
+the transparent pass; after item 111.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a behavior's context gives no wheel
+
+Read on the 3DEngine 5.2.283 package for the game's item 35, a zoom whose wheel narrows the view
+while its key is held, in the controller's behavior that reads the frame's input from its context.
+`BehaviorContext.Input` gives the keys (`KeyDown`, `KeyPressed`) and the mouse's position and
+movement (`MousePosition`, `MouseDelta`), and keeps the wheel's `WheelX` and `WheelY` internal
+(`Core/Input/Input.cs`), which the flat API's `GetMouseWheelMove` reads. The engine lacks the wheel
+on the context's input, as the keys and the mouse's movement are. The behavior reads the wheel
+through `GetMouseWheelMove` meanwhile.
+
+Review: item 113 of REVIEW.md, 2026-10-25; the context's input gaining the wheel's move; after item
+110.

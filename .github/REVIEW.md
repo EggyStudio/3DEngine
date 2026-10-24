@@ -10,51 +10,46 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `342fed10`, Verdict 88's mend, read at 22:39 on 2026-10-24, carrying REVIEW.md and
-ASKS.md. The Windows parts run one after another, the suite's step their sum, 5,663 s on `f0574e89`
-with Rendering 1 at 2,730, Rendering 2 at 2,250 and Core at 408 against 1,413 and 1,082 for the
-halves on `89154675` hours before, the same suite on a runner about 1.9 times slower, each half
-inside its 70-minute part limit, so no part is split again; the last pack run's Windows job took 99
-minutes, the suite 58 and the twelve games 33, about 94 and 63 on the slow runner and 212 with the
-games at their step's own 110, so the job's limit is 240 for the pack and 150 for a push with the
-numbers in the comment for N 6.8; the YAML parses and ScriptTests, StepScriptTests and NormTests
-pass, the suite not rerun for a workflow-only change with item 109's work in the tree. Held until
-the build run of `e3d554b1` ends, then pushed. After `e3d554b1`, item 108's first phase, the mesh,
-read at 22:22 on 2026-10-24, carrying ASKS.md and the review's files. Mesh.Uploaded takes a
-ModelMesh from UploadMesh with its own streams and indices, the program owning it and scenes
-skipping it; Mesh.Indices serves arrays, normals with indices defaulting to the mean of each
-vertex's faces and triangles naming a missing vertex dropped; a mesh is kept while an entity holds
-it, drawn or not, marked seen before material or visibility, and a frame with mesh entities but no
-camera frees nothing; MaxLooks is gone, a freed array mesh or an uploaded one no entity names
-dropping its looks and groups into free lists with a stamp on each look slot against aliasing; on
-the chunk threads an entity finds an existing look by a read-only lookup so only a missing look or
-an upload waits for the main thread. Tests, 5,000 looks keeping both chunks, a replaced mesh leaving
-the other chunk kept, a mesh staying with its material removed and with no camera, an uploaded mesh
-drawn under its id with a sphere from its bounds and its look gone at despawn, indexed arrays
-uploading four vertices and six indices; the file split for N 1.3. 2,084 plain and shuffled,
-lavapipe with validation 34 passed. The phases, this mesh, then a program's shader on the Material
-with the Visible and ShadowOnly components and the entity draws as a profile value, then the guide's
-page with a voxel section and the cost against DrawMesh on a thousand meshes. The three pushed at
-22:32 on 2026-10-24 after the build run of `f0574e89` ended, its Windows job cancelled at its limit,
-Verdict 88, the run watched, and the pack run started at the same time for the package carrying
-items 101, 104 to 107 and 108's first phase, the game waiting on it. Item 96 begins with a reading
-on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
-out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
-size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 109, the highlights' knee, then
-110, a behavior's order and states, then 108, the mesh entity as a game's section, the ECS gaps the
-game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then
-96, the scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share,
-then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the
-documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
-the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
-at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
-main, N 7.5; the cloud sessions stand by.
+Reviewed up to `8ae947ee`, item 109, the highlights' knee, read at 23:29 on 2026-10-24, carrying the
+review's files, ASKS.md, SHARED.md and two pictures. SetHighlightKnee(knee, strength) and
+GetHighlightKnee, 0.8 and 1 by default; the knee is part of the engine's own curve, each channel
+past the knee bending toward 1 along the shape the curve bends the brightest by, mixed with the
+hue-holding curve by the strength, the other curves taking none of it since applied before every
+curve it bent Bevy's and BSL's and their tests failed, a scene with no light still clamping as
+raylib draws it, the window's composite and a render texture's toDisplay taking it alike. Against
+gi.reference at 512 paths at 800 by 450 High, the strip's brightest percent 255, 230, 186 off, 255,
+255, 254 on and 255, 255, 255 in the reference, the window's sun patch 252, 242, 222 off, 248, 244,
+228 on and 255, 250, 229, the displayed distance over the frame 21.74 to 21.41 levels for the strip
+and 7.80 both for the window, no view widening, the rooms' linear distances untouched; seven
+reference frames written again with 0 pixels under 231 levels moved past 2, only the highlights;
+HighlightKneeTests, the bands under the knee identical and above it the spread smaller by over 20
+with the brightest under 12 where off it is over 100, a render texture's block white; three tests of
+the old curve changed, the bloom test's white 247 for 251 and the hue and glow-only tests with the
+knee off; the guide's display table and the cheat sheet have the call. The engine's sun patch lies
+nearer the window than the reference's, a geometry difference outside the item. 2,086 plain and
+shuffled, the strict build clean, lavapipe 47 passed; the lit examples' highlights move toward white
+in the pack run's captures. Both pushed at 00:16 on 2026-10-25 after the build run of `e3d554b1`
+ended, its Windows job cancelled at the old limit again, the run watched for Verdict 88's settling.
+Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
+part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
+registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
+half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
+has. Next 110, a behavior's order and states, then 113, the wheel in a behavior's input, then 108,
+the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the far
+cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
+cascades and the shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra,
+then 112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's
+words on the loop and the ECS, then the glow light's non-number and the history's guard, then 95,
+the e3d help, then item 89, the plant walls' acne, then 97, the light at the camera's point on
+lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud
+sessions stand by.
 
-Before it, `f0574e89` came, item 105 with `267d3886`, item 104, and `e5ad8d28`, item 101, pushed at
-20:48 on 2026-10-24, its build run ending at 22:29 with Linux, macOS and the examples green and the
-Windows job cancelled at its 100-minute limit after the suite's step passed in 94 minutes, Verdict
-88.
+Before it, `e3d554b1` came, item 108's first phase with `a0d3d7f7`, item 107, and `df0c7b50`, item
+106, pushed at 22:32 on 2026-10-24, its build run ending at 00:13 with Linux, macOS and the examples
+green and the Windows job cancelled at the 100-minute limit before Verdict 88's mend, its pack run
+green whole at 01:03 on 2026-10-25, the Windows job in 148 minutes under the old limit of 180, and
+5.2.291 pushed to nuget.org, the third package of the day, carrying items 101, 104 to 107 and 108's
+first phase.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1068,23 +1063,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
 
-109. **Highlights roll off to white a channel at a time above a knee, the rest of the picture as it
-    is.** The owner wrote at 22:01 on 2026-10-24, with the bounce rooms' strip beside its
-    path-traced reference, that the reference's highlight goes toward white, which is right, while
-    the engine's views keep it cream, and that a tonemap changes the whole picture, the voxel game
-    then needing its exposure raised or darkening under Reinhard, and asked for a way nearer the
-    reference. The reference clips each channel at white, so a bright saturated emitter goes to
-    white as the three channels reach 1, where the engine's curve holds the hue; the display
-    transform gains a shoulder a channel above a knee, a pixel under the knee untouched and each
-    channel above it bent toward 1 on its own, so the strip and the sun's patch go to white as the
-    reference's do and nothing under the knee moves, with SetHighlightKnee(knee, strength) beside
-    the tonemap, on by default at a knee of 0.8, and the window's frame and a render texture taking
-    it alike; the bounce rooms' views read against their references with the knee on and off, the
-    strip's and the sunlit floor's distances shrinking and no view widening, a test of a gradient
-    through the transform reading the knee's below unchanged and the above desaturated, the guide's
-    post-processing page saying it and the cheat sheet's line. One commit, small, first, before item
-    108.
-
 110. **A behavior's system says what it runs after or before, and in more than one state.** From the
     voxel game's states as entities at its `2926dda` on 2026-10-24, read at 22:08, its ASKS.md entry
     in the engine's tree; a gap the port finds comes to the engine first, Decision 68. No behavior
@@ -1109,10 +1087,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     One commit, after item 100 and before 93.
 
 112. **A flat surface mirrors the scene through a planar reflection a program sets.** From the voxel
-    game's item 42 at 22:46 on 2026-10-24, its ASKS.md entry to come; the look the owner aims at has
-    calm water mirroring the sky and the shore, and the engine's traced reflection makes no mirror
-    of a flat surface, the game's pool reading a blur of a red wall where its image would lie, while
-    the box probes suit a room. The engine takes a mirror plane from a program,
+    game's item 42 at 22:46 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims
+    at has calm water mirroring the sky and the shore, and the engine's traced reflection makes no
+    mirror of a flat surface, the game's pool reading a blur of a red wall where its image would
+    lie, while the box probes suit a room. The engine takes a mirror plane from a program,
     SetReflectionPlane(height, normal) or one on a material, draws the scene into it from the
     mirrored camera at a lower resolution with the shadows and the light reused and clipped at the
     plane, and gives the material the texture to sample by the screen's place, with a fade by
@@ -1120,6 +1098,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
+
+113. **A behavior reads the mouse's wheel through its context.** From the voxel game's zoom key at
+    its `ce693af`, read at 00:02 on 2026-10-25, its ASKS.md entry in the engine's tree; a gap the
+    port finds comes to the engine first, Decision 68. BehaviorContext.Input keeps the wheel
+    internal, so the game's controller reads it through GetMouseWheelMove beside the context's keys
+    and mouse delta. The context's input gains the wheel's move as the window's input has it, the
+    cheat sheet's line and the guide's page following, a test stepping a behavior with a wheel move
+    queued. One commit, small, after item 110 and before 108's second phase.
 
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
@@ -1158,7 +1144,9 @@ Verdict 88 is open. Verdicts 56 to 87 are settled, said under each in REVIEW-ARC
     from this run's artifact for a part grown past its share, split as Rendering was where one has.
     One commit, small, first, before item 109. Mended at `342fed10`, read at 22:39, the push job's
     limit 150 and the pack job's 240 with the runs' numbers in the comment, no part split again
-    since each half sat inside its share. Settled when the Windows job is green on a push with it.
+    since each half sat inside its share. The build run of `e3d554b1`, before the mend, had its
+    Windows job cancelled at the old limit again at 00:13 on 2026-10-25. Settled when the Windows
+    job is green on a push with the mend, `8ae947ee`'s run.
 
 ## Decisions
 

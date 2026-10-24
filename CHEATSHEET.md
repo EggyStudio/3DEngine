@@ -930,8 +930,9 @@ bool IsState<TState>(TState value);                      // Whether a state mach
 ```
 
 Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]`,
-`[OnTransition(Screen.Pause, Screen.Play)]` and `[InState(...)]`. A sub-state or computed state
-can be declared rather than added:
+`[OnTransition(Screen.Pause, Screen.Play)]` and `[InState(...)]`, which a method may carry for
+several states to run only while all of them hold. A sub-state or computed state can be declared
+rather than added:
 
 ```csharp
 [SubStateOf(Screen.Playing)]
@@ -959,7 +960,9 @@ calls `on.Propagate(false)`. A window camera with `Picking` set tells the mesh e
 mouse what it does to it, as `Pointer<Over>`, `Out`, `Move`, `Press`, `Release`, `Click`,
 `DragStart`, `Drag` and `DragEnd`, climbing its parents the same way. A system added with
 `new SystemDescriptor(Score, "Score").After("Move")`, or `.Before`, or a list given to
-`app.Chain(stage, ...)`, runs in that order within its stage, sorted as the app starts.
+`app.Chain(stage, ...)`, runs in that order within its stage, sorted as the app starts, and a
+behavior's method asks the same with `[After(typeof(Spin), nameof(Spin.Turn))]` or
+`[Before("Score")]`.
 
 ## Scenes
 

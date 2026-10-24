@@ -48,12 +48,39 @@ public class GeneratorAttributeTests
             public static bool Allowed;
             public static int MainThreadId;
             public static readonly System.Collections.Generic.Dictionary<string, int> Runs = new();
+            public static readonly System.Collections.Generic.List<string> Order = new();
 
             public static void Ran(BehaviorContext ctx, string name)
             {
                 if (!ReferenceEquals(ctx.World, World)) return;
                 lock (Runs) Runs[name] = Runs.TryGetValue(name, out var n) ? n + 1 : 1;
             }
+
+            public static void Ordered(BehaviorContext ctx, string name)
+            {
+                if (!ReferenceEquals(ctx.World, World)) return;
+                lock (Order) Order.Add(name);
+            }
+        }
+
+        // Three systems added A, B and C, whose attributes order them C, B, A, A after B by its
+        // type and method, and C before B by its system's name.
+        [Behavior]
+        public struct OrderA
+        {
+            [OnUpdate, After(typeof(OrderB), nameof(OrderB.Run))] public static void Run(BehaviorContext ctx) => Probe.Ordered(ctx, "A");
+        }
+
+        [Behavior]
+        public struct OrderB
+        {
+            [OnUpdate] public static void Run(BehaviorContext ctx) => Probe.Ordered(ctx, "B");
+        }
+
+        [Behavior]
+        public struct OrderC
+        {
+            [OnUpdate, Before("OrderB_Generated_Update_Run")] public static void Run(BehaviorContext ctx) => Probe.Ordered(ctx, "C");
         }
 
         [Behavior]
@@ -76,6 +103,7 @@ public class GeneratorAttributeTests
             [OnEnter(Sub.One)] public static void SubEntered(BehaviorContext ctx) => Probe.Ran(ctx, "SubState");
             [OnEnter(Derived.InB)] public static void DerivedEntered(BehaviorContext ctx) => Probe.Ran(ctx, "ComputedState");
             [OnUpdate, InState(Mode.B)] public static void InB(BehaviorContext ctx) => Probe.Ran(ctx, "InState");
+            [OnUpdate, InState(Mode.B), InState(Sub.Two)] public static void InBoth(BehaviorContext ctx) => Probe.Ran(ctx, "InBoth");
             [OnUpdate, RunIf(nameof(Allow))] public static void Allowed(BehaviorContext ctx) => Probe.Ran(ctx, "RunIf");
             [OnUpdate, ToggleKey(Key.T)] public static void Toggled(BehaviorContext ctx) => Probe.Ran(ctx, "ToggleKey");
         }
@@ -156,6 +184,8 @@ public class GeneratorAttributeTests
         ["Engine.SubStateOfAttribute"] = "SubState",
         ["Engine.ComputedStateAttribute"] = "ComputedState",
         ["Engine.InStateAttribute"] = "InState",
+        ["Engine.AfterAttribute"] = "OrderA",
+        ["Engine.BeforeAttribute"] = "OrderC",
         ["Engine.WithAttribute"] = "With",
         ["Engine.WithoutAttribute"] = "Without",
         ["Engine.ChangedAttribute"] = "Changed",
@@ -320,6 +350,48 @@ public class GeneratorAttributeTests
         using var folder = new TestFolder("engine-probe-data-");
         save.MakeGenericMethod(stats).Invoke(null, [folder.File("stats.json"), Activator.CreateInstance(stats)]);
         File.ReadAllText(folder.File("stats.json")).Should().Contain("\"type\": \"GeneratorProbe.Stats\"", "[DataAsset] registers the type for data files");
+    }
+
+    [Fact]
+    public void After_And_Before_Order_Behaviors_Against_The_Stages_Own_Order_And_InStates_Gate_On_Every_One()
+    {
+        var app = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
+        var assembly = CompileAndLoad();
+        var probe = assembly.GetType("GeneratorProbe.Probe")!;
+        probe.GetField("World")!.SetValue(null, app.World);
+        var runs = (Dictionary<string, int>)probe.GetField("Runs")!.GetValue(null)!;
+        var order = (List<string>)probe.GetField("Order")!.GetValue(null)!;
+        int Runs(string name) { lock (runs) return runs.GetValueOrDefault(name); }
+        var mode = assembly.GetType("GeneratorProbe.Mode")!;
+        var sub = assembly.GetType("GeneratorProbe.Sub")!;
+        typeof(App).GetMethod(nameof(App.AddState))!.MakeGenericMethod(mode).Invoke(app, [Enum.ToObject(mode, 0)]);
+        assembly.GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            .Single(m => m.GetCustomAttribute<GeneratedBehaviorRegistrationAttribute>() is not null).Invoke(null, [app]);
+        void Set(Type state, int value)
+        {
+            var next = app.World.GetType().GetMethod(nameof(World.Resource))!.MakeGenericMethod(typeof(NextState<>).MakeGenericType(state)).Invoke(app.World, null)!;
+            next.GetType().GetMethod("Set")!.Invoke(next, [Enum.ToObject(state, value)]);
+        }
+        void Frame()
+        {
+            app.BeginFrame();
+            app.EndFrame();
+        }
+
+        Frame();
+        order.Should().Equal(["C", "B", "A"], "the attributes order the three against the order they were added in, A, B and C");
+        Runs("InBoth").Should().Be(0, "neither of its states holds");
+        Set(mode, 1);
+        Frame();
+        Runs("InBoth").Should().Be(0, "the mode is B and the sub-state, entered at its first value, One");
+        Set(sub, 1);
+        Frame();
+        Runs("InBoth").Should().Be(1, "both of its states hold");
+        Set(mode, 0);
+        Frame();
+        Runs("InBoth").Should().Be(1, "the mode left B");
+        order.Should().Equal(["C", "B", "A", "C", "B", "A", "C", "B", "A", "C", "B", "A"], "each frame runs them in that order");
+        app.Shutdown();
     }
 
     // Runs every generator over Source, emits the result and loads it, running its module

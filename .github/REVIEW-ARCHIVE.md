@@ -3579,6 +3579,25 @@ batch.
     run. On main as `b6d822ee` with the capture at `ddc20382` on 2026-10-24, held for the push; item
     63 done.
 
+109. **Highlights roll off to white a channel at a time above a knee, the rest of the picture as it
+    is.** The owner wrote at 22:01 on 2026-10-24, with the bounce rooms' strip beside its
+    path-traced reference, that the reference's highlight goes toward white, which is right, while
+    the engine's views keep it cream, and that a tonemap changes the whole picture, the voxel game
+    then needing its exposure raised or darkening under Reinhard, and asked for a way nearer the
+    reference. The reference clips each channel at white, so a bright saturated emitter goes to
+    white as the three channels reach 1, where the engine's curve holds the hue; the display
+    transform gains a shoulder a channel above a knee, a pixel under the knee untouched and each
+    channel above it bent toward 1 on its own, so the strip and the sun's patch go to white as the
+    reference's do and nothing under the knee moves, with SetHighlightKnee(knee, strength) beside
+    the tonemap, on by default at a knee of 0.8, and the window's frame and a render texture taking
+    it alike; the bounce rooms' views read against their references with the knee on and off, the
+    strip's and the sunlit floor's distances shrinking and no view widening, a test of a gradient
+    through the transform reading the knee's below unchanged and the above desaturated, the guide's
+    post-processing page saying it and the cheat sheet's line. One commit, small, first, before item
+    108. Done at `8ae947ee` on 2026-10-24, the knee in the engine's own curve, the strip's highlight
+    255, 255, 254 against the reference's white, the reference frames moved in their highlights
+    alone.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

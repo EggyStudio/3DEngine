@@ -5,8 +5,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// A run condition, so it combines with <see cref="RunIfAttribute"/> and
-/// <see cref="ToggleKeyAttribute"/> and the method runs only when all of them pass. The method
-/// does not run while the state was never added.
+/// <see cref="ToggleKeyAttribute"/> and the method runs only when all of them pass. More than one
+/// names a value of each of several states, and the method runs only while every one holds. The
+/// method does not run while a state it names was never added.
 /// </remarks>
 /// <example>
 /// <code>
@@ -16,7 +17,7 @@ namespace Engine;
 /// </code>
 /// </example>
 /// <param name="state">The enum value the method runs in.</param>
-[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 public sealed class InStateAttribute(object state) : Attribute
 {
     /// <summary>The enum value the method runs in.</summary>

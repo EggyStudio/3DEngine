@@ -74,8 +74,8 @@ the start. `ctx.Time.DeltaSeconds` is the frame's time, as `GetFrameTime()` is, 
 Within a stage, systems run in the order they were added, and two whose declared reads and writes do
 not conflict may run in either order, as a batch run on several threads or a seed's shuffle runs
 them. A system that must follow another, as a score counted after the pieces move, asks for it by
-the other's name, a behavior's being its type's, its stage's and its method's joined by
-underscores:
+the other's name, a behavior's being its type's, `Generated`, its stage's and its method's joined
+by underscores, as `Spin_Generated_Update_Turn`:
 
 <!-- compiled with:
 App app = null!;
@@ -87,7 +87,7 @@ static void Collide(World world) { }
 ```csharp
 app.AddSystem(Stage.Update, new SystemDescriptor(Score, "Score").After("Move").Read<EcsWorld>());
 app.AddSystem(Stage.Update, new SystemDescriptor(Move, "Move").Read<EcsWorld>());
-app.AddSystem(Stage.Update, new SystemDescriptor(Celebrate, "Celebrate").After("Spin_OnUpdate_Turn"));
+app.AddSystem(Stage.Update, new SystemDescriptor(Celebrate, "Celebrate").After("Spin_Generated_Update_Turn"));
 app.Chain(Stage.Update, new SystemDescriptor(Collide, "Collide"), new SystemDescriptor(Score, "Score again"));
 ```
 
@@ -96,6 +96,25 @@ before it. The app sorts each stage by what was asked as it starts, keeping the 
 nothing was, and a name the stage does not hold or an order that goes round stops it from starting
 with the names. Each asked order holds in the stage's batches and under any seed's shuffle, and a
 stage where no system asks is left as it is.
+
+A behavior's method asks the same with `[After]` and `[Before]`, naming another behavior's method
+by its type and name, or a system by the name `AddSystem` gave it, and as many of each as it needs:
+
+<!-- compiled with:
+[Behavior] public struct Spin { [OnUpdate] public static void Turn(BehaviorContext ctx) { } }
+-->
+```csharp
+[OnUpdate]
+[After(typeof(Spin), nameof(Spin.Turn))]
+[Before("Celebrate")]
+public static void Score(BehaviorContext ctx)
+{
+    // ...
+}
+```
+
+A type and method that name no behavior's stage method are reported as the program compiles
+(E3D009), and a name is checked as the app starts, as one given to `AddSystem` is.
 
 ## Spawning entities
 
@@ -227,7 +246,23 @@ public static bool Running => Example.Current == "ecs_behaviors";
 ```
 
 `[InState]`, `[OnEnter]` and `[OnExit]` run a method by the game's state, which the
-[States](states.md) page covers.
+[States](states.md) page covers. A method may carry `[InState]` once for each of several states,
+and runs only while all of them hold, as a pause screen's input does while the game plays and is
+paused:
+
+<!-- compiled with:
+public enum Screen { Title, Playing }
+[SubStateOf(Screen.Playing)] public enum Pause { Running, Paused }
+-->
+```csharp
+[OnUpdate]
+[InState(Screen.Playing)]
+[InState(Pause.Paused)]
+public static void Menu(BehaviorContext ctx)
+{
+    // ...
+}
+```
 
 The entities that lost a component since a method last ran are `ctx.Ecs.Removed<T>()`, kept for a
 second. `games/Swarm` ends a wave by them, looking for the last creature only in a frame after one

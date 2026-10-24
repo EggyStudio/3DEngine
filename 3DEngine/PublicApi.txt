@@ -12,6 +12,12 @@ readonly struct Engine.Add<T> : IComponentEvent, IEntityEvent, IEquatable<Add<T>
 sealed class Engine.AddedAttribute : Attribute
   AddedAttribute(params Type[] types)
   Type[] Types { get; }
+sealed class Engine.AfterAttribute : Attribute
+  AfterAttribute(Type behavior, string method)
+  AfterAttribute(string system)
+  Type? Behavior { get; }
+  string? Method { get; }
+  string? System { get; }
 struct Engine.AnimatedModel
   AnimatedModel(string path = "", string clip = "", float speed = 1f, float blendSeconds = 0.2f)
   float BlendSeconds
@@ -275,6 +281,12 @@ enum Engine.AutomationEventType : int
   WindowMaximize = 19
   WindowMinimize = 20
   WindowResize = 21
+sealed class Engine.BeforeAttribute : Attribute
+  BeforeAttribute(Type behavior, string method)
+  BeforeAttribute(string system)
+  Type? Behavior { get; }
+  string? Method { get; }
+  string? System { get; }
 sealed class Engine.BehaviorAttribute : Attribute
   BehaviorAttribute()
 static class Engine.BehaviorConditions

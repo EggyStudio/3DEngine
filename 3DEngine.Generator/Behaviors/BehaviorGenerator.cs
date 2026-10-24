@@ -18,7 +18,10 @@ namespace Engine;
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
 /// and <c>[ToggleKey]</c>. <c>[OnEnter]</c>, <c>[OnExit]</c> and <c>[OnTransition]</c> stand in
 /// for a stage and register the method on a state transition, and <c>[InState]</c> adds a run
-/// condition. An instance method may take its entity's other components after its context, by ref
+/// condition, more than one each of a state that must hold. <c>[After]</c> and <c>[Before]</c> order
+/// the method against another system of its stage, by its name or by a behavior's type and method,
+/// a behavior's method the generator finds no stage method of reported (E3D009). An instance method
+/// may take its entity's other components after its context, by ref
 /// to write one or by in to read it, and runs only for entities with them. A method the generator
 /// cannot call is reported (E3D001 to E3D005, and E3D008 for a parameter that cannot be a
 /// component) and left out, so the error is on the method rather than in generated code. A field holding a reference to
@@ -37,6 +40,8 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
     // without one fails them.
     private const string Behavior = "Engine.BehaviorAttribute";
     private const string InState = "Engine.InStateAttribute";
+    private const string After = "Engine.AfterAttribute";
+    private const string Before = "Engine.BeforeAttribute";
     private const string RunIf = "Engine.RunIfAttribute";
     private const string ToggleKey = "Engine.ToggleKeyAttribute";
     private const string MainThread = "Engine.MainThreadAttribute";
@@ -64,7 +69,7 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
     public static IReadOnlyList<string> Attributes { get; } =
-        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey, MainThread, SubStateOf, ComputedState];
+        [Behavior, .. StageAttributes.Select(s => s.Name), InState, After, Before, With, Without, Changed, Added, RunIf, ToggleKey, MainThread, SubStateOf, ComputedState];
 
     private static readonly DiagnosticDescriptor BadSignature = new(
         "E3D001",
@@ -100,6 +105,12 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
         "E3D007",
         "A state declaration cannot be registered",
         "'{0}' cannot declare a state: {1}",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor BadOrder = new(
+        "E3D009",
+        "An [After] or [Before] names no behavior's stage method",
+        "[{0}] on '{1}' names {2}, which is no stage method of a behavior",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     private static readonly DiagnosticDescriptor BadComponentParameter = new(
@@ -264,15 +275,25 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
                 }
             }
 
-            string? inState = null;
-            if (HasAttribute(method, InState))
+            var inStates = new List<string>();
+            var badState = false;
+            foreach (var attribute in method.GetAttributes().Where(a => a.AttributeClass?.ToDisplayString() == InState))
             {
-                inState = GetStateValue(method, InState);
-                if (inState is null)
-                {
-                    spc.ReportDiagnostic(Diagnostic.Create(BadState, location, "InState", method.Name));
-                    continue;
-                }
+                if (StateValue(attribute, 0, out _) is { } value) inStates.Add(value);
+                else badState = true;
+            }
+            if (badState)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(BadState, location, "InState", method.Name));
+                continue;
+            }
+
+            var (after, before, unknown) = (OrderOf(method, After), OrderOf(method, Before), (string?)null);
+            unknown = after.Unknown ?? before.Unknown;
+            if (unknown is not null)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(BadOrder, location, after.Unknown is not null ? "After" : "Before", method.Name, unknown));
+                continue;
             }
 
             var runIfName = GetRunIfName(method);
@@ -301,7 +322,9 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
                 RunIf = runIf,
                 ToggleKey = GetToggleKey(method),
                 Transition = transition,
-                InState = inState,
+                InStates = inStates,
+                After = after.Names,
+                Before = before.Names,
             });
         }
 
@@ -405,7 +428,14 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
     {
         type = null;
         var a = m.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == attributeName);
-        if (a is null || a.ConstructorArguments.Length <= index) return null;
+        return a is null ? null : StateValue(a, index, out type);
+    }
+
+    // One attribute's argument at index as an enum value in source, as GetStateValue reads it.
+    private static string? StateValue(AttributeData a, int index, out INamedTypeSymbol? type)
+    {
+        type = null;
+        if (a.ConstructorArguments.Length <= index) return null;
 
         var arg = a.ConstructorArguments[index];
         if (arg.Kind != TypedConstantKind.Enum || arg.Type is not INamedTypeSymbol enumType || arg.Value is null) return null;
@@ -417,6 +447,30 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
                 return $"{fqn}.{member.Name}";
 
         return $"(({fqn})({System.Convert.ToString(arg.Value, System.Globalization.CultureInfo.InvariantCulture)}))";
+    }
+
+    // The systems a method's [After] or [Before] attributes name, a behavior's method by the name
+    // its system is given, or the first a behavior's type and method do not name a stage method of,
+    // as source for the message.
+    private static (List<string> Names, string? Unknown) OrderOf(IMethodSymbol method, string attributeName)
+    {
+        var names = new List<string>();
+        foreach (var a in method.GetAttributes().Where(x => x.AttributeClass?.ToDisplayString() == attributeName))
+        {
+            var arguments = a.ConstructorArguments;
+            if (arguments.Length == 1 && arguments[0].Value is string system)
+            {
+                names.Add(system);
+                continue;
+            }
+            if (arguments.Length != 2 || arguments[0].Value is not INamedTypeSymbol behavior || arguments[1].Value is not string name) continue;
+            var named = $"{behavior.Name}.{name}";
+            var target = behavior.GetMembers(name).OfType<IMethodSymbol>().FirstOrDefault(m => GetStages(m).Count == 1);
+            if (!behavior.GetAttributes().Any(x => x.AttributeClass?.ToDisplayString() == Behavior) || target is null)
+                return (names, named);
+            names.Add($"{behavior.Name}_Generated_{GetStages(target)[0]}_{name}");
+        }
+        return (names, null);
     }
 
     /// <summary>Extracts With/Without/Changed/Added filters from method attributes.</summary>
@@ -558,8 +612,12 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
             descriptor += $".RunIf(global::Engine.BehaviorConditions.KeyToggle(\"{systemId}\", (global::Engine.Key){tk.Key}, (global::Engine.KeyModifier){tk.Modifier}, {def}))";
         }
 
-        if (m.InState is { } state)
+        foreach (var state in m.InStates)
             descriptor += $".RunIf(global::Engine.BehaviorConditions.InState({state}))";
+        foreach (var system in m.After)
+            descriptor += $".After({Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(system, quote: true)})";
+        foreach (var system in m.Before)
+            descriptor += $".Before({Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(system, quote: true)})";
 
         if (m.RunIf is { } ri)
         {
@@ -873,8 +931,13 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
         /// <summary>For an OnEnter or OnExit method, the enum value as source, and for an OnTransition one the two.</summary>
         public string? Transition { get; init; }
 
-        /// <summary>The enum value an [InState] names, as source.</summary>
-        public string? InState { get; init; }
+        /// <summary>The enum values each [InState] names, as source, every one of which must hold.</summary>
+        public IReadOnlyList<string> InStates { get; init; } = Array.Empty<string>();
+
+        /// <summary>The systems [After] and [Before] order the method against, by name.</summary>
+        public IReadOnlyList<string> After { get; init; } = Array.Empty<string>();
+
+        public IReadOnlyList<string> Before { get; init; } = Array.Empty<string>();
     }
 
     /// <summary>Aggregated model for a single [Behavior]-annotated struct and its stage methods.</summary>
