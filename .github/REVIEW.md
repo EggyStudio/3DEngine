@@ -10,23 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d52d1781`, item 90, the glow light's non-number mended at its source and guarded,
-and nothing else, carrying the review's files, DEVLOG.md and ASKS.md as the game's session recast
-it. The normal from the depth's two steps faces the eye where their cross has no length or more than
-a float holds, in the glow pass's texel normal and the screen pass's probe and glow normals; the
-probes' spatial blend and the frame before skip a non-finite light and write one as none, the glow
-pass the same for its fainter lights and its frame before; a test hook letting the logged probe
-write a non-number; two tests failing without the mend, the desert scene 10,000 from the origin
-reading no more black than at the origin where 26,043 against 6,571 before, and a probe fed a
-non-number leaving the light it blends into finite; the covered-fault rule held at both sizes, the
-GPU within 0.1 ms; RENDERING.md's paragraph giving the cause and the spread in full and TODO.md the
-later effect, the owner's word; 2,070 passed plain and shuffled, 94 on lavapipe with the layer. Read
-at 10:39 on 2026-10-24. Not pushed, the build run of `98cf2ded` running; pushed when it ends, and a
-pack run follows once the split's Windows is green so the game takes it with items 72 and 74. Next
-the upgrading page's line, then item 92, the window under X11 on Linux, then 93, the colons out of
-the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
-and the history's guard, then item 89, the plant walls' acne. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `26818786`, the upgrading page's F3 line saying the debug overlay comes through
+SetDebugOverlayKey, doc only, read from the log, after `d52d1781`, item 90, the glow light's
+non-number mended at its source and guarded, and nothing else, carrying the review's files,
+DEVLOG.md and ASKS.md as the game's session recast it. Item 90. The normal from the depth's two
+steps faces the eye where their cross has no length or more than a float holds, in the glow pass's
+texel normal and the screen pass's probe and glow normals; the probes' spatial blend and the frame
+before skip a non-finite light and write one as none, the glow pass the same for its fainter lights
+and its frame before; a test hook letting the logged probe write a non-number; two tests failing
+without the mend, the desert scene 10,000 from the origin reading no more black than at the origin
+where 26,043 against 6,571 before, and a probe fed a non-number leaving the light it blends into
+finite; the covered-fault rule held at both sizes, the GPU within 0.1 ms; RENDERING.md's paragraph
+giving the cause and the spread in full and TODO.md the later effect, the owner's word; 2,070 passed
+plain and shuffled, 94 on lavapipe with the layer. Read at 10:39 and 11:00 on 2026-10-24. Not
+pushed, the build run of `98cf2ded` running, Linux, macOS and the examples green and Windows in
+flight with the two halves; the two go when it ends, and a pack run follows once the split's Windows
+is green so the game takes it with items 72 and 74. Next item 90's second reading, the placed
+emitter, then 94, the sun in caves, then item 92, the window under X11 on Linux, then 93, the colons
+out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's
+non-number and the history's guard, then item 89, the plant walls' acne. The branch `modeling` was
+deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `98cf2ded` came, Verdict 86's mend, the Rendering part split in two for Windows, pushed
 at 09:56 on 2026-10-24, its run in flight.
@@ -886,7 +889,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     push. Ore's picture at `522c662a`, the pair with the field at 2 cascades of 0.25 since Ore's own
     field reaches past its land; item 72 done, held for the push. The branch's run of the fix
     `14338c8f`, read at 06:50: Linux and macOS green with the two tests, Windows lost in
-    GlowPillarTests at the runner's limit, which the branch lacks Verdict 86's mends for.
+    GlowPillarTests at the runner's limit, which the branch lacks Verdict 86's mends for. The owner
+    added at 10:59 that in a black cave the global illumination's qualities move where the ambient's
+    fog color begins, near at Low and farther at High, and at a distance even High shows it; that is
+    the counted cascades' reach by quality and the sky past them, which the far cascade answers once
+    the game sets it with the package, a cave's far rays meeting the far cascade's cells before the
+    sky, so the game's record carries the far cascade's setting with item 27.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -1082,7 +1090,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     by the coder at 10:3x, the cause is one, the degenerate normal; the marks taken for a rough
     light's non-number were the desert's sunlit sand under its color test. Done at `d52d1781` on
     2026-10-24, held for the push; the game turns its screen probes on again by the owner's eye when
-    the package comes.
+    the package comes. The owner tested again at about 10:48 on 2026-10-24 and saw the black
+    spreading with the screen probes unchecked as well, on placing a magma block by hand; so the
+    glow-only path spreads it too, through the glow pass's own history, which the mend's guard
+    covers, and a placed emitter beside the eye is a second trigger to read before the push, whether
+    the degenerate normal again or another non-number of the glow march at no distance or the
+    near-field mean, mended at its source in a second commit where it is another; the guard stops
+    the spread either way.
 
 91. **DESIGN.md says the loop and the ECS are both the engine's way, each where it fits, with the
     voxel game as the model (Decision 68).** DESIGN.md's opening and its fifth section say the ECS
@@ -1124,6 +1138,47 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     CHEATSHEET.md's comment lines, ASKS.md's entries, and the comments of the code and the scripts;
     the review's files are the reviewing session's own and are not touched. One commit, docs and
     comments only, after item 92.
+
+94. **A cave under the ground sees no sun on its blocks' tops.** The owner played the voxel game at
+    about 10:5x on 2026-10-24 and saw the sun's light leaking onto the tops of blocks in caves. Two
+    paths can leak it and the reading says which. The sun's cascades are fitted to the sphere about
+    each view's slice, and a cave's view holds no ground above it, so if the map's depth range is
+    cut to the sphere the ground over the cave is never drawn into the map and the sun reaches the
+    cave as if through air; the mend there is the casters above the slice kept, the light's near
+    plane pushed to the scene's bound toward the sun or the casters clamped to it with the device's
+    depth clamp, which the fill cascade of item 72 may need too. The other path is the field's top,
+    a probe's ray leaving the counted cascades upward counting as sky, which lights tops from above;
+    item 72's far cascade answers it where a program sets one, and the game sets it with the
+    package. Read first in the game's build at a cave of the owner's kind, the tops' light with the
+    shadows off and on and with global illumination off and on, the game's session sending its
+    numbers, then mend the map's range where it is the sun's; a test of a room under a slab of stone
+    ten units thick with the sun high, the floor and the tops of blocks in it reading no more than
+    the lamp-less dark with the shadows on at every cascade count, failing without the mend; the
+    covered-fault rule where the field is touched. One commit, after item 90's second reading and
+    before item 92. The owner added at 10:51 that the sun shows in the cave at a distance, an
+    opening far off the likely way; past the shadow distance of 150 nothing casts a shadow on
+    5.2.215, which item 72's fill cascade mends in the next package, so the reading tells the far
+    parts, the fill's, from the near, this item's. The owner added at 10:54 that in black caves
+    where light shines through, beside the big leak at the game's eight-texel grid, lines one pixel
+    wide with stair-stepped edges show; so the reading takes a capture of them at the eye's size and
+    says where they lie, along the blocks' edges as the map's bias letting a face's top row through,
+    along a shadow's boundary as a cascade's texel steps, or along a cascade's seam, and the mend
+    covers them by that cause, with the capture before and after. The game's reading at 10:59, a
+    cave floor 73 blocks under the ground on seed 1 at noon with the screen probes off. Near the eye
+    nothing leaks, the floor 0.0 with the shadows at 96 and global illumination at High; at 45 to 50
+    blocks the deepslate tops read 34, 28, 20 with the shadows at 96 and the same at 150, 0 at
+    midnight and 0 with the shadow distance at 1 where the contact shadows take them, so the sun's
+    map lets them through within its distance, the ground 70 blocks above them outside the cascade's
+    depth; at 74 to 102 blocks the stone tops read 18 to 22 at 96 and 9 to 18 at 150, the part that
+    goes with the distance the sun past the map, item 72's fill, and the bluish rest the field's top
+    as sky, the far cascade's; the one-pixel lines lie at 45 to 50 blocks along the blocks' edges,
+    short runs on the tops and one-pixel runs down the side edges, the same with global illumination
+    off and gone at midnight and at a shadow distance of 1, so the map letting a face's edge rows
+    through, not a seam. The captures are in the game session's scratchpad under
+    cv-<hour>-<gi>-<shadows>.png and lines-eye-size.png. So this item's mend is two things of the
+    map, the casters above the view's slice kept and the edge rows closed, the receiver's bias or
+    the filter's taps at a face's edge read against the map's texels, and the rest is item 72's in
+    the package with the game setting the far cascade.
 
 ## Verdicts
 
