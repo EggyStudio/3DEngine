@@ -399,6 +399,40 @@ A behavior reaches the rest of the engine through its context, `ctx.Input` for i
 `ctx.Physics` for the physics world, `ctx.Res<T>()` for any resource of the world, and the flat
 functions themselves, which work inside behaviors of the app `InitWindow` built.
 
+## Testing a behavior
+
+A test builds the app its behaviors run in with no window, `Config.Default` with `Headless` set,
+adds `DefaultPlugins` with `AddPlugin`, and runs a frame with each call of `Frame`, reading the
+world between them. With `FrameSeconds` set each frame is that long and no clock is read, so the
+same frames give the same state on any machine:
+
+```csharp
+/// <summary>A dropped item that falls until it lies on the ground.</summary>
+[Behavior]
+public struct Falling
+{
+    public float Height;
+
+    [OnUpdate]
+    public void Fall(BehaviorContext ctx) => Height = MathF.Max(0, Height - 10 * (float)ctx.Time.DeltaSeconds);
+}
+
+using var app = new App(Config.Default with { Headless = true, FrameSeconds = 0.1 }).AddPlugin(new DefaultPlugins());
+var ecs = app.World.Resource<EcsWorld>();
+var drop = ecs.Spawn();
+ecs.Add(drop, new Falling { Height = 2.5f });
+for (int frame = 0; frame < 3; frame++) app.Frame();
+// Three frames of a tenth of a second have taken it down three units, onto the ground.
+var landed = ecs.GetRef<Falling>(drop).Height == 0;
+```
+
+The game's behaviors register as their assembly loads, which a test method that names one of
+them has done before its first line runs, so they are in the app it builds. Every app built
+after that holds them too, as every app the game builds does. The default plugins hold Dear
+ImGui's one context for the process, so the tests that build such apps run one at a time, as
+xUnit runs a collection whose definition turns its parallel runs off, and each disposes its app
+before the next builds one.
+
 ## See also
 
 - Examples: [`ecs_behaviors`](../3DEngine.Examples/Ecs/EcsBehaviors.cs),

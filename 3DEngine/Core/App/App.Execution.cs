@@ -66,8 +66,16 @@ public sealed partial class App
         Logger.Info($"Each stage runs its systems in an order shuffled by the seed {value}, those that conflict in the order they were added.");
     }
 
-    /// <summary>Runs one whole frame, <see cref="Stage.First"/> through <see cref="Stage.Last"/>.</summary>
-    internal void Frame()
+    /// <summary>
+    /// Runs one whole frame, <see cref="Stage.First"/> through <see cref="Stage.Last"/>, running
+    /// <see cref="Startup"/> first if it has not run.
+    /// </summary>
+    /// <remarks>
+    /// A program's own loop runs the same two halves through <c>BeginDrawing</c> and
+    /// <c>EndDrawing</c>. A game's test steps an app it built with no window by this, a frame a
+    /// call, reading the ECS world between them, so its behaviors run as the game runs them.
+    /// </remarks>
+    public void Frame()
     {
         BeginFrame();
         EndFrame();

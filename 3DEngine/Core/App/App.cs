@@ -115,15 +115,21 @@ public sealed partial class App : IDisposable
     internal static event Action<App>? Created;
 
     /// <summary>
-    /// Disposes the <see cref="World"/> and all its <see cref="IDisposable"/> resources.
-    /// Safe to call multiple times; subsequent calls are no-ops.
+    /// Shuts the app down as <c>CloseWindow</c> does, running <see cref="Stage.Cleanup"/>, then
+    /// disposing the <see cref="World"/> and all its <see cref="IDisposable"/> resources. Safe to
+    /// call multiple times; subsequent calls are no-ops.
     /// </summary>
+    /// <remarks>
+    /// Disposing the world alone left the plugins' teardown in <see cref="Stage.Cleanup"/> unrun, so
+    /// an app built with no window and disposed by a test had its renderer, never initialized,
+    /// disposed as if it were, and the engine logged an error.
+    /// </remarks>
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
 
-        World.Dispose();
+        Shutdown();
         Logger.Trace("App disposed.");
     }
 }

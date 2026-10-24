@@ -10,28 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1b497b3b`, item 96's third mend, the glow lights' box, read at 18:50 on 2026-10-24,
-carrying REVIEW.md and ASKS.md. The branch colouring at the grove at 1920 by 1080 read
-glowLightsHere's exits, an alike texel 57.9 percent of the pixels, any texel 2.5, marched with no
-texel 22.3, the far land drawn with the game's blended haze material and the clouds both missing
-from the window's depth, marched for an ask 0.34, no glow lights 0, sky or unlit 17; glowCounts.yzw
-and a new glowHigh hold the box every glow light's reach lies in, GlowLights.Head 32 bytes, and
-glowLightsAt returns none for a point outside it before the loop over the lights, the same light
-since every fade is 0 there; the scene pass 8.4 ms where 9.1 stood, 9.5 where 10.2 in the noisier
-pair, the frames differing by 2 to 8 pixels with and without, within two runs of the same shaders;
-GlowLightsTests asserts the box. 2,075 plain and shuffled, lavapipe with validation 60 passed and 12
-skipped. Pushed at 19:11 on 2026-10-24 after the build run of `89154675` went green whole, the run
-watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
-1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
-variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 101, the shadow-only draw for the game's culled casters, then 104 to 106, the
-ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one
-switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the field's
-foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and
-the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then item
-89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch
-`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `e5ad8d28`, item 101, the draw into the shadow maps alone, read at 19:22 on
+2026-10-24, carrying REVIEW.md, NORM.md, ASKS.md, DEVLOG.md and three pictures under N 4.8 with
+their captions. ModelMaterial.ShadowOnly, false by default, reaches ModelDraw.ShadowOnly; such a
+draw casts the shadow kinds SolidAlone or MaskedAlone and batches apart, the view pass, the
+subsurface pass and the window's half-size depth skip those kinds, the shadow maps draw them as
+solid or masked, and the scene field leaves the draw out with the glow lights, the reference and the
+ray-traced instances; one with CastsShadows false draws nothing. ModelShadowTests stands slabs 4 to
+90 out with the eye 30 up inside a cave under a roof 45 over the floor, the tops over 100 with no
+roof at shadow distances 96 and 150 and the tops and the floor under 8 with the roof ShadowOnly, the
+roof's top not drawn from above and the floor in its shadow, two mutations failing it; the guide's
+shadows paragraph, the cheat sheet's material paragraph and PublicApi.txt say it. 2,076 plain and
+shuffled, the strict build clean, lavapipe with validation 87 passed. Held until the build run of
+`1b497b3b` ends, then pushed. After `1b497b3b`, item 96's third mend, the glow lights' box, read at
+18:50 on 2026-10-24, carrying REVIEW.md and ASKS.md. The branch colouring at the grove at 1920 by
+1080 read glowLightsHere's exits, an alike texel 57.9 percent of the pixels, any texel 2.5, marched
+with no texel 22.3, the far land drawn with the game's blended haze material and the clouds both
+missing from the window's depth, marched for an ask 0.34, no glow lights 0, sky or unlit 17;
+glowCounts.yzw and a new glowHigh hold the box every glow light's reach lies in, GlowLights.Head 32
+bytes, and glowLightsAt returns none for a point outside it before the loop over the lights, the
+same light since every fade is 0 there; the scene pass 8.4 ms where 9.1 stood, 9.5 where 10.2 in the
+noisier pair, the frames differing by 2 to 8 pixels with and without, within two runs of the same
+shaders; GlowLightsTests asserts the box. 2,075 plain and shuffled, lavapipe with validation 60
+passed and 12 skipped. Pushed at 19:11 on 2026-10-24 after the build run of `89154675` went green
+whole, the run watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry
+grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs per
+fragment from the variant's registers, the window's depth at half size and the scene pass shading
+with overdraw pointing at a half-size pass over the window's depth with a two by two depth and
+normal read, as the glow pass has. Next 104 to 106, the ECS gaps the game's drops found, then 102,
+the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of
+the cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of
+the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
+and the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the
+light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items
+all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `89154675` came, item 96's second mend, the sky fold, pushed at 17:58 on 2026-10-24, its
 build run green whole at 19:08, Linux in 61 minutes, Windows in 57 and macOS in 29.
@@ -1168,35 +1180,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     covered-fault rule, a test of a plane under a slab of foliage cells at a half reading about half
     the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
     commits, after item 96 and before 93.
-
-101. **A mesh is drawn into the shadow maps alone, so a game that culls its view keeps its
-    casters.** From the game's reading of 5.2.281 at 17:4x on 2026-10-24, read at 17:48, its ASKS.md
-    entry of 2026-10-24 carrying the table. In the game's world at minus 59.5, minus 4, minus 91.5
-    looking 0 and minus 30 at noon, the deepslate tops 45 blocks in read 35, 29, 20 at High with the
-    shadow distance at 150 and the same at 96, 38, 38, 43 with global illumination off and 0 with
-    the distance at 1, so the sun's direct light reaches them through 45 blocks of stone within the
-    map's reach, digit for digit as on 5.2.215, and item 83's mend and item 94's test, a cave under
-    ten units of stone, do not cover it; the edge lines of the 10:59 crop stand too. Read on the
-    game's own build at that place, the shadow pass's view of the casters above the camera, whether
-    the sections over the cave are culled from the cascade before the depth clamp sees them, the
-    cascade's range fit to the view without the casters toward the light, or the depth clamp missing
-    the cascade the cave falls in; the mend at the cause, item 94's test widened to the camera
-    inside the cave with the casters 45 units above at the game's shadow distances, red before the
-    mend, and the game's place read again with the package. One commit, first, before item 96's
-    remaining cuts. The reading at 18:48 on 2026-10-24, on the game at `758e9df` in Release on
-    5.2.281 at the entry's place at 1280 by 720 at hour 12, found the cause in the game's section
-    culling and not the map. With voxel.cull on the tops 45 blocks in read 37, 30, 21 at High with
-    the shadows at 150, 0 at 1 and 40, 39, 45 with global illumination off, and with it off 0, 0, 0
-    at High at every distance and 6, 18, 35 with global illumination off, the light from all around;
-    4,624 pixels over 24 levels culled against 77 not, the edge lines going with the lit tops; the
-    90-block tops 9, 13, 18 either way, item 102's part. The game draws only the sections the eye
-    sees through open cells, so the ground over the cave is never drawn and never reaches the shadow
-    pass, and the engine cannot keep casters a program does not draw. The mend is the engine's way
-    to draw a mesh into the shadow maps alone, a flag on DrawMesh or the material the shadow pass
-    reads and the view pass skips, with its CHEATSHEET line and the guide's sentence on a game that
-    culls its view, item 94's widened test drawing the cave's roof through the flag with the camera
-    inside, red before; the game then draws its culled sections toward the sun within the shadow
-    distance through it, its item 123. One commit, small, first.
 
 102. **The far cascade's coarse cells near the ground hold no slab, so the game can set it.** From
     the same reading and its own ASKS.md entry of 2026-10-24, read at 17:48. With SetSceneField's

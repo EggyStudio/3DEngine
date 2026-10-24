@@ -12,18 +12,18 @@ public sealed partial class App
     /// <remarks>
     /// Plugins are identified by their concrete <see cref="Type"/>. Calling <c>AddPlugin</c> twice
     /// with the same plugin type is a no-op. The plugin's <see cref="IPlugin.Build"/> method is
-    /// invoked during this call, not later.
+    /// invoked during this call, not later. Public so a game's test builds the app its behaviors
+    /// run in, with <see cref="DefaultPlugins"/> and a config with no window, and steps it with
+    /// <see cref="Frame"/>, where the voxel game's tests stepped a bare ECS world through copies
+    /// of their systems that took the world as an argument.
     /// </remarks>
     /// <example>
     /// <code>
-    /// app.AddPlugin(new TimePlugin())
-    ///    .AddPlugin(new InputPlugin())
-    ///    .AddPlugin(new EcsPlugin());
+    /// using var app = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
     /// </code>
     /// </example>
     /// <seealso cref="IPlugin"/>
-    /// <seealso cref="HasPlugin{T}"/>
-    internal App AddPlugin(IPlugin plugin)
+    public App AddPlugin(IPlugin plugin)
     {
         var pluginType = plugin.GetType();
         var pluginName = pluginType.Name;

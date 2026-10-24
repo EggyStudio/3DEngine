@@ -3358,6 +3358,37 @@ batch.
     at `e2a203d9` on 2026-10-24, litLight taking the caller's shadow and its held share, the guide
     showing the stepped read.
 
+101. **A mesh is drawn into the shadow maps alone, so a game that culls its view keeps its
+    casters.** From the game's reading of 5.2.281 at 17:4x on 2026-10-24, read at 17:48, its ASKS.md
+    entry of 2026-10-24 carrying the table. In the game's world at minus 59.5, minus 4, minus 91.5
+    looking 0 and minus 30 at noon, the deepslate tops 45 blocks in read 35, 29, 20 at High with the
+    shadow distance at 150 and the same at 96, 38, 38, 43 with global illumination off and 0 with
+    the distance at 1, so the sun's direct light reaches them through 45 blocks of stone within the
+    map's reach, digit for digit as on 5.2.215, and item 83's mend and item 94's test, a cave under
+    ten units of stone, do not cover it; the edge lines of the 10:59 crop stand too. Read on the
+    game's own build at that place, the shadow pass's view of the casters above the camera, whether
+    the sections over the cave are culled from the cascade before the depth clamp sees them, the
+    cascade's range fit to the view without the casters toward the light, or the depth clamp missing
+    the cascade the cave falls in; the mend at the cause, item 94's test widened to the camera
+    inside the cave with the casters 45 units above at the game's shadow distances, red before the
+    mend, and the game's place read again with the package. One commit, first, before item 96's
+    remaining cuts. The reading at 18:48 on 2026-10-24, on the game at `758e9df` in Release on
+    5.2.281 at the entry's place at 1280 by 720 at hour 12, found the cause in the game's section
+    culling and not the map. With voxel.cull on the tops 45 blocks in read 37, 30, 21 at High with
+    the shadows at 150, 0 at 1 and 40, 39, 45 with global illumination off, and with it off 0, 0, 0
+    at High at every distance and 6, 18, 35 with global illumination off, the light from all around;
+    4,624 pixels over 24 levels culled against 77 not, the edge lines going with the lit tops; the
+    90-block tops 9, 13, 18 either way, item 102's part. The game draws only the sections the eye
+    sees through open cells, so the ground over the cave is never drawn and never reaches the shadow
+    pass, and the engine cannot keep casters a program does not draw. The mend is the engine's way
+    to draw a mesh into the shadow maps alone, a flag on DrawMesh or the material the shadow pass
+    reads and the view pass skips, with its CHEATSHEET line and the guide's sentence on a game that
+    culls its view, item 94's widened test drawing the cave's roof through the flag with the camera
+    inside, red before; the game then draws its culled sections toward the sun within the shadow
+    distance through it, its item 123. One commit, small, first. Done at `e5ad8d28` on 2026-10-24,
+    ModelMaterial.ShadowOnly with its test and its lines; the game's item 123 takes it with the
+    package.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
