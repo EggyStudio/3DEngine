@@ -2,6 +2,7 @@
 """Runs the engine's tests and writes a page of what happened, at most 200 lines.
 
     build/test.py [PART ...] [--parts] [--no-build]    # the suite whole, or parts of it by name
+    build/test.py --parts --split Rendering=2          # a part run in two processes by its classes
     build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
     build/test.py --read DIR                           # the page of results already in a folder
     build/test.py --digest DIR ...                     # one page from several systems' digests
@@ -17,7 +18,9 @@ its own tests, and only the parts holding a test the whole run gave no result ru
 counted from what the whole run printed, so a run lost a test short of its end does not start
 over. A part is a name after
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
-whose filter is the negation of the others, so no test falls between two parts.
+whose filter is the negation of the others, so no test falls between two parts. A part named in
+--split runs in as many processes as it says, its test classes sorted by name and dealt to them in
+turn, the last taking every class the others do not name, so a class added later runs there.
 
 The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
 and the lines logged as warnings or errors, or with no level, that the output repeated most, left
@@ -76,6 +79,8 @@ class Process:
 
     def __init__(self, label, filter_):
         self.label, self.filter = label, filter_
+        self.part = None          # the name after Engine.Tests. it runs, where it runs one
+        self.classes = None       # the test classes it holds, where a split part names them
         self.name = "results" if label == "the suite" else "results-" + re.sub(r"\W+", "-", label).strip("-")
         self.output = self.name.replace("results", "output", 1) + ".txt"
         self.exit_code = None
@@ -365,14 +370,46 @@ def list_tests(dotnet, args):
     return names
 
 
-def parts_of(names):
-    """A process for each name after Engine.Tests. that holds PART_SIZE tests or more, and one for the rest."""
+def parts_of(names, splits=None):
+    """A process for each name after Engine.Tests. that holds PART_SIZE tests or more, as many as
+    splits gives a name, and one for the rest."""
     counts = Counter(segment(name) for name in names)
     large = sorted(name for name, count in counts.items() if count >= PART_SIZE and name)
-    parts = [Process(name, f"FullyQualifiedName~{PREFIX}{name}.") for name in large]
+    parts = []
+    for name in large:
+        pieces = (splits or {}).get(name, 1)
+        if pieces <= 1:
+            part = Process(name, f"FullyQualifiedName~{PREFIX}{name}.")
+            part.part = name
+            parts.append(part)
+            continue
+        classes = sorted({class_of(test) for test in names if segment(test) == name})
+        dealt = [classes[k::pieces] for k in range(pieces)]
+        for k, held in enumerate(dealt[:-1]):
+            part = Process(f"{name} {k + 1}", "|".join(f"FullyQualifiedName~{PREFIX}{name}.{c}." for c in held))
+            part.part, part.classes = name, set(held)
+            parts.append(part)
+        taken = [c for held in dealt[:-1] for c in held]
+        part = Process(f"{name} {pieces}", "&".join([f"FullyQualifiedName~{PREFIX}{name}."] + [f"FullyQualifiedName!~{PREFIX}{name}.{c}." for c in taken]))
+        part.part = name
+        parts.append(part)
     rest = "&".join(f"FullyQualifiedName!~{PREFIX}{name}." for name in large)
     parts.append(Process("everything else", rest or None))
     return parts
+
+
+def class_of(name):
+    """A test's class by its name after its part, as Lighting.ShadowLayoutTests."""
+    return name[len(PREFIX):].split("(")[0].split(".", 1)[-1].rsplit(".", 1)[0]
+
+
+def label_of(name, parts):
+    """The label of the part that runs a test, a split part's by the classes it names."""
+    held = [p for p in parts if p.part == segment(name)]
+    if not held:
+        return "everything else"
+    named = [p for p in held if p.classes is not None and class_of(name) in p.classes]
+    return (named or [p for p in held if p.classes is None])[0].label
 
 
 def segment(name):
@@ -775,6 +812,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("parts", nargs="*", help="names after Engine.Tests. to run, each a process, as Rendering")
     parser.add_argument("--parts", dest="all_parts", action="store_true", help="run the suite in its parts, each a process")
+    parser.add_argument("--split", action="append", default=[], metavar="PART=N",
+                        help="run a part in N processes by its test classes, as Rendering=2")
     parser.add_argument("--no-build", action="store_true", help="pass --no-build to dotnet test")
     parser.add_argument("--read", metavar="DIR", help="write the page of the results already in DIR")
     parser.add_argument("--digest", metavar="DIR", nargs="+", help="one page from the digest.json in each DIR")
@@ -819,13 +858,14 @@ def main():
             os.remove(os.path.join(results, name))
     dotnet = shlex.split(args.dotnet, posix=os.name != "nt")
 
+    splits = {name: int(count) for name, count in (given.split("=", 1) for given in args.split)}
     started = time.monotonic()
     processes, listed = [], []
     if args.parts:
         processes = [Process(name, f"FullyQualifiedName~{PREFIX}{name}.") for name in args.parts]
     elif args.all_parts:
         listed = list_tests(dotnet, args)
-        processes = parts_of(listed)
+        processes = parts_of(listed, splits)
     else:
         processes = [Process("the suite", None)]
 
@@ -839,10 +879,9 @@ def main():
         # processor the whole suite ran out its hour 1,705 tests in, and every part run again from
         # the start took the job past its limit with no page written.
         listed = list_tests(dotnet, args)
-        parts = parts_of(listed)
-        labels = {process.label for process in parts}
+        parts = parts_of(listed, splits)
         for process in parts:
-            held = [name for name in listed if (segment(name) if segment(name) in labels else "everything else") == process.label]
+            held = [name for name in listed if label_of(name, parts) == process.label]
             left = without_result(held, done[0].finished)
             if not left:
                 print(f"{process.label}: every test ended in the whole run, so it is not run again", flush=True)

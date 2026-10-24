@@ -18,6 +18,38 @@ games. (`ddc20382`)
 The day sky example's capture holds it at six, at noon, at eighteen and at midnight in one picture,
 Summit's is taken again under its day sky, and the README's gallery shows the example. (`49d834e1`)
 
+![](.github/assets/readings/2026-10-24-edge-leak.webp)
+The edge leak at eight times its brightness: a glow light's fan at the foot of the edge two blocks
+meet, before the mend above and after it below, the checkerboard cell held inside the field (item
+71).
+
+![](.github/assets/readings/2026-10-24-blockout-spots.webp)
+Blockout's wall under its lamp with the screen probes on and left out: the round spots are the
+probes' own, the ceiling's bright patch narrower than a texel read by a few fixed rays (item 71).
+
+![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
+The bounce rooms' noise: views with the screen probes on and off beside their path-traced
+references, the still spots the sixth term's and the sunlit floor under a window its third form
+(item 71).
+
+![](.github/assets/readings/2026-10-24-wheat-acne.webp)
+A wheat field's thin walls in the voxel game as it ships and with its lighting turned back part by
+part: the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
+(item 71, item 89).
+
+![](.github/assets/readings/2026-10-24-shift.webp)
+A lantern room before and after the eye steps half a block, with the screen probes on and left out:
+the sixth term's spots stand at new places after the step while the lamps move by parallax alone
+(item 71).
+
+![](.github/assets/readings/2026-10-24-non-number-texels.webp)
+Item 90's reading at the desert village view: the glow texels whose normal is a non-number, marked,
+which the screen probes' history keeps and spreads as black.
+
+![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
+The nine views of the bounce rooms as the readings take them, the Cornell box, the strip, the
+corridor and the rooms with a window.
+
 Done:
 
 - Item 63 at `b6d822ee`. A game that is a level blocked out with the tools, Blockout (Decision 51).
@@ -51,6 +83,18 @@ rounded through a bevel and a subdivision, and the upgrading page names their ca
 ![](.github/assets/examples/models_edit_mesh.webp)
 The models_edit_mesh example shows the seven primitives of an edit mesh, each built into a model and
 named with its faces, and the upgrading page names every modeling call. (`91c8d363`)
+
+![](.github/assets/readings/2026-10-23-blotches.webp)
+The blotches read as contour bands of the light around a small emitter at four headings, the round
+spots its near field caught by one fixed probe ray, the sixth term of where the method stops (item
+71).
+
+![](.github/assets/readings/2026-10-23-summit-horizon.webp)
+Summit before and after the sky below the horizon took the island's gray blue, so the fogged edge of
+the land meets the color it fades into (item 75).
+
+![](.github/assets/readings/2026-10-23-cascade-seams.webp)
+The sun's cascades at a low sun with their seams mended, a long shadow held across them (item 83).
 
 Done:
 
@@ -92,6 +136,10 @@ meshing a hill on the GPU each frame. (`50b3aa6f`)
 With the screen's probes left out and a glow light lit, probes stand for the glow lights alone,
 marching to them once a tile and tracing nothing else, so a pixel reads their light at a cost the
 lights do not change, Ore at night with sixty-four lit drawing in 2.50 ms where 9.67. (`0a4928d3`)
+
+![](.github/assets/readings/2026-10-21-ore-glow-crops.webp)
+Ore's glowstone light in three crops, read for the glow lights of small emitters (item 71's first
+part).
 
 Done:
 
@@ -235,6 +283,12 @@ Done:
 
 ## 2026-10-17
 
+![](.github/assets/readings/2026-10-17-bounce-before-after-1.webp)
+![](.github/assets/readings/2026-10-17-bounce-before-after-2.webp)
+![](.github/assets/readings/2026-10-17-bounce-before-after-3.webp)
+The Cornell box before and after the light that bounces, and the bounce rooms after it, at the
+radiance cascades' first landing.
+
 Done:
 
 - Item 29 at `7b2486a5`. The register: STYLE.md's rule and the sweep (Decision 43).
@@ -346,11 +400,19 @@ The light that bounces is measured against references of one, two and every boun
 probes, which places most of its loss in a pi missing from the light a ray's hit sends on, with four
 artifacts pictured and measured. (`0499c115`)
 
+![](.github/assets/readings/2026-10-10-subsurface-pair.webp)
+Subsurface scattering's first experiment, the spheres with the light under the surface on and off
+(item 3).
+
 ## 2026-10-09
 
 ![](.github/assets/examples/shaders_bounce_rooms.webp)
 A level of the eight rooms the light that bounces finds hardest, each with a fixed view, and a
 script that measures each view at each quality against its path-traced reference. (`575f5f66`)
+
+![](.github/assets/readings/2026-10-09-bounce-rooms.webp)
+The bounce rooms, the test scenes the global illumination is read against, each a view with its
+path-traced reference.
 
 ## 2026-10-08
 

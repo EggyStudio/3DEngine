@@ -10,32 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `522c662a`, Ore's picture of item 72, the batch of items 74, 72 and 71's close, eight
-commits from `4c629a7c` under the owner's identity, no -x: `4c629a7c` item 74's pick of `629c1643`,
-`a2b4fe0f` the shift's line, `d03a0634`, `00968660` and `fbb0bf89` item 72's picks of `e164ccaa`,
-`0e908bdf` and `54d7c3e7`, `34e9a8a5` the cloud session's fix `14338c8f`, `3a2ccc0b` the device's
-budget numbers in the guide, carrying the review's files and ASKS.md, and `522c662a` Ore's picture;
-the one conflict RENDERING.md at the fill cascade's paragraph beside the z-fighting reading, both
-kept, the cheat sheet and the listing written again by their scripts. Ore's picture departs from the
-item: Ore's own field reaches past its 48 columns, so from its highest column no pixel changes by
-more than 9 levels, and the pair is taken with the field at 2 cascades of 0.25, the edge 16 blocks
-out, item 72 lifting the grass tops and far hills past it by up to 59 levels, under
-.github/assets/cascades with the setup said in RENDERING.md. 2,068 passed plain and shuffled, after
-one run where ObserverTests' allocation check read 7,960 bytes and passed alone three times,
-untouched by the batch, noted as a flake; 185 on lavapipe with the layer, the pack fresh, the docs
-check's 24 blocks. Read at 06:35 on 2026-10-24. Pushed at 06:59, the eight, after the build run of
-`68545bcf` ended, Linux, macOS and the examples green and Windows red, the Rendering part ending at
-its own 70-minute limit with 420 passed and no hang, Verdict 86 open; the run watched. Next item 90,
-the glow light's non-number and the history's guard, then item 89, the plant walls' acne. The branch
+Reviewed up to `e15cb271`, the devlog's move, DEVLOG.md at the root with its links resolving from
+there and AGENTS.md's Documents row naming it on the owner's word, Decision 66, the review's files
+with it, doc only, the norm tests 16 of 16. Read at 08:02 on 2026-10-24. Pushed at 08:28 after the
+build run of `522c662a` ended, Linux, macOS and the examples green and Windows red at the Rendering
+part's 70-minute limit again, 374 passed this time, Verdict 86; the run watched. Verdict 86's timing
+so far: HEAD's Rendering part on lavapipe with the cache off takes 43 minutes 59 seconds for 488
+tests, GlobalIlluminationTests 15.8 minutes of it for 43 tests, GlowLightsTests 6.5,
+CascadeEdgeTests 3.6, GlowPenumbraTests 2.7, ReferenceFrameTests and BounceRoomsTests 2.4 each;
+`49d834e1` and `26dbc6da` timing in worktrees. Next Verdict 86's mend, then item 90, the glow
+light's non-number and the history's guard, then item 89, the plant walls' acne. The branch
 `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+
+Before it, `522c662a` came, Ore's picture, with the eight of items 74, 72 and 71's close from
+`4c629a7c`, pushed at 06:59 on 2026-10-24, their run green but for Windows, Verdict 86's limit
+again.
 
 Before it, `68545bcf` came, Verdict 86's second commit, with `239bd67e`, `8d644430` and `37bd6f76`,
 pushed at 05:30 on 2026-10-24, their run green but for Windows, whose Rendering part ran to its
 70-minute limit.
-
-Before it, `783213f3` came, item 71's noise line, with `17f13440`, `2dd40fe4` and `a8f34b35`, the
-stepped edges' line, the widened term and the edge leak's mend, pushed at 04:27 on 2026-10-24, their
-run green but for Windows, Verdict 86's limit again.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1114,7 +1107,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     took 36 before, the 475 without a result being the other parts' tests; the growth lies between
     `49d834e1` and `26dbc6da`, Blockout's two commits and item 88's collections, or in the runner,
     and is measured locally on lavapipe without the cache at each of the three commits before any
-    split.
+    split. The run of `522c662a`, read at 08:27: the part at its 70 minutes again with 374 passed
+    where 420 the run before, the shut-in glowstone at 6 minutes 42 seconds where 4 minutes 21, the
+    sliding test at 3 minutes 18 where 2 minutes 31, so the same tests run half again as slow from
+    one Windows runner to the next; the part needs room for that variance, which says the split for
+    Windows alone, two halves under the limit with room, whatever the worktrees say of the code.
+    HEAD's part locally with the cache off 43 minutes 59 seconds for 488 tests. The three timings at
+    09:1x, one after another on a quiet machine: `49d834e1` 474 tests in 40 minutes 51 seconds,
+    `26dbc6da` 474 in 41 minutes 11, HEAD 488 in 43 minutes 59, the three minutes the fourteen tests
+    of items 71, 72 and 74 and the glow classes about a minute slower by item 72; so no code doubled
+    the part, and Windows's runners read 0.87 of local at `49d834e1` and 1.6 to 1.7 since. The mend:
+    build/test.py's --split PART=N runs a part in N processes, its classes sorted by name and dealt
+    in turn, a lost run's rerun mapping each test to its half, and the Windows call takes --split
+    Rendering=2 with the reason, the halves 207 and 307 tests at 24.4 and 19.6 local minutes, under
+    70 at two and a half times local; the suite run through the new path on the device before the
+    commit.
 
 Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
 
@@ -1690,6 +1697,23 @@ Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
     `DEVLOG.md` at the repository's root, with no `.github/devlog` folder, the engine's pictures
     being its committed captures; `.github/devlog/README.md` goes and AGENTS.md's row names
     `DEVLOG.md`.
+
+67. **Holographic Radiance Cascades read and set aside until a three-dimensional form exists.** The
+    owner asked at about 09:16 on 2026-10-24 about Freeman, Sannikov and Margel's paper of May 2025,
+    arXiv 2505.02041. It is a variant of radiance cascades for two dimensions: a probe grid that
+    loses spatial resolution only along the direction a probe gathers from, per quadrant, so a small
+    distant light's penumbra stays resolved where standard cascades blur it, and an acceleration
+    structure that builds long ray intervals by merging short ones, so the cost is constant for a
+    grid's size and volumetrics cost nothing more; single shot, noiseless, no history. On a 3080
+    Laptop it takes 1.85 ms at 512 square and 7.67 at 1024 square, with checkerboard and moire
+    artifacts for lights under eight times the base probe spacing, a four-pixel blur of shadows, and
+    four output directions, so no specular. Its scaling in three dimensions is the paper's own
+    limit, memory of N to the fourth for an N-cubed scene, shown as an experiment at 128 cubed
+    without normals. So nothing of it is taken: the engine's cascades over the field with the screen
+    probes stand, and the paper's one transferable idea, resolution kept across the gathering
+    direction, is the shape of the sixth term's weakness, a bright patch narrower than a probe's
+    texel, and is noted beside it for a later experiment on the glow lights' near field should a
+    three-dimensional form be published.
 
 ## Replies
 

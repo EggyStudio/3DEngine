@@ -240,8 +240,12 @@ jobs:
       # no whole run to lose, the suite took 66 minutes 23 seconds cold there on the pack run of
       # 9f9180b7. A test is held to ten minutes without a result here where five elsewhere, since the
       # glowstone shut in a room draws its 360 frames in 4 minutes 25 seconds on this lavapipe, the
-      # exposure the device fault it guards needs, and the limit is there to find a hang.
-      - run: python build/test.py --no-build --parts --timeout-minutes 70 --hang-minutes 10
+      # exposure the device fault it guards needs, and the limit is there to find a hang. The
+      # Rendering part runs in two processes by its classes, since whole it ran out its 70 minutes
+      # 420 and 374 tests in on two runners of the same code, the same tests half again as slow on
+      # the second, where on Linux's lavapipe with Mesa's cache off it takes 44 minutes, its halves
+      # 24 and 20.
+      - run: python build/test.py --no-build --parts --split Rendering=2 --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
