@@ -2494,7 +2494,14 @@ zero), or cost more than it gave, or left the term as it was.
   the sun's room holds 9 spots with the screen's probes and 6 without and the strip's room 16 and
   7, its walls smooth without them as the references are, and the corridor's and the red walls'
   views hold their scenes' own edges, 7 and 5, either way. Two frames 60 apart hold the same spots,
-  and a still view's pixels change from one frame to the next by 0.03% at most (above).
+  and a still view's pixels change from one frame to the next by 0.03% at most (above). As the eye
+  moves the spots shift, forming again where the moved probes' tiles meet the bright patches. In the
+  voxel game's plank room with a hanging lantern and two torches on its walls at night, at `High`
+  at 1280 by 720, the eye stepping half a block over 40 frames changes each frame by 0.27 to 0.30
+  sRGB levels on the mean with the screen's probes and by 0.31 to 0.35 with them left unread, one
+  frame with them by 0.73, and either way the light holds still the frame the eye stops
+  (`voxel.flicker`). Before the step and after it, the ceiling's spots stand at other places on it
+  while the lantern and the torches move by their parallax alone.
 
 ## 5. Render targets and post processing
 

@@ -10,23 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `239bd67e`, RENDERING.md's lights and shadows naming the z-fighting reading of item
-71, the plant walls' acne and the map's texels on the water, the game choosing its grid of eight
-texels a block, after `8d644430`, the devlog and AGENTS.md's row for it on the owner's word,
-Decision 66, and `37bd6f76`, Verdict 86's mend, the sliding camera test drawing its fifteen slides
-in one app, reading as before on the 4070 and lavapipe and taking 52 seconds without the cache where
-fifteen apps took three and a half minutes, and nothing else, carrying the review's files; 2,055
-passed plain and shuffled, the norm tests 16 with the row. Read at 05:01 on 2026-10-24. Not pushed,
-the build run of `783213f3` running, macOS green; the three go when it ends. Next Verdict 86's
-second commit for the two tests near the limit, then 71's shift, then the noise, the z-fighting and
-the shift, then 74's and 72's cherry-picks with the default's device readings and Ore's capture,
-then item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and
-`54d7c3e`, under the owner's identity, the cloud session standing by; the branch's items 59 to 66,
-75 to 78 and 88 are on main.
+Reviewed up to `68545bcf`, Verdict 86's second commit, GlowPillarTests settling in 150 frames where
+400 with its reading the same to the last digit and the Windows job's test call given ten hang
+minutes with the reason, since the shut-in glowstone's 360 frames are the exposure its device fault
+needs, after `239bd67e`, RENDERING.md's lights and shadows naming the z-fighting reading of item 71,
+the plant walls' acne and the map's texels on the water, the game choosing its grid of eight texels
+a block, after `8d644430`, the devlog and AGENTS.md's row for it on the owner's word, Decision 66,
+and `37bd6f76`, Verdict 86's mend, the sliding camera test drawing its fifteen slides in one app,
+reading as before on the 4070 and lavapipe and taking 52 seconds without the cache where fifteen
+apps took three and a half minutes, and nothing else, carrying the review's files; 2,055 passed
+plain and shuffled, the norm tests 16 with the row. Read at 05:01 and 05:29 on 2026-10-24. Pushed at
+05:30, the four, after the build run of `783213f3` ended, Linux, macOS and the examples green and
+Windows red again on the same limit; the run watched, Verdict 86 settling on it. Held behind them:
+`4c629a7c`, item 74's cherry-pick of `629c1643`, which waits for the cloud session's fix of its
+macOS test and goes with 72's three. Next 71's shift as the term's line on motion, then the noise,
+the z-fighting and the shift, then 74's and 72's cherry-picks with the default's device readings and
+Ore's capture, then item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`,
+`0e908bdf` and `54d7c3e`, under the owner's identity, the cloud session standing by; the branch's
+items 59 to 66, 75 to 78 and 88 are on main.
 
 Before it, `783213f3` came, item 71's noise line, with `17f13440`, `2dd40fe4` and `a8f34b35`, the
 stepped edges' line, the widened term and the edge leak's mend, pushed at 04:27 on 2026-10-24, their
-run in flight.
+run green but for Windows, Verdict 86's limit again.
 
 Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
 at 03:22 on 2026-10-24, their run green but for Windows, Verdict 86.
@@ -1043,7 +1048,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the cache. Mended at `37bd6f76`, the fifteen slides drawn in one app with the bound unchanged
     and the reading the same, 52 seconds there; GlowPillarTests at 4.7 minutes and GlowLightsTests'
     shut-in block at 4.4 on Windows stand near the limit and take a second commit; it settles when a
-    Windows run is green with both.
+    Windows run is green with both. The run of `783213f3`, pushed before the mends, lost the part
+    the same way at 45 minutes 18 seconds in the same test, 350 passed. The second commit at
+    `68545bcf`: GlowPillarTests settling in 150 frames where 400, the same reading to the last digit
+    on the 4070 and lavapipe, 43 seconds without the cache where 84; the shut-in glowstone keeping
+    its 360 frames and the Windows job's call taking ten hang minutes with the reason. Both pushed
+    at 05:30; settles on that run's Windows.
 
 Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
 
