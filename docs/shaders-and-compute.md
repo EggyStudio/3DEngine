@@ -173,6 +173,29 @@ a face turned to the sky takes, wherever the point lies. On a double-sided mater
 backs are drawn, a normal facing away from the eye is turned toward it first, so a back is lit as
 its front, a sample's normal with it.
 
+`litLight(albedo, input)` gives the light `lit` encodes, without the material's emission, in its two
+shares, `diffuse` and `specular`, and takes the shadow of the light that casts one from its caller
+where the program reads it itself. A shader that steps the sun's shadow along a grid of its own reads it once, at the middle
+of the step the point lies in, through `lightReaching` from the `lights` module, and hands that read
+over with how much of the point the shadow's cascades hold, which the sun's contact shadows go by:
+
+```slang
+import modelpass;
+import lights;
+
+[shader("fragment")]
+float4 fragmentMain(ModelVertexOutput input) : SV_Target
+{
+    float3 albedo = baseColor(input).rgb;
+    float3 n = normalize(input.normal);
+    // The middle of the eighth of a unit the point lies in, across the face.
+    float3 middle = lerp(input.world, (floor(input.world * 8.0) + 0.5) / 8.0, step(abs(n), float3(0.5)));
+    float held;
+    LitLight light = litLight(albedo, input, lightReaching(middle, n, held), held);
+    return float4(toDisplay(light.diffuse + light.specular), 1.0);
+}
+```
+
 ## Moving vertices
 
 A model shader may have a vertex stage of its own, which takes the mesh's position, normal and

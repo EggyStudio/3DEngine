@@ -764,3 +764,35 @@ the engine's lighting apart from the engine's changes to it.
 Review: item 99 of REVIEW.md, 2026-10-24; `litLight` takes the shadow light's shadow from the
 caller, a parameter with the share read at the program's point or an overload leaving the shadow
 light out, after item 98 and before 96.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the scene's field holds leaves solid, so a canopy's floor takes none of the sky's light
+
+The game's leaves are a masked surface whose texture is clear in places, and the source lets the
+sky's light through a canopy, so a rain forest's floor at noon reads light level 13 of 15 there, 0.80
+of open ground's light on the screen. The scene's distance field holds a leaf's cell as solid as
+stone, so the cascades' rays toward the sky stop at the canopy and the floor under it takes none of
+the sky's light. Read with `./e3d command
+voxel.pixel` from straight above at noon, the Release build at `aaeaa2a` on the 5.2.215 package,
+offscreen at 1280 by 720 on the RTX 4070 Laptop GPU and on lavapipe alike, on the flat world with a
+roof of jungle leaves 21 by 21 and two deep five blocks over the grass and a stone wall 11 long and
+11 high on open ground, the luminance of the grass in sRGB levels:
+
+| grass | sky level | luminance |
+|---|---|---|
+| sunlit on open ground | 15 | 172.9 |
+| in the wall's shade on open ground | 15 | 42.2 |
+| under the roof of leaves | 13 | 20.2 (19.5 on lavapipe) |
+
+Seed 1's rain forest from -934.5, 58.2, -1343.5 facing 200 at noon reads a mean luminance of 4.0 of
+255 over the whole capture, its floor near black. The engine lacks a way to let a share of light
+through a cell, marked as foliage by the draw that stamps it, the cascades' march taking that share
+off a ray as it crosses such a cell rather than stopping there, as the source lets the sky's light
+through leaves. Meanwhile the game's terrain shader keeps a face's light no less than the sky's light
+from all around at the face's sky level on the source's brightness curve (`skyFloor` in
+`resources/shaders/terrain.slang`), which lifts the grass under the roof to 42.4 and leaves the wall's
+shade and the sunlit grass as they were, a floor that stays under the engine's light once the field
+lets light through leaves.
+
+Review: item 100 of REVIEW.md, 2026-10-24; a cell marked as foliage carries a share of light that
+passes it, the cascades' march taking that share off a ray rather than stopping, after item 96 and
+before 93.

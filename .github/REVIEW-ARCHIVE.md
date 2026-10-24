@@ -3328,6 +3328,21 @@ batch.
     at `b5741f88` on 2026-10-24; item 94 done, the game's cave read again on the package, any edge
     line left a second part.
 
+98. **The scene pass at HEAD costs what 5.2.215's does, the probes' info read in place.** From the
+    coder's reading of 2026-10-24, read at 12:32, before the pack run. HEAD draws the voxel game's
+    grove at 1920 by 1080 with the scene pass at 66 ms at High where 5.2.215 takes 11, both 4.4 with
+    global illumination off, the game built from its own source against the engine's project; the
+    world probes' read cut out takes it to 20. The cause is in `00968660`, item 72's far cascade,
+    where `probesOf` copies the scene field's info and writes `cascades[probes - 1]` at a place
+    known only at run time, so each copy lives in the thread's local memory, and the model pass
+    makes several a fragment (bounced, bouncedAt, bouncedHold, skyAt, screenHold). The mend keeps
+    the far cascade's place in the info's unused eye.w and reads every probes' cascade through
+    `cascadeAt` with no copy; the grove's scene pass timed before and after at 1920 by 1080 at High
+    and said in the commit, the bounce rooms' readings unchanged, and item 96's own reading then
+    starts from the mended cost. One commit, after Verdict 87's, before the pack run; the package
+    after 5.2.215 waits for it. Done at `391bbfd7` on 2026-10-24, the scene pass 20 ms where 66
+    stood, the far cascade's place in eye.w and no copy; the gap to the package's 11 in item 96.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -148,6 +148,74 @@ public sealed class ModelShadowTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Shader_That_Reads_The_Suns_Shadow_Itself_Lights_By_Its_Read_In_Place_Of_The_Point()
+    {
+        // A block two units high on a floor under a sun along x and down, whose shadow lies from
+        // 0.5 to 2.5 along x, the floor drawn through a shader that hands litLight the sun's shadow
+        // read at its point moved by `shift`, as a program stepping the shadow along a grid of its
+        // own reads it once. Moved by nothing it lights the floor as litLight's own read does, and
+        // moved one unit along x the shadow it reads lies one unit back, from -0.5 to 1.5.
+        var config = Config.Default.WithWindow("shadow read test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetAmbientLight(Color.Black, 0);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(1, -1, 0)), Color.White, 2, castsShadows: true);
+        var shaders = new[] { "LitLight light = litLight(albedo, input);", "float held;\n    LitLight light = litLight(albedo, input, lightReaching(input.world + shift, normalize(input.normal), held), held);" }
+            .Select((body, i) => LoadShaderFromMemory($$"""
+                import modelpass;
+                import lights;
+
+                uniform float3 shift;
+
+                [shader("fragment")]
+                float4 fragmentMain(ModelVertexOutput input) : SV_Target
+                {
+                    float3 albedo = baseColor(input).rgb;
+                    {{body}}
+                    return float4(toDisplay(light.diffuse + light.specular), 1.0);
+                }
+                """, $"shadow-read-{i}.slang")).ToArray();
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var floor = LoadModelFromMesh(GenMeshCube(20, 1, 20));
+        var camera = new Camera3D(new Vector3(1.5f, 6, 6), new Vector3(1.5f, 0, 0), Vector3.UnitY, 50);
+        Image Drawn(Shader shader, float shift, string name)
+        {
+            floor.Materials[0].Shader = shader;
+            SetShaderValue(shader, GetShaderLocation(shader, "shift"), new Vector3(shift, 0, 0));
+            return Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(floor, new Vector3(0, -0.5f, 0), 1, Color.White);
+                DrawModelEx(block, new Vector3(0, 1, 0), Vector3.UnitY, 0, new Vector3(1, 2, 1), Color.White);
+                EndMode3D();
+            }, name);
+        }
+        int Lit(Image image, float x)
+        {
+            var pixel = GetWorldToScreenEx(new Vector3(x, 0, 0), camera, 320, 180);
+            var c = GetImageColor(image, (int)pixel.X, (int)pixel.Y);
+            return Math.Max(c.R, Math.Max(c.G, c.B));
+        }
+
+        var plain = Drawn(shaders[0], 0, "plain");
+        var read = Drawn(shaders[1], 0, "read");
+        var moved = Drawn(shaders[1], 1, "moved");
+        Lit(plain, 2).Should().BeLessThan(8, "the floor at 2 lies in the block's shadow");
+        Lit(plain, 3.5f).Should().BeGreaterThan(100, "and at 3.5 past it");
+        var differing = 0;
+        for (int y = 0; y < 180; y++)
+            for (int x = 0; x < 320; x++)
+                if (GetImageColor(read, x, y) != GetImageColor(plain, x, y)) differing++;
+        differing.Should().Be(0, "the shadow read at the point is the read litLight makes there");
+        Lit(moved, 2).Should().BeGreaterThan(100, "read one unit on, the floor at 2 reads the lit floor at 3");
+        Lit(moved, 1).Should().BeLessThan(8, "and the floor at 1 the shadow at 2");
+        Lit(moved, 3.5f).Should().BeGreaterThan(100);
+        UnloadModel(block);
+        UnloadModel(floor);
+        foreach (var shader in shaders) UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void A_Low_Suns_Long_Shadow_Is_Cast_Whole_Across_The_Cascades_Seen_From_Its_Far_End()
     {
         // A trunk a unit across and six high under a crown three units wide, under a sun 10 degrees

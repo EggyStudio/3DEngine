@@ -485,8 +485,14 @@ public struct LitLight
 
 // A linear color lit at this point by each light reflected by the material's metallic-roughness
 // model, the shadowed light cut by its shadow map and the light from all around darkened by its
-// occlusion map, with indirect light where global illumination is on, in its two shares.
-public LitLight litLight(float3 albedo, ModelVertexOutput input)
+// occlusion map, with indirect light where global illumination is on, in its two shares. A caller
+// that reads the shadowed light's map itself, as one stepping the shadow along a grid of its own,
+// hands the share it read as `shadow` and how much of its point the counted cascades hold as
+// `shadowHeld` (lightReaching), which stand for the read at the point, so the map is read once; a
+// negative `shadow` has it read here. The voxel game read it three times a pixel to step it, at the
+// point here, at the point again to take that share out, and at the step, which cost its cherry
+// grove's model pass about 1.6 ms of 12.5 at 1920 by 1080.
+public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = -1.0, float shadowHeld = 0.0)
 {
     LitLight light;
     light.diffuse = float3(0.0);
@@ -611,8 +617,11 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input)
 
         if (i == lighting.shadowLight)
         {
-            float held;
-            arrived *= lightReaching(input.world, normalize(input.normal), held);
+            float held = shadowHeld;
+            if (shadow >= 0.0)
+                arrived *= shadow;
+            else
+                arrived *= lightReaching(input.world, normalize(input.normal), held);
             arrived *= sunContact(input, held);
         }
         else if (lamp.cone.z > 0.0 && int(lamp.positionAndKind.w) == Spot)
