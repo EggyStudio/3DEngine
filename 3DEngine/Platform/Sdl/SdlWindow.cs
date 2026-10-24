@@ -47,19 +47,24 @@ internal sealed class SdlWindow
     /// <summary>
     /// Starts SDL's video through <paramref name="start"/>, on Linux asking for X11 first through
     /// <paramref name="hint"/>, and where that start fails, asking again with the hint cleared
-    /// through <paramref name="clear"/>, which <paramref name="fellBack"/> then says.
+    /// through <paramref name="clear"/>, which <paramref name="fellBack"/> then says. A driver
+    /// <paramref name="named"/> already, through the hint or <c>SDL_VIDEO_DRIVER</c>, is started on
+    /// as it is named, with nothing asked.
     /// </summary>
     /// <remarks>
     /// Under a Wayland session SDL draws the window's frame itself through libdecor, whose GTK
     /// plugin, where it is installed, draws a frame of its own inside the window, its top corners
     /// rounded, its bottom ones square and its shadow its own, unlike the frames the desktop draws
-    /// for its other windows. Through X11, under XWayland, the desktop draws the frame. A hint
-    /// yields to <c>SDL_VIDEO_DRIVER</c> set in the environment, so a user who wants Wayland names
-    /// it there, and a session without XWayland, where X11 cannot start, starts on what SDL finds.
+    /// for its other windows. Through X11, under XWayland, the desktop draws the frame. A user who
+    /// wants Wayland names it in <c>SDL_VIDEO_DRIVER</c>, and a session without XWayland, where X11
+    /// cannot start, starts on what SDL finds. A test that named SDL's offscreen driver through the
+    /// hint had it overwritten by the ask, and on a runner with no display, where X11 does not
+    /// start, the hint cleared after it named no driver at all, so SDL found none.
     /// </remarks>
-    internal static bool StartVideo(bool linux, Action<string> hint, Action clear, Func<bool> start, out bool fellBack)
+    internal static bool StartVideo(bool linux, string? named, Action<string> hint, Action clear, Func<bool> start, out bool fellBack)
     {
         fellBack = false;
+        if (!string.IsNullOrEmpty(named)) return start();
         if (linux) hint("x11");
         if (start()) return true;
         if (!linux) return false;
@@ -82,7 +87,7 @@ internal sealed class SdlWindow
         Height = height;
 
         logger.Info($"Initializing SDL3 (Video + Gamepad subsystems)...");
-        if (!StartVideo(OperatingSystem.IsLinux(), driver => SDL.SetHint(SDL.Hints.VideoDriver, driver), () => SDL.ResetHint(SDL.Hints.VideoDriver),
+        if (!StartVideo(OperatingSystem.IsLinux(), SDL.GetHint(SDL.Hints.VideoDriver), driver => SDL.SetHint(SDL.Hints.VideoDriver, driver), () => SDL.ResetHint(SDL.Hints.VideoDriver),
                 () => SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad), out var fellBack))
         {
             var err = SDL.GetError();

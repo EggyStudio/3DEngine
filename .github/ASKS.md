@@ -716,3 +716,25 @@ Review: item 96 of REVIEW.md, 2026-10-24; the scene pass's per-pixel read of the
 made cheaper than the trace, by a coarser read with a bilateral upsample, a gather shared per tile,
 or the light written once a frame into a screen-sized image, whichever the reading keeps under the
 covered-fault rule; after item 94.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a point light at the camera's own point shades black specks on lavapipe
+
+A point light standing at the camera's own point, a torch held at the eye, shades the pixels it
+lights with black specks on lavapipe, while the RTX 4070 Laptop GPU draws them clean. Read on the
+5.2.215 package with the validation layer on and no error from it, the flat world at hour 20 from
+the roof of a stone room at 13.5, 12, -19 looking down at -60, with `voxel.pixel 13.5 12.001 -20.5`.
+The roof reads 27, 25, 39 by moonlight and 0, 0, 0 with the torch held, where the GPU reads 109, 68,
+29, and the frame is lit orange and shot through with black specks everywhere the light reaches.
+
+| on lavapipe, the torch held | the roof's pixel |
+|---|---|
+| at the eye | 0, 0, 0, specked |
+| at the eye, its shadow off | 0, 0, 0, specked |
+| at the eye, `ContactShadows.Off` | 0, 0, 0, specked |
+| at the eye, global illumination off | 0, 0, 0, specked |
+| a third of a block under the eye | 114, 71, 29, clean |
+
+So the specks are neither the light's shadow cube nor the contact shadows nor global illumination,
+and moving the light off the camera's point clears them. The engine lacks a guard for a light at
+the camera's own point, whatever term divides by its distance there. The game keeps its held light
+a third of a block under the eye meanwhile, still at the player's own place.

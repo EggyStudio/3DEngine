@@ -413,7 +413,9 @@ installed, draws a frame of its own inside the window, rounded at the top, squar
 with its own shadow, unlike the frames the desktop draws around its other windows. The ask is a
 hint, so `SDL_VIDEO_DRIVER=wayland` in the environment opens the window on Wayland, and in a
 session without XWayland, where X11 does not start, the window starts again on the driver SDL
-finds. The log's line `SDL3 initialized successfully` names the driver the window got.
+finds. A driver a program names through SDL's hint before its window opens, as a test names the
+offscreen one, is kept as named, with X11 not asked. The log's line `SDL3 initialized
+successfully` names the driver the window got.
 
 Linux is where the engine is developed and tested, and `.github/workflows/build.yml`, which runs for
 every push, builds and tests it on all three. Ubuntu 24.04, named rather than the newest so lavapipe

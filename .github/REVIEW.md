@@ -10,40 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b888b242`, item 92, SdlWindow's start setting SDL's video driver hint to x11 on
-Linux before SDL starts, the hint reset and SDL started again where that fails, the log's line
-naming the driver the window got and the fallback, the reason in the remarks naming no one,
-BUILDING.md's row and paragraph with the override, two tests of the hint and the fallback,
-core_basic_window logging x11 on the device and wayland with the variable set; after `26818786`, the
-upgrading page's F3 line saying the debug overlay comes through SetDebugOverlayKey, doc only, and
-`d52d1781`, item 90, the glow light's non-number mended at its source and guarded, and nothing else,
-carrying the review's files, DEVLOG.md and ASKS.md as the game's session recast it. Item 90. The
-normal from the depth's two steps faces the eye where their cross has no length or more than a float
-holds, in the glow pass's texel normal and the screen pass's probe and glow normals; the probes'
-spatial blend and the frame before skip a non-finite light and write one as none, the glow pass the
-same for its fainter lights and its frame before; a test hook letting the logged probe write a
-non-number; two tests failing without the mend, the desert scene 10,000 from the origin reading no
-more black than at the origin where 26,043 against 6,571 before, and a probe fed a non-number
-leaving the light it blends into finite; the covered-fault rule held at both sizes, the GPU within
-0.1 ms; RENDERING.md's paragraph giving the cause and the spread in full and TODO.md the later
-effect, the owner's word; 2,070 passed plain and shuffled, 94 on lavapipe with the layer. 2,072
-passed plain and shuffled. Read at 10:39, 11:00 and 11:10 on 2026-10-24. Pushed at 11:15, the three,
-after the build run of `98cf2ded` ended green whole, Windows passing 2,005 in 65 minutes 22 seconds
-with the Rendering part in its two halves, Verdict 86 settled, and a pack run with publish on
-started at 11:15 on this head; the runs watched, and a pack run follows once the split's Windows is
-green so the game takes it with items 72 and 74. Item 90's second reading found no second source,
-the item done and archived. Next 94's test alone, the sun in caves being item 83's mend missing from
-5.2.215, then 96, the scene pass's read of the cascades, then 93, the colons out of the documents,
+Reviewed up to `b5741f88`, item 94's test alone, a cave under ten units of stone seventy up taking
+no sun on its floor or its blocks' tops, passing at HEAD and reading the leak before item 83's mend,
+with the review's files and the game's ASKS.md entry carried; 2,073 passed plain and shuffled, the
+test on lavapipe with the layer. Read at 11:47 on 2026-10-24. Not pushed; the build run and the pack
+run of `b888b242` went red on Linux at 11:46 on one test, Verdict 87, the pack run packing nothing,
+so this commit is pushed with the verdict's mend and item 98's, and a pack run started after them,
+since a package from HEAD would carry item 98's cost. Item 96 begins with a reading on the game's
+5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn
+to tell what runs per fragment from the variant's registers, the window's depth at half size and the
+scene pass shading with overdraw pointing at a half-size pass over the window's depth with a two by
+two depth and normal read, as the glow pass has. Next Verdict 87's mend, the X11 ask yielding to a
+driver already named, then 98, the scene pass's cost back at 5.2.215's, the probes' info read in
+place, then 96, the scene pass's read of the cascades, then 93, the colons out of the documents,
 then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the
-history's guard, then item 89, the plant walls' acne. The branch `modeling` was deleted at 07:23
-with its items all on main, N 7.5; the cloud sessions stand by.
+history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at
+the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
+main, N 7.5; the cloud sessions stand by.
+
+Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
+their run and the pack run in flight.
 
 Before it, `98cf2ded` came, Verdict 86's mend, the Rendering part split in two for Windows, pushed
 at 09:56 on 2026-10-24, its run green whole, Windows in 65 minutes with the two halves, Verdict 86
 settled.
-
-Before it, `e15cb271` came, the devlog's move, pushed at 08:28 on 2026-10-24, its run green but for
-Windows, Verdict 86's limit again.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1101,55 +1091,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the review's files are the reviewing session's own and are not touched. One commit, docs and
     comments only, after item 92.
 
-94. **A cave under the ground sees no sun on its blocks' tops.** The owner played the voxel game at
-    about 10:5x on 2026-10-24 and saw the sun's light leaking onto the tops of blocks in caves. Two
-    paths can leak it and the reading says which. The sun's cascades are fitted to the sphere about
-    each view's slice, and a cave's view holds no ground above it, so if the map's depth range is
-    cut to the sphere the ground over the cave is never drawn into the map and the sun reaches the
-    cave as if through air; the mend there is the casters above the slice kept, the light's near
-    plane pushed to the scene's bound toward the sun or the casters clamped to it with the device's
-    depth clamp, which the fill cascade of item 72 may need too. The other path is the field's top,
-    a probe's ray leaving the counted cascades upward counting as sky, which lights tops from above;
-    item 72's far cascade answers it where a program sets one, and the game sets it with the
-    package. Read first in the game's build at a cave of the owner's kind, the tops' light with the
-    shadows off and on and with global illumination off and on, the game's session sending its
-    numbers, then mend the map's range where it is the sun's; a test of a room under a slab of stone
-    ten units thick with the sun high, the floor and the tops of blocks in it reading no more than
-    the lamp-less dark with the shadows on at every cascade count, failing without the mend; the
-    covered-fault rule where the field is touched. One commit, after item 90's second reading and
-    before item 92. The owner added at 10:51 that the sun shows in the cave at a distance, an
-    opening far off the likely way; past the shadow distance of 150 nothing casts a shadow on
-    5.2.215, which item 72's fill cascade mends in the next package, so the reading tells the far
-    parts, the fill's, from the near, this item's. The owner added at 10:54 that in black caves
-    where light shines through, beside the big leak at the game's eight-texel grid, lines one pixel
-    wide with stair-stepped edges show; so the reading takes a capture of them at the eye's size and
-    says where they lie, along the blocks' edges as the map's bias letting a face's top row through,
-    along a shadow's boundary as a cascade's texel steps, or along a cascade's seam, and the mend
-    covers them by that cause, with the capture before and after. The game's reading at 10:59, a
-    cave floor 73 blocks under the ground on seed 1 at noon with the screen probes off. Near the eye
-    nothing leaks, the floor 0.0 with the shadows at 96 and global illumination at High; at 45 to 50
-    blocks the deepslate tops read 34, 28, 20 with the shadows at 96 and the same at 150, 0 at
-    midnight and 0 with the shadow distance at 1 where the contact shadows take them, so the sun's
-    map lets them through within its distance, the ground 70 blocks above them outside the cascade's
-    depth; at 74 to 102 blocks the stone tops read 18 to 22 at 96 and 9 to 18 at 150, the part that
-    goes with the distance the sun past the map, item 72's fill, and the bluish rest the field's top
-    as sky, the far cascade's; the one-pixel lines lie at 45 to 50 blocks along the blocks' edges,
-    short runs on the tops and one-pixel runs down the side edges, the same with global illumination
-    off and gone at midnight and at a shadow distance of 1, so the map letting a face's edge rows
-    through, not a seam. The captures are in the game session's scratchpad under
-    cv-<hour>-<gi>-<shadows>.png and lines-eye-size.png. So this item's mend is two things of the
-    map, the casters above the view's slice kept and the edge rows closed, the receiver's bias or
-    the filter's taps at a face's edge read against the map's texels, and the rest is item 72's in
-    the package with the game setting the far cascade. Read by the coder at 11:26: the near leak is
-    item 83's, mended at `d980d237` where casters before a cascade's near plane are drawn onto it
-    through the device's depth clamp and the light's cull no longer clips the near plane, which
-    5.2.215, packed from `d3473746`, predates; its scene, blocks under a roof ten units thick with
-    the camera inside, reads 255 on the near tops and 210 on the floor before that commit with the
-    roof 70 up and 0 everywhere at HEAD, the one-pixel lines inside that leak and gone at HEAD too;
-    the far part is item 72's fill in the same package. So no new mend, the test alone committed,
-    ModelShadowTests' cave under ten units of stone seventy up, and the game reads its cave and the
-    edge lines again on the new package, any edge line left there this item's second part.
-
 95. **A verb of ./e3d with --help prints its help and opens nothing.** At about 11:11 on 2026-10-24,
     and once before at 10:0x, `./e3d open --help` passed --help and --serve through to the default
     example and opened core_3d_camera_free in a shown window on the owner's desktop, which they
@@ -1171,9 +1112,51 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     after, and the quality tiers' costs on the Cornell box in the guide changed. One or two commits,
     after item 94.
 
+97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
+    voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry to come. The game moved its
+    held light to the eye's point and the play job on lavapipe read the lit roof black at its probe,
+    the frame shot through with black specks, where the GPU shaded it 109, 68, 29; the shadow cube,
+    the contact shadows and the global illumination each off left the specks, and the light a third
+    of a block under the eye made the frame clean, so the fault is in the engine's shading of a
+    point light whose point is the camera's, a value undefined where the light's vector and the
+    view's coincide or the light's point in view space is the origin, as item 90's normal was. The
+    cause read on lavapipe with the validation layer, the mend a guard at the degenerate value as
+    item 90's, and a test in the Linux suite lighting a bounce room by a point light at the camera's
+    own point and reading the frame for black pixels, red before the mend. One commit, after item
+    95.
+
+98. **The scene pass at HEAD costs what 5.2.215's does, the probes' info read in place.** From the
+    coder's reading of 2026-10-24, read at 12:32, before the pack run. HEAD draws the voxel game's
+    grove at 1920 by 1080 with the scene pass at 66 ms at High where 5.2.215 takes 11, both 4.4 with
+    global illumination off, the game built from its own source against the engine's project; the
+    world probes' read cut out takes it to 20. The cause is in `00968660`, item 72's far cascade,
+    where `probesOf` copies the scene field's info and writes `cascades[probes - 1]` at a place
+    known only at run time, so each copy lives in the thread's local memory, and the model pass
+    makes several a fragment (bounced, bouncedAt, bouncedHold, skyAt, screenHold). The mend keeps
+    the far cascade's place in the info's unused eye.w and reads every probes' cascade through
+    `cascadeAt` with no copy; the grove's scene pass timed before and after at 1920 by 1080 at High
+    and said in the commit, the bounce rooms' readings unchanged, and item 96's own reading then
+    starts from the mended cost. One commit, after Verdict 87's, before the pack run; the package
+    after 5.2.215 waits for it.
+
 ## Verdicts
 
-Verdicts 56 to 86 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+87. **The Linux suite is red at `b888b242` on the viewport test, the X11 ask replacing the driver it
+    named.** Read at 12:23 on 2026-10-24 from the build run and the pack run of `b888b242`, both red
+    on Linux at 11:46 with 2,014 passed and one failed,
+    `ImGuiViewportTests.A_Window_Placed_Outside_The_Main_One_Gets_A_Window_And_A_Swapchain_Closed_When_It_Comes_Back`,
+    SDL's start failing with "No available video device" and N 3.7 counting the three errors logged;
+    macOS green, Windows in flight, the pack job packing nothing since it needs the build. The test
+    names SDL's offscreen driver through the hint before it starts the app, and `StartVideo` on
+    Linux sets the hint to x11 over it, which starts on no display on the runner, then resets the
+    hint on the fall back, so no driver is named and SDL finds no device; on the machine X11 starts
+    and the test passes. The mend is the ask yielding to a driver already named through the hint as
+    it yields to `SDL_VIDEO_DRIVER`, the hint read before it is set, and the fall back restoring
+    what was named rather than resetting it; `StartVideo`'s test gets the named-driver case and the
+    viewport test stays as it is. One commit, before item 96's reading; pushed with `b5741f88` and
+    item 98's commit, a pack run started after them. Mended at `?`.
+
+Verdict 87 is open. Verdicts 56 to 86 are settled, said under each in REVIEW-ARCHIVE.md.
 
 ## Decisions
 

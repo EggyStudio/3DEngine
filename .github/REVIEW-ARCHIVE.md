@@ -3277,6 +3277,57 @@ batch.
     where no other glow light was, and the one cause stands; no second commit. Item 90 done, pushed
     at 11:15, settling with the package in the game.
 
+94. **A cave under the ground sees no sun on its blocks' tops.** The owner played the voxel game at
+    about 10:5x on 2026-10-24 and saw the sun's light leaking onto the tops of blocks in caves. Two
+    paths can leak it and the reading says which. The sun's cascades are fitted to the sphere about
+    each view's slice, and a cave's view holds no ground above it, so if the map's depth range is
+    cut to the sphere the ground over the cave is never drawn into the map and the sun reaches the
+    cave as if through air; the mend there is the casters above the slice kept, the light's near
+    plane pushed to the scene's bound toward the sun or the casters clamped to it with the device's
+    depth clamp, which the fill cascade of item 72 may need too. The other path is the field's top,
+    a probe's ray leaving the counted cascades upward counting as sky, which lights tops from above;
+    item 72's far cascade answers it where a program sets one, and the game sets it with the
+    package. Read first in the game's build at a cave of the owner's kind, the tops' light with the
+    shadows off and on and with global illumination off and on, the game's session sending its
+    numbers, then mend the map's range where it is the sun's; a test of a room under a slab of stone
+    ten units thick with the sun high, the floor and the tops of blocks in it reading no more than
+    the lamp-less dark with the shadows on at every cascade count, failing without the mend; the
+    covered-fault rule where the field is touched. One commit, after item 90's second reading and
+    before item 92. The owner added at 10:51 that the sun shows in the cave at a distance, an
+    opening far off the likely way; past the shadow distance of 150 nothing casts a shadow on
+    5.2.215, which item 72's fill cascade mends in the next package, so the reading tells the far
+    parts, the fill's, from the near, this item's. The owner added at 10:54 that in black caves
+    where light shines through, beside the big leak at the game's eight-texel grid, lines one pixel
+    wide with stair-stepped edges show; so the reading takes a capture of them at the eye's size and
+    says where they lie, along the blocks' edges as the map's bias letting a face's top row through,
+    along a shadow's boundary as a cascade's texel steps, or along a cascade's seam, and the mend
+    covers them by that cause, with the capture before and after. The game's reading at 10:59, a
+    cave floor 73 blocks under the ground on seed 1 at noon with the screen probes off. Near the eye
+    nothing leaks, the floor 0.0 with the shadows at 96 and global illumination at High; at 45 to 50
+    blocks the deepslate tops read 34, 28, 20 with the shadows at 96 and the same at 150, 0 at
+    midnight and 0 with the shadow distance at 1 where the contact shadows take them, so the sun's
+    map lets them through within its distance, the ground 70 blocks above them outside the cascade's
+    depth; at 74 to 102 blocks the stone tops read 18 to 22 at 96 and 9 to 18 at 150, the part that
+    goes with the distance the sun past the map, item 72's fill, and the bluish rest the field's top
+    as sky, the far cascade's; the one-pixel lines lie at 45 to 50 blocks along the blocks' edges,
+    short runs on the tops and one-pixel runs down the side edges, the same with global illumination
+    off and gone at midnight and at a shadow distance of 1, so the map letting a face's edge rows
+    through, not a seam. The captures are in the game session's scratchpad under
+    cv-<hour>-<gi>-<shadows>.png and lines-eye-size.png. So this item's mend is two things of the
+    map, the casters above the view's slice kept and the edge rows closed, the receiver's bias or
+    the filter's taps at a face's edge read against the map's texels, and the rest is item 72's in
+    the package with the game setting the far cascade. Read by the coder at 11:26: the near leak is
+    item 83's, mended at `d980d237` where casters before a cascade's near plane are drawn onto it
+    through the device's depth clamp and the light's cull no longer clips the near plane, which
+    5.2.215, packed from `d3473746`, predates; its scene, blocks under a roof ten units thick with
+    the camera inside, reads 255 on the near tops and 210 on the floor before that commit with the
+    roof 70 up and 0 everywhere at HEAD, the one-pixel lines inside that leak and gone at HEAD too;
+    the far part is item 72's fill in the same package. So no new mend, the test alone committed,
+    ModelShadowTests' cave under ten units of stone seventy up, and the game reads its cave and the
+    edge lines again on the new package, any edge line left there this item's second part. The test
+    at `b5741f88` on 2026-10-24; item 94 done, the game's cave read again on the package, any edge
+    line left a second part.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
