@@ -358,13 +358,14 @@ guide that shows it, as far as the surface had come before it began to change wi
   the coordinate that stage gives, where it cast the whole of its mesh before, and a fragment stage
   named `shadowMain` cuts the shadow as the program likes, as
   [Moving vertices](shaders-and-compute.md#moving-vertices) shows.
-- **A screenshot on F2, and the performance window on F3.** F2 writes the frame being drawn into a
-  `screenshots` folder beside the program in every program, `SetScreenshotKey` moving it or turning
-  it off, and the engine's performance window moves from F2 to F3, which `SetProfileWindowKey`
-  moves or turns off, as
-  [Without a window on the screen](window-and-frame.md#without-a-window-on-the-screen) shows. A game
-  that read F2 or F3 for something of its own still reads them, and moves the engine's off where
-  both would act.
+- **A screenshot on F2, the debug overlay on F3 and the interface hidden on F1.** F2 writes the
+  frame being drawn into a `screenshots` folder beside the program in every program,
+  `SetScreenshotKey` moving it or turning it off. F3 shows the engine's debug overlay in place of
+  the performance window, `SetDebugOverlayKey` moving it or turning it off where
+  `SetProfileWindowKey` did, and F1 hides the interface a program draws between `BeginUi` and
+  `EndUi`, which `SetUiHiddenKey` moves or turns off, as
+  [The debug keys](window-and-frame.md#the-debug-keys) shows. A game that read F1, F2 or F3 for
+  something of its own still reads them, and moves the engine's off where both would act.
 - **A run recorded as an animation.** `StartRecording` records the window as an animated GIF or an
   animated PNG, a picture at a step of the app's clock until `StopRecording`, and the `record`
   command records for a length, as

@@ -10,25 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `98cf2ded`, Verdict 86's mend, and nothing else, carrying the review's file,
-DEVLOG.md and the sixteen readings: build/test.py's --split PART=N runs a part in N processes, its
-classes dealt by name and a lost run's rerun mapped to its half, and the Windows job's call takes
---split Rendering=2 with the reason; on the 4070 through the new path Rendering 1 passed 207 in 2
-minutes 56 seconds and Rendering 2 307 in 4 minutes 19, the suite 2,068 of 2,068 with none without a
-result, plain and shuffled the same. Read at 09:46 on 2026-10-24. Pushed at 09:56 after the build
-run of `e15cb271` ended, Linux, macOS and the examples green and Windows red at the part's limit
-again with 384 passed; the run watched, the verdict settling on its two halves. Next item 90, then
-92, the window under X11 on Linux, then 93, the colons out of the documents, then 91, DESIGN.md's
-words on the loop and the ECS, then the glow light's non-number and the history's guard, then item
-89, the plant walls' acne. The branch `modeling` was deleted at 07:23 with its items all on main, N
-7.5; the cloud sessions stand by.
+Reviewed up to `d52d1781`, item 90, the glow light's non-number mended at its source and guarded,
+and nothing else, carrying the review's files, DEVLOG.md and ASKS.md as the game's session recast
+it. The normal from the depth's two steps faces the eye where their cross has no length or more than
+a float holds, in the glow pass's texel normal and the screen pass's probe and glow normals; the
+probes' spatial blend and the frame before skip a non-finite light and write one as none, the glow
+pass the same for its fainter lights and its frame before; a test hook letting the logged probe
+write a non-number; two tests failing without the mend, the desert scene 10,000 from the origin
+reading no more black than at the origin where 26,043 against 6,571 before, and a probe fed a
+non-number leaving the light it blends into finite; the covered-fault rule held at both sizes, the
+GPU within 0.1 ms; RENDERING.md's paragraph giving the cause and the spread in full and TODO.md the
+later effect, the owner's word; 2,070 passed plain and shuffled, 94 on lavapipe with the layer. Read
+at 10:39 on 2026-10-24. Not pushed, the build run of `98cf2ded` running; pushed when it ends, and a
+pack run follows once the split's Windows is green so the game takes it with items 72 and 74. Next
+the upgrading page's line, then item 92, the window under X11 on Linux, then 93, the colons out of
+the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
+and the history's guard, then item 89, the plant walls' acne. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+
+Before it, `98cf2ded` came, Verdict 86's mend, the Rendering part split in two for Windows, pushed
+at 09:56 on 2026-10-24, its run in flight.
 
 Before it, `e15cb271` came, the devlog's move, pushed at 08:28 on 2026-10-24, its run green but for
 Windows, Verdict 86's limit again.
-
-Before it, `522c662a` came, Ore's picture, with the eight of items 74, 72 and 71's close from
-`4c629a7c`, pushed at 06:59 on 2026-10-24, their run green but for Windows, Verdict 86's limit
-again.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1076,7 +1080,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     texel's light into its neighbors frame by frame until the land is black, and TODO.md gains a
     line for a later effect that reproduces the spread on purpose under a program's call. Corrected
     by the coder at 10:3x, the cause is one, the degenerate normal; the marks taken for a rough
-    light's non-number were the desert's sunlit sand under its color test.
+    light's non-number were the desert's sunlit sand under its color test. Done at `d52d1781` on
+    2026-10-24, held for the push; the game turns its screen probes on again by the owner's eye when
+    the package comes.
 
 91. **DESIGN.md says the loop and the ECS are both the engine's way, each where it fits, with the
     voxel game as the model (Decision 68).** DESIGN.md's opening and its fifth section say the ECS
