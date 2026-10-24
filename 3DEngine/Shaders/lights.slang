@@ -416,14 +416,14 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
 // its outer band (CascadeBand in gi.slang).
 public float screenHold(float3 p, float3 n)
 {
-    return probesHold(probesOf(bouncedField, int(lighting.indirect.w)), p, n, lighting.indirect.y, min(1, int(lighting.indirect.w) - 1));
+    return probesHold(bouncedField, p, n, lighting.indirect.y, min(1, int(lighting.indirect.w) - 1), int(lighting.indirect.w));
 }
 
 // The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes
 // around it as gi.slang blends them, or -1 where no cascade of probes holds p.
 public float3 bounced(float3 p, float3 n)
 {
-    int c = fieldCascade(probesOf(bouncedField, int(lighting.indirect.w)), p, 1.0);
+    int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
     return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
@@ -442,14 +442,13 @@ public float3 bounced(float3 p, float3 n)
 public float3 bouncedSeen(float3 p, float3 n)
 {
     int cascades = int(lighting.indirect.w);
-    SceneFieldInfo probed = probesOf(bouncedField, cascades);
-    int c = fieldCascade(probed, p, 1.0);
+    int c = fieldCascade(bouncedField, p, 1.0, cascades);
     if (c < 0 || c >= cascades)
         return float3(-1.0);
     // Faded to the next cascade across this one's outer band, as bouncedAt fades, since read from
     // one cascade alone a far floor that no screen probe like it holds stepped by 10% where the
     // third cascade ended (CascadeEdgeTests).
-    float own = c + 1 < cascades && cascadeAt(probed, c + 1).w > 0.0 ? cascadeHold(probed, c, p) : 1.0;
+    float own = c + 1 < cascades && cascadeAt(bouncedField, c + 1, cascades).w > 0.0 ? cascadeHold(bouncedField, c, p, cascades) : 1.0;
     float3 light = float3(0.0);
     [loop]
     for (int k = 0; k < 2; k++)
@@ -457,8 +456,8 @@ public float3 bouncedSeen(float3 p, float3 n)
         float share = k == 0 ? own : 1.0 - own;
         if (share <= 0.0)
             continue;
-        float4 seen = bouncedSeenSum(SplitVolume(reflectField, lightLinear), bouncedField, probed, SplitVolume(bouncedLight, lightNearest), p, n,
-            lighting.indirect.z, lighting.indirect.y, c + k);
+        float4 seen = bouncedSeenSum(SplitVolume(reflectField, lightLinear), bouncedField, bouncedField, SplitVolume(bouncedLight, lightNearest), p, n,
+            lighting.indirect.z, lighting.indirect.y, c + k, cascades);
         if (seen.w <= 1e-5)
             return bounced(p, n);
         light += seen.rgb / seen.w * share;

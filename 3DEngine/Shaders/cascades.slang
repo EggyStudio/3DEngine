@@ -1,5 +1,5 @@
 // Where a point lies in the cascades of the world's probes, which stand in the field's cascades of
-// the same number but the far one's (probesOf), and how much of the light from all around them the
+// the same number but the far one's (cascadeAt), and how much of the light from all around them the
 // probes give it across each one's outer band (gi.slang, the model pass).
 module cascades;
 
@@ -27,10 +27,10 @@ public static const float CascadeBand = 8.0;
 // How much of the indirect light a point p takes from cascade c rather than the next, all of it
 // inside, falling to none across c's outer band (CascadeBand), kept clear of the eye
 // (bandHold), past the cell fieldCascade keeps.
-public float cascadeHold(SceneFieldInfo info, int c, float3 p)
+public float cascadeHold(SceneFieldInfo info, int c, float3 p, int probes = 0)
 {
-    float4 oc = cascadeAt(info, c);
-    return bandHold(info, c, (p - oc.xyz) / oc.w, CascadeBand, 1.0);
+    float4 oc = cascadeAt(info, c, probes);
+    return bandHold(info, c, (p - oc.xyz) / oc.w, CascadeBand, 1.0, probes);
 }
 
 // How much of the light from all around a surface at p facing n the probes of the cascades up to
@@ -44,20 +44,20 @@ public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 // in the voxel game's cave. Read from cascade `upTo` whether built or not, a closed room's floor in the
 // frames before its last cascade was built took the ambient light unhidden in the place of global
 // illumination, 9.4 times the light it settles at.
-public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, int upTo)
+public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, int upTo, int probes = 0)
 {
-    int c = fieldCoarsestBuilt(info, upTo);
+    int c = fieldCoarsestBuilt(info, upTo, probes);
     if (c < 0)
         return 0.0;
-    float4 oc = cascadeAt(info, c);
+    float4 oc = cascadeAt(info, c, probes);
     float3 cell = (p - oc.xyz) / oc.w;
-    return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0), bandHold(info, c, cell, CascadeBand, 0.0));
+    return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0, probes), bandHold(info, c, cell, CascadeBand, 0.0, probes));
 }
 
 // How much of the light from all around a surface at p facing n the probes give rather than what
 // lies past them, a sky over a ground (distantAround in lights), through as many cascades as
-// `cascades` (probesHold), the probes found where the field's cascades they stand in lie (probesOf).
+// `cascades` (probesHold), the probes found where the field's cascades they stand in lie (cascadeAt).
 public float bouncedHold(SceneFieldInfo info, float3 p, float3 n, float spacing, float cascades)
 {
-    return probesHold(probesOf(info, int(cascades)), p, n, spacing, int(cascades) - 1);
+    return probesHold(info, p, n, spacing, int(cascades) - 1, int(cascades));
 }

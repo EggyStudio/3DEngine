@@ -580,7 +580,7 @@ buffer's counts give its place in their fourth component, and nine cascades fit.
 built and stamped as the others are, under the cascades' and the triangles' budgets, the finest
 first. Global illumination gives it a cascade of probes after those the quality traces, as many
 directions as the cascade before it, standing in it where each other stands in the field's cascade
-of its number (`probesOf` in `scenefield.slang`, `SceneFieldPlan.CascadeOfProbes`), so at `Low` with
+of its number (`cascadeAt` in `scenefield.slang`, `SceneFieldPlan.CascadeOfProbes`), so at `Low` with
 four counted cascades its probes follow the second's. Its interval begins half way along the one
 before's and ends at the far cascade's diagonal, so the cascade before it ends at four times its
 spacing and its rays that meet nothing take the far probes' light where they took the sky. A probe

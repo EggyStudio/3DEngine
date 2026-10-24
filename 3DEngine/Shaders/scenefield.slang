@@ -54,8 +54,7 @@ public struct SceneFieldInfo
     public float4 counts;
     public FieldCascade cascades[9];
     // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
-    // (bandHold). w: in probesOf's info, the far cascade's place, where its last cascade is read
-    // from (cascadeAt), or 0.
+    // (bandHold). w: unused.
     public float4 eye;
 };
 
@@ -65,32 +64,26 @@ public bool fieldOn(SceneFieldInfo info)
     return info.counts.x > 0.5;
 }
 
-// Cascade c's corner and the width of its cell, or in probesOf's info the far cascade's for its last
-// cascade where the field has one.
-public float4 cascadeAt(SceneFieldInfo info, int c)
+// Cascade c's corner and the width of its cell among the field's cascades, or where `probes` is more
+// than 0 among those the world's `probes` cascades of probes stand in, the field's own in order but
+// for the last, which stands in the far cascade where the field has one, so a cascade of probes lies
+// where its cascade does and the probes holding a point are found as the field's cascades holding it
+// are (cascadesOf). The probes' reads take the info as the uniform holds it with the count beside
+// it, since an info made from it for the probes, its last cascade written over, was copied into
+// each thread's own memory to be indexed and read from there, several copies a pixel in the model
+// pass, which drew the voxel game's cherry grove at 1920 by 1080 in 66 ms on the development
+// machine's GPU, 20 with the cascades written over no more, and 10 with no info made at all.
+public float4 cascadeAt(SceneFieldInfo info, int c, int probes = 0)
 {
-    int far = int(info.eye.w);
-    return info.cascades[far > 0 && c == int(info.counts.x) - 1 ? far : c].originAndCell;
+    int far = int(info.counts.w);
+    return info.cascades[probes > 0 && far > 0 && c == probes - 1 ? far : c].originAndCell;
 }
 
-// The field's cascades the world's `probes` cascades of probes stand in, the field's own in order
-// but for the last, which stands in the far cascade where the field has one, so a cascade of probes
-// lies where its cascade does and the probes holding a point are found as the field's cascades
-// holding it are. The probes are read through it and the field's distances through the field's own
-// info, since past the cascades of probes it holds neither the field's count nor its places in the
-// texture. The far cascade's place is kept for cascadeAt to read the last from, the cascades left
-// as they are, since a copy of them with the last written over, at a place known only as the shader
-// ran, was kept in each thread's own memory and read from there, and the model pass, which takes
-// several such copies a pixel, drew the voxel game's cherry grove at 1920 by 1080 in 66 ms on the
-// development machine's GPU, and in 20 with the cascades read in place.
-public SceneFieldInfo probesOf(SceneFieldInfo info, int probes)
+// How many of the field's cascades a point is looked for in, or of those the world's `probes`
+// cascades of probes stand in where `probes` is more than 0 (cascadeAt).
+public int cascadesOf(SceneFieldInfo info, int probes = 0)
 {
-    SceneFieldInfo probed = info;
-    int far = int(info.counts.w);
-    probed.eye.w = far > 0 && probes > 0 && probes <= int(info.counts.x) ? float(far) : 0.0;
-    probed.counts.x = float(min(probes, int(info.counts.x)));
-    probed.counts.w = 0.0;
-    return probed;
+    return probes > 0 ? min(probes, int(info.counts.x)) : int(info.counts.x);
 }
 
 // The cells of the field's last cascade's outer band, across which a pass that reads the field's
@@ -111,9 +104,9 @@ public static const float EyeClear = 6.0;
 // wherever the band reached them, by the heading as the cascades turned with the eye, up to 0.14 of
 // the open floor's light at half the headings, and with the band kept clear of the eye under 0.0004
 // at every one (CascadeEdgeTests).
-public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin)
+public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin, int probes = 0)
 {
-    float4 oc = cascadeAt(info, c);
+    float4 oc = cascadeAt(info, c, probes);
     float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
     float3 low = clamp(eye - margin - EyeClear, 0.0, band);
     float3 high = clamp(info.counts.y - eye - margin - EyeClear, 0.0, band);
@@ -140,23 +133,23 @@ public float fieldHold(SceneFieldInfo info, float3 p)
 // The coarsest built cascade no coarser than `upTo`, or -1 where none is built, as in an app's
 // first frames, where the field builds its cascades finest first as many a frame as its budget
 // allows.
-public int fieldCoarsestBuilt(SceneFieldInfo info, int upTo)
+public int fieldCoarsestBuilt(SceneFieldInfo info, int upTo, int probes = 0)
 {
     [loop]
-    for (int i = min(upTo, int(info.counts.x) - 1); i >= 0; i--)
-        if (cascadeAt(info, i).w > 0.0)
+    for (int i = min(upTo, cascadesOf(info, probes) - 1); i >= 0; i--)
+        if (cascadeAt(info, i, probes).w > 0.0)
             return i;
     return -1;
 }
 
 // The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none.
-public int fieldCascade(SceneFieldInfo info, float3 p, float margin)
+public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
-    int count = int(info.counts.x);
+    int count = cascadesOf(info, probes);
     float size = info.counts.y;
     for (int i = 0; i < count; i++)
     {
-        float4 oc = cascadeAt(info, i);
+        float4 oc = cascadeAt(info, i, probes);
         if (oc.w <= 0.0)
             continue;
         float3 cell = (p - oc.xyz) / oc.w;

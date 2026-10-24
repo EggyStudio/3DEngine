@@ -114,13 +114,12 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     uint c = push.cascade.x;
     uint upper = push.cascade.w;
     // The probes where the field's cascades they stand in lie, the far one's for the last.
-    SceneFieldInfo probed = probesOf(fieldInfo, int(push.counts.x));
-    float4 oc = cascadeAt(probed, c);
+    float4 oc = cascadeAt(fieldInfo, c, int(push.counts.x));
     float3 spot = oc.xyz + (float3(at) + 0.5) * (oc.w * push.spacing.x);
     float4 here = probe < probes * probes * probes ? placeOf(int3(at), c, probes) : float4(0.0);
     float3 origin = spot + here.xyz * (oc.w * push.spacing.x);
     uint upperCascade = min(c + 1u, push.counts.x - 1u);
-    float4 ac = cascadeAt(probed, upperCascade);
+    float4 ac = cascadeAt(fieldInfo, upperCascade, int(push.counts.x));
     float3 q = (spot - ac.xyz) / (ac.w * push.spacing.x) - 0.5;
     int3 base = int3(floor(q));
 

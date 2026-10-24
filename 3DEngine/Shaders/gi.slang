@@ -412,21 +412,20 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 // probes that holds it, fading to the next cascade's across its outer band (cascadeHold) where that
 // one is built, or none where no cascade of probes holds p. The two cascades are read in a loop
 // kept from unrolling, so a shader holds one read of a cascade. The probes are found where the
-// field's cascades they stand in lie (probesOf).
-public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo field, float3 p, float3 n, float probes, float spacing, float cascades)
+// field's cascades they stand in lie (cascadeAt).
+public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
-    SceneFieldInfo info = probesOf(field, int(cascades));
-    int c = fieldCascade(info, p, 1.0);
+    int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1).w > 0.0 ? cascadeHold(info, c, p) : 1.0;
+    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1, int(cascades)).w > 0.0 ? cascadeHold(info, c, p, int(cascades)) : 1.0;
     float3 light = float3(0.0);
     [loop]
     for (int k = 0; k < 2; k++)
     {
         float share = k == 0 ? own : 1.0 - own;
         if (share > 0.0)
-            light += bouncedIn(cubes, reach, info, p, n, probes, spacing, c + k) * share;
+            light += bouncedIn(cubes, reach, info, p, n, probes, spacing, c + k, int(cascades)) * share;
     }
     return light;
 }
@@ -439,9 +438,9 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo field, flo
 // nothing a pixel left with one or two probes around it seen took their light alone and a Cornell
 // box showed a notch beside its tall block, and a surface that sees none of them, as one wedged
 // between two meshes may, blends them by that twentieth, so it is not left dark.
-float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c)
+float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c, int cascades)
 {
-    float4 oc = cascadeAt(info, c);
+    float4 oc = cascadeAt(info, c, cascades);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
@@ -477,13 +476,12 @@ float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, f
 // the sky by (gi_ambient.slang), blended between the eight probes around it as bouncedAt blends
 // their light, the three faces r looks toward weighed by the square of r along each, or the whole
 // sky where no cascade of probes holds p.
-public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo field, float3 p, float3 n, float3 r, float probes, float spacing, float cascades)
+public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, float cascades)
 {
-    SceneFieldInfo info = probesOf(field, int(cascades));
-    int c = fieldCascade(info, p, 1.0);
+    int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return 1.0;
-    float4 oc = cascadeAt(info, c);
+    float4 oc = cascadeAt(info, c, int(cascades));
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
@@ -524,24 +522,23 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo field,
 // probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
 // bouncedAt. The faces are read where the probes stood as gathered says, the frame before's corners
 // for the world's probes' rays, and the field marched as info has it.
-public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gatheredField, V cubes, float3 p, float3 n, float probes, float spacing,
+public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
     float cascades)
 {
-    SceneFieldInfo gathered = probesOf(gatheredField, int(cascades));
-    int c = fieldCascade(gathered, p, 1.0);
+    int c = fieldCascade(gathered, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float4 seen = bouncedSeenSum(field, info, gathered, cubes, p, n, probes, spacing, c);
+    float4 seen = bouncedSeenSum(field, info, gathered, cubes, p, n, probes, spacing, c, int(cascades));
     return seen.w > 1e-5 ? seen.rgb / seen.w : float3(0.0);
 }
 
 // The sum bouncedSeenAt divides for cascade c, the light of the probes seen times their weights,
 // and the weights, which a reader that takes another light where no probe is seen, or blends two
-// cascades, tells apart from dark. gathered places the probes as probesOf does.
+// cascades, tells apart from dark. gathered places the `cascades` cascades of probes (cascadeAt).
 public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
-    int c)
+    int c, int cascades)
 {
-    float4 oc = cascadeAt(gathered, c);
+    float4 oc = cascadeAt(gathered, c, cascades);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);

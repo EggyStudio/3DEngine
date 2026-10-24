@@ -306,7 +306,7 @@ internal sealed partial class SceneFieldPlan
     /// <summary>
     /// The cascade the probes of cascade <paramref name="probes"/> of <paramref name="cascades"/>
     /// stand in, its own number but for the last, which stands in the far cascade where there is one,
-    /// as <c>scenefield.slang</c>'s <c>probesOf</c> has it.
+    /// as <c>scenefield.slang</c>'s <c>cascadeAt</c> has it.
     /// </summary>
     public int CascadeOfProbes(int probes, int cascades) => HasFar && probes == cascades - 1 ? Cascades - 1 : probes;
 

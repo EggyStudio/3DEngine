@@ -3343,6 +3343,21 @@ batch.
     after 5.2.215 waits for it. Done at `391bbfd7` on 2026-10-24, the scene pass 20 ms where 66
     stood, the far cascade's place in eye.w and no copy; the gap to the package's 11 in item 96.
 
+99. **A program places the shadow light's shadow read within `litLight`, so a stepped shadow costs
+    one read.** From the voxel game's ASKS.md entry of 2026-10-24, read at 12:52. The game's terrain
+    shader steps the sun's shadow along an eight by eight grid on each face by taking `litLight` and
+    replacing its sun's share with the sun's light read at the step's middle, so it reads the shadow
+    three times a pixel, inside `litLight`, at the point to take that share out, and at the step; at
+    1920 by 1080 on the cherry grove the stepping costs the scene pass about 1.6 ms of 12.5. The
+    engine gives `litLight` a way to take the shadow light's shadow from the caller, a parameter
+    holding the shadow's share read at a point of the program's choosing, or an overload leaving the
+    shadow light out so the caller adds it, whichever keeps `litLight`'s own callers unchanged; the
+    guide's page on lighting shows the stepped read in a few lines, and a test in the Linux suite
+    lighting a plane through the parameter at a shifted point against the plain read. One commit,
+    small, after item 98 and before 96; the game then reads the shadow once with the package. Done
+    at `e2a203d9` on 2026-10-24, litLight taking the caller's shadow and its held share, the guide
+    showing the stepped read.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -4593,3 +4608,22 @@ at `36cae0c2`.
     commit. Mended at `98cf2ded` on 2026-10-24, held for the push; settles when its run's Windows is
     green with the two halves. Settled by the run of `98cf2ded`, green whole at 11:11 on 2026-10-24,
     Windows passing 2,005 in 65 minutes 22 seconds with the halves of 207 and 307 tests.
+
+87. **The Linux suite is red at `b888b242` on the viewport test, the X11 ask replacing the driver it
+    named.** Read at 12:23 on 2026-10-24 from the build run and the pack run of `b888b242`, both red
+    on Linux at 11:46 with 2,014 passed and one failed,
+    `ImGuiViewportTests.A_Window_Placed_Outside_The_Main_One_Gets_A_Window_And_A_Swapchain_Closed_When_It_Comes_Back`,
+    SDL's start failing with "No available video device" and N 3.7 counting the three errors logged;
+    macOS green, Windows in flight, the pack job packing nothing since it needs the build. The test
+    names SDL's offscreen driver through the hint before it starts the app, and `StartVideo` on
+    Linux sets the hint to x11 over it, which starts on no display on the runner, then resets the
+    hint on the fall back, so no driver is named and SDL finds no device; on the machine X11 starts
+    and the test passes. The mend is the ask yielding to a driver already named through the hint as
+    it yields to `SDL_VIDEO_DRIVER`, the hint read before it is set, and the fall back restoring
+    what was named rather than resetting it; `StartVideo`'s test gets the named-driver case and the
+    viewport test stays as it is. One commit, before item 96's reading; pushed with `b5741f88` and
+    item 98's commit, a pack run started after them. Mended at `ea74b21d`, read at 13:14, the ask
+    yielding to a driver named already through the hint or the environment, started on as named with
+    no fall back, the named case in `StartVideo`'s test; pushed at 14:08 with item 98's commit.
+    Settled at 15:18 on 2026-10-24, the Linux suite green on the build run and the pack run of
+    `391bbfd7`.

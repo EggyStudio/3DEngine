@@ -10,39 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `391bbfd7`, item 98, read at 14:08 on 2026-10-24, carrying REVIEW.md and ASKS.md.
-`probesOf` keeps the far cascade's place in the info's eye.w and every probes' read goes through
-`cascadeAt` with no copy, the trace's gatheredAt writing the frame before's corner into the far
-cascade's slot as well; the grove at 1920 by 1080 at High, the game built against the engine's
-project, reads the scene pass 60 to 72 ms before and 19.9 to 21.8 after, the same as a control
-returning the info unchanged, global illumination off 4.2 to 5.4 either way; a far cascade scene at
-640 by 360 renders frames and probes' faces bit-identical before and after, so the bounce rooms
-cannot move; 2,074 plain and shuffled, the strict build clean, on lavapipe with validation 88 passed
-and 12 skipped. The mended 20 ms stands at about twice the package's 11 at the same view, which item
-96's reading takes on over the mended shaders, the ground read of `fbb0bf89` and the fill cascade
-among its parts. Pushed at 14:08 with `ea74b21d` and `b5741f88`, the run watched, and a pack run
-started at 14:08 for the package after 5.2.215. After `ea74b21d`, Verdict 87's mend, read at 13:14
-on 2026-10-24, carrying the review's files and the game's ASKS.md entry on the shadow read.
-`StartVideo` takes the driver named already through the hint or `SDL_VIDEO_DRIVER` and starts on it
-with nothing asked and no fall back, X11 asked only where none is named; the test's new case keeps a
-named offscreen driver as it is and does not clear a named wayland that fails to start, and the
-viewport test passes with and without a display. After `b5741f88`, item 94's test alone, a cave
-under ten units of stone seventy up taking no sun on its floor or its blocks' tops, passing at HEAD
-and reading the leak before item 83's mend, with the review's files and the game's ASKS.md entry
-carried; 2,073 passed plain and shuffled, the test on lavapipe with the layer. Read at 11:47 on
-2026-10-24. Not pushed; the build run and the pack run of `b888b242` went red on Linux at 11:46 on
-one test, Verdict 87, the build run ending at 12:51 with Windows green in 96 minutes and macOS in
-31, the pack run ending at 13:57 with its Windows job green in 161 minutes and macOS in 55 and
-packing nothing, so both went with item 98's commit. Item 96 begins with a reading on the game's
-5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn
-to tell what runs per fragment from the variant's registers, the window's depth at half size and the
-scene pass shading with overdraw pointing at a half-size pass over the window's depth with a two by
-two depth and normal read, as the glow pass has. Next 99, litLight's shadow read at the caller's
-point, then 96, the scene pass's read of the cascades, then 100, the field's foliage share, then 93,
-the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
-light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
-acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `e2a203d9`, item 99, read at 14:59 on 2026-10-24, carrying the review's files and
+ASKS.md. `litLight(albedo, input, shadow = -1, shadowHeld = 0)` takes a caller's read in place of
+the one at the point, the existing callers unchanged; the test draws a floor through a shader
+handing over lightReaching at the point moved by a shift, pixel-identical to litLight's own read
+with no shift and the shadow one unit back with one; the guide's page on a shader for a model shows
+the stepped read and its block compiles. 2,075 plain and shuffled, lavapipe with validation 22
+passed. Pushed at 15:26 on 2026-10-24 after the build run of `391bbfd7` went green whole, the run
+watched; a second pack run follows item 96's first mend, since the running pack run packs item 98's
+20 ms. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
+1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 96, the scene pass's read of the cascades, then 100, the field's foliage share,
+then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then
+the glow light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant
+walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted
+at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+
+Before it, `391bbfd7` came, item 98, with `ea74b21d`, Verdict 87's mend, and `b5741f88`, item 94's
+test, pushed at 14:08 on 2026-10-24, its build run green whole at 15:24, Windows in 76 minutes,
+Linux in 58 and macOS in 29, its pack run in flight for the package after 5.2.215.
 
 Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
 their run and the pack run red on Linux alone on one test, Verdict 87, the pack run packing nothing.
@@ -1122,7 +1110,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     screen-sized image the pass samples; the readings of the bounce rooms against their references
     under the covered-fault rule at both sizes, the game's two views read on the device before and
     after, and the quality tiers' costs on the Cornell box in the guide changed. One or two commits,
-    after item 94.
+    after item 94. The reading at 14:59 on item 98's shaders, the grove at 1920 by 1080 at High, the
+    scene pass 18.4 ms and 4.0 with global illumination off, the world probes' read and the sky's
+    share 7.3 units of the depth's time against 1.8 in 5.2.215, the glow lights 1, the ground read
+    and the trace nothing; the cause in the SPIR-V, any SceneFieldInfo made by probesOf copied whole
+    into thread memory to be indexed, 22 FieldCascade[9] locals in the model pass and 47 in
+    gi_screen against none in the package. The first mend, written, makes no info, cascadeAt(info,
+    c, probes) and the cascade lookups taking the uniform info and the probes' count, the model
+    pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; timed
+    and read for exactness next.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry to come. The game moved its
@@ -1136,19 +1132,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     item 90's, and a test in the Linux suite lighting a bounce room by a point light at the camera's
     own point and reading the frame for black pixels, red before the mend. One commit, after item
     95.
-
-99. **A program places the shadow light's shadow read within `litLight`, so a stepped shadow costs
-    one read.** From the voxel game's ASKS.md entry of 2026-10-24, read at 12:52. The game's terrain
-    shader steps the sun's shadow along an eight by eight grid on each face by taking `litLight` and
-    replacing its sun's share with the sun's light read at the step's middle, so it reads the shadow
-    three times a pixel, inside `litLight`, at the point to take that share out, and at the step; at
-    1920 by 1080 on the cherry grove the stepping costs the scene pass about 1.6 ms of 12.5. The
-    engine gives `litLight` a way to take the shadow light's shadow from the caller, a parameter
-    holding the shadow's share read at a point of the program's choosing, or an overload leaving the
-    shadow light out so the caller adds it, whichever keeps `litLight`'s own callers unchanged; the
-    guide's page on lighting shows the stepped read in a few lines, and a test in the Linux suite
-    lighting a plane through the parameter at a shifted point against the plain read. One commit,
-    small, after item 98 and before 96; the game then reads the shadow once with the package.
 
 100. **The field lets a share of light through a cell marked as foliage.** From the voxel game's
     reading of 2026-10-24, read at 14:02, its ASKS.md entry of 2026-10-24 carrying the table of its
@@ -1166,25 +1149,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-87. **The Linux suite is red at `b888b242` on the viewport test, the X11 ask replacing the driver it
-    named.** Read at 12:23 on 2026-10-24 from the build run and the pack run of `b888b242`, both red
-    on Linux at 11:46 with 2,014 passed and one failed,
-    `ImGuiViewportTests.A_Window_Placed_Outside_The_Main_One_Gets_A_Window_And_A_Swapchain_Closed_When_It_Comes_Back`,
-    SDL's start failing with "No available video device" and N 3.7 counting the three errors logged;
-    macOS green, Windows in flight, the pack job packing nothing since it needs the build. The test
-    names SDL's offscreen driver through the hint before it starts the app, and `StartVideo` on
-    Linux sets the hint to x11 over it, which starts on no display on the runner, then resets the
-    hint on the fall back, so no driver is named and SDL finds no device; on the machine X11 starts
-    and the test passes. The mend is the ask yielding to a driver already named through the hint as
-    it yields to `SDL_VIDEO_DRIVER`, the hint read before it is set, and the fall back restoring
-    what was named rather than resetting it; `StartVideo`'s test gets the named-driver case and the
-    viewport test stays as it is. One commit, before item 96's reading; pushed with `b5741f88` and
-    item 98's commit, a pack run started after them. Mended at `ea74b21d`, read at 13:14, the ask
-    yielding to a driver named already through the hint or the environment, started on as named with
-    no fall back, the named case in `StartVideo`'s test; pushed at 14:08 with item 98's commit.
-    Settled when the Linux suite is green on that push.
-
-Verdict 87 is open. Verdicts 56 to 86 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdicts 56 to 87 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
