@@ -1347,6 +1347,12 @@ from one pixel to the next fell from 2.32% to 0.88% at `High`, where the last ca
 wall past the field read 2.8% darker than inside it where 6.3%; the floor's 0.27% is the same
 (`CascadeEdgeTests`). With global illumination off a surface takes the environment's irradiance
 along its normal and the ambient lights' light whole.
+In `games/Ore` seen from its highest column, its field set to two cascades of a quarter block so
+the field's edge lies on its land sixteen blocks out, the grass tops and the far hills past the edge
+take the sky over a ground where they took the environment's light whole, up to 59 sRGB levels
+apart. At Ore's own four cascades of half a block the field reaches past its 48 columns, and no
+pixel changes by more than 9 levels.
+![Ore past its field's edge, without the distant ambient and with it](assets/cascades/ore-field-edge.webp)
 
 The ninth gives the field the light of an emitter thinner than a cell. A strip 0.06 thick on a wall,
 under cells of 0.15, painted no cell its own, the wall nearer every cell's middle, so its light was
