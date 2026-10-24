@@ -198,6 +198,9 @@ public sealed partial class SceneFieldTests
         // triangles the slowest of the 14 frames the builds took at 812 ms, the default's 32,768
         // 312 ms over 27, the field's time a frame held to about the budget's share of the whole.
         budgeted.Frames.Should().BeGreaterThan(whole.Frames, "the budget spreads the builds over more frames");
-        budgeted.Slowest.Should().BeLessThan(whole.Slowest / 2, $"no frame's field time is near the frame that built them all at once, {budgeted.Slowest:0.0} ms against {whole.Slowest:0.0} ms");
+        // The macOS runner's device, through MoltenVK, reads the field's time at 0.0 ms every frame,
+        // so there the counts alone are held.
+        if (whole.Slowest > 0)
+            budgeted.Slowest.Should().BeLessThan(whole.Slowest / 2, $"no frame's field time is near the frame that built them all at once, {budgeted.Slowest:0.0} ms against {whole.Slowest:0.0} ms");
     }
 }
