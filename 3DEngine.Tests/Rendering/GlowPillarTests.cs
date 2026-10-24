@@ -63,7 +63,10 @@ public sealed class GlowPillarTests : IDisposable
                 EndDrawing();
             }
         }
-        Frames(400);
+        // Settled by the 150th frame, the line reading to the last digit as it does after 400 on the
+        // development machine's GPU and on lavapipe, which draws them in 43 seconds where 84 without
+        // its shader cache.
+        Frames(150);
 
         // The wall's light, linear, along x from 9 to 11.5 blocks at the lamp's height, a point a
         // tenth of a block, over eight frames, which the screen probes' points move about in.

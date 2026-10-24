@@ -240,26 +240,26 @@ Done:
   3's remainder.
 - Item 3 at `42b3e9ce`. Subsurface scattering, the first of Decision 16's spectral experiments
   (Decision 18), in three batches, each measured, what of its first batch stands alone committed
-  before item 2 begins;.
+  before item 2 begins.
 - Item 4 at `82b23f8c`. The animated model's meshes in the world (Decision 21), after subsurface
-  scattering;.
+  scattering.
 - Item 8 at `c81eca54`. An opaque material's hidden fragments are rejected before they are lit;
-  measured, the hidden land costs geometry, not fragments;.
+  measured, the hidden land costs geometry, not fragments.
 - Item 9 at `feec07a2`. A color stream written in place reaches the bounce.
 - Item 10 at `c54d64eb`. A post-processing window in the overlay, which a game opens as it opens its
   performance window (Decision 28).
 - Item 15 at `35322cfe`. `Engine3D` becomes `E3D` (Decision 32).
 - Item 17 at `2172090b`. The radiance cascades said in the README and in a guide page of their own
-  (Decision 33)..
+  (Decision 33).
 - Item 21 at `86fba7ad`. The colors of a mesh of positions alone serve the light field alone and
   reach no buffer.
 - Item 22 at `e424550c`. The wall before the pillar blends in probes standing at the pillar's dark
-  face; the screen's probes reach the pillar themselves;.
+  face; the screen's probes reach the pillar themselves.
 - Item 23 at `6a36b2b5`. A mesh casts the sun's shadow and stays out of the light field, and a
-  moving mesh's stamp costs less;.
+  moving mesh's stamp costs less.
 - Item 24 at `2a14ab13`. The glow lights' shadow past a box's edge is a step where a penumbra
-  belongs;.
-- Item 25 at `9a3e2e2a`. The macOS captures move to the pack run (Decision 38);.
+  belongs.
+- Item 25 at `9a3e2e2a`. The macOS captures move to the pack run (Decision 38).
 
 ## 2026-10-11
 

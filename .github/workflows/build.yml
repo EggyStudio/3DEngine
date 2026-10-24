@@ -238,8 +238,10 @@ jobs:
       # run ran out its hour 1,302 tests in, and the parts holding tests it gave no result, thirteen
       # of fifteen, ran again for 121 minutes 5 seconds in all, past a push's 100. Run in parts with
       # no whole run to lose, the suite took 66 minutes 23 seconds cold there on the pack run of
-      # 9f9180b7.
-      - run: python build/test.py --no-build --parts --timeout-minutes 70
+      # 9f9180b7. A test is held to ten minutes without a result here where five elsewhere, since the
+      # glowstone shut in a room draws its 360 frames in 4 minutes 25 seconds on this lavapipe, the
+      # exposure the device fault it guards needs, and the limit is there to find a hang.
+      - run: python build/test.py --no-build --parts --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'

@@ -10,36 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `783213f3`, the noise line under the sixth term with its three forms and the bounce
-rooms' counts, after `17f13440`, the stepped edges' line in RENDERING.md's paragraph on the glow
-lights, a pixel marching to a glow light's face halves under gi.toggle screen off and where no texel
-holds a point like its own, a shadow's edge stepping there where the probes' texels read it smooth,
-the game's capture of 2026-10-21 having taken the toggle's path, after `2dd40fe4`, the sixth term
-widened in RENDERING.md to a bright patch narrower than a probe's texel read by a few fixed rays,
-the small emitter's near field and the ceiling over Blockout's lamp its two forms with their
-numbers, the screen probes making the spots, after `a8f34b35`, item 71's edge leak mended in
-field_resolve.slang, and nothing else, carrying the review's files. The mend: the checkerboard cell
-two blocks meeting at an edge leave is held inside at its distance; the bounce rooms at 160 by 90
-level to three places in all 27 cases and at 800 by 450 level to five in every view but the Cornell
-box at Low, 0.00001 further over blocks of 4, within the 2048-path references' own noise, so the
-covered-fault rule holds; a cascade's build 0.578 ms where 0.557 and nothing per frame; the edge
-room at High 21 to 2 and 20 to 0 with the probes off and on, the closed edge 2 and 0; the test a
-sectioned room as the game meshes it at 640 by 360, since the leak is under 4 levels at 320 by 180,
-reading 2 open and 2 closed where 10 and 7 without, failing without the mend; RENDERING.md's line on
-the resolve with the numbers; 2,055 passed plain and shuffled, 116 on lavapipe with the layer. Read
-at 04:14 on 2026-10-24. The term and the lines read at 04:19, 04:21 and 04:25. Pushed at 04:27 after
-the build run of `26dbc6da` ended, Linux, macOS and the examples green and Windows red, Verdict 86;
-the run watched. Next Verdict 86's mend, then 71's shift, then the noise, the z-fighting and the
-shift, then 74's and 72's cherry-picks with the default's device readings and Ore's capture, then
-item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and
+Reviewed up to `239bd67e`, RENDERING.md's lights and shadows naming the z-fighting reading of item
+71, the plant walls' acne and the map's texels on the water, the game choosing its grid of eight
+texels a block, after `8d644430`, the devlog and AGENTS.md's row for it on the owner's word,
+Decision 66, and `37bd6f76`, Verdict 86's mend, the sliding camera test drawing its fifteen slides
+in one app, reading as before on the 4070 and lavapipe and taking 52 seconds without the cache where
+fifteen apps took three and a half minutes, and nothing else, carrying the review's files; 2,055
+passed plain and shuffled, the norm tests 16 with the row. Read at 05:01 on 2026-10-24. Not pushed,
+the build run of `783213f3` running, macOS green; the three go when it ends. Next Verdict 86's
+second commit for the two tests near the limit, then 71's shift, then the noise, the z-fighting and
+the shift, then 74's and 72's cherry-picks with the default's device readings and Ore's capture,
+then item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and
 `54d7c3e`, under the owner's identity, the cloud session standing by; the branch's items 59 to 66,
 75 to 78 and 88 are on main.
 
+Before it, `783213f3` came, item 71's noise line, with `17f13440`, `2dd40fe4` and `a8f34b35`, the
+stepped edges' line, the widened term and the edge leak's mend, pushed at 04:27 on 2026-10-24, their
+run in flight.
+
 Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
 at 03:22 on 2026-10-24, their run green but for Windows, Verdict 86.
-
-Before it, `49d834e1` came, item 77's captures, pushed at 02:29 on 2026-10-24 with the four of items
-75 and 77, its run green whole.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -805,7 +795,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     stripes that shift as the eye turns, and the map's texels stepping on the pond, both standing
     with global illumination off and gone with the shadows off, the bounce rooms' pattern under a
     level; named in RENDERING.md under the lights and shadows, the plants' acne item 89, the pond's
-    steps the game's own grid of eight a block by its Decision 29. The shift next.
+    steps the game's own grid of eight a block by its Decision 29. The shift next. The z-fighting's
+    line at `239bd67e` on 2026-10-24; the shift last.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -876,7 +867,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     largest pixel step 0.88% where 2.32% before and the wall past the field 2.8% darker where 6.3%,
     the floor 0.27% either way, held under 1%, 1.5% and 4%; 954 passed on lavapipe. The item is
     whole on the branch, `e164ccaa`, `0e908bdf` and `54d7c3e`, to cherry-pick with Ore's capture
-    from a height.
+    from a height. The branch's own run of `54d7c3e7`, read at 05:15: SlangCompilerTests' model pass
+    sets test fails on the three systems, the lights' set holding one binding more than its list
+    since the first part bound the fill cascade's map at 37 and the list was not moved; a fix commit
+    on `modeling` from the cloud session before the cherry-pick. The Windows Rendering part there
+    was lost in GlowPillarTests at the runner's hang limit, Verdict 86's second commit.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of
@@ -904,7 +899,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     triangles, the default 32,768 the least power of two above Ore's 18,824 a frame; the builds in
     SceneFieldPlan.Builds.cs under N 1.3; tests of the 500 sections under the budget, on lavapipe
     5,565 ms at once against 312 at most over 27 frames; 159 lighting tests there. To cherry-pick
-    after 88's, the default's device readings at it.
+    after 88's, the default's device readings at it. The branch's run of `54d7c3e7` on macOS fails
+    the device test of the five hundred meshes, the field times reading 0.0 ms there so the slowest
+    frame is asked to be under 0; the test skips with its reason where the device gives no field
+    time, or reads the counts alone there; a fix commit on `modeling` from the cloud session before
+    the cherry-pick.
 
 75. **The sky below the horizon takes the fog's color, so a fogged edge meets the color it fades
     into (Decision 57).** Learned from the voxel game's item 44: a program with a sky image and
@@ -1037,7 +1036,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     tests took; the run of the four pushed after it says whether it repeats. The mend by the cause:
     a hang mended where it hangs, or the part split or its slowest tests given the null device where
     they read nothing of the device, as N 6.8 and item 2's readings allow; no test loosened. One
-    commit, before the next push. Mended at `?`.
+    commit, before the next push. The cause read by the coder at 04:5x from the trx: the runner's
+    hang limit of five minutes without a result, blame's, while
+    Global_Illumination_Holds_Still_As_The_Camera_Slides opened fifteen apps whose first frames each
+    recompiled the shaders on Windows's cacheless lavapipe, three and a half minutes locally without
+    the cache. Mended at `37bd6f76`, the fifteen slides drawn in one app with the bound unchanged
+    and the reading the same, 52 seconds there; GlowPillarTests at 4.7 minutes and GlowLightsTests'
+    shut-in block at 4.4 on Windows stand near the limit and take a second commit; it settles when a
+    Windows run is green with both.
 
 Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
 
@@ -1603,6 +1609,13 @@ Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
     headings in plain words, each group a guide link line and one fenced block, and in the block one
     line a member, the signature and then `//` and the first sentence of its documentation on the
     same line however long, no continuation lines and no sub-heading a type.
+
+66. **A devlog under `.github/devlog`, with AGENTS.md's row for it.** The owner asked at about 04:35
+    on 2026-10-24 that the pictures the sessions made be saved with a text in a folder under
+    .github; `.github/devlog/README.md` holds what landed by day, newest first, with the
+    repository's captures and the items closed, written by the reviewing session and carried by the
+    coder's commits like REVIEW.md, and the owner gave this repository's session the word for
+    AGENTS.md's Documents row at about 04:55.
 
 ## Replies
 
