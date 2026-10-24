@@ -10,23 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b5741f88`, item 94's test alone, a cave under ten units of stone seventy up taking
+Reviewed up to `ea74b21d`, Verdict 87's mend, read at 13:14 on 2026-10-24, carrying the review's
+files and the game's ASKS.md entry on the shadow read. `StartVideo` takes the driver named already
+through the hint or `SDL_VIDEO_DRIVER` and starts on it with nothing asked and no fall back, X11
+asked only where none is named; the test's new case keeps a named offscreen driver as it is and does
+not clear a named wayland that fails to start, and the viewport test passes with and without a
+display. After `b5741f88`, item 94's test alone, a cave under ten units of stone seventy up taking
 no sun on its floor or its blocks' tops, passing at HEAD and reading the leak before item 83's mend,
 with the review's files and the game's ASKS.md entry carried; 2,073 passed plain and shuffled, the
 test on lavapipe with the layer. Read at 11:47 on 2026-10-24. Not pushed; the build run and the pack
-run of `b888b242` went red on Linux at 11:46 on one test, Verdict 87, the pack run packing nothing,
-so this commit is pushed with the verdict's mend and item 98's, and a pack run started after them,
-since a package from HEAD would carry item 98's cost. Item 96 begins with a reading on the game's
-5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn
-to tell what runs per fragment from the variant's registers, the window's depth at half size and the
-scene pass shading with overdraw pointing at a half-size pass over the window's depth with a two by
-two depth and normal read, as the glow pass has. Next Verdict 87's mend, the X11 ask yielding to a
-driver already named, then 98, the scene pass's cost back at 5.2.215's, the probes' info read in
-place, then 96, the scene pass's read of the cascades, then 93, the colons out of the documents,
-then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the
-history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at
-the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
-main, N 7.5; the cloud sessions stand by.
+run of `b888b242` went red on Linux at 11:46 on one test, Verdict 87, the build run ending at 12:51
+with Windows green in 96 minutes and macOS in 31, the pack run ending at 13:57 with its Windows job
+green in 161 minutes and macOS in 55 and packing nothing, so both are held for item 98's commit and
+pushed with it, a pack run started after them, since a package from HEAD would carry item 98's cost.
+Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
+part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
+registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
+half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
+has. Next 98, the scene pass's cost back at 5.2.215's, the probes' info read in place, then 99,
+litLight's shadow read at the caller's point, then 96, the scene pass's read of the cascades, then
+100, the field's foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words
+on the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
+help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
 
 Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
 their run and the pack run in flight.
@@ -1139,6 +1146,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     starts from the mended cost. One commit, after Verdict 87's, before the pack run; the package
     after 5.2.215 waits for it.
 
+99. **A program places the shadow light's shadow read within `litLight`, so a stepped shadow costs
+    one read.** From the voxel game's ASKS.md entry of 2026-10-24, read at 12:52. The game's terrain
+    shader steps the sun's shadow along an eight by eight grid on each face by taking `litLight` and
+    replacing its sun's share with the sun's light read at the step's middle, so it reads the shadow
+    three times a pixel, inside `litLight`, at the point to take that share out, and at the step; at
+    1920 by 1080 on the cherry grove the stepping costs the scene pass about 1.6 ms of 12.5. The
+    engine gives `litLight` a way to take the shadow light's shadow from the caller, a parameter
+    holding the shadow's share read at a point of the program's choosing, or an overload leaving the
+    shadow light out so the caller adds it, whichever keeps `litLight`'s own callers unchanged; the
+    guide's page on lighting shows the stepped read in a few lines, and a test in the Linux suite
+    lighting a plane through the parameter at a shifted point against the plain read. One commit,
+    small, after item 98 and before 96; the game then reads the shadow once with the package.
+
+100. **The field lets a share of light through a cell marked as foliage.** From the voxel game's
+    reading of 2026-10-24, read at 14:02, its ASKS.md entry to come. The game's rain forest floor at
+    noon is near black where the source lights it at 13 of 15, since the canopy shadows the sun and
+    the field holds the leaves solid, so no sky light reaches the floor through the probes; the game
+    lifts the floor by its sky level meanwhile. A cell written into the field can carry a
+    transmittance, a share of the light passing it, set by the program for leaves and the like
+    through the field's write, the cascades' march taking that share off a ray that crosses the cell
+    rather than stopping and the cell's color bouncing the rest, the sun's shadow through the shadow
+    map unchanged; the cost read on the bounce rooms and the voxel game's grove at both sizes, the
+    readings against the references under the covered-fault rule, a test of a plane under a slab of
+    foliage cells at a half reading about half the open plane's sky light, and the guide's page
+    saying how a program marks foliage. One or two commits, after item 96 and before 93.
+
 ## Verdicts
 
 87. **The Linux suite is red at `b888b242` on the viewport test, the X11 ask replacing the driver it
@@ -1154,7 +1187,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it yields to `SDL_VIDEO_DRIVER`, the hint read before it is set, and the fall back restoring
     what was named rather than resetting it; `StartVideo`'s test gets the named-driver case and the
     viewport test stays as it is. One commit, before item 96's reading; pushed with `b5741f88` and
-    item 98's commit, a pack run started after them. Mended at `?`.
+    item 98's commit, a pack run started after them. Mended at `ea74b21d`, read at 13:14, the ask
+    yielding to a driver named already through the hint or the environment, started on as named with
+    no fall back, the named case in `StartVideo`'s test; held with `b5741f88` for item 98's commit
+    and pushed with it. Settled when the Linux suite is green on that push.
 
 Verdict 87 is open. Verdicts 56 to 86 are settled, said under each in REVIEW-ARCHIVE.md.
 

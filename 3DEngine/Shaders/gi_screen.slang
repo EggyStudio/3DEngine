@@ -138,7 +138,7 @@ float4 hemisphere(float2 uv)
 // how far p lies from it toward the last, in probes, or false where it lies outside the cascade.
 bool probesAround(float3 p, uint c, out int3 base, out float3 f)
 {
-    float4 oc = probesOf(fieldInfo, int(view.trace.w)).cascades[c].originAndCell;
+    float4 oc = cascadeAt(probesOf(fieldInfo, int(view.trace.w)), c);
     float probes = view.trace.y;
     float3 q = (p - oc.xyz) / (oc.w * view.trace.z) - 0.5;
     base = int3(floor(q));
@@ -149,7 +149,7 @@ bool probesAround(float3 p, uint c, out int3 base, out float3 f)
 // Where the probe of cascade c at `at` stands, its spot in the grid moved as its faces say.
 float3 probeAt(int3 at, uint c)
 {
-    float4 oc = probesOf(fieldInfo, int(view.trace.w)).cascades[c].originAndCell;
+    float4 oc = cascadeAt(probesOf(fieldInfo, int(view.trace.w)), c);
     int probes = int(view.trace.y);
     float3 moved = float3(0.0);
     for (int axis = 0; axis < 3; axis++)
@@ -229,7 +229,7 @@ float3 beyond(float3 start, float3 normal, float3 way, float reached, uint aroun
         }
     }
     float probes = view.trace.y;
-    float apart = probesOf(fieldInfo, int(view.trace.w)).cascades[c].originAndCell.w * view.trace.z;
+    float apart = cascadeAt(probesOf(fieldInfo, int(view.trace.w)), c).w * view.trace.z;
     // Where the ray passed half the probes' spacing before its end, or, read around its start,
     // a point before the surface.
     float3 passed = reached > 0.0 ? end - way * min(0.5 * apart, reached * 0.5) : end + normal * (0.3 * apart);

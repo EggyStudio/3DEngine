@@ -120,6 +120,11 @@ SceneFieldInfo gatheredAt()
     SceneFieldInfo then = probesOf(fieldInfo, cascades);
     for (int c = 0; c < min(cascades, MostProbeCascades); c++)
         then.cascades[c].originAndCell.xyz = lights.before[c].xyz;
+    // The far cascade's place, which cascadeAt reads the last cascade of probes from, takes that
+    // cascade's corner of the frame before too.
+    int far = int(then.eye.w);
+    if (far > 0)
+        then.cascades[far].originAndCell.xyz = lights.before[cascades - 1].xyz;
     return then;
 }
 
@@ -224,7 +229,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // The probe's share, before any ray of the group leaves the rest.
     float3 share = kept(at, int(push.cascade.x), int(probes), lane);
 
-    float4 oc = probesOf(fieldInfo, int(push.interval.w)).cascades[push.cascade.x].originAndCell;
+    float4 oc = cascadeAt(probesOf(fieldInfo, int(push.interval.w)), push.cascade.x);
     float apart = oc.w * push.interval.z;
     float3 spot = oc.xyz + (float3(at) + 0.5) * apart;
     // The probe moved into the open by the group's first ray, for every ray of it. One the gather

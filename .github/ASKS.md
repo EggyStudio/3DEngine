@@ -738,3 +738,29 @@ So the specks are neither the light's shadow cube nor the contact shadows nor gl
 and moving the light off the camera's point clears them. The engine lacks a guard for a light at
 the camera's own point, whatever term divides by its distance there. The game keeps its held light
 a third of a block under the eye meanwhile, still at the player's own place.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the sun's shadow cannot be read at a point of the program's choosing within `litLight`
+
+The game's terrain shader steps the sun's shadow along an eight-by-eight grid on each face, as the
+owner's modpack's shader does, by taking `litLight` and then replacing its sun's share with the
+sun's light read at the middle of the step (`litStepped` in `resources/shaders/terrain.slang`). So
+it reads the sun's shadow three times a pixel within the map, once inside `litLight`, once at the
+point to take that share back out, and once at the step's middle. Read with `./e3d command profile`
+over 300 frames at an unlimited rate, the Release build at `3236b56` on the 5.2.215 package,
+offscreen at 1920 by 1080 on the RTX 4070 Laptop GPU, seed 1's cherry grove from -736, 79, -960
+facing 345 at hour 16, two runs of each in turn:
+
+| terrain shader | frame | scene pass |
+|---|---|---|
+| the shadow stepped | 19.5, 19.7 | 12.5, 12.7 |
+| the stepping left out | 17.8, 18.0 | 10.9, 11.2 |
+
+The two extra reads and the sun's light worked out again cost the scene pass about 1.6 ms. The
+engine lacks a way to tell `litLight` the point the shadow light's shadow is read at, or to leave
+the shadow light out of it, so a program that places the sun's shadow itself reads it once. The game
+keeps its stepped shadow meanwhile, since copying `litLight` into its shader would hold a copy of
+the engine's lighting apart from the engine's changes to it.
+
+Review: item 99 of REVIEW.md, 2026-10-24; `litLight` takes the shadow light's shadow from the
+caller, a parameter with the share read at the program's point or an overload leaving the shadow
+light out, after item 98 and before 96.

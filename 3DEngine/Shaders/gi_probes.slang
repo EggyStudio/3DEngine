@@ -45,7 +45,7 @@ ProbeVertex vertexMain(uint id : SV_VertexID, uint instance : SV_InstanceID)
     uint probes = push.cascade.y;
     uint c = push.cascade.x;
     uint3 at = uint3(instance % probes, (instance / probes) % probes, instance / (probes * probes));
-    float4 oc = probesOf(fieldInfo, int(push.cascade.z)).cascades[c].originAndCell;
+    float4 oc = cascadeAt(probesOf(fieldInfo, int(push.cascade.z)), c);
     float spacing = oc.w * push.size.x;
     // Moved as its faces' alpha says, two more than its move along each axis in its spacing, 0 for
     // a probe inside a mesh (faceMove in gi.slang).

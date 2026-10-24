@@ -54,7 +54,8 @@ public struct SceneFieldInfo
     public float4 counts;
     public FieldCascade cascades[9];
     // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
-    // (bandHold). w: unused.
+    // (bandHold). w: in probesOf's info, the far cascade's place, where its last cascade is read
+    // from (cascadeAt), or 0.
     public float4 eye;
 };
 
@@ -64,18 +65,29 @@ public bool fieldOn(SceneFieldInfo info)
     return info.counts.x > 0.5;
 }
 
+// Cascade c's corner and the width of its cell, or in probesOf's info the far cascade's for its last
+// cascade where the field has one.
+public float4 cascadeAt(SceneFieldInfo info, int c)
+{
+    int far = int(info.eye.w);
+    return info.cascades[far > 0 && c == int(info.counts.x) - 1 ? far : c].originAndCell;
+}
+
 // The field's cascades the world's `probes` cascades of probes stand in, the field's own in order
 // but for the last, which stands in the far cascade where the field has one, so a cascade of probes
 // lies where its cascade does and the probes holding a point are found as the field's cascades
 // holding it are. The probes are read through it and the field's distances through the field's own
 // info, since past the cascades of probes it holds neither the field's count nor its places in the
-// texture.
+// texture. The far cascade's place is kept for cascadeAt to read the last from, the cascades left
+// as they are, since a copy of them with the last written over, at a place known only as the shader
+// ran, was kept in each thread's own memory and read from there, and the model pass, which takes
+// several such copies a pixel, drew the voxel game's cherry grove at 1920 by 1080 in 66 ms on the
+// development machine's GPU, and in 20 with the cascades read in place.
 public SceneFieldInfo probesOf(SceneFieldInfo info, int probes)
 {
     SceneFieldInfo probed = info;
     int far = int(info.counts.w);
-    if (far > 0 && probes > 0)
-        probed.cascades[probes - 1] = info.cascades[far];
+    probed.eye.w = far > 0 && probes > 0 && probes <= int(info.counts.x) ? float(far) : 0.0;
     probed.counts.x = float(min(probes, int(info.counts.x)));
     probed.counts.w = 0.0;
     return probed;
@@ -101,7 +113,7 @@ public static const float EyeClear = 6.0;
 // at every one (CascadeEdgeTests).
 public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin)
 {
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
     float3 low = clamp(eye - margin - EyeClear, 0.0, band);
     float3 high = clamp(info.counts.y - eye - margin - EyeClear, 0.0, band);
@@ -121,7 +133,7 @@ public float fieldHold(SceneFieldInfo info, float3 p)
     int c = fieldCoarsestBuilt(info, int(info.counts.x) - 1);
     if (c < 0)
         return 0.0;
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     return bandHold(info, c, (p - oc.xyz) / oc.w, FieldBand, 1.0);
 }
 
@@ -132,7 +144,7 @@ public int fieldCoarsestBuilt(SceneFieldInfo info, int upTo)
 {
     [loop]
     for (int i = min(upTo, int(info.counts.x) - 1); i >= 0; i--)
-        if (info.cascades[i].originAndCell.w > 0.0)
+        if (cascadeAt(info, i).w > 0.0)
             return i;
     return -1;
 }
@@ -144,7 +156,7 @@ public int fieldCascade(SceneFieldInfo info, float3 p, float margin)
     float size = info.counts.y;
     for (int i = 0; i < count; i++)
     {
-        float4 oc = info.cascades[i].originAndCell;
+        float4 oc = cascadeAt(info, i);
         if (oc.w <= 0.0)
             continue;
         float3 cell = (p - oc.xyz) / oc.w;
@@ -194,7 +206,7 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 public float fieldCell(SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.0);
-    return i < 0 ? 0.0 : info.cascades[i].originAndCell.w;
+    return i < 0 ? 0.0 : cascadeAt(info, i).w;
 }
 
 // The way a face looks in eight bits, four along each side of the octahedron the sphere is folded

@@ -29,7 +29,7 @@ public static const float CascadeBand = 8.0;
 // (bandHold), past the cell fieldCascade keeps.
 public float cascadeHold(SceneFieldInfo info, int c, float3 p)
 {
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     return bandHold(info, c, (p - oc.xyz) / oc.w, CascadeBand, 1.0);
 }
 
@@ -49,7 +49,7 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
     int c = fieldCoarsestBuilt(info, upTo);
     if (c < 0)
         return 0.0;
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     float3 cell = (p - oc.xyz) / oc.w;
     return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0), bandHold(info, c, cell, CascadeBand, 0.0));
 }

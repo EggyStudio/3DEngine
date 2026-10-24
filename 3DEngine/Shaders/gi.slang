@@ -419,7 +419,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo field, flo
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float own = c + 1 < int(cascades) && info.cascades[c + 1].originAndCell.w > 0.0 ? cascadeHold(info, c, p) : 1.0;
+    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1).w > 0.0 ? cascadeHold(info, c, p) : 1.0;
     float3 light = float3(0.0);
     [loop]
     for (int k = 0; k < 2; k++)
@@ -441,7 +441,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo field, flo
 // between two meshes may, blends them by that twentieth, so it is not left dark.
 float3 bouncedIn<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, int c)
 {
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
@@ -483,7 +483,7 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo field,
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
         return 1.0;
-    float4 oc = info.cascades[c].originAndCell;
+    float4 oc = cascadeAt(info, c);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
@@ -541,7 +541,7 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
     int c)
 {
-    float4 oc = gathered.cascades[c].originAndCell;
+    float4 oc = cascadeAt(gathered, c);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
