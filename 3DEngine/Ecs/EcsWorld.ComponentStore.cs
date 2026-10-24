@@ -45,16 +45,28 @@ public sealed partial class EcsWorld
         public void Reserve(int componentCapacity, int maxEntityIdHint)
             => _set.Reserve(componentCapacity, maxEntityIdHint);
 
+        // The entities by the key their component names, where the program asked for one
+        // (EcsWorld.Index), kept here since every add, replacement and removal passes through.
+        internal IKeyIndexOf<T>? Index;
+
         /// <summary>Adds a component to <paramref name="entity"/>, marking it added, or overwrites the one it has, marking it changed.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <param name="component">The component value to store.</param>
-        public void Add(int entity, T component) => _set.Add(entity, component);
+        public void Add(int entity, T component)
+        {
+            _set.Add(entity, component);
+            Index?.Put(entity, component);
+        }
 
         /// <summary>Adds or overwrites a component on <paramref name="entity"/> and marks it as changed.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <param name="component">The component value to store.</param>
         /// <param name="currentTick">The current frame tick (reserved for future use).</param>
-        public void Update(int entity, T component, int currentTick) => _set.Update(entity, component);
+        public void Update(int entity, T component, int currentTick)
+        {
+            _set.Update(entity, component);
+            Index?.Put(entity, component);
+        }
 
         /// <summary>Returns <c>true</c> if <paramref name="entity"/> has this component.</summary>
         /// <param name="entity">The entity ID to check.</param>
@@ -77,6 +89,7 @@ public sealed partial class EcsWorld
         {
             if (value is not T typed || !_set.Has(entity)) return false;
             _set.Update(entity, typed);
+            Index?.Put(entity, typed);
             return true;
         }
 
@@ -200,12 +213,22 @@ public sealed partial class EcsWorld
         }
 
         /// <inheritdoc />
-        public bool TryRemove(int entity, out IDisposable? disposable) => _set.TryRemove(entity, out disposable);
+        public bool TryRemove(int entity, out IDisposable? disposable)
+        {
+            if (!_set.TryRemove(entity, out disposable)) return false;
+            Index?.Drop(entity);
+            return true;
+        }
 
         /// <summary>Removes the component for <paramref name="entity"/> without tracking disposables.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <returns><c>true</c> if the component was removed; <c>false</c> if not present.</returns>
-        public bool Remove(int entity) => _set.Remove(entity);
+        public bool Remove(int entity)
+        {
+            if (!_set.Remove(entity)) return false;
+            Index?.Drop(entity);
+            return true;
+        }
 
         /// <summary>Returns the dense array index for <paramref name="entity"/>, or <c>-1</c> if not present.</summary>
         /// <param name="entity">The entity ID.</param>

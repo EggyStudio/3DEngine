@@ -915,3 +915,40 @@ keeps no index of its own.
 
 Review: item 107 of REVIEW.md, 2026-10-24; an index the world keeps for a component type that names
 its key, with a query by key and a contains; after item 106.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the engine's mesh entities cannot carry the game's sections
+
+Read on the 3DEngine 5.2.283 package and the engine's source as of its main after `e5ad8d28`, to turn
+each meshed section into an entity the engine draws, as the game's item 95 asks. The game draws its
+sections through `DrawMesh` with its own Slang shader, `resources/shaders/terrain.slang`, which reads
+the texture atlas, the fog, the animation table and each vertex's packed light and corner shade from
+a `MeshStream` of two uints a vertex, under six materials, opaque, cutout, cutout glass, solid
+cutout, molten and see-through, at about 1,200 sections drawn on a flat world at render distance 12
+and up to 4,400 held in a flight over seed 1's cherry grove.
+
+- The ECS `Material` has no shader (`Components/Material.cs`), and `MeshEntityDraws.Build` sets no
+  shader, uniforms or shader textures on the draws it makes, so a section drawn as an entity loses
+  its atlas, fog, light and shade.
+- The ECS `Mesh` holds positions, normals and uvs, three positions a triangle, so the packed stream
+  and the vertex colors the flat `UploadMesh` overloads take have no place, and each section would
+  be uploaded at about three times its indexed size.
+- A look is kept per mesh and material, and past 4,096 looks or groups every look is forgotten and
+  built again each frame (`MeshEntityDraws.cs`, `MaxLooks`). The sections' parts pass that at the
+  game's render distance.
+- A mesh no entity drew in a frame, as a section replaced when a block is placed or broken, frees
+  its mesh and forgets every look, so the next frame builds every entity's again on the main thread.
+- No component hides an entity from the camera's pass, or keeps it in the shadow maps alone, so the
+  sections the game's flood leaves unseen, item 90's, and the shadow draw of the engine's item 101
+  have no form for entities.
+- The draws of mesh entities are counted in the engine's internals and `models.draws` alone, so the
+  game's play check of 400 draws of sections at the land's edge cannot read them as a profile value.
+
+The engine lacks a mesh entity drawn through a program's shader with its own vertex streams and
+indices, kept across a mesh replaced or a look count of some thousands without building every
+entity again, with a component that leaves it out of the camera's pass or keeps it in the shadow
+pass alone, and its draws counted where a program reads them. The game draws its sections through
+`DrawMesh` meanwhile and holds item 95 until a package carries these.
+
+Review: item 108 of REVIEW.md, 2026-10-24; the mesh entity path carrying a program's shader and
+streams, looks and meshes kept, Visible and ShadowOnly components and the draws in the profile;
+after item 107.

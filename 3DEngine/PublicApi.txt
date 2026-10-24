@@ -1656,6 +1656,7 @@ sealed class Engine.EcsWorld : IDisposable
   IDisposable Observe<TEvent>(Entity entity, Action<On<TEvent?>> observer)
   IEnumerable<int> AllEntities()
   IReadOnlyList<Type> ComponentTypes { get; }
+  KeyIndex<T, TKey> Index<T, TKey>() where T : IKeyed<TKey>
   List<int> Removed<T>()
   bool Added<T>(int entity)
   bool Changed<T>(int entity)
@@ -2190,6 +2191,8 @@ interface Engine.IAudioBackend : IDisposable
   void Update()
 interface Engine.IEntityEvent
   Entity Entity { get; }
+interface Engine.IKeyed<TKey>
+  TKey Key { get; }
 interface Engine.ILogger
   void Debug(string message)
   void Error(string message, Exception? exception = null)
@@ -2513,6 +2516,10 @@ enum Engine.Key : int
   Y = 28
   Z = 29
   Zero = 39
+sealed class Engine.KeyIndex<T, TKey> : IKeyIndexOf<T> where T : IKeyed<TKey>
+  bool Contains(TKey key)
+  bool TryGet(TKey key, out int entity)
+  int Count { get; }
 enum Engine.KeyModifier : int
   Alt = 4
   Ctrl = 1

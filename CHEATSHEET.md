@@ -947,6 +947,11 @@ below it, when the state leaves that value, so a level goes with the state that 
 systems, and `ecs.DespawnWhen<Screen>(entity, t => t.To is Screen.Paused)` at the first transition the
 rule answers true for.
 
+A component that names its key through `IKeyed<TKey>` has its entities found by it,
+`ecs.Index<Fire, (int, int, int)>()` giving the index the world keeps as each is added, replaced,
+removed or despawned, and its `TryGet(key, out entity)` and `Contains(key)` a lookup that allocates
+nothing.
+
 `ecs.Observe<Add<Health>>(on => ...)` runs the moment an entity gets a `Health`, `Remove<Health>`
 once one leaves it, and `ecs.Trigger(new Hit(entity, 10))` sends an event of the game's own to its
 observers, the entity's after the rest, and up its parents for an `IPropagatingEvent` until one

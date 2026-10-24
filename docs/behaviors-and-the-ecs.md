@@ -402,6 +402,21 @@ DrawText($"{ecs.Count<Ball>()} balls. Space adds a hundred.", 10, 10, 20, Color.
 with its id, up to six components, the store with the fewest walked and the others looked up. An id is the frame's own, and a program keeping an entity across frames keeps the
 `Entity` handle `ecs.Handle(id)` gives, which knows when the entity it names is gone.
 
+A component that names a key through `IKeyed<TKey>` has its entities found by it.
+`ecs.Index<Fire, (int, int, int)>()` gives the index the world keeps of them as each is added,
+replaced, removed or despawned, and `TryGet` or `Contains` finds one without walking them all, so a
+game keeps no set of its own to know which cells burn:
+
+<!-- compiled with:
+public struct Fire : IKeyed<(int, int, int)> { public (int, int, int) Cell; public readonly (int, int, int) Key => Cell; }
+(int, int, int) cell = default;
+BehaviorContext ctx = default!;
+-->
+```csharp
+var fires = ctx.Ecs.Index<Fire, (int, int, int)>();
+if (!fires.Contains(cell)) ctx.Cmd.Spawn((entity, world) => world.Add(entity, new Fire { Cell = cell }));
+```
+
 A behavior reaches the rest of the engine through its context, `ctx.Input` for input,
 `ctx.Physics` for the physics world, `ctx.Res<T>()` for any resource of the world, and the flat
 functions themselves, which work inside behaviors of the app `InitWindow` built.

@@ -3408,6 +3408,17 @@ batch.
     following; a test over a query of five components. One commit, small, after item 104. Done at
     `f0574e89` on 2026-10-24, up to six components in the three forms with the test.
 
+106. **A behavior holds what it needs, or the guide says why not.** From the voxel game's first ECS
+    piece, the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
+    2026-10-24; a gap the port finds comes to the engine first, Decision 68. E3D006 forbids a
+    reference-type field in a behavior, so a stack keeps an ItemId and looks the Item up each time.
+    The reason read and said, whether the ECS's storage copies behaviors so a reference would be
+    shared or stale, and then either the analyzer allowing a reference to an immutable record with
+    the rule's text saying when, or the guide's page saying the id pattern is the way and why, with
+    the voxel game's drops as the example; the game's record follows whichever. One commit, small,
+    after item 105 and before 102. Done at `df0c7b50` on 2026-10-24, the analyzer sparing what
+    nothing can change, the reason in the rule's message and the guide.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

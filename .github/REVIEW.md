@@ -10,26 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f0574e89`, item 105, a Query past three components, read at 20:37 on 2026-10-24,
-carrying the review's files and SHARED.md. Query and QueryReadOnly over four to six components are
-public and QueryRef internal as the smaller arities' are, each walking the store with the fewest
-components and filtered by With, Without, Changed and Added, the four-to-six ref forms in
-EcsWorld.WideRefIterators.cs to keep N 1.3's 800 lines; the test over five and six components beside
-a hundred velocity-only entities reads the right entities and copied values, Without and With, an
-absent store giving none, the read-only and ref forms with the ref writing through, and a walk
-allocating nothing; the guide says up to six. 2,078 plain and shuffled, the strict build clean. The
-three pushed at 20:48 on 2026-10-24 after the build run of `1b497b3b` went green whole, the run
-watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
-1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
-variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 106, then 107, the lookup by a component's key, the ECS gaps the game's drops
-found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene
-pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 93, the
-colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
-light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
-acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `df0c7b50`, item 106, a behavior holding a reference to what nothing can change, read
+at 21:01 on 2026-10-24, carrying ASKS.md and the review's files. E3D006 warns because every copy of
+a behavior shares a referenced object and entities run on several threads, so a mutable one can be
+changed by two at once; the analyzer spares any type nothing can change, a string, a primitive or an
+enum, a record or sealed class whose every instance field and its bases' is readonly and holds such
+a value, a positional record's init-only properties counting, or a struct whose fields do, and still
+warns of a record with a settable property, one holding a List and a class neither sealed nor a
+record; the rule's message, the generator's remarks and the guide's page on a behavior say when, the
+dropped stack keeping its Item, and the generator's test covers the cases. 2,079 plain and shuffled,
+the strict build clean. Held until the build run of `f0574e89` ends, then pushed and the pack run
+started on it for the game's items 105, 123 and the mobs' third commit. After `f0574e89`, item 105,
+a Query past three components, read at 20:37 on 2026-10-24, carrying the review's files and
+SHARED.md. Query and QueryReadOnly over four to six components are public and QueryRef internal as
+the smaller arities' are, each walking the store with the fewest components and filtered by With,
+Without, Changed and Added, the four-to-six ref forms in EcsWorld.WideRefIterators.cs to keep N
+1.3's 800 lines; the test over five and six components beside a hundred velocity-only entities reads
+the right entities and copied values, Without and With, an absent store giving none, the read-only
+and ref forms with the ref writing through, and a walk allocating nothing; the guide says up to six.
+2,078 plain and shuffled, the strict build clean. The three pushed at 20:48 on 2026-10-24 after the
+build run of `1b497b3b` went green whole, the run watched. Item 96 begins with a reading on the
+game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in
+turn to tell what runs per fragment from the variant's registers, the window's depth at half size
+and the scene pass shading with overdraw pointing at a half-size pass over the window's depth with a
+two by two depth and normal read, as the glow pass has. Next 107, the lookup by a component's key,
+then 108, the mesh entity as a game's section, the ECS gaps the game's drops found, then 102, the
+far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
+cascades and the shadow fill, then 100, the field's foliage share, then 93, the colons out of the
+documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
+the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
+at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
+main, N 7.5; the cloud sessions stand by.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1198,16 +1209,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
     written. One commit, small, after item 102 and before item 96's remaining cuts.
 
-106. **A behavior holds what it needs, or the guide says why not.** From the voxel game's first ECS
-    piece, the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
-    2026-10-24; a gap the port finds comes to the engine first, Decision 68. E3D006 forbids a
-    reference-type field in a behavior, so a stack keeps an ItemId and looks the Item up each time.
-    The reason read and said, whether the ECS's storage copies behaviors so a reference would be
-    shared or stale, and then either the analyzer allowing a reference to an immutable record with
-    the rule's text saying when, or the guide's page saying the id pattern is the way and why, with
-    the voxel game's drops as the example; the game's record follows whichever. One commit, small,
-    after item 105 and before 102.
-
 107. **An entity is found by a component's key, so a game keeps no index of its own.** From the
     voxel game's fires as entities at its `9a70f28` on 2026-10-24, read at 20:47, its ASKS.md entry
     in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The world
@@ -1218,6 +1219,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the guide's page saying it; a test over a thousand entities finding one by key and none
     after its despawn, allocating nothing on the lookup. One commit, small, after item 106 and
     before 102.
+
+108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
+    shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
+    entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
+    Material has no shader and MeshEntityDraws sets none, so the terrain's shader with its atlas,
+    fog, animation table and packed light cannot draw a section entity; the ECS Mesh is positions,
+    normals and uvs alone and not indexed, so the packed uint2 stream and the colors have no place
+    at about three times the upload; past MaxLooks of 4,096 looks or groups every look is forgotten
+    and rebuilt each frame, which sections times six materials pass at render distance 12; a mesh
+    not drawn in a frame is freed and forgotten so the next frame rebuilds every entity on the main
+    thread; no visibility or shadow-only component exists for item 101's draw; and entity draws are
+    counted only in internals and models.draws, not as a profile value. The engine's mesh entity
+    path grows to carry a program's shader on the Material, a Mesh with a program's streams and
+    indices as DrawMesh takes them, looks kept without a bound a program meets, a mesh kept while
+    its entity lives whether or not it is drawn, a Visible component the game's flood sets and a
+    ShadowOnly one as item 101's flag, and the entity draws as a profile value; the guide's page on
+    mesh entities says it with a voxel section as the example, tests for each, and the cost against
+    DrawMesh read on a scene of a thousand meshes. Two or three commits, after item 107 and before
+    102.
 
 ## Verdicts
 
