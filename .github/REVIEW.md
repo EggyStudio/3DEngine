@@ -10,38 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ff2c5175`, item 96's first mend, read at 15:57 on 2026-10-24, carrying the review's
-files. `probesOf` is gone; `cascadeAt(info, c, probes)` and `cascadesOf` take the uniform info with
-the probes' count, `fieldCascade`, `fieldCoarsestBuilt`, `bandHold`, `cascadeHold` and `probesHold`
-take the count defaulting to 0, bouncedAt, bouncedIn, skyAt and the seen-probes read pass it, the
-trace's gatheredAt writes the frame before's corners where cascadeAt reads them, and RENDERING.md
-and SceneFieldPlan name cascadeAt; the FieldCascade[9] locals in the SPIR-V go from 22 to 0 in the
-model pass, 25 to 0 in gi_screen, 2 to 0 in the merge and 8 to 2 in the trace, the package's. The
-grove at 1920 by 1080 at High with the clocks matched reads the scene pass 10.4 ms where 20.6 stood,
-the global illumination pass 2.43 where 2.75, off 4.2, a noisier repeat 12.0 to 12.6 where 21.2 to
-23.0, 6.5 per depth time as 5.2.215; the far scene at 640 by 360 bit-identical before and after with
-and without the far cascade. 2,075 plain and shuffled, the strict build clean, lavapipe with
-validation 88 passed and 12 skipped. Pushed at 16:45 on 2026-10-24 after the build run of `e2a203d9`
-went green whole, the run watched, and the second pack run started at 16:45 on it, the sky fold and
-the later cuts for a package after it. Item 96 begins with a reading on the game's 5.2.215 build at
-the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs
-per fragment from the variant's registers, the window's depth at half size and the scene pass
-shading with overdraw pointing at a half-size pass over the window's depth with a two by two depth
-and normal read, as the glow pass has. Next 96, the scene pass's read of the cascades, then 100, the
-field's foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words on the
-loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help,
-then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+Reviewed up to `89154675`, item 96's second mend, the sky's share folded into the world probes'
+gather, read at 17:31 on 2026-10-24, carrying REVIEW.md. bouncedIn takes the skies' faces the ray
+looks toward in the same gather, bouncedAndSkyAt gives both, and litLight takes the sky there where
+it reads the world probes and keeps the seen sky elsewhere; the grove at 1920 by 1080 at High reads
+the scene pass 8.9 ms where 10.1 stood at matched clocks; the far scene identical, the day sky at
+hour 16 differing in 309 and 31 of 230,400 pixels by one level of 255, the reordered sum's rounding.
+2,075 plain and shuffled, the strict build clean, lavapipe with validation 118 passed and 12 skipped
+over the global illumination, field, bounce room, cascade edge and reference frame tests. Pushed at
+17:58 on 2026-10-24 after the build run of `ff2c5175` went green whole, the run watched. Item 96
+begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of
+the per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
+window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
+over the window's depth with a two by two depth and normal read, as the glow pass has. Next 101, the
+shadow-only draw for the game's culled casters, then 102, the far cascade's slab, then 103, the
+screen probes' one switch, then 96, the scene pass's read of the cascades and the shadow fill, then
+100, the field's foliage share, then 93, the colons out of the documents, then 91, DESIGN.md's words
+on the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
+help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
 branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
 by.
 
+Before it, `ff2c5175` came, item 96's first mend, pushed at 16:45 on 2026-10-24, its build run green
+whole at 17:54, Windows in 69 minutes, Linux in 58 and macOS in 31, its pack run in flight for the
+second package.
+
 Before it, `e2a203d9` came, item 99, pushed at 15:26 on 2026-10-24, its build run green whole at
 16:42, Windows in 75 minutes, Linux in 57 and macOS in 36.
-
-Before it, `391bbfd7` came, item 98, with `ea74b21d`, Verdict 87's mend, and `b5741f88`, item 94's
-test, pushed at 14:08 on 2026-10-24, its build run green whole at 15:24, Windows in 76 minutes,
-Linux in 58 and macOS in 29, its pack run green whole at 16:43 and 5.2.281 pushed to nuget.org, the
-package after 5.2.215, with items 83, 72, 90 and 92 and item 98's scene pass at twice 5.2.215's; the
-second package from `ff2c5175` follows.
 
 Before it, `b888b242` came, item 92, with `26818786` and `d52d1781`, pushed at 11:15 on 2026-10-24,
 their run and the pack run red on Linux alone on one test, Verdict 87, the pack run packing nothing.
@@ -1130,9 +1125,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     c, probes) and the cascade lookups taking the uniform info and the probes' count, the model
     pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; at
     `ff2c5175`, read at 15:57, the scene pass 10.4 ms at the grove where 20.6 stood and 18.4 before
-    it, the package's cost, the far scene bit-identical. The cut reading on these shaders next, the
-    sky's share folded into the world probes' gather one candidate, exact since a face's alpha holds
-    the same move on both faces of an axis, each cut by gain for cost.
+    it, the package's cost, the far scene bit-identical. The cut reading at 16:4x on these shaders,
+    in depth-pass units at about 1.5 ms of depth, High 6.6, off 2.8 and every cut 2.6, the world
+    probes' light 1.9, the sky's share 0.5, the glow lights 1.8 (their fallback march to the lights
+    about 1 and the rough light per texel about 0.6), the trace 0.2 and the ground read 0. The
+    second mend at `89154675`, the sky's share folded into the gather, the scene pass 8.9 ms where
+    10.1 stood, exact to a level's rounding. The game read 5.2.281's shadow fill at about 4 ms of
+    the shadows pass at the grove, 5.2 to 5.9 against 1.0, a cut to read beside the others. Next by
+    gain for cost, the glow lights' fallback march read for which texels send pixels to it and cut
+    where the reading says, then a half-size pass over the window's depth writing the world probes'
+    light and the sky's share, read two by two by depth and normal with the per-pixel read where no
+    texel is alike, about 2 to 2.5 ms, a new stage with its images and bindings, the bounce rooms
+    against their references at both sizes and the grove's edges captured against the full-size
+    read.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry to come. The game moved its
@@ -1160,6 +1165,66 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     covered-fault rule, a test of a plane under a slab of foliage cells at a half reading about half
     the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
     commits, after item 96 and before 93.
+
+101. **A mesh is drawn into the shadow maps alone, so a game that culls its view keeps its
+    casters.** From the game's reading of 5.2.281 at 17:4x on 2026-10-24, read at 17:48, its ASKS.md
+    entry of 2026-10-24 carrying the table. In the game's world at minus 59.5, minus 4, minus 91.5
+    looking 0 and minus 30 at noon, the deepslate tops 45 blocks in read 35, 29, 20 at High with the
+    shadow distance at 150 and the same at 96, 38, 38, 43 with global illumination off and 0 with
+    the distance at 1, so the sun's direct light reaches them through 45 blocks of stone within the
+    map's reach, digit for digit as on 5.2.215, and item 83's mend and item 94's test, a cave under
+    ten units of stone, do not cover it; the edge lines of the 10:59 crop stand too. Read on the
+    game's own build at that place, the shadow pass's view of the casters above the camera, whether
+    the sections over the cave are culled from the cascade before the depth clamp sees them, the
+    cascade's range fit to the view without the casters toward the light, or the depth clamp missing
+    the cascade the cave falls in; the mend at the cause, item 94's test widened to the camera
+    inside the cave with the casters 45 units above at the game's shadow distances, red before the
+    mend, and the game's place read again with the package. One commit, first, before item 96's
+    remaining cuts. The reading at 18:48 on 2026-10-24, on the game at `758e9df` in Release on
+    5.2.281 at the entry's place at 1280 by 720 at hour 12, found the cause in the game's section
+    culling and not the map. With voxel.cull on the tops 45 blocks in read 37, 30, 21 at High with
+    the shadows at 150, 0 at 1 and 40, 39, 45 with global illumination off, and with it off 0, 0, 0
+    at High at every distance and 6, 18, 35 with global illumination off, the light from all around;
+    4,624 pixels over 24 levels culled against 77 not, the edge lines going with the lit tops; the
+    90-block tops 9, 13, 18 either way, item 102's part. The game draws only the sections the eye
+    sees through open cells, so the ground over the cave is never drawn and never reaches the shadow
+    pass, and the engine cannot keep casters a program does not draw. The mend is the engine's way
+    to draw a mesh into the shadow maps alone, a flag on DrawMesh or the material the shadow pass
+    reads and the view pass skips, with its CHEATSHEET line and the guide's sentence on a game that
+    culls its view, item 94's widened test drawing the cave's roof through the flag with the camera
+    inside, red before; the game then draws its culled sections toward the sun within the shadow
+    distance through it, its item 123. One commit, small, first.
+
+102. **The far cascade's coarse cells near the ground hold no slab, so the game can set it.** From
+    the same reading and its own ASKS.md entry of 2026-10-24, read at 17:48. With SetSceneField's
+    far cascade at infinity the game's cascade 4 stands at 73.75 blocks a cell, and the play check's
+    gray glass frame reads 197, 192, 144 where 197, 195, 194 without it, a red wall's blue 57
+    against 98, since the coarse cells hold the ground as a slab and the probes near it take the
+    sky's light from walls near them; it costs about 5 ms of the scene pass at the grove and changes
+    none of the cave's readings at any reach, the far tops at 90 blocks still 25, 36, 53 with global
+    illumination off and 9, 13, 18 at High, the sky's share unoccluded beyond the counted cascades'
+    reach, so the game leaves it off. The mend keeps the far cascade to what item 72 meant, read
+    only by a ray that leaves the counted cascades, the near probes and the pixels' reads taking
+    nothing from its cells within the counted reach, and its cost at the grove read and cut; the
+    bounce rooms with the far cascade set against their references and the game's glass frame and
+    red wall read again; then the far cave's sky at 90 blocks read on the game with the far cascade
+    set. One commit, after item 101 and before item 96's remaining cuts.
+
+103. **The screen probes have one switch, and off means no screen pass at all.** The owner asked the
+    game's session at about 18:4x on 2026-10-24, read at 18:44, why two checkboxes stand for the
+    screen probes, one in the game's F3 window under the quality and one in the global illumination
+    window as the screen's probes, and why the first must be on and the second off to see the screen
+    without them. The first is SetGlobalIlluminationScreenProbes, whether the probes exist, and with
+    it off and glow lights in view the engine keeps the glow-only screen pass, Screen.z at 1 in
+    LightingUboPrepare and the glow lights' light read through the screen tiles; the second is the
+    debug toggle gi.toggle screen, the probes traced but unread, which leaves the glow-only pass
+    alone, so only the first on and the second off gives no tiles. SetGlobalIlluminationScreenProbes
+    off turns the screen pass off whole, the glow lights marched per pixel then as they are with no
+    tiles, their cost read with forty glowstones and said in the guide; the global illumination
+    window's toggle is named for what it does, the probes traced but unread, under the window's
+    debug toggles with a line saying it is for reading the trace's cost; the game's F3 checkbox then
+    does what it says. A test turning the probes off with a glow light in view reads no screen tile
+    written. One commit, small, after item 102 and before item 96's remaining cuts.
 
 ## Verdicts
 

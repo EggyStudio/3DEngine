@@ -51,13 +51,16 @@ public sealed class GlowLightsTests : IDisposable
         found.Should().Be(70);
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan()).ToArray();
         floats[0].Should().Be(GlowLights.Most);
-        var middles = Enumerable.Range(0, GlowLights.Most).Select(n => floats[4 + n * GlowLights.Bytes / 4]).ToList();
+        var middles = Enumerable.Range(0, GlowLights.Most).Select(n => floats[GlowLights.Head / 4 + n * GlowLights.Bytes / 4]).ToList();
         middles.Should().Equal(Enumerable.Range(0, GlowLights.Most).Select(n => (float)(69 - n) * 2), "the nearest the eye first");
-        var first = floats[4..(4 + GlowLights.Bytes / 4)];
+        var first = floats[(GlowLights.Head / 4)..(GlowLights.Head / 4 + GlowLights.Bytes / 4)];
         first[1].Should().BeApproximately(0.5f, 1e-6f);
         first[3].Should().BeApproximately(MathF.Sqrt(4 * 6 / (4 * 0.02f)), 1e-3f, "a block of six faces giving off four at its brightest reaches where it lights a surface by a fiftieth");
         first[4..8].Should().Equal(0.5f, 0, 0, 0.5f);
         first[16..20].Should().Equal(4, 2, 1, 1);
+        var reach = first[3];
+        floats[1..4].Should().Equal([12 - reach, 0.5f - reach, -reach], "the box every light's reach lies in, from the nearest light at 12 to the furthest at 138");
+        floats[4..7].Should().Equal([138 + reach, 0.5f + reach, reach]);
     }
 
     [Fact]

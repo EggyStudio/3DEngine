@@ -124,8 +124,11 @@ public struct GiLights
     // xyz: the corner each cascade of probes lay at the frame before, where the faces the probes'
     // rays read were gathered, its own corner where it lay nowhere. w: unused.
     public float4 before[MostProbeCascades];
-    // x: how many of glows hold a light.
+    // x: how many of glows hold a light. yzw: the least corner of the box every glow light's reach
+    // lies in.
     public float4 glowCounts;
+    // xyz: the most corner of that box. w: unused.
+    public float4 glowHigh;
     public GlowLight glows[MostGlowLights];
 };
 
@@ -676,6 +679,13 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // 0.279, since the strip's light on its own wall is light the reference has.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way)
 {
+    // A point past every light's reach takes none of their light, found before the loop over them,
+    // which the voxel game's cherry grove ran at each pixel of the far land and the clouds, a fifth
+    // of its pixels, their surfaces blended and so missing from the window's depth the screen's
+    // texels are taken from, its scene pass 9.1 ms at 1920 by 1080 on the development machine's GPU
+    // where it takes 8.4.
+    if (any(p < lights.glowCounts.yzw) || any(p > lights.glowHigh.xyz))
+        return float3(0.0);
     int count = min(int(lights.glowCounts.x), MostGlowLights);
     float cell = fieldCell(info, p);
     float margin = max(cell, 0.0) * 0.5;

@@ -52,8 +52,14 @@ internal static class GlowLights
     /// <summary>Where the lights start in the lights of global illumination, after the sun, the sky, the lamps and the cascades' corners, their count first.</summary>
     public const int Offset = 64 + 16 * 64 + GlobalIlluminationRenderer.MostCascades * 16;
 
-    /// <summary>The bytes the count and the lights take.</summary>
-    public const int Size = 16 + Most * Bytes;
+    /// <summary>
+    /// The bytes ahead of the lights, the count and the least corner of the box every light's
+    /// reach lies in, and the box's most corner.
+    /// </summary>
+    public const int Head = 32;
+
+    /// <summary>The bytes the count, the box and the lights take.</summary>
+    public const int Size = Head + Most * Bytes;
 
     // The light a surface at the reach takes from one, a fiftieth of its own, past which the
     // light is let go, over a quarter of the box's surface as the box's mean face seen from afar.
@@ -197,7 +203,7 @@ internal static class GlowLights
     /// <paramref name="eye"/>, into <paramref name="bytes"/>, the count and then each light, and
     /// gives how many there were in all, written or not.
     /// </summary>
-    /// <param name="bytes">The count's sixteen bytes and the lights', <see cref="Size"/> in all.</param>
+    /// <param name="bytes">The count's and the box's bytes, <see cref="Head"/>, and the lights', <see cref="Size"/> in all.</param>
     /// <param name="drawn">The meshes the field gathered this frame.</param>
     /// <param name="eye">The window's eye, the nearest to which are written.</param>
     /// <param name="firstCell">The width of a cell of the field's first cascade, which says which emitters are carried.</param>
@@ -218,6 +224,9 @@ internal static class GlowLights
         var count = Math.Min(lights.Count, Most);
         Span<int> placeOf = stackalloc int[Most];
         floats[0] = places?.Place(lights, count, placeOf) ?? count;
+        // The box no light reaches past, empty where there is none, so a point outside it, as one
+        // of the far land, takes no light without being weighed against each.
+        var (low, high) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
         for (int n = 0; n < count; n++)
         {
             if (places is null) placeOf[n] = n;
@@ -225,8 +234,9 @@ internal static class GlowLights
             var surface = 4 * FacesSurface(new Vector3(x.Length(), y.Length(), z.Length()), faces == 0 ? All : faces) * share;
             var brightest = MathF.Max(glow.X, MathF.Max(glow.Y, glow.Z));
             var reach = MathF.Sqrt(brightest * surface / (4 * Faint));
-            var light = floats.Slice(4 + placeOf[n] * Bytes / 4, Bytes / 4);
+            var light = floats.Slice(Head / 4 + placeOf[n] * Bytes / 4, Bytes / 4);
             (light[0], light[1], light[2], light[3]) = (middle.X, middle.Y, middle.Z, reach);
+            (low, high) = (Vector3.Min(low, middle - new Vector3(reach)), Vector3.Max(high, middle + new Vector3(reach)));
             (light[4], light[5], light[6], light[7]) = (x.X, x.Y, x.Z, x.Length());
             (light[8], light[9], light[10], light[11]) = (y.X, y.Y, y.Z, y.Length());
             (light[12], light[13], light[14], light[15]) = (z.X, z.Y, z.Z, z.Length());
@@ -234,6 +244,8 @@ internal static class GlowLights
             // as glowShare and glowFaces in glow.slang read them.
             (light[16], light[17], light[18], light[19]) = (glow.X, glow.Y, glow.Z, share + 2 * faces);
         }
+        (floats[1], floats[2], floats[3]) = (low.X, low.Y, low.Z);
+        (floats[4], floats[5], floats[6]) = (high.X, high.Y, high.Z);
         return lights.Count;
     }
 

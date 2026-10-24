@@ -796,3 +796,65 @@ lets light through leaves.
 Review: item 100 of REVIEW.md, 2026-10-24; a cell marked as foliage carries a share of light that
 passes it, the cascades' march taking that share off a ray rather than stopping, after item 96 and
 before 93.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the sun's map lights a deep cave's block tops and their edges at 45 blocks on 5.2.281 as on 5.2.215
+
+Read with `./e3d command voxel.pixel` at the game's `758e9df`, a Release build on the 3DEngine
+5.2.281 package beside one at `9a3d746` on 5.2.215, offscreen at 1280 by 720 on the RTX 4070 Laptop
+GPU, with the game's three default packs, `voxel.world overworld 1`, render distance 12, the screen
+probes off, the eye's feet on the floor of a cave at -59.5, -4, -91.5, 73 blocks under the ground,
+`voxel.look 0 -30`, 150 frames after each change. The tops of deepslate blocks 45 blocks ahead are
+read at -65.5, 1, -136.5 and of stone blocks 90 blocks ahead at -45.5, 2, -180.5, each in sRGB levels,
+the same on both packages to the level:
+
+| hour | global illumination | shadow distance | 45 blocks | 90 blocks |
+|---|---|---|---|---|
+| 12 | high | 96 | 35, 29, 20 | 18, 20, 22 |
+| 12 | high | 150 | 35, 29, 20 | 9, 13, 18 |
+| 12 | off | 96 | 38, 38, 43 | 25, 36, 53 |
+| 12 | high | 1 | 0, 0, 0 | 9, 13, 18 |
+| 0 | high | 96 | 0, 0, 0 | 0, 0, 0 |
+
+At the shadow distance of 1 the game's contact shadows past the map hold the tops dark, and at
+midnight there is no sun, so the light on them at 96 and 150 is the sun's through the map, the
+ground 70 blocks above the tops left out of what the map holds for that view. The one-pixel lines of
+light on the tops' edges and down their sides there are the map's too, read for the game's item 119.
+Over the frame's band at 480, 0, 420 by 90 the pixels lit above 24 levels number 4,496 to 4,500 with
+the shadows at 96 and 3,775 to 3,779 at 1, the lines and the lit tops gone, and moving the eye by a
+fraction of a pixel, 0.0005 to 0.0015 of a block, moves none of them, where cracks between faces
+would come and go with the eye. The game's faces each lie on the block grid and share their corners,
+which a test of its mesher holds. So the engine lacks a map that keeps the casters above a deep view
+in its depth, or reads a face's edge rows against the map's texels, as item 83 meant to.
+
+Review: item 101 of REVIEW.md, 2026-10-24; the sun's map keeping the casters above a deep view, read
+on the game's own build at the place, with 94's test widened; first.
+
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, the far cascade's coarse cells take the sky's light from walls near the ground and leave a cave's light as it was
+
+Read at the game's `758e9df` on the 3DEngine 5.2.281 package, offscreen at 1280 by 720 on the RTX
+4070 Laptop GPU, the far cascade set through `./e3d eval "SetSceneField(4, 0.25f, 2, farCascade: <d>)"`
+over the game's own field of four cascades of 0.25. At `float.PositiveInfinity` `field.state` gives
+the far cascade 73.75 blocks a cell, at 2048 37.75, at 1024 19, at 512 9.5 and at 256 4.75.
+
+- The game's `build/play.sh`, its flat world at noon, two panes of a pack's glass with a gray frame
+  before a wall of red concrete. The frame reads 197, 195, 194 in sRGB levels without the far cascade
+  and 197, 192, 144 with it at the far plane, the blue of the light from the sky taken. A flat scene
+  of the same wall and glass with no pack reads 186, 98, 98 without it, 182, 89, 57 at the far plane
+  and 186, 97, 86 at 512.
+- The deep cave of the entry above reads the same at every far distance and without it, its tops
+  at 45 blocks 35, 29, 20 and at 90 blocks 18, 20, 22, so the far rays of that cave meet nothing the
+  far cascade adds.
+- Seed 1's sunlit plains by its village read the same, 137.3, 168.9, 40.1 over the lower half of the
+  frame either way.
+- With `./e3d command profile` over 300 frames at an unlimited rate, at 1920 by 1080 at seed 1's
+  cherry grove from -736, 79, -960 facing 345 at hour 16, global illumination at High, the far
+  cascade at the far plane costs the scene pass about 5 ms, 29.4 against 24.2.
+
+So the far cascade's cells, as wide as reaching the far plane makes them, hold the ground about
+the eye as a slab many blocks thick and darken the low sky a wall beside it sees, and the engine
+lacks a far cascade that keeps the sky over flat ground, or a reach a game can bound by what it
+draws. The game leaves the far cascade off meanwhile.
+
+Review: item 102 of REVIEW.md, 2026-10-24; the far cascade read only by a ray that leaves the
+counted cascades, its near cells taking no part within the counted reach, the cost read; after item
+101.
