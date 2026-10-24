@@ -16,6 +16,9 @@ internal sealed class SceneFieldSettings
     /// <summary>How many cascades are built again a frame at most.</summary>
     public int UpdateBudget { get; set; } = SceneFieldConfig.DefaultUpdateBudget;
 
+    /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
+    public int TriangleBudget { get; set; } = SceneFieldConfig.DefaultTriangleBudget;
+
     /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for none.</summary>
     public int Shown { get; set; } = -1;
 
@@ -47,7 +50,7 @@ internal sealed class SceneFieldRenderer : IDisposable
 {
     private GpuSceneField? _field, _off;
     private SceneFieldPlan? _plan;
-    private (int Cascades, float CellSize, int Budget) _made;
+    private (int Cascades, float CellSize, int Budget, int Triangles) _made;
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
@@ -96,6 +99,11 @@ internal sealed class SceneFieldRenderer : IDisposable
 
     /// <summary>Whether a mesh's triangles are held on the CPU, which a counted mesh's are not, so the device's ray tracing passes it over.</summary>
     internal bool HoldsTriangles(ModelVertex[] vertices) => _indices.ContainsKey(vertices);
+
+    // A mesh's triangles, its indices' or the count a counted mesh's read back gave, which a build
+    // splats and the plan's triangle budget counts.
+    private int TrianglesOf(ModelVertex[] vertices) =>
+        _indices.TryGetValue(vertices, out var indices) ? indices.Length / 3 : _countedMeshes.TryGetValue(vertices, out var counted) ? counted.Vertices / 3 : 0;
 
     // The array a counted mesh stands in the plan by, once its count for a version is known, asking
     // that count back where the mesh has a newer version, or null for one with no box or no count yet.
@@ -188,12 +196,12 @@ internal sealed class SceneFieldRenderer : IDisposable
             return;
         }
 
-        var wanted = (Math.Clamp(settings.Cascades, 1, 8), settings.CellSize, Math.Max(1, settings.UpdateBudget));
+        var wanted = (Math.Clamp(settings.Cascades, 1, 8), settings.CellSize, Math.Max(1, settings.UpdateBudget), Math.Max(1, settings.TriangleBudget));
         if (_field is null || _made != wanted)
         {
             Release();
             _made = wanted;
-            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf);
+            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf);
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
@@ -232,8 +240,11 @@ internal sealed class SceneFieldRenderer : IDisposable
             {
                 var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell);
                 Hold(instances);
+                // A build in parts lends the cells the light of thin emitters whatever its first part
+                // holds, since a later part may hold one, and that light is cleared at its start.
                 Hold(device.RecordSceneFieldBuild(commands, _field, corners, instances, count, triangles,
-                    build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow));
+                    build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
+                    lend: build is { First: true, Last: true } ? thinGlow : true));
             }
             foreach (var (cascade, origin, cell, painted) in repaints)
             {
@@ -546,17 +557,14 @@ internal sealed class SceneFieldRenderer : IDisposable
         var meshes = needed.DistinctBy(instance => instance.Vertices, ReferenceEqualityComparer.Instance)
             .Select(instance => (instance.Vertices, instance.Mesh)).ToList();
         var adding = meshes.Where(mesh => !_pooled.ContainsKey(mesh.Vertices)).ToList();
-        // A mesh's triangles, its indices' or the count a counted mesh's read back gave.
-        int Triangles(ModelVertex[] vertices) =>
-            _indices.TryGetValue(vertices, out var indices) ? indices.Length / 3 : _countedMeshes.TryGetValue(vertices, out var counted) ? counted.Vertices / 3 : 0;
-        var more = adding.Sum(mesh => Triangles(mesh.Vertices));
+        var more = adding.Sum(mesh => TrianglesOf(mesh.Vertices));
         if (_corners is null || _cornerCount + more > _cornerCapacity)
         {
             // Made again with the meshes this frame needs, which drops the ones no longer built from.
             if (_corners is not null) Hold(_corners);
             _pooled.Clear();
             _cornerCount = 0;
-            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(m => Triangles(m.Vertices)) * 2)));
+            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, meshes.Sum(m => TrianglesOf(m.Vertices)) * 2)));
             _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage, CpuAccessMode.Write));
             adding = meshes;
         }

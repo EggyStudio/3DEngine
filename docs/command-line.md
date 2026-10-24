@@ -86,8 +86,9 @@ answering the model's counts, and `model.show house 0 0 0` draws it as it is cut
 blocked out from the terminal ([Modeling](modeling.md#blocking-out-from-the-terminal)).
 
 Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
-window as the field holds the scene, `-1` none, `field.state` says where each cascade lies and how
-many meshes are in it, and `field.rebuild 400` builds a cascade every frame for four hundred frames,
+window as the field holds the scene, `-1` none, `field.state` says where each cascade lies, how
+many meshes are in it and how many triangles the frame's builds splatted and left waiting, and
+`field.rebuild 400` builds a cascade every frame for four hundred frames,
 so `profile` gives what a build costs. Where global illumination is on, `gi.state` says the quality,
 the cascades of probes and their rays, the screen's probes, the reflections, and the GPU memory each
 takes, `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses

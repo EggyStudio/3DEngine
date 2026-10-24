@@ -31,13 +31,24 @@ public static partial class E3D
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
     /// its cost as <c>scene_field</c>.
     /// </para>
+    /// <para>
+    /// A frame's builds splat <paramref name="triangleBudget"/> triangles at most, a mesh at least,
+    /// the still meshes within a cascade's band nearest the eye first, and a build of more goes on
+    /// over the frames after, its cascade keeping what it was last built with until the build ends
+    /// and the meshes not yet splatted stamped as boxes meanwhile. So hundreds of meshes arriving in
+    /// one frame, as a world streamed in on a teleport or a first load, are built over several frames
+    /// rather than stalling one, and a scene of fewer triangles builds as many cascades a frame as
+    /// <paramref name="updateBudget"/> says.
+    /// </para>
     /// </remarks>
-    public static void SetSceneField(int cascades, float cellSize = SceneFieldConfig.DefaultCellSize, int updateBudget = SceneFieldConfig.DefaultUpdateBudget)
+    public static void SetSceneField(int cascades, float cellSize = SceneFieldConfig.DefaultCellSize, int updateBudget = SceneFieldConfig.DefaultUpdateBudget,
+        int triangleBudget = SceneFieldConfig.DefaultTriangleBudget)
     {
         var field = World.GetOrInsertResource(static () => new SceneFieldSettings());
         field.Cascades = Math.Clamp(cascades, 0, 8);
         field.CellSize = Math.Max(1e-3f, cellSize);
         field.UpdateBudget = Math.Max(1, updateBudget);
+        field.TriangleBudget = Math.Max(1, triangleBudget);
     }
 
     /// <summary>

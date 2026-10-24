@@ -71,7 +71,7 @@ illumination shares it with the occlusion, the sun's contact shadows and the par
 as [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field) in
 the materials guide says.
 
-`SetSceneField(cascades, cellSize, updateBudget)` sets its shape. The field is cascades of 64 cells
+`SetSceneField(cascades, cellSize, updateBudget, triangleBudget)` sets its shape. The field is cascades of 64 cells
 a side, each twice as coarse and as wide as the one before, so four cascades of a quarter reach 16
 units across in the first and 128 in the last, and the probes stand in the same cascades. The cell
 is the finest detail global illumination sees. A wall thinner than a cell is held about its middle
@@ -81,6 +81,15 @@ cascades a frame as the budget says, the finest first. A mesh drawn in the same 
 frames is built in from its triangles; one that moves is held as boxes painted its color, so a red
 figure reflects red light, though its emission reaches no other surface unless it is small enough to
 be a light of its own, below.
+
+A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, the meshes
+within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames
+after, its cascade holding what it was last built with until the build ends and the meshes not yet
+built in held as boxes meanwhile, so hundreds of sections of a world streamed in at once, on a
+teleport or a first load, are built over several frames rather than stalling one. A scene of fewer
+triangles builds as many cascades a frame as `updateBudget` says. The frame profile
+names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
+budget for its own device.
 
 Each cascade lies mostly ahead of the eye, its middle 0.35 of its width in front, so its side behind
 the eye is between 1.6 and 9.6 of its cells back. What stands behind the camera farther than that is

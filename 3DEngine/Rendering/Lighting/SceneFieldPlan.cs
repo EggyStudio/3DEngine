@@ -43,7 +43,7 @@ namespace Engine;
 /// does not bend a box for each part its triangles were cut into, or the box around all of them.
 /// </para>
 /// </remarks>
-internal sealed class SceneFieldPlan
+internal sealed partial class SceneFieldPlan
 {
     /// <summary>The cells along each side of a cascade.</summary>
     public const int Resolution = 64;
@@ -148,12 +148,18 @@ internal sealed class SceneFieldPlan
     }
 
     /// <summary>
-    /// A cascade built this frame, which it is, its corner, its cells' width, the still meshes that
-    /// come within its band, and the box around the meshes that came or went within it since it was
-    /// last built, the whole cascade at its first build, or null where nothing did, as where the
-    /// eye moved it.
+    /// A cascade's build, or the part of it this frame splats, which cascade it is, its corner, its
+    /// cells' width, the still meshes within its band it splats, and on its last part the box around
+    /// the meshes that came or went within it since it was last built, the whole cascade at its first
+    /// build, or null where nothing did, as where the eye moved it.
     /// </summary>
-    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null);
+    /// <remarks>
+    /// A build of more triangles than a frame's budget is splatted over as many frames as it takes,
+    /// its <paramref name="First"/> part clearing the cascade's words and its <paramref name="Last"/>
+    /// turning them into the distances the passes read, so until then the passes read the cascade as
+    /// it was last built.
+    /// </remarks>
+    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null, bool First = true, bool Last = true);
 
     /// <summary>
     /// A mesh stamped as a box, from the world into its own space, the box's middle and half
@@ -162,6 +168,7 @@ internal sealed class SceneFieldPlan
     internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default);
 
     private readonly Func<ModelVertex[], Box> _bounds;
+    private readonly Func<ModelVertex[], int> _triangles;
     private readonly Func<ModelVertex[], Part[]?> _parts;
     private readonly Func<Instance, Vector3> _tint;
     private Dictionary<Instance, int> _seen = new(Keys.Shared);
@@ -219,14 +226,18 @@ internal sealed class SceneFieldPlan
     /// What a mesh's boxes' color is multiplied by, its vertices' colors' mean in linear light, which
     /// the build blends across each face, or white for none.
     /// </param>
+    /// <param name="triangleBudget">How many triangles the builds splat a frame at most, a mesh at least.</param>
+    /// <param name="triangles">How many triangles a mesh has, a third of its vertices unless given.</param>
     public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null,
-        Func<Instance, Vector3>? tint = null)
+        Func<Instance, Vector3>? tint = null, int triangleBudget = SceneFieldConfig.DefaultTriangleBudget, Func<ModelVertex[], int>? triangles = null)
     {
         _parts = parts ?? (_ => null);
         _tint = tint ?? (_ => Vector3.One);
         Cascades = Math.Clamp(cascades, 1, 8);
         CellSize = cellSize;
         Budget = Math.Max(1, budget);
+        TriangleBudget = Math.Max(1, triangleBudget);
+        _triangles = triangles ?? (vertices => vertices.Length / 3);
         _bounds = bounds ?? Box.Of;
         _built = new Vector3?[Cascades];
         _builtFrame = new long[Cascades];
@@ -243,8 +254,17 @@ internal sealed class SceneFieldPlan
     /// <summary>How many cascades are built a frame at most.</summary>
     public int Budget { get; }
 
-    /// <summary>The cascades built this frame.</summary>
+    /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
+    public int TriangleBudget { get; }
+
+    /// <summary>The cascades built this frame, or the parts of their builds splatted this frame.</summary>
     public List<Build> Builds { get; } = [];
+
+    /// <summary>How many triangles this frame's builds splat.</summary>
+    public int Splatted { get; private set; }
+
+    /// <summary>How many triangles of a build left for later frames wait to be splatted.</summary>
+    public int Waiting => _job is null ? 0 : _job.Left.Skip(_job.Next).Sum(entry => _triangles(entry.Instance.Vertices));
 
     /// <summary>The shapes stamped this frame.</summary>
     public List<Shape> Shapes { get; } = [];
@@ -444,18 +464,7 @@ internal sealed class SceneFieldPlan
         }
         for (int c = 0; c < Cascades; c++)
             if (_built[c] != OriginAround(c, eye, ahead)) _dirty[c] = true;
-        var rebuilt = new bool[Cascades];
-        for (int c = 0, budget = Budget; c < Cascades && budget > 0; c++)
-        {
-            if (!_dirty[c]) continue;
-            budget--;
-            var origin = OriginAround(c, eye, ahead);
-            var reach = CascadeBox(c, origin).Grown(Band * CellOf(c));
-            Builds.Add(new Build(c, origin, CellOf(c), [.. _still.Where(entry => entry.Value.Bounds.Overlaps(reach)).Select(entry => entry.Key)],
-                _built[c] is null ? reach : _changed[c]));
-            _changed[c] = null;
-            (_built[c], _builtFrame[c], _dirty[c], rebuilt[c]) = (origin, _frame, false, true);
-        }
+        var rebuilt = Splat(eye, ahead);
 
         // A still mesh is stamped until every built cascade it comes within the band of has been
         // built since it came, but for one that replaced a mesh in place (_replacing).
@@ -578,7 +587,7 @@ internal sealed class SceneFieldPlan
     // A still mesh that left, its cascades made dirty to be built again without it.
     private void Leave(Instance instance)
     {
-        MarkAround(_still[instance].Bounds);
+        MarkAround(_still[instance].Bounds, Follow(instance, _still[instance].Bounds, came: false));
         _still.Remove(instance);
         _pending.Remove(instance);
         _replacing.Remove(instance);
@@ -616,7 +625,7 @@ internal sealed class SceneFieldPlan
         var bounds = _bounds(instance.Vertices).Transformed(instance.World);
         _still[instance] = (bounds, _frame);
         _pending.Add(instance);
-        MarkAround(bounds);
+        MarkAround(bounds, Follow(instance, bounds, came: true));
     }
 
     // Whether this frame draws the meshes the frame before did, in the same order, each by its
@@ -697,11 +706,12 @@ internal sealed class SceneFieldPlan
     // The box around all of each mesh as its one part, kept for its vertices.
     private readonly Dictionary<ModelVertex[], Part[]> _whole = new(ReferenceEqualityComparer.Instance);
 
-    // Marks dirty every cascade whose band a box comes within, where the cascade has been built.
-    private void MarkAround(Box bounds)
+    // Marks dirty every cascade whose band a box comes within, where the cascade has been built,
+    // but for one whose build in progress has taken the change in.
+    private void MarkAround(Box bounds, int followed = -1)
     {
         for (int c = 0; c < Cascades; c++)
-            if (_built[c] is { } origin && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c))))
+            if (c != followed && _built[c] is { } origin && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c))))
             {
                 _dirty[c] = true;
                 _changed[c] = _changed[c] is { } box ? box.With(bounds) : bounds;

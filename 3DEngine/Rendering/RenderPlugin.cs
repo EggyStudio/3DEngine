@@ -101,6 +101,7 @@ internal sealed class RenderPlugin : IPlugin
                 Cascades = cfg.SceneField.Cascades > 0 ? cfg.SceneField.Cascades : 4,
                 CellSize = cfg.SceneField.CellSize,
                 UpdateBudget = cfg.SceneField.UpdateBudget,
+                TriangleBudget = cfg.SceneField.TriangleBudget,
             });
         if (cfg.GlobalIllumination != GlobalIllumination.Off)
             app.World.InsertResource(new GlobalIlluminationSettings { Quality = cfg.GlobalIllumination });
