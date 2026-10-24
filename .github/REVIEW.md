@@ -10,10 +10,11 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `17f13440`, the stepped edges' line in RENDERING.md's paragraph on the glow lights, a
-pixel marching to a glow light's face halves under gi.toggle screen off and where no texel holds a
-point like its own, a shadow's edge stepping there where the probes' texels read it smooth, the
-game's capture of 2026-10-21 having taken the toggle's path, after `2dd40fe4`, the sixth term
+Reviewed up to `783213f3`, the noise line under the sixth term with its three forms and the bounce
+rooms' counts, after `17f13440`, the stepped edges' line in RENDERING.md's paragraph on the glow
+lights, a pixel marching to a glow light's face halves under gi.toggle screen off and where no texel
+holds a point like its own, a shadow's edge stepping there where the probes' texels read it smooth,
+the game's capture of 2026-10-21 having taken the toggle's path, after `2dd40fe4`, the sixth term
 widened in RENDERING.md to a bright patch narrower than a probe's texel read by a few fixed rays,
 the small emitter's near field and the ceiling over Blockout's lamp its two forms with their
 numbers, the screen probes making the spots, after `a8f34b35`, item 71's edge leak mended in
@@ -26,15 +27,16 @@ room at High 21 to 2 and 20 to 0 with the probes off and on, the closed edge 2 a
 sectioned room as the game meshes it at 640 by 360, since the leak is under 4 levels at 320 by 180,
 reading 2 open and 2 closed where 10 and 7 without, failing without the mend; RENDERING.md's line on
 the resolve with the numbers; 2,055 passed plain and shuffled, 116 on lavapipe with the layer. Read
-at 04:14 on 2026-10-24. The term and the line read at 04:19 and 04:21. Not pushed, the build run of
-`26dbc6da` running; the three go when it ends. Next 71's noise in the bounce rooms 3 to 6, then the
-z-fighting and the shift, then the noise, the z-fighting and the shift, then 74's and 72's
-cherry-picks with the default's device readings and Ore's capture. Items 74 and 72 are whole on
-`modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and `54d7c3e`, under the owner's identity, the
-cloud session standing by; the branch's items 59 to 66, 75 to 78 and 88 are on main.
+at 04:14 on 2026-10-24. The term and the lines read at 04:19, 04:21 and 04:25. Pushed at 04:27 after
+the build run of `26dbc6da` ended, Linux, macOS and the examples green and Windows red, Verdict 86;
+the run watched. Next Verdict 86's mend, then 71's shift, then the noise, the z-fighting and the
+shift, then 74's and 72's cherry-picks with the default's device readings and Ore's capture, then
+item 89. Items 74 and 72 are whole on `modeling`, `629c1643`, then `e164ccaa`, `0e908bdf` and
+`54d7c3e`, under the owner's identity, the cloud session standing by; the branch's items 59 to 66,
+75 to 78 and 88 are on main.
 
 Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
-at 03:22 on 2026-10-24, their run in flight.
+at 03:22 on 2026-10-24, their run green but for Windows, Verdict 86.
 
 Before it, `49d834e1` came, item 77's captures, pushed at 02:29 on 2026-10-24 with the four of items
 75 and 77, its run green whole.
@@ -792,7 +794,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     changing 0.03% at most; view 4's sunlit floor under the window a bright patch narrower than a
     far wall probe's texel, 9 spots against 6 without the probes, view 6's strip the near field, 16
     against 7, views 3 and 5 their own edges either way; no mend, the term gaining the line and the
-    sunlit floor as its third form. The z-fighting next.
+    sunlit floor as its third form. The z-fighting next. The noise line at `783213f3`. The
+    z-fighting's first reading at 04:3x: no coplanar faces fight in the bounce rooms' nine views,
+    and two patterns of the global illumination look like it stretched, the screen probes' scallops
+    and tile patches on the grazing floor's view with the probes on, and sawtooth teeth along the
+    walls' junctions at the world probes' spacing with them off; weighed in that order, and the
+    game's own scene read at the owner's view for a true coplanar fight and the shadow map's acne
+    before any mend. Read in the game itself at 04:29: no coplanar faces fight, and what the owner
+    saw is the shadow map's, the acne of thin two-sided plant walls shadowing themselves in speckled
+    stripes that shift as the eye turns, and the map's texels stepping on the pond, both standing
+    with global illumination off and gone with the shadows off, the bounce rooms' pattern under a
+    level; named in RENDERING.md under the lights and shadows, the plants' acne item 89, the pond's
+    steps the game's own grid of eight a block by its Decision 29. The shift next.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -995,9 +1008,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cherry-pick after item 63's. On main as `26dbc6da` on 2026-10-24, the patch the branch's to the
     line, held for the push; item 88 done.
 
+89. **Thin two-sided masked faces carry no shadow acne.** Read under item 71 on 2026-10-24 in the
+    voxel game: a wheat field's thin cutout walls shadow themselves in speckled dark and light
+    stripes that shift as the eye turns, the map's bias of three texels along the normal being
+    nothing for a face the sun grazes edge-on and seen from either side, while solid blocks, leaves
+    and the water's top are clean. The mend chosen by reading in an engine room built as the game's
+    field, the wheat's walls on farmland under the sun at 10 o'clock, against the path-traced
+    reference by region: a receiver bias by the face's slope to the sun for two-sided masked faces,
+    or the casters' side read from the sun's side, whichever leaves the wall's lit face even within
+    a level and the shadow it casts on the ground where the reference has it, the covered-fault rule
+    across the bounce rooms and the game's room at both sizes; a test reading a thin cutout wall's
+    lit face for stripes, the variance along it under a bound, failing without the mend;
+    RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
+    commit, after items 74 and 72's cherry-picks.
+
 ## Verdicts
 
-Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+86. **The Windows suite's Rendering part was lost at its limit in the run of `26dbc6da`.** Read at
+    04:25 on 2026-10-24 from the run's Windows job: the Rendering part, 347 passed and none failed,
+    lost to a test that hung after 45 minutes 23 seconds, in
+    GlobalIlluminationTests.Global_Illumination_Holds_Still_As_The_Camera_Slides, the host killed at
+    the limit, the slowest tests that ended GlowPillarTests' lamp past a pillar at 4 minutes 42
+    seconds and GlowLightsTests' emissive block in a room at 4 minutes 25 seconds; Linux and macOS
+    green, the job 59 minutes where the run before took 49. The push carried items 63 and 88 and no
+    Rendering test, so either the test hangs on Windows by timing or the part has grown past its 45
+    minutes on lavapipe without a cache. The reading: the part's output in the run's artifact, read
+    from the scratchpad's art-3de-40049505326 folder, says where the test stood and what the part's
+    tests took; the run of the four pushed after it says whether it repeats. The mend by the cause:
+    a hang mended where it hangs, or the part split or its slowest tests given the null device where
+    they read nothing of the device, as N 6.8 and item 2's readings allow; no test loosened. One
+    commit, before the next push. Mended at `?`.
+
+Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
 
 ## Decisions
 

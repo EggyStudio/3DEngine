@@ -243,15 +243,18 @@ public sealed partial class GlobalIlluminationTests
         // tile's middle shows, so as the camera slides they slide over the surfaces and their light
         // changes with them, which blending each with the frame before's where its surface was
         // holds still. One slide's change differs from the next's by as much as global illumination
-        // adds, so the change is read over the five.
+        // adds, so the change is read over the five. One app draws every slide, each from thirty
+        // frames still, since an app opened for each of the fifteen took the test past the five
+        // minutes without a result the runner allows on Windows' lavapipe, its shaders compiled
+        // again at each app's first frame.
         var slide = Vector3.UnitX;
+        Open();
+        CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         double Change(GlobalIllumination quality, bool held = true)
         {
-            Open();
             SetGlobalIllumination(quality);
             GetApp().World.Resource<GlobalIlluminationSettings>().HistoryOff = !held;
-            CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
-            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             var shots = new List<string>();
             for (int frame = 0; frame < 50; frame++)
             {
@@ -270,9 +273,6 @@ public sealed partial class GlobalIlluminationTests
                 if (frame >= 36) TakeScreenshot(shots[^1]);
                 EndDrawing();
             }
-            UnloadModel(slab);
-            CloseWindow();
-            UseApp(null);
             var changes = new List<double>();
             for (int i = 1; i < shots.Count - 2; i++)
             {
@@ -304,6 +304,7 @@ public sealed partial class GlobalIlluminationTests
             adds.Add(Change(GlobalIllumination.Low) - still);
             unhelds.Add(Change(GlobalIllumination.Low, held: false) - still);
         }
+        UnloadModel(slab);
         adds.Average().Should().BeLessThan(0.15,
             $"indirect light does not crawl as the camera slides, adding {adds.Average():0.00} levels a frame ({adds.Min():0.00} to {adds.Max():0.00}) and unheld {unhelds.Average():0.00} ({unhelds.Min():0.00} to {unhelds.Max():0.00})");
     }
