@@ -1,10 +1,30 @@
 # 3DEngine devlog
 
-What landed in 3DEngine, by day and newest first, with the pictures taken on the way: the captures
+What landed in 3DEngine, by day and newest first, with the pictures taken on the way, the captures
 the repository keeps under `.github/assets`. A line under Done names the item of .github/REVIEW.md
 or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 ## 2026-10-24
+
+![](.github/assets/readings/2026-10-09-bounce-rooms.webp)
+![](.github/assets/readings/2026-10-10-subsurface-pair.webp)
+![](.github/assets/readings/2026-10-17-bounce-before-after-1.webp)
+![](.github/assets/readings/2026-10-17-bounce-before-after-2.webp)
+![](.github/assets/readings/2026-10-17-bounce-before-after-3.webp)
+![](.github/assets/readings/2026-10-21-ore-glow-crops.webp)
+![](.github/assets/readings/2026-10-23-blotches.webp)
+![](.github/assets/readings/2026-10-23-cascade-seams.webp)
+![](.github/assets/readings/2026-10-23-summit-horizon.webp)
+![](.github/assets/readings/2026-10-24-blockout-spots.webp)
+![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
+![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
+![](.github/assets/readings/2026-10-24-edge-leak.webp)
+![](.github/assets/readings/2026-10-24-non-number-texels.webp)
+![](.github/assets/readings/2026-10-24-shift.webp)
+![](.github/assets/readings/2026-10-24-wheat-acne.webp)
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/cascades/ore-field-edge.webp)
 RENDERING.md shows Ore past a field's edge set on its land, without the distant ambient and with it,
@@ -19,38 +39,38 @@ The day sky example's capture holds it at six, at noon, at eighteen and at midni
 Summit's is taken again under its day sky, and the README's gallery shows the example. (`49d834e1`)
 
 ![](.github/assets/readings/2026-10-24-edge-leak.webp)
-The edge leak at eight times its brightness: a glow light's fan at the foot of the edge two blocks
+The edge leak at eight times its brightness, a glow light's fan at the foot of the edge two blocks
 meet, before the mend above and after it below, the checkerboard cell held inside the field (item
 71).
 
 ![](.github/assets/readings/2026-10-24-blockout-spots.webp)
-Blockout's wall under its lamp with the screen probes on and left out: the round spots are the
+Blockout's wall under its lamp with the screen probes on and left out; the round spots are the
 probes' own, the ceiling's bright patch narrower than a texel read by a few fixed rays (item 71).
 
 ![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
-The bounce rooms' noise: views with the screen probes on and off beside their path-traced
+The bounce rooms' noise, views with the screen probes on and off beside their path-traced
 references, the still spots the sixth term's and the sunlit floor under a window its third form
 (item 71).
 
 ![](.github/assets/readings/2026-10-24-wheat-acne.webp)
 A wheat field's thin walls in the voxel game as it ships and with its lighting turned back part by
-part: the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
+part; the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
 (item 71, item 89).
 
 ![](.github/assets/readings/2026-10-24-shift.webp)
-A lantern room before and after the eye steps half a block, with the screen probes on and left out:
+A lantern room before and after the eye steps half a block, with the screen probes on and left out;
 the sixth term's spots stand at new places after the step while the lamps move by parallax alone
 (item 71).
 
 ![](.github/assets/readings/2026-10-24-non-number-texels.webp)
-Item 90's reading at the desert village view: the glow texels whose normal is a non-number, marked,
+Item 90's reading at the desert village view, the glow texels whose normal is a non-number, marked,
 which the screen probes' history keeps and spreads as black.
 
 ![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
 The nine views of the bounce rooms as the readings take them, the Cornell box, the strip, the
 corridor and the rooms with a window.
 
-Done:
+Done that day
 
 - Item 63 at `b6d822ee`. A game that is a level blocked out with the tools, Blockout (Decision 51).
 - Item 72 at `14338c8f`. The sun's shadows and the scene field reach the far plane through a fill
@@ -96,11 +116,11 @@ the land meets the color it fades into (item 75).
 ![](.github/assets/readings/2026-10-23-cascade-seams.webp)
 The sun's cascades at a low sun with their seams mended, a long shadow held across them (item 83).
 
-Done:
+Done that day
 
 - Item 59 at `ffb15cb6`. An edit mesh a program shapes by operations, with a recipe that rebuilds
   it, built into what the engine draws and collides with (Decision 51).
-- Item 60 at `1093ae32`. Grid prototyping: materials that show a meter, texture coordinates aligned
+- Item 60 at `1093ae32`. Grid prototyping, materials that show a meter, texture coordinates aligned
   to the world, and openings cut by booleans (Decision 51).
 - Item 61 at `5f1e0f6e`. The modeling commands, so a level is blocked out from the terminal, and a
   window in the game to shape by hand (Decision 51).
@@ -141,7 +161,7 @@ lights do not change, Ore at night with sixty-four lit drawing in 2.50 ms where 
 Ore's glowstone light in three crops, read for the glow lights of small emitters (item 71's first
 part).
 
-Done:
+Done that day
 
 - Item 57 at `c2b8c0e9`. A feature-test program puts every feature on one map, a capsule character
   on test courses, an admin panel and a console, with a crash log beside the executable.
@@ -191,7 +211,7 @@ Pinball joins the games, a table of bumpers, slingshots and two flippers whose b
 body, its flippers on hinges driven by their motors and its plunger on a slider driven by its own,
 played, soaked, resized and captured with the others. (`2271cdea`)
 
-Done:
+Done that day
 
 - Item 7 at `fd484ead`. A game is written meanwhile.
 - Item 30 at `b35bcb8f`. The radiance cascades look as good as they can (Decision 44), the week's
@@ -236,7 +256,7 @@ Done:
 
 ## 2026-10-19
 
-Done:
+Done that day
 
 - Item 34 at `c6914ab3`. An ImGui draw command binds the texture it names, so a window draws a
   program's `Texture2D` (ASKS.md, 2026-10-18).
@@ -266,7 +286,7 @@ Ore joins the games, a voxel landscape of 48 by 48 columns under global illumina
 ore is its only light at night, walked in the first person, and played, soaked, resized and captured
 with the others. (`4c6630a4`)
 
-Done:
+Done that day
 
 - Item 26 at `4d5db9df`. Two workflows an engine, `build.yml` on a push and `pack.yml` by hand
   (Decision 40), committed at `534a1c2b`, done on 2026-10-18 with the pack run of `4d5db9df` whole
@@ -289,13 +309,13 @@ Done:
 The Cornell box before and after the light that bounces, and the bounce rooms after it, at the
 radiance cascades' first landing.
 
-Done:
+Done that day
 
-- Item 29 at `7b2486a5`. The register: STYLE.md's rule and the sweep (Decision 43).
+- Item 29 at `7b2486a5`. The register, STYLE.md's rule and the sweep (Decision 43).
 
 ## 2026-10-12
 
-Done:
+Done that day
 
 - Item 2 at `c54d64eb`. Four things seen in the voxel game on 2026-10-10 (Decision 27), before item
   3's remainder.
@@ -349,7 +369,7 @@ A pixel reads the glow lights its probes mark alone, an eighth of their light or
 probes weighed once, and the march ends inside a wall by its own condition, so the model pass's
 share in a room of sixteen lamps falls from 0.47 ms to 0.25. (`0f5cdbcf`)
 
-Done:
+Done that day
 
 - Item 5 at `1fa88e8b`. The first shares recorded from the workflow's own device.
 - Item 11 at `e28064f7`. The README's examples as one scrolling row a folder, the games' text under

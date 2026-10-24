@@ -10,25 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e15cb271`, the devlog's move, DEVLOG.md at the root with its links resolving from
-there and AGENTS.md's Documents row naming it on the owner's word, Decision 66, the review's files
-with it, doc only, the norm tests 16 of 16. Read at 08:02 on 2026-10-24. Pushed at 08:28 after the
-build run of `522c662a` ended, Linux, macOS and the examples green and Windows red at the Rendering
-part's 70-minute limit again, 374 passed this time, Verdict 86; the run watched. Verdict 86's timing
-so far: HEAD's Rendering part on lavapipe with the cache off takes 43 minutes 59 seconds for 488
-tests, GlobalIlluminationTests 15.8 minutes of it for 43 tests, GlowLightsTests 6.5,
-CascadeEdgeTests 3.6, GlowPenumbraTests 2.7, ReferenceFrameTests and BounceRoomsTests 2.4 each;
-`49d834e1` and `26dbc6da` timing in worktrees. Next Verdict 86's mend, then item 90, the glow
-light's non-number and the history's guard, then item 89, the plant walls' acne. The branch
-`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `98cf2ded`, Verdict 86's mend, and nothing else, carrying the review's file,
+DEVLOG.md and the sixteen readings: build/test.py's --split PART=N runs a part in N processes, its
+classes dealt by name and a lost run's rerun mapped to its half, and the Windows job's call takes
+--split Rendering=2 with the reason; on the 4070 through the new path Rendering 1 passed 207 in 2
+minutes 56 seconds and Rendering 2 307 in 4 minutes 19, the suite 2,068 of 2,068 with none without a
+result, plain and shuffled the same. Read at 09:46 on 2026-10-24. Pushed at 09:56 after the build
+run of `e15cb271` ended, Linux, macOS and the examples green and Windows red at the part's limit
+again with 384 passed; the run watched, the verdict settling on its two halves. Next item 90, then
+92, the window under X11 on Linux, then 93, the colons out of the documents, then 91, DESIGN.md's
+words on the loop and the ECS, then the glow light's non-number and the history's guard, then item
+89, the plant walls' acne. The branch `modeling` was deleted at 07:23 with its items all on main, N
+7.5; the cloud sessions stand by.
+
+Before it, `e15cb271` came, the devlog's move, pushed at 08:28 on 2026-10-24, its run green but for
+Windows, Verdict 86's limit again.
 
 Before it, `522c662a` came, Ore's picture, with the eight of items 74, 72 and 71's close from
 `4c629a7c`, pushed at 06:59 on 2026-10-24, their run green but for Windows, Verdict 86's limit
 again.
-
-Before it, `68545bcf` came, Verdict 86's second commit, with `239bd67e`, `8d644430` and `37bd6f76`,
-pushed at 05:30 on 2026-10-24, their run green but for Windows, whose Rendering part ran to its
-70-minute limit.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1062,7 +1062,62 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     as the depth's precision and the far uv step round away; the other 23 to 25 are texels whose
     rough light is a non-number with a finite normal, still being read. The mend in sight: the
     normal from the depth falling back to facing the eye where the cross is degenerate, in the glow
-    pass and gi_screen.slang's two like normals, and the guard as the item says.
+    pass and gi_screen.slang's two like normals, and the guard as the item says. At 09:4x the mend
+    stands in the coder's tree, the normal's fallback in gi.slang used by the glow pass and twice in
+    gi_screen.slang, the guard in the filter and the glow pass, and the two tests; the engine scene
+    at 3,000 from the origin reads 120,638 black against 27,157 with the mend at 1280 by 720 over
+    240 frames, the smallest scene that shows it being found for the test. The owner asked at about
+    10:3x what the black comes from, and said it is mended first, its cause known and written in a
+    document for why and how it happened, and not put back, since a game might later use such a
+    spread as an effect of its own, a horror game's world glitching out; so the commit's
+    RENDERING.md paragraph under the screen probes says the cause and the spread in full, the normal
+    from the depth's two axis steps where a step is exactly zero at a far texel, in the glow pass's
+    texel normal and the screen pass's probe and glow normals, and the histories blending each such
+    texel's light into its neighbors frame by frame until the land is black, and TODO.md gains a
+    line for a later effect that reproduces the spread on purpose under a program's call. Corrected
+    by the coder at 10:3x, the cause is one, the degenerate normal; the marks taken for a rough
+    light's non-number were the desert's sunlit sand under its color test.
+
+91. **DESIGN.md says the loop and the ECS are both the engine's way, each where it fits, with the
+    voxel game as the model (Decision 68).** DESIGN.md's opening and its fifth section say the ECS
+    is underneath for a program that grows into it; the owner's word of 2026-10-24 is that both are
+    the engine's way and a program chooses by what fits, the loop of flat calls for the frame, the
+    drawing and the interfaces, where raylib's way reads best, and the ECS for the things that move
+    and the data that lives across frames, where behaviors, queries, states and the scheduler read
+    best, the ECS being this engine's own feature over raylib. So DESIGN.md's opening says both, its
+    fifth section is written again as the choice with the voxel game, Voxel-Sandbox, named as the
+    model of the split, the mobs, drops and sections of its items 94 to 96 as entities and its
+    frame, drawing and interface in the loop; a guide page of its own, docs/the-loop-and-the-ecs.md
+    or a name the coder finds better, says when each fits with a short example of each, a behavior
+    that moves a thing and a loop that draws it, built on the ecs_behaviors example so its blocks
+    compile under the guides' check, the guide table gaining its row after the first game's; the
+    README's sentence on the ECS says the same in a line. The engine's own small games stay as they
+    are. One commit, docs only, after item 90; the gaps the game's port finds come to this engine
+    through ASKS.md as items ahead of its other work, by the Decision.
+
+92. **The window runs under X11 on Linux for the present (Decision 69).** The owner found on
+    2026-10-24 that the window looks better run with SDL_VIDEO_DRIVER=x11: under Wayland SDL3 draws
+    the window's frame itself through libdecor, whose GTK plugin, where it is installed, draws a
+    GTK3-style frame with rounded top corners, square bottom corners and its own drop shadow inside
+    the app, where under X11 the desktop draws the frame. So on Linux the window sets SDL's video
+    driver hint to x11 before SDL starts, in the platform's window code with the reason in its
+    comment, named as above without naming anyone; an environment variable the user sets keeps its
+    precedence over the hint, as SDL's hints have it, so SDL_VIDEO_DRIVER=wayland still chooses
+    Wayland; and where X11 is not there, SDL's start failing under the hint, the hint is cleared and
+    SDL started again so a session without XWayland still opens a window, the log saying which
+    driver the window got. A test reading the hint set on Linux through the null device's start or
+    the log's line; BUILDING.md's Linux section says it in two sentences with the override. One
+    commit, small, after item 90 and before item 91; the game takes it with the next package.
+
+93. **No running sentence holds a colon, across the documents, the comments and the scripts.** The
+    owner wrote at about 10:34 on 2026-10-24 that some documents join sentences with a colon and
+    that STYLE.md forbids it, the devlog among them. STYLE.md's own check, the awk over the Markdown
+    files outside their code and the grep over the comments and scripts, lists the hits, and each is
+    read and recast as STYLE.md says, a sentence of its own or the same sentence recast, a label at
+    a line's end or in a table left as it is, over the guides under docs, RENDERING.md, E3D.md,
+    CHEATSHEET.md's comment lines, ASKS.md's entries, and the comments of the code and the scripts;
+    the review's files are the reviewing session's own and are not touched. One commit, docs and
+    comments only, after item 92.
 
 ## Verdicts
 
@@ -1121,7 +1176,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     in turn, a lost run's rerun mapping each test to its half, and the Windows call takes --split
     Rendering=2 with the reason, the halves 207 and 307 tests at 24.4 and 19.6 local minutes, under
     70 at two and a half times local; the suite run through the new path on the device before the
-    commit.
+    commit. Mended at `98cf2ded` on 2026-10-24, held for the push; settles when its run's Windows is
+    green with the two halves.
 
 Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
 
@@ -1714,6 +1770,24 @@ Verdicts 56 to 85 are settled, said under each in REVIEW-ARCHIVE.md; 86 is open.
     direction, is the shape of the sixth term's weakness, a bright patch narrower than a probe's
     texel, and is noted beside it for a later experiment on the glow lights' near field should a
     three-dimensional form be published.
+
+68. **The loop and the ECS are both the engine's way, each where it fits.** The owner wrote at about
+    10:24 on 2026-10-24 that the voxel game should move to the ECS where it fits, the ECS being this
+    engine's own feature over raylib and a choice BevyCSharp's Bevy does not leave, and that the
+    choice should not be to ignore it; the earlier reading that the design should reflect raylib
+    stands for the frame, the drawing and the interfaces, and the ECS takes the things that move and
+    the data that lives across frames. The owner answered the reviewer's questions: the voxel game
+    moves its moving things, its sections as mesh entities and its player and states, piece by piece
+    after its items 92 and 93; where the ECS falls short the engine grows first, each gap an ASKS.md
+    entry taken ahead of other engine work; DESIGN.md says both with the voxel game as the model,
+    and the engine's own small games stay as they are. Item 91 here, items 94 to 96 in the game.
+
+69. **The window runs under X11 on Linux for the present.** The owner wrote at about 10:29 on
+    2026-10-24 that the window looks better with SDL_VIDEO_DRIVER=x11 and asked that the engine
+    enforce X11 for the present, with the reason that SDL3 draws its frame through libdecor, whose
+    GTK plugin, installed on the owner's machine, draws a GTK3-style frame with rounded top corners,
+    square bottom corners and its own drop shadow inside the app. Item 92; the user's own
+    environment variable keeps precedence, and a session without X11 falls back to what SDL finds.
 
 ## Replies
 

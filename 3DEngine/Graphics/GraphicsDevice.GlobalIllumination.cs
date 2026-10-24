@@ -538,7 +538,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// </remarks>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
-        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false)
+        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false,
+        bool loggedNotANumber = false)
     {
         var run = new ProbeRun(this, commandBuffer, [(ScreenStage, 1), (FilterStage, glowOnly ? 0 : 1), (GlowStage, glowLights ? 1 : 0)]);
         var cmd = run.Commands;
@@ -574,7 +575,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, screen.GlowSeen);
         run.Buffer(set, 14, VkDescriptorType.StorageBuffer, screen.RayLog);
         run.Image(set, 15, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
-        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), glowOnly ? 1u : 0];
+        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0)];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);

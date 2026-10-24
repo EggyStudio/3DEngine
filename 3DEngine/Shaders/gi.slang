@@ -59,6 +59,17 @@ public uint RaysAt(uint texels)
     return texels <= 8u ? 4u : 1u;
 }
 
+// A surface's normal from the cross of its ways along two axes of the window's depth, or facing
+// the eye along `toEye` where the cross has no length or none a float holds. Far from the world's
+// origin, a far texel's neighbor read back from the depth falls on the same point, and the normal
+// made from it was a value that is not a number, which the glow lights' light at the screen's
+// probes carried and their history spread over the land.
+public float3 surfaceNormal(float3 crossed, float3 toEye)
+{
+    float length2 = dot(crossed, crossed);
+    return length2 > 1e-20 && length2 < 1e30 ? crossed * rsqrt(length2) : normalize(toEye);
+}
+
 // A texel's mark as gi_trace.slang writes it for `rays` rays, `nothing` of which met nothing, is
 // what most of them met, 0 a surface, a half a surface before their interval began, a quarter the
 // sky and 1 nothing, moved a sixteenth on for each that met nothing, up from 0 or a half and down

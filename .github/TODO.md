@@ -211,6 +211,13 @@ physics, text and fonts, audio, audio streams and waves, and files
   view's size and from the scene's distance field where it is built, so a mesh that casts none
   closes nothing off, and probe captures are drawn without it.
 
+- **An effect that spreads black through the light on purpose is not written.** A value that is
+  not a number at the screen's probes once spread through their history frame by frame into every
+  probe around until the land was black (RENDERING.md §4), which a program could take as an effect
+  of its own, a world that glitches out under a call, as a horror game might use it. The guard that
+  takes a light a float does not hold as none stands in its way, so the effect would seed the
+  spread itself and let the blends carry it, its reach and how long it lasts set by the call.
+
 - **Light scatters under a surface in the window and comes through its thin parts.** A
   material's `SubsurfaceRadius` and `SubsurfaceColor` spread the diffuse light of the window's
   opaque and masked surfaces drawn with the model pass's own shader across and then down the

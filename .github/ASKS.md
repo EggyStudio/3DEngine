@@ -16,7 +16,7 @@ follows STYLE.md, and no entry names a person (NORM.md's rule 4.7).
 
 ## Entries
 
-### 2026-10-10, the voxel game in `3DEngine.Game`: its tests build on every run but run on none
+### 2026-10-10, the voxel game in `3DEngine.Game`, its tests build on every run but run on none
 
 `3DEngine.Game.Tests` holds 22 tests of the game's light levels, its meshes' faces and corners, the
 player's body, its saves and its generation, each in a small world laid out without a window or a
@@ -32,7 +32,7 @@ Review: on 2026-10-17 the game moves to its own repository (REVIEW.md Decision 4
 workflow runs these tests on every push; item 1's clause on `build/test.py` running them here is
 dropped.
 
-### 2026-10-11, the voxel game in `3DEngine.Game`: land behind a wall is lit in any order
+### 2026-10-11, the voxel game in `3DEngine.Game`, land behind a wall is lit in any order
 
 In a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
 white_concrete` on a flat world), its west wall red and its east wall green, with sixteen glowstones
@@ -45,7 +45,7 @@ outside the room, all of it behind the room's walls, costs the pass about 0.6 ms
 is seen.
 
 The game draws its opaque sections in the order it keeps them. Drawn nearest the eye first they cost
-no less: 1.40 to 1.43 ms nearest first against 1.35 to 1.38 ms kept with the glow lights off, and
+no less, 1.40 to 1.43 ms nearest first against 1.35 to 1.38 ms kept with the glow lights off, and
 1.85 to 1.92 against 1.79 to 1.83 with them on, three readings after 400 frames of each order, each
 order twice, the kept order's readings matching the room's earlier ones, so no other work held the
 GPU then. The model pass discards a fragment for its alpha cutoff and no pass writes depth ahead of
@@ -60,11 +60,11 @@ The game culls the sections the eye cannot see, on by default and turned off by 
 flood through the sections' open faces from the eye's section as Minecraft's visibility graph has
 it, leaving the eye's own section only by the faces the open cells around the eye reach, the lamps'
 cubes drawn all the same. Read on `2a14ab13`'s engine from a clean worktree, each kind twice and in
-turns, `./e3d command profile` over 300 frames, or over a walk of 14 blocks: this entry's room as
-above, a cave carved in a hill of stone at noon on the flat world, from 50, 6, -30 to 60, 10, -20 in
-stone from 40, 4, -40 to 70, 40, -10, and a cave of seed 1's hills at -28, 34, -32 walked east at
-noon. The passes are the window's depth, the model pass, the sun's shadows and the light that
-bounces, in milliseconds.
+turns, `./e3d command profile` over 300 frames, or over a walk of 14 blocks, in three scenes, this
+entry's room as above, a cave carved in a hill of stone at noon on the flat world, from 50, 6, -30
+to 60, 10, -20 in stone from 40, 4, -40 to 70, 40, -10, and a cave of seed 1's hills at -28, 34, -32
+walked east at noon. The passes are the window's depth, the model pass, the sun's shadows and the
+light that bounces, in milliseconds.
 
 | Scene, culling | Sections left out | Depth | Model pass | Shadows | Bounce | Frame |
 |---|---|---|---|---|---|---|
@@ -76,10 +76,10 @@ bounces, in milliseconds.
 | Hills' cave, on | 905 of 1,085 | 0.257 | 0.656-0.660 | 0.060-0.073 | 1.095-1.102 | 3.5-4.2 |
 
 In this room the flood leaves out 64 sections, 0.30 ms of the window's passes and the shadows, of
-the 0.34 to 0.42 the land costs: the flat world's open air outside the walls shares the room's
+the 0.34 to 0.42 the land costs, since the flat world's open air outside the walls shares the room's
 sections, and a section's faces are joined as wholes, so the flood passes out through them to the
 land around. Underground it leaves out nearly all, five sixths of the frame in the cave of the
-hills. The light the eye sees does not change: that cave lit by a glowstone reads the same with
+hills. The light the eye sees does not change. That cave lit by a glowstone reads the same with
 culling on and off, its mean 9.93 of 255 both ways and no pixel more than 2 apart, and the carved
 cave stays black at noon with the hill above it left out, so the culled land shades nothing the
 drawn sections do not. The field's own cost over the walk stays at 0.004 ms either way. The game
@@ -95,7 +95,7 @@ devices that gain and the land's cost is the game's to remove by culling the sec
 see, a flood fill through the sections' open faces from the eye's as Minecraft's visibility graph
 does, measured on this room; an occlusion culling in the engine waits on that measure.
 
-### 2026-10-11, the voxel game in `3DEngine.Game`: colors written in place miss global illumination
+### 2026-10-11, the voxel game in `3DEngine.Game`, colors written in place miss global illumination
 
 On `3c7fe822`, a closed room of white concrete 11 by 6 by 11 inside (`voxel.room 10 4 -22 22 11 -10
 white_concrete` on a flat world) built at hour 23, the game's light levels and corners then turned
@@ -109,7 +109,7 @@ From 300 frames after the lamp to 2,100 the frame's floor reads 0.099, 0.060 and
 wall 0.035, 0.021 and 0.007. A block set outside each of the room's four columns and taken away
 again makes each section upload its mesh anew, the room's blocks and light as before, and from 300
 frames on the floor reads 0.130, 0.081 and 0.027 and the wall 0.072, 0.047 and 0.016, a third
-brighter and twice as bright, and stays so. The reference does the same: its far wall reads 0.002
+brighter and twice as bright, and stays so. The reference does the same. Its far wall reads 0.002
 before the uploads and 0.043 after, and whole sections are black in its picture where the room was
 dark at their last upload. Global illumination and the reference keep a mesh's colors from its
 last upload and take none that `UpdateMeshBuffer` writes, while the model pass draws the new ones.
@@ -227,7 +227,7 @@ Review: item 21 of REVIEW.md, 2026-10-12; the colors of a mesh of positions alon
 alone and reach no buffer on the device, so a section is 20 bytes a vertex there, before the
 pillar's read; the land measured again after it.
 
-### 2026-10-18, the voxel game in `Voxel-Sandbox`: no particle keeps its place on a turning sky
+### 2026-10-18, the voxel game in `Voxel-Sandbox`, no particle keeps its place on a turning sky
 
 The game's stars are fixed points on a sky that turns with the hour about the axis from north to
 south, the sun on one side of it and the moon on the other, and are asked for as a particle effect
@@ -258,7 +258,7 @@ moving and turning with its transform and its parent's, and particles placed whe
 and living until it removes them, after item 31 and before item 30's parts; the game moves its stars
 to it when a package brings it.
 
-### 2026-10-18, the voxel game in `Voxel-Sandbox`: the sun's contact shadows cannot be turned off
+### 2026-10-18, the voxel game in `Voxel-Sandbox`, the sun's contact shadows cannot be turned off
 
 The game draws the sun's shadows pixelated. Each point of a face takes its light at the middle of
 the block's pixel it lies in, a sixteenth of a block on a side, so a shadow's edge steps along the
@@ -296,7 +296,7 @@ leaves them out where the shadow map holds the point, so a game keeps the field 
 illumination with hard shadows, after item 32; the far cascade's texel is noted under it as the
 lesser thing; the game turns the contact shadows off when a package brings the setting.
 
-### 2026-10-18, the voxel game in `Voxel-Sandbox`: an ImGui window cannot draw a program's texture
+### 2026-10-18, the voxel game in `Voxel-Sandbox`, an ImGui window cannot draw a program's texture
 
 The game draws every item's icon once into an atlas, 16 pixels an icon, which its hotbar draws as a
 texture with `DrawTexturePro` and its inventory window, drawn with ImGui, would draw with
@@ -321,7 +321,7 @@ Review: item 34 of REVIEW.md, 2026-10-18; a texture id for a `Texture2D` that th
 for each command drawn with it, after item 33; the game moves its inventory window onto its atlas
 when a package brings it.
 
-### 2026-10-19, the voxel game in `Voxel-Sandbox`: a draw through a program's own shader is drawn by every pass
+### 2026-10-19, the voxel game in `Voxel-Sandbox`, a draw through a program's own shader is drawn by every pass
 
 The game draws each section of its land as a mesh through its own shader
 (`VoxelSandbox/resources/shaders/terrain.slang`), whose vertex stage reads a face's normal, corner
@@ -370,7 +370,7 @@ the positions, and a batch drawn with it is then culled by its mesh's box in eve
 engine's own are, after the sampling term's commit; the game keeps 8 columns until a package brings
 it.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: a shader buffer is read back only by holding the program
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, a shader buffer is read back only by holding the program
 
 The game is to compute its columns' noise fields on the GPU and place the blocks from them on the
 CPU, where its bodies, edits, light levels and saves read the blocks, so each batch of columns comes
@@ -403,7 +403,7 @@ Review: item 68 of REVIEW.md, 2026-10-21; a readback asked for and collected lat
 ready, the staging buffers pooled, with the compute guide's section on when a game reads with a wait
 and when without; taken after item 67 and before the modeling work, a package due after item 69.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: a mesh reaches the screen only from arrays on the CPU
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, a mesh reaches the screen only from arrays on the CPU
 
 The game meshes each section of 16 by 16 by 16 blocks on the main thread under a budget of 4 ms a
 frame (`VoxelSandbox/VoxelGame.cs:14`) and gives its faces to the engine by `UploadMesh` and
@@ -429,7 +429,7 @@ vertex count the shader writes into the count buffer's first four bytes, a barri
 stage, culled by a box `SetMeshBoundingBox` sets and read by the global illumination as any mesh,
 with an example `shaders_compute_mesh`; taken after item 68, a package due after it.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: global illumination leaks through an edge, steps at its edges, and costs the model pass more without the screen's probes
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, global illumination leaks through an edge, steps at its edges, and costs the model pass more without the screen's probes
 
 The owner judges the screen's probes pixelated and the cascades without them the better look for
 the game, and sees a light block's light leak through the gap where two columns meet at a corner,
@@ -455,10 +455,10 @@ leak is the cascades' and stays without the screen's probes
 ([capture, eight times as bright](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/leak.webp)).
 
 **The zig-zag edges.** The leaked light's edges zig-zag in steps along the floor, wavy with the
-screen's probes and in square steps without them. A lamp's shadow shows the same: a glowstone on a
-block, `voxel.set 40 4 -30 stone` and `voxel.set 40 5 -30 glowstone`, a pillar two blocks tall
+screen's probes and in square steps without them. A lamp's shadow shows the same. With a glowstone
+on a block, `voxel.set 40 4 -30 stone` and `voxel.set 40 5 -30 glowstone`, a pillar two blocks tall
 three blocks east, `voxel.fill 43 4 -30 43 5 -30 stone`, at hour 23, seen from straight above,
-`voxel.tp 45.5 9 -29.5` and `voxel.look 90 -70`, its shadow's edges on the grass wavy with the
+`voxel.tp 45.5 9 -29.5` and `voxel.look 90 -70`, its shadow's edges on the grass are wavy with the
 screen's probes and stepped without them
 ([capture, contrast stretched](https://raw.githubusercontent.com/EggyStudio/Voxel-Sandbox/main/.github/assets/gi/penumbra.webp)).
 
@@ -504,7 +504,7 @@ the game waits on both; then, after the compute asks and the animated capture, t
 stepped edges, the noise and the shift, each reproduced in the engine's own scenes and mended under
 the rule that no view's distance to its reference widens, or named where the method stops.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: a lantern's or a torch's light lies in blotches
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, a lantern's or a torch's light lies in blotches
 
 The owner sees what read as fireflies in the game's captures of a room lit at night, soft round
 blotches of light about 40 pixels across standing still on the ceiling and the walls. Each was read
@@ -554,7 +554,7 @@ ceiling, read to their cause in the probes that gather a small emitter's light n
 the cascades and the screen's probes alike, and mended under the rule that no view's distance to its
 reference widens, or named where the method stops; after item 70.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: a masked surface drawn through a program's shader casts a whole quad's shadow
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, a masked surface drawn through a program's shader casts a whole quad's shadow
 
 The owner asks for the plants' shadows, the grass's blades and the flowers stepping with the pixels
 of the sun's map, which fit the game's look. The game's plants are a mesh of flat walls drawn
@@ -589,7 +589,7 @@ vertex stage gives, for the sun's cascades and the spot and point lights alike; 
 Shipped in 5.2.215 and taken by the game at `d7c4892` on 2026-10-24, the terrain shader cutting each
 wall's shadow by its tile's alpha, at 2.3 ms of GPU a frame on the development machine.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: the sky's light on the scene cannot be set apart from the sky drawn
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, the sky's light on the scene cannot be set apart from the sky drawn
 
 The owner asks for the game's light to look as the owner's modpack's shader, Aurora's Shaders after
 Complementary, draws its light with the owner's settings. Its ambient light is the sky's color to
@@ -621,7 +621,7 @@ Review: item 81 of REVIEW.md, 2026-10-21; `SetEnvironmentLight(intensity, tint)`
 tint of the environment map's light on the scene with the drawn sky unchanged, read by the model
 pass and the global illumination's sky term alike; after item 80.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`: the frame's curve cannot be the one the owner's modpack's shader draws
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, the frame's curve cannot be the one the owner's modpack's shader draws
 
 The owner asks for the game's frame to be graded as the owner's modpack's shader, Aurora's Shaders
 after Complementary, grades it with the owner's settings. Its BSL tonemap, read as numbers, takes a
@@ -646,7 +646,7 @@ Review: item 80 of REVIEW.md, 2026-10-21; `SetTonemapCurve(exposure, white, lowe
 shader's form beside the other tonemaps, and `SetTonemapShader(shader)` running a program's own
 fragment stage over the frame in the tonemap's place; after item 79.
 
-### 2026-10-24, the voxel game in `Voxel-Sandbox`: a small emitter's light gives black pixels, which the screen's probes keep and spread
+### 2026-10-24, the voxel game in `Voxel-Sandbox`, a small emitter's light gives black pixels, which the screen's probes keep and spread
 
 The README's pictures are taken again at a field of view of 40 degrees (REVIEW.md item 46), and the
 view of seed 1's desert village draws most of its land pure black. It was read at the game's

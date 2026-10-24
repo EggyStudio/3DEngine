@@ -2050,6 +2050,32 @@ that `gi.compare` writes beside its difference.
   the reference).
   ![The thin walls' corner, the frame before the mend, the frame after it, the frame after it without the screen probes, and the reference](assets/cascades/thin-walls-corner-leak.webp)
 
+**A value that is not a number at the screen's probes, read on 2026-10-24.** The voxel game's
+desert village of seed 1, seen at a field of view of 40 degrees with its 56 torches carried as
+glow lights, drew 215,459 of its pixels black at `High`, 596,201 six hundred frames on and 320 with
+the screen's probes' history left out. The cause is one. A surface's normal at a screen probe and
+at a glow texel is the cross of its steps along the two axes of the window's depth, each step from
+the texel's point to its neighbor's, and far from the world's origin, at a far texel, the
+neighbor's point read back from the depth is the same point as the texel's, so a step is exactly
+zero, the cross has no length and the normal made from it is a value that is not a number. It came
+in three places, the glow pass's normal at each of its texels and the screen pass's normal at each
+probe and its glow lights' normal, the last two taking the shorter of the steps on either side and
+so the zero one. Every light worked out from such a normal is a value that is not a number, which
+the glow pass's blend of the probes around a texel takes into its neighbors' light and its frame
+before's carries into the next frame, so frame by frame it spreads into every texel around until
+the land is black; in a copy of the game's build with the glow pass marked where its normal was
+one, 171 of the black pixels were those texels, and with the three normals mended none is black.
+Where the cross has no length or none a float holds, the normal faces the eye (`surfaceNormal` in
+`gi.slang`), and the view draws no pixel black, after 240 frames, after 840 and at a field of view
+of 70, where 303. An engine scene built to it, sand, houses and 56 torches under a low sun seen at
+40 degrees, draws 26,258 pixels black at 640 by 360 drawn 10,000 units from the origin where 6,570
+at it, the houses' shadows, and 6,917 with the normal facing the eye (`GlobalIlluminationTests`).
+The window's blend of the probes, the frame before's light at each and the glow pass's frame
+before take a light a float does not hold as none and write one as none (`lightHeld` in
+`gi_screen_filter.slang`), so a fault anywhere that gives one darkens a probe for a frame where it
+had spread to every probe around and every frame after. A probe a test feeds one for three frames
+leaves 6,132 pixels black after it as before it, where without the guard 6,751.
+
 **The screen's probes ray by ray, read on 2026-10-19.** `gi.screenprobe <x> <y>` reads the window's
 screen probe under a pixel as the screen's pass wrote it for the frame, into a buffer written for
 that probe alone, each of its sixteen rays where it was met, on the screen, in the field or past its

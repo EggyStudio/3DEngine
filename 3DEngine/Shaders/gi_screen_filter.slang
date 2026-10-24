@@ -43,6 +43,17 @@ static const float Fresh = 0.2;
 // from their mean.
 static const float Spread = 2.0;
 
+// Whether a light is one a float holds, neither a value that is not a number nor one past the
+// largest. A light that is not is taken as none, by the blend of the probes around and by the frame
+// before's, and written as none, so a fault anywhere that gives one darkens a probe for a frame
+// where the blends had carried it to every probe around and every frame after. A non-number at the
+// glow lights' light turned 215,459 pixels of the voxel game's desert village black, and 596,201
+// six hundred frames on, where 320 with the history left out.
+bool lightHeld(float3 light)
+{
+    return all(abs(light) < 1e30);
+}
+
 // The point a probe stands on, from the depth's texel under its tile's middle, as gi_screen.slang
 // placed it.
 float3 standsOn(int2 id)
@@ -79,7 +90,7 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
             int2 at = clamp(int2(id) + int2(x, y), int2(0), int2(int(across) - 1, int(down) - 1));
             float4 light = irradiance.Load(int3(at, 0));
             float4 other = geometry.Load(int3(at, 0));
-            if (light.a < 0.5 || other.w < 0.0)
+            if (light.a < 0.5 || other.w < 0.0 || !lightHeld(light.rgb))
                 continue;
             float off = abs(dot(standsOn(at) - here, surface.xyz));
             float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
@@ -123,9 +134,12 @@ float4 earlier(uint2 id, uint across, uint down, float4 surface)
         float4 before = lastGeometry.Load(int3(at, 0));
         if (before.w < 0.0 || dot(before.xyz, surface.xyz) < 0.9 || abs(before.w - expected) > 0.03 * expected + 0.05)
             continue;
+        float3 was = history.Load(int3(at, 0)).rgb;
+        if (!lightHeld(was))
+            continue;
         float2 lerps = lerp(1.0 - f, f, float2(corner & 1, corner >> 1));
         float weight = lerps.x * lerps.y;
-        sum += history.Load(int3(at, 0)).rgb * weight;
+        sum += was * weight;
         weights += weight;
     }
     return weights > 1e-4 ? float4(sum / weights, weights) : float4(0.0);
@@ -160,5 +174,6 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float fresh = lerp(1.0, Fresh, saturate(before.a));
     // Its alpha one more than the share of its light the frame before's gave, which a view of the
     // history shows.
-    blended[id.xy] = float4(lerp(held, now.rgb, fresh), 2.0 - fresh);
+    float3 result = lerp(held, now.rgb, fresh);
+    blended[id.xy] = float4(lightHeld(result) ? result : float3(0.0), 2.0 - fresh);
 }

@@ -91,4 +91,118 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(slab);
         UnloadModel(strip);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void Far_From_The_Worlds_Origin_Glow_Lights_Leave_No_More_Of_The_Land_Black_Than_Near_It()
+    {
+        // The voxel game's desert village at a field of view of 40 degrees, sand, houses and 56
+        // torches under a low sun, drawn 10,000 units from the world's origin and at it. Far from it,
+        // a far texel's neighbor read back from the window's depth fell on the same point, its normal
+        // made from the two a value that is not a number, which the glow lights' light at the
+        // screen's probes and the glow pass carried and their history spread, 26,258 pixels of the
+        // land black at 640 by 360 on the development machine's GPU where 6,570 at the origin, the
+        // houses' shadows; facing the eye where its neighbors give it none, 6,917.
+        double Black(float offset)
+        {
+            var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            SetSceneField(4, 0.25f, 2);
+            SetGlobalIllumination(GlobalIllumination.High);
+            CreateDirectionalLight(Vector3.Normalize(new Vector3(0.6f, -0.35f, 0.4f)), new Color(255, 200, 150), 2, castsShadows: true);
+            var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            var torch = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            torch.Materials[0].Emissive = new Color(255, 200, 120);
+            torch.Materials[0].EmissiveIntensity = 4;
+            var random = new Random(1);
+            var houses = Enumerable.Range(0, 40).Select(_ => new Vector3(random.Next(-60, 60), 0, random.Next(-160, -40))).ToArray();
+            var torches = Enumerable.Range(0, 56).Select(_ => new Vector3(random.Next(-60, 60) + 0.5f, 1.2f, random.Next(-160, -40) + 0.5f)).ToArray();
+            var at = new Vector3(offset, 0, -offset);
+            var eye = at + new Vector3(0, 20, 20);
+            float pitch = -18 * MathF.PI / 180;
+            var camera = new Camera3D(eye, eye + new Vector3(0, MathF.Sin(pitch), -MathF.Cos(pitch)), Vector3.UnitY, 40);
+            var sand = new Color(219, 207, 163);
+            for (int frame = 0; frame < 120; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(new Color(150, 195, 240));
+                BeginMode3D(camera);
+                DrawModelEx(block, at + new Vector3(0, -0.5f, -200), Vector3.UnitY, 0, new Vector3(600, 1, 600), sand);
+                foreach (var house in houses) DrawModelEx(block, at + house + new Vector3(0, 2, 0), Vector3.UnitY, 0, new Vector3(5, 4, 5), sand);
+                foreach (var lamp in torches) DrawModelEx(torch, at + lamp, Vector3.UnitY, 0, new Vector3(0.15f, 0.4f, 0.15f), Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            var renderer = GetApp().World.Resource<Engine.Renderer>();
+            var light = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+            var black = 0;
+            for (int i = 0; i < light.Length; i += 4)
+                if (!(light[i] + light[i + 1] + light[i + 2] >= 1e-4f)) black++;
+            UnloadModel(block);
+            UnloadModel(torch);
+            CloseWindow();
+            UseApp(null);
+            return black;
+        }
+
+        var (near, far) = (Black(0), Black(10_000));
+        far.Should().BeLessThan(near * 1.15, $"the land far from the origin is as lit as near it, {far} pixels black where {near}");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Screen_Probe_Fed_A_Value_That_Is_Not_A_Number_Leaves_The_Light_It_Blends_Into_Finite()
+    {
+        // The middle probe's light a value that is not a number for three frames, as the voxel game's
+        // desert village fed its probes one where their normals were, and then its own again. Kept by
+        // the window's blend of the probes around and by the frame before's, it spread over the land
+        // and stayed there; taken as none, the frame after reads as the frame before it was fed.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        lamp.Materials[0].Emissive = new Color(255, 200, 120);
+        lamp.Materials[0].EmissiveIntensity = 4;
+        // A floor, a red wall and a block, and a small lamp on the floor, whose light the probes
+        // carry to the glow pass.
+        void Draw()
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
+            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+            DrawModelEx(lamp, new Vector3(1.2f, 0.1f, 0.8f), Vector3.UnitY, 0, new Vector3(0.2f, 0.2f, 0.2f), Color.White);
+        }
+        static int Black(Image image)
+        {
+            var black = 0;
+            for (int y = 0; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var c = GetImageColor(image, x, y);
+                    if (Math.Max(c.R, Math.Max(c.G, c.B)) < 3) black++;
+                }
+            return black;
+        }
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        var before = Capture(Draw);
+        var probes = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+        settings.LoggedScreenProbe = probes.Down / 2 * probes.Across + probes.Across / 2;
+        settings.LoggedScreenProbeNotANumber = true;
+        for (int frame = 0; frame < 3; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+            Draw();
+            EndMode3D();
+            EndDrawing();
+        }
+        settings.LoggedScreenProbeNotANumber = false;
+        settings.LoggedScreenProbe = -1;
+        var after = Capture(Draw);
+        Black(after).Should().BeLessThanOrEqualTo(Black(before), $"no pixel the probe's non-number reached stays black, {Black(after)} black after it where {Black(before)} before");
+        UnloadModel(slab);
+        UnloadModel(lamp);
+    }
 }

@@ -83,7 +83,8 @@ struct ScreenPush
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
     // w: 1 where the program left the screen's probes out and they stand for the glow lights alone,
-    // their surfaces and what they see of each light written and no ray traced.
+    // their surfaces and what they see of each light written and no ray traced, and 2 where the
+    // probe z names writes a value that is not a number as its light, as a test feeds it.
     uint4 texels;
 };
 
@@ -301,7 +302,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 left = p - worldAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
     float3 down = worldAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - p;
     float3 up = p - worldAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
-    float3 n = normalize(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up));
+    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), view.eye.xyz - p);
     if (dot(n, view.eye.xyz - p) < 0.0)
         n = -n;
     geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
@@ -324,7 +325,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // foot where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor
     // beside it saw a lamp past the wall that the floor does not. Global illumination keeps the
     // nearer texel's, which put the thin room 0.3 to 0.9% nearer its path-traced reference.
-    float3 gn = normalize(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))));
+    float3 gn = surfaceNormal(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))), view.eye.xyz - p);
     if (dot(gn, view.eye.xyz - p) < 0.0)
         gn = -gn;
     float glowCell = fieldCell(fieldInfo, p);
@@ -372,10 +373,15 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         }
         glowSeen[first + uint(word)] = levels;
     }
+    // A probe a test feeds a value that is not a number writes one as its fainter lights' light
+    // and as its own (ScreenPush's w).
+    bool fed = (push.texels.w & 2u) != 0u && push.texels.z == probe + 1u;
+    if (fed)
+        faint = asfloat(0x7FC00000u).xxx;
     glowSeen[first + 16u] = asuint(faint.r);
     glowSeen[first + 17u] = asuint(faint.g);
     glowSeen[first + 18u] = asuint(faint.b);
-    if (push.texels.w != 0u)
+    if ((push.texels.w & 1u) != 0u)
     {
         irradiance[id.xy] = float4(0.0);
         return;
@@ -506,5 +512,5 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // The weights scaled to sum to pi, the light reaching the surface under a sky of 1, where an
     // equal share for every texel read it at 1.04 of that. The glow lights' light straight to the
     // surface, which the rays that meet one leave out, the model pass takes at each pixel.
-    irradiance[id.xy] = float4(sum * (Pi / max(weights, 1e-6)), 1.0);
+    irradiance[id.xy] = float4(fed ? asfloat(0x7FC00000u).xxx : sum * (Pi / max(weights, 1e-6)), 1.0);
 }

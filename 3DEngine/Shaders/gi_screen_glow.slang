@@ -182,7 +182,9 @@ float3 glowFromProbes(float3 p, float3 n, int4 first, float4 weight, float total
         if (weight[corner] > 0.0)
         {
             int faint = first[corner] + 16;
-            far += float3(asfloat(glowSeen[faint]), asfloat(glowSeen[faint + 1]), asfloat(glowSeen[faint + 2])) * (weight[corner] / total);
+            float3 fainter = float3(asfloat(glowSeen[faint]), asfloat(glowSeen[faint + 1]), asfloat(glowSeen[faint + 2]));
+            if (all(abs(fainter) < 1e30))
+                far += fainter * (weight[corner] / total);
         }
     // Each probe's word of four lights is read from the buffer once for its four, rather than kept
     // in an array indexed by the light, which lavapipe keeps in memory of its own and crashed on.
@@ -284,7 +286,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // The surface's normal from its way along each axis, toward the eye.
     float3 p = worldAt(uv, d);
     float2 texel = 1.0 / float2(width, height);
-    float3 n = normalize(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))));
+    float3 n = surfaceNormal(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))), view.eye.xyz - p);
     if (dot(n, view.eye.xyz - p) < 0.0)
         n = -n;
     float range = length(view.eye.xyz - p);
@@ -379,7 +381,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (any(at < int2(0)) || at.x >= int(width) || at.y >= int(height))
                     continue;
                 float4 was = lastGlowLight.Load(int3(at, 0));
-                if (was.a < 0.0 || abs(was.a - expected) > 0.02 * expected + 0.05)
+                float3 wasFar = lastGlowFar.Load(int3(at, 0)).rgb;
+                // A texel whose light a float does not hold is taken as none (gi_screen_filter.slang's
+                // lightHeld).
+                if (was.a < 0.0 || abs(was.a - expected) > 0.02 * expected + 0.05 || !all(abs(was.rgb) < 1e30) || !all(abs(wasFar) < 1e30))
                     continue;
                 float4 state = lastGlowState.Load(int3(at, 0));
                 if (dot(fromOctahedron(state.zw), n) < GlowSameSurface)
@@ -387,7 +392,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 float2 lerps = lerp(1.0 - part, part, float2(offset));
                 float share = lerps.x * lerps.y;
                 before += was.rgb * share;
-                farBefore += lastGlowFar.Load(int3(at, 0)).rgb * share;
+                farBefore += wasFar * share;
                 furthest += state.x * share;
                 frames = min(frames, state.y);
                 held += share;
@@ -433,7 +438,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float steady = saturate(2.0 * still - 1.0);
     float least = lerp(GlowMoving, GlowStill, steady);
     float fresh = dropped ? 1.0 : lerp(1.0, max(1.0 / (frames + 1.0), least), saturate(held));
-    glowLight[id.xy] = float4(lerp(before, now, fresh), range);
-    glowFar[id.xy] = float4(lerp(farBefore, far, fresh), 0.0);
+    float3 kept = lerp(before, now, fresh), keptFar = lerp(farBefore, far, fresh);
+    glowLight[id.xy] = float4(all(abs(kept) < 1e30) ? kept : float3(0.0), range);
+    glowFar[id.xy] = float4(all(abs(keptFar) < 1e30) ? keptFar : float3(0.0), 0.0);
     glowState[id.xy] = float4(dropped ? 0.0 : max(furthest * (1.0 - GlowLetGo), apart), min(frames * steady + 1.0, 1.0 / GlowStill), octahedron(n));
 }
