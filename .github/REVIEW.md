@@ -10,8 +10,11 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a8f34b35`, item 71's edge leak mended in field_resolve.slang, and nothing else,
-carrying the review's file: the checkerboard cell two blocks meeting at an edge leave is held inside
+Reviewed up to `2dd40fe4`, the sixth term widened in RENDERING.md to a bright patch narrower than a
+probe's texel read by a few fixed rays, the small emitter's near field and the ceiling over
+Blockout's lamp its two forms with their numbers, the screen probes making the spots, after
+`a8f34b35`, item 71's edge leak mended in field_resolve.slang, and nothing else, carrying the
+review's files. The mend: the checkerboard cell two blocks meeting at an edge leave is held inside
 at its distance; the bounce rooms at 160 by 90 level to three places in all 27 cases and at 800 by
 450 level to five in every view but the Cornell box at Low, 0.00001 further over blocks of 4, within
 the 2048-path references' own noise, so the covered-fault rule holds; a cascade's build 0.578 ms
@@ -19,12 +22,12 @@ where 0.557 and nothing per frame; the edge room at High 21 to 2 and 20 to 0 wit
 on, the closed edge 2 and 0; the test a sectioned room as the game meshes it at 640 by 360, since
 the leak is under 4 levels at 320 by 180, reading 2 open and 2 closed where 10 and 7 without,
 failing without the mend; RENDERING.md's line on the resolve with the numbers; 2,055 passed plain
-and shuffled, 116 on lavapipe with the layer. Read at 04:14 on 2026-10-24. Not pushed, the build run
-of `26dbc6da` running; pushed when it ends. Next 71's stepped edges with the Blockout spots read on
-the way, then the noise, the z-fighting and the shift, then 74's and 72's cherry-picks with the
-default's device readings and Ore's capture. Item 74 and item 72's first two parts are whole on
-`modeling`, `629c1643`, `e164ccaa` and `0e908bdf`, the third part in work there under the owner's
-identity; the branch's items 59 to 66, 75 to 78 and 88 are on main.
+and shuffled, 116 on lavapipe with the layer. Read at 04:14 on 2026-10-24. The term read at 04:19.
+Not pushed, the build run of `26dbc6da` running; the two go when it ends. Next 71's stepped edges,
+then the noise, the z-fighting and the shift, then 74's and 72's cherry-picks with the default's
+device readings and Ore's capture. Items 74 and 72 are whole on `modeling`, `629c1643`, then
+`e164ccaa`, `0e908bdf` and `54d7c3e`, under the owner's identity, the cloud session standing by; the
+branch's items 59 to 66, 75 to 78 and 88 are on main.
 
 Before it, `26dbc6da` came, item 88's cherry-pick, with `ddc20382` and `b6d822ee`, item 63's, pushed
 at 03:22 on 2026-10-24, their run in flight.
@@ -770,7 +773,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     spreading the differences into still spots; the sixth term's mechanism under another source, so
     its words widen to a bright patch narrower than a probe's texel read by a few fixed rays, the
     small emitter's near field and the ceiling over a point light its two forms, no new mend, one
-    small commit.
+    small commit. The term widened at `2dd40fe4` on 2026-10-24, the lamp 0.3 under the hall's
+    ceiling of 3.2 beside an emissive panel; the blotches closed under the term in both forms. The
+    stepped edges read at 04:2x on 2026-10-24 in the entry's lamp and pillar scene: the leaked
+    light's toothed sides went with the edge leak's mend, and the lamp's shadow steps only under
+    gi.toggle screen off, the path the game's capture took, where each pixel marches to the glow
+    light's face halves itself, while the glow-only texels read smooth and the probes on waver
+    mildly as the game ships; no mend, a line under the glow lights in RENDERING.md with the
+    reading. The engine's shadow there reads wider and softer than the reference's, a reading no
+    entry names, kept here for a later item.
 
 72. **The sun's shadows and the scene field reach the far plane through a fill cascade each, not
     counted, with a distant ambient past the field's edge (Decision 55).** The owner asked shortly
@@ -831,7 +842,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     first-cascade probe toward a black wall 40 units off reading 1.14 of a sky of pi with it against
     3.14 without; on lavapipe the Cornell box's global illumination 222 to 263 ms for a third more
     rays and Ore's 445 to 509 for a quarter more, the memory 27 to 32.5 MB; 940 passed. The distant
-    ambient next.
+    ambient next. The third part on `modeling` as `54d7c3e` under the owner's identity, read at
+    04:18 on 2026-10-24: past the probes a sky over a ground, the sky's light from above on the
+    share of the sphere over the surface's horizon and the ground's color, taken as the surface's
+    own, times the sky's and each directional light's light on a floor, the sun's share read through
+    the map at the point moved along the normal by a coarsest cell, nine taps for the pixels past
+    the probes that face some ground, floors skipping it, faded across the last cascade's outer
+    eighth; a test along a floor and a wall of 420 units across the last cascade's end, the wall's
+    largest pixel step 0.88% where 2.32% before and the wall past the field 2.8% darker where 6.3%,
+    the floor 0.27% either way, held under 1%, 1.5% and 4%; 954 passed on lavapipe. The item is
+    whole on the branch, `e164ccaa`, `0e908bdf` and `54d7c3e`, to cherry-pick with Ore's capture
+    from a height.
 
 74. **The scene field's builds are budgeted in triangles a frame, so many meshes arriving at once do
     not stall one frame.** Found by item 69's reading on 2026-10-21 at 05:07: with 500 sections of

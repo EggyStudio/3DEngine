@@ -1742,7 +1742,13 @@ the Cornell box than with nothing of the screen's, and Ore's whole global illumi
 3.61 with the probes. Every view with a glow light reads as far from its reference as the march
 did at both sizes, the Cornell box 0.083 at `Low` and 0.089 at `High`, the strip's room 0.116 and
 the emissive block's 0.057 and 0.056, and the stepped penumbrae the march left on Ore's ground are
-gone, the probes' tiles showing nowhere on its ore.
+gone, the probes' tiles showing nowhere on its ore. A pixel still marches to a glow light's face
+halves itself where the screen's probes are traced and left unread (`gi.toggle screen off`) and
+where no texel around it holds a point like its own, and there a shadow's edge steps and tears where
+the probes' texels read it smooth. Under a glowstone on a stone with a pillar of two stones three
+blocks east, seen from above at 1280 by 720 at `High`, the penumbra's contours break at the
+shadow's edges under the toggle, run smooth with the probes left out and waver a little with them
+read. The voxel game's capture of stepped penumbrae on 2026-10-21 took the toggle's path.
 ![Ore's ground beside a block at night, with the screen's probes, marched at each pixel, and with probes standing for the glow lights alone](assets/cascades/glow-only-ore.webp)
 
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
