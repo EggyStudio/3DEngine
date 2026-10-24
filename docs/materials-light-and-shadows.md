@@ -343,6 +343,13 @@ lamp lighting a wall across the view keeps its shadows over a brighter one light
 ones that matter most get the sharpest shadows. Past four, the first two spot lights and the first
 four point lights keep their texels, and the rest share theirs at half the width.
 
+Past the shadow distance the sun's shadows go on to the camera's far plane through a fill, one more
+drawing of the scene's depth at the shadow map's tile size. Its texels are meters wide where the land
+it covers is a few pixels of the picture, so hills and towers far off cast their shadows and the
+ground beyond the distance is not lit whole from a line on. It is on by default, and the cascades'
+count leaves it out. `SetShadowFill(false)` saves its drawing in a program whose view ends near the
+shadow distance, indoors or in fog.
+
 A render texture that draws models through a camera of its own, as each half of a split screen,
 has the sun's cascades fitted to its camera, and views whose cameras are near enough share one set
 fitted to all of them, drawn once, where the shared first cascade's texels are no more than a

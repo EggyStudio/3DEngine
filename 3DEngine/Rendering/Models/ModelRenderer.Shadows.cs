@@ -55,6 +55,19 @@ internal sealed partial class ModelRenderer
         }
         pass.EndRenderPass();
 
+        // The fill past the cascades, in a map of its own at the tile's size, since the four tiles
+        // of the cascades' map are taken.
+        if (shadow.Fill is { } fill)
+        {
+            var filled = FillMapFor(device, shadow.TileSize);
+            var fillPass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                filled.RenderPass, filled.Framebuffer, filled.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
+            fillPass.SetViewport(0, 0, shadow.TileSize, shadow.TileSize, 0, 1);
+            fillPass.SetScissor(0, 0, (uint)shadow.TileSize, (uint)shadow.TileSize);
+            Count("fill cascade", DrawShadowBatches(fillPass, view, fill.ViewProjection));
+            fillPass.EndRenderPass();
+        }
+
         // Each shadowed point light's six faces, a layer of the point map each for the lights that
         // matter most and a quarter of one for the rest. A layer is cleared once and each face it
         // holds drawn into its square.
@@ -320,6 +333,16 @@ internal sealed partial class ModelRenderer
         _shadowMap = device.CreateShadowMap((uint)(2 * tileSize));
         device.Name(_shadowMap.DepthView.Image, "Shadow map");
         return _shadowMap;
+    }
+
+    // The fill cascade's map, one tile, made again when the tile size changes.
+    private ShadowMap FillMapFor(GraphicsDevice device, int tileSize)
+    {
+        if (_fillMap is { } made && made.Extent.Width == tileSize) return made;
+        if (_fillMap is { } old) _retiredMaps.Add((_frames, old));
+        _fillMap = device.CreateShadowMap((uint)tileSize);
+        device.Name(_fillMap.DepthView.Image, "Shadow fill");
+        return _fillMap;
     }
 
     private ShadowMap NoPointShadowMap(GraphicsDevice device) => _noPointShadowMap ??= device.CreateShadowMap(1, 2);

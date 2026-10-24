@@ -70,6 +70,21 @@ public static partial class E3D
         World.GetOrInsertResource(() => new ShadowSettings()).Distance = Math.Max(1, distance);
 
     /// <summary>
+    /// Sets whether the sun's shadows go on past the shadow distance to the camera's far plane
+    /// through a fill cascade, which the cascades' count leaves out, on by default.
+    /// </summary>
+    /// <remarks>
+    /// The fill is one more drawing of the scene's depth into a map of its own at the shadow map's
+    /// tile size, its texels meters wide where the land it covers is a few pixels of the picture, so
+    /// hills and buildings far off cast their shadows and nothing ends at a line. A program whose
+    /// view ends near the shadow distance, indoors or in fog, saves the drawing by turning it off.
+    /// The contact shadows kept past the shadow map's reach (<see cref="ContactShadows.PastShadowMap"/>)
+    /// go on over the fill's.
+    /// </remarks>
+    public static void SetShadowFill(bool enabled) =>
+        World.GetOrInsertResource(() => new ShadowSettings()).Fill = enabled;
+
+    /// <summary>
     /// Sets where the sun's contact shadows through the scene's distance field darken its light,
     /// everywhere the field reaches (<see cref="ContactShadows.On"/>, the default), past the shadow
     /// map's reach alone, or nowhere.

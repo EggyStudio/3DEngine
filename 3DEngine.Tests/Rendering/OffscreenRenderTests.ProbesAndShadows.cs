@@ -239,8 +239,47 @@ public sealed partial class OffscreenRenderTests
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);
-        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnFarWallAndSquare(GetApp().World.Resource<EcsWorld>());
 
+        var image = Capture(() => ClearBackground(Color.Black), "far");
+
+        GetImageColor(image, 27, 32).R.Should().BeLessThan(10, "the square shadows the wall eighty units from the camera");
+        GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
+
+        // Without the fill the cascades alone shadow the wall, which past their reach is lit whole.
+        SetShadowFill(false);
+        SetShadowDistance(40);
+        var near = Capture(() => ClearBackground(Color.Black), "near");
+        GetImageColor(near, 27, 32).R.Should().BeGreaterThan(120, "with shadows reaching forty units, the wall at eighty has none");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Shadow_At_Twice_The_Shadow_Distance_Falls_In_The_Fill_Cascade_And_None_Without_It()
+    {
+        Open(64, 64);
+        SpawnFarWallAndSquare(GetApp().World.Resource<EcsWorld>());
+        // The cascades reach forty units and the wall stands at eighty, where the fill alone,
+        // reaching on to the camera's far plane at a thousand, holds it, its texels about three
+        // quarters of a unit wide against the square's twenty.
+        SetShadowDistance(40);
+
+        var filled = Capture(() => ClearBackground(Color.Black), "filled");
+        var drawn = GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().CallsByPass.ToDictionary();
+        SetShadowFill(false);
+        var unfilled = Capture(() => ClearBackground(Color.Black), "unfilled");
+
+        GetImageColor(filled, 27, 32).R.Should().BeLessThan(10, "the fill holds the square's shadow on the wall at twice the shadow distance");
+        GetImageColor(filled, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
+        GetImageColor(unfilled, 27, 32).R.Should().BeGreaterThan(120, "without the fill the wall past the cascades has no shadow");
+        drawn.GetValueOrDefault("fill cascade").Should().Be(2, "the fill is one more drawing of the wall and the square");
+        GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<FrameShadow>().Cascades.Should().HaveCount(3, "the fill is not counted among the cascades");
+    }
+
+    // A wall eighty units wide facing a camera eighty units off and a square twenty units in front
+    // of it, under a sun turned 45 degrees about the vertical, whose shadow of the square falls on
+    // the wall left of its middle.
+    private static void SpawnFarWallAndSquare(EcsWorld ecs)
+    {
         // The scene of the test above twenty times over, seen from eighty units, past the forty
         // the single map reached.
         var big = new Vector3(20);
@@ -258,15 +297,6 @@ public sealed partial class OffscreenRenderTests
         var sun = ecs.Spawn();
         ecs.Add(sun, Light.Directional(Vector3.One, 1f) with { CastsShadows = true });
         ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4), Vector3.One));
-
-        var image = Capture(() => ClearBackground(Color.Black), "far");
-
-        GetImageColor(image, 27, 32).R.Should().BeLessThan(10, "the square shadows the wall eighty units from the camera");
-        GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
-
-        SetShadowDistance(40);
-        var near = Capture(() => ClearBackground(Color.Black), "near");
-        GetImageColor(near, 27, 32).R.Should().BeGreaterThan(120, "with shadows reaching forty units, the wall at eighty has none");
     }
 
     [NeedsVulkanFact]

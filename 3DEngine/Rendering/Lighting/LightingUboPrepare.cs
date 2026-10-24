@@ -185,7 +185,14 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             ubo.ShadowCascades[i] = shadow.Cascades[i].ViewProjection;
             texels[i] = shadow.Cascades[i].Texel;
         }
-        ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], 0);
+        // The fill in the slot after the counted cascades, the width of its texel beside theirs,
+        // which the shader reads as there being one.
+        if (shadow.Fill is { } fill && shadow.Cascades.Count < LightingUboPacker.MaxCascades)
+        {
+            ubo.ShadowCascades[shadow.Cascades.Count] = fill.ViewProjection;
+            texels[shadow.Cascades.Count] = fill.Texel;
+        }
+        ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], texels[3]);
 
         // A shadowed spot light names its slot, counted from one, in its cone's third
         // component, as a point light does.
@@ -219,15 +226,17 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     // The lights that cast shadows this frame, the first directional one and the first spot and
     // point lights, the spots fitted already, since only the cascades depend on a camera.
     private sealed record ShadowCasters(System.Numerics.Vector3? Sun, int SunIndex, float Distance, int TileSize,
-        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points)
+        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points, bool Fill)
     {
         // The frame's shadow as views through cameras see it, one set of cascades fitted to every
-        // one of them, or null when nothing casts one.
+        // one of them with the fill past them where it is on, or null when nothing casts one.
         public FrameShadow? For(ReadOnlySpan<System.Numerics.Matrix4x4> cameras)
         {
             (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize) : [];
             var sun = cascades.Length == 0 ? -1 : SunIndex;
-            return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4);
+            (System.Numerics.Matrix4x4, float)? fill = sun >= 0 && Fill
+                && ShadowFit.TryFitFill(cameras, Sun!.Value, Distance, out var viewProjection, out var texel, TileSize) ? (viewProjection, texel) : null;
+            return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4, fill);
         }
 
         // The width of a texel of the first cascade fitted to every one of cameras, 0 with no sun,
@@ -336,7 +345,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
                 spots.Add((i, viewProjection, texel));
         }
-        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points);
+        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points, settings?.Fill ?? true);
     }
 
     /// <summary>

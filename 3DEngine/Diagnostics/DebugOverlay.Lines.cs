@@ -209,7 +209,7 @@ internal sealed partial class DebugOverlay
         lines.Add(Say($"Lights {directional} directional, {point} point, {spot} spot, {shadowed} casting shadows"));
 
         lines.Add(renderer?.RenderWorld.TryGet<FrameShadow>() is { } shadow && (shadow.Cascades.Count > 0 || shadow.SpotLights is { Count: > 0 } || shadow.PointLights is { Count: > 0 })
-            ? Say($"Shadows {shadow.Cascades.Count} cascades of {shadow.TileSize} texels, {shadow.SpotLights?.Count ?? 0} spot and {shadow.PointLights?.Count ?? 0} point lights mapped")
+            ? Say($"Shadows {shadow.Cascades.Count} cascades{(shadow.Fill is null ? "" : " and a fill")} of {shadow.TileSize} texels, {shadow.SpotLights?.Count ?? 0} spot and {shadow.PointLights?.Count ?? 0} point lights mapped")
             : "Shadows none");
 
         var illumination = SceneFieldCommands.IlluminationState(world).Split('\n')[0];

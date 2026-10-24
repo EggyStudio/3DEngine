@@ -42,15 +42,15 @@ internal struct LightingUbo
     public int SpotShadowCount;
 
     /// <summary>
-    /// xyz: the width in world units one texel of each cascade covers, which the shader offsets a
-    /// surface by along its normal. w: the width of a texel of the spot light's tile per unit of
-    /// distance from the light.
+    /// The width in world units one texel of each cascade covers, which the shader offsets a surface
+    /// by along its normal, and in the slot after the counted cascades the fill's, 0 where there is
+    /// no fill.
     /// </summary>
     public Vector4 ShadowTexels;
 
     /// <summary>
     /// World space to each cascade's clip space, the light's view and projection, nearest first,
-    /// and in the last the spot light's.
+    /// and in the slot after the counted cascades the fill's.
     /// </summary>
     public ShadowCascadeArray ShadowCascades;
 
@@ -201,7 +201,7 @@ internal static class LightingUboPacker
     /// </summary>
     public const int MaxLights = 16;
 
-    /// <summary>The most shadow cascades the buffer carries, the tiles of the shadow map.</summary>
+    /// <summary>The most shadow cascades the buffer carries, the three tiles of the shadow map and the fill past them.</summary>
     public const int MaxCascades = 4;
 
     /// <summary>The most reflection probes bound at once, each a cube beside the environment map.</summary>

@@ -1498,6 +1498,7 @@ static class Engine.E3D
   static void SetShaderValueTexture(Shader shader, int location, Texture2D texture)
   static void SetShaderValueV<T>(Shader shader, int location, ReadOnlySpan<T> values) where T : unmanaged
   static void SetShadowDistance(float distance)
+  static void SetShadowFill(bool enabled)
   static void SetShadowMapSize(int size)
   static void SetSkyDay(SkyDay day)
   static void SetSkyHorizon(Color color, float blendDegrees)

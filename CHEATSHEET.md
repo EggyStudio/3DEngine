@@ -993,6 +993,7 @@ void SetLightDirection(LightHandle light, Vector3 direction);  // Turns a direct
 void SetLightColor(LightHandle light, Color color, float intensity = 1);  // Sets a light's color and how bright it is
 void SetLightCastsShadows(LightHandle light, bool castsShadows);  // Sets whether a light casts shadows, which the first directional light that does casts, and of spot and point lights the ten and the twelve that matter most to the camera's view
 void SetShadowDistance(float distance);                  // Sets how far past the camera, in world units, the sun's shadows reach (150 by default), and how far a spot or point light with no range casts them
+void SetShadowFill(bool enabled);                        // Sets whether the sun's shadows go on past the shadow distance to the camera's far plane through a fill cascade, which the cascades' count leaves out, on by default
 void SetContactShadows(ContactShadows contactShadows);   // Sets where the sun's contact shadows through the scene's distance field darken its light, everywhere the field reaches (ContactShadows.On, the default), past the shadow map's reach alone, or nowhere
 void SetShadowMapSize(int size);                         // Sets how many texels wide each tile of the shadow map is, the sun's cascades and the spot lights each having one, rounded to a power of two from 256 to 4096 (2048 by default)
 void UnloadLight(LightHandle light);                     // Removes a light

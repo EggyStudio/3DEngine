@@ -5,8 +5,8 @@ namespace Engine;
 /// <summary>
 /// The shadows of the frame, published by <see cref="LightingUboPrepare"/>. It names the directional
 /// light that casts them and holds, for each cascade, the light's view and projection over a slice
-/// of what the window's camera sees, nearest first, and names the spot light drawn into the map's
-/// last tile with its view and projection.
+/// of what the window's camera sees, nearest first, and the fill past them, and names the spot
+/// light drawn into the map's last tile with its view and projection.
 /// </summary>
 /// <param name="Light">The index of the shadowed directional light in the frame's lighting buffer, or -1 for none.</param>
 /// <param name="Cascades">World space to each cascade's clip space, with the width in world units of one of its texels.</param>
@@ -20,10 +20,15 @@ namespace Engine;
 /// </param>
 /// <param name="TileSize">The width in texels of a cascade's tile, half the map's.</param>
 /// <param name="PointFaceSize">The width in texels of each face of a point light.</param>
+/// <param name="Fill">
+/// The fill cascade from the last cascade's end to the camera's far plane, drawn into a map of its
+/// own at the tile's size, or null where it is off or the far plane comes first.
+/// </param>
 internal sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
     IReadOnlyList<(int Light, Matrix4x4 ViewProjection, float TexelPerUnit)>? SpotLights = null,
     IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null,
-    int TileSize = ShadowFit.TileSize, int PointFaceSize = ShadowFit.PointFaceSize);
+    int TileSize = ShadowFit.TileSize, int PointFaceSize = ShadowFit.PointFaceSize,
+    (Matrix4x4 ViewProjection, float Texel)? Fill = null);
 
 /// <summary>How far shadows reach, a world resource the renderer reads each frame.</summary>
 internal sealed class ShadowSettings
@@ -43,6 +48,12 @@ internal sealed class ShadowSettings
 
     /// <summary>Where the sun's contact shadows through the scene's distance field darken its light, everywhere the field reaches unless set.</summary>
     public ContactShadows Contact { get; set; }
+
+    /// <summary>
+    /// Whether the sun's shadows go on past <see cref="Distance"/> to the camera's far plane through
+    /// a fill cascade, which the cascades' count leaves out, on unless set.
+    /// </summary>
+    public bool Fill { get; set; } = true;
 }
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
@@ -59,6 +70,12 @@ internal sealed class ShadowSettings
 /// of a shadow stay still as the camera moves instead of crawling a texel at a time. It reaches
 /// four times the sphere's radius further toward the light than the sphere does, so a caster above
 /// the view, such as a roof over a camera indoors, still shadows it.
+/// </para>
+/// <para>
+/// Past the last cascade a fill cascade reaches from where it ends to the camera's far plane
+/// (<see cref="TryFitFill"/>), fitted as the others are and drawn into a map of its own at the
+/// tile's size, so its texels are meters wide where the ground it covers is a few pixels of the
+/// picture, and the land past the cascades is shadowed by hills and buildings rather than lit whole.
 /// </para>
 /// </remarks>
 internal static class ShadowFit
@@ -171,6 +188,26 @@ internal static class ShadowFit
             from = splits[i];
         }
         return cascades;
+    }
+
+    /// <summary>
+    /// The fill cascade of a light pointing along <paramref name="direction"/>, over what every one
+    /// of <paramref name="cameras"/> sees from <paramref name="from"/> units past its near plane to
+    /// its far plane, or <c>false</c> where every camera's far plane comes before
+    /// <paramref name="from"/> or a camera's matrix cannot be inverted.
+    /// </summary>
+    public static bool TryFitFill(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from,
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize)
+    {
+        (viewProjection, texel) = (Matrix4x4.Identity, 0);
+        var beyond = false;
+        foreach (var camera in cameras)
+            if (Matrix4x4.Invert(camera, out var inverse))
+                for (int y = -1; y <= 1; y += 2)
+                    for (int x = -1; x <= 1; x += 2)
+                        beyond |= Vector3.Distance(Unproject(inverse, x, y, 0), Unproject(inverse, x, y, 1)) > from;
+        // A projection with no far plane leaves its far corners at no finite place, so it is fitted no fill.
+        return beyond && TryFit(cameras, direction, from, float.PositiveInfinity, out viewProjection, out texel, tileSize);
     }
 
     /// <summary>The tile spot lights' shadows are drawn into, after the cascades.</summary>

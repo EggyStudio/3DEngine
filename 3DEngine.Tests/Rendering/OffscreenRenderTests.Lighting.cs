@@ -232,25 +232,31 @@ public sealed partial class OffscreenRenderTests
         var ground = LoadModelFromMesh(GenMeshPlane(800, 800, 1, 1));
         var wall = LoadModelFromMesh(GenMeshCube(2, 80, 800));
         var camera = new Camera3D(new Vector3(20, 30, 0), new Vector3(20, 0, -200), Vector3.UnitY, 40);
-
-        var image = Capture(() =>
+        void Draw()
         {
             ClearBackground(Color.Blue);
             BeginMode3D(camera);
             DrawModel(ground, new Vector3(0, 0, -390), 1, Color.White);
             DrawModel(wall, new Vector3(-10, 40, -390), 1, Color.White);
             EndMode3D();
-        }, "fade");
+        }
+        // Up the middle column from the camera's feet toward the horizon, the ground's green, the
+        // ground being gray and the sky above the horizon blue.
+        int[] Ground(Image image) => Enumerable.Range(0, 256).Select(y => GetImageColor(image, 32, 255 - y))
+            .TakeWhile(c => c.B <= c.G + 8).Select(c => (int)c.G).ToArray();
 
-        // Up the middle column from the camera's feet toward the horizon, the ground goes from
+        // Without the fill, which holds the wall's shadow on past the cascades, the ground goes from
         // shadowed to lit where shadows end.
-        // The ground is gray, and the sky above the horizon blue.
-        var column = Enumerable.Range(0, 256).Select(y => GetImageColor(image, 32, 255 - y)).ToArray();
-        var ground0 = column.TakeWhile(c => c.B <= c.G + 8).Select(c => (int)c.G).ToArray();
+        SetShadowFill(false);
+        var ground0 = Ground(Capture(Draw, "fade"));
         var (dark, lit) = (ground0[..10].Average(), ground0[^10..].Average());
         lit.Should().BeGreaterThan(dark + 40, "the ground near the camera is shadowed and the far ground is lit");
         var between = ground0.Count(g => g > dark + (lit - dark) * 0.2 && g < lit - (lit - dark) * 0.2);
         between.Should().BeGreaterThan(2, "the shadow fades over a band of rows, where it used to step from dark to lit in one");
+
+        SetShadowFill(true);
+        var filled = Ground(Capture(Draw, "filled"));
+        filled[^10..].Average().Should().BeLessThan(dark + 10, "with the fill the wall's shadow goes on to the ground's far end");
         UnloadModel(ground);
         UnloadModel(wall);
     }

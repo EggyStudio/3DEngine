@@ -116,4 +116,43 @@ public sealed class ShadowFitTests
         // Past forty units, where the single map stopped, the last cascade still covers the view.
         Project(eye + new Vector3(0, 0, -100), cascades[^1].ViewProjection).X.Should().BeInRange(-1, 1);
     }
+
+    [Fact]
+    public void The_Fill_Covers_The_View_From_The_Last_Cascade_To_The_Far_Plane_In_Coarser_Texels()
+    {
+        var eye = new Vector3(0, 3, 0);
+        var camera = Camera(eye, new Vector3(0, 3, -1));
+        var sun = Vector3.Normalize(new Vector3(0.3f, -1, -0.5f));
+        var cascades = ShadowFit.FitCascades(camera, sun);
+        ShadowFit.TryFitFill([camera], sun, ShadowFit.Distance, out var fill, out var texel).Should().BeTrue();
+
+        // Straight ahead and at the far plane's corners, out to the far plane at a thousand.
+        Matrix4x4.Invert(camera, out var inverse);
+        foreach (var (x, y) in new[] { (-1f, -1f), (1f, -1f), (-1f, 1f), (1f, 1f), (0f, 0f) })
+        {
+            var far = Vector4.Transform(new Vector4(x, y, 1, 1), inverse);
+            var way = Vector3.Normalize(new Vector3(far.X, far.Y, far.Z) / far.W - eye);
+            foreach (var distance in new[] { 160f, 500f, 990f })
+            {
+                var p = Project(eye + way * distance, fill);
+                p.X.Should().BeInRange(-1, 1, $"the fill holds the view {distance} units out");
+                p.Y.Should().BeInRange(-1, 1, $"the fill holds the view {distance} units out");
+                p.Z.Should().BeInRange(0, 1, $"the fill holds the view {distance} units out");
+            }
+        }
+        texel.Should().BeGreaterThan(cascades[^1].Texel, "the fill spreads one tile over the rest of the view");
+    }
+
+    [Fact]
+    public void A_Far_Plane_Before_The_Shadow_Distance_Or_None_At_All_Fits_No_Fill()
+    {
+        var sun = Vector3.Normalize(new Vector3(0.3f, -1, -0.5f));
+        var view = Matrix4x4.CreateLookAt(new Vector3(0, 3, 0), new Vector3(0, 3, -1), Vector3.UnitY);
+        // Its far corners lie 124 units off, short of the 150 the cascades reach.
+        var near = Matrix4x4.CreatePerspectiveFieldOfView(float.DegreesToRadians(60), 16f / 9f, 0.1f, 80f);
+        ShadowFit.TryFitFill([view * near], sun, ShadowFit.Distance, out _, out _).Should().BeFalse("the view ends before the cascades do");
+        var endless = Matrix4x4.CreatePerspectiveFieldOfView(float.DegreesToRadians(60), 16f / 9f, 0.1f, float.PositiveInfinity);
+        ShadowFit.TryFitFill([view * endless], sun, ShadowFit.Distance, out _, out _).Should().BeFalse("a view with no far plane has no end to fit to");
+        ShadowFit.TryFitFill([default(Matrix4x4)], sun, ShadowFit.Distance, out _, out _).Should().BeFalse();
+    }
 }

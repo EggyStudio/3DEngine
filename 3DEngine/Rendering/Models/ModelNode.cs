@@ -310,6 +310,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
     private ShadowMap? _shadowMap;
+    private ShadowMap? _fillMap;
     private ShadowMap? _pointShadowMap;
 
     // Maps replaced by ones of another size, kept until no frame in flight reads them.
@@ -708,6 +709,7 @@ internal sealed partial class ModelRenderer : IDisposable
         _materialLayout?.Dispose();
         _noLights?.Dispose();
         _shadowMap?.Dispose();
+        _fillMap?.Dispose();
         _pointShadowMap?.Dispose();
         _noPointShadowMap?.Dispose();
         _environment?.Dispose();

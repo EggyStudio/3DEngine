@@ -517,6 +517,24 @@ ending at a line. A spot light's texels widen with distance from it, so its offs
 distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
 before that stage moved it.
 
+Past the last cascade a fill cascade reaches on to the camera's far plane (`ShadowFit.TryFitFill`),
+which `SetShadowFill` turns off and the cascades' count leaves out. It is fitted as the others are,
+to the sphere around the views' slice from the shadow distance to their far planes, and is fitted
+none where every far plane comes first or a projection has none. Since the map's four tiles are
+taken, it is drawn into a depth image of its own of one tile, after the map and with its pipelines,
+and bound at binding 37 of the lights' set, the white texture in its place where a view has no
+fill. The lighting buffer carries its matrix and its texel's width in the slot after the counted
+cascades', a width of 0 saying there is none, and `lightReaching` reads it as the cascade after the
+last, which gives way to it across its outer fifth as to the next of its own. Through `Camera3D`'s
+45 degrees at 16 by 9, its far plane of 4,000 units and the shadow distance of 150, its texels are
+3.8 units wide where the last cascade's are 0.11, and its depth bias, the same 0.0005 of the depth
+range as each cascade's and so about three of its texels, is 11.7 units, so a caster lower than
+that leaves no shadow in it and the fill shadows the land with its hills and buildings. The
+share of the point the map holds that the contact shadows past the map's reach are taken by counts
+the cascades alone, falling to 0 across the last one's edge whether the fill reads on past it or
+not, so those contact shadows go on over the fill's coarse texels. A test holds a square's shadow
+on a wall at twice the shadow distance with the fill and none without it.
+
 What looks like faces fighting in a sunlit scene of the voxel game is the sun's map read where it
 is coarse or where a face shadows itself, and global illumination has no part in it. In a flat
 world at ten in the morning at 1280 by 720 at `High`, a field of wheat, whose thin walls are
@@ -681,7 +699,8 @@ directional light by, so the pass runs for the contact shadows alone where the o
 `SetContactShadows` leaves the trace out (`ContactShadows.Off`), or has the model pass take the
 contact shadow as little as the shadow map holds the point (`ContactShadows.PastShadowMap`, the
 lighting buffer's `ambientOcclusion.y` 2), the map's share from `lightReaching`, 1 within its
-cascades and falling to 0 across the last one's edge, so a shadow the map draws keeps its hard edge.
+counted cascades and falling to 0 across the last one's edge, so a shadow the map draws keeps its
+hard edge, and the fill past them holds none.
 `particle_step.slang` steps a colliding particle's move through the field where the field holds the
 place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
 the window as the field holds the scene, where `field.show` asks. A render texture drawn through a

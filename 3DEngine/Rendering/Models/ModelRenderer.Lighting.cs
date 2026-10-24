@@ -12,8 +12,8 @@ internal sealed partial class ModelRenderer
     // environment, which the shader reads as "draw unlit". Binding 0 holds the view's
     // lighting buffer, with its own cascades, binding 1 the shadow map when the view has a shadow,
     // and the white texture otherwise, binding 2 the environment map and binding 3 its sky, or a
-    // black cube for each, and binding 4 the point lights' faces, or a stand-in, so all are always
-    // valid.
+    // black cube for each, binding 4 the point lights' faces, or a stand-in, and binding 37 the
+    // fill past the cascades, or white, so all are always valid.
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
@@ -31,6 +31,7 @@ internal sealed partial class ModelRenderer
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     Lit(white, whiteSampler, 1));
                 gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, AmbientOcclusionBinding));
+                gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, ShadowFillBinding));
                 if (BlackCube(gfx) is { } black)
                     for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
                         if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, Lit(black.View, black.Sampler, b));
@@ -71,6 +72,11 @@ internal sealed partial class ModelRenderer
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
             ? Lit(map.DepthView, map.Sampler, 1)
             : Lit(white, whiteSampler, 1));
+        // The fill past the cascades where the view's shadow has one, and white otherwise, which no
+        // point reads, the buffer saying there is none.
+        gfx.UpdateDescriptorSet(set, null, shadow?.Fill is not null && _fillMap is { } fill
+            ? Lit(fill.DepthView, fill.Sampler, ShadowFillBinding)
+            : Lit(white, whiteSampler, ShadowFillBinding));
         // The view's occlusion, the window's or a render target's own where it draws meshes through
         // a camera, which its buffer says to read, and white for a probe's faces.
         gfx.UpdateDescriptorSet(set, null, (target == 0 ? renderWorld.TryGet<AmbientOcclusionImage>()
@@ -158,6 +164,9 @@ internal sealed partial class ModelRenderer
 
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
+
+    // Where lightset.slang binds the sun's fill cascade past the shadow distance.
+    private const uint ShadowFillBinding = 37;
 
     // Where modelpass.slang binds the probes' indirect light and the field they lie in, the
     // screen's probes' light and surfaces, the probes' reach and sky, and the glow lights' light

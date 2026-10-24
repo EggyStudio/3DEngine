@@ -91,7 +91,8 @@ public sealed class ModelShadowTests : IDisposable
         var off = Settled(Scene, "off");
         SetContactShadows(ContactShadows.PastShadowMap);
         var past = Settled(Scene, "past");
-        // With the map reaching a unit past the camera, it holds none of the floor.
+        // With the map reaching a unit past the camera and no fill past it, it holds none of the floor.
+        SetShadowFill(false);
         SetShadowDistance(1);
         var pastBeyond = Settled(Scene, "past-beyond");
         SetContactShadows(ContactShadows.Off);

@@ -64,13 +64,14 @@ public float3 arriving(Light light, float3 world, float3 n)
 
 // How much of the shadowed light reaches this point through cascade c, from 0 to 1, or -1 when the
 // cascade's tile does not hold it, or the point lies before its near plane, where its casters are
-// clamped onto that plane, so the next cascade, reaching farther toward the light, reads it. Each cascade is a quarter of the map, two tiles on a side. The
-// point is moved off its surface along the normal by a texel and a half of that cascade before it
-// is compared, so a surface does not shadow itself where the map's texels slant across it, and
-// nine depths around it are compared and averaged, which softens the stair steps of the texels into
-// a gradient one texel wide. A point a little inside a tile's edge counts as outside, so the nine
-// never reach into a neighboring tile. edge says how far toward the tile's edge the point is, from
-// 0 in its middle to 1 at that border.
+// clamped onto that plane, so the next cascade, reaching farther toward the light, reads it. Each
+// counted cascade is a quarter of the map, two tiles on a side, and the fill after them, c being
+// the count, a map of its own. The point is moved off its surface along the normal by a texel and a
+// half of that cascade before it is compared, so a surface does not shadow itself where the map's
+// texels slant across it, and nine depths around it are compared and averaged, which softens the
+// stair steps of the texels into a gradient one texel wide. A point a little inside a tile's edge
+// counts as outside, so the nine never reach into a neighboring tile. edge says how far toward the
+// tile's edge the point is, from 0 in its middle to 1 at that border.
 public float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge)
 {
     edge = 1.0;
@@ -80,46 +81,69 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
         return -1.0;
 
     edge = max(abs(p.x), abs(p.y)) / 0.995;
-    float2 uv = (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
+    bool fill = c >= lighting.cascadeCount;
+    if (fill)
+    {
+        uint width, height;
+        shadowFillMap.GetDimensions(width, height);
+        texel = 1.0 / float2(width, height);
+    }
+    float2 uv = fill ? p.xy * 0.5 + 0.5 : (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.0005 <= shadowMap.SampleLevel(lightNearest, uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+        {
+            float2 at = uv + float2(x, y) * texel;
+            float depth = fill ? shadowFillMap.SampleLevel(lightNearest, at, 0.0).r : shadowMap.SampleLevel(lightNearest, at, 0.0).r;
+            reached += p.z - 0.0005 <= depth ? 1.0 : 0.0;
+        }
     return reached / 9.0;
+}
+
+// How many cascades the shadowed light's shadow is read through, the counted ones and the fill
+// past them where the buffer carries one.
+public int shadowCascadesRead()
+{
+    int counted = lighting.cascadeCount;
+    return counted < 4 && lighting.shadowTexels[counted] > 0.0 ? counted + 1 : counted;
 }
 
 // How much of the shadowed light reaches this point, from 0 to 1, from the nearest cascade whose
 // tile holds it. Across the outer fifth of a tile the next cascade is read too and blended in, so
 // where one cascade gives way to the next the shadow's softness changes over a band rather than in
-// a step, and past the last cascade's band the shadow fades out rather than stopping at a line.
+// a step, the last counted cascade giving way to the fill where there is one, and past the last
+// cascade's band the shadow fades out rather than stopping at a line.
 public float lightReaching(float3 world, float3 n)
 {
     float held;
     return lightReaching(world, n, held);
 }
 
-// The same, with how much of the point the map holds, 1 within its cascades, falling to 0 across
-// the last one's edge as its shadow is let go there, and 0 past it.
+// The same, with how much of the point the counted cascades hold, 1 within them, falling to 0
+// across the last one's edge as its shadow is let go there, and 0 past it, the fill's coarse
+// texels holding none, so the contact shadows kept past the map's reach go on over the fill's.
 public float lightReaching(float3 world, float3 n, out float held)
 {
     held = 0.0;
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
-    for (int c = 0; c < lighting.cascadeCount; c++)
+    int counted = lighting.cascadeCount;
+    int cascades = shadowCascadesRead();
+    for (int c = 0; c < cascades; c++)
     {
         float edge;
         float reached = cascadeReached(c, world, n, texel, edge);
         if (reached < 0.0)
             continue;
 
-        held = 1.0;
+        held = c < counted ? 1.0 : 0.0;
         float blend = saturate((edge - 0.8) / 0.2);
         if (blend <= 0.0)
             return reached;
         float nextEdge;
-        float next = c + 1 < lighting.cascadeCount ? cascadeReached(c + 1, world, n, texel, nextEdge) : -1.0;
-        if (next < 0.0)
+        float next = c + 1 < cascades ? cascadeReached(c + 1, world, n, texel, nextEdge) : -1.0;
+        if (c < counted && (next < 0.0 || c + 1 == counted))
             held = 1.0 - blend;
         return lerp(reached, next < 0.0 ? 1.0 : next, blend);
     }

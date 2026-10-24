@@ -37,7 +37,8 @@ public struct Lighting
     // How many spot lights cast shadows, drawn into the map's last tile, the whole of it for one
     // and a quarter each for more.
     public int spotShadowCount;
-    // A texel's world width for each cascade, and in w the spot tile's per unit of distance.
+    // A texel's world width for each cascade, and in the slot after the counted cascades the fill's,
+    // whose transform follows theirs, 0 where there is no fill.
     public float4 shadowTexels;
     public float4x4 shadowCascades[4];
     // The environment map's intensity, its last mip, 1 when there is one, and the exposure a
@@ -108,6 +109,11 @@ public TextureCube environmentMap;
 // or a black cube for none.
 [[vk::binding(3, 1)]]
 public TextureCube skyMap;
+
+// The depths the shadowed light sees past its cascades to the camera's far plane, the fill
+// cascade, or a white texture where there is none.
+[[vk::binding(37, 1)]]
+public Texture2D shadowFillMap;
 
 // The depths each shadowed point light sees, a layer for each of its six faces.
 [[vk::binding(4, 1)]]
