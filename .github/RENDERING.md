@@ -219,6 +219,28 @@ and 0.53 to 0.61 ms of `model_batches`, and as entities standing still 0.15 to 0
 `MeshEntityDraws` and 0.35 to 0.47 ms of `model_batches`, through the engine's shader and through
 `toon.slang` alike, frames of 3.1 to 4.1 ms either way.
 
+**The order of the opaque draws, read on 2026-10-25.** The voxel game's sections drawn through
+`DrawMesh` took twice the GPU's scene pass the same sections took as entities, 19.8 to 21.2 ms
+against 9.8 to 10.3 in its cherry grove at 1920 by 1080 at High on 5.2.313, with the same draws,
+triangles, pipelines, culling, depth state and coverage of the depth pass. The cause is the draws'
+order. Each section's solid faces, its faces cut out and its lava came by turns, each a batch alone
+through the terrain shader's solid pipeline, which keeps the GPU's early depth test, or its cut-out
+one, so the pass bound a pipeline 315 times a frame, where the entities, gathered by their look and
+drawn after the game's plants, bound one 7 times. On a scratch copy of the game with the engine at
+`23b4793b` the scene pass read 13.1 to 14.1 ms for the sections through `DrawMesh` and 9.3 to 10.8
+as entities; the `DrawMesh` sections' batches bound by their pipeline read 9.2 to 10.6, nearest
+first within each pipeline 8.4 to 9.0, and nearest first alone 11.8 to 13.0. The model pass draws a
+view's opaque batches by the pipeline each draws with, in the order each pipeline first comes and
+nearest first within it, each run between two batches that write no depth apart, so a sky drawn
+first with depth writes off keeps its place (`ModelRenderer.Order.cs`). With it the sections
+through `DrawMesh` read 8.9 to 12.9 ms where 14.4 to 21.2, and as entities 12.4 to 14.6 where 10.5
+to 15.0, another program holding part of the GPU through both, the frames within the spread two
+runs of one build show, an RMSE of 0.0011 to 0.0057. The thousand meshes above, in Release, take
+0.03 to 0.15 ms more of the scene pass's recording where all are of one pipeline, 1.44 to 1.58 ms
+where 1.07 to 1.46, and through `toon.slang`, solid and cut out by turns, 2.45 to 2.60 where 3.19
+to 3.30, the frame 6.96 to 7.26 ms where 7.56 to 7.99, through `DrawMesh` and as entities alike.
+`./e3d command models.draws` says how many pipelines the views' passes bound.
+
 A draw's maps are in its set, the first. Its base color texture, normal map, metallic-roughness
 map, emissive map and occlusion map are at bindings 1 to 5. Its factors are in its instance, its
 color and emission linear, decoded on the CPU, then its metallic, roughness, normal and occlusion

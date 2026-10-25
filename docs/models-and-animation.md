@@ -415,6 +415,12 @@ A shader of the program's own tells the copies apart by `SV_InstanceID`, counted
 [Shaders and compute](shaders-and-compute.md) page covers. The `models_stress` example measures how
 many lit, turning entities a frame holds at 60 frames a second, beside skinned arms.
 
+The opaque draws of a frame are drawn by the pipeline each is drawn with, solid or cut out, through
+the engine's shader or a program's, and the nearest first among those of one pipeline, whatever
+order the program called them in, so a world of many meshes drawn solid and cut out by turns costs
+no more than drawn apart. A draw with depth writes off, as a sky drawn first is, keeps its place,
+and the translucent draws come after the opaque ones in the order they were called.
+
 ## See also
 
 - Examples: [`models_loading`](../3DEngine.Examples/Models/ModelsLoading.cs),

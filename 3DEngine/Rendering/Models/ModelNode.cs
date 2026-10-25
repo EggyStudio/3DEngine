@@ -253,19 +253,6 @@ internal sealed partial class ModelRenderer : IDisposable
 
     private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness), int> _batchOf = [];
 
-    // Each view's batches, the window's at 0 and each render target's by its id, with where their
-    // instances are and the blocks they are culled by, made once a frame by whichever of its
-    // shadow and model passes comes first and drawn by both, since the shadow reads the same
-    // instances through each light.
-    private sealed class View
-    {
-        public readonly List<Batch> Batches = [];
-        public IBuffer? Ring;
-        public ulong Offset;
-        public Block[] Blocks = new Block[64];
-        public long Frame = -1;
-    }
-
     private readonly Dictionary<int, View> _views = [];
 
     // The frame the point lights' faces were last drawn in, once a frame by the first view drawing
@@ -439,25 +426,16 @@ internal sealed partial class ModelRenderer : IDisposable
             : renderWorld.TryGet<IlluminationBinding>() is { GlowLights: > 0 } ? ModelBuild.Whole : ModelBuild.Lampless;
         Drew = _fragmentSpvs[(int)build] is null ? ModelBuild.Whole : build;
 
-        IPipeline? pipeline = null;
-        var pushed = default(Matrix4x4?);
-        // The scissor the pass was begun with is the whole target, which a batch kept to some of it
-        // changes, and a face of a probe, drawn through a camera of its own, keeps.
-        ScissorRect? scissored = null;
+        var span = CollectionsMarshal.AsSpan(batches);
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
-        foreach (ref readonly var batch in CollectionsMarshal.AsSpan(batches))
+        _planned.Clear();
+        for (int b = 0; b < span.Length; b++)
         {
+            ref readonly var batch = ref span[b];
             if (IsAlone(batch.Shadow)) continue;
             var through = viewProjection ?? batch.ViewProjection;
             if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
             if (!frustum.SeesAny(batch, blocks)) continue;
-            var keptTo = viewProjection is null ? batch.Scissor : null;
-            if (keptTo != scissored)
-            {
-                if (keptTo is { } rect) pass.SetScissor(rect.X, rect.Y, (uint)Math.Max(0, rect.Width), (uint)Math.Max(0, rect.Height));
-                else pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);
-                scissored = keptTo;
-            }
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
@@ -476,9 +454,32 @@ internal sealed partial class ModelRenderer : IDisposable
             var wanted = program is null
                 ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build, positions, batch.Solid)
                 : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed, positions, batch.Solid);
-            if (!ReferenceEquals(wanted, pipeline))
+            _planned.Add(new Planned(b, wanted, program, streams, feed, positions));
+        }
+        OrderOpaque(span, view.Opaque, blocks, viewProjection);
+
+        IPipeline? pipeline = null;
+        var pushed = default(Matrix4x4?);
+        // The scissor the pass was begun with is the whole target, which a batch kept to some of it
+        // changes, and a face of a probe, drawn through a camera of its own, keeps.
+        ScissorRect? scissored = null;
+        foreach (ref readonly var planned in CollectionsMarshal.AsSpan(_planned))
+        {
+            ref readonly var batch = ref span[planned.Batch];
+            var through = viewProjection ?? batch.ViewProjection;
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
+            var keptTo = viewProjection is null ? batch.Scissor : null;
+            if (keptTo != scissored)
             {
-                pipeline = wanted;
+                if (keptTo is { } rect) pass.SetScissor(rect.X, rect.Y, (uint)Math.Max(0, rect.Width), (uint)Math.Max(0, rect.Height));
+                else pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);
+                scissored = keptTo;
+            }
+            var (program, streams) = (planned.Program, planned.Streams);
+            if (!ReferenceEquals(planned.Pipeline, pipeline))
+            {
+                pipeline = planned.Pipeline;
+                PipelinesBound++;
                 pass.SetPipeline(pipeline);
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, lights ?? target), index: 1);
                 pushed = null;
@@ -489,6 +490,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 pushed = through;
             }
 
+            var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
             if (streams == Streams.None)
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
@@ -497,9 +499,9 @@ internal sealed partial class ModelRenderer : IDisposable
                 var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!, colors, texcoords2], [0, offset, 0, 0]);
             }
-            if (feed is { } fed)
+            if (planned.Feed is { } fed)
                 pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : Zeros(gfx)], [0]);
-            if (positions) pass.SetVertexBuffer(6, [Zeros(gfx)], [0]);
+            if (planned.Positions) pass.SetVertexBuffer(6, [Zeros(gfx)], [0]);
             if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             Count(target == 0 ? "camera" : "targets", DrawSeen(pass, batch, blocks, frustum));
         }
@@ -531,6 +533,7 @@ internal sealed partial class ModelRenderer : IDisposable
             (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups, store);
             view.Batches.Clear();
             view.Batches.AddRange(_batches);
+            view.Opaque = _opaqueBatches;
             if (view.Blocks.Length < _blockCount) view.Blocks = new Block[Math.Max(_blockCount, view.Blocks.Length * 2)];
             Array.Copy(_blocks, view.Blocks, _blockCount);
             view.Frame = _frames;
@@ -617,6 +620,7 @@ internal sealed partial class ModelRenderer : IDisposable
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
+        _opaqueBatches = _batches.Count;
         var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true, true, false), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4), Scissor: (ScissorRect?)null);
         var lastBatch = -1;
         for (int i = 0; i < draws.Length; i++)

@@ -3969,6 +3969,24 @@ batch.
     the probes' info copy, the sky's fold and the glow box before it, the half-size gather dropped
     as measuring nothing.
 
+124. **A mesh entity can cast no shadow and bounce no light.** From the voxel game's reading for its
+    item 95 on 5.2.313 at 17:07 on 2026-10-25, its ASKS.md entry in the engine's tree; a gap the
+    port finds comes to the engine first, Decision 68. The ECS Material has no CastsShadows or
+    BouncesLight and MeshEntityDraws builds every entity's draw with both true, where ModelMaterial
+    carries both, so a section's see-through glass and ice, its water and a pack's cut-out glass as
+    entities would cast the sun's shadow and stand in the scene's field as solid, shutting the
+    indirect light out of a window, and its plants would bounce light so the field held the grass.
+    The two flags come to the mesh entity, on the Material mirroring ModelMaterial's or as a
+    component each beside Visible and ShadowOnly, whichever MeshEntityDraws writes cheapest, the
+    coder's call said in the record; a test reads a no-shadow entity casting none in the shadow map
+    and a no-bounce entity absent from the field while its twin stands in both; the behaviors
+    guide's Mesh entities section gains them. After what is in hand of item 100 and before the rest
+    of it. One commit. The coder's call at 18:27, the two flags on the ECS Material set true by its
+    constructors as DoubleSided is, since a look is built once for all entities sharing it and a
+    frame reads nothing more, where a component each would mean two more stores read and
+    change-checked for every touched entity. Done at `23b4793b` on 2026-10-25, the two flags on the
+    ECS Material carried into the draw and the batch key, the test's three cubes.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
