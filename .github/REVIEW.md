@@ -10,66 +10,86 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6a20d165`, item 119, a one-shot voice's stream flushed, read at 04:15 on 2026-10-25,
-carrying the review's files. CreateVoice flushes a one-shot voice's streams once its samples are
-queued and SetVoiceLooping flushes them again when looping is turned off, so a stream that resamples
-gives up the frames it held back and drains, a real device meeting the same where the rates differ;
-SdlAudioBackendTests under the dummy driver reads a 0.3 s sound at 44,100 Hz on the 48 kHz device
-ending in 0.25 to 1.5 s as two streams and as one, and a loop held past its length playing then
-ending within 1.5 s once let go; the backend's mixed processors moved to SdlAudioBackend.Postmix.cs
-for N 1.3. The strict build clean, 2,100 plain and shuffled on the GPU. Pushed with `07d3bf28` and
-`c897565c` at 04:54 on 2026-10-25 once the build run of `55a33ce9` went green whole, the run
-watched. After `07d3bf28`, item 118, a played-out voice let go, read at 03:50 on 2026-10-25,
-carrying the review's files. AudioServer.Tick lets go of a voice played once whose backend reports
-it played out, the backend voice freed and the ticket dropped so the AudioSource reads as stopped,
-Stop on it doing nothing and the ticks after walking the voices still playing, looping, paused and
-streamed voices kept until stopped with a Stream flag on the record, and audio.voices in the profile
-set to LiveSourceCount; AudioServerTests plays a hundred steps, a loop and a paused voice through
-the recording backend at 102 voices and reads two kept once all have played out, a hundred Stop
-calls doing nothing and the next tick setting two volumes; the audio guide's stop paragraph and the
-docs say it. The strict build clean, 2,099 plain and shuffled on the GPU, the API listing unchanged.
-After `c897565c`, item 117, the grouping index, read at 03:25 on 2026-10-25, carrying the review's
-files. GroupIndex from ecs.Groups holds many entities to the key a keyed component names, Members a
-span over the index's own list allocating nothing beside CountOf and Count, a list of entities a key
-with each entity's key and place so a removal moves the list's last member into the gap, a key left
-with none dropped, the store's index slot taken so add, replace, remove and despawn reach it as they
-reach KeyIndex and an index made late picking up the entities already holding the component.
-Departures, Index and Groups moved together into EcsWorld.Indexes.cs for N 1.3, a component type
-holding one index of either kind with its exception reworded for STYLE.md. The test spawns a
-thousand mobs in twenty columns, half before the index is asked for, each column's members every
-twentieth, a walk allocating nothing, the members following a despawn, a removal and a move, an
-emptied column no key, and a KeyIndex asked for the same type throwing; the behaviors guide gains a
-line and a block and the cheat sheet names Groups. The strict build clean, 2,098 plain and shuffled
-on the GPU, the guide's 19 blocks building on the package. After `55a33ce9`, item 116, a profile
-value's mean, read at 03:00 on 2026-10-25, carrying ASKS.md and the review's files.
-SetProfileValue(name, value, seconds) beside the present call shows the mean of the values set over
-the last seconds by GetTime's clock, 0 showing the value as set and the plain call dropping a
-window, FrameProfile.Set keeping the samples with their times, dropping those at or before the
-window's start and summing afresh each set; the test sets 0 and 100 by turns each sixty-fourth of a
-second for two seconds and reads 50, a value set three seconds on reading alone and a plain set as
-set; the cheat sheet's line and the frame guide's paragraph and block. The strict build clean, 2,097
-plain and shuffled on the GPU, the frame guide's 10 blocks building on the package. Both pushed at
-03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, their run green whole at
-04:51, Windows in 106 minutes under the limit of 150, Linux in 45 and macOS in 31. Item 96 begins
-with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
-per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
-window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
-over the window's depth with a two by two depth and normal read, as the glow pass has. Next 120, the
-low-pass and the reverb, then 108, the mesh entity as a game's section, the ECS gaps the game's
-drops found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the
-scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then
-111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the
-documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
-the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
-at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
-main, N 7.5; the cloud sessions stand by.
+Reviewed up to `ac1c6bad`, item 120, the low-pass and the reverb, read at 05:06 on 2026-10-25,
+carrying the review's files, held until the build run of `6a20d165` ends. A sound's voice in the SDL
+backend is one stereo stream at the sound's rate fed on demand through
+SDL_SetAudioStreamGetCallback, a LibraryImport with a function pointer as the postmix is; the feed
+wraps for a loop, runs each frame through VoiceEffects and applies the pan, so the pan moves as it
+plays, and after the samples come the room's tail frames, the decay plus the longest comb, then the
+stream is flushed and the voice reaped once drained, item 119's end kept. VoiceEffects holds an RBJ
+biquad low-pass at Q 0.707, bypassed at 0 or past 0.45 of the rate, and a Freeverb-shaped reverb of
+eight damped combs and four allpasses, the size scaling the delays from Freeverb's at 10 units
+between 0.2 and 4 times, the decay setting each comb's feedback to 10 to the power of minus three
+times its delay over the decay, the share mixing in mono to both sides, the shared ReverbRoom read
+live and the buffers made for a voice with a share alone; the sample pins, the loop refills and the
+queue at creation go, the music's two channel-mapped streams stay. LowPass and Reverb on
+AudioVoiceParams, SetLowPass and SetReverb on AudioSource, ReverbSize at 10 and ReverbDecay at 1.5 s
+on AudioServer pushed to a backend on SetBackend, default SetVoiceLowPass, SetVoiceReverb and
+SetReverb on IAudioBackend, the flat SetSoundLowPass, SetSoundReverb and SetAudioReverb with cheat
+sheet lines. VoiceEffectsTests in the Sdl audio collection under the dummy driver reads through a
+mixed processor, a 1 kHz cutoff taking 6 kHz down by over 20 dB and leaving 300 Hz within 1.5 dB, a
+1 ms click with no share under 1e-8 of its energy a quarter second on, a share of 1 at a 1.2 s decay
+ringing over 1e-4 there and more than 30 dB above a 0.3 s decay, the voice playing past 1.2 s until
+its tail dies and a dry one ending within a second. Three departures. The two tests wait on the
+dummy driver's clock and join SdlAudioBackendTests on build/norm/3.3.txt, N 3.3's row moving to 9
+left out; an extra BindAudioStream of the first draft logged already-bound warnings in one suite run
+and was removed before the commit; the audio guide gains A wall and a room with the game's readings,
+0.54 at 4.8 blocks on the plains, 0.88 at 2.2 under the canopy and 0.92 at 7.8 in the deep cave,
+each block crossed halving the cutoff, and a block building on the package. SDL's audio thread read
+from /proc with forty 44.1 kHz sounds playing in a hidden flat-API program, 4.6 to 5.2% of a core on
+the package before, 4.0 to 5.0 fed with no effects, 15.4 to 18.3 with every voice at a share and a 2
+kHz low-pass, about 0.3% a voice. The strict build clean, 2,102 plain and shuffled on the GPU, the
+audio guide's 11 blocks building on the package. After `6a20d165`, item 119, a one-shot voice's
+stream flushed, read at 04:15 on 2026-10-25, carrying the review's files. CreateVoice flushes a
+one-shot voice's streams once its samples are queued and SetVoiceLooping flushes them again when
+looping is turned off, so a stream that resamples gives up the frames it held back and drains, a
+real device meeting the same where the rates differ; SdlAudioBackendTests under the dummy driver
+reads a 0.3 s sound at 44,100 Hz on the 48 kHz device ending in 0.25 to 1.5 s as two streams and as
+one, and a loop held past its length playing then ending within 1.5 s once let go; the backend's
+mixed processors moved to SdlAudioBackend.Postmix.cs for N 1.3. The strict build clean, 2,100 plain
+and shuffled on the GPU. Pushed with `07d3bf28` and `c897565c` at 04:54 on 2026-10-25 once the build
+run of `55a33ce9` went green whole, the run watched. After `07d3bf28`, item 118, a played-out voice
+let go, read at 03:50 on 2026-10-25, carrying the review's files. AudioServer.Tick lets go of a
+voice played once whose backend reports it played out, the backend voice freed and the ticket
+dropped so the AudioSource reads as stopped, Stop on it doing nothing and the ticks after walking
+the voices still playing, looping, paused and streamed voices kept until stopped with a Stream flag
+on the record, and audio.voices in the profile set to LiveSourceCount; AudioServerTests plays a
+hundred steps, a loop and a paused voice through the recording backend at 102 voices and reads two
+kept once all have played out, a hundred Stop calls doing nothing and the next tick setting two
+volumes; the audio guide's stop paragraph and the docs say it. The strict build clean, 2,099 plain
+and shuffled on the GPU, the API listing unchanged. After `c897565c`, item 117, the grouping index,
+read at 03:25 on 2026-10-25, carrying the review's files. GroupIndex from ecs.Groups holds many
+entities to the key a keyed component names, Members a span over the index's own list allocating
+nothing beside CountOf and Count, a list of entities a key with each entity's key and place so a
+removal moves the list's last member into the gap, a key left with none dropped, the store's index
+slot taken so add, replace, remove and despawn reach it as they reach KeyIndex and an index made
+late picking up the entities already holding the component. Departures, Index and Groups moved
+together into EcsWorld.Indexes.cs for N 1.3, a component type holding one index of either kind with
+its exception reworded for STYLE.md. The test spawns a thousand mobs in twenty columns, half before
+the index is asked for, each column's members every twentieth, a walk allocating nothing, the
+members following a despawn, a removal and a move, an emptied column no key, and a KeyIndex asked
+for the same type throwing; the behaviors guide gains a line and a block and the cheat sheet names
+Groups. The strict build clean, 2,098 plain and shuffled on the GPU, the guide's 19 blocks building
+on the package. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at
+1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from
+the variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 108, the mesh entity as a game's section, the ECS gaps the game's drops found,
+then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's
+read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
+shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
+91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
+guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
+camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
+7.5; the cloud sessions stand by.
+
+Before it, `55a33ce9` came, item 116, a profile value's mean, with `6e29cfa0`, item 115, pushed at
+03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, its run green whole at
+04:51, Windows in 106 minutes under the limit of 150, Linux in 45 and macOS in 31.
 
 Before it, `e746f98e` came, item 114 with `c71cdbea`, item 108's second phase, and `0cfc2843`, item
 113, pushed at 02:07 on 2026-10-25, its build run green whole at 03:03, Windows in 56 minutes, Linux
 in 37 and macOS in 32.
-
-Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
-2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1104,25 +1124,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-120. **A voice takes a low-pass by cutoff and a room's reverb by wet share, size and decay.** From
-    the voxel game's occlusion and room at its `e433e5c` on 2026-10-25, read at 02:58, its ASKS.md
-    entry in the engine's tree. The game plays a mob's step at a share by the blocks crossed and
-    reads a room's closure and mean distance by rays, but a voice cannot be low-passed behind blocks
-    nor given a room's reverb, so the room is reported and not heard. A voice gains a low-pass with
-    a cutoff a program sets, and the server a reverb a voice takes by a wet share with a room size
-    and a decay, both on the mixer's own processor as the spatial pan is; tests of a tone's spectrum
-    under the cutoff and of a click's tail by the decay, the guide's audio page with the game's
-    readings. One or two commits, after item 119 and before 108's third phase. The coder's plan at
-    04:15, taken as laid out, is sound voices fed on demand through SDL's stream get callback from
-    their samples, each block through a biquad low-pass at the voice's cutoff and then a
-    comb-and-allpass reverb, the server's room size scaling the delays, its decay setting the
-    feedback and the voice's wet share mixing it in, one reverb a voice sounding as one shared send
-    since a reverb is linear, the voice kept until its tail dies, the pan moved into the feed as one
-    stereo stream a voice in place of the two channel-mapped streams; LowPass and Reverb on
-    AudioVoiceParams, SetLowPass and SetReverb on AudioSource, ReverbSize and ReverbDecay on the
-    server and the flat calls; tests by Goertzel readings of a two-tone sound under a cutoff and a
-    click's tail by decay through a mixed processor under the dummy driver.
 
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md

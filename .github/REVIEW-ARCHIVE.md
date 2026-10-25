@@ -3699,6 +3699,27 @@ batch.
     Taken so. Done at `6a20d165` on 2026-10-25 by the departure, the streams flushed once queued and
     when looping ends.
 
+120. **A voice takes a low-pass by cutoff and a room's reverb by wet share, size and decay.** From
+    the voxel game's occlusion and room at its `e433e5c` on 2026-10-25, read at 02:58, its ASKS.md
+    entry in the engine's tree. The game plays a mob's step at a share by the blocks crossed and
+    reads a room's closure and mean distance by rays, but a voice cannot be low-passed behind blocks
+    nor given a room's reverb, so the room is reported and not heard. A voice gains a low-pass with
+    a cutoff a program sets, and the server a reverb a voice takes by a wet share with a room size
+    and a decay, both on the mixer's own processor as the spatial pan is; tests of a tone's spectrum
+    under the cutoff and of a click's tail by the decay, the guide's audio page with the game's
+    readings. One or two commits, after item 119 and before 108's third phase. The coder's plan at
+    04:15, taken as laid out, is sound voices fed on demand through SDL's stream get callback from
+    their samples, each block through a biquad low-pass at the voice's cutoff and then a
+    comb-and-allpass reverb, the server's room size scaling the delays, its decay setting the
+    feedback and the voice's wet share mixing it in, one reverb a voice sounding as one shared send
+    since a reverb is linear, the voice kept until its tail dies, the pan moved into the feed as one
+    stereo stream a voice in place of the two channel-mapped streams; LowPass and Reverb on
+    AudioVoiceParams, SetLowPass and SetReverb on AudioSource, ReverbSize and ReverbDecay on the
+    server and the flat calls; tests by Goertzel readings of a two-tone sound under a cutoff and a
+    click's tail by decay through a mixed processor under the dummy driver. Done at `ac1c6bad` on
+    2026-10-25, the voices fed on demand with a biquad low-pass and a Freeverb-shaped reverb, the
+    three departures in the head.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -4875,7 +4896,6 @@ at `36cae0c2`.
     that carries its upgrading entry. Settled on the Linux suite of the build run 40012951798 of
     `a0e5964e`, green on 2026-10-23, read at 22:49.
 
-
 85. **The macOS suite of the push of `fade1730` fails item 78's pixel test, the strip's newest bar
     red where the test asks green.** On the build run 40030496277 on 2026-10-24 the macOS suite,
     1,958 passed in 17 minutes 18 seconds, failed
@@ -4889,7 +4909,6 @@ at `36cae0c2`.
     the newest bar in any of the three colors within 8; it settles when the run of the push is green
     on macOS. Settled: the run of `b0f652cc` green on macOS and Windows at 02:08 on 2026-10-24,
     whole at 02:28.
-
 
 86. **The Windows suite's Rendering part was lost at its limit in the run of `26dbc6da`.** Read at
     04:25 on 2026-10-24 from the run's Windows job: the Rendering part, 347 passed and none failed,

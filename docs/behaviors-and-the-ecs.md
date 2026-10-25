@@ -181,6 +181,56 @@ ctx.Cmd.Spawn((entity, world) => world.Add(entity, ball));
 `ctx.Cmd.DespawnRecursive(entity)` removes it with everything below it, as a placed prefab, and
 `ctx.Cmd.Add` and `ctx.Cmd.Remove` change what an entity has.
 
+## Mesh entities
+
+A `Mesh` holds positions, three to a triangle, or vertices and the indices of their triangles with
+`new Mesh(positions, indices)`, which the engine uploads the first time an entity is drawn with it
+and keeps while any entity holds it, drawn or not. A mesh the program uploaded itself, with colors
+or a stream of its own, is drawn as it is, given as `new Mesh(UploadMesh(...))`. A `Material` names
+the shader it is drawn with as `Shader`, as `DrawMesh` draws with a material's, its uniforms and
+textures as `SetShaderValue` left them before the frame's render stage. `Visible` with false leaves
+an entity out of every pass, and `ShadowOnly` with true draws it into the shadow maps alone, each a
+bool written in place, and the frame profile counts the entities drawn as `entities.drawn`.
+
+A voxel world's section is such an entity. Its faces are uploaded from their positions and the two
+uints a vertex its terrain shader unpacks, drawn through that shader, and drawn into the shadow maps
+alone where the world's flood through the sections' open faces does not reach it, so a section the
+eye cannot see still keeps the sun off a cave below it:
+
+<!-- compiled with:
+Vector3[] positions = [];
+uint[] indices = [], packed = [];
+Shader terrain = default;
+Vector3 origin = default;
+bool reached = false;
+BehaviorContext ctx = null!;
+-->
+```csharp
+var mesh = UploadMesh(positions, indices, MeshStream.From<uint>(MeshStreamFormat.UInt2, packed), null);
+var section = ctx.Ecs.Spawn();
+ctx.Ecs.Add(section, new Mesh(mesh));
+ctx.Ecs.Add(section, new Material(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, Shader = terrain });
+ctx.Ecs.Add(section, new Transform(origin));
+ctx.Ecs.Add(section, new ShadowOnly(!reached));
+```
+
+A write has the entity's chunk of four thousand gathered again in the frame after, so the flood
+writes a section's only where its answer changed:
+
+<!-- compiled with:
+int section = 0;
+bool reached = false;
+BehaviorContext ctx = null!;
+-->
+```csharp
+if (ctx.Ecs.GetReadOnly<ShadowOnly>(section).Value == reached) ctx.Ecs.Update(section, new ShadowOnly(!reached));
+```
+
+A thousand meshes of their own in a grid, drawn through `DrawMesh` each frame, cost the program
+0.21 to 0.25 ms of calls and the model pass's batching 0.53 to 0.61 ms, and as entities standing
+still cost `MeshEntityDraws` 0.15 to 0.19 ms and the batching 0.35 to 0.47 ms, with the engine's
+shader and with a program's alike.
+
 ## Components a method uses
 
 A method names the entity's other components after its context, `ref` for one it writes and
