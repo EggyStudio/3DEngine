@@ -82,7 +82,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
             // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
             var glowOnly = renderWorld.TryGet<GlobalIlluminationRenderer>()?.GlowOnly(renderWorld) == true;
-            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality),
+            var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
+            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality, tall),
                 GlobalIlluminationRenderer.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.

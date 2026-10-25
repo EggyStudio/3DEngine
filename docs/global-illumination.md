@@ -134,7 +134,7 @@ one.
 ## The screen's probes
 
 At `Medium` and `High`, beside the world's probes stands a probe for every few pixels of the window,
-every 12 at `Medium` and 8 at `High`, on the surface the window shows there. Each traces the near
+every 12 at `Medium` and 8 at `High` up to 1080 pixels high, on the surface the window shows there. Each traces the near
 light through the window's depth first, as far as the first cascade's probes stand apart, and takes
 the world's probes' light past that, so the light under a table, in a corner or where a wall meets
 the floor is seen at the size the window draws it and not at the probes' spacing of two units. The
@@ -163,6 +163,25 @@ For debugging, `gi.toggle screen off` and the box of the screen's probes in the 
 illumination window leave them out whole at any quality, those standing for the glow lights at
 `Low` with them, neither made nor traced, for the window and a render texture, so what they cost and
 give can be read, and each pixel then marches to the glow lights itself.
+
+Past 1080 pixels high the probes stand further apart as the window is higher, every 11 pixels at
+`High` at 2560 by 1440 and every 16 at 3840 by 2160, so each stands for about the same share of the
+picture on any screen and their cost holds near 1080p's. In the voxel game's room of forty
+glowstones, offscreen on the same GPU, global illumination and the scene pass took this with the
+screen's probes at `High`, with `Low`'s probes for the glow lights alone, and with each pixel
+marching to the glow lights, as the debugging toggle has it.
+
+| Window | `High`, global illumination | `High`, scene pass | `Low`, global illumination | `Low`, scene pass | Marching, scene pass |
+|---|---|---|---|---|---|
+| 1280 by 720 | 8.3 ms | 2.6 ms | 2.5 ms | 1.3 ms | 13.8 ms |
+| 1920 by 1080 | 13.1 ms | 4.9 ms | 2.9 ms | 2.7 ms | 29.2 ms |
+| 2560 by 1440 | 12.4 ms | 7.6 ms | 3.4 ms | 4.8 ms | 49.5 ms |
+| 3840 by 2160 | 13.3 ms | 16.2 ms | 4.5 ms | 10.5 ms | 107.7 ms |
+
+Every 8 pixels whatever the window, global illumination took 17.8 ms there at 2560 by 1440 and 35.9
+at 3840 by 2160, and the Cornell box's 4.5 and 7.2 ms where 3.1 and 3.7. The nine rooms of
+`shaders_bounce_rooms` read as far from their path-traced references at 3840 by 2160 as at 1920 by
+1080, within 0.002 of their light.
 
 ## Emissive surfaces
 

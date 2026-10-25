@@ -1882,6 +1882,20 @@ what the toggle's frame costs. The bounce rooms at `Low` read 0.099, 0.117, 0.27
 with nothing under the probes' spacing, and the Cornell box, the window, the grazing floor and the
 carried lamp nearer.
 
+**The screen's probes' spacing by the window's height, read on 2026-10-25.** Every 8 pixels at
+`High` whatever the window, 3840 by 2160 placed nine times the probes of 1280 by 720, and in the
+voxel game's room of forty glowstones global illumination took 8.3, 13.7, 17.8 and 35.9 ms at 1280
+by 720, 1920 by 1080, 2560 by 1440 and 3840 by 2160 offscreen on the development machine's GPU,
+about 3 of it the world's probes, and the Cornell box 3.3, 3.8, 4.5 and 7.2. Past 1080 pixels high
+the tile grows with the height (`GlobalIlluminationRenderer.TileAt`), every 11 pixels at 2560 by
+1440 and 16 at 3840 by 2160 at `High`, and the room reads 8.3, 13.1, 12.4 and 13.3 ms, the Cornell
+box 2.4, 3.7, 3.1 and 3.7. A render texture's probes take the window's tile. The nine rooms, each
+traced at 1920 by 1080 with 256 paths a pixel and read in 96 by 54 blocks, read as far from their
+references at 3840 by 2160 as at 1920 by 1080, 0.040, 0.087, 0.162, 0.221, 0.007, 0.086, 0.049,
+0.039 and 0.018 where 0.040, 0.087, 0.163, 0.223, 0.007, 0.085, 0.051, 0.040 and 0.019, and every 8
+pixels at 3840 by 2160 0.040, 0.087, 0.160, 0.221, 0.007, 0.084, 0.047, 0.039 and 0.018. Another
+session's tests shared the GPU through the readings, which may have raised the times alike.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

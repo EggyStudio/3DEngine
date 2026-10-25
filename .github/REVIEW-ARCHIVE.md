@@ -3793,6 +3793,66 @@ batch.
     `9a013b59` on 2026-10-25, the field reading a counted mesh's colors beside the program's own
     stream, the red wall's floor 222, 192, 192 where it read gray, the departure in the head.
 
+103. **The screen probes have one switch, and off means no screen pass at all.** The owner asked the
+    game's session at about 18:4x on 2026-10-24, read at 18:44, why two checkboxes stand for the
+    screen probes, one in the game's F3 window under the quality and one in the global illumination
+    window as the screen's probes, and why the first must be on and the second off to see the screen
+    without them. The first is SetGlobalIlluminationScreenProbes, whether the probes exist, and with
+    it off and glow lights in view the engine keeps the glow-only screen pass, Screen.z at 1 in
+    LightingUboPrepare and the glow lights' light read through the screen tiles; the second is the
+    debug toggle gi.toggle screen, the probes traced but unread, which leaves the glow-only pass
+    alone, so only the first on and the second off gives no tiles. SetGlobalIlluminationScreenProbes
+    off turns the screen pass off whole, the glow lights marched per pixel then as they are with no
+    tiles, their cost read with forty glowstones and said in the guide; the global illumination
+    window's toggle is named for what it does, the probes traced but unread, under the window's
+    debug toggles with a line saying it is for reading the trace's cost; the game's F3 checkbox then
+    does what it says. A test turning the probes off with a glow light in view reads no screen tile
+    written. One commit, small, after item 102 and before item 96's remaining cuts. Held on its cost
+    at 09:06 on 2026-10-25 and chosen. The game leaves the probes out by default, so it runs on the
+    glow-only pass the item as written removes, item 71's sixth term made for the game; read in the
+    entry's room of forty glowstones at hour 23 on a game copy at `f05ea96f` at 1280 by 720 and
+    High, the probes left out cost gpu.hdr_scene 1.19 to 1.29 ms and the frame 4.8 to 5.2, the
+    probes traced but unread, each pixel marching as off would do, 13.3 ms and the frame 21.3, and
+    the probes read 2.24 ms, the frames alike by eye, so the item as written would cost the game's
+    default about 12 ms in a room of light blocks. Chosen, the glow-only pass stays as the call's
+    off, the global illumination window's toggle renamed and moved under the debug toggles as the
+    item says, and the guide saying that off leaves a pass for the glow lights alone while any is
+    lit, with the room's three numbers; a per-tile list of glow lights with no probes placed is not
+    taken. One small commit before item 96's remaining cuts, as before. The owner wrote to the
+    engine's session before 09:19 on 2026-10-25 that the screen probes stay on, as recommended, and
+    that off is for debugging alone and not for a player, so the form chosen is built and tested and
+    held while the owner says whether the public call SetGlobalIlluminationScreenProbes goes; if it
+    goes, off is gi.toggle and the window alone, the glow-only pass goes with it and the game drops
+    its option and its two calls, the game's item 131 taking its side either way. Decided at 09:20
+    under Decision 72, the call goes. The probes are on while global illumination is on, the only
+    off gi.toggle screen and the window's debug box, which leave them out whole, neither traced nor
+    read, so their cost and their look can both be read; the glow-only pass goes with the call, item
+    71's sixth term, reached by debugging alone; the docs, the cheat sheet, upgrading.md,
+    PublicApi.txt and the screen probe tests follow, about fifteen files. One commit, the form built
+    and tested set aside. The game drops its option and its two calls, its item 131, the calls in
+    the commit that takes the package carrying this. Changed at 09:39 on the owner's word, Decision
+    72 amended. The glow-only pass stays, keyed by the quality and not by a call; at Low the screen
+    probes are left out and the glow lights come through the glow-only pass, the cascades alone
+    lighting the rest, and at Medium and High the screen probes come as they do; the public call
+    goes, gi.toggle screen and the window's debug box leave the probes out whole at any quality for
+    reading, and the guide's quality table says which tier carries the probes with the room's
+    numbers, 1.2 ms at Low and 2.2 with the probes. One commit from the call-gone patch with the
+    pass restored under the quality. What Low gives up, read at 10:16 before the commit in the
+    Cornell box at 800 by 450 unpaced. Global illumination at Low costs 1.80 ms with the probes and
+    0.60 without, the glow-only pass for its four emitters, the scene pass 0.31 and 0.48, Medium
+    1.92 and High 2.00 where the guide's table said 1.00, so its three rows are replaced; Low's
+    memory is 6.16 MB with glow lights lit, 1.53 of the world and 4.63 of the glow probes, and 1.53
+    without. The rooms at Low against their references with and then without the probes, 1 at 0.115
+    and 0.099, 2 at 0.078 and 0.117, 3 at 0.226 and 0.270, 4 at 0.308 and 0.227, 5 at 0.020 and
+    0.019, 6 at 0.207 and 0.202, 7 at 0.069 and 0.051, 8 at 0.113 and 0.062, 9 at 0.058 and 0.058,
+    Low's bounds for views 2 and 3 moved to 0.13 and 0.29. Seen, the thin walls room at Low shows
+    bright saw-toothed leaks of the outside lamp along every wall-floor and wall-ceiling edge and
+    the Cornell box steps faintly at its ceiling edges and the tall block's foot, item 71's
+    edge-leak and stepped-edge terms the screen probes covered, item 123 from here; the tests of the
+    screen probes moved to Medium. Two pictures in the devlog. Done at `c721746b` on 2026-10-25 in
+    the ladder form, the call gone, the probes at Medium and High and Low's glow lights through the
+    glow-only pass, the leaks Low shows item 123.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

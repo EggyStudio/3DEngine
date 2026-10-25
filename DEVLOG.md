@@ -24,10 +24,22 @@ The red wall's room with the wall a compute shader writes in a stream of two uin
 a shader of its own, above with no colors given, the floor before it 233,233,233, and below with its
 colors given beside the stream, the wall red and the floor 222,192,192 with the red it bounces.
 
+![](.github/assets/readings/2026-10-25-item-103-cornell.webp)
+The Cornell box at Low, above with the screen's probes, its global illumination 1.80 ms of the GPU
+at 800 by 450, and below with Low leaving them out, 0.60 ms, 0.099 of its light from its reference
+where 0.115, the ceiling's edges and the tall block's foot a little stepped.
+
+![](.github/assets/readings/2026-10-25-item-103-thin-walls.webp)
+The bounce rooms' thin walls with a lamp outside at Low, above with the screen's probes, 0.078 of
+its light from its path-traced reference, and below with Low leaving them out, the cascades read
+alone, 0.117, the lamp's light stepping through the walls' foot and their corners where nothing
+under the probes' spacing holds it back.
+
 Done that day
 
 - Item 102 at `f05ea96f`. The far cascade's coarse cells near the ground hold no slab, so the game
   can set it.
+- Item 103 at `c721746b`. The screen probes have one switch, and off means no screen pass at all.
 - Item 108 at `a8f127ad`. A mesh entity can be a voxel game's section, with its own shader, streams,
   visibility and shadow.
 - Item 110 at `31d1fcb6`. A behavior's system says what it runs after or before, and in more than

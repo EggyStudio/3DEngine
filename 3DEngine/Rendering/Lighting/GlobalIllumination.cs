@@ -287,13 +287,28 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     internal bool GlowOnly(RenderWorld renderWorld) =>
         _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
 
-    /// <summary>The pixels along each side of the tile a screen probe stands in, at a quality.</summary>
-    internal static int TileAt(GlobalIllumination quality) => quality switch
+    /// <summary>
+    /// The pixels along each side of the tile a screen probe stands in, at a quality, for a window
+    /// <paramref name="height"/> pixels high, the same up to 1080 and growing with the height past
+    /// it, so a probe stands for about the same share of the picture on any screen.
+    /// </summary>
+    /// <remarks>
+    /// The probes' cost grows with how many there are. Every 8 pixels at High whatever the screen,
+    /// the voxel game's room of forty glowstones took 8.3 ms of global illumination at 1280 by 720
+    /// and 35.9 at 3840 by 2160 on the development machine's GPU, the world's probes about 3 of it,
+    /// and the Cornell box 3.3 and 7.2. A render texture's probes take the window's tile, so a view
+    /// of a split screen reads the window's spacing.
+    /// </remarks>
+    internal static int TileAt(GlobalIllumination quality, uint height = 1080)
     {
-        GlobalIllumination.Low => 16,
-        GlobalIllumination.Medium => 12,
-        _ => 8,
-    };
+        var at1080 = quality switch
+        {
+            GlobalIllumination.Low => 16,
+            GlobalIllumination.Medium => 12,
+            _ => 8,
+        };
+        return Math.Max(at1080, (int)MathF.Round(at1080 * height / 1080f));
+    }
 
     /// <summary>
     /// How many cascades of probes global illumination traces for the window this frame, which the
@@ -443,7 +458,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             && renderWorld.TryGet<WindowView>() is { } window && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
             && Matrix4x4.Invert(window.ViewProjection, out var inverse))
         {
-            var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality));
+            var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality, swapchain.Extent.Height));
             if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile
                 || _screenGlowOnly != glowOnly)
             {
@@ -519,7 +534,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, null, depth, GlowLights: _glowCount);
             return;
         }
-        var tile = TileAt(settings.Quality);
+        var tile = TileAt(settings.Quality, renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? size.Height);
         if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.GlowOnly != glowOnly
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
