@@ -18,7 +18,8 @@ struct Particle
 };
 
 // The header, four particles' worth of float4 values, the first four written here and the rest by
-// the recording, then the particles.
+// the recording, then the particles. The fourth holds the slots in x and the newest particle's slot
+// in z, which the draw counts its instances back from.
 [[vk::binding(0, 0)]]
 RWStructuredBuffer<float4> slots;
 
@@ -178,35 +179,39 @@ bool meetsField(float3 was, float3 now, out float3 surface, out float3 normal, o
 void computeMain(uint3 id : SV_DispatchThreadID)
 {
     uint capacity = push.counts.z & 0x1FFFFFu;
+    uint newest = (push.counts.x + push.counts.y + capacity - 1u) % capacity;
     if (id.x == 0)
     {
         slots[0] = push.startColor;
         slots[1] = push.endColor;
         slots[2] = push.look;
-        slots[3] = float4(float(capacity), 0, 0, 0);
+        slots[3] = float4(float(capacity), 0, float(newest), 0);
     }
     if (id.x >= capacity)
         return;
 
-    uint at = Header + id.x * 2;
+    // The threads walk back from the newest slot, so a dispatch of only the slots that may hold a
+    // live particle steps every one alive, and a thread past them finds its slot dead.
+    uint slot = (newest + capacity - id.x) % capacity;
+    uint at = Header + slot * 2;
     float4 positionAge = slots[at];
     float4 velocityLife = slots[at + 1];
     float seconds = push.originAndSeconds.w;
 
-    uint fromFirst = (id.x + capacity - push.counts.x) % capacity;
+    uint fromFirst = (slot + capacity - push.counts.x) % capacity;
     if (fromFirst < push.counts.y)
     {
         uint seed = asuint(push.variation.z);
         float3 velocity = push.velocityAndSpread.xyz;
         float speed = length(velocity);
         float3 way = speed > 1e-6 ? velocity / speed : float3(0, 1, 0);
-        way = within(way, push.velocityAndSpread.w, random(id.x, seed, 1), random(id.x, seed, 2));
-        speed *= 1.0 + (random(id.x, seed, 3) * 2.0 - 1.0) * push.variation.y;
-        float life = push.gravityAndLife.w * (1.0 + (random(id.x, seed, 4) * 2.0 - 1.0) * push.variation.x);
-        float3 offset = within(float3(0, 1, 0), 3.14159265, random(id.x, seed, 5), random(id.x, seed, 6))
-                        * push.variation.w * pow(random(id.x, seed, 7), 1.0 / 3.0);
+        way = within(way, push.velocityAndSpread.w, random(slot, seed, 1), random(slot, seed, 2));
+        speed *= 1.0 + (random(slot, seed, 3) * 2.0 - 1.0) * push.variation.y;
+        float life = push.gravityAndLife.w * (1.0 + (random(slot, seed, 4) * 2.0 - 1.0) * push.variation.x);
+        float3 offset = within(float3(0, 1, 0), 3.14159265, random(slot, seed, 5), random(slot, seed, 6))
+                        * push.variation.w * pow(random(slot, seed, 7), 1.0 / 3.0);
         // Started part way through the step, so a burst of many in one frame does not leave as a sheet.
-        float early = random(id.x, seed, 8) * seconds;
+        float early = random(slot, seed, 8) * seconds;
         float3 position = push.originAndSeconds.xyz + offset + way * speed * early;
         slots[at] = float4(position, early);
         slots[at + 1] = float4(way * speed, max(life, 1e-3));

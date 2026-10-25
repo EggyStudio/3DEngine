@@ -83,6 +83,29 @@ public sealed class ParticleTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Empty_Emitters_Are_Neither_Stepped_Nor_Drawn_And_A_Burst_Costs_Its_Own_Particles_Until_They_Die()
+    {
+        Open();
+        // Twenty with room for ten thousand each, as a voxel game's ambient emitters stand, none emitting.
+        var emitters = Enumerable.Range(0, 20)
+            .Select(i => CreateParticleEmitter(new Vector3((i - 3) * 0.1f, 0, 0), Cloud(Color.White) with { MaxParticles = 10_000, Life = 0.5f, LifeVariation = 0.5f }))
+            .ToArray();
+        var particles = GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ParticleRenderer>();
+
+        Capture(3);
+        (particles.Stepped, particles.Drawn).Should().Be((0, 0), "no particle was born");
+
+        EmitParticles(emitters[3], 400);
+        var burst = Capture(2);
+        (particles.Stepped, particles.Drawn).Should().Be((400, 400), "the burst's slots alone are stepped, sorted and drawn");
+        Sum(GetImageColor(burst, 80, 60)).Should().BeGreaterThan(300, "the burst shows");
+
+        // The longest life is three quarters of a second, 45 frames, after which none is left.
+        Capture(50);
+        (particles.Stepped, particles.Drawn).Should().Be((0, 0), "the burst's particles died");
+    }
+
+    [NeedsVulkanFact]
     public void A_Reflection_Probe_Captures_The_Particles_Around_It()
     {
         Open();

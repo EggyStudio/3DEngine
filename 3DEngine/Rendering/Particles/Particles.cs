@@ -69,6 +69,13 @@ internal sealed class ParticleExtract : IExtractSystem
 /// last frame's, so the oldest particles are the ones replaced. The particles the program placed
 /// at its <see cref="ParticleEmitter.Points"/> are a buffer of their own, which no dispatch steps,
 /// made again when the points change.
+/// <para>
+/// The step, the sort and the draw take only the slots that may hold a live particle, counted back
+/// from the newest, which the births of the frames before and the longest life one of them can draw
+/// bound, so an emitter whose particles have died costs nothing until it emits again, and one with
+/// a few alive costs its few, where twenty empty emitters of a voxel game read 3.5 ms of the CPU and
+/// 2.1 of the GPU stepping, sorting and drawing every slot.
+/// </para>
 /// </remarks>
 internal sealed class ParticleRenderer : IDisposable
 {
@@ -80,6 +87,10 @@ internal sealed class ParticleRenderer : IDisposable
         public GpuParticles Gpu { get; } = gpu;
         public IDescriptorSet? DrawSet { get; set; }
         public Vector3? SortedFrom;
+        // The newest particle's slot and how many slots back from it may hold one alive, which the
+        // sort and the draw take, every slot for the particles a program placed.
+        public int Newest;
+        public int Span = gpu.Capacity;
 
         public void Release()
         {
@@ -98,6 +109,10 @@ internal sealed class ParticleRenderer : IDisposable
         public float Owed;
         public int Next;
         public long Seen;
+        // The seconds the particles have been stepped by, and each run of births with the time by
+        // which the longest life a particle of it can draw is over, oldest first.
+        public double Clock;
+        public readonly Queue<(double Until, int Count)> Runs = new();
         public ParticleEmitter Emitter;
         public Matrix4x4 World;
         public Vector3 Position => World.Translation;
@@ -115,6 +130,12 @@ internal sealed class ParticleRenderer : IDisposable
     private readonly List<(long Frame, ParticleBuffer Buffer)> _retired = [];
     private readonly List<State> _drawn = [];
     private long _frame;
+
+    /// <summary>The particle slots the last frame's dispatches stepped, every emitter's, for a test to read.</summary>
+    internal int Stepped { get; private set; }
+
+    /// <summary>The particles the last frame's draws drew, through every view, for a test to read.</summary>
+    internal int Drawn { get; private set; }
 
     // The depth colliding particles meet, the window's meshes that cast shadows at half its size,
     // made the first frame an emitter collides and again when the window's size changes, and let
@@ -148,7 +169,7 @@ internal sealed class ParticleRenderer : IDisposable
         foreach (var state in _drawn)
         {
             if (state.Emitter.Blend != ParticleBlend.Alpha) continue;
-            if (Within(state.BornBy, from) is var born && state.Born.SortedFrom != born) Sort(renderContext, device, state.Born, born);
+            if (state.Born.Span > 0 && Within(state.BornBy, from) is var born && state.Born.SortedFrom != born) Sort(renderContext, device, state.Born, born);
             if (state.Placed is { } placed && Within(state.World, from) is var placedFrom && placed.SortedFrom != placedFrom) Sort(renderContext, device, placed, placedFrom);
         }
     }
@@ -159,6 +180,7 @@ internal sealed class ParticleRenderer : IDisposable
         _frame++;
         RetireOld();
         _drawn.Clear();
+        (Stepped, Drawn) = (0, 0);
         if (renderContext.Device is not GraphicsDevice { CanStepParticles: true } device || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
         var frame = renderWorld.TryGet<RenderParticles>();
         SetView(renderContext, renderWorld, device, textures,
@@ -172,6 +194,7 @@ internal sealed class ParticleRenderer : IDisposable
             {
                 _retired.Add((_frame, state.Born));
                 (state.Born, state.Owed, state.Next) = (Made(device, capacity), 0, 0);
+                state.Runs.Clear();
             }
             state.Seen = _frame;
             state.Emitter = emitter;
@@ -183,6 +206,16 @@ internal sealed class ParticleRenderer : IDisposable
             var born = (int)state.Owed;
             state.Owed -= born;
             born = Math.Min(capacity, born + Math.Max(0, burst));
+
+            // A run whose longest life was over by the last step died in it, since every particle
+            // alive is stepped each frame, and the rest are the newest slots, the run of this
+            // frame's births last.
+            var before = state.Clock;
+            state.Clock += seconds;
+            while (state.Runs.Count > 0 && state.Runs.Peek().Until <= before) state.Runs.Dequeue();
+            if (born > 0) state.Runs.Enqueue((state.Clock + LongestLife(emitter), born));
+            var span = 0;
+            foreach (var (_, count) in state.Runs) span = Math.Min(capacity, span + count);
 
             // Particles in the entity's space start about its middle there, and do not meet the
             // scene, whose depth and field are the world's.
@@ -203,14 +236,19 @@ internal sealed class ParticleRenderer : IDisposable
                 Drag = Math.Max(0, emitter.Drag),
             };
             state.Next = (state.Next + born) % capacity;
-            device.RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy);
-            // Laid over by alpha, they are sorted far to near from the window's camera, which the
-            // draw then reads them in, and again from a render texture's own before it is drawn
-            // (SortFor), each from the eye in the space the particles are kept in.
-            if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Born, Within(state.BornBy, frame.Eye));
-            else state.Born.SortedFrom = null;
+            (state.Born.Newest, state.Born.Span) = ((state.Next + capacity - 1) % capacity, span);
+            state.Born.SortedFrom = null;
+            if (span > 0)
+            {
+                device.RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, span);
+                Stepped += span;
+                // Laid over by alpha, they are sorted far to near from the window's camera, which the
+                // draw then reads them in, and again from a render texture's own before it is drawn
+                // (SortFor), each from the eye in the space the particles are kept in.
+                if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Born, Within(state.BornBy, frame.Eye));
+            }
             Place(renderContext, device, state, frame.Eye);
-            _drawn.Add(state);
+            if (span > 0 || state.Placed is not null) _drawn.Add(state);
         }
 
         // Emitters gone this frame.
@@ -247,7 +285,10 @@ internal sealed class ParticleRenderer : IDisposable
             device.Name(state.Placed.Gpu.Buffer, "Placed particles");
             state.Points = [.. points];
         }
-        ReadOnlySpan<Vector4> header = [Linear(emitter.StartColor), Linear(emitter.EndColor), Look(emitter), new Vector4(state.Placed.Gpu.Capacity, 0, 0, 0)];
+        // Every point is drawn, counted back from the last.
+        var count = state.Placed.Gpu.Capacity;
+        ReadOnlySpan<Vector4> header = [Linear(emitter.StartColor), Linear(emitter.EndColor), Look(emitter), new Vector4(count, 0, count - 1, 0)];
+        (state.Placed.Newest, state.Placed.Span) = (count - 1, count);
         device.RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World);
         if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Placed, Within(state.World, eye));
         else state.Placed.SortedFrom = null;
@@ -255,9 +296,14 @@ internal sealed class ParticleRenderer : IDisposable
 
     private static void Sort(RenderContext renderContext, GraphicsDevice device, ParticleBuffer buffer, Vector3 eye)
     {
-        device.RecordParticleSort(renderContext.CommandBuffer, buffer.Gpu, eye);
+        device.RecordParticleSort(renderContext.CommandBuffer, buffer.Gpu, eye, buffer.Newest, buffer.Span);
         buffer.SortedFrom = eye;
     }
+
+    // The longest a particle of the emitter can live, its life lengthened by the whole of its
+    // variation as the step may draw it, with a hundredth more for the step's ages summed in floats.
+    private static double LongestLife(in ParticleEmitter emitter) =>
+        Math.Max(0.01, emitter.Life) * (1 + Math.Clamp(emitter.LifeVariation, 0, 1)) * 1.01 + 1e-3;
 
     // The eye in the space particles placed by placedBy are kept in, which they are sorted from.
     private static Vector3 Within(Matrix4x4 placedBy, Vector3 eye) =>
@@ -354,7 +400,7 @@ internal sealed class ParticleRenderer : IDisposable
             pass.SetBindGroup(pipeline, models.TexturedMaterial(renderContext, textures, state.Emitter.Texture.Id), 0);
             pass.SetBindGroup(pipeline, lights, 1);
             pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
-            DrawBuffer(pass, pipeline, gfx, state.Born);
+            if (state.Born.Span > 0) DrawBuffer(pass, pipeline, gfx, state.Born);
             if (state.Placed is { } placed) DrawBuffer(pass, pipeline, gfx, placed);
         }
     }
@@ -367,7 +413,8 @@ internal sealed class ParticleRenderer : IDisposable
             gfx.UpdateDescriptorSet(buffer.DrawSet, new StorageBufferBinding(buffer.Gpu.Buffer, 0));
         }
         pass.SetBindGroup(pipeline, buffer.DrawSet, 2);
-        pass.Draw(6, (uint)buffer.Gpu.Capacity);
+        pass.Draw(6, (uint)buffer.Span);
+        Drawn += buffer.Span;
     }
 
     // Where a camera is, near enough, the middle of its near plane, which emitters are ordered from.

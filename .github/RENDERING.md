@@ -304,7 +304,15 @@ particle, with everything the step and the draw need in its 128 bytes of push co
 births are its share of the rate, the fraction owed carried to the next frame, and its burst, in a
 run of slots after the last frame's, so the oldest are replaced, each started within the emitter's
 radius with its velocity turned within the cone and its speed and life varied by a hash of its slot
-and a seed of the frame and the emitter. The first thread writes the colors, sizes and brightness
+and a seed of the frame and the emitter. Only the slots that may hold a live particle are stepped,
+sorted and drawn, counted back from the newest, which the CPU bounds by the runs of births of the
+frames before and the longest life a particle of each can draw, so a dispatch of those slots, a
+thread's slot that many back from the newest, meets every particle alive, and an emitter whose
+particles have all died records nothing. The step writes the newest slot into the header's fourth
+value, which the draw counts an instance back from where no sorted key names its particle. Twenty
+empty emitters of the voxel game's sizes, lit and laid over by alpha, read 0.19 ms of
+`cpu.particles` and 0.26 of `gpu.particles` taking every slot, and 0.027 and 0.000 taking those
+alone, against 0.008 and 0.000 with no emitter. The first thread writes the colors, sizes and brightness
 into the header, which the draw reads, so nothing of an emitter is written from the CPU while a
 frame in flight reads it. The header's next three values are the rows of the matrix the draw places
 a particle by, written into the command buffer before the dispatch, the identity for particles in

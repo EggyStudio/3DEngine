@@ -10,7 +10,8 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// Each emitter keeps up to <see cref="MaxParticles"/> on the GPU, which a compute shader steps
-/// every frame. A particle starts within <see cref="Radius"/> of the entity, with
+/// every frame, those that may still be alive alone, so an emitter whose particles have died costs
+/// nothing until it emits again and one with a few alive costs its few. A particle starts within <see cref="Radius"/> of the entity, with
 /// <see cref="Velocity"/> turned by up to <see cref="Spread"/> degrees and its speed and life
 /// varied by <see cref="SpeedVariation"/> and <see cref="LifeVariation"/>, falls by
 /// <see cref="Gravity"/>, slows by <see cref="Drag"/>, and goes from <see cref="StartSize"/> and <see cref="StartColor"/> to

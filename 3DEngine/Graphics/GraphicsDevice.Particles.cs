@@ -10,8 +10,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// The buffer starts with a header of eight float4 values, four the dispatch writes from its push
-/// constants, what the draw reads of the emitter, then three rows of the matrix the draw places the
-/// particles by and one unread, which the recording writes before the dispatch. It then holds a
+/// constants, what the draw reads of the emitter, the fourth with the newest particle's slot, then
+/// three rows of the matrix the draw places the particles by and one unread, which the recording
+/// writes before the dispatch. It then holds a
 /// particle in two float4 values each, its position and age, and its velocity and life, a particle
 /// with no life being dead.
 /// After the particles are <see cref="SortKeys"/> float4 values, the keys an emitter laid over by
@@ -124,6 +125,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         public uint J, K, Count, Mode;
         public System.Numerics.Vector4 EyeAndCapacity;
+        public uint Newest, Span;
     }
 
     /// <summary>Whether the particle shader has been given, so emitters can be made.</summary>
@@ -296,7 +298,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// <paramref name="particles"/> and starts the new ones <paramref name="step"/> asks for, the
     /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world.
     /// </summary>
-    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, System.Numerics.Matrix4x4 placedBy)
+    /// <remarks>
+    /// The dispatch covers the <paramref name="span"/> slots back from the newest particle, the new
+    /// ones among them, which the caller knows hold every particle that may be alive.
+    /// </remarks>
+    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, System.Numerics.Matrix4x4 placedBy, int span)
     {
         if (commands is not VulkanCommandBuffer vkCommands || !CanStepParticles) return;
         var cmd = vkCommands.Handle;
@@ -314,7 +320,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _particleLayout, 0, 2, sets, 0, null);
         fixed (ParticleStep* pushed = &step)
             _deviceApi.vkCmdPushConstants(cmd, _particleLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ParticleStep), pushed);
-        _deviceApi.vkCmdDispatch(cmd, (uint)(particles.Capacity + 63) / 64, 1, 1);
+        _deviceApi.vkCmdDispatch(cmd, (uint)(Math.Clamp(span, 1, particles.Capacity) + 63) / 64, 1, 1);
 
         // The draws after it read what it wrote.
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
@@ -360,20 +366,22 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
-    /// Records, after the step of <paramref name="particles"/>, the dispatches that sort them from
-    /// the farthest from <paramref name="eye"/> to the nearest, which the draw then reads them in.
+    /// Records, after the step of <paramref name="particles"/>, the dispatches that sort the
+    /// <paramref name="span"/> slots back from the <paramref name="newest"/> from the farthest from
+    /// <paramref name="eye"/> to the nearest, which the draw then reads them in.
     /// </summary>
     /// <remarks>
     /// The keys are sorted in blocks of 512 in shared memory, so an emitter of up to 512 particles
     /// takes two dispatches, the keys and the sort, and a larger one a dispatch for each step across
     /// blocks and one for the steps within them after each, as <c>particle_sort.slang</c> says.
     /// </remarks>
-    public void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, System.Numerics.Vector3 eye)
+    public void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, System.Numerics.Vector3 eye, int newest, int span)
     {
         if (commands is not VulkanCommandBuffer vkCommands || _sortPipeline.Handle == 0) return;
         var cmd = vkCommands.Handle;
         var set = particles.Set;
-        var count = (uint)particles.SortKeys;
+        span = Math.Clamp(span, 1, particles.Capacity);
+        var count = System.Numerics.BitOperations.RoundUpToPowerOf2((uint)span);
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
 
@@ -384,7 +392,11 @@ internal sealed unsafe partial class GraphicsDevice
             // Each reads what the dispatch before it wrote, the step's particles or the keys.
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
-            var step = new SortStep { J = j, K = k, Count = count, Mode = mode, EyeAndCapacity = new System.Numerics.Vector4(eye, particles.Capacity) };
+            var step = new SortStep
+            {
+                J = j, K = k, Count = count, Mode = mode, EyeAndCapacity = new System.Numerics.Vector4(eye, particles.Capacity),
+                Newest = (uint)newest, Span = (uint)span,
+            };
             _deviceApi.vkCmdPushConstants(cmd, _sortLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(SortStep), &step);
             _deviceApi.vkCmdDispatch(cmd, groups, 1, 1);
         }

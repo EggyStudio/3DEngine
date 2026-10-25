@@ -1063,3 +1063,17 @@ over about a second before it gives them meanwhile.
 
 Review: item 116 of REVIEW.md, 2026-10-25; a profile value with a window showing its mean; after
 item 115.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a key names one entity, so the mobs of a column cannot be found by it
+
+Read on the 3DEngine 5.2.291 package for the game's item 94, its mobs' column bookkeeping.
+`EcsWorld.Index<T, TKey>` keeps one entity to a key, a second given the same key taking the first's
+place, which suits a fire's cell. The mobs share their columns, a herd of animals or a village's
+people standing in one, and as a column unloads the game must find the mobs standing in it to keep
+them for the save, and gathers every column's mobs as it saves. At the flat world's spawn of seed 1
+`voxel.mobs` read 214 mobs loaded, each column that unloads walking all of them. The engine lacks an
+index whose key names many entities, as a column names its mobs or a section its drops, kept as the
+key changes. The game walks the mobs for their column meanwhile, which costs little at these counts.
+
+Review: item 117 of REVIEW.md, 2026-10-25; a grouping index enumerating the entities under a key
+without allocating; after item 116.

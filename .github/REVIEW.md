@@ -10,40 +10,57 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0cfc2843`, item 113, the wheel in a behavior's input, read at 01:58 on 2026-10-25,
-carrying the review's files and ASKS.md. Input.MouseWheel gives the wheel's turn this frame as
-GetMouseWheelMoveV gives it, public beside MouseDelta so a context's input carries it;
-AppSteppingTests steps a system reading it with a turn queued by the synthetic input. Departures,
-Input's doc example called internal members and uses MouseDelta and MouseWheel, the cheat sheet
-gains a paragraph naming what the context's input holds, and the input guide's ECS section a zoom by
-the wheel. The strict build clean, 2,091 plain and shuffled on the GPU, the input guide's 12 blocks
-building on the package. Held until the build run of `31d1fcb6` ends, then pushed. After `31d1fcb6`,
-item 110, a behavior's order and states, read at 01:29 on 2026-10-25, carrying the review's files,
-ASKS.md and SHARED.md. After and Before, a behavior's method by type and name or a system's name,
-reach the descriptor's After and Before, and a method may carry InState more than once meaning all
-of them; GeneratorAttributeTests gains three behaviors added A, B and C running C, B, A and a method
-gated on two states running only while both hold, each attribute with a coverage case and three
-E3D009 cases for a missing method, a method with no stage and a type that is no behavior.
-Departures, E3D009 reports an After or Before whose type and method name no behavior's stage method,
-a name given as a string checked when the app starts as AddSystem's are; the guide's naming text
-corrected to the generator's Spin_Generated_Update_Turn; ARCHITECTURE.md gains E3D009, the order
-attributes, the repeated InState and E3D006's present wording. The strict build clean, 2,090 plain
-and shuffled on the GPU, the guide's 18 blocks building on the package; a full lavapipe run ran out
-of its 40 minutes in the Rendering group with the global illumination tests at 20 to 90 s each on
-the CPU, the limit and not a hang, nothing in the item drawing. Pushed at 01:34 on 2026-10-25 after
-the build run of `8ae947ee` went green whole, the run watched. Item 96 begins with a reading on the
-game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in
-turn to tell what runs per fragment from the variant's registers, the window's depth at half size
-and the scene pass shading with overdraw pointing at a half-size pass over the window's depth with a
-two by two depth and normal read, as the glow pass has. Next 108, the mesh entity as a game's
-section, then 114 to 116, the particles' gaps, the ECS gaps the game's drops found, then 102, the
-far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's read of the
-cascades and the shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra,
-then 112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's
-words on the loop and the ECS, then the glow light's non-number and the history's guard, then 95,
-the e3d help, then item 89, the plant walls' acne, then 97, the light at the camera's point on
-lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud
-sessions stand by.
+Reviewed up to `c71cdbea`, item 108's second phase, read at 02:22 on 2026-10-25, carrying the
+review's files. A material naming a program's shader with a fragment stage is recorded as a draw of
+its own as DrawMesh's is, since the pass's groups take the engine's shader alone, its uniforms and
+textures copied once a frame for every entity drawn with it from the app whose ShaderStore gave the
+id, the shared copy letting the pass batch entities of one mesh, Material.Equals comparing the
+shader and a scene file leaving it out as a runtime handle; Visible and ShadowOnly are scene
+component structs holding a bool the flood writes in place, in the chunks' touched checks and the
+kept counts, Visible false drawing nowhere with the mesh kept and the look dropped so motion blur
+skips it, ShadowOnly true joining the look key and the group key and setting the draw's ShadowOnly;
+entities.drawn in the profile counts the entities recorded before any camera's frustum; picking
+meets an indexed mesh by its indices' triangles and passes hidden and shadow-only entities by.
+Departures, the looks' half of MeshEntityDraws moved to its own file for N 1.3, RENDERING.md's mesh
+entity paragraph rewritten and ARCHITECTURE.md gaining a sentence. MeshEntityShaderTests, two
+entities sharing one copy of a shader's values, kept chunks taking later values and a material
+without the shader returning to a group, the hidden and shadow-only entities with the profile value,
+and the indexed, hidden and shadow-only box in picking. The strict build clean, 2,094 plain and
+shuffled on the GPU, 33 tests on lavapipe with validation. Held with `0cfc2843` until the build run
+of `31d1fcb6` ends, then pushed. After `0cfc2843`, item 113, the wheel in a behavior's input, read
+at 01:58 on 2026-10-25, carrying the review's files and ASKS.md. Input.MouseWheel gives the wheel's
+turn this frame as GetMouseWheelMoveV gives it, public beside MouseDelta so a context's input
+carries it; AppSteppingTests steps a system reading it with a turn queued by the synthetic input.
+Departures, Input's doc example called internal members and uses MouseDelta and MouseWheel, the
+cheat sheet gains a paragraph naming what the context's input holds, and the input guide's ECS
+section a zoom by the wheel. The strict build clean, 2,091 plain and shuffled on the GPU, the input
+guide's 12 blocks building on the package. Held until the build run of `31d1fcb6` ends, then pushed.
+After `31d1fcb6`, item 110, a behavior's order and states, read at 01:29 on 2026-10-25, carrying the
+review's files, ASKS.md and SHARED.md. After and Before, a behavior's method by type and name or a
+system's name, reach the descriptor's After and Before, and a method may carry InState more than
+once meaning all of them; GeneratorAttributeTests gains three behaviors added A, B and C running C,
+B, A and a method gated on two states running only while both hold, each attribute with a coverage
+case and three E3D009 cases for a missing method, a method with no stage and a type that is no
+behavior. Departures, E3D009 reports an After or Before whose type and method name no behavior's
+stage method, a name given as a string checked when the app starts as AddSystem's are; the guide's
+naming text corrected to the generator's Spin_Generated_Update_Turn; ARCHITECTURE.md gains E3D009,
+the order attributes, the repeated InState and E3D006's present wording. The strict build clean,
+2,090 plain and shuffled on the GPU, the guide's 18 blocks building on the package; a full lavapipe
+run ran out of its 40 minutes in the Rendering group with the global illumination tests at 20 to 90
+s each on the CPU, the limit and not a hang, nothing in the item drawing. Pushed at 01:34 on
+2026-10-25 after the build run of `8ae947ee` went green whole, the run watched. Item 96 begins with
+a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
+per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
+window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
+over the window's depth with a two by two depth and normal read, as the glow pass has. Next 108, the
+mesh entity as a game's section, then 114 to 116, the particles' gaps, then 117, the grouping index,
+the ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes'
+one switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the
+field's foliage share, then 111, the shadow's penumbra, then 112, the planar reflection, then 93,
+the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
+light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
+acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `8ae947ee` came, item 109 with `342fed10`, Verdict 88's mend, pushed at 00:16 on
 2026-10-25, its build run green whole at 01:30, Windows in 74 minutes under the new limit, Linux in
@@ -1110,6 +1127,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shows the mean over it, the game's eased counts then its own; a test of a value set to 0 and 100
     by turns reading its mean. One commit, small, after item 115 and before 102.
 
+117. **An index whose key names many entities.** From the voxel game's lookups at 02:33 on
+    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
+    first, Decision 68. KeyIndex keeps one entity to a key, so the game's fires take it by cell
+    while the mobs, many to a column, are still walked for the column bookkeeping. The world gains a
+    grouping index for a component type that names its key, the entities under a key enumerated
+    without allocating, kept on spawn, change and despawn as the single one is, with the guide's
+    line beside it; a test over a thousand entities in twenty groups finding each group's members
+    and none after a despawn. One commit, small, after item 116 and before 108's third phase.
+
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
     entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
@@ -1131,7 +1157,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     looks and meshes kept; the second after items 109 and 110, the shader on the Material, Visible
     and ShadowOnly and the draws in the profile; the third the guide and the cost. The second phase
     also mends picking, which read an indexed mesh's positions three at a time since the first
-    phase.
+    phase. The second phase at `c71cdbea` on 2026-10-25, the shader on the Material, Visible and
+    ShadowOnly and the draws in the profile, picking mended; the third, the guide's page and the
+    cost, after items 114 to 116, and the game's sections with the package carrying both.
 
 ## Verdicts
 

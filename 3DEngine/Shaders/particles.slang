@@ -10,7 +10,8 @@ import modelpass;
 
 // The header, then each particle in two float4 values, as particle_step.slang lays them out, then
 // the keys particle_sort.slang sorts an emitter laid over by alpha by, which the header's fourth
-// value marks in y. The header's next three values are the rows of the matrix a particle is placed
+// value marks in y, beside the slots in x and the newest particle's slot in z, which an instance
+// counts back from, as many as the slots that may hold a live particle. The header's next three values are the rows of the matrix a particle is placed
 // by, the identity for particles in the world and the emitter's world matrix for those in its space.
 [[vk::binding(0, 2)]]
 StructuredBuffer<float4> slots;
@@ -44,9 +45,10 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
 {
     ParticleOutput particleOutput = (ParticleOutput)0;
     ModelVertexOutput output = (ModelVertexOutput)0;
-    // Sorted, the instance is the sorted key's particle, drawn far to near.
+    // Sorted, the instance is the sorted key's particle, drawn far to near, and otherwise the slot
+    // that many back from the newest.
     uint capacity = uint(slots[3].x);
-    uint particle = slots[3].y > 0.5 ? uint(slots[Header + capacity * 2 + instance].y) : instance;
+    uint particle = slots[3].y > 0.5 ? uint(slots[Header + capacity * 2 + instance].y) : (uint(slots[3].z) + capacity - instance) % capacity;
     uint at = Header + particle * 2;
     float4 positionAge = slots[at];
     float4 velocityLife = slots[at + 1];

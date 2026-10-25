@@ -1,10 +1,10 @@
 // Sorts one emitter's particles from the farthest from the eye to the nearest, for an emitter laid
 // over by alpha, in the emitter's own buffer after its particles, one key a float4: x the key, y
-// the particle's slot. The first dispatch writes a key for every slot, the negative of the squared
-// distance from the eye for one alive, so ascending order is far to near, a large number for one
-// dead, and infinity for the padding up to a power of two, so the first slots of the sorted keys
-// are always the emitter's own. It also marks the header as sorted, which particles.slang reads
-// the keys by.
+// the particle's slot. The first dispatch writes a key for each slot that may hold a live particle,
+// counted back from the newest, the negative of the squared distance from the eye for one alive, so
+// ascending order is far to near, a large number for one dead, and infinity for the padding up to a
+// power of two, so the first keys sorted are always those slots'. It also marks the header as
+// sorted, which particles.slang reads the keys by.
 //
 // The sort is Batcher's bitonic sort, which orders each key with the one j away by which half of a
 // run of k it is in. The steps within a block of 512 keys are done in a workgroup's shared memory,
@@ -23,6 +23,8 @@ struct SortPush
     uint4 step;
     // xyz: the eye. w: how many particles the emitter holds.
     float4 eyeAndCapacity;
+    // x: the newest particle's slot. y: how many slots back from it may hold a live particle.
+    uint2 span;
 };
 
 [[vk::push_constant]]
@@ -76,14 +78,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 group : SV_GroupID, uint3
         if (i == 0)
             slots[3].y = 1.0;
         float key = asfloat(0x7f800000u);
-        if (i < capacity)
+        uint slot = (push.span.x + capacity - i) % capacity;
+        if (i < push.span.y)
         {
-            float4 positionAge = slots[Header + i * 2];
-            float4 velocityLife = slots[Header + i * 2 + 1];
+            float4 positionAge = slots[Header + slot * 2];
+            float4 velocityLife = slots[Header + slot * 2 + 1];
             float3 away = positionAge.xyz - push.eyeAndCapacity.xyz;
             key = velocityLife.w > 0.0 ? -dot(away, away) : 1e30;
         }
-        slots[keys + i] = float4(key, float(i), 0.0, 0.0);
+        slots[keys + i] = float4(key, float(slot), 0.0, 0.0);
         return;
     }
 
