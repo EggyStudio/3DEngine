@@ -11,6 +11,7 @@
 // model pass reads the world's probes there.
 import gi;
 import scenefield;
+import lightthrough;
 
 [[vk::binding(0, 0)]]
 Sampler2D depth;
@@ -83,8 +84,9 @@ struct ScreenPush
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
     // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights alone,
-    // their surfaces and what they see of each light written and no ray traced, and 2 where the
-    // probe z names writes a value that is not a number as its light, as a test feeds it.
+    // their surfaces and what they see of each light written and no ray traced, 2 where the probe z
+    // names writes a value that is not a number as its light, as a test feeds it, and 4 where some
+    // surface lets light through this frame (lightThroughAt), whose check a frame of none skips.
     uint4 texels;
 };
 
@@ -453,20 +455,42 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float met = 0.0;
             float3 reached = start + way * length;
             own = float3(0.0);
-            if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
+            bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
+            float t = onScreen ? distance(start, hit) : leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
+            // A surface that lets a share of light through, as a canopy's leaves, is crossed through
+            // the field, which holds what lies behind it where the window's depth does not, the ray
+            // keeping that share for each unit of its depth and the rest taking the surface's light,
+            // as the cascades' rays cross it (gi_trace.slang), and a solid one is shaded in the
+            // same place, keeping none, so the shader holds one copy of the shading for both.
+            float3 crossed = float3(0.0);
+            float through = 1.0;
+            [loop]
+            for (int layer = 0; layer < 5 && t >= 0.0; layer++)
             {
-                light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, hit, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
-                reached = hit;
+                float3 at = onScreen ? hit : start + way * t;
+                float passing = layer < 4 && (push.texels.w & 4u) != 0u ? lightThroughAt(fieldAlbedo, fieldInfo, at) : 0.0;
+                bool inside = false;
+                float deep = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, start, way, t, length - t, inside) : -1.0;
+                float passes = deep >= 0.0 ? lightThroughKept(passing, deep, fieldCell(fieldInfo, at), inside) : 0.0;
+                float3 itsOwn;
+                crossed += shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, at, way, view.trace.y, view.trace.z,
+                    view.trace.w, false, float3(1.0), itsOwn) * (through * (1.0 - passes));
+                own += itsOwn * (through * (1.0 - passes));
+                through *= passes;
+                met = onScreen ? 0.0 : 1.0;
+                reached = at;
+                if (deep < 0.0)
+                    break;
+                onScreen = false;
+                t = inside ? -1.0 : traceField(sceneField, fieldInfo, start, way, t + deep, length);
             }
-            else
+            light = crossed;
+            if (t < 0.0)
             {
-                float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
-                met = t >= 0.0 ? 1.0 : 2.0;
-                if (t >= 0.0)
-                    reached = start + way * t;
-                light = t >= 0.0
-                    ? shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, start + way * t, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own)
-                    : beyond(start, n, way, length, around);
+                met = 2.0;
+                reached = start + way * length;
+                float3 past = beyond(start, n, way, length, around);
+                float3 pastOwn = float3(0.0);
                 // A ray past its reach whose world probes hold nothing along its way goes on
                 // through the field, as far as four times its reach and within the cascade it
                 // starts in and the next coarser one, and takes the light of what it meets. A
@@ -482,16 +506,18 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // light, its pillar's face 0.029 of an open floor's light where it holds under
                 // 0.002 (gi.compare, CascadeEdgeTests, ./e3d command profile, the frames
                 // unlimited).
-                if (t < 0.0 && luminance(light) <= 1e-6)
+                if (luminance(past) <= 1e-6)
                 {
                     float far = traceFieldWithin(sceneField, fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)
                     {
                         met = 1.0;
                         reached = start + way * far;
-                        light = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), own);
+                        past = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), pastOwn);
                     }
                 }
+                light += past * through;
+                own += pastOwn * through;
             }
             sum += light * weight;
             weights += weight;

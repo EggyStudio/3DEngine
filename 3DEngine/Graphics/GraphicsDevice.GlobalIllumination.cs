@@ -77,9 +77,9 @@ internal sealed class GpuIllumination : IDisposable
     /// </summary>
     public IImageView ReachView { get; }
 
-    /// <summary>The bytes the reach and each cascade's distances take.</summary>
+    /// <summary>The bytes the reach and each cascade's distances take, each with the share its rays kept before their interval.</summary>
     public long ReachBytes => (long)(8 * Probes) * (8 * Probes) * Probes * Cascades * 2
-        + Texels.Sum(n => (long)(Probes * n) * (Probes * n) * Probes * 2);
+        + Texels.Sum(n => (long)(Probes * n) * (Probes * n) * Probes * 4);
 
     /// <summary>
     /// The share of the sky each probe's faces see, every cascade, laid out as <see cref="CubesView"/>
@@ -119,8 +119,8 @@ internal sealed class GpuIllumination : IDisposable
 
 internal sealed unsafe partial class GraphicsDevice
 {
-    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5;
-    private readonly ComputeStage[] _giStages = new ComputeStage[6];
+    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6;
+    private readonly ComputeStage[] _giStages = new ComputeStage[7];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -155,11 +155,12 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.SampledImage], 16);
-            _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+            VkDescriptorType[] traced = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
-                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage],
-                (uint)sizeof(IlluminationTrace));
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage];
+            _giStages[TraceStage] = MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
+            _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 48);
@@ -173,13 +174,16 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Makes the probes' pipelines from <c>gi_trace.slang</c>, <c>gi_merge.slang</c>,
     /// <c>gi_ambient.slang</c>, <c>gi_screen.slang</c>, <c>gi_screen_filter.slang</c> and
-    /// <c>gi_screen_glow.slang</c>, once.
+    /// <c>gi_screen_glow.slang</c>, once, with <paramref name="solidTrace"/>, <c>gi_trace.slang</c>
+    /// built with <c>NO_LIGHT_THROUGH</c>, for a frame where no surface lets light through, or the
+    /// trace itself where there is none.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
-        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow)
+        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default)
     {
         if (!IsInitialized || CanBounceLight) return;
-        _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray()];
+        _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
+            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray()];
     }
 
     /// <summary>
@@ -199,7 +203,7 @@ internal sealed unsafe partial class GraphicsDevice
             var n = (uint)texels[c];
             radiance[c] = ProbeImage(p * n, p * n, p);
             merged[c] = ProbeImage(p * n, p * n, p);
-            distances[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
+            distances[c] = ProbeImage(p * n, p * n, p, VkFormat.R16G16Sfloat);
             mergedSky[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
         }
         var (held, heldMemory, heldView) = ProbeImage(4 * p, p, p * (uint)texels.Length);
@@ -334,21 +338,16 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="alone">The one cascade whose rays' light alone reaches the first, or -1 for every cascade.</param>
     /// <param name="viewed">Whether a view of the rays' light or the merges reads them in the window's pass (<see cref="BindProbeVolume"/>).</param>
     /// <param name="frame">The frame's number, whose parity says which of the two frames of each probe's own light is this one's.</param>
-    /// <param name="lying">
-    /// Whether each cascade lies where it lay the frame before, so a probe's own light and its share
-    /// of the indirect light of the frame before are its own, or none where the indirect light is
-    /// taken whole however a probe's own light falls.
-    /// </param>
-    /// <param name="lastCounted">
-    /// The cascade before the far cascade's probes, whose rays bring the light from all around where
-    /// they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.
-    /// </param>
+    /// <param name="lying">Whether each cascade lies where it lay the frame before, so a probe's own light and its share of the indirect light of the frame before are its own, or none where the indirect light is taken whole however a probe's own light falls.</param>
+    /// <param name="lastCounted">The cascade before the far cascade's probes, whose rays bring the light from all around where they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.</param>
+    /// <param name="lightThrough">Whether some surface lets light through this frame, which the rays cross, where a frame of none traces with the build that leaves the crossing out.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
-        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1)
+        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false)
     {
-        var run = new ProbeRun(this, commandBuffer, [(TraceStage, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
+        var trace = lightThrough ? TraceStage : SolidTraceStage;
+        var run = new ProbeRun(this, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -365,7 +364,7 @@ internal sealed unsafe partial class GraphicsDevice
         for (int c = 0; c < gi.Cascades; c++)
         {
             var n = (uint)gi.Texels[c];
-            var set = run.Set(TraceStage);
+            var set = run.Set(trace);
             run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Buffer(set, 1, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 2, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.AlbedoView).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
@@ -384,7 +383,7 @@ internal sealed unsafe partial class GraphicsDevice
                 Start = intervals[c].Start, End = intervals[c].End, Spacing = spacing, Cascades = gi.Cascades,
                 Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1),
             };
-            run.Dispatch(TraceStage, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
+            run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (p * p * p * n * n * (uint)gi.RaysAt(c) + 63) / 64);
         }
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
@@ -548,7 +547,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
         IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false,
-        bool loggedNotANumber = false)
+        bool loggedNotANumber = false, bool lightThrough = false)
     {
         var run = new ProbeRun(this, commandBuffer, [(ScreenStage, 1), (FilterStage, glowOnly ? 0 : 1), (GlowStage, glowLights ? 1 : 0)]);
         var cmd = run.Commands;
@@ -584,7 +583,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, screen.GlowSeen);
         run.Buffer(set, 14, VkDescriptorType.StorageBuffer, screen.RayLog);
         run.Image(set, 15, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
-        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0)];
+        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0) | (lightThrough ? 4u : 0)];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);

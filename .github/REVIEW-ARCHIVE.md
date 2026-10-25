@@ -3912,6 +3912,63 @@ batch.
     2026-10-25, the march at thin walls alone, the game's pixels under one in a hundred and the thin
     room's floor even along its walls' foot, a speck where two walls meet the floor the remainder.
 
+96. **The scene pass reads the cascades' light at a cost under the trace's, not twice it.** From the
+    voxel game's ASKS.md entry of 2026-10-24, read at 11:26. At 1920 by 1080 on the development
+    machine's GPU the game's frame is 18.6 ms at High and 11.9 with global illumination off, the
+    scene pass 11.6 against 6.0, so 5.6 ms of the pass is the per-pixel read of the cascades' light
+    where the trace itself takes 2.9; at 1280 by 720 the pass is 8.3 of a 14.9 ms frame. The read
+    gathers the eight probes about each pixel's surface with their traced bits and weights, per
+    pixel at the window's size, and the mend by the reading is one of three the entry names or a
+    fourth the coder finds, the read at a coarser size with a bilateral upsample by depth and
+    normal, one gather shared per tile of pixels, or the gathered light written once a frame into a
+    screen-sized image the pass samples; the readings of the bounce rooms against their references
+    under the covered-fault rule at both sizes, the game's two views read on the device before and
+    after, and the quality tiers' costs on the Cornell box in the guide changed. One or two commits,
+    after item 94. The reading at 14:59 on item 98's shaders, the grove at 1920 by 1080 at High, the
+    scene pass 18.4 ms and 4.0 with global illumination off, the world probes' read and the sky's
+    share 7.3 units of the depth's time against 1.8 in 5.2.215, the glow lights 1, the ground read
+    and the trace nothing; the cause in the SPIR-V, any SceneFieldInfo made by probesOf copied whole
+    into thread memory to be indexed, 22 FieldCascade[9] locals in the model pass and 47 in
+    gi_screen against none in the package. The first mend, written, makes no info, cascadeAt(info,
+    c, probes) and the cascade lookups taking the uniform info and the probes' count, the model
+    pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; at
+    `ff2c5175`, read at 15:57, the scene pass 10.4 ms at the grove where 20.6 stood and 18.4 before
+    it, the package's cost, the far scene bit-identical. The cut reading at 16:4x on these shaders,
+    in depth-pass units at about 1.5 ms of depth, High 6.6, off 2.8 and every cut 2.6, the world
+    probes' light 1.9, the sky's share 0.5, the glow lights 1.8 (their fallback march to the lights
+    about 1 and the rough light per texel about 0.6), the trace 0.2 and the ground read 0. The
+    second mend at `89154675`, the sky's share folded into the gather, the scene pass 8.9 ms where
+    10.1 stood, exact to a level's rounding. The game read 5.2.281's shadow fill at about 4 ms of
+    the shadows pass at the grove, 5.2 to 5.9 against 1.0, a cut to read beside the others. The
+    third mend at `1b497b3b`, read at 18:50, the glow lights' box skipping the loop for a point
+    outside every light's reach, the scene pass 8.4 ms where 9.1 stood, the march's share read as
+    22.3 percent of the pixels marched with no texel, the far land's haze material and the clouds
+    missing from the window's depth, which the game's side may take. Next a half-size pass over the
+    window's depth writing the world probes' light and the sky's share, read two by two by depth and
+    normal with the per-pixel read where no texel is alike, about 2 to 2.5 ms, a new stage with its
+    images and bindings, the bounce rooms against their references at both sizes and the grove's
+    edges captured against the full-size read. Paused at 14:14 on a reading. At the grove the
+    half-size gather saved nothing, High 11.9 to 12.1 ms on and off and Low 8.75 to 9.16 on and off,
+    while removing the world read whole brought the scene pass to 7.99 ms at Low and 7.73 to 7.92 at
+    High, so the world read's cost at High lies outside what the gather replaces, likely the
+    seen-probe march at the screen probes' edges; that is read before the cut's form is chosen,
+    after Verdict 91's mend. The reading of 14:51 and the cut, taken. At the grove at High at 1920
+    by 1080 offscreen, 9.1% of the pixels take the edge path, the cherry leaves, the grass and the
+    far blocks where no screen probe stands on a like surface, and with the edge march off whole the
+    scene pass reads 8.6 to 9.3 ms against 11.5 to 14.8 as it stands, so the march is 3 to 5.7 ms
+    and nearly all of the world read's cost at High; the nine rooms at Medium and High read within
+    0.001 of before in each form, and the march exists for the thin room's corner, whose test fails
+    with it off whole at 2.17 against 1.4. The cut gates the march at an edge by the same thin-wall
+    test item 123 added, byThinWall, and reads by reach elsewhere, so a voxel world's edges stop
+    marching and the thin room's corner keeps it; the corner and foot tests pass, the rooms are
+    unchanged, and one clean round at the grove read 10.25 to 10.33 ms against 12.29 to 12.61, read
+    once more on a quiet GPU before the commit; one line in modelpass.slang with its comment,
+    RENDERING.md's reading and a picture pair. The half-size gather is dropped, nothing measurable
+    at the grove at either quality. Done at `21a3fbc7` on 2026-10-25 with the last cut, the edge
+    march gated by the thin-wall test, about 3 ms off the grove's scene pass at High at 1080p after
+    the probes' info copy, the sky's fold and the glow box before it, the half-size gather dropped
+    as measuring nothing.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -5233,3 +5290,22 @@ at `36cae0c2`.
     cause a local named vertex, a Metal keyword the translation kept, and not the pointer read, the
     local renamed and MetalNamesTests refusing Metal's words in any shader's names on every system;
     the pack run follows its push.
+
+91. **The pack run of `c721746b` is red on the games job, Tumble's soak losing the game, which quit
+    on its own.** Read at 13:19 on 2026-10-25 from the run's jobs and the job's annotations, run
+    40184955210, the log held back while the run goes on. The three suites are green, macOS in 56
+    minutes, and the examples too; in the games job the soak of Tumble could not play it through,
+    frames.wait with a timeout of 600 ending with 1, the game's process ending with exit code 0 of
+    its own on the runner's EPYC with Mesa's shader cache at 52 hits, 0 readings, too few to judge.
+    The eleven games before and after it are unread until the job's log opens. Between the last
+    green pack run, `e3d554b1` at 5.2.291, and this one lie items 108, 110, 113 to 123 and the two
+    mends; a game ending cleanly under the soak points at the audio of items 118 to 120, a voice's
+    end or a stream's flush ending the game's loop, or at item 103's screen probes by quality under
+    the soak's settings, the coder reading the log and reproducing the soak on the pack's Tumble
+    before naming it. The mend goes ahead of item 96's cuts; no package came of the run, and the
+    fourth pack run is started once the mend's push run has begun. Read at 14:14, not reproduced,
+    the diagnosis mend at `12a15e44`; the verdict settles when a pack run plays Tumble through, and
+    the soak step keeps build/sessions logs as an artifact where a game ends early, two lines in the
+    workflow with the mend's push. Settled at 16:28 on 2026-10-25 by the fourth pack run of
+    `073f34c8`, whose games job played the twelve games through in 50 minutes with Tumble among
+    them; the diagnosis mend and the kept logs stand for a recurrence.

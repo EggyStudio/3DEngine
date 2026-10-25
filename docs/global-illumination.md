@@ -201,6 +201,29 @@ lights the ground around none of the rest, which `gi.state` counts. A larger sur
 across a ceiling, is left to the probes' rays, which meet it often enough. A frame with none of
 them pays nothing for them.
 
+## Leaves and other surfaces that let light through
+
+The scene's distance field holds every surface solid, so the probes' rays stop at a canopy and the
+floor under it takes none of the sky's light, where a canopy's leaves, a hedge or a net let some of
+it through. A material's `LightThrough` sets the share of global illumination's light that passes a
+unit of the surface's depth, from 0, solid, the default, to 1, which lets all of it through:
+
+<!-- compiled with:
+var leaves = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+-->
+```csharp
+leaves.Materials[0].LightThrough = 0.5f;
+```
+
+A ray that meets such a surface crosses the cells it fills and keeps that share of its light for
+each unit it runs through, the rest taking the surface's color as a solid's would, the cascades'
+rays and the screen's probes' alike. A ray at a slant crosses more of the surface, so under a slab a
+unit thick letting half through a unit a floor takes about a quarter of the sky's light a solid slab
+holds back, 0.23 of it at `Low` and 0.29 at `High`, and under one letting all of it through 0.95 and
+0.98. A mesh entity's `Material` takes `LightThrough` as well. The sun's shadow, through the shadow
+map, falls as before. A frame in which no surface drawn lets light through traces the probes' rays
+with a build of their shader that leaves the crossing out, so it pays nothing for it.
+
 ## The qualities and what they cost
 
 On the development machine's laptop GPU at 800 by 450 with the frame rate unlimited, the Cornell box
@@ -210,9 +233,9 @@ probes standing for the room's four small emitters alone are in the time.
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | none, those standing for the glow lights alone | 6.16 MB, 1.53 with no glow light | 0.60 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 8.92 MB | 1.92 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 11.16 MB | 2.00 ms |
+| `Low` | 2 | 64, 64 | none, those standing for the glow lights alone | 6.28 MB, 1.65 with no glow light | 0.55 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 9.29 MB | 1.50 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 11.72 MB | 1.60 ms |
 
 A cascade of 64 directions, the first at every quality and the second at `Low` and `Medium`, sends
 four rays along each, one from the middle of each quarter of the direction's texel, and takes their

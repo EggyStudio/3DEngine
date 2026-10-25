@@ -166,6 +166,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // The places the glow lights were written in, kept from frame to frame, and how many there were.
     private readonly GlowPlaces _glowPlaces = new();
     private int _glowCount;
+    // Whether some surface drawn this frame lets light through (ModelMaterial.LightThrough), where a
+    // frame of none traces the probes' rays with the build that leaves the crossing out.
+    private bool _lightThrough;
 
     /// <summary>How many emitters are carried as glow lights this frame, and how many of them, the nearest the eye, are lit.</summary>
     internal (int Carried, int Lit) Glow => (_glowFound, _glowCount);
@@ -445,9 +448,12 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 corners[c] = new Vector4(then, 0);
         }
         _origins = origins;
+        _lightThrough = false;
+        foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
+            _lightThrough |= instance.LightThrough > 0;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1)));
+            far ? cascades - 2 : -1, _lightThrough)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some
@@ -471,7 +477,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
             _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
-                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false)));
+                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
             _lastScreen = (window.ViewProjection, window.Eye);
         }
         else if (_screen is not null)
@@ -547,7 +553,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var jitter = JitterAt(_frame, tile);
         var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
         _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
-            glowOnly: glowOnly)));
+            glowOnly: glowOnly, lightThrough: _lightThrough)));
         state.Last = (camera, at);
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }

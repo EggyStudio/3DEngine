@@ -25,6 +25,7 @@
 // in place reach global illumination without the distances found again.
 
 import color;
+import scenefield;
 
 struct FieldInstance
 {
@@ -32,9 +33,10 @@ struct FieldInstance
     float4 row0;
     float4 row1;
     float4 row2;
-    // x: its mesh's first triangle in the pool. y: how many it has. z: 1 when the mesh has no
-    // inside, as a double-sided one, whose cells are all in front. w: the first of its triangles
-    // counted over every instance before it.
+    // x: its mesh's first triangle in the pool. y: how many it has. z: 1 in its lowest bit when the
+    // mesh has no inside, as a double-sided one, whose cells are all in front, and in its second
+    // byte the share of light that passes a unit of its depth in 255ths (lightThroughPaint). w: the
+    // first of its triangles counted over every instance before it.
     uint4 triangles;
     // rgb: the surface's color, linear, its material's times its texture's average. w: 2 where
     // global illumination carries its emission as a glow light, 1 elsewhere.
@@ -278,7 +280,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     float longest = max(dot(b - a, b - a), max(dot(c - b, c - b), dot(a - c, a - c)));
     if (dot(face, face) <= 1e-8 * longest * longest)
         return;
-    bool sided = instance.triangles.z == 0u && dot(face, face) > 1e-20;
+    bool sided = (instance.triangles.z & 1u) == 0u && dot(face, face) > 1e-20;
     uint way = dot(face, face) > 1e-20 ? way8(face) : 0u;
     float faceLength = length(face);
 
@@ -370,17 +372,20 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)
         {
             float3 weights = barycentric(q, a, b, c);
+            // The color painted times the paint's alpha, which tells a surface that lets light
+            // through from a solid one (lightThroughPaint in scenefield.slang).
+            float coverage = lightThroughPaint(float((instance.triangles.z >> 8u) & 255u) / 255.0);
             float3 painted = instance.color.rgb * (weights.x * cornerColor(ca.w) + weights.y * cornerColor(cb.w) + weights.z * cornerColor(cc.w));
-            uint3 c = uint3(saturate(painted) * 255.0 + 0.5);
+            uint4 c = uint4(uint3(saturate(painted * coverage) * 255.0 + 0.5), uint(coverage * 255.0 + 0.5));
             if (push.groups.y == 3u)
             {
                 int3 into = int3(at.xy, at.z + int(push.groups.w) * size);
-                float4 paint = float4(float3(c) / 255.0, 1.0);
+                float4 paint = float4(c) / 255.0;
                 stillPaint[into] = paint;
                 albedoField[into] = paint;
                 continue;
             }
-            albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (255u << 24);
+            albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (c.a << 24);
             float3 e = max(instance.emission.rgb, 0.0);
             glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, carried && any(e > 0.0) ? 1.0 : 0.0)));
         }

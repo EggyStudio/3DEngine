@@ -61,6 +61,7 @@ internal sealed partial class MeshEntityDraws
             SubsurfaceShares: material.SubsurfaceColor,
             SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius),
             SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness),
+            LightThrough: Math.Clamp(material.LightThrough, 0, 1),
             Shader: shader,
             ShadowOnly: shadowOnly);
         return new Look

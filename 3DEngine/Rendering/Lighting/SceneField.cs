@@ -350,7 +350,7 @@ internal sealed class SceneFieldRenderer : IDisposable
                     var tint = ModelRenderer.Instance.Linear;
                     _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, standing, draw.World, draw.DoubleSided,
                         Textured(new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]), draw.Texture), draw.Emission,
-                        null, draw.Roughness, draw.Metallic), false));
+                        null, draw.Roughness, draw.Metallic, draw.LightThrough), false));
                 }
                 continue;
             }
@@ -361,7 +361,7 @@ internal sealed class SceneFieldRenderer : IDisposable
             var skinned = store.IsSkinned(draw.Mesh);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
                 Textured(new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]), draw.Texture), draw.Emission,
-                skinned ? Limbs(store, draw.Mesh, vertices) : null, draw.Roughness, draw.Metallic), skinned));
+                skinned ? Limbs(store, draw.Mesh, vertices) : null, draw.Roughness, draw.Metallic, draw.LightThrough), skinned));
         }
         foreach (var group in draws.Groups)
         {
@@ -391,7 +391,7 @@ internal sealed class SceneFieldRenderer : IDisposable
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
                     Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
-                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, instance.Factors.Y, instance.Factors.X), skinned));
+                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, instance.Factors.Y, instance.Factors.X, template.LightThrough), skinned));
             }
         }
     }
@@ -655,9 +655,10 @@ internal sealed class SceneFieldRenderer : IDisposable
         return open;
     }
 
-    // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, with how
-    // many there are, how many triangles they have in all, and whether one is emissive and
-    // thinner than a cell of the build, which field_splat.slang lends the light of.
+    // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, whether
+    // one has an inside and the share of light it lets through in its third count, with how many
+    // there are, how many triangles they have in all, and whether one is emissive and thinner than a
+    // cell of the build, which field_splat.slang lends the light of.
     private (IBuffer Buffer, int Count, int Triangles, bool ThinGlow) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances, float cell)
     {
         var thinGlow = false;
@@ -671,7 +672,8 @@ internal sealed class SceneFieldRenderer : IDisposable
             var (w, c, e) = (instance.World, instance.Color, instance.Emission);
             ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
-            (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count, instance.DoubleSided ? 1u : 0u, (uint)triangles);
+            (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count,
+                (instance.DoubleSided ? 1u : 0u) | (uint)MathF.Round(Math.Clamp(instance.LightThrough, 0, 1) * 255) << 8, (uint)triangles);
             var thinnest = Thinnest(instance);
             // An emitter global illumination carries as a glow light marks its cells and lends
             // none.
@@ -708,9 +710,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         var mapped = MemoryMarshal.Cast<byte, float>(device.Map(buffer));
         for (int s = 0; s < shapes.Count; s++)
         {
-            var (m, center, extents, scale, color) = shapes[s];
+            var (m, center, extents, scale, color, through) = shapes[s];
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
-                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, 0];
+                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through];
             values.CopyTo(mapped[(s * 24)..]);
         }
         device.Unmap(buffer);

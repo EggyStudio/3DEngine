@@ -195,6 +195,23 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
     return length2 > 1e-12 ? g * rsqrt(length2) : float3(0, 1, 0);
 }
 
+// The alpha a cell of the field's colors is painted with by a surface that lets `through` of the
+// light pass a unit of its depth (ModelMaterial.LightThrough), its color painted times it: 1 for a
+// solid surface, down to a half for one that lets all of it through, so a reader that divides a
+// blend of the colors by their alphas takes the colors back and weighs such a cell less, and one
+// that reads a cell as it is takes the share back (lightThroughOf).
+public float lightThroughPaint(float through)
+{
+    return 1.0 - 0.5 * saturate(through);
+}
+
+// The share of light a cell painted with alpha lets pass a unit of its surface's depth, 0 for a
+// solid surface's cell or one no surface painted.
+public float lightThroughOf(float alpha)
+{
+    return alpha > 0.25 ? saturate(2.0 * (1.0 - alpha)) : 0.0;
+}
+
 // The width of a cell of the finest built cascade around p, or 0 where none holds it.
 public float fieldCell(SceneFieldInfo info, float3 p)
 {

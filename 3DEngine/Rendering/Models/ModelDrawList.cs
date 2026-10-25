@@ -35,6 +35,7 @@ namespace Engine;
 /// <param name="SubsurfaceShares">How far each of red, green and blue travels under the surface, as a share of <paramref name="SubsurfaceRadius"/>.</param>
 /// <param name="SubsurfaceRadius">How far, in world units, light that enters the surface travels under it before it leaves, or 0 for none.</param>
 /// <param name="SubsurfaceThickness">How thick, in world units, the light from behind finds the surface's part at most, or 0 to measure it alone.</param>
+/// <param name="LightThrough">The share of global illumination's light that passes a unit of the surface's depth, 0 for a solid surface.</param>
 /// <param name="BouncesLight">Whether the scene's field, the glow lights and the global illumination reference hold the mesh, which a mesh that moves often is left out of.</param>
 /// <param name="ShadowOnly">Whether the mesh is drawn into the shadow maps and nothing else, as <see cref="ModelMaterial.ShadowOnly"/> says.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
@@ -43,7 +44,7 @@ internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 V
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
     bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true,
     bool DepthWrite = true, ScissorRect? Scissor = null, Vector3 SubsurfaceShares = default, float SubsurfaceRadius = 0, float SubsurfaceThickness = 0,
-    bool BouncesLight = true, bool ShadowOnly = false)
+    bool BouncesLight = true, bool ShadowOnly = false, float LightThrough = 0)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:

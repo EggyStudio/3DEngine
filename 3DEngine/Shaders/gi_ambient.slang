@@ -27,9 +27,10 @@ Texture3D<float4> merged;
 RWTexture3D<float4> cubes;
 
 // How far this cascade's rays went, as gi_trace.slang wrote them, a texel a ray, below zero where
-// a ray met a face from behind.
+// a ray met a face from behind, and the share of light they kept across surfaces that let light
+// through before their interval began, which the probe's faces take their light times.
 [[vk::binding(2, 0)]]
-Texture3D<float> distances;
+Texture3D<float2> distances;
 
 // Every cascade's probes' reach, eight by eight directions a probe, the cascades one after another along z.
 [[vk::binding(3, 0)]] [format("r16f")]
@@ -124,7 +125,7 @@ bool walledIn(uint3 at, uint texels)
     for (uint v = 0u; v < texels; v++)
         for (uint u = 0u; u < texels; u++)
         {
-            float d = distances.Load(int4(int2(at.xy * texels + uint2(u, v)), int(at.z), 0));
+            float d = distances.Load(int4(int2(at.xy * texels + uint2(u, v)), int(at.z), 0)).x;
             if (d < 0.0)
                 backs++;
             else if (d > 0.0 && d < push.interval.x * 0.999)
@@ -158,9 +159,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float2 uv = (float2(u, v) + 0.5) / float(texels);
             float share = octahedronShare(uv);
             float weight = max(dot(fromOctahedron(uv), axis), 0.0) * share;
+            float before = distances.Load(from).y;
             shares += share;
-            sum += light.rgb * weight;
-            sky += mergedSky.Load(from) * weight;
+            sum += light.rgb * before * weight;
+            sky += mergedSky.Load(from) * before * weight;
             weights += weight;
             // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
             valid = max(valid, light.a > 0.25 ? 1.0 : 0.0);
@@ -184,7 +186,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float reached = 0.0;
         for (uint v = 0u; v < step; v++)
             for (uint u = 0u; u < step; u++)
-                reached += abs(distances.Load(int4(int2(at.xy * texels + first + uint2(u, v)), int(at.z), 0)));
+                reached += abs(distances.Load(int4(int2(at.xy * texels + first + uint2(u, v)), int(at.z), 0)).x);
         reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached / float(step * step);
     }
 }

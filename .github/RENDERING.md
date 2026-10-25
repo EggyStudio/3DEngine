@@ -1927,6 +1927,31 @@ room's corner holds, where with no march at all it read 2.17 times its wall. A p
 world's probes at half the window's size, read first, saved nothing, the march and not the gather
 being the cost.
 
+**Surfaces that let light through, read on 2026-10-25.** The voxel game's rain forest floor at noon
+read near black under its canopy, the field holding the leaves solid, so no sky light reached the
+floor through the probes. A material's `LightThrough` sets the share of light that passes a unit of
+a surface's depth, which the field's colors carry in their alpha (`lightThroughPaint` in
+`scenefield.slang`). A ray of the cascades or of the screen's probes that meets such a cell marches
+through the surface half a cell a step (`lightThroughDepth` in `lightthrough.slang`), keeps the
+share for each unit of depth and takes the rest of the surface's light, crossing up to four
+surfaces. A surface crossed before a cascade's interval begins is the cascade below's, so the ray
+keeps its share for its probe's own faces alone, in the distances' second channel, which adds 0.12
+MB to Low's probes, 0.37 to Medium's and 0.56 to High's; taken off its light, the floor under a slab
+read the sky's light halved twice. Under a slab a unit thick letting half through a unit a floor
+takes 0.23 of the sky's light the solid slab holds back at Low and 0.29 at High, where a slab as
+wide as the world would let a third through, the rays at a slant crossing more of it, and under one
+letting all of it through 0.95 and 0.98. A frame where no surface drawn lets light through traces
+with `gi_trace.slang` built with `NO_LIGHT_THROUGH`. With the ray's light written as the crossing
+writes it, summed over what the ray met and set after, the trace cost global illumination 7% more at
+Low in the bounce rooms even with the crossing compiled out, 0.594 ms where 0.553, and with it
+written at the hit as before 0.554 and 0.555 where 0.552 and 0.551. The screen's probes shade what a
+ray meets in two places, the surfaces it crosses and the one it stops at in one and what lies past
+its reach in the other, where they shaded in three, which takes 0.16 to 0.60 ms off High in the
+bounce rooms, the Cornell box 1.59 and 1.60 ms where 1.91 and 1.92 at 800 by 450 and 2.09 and 2.06
+where 2.62 and 2.66 at 1920 by 1080, the thin walls' room 1.10 where 1.26 and 1.29 and 1.74 where
+1.93 and 1.92, the frames within 2 of 255 of what they were, and the Cornell box at Medium 1.50
+where 1.82, the least of twelve readings each with other programs on the GPU.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

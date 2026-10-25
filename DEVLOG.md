@@ -46,6 +46,12 @@ probes by their reach, the lamp's light in triangles along each wall's foot, and
 by a wall thinner than a cell reading them through the field, the floor along the foot as dark with
 the lamp outside as without it, a speck left in the far right corner.
 
+![](.github/assets/readings/2026-10-25-item-96-grove.webp)
+The voxel game's cherry grove at High at 1920 by 1080, scaled to 1280 by 720, above with every pixel
+no screen probe like its own stands near marching to the world's probes through the field, the scene
+pass 12.1 to 15.4 ms, and below marching only by a wall thinner than a cell, 9.7 to 11.1 ms, the two
+alike to the eye, 70 pixels of two million apart by more than 3%.
+
 The screen probes at four resolutions, read in the voxel game's room of forty glowstones with global
 illumination at High, offscreen, with another session's tests sharing the GPU so every time runs high
 alike. The scene pass is the probes' own cost; the two global illumination columns are the whole of it
@@ -84,8 +90,28 @@ the voxel game the thin-wall form marches 0.5% of the room's pixels and 0.75% of
 at a few blocks' corners, where marching wherever another surface stands near cost 2.5 ms. A speck
 where the thin room's right and back walls meet its floor stays.
 
+Where the scene pass's time goes at High in the voxel game's cherry grove, seed 1 at 1920 by 1080,
+offscreen on a scratch copy of the game at the engine's HEAD (item 96). A pixel that no screen probe
+on a surface like its own stands near, 9.1% of the grove's, its leaves, grass and far blocks, read
+the world's probes by marching the field toward each of eight, as the thin room's corner needs; a
+world of blocks has no wall thinner than a cell, so the march now runs only by such a wall.
+
+| Form | scene pass, rounds of two readings |
+|---|---|
+| marching at every such pixel | 13.07, 13.08; 12.11, 12.11; 15.41, 15.35 ms |
+| marching by a thin wall alone | 10.53, 10.57; 11.13, 10.84; 10.00, 9.66 ms |
+| no march at all | 8.6 to 9.3 ms, the thin room's corner then 2.17 times its wall |
+| no read of the world's probes | 7.7 to 7.9 ms |
+
+Other programs held part of the GPU through every round, so the rounds run apart by as much as 3
+ms; within each the gated form read 1.0 to 5.4 ms less. A half-size pass gathering the world's
+probes once a two by two of pixels, read first, gave nothing: 11.9 to 12.1 ms at High and 8.75 to
+9.16 at Low with it and without, since the cost was the march and not the gather it stood in for.
+
 Done that day
 
+- Item 96 at `21a3fbc7`. The scene pass reads the cascades' light at a cost under the trace's, not
+  twice it.
 - Item 102 at `f05ea96f`. The far cascade's coarse cells near the ground hold no slab, so the game
   can set it.
 - Item 103 at `c721746b`. The screen probes have one switch, and off means no screen pass at all.

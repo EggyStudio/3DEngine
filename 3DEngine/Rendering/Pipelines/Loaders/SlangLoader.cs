@@ -65,13 +65,15 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// The names a built-in shader is compiled with beside its plain build where it mentions them,
     /// each for a capability some devices lack or a frame that needs less, <c>RAY_QUERY</c> for the
     /// GPU's own ray tracing, <c>NO_GLOW_LIGHTS</c> for the model pass's build for a frame with no
-    /// glow lights, which leaves half its fragment stage out, and <c>NO_BOUNCE</c> for its build for
-    /// a frame without global illumination, which leaves it and the glow lights out.
+    /// glow lights, which leaves half its fragment stage out, <c>NO_BOUNCE</c> for its build for a
+    /// frame without global illumination, which leaves it and the glow lights out, and
+    /// <c>NO_LIGHT_THROUGH</c> for the probes' trace's build for a frame where no surface lets light
+    /// through, which leaves the crossing of such a surface out.
     /// </summary>
     /// <remarks>
     /// A build's names are given in this order, since the cache keys a build by them as given.
     /// </remarks>
-    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS", "NO_BOUNCE"];
+    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS", "NO_BOUNCE", "NO_LIGHT_THROUGH"];
 
     /// <summary>
     /// The <see cref="Variants"/> built alone and never with another, since each leaves out all

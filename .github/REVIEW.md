@@ -10,39 +10,53 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `073f34c8`, the soak's logs kept, read at 14:16 on 2026-10-25, carrying REVIEW.md.
-Where any build/soak failed file exists, the soak step copies build/sessions logs into the captures'
-sessions folder before soak-check runs, so the game-captures artifact, uploaded always, keeps them;
-the workflow parses, the glob was tried both ways, the rule and script tests pass, 63. After
-`12a15e44`, Verdict 91's diagnosis mend, read at 14:14 on 2026-10-25, carrying the review's files
-and DEVLOG.md. The soak's log in the job's artifact reads Tumble serving after 8 s and then
-NO_SESSION, the window's size and the first inputs through by the failed file, the game gone with
-exit code 0 of its own by the next frames.wait; Tumble's loop ends by WindowShouldClose alone and
-sets no quality, nothing recent touched the CLI, the soak scripts or Tumble, no game's name sits
-inside another's title and the session files are written on the main thread, and the twenty-game
-soak three times locally as CI runs it played every game through, Tumble with two turns and twelve
-readings each time. The evidence was lost since every way a loop ends writes a line naming what
-asked, and CI kept neither build/sessions/Tumble.log nor those lines, soak-check quoting warnings
-alone; soak-check.py quotes the closing lines among a log's last three, a SoakCheckTests case covers
-an ended game, and a local soak reads app.quit asked by e3d with its process and its parent's
-command line, so a recurrence names its asker. The strict build clean, 2,112 plain and shuffled.
-After `17da0eaa`, item 123, Low's thin-wall leak, read at 13:04 on 2026-10-25, carrying NORM.md,
-SHARED.md, the review's files, DEVLOG.md, the two devlog notes and a captioned pair, pushed with
-`12a15e44` and `073f34c8` at 14:24 on 2026-10-25 once the build run of `ac46c010` went green whole,
-the fourth pack run started with publish on at 14:24 for the game's items 95 and 29, both runs
-watched. lights.slang's byThinWall reads, at a point 0.3 of the probes' spacing off the surface
-where another surface lies nearer than the pixel's own by over 0.75 cell, the field one cell through
-that surface against its gradient, and where it reads 0 or more the wall is thin and the pixel
-marches to the probes, the model pass using it where no screen probe stands alone, so Medium and
-High are untouched. In the game at 1080p at Low 0.5% of the room's pixels march and 0.75% of the
-spawn's, slivers at a few block corners, the room's scene pass 2.6 to 2.8 ms before and 3.1 to 3.2
-after, the spawn within its noise. BounceRoomsTests.ThinWalls reads the thin room's floor along the
-back and right walls' foot at 480 by 270 at Low with the lamp outside and without it, a ratio of
-1.54 before and 1.00 after under a bound of 1.1, the file partial at 768 lines; the rooms at Low
-view 1 0.103 and view 2 0.107 with its bound 0.12, the rest unchanged. The remainder is a speck
-where the thin room's right and back walls meet its floor, which marching every pixel leaves too,
-RENDERING.md and the note saying speck. The strict build clean, 2,111 plain and shuffled after a
-first run lost 80 tests to the device running out of memory 61 s in with nothing of the coder's
+Reviewed up to `21a3fbc7`, item 96's cut, the edge march gated by the thin-wall test, read at 15:23
+on 2026-10-25, carrying REVIEW.md, the grove pair and a note, pushed at 15:37 on 2026-10-25 once the
+build run of `073f34c8` went green whole, its own run green whole at 16:48, Windows in 71 minutes,
+Linux in 35 and macOS in 41. The model pass's edge test gains byThinWall with its comment. At the
+grove at High at 1920 by 1080 over three alternating rounds of two readings with other processes
+holding 14 to 38% of the GPU, as is 13.07 and 13.08, 12.11 and 12.11, 15.41 and 15.35 ms against
+gated 10.53 and 10.57, 11.13 and 10.84, 10.00 and 9.66, a saving of 1.0 to 5.4 ms within a round and
+about 3 on the mean, the earlier round 12.29 and 12.61 to 10.25 and 10.33 beside them; the frames
+alike, 70 of two million pixels differing by over 3%. The rooms at Medium and High unchanged, the
+thin room's corner and foot tests holding, the strict build clean, 2,112 plain and shuffled, 37 on
+lavapipe with validation and one skipped for ray queries. The half-size gather stays in the
+scratchpad alone. After `073f34c8`, the soak's logs kept, read at 14:16 on 2026-10-25, carrying
+REVIEW.md. Where any build/soak failed file exists, the soak step copies build/sessions logs into
+the captures' sessions folder before soak-check runs, so the game-captures artifact, uploaded
+always, keeps them; the workflow parses, the glob was tried both ways, the rule and script tests
+pass, 63. After `12a15e44`, Verdict 91's diagnosis mend, read at 14:14 on 2026-10-25, carrying the
+review's files and DEVLOG.md. The soak's log in the job's artifact reads Tumble serving after 8 s
+and then NO_SESSION, the window's size and the first inputs through by the failed file, the game
+gone with exit code 0 of its own by the next frames.wait; Tumble's loop ends by WindowShouldClose
+alone and sets no quality, nothing recent touched the CLI, the soak scripts or Tumble, no game's
+name sits inside another's title and the session files are written on the main thread, and the
+twenty-game soak three times locally as CI runs it played every game through, Tumble with two turns
+and twelve readings each time. The evidence was lost since every way a loop ends writes a line
+naming what asked, and CI kept neither build/sessions/Tumble.log nor those lines, soak-check quoting
+warnings alone; soak-check.py quotes the closing lines among a log's last three, a SoakCheckTests
+case covers an ended game, and a local soak reads app.quit asked by e3d with its process and its
+parent's command line, so a recurrence names its asker. The strict build clean, 2,112 plain and
+shuffled. After `17da0eaa`, item 123, Low's thin-wall leak, read at 13:04 on 2026-10-25, carrying
+NORM.md, SHARED.md, the review's files, DEVLOG.md, the two devlog notes and a captioned pair, pushed
+with `12a15e44` and `073f34c8` at 14:24 on 2026-10-25 once the build run of `ac46c010` went green
+whole, the fourth pack run started with publish on at 14:24 for the game's items 95 and 29, green
+whole at 16:55 with Windows in 147 minutes under the limit of 240, the twelve games played through
+in 50 minutes and the captures in 58 and 61, the package 5.2.313 pushed to nuget.org, the first
+since 5.2.291 after three red pack runs, the push run green whole at 15:33, Windows in 69 minutes,
+Linux in 47 and macOS in 35. lights.slang's byThinWall reads, at a point 0.3 of the probes' spacing
+off the surface where another surface lies nearer than the pixel's own by over 0.75 cell, the field
+one cell through that surface against its gradient, and where it reads 0 or more the wall is thin
+and the pixel marches to the probes, the model pass using it where no screen probe stands alone, so
+Medium and High are untouched. In the game at 1080p at Low 0.5% of the room's pixels march and 0.75%
+of the spawn's, slivers at a few block corners, the room's scene pass 2.6 to 2.8 ms before and 3.1
+to 3.2 after, the spawn within its noise. BounceRoomsTests.ThinWalls reads the thin room's floor
+along the back and right walls' foot at 480 by 270 at Low with the lamp outside and without it, a
+ratio of 1.54 before and 1.00 after under a bound of 1.1, the file partial at 768 lines; the rooms
+at Low view 1 0.103 and view 2 0.107 with its bound 0.12, the rest unchanged. The remainder is a
+speck where the thin room's right and back walls meet its floor, which marching every pixel leaves
+too, RENDERING.md and the note saying speck. The strict build clean, 2,111 plain and shuffled after
+a first run lost 80 tests to the device running out of memory 61 s in with nothing of the coder's
 holding the GPU, 41 on lavapipe with validation. After `ac46c010`, item 122, the screen probes'
 spacing by the resolution, read at 11:41 on 2026-10-25, carrying NORM.md, the review's files,
 DEVLOG.md and a captioned picture, the glowstone room at 4K at every 8 pixels and every 16, alike by
@@ -162,13 +176,13 @@ validation. Item 96 begins with a reading on the game's 5.2.215 build at the che
 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
 variant's registers, the window's depth at half size and the scene pass shading with overdraw
 pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next the screen probes' one switch, then 96, the scene pass's read of the cascades
-and the shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra, then 112,
-the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the
-loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help,
-then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
-branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
-by.
+glow pass has. Next 100, the field's foliage share, with 124, the mesh entity's shadow and bounce
+flags, at its first clean point, then 125, the scene pass's half, then 111, the shadow's penumbra,
+then 112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's
+words on the loop and the ECS, then the glow light's non-number and the history's guard, then 95,
+the e3d help, then item 89, the plant walls' acne, then 97, the light at the camera's point on
+lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud
+sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1095,60 +1109,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     exits, before any process is started; a test of the client's open with --help starting no
     process. One commit, small, with the next batch.
 
-96. **The scene pass reads the cascades' light at a cost under the trace's, not twice it.** From the
-    voxel game's ASKS.md entry of 2026-10-24, read at 11:26. At 1920 by 1080 on the development
-    machine's GPU the game's frame is 18.6 ms at High and 11.9 with global illumination off, the
-    scene pass 11.6 against 6.0, so 5.6 ms of the pass is the per-pixel read of the cascades' light
-    where the trace itself takes 2.9; at 1280 by 720 the pass is 8.3 of a 14.9 ms frame. The read
-    gathers the eight probes about each pixel's surface with their traced bits and weights, per
-    pixel at the window's size, and the mend by the reading is one of three the entry names or a
-    fourth the coder finds, the read at a coarser size with a bilateral upsample by depth and
-    normal, one gather shared per tile of pixels, or the gathered light written once a frame into a
-    screen-sized image the pass samples; the readings of the bounce rooms against their references
-    under the covered-fault rule at both sizes, the game's two views read on the device before and
-    after, and the quality tiers' costs on the Cornell box in the guide changed. One or two commits,
-    after item 94. The reading at 14:59 on item 98's shaders, the grove at 1920 by 1080 at High, the
-    scene pass 18.4 ms and 4.0 with global illumination off, the world probes' read and the sky's
-    share 7.3 units of the depth's time against 1.8 in 5.2.215, the glow lights 1, the ground read
-    and the trace nothing; the cause in the SPIR-V, any SceneFieldInfo made by probesOf copied whole
-    into thread memory to be indexed, 22 FieldCascade[9] locals in the model pass and 47 in
-    gi_screen against none in the package. The first mend, written, makes no info, cascadeAt(info,
-    c, probes) and the cascade lookups taking the uniform info and the probes' count, the model
-    pass, the screen probes and the merge at 0 such locals and the trace at the package's 2; at
-    `ff2c5175`, read at 15:57, the scene pass 10.4 ms at the grove where 20.6 stood and 18.4 before
-    it, the package's cost, the far scene bit-identical. The cut reading at 16:4x on these shaders,
-    in depth-pass units at about 1.5 ms of depth, High 6.6, off 2.8 and every cut 2.6, the world
-    probes' light 1.9, the sky's share 0.5, the glow lights 1.8 (their fallback march to the lights
-    about 1 and the rough light per texel about 0.6), the trace 0.2 and the ground read 0. The
-    second mend at `89154675`, the sky's share folded into the gather, the scene pass 8.9 ms where
-    10.1 stood, exact to a level's rounding. The game read 5.2.281's shadow fill at about 4 ms of
-    the shadows pass at the grove, 5.2 to 5.9 against 1.0, a cut to read beside the others. The
-    third mend at `1b497b3b`, read at 18:50, the glow lights' box skipping the loop for a point
-    outside every light's reach, the scene pass 8.4 ms where 9.1 stood, the march's share read as
-    22.3 percent of the pixels marched with no texel, the far land's haze material and the clouds
-    missing from the window's depth, which the game's side may take. Next a half-size pass over the
-    window's depth writing the world probes' light and the sky's share, read two by two by depth and
-    normal with the per-pixel read where no texel is alike, about 2 to 2.5 ms, a new stage with its
-    images and bindings, the bounce rooms against their references at both sizes and the grove's
-    edges captured against the full-size read. Paused at 14:14 on a reading. At the grove the
-    half-size gather saved nothing, High 11.9 to 12.1 ms on and off and Low 8.75 to 9.16 on and off,
-    while removing the world read whole brought the scene pass to 7.99 ms at Low and 7.73 to 7.92 at
-    High, so the world read's cost at High lies outside what the gather replaces, likely the
-    seen-probe march at the screen probes' edges; that is read before the cut's form is chosen,
-    after Verdict 91's mend. The reading of 14:51 and the cut, taken. At the grove at High at 1920
-    by 1080 offscreen, 9.1% of the pixels take the edge path, the cherry leaves, the grass and the
-    far blocks where no screen probe stands on a like surface, and with the edge march off whole the
-    scene pass reads 8.6 to 9.3 ms against 11.5 to 14.8 as it stands, so the march is 3 to 5.7 ms
-    and nearly all of the world read's cost at High; the nine rooms at Medium and High read within
-    0.001 of before in each form, and the march exists for the thin room's corner, whose test fails
-    with it off whole at 2.17 against 1.4. The cut gates the march at an edge by the same thin-wall
-    test item 123 added, byThinWall, and reads by reach elsewhere, so a voxel world's edges stop
-    marching and the thin room's corner keeps it; the corner and foot tests pass, the rooms are
-    unchanged, and one clean round at the grove read 10.25 to 10.33 ms against 12.29 to 12.61, read
-    once more on a quiet GPU before the commit; one line in modelpass.slang with its comment,
-    RENDERING.md's reading and a picture pair. The half-size gather is dropped, nothing measurable
-    at the grove at either quality.
-
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game
     moved its held light to the eye's point and the play job on lavapipe read the lit roof black at
@@ -1201,26 +1161,43 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
+124. **A mesh entity can cast no shadow and bounce no light.** From the voxel game's reading for its
+    item 95 on 5.2.313 at 17:07 on 2026-10-25, its ASKS.md entry in the engine's tree; a gap the
+    port finds comes to the engine first, Decision 68. The ECS Material has no CastsShadows or
+    BouncesLight and MeshEntityDraws builds every entity's draw with both true, where ModelMaterial
+    carries both, so a section's see-through glass and ice, its water and a pack's cut-out glass as
+    entities would cast the sun's shadow and stand in the scene's field as solid, shutting the
+    indirect light out of a window, and its plants would bounce light so the field held the grass.
+    The two flags come to the mesh entity, on the Material mirroring ModelMaterial's or as a
+    component each beside Visible and ShadowOnly, whichever MeshEntityDraws writes cheapest, the
+    coder's call said in the record; a test reads a no-shadow entity casting none in the shadow map
+    and a no-bounce entity absent from the field while its twin stands in both; the behaviors
+    guide's Mesh entities section gains them. After what is in hand of item 100 and before the rest
+    of it. One commit.
+
+125. **Why the scene pass halves when a game's meshes are entities, and whether DrawMesh can have it
+    too.** From the voxel game's reading for its item 95 on 5.2.313 at 17:35 on 2026-10-25. With
+    three of a section's seven parts moved from DrawMesh to mesh entities and the same sections,
+    draws, triangles and pixels in every view, the grove's GPU scene pass at 1920 by 1080 at High
+    fell from 19.8 to 21.2 ms to 9.8 to 10.3, the frame from 35 to 46 ms to 23.2 to 24.0, and the
+    CPU's recording of the passes more than halved, cpu.shadows 8.6 to 11.9 ms against 4.5 to 6.1,
+    MeshEntityDraws costing 0.25 to 0.33 ms; the captures match within an RMSE of 0.0011. The GPU's
+    half is unexplained, the draws being the same. The coder reads where the time goes in both paths
+    with the GPU's timestamps and the pass's draw order, the draw order and the state changes
+    between draws, the per-draw uniforms and descriptor writes, the depth prepass's coverage or the
+    batches the entity path builds, and names the cause; where DrawMesh lacks what the entity path
+    has, it gains it, so the engine's games and the game's four parts still on DrawMesh take the
+    same frame, read on the grove copy and the thousand-mesh program of item 108 before and after.
+    After item 124 and before the rest of item 100. One commit with a reading first. A line from the
+    game's run at 18:09: with its sections as entities Vulkan's validation notes, twice a run on a
+    Mesa without maintenance4, a pipeline whose vertex stage declares an output at location 11 that
+    its fragment stage never reads, the write discarded, the terrain shader's vertexMain paired with
+    a fragment stage of the engine's in some pass, likely the shadow or the prepass; the reading
+    says which pass pairs them so, and whether the pairing is part of the cost.
+
 ## Verdicts
 
-Verdict 91 is open. Verdicts 56 to 90 are settled, said under each in REVIEW-ARCHIVE.md.
-
-91. **The pack run of `c721746b` is red on the games job, Tumble's soak losing the game, which quit
-    on its own.** Read at 13:19 on 2026-10-25 from the run's jobs and the job's annotations, run
-    40184955210, the log held back while the run goes on. The three suites are green, macOS in 56
-    minutes, and the examples too; in the games job the soak of Tumble could not play it through,
-    frames.wait with a timeout of 600 ending with 1, the game's process ending with exit code 0 of
-    its own on the runner's EPYC with Mesa's shader cache at 52 hits, 0 readings, too few to judge.
-    The eleven games before and after it are unread until the job's log opens. Between the last
-    green pack run, `e3d554b1` at 5.2.291, and this one lie items 108, 110, 113 to 123 and the two
-    mends; a game ending cleanly under the soak points at the audio of items 118 to 120, a voice's
-    end or a stream's flush ending the game's loop, or at item 103's screen probes by quality under
-    the soak's settings, the coder reading the log and reproducing the soak on the pack's Tumble
-    before naming it. The mend goes ahead of item 96's cuts; no package came of the run, and the
-    fourth pack run is started once the mend's push run has begun. Read at 14:14, not reproduced,
-    the diagnosis mend at `12a15e44`; the verdict settles when a pack run plays Tumble through, and
-    the soak step keeps build/sessions logs as an artifact where a game ends early, two lines in the
-    workflow with the mend's push.
+Verdicts 56 to 91 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -1910,3 +1887,11 @@ illumination window's toggle renamed and moved as the item says, and the guide s
 off leaves a pass for the glow lights alone while any is lit. The other gives the glow lights a
 list of those each screen tile sees, a pass of its own with no probe placed, which is more than one
 small commit.
+
+Shared: a material lets a share of global illumination's light pass a unit of its depth
+(`LightThrough`), the field's colors carrying it in their alpha and the probes' rays crossing such
+a surface, keeping the share for each unit and taking the rest of its light (item 100). A frame of
+none traces with a build of the trace that leaves the crossing out (`NO_LIGHT_THROUGH`), since the
+trace's light written as the crossing writes it, summed over what the ray met and set after, cost
+7% at Low with the crossing compiled out, where the light written at the hit cost nothing; the
+screen's probes shading in two places where they shaded in three took 0.16 to 0.60 ms off High.

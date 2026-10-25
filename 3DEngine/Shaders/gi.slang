@@ -70,24 +70,24 @@ public float3 surfaceNormal(float3 crossed, float3 toEye)
     return length2 > 1e-20 && length2 < 1e30 ? crossed * rsqrt(length2) : normalize(toEye);
 }
 
-// A texel's mark as gi_trace.slang writes it for `rays` rays, `nothing` of which met nothing, is
-// what most of them met, 0 a surface, a half a surface before their interval began, a quarter the
-// sky and 1 nothing, moved a sixteenth on for each that met nothing, up from 0 or a half and down
-// from 1 for each that met something, so the mark stays within the band each reader tells what a
-// texel's rays met by, gi.probe and the merge's marks among them; texelNothing reads back how many
-// met nothing.
-public float texelMark(float most, uint nothing, uint rays)
+// A texel's mark as gi_trace.slang writes it for `rays` rays, `nothing` of which met nothing, a
+// part of one for a ray that crossed surfaces letting light through, is what most met, 0 a surface,
+// a half one before their interval began, a quarter the sky and 1 nothing, moved a sixteenth on for
+// each that met nothing, up from 0 or a half and down from 1 for each that met something, so the
+// mark stays within the band each reader tells what a texel's rays met by, gi.probe and the
+// merge's marks among them; texelNothing reads back how many met nothing.
+public float texelMark(float most, float nothing, uint rays)
 {
-    return most >= 0.75 ? 1.0 - 0.0625 * float(rays - nothing) : most + 0.0625 * float(nothing);
+    return most >= 0.75 ? 1.0 - 0.0625 * (float(rays) - nothing) : most + 0.0625 * nothing;
 }
 
-public uint texelNothing(float mark, uint rays)
+public float texelNothing(float mark, uint rays)
 {
     if (mark >= 0.75)
-        return rays - uint((1.0 - mark) / 0.0625 + 0.5);
+        return float(rays) - (1.0 - mark) / 0.0625;
     if (mark >= 0.375)
-        return uint((mark - 0.5) / 0.0625 + 0.5);
-    return mark >= 0.1875 ? 0u : uint(mark / 0.0625 + 0.5);
+        return (mark - 0.5) / 0.0625;
+    return mark >= 0.1875 ? 0.0 : mark / 0.0625;
 }
 
 // The lights the indirect light is lit by, as the renderer writes them each frame, each laid out

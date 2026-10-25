@@ -113,6 +113,12 @@ public struct Material : IEquatable<Material>
     public float SubsurfaceThickness;
 
     /// <summary>
+    /// The share of global illumination's light that passes a unit of the surface's depth, as
+    /// through a canopy's leaves, 0 for a solid surface, which the constructors set.
+    /// </summary>
+    public float LightThrough;
+
+    /// <summary>
     /// A program's shader the entity is drawn with, as <c>DrawMesh</c> draws with a material's, or
     /// the engine's own where it is default, as the constructors leave it.
     /// </summary>
@@ -166,6 +172,7 @@ public struct Material : IEquatable<Material>
         SubsurfaceColor = Vector3.One;
         SubsurfaceRadius = 0f;
         SubsurfaceThickness = 0f;
+        LightThrough = 0f;
     }
 
     /// <summary>Whether every field is the same, compared field by field rather than through reflection.</summary>
@@ -181,7 +188,7 @@ public struct Material : IEquatable<Material>
         && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
         && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided
         && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius
-        && SubsurfaceThickness == other.SubsurfaceThickness && Shader == other.Shader;
+        && SubsurfaceThickness == other.SubsurfaceThickness && LightThrough == other.LightThrough && Shader == other.Shader;
 
     /// <inheritdoc />
     public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);

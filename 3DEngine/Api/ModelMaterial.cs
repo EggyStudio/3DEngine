@@ -132,6 +132,19 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     public float SubsurfaceThickness { get; set; }
 
     /// <summary>
+    /// The share of global illumination's light that passes a unit of the surface's depth, as
+    /// through a canopy's leaves, from 0, solid, the default, to 1, which lets all of it through.
+    /// </summary>
+    /// <remarks>
+    /// The scene's distance field holds a surface's cells as solid, so the rays of the cascades of
+    /// probes stop at a canopy and the floor under it takes none of the sky's light. A ray that
+    /// meets a surface with a share set crosses the cells it fills and keeps that share of its light
+    /// for each unit of the surface's depth, the rest taking the surface's color as a solid's would.
+    /// The sun's shadow, through the shadow map, falls as before.
+    /// </remarks>
+    public float LightThrough { get; set; }
+
+    /// <summary>
     /// A shader that draws the mesh in place of the model pass's own, which imports
     /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
     /// </summary>

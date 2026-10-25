@@ -2651,6 +2651,7 @@ struct Engine.Material : IEquatable<Material>
   bool DoubleSided
   bool Equals(Material other)
   float AlphaCutoff
+  float LightThrough
   float MetallicFactor
   float NormalScale
   float OcclusionStrength
@@ -2757,6 +2758,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   bool ShadowOnly { get; set; }
   float AlphaCutoff { get; set; }
   float EmissiveIntensity { get; set; }
+  float LightThrough { get; set; }
   float Metallic { get; set; }
   float NormalScale { get; set; }
   float OcclusionStrength { get; set; }

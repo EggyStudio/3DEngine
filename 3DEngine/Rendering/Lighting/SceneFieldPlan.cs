@@ -90,11 +90,11 @@ internal sealed partial class SceneFieldPlan
     /// <summary>
     /// A mesh drawn this frame, its id, the vertices it has, where it is drawn, whether it has an
     /// inside, its surface's color and emission, linear, which the field paints its
-    /// cells with, and its material's roughness and metallic, which a path traced reference lights
-    /// it by.
+    /// cells with, its material's roughness and metallic, which a path traced reference lights
+    /// it by, and the share of light that passes a unit of its depth (<see cref="ModelMaterial.LightThrough"/>).
     /// </summary>
     internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided,
-        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0);
+        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0, float LightThrough = 0);
 
     /// <summary>
     /// A part of a mesh stamped as a box of its own, the box around the part's vertices at rest in
@@ -165,7 +165,7 @@ internal sealed partial class SceneFieldPlan
     /// A mesh stamped as a box, from the world into its own space, the box's middle and half
     /// extents there, the least scale from there to the world, and the mesh's color in linear light.
     /// </summary>
-    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default);
+    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default, float LightThrough = 0);
 
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], int> _triangles;
@@ -558,7 +558,7 @@ internal sealed partial class SceneFieldPlan
                 var w = pose * instance.World;
                 if (!Matrix4x4.Invert(w, out var toOwn)) continue;
                 var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint));
+                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint, instance.LightThrough));
                 var (min, max) = own.Transformed(w);
                 for (int c = 0; c < Cascades; c++)
                 {
@@ -698,7 +698,8 @@ internal sealed partial class SceneFieldPlan
     // set, compared in place, where a record's equality copies each and calls a comparer a field.
     private static bool Same(in Instance a, in Instance b, bool placed) =>
         a.Mesh == b.Mesh && ReferenceEquals(a.Vertices, b.Vertices) && (!placed || a.World == b.World) && a.DoubleSided == b.DoubleSided
-        && a.Color == b.Color && a.Emission == b.Emission && ReferenceEquals(a.Parts, b.Parts) && a.Roughness == b.Roughness && a.Metallic == b.Metallic;
+        && a.Color == b.Color && a.Emission == b.Emission && ReferenceEquals(a.Parts, b.Parts) && a.Roughness == b.Roughness && a.Metallic == b.Metallic
+        && a.LightThrough == b.LightThrough;
 
     // The meshes drawn, read in place where they are a list or an array, as the field's are.
     private static ReadOnlySpan<(Instance Instance, bool Skinned)> Span(IReadOnlyList<(Instance Instance, bool Skinned)> drawn) => drawn switch

@@ -611,7 +611,7 @@ public static partial class E3D
             shader == 0 ? null : TextureSnapshot(material.Shader), material.CastsShadows,
             SubsurfaceShares: new Vector3(material.SubsurfaceColor.R, material.SubsurfaceColor.G, material.SubsurfaceColor.B) / 255f,
             SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius), SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness),
-            BouncesLight: material.BouncesLight, ShadowOnly: material.ShadowOnly);
+            BouncesLight: material.BouncesLight, ShadowOnly: material.ShadowOnly, LightThrough: Math.Clamp(material.LightThrough, 0, 1));
     }
 
     /// <summary>Draws a box's edges.</summary>
