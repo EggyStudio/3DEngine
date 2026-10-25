@@ -36,6 +36,15 @@ namespace Engine;
 /// to the nearest, which the model pass keeps.
 /// </para>
 /// <para>
+/// An entity whose material names a program's shader is recorded as a draw of its own, as
+/// <c>DrawMesh</c> records one, with the shader's values as the program last set them, copied once
+/// a frame for every entity drawn with it. One whose <see cref="Visible"/> is false is drawn nowhere
+/// and keeps its mesh, and one whose <see cref="ShadowOnly"/> is true is drawn into the shadow maps
+/// alone, each a bool the entity's chunk is gathered again for when it changes. The entities
+/// recorded in a frame are the frame profile's <c>entities.drawn</c>, before each camera's frustum
+/// leaves out those it cannot see.
+/// </para>
+/// <para>
 /// Each entity's draw is kept from frame to frame and built again only when its mesh or material
 /// differs from what it was built from, a texture it names was still loading, or a texture was
 /// replaced. A mesh no entity holds lets go of its own looks and groups alone, so a voxel game's
@@ -106,15 +115,16 @@ internal sealed partial class MeshEntityDraws
     // the cache, where a draw and a material kept for each entity cost a frame several misses each.
     private Look[] _looks = new Look[16];
     private int _lookCount;
-    private readonly Dictionary<(int Mesh, Material Material), int> _lookOf = [];
+    private readonly Dictionary<(int Mesh, Material Material, bool ShadowOnly), int> _lookOf = [];
 
     private struct Look
     {
         // Compared rather than relying on change marks, since a material replaced by Add marks none.
         public Material Material;
+        public bool ShadowOnly;
         public ModelDraw Draw;
         public ModelRenderer.Instance Instance;
-        // Its group in _groups, or -1 for a translucent draw.
+        // Its group in _groups, or TranslucentLook or ShadedLook for a draw recorded alone.
         public int Group;
         // A texture it names was still loading, so it is built again on a later frame.
         public bool Pending;
@@ -132,7 +142,23 @@ internal sealed partial class MeshEntityDraws
     private readonly List<List<InstanceGroup>> _cameraGroups = [];
 
     private readonly record struct GroupKey(int Mesh, int Texture, int NormalMap, int MetallicRoughnessMap, int EmissiveMap,
-        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode, Vector4 Subsurface);
+        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode, Vector4 Subsurface, bool ShadowOnly);
+
+    // A look's group for a translucent draw, sorted far to near, and for one with a program's
+    // shader, which no group draws, each recorded alone.
+    private const int TranslucentLook = -1;
+    private const int ShadedLook = -2;
+
+    // The shader store of the world last recorded, and the values of each shader its entities are
+    // drawn with this frame, copied once for them all.
+    private ShaderStore? _shaders;
+    private readonly Dictionary<int, (byte[]? Uniforms, int[]? Textures)> _values = [];
+
+    // How many entities the frame recorded, every chunk's, kept ones included.
+    private int _drawn;
+
+    /// <summary>How many mesh entities the last frame recorded, before any camera's frustum.</summary>
+    internal int Drawn => _drawn;
 
     // Entities are recorded in chunks of this many, a thread each, once there is more than one.
     private const int ChunkSize = 4096;
@@ -149,7 +175,9 @@ internal sealed partial class MeshEntityDraws
         public readonly HashSet<int> UploadedSeen = [];
         public int LastUploaded;
         public readonly List<ModelDraw> Translucent = [];
+        public readonly List<ModelDraw> Shaded = [];
         public readonly List<int> Deferred = [];
+        public int Placed;
         public Vector3[]? LastPositions;
         public int LastMesh;
         public Writer[] Writers = [];
@@ -199,7 +227,9 @@ internal sealed partial class MeshEntityDraws
             UploadedSeen.Clear();
             LastUploaded = 0;
             Translucent.Clear();
+            Shaded.Clear();
             Deferred.Clear();
+            Placed = 0;
             LastPositions = null;
             Waiting = false;
             Keepable = false;
@@ -235,6 +265,9 @@ internal sealed partial class MeshEntityDraws
         _uploadedSeen.Clear();
         _translucent.Clear();
         _sorted.Clear();
+        _values.Clear();
+        _drawn = 0;
+        _shaders = world.TryGetResource<ShaderStore>(out var shaders) ? shaders : null;
         if (_colors.Count > 4096) _colors.Clear();
         // With no mesh entity nothing holds a mesh, and with some every one they hold is seen as
         // they are gathered.
@@ -253,11 +286,12 @@ internal sealed partial class MeshEntityDraws
             // Chunks are kept from the last frame only while no entity was added, removed or given or
             // relieved of a material or transform, which the stores' counts would show, and a write
             // counts from this system's last run, which the chunks' threads cannot ask for themselves.
-            var counts = (count, ecs.Count<Material>(), ecs.Count<GlobalTransform>(), ecs.Count<Transform>());
+            var counts = (count, ecs.Count<Material>(), ecs.Count<GlobalTransform>(), ecs.Count<Transform>(), ecs.Count<Visible>(), ecs.Count<ShadowOnly>());
             var keep = counts == _lastCounts;
             _lastCounts = counts;
             var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
-                ecs.GetStorePublic<Transform>(), meshes, assets, textures, ChangeTicks.Since(ecs.FrameStart), keep);
+                ecs.GetStorePublic<Transform>(), ecs.GetStorePublic<Visible>(), ecs.GetStorePublic<ShadowOnly>(), meshes, assets, textures,
+                _shaders, ChangeTicks.Since(ecs.FrameStart), keep);
             Gather(frame, count);
             if (world.TryGetResource<FrameEffects>(out var effects) && effects is { MotionBlur: > 0, MotionBlurObjects: true })
                 RecordMoving(frame, count, draws);
@@ -267,6 +301,7 @@ internal sealed partial class MeshEntityDraws
 
         // A frame with mesh entities and no camera to gather them for saw none held and lets none go.
         if (gathered) Release(meshes);
+        if (world.TryGetResource<FrameProfile>(out var profile)) profile.Set("entities.drawn", _drawn);
     }
 
     // Frees the arrays' meshes no entity holds any longer, despawned or replaced, whose ids may be
@@ -307,7 +342,7 @@ internal sealed partial class MeshEntityDraws
         {
             ref var look = ref _looks[l];
             if (look.Free || _live.Contains(look.Draw.Mesh)) continue;
-            _lookOf.Remove((look.Draw.Mesh, look.Material));
+            _lookOf.Remove((look.Draw.Mesh, look.Material, look.ShadowOnly));
             look = new Look { Free = true, Stamp = ++_stamps };
             _freeLooks.Push(l);
         }
@@ -358,7 +393,8 @@ internal sealed partial class MeshEntityDraws
         {
             var entity = entities[i];
             var kept = _kept[entity];
-            if (kept.Generation != _generation) continue;
+            // One drawn into the shadow maps alone is seen nowhere to blur.
+            if (kept.Generation != _generation || _looks[kept.Look].ShadowOnly) continue;
             var placed = frame.Globals.TryGet(entity, out var global) ? global.Matrix
                 : frame.Locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
                 : Matrix4x4.Identity;
@@ -395,8 +431,8 @@ internal sealed partial class MeshEntityDraws
     /// <summary>How many chunks of entities kept what they gathered the frame before, in the last frame, since none of their entities changed.</summary>
     internal int ChunksKept => _chunksKept;
 
-    // The mesh, material, global and local transform stores' counts last frame.
-    private (int, int, int, int) _lastCounts = (-1, -1, -1, -1);
+    // The mesh, material, global and local transform, visibility and shadow-only stores' counts last frame.
+    private (int, int, int, int, int, int) _lastCounts = (-1, -1, -1, -1, -1, -1);
 
     // Every entity's instance or translucent draw, written into the chunks.
     private void Gather(in Frame frame, int count)
@@ -428,6 +464,7 @@ internal sealed partial class MeshEntityDraws
         {
             _seen.UnionWith(_chunks[c].Seen);
             _uploadedSeen.UnionWith(_chunks[c].UploadedSeen);
+            _drawn += _chunks[c].Placed;
         }
     }
 
@@ -451,13 +488,19 @@ internal sealed partial class MeshEntityDraws
             draws.AddGroup(group);
         }
 
+        _sorted.Clear();
+        for (int c = 0; c <= chunks; c++)
+            foreach (var draw in _chunks[c].Shaded)
+                _sorted.Add(WithValues(draw) with { ViewProjection = viewProjection, Target = target });
+        draws.AddRange(CollectionsMarshal.AsSpan(_sorted));
+
         _translucent.Clear();
         _sorted.Clear();
         for (int c = 0; c <= chunks; c++)
             foreach (var draw in _chunks[c].Translucent)
                 _translucent.Add((Vector3.DistanceSquared(draw.World.Translation, eye), draw));
         _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
-        foreach (var (_, draw) in _translucent) _sorted.Add(draw with { ViewProjection = viewProjection, Target = target });
+        foreach (var (_, draw) in _translucent) _sorted.Add(WithValues(draw) with { ViewProjection = viewProjection, Target = target });
         draws.AddRange(CollectionsMarshal.AsSpan(_sorted));
     }
 
@@ -467,7 +510,8 @@ internal sealed partial class MeshEntityDraws
     // main thread for the chunks' threads, and Keep whether a chunk may be kept from the last frame.
     private readonly record struct Frame(EcsWorld.ComponentStore<Mesh> Meshes, EcsWorld.ComponentStore<Material> Materials,
         EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals,
-        MeshStore MeshStore, Assets<TextureAsset>? Assets, TextureStore Textures, long Since = 0, bool Keep = false);
+        EcsWorld.ComponentStore<Visible> Visibles, EcsWorld.ComponentStore<ShadowOnly> ShadowOnlys,
+        MeshStore MeshStore, Assets<TextureAsset>? Assets, TextureStore Textures, ShaderStore? Shaders, long Since = 0, bool Keep = false);
 
     // The entities of a chunk, from its first dense index in the mesh store up to end, or what it
     // gathered the frame before when none of them changed, as in a level standing still.
@@ -507,7 +551,8 @@ internal sealed partial class MeshEntityDraws
             var entity = frame.Meshes.EntityByDenseIndex(dense);
             if (entity != state.Entities[dense - start]
                 || Touched(frame.Meshes, entity, frame.Since) || Touched(frame.Materials, entity, frame.Since)
-                || Touched(frame.Globals, entity, frame.Since) || Touched(frame.Locals, entity, frame.Since))
+                || Touched(frame.Globals, entity, frame.Since) || Touched(frame.Locals, entity, frame.Since)
+                || Touched(frame.Visibles, entity, frame.Since) || Touched(frame.ShadowOnlys, entity, frame.Since))
                 return false;
         }
         return true;
@@ -558,20 +603,29 @@ internal sealed partial class MeshEntityDraws
             }
             id = state.LastMesh;
         }
+        // One not drawn keeps the mesh seen above and forgets its look, so motion blur finds it
+        // nowhere, and finds it again once it is drawn.
+        if (frame.Visibles.TryGet(entity, out var visible) && !visible.Value)
+        {
+            _kept[entity].Generation = 0;
+            return true;
+        }
+        var shadowOnly = frame.ShadowOnlys.TryGet(entity, out var alone) && alone.Value;
         var materialAt = frame.Materials.DenseIndexOf(entity);
         if (materialAt < 0) return true;
         ref readonly var material = ref frame.Materials.ComponentRefByDenseIndex(materialAt);
 
         ref var kept = ref _kept[entity];
-        if (kept.Generation != _generation || kept.Mesh != id || _looks[kept.Look].Stamp != kept.Stamp || !_looks[kept.Look].Material.Equals(material))
+        if (kept.Generation != _generation || kept.Mesh != id || _looks[kept.Look].Stamp != kept.Stamp || _looks[kept.Look].ShadowOnly != shadowOnly
+            || !_looks[kept.Look].Material.Equals(material))
         {
             // A look another entity of the mesh and material made is found on any thread, since the
             // looks are only read while the chunks run, and only a look not yet made waits for the
             // pass after them.
-            if (!_lookOf.TryGetValue((id, material), out var found))
+            if (!_lookOf.TryGetValue((id, material, shadowOnly), out var found))
             {
                 if (!canBuild) return false;
-                found = LookFor(id, material, frame.Assets, frame.Textures);
+                found = LookFor(id, material, shadowOnly, frame);
             }
             kept = new Kept { Generation = _generation, Mesh = id, Look = found, Stamp = _looks[found].Stamp };
         }
@@ -580,7 +634,7 @@ internal sealed partial class MeshEntityDraws
         {
             if (!canBuild) return false;
             var stamp = look.Stamp;
-            look = Build(id, look.Material, frame.Assets, frame.Textures);
+            look = Build(id, look.Material, look.ShadowOnly, frame);
             look.Stamp = stamp;
         }
         // A look waiting on a texture is built again each frame until it has it, which may change
@@ -590,9 +644,10 @@ internal sealed partial class MeshEntityDraws
         var placed = frame.Globals.TryGet(entity, out var global) ? global.Matrix
             : frame.Locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
             : Matrix4x4.Identity;
+        state.Placed++;
         if (look.Group < 0)
         {
-            state.Translucent.Add(look.Draw with { World = placed });
+            (look.Group == ShadedLook ? state.Shaded : state.Translucent).Add(look.Draw with { World = placed });
             return true;
         }
 
@@ -603,125 +658,5 @@ internal sealed partial class MeshEntityDraws
         instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
         instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
         return true;
-    }
-
-    // The look of a mesh and material, built the first time an entity is drawn with them.
-    private int LookFor(int mesh, in Material material, Assets<TextureAsset>? assets, TextureStore textures)
-    {
-        if (_lookOf.TryGetValue((mesh, material), out var index)) return index;
-        if (_freeLooks.Count > 0) index = _freeLooks.Pop();
-        else
-        {
-            if (_lookCount == _looks.Length) Array.Resize(ref _looks, _looks.Length * 2);
-            index = _lookCount++;
-        }
-        _looks[index] = Build(mesh, material, assets, textures);
-        _looks[index].Stamp = ++_stamps;
-        return _lookOf[(mesh, material)] = index;
-    }
-
-    // A look from a material, its draw with the world matrix and camera left for the frame.
-    private Look Build(int mesh, in Material material, Assets<TextureAsset>? assets, TextureStore textures)
-    {
-        var pending = false;
-        int Texture(Handle<TextureAsset> handle)
-        {
-            var id = TextureFor(handle, assets, textures);
-            pending |= handle.IsValid && !_textures.ContainsKey(handle.Id);
-            return id;
-        }
-
-        var baseColor = Texture(material.BaseColorTexture);
-        var draw = new ModelDraw(
-            mesh,
-            Matrix4x4.Identity,
-            Matrix4x4.Identity,
-            Encoded(material.Albedo),
-            baseColor,
-            Metallic: material.MetallicFactor,
-            Roughness: material.RoughnessFactor,
-            NormalMap: Texture(material.NormalTexture),
-            NormalScale: material.NormalScale,
-            MetallicRoughnessMap: Texture(material.MetallicRoughnessTexture),
-            Emission: material.EmissiveFactor,
-            EmissiveMap: Texture(material.EmissiveTexture),
-            OcclusionMap: Texture(material.OcclusionTexture),
-            OcclusionStrength: material.OcclusionStrength,
-            AlphaMode: material.AlphaMode,
-            AlphaCutoff: material.AlphaCutoff,
-            TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
-            DoubleSided: material.DoubleSided,
-            SubsurfaceShares: material.SubsurfaceColor,
-            SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius),
-            SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness));
-        return new Look
-        {
-            Material = material,
-            Draw = draw,
-            Instance = ModelRenderer.Instance.Of(draw),
-            Group = draw.IsTranslucent ? -1 : GroupOf(draw),
-            Pending = pending,
-            Built = _frame,
-        };
-    }
-
-    // The group of an opaque draw's mesh, maps, sides, alpha mode and the light it scatters under
-    // its surface, made the first time one is drawn.
-    private int GroupOf(in ModelDraw draw)
-    {
-        var key = KeyOf(draw);
-        if (_groupOf.TryGetValue(key, out var index)) return index;
-        if (_freeGroups.Count > 0) _groups[index = _freeGroups.Pop()] = draw;
-        else
-        {
-            _groups.Add(draw);
-            index = _groups.Count - 1;
-        }
-        return _groupOf[key] = index;
-    }
-
-    private static GroupKey KeyOf(in ModelDraw draw) => new(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
-        draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface);
-
-    // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
-    private Color Encoded(Vector4 albedo)
-    {
-        if (_colors.TryGetValue(albedo, out var known)) return known;
-        var c = Vector4.Clamp(albedo, Vector4.Zero, Vector4.One);
-        c = new Vector4(LinearToSrgb(c.X), LinearToSrgb(c.Y), LinearToSrgb(c.Z), c.W) * 255 + new Vector4(0.5f);
-        return _colors[albedo] = new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W);
-    }
-
-    private static float LinearToSrgb(float c) =>
-        c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
-
-    private int TextureFor(Handle<TextureAsset> handle, Assets<TextureAsset>? assets, TextureStore textures)
-    {
-        if (!handle.IsValid) return 0;
-        if (_textures.TryGetValue(handle.Id, out var id)) return id;
-        if (assets is null || !assets.TryGet(handle, out var texture)) return 0; // still loading
-
-        if (texture.Format != TextureFormat.Rgba8)
-        {
-            _textures[handle.Id] = 0;
-            return 0;
-        }
-        var bytes = texture.Width * texture.Height * 4;
-        var pixels = texture.Pixels.Length == bytes ? texture.Pixels : texture.Pixels[..bytes];
-        // Trilinear, so a floor stretching away blends its mip levels rather than stepping between them.
-        return _textures[handle.Id] = textures.Add(pixels, texture.Width, texture.Height, TextureFilter.Trilinear, mipmaps: true);
-    }
-
-    private void ForgetReloadedTextures(World world, TextureStore textures)
-    {
-        if (_textures.Count == 0) return;
-        var events = world.ReadAssetEvents<TextureAsset>();
-        for (int i = 0; i < events.Count; i++)
-        {
-            if (events[i].Kind is not (AssetEventKind.Modified or AssetEventKind.Removed)) continue;
-            if (!_textures.Remove(events[i].Id, out var id)) continue;
-            if (id != 0) textures.Remove(id);
-            Forget();
-        }
     }
 }

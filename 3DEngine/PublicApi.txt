@@ -2624,6 +2624,7 @@ struct Engine.Material : IEquatable<Material>
   Material(Vector4 albedo)
   MaterialAlphaMode AlphaMode
   MaterialHandle Handle
+  Shader Shader
   Vector3 EmissiveFactor
   Vector3 SubsurfaceColor
   Vector4 Albedo
@@ -3448,6 +3449,9 @@ readonly struct Engine.ShaderReadback : IEquatable<ShaderReadback>
   static bool op_Equality(ShaderReadback left, ShaderReadback right)
   static bool op_Inequality(ShaderReadback left, ShaderReadback right)
   void Deconstruct(out int Id, out int Size)
+struct Engine.ShadowOnly
+  ShadowOnly(bool value)
+  bool Value
 readonly struct Engine.SkyDay : IEquatable<SkyDay>
   LightHandle Light { get; init; }
   SkyDay()
@@ -3693,6 +3697,10 @@ readonly struct Engine.VehicleWheel : IEquatable<VehicleWheel>
   static bool op_Equality(VehicleWheel left, VehicleWheel right)
   static bool op_Inequality(VehicleWheel left, VehicleWheel right)
   void Deconstruct(out Vector3 Center, out Vector3 Contact, out bool Grounded, out float Slip, out float Spin, out float Steer)
+struct Engine.Visible
+  Visible(bool value)
+  bool Value
+  static Visible Default { get; }
 struct Engine.VrDeviceInfo
   Vector4 ChromaAbCorrection
   Vector4 LensDistortionValues

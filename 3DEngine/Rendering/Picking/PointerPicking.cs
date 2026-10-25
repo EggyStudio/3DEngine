@@ -152,6 +152,7 @@ internal sealed class PointerPicking
             var entity = row.Entity;
             var positions = row.Component.Positions;
             if (positions is null || positions.Length < 3) continue;
+            if (ecs.TryGet<Visible>(entity, out var visible) && !visible.Value || ecs.TryGet<ShadowOnly>(entity, out var alone) && alone.Value) continue;
             if (!ReferenceEquals(positions, _lastPositions))
             {
                 _lastPositions = positions;
@@ -172,12 +173,16 @@ internal sealed class PointerPicking
             var from = Vector3.Transform(origin, inverse);
             var along = Vector3.TransformNormal(direction, inverse);
             if (!MeetsBox(from, along, bounds.Min, bounds.Max, best)) continue;
-            for (int i = 0; i + 2 < positions.Length; i += 3)
+            var indices = row.Component.Indices;
+            var corners = indices?.Length ?? positions.Length;
+            for (int i = 0; i + 2 < corners; i += 3)
             {
-                if (!Meets(from, along, positions[i], positions[i + 1], positions[i + 2], out var distance) || distance >= best) continue;
+                var (a, b, c) = indices is null ? (positions[i], positions[i + 1], positions[i + 2])
+                    : (positions[indices[i]], positions[indices[i + 1]], positions[indices[i + 2]]);
+                if (!Meets(from, along, a, b, c, out var distance) || distance >= best) continue;
                 best = distance;
                 found = ecs.Handle(entity);
-                normal = Vector3.Normalize(Vector3.TransformNormal(Vector3.Cross(positions[i + 1] - positions[i], positions[i + 2] - positions[i]), Matrix4x4.Transpose(inverse)));
+                normal = Vector3.Normalize(Vector3.TransformNormal(Vector3.Cross(b - a, c - a), Matrix4x4.Transpose(inverse)));
             }
         }
         if (found.IsNone) return default;

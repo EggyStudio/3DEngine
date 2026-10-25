@@ -190,12 +190,13 @@ public static partial class E3D
     // A copy of a shader's textures for one draw, followed by its storage buffers, so textures and
     // buffers set after it reach only later draws. The passes read a buffer at its index in the
     // program's buffers past the count of its textures.
-    private static int[]? TextureSnapshot(Shader shader)
+    private static int[]? TextureSnapshot(Shader shader) => TextureSnapshot(Res<ShaderStore>(), TextureValues.GetValueOrDefault(shader.Id), shader.Id);
+
+    private static int[]? TextureSnapshot(ShaderStore store, int[]? textures, int shader)
     {
-        var textures = TextureValues.GetValueOrDefault(shader.Id);
-        var buffers = BufferValues.GetValueOrDefault(shader.Id);
+        var buffers = BufferValues.GetValueOrDefault(shader);
         if (buffers is null) return (int[]?)textures?.Clone();
-        var count = Res<ShaderStore>().Get(shader.Id)?.Textures.Count ?? 0;
+        var count = store.Get(shader)?.Textures.Count ?? 0;
         var both = new int[count + buffers.Length];
         textures?.AsSpan(0, Math.Min(textures.Length, count)).CopyTo(both);
         buffers.CopyTo(both, count);
@@ -261,6 +262,15 @@ public static partial class E3D
     // A copy of a shader's uniform values for one draw, so values set after it reach only later draws.
     private static byte[]? UniformSnapshot(Shader shader) =>
         UniformValues.TryGetValue(shader.Id, out var block) ? (byte[])block.Clone() : null;
+
+    // A copy of a shader's uniforms and textures as the program last set them, for the mesh
+    // entities drawn with it, read from the values of the app whose store gave the id, since the
+    // render stage runs with the world and not the flat API's app.
+    internal static (byte[]? Uniforms, int[]? Textures) ShaderValuesOf(ShaderStore store, int shader)
+    {
+        ShaderStates.TryGetValue(store, out var state);
+        return ((byte[]?)state?.Uniforms.GetValueOrDefault(shader)?.Clone(), TextureSnapshot(store, state?.Textures.GetValueOrDefault(shader), shader));
+    }
 
     /// <summary>
     /// Sets a named uniform found with <see cref="GetShaderLocation"/>, or slot <paramref name="slot"/>

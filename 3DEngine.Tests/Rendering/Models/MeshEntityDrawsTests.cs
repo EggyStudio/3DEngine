@@ -310,6 +310,49 @@ public class MeshEntityDrawsTests
     }
 
     [Fact]
+    public void An_Entity_Not_Visible_Is_Drawn_Nowhere_Keeping_Its_Mesh_And_One_Shadow_Only_Is_Drawn_Into_The_Shadow_Maps_Alone()
+    {
+        var (world, ecs) = Scene();
+        var hidden = SpawnMesh(ecs, [.. Triangle], new Vector3(1, 0, 0), new Vector4(1, 0, 0, 1));
+        var roof = SpawnMesh(ecs, Triangle, new Vector3(2, 0, 0), new Vector4(1, 0, 0, 1));
+        ecs.Add(hidden, new Visible(true));
+        ecs.Add(roof, new ShadowOnly(false));
+        world.InitResource<FrameProfile>();
+        var draws = world.Resource<ModelDrawList>();
+        var self = world.GetOrInsertResource(static () => new MeshEntityDraws());
+        void Frame()
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+        (float X, bool ShadowOnly)[] Placed() => [.. Drawn(world).Select(d => (d.World.Translation.X, d.ShadowOnly)).OrderBy(p => p.X)];
+
+        for (int i = 0; i < 3; i++) Frame();
+        Placed().Should().Equal((1f, false), (2f, false));
+        self.ChunksKept.Should().Be(1);
+
+        ecs.GetRef<Visible>(hidden).Value = false;
+        ecs.GetRef<ShadowOnly>(roof).Value = true;
+        Frame();
+        Placed().Should().Equal([(2f, true)], "the hidden entity is drawn nowhere and the roof into the shadow maps alone");
+        self.ChunksKept.Should().Be(0, "a bool written in place has its chunk gathered again");
+        self.MeshCount.Should().Be(2, "the hidden entity still holds its mesh");
+        self.Drawn.Should().Be(1);
+        world.Resource<FrameProfile>().Snapshot().Values.Should().Contain(("entities.drawn", 1d));
+
+        Frame();
+        self.ChunksKept.Should().Be(0, "the roof's new look was built after the chunks, so its chunk is gathered again whole");
+        Frame();
+        self.ChunksKept.Should().Be(1, "nothing changed since");
+        ecs.GetRef<Visible>(hidden).Value = true;
+        ecs.GetRef<ShadowOnly>(roof).Value = false;
+        Frame();
+        Placed().Should().Equal((1f, false), (2f, false));
+        world.Resource<FrameProfile>().Snapshot().Values.Should().Contain(("entities.drawn", 2d));
+    }
+
+    [Fact]
     public void Nothing_Is_Drawn_Without_A_Camera_Entity()
     {
         var (world, ecs) = Scene(camera: false);

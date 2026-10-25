@@ -265,7 +265,8 @@ Mesh entities reach the renderer the way `DrawModel` does. `MeshEntityDraws`, a 
 the first `Camera` entity without a render texture, for the window, and through each with one,
 for its texture, uploading a mesh's arrays to `MeshStore` the first time and copying its
 base color, normal and metallic-roughness textures from the asset store into `TextureStore` once
-loaded.
+loaded. An entity is drawn through its material's shader where the material names one, left out
+where its `Visible` is false, and drawn into the shadow maps alone where its `ShadowOnly` is true.
 
 The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass.
 

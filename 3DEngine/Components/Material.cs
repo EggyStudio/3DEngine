@@ -113,6 +113,19 @@ public struct Material : IEquatable<Material>
     public float SubsurfaceThickness;
 
     /// <summary>
+    /// A program's shader the entity is drawn with, as <c>DrawMesh</c> draws with a material's, or
+    /// the engine's own where it is default, as the constructors leave it.
+    /// </summary>
+    /// <remarks>
+    /// Its uniforms, textures and buffers are what <c>SetShaderValue</c> and its kin last set them to
+    /// before the frame's render stage, the same for every entity drawn with it that frame. An
+    /// entity drawn with one is recorded as a draw of its own rather than an instance of a group, and
+    /// the pass draws those of one mesh side by side as one batch. A scene file does not hold it,
+    /// since a shader's id is the running program's.
+    /// </remarks>
+    public Shader Shader;
+
+    /// <summary>
     /// White and opaque. A default <see cref="Material"/> has an albedo of zero, which is
     /// transparent black and draws nothing.
     /// </summary>
@@ -168,7 +181,7 @@ public struct Material : IEquatable<Material>
         && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
         && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided
         && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius
-        && SubsurfaceThickness == other.SubsurfaceThickness;
+        && SubsurfaceThickness == other.SubsurfaceThickness && Shader == other.Shader;
 
     /// <inheritdoc />
     public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);

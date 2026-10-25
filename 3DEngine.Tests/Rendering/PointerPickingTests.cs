@@ -155,6 +155,31 @@ public class PointerPickingTests
     }
 
     [Fact]
+    public void An_Indexed_Box_Is_Met_By_Its_Triangles_And_One_Hidden_Or_Drawn_Into_The_Shadows_Alone_Is_Not()
+    {
+        using var scene = new Scene();
+        Vector3[] c = [new(-1, -1, -1), new(1, -1, -1), new(1, 1, -1), new(-1, 1, -1), new(-1, -1, 1), new(1, -1, 1), new(1, 1, 1), new(-1, 1, 1)];
+        uint[] faces = [4, 5, 6, 4, 6, 7, 1, 0, 3, 1, 3, 2, 0, 4, 7, 0, 7, 3, 5, 1, 2, 5, 2, 6, 3, 7, 6, 3, 6, 2, 0, 1, 5, 0, 5, 4];
+        scene.Ecs.Add(scene.Box, new Mesh(c, faces));
+        Observe<Over>(scene, scene.Box, "box");
+        Observe<Out>(scene, scene.Box, "box");
+
+        scene.Frame(300, 200);
+        scene.Ecs.Add(scene.Box, new Visible(false));
+        scene.Frame(300, 200);
+        scene.Ecs.Add(scene.Box, new Visible(true));
+        scene.Frame(300, 200);
+        scene.Ecs.Add(scene.Box, new ShadowOnly(true));
+        scene.Frame(300, 200);
+
+        scene.Told.Should().Equal(
+            "box over at 0,0,1 facing 1 from 9",
+            "box out",
+            "box over at 0,0,1 facing 1 from 9",
+            "box out");
+    }
+
+    [Fact]
     public void Nothing_Is_Cast_Where_No_Camera_Asks_To_Pick()
     {
         using var scene = new Scene(picking: false);

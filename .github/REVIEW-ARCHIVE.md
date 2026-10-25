@@ -3611,6 +3611,15 @@ batch.
     2026-10-25, After, Before and the repeated InState through the generator with E3D009 for a wrong
     name, the departures in the head.
 
+113. **A behavior reads the mouse's wheel through its context.** From the voxel game's zoom key at
+    its `ce693af`, read at 00:02 on 2026-10-25, its ASKS.md entry in the engine's tree; a gap the
+    port finds comes to the engine first, Decision 68. BehaviorContext.Input keeps the wheel
+    internal, so the game's controller reads it through GetMouseWheelMove beside the context's keys
+    and mouse delta. The context's input gains the wheel's move as the window's input has it, the
+    cheat sheet's line and the guide's page following, a test stepping a behavior with a wheel move
+    queued. One commit, small, after item 110 and before 108's second phase. Done at `0cfc2843` on
+    2026-10-25, Input.MouseWheel beside MouseDelta with the test and the guide's zoom.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

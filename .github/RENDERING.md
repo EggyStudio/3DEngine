@@ -204,11 +204,16 @@ too. A draw with one is drawn by a pipeline made from it, and its uniforms, copi
 was recorded, reach it in a uniform buffer at binding 0 of the first descriptor set, where Slang
 puts uniforms declared at the top level, beside the texture at binding 1.
 
-A mesh entity is a `Mesh` (positions three per triangle, with optional normals and texture
-coordinates) and a `Material`. `MeshEntityDraws` uploads its arrays once, keyed by the positions
-array, frees them the first frame no entity draws them, and copies the material's base color,
-normal and metallic-roughness texture assets into `TextureStore`. A triangle without normals is
-lit by its face's normal.
+A mesh entity is a `Mesh` and a `Material`. The mesh is positions three per triangle, or vertices
+and the indices of their triangles, with optional normals and texture coordinates, or a mesh the
+program uploaded with streams of its own. `MeshEntityDraws` uploads the arrays once, keyed by the
+positions array, frees them the first frame no entity holds them, drawn or not, and copies the
+material's base color, normal and metallic-roughness texture assets into `TextureStore`. A
+triangle without normals is lit by its face's normal, and an indexed vertex by the mean of the
+faces it is a corner of. A material that names a program's shader is drawn as `DrawMesh` draws
+with one, a draw of its own, the shader's values copied once a frame for every entity drawn with
+it. An entity whose `Visible` is false is drawn nowhere, and one whose `ShadowOnly` is true is
+drawn into the shadow maps alone.
 
 A draw's maps are in its set, the first. Its base color texture, normal map, metallic-roughness
 map, emissive map and occlusion map are at bindings 1 to 5. Its factors are in its instance, its
