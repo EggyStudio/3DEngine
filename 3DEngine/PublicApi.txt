@@ -2921,8 +2921,10 @@ struct Engine.ParticleEmitter
   Color StartColor
   ParticleBlend Blend
   ParticleCollision Collision
+  ParticleFacing Facing
   Texture2D Texture
   Vector3 Gravity
+  Vector3 Normal
   Vector3 Velocity
   Vector3[]? Points
   bool BlendFrames
@@ -2956,6 +2958,10 @@ readonly struct Engine.ParticleEmitterHandle : IEquatable<ParticleEmitterHandle>
   static bool op_Equality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   static bool op_Inequality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   void Deconstruct(out Entity Entity)
+enum Engine.ParticleFacing : int
+  Camera = 0
+  Normal = 1
+  Velocity = 2
 sealed class Engine.Persistent<T>
   Persistent(string fileName, T? fallback, bool saveOnChange = false)
   T? Value { get; }

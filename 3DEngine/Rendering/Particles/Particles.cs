@@ -240,7 +240,7 @@ internal sealed class ParticleRenderer : IDisposable
             state.Born.SortedFrom = null;
             if (span > 0)
             {
-                device.RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, span);
+                device.RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, FacingOf(emitter), span);
                 Stepped += span;
                 // Laid over by alpha, they are sorted far to near from the window's camera, which the
                 // draw then reads them in, and again from a render texture's own before it is drawn
@@ -289,7 +289,7 @@ internal sealed class ParticleRenderer : IDisposable
         var count = state.Placed.Gpu.Capacity;
         ReadOnlySpan<Vector4> header = [Linear(emitter.StartColor), Linear(emitter.EndColor), Look(emitter), new Vector4(count, 0, count - 1, 0)];
         (state.Placed.Newest, state.Placed.Span) = (count - 1, count);
-        device.RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World);
+        device.RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World, FacingOf(emitter));
         if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Placed, Within(state.World, eye));
         else state.Placed.SortedFrom = null;
     }
@@ -308,6 +308,11 @@ internal sealed class ParticleRenderer : IDisposable
     // The eye in the space particles placed by placedBy are kept in, which they are sorted from.
     private static Vector3 Within(Matrix4x4 placedBy, Vector3 eye) =>
         placedBy.IsIdentity || !Matrix4x4.Invert(placedBy, out var inverse) ? eye : Vector3.Transform(eye, inverse);
+
+    // Which way an emitter's particles face, as the header's last value holds it, the normal in xyz,
+    // up where it is zero, and the facing in w.
+    private static Vector4 FacingOf(in ParticleEmitter emitter) =>
+        new(emitter.Normal == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(emitter.Normal), (float)emitter.Facing);
 
     // The sizes, the brightness and how an emitter's particles are drawn, as the header holds them.
     private static Vector4 Look(in ParticleEmitter emitter) =>

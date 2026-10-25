@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// An emitter of particles at its entity's place, as smoke, sparks or dust, a stream of small
-/// squares that face the camera, born at a rate, moving and falling, and changing size and color
+/// squares that face the camera, or a way of their own, born at a rate, moving and falling, and changing size and color
 /// over their lives, slowed by the air, simulated on the GPU and drawn into the window and render textures.
 /// </summary>
 /// <remarks>
@@ -92,6 +92,19 @@ public struct ParticleEmitter
 
     /// <summary>How it is laid over what is behind it.</summary>
     public ParticleBlend Blend;
+
+    /// <summary>Which way each particle's square faces, the camera unless set.</summary>
+    /// <remarks>
+    /// Facing <see cref="Normal"/> or its velocity, a particle's square lies across that way in the
+    /// space its particles are kept in, the world's or with <see cref="Local"/> the entity's, its
+    /// texture and a sheet's frames drawn on it as on one facing the camera, and lit as a surface
+    /// facing that way, from either side. A ring a raindrop leaves on water faces up, which a ring
+    /// facing the camera would stand up off the water to show.
+    /// </remarks>
+    public ParticleFacing Facing;
+
+    /// <summary>The way particles face where <see cref="Facing"/> is <see cref="ParticleFacing.Normal"/>, up where it is left zero.</summary>
+    public Vector3 Normal;
 
     /// <summary>
     /// An image each particle is drawn as, a puff of smoke or a flame, tinted by its color, in place

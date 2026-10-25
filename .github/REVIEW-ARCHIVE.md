@@ -3620,6 +3620,16 @@ batch.
     queued. One commit, small, after item 110 and before 108's second phase. Done at `0cfc2843` on
     2026-10-25, Input.MouseWheel beside MouseDelta with the test and the guide's zoom.
 
+114. **An empty emitter costs nothing.** From the voxel game's ambient particles at its `7443bdc` on
+    2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree. The engine steps, sorts and
+    draws every emitter to its full capacity whether or not a particle is alive, 20 fixed emitters
+    reading 3.5 ms of CPU and 2.1 of GPU with nothing alive, so the game makes emitters when a burst
+    needs one and unloads them once their particles die. The step, the sort and the draw take the
+    alive count, an emitter with none skipped and one with few costing its few; a test of 20 empty
+    emitters reading the step and the draw near 0 and a reading on the game's particle screen. One
+    commit, small, after item 108 and before 102. Done at `e746f98e` on 2026-10-25, the span counted
+    back from the newest slot, an empty emitter at nothing.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

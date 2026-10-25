@@ -334,7 +334,9 @@ behind a surface, as one passing behind a post, crosses nothing. On `shaders_par
 costs the graph about 0.03 ms of CPU and the GPU about 0.01 ms. The draw (`particles.slang`) imports
 the model pass, binds its material set with the emitter's texture as the base color, white without
 one, and the window's lights set as sets 0 and 1 and the particles as set 2, and draws six vertices
-an instance, a square facing the camera's eye that `eyeInWorld` finds from the view-projection, over
+an instance, a square facing the camera's eye that `eyeInWorld` finds from the view-projection, or
+the way the header's eighth value gives, the emitter's normal or the particle's velocity turned as
+the particle is placed, its normal turned toward the eye so it is lit from either side, over
 the window's scene decoded to linear light (§5) or after a target's meshes into the target, depth
 tested and not written, added or laid over by alpha. The square is a round dot, or the texture
 tinted where the emitter has one, whole or the frame of a sheet the share of the life gone picks,

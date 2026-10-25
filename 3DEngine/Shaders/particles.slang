@@ -1,4 +1,5 @@
-// Draws one emitter's particles as squares that face the camera, six vertices to an instance and
+// Draws one emitter's particles as squares that face the camera, or a way the emitter gives, the
+// header's eighth value, six vertices to an instance and
 // an instance to a particle, from the buffer particle_step.slang writes. A particle grows or
 // shrinks and changes color from birth to death by the share of its life gone, and is round, with
 // an edge that fades out, or the emitter's texture, the material's base color, tinted, whole or a
@@ -66,7 +67,15 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float4 eye = eyeInWorld(viewProjection);
     float4 placed = float4(positionAge.xyz, 1.0);
     float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed));
-    float3 facing = normalize(eye.w == 0.0 ? eye.xyz : eye.xyz - center);
+    float3 toward = normalize(eye.w == 0.0 ? eye.xyz : eye.xyz - center);
+    // The way the square faces, the camera's, or the emitter's normal or the particle's velocity in
+    // the space the particles are kept in, turned as they are placed, as the header's eighth value
+    // says in w, 1 for the normal in xyz and 2 for the velocity. A particle standing still faces
+    // the camera.
+    float4 facingOf = slots[7];
+    float3 way = facingOf.w > 1.5 ? velocityLife.xyz : facingOf.xyz;
+    way = float3(dot(slots[4].xyz, way), dot(slots[5].xyz, way), dot(slots[6].xyz, way));
+    float3 facing = facingOf.w > 0.5 && dot(way, way) > 1e-12 ? normalize(way) : toward;
     float3 right = cross(float3(0, 1, 0), facing);
     right = dot(right, right) > 1e-6 ? normalize(right) : float3(1, 0, 0);
     float3 up = cross(facing, right);
@@ -74,7 +83,8 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float2 corner = corners[vertex % 6];
     output.world = center + (right * corner.x + up * corner.y) * (size * 0.5);
     output.position = mul(viewProjection, float4(output.world, 1.0));
-    output.normal = facing;
+    // Lit from either side, as a surface drawn with both its faces is.
+    output.normal = dot(facing, toward) < 0.0 ? -facing : facing;
     // A texture's first row is its top. On a sheet the frame is the share of the life gone, left
     // to right and then down.
     output.uv = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);

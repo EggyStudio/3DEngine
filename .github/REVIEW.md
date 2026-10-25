@@ -10,61 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c71cdbea`, item 108's second phase, read at 02:22 on 2026-10-25, carrying the
-review's files. A material naming a program's shader with a fragment stage is recorded as a draw of
-its own as DrawMesh's is, since the pass's groups take the engine's shader alone, its uniforms and
-textures copied once a frame for every entity drawn with it from the app whose ShaderStore gave the
-id, the shared copy letting the pass batch entities of one mesh, Material.Equals comparing the
-shader and a scene file leaving it out as a runtime handle; Visible and ShadowOnly are scene
-component structs holding a bool the flood writes in place, in the chunks' touched checks and the
-kept counts, Visible false drawing nowhere with the mesh kept and the look dropped so motion blur
-skips it, ShadowOnly true joining the look key and the group key and setting the draw's ShadowOnly;
-entities.drawn in the profile counts the entities recorded before any camera's frustum; picking
-meets an indexed mesh by its indices' triangles and passes hidden and shadow-only entities by.
-Departures, the looks' half of MeshEntityDraws moved to its own file for N 1.3, RENDERING.md's mesh
-entity paragraph rewritten and ARCHITECTURE.md gaining a sentence. MeshEntityShaderTests, two
-entities sharing one copy of a shader's values, kept chunks taking later values and a material
-without the shader returning to a group, the hidden and shadow-only entities with the profile value,
-and the indexed, hidden and shadow-only box in picking. The strict build clean, 2,094 plain and
-shuffled on the GPU, 33 tests on lavapipe with validation. Held with `0cfc2843` until the build run
-of `31d1fcb6` ends, then pushed. After `0cfc2843`, item 113, the wheel in a behavior's input, read
-at 01:58 on 2026-10-25, carrying the review's files and ASKS.md. Input.MouseWheel gives the wheel's
-turn this frame as GetMouseWheelMoveV gives it, public beside MouseDelta so a context's input
-carries it; AppSteppingTests steps a system reading it with a turn queued by the synthetic input.
-Departures, Input's doc example called internal members and uses MouseDelta and MouseWheel, the
-cheat sheet gains a paragraph naming what the context's input holds, and the input guide's ECS
-section a zoom by the wheel. The strict build clean, 2,091 plain and shuffled on the GPU, the input
-guide's 12 blocks building on the package. Held until the build run of `31d1fcb6` ends, then pushed.
-After `31d1fcb6`, item 110, a behavior's order and states, read at 01:29 on 2026-10-25, carrying the
-review's files, ASKS.md and SHARED.md. After and Before, a behavior's method by type and name or a
-system's name, reach the descriptor's After and Before, and a method may carry InState more than
-once meaning all of them; GeneratorAttributeTests gains three behaviors added A, B and C running C,
-B, A and a method gated on two states running only while both hold, each attribute with a coverage
-case and three E3D009 cases for a missing method, a method with no stage and a type that is no
-behavior. Departures, E3D009 reports an After or Before whose type and method name no behavior's
-stage method, a name given as a string checked when the app starts as AddSystem's are; the guide's
-naming text corrected to the generator's Spin_Generated_Update_Turn; ARCHITECTURE.md gains E3D009,
-the order attributes, the repeated InState and E3D006's present wording. The strict build clean,
-2,090 plain and shuffled on the GPU, the guide's 18 blocks building on the package; a full lavapipe
-run ran out of its 40 minutes in the Rendering group with the global illumination tests at 20 to 90
-s each on the CPU, the limit and not a hang, nothing in the item drawing. Pushed at 01:34 on
-2026-10-25 after the build run of `8ae947ee` went green whole, the run watched. Item 96 begins with
-a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
-per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
-window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
-over the window's depth with a two by two depth and normal read, as the glow pass has. Next 108, the
-mesh entity as a game's section, then 114 to 116, the particles' gaps, then 117, the grouping index,
-the ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes'
-one switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the
-field's foliage share, then 111, the shadow's penumbra, then 112, the planar reflection, then 93,
-the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
-light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
-acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `e746f98e`, item 114, an empty emitter costing nothing, read at 02:01 on 2026-10-25,
+carrying ASKS.md and REVIEW.md. The particle step, sort and draw take only the slots that may hold a
+live particle, counted back from the newest, and an emitter whose particles have all died records
+nothing; the CPU keeps each emitter's birth runs with the time by which the longest life of each is
+over, dropping a run once the step's clock passes it, the step's threads walking back from the
+newest slot so a dispatch of the span meets every particle alive with no push value needed, random
+numbers still seeded by slot, the step writing the newest slot into the header for the unsorted draw
+and the sort keying the span alone padded to a power of two, empty emitters leaving the drawn set
+unless they hold placed points. The test steps and draws 0 slots for 20 empty emitters of 10,000,
+400 for a burst and 0 after its longest life; a scratch program with the game's twenty emitters laid
+over by alpha and none emitting reads 0.027 ms of CPU and 0.000 of GPU where the package read 0.19
+and 0.26, RENDERING.md carrying the numbers. The strict build clean, 2,095 plain and shuffled on the
+GPU, 57 tests on lavapipe with validation, the particles' reference frame unchanged. The three
+pushed at 02:07 on 2026-10-25 after the build run of `31d1fcb6` went green whole, the run watched.
+Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
+part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
+registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
+half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
+has. Next 108, the mesh entity as a game's section, then 115 and 116, the particles' gaps, then 117,
+the grouping index, the ECS gaps the game's drops found, then 102, the far cascade's slab, then 103,
+the screen probes' one switch, then 96, the scene pass's read of the cascades and the shadow fill,
+then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the planar
+reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the
+ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then item 89,
+the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling`
+was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
-Before it, `8ae947ee` came, item 109 with `342fed10`, Verdict 88's mend, pushed at 00:16 on
-2026-10-25, its build run green whole at 01:30, Windows in 74 minutes under the new limit, Linux in
-58 and macOS in 28, Verdict 88 settled on it.
+Before it, `31d1fcb6` came, item 110, pushed at 01:34 on 2026-10-25, its build run green whole at
+02:02 after the clocks went back, Windows in 88 minutes, Linux in 57 and macOS in 33.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1102,15 +1076,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-114. **An empty emitter costs nothing.** From the voxel game's ambient particles at its `7443bdc` on
-    2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree. The engine steps, sorts and
-    draws every emitter to its full capacity whether or not a particle is alive, 20 fixed emitters
-    reading 3.5 ms of CPU and 2.1 of GPU with nothing alive, so the game makes emitters when a burst
-    needs one and unloads them once their particles die. The step, the sort and the draw take the
-    alive count, an emitter with none skipped and one with few costing its few; a test of 20 empty
-    emitters reading the step and the draw near 0 and a reading on the game's particle screen. One
-    commit, small, after item 108 and before 102.
 
 115. **A particle can face a set direction rather than the camera.** From the voxel game's ambient
     particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.

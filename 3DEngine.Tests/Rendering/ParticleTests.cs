@@ -31,15 +31,15 @@ public sealed class ParticleTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
-    // Draws frames in 3D mode, the last of them captured.
-    private Image Capture(int frames, Action? draw = null)
+    // Draws frames in 3D mode, through the test's camera or another, the last of them captured.
+    private Image Capture(int frames, Action? draw = null, Camera3D? camera = null)
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < frames + 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();
             ClearBackground(Color.Black);
-            BeginMode3D(_camera);
+            BeginMode3D(camera ?? _camera);
             draw?.Invoke();
             EndMode3D();
             if (frame == frames - 1) TakeScreenshot(path);
@@ -103,6 +103,39 @@ public sealed class ParticleTests : IDisposable
         // The longest life is three quarters of a second, 45 frames, after which none is left.
         Capture(50);
         (particles.Stepped, particles.Drawn).Should().Be((0, 0), "the burst's particles died");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Particle_Facing_Up_Lies_Flat_Seen_From_Above_And_Not_Edge_On_Where_One_Facing_The_Camera_Is_Seen_From_Both()
+    {
+        Open();
+        var above = new Camera3D(new Vector3(0, 6, 0), Vector3.Zero, new Vector3(0, 0, -1), 45);
+        // One large dot at the middle, the test's own camera level with it and so edge-on to a flat one.
+        (int Above, int EdgeOn) Seen(ParticleEmitter settings)
+        {
+            var emitter = CreateParticleEmitter(Vector3.Zero, Cloud(new Color(255, 40, 20)) with
+            {
+                MaxParticles = 1, Radius = 0, StartSize = 1.5f, EndSize = 1.5f,
+                Facing = settings.Facing, Normal = settings.Normal, Velocity = settings.Velocity, Spread = 0, SpeedVariation = 0,
+            });
+            EmitParticles(emitter, 1);
+            var seen = (Sum(GetImageColor(Capture(3, camera: above), 80, 60)), Sum(GetImageColor(Capture(1), 80, 60)));
+            UnloadParticleEmitter(emitter);
+            return seen;
+        }
+
+        var camera = Seen(default);
+        camera.Above.Should().BeGreaterThan(200, "a dot facing the camera is seen from above");
+        camera.EdgeOn.Should().BeGreaterThan(200, "and from beside it");
+
+        var flat = Seen(new ParticleEmitter { Facing = ParticleFacing.Normal, Normal = Vector3.UnitY });
+        flat.Above.Should().BeCloseTo(camera.Above, 30, "a dot facing up is seen whole from above");
+        flat.EdgeOn.Should().BeLessThan(30, "and edge-on from beside it, where it covers nothing");
+
+        // Rising too slowly to leave the middle in the frames drawn, one facing its velocity faces up.
+        var rising = Seen(new ParticleEmitter { Facing = ParticleFacing.Velocity, Velocity = new Vector3(0, 0.001f, 0) });
+        rising.Above.Should().BeCloseTo(camera.Above, 30);
+        rising.EdgeOn.Should().BeLessThan(30);
     }
 
     [NeedsVulkanFact]

@@ -286,6 +286,32 @@ drawn frame by frame is. With `BlendFrames` set each frame blends into the next 
 the life, so smoke rolling through a few frames turns smoothly. A texture is the program's, loaded
 with `LoadTexture`, so a scene file does not hold it.
 
+A particle faces the camera unless its emitter says otherwise. `Facing` set to
+`ParticleFacing.Normal` lays each square across the emitter's `Normal`, up where it is left zero,
+so the rings a raindrop leaves on water lie on it and are seen edge-on from beside it, and
+`ParticleFacing.Velocity` faces each the way it moves, as a shock wave's ring does. Either is lit
+from both sides:
+
+<!-- compiled with:
+Vector3 pond = default;
+Texture2D ring = default;
+-->
+```csharp
+var ripples = CreateParticleEmitter(pond, ParticleEmitter.Default with
+{
+    Emitting = false,
+    Velocity = Vector3.Zero,
+    Gravity = Vector3.Zero,
+    Life = 0.8f,
+    StartSize = 0.1f,
+    EndSize = 0.6f,
+    Blend = ParticleBlend.Alpha,
+    Texture = ring,
+    Facing = ParticleFacing.Normal,
+    Normal = Vector3.UnitY,
+});
+```
+
 `Collision` has the particles bounce off the scene, keeping `Bounce` of their speed into a
 surface, or end their lives where they meet it. They meet the depth of the window's meshes that
 cast shadows, drawn at half its size through its camera before they are stepped, so what the window

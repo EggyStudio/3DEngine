@@ -1079,7 +1079,8 @@ void UnloadParticleEmitter(ParticleEmitterHandle emitter);  // Removes an emitte
 
 A `ParticleEmitter` holds the rate, the life, the velocity and the cone it is spread over, gravity,
 drag, the size and color at birth and at death, how bright an unlit one is, whether lights light
-it, whether it adds its light or is laid over by alpha, and a texture each particle is drawn as in
+it, whether it adds its light or is laid over by alpha, which way it faces, the camera, a normal
+as up for a ripple, or the way it moves, and a texture each particle is drawn as in
 place of a round dot, whole or as a sheet of frames played through over its life, cut or blended
 from one to the next, and whether they bounce off or end at the scene the window shows. Its particles
 are stepped by a compute shader and drawn after the window's meshes through its camera, and into

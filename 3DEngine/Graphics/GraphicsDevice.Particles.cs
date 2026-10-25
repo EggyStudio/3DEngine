@@ -11,8 +11,8 @@ namespace Engine;
 /// <remarks>
 /// The buffer starts with a header of eight float4 values, four the dispatch writes from its push
 /// constants, what the draw reads of the emitter, the fourth with the newest particle's slot, then
-/// three rows of the matrix the draw places the particles by and one unread, which the recording
-/// writes before the dispatch. It then holds a
+/// three rows of the matrix the draw places the particles by and the way they face, which the
+/// recording writes before the dispatch. It then holds a
 /// particle in two float4 values each, its position and age, and its velocity and life, a particle
 /// with no life being dead.
 /// After the particles are <see cref="SortKeys"/> float4 values, the keys an emitter laid over by
@@ -296,13 +296,15 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Records into <paramref name="commands"/>, outside any render pass, the dispatch that steps
     /// <paramref name="particles"/> and starts the new ones <paramref name="step"/> asks for, the
-    /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world.
+    /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world, and
+    /// facing as <paramref name="facing"/> says, the normal in xyz and the facing in w.
     /// </summary>
     /// <remarks>
     /// The dispatch covers the <paramref name="span"/> slots back from the newest particle, the new
     /// ones among them, which the caller knows hold every particle that may be alive.
     /// </remarks>
-    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, System.Numerics.Matrix4x4 placedBy, int span)
+    public void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, System.Numerics.Matrix4x4 placedBy,
+        System.Numerics.Vector4 facing, int span)
     {
         if (commands is not VulkanCommandBuffer vkCommands || !CanStepParticles) return;
         var cmd = vkCommands.Handle;
@@ -310,7 +312,7 @@ internal sealed unsafe partial class GraphicsDevice
         // Earlier frames have finished drawing the particles about to be moved, and the matrix the
         // draw places them by is written for this frame's.
         Span<System.Numerics.Vector4> rows = stackalloc System.Numerics.Vector4[4];
-        Rows(placedBy, rows);
+        Rows(placedBy, facing, rows);
         WriteHeader(cmd, particles, rows, GpuParticles.PlacedBy);
 
         var sets = stackalloc VkDescriptorSet[2];
@@ -331,26 +333,26 @@ internal sealed unsafe partial class GraphicsDevice
     /// Records into <paramref name="commands"/>, outside any render pass, the header of
     /// <paramref name="particles"/> that no dispatch steps, the particles a program placed, as the
     /// step writes an emitter's own, its first four values and then the rows of the matrix the draw
-    /// places them by.
+    /// places them by and the way they face.
     /// </summary>
     public void RecordParticleHeader(ICommandBuffer commands, GpuParticles particles, ReadOnlySpan<System.Numerics.Vector4> look,
-        System.Numerics.Matrix4x4 placedBy)
+        System.Numerics.Matrix4x4 placedBy, System.Numerics.Vector4 facing)
     {
         if (commands is not VulkanCommandBuffer vkCommands) return;
         Span<System.Numerics.Vector4> header = stackalloc System.Numerics.Vector4[GpuParticles.HeaderBytes / 16];
         look[..GpuParticles.PlacedBy].CopyTo(header);
-        Rows(placedBy, header[GpuParticles.PlacedBy..]);
+        Rows(placedBy, facing, header[GpuParticles.PlacedBy..]);
         WriteHeader(vkCommands.Handle, particles, header, 0);
     }
 
     // The three rows of a matrix that take a point to where it is placed, as System.Numerics lays a
-    // matrix out for a row vector, each with the translation last, and a fourth unread.
-    private static void Rows(System.Numerics.Matrix4x4 m, Span<System.Numerics.Vector4> rows)
+    // matrix out for a row vector, each with the translation last, and then the way the particles face.
+    private static void Rows(System.Numerics.Matrix4x4 m, System.Numerics.Vector4 facing, Span<System.Numerics.Vector4> rows)
     {
         rows[0] = new System.Numerics.Vector4(m.M11, m.M21, m.M31, m.M41);
         rows[1] = new System.Numerics.Vector4(m.M12, m.M22, m.M32, m.M42);
         rows[2] = new System.Numerics.Vector4(m.M13, m.M23, m.M33, m.M43);
-        rows[3] = System.Numerics.Vector4.Zero;
+        rows[3] = facing;
     }
 
     // Writes values of the header from the first given on, once the frames before have finished
