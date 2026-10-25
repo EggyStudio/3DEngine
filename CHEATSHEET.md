@@ -1202,6 +1202,9 @@ bool IsSoundPlaying(Sound sound);                        // Whether a sound is p
 void SetSoundVolume(Sound sound, float volume);          // Sets a sound's volume, from 0 to 1, for this play and the next
 void SetSoundPitch(Sound sound, float pitch);            // Sets a sound's pitch as a speed, where 1 is as recorded, for this play and the next
 void SetSoundPan(Sound sound, float pan);                // Sets a sound's balance, as raylib's -1 (left) to 1 (right) with 0 in the middle, for this play and the next
+void SetSoundLowPass(Sound sound, float cutoff);         // Muffles a sound above a frequency in hertz, as one heard through a wall is, or not at all for 0, for this play and the next
+void SetSoundReverb(Sound sound, float share);           // Sends a share of a sound, from 0 for none to 1, through the room's reverb, for this play and the next
+void SetAudioReverb(float size, float decay);            // Sets the room every sound's reverb sounds, its size in world units, which its echoes' delays grow with, and the seconds its sound takes to fall by sixty decibels
 
 Music LoadMusicStream(string fileName);                  // Opens a WAV, Ogg Vorbis, MP3, FLAC, XM or MOD file as music, which streams from the file as it plays
 Music LoadMusicStreamFromMemory(string fileType, byte[] data);  // Opens a music file already in memory, by its type, as ".ogg", streamed from the bytes as it plays as one from a file is, as a game whose music comes from a pack file needs

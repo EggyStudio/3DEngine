@@ -7,9 +7,9 @@ namespace Engine;
 
 /// <summary>
 /// <see cref="IAudioBackend"/> backed by SDL3's audio subsystem (<c>SDL_audio.h</c>)
-/// via the <c>SDL3-CS</c> managed bindings. Each <see cref="Sound"/> is uploaded as
-/// the body of an <c>SDL_AudioStream</c>; SDL handles per-stream resampling /
-/// channel-mapping and mixes any number of streams bound to the playback device.
+/// via the <c>SDL3-CS</c> managed bindings. Each voice of a <see cref="Sound"/> is an
+/// <c>SDL_AudioStream</c> fed from its samples as the device asks, through the voice's low-pass
+/// and reverb and panned; SDL resamples each stream and mixes any number bound to the device.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -23,16 +23,13 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Voice model:</b> one <c>SDL_AudioStream</c> per voice, bound to the single
-/// logical playback device opened during <see cref="Initialize"/>. SDL converts each
-/// stream's source format (mono / stereo, native sample rate) to the device's mix
-/// format as it plays. The <see cref="AudioServer"/>'s int voice id maps to the stream
-/// pointer through an internal table; <c>0</c> always means "invalid".
-/// </para>
-/// <para>
-/// <b>Looping:</b> SDL streams are play-once queues; looping is implemented by
-/// re-queueing the source samples from <see cref="Update"/> whenever the stream's
-/// remaining queued bytes drop below one buffer's worth. This is the same pattern
-/// SDL's own examples recommend for short looped SFX.
+/// logical playback device opened during <see cref="Initialize"/>. A sound's voice is a stereo
+/// stream at the sound's rate, which SDL's get callback asks for a block at a time, and which the
+/// voice's feed fills from the samples, wrapping for a loop, through the voice's low-pass and
+/// reverb, with its pan applied, and then with the room's tail, so the effects and the balance
+/// change as it plays. SDL converts it to the device's mix format. The
+/// <see cref="AudioServer"/>'s int voice id maps to the stream pointer through an internal
+/// table; <c>0</c> always means "invalid".
 /// </para>
 /// <para>
 /// <b>No device:</b> where no audio device opens, as on a machine with none or a runner, sound
@@ -68,13 +65,10 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         else Logger.Info(message + " As before in this process.");
     }
 
-    /// <summary>One queued buffer worth of float samples we try to keep in flight per looped voice.</summary>
-    private const int LoopRefillBytesThreshold = 4 * 4096;
-
     /// <summary>
-    /// Output channel maps used to implement per-voice constant-power panning. SDL3 has
-    /// no per-channel gain on a single stream, so each spatial voice owns two streams
-    /// bound to the device:
+    /// Output channel maps used to implement constant-power panning of a stream voice, whose
+    /// samples its owner queues. SDL3 has no per-channel gain on a single stream, so a pannable
+    /// stream voice owns two streams bound to the device:
     /// <list type="bullet">
     ///   <item><description><see cref="LeftOnlyMap"/> = <c>{0, -1}</c>, the L stream, which
     ///   plays its source on the device's left channel and is silent on the right.</description></item>
@@ -89,7 +83,6 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
 
     private readonly object _lock = new();
     private readonly Dictionary<int, VoiceRecord> _voices = new();
-    private readonly Dictionary<Sound, PinEntry> _samplePins = new();
     private uint _device;
     private SDL.AudioSpec _deviceSpec;
     private bool _initialized;
@@ -234,90 +227,19 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     {
         if (!_initialized || sound is null) return 0;
         if (sound.Samples.Length == 0 || sound.Channels <= 0 || sound.SampleRate <= 0) return 0;
-
-        var srcSpec = new SDL.AudioSpec
-        {
-            Format = SDL.AudioFormat.AudioF32LE,
-            Channels = sound.Channels,
-            Freq = sound.SampleRate,
-        };
-        // Spatial voices need a forced-stereo destination so the L/R channel-map split
-        // works regardless of the actual hardware layout. Non-spatial voices follow the
-        // device spec directly (no panning required).
-        // A pannable voice takes the same two streams, so its balance can be set as a positional one's is.
-        bool spatial = parameters.Position is not null || parameters.Pannable;
-        var dstSpec = spatial
-            ? new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = 2, Freq = _deviceSpec.Freq }
-            : _deviceSpec;
-
         lock (_lock)
         {
-            // Pin the float[] so SDL can read directly from managed memory. Pin entries
-            // are reference-counted. Every voice playing this Sound bumps RefCount, StopVoice,
-            // the reaping in Update and Dispose decrement it, and the pin is freed at zero
-            // so unloaded Sounds don't leave their sample buffers pinned forever.
-            if (!_samplePins.TryGetValue(sound, out var pin))
-            {
-                pin = new PinEntry(GCHandle.Alloc(sound.Samples, GCHandleType.Pinned));
-                _samplePins[sound] = pin;
-            }
-            int byteCount = sound.Samples.Length * sizeof(float);
-
-            IntPtr streamL = CreateAndQueueStream(in srcSpec, in dstSpec, pin.Handle, byteCount, sound.SourcePath);
-            if (streamL == IntPtr.Zero)
-            {
-                ReleasePin(sound); // Never consumed, so a pin made fresh for it is dropped.
-                return 0;
-            }
-
-            IntPtr streamR = IntPtr.Zero;
-            if (spatial)
-            {
-                streamR = CreateAndQueueStream(in srcSpec, in dstSpec, pin.Handle, byteCount, sound.SourcePath);
-                if (streamR == IntPtr.Zero)
-                {
-                    SDL.DestroyAudioStream(streamL);
-                    ReleasePin(sound);
-                    return 0;
-                }
-                // Route each stream to a single device channel; pan is then a pure gain split.
-                // SDL3-CS returns SDL's bool here as an nint, 0 for failure.
-                if (SDL.SetAudioStreamOutputChannelMap(streamL, LeftOnlyMap, LeftOnlyMap.Length) == 0)
-                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(L) failed. {SDL.GetError()}");
-                if (SDL.SetAudioStreamOutputChannelMap(streamR, RightOnlyMap, RightOnlyMap.Length) == 0)
-                    Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(R) failed. {SDL.GetError()}");
-            }
-
-            // The pin is now held by the streams made above, and the count rises by one, since
-            // a voice is one reference whether it has one stream or two, which share the
-            // sample buffer and its lifetime.
-            pin.RefCount++;
-
+            var (stream, feed) = CreateFedStream(sound, parameters);
+            if (feed is null) return 0;
+            // Its gain and rate are set before it is bound, so its first block plays at them.
             float vol = parameters.Volume;
-            // Pan defaults to 0 (center) -> equal-power split = sqrt(0.5) on each side.
-            float pan = parameters.Pannable ? Math.Clamp(parameters.Pan, -1f, 1f) : 0f;
-            ApplyGainAndPan(streamL, streamR, vol, pan);
-
+            SDL.SetAudioStreamGain(stream, vol);
             float rate = parameters.PlaybackRate;
-            if (rate > 0f && Math.Abs(rate - 1f) > 1e-6f)
-            {
-                ApplyPlaybackRate(streamL, rate);
-                if (streamR != IntPtr.Zero) ApplyPlaybackRate(streamR, rate);
-            }
-
-            if (parameters.Paused)
-            {
-                SDL.UnbindAudioStream(streamL);
-                if (streamR != IntPtr.Zero) SDL.UnbindAudioStream(streamR);
-            }
-
-            // A stream that resamples holds its last frames back for the frames after them, which a
-            // voice played once never gives it, so it is flushed to give them up and drain. A 44.1 kHz
-            // footstep on a 48 kHz device never ended, on a device or the dummy driver alike.
-            if (!parameters.Looping) Flush(streamL, streamR);
-
+            if (rate > 0f && Math.Abs(rate - 1f) > 1e-6f) ApplyPlaybackRate(stream, rate);
             int id = _nextVoiceId++;
-            _voices[id] = new VoiceRecord(streamL, streamR, sound, parameters.Looping, parameters.Paused, vol, pan);
+            var rec = new VoiceRecord(stream, IntPtr.Zero, sound, parameters.Looping, parameters.Paused, vol, feed.Pan, Feed: feed);
+            _voices[id] = rec;
+            if (!parameters.Paused) SetBound(rec, bound: true);
             return id;
         }
     }
@@ -410,35 +332,6 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         }
     }
 
-    /// <summary>
-    /// Helper: creates a stream, binds it to the playback device, and queues the
-    /// initial body. Returns <see cref="IntPtr.Zero"/> on any failure (with a logged
-    /// warning).
-    /// </summary>
-    private IntPtr CreateAndQueueStream(in SDL.AudioSpec srcSpec, in SDL.AudioSpec dstSpec,
-        GCHandle pin, int byteCount, string sourcePath)
-    {
-        var stream = SDL.CreateAudioStream(in srcSpec, in dstSpec);
-        if (stream == IntPtr.Zero)
-        {
-            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for '{sourcePath}'. {SDL.GetError()}");
-            return IntPtr.Zero;
-        }
-        if (!SDL.BindAudioStream(_device, stream))
-        {
-            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for '{sourcePath}'. {SDL.GetError()}");
-            SDL.DestroyAudioStream(stream);
-            return IntPtr.Zero;
-        }
-        if (!SDL.PutAudioStreamData(stream, pin.AddrOfPinnedObject(), byteCount))
-        {
-            Logger.Warn($"SdlAudioBackend: PutAudioStreamData failed for '{sourcePath}'. {SDL.GetError()}");
-            SDL.DestroyAudioStream(stream);
-            return IntPtr.Zero;
-        }
-        return stream;
-    }
-
     /// <inheritdoc />
     public void StopVoice(int voiceId)
     {
@@ -446,9 +339,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         lock (_lock)
         {
             if (!_voices.Remove(voiceId, out var rec)) return;
-            SDL.DestroyAudioStream(rec.StreamL); // also unbinds from the device
-            if (rec.StreamR != IntPtr.Zero) SDL.DestroyAudioStream(rec.StreamR);
-            ReleasePin(rec.Sound);
+            Destroy(rec);
         }
     }
 
@@ -462,8 +353,9 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             // A paused voice is not mixing, whatever it has queued.
             if (rec.Paused) return false;
             // Loop voices are always "playing" until explicitly stopped, and so are stream
-            // voices, which their owner feeds and stops.
-            if (rec.Looping || rec.Channels != 0) return true;
+            // voices, which their owner feeds and stops, and a sound's voice whose feed has not
+            // given its samples and tail.
+            if (rec.Looping || rec.Channels != 0 || rec.Feed is { Ended: false }) return true;
             int queued = SDL.GetAudioStreamQueued(rec.StreamL);
             int avail = SDL.GetAudioStreamAvailable(rec.StreamL);
             if (queued > 0 || avail > 0) return true;
@@ -507,15 +399,10 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         {
             if (!_voices.TryGetValue(voiceId, out var rec)) return;
             _voices[voiceId] = rec with { Looping = looping };
-            // The last samples a looping voice was given are its end once it loops no more.
-            if (rec.Looping && !looping && rec.Channels == 0) Flush(rec.StreamL, rec.StreamR);
+            // A loop let go plays to the end of its samples, its tail and the frames its
+            // resampling holds back, which the feed flushes as it ends.
+            if (rec.Feed is { } feed) feed.Looping = looping;
         }
-    }
-
-    private static void Flush(IntPtr streamL, IntPtr streamR)
-    {
-        SDL.FlushAudioStream(streamL);
-        if (streamR != IntPtr.Zero) SDL.FlushAudioStream(streamR);
     }
 
     /// <inheritdoc />
@@ -554,6 +441,13 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         lock (_lock)
         {
             if (!_voices.TryGetValue(voiceId, out var rec)) return;
+            // A sound's voice is panned as it is fed, where it was made pannable or positional.
+            if (rec.Feed is { } feed)
+            {
+                if (feed.Panned) feed.Pan = pan;
+                _voices[voiceId] = rec with { Pan = pan };
+                return;
+            }
             if (rec.StreamR == IntPtr.Zero) return; // non-spatial voice: no pan support.
             rec = rec with { Pan = pan };
             _voices[voiceId] = rec;
@@ -589,7 +483,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             if (stream == IntPtr.Zero) continue;
             if (!bound) SDL.UnbindAudioStream(stream);
             else if (!SDL.BindAudioStream(_device, stream))
-                Logger.Warn($"SdlAudioBackend: BindAudioStream failed resuming a voice. {SDL.GetError()}");
+                Logger.Warn($"SdlAudioBackend: BindAudioStream failed putting a voice on the device. {SDL.GetError()}");
         }
     }
 
@@ -619,62 +513,29 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         if (!_initialized) return;
         lock (_lock)
         {
-            // 1) Refill loop voices that are about to drain (per stream).
-            // 2) Reap one-shot voices whose stream(s) have been fully consumed.
+            // A sound's voice played once is let go once its feed has ended and its stream has
+            // drained. A loop's feed wraps, and a stream voice is fed by its owner until stopped.
             List<int>? toRemove = null;
             foreach (var (id, rec) in _voices)
-            {
-                if (rec.Channels != 0)
-                {
-                    // A stream voice is fed by its owner and lives until it is stopped.
-                }
-                else if (rec.Looping)
-                {
-                    RefillIfDraining(rec.StreamL, rec.Sound!);
-                    if (rec.StreamR != IntPtr.Zero) RefillIfDraining(rec.StreamR, rec.Sound!);
-                }
-                else if (StreamFullyConsumed(rec.StreamL) &&
-                         (rec.StreamR == IntPtr.Zero || StreamFullyConsumed(rec.StreamR)))
-                {
+                if (rec.Feed is { Ended: true } && StreamFullyConsumed(rec.StreamL))
                     (toRemove ??= new()).Add(id);
-                }
-            }
             if (toRemove is { } list)
-            {
                 foreach (var id in list)
-                {
                     if (_voices.Remove(id, out var rec))
-                    {
-                        SDL.DestroyAudioStream(rec.StreamL);
-                        if (rec.StreamR != IntPtr.Zero) SDL.DestroyAudioStream(rec.StreamR);
-                        ReleasePin(rec.Sound);
-                    }
-                }
-            }
+                        Destroy(rec);
         }
     }
 
-    private void RefillIfDraining(IntPtr stream, Sound sound)
+    // Destroys a voice's streams, a fed one's handle freed after SDL lets go of its stream.
+    private static void Destroy(VoiceRecord rec)
     {
-        int queued = SDL.GetAudioStreamQueued(stream);
-        if (queued >= LoopRefillBytesThreshold) return;
-        if (!_samplePins.TryGetValue(sound, out var pin)) return;
-        int byteCount = sound.Samples.Length * sizeof(float);
-        SDL.PutAudioStreamData(stream, pin.Handle.AddrOfPinnedObject(), byteCount);
-    }
-
-    /// <summary>
-    /// Decrements the refcount on the pin shared by every voice playing
-    /// <paramref name="sound"/>. When the last voice releases it, the pin is freed and
-    /// the entry removed, so a sound that is unloaded, or not played again, stops holding
-    /// its sample buffer pinned in managed memory.
-    /// </summary>
-    private void ReleasePin(Sound? sound)
-    {
-        if (sound is null || !_samplePins.TryGetValue(sound, out var pin)) return;
-        if (--pin.RefCount > 0) return;
-        if (pin.Handle.IsAllocated) pin.Handle.Free();
-        _samplePins.Remove(sound);
+        if (rec.Feed is { } feed)
+        {
+            Release(rec.StreamL, feed);
+            return;
+        }
+        SDL.DestroyAudioStream(rec.StreamL); // also unbinds from the device
+        if (rec.StreamR != IntPtr.Zero) SDL.DestroyAudioStream(rec.StreamR);
     }
 
     /// <summary>
@@ -698,15 +559,8 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         _disposed = true;
         lock (_lock)
         {
-            foreach (var rec in _voices.Values)
-            {
-                SDL.DestroyAudioStream(rec.StreamL);
-                if (rec.StreamR != IntPtr.Zero) SDL.DestroyAudioStream(rec.StreamR);
-            }
+            foreach (var rec in _voices.Values) Destroy(rec);
             _voices.Clear();
-            foreach (var pin in _samplePins.Values)
-                if (pin.Handle.IsAllocated) pin.Handle.Free();
-            _samplePins.Clear();
 
             if (_postmixHandle.IsAllocated) StopPostmix();
             if (_initialized && _device != 0) SDL.CloseAudioDevice(_device);
@@ -721,14 +575,12 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     }
 
     /// <summary>
-    /// Per-voice record. Spatial voices have two streams bound to the device, each
-    /// channel-mapped to a single output channel (L or R) so a constant-power pan can
-    /// be implemented with two independent <see cref="SDL.SetAudioStreamGain"/> calls.
-    /// Non-spatial voices leave <see cref="StreamR"/> as <see cref="IntPtr.Zero"/>;
-    /// <see cref="Pan"/> is then ignored. <see cref="Sound"/> is retained so loop
-    /// refills can find the original sample buffer without re-querying ECS / AssetServer.
-    /// A stream voice has no <see cref="Sound"/> and records its <see cref="Channels"/>, which
-    /// are 0 for every other voice.
+    /// Per-voice record. A sound's voice is one stream its <see cref="Feed"/> fills, which keeps
+    /// the voice's effects and balance. A pannable stream voice has two streams bound to the
+    /// device, each channel-mapped to a single output channel (L or R) so a constant-power pan is
+    /// two independent <see cref="SDL.SetAudioStreamGain"/> calls, and one that is not leaves
+    /// <see cref="StreamR"/> as <see cref="IntPtr.Zero"/>. A stream voice has no <see cref="Sound"/>
+    /// and records its <see cref="Channels"/>, which are 0 for a sound's voice.
     /// </summary>
     private sealed record VoiceRecord(
         IntPtr StreamL,
@@ -738,16 +590,6 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
         bool Paused,
         float Volume,
         float Pan,
-        int Channels = 0);
-
-    /// <summary>
-    /// Mutable refcounted holder for a pinned sample buffer. <see cref="RefCount"/>
-    /// counts the number of live voices (not streams) that still reference the pin;
-    /// the pin is freed and the entry removed once the last voice releases it.
-    /// </summary>
-    private sealed class PinEntry(GCHandle handle)
-    {
-        public GCHandle Handle = handle;
-        public int RefCount;
-    }
+        int Channels = 0,
+        VoiceFeed? Feed = null);
 }

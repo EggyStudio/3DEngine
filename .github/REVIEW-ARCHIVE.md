@@ -3667,6 +3667,38 @@ batch.
     phase. Done at `07d3bf28` on 2026-10-25, a played-once voice let go when its backend reports it
     played out, audio.voices in the profile.
 
+119. **The dummy driver drains a one-shot voice as a device does.** From the voxel game's footsteps
+    at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree. In a
+    hidden run the dummy driver never drains a one-shot voice, so IsPlaying stays true, 6 steps
+    leaving 7 voices after 1,800 frames, and a test or a headless program cannot read a sound's end.
+    The dummy driver advances each voice by the frame's time at its rate and ends it as a device
+    would, IsPlaying falling; a test playing a short sound under the dummy driver and reading it
+    ended after its length. One commit, small, after item 118. The coder's finding at 03:50, the
+    dummy driver does drain, a 0.1 s sound at the device's 48,000 Hz reading ended by the first
+    frame where the same at 44,100 Hz still reads playing at 1.9 s, since CreateAndQueueStream never
+    flushes the stream and one that resamples keeps its last frames for the filter and never
+    empties, on a real device too wherever a sound's rate differs from the device's; the mend
+    flushes a one-shot voice's streams once queued and again when looping is turned off, the test
+    playing a 44,100 Hz pannable sound under the dummy driver and reading it ended after its length.
+    Taken so. Done at `6a20d165` on 2026-10-25 by the departure, the streams flushed once queued and
+    when looping ends.
+
+119. **The dummy driver drains a one-shot voice as a device does.** From the voxel game's footsteps
+    at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree. In a
+    hidden run the dummy driver never drains a one-shot voice, so IsPlaying stays true, 6 steps
+    leaving 7 voices after 1,800 frames, and a test or a headless program cannot read a sound's end.
+    The dummy driver advances each voice by the frame's time at its rate and ends it as a device
+    would, IsPlaying falling; a test playing a short sound under the dummy driver and reading it
+    ended after its length. One commit, small, after item 118. The coder's finding at 03:50, the
+    dummy driver does drain, a 0.1 s sound at the device's 48,000 Hz reading ended by the first
+    frame where the same at 44,100 Hz still reads playing at 1.9 s, since CreateAndQueueStream never
+    flushes the stream and one that resamples keeps its last frames for the filter and never
+    empties, on a real device too wherever a sound's rate differs from the device's; the mend
+    flushes a one-shot voice's streams once queued and again when looping is turned off, the test
+    playing a 44,100 Hz pannable sound under the dummy driver and reading it ended after its length.
+    Taken so. Done at `6a20d165` on 2026-10-25 by the departure, the streams flushed once queued and
+    when looping ends.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

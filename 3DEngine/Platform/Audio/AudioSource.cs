@@ -101,6 +101,20 @@ public readonly struct AudioSource : IEquatable<AudioSource>
         Server!.SetPaused(Id, paused);
     }
 
+    /// <summary>Muffles the voice above <paramref name="cutoff"/> hertz, as a sound heard through a wall is, or not at all for 0.</summary>
+    public void SetLowPass(float cutoff)
+    {
+        if (!IsValid) return;
+        Server!.SetLowPass(Id, cutoff);
+    }
+
+    /// <summary>Sends <paramref name="share"/> of the voice, from 0 for none to 1, through the room's reverb, the one <see cref="AudioServer.ReverbSize"/> and <see cref="AudioServer.ReverbDecay"/> make.</summary>
+    public void SetReverb(float share)
+    {
+        if (!IsValid) return;
+        Server!.SetReverb(Id, share);
+    }
+
     /// <summary>Stops and releases the voice. One played once is released as it plays out, and a call after that, or a second one, does nothing.</summary>
     public void Stop()
     {

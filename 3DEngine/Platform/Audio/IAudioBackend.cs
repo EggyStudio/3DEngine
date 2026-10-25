@@ -88,6 +88,15 @@ public interface IAudioBackend : IDisposable
     /// </summary>
     void SetMixedProcessors(AudioCallback[] processors) { }
 
+    /// <summary>Muffles a voice above <paramref name="cutoff"/> hertz, or not at all for 0, where the backend can. None does so by default.</summary>
+    void SetVoiceLowPass(int voiceId, float cutoff) { }
+
+    /// <summary>Sends <paramref name="share"/> of a voice, from 0 to 1, through the room's reverb, where the backend has one. None does so by default.</summary>
+    void SetVoiceReverb(int voiceId, float share) { }
+
+    /// <summary>Sets the room every voice's reverb sounds, its size in world units and the seconds its sound takes to fall by sixty decibels.</summary>
+    void SetReverb(float size, float decay) { }
+
     /// <summary>
     /// The rate the open device plays at, in samples a second, which the mixed samples come at,
     /// or 0 where no device is open, the default.

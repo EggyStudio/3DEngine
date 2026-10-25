@@ -42,6 +42,7 @@ public sealed class AudioServer : IDisposable
     private Vector3 _listenerPosition;
     private Quaternion _listenerOrientation = Quaternion.Identity;
     private float _masterVolume = 1f;
+    private float _reverbSize = DefaultReverbSize, _reverbDecay = DefaultReverbDecay;
     private bool _warnedSpatialFlip;
 
     /// <summary>The currently active backend. Defaults to <see cref="NullAudioBackend"/>.</summary>
@@ -88,6 +89,48 @@ public sealed class AudioServer : IDisposable
     {
         get { lock (_lock) return _farDistance; }
         set { lock (_lock) _farDistance = float.IsNaN(value) ? DefaultFarDistance : MathF.Max(value, 1e-3f); }
+    }
+
+    /// <summary>The <see cref="ReverbSize"/> a server starts with, ten units.</summary>
+    public const float DefaultReverbSize = 10;
+
+    /// <summary>The <see cref="ReverbDecay"/> a server starts with, a second and a half.</summary>
+    public const float DefaultReverbDecay = 1.5f;
+
+    /// <summary>
+    /// The size of the room every voice's reverb sounds, in world units from 1 to 100, which its
+    /// echoes' delays grow with, ten to begin with.
+    /// </summary>
+    /// <remarks>
+    /// A voice sounds the room by its share, <see cref="AudioVoiceParams.Reverb"/> or
+    /// <see cref="AudioSource.SetReverb"/>, so a game that reads a room's closure and size by rays
+    /// sets these as its hearer moves and the share by how closed the room is.
+    /// </remarks>
+    public float ReverbSize
+    {
+        get { lock (_lock) return _reverbSize; }
+        set
+        {
+            lock (_lock)
+            {
+                _reverbSize = float.IsNaN(value) ? DefaultReverbSize : Math.Clamp(value, 1f, 100f);
+                _backend.SetReverb(_reverbSize, _reverbDecay);
+            }
+        }
+    }
+
+    /// <summary>The seconds the room's sound takes to fall by sixty decibels, from 0.05 to 20, a second and a half to begin with.</summary>
+    public float ReverbDecay
+    {
+        get { lock (_lock) return _reverbDecay; }
+        set
+        {
+            lock (_lock)
+            {
+                _reverbDecay = float.IsNaN(value) ? DefaultReverbDecay : Math.Clamp(value, 0.05f, 20f);
+                _backend.SetReverb(_reverbSize, _reverbDecay);
+            }
+        }
     }
 
     /// <summary>Current listener position in world space (used for 3D voices).</summary>
@@ -158,6 +201,7 @@ public sealed class AudioServer : IDisposable
             _backend = backend;
             if (!_backend.IsInitialized) _backend.Initialize();
             _backend.SetListenerPosition(_listenerPosition);
+            _backend.SetReverb(_reverbSize, _reverbDecay);
             if (_mixedProcessors.Length > 0) _backend.SetMixedProcessors(_mixedProcessors);
         }
         previous?.Dispose();
@@ -239,7 +283,8 @@ public sealed class AudioServer : IDisposable
                 Orientation: parameters.Orientation,
                 DipoleWeight: parameters.DipoleWeight, DipolePower: parameters.DipolePower,
                 PlaybackRate: parameters.PlaybackRate,
-                NearDistance: parameters.NearDistance, FarDistance: parameters.FarDistance);
+                NearDistance: parameters.NearDistance, FarDistance: parameters.FarDistance,
+                LowPass: parameters.LowPass, Reverb: parameters.Reverb);
             _pending.Add(new PendingVoice(ticket, handle, parameters));
         }
         return new AudioSource(ticket, this);
@@ -264,7 +309,9 @@ public sealed class AudioServer : IDisposable
                 DipolePower: parameters.DipolePower,
                 PlaybackRate: parameters.PlaybackRate,
                 NearDistance: parameters.NearDistance,
-                FarDistance: parameters.FarDistance);
+                FarDistance: parameters.FarDistance,
+                LowPass: parameters.LowPass,
+                Reverb: parameters.Reverb);
             return new AudioSource(ticket, this);
         }
     }
@@ -346,6 +393,8 @@ public sealed class AudioServer : IDisposable
                         DipoleWeight = rec.DipoleWeight,
                         DipolePower  = rec.DipolePower,
                         PlaybackRate = rec.PlaybackRate,
+                        LowPass      = rec.LowPass,
+                        Reverb       = rec.Reverb,
                     };
                 }
 
@@ -545,6 +594,28 @@ public sealed class AudioServer : IDisposable
         }
     }
 
+    internal void SetLowPass(int ticket, float cutoff)
+    {
+        if (float.IsNaN(cutoff) || cutoff < 0f) cutoff = 0f;
+        lock (_lock)
+        {
+            if (!_voices.TryGetValue(ticket, out var rec)) return;
+            _voices[ticket] = rec with { LowPass = cutoff };
+            if (rec.VoiceId != 0) _backend.SetVoiceLowPass(rec.VoiceId, cutoff);
+        }
+    }
+
+    internal void SetReverb(int ticket, float share)
+    {
+        share = float.IsNaN(share) ? 0f : Math.Clamp(share, 0f, 1f);
+        lock (_lock)
+        {
+            if (!_voices.TryGetValue(ticket, out var rec)) return;
+            _voices[ticket] = rec with { Reverb = share };
+            if (rec.VoiceId != 0) _backend.SetVoiceReverb(rec.VoiceId, share);
+        }
+    }
+
     internal void Stop(int ticket)
     {
         lock (_lock)
@@ -609,7 +680,9 @@ public sealed class AudioServer : IDisposable
         float PlaybackRate = 1f,
         float NearDistance = 0f,
         float FarDistance = 0f,
-        bool Stream = false);
+        bool Stream = false,
+        float LowPass = 0f,
+        float Reverb = 0f);
 
     private readonly record struct PendingVoice(int Ticket, Handle<Sound> Handle, AudioVoiceParams Parameters);
 }

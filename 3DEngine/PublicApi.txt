@@ -188,9 +188,13 @@ sealed class Engine.AudioServer : IDisposable
   Vector3 ListenerPosition { get; set; }
   const float DefaultFarDistance = 50f
   const float DefaultNearDistance = 1f
+  const float DefaultReverbDecay = 1.5f
+  const float DefaultReverbSize = 10f
   float FarDistance { get; set; }
   float MasterVolume { get; set; }
   float NearDistance { get; set; }
+  float ReverbDecay { get; set; }
+  float ReverbSize { get; set; }
   int LiveSourceCount { get; }
   void Dispose()
 readonly struct Engine.AudioSource : IEquatable<AudioSource>
@@ -207,11 +211,13 @@ readonly struct Engine.AudioSource : IEquatable<AudioSource>
   static bool op_Inequality(AudioSource left, AudioSource right)
   void SetDirectivity(float dipoleWeight, float dipolePower = 1f)
   void SetLooping(bool looping)
+  void SetLowPass(float cutoff)
   void SetOrientation(Quaternion orientation)
   void SetPan(float pan)
   void SetPaused(bool paused)
   void SetPlaybackRate(float rate)
   void SetPosition(Vector3 position)
+  void SetReverb(float share)
   void SetVolume(float volume)
   void Stop()
 sealed class Engine.AudioStream
@@ -227,9 +233,11 @@ readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
   float DipolePower { get; init; }
   float DipoleWeight { get; init; }
   float FarDistance { get; init; }
+  float LowPass { get; init; }
   float NearDistance { get; init; }
   float Pan { get; init; }
   float PlaybackRate { get; init; }
+  float Reverb { get; init; }
   float Volume { get; init; }
   override bool Equals(object obj)
   override int GetHashCode()
@@ -1424,6 +1432,7 @@ static class Engine.E3D
   static void SeekMusicStream(Music music, float position)
   static void SetAmbientLight(Color color, float intensity)
   static void SetAmbientOcclusion(float intensity, float radius = 1f)
+  static void SetAudioReverb(float size, float decay)
   static void SetAudioStreamBufferSizeDefault(int size)
   static void SetAudioStreamCallback(AudioStream stream, AudioCallback? callback)
   static void SetAudioStreamPan(AudioStream stream, float pan)
@@ -1520,8 +1529,10 @@ static class Engine.E3D
   static void SetSkyDay(SkyDay day)
   static void SetSkyHorizon(Color color, float blendDegrees)
   static void SetSkyTime(float hours)
+  static void SetSoundLowPass(Sound sound, float cutoff)
   static void SetSoundPan(Sound sound, float pan)
   static void SetSoundPitch(Sound sound, float pitch)
+  static void SetSoundReverb(Sound sound, float share)
   static void SetSoundVolume(Sound sound, float volume)
   static void SetState<TState>(TState value) where TState : struct, Enum
   static void SetSubsurfaceQuality(SubsurfaceQuality quality)
@@ -2201,11 +2212,14 @@ interface Engine.IAudioBackend : IDisposable
   void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples)
   void SetListenerPosition(Vector3 position)
   void SetMixedProcessors(AudioCallback[] processors)
+  void SetReverb(float size, float decay)
   void SetVoiceLooping(int voiceId, bool looping)
+  void SetVoiceLowPass(int voiceId, float cutoff)
   void SetVoicePan(int voiceId, float pan)
   void SetVoicePaused(int voiceId, bool paused)
   void SetVoicePlaybackRate(int voiceId, float rate)
   void SetVoicePosition(int voiceId, Vector3 position)
+  void SetVoiceReverb(int voiceId, float share)
   void SetVoiceVolume(int voiceId, float volume)
   void StopVoice(int voiceId)
   void Update()

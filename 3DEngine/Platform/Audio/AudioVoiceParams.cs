@@ -70,6 +70,18 @@ public readonly record struct AudioVoiceParams
     /// </summary>
     public float FarDistance { get; init; }
 
+    /// <summary>
+    /// The frequency in hertz above which the voice is muffled, as a sound heard through a wall
+    /// is, or 0 for none.
+    /// </summary>
+    public float LowPass { get; init; }
+
+    /// <summary>
+    /// The share of the voice sent through the room's reverb, from 0 for none to 1, the room the
+    /// audio server's <see cref="AudioServer.ReverbSize"/> and <see cref="AudioServer.ReverbDecay"/> make.
+    /// </summary>
+    public float Reverb { get; init; }
+
     /// <summary>Reusable defaults: non-spatial, unity volume, no loop, playing, omni.</summary>
     public static AudioVoiceParams Default => new() { Volume = 1f, DipolePower = 1f, PlaybackRate = 1f };
 }

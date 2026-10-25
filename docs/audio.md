@@ -74,6 +74,35 @@ PlaySound(step);
 A sound played once lets its voice go as it plays out, so a game playing each footstep keeps no
 voice for the steps gone, and the frame profile shows the voices playing as `audio.voices`.
 
+## A wall and a room
+
+A sound heard through a wall is muffled, its highs gone before its lows, and one in a room rings
+with the room's echoes. `SetSoundLowPass` muffles a sound above a frequency in hertz, 0 for none,
+and `SetSoundReverb` sends a share of it, from 0 for none to 1, through the room `SetAudioReverb`
+sets, by its size in world units, which the echoes' delays grow with, and the seconds its sound
+takes to fall by sixty decibels. A sound with a share plays on until its room's tail has died. A
+voice played through the audio server takes the same as `LowPass` and `Reverb` on its
+`AudioVoiceParams` and `SetLowPass` and `SetReverb` on its `AudioSource`, and the server's
+`ReverbSize` and `ReverbDecay` are its room.
+
+The voxel game counts the blocks a line from its hearer to a mob's step crosses, and reads the room
+about the hearer by 26 rays to 24 blocks. On its plains 0.54 of them meet a block, at 4.8 blocks on
+average, under the forest's canopy 0.88 at 2.2, and in a deep cave 0.92 at 7.8. The share of the
+rays that meet a block is a step's share of the room, their mean distance the room's size, and each
+block crossed halves the cutoff:
+
+<!-- compiled with:
+float closure = 0, meanDistance = 0;
+int blocksCrossed = 0;
+Sound step = default!;
+-->
+```csharp
+SetAudioReverb(meanDistance, 0.3f + 0.2f * meanDistance);
+SetSoundReverb(step, closure);
+SetSoundLowPass(step, blocksCrossed == 0 ? 0 : 8000 / MathF.Pow(2, blocksCrossed));
+PlaySound(step);
+```
+
 ## Editing samples
 
 A `Wave` holds a file's samples in memory to work on before they are played. `WaveCrop` keeps a

@@ -134,6 +134,8 @@ public static partial class E3D
         public float Volume = 1f;
         public float Pitch = 1f;
         public float Pan;
+        public float LowPass;
+        public float Reverb;
     }
 
     private static readonly ConditionalWeakTable<Sound, SoundState> SoundStates = new();
@@ -264,6 +266,8 @@ public static partial class E3D
             Volume = Math.Max(state.Volume, 1e-6f),
             Pannable = true,
             Pan = state.Pan,
+            LowPass = state.LowPass,
+            Reverb = state.Reverb,
         });
         if (state.Pitch != 1f) state.Voice.SetPlaybackRate(state.Pitch);
     }
@@ -315,6 +319,34 @@ public static partial class E3D
         var state = SoundStates.GetOrCreateValue(sound);
         state.Pan = Math.Clamp(pan, -1f, 1f);
         state.Voice.SetPan(state.Pan);
+    }
+
+    /// <summary>Muffles a sound above a frequency in hertz, as one heard through a wall is, or not at all for 0, for this play and the next.</summary>
+    public static void SetSoundLowPass(Sound sound, float cutoff)
+    {
+        var state = SoundStates.GetOrCreateValue(sound);
+        state.LowPass = float.IsNaN(cutoff) ? 0 : Math.Max(cutoff, 0f);
+        state.Voice.SetLowPass(state.LowPass);
+    }
+
+    /// <summary>Sends a share of a sound, from 0 for none to 1, through the room's reverb, for this play and the next.</summary>
+    public static void SetSoundReverb(Sound sound, float share)
+    {
+        var state = SoundStates.GetOrCreateValue(sound);
+        state.Reverb = float.IsNaN(share) ? 0 : Math.Clamp(share, 0f, 1f);
+        state.Voice.SetReverb(state.Reverb);
+    }
+
+    /// <summary>
+    /// Sets the room every sound's reverb sounds, its size in world units, which its echoes'
+    /// delays grow with, and the seconds its sound takes to fall by sixty decibels.
+    /// </summary>
+    /// <remarks>A sound sounds the room by its share, <see cref="SetSoundReverb"/>, none unless set.</remarks>
+    public static void SetAudioReverb(float size, float decay)
+    {
+        if (Audio() is not { } audio) return;
+        audio.ReverbSize = size;
+        audio.ReverbDecay = decay;
     }
 
     // -- Music
