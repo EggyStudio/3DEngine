@@ -3657,6 +3657,16 @@ batch.
     and none after a despawn. One commit, small, after item 116 and before 108's third phase. Done
     at `c897565c` on 2026-10-25, GroupIndex beside KeyIndex with the test over twenty columns.
 
+118. **A played-out voice is let go, and Tick walks the live ones alone.** From the voxel game's
+    footsteps at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree.
+    The AudioServer keeps a voice that has played out until Stop is called and Tick walks every
+    voice, 34 steps leaving 36 live voices, so the game stops each step half a second after it
+    began. A one-shot voice is released when its source ends, Tick walking the playing voices alone
+    and a count of them read in the profile; a test playing a hundred short sounds and reading the
+    voices at 0 once they have played out. One commit, small, after item 117 and before 108's third
+    phase. Done at `07d3bf28` on 2026-10-25, a played-once voice let go when its backend reports it
+    played out, audio.voices in the profile.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -10,41 +10,50 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c897565c`, item 117, the grouping index, read at 03:25 on 2026-10-25, carrying the
-review's files. GroupIndex from ecs.Groups holds many entities to the key a keyed component names,
-Members a span over the index's own list allocating nothing beside CountOf and Count, a list of
-entities a key with each entity's key and place so a removal moves the list's last member into the
-gap, a key left with none dropped, the store's index slot taken so add, replace, remove and despawn
-reach it as they reach KeyIndex and an index made late picking up the entities already holding the
-component. Departures, Index and Groups moved together into EcsWorld.Indexes.cs for N 1.3, a
-component type holding one index of either kind with its exception reworded for STYLE.md. The test
-spawns a thousand mobs in twenty columns, half before the index is asked for, each column's members
-every twentieth, a walk allocating nothing, the members following a despawn, a removal and a move,
-an emptied column no key, and a KeyIndex asked for the same type throwing; the behaviors guide gains
-a line and a block and the cheat sheet names Groups. The strict build clean, 2,098 plain and
-shuffled on the GPU, the guide's 19 blocks building on the package. Held until the build run of
-`55a33ce9` ends, then pushed. After `55a33ce9`, item 116, a profile value's mean, read at 03:00 on
-2026-10-25, carrying ASKS.md and the review's files. SetProfileValue(name, value, seconds) beside
-the present call shows the mean of the values set over the last seconds by GetTime's clock, 0
-showing the value as set and the plain call dropping a window, FrameProfile.Set keeping the samples
-with their times, dropping those at or before the window's start and summing afresh each set; the
-test sets 0 and 100 by turns each sixty-fourth of a second for two seconds and reads 50, a value set
-three seconds on reading alone and a plain set as set; the cheat sheet's line and the frame guide's
-paragraph and block. The strict build clean, 2,097 plain and shuffled on the GPU, the frame guide's
-10 blocks building on the package. Both pushed at 03:05 on 2026-10-25 after the build run of
-`e746f98e` went green whole, the run watched. Item 96 begins with a reading on the game's 5.2.215
-build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell
-what runs per fragment from the variant's registers, the window's depth at half size and the scene
-pass shading with overdraw pointing at a half-size pass over the window's depth with a two by two
-depth and normal read, as the glow pass has. Next 108, the mesh entity as a game's section, then 118
-and 119, the audio's voices, then 120, the low-pass and the reverb, the ECS gaps the game's drops
-found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene
-pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
-shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
-91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
-guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
-camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
-7.5; the cloud sessions stand by.
+Reviewed up to `07d3bf28`, item 118, a played-out voice let go, read at 03:50 on 2026-10-25,
+carrying the review's files. AudioServer.Tick lets go of a voice played once whose backend reports
+it played out, the backend voice freed and the ticket dropped so the AudioSource reads as stopped,
+Stop on it doing nothing and the ticks after walking the voices still playing, looping, paused and
+streamed voices kept until stopped with a Stream flag on the record, and audio.voices in the profile
+set to LiveSourceCount; AudioServerTests plays a hundred steps, a loop and a paused voice through
+the recording backend at 102 voices and reads two kept once all have played out, a hundred Stop
+calls doing nothing and the next tick setting two volumes; the audio guide's stop paragraph and the
+docs say it. The strict build clean, 2,099 plain and shuffled on the GPU, the API listing unchanged.
+Held with `c897565c` until the build run of `55a33ce9` ends, then pushed. After `c897565c`, item
+117, the grouping index, read at 03:25 on 2026-10-25, carrying the review's files. GroupIndex from
+ecs.Groups holds many entities to the key a keyed component names, Members a span over the index's
+own list allocating nothing beside CountOf and Count, a list of entities a key with each entity's
+key and place so a removal moves the list's last member into the gap, a key left with none dropped,
+the store's index slot taken so add, replace, remove and despawn reach it as they reach KeyIndex and
+an index made late picking up the entities already holding the component. Departures, Index and
+Groups moved together into EcsWorld.Indexes.cs for N 1.3, a component type holding one index of
+either kind with its exception reworded for STYLE.md. The test spawns a thousand mobs in twenty
+columns, half before the index is asked for, each column's members every twentieth, a walk
+allocating nothing, the members following a despawn, a removal and a move, an emptied column no key,
+and a KeyIndex asked for the same type throwing; the behaviors guide gains a line and a block and
+the cheat sheet names Groups. The strict build clean, 2,098 plain and shuffled on the GPU, the
+guide's 19 blocks building on the package. Held until the build run of `55a33ce9` ends, then pushed.
+After `55a33ce9`, item 116, a profile value's mean, read at 03:00 on 2026-10-25, carrying ASKS.md
+and the review's files. SetProfileValue(name, value, seconds) beside the present call shows the mean
+of the values set over the last seconds by GetTime's clock, 0 showing the value as set and the plain
+call dropping a window, FrameProfile.Set keeping the samples with their times, dropping those at or
+before the window's start and summing afresh each set; the test sets 0 and 100 by turns each
+sixty-fourth of a second for two seconds and reads 50, a value set three seconds on reading alone
+and a plain set as set; the cheat sheet's line and the frame guide's paragraph and block. The strict
+build clean, 2,097 plain and shuffled on the GPU, the frame guide's 10 blocks building on the
+package. Both pushed at 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, the
+run watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920
+by 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 108, the mesh entity as a game's section, then 119, the dummy driver, then 120,
+the low-pass and the reverb, the ECS gaps the game's drops found, then 102, the far cascade's slab,
+then 103, the screen probes' one switch, then 96, the scene pass's read of the cascades and the
+shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the
+planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop
+and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then
+item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch
+`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `e746f98e` came, item 114 with `c71cdbea`, item 108's second phase, and `0cfc2843`, item
 113, pushed at 02:07 on 2026-10-25, its build run green whole at 03:03, Windows in 56 minutes, Linux
@@ -1087,22 +1096,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
-118. **A played-out voice is let go, and Tick walks the live ones alone.** From the voxel game's
-    footsteps at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree.
-    The AudioServer keeps a voice that has played out until Stop is called and Tick walks every
-    voice, 34 steps leaving 36 live voices, so the game stops each step half a second after it
-    began. A one-shot voice is released when its source ends, Tick walking the playing voices alone
-    and a count of them read in the profile; a test playing a hundred short sounds and reading the
-    voices at 0 once they have played out. One commit, small, after item 117 and before 108's third
-    phase.
-
 119. **The dummy driver drains a one-shot voice as a device does.** From the voxel game's footsteps
     at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree. In a
     hidden run the dummy driver never drains a one-shot voice, so IsPlaying stays true, 6 steps
     leaving 7 voices after 1,800 frames, and a test or a headless program cannot read a sound's end.
     The dummy driver advances each voice by the frame's time at its rate and ends it as a device
     would, IsPlaying falling; a test playing a short sound under the dummy driver and reading it
-    ended after its length. One commit, small, after item 118.
+    ended after its length. One commit, small, after item 118. The coder's finding at 03:50, the
+    dummy driver does drain, a 0.1 s sound at the device's 48,000 Hz reading ended by the first
+    frame where the same at 44,100 Hz still reads playing at 1.9 s, since CreateAndQueueStream never
+    flushes the stream and one that resamples keeps its last frames for the filter and never
+    empties, on a real device too wherever a sound's rate differs from the device's; the mend
+    flushes a one-shot voice's streams once queued and again when looping is turned off, the test
+    playing a 44,100 Hz pannable sound under the dummy driver and reading it ended after its length.
+    Taken so.
 
 120. **A voice takes a low-pass by cutoff and a room's reverb by wet share, size and decay.** From
     the voxel game's occlusion and room at its `e433e5c` on 2026-10-25, read at 02:58, its ASKS.md

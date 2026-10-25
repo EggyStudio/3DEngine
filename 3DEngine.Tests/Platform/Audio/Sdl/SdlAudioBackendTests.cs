@@ -146,6 +146,41 @@ public class SdlAudioBackendTests
         clock.Elapsed.TotalSeconds.Should().BeInRange(0.25, 1.5, "the sound ends about when it would through a device");
     }
 
+    [NeedsAudioDeviceFact]
+    public void A_Sound_At_Another_Rate_Than_The_Devices_Ends_When_It_Would_And_So_Does_A_Loop_Let_Go()
+    {
+        using var app = new App(Config.Default with { Hidden = true }).AddPlugin(new SoundsPlugin());
+        var server = app.World.Resource<AudioServer>();
+        server.Backend.Should().BeOfType<SdlAudioBackend>().Which.Driver.Should().Be("dummy");
+        // Three tenths of a second at 44.1 kHz, which the 48 kHz device takes resampled.
+        var sound = new Sound { Samples = new float[44100 * 3 / 10], SampleRate = 44100, Channels = 1 };
+        double Ends(AudioSource source, bool tick = false)
+        {
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            while (source.IsPlaying && clock.Elapsed < TimeSpan.FromSeconds(5))
+            {
+                if (tick) server.Tick();
+                Thread.Sleep(5);
+            }
+            return clock.Elapsed.TotalSeconds;
+        }
+
+        Ends(server.Play(sound, new AudioVoiceParams { Pannable = true })).Should().BeInRange(0.25, 1.5,
+            "a voice of two streams, as PlaySound makes, gives up the frames its resampling held back and ends");
+        Ends(server.Play(sound)).Should().BeInRange(0.25, 1.5, "and so does a voice of one");
+
+        var loop = server.Play(sound, new AudioVoiceParams { Looping = true });
+        var held = System.Diagnostics.Stopwatch.StartNew();
+        while (held.Elapsed < TimeSpan.FromSeconds(0.8))
+        {
+            server.Tick();
+            Thread.Sleep(5);
+        }
+        loop.IsPlaying.Should().BeTrue("a loop plays on past its length while the ticks give it more");
+        loop.SetLooping(false);
+        Ends(loop, tick: true).Should().BeLessThan(1.5, "let go, it plays out what it was given and ends");
+    }
+
     [Fact]
     public void Method_Calls_Are_Safe_When_Backend_Failed_To_Initialise()
     {
