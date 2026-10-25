@@ -1867,6 +1867,21 @@ shadow's edges under the toggle, run smooth with the probes left out and waver a
 read. The voxel game's capture of stepped penumbrae on 2026-10-21 took the toggle's path.
 ![Ore's ground beside a block at night, with the screen's probes, marched at each pixel, and with probes standing for the glow lights alone](assets/cascades/glow-only-ore.webp)
 
+**The screen's probes by quality, read on 2026-10-25.** `SetGlobalIlluminationScreenProbes` left
+the flat API, and the quality carries the probes in its place, so a game gives its player no switch
+of their own. `Low` leaves them out, every surface reading the cascades' light alone and the glow
+lights read from probes standing for them alone (`GlobalIlluminationRenderer.GlowOnly`), as the
+call's off read them, and `Medium` and `High` stand them as before. `gi.toggle screen off` and the
+global illumination window's box leave them out whole at any quality for reading, those standing
+for the glow lights with them. In the voxel game's room of forty glowstones at hour 23 at 1280 by
+720 with `High`'s cascades, the scene pass took 2.24 ms with the probes, 1.2 ms with the probes
+standing for the glow lights alone, and 13.3 ms with each pixel marching to the lights, which is
+what the toggle's frame costs. The bounce rooms at `Low` read 0.099, 0.117, 0.270, 0.227, 0.019,
+0.202, 0.051, 0.062 and 0.058 of their light from their references, where with the probes 0.115,
+0.078, 0.226, 0.308, 0.020, 0.207, 0.069, 0.113 and 0.058, the thin walls and the corridor further
+with nothing under the probes' spacing, and the Cornell box, the window, the grazing floor and the
+carried lamp nearer.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

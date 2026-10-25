@@ -540,10 +540,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// pass to sample.
     /// </summary>
     /// <remarks>
-    /// With <paramref name="glowOnly"/> set the probes stand for the glow lights alone, as where the
-    /// program left the screen's probes out, each placed and marching to the lights with no ray
-    /// traced, filtered or held, so the glow lights' light on the depth's texels is made from them
-    /// as it is from the whole probes.
+    /// With <paramref name="glowOnly"/> set the probes stand for the glow lights alone, as at
+    /// <see cref="GlobalIllumination.Low"/>, which leaves the screen's probes out, each placed and
+    /// marching to the lights with no ray traced, filtered or held, so the glow lights' light on the
+    /// depth's texels is made from them as it is from the whole probes.
     /// </remarks>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,

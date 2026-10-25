@@ -215,4 +215,31 @@ public class ImGuiHolderTests
             app.Shutdown();
         }
     }
+
+    [Fact]
+    public void The_Global_Illumination_Window_Draws_With_The_Screens_Probes_Read_And_Left_Out()
+    {
+        // The window's debug box of the screen's probes, ticked and not, which it changes nothing of
+        // unless it is clicked.
+        var app = Build();
+        try
+        {
+            E3D.UseApp(app);
+            E3D.SetGlobalIllumination(GlobalIllumination.Low);
+            var settings = app.World.Resource<GlobalIlluminationSettings>();
+            foreach (var off in new[] { false, true })
+            {
+                settings.ScreenOff = off;
+                app.BeginFrame();
+                E3D.DrawBounceWindow();
+                app.EndFrame();
+                settings.ScreenOff.Should().Be(off);
+            }
+        }
+        finally
+        {
+            E3D.UseApp(null);
+            app.Shutdown();
+        }
+    }
 }

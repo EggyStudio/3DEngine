@@ -32,6 +32,10 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 16, 16, 16);
         GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
+        // Low leaves the screen's probes out, so a slow GPU has the cheaper path with no switch of its own.
+        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.Low).Should().BeFalse();
+        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.Medium).Should().BeTrue();
+        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.High).Should().BeTrue();
 
         var world = new RenderWorld();
         GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "nothing asked for global illumination");
@@ -170,7 +174,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
-        SetGlobalIllumination(GlobalIllumination.Low);
+        SetGlobalIllumination(GlobalIllumination.Medium);
         CreatePointLight(new Vector3(0, 3, -15), Color.White, 40, range: 60);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         Capture(() => DrawModelEx(slab, new Vector3(0, -0.15f, -23), Vector3.UnitY, 0, new Vector3(10, 0.3f, 52), Color.White),
@@ -455,10 +459,11 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // The red wall and the block, drawn into the window and then into a render texture of the
         // window's size shown over the window, the block's side, which only the wall's light
         // reaches, read in each. The texture's screen probes stand on its own depth as the window's
-        // do, in the same frame, and with them left out both read the cascades alone.
+        // do at Medium, in the same frame, and with them left out for debugging both read the
+        // cascades alone.
         Open();
-        SetGlobalIllumination(GlobalIllumination.Low);
-        SetGlobalIlluminationScreenProbes(screenProbes);
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenOff = !screenProbes;
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var camera = new Camera3D(new Vector3(-1.3f, 0.8f, 0.9f), new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 50);

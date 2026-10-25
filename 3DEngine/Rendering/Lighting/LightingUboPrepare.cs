@@ -80,10 +80,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 SceneFieldPlan.Resolution / GlobalIlluminationRenderer.ProbeSpacing, cascades);
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
-            // z: 1 where the screen's probes stand for the glow lights alone, whose texels are read.
+            // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
             var glowOnly = renderWorld.TryGet<GlobalIlluminationRenderer>()?.GlowOnly(renderWorld) == true;
-            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality), settings.ScreenOff || !settings.ScreenProbes ? 0 : 1,
-                glowOnly ? 1 : 0, 0);
+            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality),
+                GlobalIlluminationRenderer.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
             if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.ViewProjection, out var inverse)

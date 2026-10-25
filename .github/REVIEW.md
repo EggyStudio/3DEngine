@@ -10,7 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9a013b59`, item 121, the counted mesh's color stream and its range of a shared
+Reviewed up to `f36b49b3`, Verdict 90's mend, read at 10:49 on 2026-10-25, carrying the review's
+files and DEVLOG.md, held until the build run of `9a013b59` ends, then pushed and the pack run
+started. The cause differs from the verdict's reading. Item 121 named a local vertex in
+field_counted.slang, uint vertex = push.source + id.x, and vertex is a Metal keyword the translation
+kept, so 45:21 is the declaration and 50:58 its use in the index; the pointer and the mask were
+sound, and the shader indexed id.x with no such local before 121. The local is index, with a comment
+saying why. MetalNamesTests compiles every built-in shader with slangc and reads each stage's OpName
+and OpMemberName strings, refusing Metal's own words, vertex, fragment, kernel, visible, stitchable,
+intersection, device, constant, thread, threadgroup, threadgroup_imageblock, ray_data and
+object_data, a second test checking the SPIR-V reading itself; a full cross-compile to Metal source
+on Linux would not have caught it, the translation writing the source and Apple's compiler alone
+refusing it, where the names check fails on Linux first and named field_counted.slang's compute
+stage on the old shader, 55 s, skipped where slangc is missing. The strict build clean, 35 on the
+GPU and 19 on lavapipe with validation, no full suite on this commit alone, the tree's full suite
+having passed at 2,108 with item 103 beside it and this commit sharing no file with 103, so the run
+is its suite. After `9a013b59`, item 121, the counted mesh's color stream and its range of a shared
 buffer, read at 09:02 on 2026-10-25, carrying the review's files and a captioned picture. Checked on
 top of item 102 and Verdict 89's mend, since 121 and 102 share SceneField.cs, the strict build
 clean, 2,108 plain and shuffled on the GPU in 8 minutes, 83 on lavapipe with validation over the
@@ -1182,26 +1197,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdict 90 is open. Verdicts 56 to 89 are settled, said under each in REVIEW-ARCHIVE.md.
-
-90. **`9a013b59` breaks every program on macOS at the renderer's start, the counted corners' shader
-    failing to compile under MoltenVK.** Read at 10:38 on 2026-10-25 from the pack run 40177554052's
-    macOS suite and macOS captures, red in 5 and 7 minutes. The suite read 1,694 passed and 334
-    failed in under three minutes, every failure an AggregateException from
-    GraphicsDevice.InitializeCountedCorners at GraphicsDevice.MeshCounts.cs:274 through
-    Renderer.Initialize and RenderPlugin.Build, Vulkan's ErrorInitializationFailed, and the captures
-    0 of 264 drawn, each example ending in SIGABRT with RenderPlugin failing in Build; the Metal
-    shader compiler logged 1,992 times program_source:50:58, expected expression, at the line color
-    = (*spvDescriptorSet0.stream)._member0[vertex] & 16777215u;, and 996 times program_source:45:21,
-    expected unqualified-id. So item 121's read of the color stream in the counted corners' shader,
-    a pointer to the stream buffer dereferenced and indexed in one expression, cross-compiles to
-    Metal source the compiler refuses, where Linux and Windows take the SPIR-V as it is. The mend
-    writes that read as MoltenVK's cross-compiler carries, a typed load of the element before the
-    mask or the stream as a typed array, checked by the suite's shader cross-compile test if one
-    exists and otherwise by a test cross-compiling the engine's SPIR-V to Metal source on every
-    system, so a shader that macOS refuses fails on Linux first; ahead of item 103's commit. No
-    package came of the run, and a pack run is started once the mend's push run has begun. The push
-    run of `9a013b59` is to go red the same way on macOS.
+Verdicts 56 to 90 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

@@ -381,10 +381,6 @@ guide that shows it, as far as the surface had come before it began to change wi
   reads and `UnloadShaderReadback` lets go, as
   [Reading a buffer back without a wait](shaders-and-compute.md#reading-a-buffer-back-without-a-wait)
   shows.
-- **Global illumination without the screen's probes.** `SetGlobalIlluminationScreenProbes` leaves
-  out the probes global illumination stands on the window's surfaces every few pixels, so every
-  surface reads the cascades' light alone, as
-  [The screen's probes](global-illumination.md#the-screens-probes) shows.
 - **The pad in ImGui when asked.** `SetImGuiGamepadNavigation` lets the first gamepad move through
   ImGui's windows and press their widgets, for a menu played by the pad alone, as
   [Input and ImGui](input.md#input-and-imgui) shows. Before, the pad moved through ImGui from the

@@ -133,11 +133,11 @@ one.
 
 ## The screen's probes
 
-Beside the world's probes stands a probe for every few pixels of the window, every 16 at `Low`, 12
-at `Medium` and 8 at `High`, on the surface the window shows there. Each traces the near light
-through the window's depth first, as far as the first cascade's probes stand apart, and takes the
-world's probes' light past that, so the light under a table, in a corner or where a wall meets the
-floor is seen at the size the window draws it and not at the probes' spacing of two units. The
+At `Medium` and `High`, beside the world's probes stands a probe for every few pixels of the window,
+every 12 at `Medium` and 8 at `High`, on the surface the window shows there. Each traces the near
+light through the window's depth first, as far as the first cascade's probes stand apart, and takes
+the world's probes' light past that, so the light under a table, in a corner or where a wall meets
+the floor is seen at the size the window draws it and not at the probes' spacing of two units. The
 probes' light is blended with the frame before's where the surface is the same one, held within the
 spread of this frame's light around each point, so it holds still as the camera moves and follows a
 light that changed at once. A render texture that draws models through a camera of its own, as each
@@ -145,27 +145,24 @@ half of a split screen, has screen probes of its own. With the camera sliding gl
 adds nothing that can be read to the picture's change, after a walk or a turn the light has settled
 by the fifth frame, and a block's side lit only by a red wall's indirect light comes within a tenth
 of its new light in the frame a lamp is brought in. Two views of `games/Sumo` at 640 by 720, each a
-render texture, take 1.14 ms of the GPU at `Low` between them, as `./e3d command profile` gives
-`targets`, where they took 0.62 reading the world's probes alone. A reflection probe's faces take
+render texture, took 1.14 ms of the GPU between them with screen probes every 16 pixels, as
+`./e3d command profile` gives `targets`, where they took 0.62 reading the world's probes alone. A reflection probe's faces take
 the indirect light from the world's probes alone.
 
-A game leaves the screen's probes out where its art shows their tiles, as a world of blocks does,
-or where it has no time for them:
-
-```csharp
-SetGlobalIllumination(GlobalIllumination.Low);
-SetGlobalIlluminationScreenProbes(false);
-```
-
-They are then neither made nor traced, for the window or a render texture, and every surface reads
-the cascades' light alone, smoother and coarser, with nothing of the light under a table that is
-smaller than the probes' spacing. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an
-RTX 4070 Laptop GPU, the screen's probes take 0.77 ms of the GPU at `Low` and 0.92 at `High` where
-no emissive surface is carried as a light. Where some are, probes stand for those lights alone,
-marching to them once a tile and tracing nothing else, so a pixel reads their light at the same cost
-however many there are: with the room's four small emitters global illumination took 0.55 ms at
-`Low` where the screen's probes took 1.74, the model pass 0.29 ms as with them, and in `games/Ore`
-at night, sixty-four lit, 1.73 and 0.53 ms where with the screen's probes 3.61 and 0.61.
+The screen's probes come with global illumination at `Medium` and `High`, and `Low` leaves them
+out, every surface reading the cascades' light alone, smoother and coarser, with nothing of the
+light under a table that is smaller than the probes' spacing, so a slow GPU has the cheaper path
+with no switch of its own. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an RTX 4070
+Laptop GPU, the screen's probes take 0.92 ms of the GPU at `High` where no emissive surface is
+carried as a light. At `Low` the small emissive surfaces carried as lights are marched to once a
+tile by probes standing for them alone, which trace nothing else, so a pixel reads their light at
+the same cost however many there are. In a voxel game's closed room of forty glowstones at night,
+all in view, at 1280 by 720, the scene pass took 2.2 ms with the screen's probes and 1.2 with those
+standing for the glow lights alone, where each pixel marching to every glow light itself took 13.3.
+For debugging, `gi.toggle screen off` and the box of the screen's probes in the global
+illumination window leave them out whole at any quality, those standing for the glow lights at
+`Low` with them, neither made nor traced, for the window and a render texture, so what they cost and
+give can be read, and each pixel then marches to the glow lights itself.
 
 ## Emissive surfaces
 
@@ -185,15 +182,16 @@ them pays nothing for them.
 
 ## The qualities and what they cost
 
-On the development machine's laptop GPU at 800 by 450 with the frame rate unlimited, the rooms of
-`shaders_bounce_rooms` cost this on the GPU, as `./e3d command profile` names it
-`global_illumination`, with `./e3d command gi.state` giving the rest.
+On the development machine's laptop GPU at 800 by 450 with the frame rate unlimited, the Cornell box
+of `shaders_bounce_rooms` costs this on the GPU, read on 2026-10-25, as `./e3d command profile`
+names it `global_illumination`, with `./e3d command gi.state` giving the rest. At `Low` the
+probes standing for the room's four small emitters alone are in the time.
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | every 16 pixels | 1.65 MB | 0.59 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 4.38 MB | 0.74 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 9.16 MB | 1.00 ms |
+| `Low` | 2 | 64, 64 | none, those standing for the glow lights alone | 6.16 MB, 1.53 with no glow light | 0.60 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 8.92 MB | 1.92 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 11.16 MB | 2.00 ms |
 
 A cascade of 64 directions, the first at every quality and the second at `Low` and `Medium`, sends
 four rays along each, one from the middle of each quarter of the direction's texel, and takes their
@@ -271,7 +269,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 |---|---|
 | `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, and how many small emitters are carried as lights |
 | `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
-| `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one |
+| `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |
 | `gi.rays <on\|off>` | Whether `High` traces what the field misses through the GPU's own rays |

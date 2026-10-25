@@ -28,7 +28,9 @@ public sealed class BounceViewTests : IDisposable
         var config = Config.Default.WithWindow("bounce view test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
-        SetGlobalIllumination(GlobalIllumination.Low);
+        // At Medium, which stands the screen's probes the views of tiles, light, filter and history
+        // draw.
+        SetGlobalIllumination(GlobalIllumination.Medium);
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         // And a sky, which the last cascade's rays that meet nothing bring back, so the far
         // cascades give the frame light of their own.

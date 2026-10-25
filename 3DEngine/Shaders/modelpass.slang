@@ -555,7 +555,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // screen's probes, whose filter spread a small bright strip's light near it over five tiles
     // and doubled its room's difference from a path-traced reference at Low (glowLightsAt). The
     // build for a frame with no glow lights leaves it out (Glowing in lights).
-    // Where the program left the screen's probes out, they stand for the glow lights alone, so a
+    // At Low, which leaves the screen's probes out, they stand for the glow lights alone, so a
     // pixel reads their texels as it does with the whole probes, at a cost that does not grow with
     // the lights in view (GlowOnly in GlobalIllumination.cs).
     if (Glowing && lighting.indirect.x > 0.0)

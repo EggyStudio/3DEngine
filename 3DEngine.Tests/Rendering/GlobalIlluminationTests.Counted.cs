@@ -47,12 +47,11 @@ public sealed partial class GlobalIlluminationTests
     {
         // The room of the red wall and the white block, the wall a box a compute shader wrote, read
         // with its count and with a count of 0, which draws nothing and leaves the field without it.
-        // The screen's probes are left out, so the wall's light reaches the block through the
+        // Low leaves the screen's probes out, so the wall's light reaches the block through the
         // cascades alone, which trace the field.
         Open();
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         SetGlobalIllumination(GlobalIllumination.Low);
-        SetGlobalIlluminationScreenProbes(false);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var shader = LoadComputeShaderFromMemory(CountedBox, "counted_box.slang");
         shader.IsValid.Should().BeTrue();
@@ -109,7 +108,6 @@ public sealed partial class GlobalIlluminationTests
         Open();
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         SetGlobalIllumination(GlobalIllumination.Low);
-        SetGlobalIlluminationScreenProbes(false);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var shader = LoadComputeShaderFromMemory(ColoredBox, "colored_box.slang");
         shader.IsValid.Should().BeTrue();

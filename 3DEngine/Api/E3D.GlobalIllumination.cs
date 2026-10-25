@@ -84,6 +84,14 @@ public static partial class E3D
     /// and leaves their reflections as they are. It lights the window's view alone, and the frame
     /// profile names its cost as <c>global_illumination</c>.
     /// </para>
+    /// <para>
+    /// At <see cref="GlobalIllumination.Medium"/> and <see cref="GlobalIllumination.High"/> it
+    /// stands a probe on the view's surfaces every few pixels as well, which traces the near light
+    /// through the window's depth, so the light under a table is seen at the size the window draws
+    /// it. <see cref="GlobalIllumination.Low"/> leaves them out, every surface reading the cascades'
+    /// light alone, smoother and coarser, and the small emissive surfaces carried as lights are
+    /// marched to once a tile, at a cost the lights in view do not change.
+    /// </para>
     /// </remarks>
     public static void SetGlobalIllumination(GlobalIllumination quality)
     {
@@ -91,22 +99,6 @@ public static partial class E3D
         if (quality != GlobalIllumination.Off && World.GetOrInsertResource(static () => new SceneFieldSettings()) is { On: false } field)
             field.Cascades = 4;
     }
-
-    /// <summary>
-    /// Sets whether global illumination stands a probe on the window's surfaces every few pixels,
-    /// beside the cascades of probes through the scene, which it does until a program leaves them
-    /// out.
-    /// </summary>
-    /// <remarks>
-    /// The screen's probes trace the near light through the window's depth, so the light under a
-    /// table or where a wall meets the floor is seen at the size the window draws it, and the
-    /// model pass reads them before the cascades' probes. Left out, they are neither made nor traced,
-    /// for the window or a render texture, and every surface reads the cascades' light alone, which
-    /// is smoother and coarser, so a game whose art shows the screen's tiles, as a world of blocks
-    /// does, and one that has no time for them, leaves them out.
-    /// </remarks>
-    public static void SetGlobalIlluminationScreenProbes(bool enabled) =>
-        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).ScreenProbes = enabled;
 
     /// <summary>
     /// Draws what global illumination holds in an ImGui window of its own, which a program shows
@@ -146,8 +138,6 @@ public static partial class E3D
         if (ImGuiNET.ImGui.Checkbox("The frame before's light", ref history)) settings.HistoryOff = !history;
         var filter = !settings.FilterOff;
         if (ImGuiNET.ImGui.Checkbox("The screen's filter", ref filter)) settings.FilterOff = !filter;
-        var screen = !settings.ScreenOff;
-        if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenOff = !screen;
         var merge = !settings.MergeOff;
         if (ImGuiNET.ImGui.Checkbox("The merge of the cascades", ref merge)) settings.MergeOff = !merge;
         var again = !settings.AgainOff;
@@ -159,6 +149,12 @@ public static partial class E3D
         var alone = settings.Alone >= 0;
         ImGuiNET.ImGui.Checkbox("The cascade chosen alone", ref alone);
         settings.Alone = alone ? settings.ShownCascade : -1;
+        // The screen's probes, which Low leaves out and Medium and High keep, left out whole here at
+        // any quality for debugging, so what they cost and give can be read (ScreenOff).
+        var screen = !settings.ScreenOff;
+        if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenOff = !screen;
+        ImGuiNET.ImGui.TextUnformatted("Unticked for debugging alone, the screen's probes neither made nor traced at any quality, "
+            + "those standing for the glow lights at Low with them, each pixel marching to the glow lights itself.");
         ImGuiNET.ImGui.Separator();
 
         ImGuiNET.ImGui.InputText("Reference", ref _bouncePath, 1024);

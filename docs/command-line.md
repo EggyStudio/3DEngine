@@ -106,8 +106,9 @@ pixel, each of its sixteen rays where it was met, on the screen, in the field or
 against the reference's light along the same way. `gi.show` draws what the light holds over the
 window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and
 `probes 1` the second cascade's, `difference ref.png` the frame against a reference, and `none` the
-window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history`, `filter` and
-`screen` do their parts and `again` the light past the first bounce from the frame before's probes,
+window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history` and `filter`
+do their parts, `screen` the screen's probes, neither made nor traced, so what they cost and give
+can be read, `again` the light past the first bounce from the frame before's probes,
 so light bounces once, `follow` the probes taking the indirect light at the share their own light
 kept, so the indirect light of a light switched off fades over the frames each bounce takes, `glow`
 the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what

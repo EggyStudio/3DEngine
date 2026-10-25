@@ -10,13 +10,13 @@ public enum GlobalIllumination
     /// <summary>No global illumination, as raylib draws a scene.</summary>
     Off,
 
-    /// <summary>Two cascades of probes, 64 directions each, for a slow GPU.</summary>
+    /// <summary>Two cascades of probes, 64 directions each, and no probes on the view's surfaces, every surface reading the cascades' light alone, for a slow GPU.</summary>
     Low,
 
-    /// <summary>Three cascades, 64, 64 and 256 directions.</summary>
+    /// <summary>Three cascades, 64, 64 and 256 directions, and a probe on the view's surfaces every 12 pixels.</summary>
     Medium,
 
-    /// <summary>Four cascades, 64 directions in the first and 256 in each after.</summary>
+    /// <summary>Four cascades, 64 directions in the first and 256 in each after, and a probe on the view's surfaces every 8 pixels.</summary>
     High,
 }
 
@@ -35,15 +35,19 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether each screen probe keeps its own light, blended with none of its neighbors', as <c>gi.toggle filter off</c> sets it.</summary>
     public bool FilterOff { get; set; }
 
-    /// <summary>Whether the model pass reads the world's probes alone, the screen's left unread, as <c>gi.toggle screen off</c> sets it.</summary>
-    public bool ScreenOff { get; set; }
-
     /// <summary>
-    /// Whether the window and the render targets have screen probes at all, as
-    /// <see cref="E3D.SetGlobalIlluminationScreenProbes"/> sets it, where <see cref="ScreenOff"/>
-    /// traces them and leaves them unread to show what they give.
+    /// Whether the screen's probes are left out whole at any quality, for the window and the render
+    /// targets, neither made nor traced, every surface reading the cascades' light alone and each
+    /// pixel marching to the glow lights itself, as <c>gi.toggle screen off</c> and the global
+    /// illumination window's debug toggle set it, so what they cost and give can be read.
     /// </summary>
-    public bool ScreenProbes { get; set; } = true;
+    /// <remarks>
+    /// A debugging switch alone, which no program's call reaches. A program leaves the screen's
+    /// probes out by <see cref="GlobalIllumination.Low"/> (<see cref="GlobalIlluminationRenderer.ScreenProbesAt"/>).
+    /// Each pixel's march costs the model pass in step with the glow lights in view, 13.3 ms in a
+    /// voxel game's room of forty glowstones at 1280 by 720 at High, where 2.2 with the probes read.
+    /// </remarks>
+    public bool ScreenOff { get; set; }
 
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
@@ -255,18 +259,33 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     }
 
     /// <summary>
-    /// Whether the screen's probes stand for the glow lights alone this frame, which they do where
-    /// the program left them out and some glow light is lit.
+    /// Whether a quality stands probes on the view's surfaces every few pixels, beside the cascades
+    /// of probes through the scene, which <see cref="GlobalIllumination.Medium"/> and
+    /// <see cref="GlobalIllumination.High"/> do and <see cref="GlobalIllumination.Low"/> leaves
+    /// out, every surface there reading the cascades' light alone, so a weak GPU has the cheaper
+    /// path with no switch of its own.
+    /// </summary>
+    internal static bool ScreenProbesAt(GlobalIllumination quality) => quality is GlobalIllumination.Medium or GlobalIllumination.High;
+
+    /// <summary>Whether the views have screen probes this frame, at a quality that has them and not left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>).</summary>
+    internal static bool ScreenProbesOn(RenderWorld renderWorld) =>
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false } settings && ScreenProbesAt(settings.Quality);
+
+    /// <summary>
+    /// Whether the screen's probes stand for the glow lights alone this frame, which they do at
+    /// <see cref="GlobalIllumination.Low"/>, which leaves them out, while some glow light is lit.
     /// </summary>
     /// <remarks>
     /// Without them each pixel marches to every glow light in view itself, which took the model pass
     /// from 0.31 to 1.01 ms at Low on the Cornell box's four small emitters at 800 by 450 on the
-    /// development machine's GPU, and the voxel game's from 1.8 to 12.9 ms with forty glowstones in
-    /// view, so they are marched to once a tile, as the screen's probes march to them, and a pixel
-    /// reads the texels around it, its cost the same however many lights there are.
+    /// development machine's GPU, and the voxel game's from 1.2 to 13.3 ms with forty glowstones in
+    /// view at 1280 by 720, so they are marched to once a tile, as the screen's probes march to
+    /// them, and a pixel reads the texels around it, its cost the same however many lights there
+    /// are. Left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>), they stand
+    /// for nothing, and each pixel marches.
     /// </remarks>
     internal bool GlowOnly(RenderWorld renderWorld) =>
-        _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: false };
+        _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
 
     /// <summary>The pixels along each side of the tile a screen probe stands in, at a quality.</summary>
     internal static int TileAt(GlobalIllumination quality) => quality switch
@@ -416,11 +435,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             far ? cascades - 2 : -1)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
-        // theirs. Where the program left them out they stand for the glow lights alone while some
+        // theirs. At Low, which leaves them out, they stand for the glow lights alone while some
         // are lit, each marching to the lights once a tile and tracing no ray (GlowOnly).
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
         var glowOnly = GlowOnly(renderWorld);
-        if ((renderWorld.TryGet<GlobalIlluminationSettings>()!.ScreenProbes || glowOnly) && renderWorld.TryGet<WindowDepth>() is { } depth
+        if ((ScreenProbesOn(renderWorld) || glowOnly) && renderWorld.TryGet<WindowDepth>() is { } depth
             && renderWorld.TryGet<WindowView>() is { } window && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
             && Matrix4x4.Invert(window.ViewProjection, out var inverse))
         {
@@ -491,10 +510,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             || !Matrix4x4.Invert(camera, out var inverse)) return;
         var targets = renderWorld.TryGet<TargetIllumination>();
         if (targets is null) renderWorld.Set(targets = new TargetIllumination());
-        // A program that left the screen's probes out has the target read the world's probes alone,
-        // and its glow lights from probes standing for them alone while some are lit, as the window.
+        // Where the screen's probes are left out the target reads the world's probes alone, and at
+        // Low its glow lights from probes standing for them alone while some are lit, as the window.
         var glowOnly = GlowOnly(renderWorld);
-        if (!settings.ScreenProbes && !glowOnly)
+        if (!ScreenProbesOn(renderWorld) && !glowOnly)
         {
             if (_targets.Remove(id, out var left)) _retired.Add((_frame, left));
             targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, null, depth, GlowLights: _glowCount);

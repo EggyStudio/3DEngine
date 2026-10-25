@@ -301,8 +301,8 @@ public sealed partial class GlobalIlluminationTests
         {
             slide = way;
             var still = Change(GlobalIllumination.Off);
-            adds.Add(Change(GlobalIllumination.Low) - still);
-            unhelds.Add(Change(GlobalIllumination.Low, held: false) - still);
+            adds.Add(Change(GlobalIllumination.Medium) - still);
+            unhelds.Add(Change(GlobalIllumination.Medium, held: false) - still);
         }
         UnloadModel(slab);
         adds.Average().Should().BeLessThan(0.15,
@@ -311,7 +311,6 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
-    [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.Medium)]
     [InlineData(GlobalIllumination.High)]
     public void In_A_Still_View_Each_Screen_Probe_Takes_The_Frame_Befores_Light_From_Where_It_Stood(GlobalIllumination quality)

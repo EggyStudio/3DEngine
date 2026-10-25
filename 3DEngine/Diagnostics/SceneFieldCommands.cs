@@ -52,14 +52,21 @@ internal static class SceneFieldCommands
         // before's two, and its words of the glow lights; and for each texel of the depth the glow
         // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
         // its normal in four.
-        if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: false })
-            lines.Add("no screen probes, which the program left out, the cascades' light read alone");
+        static double Megabytes(GpuScreenProbes screen) =>
+            ((5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
+             + (6.0 * 8 + 4) * screen.Glow.Light.Description.Extent.Width * screen.Glow.Light.Description.Extent.Height) / 1024 / 1024;
+        // At Low, which leaves them out, probes stand for the glow lights alone while some are lit
+        // (GlowOnly), placed and marching to them once a tile with no ray traced.
+        if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: true })
+            lines.Add("no screen probes, which gi.toggle screen left out, the cascades' light read alone and each pixel marching to the glow lights");
+        else if (!GlobalIlluminationRenderer.ScreenProbesAt(quality))
+            lines.Add(gi.Screen is { } alone
+                ? $"no screen probes at {quality}, the cascades' light read alone, and probes every {alone.Tile} pixels, {alone.Across} by {alone.Down}, "
+                  + $"standing for the glow lights alone, {Megabytes(alone):0.00} MB"
+                : $"no screen probes at {quality}, the cascades' light read alone");
         else if (gi.Screen is { } screen)
-        {
-            var glow = screen.Glow.Light.Description.Extent;
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
-                      + $"{((5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down + (6.0 * 8 + 4) * glow.Width * glow.Height) / 1024 / 1024:0.00} MB");
-        }
+                      + $"{Megabytes(screen):0.00} MB");
         var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
         // The frame before at half the window's size in half floats, its mips a third more, and its
         // depth beside it in floats.
@@ -169,7 +176,7 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|glow|cascade> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|glow|cascade> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))

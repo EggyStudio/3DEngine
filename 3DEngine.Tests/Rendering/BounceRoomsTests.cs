@@ -81,15 +81,20 @@ public sealed class BounceRoomsTests : IDisposable
     // view reads 0.213, 0.222 and 0.215, its first cascade's probes holding nothing along it since
     // no probe of a coarser cascade stands inside it. With a probe's hit within a cell of a glow
     // light taking the light's mean over a cell's square about it (glowLightsAt), the strip's view
-    // reads 0.207, 0.217 and 0.201 where 0.207, 0.233 and 0.213.
+    // reads 0.207, 0.217 and 0.201 where 0.207, 0.233 and 0.213. With Low leaving the screen's
+    // probes out, the cascades read alone, the rooms at Low read 0.099, 0.117, 0.270, 0.227, 0.019,
+    // 0.202, 0.051, 0.062 and 0.058 where with the probes 0.115, 0.078, 0.226, 0.308, 0.020, 0.207,
+    // 0.069, 0.113 and 0.058, the thin walls' and the corridor's further from their references
+    // with nothing under the probes' spacing, and the Cornell box's, the window's, the grazing
+    // floor's and the carried lamp's nearer.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
     [InlineData(1, GlobalIllumination.High, 0.15)]
-    [InlineData(2, GlobalIllumination.Low, 0.09)]
+    [InlineData(2, GlobalIllumination.Low, 0.13)]
     [InlineData(2, GlobalIllumination.Medium, 0.10)]
     [InlineData(2, GlobalIllumination.High, 0.10)]
-    [InlineData(3, GlobalIllumination.Low, 0.25)]
+    [InlineData(3, GlobalIllumination.Low, 0.29)]
     [InlineData(3, GlobalIllumination.Medium, 0.26)]
     [InlineData(3, GlobalIllumination.High, 0.25)]
     [InlineData(4, GlobalIllumination.Low, 0.35)]

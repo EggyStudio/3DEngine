@@ -71,7 +71,8 @@ sealed class Illumination : Zone
         var image = LoadImageFromScreen();
         if (!IsImageValid(image)) return;
         var camera = player.Camera;
-        // Four places along each wall, since the low quality's screen probes are sixteen pixels apart.
+        // Four places along each wall, the light averaged along it, since the low quality reads the
+        // cascades' probes alone, two units apart.
         Color Along(float across) => Pixels.Mean([.. new[] { 0f, 0.7f, 1.4f, 2.1f }.Select(along => Pixels.Average(image, GetWorldToScreen(Place(across, along, 0.11f), camera)))]);
         var red = Along(-2.8f);
         var green = Along(2.8f);

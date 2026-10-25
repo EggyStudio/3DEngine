@@ -82,7 +82,7 @@ struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
-    // w: 1 where the program left the screen's probes out and they stand for the glow lights alone,
+    // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights alone,
     // their surfaces and what they see of each light written and no ray traced, and 2 where the
     // probe z names writes a value that is not a number as its light, as a test feeds it.
     uint4 texels;

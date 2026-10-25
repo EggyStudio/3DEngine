@@ -4,13 +4,13 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// Global illumination with the screen's probes left out, the cascades' light read alone and the
-// glow lights read from probes standing for them alone.
+// Global illumination with the screen's probes left out, at Low or for debugging, the cascades'
+// light read alone, and at Low the glow lights read from probes standing for them alone.
 public sealed partial class GlobalIlluminationTests
 {
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void A_Frame_With_The_Screens_Probes_Left_Out_Draws_The_Cascades_Light_Alone()
+    public void Low_Leaves_The_Screens_Probes_Out_And_Their_Debug_Toggle_Leaves_Them_Out_At_Any_Quality()
     {
         Open();
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
@@ -21,24 +21,25 @@ public sealed partial class GlobalIlluminationTests
             DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
             DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
         }
-        // The cascades read alone through the toggle, which traces the screen's probes and leaves
-        // them unread, then with the probes left out, then with no global illumination.
-        SetGlobalIllumination(GlobalIllumination.Low);
+        // The screen's probes made at Medium, then left out there through the debugging toggle,
+        // then at Low, which leaves them out, the cascades read alone, then no global illumination.
+        // With no glow light Low makes no probe at all.
+        SetGlobalIllumination(GlobalIllumination.Medium);
         var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        Capture(Draw);
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().NotBeNull("Medium stands probes on the window's surfaces");
         gi.ScreenOff = true;
-        var unread = Capture(Draw);
+        Capture(Draw);
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("the toggle leaves them neither made nor traced at any quality");
         gi.ScreenOff = false;
-        SetGlobalIlluminationScreenProbes(false);
+        SetGlobalIllumination(GlobalIllumination.Low);
         var left = Capture(Draw);
-        GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("the screen's probes are neither made nor traced");
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("Low leaves the screen's probes out");
+        SceneFieldCommands.IlluminationState(GetApp().World).Should().Contain("no screen probes at Low, the cascades' light read alone");
         SetGlobalIllumination(GlobalIllumination.Off);
         var still = Capture(Draw);
 
-        var differing = 0;
-        for (int y = 0; y < left.Height; y++)
-            for (int x = 0; x < left.Width; x++)
-                if (GetImageColor(left, x, y) != GetImageColor(unread, x, y)) differing++;
-        differing.Should().Be(0, "the frame reads the cascades' light as the toggle's does");
         var lit = Mean(left, 58, 48, 6, 10);
         var dark = Mean(still, 58, 48, 6, 10);
         (lit.X - dark.X).Should().BeGreaterThan(20, $"the cascades bring the wall's light to the block's side, {lit} against {dark}");
@@ -47,12 +48,12 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void With_The_Screens_Probes_Left_Out_A_Glow_Light_Is_Read_From_Probes_Standing_For_It_Alone()
+    public void At_Low_A_Glow_Light_Is_Read_From_Probes_Standing_For_It_Alone()
     {
-        // The strip's room, the strip carried as a glow light. With the screen's probes left out,
-        // probes stand for the glow lights alone and a pixel reads the texels around it, which
-        // gives the floor the light a pixel marching to every light itself gives it, the screen's
-        // probes traced and left unread through the toggle, and with no glow light none are made.
+        // The strip's room, the strip carried as a glow light. At Low, which leaves the screen's
+        // probes out, probes stand for the glow lights alone and a pixel reads the texels around it,
+        // which gives the floor the light a pixel marching to every light itself gives it, the
+        // probes left out whole through the debugging toggle, and with no glow light none are made.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         // The two reads' light compared as they give it, with no knee bending the floor's brightest.
@@ -76,12 +77,13 @@ public sealed partial class GlobalIlluminationTests
 
         settings.ScreenOff = true;
         var marched = Capture(Room, camera);
-        settings.ScreenOff = false;
-        SetGlobalIlluminationScreenProbes(false);
-        var read = Capture(Room, camera);
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!;
+        gi.Screen.Should().BeNull("the toggle leaves even the probes standing for the glow lights out");
+        settings.ScreenOff = false;
+        var read = Capture(Room, camera);
         gi.GlowOnly(renderer.RenderWorld).Should().BeTrue("the strip is carried as a glow light");
         gi.Screen.Should().NotBeNull("probes stand for the glow lights alone");
+        SceneFieldCommands.IlluminationState(GetApp().World).Should().Contain("standing for the glow lights alone");
 
         var (byMarching, byReading) = (Mean(marched, 0, 60, 160, 36), Mean(read, 0, 60, 160, 36));
         byReading.X.Should().BeGreaterThan(40, $"the strip lights the floor, {byReading}");
@@ -90,6 +92,7 @@ public sealed partial class GlobalIlluminationTests
         settings.GlowOff = true;
         Capture(Room, camera);
         gi.Screen.Should().BeNull("with no glow light the screen's probes left out are not made at all");
+        SceneFieldCommands.IlluminationState(GetApp().World).Should().NotContain("standing for the glow lights");
         UnloadModel(slab);
         UnloadModel(strip);
     }
