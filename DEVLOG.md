@@ -6,6 +6,24 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 line under Done names the item of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that
 closed it.
 
+## 2026-10-25
+
+Done that day
+
+- Item 108 at `a8f127ad`. A mesh entity can be a voxel game's section, with its own shader, streams,
+  visibility and shadow.
+- Item 110 at `31d1fcb6`. A behavior's system says what it runs after or before, and in more than
+  one state.
+- Item 113 at `0cfc2843`. A behavior reads the mouse's wheel through its context.
+- Item 114 at `e746f98e`. An empty emitter costs nothing.
+- Item 115 at `6e29cfa0`. A particle can face a set direction rather than the camera.
+- Item 116 at `55a33ce9`. A program's profile value can be a mean over a window.
+- Item 117 at `c897565c`. An index whose key names many entities.
+- Item 118 at `07d3bf28`. A played-out voice is let go, and Tick walks the live ones alone.
+- Item 119 at `6a20d165`. The dummy driver drains a one-shot voice as a device does.
+- Item 120 at `ac1c6bad`. A voice takes a low-pass by cutoff and a room's reverb by wet share, size
+  and decay.
+
 ## 2026-10-24
 
 ![](.github/assets/readings/2026-10-24-blockout-spots.webp)
@@ -53,6 +71,14 @@ magenta for a march with no texel, the far land and the clouds a fifth of the fr
 ![](.github/assets/readings/2026-10-24-item-96-grove.webp)
 The cherry grove the scene pass is timed at, drawn on 5.2.215 above and on the engine's HEAD below.
 
+![](.github/assets/readings/2026-10-24-item-109-strip.webp)
+The bounce rooms' strip lamp, its path-traced reference at the left, the engine's curve holding the
+lamp's hue cream in the middle, and the highlight knee taking it to white at the right.
+
+![](.github/assets/readings/2026-10-24-item-109-window.webp)
+The bounce rooms' window, its path-traced reference at the left, the engine's curve in the middle,
+and the highlight knee at the right, the sun's patch on the floor a little less yellow.
+
 ![](.github/assets/examples/core_day_sky.webp)
 The day sky example's capture holds it at six, at noon, at eighteen and at midnight in one picture,
 Summit's is taken again under its day sky, and the README's gallery shows the example. (`49d834e1`)
@@ -86,6 +112,15 @@ Done that day
   place.
 - Item 99 at `e2a203d9`. A program places the shadow light's shadow read within `litLight`, so a
   stepped shadow costs one read.
+- Item 101 at `e5ad8d28`. A mesh is drawn into the shadow maps alone, so a game that culls its view
+  keeps its casters.
+- Item 104 at `267d3886`. A test runs an app's behaviors through the package.
+- Item 105 at `f0574e89`. A Query reaches past three components.
+- Item 106 at `df0c7b50`. A behavior holds what it needs, or the guide says why not.
+- Item 107 at `a0d3d7f7`. An entity is found by a component's key, so a game keeps no index of its
+  own.
+- Item 109 at `8ae947ee`. Highlights roll off to white a channel at a time above a knee, the rest of
+  the picture as it is.
 
 ## 2026-10-23
 

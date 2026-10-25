@@ -461,7 +461,7 @@ public float3 bouncedSeen(float3 p, float3 n)
     // Faded to the next cascade across this one's outer band, as bouncedAt fades, since read from
     // one cascade alone a far floor that no screen probe like it holds stepped by 10% where the
     // third cascade ended (CascadeEdgeTests).
-    float own = c + 1 < cascades && cascadeAt(bouncedField, c + 1, cascades).w > 0.0 ? cascadeHold(bouncedField, c, p, cascades) : 1.0;
+    float own = fadesOn(bouncedField, c, cascades) ? cascadeHold(bouncedField, c, p, cascades) : 1.0;
     float3 light = float3(0.0);
     [loop]
     for (int k = 0; k < 2; k++)

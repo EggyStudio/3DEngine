@@ -10,9 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ac1c6bad`, item 120, the low-pass and the reverb, read at 05:06 on 2026-10-25,
-carrying the review's files, held until the build run of `6a20d165` ends. A sound's voice in the SDL
-backend is one stereo stream at the sound's rate fed on demand through
+Reviewed up to `a8f127ad`, item 108's third phase, the mesh entity as a game's section in the guide,
+read at 05:10 on 2026-10-25, carrying NORM.md and the review's files, documents alone. The behaviors
+guide gains Mesh entities after Spawning entities, the Mesh's three forms, positions, indexed and
+the program's upload, Material.Shader with its values as SetShaderValue left them, Visible and
+ShadowOnly as bools written in place, and entities.drawn, with a voxel section uploaded from
+positions and a UInt2 MeshStream drawn through its terrain shader and set ShadowOnly where the flood
+does not reach, a second block writing ShadowOnly where the answer changed alone since a write has
+the chunk gathered again, both building on the package with the guide's other 19 blocks. The cost,
+read in a scratch flat-API program on the package with a thousand meshes of their own on a 32 by 32
+grid under a shadowed sun, uncapped, 600 frames in two alternating rounds, the engine's shader and
+toon.slang alike, written into RENDERING.md's mesh entity paragraph, is 0.21 to 0.25 ms of
+program.drawing and 0.53 to 0.61 of cpu.model_batches through DrawMesh each frame against 0.15 to
+0.19 ms of MeshEntityDraws and 0.35 to 0.47 of model_batches as entities standing still, the frames
+3.1 to 4.1 ms either way. The 29 norm and document tests pass, the guide's 21 blocks build on the
+package. After `ac1c6bad`, item 120, the low-pass and the reverb, read at 05:06 on 2026-10-25,
+carrying the review's files, pushed with `a8f127ad` at 06:43 on 2026-10-25 once the build run of
+`6a20d165` went green whole, the pack run started with publish on at 06:43 for the game's item 95
+and watched, the build run green whole at 07:41, Windows in 57 minutes, Linux in 35 and macOS in 32.
+A sound's voice in the SDL backend is one stereo stream at the sound's rate fed on demand through
 SDL_SetAudioStreamGetCallback, a LibraryImport with a function pointer as the postmix is; the feed
 wraps for a loop, runs each frame through VoiceEffects and applies the pan, so the pan moves as it
 plays, and after the samples come the room's tail frames, the decay plus the longest comb, then the
@@ -48,40 +64,40 @@ reads a 0.3 s sound at 44,100 Hz on the 48 kHz device ending in 0.25 to 1.5 s as
 one, and a loop held past its length playing then ending within 1.5 s once let go; the backend's
 mixed processors moved to SdlAudioBackend.Postmix.cs for N 1.3. The strict build clean, 2,100 plain
 and shuffled on the GPU. Pushed with `07d3bf28` and `c897565c` at 04:54 on 2026-10-25 once the build
-run of `55a33ce9` went green whole, the run watched. After `07d3bf28`, item 118, a played-out voice
-let go, read at 03:50 on 2026-10-25, carrying the review's files. AudioServer.Tick lets go of a
-voice played once whose backend reports it played out, the backend voice freed and the ticket
-dropped so the AudioSource reads as stopped, Stop on it doing nothing and the ticks after walking
-the voices still playing, looping, paused and streamed voices kept until stopped with a Stream flag
-on the record, and audio.voices in the profile set to LiveSourceCount; AudioServerTests plays a
-hundred steps, a loop and a paused voice through the recording backend at 102 voices and reads two
-kept once all have played out, a hundred Stop calls doing nothing and the next tick setting two
-volumes; the audio guide's stop paragraph and the docs say it. The strict build clean, 2,099 plain
-and shuffled on the GPU, the API listing unchanged. After `c897565c`, item 117, the grouping index,
-read at 03:25 on 2026-10-25, carrying the review's files. GroupIndex from ecs.Groups holds many
-entities to the key a keyed component names, Members a span over the index's own list allocating
-nothing beside CountOf and Count, a list of entities a key with each entity's key and place so a
-removal moves the list's last member into the gap, a key left with none dropped, the store's index
-slot taken so add, replace, remove and despawn reach it as they reach KeyIndex and an index made
-late picking up the entities already holding the component. Departures, Index and Groups moved
-together into EcsWorld.Indexes.cs for N 1.3, a component type holding one index of either kind with
-its exception reworded for STYLE.md. The test spawns a thousand mobs in twenty columns, half before
-the index is asked for, each column's members every twentieth, a walk allocating nothing, the
-members following a despawn, a removal and a move, an emptied column no key, and a KeyIndex asked
-for the same type throwing; the behaviors guide gains a line and a block and the cheat sheet names
-Groups. The strict build clean, 2,098 plain and shuffled on the GPU, the guide's 19 blocks building
-on the package. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at
-1920 by 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from
-the variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 108, the mesh entity as a game's section, the ECS gaps the game's drops found,
-then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene pass's
-read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
-shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
-91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
-guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
-camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
-7.5; the cloud sessions stand by.
+run of `55a33ce9` went green whole, their run green whole at 06:41, Windows in 108 minutes under the
+limit of 150, Linux in 59 and macOS in 26. After `07d3bf28`, item 118, a played-out voice let go,
+read at 03:50 on 2026-10-25, carrying the review's files. AudioServer.Tick lets go of a voice played
+once whose backend reports it played out, the backend voice freed and the ticket dropped so the
+AudioSource reads as stopped, Stop on it doing nothing and the ticks after walking the voices still
+playing, looping, paused and streamed voices kept until stopped with a Stream flag on the record,
+and audio.voices in the profile set to LiveSourceCount; AudioServerTests plays a hundred steps, a
+loop and a paused voice through the recording backend at 102 voices and reads two kept once all have
+played out, a hundred Stop calls doing nothing and the next tick setting two volumes; the audio
+guide's stop paragraph and the docs say it. The strict build clean, 2,099 plain and shuffled on the
+GPU, the API listing unchanged. After `c897565c`, item 117, the grouping index, read at 03:25 on
+2026-10-25, carrying the review's files. GroupIndex from ecs.Groups holds many entities to the key a
+keyed component names, Members a span over the index's own list allocating nothing beside CountOf
+and Count, a list of entities a key with each entity's key and place so a removal moves the list's
+last member into the gap, a key left with none dropped, the store's index slot taken so add,
+replace, remove and despawn reach it as they reach KeyIndex and an index made late picking up the
+entities already holding the component. Departures, Index and Groups moved together into
+EcsWorld.Indexes.cs for N 1.3, a component type holding one index of either kind with its exception
+reworded for STYLE.md. The test spawns a thousand mobs in twenty columns, half before the index is
+asked for, each column's members every twentieth, a walk allocating nothing, the members following a
+despawn, a removal and a move, an emptied column no key, and a KeyIndex asked for the same type
+throwing; the behaviors guide gains a line and a block and the cheat sheet names Groups. The strict
+build clean, 2,098 plain and shuffled on the GPU, the guide's 19 blocks building on the package.
+Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
+part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
+registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
+half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
+has. Next the pack run, the game's item 95 waiting on its package, then 102, the far cascade's slab,
+then 103, the screen probes' one switch, then 96, the scene pass's read of the cascades and the
+shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the
+planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop
+and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then
+item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch
+`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `55a33ce9` came, item 116, a profile value's mean, with `6e29cfa0`, item 115, pushed at
 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, its run green whole at
@@ -1082,7 +1098,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     nothing from its cells within the counted reach, and its cost at the grove read and cut; the
     bounce rooms with the far cascade set against their references and the game's glass frame and
     red wall read again; then the far cave's sky at 90 blocks read on the game with the far cascade
-    set. One commit, after item 101 and before item 96's remaining cuts.
+    set. One commit, after item 101 and before item 96's remaining cuts. The coder's plan at 05:10,
+    taken as laid out, reads the cause as the last counted cascade given a middle cascade's interval
+    with a far one set, every ray meeting nothing within four spacings merging the far probes eight
+    cells apart that hold the ground as a slab, and the pixels' reads blending into them across the
+    outer band; the last counted cascade traces to the far field's edge as the last does without a
+    far one, meeting the far cells only once it has left the counted ones, the far probes read for
+    what lies beyond the counted reach alone with no band fading into them inside it, the cost read
+    and cut, the rooms and the game's readings on a scratch copy built on a fresh pack.
 
 103. **The screen probes have one switch, and off means no screen pass at all.** The owner asked the
     game's session at about 18:4x on 2026-10-24, read at 18:44, why two checkboxes stand for the
@@ -1124,31 +1147,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
-    shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
-    entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
-    Material has no shader and MeshEntityDraws sets none, so the terrain's shader with its atlas,
-    fog, animation table and packed light cannot draw a section entity; the ECS Mesh is positions,
-    normals and uvs alone and not indexed, so the packed uint2 stream and the colors have no place
-    at about three times the upload; past MaxLooks of 4,096 looks or groups every look is forgotten
-    and rebuilt each frame, which sections times six materials pass at render distance 12; a mesh
-    not drawn in a frame is freed and forgotten so the next frame rebuilds every entity on the main
-    thread; no visibility or shadow-only component exists for item 101's draw; and entity draws are
-    counted only in internals and models.draws, not as a profile value. The engine's mesh entity
-    path grows to carry a program's shader on the Material, a Mesh with a program's streams and
-    indices as DrawMesh takes them, looks kept without a bound a program meets, a mesh kept while
-    its entity lives whether or not it is drawn, a Visible component the game's flood sets and a
-    ShadowOnly one as item 101's flag, and the entity draws as a profile value; the guide's page on
-    mesh entities says it with a voxel section as the example, tests for each, and the cost against
-    DrawMesh read on a scene of a thousand meshes. Two or three commits, after item 107 and before
-    102. The first phase at `e3d554b1` on 2026-10-24, the mesh with a program's streams and indices,
-    looks and meshes kept; the second after items 109 and 110, the shader on the Material, Visible
-    and ShadowOnly and the draws in the profile; the third the guide and the cost. The second phase
-    also mends picking, which read an indexed mesh's positions three at a time since the first
-    phase. The second phase at `c71cdbea` on 2026-10-25, the shader on the Material, Visible and
-    ShadowOnly and the draws in the profile, picking mended; the third, the guide's page and the
-    cost, after items 114 to 116, and the game's sections with the package carrying both.
 
 ## Verdicts
 
@@ -1771,6 +1769,14 @@ Verdicts 56 to 88 are settled, said under each in REVIEW-ARCHIVE.md; none is ope
     .github/assets/readings/ and the game's under .github/devlog/, each a WebP named by the date and
     the item in the commit of its work with the commit's sentence as its caption, DEVLOG.md
     generated from them.
+
+71. **The devlog written as the work goes.** The owner asked on 2026-10-25 at 05:13 that the
+    sessions write the devlog more often than at a day's end, though not at every commit. N 4.8
+    gains the cadence, an item that changes what is seen ending with at least one captioned picture,
+    a pair before and after where it mends and one a phase where it is built in phases, and
+    DEVLOG.md regenerated by the review as each item is archived, the coder's next commit carrying
+    it as it carries the review's files; the three devlogs were regenerated at 05:16 with the day's
+    pictures and items. The same in BevyCSharp (Decision 64) and Voxel-Sandbox (Decision 47).
 
 ## Replies
 

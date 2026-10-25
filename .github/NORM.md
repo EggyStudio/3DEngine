@@ -211,8 +211,11 @@ session, as a day's radiance cascade captures were. Each is a WebP under `.githu
 named by the date and the item, as `2026-10-24-item-51-emitters.webp`, and its caption in DEVLOG.md,
 which is generated from them, is the line the folder's `captions.md` gives it, the file's name then
 a bar then one sentence, or the commit's sentence where the file has none; a picture of no item
-takes the day and a name. By review, the reviewer reading each commit for the pictures its report
-names.
+takes the day and a name. An item that changes what is seen ends with at least one such picture, a
+pair before and after where it mends, and an item built in phases one a phase, so the devlog shows
+the work as it goes and not at a day's end alone; DEVLOG.md is regenerated as each item ends, and
+the commit after carries it as it carries the review's files. By review, the reviewer reading each
+commit for the pictures its report names and regenerating DEVLOG.md as it archives an item.
 
 ## 5 Examples and games
 

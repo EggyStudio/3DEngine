@@ -24,6 +24,16 @@ public static const float Lean = 0.5;
 // sky's light at the last's.
 public static const float CascadeBand = 8.0;
 
+// Whether cascade c of the world's `probes` fades into the next across its outer band, where the
+// next is built and is not the far cascade's. The last counted cascade holds its light to its side,
+// since the far cascade's probes stand in cells that hold the ground near them as a slab, and faded
+// into them the pixels inside the counted reach took that slab's light.
+public bool fadesOn(SceneFieldInfo info, int c, int probes)
+{
+    int next = c + 1;
+    return next < probes && !(info.counts.w > 0.5 && next == probes - 1) && cascadeAt(info, next, probes).w > 0.0;
+}
+
 // How much of the indirect light a point p takes from cascade c rather than the next, all of it
 // inside, falling to none across c's outer band (CascadeBand), kept clear of the eye
 // (bandHold), past the cell fieldCascade keeps.

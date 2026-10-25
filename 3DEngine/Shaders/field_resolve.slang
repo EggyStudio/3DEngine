@@ -54,7 +54,9 @@ struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
     float4 cascade;
-    // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read.
+    // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read. y: how
+    // far either side of its middle a double-sided sheet or a wall thinner than a cell is held, half a
+    // cell but in the far cascade, where half the last counted cascade's cell.
     float4 lent;
 };
 
@@ -95,9 +97,9 @@ float resolvedAt(uint3 c, uint size)
     bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
     if ((code & 0x200u) != 0u)
-        d -= push.cascade.z * 0.5;
+        d -= push.lent.y;
     else if (thin)
-        d = (d + beyond) * 0.5 - push.cascade.z * 0.5;
+        d = (d + beyond) * 0.5 - push.lent.y;
     else if ((code & 0x100u) == 0u)
         d = -d;
     return d;

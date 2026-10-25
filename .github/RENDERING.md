@@ -600,9 +600,25 @@ built and stamped as the others are, under the cascades' and the triangles' budg
 first. Global illumination gives it a cascade of probes after those the quality traces, as many
 directions as the cascade before it, standing in it where each other stands in the field's cascade
 of its number (`cascadeAt` in `scenefield.slang`, `SceneFieldPlan.CascadeOfProbes`), so at `Low` with
-four counted cascades its probes follow the second's. Its interval begins half way along the one
-before's and ends at the far cascade's diagonal, so the cascade before it ends at four times its
-spacing and its rays that meet nothing take the far probes' light where they took the sky. A probe
+four counted cascades its probes follow the second's. The far cascade is read only by a ray that
+leaves the counted cascades. The cascade before its probes traces as the last does, on to the far
+cascade's diagonal, its rays meeting the far cascade's cells only once they have left the counted
+ones and bringing the sky where they meet nothing, and the merge takes nothing above it. The far
+probes give their light to the pixels past the counted cascades alone, the last counted cascade
+fading into them no more across its band (`fadesOn` in `cascades.slang`). The far cascade holds a
+double-sided sheet or a wall thinner than a cell as thin as the last counted cascade holds one,
+where half its own cell, 37 blocks at the voxel game's far plane, held the flat world's ground of
+four blocks as a slab rising past the eye. Merged from the far probes, which stood in that slab, the
+cascade before them took their light over its own sky and their share of the sky in place of its
+own, and the voxel game's play check's glass frame read 168, 157, 106 with the far cascade at the
+far plane where 185, 167, 126 without it, its red wall 139 where 154, in sRGB levels at an exposure
+of 1; with both mended they read the same either way. The bounce rooms' grazing floor at `Low` with
+a far cascade read 0.108 of its light from its reference, 0.069 since, and their other views alike
+within 0.007. Seed 1's deep cave reads the same with the far cascade and without it, its tops 90
+blocks ahead 9, 13, 18 at High, which is the game's fog alone, 0, 0, 0 with the fog off, since no
+cascade's light reaches them. At seed 1's cherry grove at 1920 by 1080 the far cascade costs the
+scene pass 0.2 to 0.3 ms and global illumination 0.25 ms, 8.0 to 8.3 against 7.8 to 8.0 and 2.6
+against 2.4, as it did before the mend. A probe
 of the first cascade facing a black wall 40 units off, past two counted cascades of 0.15, read 1.14
 of a sky of pi where it read 3.14 without the far cascade (`GlobalIlluminationTests`). On lavapipe,
 by `./e3d command profile`, the Cornell box's field at its three cascades and a far one to the far

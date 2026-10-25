@@ -1,5 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
+using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
@@ -68,6 +69,64 @@ public sealed partial class SceneFieldTests
         far.SelectMany(build => build.Instances).Should().Contain(instance => instance.World.Translation.Z <= -160,
             "the far cascade holds the meshes past the counted ones' reach");
         plan.BuiltOrigin(2).Should().NotBeNull();
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Sheet_Under_The_Far_Cascades_Wide_Cells_Rises_No_Slab_In_Them()
+    {
+        // A floor drawn double-sided under a far cascade of cells many units wide, which a cascade
+        // holds as a sheet half a cell thick either side of it, as it holds a wall thinner than a
+        // cell, so a ray between two cells still meets it. Half the far cascade's own cell stood such
+        // a sheet as a slab rising past the eye, as the voxel game's flat ground of four blocks rose
+        // 37 blocks under the far cascade's cells of 73.75. The floor is put so a far cell's middle
+        // lies a quarter of a cell over it, which half a far cell held inside and which lies in the
+        // open with the sheet held as thin as the last counted cascade holds one. The plane is of
+        // many triangles, since one of fewer than sixteen is held as its box, which no sheet is.
+        var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f, 2, farCascade: 400);
+        var floor = LoadModelFromMesh(GenMeshPlane(600, 600, 12, 12));
+        floor.Materials[0].DoubleSided = true;
+        var camera = new Camera3D(new Vector3(0, 3, 0), new Vector3(0, 3, -10), Vector3.UnitY, 60, CameraProjection.Perspective);
+        var top = 0f;
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.RayWhite);
+                BeginMode3D(camera);
+                DrawModel(floor, new Vector3(0, top, 0), 1, Color.Gray);
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        Frames(SceneFieldPlan.SettleFrames + 30);
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var plan = fields.Plan!;
+        plan.HasFar.Should().BeTrue();
+        var far = plan.Counted;
+        var cell = plan.CellOf(far);
+        cell.Should().BeGreaterThan(4, "the far cascade's cells are many units wide");
+        var origin = plan.BuiltOrigin(far)!.Value;
+
+        // The middle of the far cells' row nearest the floor's top, and the floor moved under it.
+        var row = (int)MathF.Round((0 - origin.Y) / cell - 0.5f);
+        top = origin.Y + (row + 0.5f) * cell - 0.25f * cell;
+        // Moved, it is stamped as its box until it has stood as long as a mesh that moved stands.
+        Frames(SceneFieldPlan.MobileSettleFrames + 30);
+        plan.BuiltOrigin(far).Should().Be(origin, "the eye stood still, so the far cascade lies where it lay");
+
+        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var size = SceneFieldPlan.Resolution;
+        float At(int x, int y, int z) => distances[((far * size + z) * size + y) * size + x];
+        // The row's cells ahead of the eye and beside it, past the counted cascades and over the floor.
+        var eyeCell = (camera.Position - origin) / cell;
+        var held = Enumerable.Range(-8, 17).SelectMany(dx => Enumerable.Range(4, 8).Select(dz => At((int)eyeCell.X + dx, row, (int)eyeCell.Z - dz))).ToList();
+        held.Should().OnlyContain(d => d > 0.1f * cell, "a cell a quarter of a far cell over the floor lies in the open");
+        UnloadModel(floor);
     }
 
     [Fact]

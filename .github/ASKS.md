@@ -1123,3 +1123,32 @@ game lowers the loudness alone meanwhile and says the room in `voxel.sounds`.
 
 Review: item 120 of REVIEW.md, 2026-10-25; a low-pass by cutoff and a reverb by wet share, size and
 decay on the mixer; after item 119.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a mesh over shader buffers carries one stream, so the scene's field loses a section's colors
+
+Read on the 3DEngine 5.2.291 package for the game's item 29, its sections meshed in compute through
+the engine's item 69. The game uploads each section's opaque faces with two streams beside their
+positions and indices (`VoxelSandbox/Rendering/ChunkRenderer.cs:67`), the terrain shader's eight
+bytes a corner as a `MeshStream` of `UInt2`, and a color a corner, its surface's darkened by its
+shade, which the scene's distance field reads as each block's color, so a lamp's light bounces green
+off grass and red off red concrete. A mesh over shader buffers holds its positions and one stream
+(`MeshStore.Counted`), and the field takes colors from that stream only where its format is
+`UNorm8x4`, as item 69's conversion reads it, so a section meshed in compute with its packed stream
+would give the field no colors and every block would bounce the material's white. A section's
+faces vary from none to some thousands, and a mesh over shader buffers holds whole buffers, so each
+section would hold buffers as large as its fullest case, or the game would count its faces on the
+CPU first, which is half the meshing.
+
+Read with `./e3d command profile` after `profile.reset`, three ten-second flights east at sprint over
+land not yet loaded on seed 1 at render distance 12, offscreen at 1280 by 720 on the RTX 4070 Laptop
+GPU, on the game's tree after `1d31dda` with the main thread's meshing given as `update.mesh` and its
+taking in of columns as `update.stream`, both eased over about a second. The frame took 22.0, 37.5
+and 37.0 ms, `update.mesh` 1.0, 7.8 and 6.9 ms, `update.stream` 0.9, 1.9 and 2.4 ms,
+`cpu.scene_field` 6.8, 8.6 and 9.3 ms, and the GPU's passes about 12 ms, so the main thread binds
+the frame and the meshing is the largest part of it the game owns.
+
+The engine lacks a mesh over shader buffers with a color stream beside its stream of the program's
+own, which the field reads as it reads an uploaded mesh's colors, and one over a range of a shader
+buffer, an offset and a capacity, so a program meshing thousands of sections in compute keeps them
+in a few large buffers. The game meshes on the CPU meanwhile and holds the meshing part of its item
+29 until a package carries these.

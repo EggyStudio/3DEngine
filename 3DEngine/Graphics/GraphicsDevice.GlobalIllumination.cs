@@ -339,10 +339,14 @@ internal sealed unsafe partial class GraphicsDevice
     /// of the indirect light of the frame before are its own, or none where the indirect light is
     /// taken whole however a probe's own light falls.
     /// </param>
+    /// <param name="lastCounted">
+    /// The cascade before the far cascade's probes, whose rays bring the light from all around where
+    /// they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.
+    /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
-        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null)
+        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1)
     {
         var run = new ProbeRun(this, commandBuffer, [(TraceStage, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
         var cmd = run.Commands;
@@ -376,7 +380,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 11, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
             var push = new IlluminationTrace
             {
-                Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 ? 1u : 0u,
+                Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,
                 Start = intervals[c].Start, End = intervals[c].End, Spacing = spacing, Cascades = gi.Cascades,
                 Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1),
             };
@@ -400,9 +404,14 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 7, VkDescriptorType.SampledImage, gi.MergedSky[Math.Min(c + 1, gi.Cascades - 1)].View, null, VkImageLayout.General);
             // The reach the gather wrote the frame before, for the parallax read.
             run.Image(set, 8, VkDescriptorType.SampledImage, ((VulkanImageView)gi.ReachView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
-            ReadOnlySpan<uint> push = [(uint)c, p, n, c == gi.Cascades - 1 ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
+            // The last cascade and the one before the far cascade's probes merge nothing from above,
+            // since their rays went on to the field's edge and brought the sky where they met nothing.
+            // Merged from the far cascade's probes, whose cells hold the ground as a slab, the one
+            // before took their light over its own sky and their share of the sky in place of its own.
+            var top = c == gi.Cascades - 1 || c == lastCounted;
+            ReadOnlySpan<uint> push = [(uint)c, p, n, top ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
                 BitConverter.SingleToUInt32Bits(mergeOff ? 1 : 0), BitConverter.SingleToUInt32Bits(alone + 1),
-                BitConverter.SingleToUInt32Bits(c == gi.Cascades - 1 ? 0 : intervals[c + 1].End), (uint)gi.Cascades, 0, 0, 0];
+                BitConverter.SingleToUInt32Bits(top ? 0 : intervals[c + 1].End), (uint)gi.Cascades, 0, 0, 0];
             run.Dispatch(MergeStage, set, MemoryMarshal.AsBytes(push), (p * p * p * n * n + 63) / 64);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }

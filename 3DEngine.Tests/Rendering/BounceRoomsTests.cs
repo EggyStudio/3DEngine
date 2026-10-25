@@ -112,9 +112,28 @@ public sealed class BounceRoomsTests : IDisposable
     [InlineData(9, GlobalIllumination.High, 0.06)]
     public void Each_Room_Reads_Within_Its_Measured_Difference_From_Its_Reference(int view, GlobalIllumination quality, double bound)
     {
+        var share = Differs(view, quality);
+        share.Should().BeLessThan(bound, $"view {view} at {quality} differs from its reference by {share:0.000} of its light");
+    }
+
+    [NeedsRayQueryFact]
+    public void The_Grazing_Floor_At_Low_Keeps_Its_Difference_With_A_Far_Cascade_Set()
+    {
+        // With a far cascade the last counted one merged the far cascade's probes over its own sky
+        // and took their share of the sky in its place, and the grazing floor at Low read 0.108 of
+        // its light from its reference, over its own bound of 0.09, where it reads 0.069 with the
+        // last counted cascade tracing to the field's edge as the last does and merging nothing.
+        var share = Differs(7, GlobalIllumination.Low, far: true);
+        share.Should().BeLessThan(0.09, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
+    }
+
+    // How far a view's frame at a quality differs from its reference, its pixels' differences summed
+    // over the reference's light, with a far cascade at the camera's far plane where far is set.
+    private double Differs(int view, GlobalIllumination quality, bool far = false)
+    {
         var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
-        SetSceneField(3, 0.15f, 2);
+        SetSceneField(3, 0.15f, 2, farCascade: far ? float.PositiveInfinity : 0);
         using var rooms = new Rooms();
         var camera = Rooms.Views[view - 1];
         void Frames(int count)
@@ -155,8 +174,7 @@ public sealed class BounceRoomsTests : IDisposable
             differs += Math.Abs(frame[i] - reference[i]);
             lit += reference[i];
         }
-        var share = differs / lit;
-        share.Should().BeLessThan(bound, $"view {view} at {quality} differs from its reference by {share:0.000} of its light");
+        return differs / lit;
     }
 
     [NeedsVulkanFact]

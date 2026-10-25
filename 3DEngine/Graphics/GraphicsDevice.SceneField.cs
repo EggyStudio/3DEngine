@@ -413,6 +413,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// Whether the build lends the cells the light of emitters thinner than a cell, which its first
     /// part clears and its last reads, <paramref name="thinGlow"/> for a build in one part.
     /// </param>
+    /// <param name="sheet">
+    /// How far either side of its middle a double-sided sheet or a wall thinner than a cell is held,
+    /// or 0 for half a cell, which the far cascade's build keeps to half the last counted cascade's cell.
+    /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     /// <remarks>
     /// A build of more triangles than a frame splats is recorded in parts over frames, the cascade's
@@ -422,7 +426,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </remarks>
     public IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false,
-        bool first = true, bool last = true, bool? lend = null)
+        bool first = true, bool last = true, bool? lend = null, float sheet = 0)
     {
         var lent = lend ?? thinGlow;
         var splats = instanceCount > 0 && triangleCount > 0;
@@ -521,7 +525,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Buffer(resolve, 9, VkDescriptorType.StorageBuffer, field.Emitted ?? field.Behind);
             run.Image(resolve, 10, ((VulkanImageView)field.FacesView).View);
             run.Image(resolve, 11, field.StillFacesView);
-            ReadOnlySpan<Vector4> cascadePush = [new Vector4(cascade, size, cell, band), new Vector4(lent ? 1 : 0, 0, 0, 0)];
+            ReadOnlySpan<Vector4> cascadePush = [new Vector4(cascade, size, cell, band), new Vector4(lent ? 1 : 0, sheet > 0 ? sheet : cell * 0.5f, 0, 0)];
             var groups = (size + 3) / 4;
             run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(cascadePush), groups, groups, groups);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,

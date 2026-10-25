@@ -3720,6 +3720,34 @@ batch.
     2026-10-25, the voices fed on demand with a biquad low-pass and a Freeverb-shaped reverb, the
     three departures in the head.
 
+108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
+    shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md
+    entry in the engine's tree; a gap the port finds comes to the engine first, Decision 68. The ECS
+    Material has no shader and MeshEntityDraws sets none, so the terrain's shader with its atlas,
+    fog, animation table and packed light cannot draw a section entity; the ECS Mesh is positions,
+    normals and uvs alone and not indexed, so the packed uint2 stream and the colors have no place
+    at about three times the upload; past MaxLooks of 4,096 looks or groups every look is forgotten
+    and rebuilt each frame, which sections times six materials pass at render distance 12; a mesh
+    not drawn in a frame is freed and forgotten so the next frame rebuilds every entity on the main
+    thread; no visibility or shadow-only component exists for item 101's draw; and entity draws are
+    counted only in internals and models.draws, not as a profile value. The engine's mesh entity
+    path grows to carry a program's shader on the Material, a Mesh with a program's streams and
+    indices as DrawMesh takes them, looks kept without a bound a program meets, a mesh kept while
+    its entity lives whether or not it is drawn, a Visible component the game's flood sets and a
+    ShadowOnly one as item 101's flag, and the entity draws as a profile value; the guide's page on
+    mesh entities says it with a voxel section as the example, tests for each, and the cost against
+    DrawMesh read on a scene of a thousand meshes. Two or three commits, after item 107 and before
+    102. The first phase at `e3d554b1` on 2026-10-24, the mesh with a program's streams and indices,
+    looks and meshes kept; the second after items 109 and 110, the shader on the Material, Visible
+    and ShadowOnly and the draws in the profile; the third the guide and the cost. The second phase
+    also mends picking, which read an indexed mesh's positions three at a time since the first
+    phase. The second phase at `c71cdbea` on 2026-10-25, the shader on the Material, Visible and
+    ShadowOnly and the draws in the profile, picking mended; the third, the guide's page and the
+    cost, after items 114 to 116, and the game's sections with the package carrying both. Done at
+    `a8f127ad` on 2026-10-25 with the third phase, the guide's Mesh entities section and the cost
+    against DrawMesh, a thousand meshes as entities drawing in 0.15 to 0.19 ms against 0.21 to 0.25
+    through DrawMesh each frame.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

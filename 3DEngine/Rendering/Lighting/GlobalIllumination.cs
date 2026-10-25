@@ -356,8 +356,14 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // as a ray leaving the field does.
         //
         // The far cascade's probes stand in the field's far cascade, their spacing that of its cells,
-        // and its interval begins half way along the one before's, as each cascade's does, so a ray
-        // that leaves the cascade before meets what it holds before the sky.
+        // and its interval begins half way along the one before's, as each cascade's does. The
+        // cascade before it traces as the last does, on to the far cascade's edge, meeting the far
+        // cascade's cells only once its ray has left the counted ones, and bringing the sky where it
+        // meets nothing, so it takes no light from the far cascade's probes. Those stand eight of its
+        // cells apart, in cells that hold the ground near them as a slab, and merged into the
+        // cascade before at four times its spacing, the voxel game's glass frame read 197, 192, 144
+        // where 197, 195, 194 without the far cascade, and a red wall's blue 57 against 98. The far
+        // cascade's probes give their light to the pixels past the counted cascades alone.
         var fieldEdge = SceneFieldPlan.Resolution * (plan?.CellOf(plan.Cascades - 1)
             ?? fieldSettings.CellSize * (1 << (Math.Clamp(fieldSettings.Cascades, 1, 8) - 1))) * MathF.Sqrt(3);
         var intervals = new (float Start, float End)[cascades];
@@ -365,7 +371,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         {
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
             var start = c == 0 ? 0 : far && c == cascades - 1 ? 2 * ProbeSpacing * fieldSettings.CellSize * (1 << (c - 1)) : spacing;
-            intervals[c] = (start, c == cascades - 1 ? fieldEdge : 4 * spacing);
+            intervals[c] = (start, c == cascades - 1 || far && c == cascades - 2 ? fieldEdge : 4 * spacing);
         }
         // The screen's probes' rays reach twice as far as the world's probes are apart before they
         // take the light from beyond from them, where they end in the finest cascade
@@ -406,7 +412,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         }
         _origins = origins;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
-            switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying)));
+            switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
+            far ? cascades - 2 : -1)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. Where the program left them out they stand for the glow lights alone while some

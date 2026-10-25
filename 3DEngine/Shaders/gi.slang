@@ -413,15 +413,15 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 
 // The indirect light reaching a surface at p facing n, irradiance, from the finest cascade of
 // probes that holds it, fading to the next cascade's across its outer band (cascadeHold) where that
-// one is built, or none where no cascade of probes holds p. The two cascades are read in a loop
-// kept from unrolling, so a shader holds one read of a cascade. The probes are found where the
-// field's cascades they stand in lie (cascadeAt).
+// one is built and is not the far cascade's (fadesOn), or none where no cascade of probes holds p.
+// The two cascades are read in a loop kept from unrolling, so a shader holds one read of a
+// cascade. The probes are found where the field's cascades they stand in lie (cascadeAt).
 public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1, int(cascades)).w > 0.0 ? cascadeHold(info, c, p, int(cascades)) : 1.0;
+    float own = fadesOn(info, c, int(cascades)) ? cascadeHold(info, c, p, int(cascades)) : 1.0;
     float3 light = float3(0.0);
     [loop]
     for (int k = 0; k < 2; k++)
@@ -449,7 +449,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
     int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float own = c + 1 < int(cascades) && cascadeAt(info, c + 1, int(cascades)).w > 0.0 ? cascadeHold(info, c, p, int(cascades)) : 1.0;
+    float own = fadesOn(info, c, int(cascades)) ? cascadeHold(info, c, p, int(cascades)) : 1.0;
     float3 light = float3(0.0);
     // The finest cascade's gather is made for its sky's share where its light takes no share.
     [loop]

@@ -252,9 +252,14 @@ internal sealed class SceneFieldRenderer : IDisposable
                 Hold(instances);
                 // A build in parts lends the cells the light of thin emitters whatever its first part
                 // holds, since a later part may hold one, and that light is cleared at its start.
+                // The far cascade holds a sheet thinner than its cell as thin as the last counted cascade
+                // holds one, where half its own cell, 37 blocks at the voxel game's far plane, held the
+                // flat world's ground four blocks thick as a slab rising past the eye, which the rays
+                // leaving the counted cascades met in place of the sky.
+                var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
                 Hold(device.RecordSceneFieldBuild(commands, _field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
-                    lend: build is { First: true, Last: true } ? thinGlow : true));
+                    lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet));
             }
             foreach (var (cascade, origin, cell, painted) in repaints)
             {
