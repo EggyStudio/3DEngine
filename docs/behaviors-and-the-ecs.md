@@ -185,7 +185,9 @@ ctx.Cmd.Spawn((entity, world) => world.Add(entity, ball));
 
 A `Mesh` holds positions, three to a triangle, or vertices and the indices of their triangles with
 `new Mesh(positions, indices)`, which the engine uploads the first time an entity is drawn with it
-and keeps while any entity holds it, drawn or not. A mesh the program uploaded itself, with colors
+and keeps while any entity holds it, drawn or not. A `Material` made from a color takes every
+default a model's `ModelMaterial` takes, a roughness of a half and the faces' fronts alone drawn
+among them, so a mesh looks the same drawn as an entity as through `DrawMesh`. A mesh the program uploaded itself, with colors
 or a stream of its own, is drawn as it is, given as `new Mesh(UploadMesh(...))`. A `Material` names
 the shader it is drawn with as `Shader`, as `DrawMesh` draws with a material's, its uniforms and
 textures as `SetShaderValue` left them before the frame's render stage. `Visible` with false leaves

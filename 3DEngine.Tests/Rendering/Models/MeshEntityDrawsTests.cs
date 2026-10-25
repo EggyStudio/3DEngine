@@ -119,8 +119,8 @@ public class MeshEntityDrawsTests
         var (world, ecs) = Scene();
         SpawnMesh(ecs, Triangle, new Vector3(1, 0, 0), new Vector4(1, 0, 0, 1));
         SpawnMesh(ecs, Triangle, new Vector3(2, 0, 0), new Vector4(0, 1, 0, 1));
-        var single = SpawnMesh(ecs, Triangle, new Vector3(3, 0, 0), new Vector4(0, 0, 1, 1));
-        ecs.GetRef<Material>(single).DoubleSided = false;
+        var both = SpawnMesh(ecs, Triangle, new Vector3(3, 0, 0), new Vector4(0, 0, 1, 1));
+        ecs.GetRef<Material>(both).DoubleSided = true;
 
         MeshEntityDraws.Run(world);
 
@@ -128,7 +128,7 @@ public class MeshEntityDrawsTests
         list.Draws.Should().BeEmpty("opaque entities are recorded as instances");
         list.Groups.Select(g => g.Count).Should().Equal(2, 1);
         list.Groups[0].ToArray().Select(i => i.Color).Should().Equal(new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1));
-        list.Groups[1].Template.DoubleSided.Should().BeFalse("a single-sided material is drawn by another pipeline");
+        list.Groups[1].Template.DoubleSided.Should().BeTrue("a double-sided material is drawn by another pipeline");
         list.WindowViewProjection.Should().Be(list.Groups[0].Template.ViewProjection, "the shadow is fitted to the camera the groups were recorded through");
     }
 

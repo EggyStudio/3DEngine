@@ -10,34 +10,57 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `23b4793b`, item 124, the mesh entity's shadow and bounce flags, read at 18:54 on
-2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md, pushed at 20:15 on
-2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run started with
-publish on at 20:15 for the game's remaining parts; both runs red within three minutes at 20:17 on
-the runners' dotnet install, Verdict 92, their failed jobs run again at 20:20 and watched.
-CastsShadows and BouncesLight stand on the ECS Material set true by its constructors as DoubleSided
-is, a scene file's older entries reading them true since the reader starts from Material.Default,
-MeshEntityDraws passing them to the draw and the group key gaining both so entities that differ
-never share a batch; the guide's Mesh entities section shows a water entity casting no shadow, its
-block building on the package. The test sets three cube entities over a floor under the sun, the
-twin and the no-bounce cube shadowing the floor while the no-shadow cube leaves it lit above three
-quarters of the clear floor, the field holding the twin alone, and fails with the flags off the
-draw. 2,116 on the GPU in both orders, 33 on lavapipe with validation, the strict build clean,
-PublicApi.txt updated. A trap noted, the ECS Material's constructors making DoubleSided true where
-ModelMaterial defaults to single-sided, so a default entity draws both faces where a default
-DrawMesh draws the front alone, the game copying the flag across and unaffected, item 126. After
-`4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed at 18:27 on
-2026-10-25 once the build run of `21a3fbc7` went green whole, its run green whole at 20:12, Windows
-in 104 minutes, Linux in 38 and macOS in 33, carrying the review's files and DEVLOG.md with a Shared
-line. LightThrough on ModelMaterial and the ECS Material sets the share of light that passes a unit
-of a surface's depth, the field's colors carrying it in their alpha, the cascades' rays and the
-screen probes' rays crossing up to four such surfaces, keeping the share for each unit of depth and
-taking the rest of the surface's light, a crossing before a cascade's interval kept for the probe's
-own faces alone in a second channel of the distances. One departure, a floor under a slab a unit
-thick letting half through a unit taking 0.23 of the sky light the solid slab holds back at Low and
-0.29 at High and an all-through slab 0.95 and 0.98, where the item said about half, since slanting
-rays cross more of the slab a unit of depth and an infinite slab works out to a third by the
-cosine-weighted mean, the test bounding it between 0.15 and 0.40 and the guide saying about a
+Reviewed up to `98a0e49e`, item 125, the scene pass's half found in the draws' order, read at 22:05
+on 2026-10-25, carrying the review's files with a Shared line, a reading in RENDERING.md and a note,
+and a captioned pair of the grove, held until the build run of `23b4793b` ends. The cause is the
+order of the draws and not their work, both paths making the same draws through the same pipelines
+with the same culling, depth state and coverage; DrawMesh brought each section's solid, cut-out and
+lava parts by turns, each a batch alone through the terrain shader's solid or cut-out pipeline, so
+the pass bound a pipeline 315 times a frame against 7 for the entities. On scratch game copies at
+the grove at 1080p High the GPU's scene pass read 13.1 to 14.1 ms for DrawMesh in its own order, 9.3
+to 10.8 for the entities, 11.8 to 13.0 for DrawMesh nearest first, 9.2 to 10.6 by pipeline and 8.4
+to 9.0 by pipeline and nearest first within it. ModelRenderer.Order.cs plans each seen batch with
+its pipeline and orders the opaque ones by pipeline in order of first appearance and nearest first
+within it, each run between two batches that write no depth ordered apart so a sky drawn first keeps
+its place, the translucent batches untouched; with it under another program's load DrawMesh reads
+8.9 to 12.9 ms where 14.4 to 21.2 and the entities 12.4 to 14.6 where 10.5 to 15.0, the frames
+matching within the run-to-run spread, and models.draws prints the pipelines the views' passes
+bound. Item 108's thousand meshes rebuilt in Release, all of one pipeline, cost 0.03 to 0.15 ms more
+of the pass's recording, and with toon.slang solid and cut out by turns read 2.45 to 2.60 ms where
+3.19 to 3.30 with the frame 6.96 to 7.26 where 7.56 to 7.99, DrawMesh and the entities alike.
+ModelOrderTests reads sixteen alternating program-shader cubes binding two pipelines where sixteen
+bound without the order, and a sky drawn with depth writes off between two cubes of one pipeline
+covering what came before it alone, each failing without its part. 2,118 on the GPU in both orders,
+141 on lavapipe with validation, the strict build clean, the models guide's many-copies section
+saying how opaque draws are ordered. The coder cleared about 10 GB of its finished items' scratch
+after a disk-quota failure on /tmp. After `23b4793b`, item 124, the mesh entity's shadow and bounce
+flags, read at 18:54 on 2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md,
+pushed at 20:15 on 2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run
+started with publish on at 20:15 for the game's remaining parts; both runs red within three minutes
+at 20:17 on the runners' dotnet install, Verdict 92, their failed jobs run again at 20:20 and
+watched. CastsShadows and BouncesLight stand on the ECS Material set true by its constructors as
+DoubleSided is, a scene file's older entries reading them true since the reader starts from
+Material.Default, MeshEntityDraws passing them to the draw and the group key gaining both so
+entities that differ never share a batch; the guide's Mesh entities section shows a water entity
+casting no shadow, its block building on the package. The test sets three cube entities over a floor
+under the sun, the twin and the no-bounce cube shadowing the floor while the no-shadow cube leaves
+it lit above three quarters of the clear floor, the field holding the twin alone, and fails with the
+flags off the draw. 2,116 on the GPU in both orders, 33 on lavapipe with validation, the strict
+build clean, PublicApi.txt updated. A trap noted, the ECS Material's constructors making DoubleSided
+true where ModelMaterial defaults to single-sided, so a default entity draws both faces where a
+default DrawMesh draws the front alone, the game copying the flag across and unaffected, item 126.
+After `4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed at 18:27
+on 2026-10-25 once the build run of `21a3fbc7` went green whole, its run green whole at 20:12,
+Windows in 104 minutes, Linux in 38 and macOS in 33, carrying the review's files and DEVLOG.md with
+a Shared line. LightThrough on ModelMaterial and the ECS Material sets the share of light that
+passes a unit of a surface's depth, the field's colors carrying it in their alpha, the cascades'
+rays and the screen probes' rays crossing up to four such surfaces, keeping the share for each unit
+of depth and taking the rest of the surface's light, a crossing before a cascade's interval kept for
+the probe's own faces alone in a second channel of the distances. One departure, a floor under a
+slab a unit thick letting half through a unit taking 0.23 of the sky light the solid slab holds back
+at Low and 0.29 at High and an all-through slab 0.95 and 0.98, where the item said about half, since
+slanting rays cross more of the slab a unit of depth and an infinite slab works out to a third by
+the cosine-weighted mean, the test bounding it between 0.15 and 0.40 and the guide saying about a
 quarter. A frame where nothing lets light through traces with gi_trace.slang built with
 NO_LIGHT_THROUGH, a new loader variant tested; the bisect found shading into temporaries summed
 after the ray cost 7% at Low even with the crossing compiled out, so the light is written at the hit
@@ -214,13 +237,12 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 100, the field's foliage share,
-then 125, the scene pass's half, then 126, the materials' defaults, then 111, the shadow's penumbra,
-then 112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's
-words on the loop and the ECS, then the glow light's non-number and the history's guard, then 95,
-the e3d help, then item 89, the plant walls' acne, then 97, the light at the camera's point on
-lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud
-sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next 126, the materials' defaults,
+then 100's second part, then 111, the shadow's penumbra, then 112, the planar reflection, then 93,
+the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
+light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
+acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1201,26 +1223,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-125. **Why the scene pass halves when a game's meshes are entities, and whether DrawMesh can have it
-    too.** From the voxel game's reading for its item 95 on 5.2.313 at 17:35 on 2026-10-25. With
-    three of a section's seven parts moved from DrawMesh to mesh entities and the same sections,
-    draws, triangles and pixels in every view, the grove's GPU scene pass at 1920 by 1080 at High
-    fell from 19.8 to 21.2 ms to 9.8 to 10.3, the frame from 35 to 46 ms to 23.2 to 24.0, and the
-    CPU's recording of the passes more than halved, cpu.shadows 8.6 to 11.9 ms against 4.5 to 6.1,
-    MeshEntityDraws costing 0.25 to 0.33 ms; the captures match within an RMSE of 0.0011. The GPU's
-    half is unexplained, the draws being the same. The coder reads where the time goes in both paths
-    with the GPU's timestamps and the pass's draw order, the draw order and the state changes
-    between draws, the per-draw uniforms and descriptor writes, the depth prepass's coverage or the
-    batches the entity path builds, and names the cause; where DrawMesh lacks what the entity path
-    has, it gains it, so the engine's games and the game's four parts still on DrawMesh take the
-    same frame, read on the grove copy and the thousand-mesh program of item 108 before and after.
-    After item 124 and before the rest of item 100. One commit with a reading first. A line from the
-    game's run at 18:09: with its sections as entities Vulkan's validation notes, twice a run on a
-    Mesa without maintenance4, a pipeline whose vertex stage declares an output at location 11 that
-    its fragment stage never reads, the write discarded, the terrain shader's vertexMain paired with
-    a fragment stage of the engine's in some pass, likely the shadow or the prepass; the reading
-    says which pass pairs them so, and whether the pairing is part of the cost.
 
 126. **The ECS Material and ModelMaterial agree on their defaults.** From item 124's reading of
     18:54 on 2026-10-25. The ECS Material's constructors set DoubleSided true where ModelMaterial

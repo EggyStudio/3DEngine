@@ -52,6 +52,12 @@ no screen probe like its own stands near marching to the world's probes through 
 pass 12.1 to 15.4 ms, and below marching only by a wall thinner than a cell, 9.7 to 11.1 ms, the two
 alike to the eye, 70 pixels of two million apart by more than 3%.
 
+![](.github/assets/readings/2026-10-25-item-125-grove.webp)
+The voxel game's cherry grove at High at 1920 by 1080, scaled to 1280 by 720, its sections drawn
+through DrawMesh, above in the order the game drew them, the scene pass 14.4 to 21.2 ms with another
+program on the GPU, and below by pipeline and nearest first, 8.9 to 12.9 ms, the two alike to the
+eye, an RMSE of 0.0011.
+
 The screen probes at four resolutions, read in the voxel game's room of forty glowstones with global
 illumination at High, offscreen, with another session's tests sharing the GPU so every time runs high
 alike. The scene pass is the probes' own cost; the two global illumination columns are the whole of it
@@ -89,6 +95,31 @@ reach judged from a point inside the wall's cells, and not from the probes' rays
 the voxel game the thin-wall form marches 0.5% of the room's pixels and 0.75% of the spawn's, slivers
 at a few blocks' corners, where marching wherever another surface stands near cost 2.5 ms. A speck
 where the thin room's right and back walls meet its floor stays.
+
+Why the voxel game's scene pass took twice as long with its sections drawn through `DrawMesh` as
+with the same sections as mesh entities, read on scratch copies of the game at `b7608c7`, one as it
+is and one with its chunk renderer of `ddede23`, both on the engine at `23b4793b`, in seed 1's
+cherry grove at 1920 by 1080 at High, offscreen, the frames unlimited. The two paths make the same
+draws through the same pipelines, culled alike, with the same depth state and the same coverage of
+the depth pass; what differs is the order. A section's solid faces, its faces cut out and its lava
+came by turns, each a batch alone through the terrain shader's solid pipeline or its cut-out one,
+so the pass bound a pipeline 315 times a frame, against 7 for the entities.
+
+| Sections drawn | GPU scene pass, ms |
+|---|---|
+| through `DrawMesh`, in the game's order | 13.1 to 14.1 |
+| as entities, in their order | 9.3 to 10.8 |
+| through `DrawMesh`, nearest first | 11.8 to 13.0 |
+| through `DrawMesh`, by pipeline | 9.2 to 10.6 |
+| through `DrawMesh`, by pipeline and nearest first within it | 8.4 to 9.0 |
+
+The model pass draws a view's opaque batches by their pipeline and nearest first within it, each
+run between two batches that write no depth apart. With another program holding part of the GPU,
+the sections through `DrawMesh` read 8.9 to 12.9 ms with it where 14.4 to 21.2 without, and as
+entities 12.4 to 14.6 where 10.5 to 15.0, the frames within the spread two runs of one build show.
+In the thousand meshes of item 108, in Release, the order costs 0.03 to 0.15 ms of the pass's
+recording where all are of one pipeline, and takes 0.6 to 0.8 ms off it through `toon.slang` with
+the solid and the cut out by turns, for `DrawMesh` and entities alike.
 
 Where the scene pass's time goes at High in the voxel game's cherry grove, seed 1 at 1920 by 1080,
 offscreen on a scratch copy of the game at the engine's HEAD (item 96). A pixel that no screen probe
@@ -134,6 +165,9 @@ Done that day
   resolution where the reading says so.
 - Item 123 at `17da0eaa`. The world's probes alone do not leak a lamp along a thin wall's edges, so
   Low stands on its own.
+- Item 124 at `23b4793b`. A mesh entity can cast no shadow and bounce no light.
+- Item 125 at `98a0e49e`. Why the scene pass halves when a game's meshes are entities, and whether
+  DrawMesh can have it too.
 
 ## 2026-10-24
 

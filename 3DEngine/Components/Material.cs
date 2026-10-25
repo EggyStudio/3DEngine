@@ -42,7 +42,7 @@ public struct Material : IEquatable<Material>
     /// <summary>Metallic factor [0..1]. Multiplied with <see cref="MetallicRoughnessTexture"/>'s blue channel.</summary>
     public float MetallicFactor;
 
-    /// <summary>Roughness factor [0..1]. Multiplied with <see cref="MetallicRoughnessTexture"/>'s green channel.</summary>
+    /// <summary>Roughness factor [0..1], a half as the constructors set. Multiplied with <see cref="MetallicRoughnessTexture"/>'s green channel.</summary>
     public float RoughnessFactor;
 
     /// <summary>Linear emissive RGB. Added to the lit color; multiplied with <see cref="EmissiveTexture"/>'s sample.</summary>
@@ -91,7 +91,10 @@ public struct Material : IEquatable<Material>
     /// <summary>The alpha below which <see cref="MaterialAlphaMode.Mask"/> cuts the surface out.</summary>
     public float AlphaCutoff;
 
-    /// <summary>Whether both sides of each face are drawn, as the constructors set, or the back faces left out.</summary>
+    /// <summary>
+    /// Whether both sides of each face are drawn, or the back faces left out, as the constructors
+    /// set, as <see cref="ModelMaterial.DoubleSided"/> says for a mesh drawn by a call.
+    /// </summary>
     public bool DoubleSided;
 
     /// <summary>
@@ -168,16 +171,17 @@ public struct Material : IEquatable<Material>
     }
 
     /// <summary>
-    /// Creates a material with only the albedo factor set. PBR factors default to
-    /// metal=0 / rough=1 / emissive=0; texture slots are <see cref="Handle{T}.Invalid"/>.
-    /// Convenience for callers that only need a flat-shaded color.
+    /// Creates a material with only the albedo factor set, every other field as a
+    /// <see cref="ModelMaterial"/> of the color has it, a roughness of a half, no metal or
+    /// emission, the faces' fronts alone drawn and blended where the albedo's alpha is under one;
+    /// texture slots are <see cref="Handle{T}.Invalid"/>.
     /// </summary>
     /// <param name="albedo">RGBA albedo (0..1).</param>
     public Material(Vector4 albedo)
     {
         Albedo = albedo;
         MetallicFactor = 0f;
-        RoughnessFactor = 1f;
+        RoughnessFactor = 0.5f;
         EmissiveFactor = Vector3.Zero;
         NormalScale = 1f;
         OcclusionStrength = 1f;
@@ -189,7 +193,7 @@ public struct Material : IEquatable<Material>
         Handle = default;
         AlphaMode = MaterialAlphaMode.Blend;
         AlphaCutoff = 0.5f;
-        DoubleSided = true;
+        DoubleSided = false;
         SubsurfaceColor = Vector3.One;
         SubsurfaceRadius = 0f;
         SubsurfaceThickness = 0f;

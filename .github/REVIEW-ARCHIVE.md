@@ -3987,6 +3987,29 @@ batch.
     change-checked for every touched entity. Done at `23b4793b` on 2026-10-25, the two flags on the
     ECS Material carried into the draw and the batch key, the test's three cubes.
 
+125. **Why the scene pass halves when a game's meshes are entities, and whether DrawMesh can have it
+    too.** From the voxel game's reading for its item 95 on 5.2.313 at 17:35 on 2026-10-25. With
+    three of a section's seven parts moved from DrawMesh to mesh entities and the same sections,
+    draws, triangles and pixels in every view, the grove's GPU scene pass at 1920 by 1080 at High
+    fell from 19.8 to 21.2 ms to 9.8 to 10.3, the frame from 35 to 46 ms to 23.2 to 24.0, and the
+    CPU's recording of the passes more than halved, cpu.shadows 8.6 to 11.9 ms against 4.5 to 6.1,
+    MeshEntityDraws costing 0.25 to 0.33 ms; the captures match within an RMSE of 0.0011. The GPU's
+    half is unexplained, the draws being the same. The coder reads where the time goes in both paths
+    with the GPU's timestamps and the pass's draw order, the draw order and the state changes
+    between draws, the per-draw uniforms and descriptor writes, the depth prepass's coverage or the
+    batches the entity path builds, and names the cause; where DrawMesh lacks what the entity path
+    has, it gains it, so the engine's games and the game's four parts still on DrawMesh take the
+    same frame, read on the grove copy and the thousand-mesh program of item 108 before and after.
+    After item 124 and before the rest of item 100. One commit with a reading first. A line from the
+    game's run at 18:09: with its sections as entities Vulkan's validation notes, twice a run on a
+    Mesa without maintenance4, a pipeline whose vertex stage declares an output at location 11 that
+    its fragment stage never reads, the write discarded, the terrain shader's vertexMain paired with
+    a fragment stage of the engine's in some pass, likely the shadow or the prepass; the reading
+    says which pass pairs them so, and whether the pairing is part of the cost. Done at `98a0e49e`
+    on 2026-10-25, the half the draws' order, 315 pipeline binds a frame against 7, the scene pass
+    ordering opaque batches by pipeline and nearest first within it so DrawMesh and the entities
+    draw alike.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
