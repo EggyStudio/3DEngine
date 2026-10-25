@@ -1387,6 +1387,9 @@ jobs:
           for i in "${!pids[@]}"; do wait "${pids[$i]}" || echo "the soak of ${games[$i]} ended early"; done
           cat captures/soak-*.log
           cp build/soak/*.csv captures/
+          # Where a soak ended early, the games' own logs go with the captures, each saying what
+          # ended its main loop, since Tumble's on the pack run of c721746b was not kept (Verdict 91).
+          if compgen -G "build/soak/*.failed" > /dev/null; then mkdir -p captures/sessions && cp build/sessions/*.log captures/sessions/; fi
           python3 build/soak-check.py build/soak/*.csv
 
       # Each game and five examples resized, minimized and restored while they draw, under
