@@ -10,9 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `98a0e49e`, item 125, the scene pass's half found in the draws' order, read at 22:05
-on 2026-10-25, carrying the review's files with a Shared line, a reading in RENDERING.md and a note,
-and a captioned pair of the grove, held until the build run of `23b4793b` ends. The cause is the
+Reviewed up to `42f4f505`, item 126, the materials' defaults agreeing, read at 22:37 on 2026-10-25,
+carrying the review's files and DEVLOG.md. Two shared fields differed, DoubleSided true on the ECS
+Material against false and the roughness 1 against 0.5, and both take ModelMaterial's value, every
+other shared field agreeing already; Material.Default follows through its constructor and the scene
+reader with it, SceneSpawner setting both from the file's payload so loaded scenes are unchanged,
+the glTF description's own defaults left as glTF's. A test compares every shared field for a
+material made from one color, Material.Default's DoubleSided among them, MaterialTests' roughness
+reads 0.5, and one MeshEntityDrawsTests test that leaned on the old default makes its odd entity
+double-sided itself; the behaviors guide says a Material made from a color takes every default a
+ModelMaterial takes, with no upgrading entry. The four examples making ECS materials were captured
+again, ecs_mesh_entities matching within 0.002 and the other three differing run to run alone, so
+the committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with validation, the
+strict build clean. After `98a0e49e`, item 125, the scene pass's half found in the draws' order,
+read at 22:05 on 2026-10-25, carrying the review's files with a Shared line, a reading in
+RENDERING.md and a note, and a captioned pair of the grove, pushed with `42f4f505` at 23:09 on
+2026-10-25 once the build run of `23b4793b` went green whole, the run watched. The cause is the
 order of the draws and not their work, both paths making the same draws through the same pipelines
 with the same culling, depth state and coverage; DrawMesh brought each section's solid, cut-out and
 lava parts by turns, each a batch alone through the terrain shader's solid or cut-out pipeline, so
@@ -37,30 +50,33 @@ after a disk-quota failure on /tmp. After `23b4793b`, item 124, the mesh entity'
 flags, read at 18:54 on 2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md,
 pushed at 20:15 on 2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run
 started with publish on at 20:15 for the game's remaining parts; both runs red within three minutes
-at 20:17 on the runners' dotnet install, Verdict 92, their failed jobs run again at 20:20 and
-watched. CastsShadows and BouncesLight stand on the ECS Material set true by its constructors as
-DoubleSided is, a scene file's older entries reading them true since the reader starts from
-Material.Default, MeshEntityDraws passing them to the draw and the group key gaining both so
-entities that differ never share a batch; the guide's Mesh entities section shows a water entity
-casting no shadow, its block building on the package. The test sets three cube entities over a floor
-under the sun, the twin and the no-bounce cube shadowing the floor while the no-shadow cube leaves
-it lit above three quarters of the clear floor, the field holding the twin alone, and fails with the
-flags off the draw. 2,116 on the GPU in both orders, 33 on lavapipe with validation, the strict
-build clean, PublicApi.txt updated. A trap noted, the ECS Material's constructors making DoubleSided
-true where ModelMaterial defaults to single-sided, so a default entity draws both faces where a
-default DrawMesh draws the front alone, the game copying the flag across and unaffected, item 126.
-After `4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed at 18:27
-on 2026-10-25 once the build run of `21a3fbc7` went green whole, its run green whole at 20:12,
-Windows in 104 minutes, Linux in 38 and macOS in 33, carrying the review's files and DEVLOG.md with
-a Shared line. LightThrough on ModelMaterial and the ECS Material sets the share of light that
-passes a unit of a surface's depth, the field's colors carrying it in their alpha, the cascades'
-rays and the screen probes' rays crossing up to four such surfaces, keeping the share for each unit
-of depth and taking the rest of the surface's light, a crossing before a cascade's interval kept for
-the probe's own faces alone in a second channel of the distances. One departure, a floor under a
-slab a unit thick letting half through a unit taking 0.23 of the sky light the solid slab holds back
-at Low and 0.29 at High and an all-through slab 0.95 and 0.98, where the item said about half, since
-slanting rays cross more of the slab a unit of depth and an infinite slab works out to a third by
-the cosine-weighted mean, the test bounding it between 0.15 and 0.40 and the guide saying about a
+at 20:17 on the runners' dotnet install, Verdict 92, green on the fourth attempt of 21:26 once the
+feed settled, the push run whole at 23:06 with Windows in 102 minutes, Linux in 63 and macOS in 32,
+the pack run green whole at 23:42 with Windows in 100 minutes, the games in 72 and the captures in
+54 and 56, the package 5.2.316 pushed to nuget.org with items 124 and 100's first part. CastsShadows
+and BouncesLight stand on the ECS Material set true by its constructors as DoubleSided is, a scene
+file's older entries reading them true since the reader starts from Material.Default,
+MeshEntityDraws passing them to the draw and the group key gaining both so entities that differ
+never share a batch; the guide's Mesh entities section shows a water entity casting no shadow, its
+block building on the package. The test sets three cube entities over a floor under the sun, the
+twin and the no-bounce cube shadowing the floor while the no-shadow cube leaves it lit above three
+quarters of the clear floor, the field holding the twin alone, and fails with the flags off the
+draw. 2,116 on the GPU in both orders, 33 on lavapipe with validation, the strict build clean,
+PublicApi.txt updated. A trap noted, the ECS Material's constructors making DoubleSided true where
+ModelMaterial defaults to single-sided, so a default entity draws both faces where a default
+DrawMesh draws the front alone, the game copying the flag across and unaffected, item 126. After
+`4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed at 18:27 on
+2026-10-25 once the build run of `21a3fbc7` went green whole, its run green whole at 20:12, Windows
+in 104 minutes, Linux in 38 and macOS in 33, carrying the review's files and DEVLOG.md with a Shared
+line. LightThrough on ModelMaterial and the ECS Material sets the share of light that passes a unit
+of a surface's depth, the field's colors carrying it in their alpha, the cascades' rays and the
+screen probes' rays crossing up to four such surfaces, keeping the share for each unit of depth and
+taking the rest of the surface's light, a crossing before a cascade's interval kept for the probe's
+own faces alone in a second channel of the distances. One departure, a floor under a slab a unit
+thick letting half through a unit taking 0.23 of the sky light the solid slab holds back at Low and
+0.29 at High and an all-through slab 0.95 and 0.98, where the item said about half, since slanting
+rays cross more of the slab a unit of depth and an infinite slab works out to a third by the
+cosine-weighted mean, the test bounding it between 0.15 and 0.40 and the guide saying about a
 quarter. A frame where nothing lets light through traces with gi_trace.slang built with
 NO_LIGHT_THROUGH, a new loader variant tested; the bisect found shading into temporaries summed
 after the ray cost 7% at Low even with the crossing compiled out, so the light is written at the hit
@@ -237,12 +253,12 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 126, the materials' defaults,
-then 100's second part, then 111, the shadow's penumbra, then 112, the planar reflection, then 93,
-the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
-light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
-acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next 100's second part, then 111, the
+shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
+91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
+guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
+camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
+7.5; the cloud sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1224,36 +1240,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
-126. **The ECS Material and ModelMaterial agree on their defaults.** From item 124's reading of
-    18:54 on 2026-10-25. The ECS Material's constructors set DoubleSided true where ModelMaterial
-    defaults to single-sided, so a default mesh entity draws both faces where a default DrawMesh
-    draws the front alone, the one path costing a face more than the other for the same mesh and the
-    two guides describing one material two ways; the voxel game copies the flag across and is
-    unaffected. The ECS Material's defaults become ModelMaterial's, DoubleSided false among them,
-    with a test holding every shared field's default equal between the two, the scene reader's
-    Material.Default following, and the behaviors guide saying a mesh entity's material defaults as
-    a model's does; no upgrading path, under the rule of 2026-10-23. After item 125 and before item
-    100's second part. One commit, small.
-
 ## Verdicts
 
-Verdict 92 is open. Verdicts 56 to 91 are settled, said under each in REVIEW-ARCHIVE.md.
-
-92. **The runs of `23b4793b` are red on the runners' dotnet install, not on the engine.** Read at
-    20:20 on 2026-10-25 from the two runs' jobs, the push run 40225189195 and the pack run
-    40225189793. Every suite on the three systems failed in a minute at setup-dotnet, asked for
-    10.0.x and resolving 10.0.403, which the install script could not find as an SDK, nor the
-    runtime 10.0.14; the commit changes neither global.json nor the workflow, the release feed's own
-    index says the latest SDK is 10.0.402 at this minute, and the run of `4c9cf7e4` installed two
-    hours before without a word, so the action and Microsoft's feed disagreed for a while on a
-    release being published. Nothing to mend in the tree; the failed jobs of both runs were run
-    again, and the verdict settles when they go green. If they fail the same way, the next attempt
-    waits an hour; pinning the SDK is not taken, since 10.0.x is what the three systems' runners
-    share. The second attempt at 20:20 failed the same way in a minute on all three systems; the
-    third waits an hour, at about 21:25. At 20:38 the feed served the 10.0.403 archives for the
-    three systems, so the failed jobs were run again then, ahead of the hour. That attempt failed
-    the same way at 20:39, the install script still not finding the SDK though the archives answer;
-    the next attempt waits for the hour, at about 21:25.
+Verdicts 56 to 92 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

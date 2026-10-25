@@ -20,6 +20,7 @@
 // global illumination's time more (gi.probe, ./e3d command profile).
 import gi;
 import scenefield;
+import lightthrough;
 
 [[vk::binding(0, 0)]]
 Texture3D<float4> radiance;
@@ -55,6 +56,10 @@ Texture3D<float> aboveSky;
 // directions, as the gather wrote it the frame before.
 [[vk::binding(8, 0)]]
 Texture3D<float> reachAbove;
+
+// The field's colors, whose alpha says where a surface lets light through (seesPastLeaves).
+[[vk::binding(9, 0)]]
+Sampler3D fieldAlbedo;
 
 // The texel of an octahedron of `texels` along each side at t, folded across its edges.
 int2 foldedAt(int2 t, int texels)
@@ -134,7 +139,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
         float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         seen[slot * 8u + traced] = upper > 0u && probe < probes * probes * probes && oc.w > 0.0
-            && seesThrough(sceneField, fieldInfo, origin, upperProbe, oc.w * 0.5) ? 1u : 0u;
+            && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5) ? 1u : 0u;
     }
     GroupMemoryBarrierWithGroupSync();
 

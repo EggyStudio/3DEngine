@@ -342,6 +342,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // A ray still within at its interval's end met nothing past it, its share handed on.
             t = inside ? -1.0 : traceField(sceneField, fieldInfo, origin, way, t + depth, push.interval.y);
         }
+        // How far it went is where it stopped, past what it crossed, which the screen's probes read
+        // the cascades' light beyond their reach by (probeReaches in gi_screen.slang).
+        reached = t >= 0.0 ? t : push.interval.y;
         // Marked by what the ray met first that counts, a surface crossed in its interval or one it
         // stopped at, before its interval began or in it.
         float mark = firstAt >= 0.0 ? (firstAt < push.interval.x ? 0.5 : 0.0) : 1.0;

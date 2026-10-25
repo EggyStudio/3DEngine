@@ -4010,6 +4010,18 @@ batch.
     ordering opaque batches by pipeline and nearest first within it so DrawMesh and the entities
     draw alike.
 
+126. **The ECS Material and ModelMaterial agree on their defaults.** From item 124's reading of
+    18:54 on 2026-10-25. The ECS Material's constructors set DoubleSided true where ModelMaterial
+    defaults to single-sided, so a default mesh entity draws both faces where a default DrawMesh
+    draws the front alone, the one path costing a face more than the other for the same mesh and the
+    two guides describing one material two ways; the voxel game copies the flag across and is
+    unaffected. The ECS Material's defaults become ModelMaterial's, DoubleSided false among them,
+    with a test holding every shared field's default equal between the two, the scene reader's
+    Material.Default following, and the behaviors guide saying a mesh entity's material defaults as
+    a model's does; no upgrading path, under the rule of 2026-10-23. After item 125 and before item
+    100's second part. One commit, small. Done at `42f4f505` on 2026-10-25, DoubleSided and the
+    roughness taking ModelMaterial's values and a test over every shared field.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -5350,3 +5362,22 @@ at `36cae0c2`.
     workflow with the mend's push. Settled at 16:28 on 2026-10-25 by the fourth pack run of
     `073f34c8`, whose games job played the twelve games through in 50 minutes with Tumble among
     them; the diagnosis mend and the kept logs stand for a recurrence.
+
+92. **The runs of `23b4793b` are red on the runners' dotnet install, not on the engine.** Read at
+    20:20 on 2026-10-25 from the two runs' jobs, the push run 40225189195 and the pack run
+    40225189793. Every suite on the three systems failed in a minute at setup-dotnet, asked for
+    10.0.x and resolving 10.0.403, which the install script could not find as an SDK, nor the
+    runtime 10.0.14; the commit changes neither global.json nor the workflow, the release feed's own
+    index says the latest SDK is 10.0.402 at this minute, and the run of `4c9cf7e4` installed two
+    hours before without a word, so the action and Microsoft's feed disagreed for a while on a
+    release being published. Nothing to mend in the tree; the failed jobs of both runs were run
+    again, and the verdict settles when they go green. If they fail the same way, the next attempt
+    waits an hour; pinning the SDK is not taken, since 10.0.x is what the three systems' runners
+    share. The second attempt at 20:20 failed the same way in a minute on all three systems; the
+    third waits an hour, at about 21:25. At 20:38 the feed served the 10.0.403 archives for the
+    three systems, so the failed jobs were run again then, ahead of the hour. That attempt failed
+    the same way at 20:39, the install script still not finding the SDK though the archives answer;
+    the next attempt waits for the hour, at about 21:25. Settled at 23:09 on 2026-10-25 by the
+    fourth attempt of 21:26, the push run green whole and the pack run's suites with it once
+    Microsoft's feed served the release; the second and third attempts at 20:20 and 20:38 had failed
+    the same way.

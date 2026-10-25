@@ -5,6 +5,7 @@
 module lightthrough;
 
 import scenefield;
+import gi;
 
 // The share of light the surface met at p lets pass a unit of its depth, read from the cell p lies
 // in as it is, 0 for a solid surface's cell or one no surface painted.
@@ -52,4 +53,33 @@ public float lightThroughDepth<V : IVolume>(V field, SceneFieldInfo info, float3
 public float lightThroughKept(float passing, float depth, float cell, bool inside)
 {
     return pow(passing, inside ? depth : max(depth - 0.75 * cell, 0.0));
+}
+
+// Whether nothing the field holds stands between a and b but surfaces that let light through, as
+// seesThrough in gi.slang asks with clearance kept clear at either end, the light a ray crossing
+// them keeps being its own to take. The merge asks it of the probes of the cascade above, which a
+// canopy hid from those under it, so the floor under one 4 units up took no sky through the screen's
+// probes however much of it the leaves let through.
+public bool seesPastLeaves<V : IVolume, A : IVolume>(V field, A albedo, SceneFieldInfo info, float3 a, float3 b, float clearance)
+{
+    float3 toward = b - a;
+    float length = length(toward);
+    if (length <= clearance * 2.0)
+        return true;
+    float3 way = toward / length;
+    float t = clearance;
+    [loop]
+    for (int layer = 0; layer < 4; layer++)
+    {
+        t = traceField(field, info, a, way, t, length - clearance);
+        if (t < 0.0)
+            return true;
+        if (lightThroughAt(albedo, info, a + way * t) <= 0.0)
+            return false;
+        bool inside = false;
+        t += lightThroughDepth(field, info, a, way, t, length - clearance - t, inside);
+        if (inside)
+            return true;
+    }
+    return false;
 }

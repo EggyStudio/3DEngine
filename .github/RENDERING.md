@@ -1960,19 +1960,42 @@ surfaces. A surface crossed before a cascade's interval begins is the cascade be
 keeps its share for its probe's own faces alone, in the distances' second channel, which adds 0.12
 MB to Low's probes, 0.37 to Medium's and 0.56 to High's; taken off its light, the floor under a slab
 read the sky's light halved twice. Under a slab a unit thick letting half through a unit a floor
-takes 0.23 of the sky's light the solid slab holds back at Low and 0.29 at High, where a slab as
-wide as the world would let a third through, the rays at a slant crossing more of it, and under one
-letting all of it through 0.95 and 0.98. A frame where no surface drawn lets light through traces
-with `gi_trace.slang` built with `NO_LIGHT_THROUGH`. With the ray's light written as the crossing
-writes it, summed over what the ray met and set after, the trace cost global illumination 7% more at
-Low in the bounce rooms even with the crossing compiled out, 0.594 ms where 0.553, and with it
-written at the hit as before 0.554 and 0.555 where 0.552 and 0.551. The screen's probes shade what a
-ray meets in two places, the surfaces it crosses and the one it stops at in one and what lies past
-its reach in the other, where they shaded in three, which takes 0.16 to 0.60 ms off High in the
-bounce rooms, the Cornell box 1.59 and 1.60 ms where 1.91 and 1.92 at 800 by 450 and 2.09 and 2.06
-where 2.62 and 2.66 at 1920 by 1080, the thin walls' room 1.10 where 1.26 and 1.29 and 1.74 where
-1.93 and 1.92, the frames within 2 of 255 of what they were, and the Cornell box at Medium 1.50
-where 1.82, the least of twelve readings each with other programs on the GPU.
+takes 0.36 of the sky's light the solid slab holds back at Low and 0.40 at High two units under it,
+where the slab's depth along each way gives 0.36, the rays at a slant crossing more of it, and under
+one letting all of it through 0.99, as the reading below has it. A frame where no surface drawn lets
+light through traces with `gi_trace.slang` built with `NO_LIGHT_THROUGH`. With the ray's light
+written as the crossing writes it, summed over what the ray met and set after, the trace cost global
+illumination 7% more at Low in the bounce rooms even with the crossing compiled out, 0.594 ms where
+0.553, and with it written at the hit as before 0.554 and 0.555 where 0.552 and 0.551. The screen's
+probes shade what a ray meets in two places, the surfaces it crosses and the one it stops at in one
+and what lies past its reach in the other, where they shaded in three, which takes 0.16 to 0.60 ms
+off High in the bounce rooms, the Cornell box 1.59 and 1.60 ms where 1.91 and 1.92 at 800 by 450 and
+2.09 and 2.06 where 2.62 and 2.66 at 1920 by 1080, the thin walls' room 1.10 where 1.26 and 1.29 and
+1.74 where 1.93 and 1.92, the frames within 2 of 255 of what they were, and the Cornell box at
+Medium 1.50 where 1.82, the least of twelve readings each with other programs on the GPU.
+
+**What a canopy lets through past the screen's probes' reach, read on 2026-10-25.** Under a slab of
+leaves thirty units across five units up, letting half through a unit, the floor at High took as
+little of the sky's light as under a solid one, 0.0089 where 0.0077 in linear light, while at Low it
+took 0.035 where 0.015. Two things held the light back. A ray of the cascades that crossed the
+leaves had its reach set where it first met them, so the merge's read toward where the probe above
+met a surface and the screen's probes' test of which world probes see a point both took the leaves
+as a wall; with the reach set where the ray stopped, past the leaves, the slab two units up read
+0.36 at Low and 0.40 at High where 0.23 and 0.29. And the merge passed over each probe of the
+cascade above that the field hid from a probe, which a canopy did for every probe of the cascade
+above standing over it, so a cascade under the canopy took nothing from above it and the screen's
+probes, reading the cascades' light past their reach of four units, read black; seen past the leaves
+(`seesPastLeaves` in `lightthrough.slang`), a floor under a canopy five units up takes 0.31 of the
+sky's light the solid one holds back where the canopy's depth along each way gives 0.38, and 0.004
+without. The floor under the picture's canopy of leaf blocks letting 0.6 through reads 0.041 at High
+where 0.007 solid. The bounce rooms read as before, 0.553 to 0.556 ms at Low and 1.60 to 1.66 at
+High in the Cornell box at 800 by 450 against 0.553 to 0.555 and 1.61, the merge's added read only
+where the field stops its march. In the voxel game's cherry grove, its leaves unmarked, global
+illumination took 1.21 to 1.51 ms at Low at 800 by 450 where 1.22 to 1.44 before this item and 1.46
+to 1.48 at 1920 by 1080 where 1.47 to 1.49, and at High 2.85 to 3.21 where 3.28 to 3.33 and 3.35 to
+3.38 where 4.24 to 4.60, the screen's probes shading in two places, the scene pass alike. Where
+leaves fill much of the view, the canopy over the eye at 800 by 450, crossing them takes global
+illumination from 0.60 ms to 1.10 at Low and from 1.53 to 2.49 at High.
 
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and

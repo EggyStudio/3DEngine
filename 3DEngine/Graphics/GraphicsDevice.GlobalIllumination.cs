@@ -163,7 +163,7 @@ internal sealed unsafe partial class GraphicsDevice
             _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 48);
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler], 48);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 32);
@@ -403,6 +403,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 7, VkDescriptorType.SampledImage, gi.MergedSky[Math.Min(c + 1, gi.Cascades - 1)].View, null, VkImageLayout.General);
             // The reach the gather wrote the frame before, for the parallax read.
             run.Image(set, 8, VkDescriptorType.SampledImage, ((VulkanImageView)gi.ReachView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Image(set, 9, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.AlbedoView).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             // The last cascade and the one before the far cascade's probes merge nothing from above,
             // since their rays went on to the field's edge and brought the sky where they met nothing.
             // Merged from the far cascade's probes, whose cells hold the ground as a slab, the one

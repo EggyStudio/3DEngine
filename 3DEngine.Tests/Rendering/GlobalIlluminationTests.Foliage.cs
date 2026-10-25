@@ -9,20 +9,25 @@ public sealed partial class GlobalIlluminationTests
 {
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
-    [InlineData(GlobalIllumination.Low)]
-    [InlineData(GlobalIllumination.High)]
-    public void A_Floor_Under_A_Slab_That_Lets_Light_Through_Takes_The_Sky_Light_Its_Share_Lets_Through(GlobalIllumination quality)
+    [InlineData(GlobalIllumination.Low, 2.5f, 0.31f)]
+    [InlineData(GlobalIllumination.High, 2.5f, 0.31f)]
+    [InlineData(GlobalIllumination.Low, 5.5f, 0.3f)]
+    [InlineData(GlobalIllumination.High, 5.5f, 0.27f)]
+    public void A_Floor_Under_A_Slab_That_Lets_Light_Through_Takes_The_Sky_Light_Its_Share_Lets_Through(GlobalIllumination quality, float height, float least)
     {
         // A gray floor lit by the sky alone, read in linear light under a dark green slab a unit
-        // thick and twenty across, two units over it, with no slab, with a solid one, and with one
-        // letting half the light through a unit and one letting all of it through, as the voxel
-        // game's rain forest floor under its canopy took none of the sky's light where the field held
-        // the leaves solid, at Low through the cascades' rays and at High through the screen's
-        // probes' too. A ray keeps half its light a unit of slab, and one at a slant crosses more of
-        // it, so the half slab lets a quarter or so of the sky's light the solid one holds back reach
-        // the floor, 0.23 at Low and 0.29 at High as this test measured on the development machine's
-        // GPU, where a slant's depth over the floor's sky makes it 0.26 to 0.30, and a slab letting
-        // all of it through 0.95 and 0.98.
+        // thick and twenty across, two units over it or five, with no slab, with a solid one, and
+        // with one letting half the light through a unit and one letting all of it through, as the
+        // voxel game's rain forest floor under its canopy took none of the sky's light where the
+        // field held the leaves solid, at Low through the cascades' rays and at High through the
+        // screen's probes' too. A ray keeps half its light a unit of slab, and one at a slant
+        // crosses more of it, so the half slab lets the share of the sky's light the solid one
+        // holds back reach the floor that the slab's depth along each way the floor's sky comes
+        // from gives, 0.36 two units up and 0.41 five, where this test measured 0.36 at Low and
+        // 0.40 at High two up and 0.37 and 0.32 five up, the cascades' intervals taking a crossing
+        // that straddles one's end apart, and a slab letting all of it through 0.99 at both. Before
+        // the merge saw the probes above past the leaves, 0.23 and 0.29 two up and 0.07 five up at
+        // High, past the screen's probes' reach.
         Open();
         SetGlobalIllumination(quality);
         SetAmbientLight(new Color(200, 220, 255), 1);
@@ -33,7 +38,7 @@ public sealed partial class GlobalIlluminationTests
             var image = Capture(() =>
             {
                 DrawModelEx(slab, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(30, 1, 30), new Color(128, 128, 128));
-                if (roof is { } model) DrawModelEx(model, new Vector3(0, 2.5f, 0), Vector3.UnitY, 0, new Vector3(20, 1, 20), new Color(60, 90, 50));
+                if (roof is { } model) DrawModelEx(model, new Vector3(0, height, 0), Vector3.UnitY, 0, new Vector3(20, 1, 20), new Color(60, 90, 50));
             }, camera);
             var at = GetWorldToScreenEx(new Vector3(0, 0, 3.5f), camera, image.Width, image.Height);
             var c = Mean(image, (int)at.X - 4, (int)at.Y - 2, 8, 4) / 255;
@@ -53,8 +58,55 @@ public sealed partial class GlobalIlluminationTests
         var all = Floor(allway);
         (open - solid).Should().BeGreaterThan(0.1f, $"a solid slab keeps the sky's light off the floor under it, {solid:0.000} against {open:0.000}");
         ((all - solid) / (open - solid)).Should().BeGreaterThan(0.9f, $"a slab letting all of it through holds back next to none, {all:0.000}");
-        ((half - solid) / (open - solid)).Should().BeInRange(0.15f, 0.4f,
-            $"a slab letting half through a unit lets a quarter or so of the sky's light it would hold back through, {half:0.000} between {solid:0.000} and {open:0.000}");
+        ((half - solid) / (open - solid)).Should().BeInRange(least, 0.48f,
+            $"a slab letting half through a unit lets a third or more of the sky's light it would hold back through, {half:0.000} between {solid:0.000} and {open:0.000}");
         foreach (var model in new[] { slab, halfway, allway }) UnloadModel(model);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Floor_Under_Leaves_Past_The_Screen_Probes_Reach_Takes_The_Sky_Light_They_Let_Through()
+    {
+        // A green floor under a canopy thirty units across, a unit thick and five over it, past
+        // the four units the screen's probes reach at High, read with no canopy, with a solid one
+        // and with one letting half the light through a unit. The probes of each cascade under the
+        // canopy took no light from those of the cascade above while the canopy hid them from them,
+        // so the screen's probes read the cascades' light past their reach as black, and the floor
+        // took 0.004 of the sky's light the solid canopy holds back where the canopy's depth along
+        // each way gives 0.38; with the merge seeing past the leaves (seesPastLeaves) it took 0.31,
+        // on the development machine's GPU.
+        Open();
+        SetSceneField(4, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(new Color(150, 190, 255), 1);
+        var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        ground.Materials[0].Roughness = 1;
+        var camera = new Camera3D(new Vector3(0, 1.6f, 6), new Vector3(0, 1.2f, -2), Vector3.UnitY, 70);
+        float Floor(Model? roof)
+        {
+            var image = Capture(() =>
+            {
+                DrawModelEx(ground, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(80, 1, 80), new Color(90, 140, 60));
+                if (roof is { } model) DrawModelEx(model, new Vector3(0, 5.5f, -4), Vector3.UnitY, 0, new Vector3(30, 1, 30), new Color(50, 110, 40));
+            }, camera);
+            var at = GetWorldToScreenEx(new Vector3(0, 0, 2.5f), camera, image.Width, image.Height);
+            var c = Mean(image, (int)at.X - 8, (int)at.Y - 4, 16, 8) / 255;
+            return 0.2126f * MathF.Pow(c.X, 2.2f) + 0.7152f * MathF.Pow(c.Y, 2.2f) + 0.0722f * MathF.Pow(c.Z, 2.2f);
+        }
+        Model Leaves(float through)
+        {
+            var model = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            model.Materials[0].Roughness = 1;
+            model.Materials[0].LightThrough = through;
+            return model;
+        }
+
+        var (solidRoof, halfway) = (Leaves(0), Leaves(0.5f));
+        var open = Floor(null);
+        var solid = Floor(solidRoof);
+        var half = Floor(halfway);
+        ((half - solid) / (open - solid)).Should().BeGreaterThan(0.25f,
+            $"the leaves let the sky's light through to the floor past the screen's probes' reach, {half:0.0000} between {solid:0.0000} and {open:0.0000}");
+        foreach (var model in new[] { ground, solidRoof, halfway }) UnloadModel(model);
     }
 }

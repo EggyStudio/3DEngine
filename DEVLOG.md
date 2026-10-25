@@ -58,6 +58,41 @@ through DrawMesh, above in the order the game drew them, the scene pass 14.4 to 
 program on the GPU, and below by pipeline and nearest first, 8.9 to 12.9 ms, the two alike to the
 eye, an RMSE of 0.0011.
 
+![](.github/assets/readings/2026-10-25-item-100-canopy.webp)
+Block trees over grass at noon at High at 800 by 450, the floor and the leaves matte, above with the
+canopy's leaves solid, the floor under it 0.007 in linear light, and below letting 0.6 of the light
+through a unit, the floor 0.041, the sun's shadow alike.
+
+What a canopy lets through, read on a scratch program of block trees over grass at noon at High,
+800 by 450, the floor and leaves matte, the canopy of 2 by 2 leaf blocks 1 or 2 deep at 5.5 to 7
+units up, solid or letting 0.6 through a unit. The floor under it, in linear light:
+
+| Canopy | floor |
+|---|---|
+| solid | 0.007 |
+| letting 0.6 through, before the reach and the merge were mended | 0.008 |
+| letting 0.6 through, mended | 0.041 |
+
+The share of the sky's light a solid slab holds back that a floor takes under a slab letting half
+through a unit, against what the slab's depth along each way gives:
+
+| Slab | geometry | Low | High |
+|---|---|---|---|
+| 20 across, 2 units up | 0.36 | 0.36 (0.23 before) | 0.40 (0.29 before) |
+| 20 across, 5 units up | 0.41 | 0.37 | 0.32 |
+| 30 across, 5 units up, the test's canopy | 0.38 | | 0.31 (0.004 before) |
+
+Global illumination's time where nothing is marked, and where leaves fill the view:
+
+| Scene | before item 100 | with it |
+|---|---|---|
+| voxel grove, Low, 800 by 450 | 1.22 to 1.44 ms | 1.21 to 1.51 |
+| voxel grove, Low, 1920 by 1080 | 1.47 to 1.49 | 1.46 to 1.48 |
+| voxel grove, High, 800 by 450 | 3.28 to 3.33 | 2.85 to 3.21 |
+| voxel grove, High, 1920 by 1080 | 4.24 to 4.60 | 3.35 to 3.38 |
+| canopy, Low, solid then letting 0.6 through | 0.60 | 1.10 |
+| canopy, High, solid then letting 0.6 through | 1.53 | 2.49 |
+
 The screen probes at four resolutions, read in the voxel game's room of forty glowstones with global
 illumination at High, offscreen, with another session's tests sharing the GPU so every time runs high
 alike. The scene pass is the probes' own cost; the two global illumination columns are the whole of it
@@ -168,6 +203,7 @@ Done that day
 - Item 124 at `23b4793b`. A mesh entity can cast no shadow and bounce no light.
 - Item 125 at `98a0e49e`. Why the scene pass halves when a game's meshes are entities, and whether
   DrawMesh can have it too.
+- Item 126 at `42f4f505`. The ECS Material and ModelMaterial agree on their defaults.
 
 ## 2026-10-24
 
