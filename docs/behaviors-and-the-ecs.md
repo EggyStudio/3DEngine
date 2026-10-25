@@ -190,9 +190,25 @@ or a stream of its own, is drawn as it is, given as `new Mesh(UploadMesh(...))`.
 the shader it is drawn with as `Shader`, as `DrawMesh` draws with a material's, its uniforms and
 textures as `SetShaderValue` left them before the frame's render stage. `Visible` with false leaves
 an entity out of every pass, and `ShadowOnly` with true draws it into the shadow maps alone, each a
-bool written in place, and the frame profile counts the entities drawn as `entities.drawn`.
+bool written in place, and the frame profile counts the entities drawn as `entities.drawn`. A
+`Material` whose `CastsShadows` is false casts no shadow and stands nowhere in the scene's field, as
+glass and water should, and one whose `BouncesLight` is false is left out of the field alone, as
+grass cut out of a texture should, both true as its constructors make it:
 
-A voxel world's section is such an entity. Its faces are uploaded from their positions and the two
+<!-- compiled with:
+Shader terrain = default;
+Vector3 origin = default;
+ModelMesh mesh = default;
+BehaviorContext ctx = null!;
+-->
+```csharp
+var water = ctx.Ecs.Spawn();
+ctx.Ecs.Add(water, new Mesh(mesh));
+ctx.Ecs.Add(water, new Material(new Color(40, 90, 160, 160)) { CastsShadows = false, Shader = terrain });
+ctx.Ecs.Add(water, new Transform(origin));
+```
+
+A voxel world's section is a mesh entity. Its faces are uploaded from their positions and the two
 uints a vertex its terrain shader unpacks, drawn through that shader, and drawn into the shadow maps
 alone where the world's flood through the sections' open faces does not reach it, so a section the
 eye cannot see still keeps the sun off a cave below it:

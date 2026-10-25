@@ -119,6 +119,27 @@ public struct Material : IEquatable<Material>
     public float LightThrough;
 
     /// <summary>
+    /// Whether the entity casts a shadow and stands in the scene's distance field, as the
+    /// constructors set, as <see cref="ModelMaterial.CastsShadows"/> says for a mesh drawn by a call.
+    /// </summary>
+    /// <remarks>
+    /// Glass and water let the sun through, where the field would hold them solid and keep a room's
+    /// indirect light behind its window.
+    /// </remarks>
+    public bool CastsShadows;
+
+    /// <summary>
+    /// Whether the scene's distance field holds the entity, so global illumination's light bounces
+    /// off it, as the constructors set, as <see cref="ModelMaterial.BouncesLight"/> says for a mesh
+    /// drawn by a call.
+    /// </summary>
+    /// <remarks>
+    /// Grass cut out of a texture would stand in the field as boxes, and a mesh that moves often is
+    /// stamped again each frame it moves, so either is left out where its light matters little.
+    /// </remarks>
+    public bool BouncesLight;
+
+    /// <summary>
     /// A program's shader the entity is drawn with, as <c>DrawMesh</c> draws with a material's, or
     /// the engine's own where it is default, as the constructors leave it.
     /// </summary>
@@ -173,6 +194,8 @@ public struct Material : IEquatable<Material>
         SubsurfaceRadius = 0f;
         SubsurfaceThickness = 0f;
         LightThrough = 0f;
+        CastsShadows = true;
+        BouncesLight = true;
     }
 
     /// <summary>Whether every field is the same, compared field by field rather than through reflection.</summary>
@@ -188,7 +211,8 @@ public struct Material : IEquatable<Material>
         && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
         && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided
         && SubsurfaceColor == other.SubsurfaceColor && SubsurfaceRadius == other.SubsurfaceRadius
-        && SubsurfaceThickness == other.SubsurfaceThickness && LightThrough == other.LightThrough && Shader == other.Shader;
+        && SubsurfaceThickness == other.SubsurfaceThickness && LightThrough == other.LightThrough && CastsShadows == other.CastsShadows
+        && BouncesLight == other.BouncesLight && Shader == other.Shader;
 
     /// <inheritdoc />
     public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);

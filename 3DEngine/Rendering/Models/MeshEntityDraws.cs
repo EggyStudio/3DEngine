@@ -40,7 +40,10 @@ namespace Engine;
 /// <c>DrawMesh</c> records one, with the shader's values as the program last set them, copied once
 /// a frame for every entity drawn with it. One whose <see cref="Visible"/> is false is drawn nowhere
 /// and keeps its mesh, and one whose <see cref="ShadowOnly"/> is true is drawn into the shadow maps
-/// alone, each a bool the entity's chunk is gathered again for when it changes. The entities
+/// alone, each a bool the entity's chunk is gathered again for when it changes. A material whose
+/// <see cref="Material.CastsShadows"/> or <see cref="Material.BouncesLight"/> is false leaves the
+/// entity out of the shadow maps and the scene's field, or the field alone, as a
+/// <see cref="ModelMaterial"/>'s do a mesh drawn by a call. The entities
 /// recorded in a frame are the frame profile's <c>entities.drawn</c>, before each camera's frustum
 /// leaves out those it cannot see.
 /// </para>
@@ -142,7 +145,7 @@ internal sealed partial class MeshEntityDraws
     private readonly List<List<InstanceGroup>> _cameraGroups = [];
 
     private readonly record struct GroupKey(int Mesh, int Texture, int NormalMap, int MetallicRoughnessMap, int EmissiveMap,
-        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode, Vector4 Subsurface, bool ShadowOnly);
+        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode, Vector4 Subsurface, bool ShadowOnly, bool CastsShadow, bool BouncesLight);
 
     // A look's group for a translucent draw, sorted far to near, and for one with a program's
     // shader, which no group draws, each recorded alone.

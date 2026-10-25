@@ -1155,3 +1155,25 @@ in a few large buffers. The game meshes on the CPU meanwhile and holds the meshi
 
 Review: item 121 of REVIEW.md, 2026-10-25; a color stream beside the program's own on a mesh over
 shader buffers and the mesh over a range of a shared buffer, the field reading both; after item 102.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a mesh entity casts the sun's shadow and stands in the scene's field whatever its material
+
+Read on the 3DEngine 5.2.313 package's source at `073f34c8` for the game's item 95, its sections as
+mesh entities. A section's faces are seven meshes by how they are drawn, and four of them are drawn
+through a `ModelMaterial` that leaves out a part of the frame. The see-through glass and ice, the
+water and the glass a pack cuts out set `CastsShadows` false, so the sun passes through a window and
+the scene's distance field, which holds a see-through mesh as solid, keeps the indirect light coming
+through it, and the plants a pack cuts out set `BouncesLight` false, so the field holds no grass
+(`VoxelSandbox/Rendering/ChunkRenderer.cs:170`). The ECS `Material` holds neither, and
+`MeshEntityDraws` builds each entity's draw with `ModelDraw`'s defaults, a shadow cast and the
+field holding it (`3DEngine/Rendering/Models/MeshEntityDraws.Looks.cs:42`), so as entities those
+four would darken the floor under every window and pane, shut each room's indirect light behind its
+glass and stand the grass in the field as boxes.
+
+The engine lacks a mesh entity that casts no shadow and one the scene's field leaves out, as a
+`CastsShadows` and a `BouncesLight` on the ECS `Material` or a component for each, beside
+`ShadowOnly`. The game draws its solid faces, the faces a pack cuts out that cast a whole shadow and
+its lava as entities meanwhile, and the other four through `DrawMesh` until a package carries these.
+
+Review: item 124 of REVIEW.md, 2026-10-25; CastsShadows and BouncesLight on the mesh entity, as the
+Material's or a component each, the coder's call; with item 100 at its first clean point.

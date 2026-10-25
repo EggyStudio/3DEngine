@@ -55,4 +55,63 @@ public sealed partial class SceneFieldTests
         UnloadModel(slab);
         UnloadModel(cube);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Mesh_Entity_Whose_Material_Casts_No_Shadow_Leaves_The_Floor_Lit_And_One_That_Bounces_No_Light_Is_Not_Held_In_The_Field()
+    {
+        // Three cubes as entities a unit over a floor under a sun that casts shadows, one as any
+        // other, one whose Material casts no shadow, as a voxel game's glass and water, and one
+        // that bounces no light, as its grass, which casts its shadow all the same.
+        var config = Config.Default.WithWindow("scene field test", 128, 96) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.25f);
+        var way = Vector3.Normalize(new Vector3(-1, -1, 0));
+        CreateDirectionalLight(way, Color.White, 2, castsShadows: true);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var cube = GenMeshCube(1, 1, 1);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        void Spawn(float z, bool casts, bool bounces)
+        {
+            var entity = ecs.Spawn();
+            ecs.Add(entity, new Mesh(cube));
+            ecs.Add(entity, new Material(Color.White) { AlphaMode = MaterialAlphaMode.Opaque, CastsShadows = casts, BouncesLight = bounces });
+            ecs.Add(entity, new Transform(new Vector3(0, 1, z)));
+        }
+        Spawn(-2.5f, true, true);
+        Spawn(0, false, true);
+        Spawn(2.5f, true, false);
+        var camera = new Camera3D(new Vector3(0, 9, 6), Vector3.Zero, Vector3.UnitY, 45, CameraProjection.Perspective);
+        var path = Path.Combine(_folder.Path, "entities.png");
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(slab, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(10, 0.2f, 10), Color.White);
+            EndMode3D();
+            if (frame == SceneFieldPlan.SettleFrames) TakeScreenshot(path);
+            EndDrawing();
+        }
+        var fields = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<SceneFieldRenderer>()!;
+        fields.Drawn.Where(drawn => drawn.Instance.Mesh == cube.Id).Select(drawn => drawn.Instance.World.Translation.Z)
+            .Should().Equal([-2.5f], "the field holds the cube that casts a shadow and bounces light, and neither of the others");
+
+        // The floor where each cube's middle throws its shadow, and as far the other way, lit.
+        var image = LoadImage(path);
+        byte Floor(Vector3 at)
+        {
+            var seen = GetWorldToScreenEx(at, camera, 128, 96);
+            return GetImageColor(image, (int)seen.X, (int)seen.Y).R;
+        }
+        var drop = way * (-1 / way.Y);
+        foreach (var z in new[] { -2.5f, 0, 2.5f })
+            Floor(new Vector3(-drop.X, 0, z)).Should().BeGreaterThan(80, $"the sun lights the floor clear of the cube at {z}");
+        var (twin, glass, grass) = (Floor(new Vector3(drop.X, 0, -2.5f)), Floor(new Vector3(drop.X, 0, 0)), Floor(new Vector3(drop.X, 0, 2.5f)));
+        var clear = Floor(new Vector3(-drop.X, 0, 0));
+        twin.Should().BeLessThan((byte)(clear / 2), "the cube as any other casts its shadow");
+        grass.Should().BeLessThan((byte)(clear / 2), "the cube that bounces no light casts its shadow all the same");
+        glass.Should().BeGreaterThan((byte)(clear * 3 / 4), "the cube that casts no shadow leaves the floor under the sun lit");
+        UnloadModel(slab);
+    }
 }

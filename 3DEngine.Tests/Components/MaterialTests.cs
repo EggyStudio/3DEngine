@@ -34,6 +34,8 @@ public class MaterialTests
         m.EmissiveFactor.Should().Be(Vector3.Zero);
         m.NormalScale.Should().Be(1f);
         m.OcclusionStrength.Should().Be(1f);
+        m.CastsShadows.Should().BeTrue();
+        m.BouncesLight.Should().BeTrue();
 
         m.BaseColorTexture.IsValid.Should().BeFalse();
         m.MetallicRoughnessTexture.IsValid.Should().BeFalse();

@@ -62,6 +62,8 @@ internal sealed partial class MeshEntityDraws
             SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius),
             SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness),
             LightThrough: Math.Clamp(material.LightThrough, 0, 1),
+            CastsShadow: material.CastsShadows,
+            BouncesLight: material.BouncesLight,
             Shader: shader,
             ShadowOnly: shadowOnly);
         return new Look
@@ -85,8 +87,8 @@ internal sealed partial class MeshEntityDraws
         return draw with { Uniforms = values.Uniforms, ShaderTextures = values.Textures };
     }
 
-    // The group of an opaque draw's mesh, maps, sides, alpha mode and the light it scatters under
-    // its surface, made the first time one is drawn.
+    // The group of an opaque draw's mesh, maps, sides, alpha mode, the light it scatters under its
+    // surface and whether it casts a shadow and bounces light, made the first time one is drawn.
     private int GroupOf(in ModelDraw draw)
     {
         var key = KeyOf(draw);
@@ -101,7 +103,7 @@ internal sealed partial class MeshEntityDraws
     }
 
     private static GroupKey KeyOf(in ModelDraw draw) => new(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
-        draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface, draw.ShadowOnly);
+        draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface, draw.ShadowOnly, draw.CastsShadow, draw.BouncesLight);
 
     // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
     private Color Encoded(Vector4 albedo)

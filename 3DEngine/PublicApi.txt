@@ -2648,6 +2648,8 @@ struct Engine.Material : IEquatable<Material>
   Vector3 EmissiveFactor
   Vector3 SubsurfaceColor
   Vector4 Albedo
+  bool BouncesLight
+  bool CastsShadows
   bool DoubleSided
   bool Equals(Material other)
   float AlphaCutoff

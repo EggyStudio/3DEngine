@@ -10,8 +10,30 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `21a3fbc7`, item 96's cut, the edge march gated by the thin-wall test, read at 15:23
-on 2026-10-25, carrying REVIEW.md, the grove pair and a note, pushed at 15:37 on 2026-10-25 once the
+Reviewed up to `4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed
+at 18:27 on 2026-10-25 once the build run of `21a3fbc7` went green whole, the run watched, carrying
+the review's files and DEVLOG.md with a Shared line. LightThrough on ModelMaterial and the ECS
+Material sets the share of light that passes a unit of a surface's depth, the field's colors
+carrying it in their alpha, the cascades' rays and the screen probes' rays crossing up to four such
+surfaces, keeping the share for each unit of depth and taking the rest of the surface's light, a
+crossing before a cascade's interval kept for the probe's own faces alone in a second channel of the
+distances. One departure, a floor under a slab a unit thick letting half through a unit taking 0.23
+of the sky light the solid slab holds back at Low and 0.29 at High and an all-through slab 0.95 and
+0.98, where the item said about half, since slanting rays cross more of the slab a unit of depth and
+an infinite slab works out to a third by the cosine-weighted mean, the test bounding it between 0.15
+and 0.40 and the guide saying about a quarter. A frame where nothing lets light through traces with
+gi_trace.slang built with NO_LIGHT_THROUGH, a new loader variant tested; the bisect found shading
+into temporaries summed after the ray cost 7% at Low even with the crossing compiled out, so the
+light is written at the hit as before, 0.554 ms against 0.552; gi_screen shades in two places
+instead of three, taking 0.16 to 0.60 ms off High in the bounce rooms, the Cornell box 1.60 where
+1.92 at 800 by 450 and 2.07 where 2.64 at 1080p, Medium 1.50 where 1.82, the frames within 2 of 255;
+the guide's table reads Low 0.55, Medium 1.50 and High 1.60 ms at 6.28, 9.29 and 11.72 MB, the
+second channel 0.12, 0.37 and 0.56 of them. 2,114 on the GPU in both orders, 71 on lavapipe with
+validation, the strict build clean, the pack and the docs on the package passing, PublicApi.txt
+updated. Left for the second part, the grove at both sizes, unreadable here with BevyCSharp's suite
+holding 40 to 90% of the GPU, the canopy picture and note and the crossing's cost where leaves
+exist. After `21a3fbc7`, item 96's cut, the edge march gated by the thin-wall test, read at 15:23 on
+2026-10-25, carrying REVIEW.md, the grove pair and a note, pushed at 15:37 on 2026-10-25 once the
 build run of `073f34c8` went green whole, its own run green whole at 16:48, Windows in 71 minutes,
 Linux in 35 and macOS in 41. The model pass's edge test gains byThinWall with its comment. At the
 grove at High at 1920 by 1080 over three alternating rounds of two readings with other processes
@@ -1134,7 +1156,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the voxel game's grove at both sizes, the readings against the references under the
     covered-fault rule, a test of a plane under a slab of foliage cells at a half reading about half
     the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
-    commits, after item 96 and before 93.
+    commits, after item 96 and before 93. The first part at `4c9cf7e4` on 2026-10-25, LightThrough
+    on both materials with the rays crossing up to four surfaces and gi_screen shading in two
+    places, the departure in the head; the second part, the grove's readings, the canopy's picture
+    and the crossing's cost with leaves, after item 124.
 
 111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
     at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
@@ -1173,7 +1198,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     coder's call said in the record; a test reads a no-shadow entity casting none in the shadow map
     and a no-bounce entity absent from the field while its twin stands in both; the behaviors
     guide's Mesh entities section gains them. After what is in hand of item 100 and before the rest
-    of it. One commit.
+    of it. One commit. The coder's call at 18:27, the two flags on the ECS Material set true by its
+    constructors as DoubleSided is, since a look is built once for all entities sharing it and a
+    frame reads nothing more, where a component each would mean two more stores read and
+    change-checked for every touched entity.
 
 125. **Why the scene pass halves when a game's meshes are entities, and whether DrawMesh can have it
     too.** From the voxel game's reading for its item 95 on 5.2.313 at 17:35 on 2026-10-25. With
@@ -1895,3 +1923,9 @@ none traces with a build of the trace that leaves the crossing out (`NO_LIGHT_TH
 trace's light written as the crossing writes it, summed over what the ray met and set after, cost
 7% at Low with the crossing compiled out, where the light written at the hit cost nothing; the
 screen's probes shading in two places where they shaded in three took 0.16 to 0.60 ms off High.
+
+Shared: a mesh entity's `Material` carries `CastsShadows` and `BouncesLight`, true as its
+constructors make them and a scene file's older entries read them, as `ModelMaterial`'s do for a
+mesh drawn by a call, which leave it out of the shadow maps and the scene's field or of the field
+alone; on the material rather than a component each, since a look is built once for all its
+entities and a frame reads nothing more (item 124).
