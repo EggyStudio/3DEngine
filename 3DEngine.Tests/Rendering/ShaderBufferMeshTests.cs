@@ -155,6 +155,51 @@ public sealed class ShaderBufferMeshTests : IDisposable
         UnloadModel(floor);
     }
 
+    [NeedsVulkanTheory]
+    [InlineData(6u, 6u, true, true)]
+    [InlineData(6u, 0u, true, false)]
+    [InlineData(0u, 6u, false, true)]
+    public void Two_Meshes_In_Ranges_Of_One_Buffer_Draw_Apart_Each_By_Its_Own_Count(uint leftCount, uint rightCount, bool left, bool right)
+    {
+        // The squares written into one buffer of twelve vertices, the left a mesh over vertices 0 to
+        // 5 counted by the first uint of a buffer of two, and the right a mesh over vertices 6 to 11
+        // counted by the second, as a program meshing many sections into a few large buffers keeps
+        // them.
+        Open();
+        var shader = LoadComputeShaderFromMemory(Squares, "squares.slang");
+        shader.IsValid.Should().BeTrue();
+        var positions = LoadShaderBuffer(12 * 12);
+        var written = LoadShaderBuffer(4);
+        SetShaderValue(shader, GetShaderLocation(shader, "count"), 12);
+        SetShaderValue(shader, GetShaderLocation(shader, "flat"), 0);
+        SetShaderValueBuffer(shader, GetShaderLocation(shader, "positions"), positions);
+        SetShaderValueBuffer(shader, GetShaderLocation(shader, "counter"), written);
+        ComputeShaderDispatch(shader, 1, 1, 1);
+        var counts = LoadShaderBuffer(8);
+        UpdateShaderBuffer<uint>(counts, [leftCount, rightCount]);
+        var leftMesh = LoadMeshFromShaderBuffers(positions, default, MeshStreamFormat.UInt, default, counts, 6, 0, 0);
+        var rightMesh = LoadMeshFromShaderBuffers(positions, default, MeshStreamFormat.UInt, default, counts, 6, 6, 1);
+        leftMesh.IsValid.Should().BeTrue();
+        rightMesh.IsValid.Should().BeTrue();
+        LoadMeshFromShaderBuffers(positions, default, MeshStreamFormat.UInt, default, counts, 6, 9, 1).IsValid
+            .Should().BeFalse("a range past the positions' twelve vertices is refused");
+        LoadMeshFromShaderBuffers(positions, default, MeshStreamFormat.UInt, default, counts, 6, 0, 2).IsValid
+            .Should().BeFalse("a count past the counts' two is refused");
+
+        var image = Capture(() =>
+        {
+            DrawMesh(leftMesh, Glowing, Matrix4x4.Identity);
+            DrawMesh(rightMesh, Glowing, Matrix4x4.Identity);
+        }, Facing);
+        var (l, r) = Middles(image);
+        (l > 128).Should().Be(left, $"the left square is drawn where its count of {leftCount} reaches it, its middle {l}");
+        (r > 128).Should().Be(right, $"the right square is drawn from its range's first vertex where its count of {rightCount} reaches it, its middle {r}");
+        UnloadMesh(leftMesh);
+        UnloadMesh(rightMesh);
+        foreach (var buffer in new[] { positions, written, counts }) UnloadShaderBuffer(buffer);
+        UnloadShader(shader);
+    }
+
     [Fact]
     [Trait("Category", "Unit")]
     public void The_Null_Device_Records_A_Draw_By_A_Count_A_Shader_Wrote()

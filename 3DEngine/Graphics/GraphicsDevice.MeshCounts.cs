@@ -35,13 +35,14 @@ internal sealed unsafe partial class GraphicsDevice
     // since the batch is submitted ahead of the frame, which resets the frame's marks.
     private VkQueryPool _countQueries;
 
-    // A frame in flight's records and the list of the meshes they draw.
+    // A frame in flight's records and the list of the counts they draw by, each a buffer and the
+    // byte its count begins at, many meshes keeping theirs in one buffer.
     private sealed class CountSlot
     {
         public readonly List<IBuffer> Chunks = [];
         public int Records;
-        public readonly List<IBuffer> Meshes = [];
-        public readonly Dictionary<IBuffer, int> Entries = new(ReferenceEqualityComparer.Instance);
+        public readonly List<(IBuffer Buffer, uint Offset)> Meshes = [];
+        public readonly Dictionary<(IBuffer Buffer, uint Offset), int> Entries = new(new CountKeys());
         public IBuffer? Counts;
         public VkDescriptorPool Pool;
         public int PoolSets;
@@ -102,8 +103,16 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkDestroyShaderModule(module);
     }
 
+    // A count's buffer by reference and its byte, which the slots key a mesh's count by.
+    private sealed class CountKeys : IEqualityComparer<(IBuffer Buffer, uint Offset)>
+    {
+        public bool Equals((IBuffer Buffer, uint Offset) a, (IBuffer Buffer, uint Offset) b) => ReferenceEquals(a.Buffer, b.Buffer) && a.Offset == b.Offset;
+
+        public int GetHashCode((IBuffer Buffer, uint Offset) key) => HashCode.Combine(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(key.Buffer), key.Offset);
+    }
+
     /// <inheritdoc />
-    public void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance)
+    public void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance, uint firstVertex = 0, uint countOffset = 0)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd)
             throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
@@ -115,11 +124,11 @@ internal sealed unsafe partial class GraphicsDevice
         {
             _countSlots ??= [.. Enumerable.Range(0, MaxFramesInFlight).Select(_ => new CountSlot())];
             var slot = _countSlots[_currentFrame];
-            if (!slot.Entries.TryGetValue(count, out var entry))
+            if (!slot.Entries.TryGetValue((count, countOffset), out var entry))
             {
                 entry = slot.Meshes.Count;
-                slot.Meshes.Add(count);
-                slot.Entries[count] = entry;
+                slot.Meshes.Add((count, countOffset));
+                slot.Entries[(count, countOffset)] = entry;
             }
             if (slot.Records == slot.Chunks.Count * CountChunk)
                 slot.Chunks.Add(CreateBuffer(new BufferDesc(CountChunk * CountRecordBytes, BufferUsage.Storage | BufferUsage.Indirect, CpuAccessMode.Write)));
@@ -128,7 +137,7 @@ internal sealed unsafe partial class GraphicsDevice
             var fields = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(Map(chunk).Slice(record * CountRecordBytes, CountRecordBytes));
             fields[0] = 0;
             fields[1] = instanceCount;
-            fields[2] = 0;
+            fields[2] = firstVertex;
             fields[3] = firstInstance;
             fields[4] = (uint)entry;
             fields[5] = capacity;
@@ -192,8 +201,8 @@ internal sealed unsafe partial class GraphicsDevice
             var counts = ((VulkanBuffer)slot.Counts).Buffer;
             for (var i = 0; i < slot.Meshes.Count; i++)
             {
-                var region = new VkBufferCopy { srcOffset = 0, dstOffset = (ulong)(i * 4), size = 4 };
-                _deviceApi.vkCmdCopyBuffer(cmd, ((VulkanBuffer)slot.Meshes[i]).Buffer, counts, 1, &region);
+                var region = new VkBufferCopy { srcOffset = slot.Meshes[i].Offset, dstOffset = (ulong)(i * 4), size = 4 };
+                _deviceApi.vkCmdCopyBuffer(cmd, ((VulkanBuffer)slot.Meshes[i].Buffer).Buffer, counts, 1, &region);
             }
             MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 
@@ -243,7 +252,7 @@ internal sealed unsafe partial class GraphicsDevice
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 3, pBindings = bindings };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _cornersSetLayout = setLayout;
-        var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = 12 };
+        var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = 16 };
         var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = 1, pSetLayouts = &setLayout, pushConstantRangeCount = 1, pPushConstantRanges = &push };
         _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out _cornersLayout).CheckResult();
 
@@ -271,12 +280,13 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>
     /// Records the writing of meshes over shader buffers into the scene field's pool of corners, a
-    /// dispatch a mesh, each from its first corner as many vertices as its count read back said,
-    /// after what wrote their buffers and before the builds that read the pool.
+    /// dispatch a mesh, each from its first corner as many vertices as its count read back said, read
+    /// from its first vertex in its buffers, after what wrote their buffers and before the builds
+    /// that read the pool.
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordCountedCorners(ICommandBuffer commandBuffer, IBuffer corners,
-        IReadOnlyList<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices)> meshes)
+        IReadOnlyList<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices, int FirstVertex)> meshes)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd)
             throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
@@ -289,8 +299,8 @@ internal sealed unsafe partial class GraphicsDevice
         var setLayout = _cornersSetLayout;
         var infos = stackalloc VkDescriptorBufferInfo[3];
         var writes = stackalloc VkWriteDescriptorSet[3];
-        var values = stackalloc uint[3];
-        foreach (var (positions, colors, first, vertices) in meshes)
+        var values = stackalloc uint[4];
+        foreach (var (positions, colors, first, vertices, source) in meshes)
         {
             if (vertices <= 0) continue;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
@@ -305,8 +315,8 @@ internal sealed unsafe partial class GraphicsDevice
             }
             _deviceApi.vkUpdateDescriptorSets(3, writes, 0, null);
             _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _cornersLayout, 0, 1, &set, 0, null);
-            (values[0], values[1], values[2]) = ((uint)first, (uint)vertices, colors is null ? 0u : 1u);
-            _deviceApi.vkCmdPushConstants(cmd, _cornersLayout, VkShaderStageFlags.Compute, 0, 12, values);
+            (values[0], values[1], values[2], values[3]) = ((uint)first, (uint)vertices, colors is null ? 0u : 1u, (uint)source);
+            _deviceApi.vkCmdPushConstants(cmd, _cornersLayout, VkShaderStageFlags.Compute, 0, 16, values);
             _deviceApi.vkCmdDispatch(cmd, ((uint)vertices + 63) / 64, 1, 1);
         }
         // The builds after read the corners.

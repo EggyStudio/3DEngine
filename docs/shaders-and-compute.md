@@ -503,14 +503,36 @@ are on the GPU alone, so picking and bodies pass it over, and a reflection trace
 device's rays does not see it. `UnloadMesh` frees the mesh and not its buffers, and a buffer
 unloaded first unloads the meshes over it.
 
-Global illumination reads its triangles into the scene's distance field, in the color of a stream
-of `UNorm8x4` where it has one, once the mesh has a box. A dispatch that binds the mesh's buffers
+Global illumination reads its triangles into the scene's distance field, in the color of its
+colors where they are given, below, or of a stream of `UNorm8x4` where it has one, once the mesh has
+a box. A dispatch that binds the mesh's buffers
 marks it written, its count is read back without a wait, and a frame or two later the field takes
 as many triangles as the count says, written into the field's own buffer on the GPU from the
 positions. A mesh written again every frame is taken as its box, as a mesh that moves is. Five
 hundred meshes of 1,024 triangles took 500 dispatches and 2.6 to 3.4 ms of the GPU in the frame
 they were taken in, once, and 48 MB of the field's buffer, where keeping room for each one's
 capacity of 24,000 vertices would have held 192 MB.
+
+A mesh whose stream is the program's own, as a voxel game's two uints a vertex, gives the field no
+color, and every surface of it bounces its material's. The overload that takes `colors`, four bytes
+a vertex red lowest, gives each vertex its color, which the model pass multiplies the material by
+and the field reads as it reads an uploaded mesh's colors. The same overload takes a range of the
+buffers, from vertex `first` as many as the `uint` at `countAt` of the count buffer says, so a
+program meshing thousands of sections keeps them in a few large buffers, each section a range of a
+capacity it may fill and a count of its own, with no count read back to size it first:
+
+<!-- compiled with:
+const int Sections = 64, Each = 6 * 1024;
+-->
+```csharp
+var positions = LoadShaderBuffer(Sections * Each * 12);
+var packed = LoadShaderBuffer(Sections * Each * 8);    // two uints a vertex
+var colors = LoadShaderBuffer(Sections * Each * 4);    // a color a vertex
+var counts = LoadShaderBuffer(Sections * 4);           // a uint a section
+var sections = new ModelMesh[Sections];
+for (int i = 0; i < Sections; i++)
+    sections[i] = LoadMeshFromShaderBuffers(positions, packed, MeshStreamFormat.UInt2, colors, counts, Each, i * Each, i);
+```
 
 ## Writing a texture
 

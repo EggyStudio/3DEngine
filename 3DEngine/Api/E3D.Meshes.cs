@@ -199,29 +199,81 @@ public static partial class E3D
     /// buffers, and a buffer unloaded first unloads the meshes over it.
     /// </para>
     /// </remarks>
-    public static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity)
+    public static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity) =>
+        LoadMeshFromShaderBuffers(positions, stream, format, default, count, capacity, 0, 0);
+
+    /// <summary>
+    /// Makes a mesh of the vertices compute shaders write into storage buffers, as the overload
+    /// without colors does, with each vertex's color from <paramref name="colors"/> where given, and
+    /// lying in a range of the buffers, from vertex <paramref name="first"/> as many vertices as a
+    /// shader wrote into the uint at <paramref name="countAt"/> of <paramref name="count"/>, at most
+    /// <paramref name="capacity"/>.
+    /// </summary>
+    /// <param name="positions">Each vertex's position, three floats a vertex, as the overload without colors takes them.</param>
+    /// <param name="stream">The vertices' stream of the program's own, or a default buffer for none.</param>
+    /// <param name="format">What each vertex of <paramref name="stream"/> holds.</param>
+    /// <param name="colors">
+    /// Each vertex's color, four bytes a vertex, red, green and blue in sRGB and alpha, as a shader
+    /// writes a <c>uint</c> of them red lowest, which the model pass multiplies the material by and
+    /// the scene's field takes the surface's color from, or a default buffer for none.
+    /// </param>
+    /// <param name="count">The buffer a shader writes the vertex count into, a <c>uint</c> a mesh.</param>
+    /// <param name="capacity">The most vertices drawn, a whole number of triangles.</param>
+    /// <param name="first">The mesh's first vertex in <paramref name="positions"/>, its stream and its colors.</param>
+    /// <param name="countAt">Which <c>uint</c> of <paramref name="count"/> holds the mesh's vertex count.</param>
+    /// <returns>The mesh, or an invalid one where a buffer is not loaded or is too small for the range, with the reason in the log.</returns>
+    /// <remarks>
+    /// <para>
+    /// A program meshing many sections in compute keeps them in a few large buffers, each section a
+    /// range of a capacity it may fill and a count of its own, so no section waits for the CPU to
+    /// count its faces, and drawing and the scene's field read each range alone.
+    /// </para>
+    /// <para>
+    /// A mesh whose stream is a program's own, as a voxel game's two uints a vertex its terrain
+    /// shader unpacks, gives the field no color, every surface of it the material's, unless its
+    /// colors are given, as a mesh uploaded from its positions with its colors gives them.
+    /// </para>
+    /// </remarks>
+    public static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer colors,
+        ShaderBuffer count, int capacity, int first, int countAt)
     {
         if (!TryRes<ShaderBufferStore>(out var buffers) || buffers.Get(positions.Id) is not { } held || buffers.Get(count.Id) is not { } counter)
         {
             ApiLogger.Warn("LoadMeshFromShaderBuffers: the positions or the count buffer is not loaded, so no mesh is made.");
             return default;
         }
-        if (capacity <= 0 || capacity % 3 != 0 || (ulong)capacity * 12 > held.Description.Size)
+        if (first < 0 || countAt < 0 || (ulong)(countAt + 1) * 4 > counter.Description.Size)
         {
-            ApiLogger.Warn($"LoadMeshFromShaderBuffers: a capacity of {capacity} is not a whole number of triangles the positions' {held.Description.Size} bytes hold, twelve a vertex, so no mesh is made.");
+            ApiLogger.Warn($"LoadMeshFromShaderBuffers: a first vertex of {first} or a count at {countAt} lies outside its buffer, the count's {counter.Description.Size} bytes, so no mesh is made.");
+            return default;
+        }
+        var reach = (ulong)first + (ulong)capacity;
+        if (capacity <= 0 || capacity % 3 != 0 || reach * 12 > held.Description.Size)
+        {
+            ApiLogger.Warn($"LoadMeshFromShaderBuffers: a capacity of {capacity} from vertex {first} is not a whole number of triangles the positions' {held.Description.Size} bytes hold, twelve a vertex, so no mesh is made.");
             return default;
         }
         (IBuffer, MeshStreamFormat)? own = null;
         if (stream.IsValid)
         {
-            if (buffers.Get(stream.Id) is not { } streamed || (ulong)capacity * (ulong)MeshStream.SizeOf(format) > streamed.Description.Size)
+            if (buffers.Get(stream.Id) is not { } streamed || reach * (ulong)MeshStream.SizeOf(format) > streamed.Description.Size)
             {
-                ApiLogger.Warn($"LoadMeshFromShaderBuffers: the stream holds fewer than {capacity} vertices of {format}, so no mesh is made.");
+                ApiLogger.Warn($"LoadMeshFromShaderBuffers: the stream holds fewer than {reach} vertices of {format}, so no mesh is made.");
                 return default;
             }
             own = (streamed, format);
         }
-        var id = Meshes.AddCounted(held, own, counter, (uint)capacity);
+        IBuffer? tints = null;
+        if (colors.IsValid)
+        {
+            if (buffers.Get(colors.Id) is not { } colored || reach * 4 > colored.Description.Size)
+            {
+                ApiLogger.Warn($"LoadMeshFromShaderBuffers: the colors hold fewer than {reach} vertices of four bytes, so no mesh is made.");
+                return default;
+            }
+            tints = colored;
+        }
+        var id = Meshes.AddCounted(held, own, counter, (uint)capacity, tints, (uint)first, (uint)countAt);
         return new ModelMesh(id, capacity, capacity / 3, default);
     }
 

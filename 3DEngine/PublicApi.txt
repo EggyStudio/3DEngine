@@ -816,6 +816,7 @@ static class Engine.E3D
   static ModelMesh GenMeshPoly(int sides, float radius)
   static ModelMesh GenMeshSphere(float radius, int rings, int slices)
   static ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides)
+  static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer colors, ShaderBuffer count, int capacity, int first, int countAt)
   static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2)

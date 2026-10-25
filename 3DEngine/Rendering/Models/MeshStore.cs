@@ -47,12 +47,14 @@ internal sealed class MeshStore
     public sealed record Skin(ushort[] Joints, float[] Weights, int JointCount, System.Numerics.Vector4[]? Morphs = null, int MorphCount = 0);
 
     /// <summary>
-    /// A mesh over shader buffers, its positions twelve bytes a vertex and its stream of the
-    /// program's own where it has one, drawn without indices as many vertices as a shader wrote into
-    /// the first four bytes of its count buffer, at most its capacity. Nothing of it is kept here,
-    /// so the readers of a mesh's vertices on the CPU pass it over.
+    /// A mesh over shader buffers, its positions twelve bytes a vertex, its stream of the program's
+    /// own and its colors, four bytes a vertex, where it has them, drawn without indices from vertex
+    /// <see cref="First"/> as many vertices as a shader wrote into the uint at <see cref="CountAt"/>
+    /// of its count buffer, at most its capacity. Nothing of it is kept here, so the readers of a
+    /// mesh's vertices on the CPU pass it over.
     /// </summary>
-    public sealed record Counted(int Id, IBuffer Positions, (IBuffer Buffer, MeshStreamFormat Format)? Stream, IBuffer Count, uint Capacity);
+    public sealed record Counted(int Id, IBuffer Positions, (IBuffer Buffer, MeshStreamFormat Format)? Stream, IBuffer Count, uint Capacity,
+        IBuffer? Colors = null, uint First = 0, uint CountAt = 0);
 
     // The meshes over shader buffers, those to make on the GPU, and the boxes the program set them.
     private readonly Dictionary<int, Counted> _counted = [];
@@ -88,12 +90,13 @@ internal sealed class MeshStore
     }
 
     /// <summary>Queues a mesh over shader buffers, which the program's dispatches write, and returns its id.</summary>
-    public int AddCounted(IBuffer positions, (IBuffer Buffer, MeshStreamFormat Format)? stream, IBuffer count, uint capacity)
+    public int AddCounted(IBuffer positions, (IBuffer Buffer, MeshStreamFormat Format)? stream, IBuffer count, uint capacity,
+        IBuffer? colors = null, uint first = 0, uint countAt = 0)
     {
         lock (_gate)
         {
             var id = _next++;
-            var counted = new Counted(id, positions, stream, count, capacity);
+            var counted = new Counted(id, positions, stream, count, capacity, colors, first, countAt);
             _counted[id] = counted;
             _countedUploads.Add(counted);
             return id;
@@ -121,7 +124,7 @@ internal sealed class MeshStore
         lock (_gate)
             foreach (var counted in _counted.Values)
                 if (ReferenceEquals(counted.Positions, buffer) || ReferenceEquals(counted.Count, buffer)
-                    || counted.Stream is { } stream && ReferenceEquals(stream.Buffer, buffer))
+                    || ReferenceEquals(counted.Colors, buffer) || counted.Stream is { } stream && ReferenceEquals(stream.Buffer, buffer))
                     _countedVersions[counted.Id] = _countedVersions.GetValueOrDefault(counted.Id) + 1;
     }
 
@@ -532,16 +535,21 @@ internal sealed class GpuMeshes : IDisposable
         internal (Vector3 Min, Vector3 Max)? Box { get; init; }
 
         /// <summary>
-        /// The buffer whose first four bytes a shader writes the vertex count into and the most
-        /// vertices drawn, for a mesh over shader buffers, drawn without indices by an indirect draw,
-        /// or null for any other. Its buffers are the program's, freed by it.
+        /// The buffer a shader writes the vertex count into, the most vertices drawn, the first vertex
+        /// and the count's byte in the buffer, for a mesh over shader buffers, drawn without indices
+        /// by an indirect draw, or null for any other. Its buffers are the program's, freed by it.
         /// </summary>
-        internal (IBuffer Count, uint Capacity)? Counted { get; init; }
+        internal (IBuffer Count, uint Capacity, uint First, uint CountOffset)? Counted { get; init; }
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
     private readonly List<(long Frame, IDisposable Owned)> _retired = [];
     private long _frame;
+
+    // Zero second texture coordinates for the meshes over shader buffers that have colors, which
+    // the model pass binds beside the colors, one buffer for them all as long as the furthest vertex
+    // any of them draws, since such a mesh may lie anywhere in a large buffer.
+    private IBuffer? _zeros;
 
     /// <summary>The skinned meshes posed for this frame, with their joints' matrices, which the skinning node records.</summary>
     internal List<(int Id, System.Numerics.Matrix4x4[] Joints, float[]? Weights)> Poses { get; } = [];
@@ -566,7 +574,10 @@ internal sealed class GpuMeshes : IDisposable
             var (counted, boxes) = store.TakeCounted();
             foreach (var made in counted)
                 _entries[made.Id] = new Entry(made.Positions, made.Positions, 0)
-                    { PositionsOnly = true, Custom = made.Stream, Counted = (made.Count, made.Capacity) };
+                {
+                    PositionsOnly = true, Custom = made.Stream, Counted = (made.Count, made.Capacity, made.First, made.CountAt * 4),
+                    Colors = made.Colors, Texcoords2 = made.Colors is null ? null : Zeros(gfx, made.First + made.Capacity),
+                };
             foreach (var (id, box) in boxes)
                 if (_entries.TryGetValue(id, out var boxed)) _entries[id] = boxed with { Box = (box.Min, box.Max) };
 
@@ -663,6 +674,22 @@ internal sealed class GpuMeshes : IDisposable
         return (min, max);
     }
 
+    // The zero second texture coordinates for vertices up to that many, made larger where a mesh
+    // reaches further and given to every mesh that held the smaller, which is retired.
+    private IBuffer Zeros(IGraphicsDevice gfx, uint vertices)
+    {
+        var bytes = (ulong)Math.Max(1u, vertices) * 8;
+        if (_zeros is { } held && held.Description.Size >= bytes) return held;
+        var made = Buffer(gfx, new byte[Math.Max(bytes, (_zeros?.Description.Size ?? 0) * 2)], BufferUsage.Vertex);
+        if (_zeros is { } old)
+        {
+            foreach (var (id, entry) in _entries.ToArray())
+                if (ReferenceEquals(entry.Texcoords2, old)) _entries[id] = entry with { Texcoords2 = made };
+            _retired.Add((_frame, old));
+        }
+        return _zeros = made;
+    }
+
     // Hands a mesh's buffers to the retired list, which destroys them once no frame can read them.
     private void Retire(Entry entry, bool vertices, bool indices = true)
     {
@@ -708,6 +735,8 @@ internal sealed class GpuMeshes : IDisposable
     public void Dispose()
     {
         foreach (var (_, owned) in _retired) owned.Dispose();
+        _zeros?.Dispose();
+        _zeros = null;
         foreach (var entry in _entries.Values)
         {
             if (entry.Skin is { } skin) skin.Dispose();

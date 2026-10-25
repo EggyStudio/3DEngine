@@ -91,7 +91,7 @@ internal sealed class SceneFieldRenderer : IDisposable
     }
     private readonly Dictionary<int, CountedState> _countedStates = [];
     private readonly Dictionary<ModelVertex[], (MeshStore.Counted Mesh, int Vertices)> _countedMeshes = new(ReferenceEqualityComparer.Instance);
-    private readonly List<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices)> _countedPending = [];
+    private readonly List<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices, int FirstVertex)> _countedPending = [];
     private GraphicsDevice? _device;
 
     /// <summary>How many counted meshes the last frame that pooled any wrote into the pool, a dispatch each.</summary>
@@ -133,7 +133,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         }
         var version = store.CountedVersion(counted.Id);
         if (state.Version != version && state.Asked is null && device is not null)
-            (state.Asked, state.AskedVersion) = (device.ReadBack(counted.Count, 0, 4), version);
+            (state.Asked, state.AskedVersion) = (device.ReadBack(counted.Count, (int)counted.CountAt * 4, 4), version);
         return state.Vertices;
     }
 
@@ -600,8 +600,9 @@ internal sealed class SceneFieldRenderer : IDisposable
             // A counted mesh's corners are written on the GPU from its positions before the builds.
             if (_countedMeshes.TryGetValue(vertices, out var counted))
             {
-                var tinted = counted.Mesh.Stream is { Format: MeshStreamFormat.UNorm8x4 } stream ? stream.Buffer : null;
-                _countedPending.Add((counted.Mesh.Positions, tinted, _cornerCount * 3, counted.Vertices));
+                // Its colors where it has them, or its stream where that holds colors.
+                var tinted = counted.Mesh.Colors ?? (counted.Mesh.Stream is { Format: MeshStreamFormat.UNorm8x4 } stream ? stream.Buffer : null);
+                _countedPending.Add((counted.Mesh.Positions, tinted, _cornerCount * 3, counted.Vertices, (int)counted.Mesh.First));
                 _pooled[vertices] = (_cornerCount, counted.Vertices / 3);
                 _cornerCount += counted.Vertices / 3;
                 continue;

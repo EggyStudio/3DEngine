@@ -107,7 +107,7 @@ internal sealed class MotionVelocity : IDisposable
             }
             pass.SetVertexBuffer(0, [mesh.Vertices, buffer], [0, 0]);
             if (mesh.Counted is { } counted)
-                pass.DrawCounted(counted.Count, counted.Capacity, (uint)count, (uint)first);
+                pass.DrawCounted(counted.Count, counted.Capacity, (uint)count, (uint)first, counted.First, counted.CountOffset);
             else
             {
                 pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);

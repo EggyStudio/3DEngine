@@ -93,4 +93,61 @@ public sealed partial class GlobalIlluminationTests
         UnloadShader(shader);
         UnloadModel(slab);
     }
+
+    // The box of CountedBox with each vertex's color, red as a uint red lowest, and a stream of two
+    // uints a vertex of the program's own, as a voxel game's terrain shader reads.
+    private static readonly string ColoredBox = CountedBox
+        .Replace("RWStructuredBuffer<uint> counter;", "RWStructuredBuffer<uint> counter;\nRWStructuredBuffer<uint> colors;\nRWStructuredBuffer<uint> packed;")
+        .Replace("positions[v * 3 + 2] = p.z;", "positions[v * 3 + 2] = p.z;\ncolors[v] = 0xFF1414DCu;\npacked[v * 2] = v;\npacked[v * 2 + 1] = 0u;");
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Wall_A_Compute_Shader_Wrote_Bounces_The_Color_Of_Its_Color_Stream_Beside_A_Stream_Of_Its_Own()
+    {
+        // The red wall's room, the wall drawn white with its red in a stream of colors beside a
+        // stream of two uints, which gave the field no color, so the white wall bounced white.
+        Open();
+        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        SetGlobalIlluminationScreenProbes(false);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var shader = LoadComputeShaderFromMemory(ColoredBox, "colored_box.slang");
+        shader.IsValid.Should().BeTrue();
+        var (low, size) = (new Vector3(-1.75f, 0, -3), new Vector3(0.3f, 3, 6));
+
+        Vector3 Side(bool colored)
+        {
+            var positions = LoadShaderBuffer(36 * 12);
+            var counter = LoadShaderBuffer(4);
+            var colors = LoadShaderBuffer(36 * 4);
+            var packed = LoadShaderBuffer(36 * 8);
+            SetShaderValue(shader, GetShaderLocation(shader, "count"), 36);
+            SetShaderValue(shader, GetShaderLocation(shader, "low"), low);
+            SetShaderValue(shader, GetShaderLocation(shader, "size"), size);
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "positions"), positions);
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "counter"), counter);
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "colors"), colors);
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "packed"), packed);
+            ComputeShaderDispatch(shader, 1, 1, 1);
+            var wall = LoadMeshFromShaderBuffers(positions, packed, MeshStreamFormat.UInt2, colored ? colors : default, counter, 36, 0, 0);
+            wall.IsValid.Should().BeTrue();
+            SetMeshBoundingBox(wall, new BoundingBox(low, low + size));
+            var image = Capture(() =>
+            {
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+                DrawMesh(wall, new ModelMaterial(Color.White), Matrix4x4.Identity);
+                DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+            });
+            UnloadMesh(wall);
+            foreach (var buffer in new[] { positions, counter, colors, packed }) UnloadShaderBuffer(buffer);
+            return Mean(image, 58, 48, 6, 10);
+        }
+
+        var tinted = Side(colored: true);
+        var white = Side(colored: false);
+        (tinted.X - tinted.Y).Should().BeGreaterThan(10, $"the side takes the red of the wall's colors, {tinted}");
+        (tinted.X - tinted.Y).Should().BeGreaterThan(white.X - white.Y + 10, $"where with no colors the wall bounces its material's white, {white}");
+        UnloadShader(shader);
+        UnloadModel(slab);
+    }
 }

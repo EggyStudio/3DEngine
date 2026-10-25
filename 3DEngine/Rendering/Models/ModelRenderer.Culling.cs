@@ -118,7 +118,7 @@ internal sealed partial class ModelRenderer
         var (counted, indexCount) = (batch.Mesh.Counted, batch.Mesh.IndexCount);
         void Draw(uint count, uint first)
         {
-            if (counted is { } held) pass.DrawCounted(held.Count, held.Capacity, count, first);
+            if (counted is { } held) pass.DrawCounted(held.Count, held.Capacity, count, first, held.First, held.CountOffset);
             else pass.DrawIndexed(indexCount, count, 0, 0, first);
         }
 

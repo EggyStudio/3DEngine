@@ -5056,3 +5056,19 @@ at `36cae0c2`.
     since each half sat inside its share. The build run of `e3d554b1`, before the mend, had its
     Windows job cancelled at the old limit again at 00:13 on 2026-10-25. Settled at 01:34 on
     2026-10-25, the Windows job green in 74 minutes on the build run of `8ae947ee`.
+
+89. **The pack run of `a8f127ad` is red on macOS, Tempo's autopilot missing one note of the song's
+    381.** Read at 08:01 on 2026-10-25 from the run's jobs and the job's annotations, run
+    40166548123. The macOS suite passed, 2,023 tests in 20 minutes, and the twelve-game loop the
+    pack run alone plays failed on Tempo, whose drive asks tempo.status until the results and
+    requires miss 0; the results read time 61.45, perfect 367, good 13, bad 0, miss 1, combo 379,
+    judged 381 of 381, error 21 ms, on a macOS arm64 runner under the capacity notice. One note's
+    window passed between two frames on a shared runner, as the drive's comment on a slow device
+    foresees for the song's length and not for a hitch; Linux and Windows played the song whole. The
+    mend makes the autopilot's hits a matter of the song's clock and not of the runner's frames, a
+    hit judged for a note whose window a frame's step spans, or the autopilot stepping the song by
+    the frame as N 3.3 asks of a test of motion, the coder saying which in the commit; the pack job
+    did not run, so no package came of the run, and a pack run is started once the mend's push run
+    has begun. Settled at `c2fd2a40` on 2026-10-25, the autopilot playing each note at its own time
+    within the frame's step of the song, a stall of 320 ms every 23rd frame missing none where it
+    missed 88 before; the pack run follows its push.

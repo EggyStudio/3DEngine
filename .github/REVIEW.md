@@ -10,11 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the
-build run of `a8f127ad` went green whole, the run watched, carrying NORM.md, SHARED.md, DEVLOG.md,
-the review's files, the game's ASKS.md entry and two captioned pictures. The slab came from the
-field's resolve, not the reading, and both are mended. A cell in front of one face and straight
-behind an opposite one within a cell is held as a sheet half a cell either side of its middle, as a
+Reviewed up to `c2fd2a40`, Verdict 89's mend, Tempo's autopilot on the song's clock, read at 08:36
+on 2026-10-25, carrying the review's files, SHARED.md, DEVLOG.md and the game's ASKS.md, held until
+the build run of `f05ea96f` ends, then pushed and the pack run started. Each note whose time this
+frame's step of the song passed is played at its own time, clamped into the clock before the step
+and the clock after, as a player on the beat is judged however long the frame, several in one lane
+in one long step each played, a note less than half a step ahead played on this frame as before,
+Run.Play taking the song time a lane is played at while keys and pads play at the clock; the game
+stays on the music's clock with no fixed stepping. The miss came from a stall frame far longer than
+the frames before running the music's clock past a note not yet due by more than the 0.15 s Bad
+window, so the autopilot's press on the frame after was refused. On a fresh pack offscreen, the
+drive reads perfect 381, miss 0, error 3 ms with no validation error, and 300 frames draw clean;
+with a 320 ms stall every 23rd frame through the whole song the old game missed 88 of 381 at perfect
+186 and error 44 ms and the mended one 0 at perfect 323 and 19 ms, and at a steady 4 frames a second
+both miss 0, so it was the stall, as on the runner under its capacity notice. Item 121 was set aside
+in a stash and goes back in, its checks passed before, 2,108 plain and shuffled and 41 on lavapipe.
+After `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the build run
+of `a8f127ad` went green whole, the run watched, carrying NORM.md, SHARED.md, DEVLOG.md, the
+review's files, the game's ASKS.md entry and two captioned pictures. The slab came from the field's
+resolve, not the reading, and both are mended. A cell in front of one face and straight behind an
+opposite one within a cell is held as a sheet half a cell either side of its middle, as a
 double-sided sheet is, and the flat world's ground is four blocks between grass tops and bedrock
 bottoms, so at the far cascade's 73.75 every cell above it qualified and the ground stood about 37
 blocks thick with the eye inside it; the far cascade's build holds such sheets half the last counted
@@ -55,8 +70,9 @@ camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
 Windows in 57 minutes, Linux in 35 and macOS in 32, the pack run started with publish on at 06:43
-for the game's item 95, its macOS job red at 07:33 on Tempo's autopilot, Verdict 89, so it packs
-nothing and a pack run follows the mend.
+for the game's item 95, its macOS job red at 07:33 on Tempo's autopilot, Verdict 89, every other job
+green when it ended at 08:40, Windows in 82 minutes, the captures in 59, the games in 73 and macOS's
+captures in 57, the pack job skipped, so it packed nothing and a pack run follows the mend.
 
 Before it, `55a33ce9` came, item 116, a profile value's mean, with `6e29cfa0`, item 115, pushed at
 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, its run green whole at
@@ -1101,21 +1117,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdict 89 is open. Verdicts 56 to 88 are settled, said under each in REVIEW-ARCHIVE.md.
-
-89. **The pack run of `a8f127ad` is red on macOS, Tempo's autopilot missing one note of the song's
-    381.** Read at 08:01 on 2026-10-25 from the run's jobs and the job's annotations, run
-    40166548123. The macOS suite passed, 2,023 tests in 20 minutes, and the twelve-game loop the
-    pack run alone plays failed on Tempo, whose drive asks tempo.status until the results and
-    requires miss 0; the results read time 61.45, perfect 367, good 13, bad 0, miss 1, combo 379,
-    judged 381 of 381, error 21 ms, on a macOS arm64 runner under the capacity notice. One note's
-    window passed between two frames on a shared runner, as the drive's comment on a slow device
-    foresees for the song's length and not for a hitch; Linux and Windows played the song whole. The
-    mend makes the autopilot's hits a matter of the song's clock and not of the runner's frames, a
-    hit judged for a note whose window a frame's step spans, or the autopilot stepping the song by
-    the frame as N 3.3 asks of a test of motion, the coder saying which in the commit; the pack job
-    did not run, so no package came of the run, and a pack run is started once the mend's push run
-    has begun.
+Verdicts 56 to 89 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 

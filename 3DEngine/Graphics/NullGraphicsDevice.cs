@@ -115,7 +115,8 @@ internal sealed class NullGraphicsDevice : IGraphicsDevice
     /// <inheritdoc />
     public void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1, uint firstIndex = 0, int vertexOffset = 0, uint firstInstance = 0) { }
     /// <inheritdoc />
-    public void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance) => CountedDraws++;
+    public void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance, uint firstVertex = 0, uint countOffset = 0) =>
+        CountedDraws++;
     /// <summary>How many draws of a mesh whose count a shader writes were recorded.</summary>
     public int CountedDraws { get; private set; }
     /// <inheritdoc />
