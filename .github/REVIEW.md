@@ -10,22 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `12a15e44`, Verdict 91's diagnosis mend, read at 14:14 on 2026-10-25, carrying the
-review's files and DEVLOG.md. The soak's log in the job's artifact reads Tumble serving after 8 s
-and then NO_SESSION, the window's size and the first inputs through by the failed file, the game
-gone with exit code 0 of its own by the next frames.wait; Tumble's loop ends by WindowShouldClose
-alone and sets no quality, nothing recent touched the CLI, the soak scripts or Tumble, no game's
-name sits inside another's title and the session files are written on the main thread, and the
-twenty-game soak three times locally as CI runs it played every game through, Tumble with two turns
-and twelve readings each time. The evidence was lost since every way a loop ends writes a line
-naming what asked, and CI kept neither build/sessions/Tumble.log nor those lines, soak-check quoting
-warnings alone; soak-check.py quotes the closing lines among a log's last three, a SoakCheckTests
-case covers an ended game, and a local soak reads app.quit asked by e3d with its process and its
-parent's command line, so a recurrence names its asker. The strict build clean, 2,112 plain and
-shuffled. After `17da0eaa`, item 123, Low's thin-wall leak, read at 13:04 on 2026-10-25, carrying
-NORM.md, SHARED.md, the review's files, DEVLOG.md, the two devlog notes and a captioned pair, held
-with `12a15e44` until the build run of `ac46c010` ends, then both pushed and the fourth pack run
-started. lights.slang's byThinWall reads, at a point 0.3 of the probes' spacing off the surface
+Reviewed up to `073f34c8`, the soak's logs kept, read at 14:16 on 2026-10-25, carrying REVIEW.md.
+Where any build/soak failed file exists, the soak step copies build/sessions logs into the captures'
+sessions folder before soak-check runs, so the game-captures artifact, uploaded always, keeps them;
+the workflow parses, the glob was tried both ways, the rule and script tests pass, 63. After
+`12a15e44`, Verdict 91's diagnosis mend, read at 14:14 on 2026-10-25, carrying the review's files
+and DEVLOG.md. The soak's log in the job's artifact reads Tumble serving after 8 s and then
+NO_SESSION, the window's size and the first inputs through by the failed file, the game gone with
+exit code 0 of its own by the next frames.wait; Tumble's loop ends by WindowShouldClose alone and
+sets no quality, nothing recent touched the CLI, the soak scripts or Tumble, no game's name sits
+inside another's title and the session files are written on the main thread, and the twenty-game
+soak three times locally as CI runs it played every game through, Tumble with two turns and twelve
+readings each time. The evidence was lost since every way a loop ends writes a line naming what
+asked, and CI kept neither build/sessions/Tumble.log nor those lines, soak-check quoting warnings
+alone; soak-check.py quotes the closing lines among a log's last three, a SoakCheckTests case covers
+an ended game, and a local soak reads app.quit asked by e3d with its process and its parent's
+command line, so a recurrence names its asker. The strict build clean, 2,112 plain and shuffled.
+After `17da0eaa`, item 123, Low's thin-wall leak, read at 13:04 on 2026-10-25, carrying NORM.md,
+SHARED.md, the review's files, DEVLOG.md, the two devlog notes and a captioned pair, pushed with
+`12a15e44` and `073f34c8` at 14:24 on 2026-10-25 once the build run of `ac46c010` went green whole,
+the fourth pack run started with publish on at 14:24 for the game's items 95 and 29, both runs
+watched. lights.slang's byThinWall reads, at a point 0.3 of the probes' spacing off the surface
 where another surface lies nearer than the pixel's own by over 0.75 cell, the field one cell through
 that surface against its gradient, and where it reads 0 or more the wall is thin and the pixel
 marches to the probes, the model pass using it where no screen probe stands alone, so Medium and
@@ -41,127 +46,129 @@ first run lost 80 tests to the device running out of memory 61 s in with nothing
 holding the GPU, 41 on lavapipe with validation. After `ac46c010`, item 122, the screen probes'
 spacing by the resolution, read at 11:41 on 2026-10-25, carrying NORM.md, the review's files,
 DEVLOG.md and a captioned picture, the glowstone room at 4K at every 8 pixels and every 16, alike by
-eye, pushed at 12:42 on 2026-10-25 once the build run of `c721746b` went green whole, the run
-watched. TileAt(quality, height) is the larger of the 1080p tile and that tile scaled by the height
-over 1080 and rounded, High 8 at 720p and 1080p, 11 at 1440p and 16 at 4K, Medium 24 at 4K, the
-window and its render textures taking the window's height so their tiles agree and the UBO's tile
-reading the same. Read offscreen before and after with another session's tests on the GPU, so the
-times run high alike. The glowstone room's global illumination at High, 720p 8.3 to 8.3 ms, 1080p
-13.7 to 13.1, 1440p 17.8 to 12.4 and 4K 35.9 to 13.3, the scene pass with the probes 2.6, 4.9, 7.6
-and 16.2 ms before; Low's glow-only pass, global illumination and the scene pass, 2.5 and 1.3, 2.9
-and 2.7, 3.4 and 4.8, 4.5 and 10.5; the march's scene pass 13.8, 29.2, 49.5 and 107.7; the Cornell
-box's global illumination 3.3, 3.8, 4.5 and 7.2 before and 2.4, 3.7, 3.1 and 3.7 after, the strip
-room at 4K 8.4 to 4.4. The rooms against their references, each traced at 1080p with 256 paths and
-read in 96 by 54 blocks, at 4K with the new spacing within 0.002 of their 1080p distances in every
-view, 0.040, 0.087, 0.162, 0.221, 0.007, 0.086, 0.049, 0.039 and 0.018 against 0.040, 0.087, 0.163,
-0.223, 0.007, 0.085, 0.051, 0.040 and 0.019, a fixed 8 pixels at 4K reading 0.160, 0.084 and 0.047
-at views 3, 6 and 7, the reading's test not kept. The guide carries the four rows and the rule,
-RENDERING.md the reading, a unit check of TileAt at the five heights. The strict build clean, 2,110
-plain and shuffled, 7 on lavapipe with validation. After `c721746b`, item 103, the screen probes by
-quality, read at 10:53 on 2026-10-25, carrying the review's files and two captioned pairs, the thin
-walls room and the Cornell box at Low with and without the probes. SetGlobalIlluminationScreenProbes
-is gone, ScreenProbesAt(quality) true at Medium and High; at Low GlowOnly gives the glow lights'
-probes while one is lit; ScreenOff, gi.toggle screen and the window's box, leaves them out whole at
-any quality, the glow-only probes with them; gi.state says no screen probes at Low with the glow
-probes' MB and says when the toggle left them out. The guide's tier table carries the Cornell box's
-readings, Low 0.60 ms and 6.16 MB, 1.53 without glow lights, Medium 1.92 ms and 8.92 MB, High 2.00
-ms and 11.16 MB, the paragraph the room's 2.2, 1.2 and 13.3 ms; the upgrading entry for the call is
-dropped, the call never having shipped in a release; RENDERING.md has the reading and the feature
-test's comment no longer says Low has screen probes. The tests of the probes moved to Medium,
-BounceView, the history theory, the slide crawl, the probes past the first cascade and the
-render-texture theory, Low's room bounds for views 2 and 3 at 0.13 and 0.29 with the readings in the
-comment, a unit check of ScreenProbesAt and a window draw test new. The strict build clean, 2,108
-plain and shuffled before the Metal rename, 54 on lavapipe with validation, the docs' 2 blocks
-building on a fresh pack. After `f36b49b3`, Verdict 90's mend, read at 10:49 on 2026-10-25, carrying
-the review's files and DEVLOG.md, pushed with `c721746b` at 11:29 on 2026-10-25 once the build run
-of `9a013b59` ended, the third pack run started with publish on at 11:29 for the game's items 95 and
-29 and watched, its games job red at 13:08 on Tumble's soak, Verdict 91, the three suites green with
-macOS in 56 minutes, the push run green whole at 12:36 with macOS in 33 minutes, Linux in 58 and
-Windows in 67, so the Metal mend holds. The cause differs from the verdict's reading. Item 121 named
-a local vertex in field_counted.slang, uint vertex = push.source + id.x, and vertex is a Metal
-keyword the translation kept, so 45:21 is the declaration and 50:58 its use in the index; the
-pointer and the mask were sound, and the shader indexed id.x with no such local before 121. The
-local is index, with a comment saying why. MetalNamesTests compiles every built-in shader with
-slangc and reads each stage's OpName and OpMemberName strings, refusing Metal's own words, vertex,
-fragment, kernel, visible, stitchable, intersection, device, constant, thread, threadgroup,
-threadgroup_imageblock, ray_data and object_data, a second test checking the SPIR-V reading itself;
-a full cross-compile to Metal source on Linux would not have caught it, the translation writing the
-source and Apple's compiler alone refusing it, where the names check fails on Linux first and named
-field_counted.slang's compute stage on the old shader, 55 s, skipped where slangc is missing. The
-strict build clean, 35 on the GPU and 19 on lavapipe with validation, no full suite on this commit
-alone, the tree's full suite having passed at 2,108 with item 103 beside it and this commit sharing
-no file with 103, so the run is its suite. After `9a013b59`, item 121, the counted mesh's color
-stream and its range of a shared buffer, read at 09:02 on 2026-10-25, carrying the review's files
-and a captioned picture. Checked on top of item 102 and Verdict 89's mend, since 121 and 102 share
-SceneField.cs, the strict build clean, 2,108 plain and shuffled on the GPU in 8 minutes, 83 on
-lavapipe with validation over the counted meshes, the scene field, the reference frames and motion,
-the docs page's 10 blocks building on a fresh pack. One departure, the picture's wall lit by a model
-shader of its own with a normal from ddx and ddy in its vertex colors, since the model pass's own
-shader draws a positions-only counted mesh black, as the docs say. In the red wall's room the floor
-before the wall reads 233, 233, 233 with no colors and 222, 192, 192 with the colors beside the
-UInt2 stream, the block's near face 191, 191, 191 and 186, 175, 175. After `c2fd2a40`, Verdict 89's
-mend, Tempo's autopilot on the song's clock, read at 08:36 on 2026-10-25, carrying the review's
-files, SHARED.md, DEVLOG.md and the game's ASKS.md, pushed with `9a013b59` at 09:40 on 2026-10-25
-once the build run of `f05ea96f` went green whole, the pack run started with publish on at 09:40 for
-the game's items 95 and 29, both runs watched; the pack run's macOS suite and macOS captures red
-within minutes at 09:45 and 10:36 on the counted corners' shader failing to compile under MoltenVK,
-Verdict 90, every other job green when it ended at 11:45, Windows in 125 minutes under the limit of
-240, the captures in 60 and the games in 73, the pack job skipped, so it packed nothing and the
-third pack run followed the mend at 11:29, the push run red the same way on macOS at 09:45 when it
-ended at 11:27, Linux green in 46 minutes, Windows in 107 and the examples in 10. Each note whose
-time this frame's step of the song passed is played at its own time, clamped into the clock before
-the step and the clock after, as a player on the beat is judged however long the frame, several in
-one lane in one long step each played, a note less than half a step ahead played on this frame as
-before, Run.Play taking the song time a lane is played at while keys and pads play at the clock; the
-game stays on the music's clock with no fixed stepping. The miss came from a stall frame far longer
-than the frames before running the music's clock past a note not yet due by more than the 0.15 s Bad
-window, so the autopilot's press on the frame after was refused. On a fresh pack offscreen, the
-drive reads perfect 381, miss 0, error 3 ms with no validation error, and 300 frames draw clean;
-with a 320 ms stall every 23rd frame through the whole song the old game missed 88 of 381 at perfect
-186 and error 44 ms and the mended one 0 at perfect 323 and 19 ms, and at a steady 4 frames a second
-both miss 0, so it was the stall, as on the runner under its capacity notice. Item 121 was set aside
-in a stash and goes back in, its checks passed before, 2,108 plain and shuffled and 41 on lavapipe.
-After `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the build run
-of `a8f127ad` went green whole, its run green whole at 09:38, Windows in 108 minutes, Linux in 59
-and macOS in 32, carrying NORM.md, SHARED.md, DEVLOG.md, the review's files, the game's ASKS.md
-entry and two captioned pictures. The slab came from the field's resolve, not the reading, and both
-are mended. A cell in front of one face and straight behind an opposite one within a cell is held as
-a sheet half a cell either side of its middle, as a double-sided sheet is, and the flat world's
-ground is four blocks between grass tops and bedrock bottoms, so at the far cascade's 73.75 every
-cell above it qualified and the ground stood about 37 blocks thick with the eye inside it; the far
-cascade's build holds such sheets half the last counted cascade's cell thick, ResolvePush's lent.y
-and a sheet argument on RecordSceneFieldBuild. In the reading, as planned, the last counted cascade
-traces to the far edge with Last set and the merge takes nothing above it, and fadesOn in
-cascades.slang stops it fading into the far probes in gi.slang and lights.slang; the reading's
-changes alone did not move the game's numbers, the sheet mend restored them. Bisected in the game by
-gi.probe at the wall's cascade 3, up-rays meeting a surface within their interval and ground hits
-shaded four times too dark from a sun march blocked overhead. On a scratch copy of the Debug build,
-the flat world, the play check's glass at exposure 1 and far at the far plane, the frame read 168,
-157, 106 and the middle 139, 12, 0 before against 185, 167, 126 and 154, 13, 0 with no far cascade,
-and after the same as no far cascade; the 27 bounce rooms with far at infinity within 0.007 of
-before except view 7 at Low, 0.108 to 0.069, its bound without far 0.09. The far cave at 90 blocks,
-read either way, moves not at all, the tops 9, 13, 18 at High under every cascade alone and with the
-merge off and 0, 0, 0 with the game's fog off, so that distant light is the game's fog and no
-cascade's light reaches those tops. The far cascade costs the scene pass 0.2 to 0.3 ms at the grove
-at 1920 by 1080, 8.0 to 8.3 against 7.8 to 8.0, and GI 0.25 ms, before and after alike, the game's 5
-ms having been on 5.2.281 before item 96's cuts, so nothing is left to cut. Two tests, a
-double-sided plane of 288 triangles, since a mesh under 16 is a stamped box, waiting
-MobileSettleFrames after its move, whose cell a quarter of a far cell over the floor reads 1.59
-where it read -1.84, and the grazing floor at Low keeping its difference with a far cascade set,
-failing before at 0.108, the rooms' body moved into a Differs helper; a narrower far hit tolerance
-tried and dropped, changing nothing once the sheet was mended. RENDERING.md's far cascade passage
-rewritten with the readings. The strict build clean, 2,104 plain and shuffled on the GPU, 73 field,
-reference frame and cascade edge tests on lavapipe with validation. Item 96 begins with a reading on
-the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
-out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
-size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next the screen probes' one switch,
-then 96, the scene pass's read of the cascades and the shadow fill, then 100, the field's foliage
-share, then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons out of
-the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number
-and the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the
-light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items
-all on main, N 7.5; the cloud sessions stand by.
+eye, pushed at 12:42 on 2026-10-25 once the build run of `c721746b` went green whole, its run green
+whole at 14:21, Windows in 99 minutes, Linux in 59 and macOS in 33. TileAt(quality, height) is the
+larger of the 1080p tile and that tile scaled by the height over 1080 and rounded, High 8 at 720p
+and 1080p, 11 at 1440p and 16 at 4K, Medium 24 at 4K, the window and its render textures taking the
+window's height so their tiles agree and the UBO's tile reading the same. Read offscreen before and
+after with another session's tests on the GPU, so the times run high alike. The glowstone room's
+global illumination at High, 720p 8.3 to 8.3 ms, 1080p 13.7 to 13.1, 1440p 17.8 to 12.4 and 4K 35.9
+to 13.3, the scene pass with the probes 2.6, 4.9, 7.6 and 16.2 ms before; Low's glow-only pass,
+global illumination and the scene pass, 2.5 and 1.3, 2.9 and 2.7, 3.4 and 4.8, 4.5 and 10.5; the
+march's scene pass 13.8, 29.2, 49.5 and 107.7; the Cornell box's global illumination 3.3, 3.8, 4.5
+and 7.2 before and 2.4, 3.7, 3.1 and 3.7 after, the strip room at 4K 8.4 to 4.4. The rooms against
+their references, each traced at 1080p with 256 paths and read in 96 by 54 blocks, at 4K with the
+new spacing within 0.002 of their 1080p distances in every view, 0.040, 0.087, 0.162, 0.221, 0.007,
+0.086, 0.049, 0.039 and 0.018 against 0.040, 0.087, 0.163, 0.223, 0.007, 0.085, 0.051, 0.040 and
+0.019, a fixed 8 pixels at 4K reading 0.160, 0.084 and 0.047 at views 3, 6 and 7, the reading's test
+not kept. The guide carries the four rows and the rule, RENDERING.md the reading, a unit check of
+TileAt at the five heights. The strict build clean, 2,110 plain and shuffled, 7 on lavapipe with
+validation. After `c721746b`, item 103, the screen probes by quality, read at 10:53 on 2026-10-25,
+carrying the review's files and two captioned pairs, the thin walls room and the Cornell box at Low
+with and without the probes. SetGlobalIlluminationScreenProbes is gone, ScreenProbesAt(quality) true
+at Medium and High; at Low GlowOnly gives the glow lights' probes while one is lit; ScreenOff,
+gi.toggle screen and the window's box, leaves them out whole at any quality, the glow-only probes
+with them; gi.state says no screen probes at Low with the glow probes' MB and says when the toggle
+left them out. The guide's tier table carries the Cornell box's readings, Low 0.60 ms and 6.16 MB,
+1.53 without glow lights, Medium 1.92 ms and 8.92 MB, High 2.00 ms and 11.16 MB, the paragraph the
+room's 2.2, 1.2 and 13.3 ms; the upgrading entry for the call is dropped, the call never having
+shipped in a release; RENDERING.md has the reading and the feature test's comment no longer says Low
+has screen probes. The tests of the probes moved to Medium, BounceView, the history theory, the
+slide crawl, the probes past the first cascade and the render-texture theory, Low's room bounds for
+views 2 and 3 at 0.13 and 0.29 with the readings in the comment, a unit check of ScreenProbesAt and
+a window draw test new. The strict build clean, 2,108 plain and shuffled before the Metal rename, 54
+on lavapipe with validation, the docs' 2 blocks building on a fresh pack. After `f36b49b3`, Verdict
+90's mend, read at 10:49 on 2026-10-25, carrying the review's files and DEVLOG.md, pushed with
+`c721746b` at 11:29 on 2026-10-25 once the build run of `9a013b59` ended, the third pack run started
+with publish on at 11:29 for the game's items 95 and 29 and watched, its games job red at 13:08 on
+Tumble's soak, Verdict 91, every other job green when it ended at 14:11, the three suites with macOS
+in 56 minutes, Windows in 109 and the captures in 71 and 77, the pack job skipped, the push run
+green whole at 12:36 with macOS in 33 minutes, Linux in 58 and Windows in 67, so the Metal mend
+holds. The cause differs from the verdict's reading. Item 121 named a local vertex in
+field_counted.slang, uint vertex = push.source + id.x, and vertex is a Metal keyword the translation
+kept, so 45:21 is the declaration and 50:58 its use in the index; the pointer and the mask were
+sound, and the shader indexed id.x with no such local before 121. The local is index, with a comment
+saying why. MetalNamesTests compiles every built-in shader with slangc and reads each stage's OpName
+and OpMemberName strings, refusing Metal's own words, vertex, fragment, kernel, visible, stitchable,
+intersection, device, constant, thread, threadgroup, threadgroup_imageblock, ray_data and
+object_data, a second test checking the SPIR-V reading itself; a full cross-compile to Metal source
+on Linux would not have caught it, the translation writing the source and Apple's compiler alone
+refusing it, where the names check fails on Linux first and named field_counted.slang's compute
+stage on the old shader, 55 s, skipped where slangc is missing. The strict build clean, 35 on the
+GPU and 19 on lavapipe with validation, no full suite on this commit alone, the tree's full suite
+having passed at 2,108 with item 103 beside it and this commit sharing no file with 103, so the run
+is its suite. After `9a013b59`, item 121, the counted mesh's color stream and its range of a shared
+buffer, read at 09:02 on 2026-10-25, carrying the review's files and a captioned picture. Checked on
+top of item 102 and Verdict 89's mend, since 121 and 102 share SceneField.cs, the strict build
+clean, 2,108 plain and shuffled on the GPU in 8 minutes, 83 on lavapipe with validation over the
+counted meshes, the scene field, the reference frames and motion, the docs page's 10 blocks building
+on a fresh pack. One departure, the picture's wall lit by a model shader of its own with a normal
+from ddx and ddy in its vertex colors, since the model pass's own shader draws a positions-only
+counted mesh black, as the docs say. In the red wall's room the floor before the wall reads 233,
+233, 233 with no colors and 222, 192, 192 with the colors beside the UInt2 stream, the block's near
+face 191, 191, 191 and 186, 175, 175. After `c2fd2a40`, Verdict 89's mend, Tempo's autopilot on the
+song's clock, read at 08:36 on 2026-10-25, carrying the review's files, SHARED.md, DEVLOG.md and the
+game's ASKS.md, pushed with `9a013b59` at 09:40 on 2026-10-25 once the build run of `f05ea96f` went
+green whole, the pack run started with publish on at 09:40 for the game's items 95 and 29, both runs
+watched; the pack run's macOS suite and macOS captures red within minutes at 09:45 and 10:36 on the
+counted corners' shader failing to compile under MoltenVK, Verdict 90, every other job green when it
+ended at 11:45, Windows in 125 minutes under the limit of 240, the captures in 60 and the games in
+73, the pack job skipped, so it packed nothing and the third pack run followed the mend at 11:29,
+the push run red the same way on macOS at 09:45 when it ended at 11:27, Linux green in 46 minutes,
+Windows in 107 and the examples in 10. Each note whose time this frame's step of the song passed is
+played at its own time, clamped into the clock before the step and the clock after, as a player on
+the beat is judged however long the frame, several in one lane in one long step each played, a note
+less than half a step ahead played on this frame as before, Run.Play taking the song time a lane is
+played at while keys and pads play at the clock; the game stays on the music's clock with no fixed
+stepping. The miss came from a stall frame far longer than the frames before running the music's
+clock past a note not yet due by more than the 0.15 s Bad window, so the autopilot's press on the
+frame after was refused. On a fresh pack offscreen, the drive reads perfect 381, miss 0, error 3 ms
+with no validation error, and 300 frames draw clean; with a 320 ms stall every 23rd frame through
+the whole song the old game missed 88 of 381 at perfect 186 and error 44 ms and the mended one 0 at
+perfect 323 and 19 ms, and at a steady 4 frames a second both miss 0, so it was the stall, as on the
+runner under its capacity notice. Item 121 was set aside in a stash and goes back in, its checks
+passed before, 2,108 plain and shuffled and 41 on lavapipe. After `f05ea96f`, item 102, the far
+cascade's slab, pushed at 07:50 on 2026-10-25 once the build run of `a8f127ad` went green whole, its
+run green whole at 09:38, Windows in 108 minutes, Linux in 59 and macOS in 32, carrying NORM.md,
+SHARED.md, DEVLOG.md, the review's files, the game's ASKS.md entry and two captioned pictures. The
+slab came from the field's resolve, not the reading, and both are mended. A cell in front of one
+face and straight behind an opposite one within a cell is held as a sheet half a cell either side of
+its middle, as a double-sided sheet is, and the flat world's ground is four blocks between grass
+tops and bedrock bottoms, so at the far cascade's 73.75 every cell above it qualified and the ground
+stood about 37 blocks thick with the eye inside it; the far cascade's build holds such sheets half
+the last counted cascade's cell thick, ResolvePush's lent.y and a sheet argument on
+RecordSceneFieldBuild. In the reading, as planned, the last counted cascade traces to the far edge
+with Last set and the merge takes nothing above it, and fadesOn in cascades.slang stops it fading
+into the far probes in gi.slang and lights.slang; the reading's changes alone did not move the
+game's numbers, the sheet mend restored them. Bisected in the game by gi.probe at the wall's cascade
+3, up-rays meeting a surface within their interval and ground hits shaded four times too dark from a
+sun march blocked overhead. On a scratch copy of the Debug build, the flat world, the play check's
+glass at exposure 1 and far at the far plane, the frame read 168, 157, 106 and the middle 139, 12, 0
+before against 185, 167, 126 and 154, 13, 0 with no far cascade, and after the same as no far
+cascade; the 27 bounce rooms with far at infinity within 0.007 of before except view 7 at Low, 0.108
+to 0.069, its bound without far 0.09. The far cave at 90 blocks, read either way, moves not at all,
+the tops 9, 13, 18 at High under every cascade alone and with the merge off and 0, 0, 0 with the
+game's fog off, so that distant light is the game's fog and no cascade's light reaches those tops.
+The far cascade costs the scene pass 0.2 to 0.3 ms at the grove at 1920 by 1080, 8.0 to 8.3 against
+7.8 to 8.0, and GI 0.25 ms, before and after alike, the game's 5 ms having been on 5.2.281 before
+item 96's cuts, so nothing is left to cut. Two tests, a double-sided plane of 288 triangles, since a
+mesh under 16 is a stamped box, waiting MobileSettleFrames after its move, whose cell a quarter of a
+far cell over the floor reads 1.59 where it read -1.84, and the grazing floor at Low keeping its
+difference with a far cascade set, failing before at 0.108, the rooms' body moved into a Differs
+helper; a narrower far hit tolerance tried and dropped, changing nothing once the sheet was mended.
+RENDERING.md's far cascade passage rewritten with the readings. The strict build clean, 2,104 plain
+and shuffled on the GPU, 73 field, reference frame and cascade edge tests on lavapipe with
+validation. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by
+1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next the screen probes' one switch, then 96, the scene pass's read of the cascades
+and the shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra, then 112,
+the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the
+loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help,
+then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1128,7 +1135,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     while removing the world read whole brought the scene pass to 7.99 ms at Low and 7.73 to 7.92 at
     High, so the world read's cost at High lies outside what the gather replaces, likely the
     seen-probe march at the screen probes' edges; that is read before the cut's form is chosen,
-    after Verdict 91's mend.
+    after Verdict 91's mend. The reading of 14:51 and the cut, taken. At the grove at High at 1920
+    by 1080 offscreen, 9.1% of the pixels take the edge path, the cherry leaves, the grass and the
+    far blocks where no screen probe stands on a like surface, and with the edge march off whole the
+    scene pass reads 8.6 to 9.3 ms against 11.5 to 14.8 as it stands, so the march is 3 to 5.7 ms
+    and nearly all of the world read's cost at High; the nine rooms at Medium and High read within
+    0.001 of before in each form, and the march exists for the thin room's corner, whose test fails
+    with it off whole at 2.17 against 1.4. The cut gates the march at an edge by the same thin-wall
+    test item 123 added, byThinWall, and reads by reach elsewhere, so a voxel world's edges stop
+    marching and the thin room's corner keeps it; the corner and foot tests pass, the rooms are
+    unchanged, and one clean round at the grove read 10.25 to 10.33 ms against 12.29 to 12.61, read
+    once more on a quiet GPU before the commit; one line in modelpass.slang with its comment,
+    RENDERING.md's reading and a picture pair. The half-size gather is dropped, nothing measurable
+    at the grove at either quality.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game

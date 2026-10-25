@@ -1913,6 +1913,20 @@ thin room's floor reads 0.207 with the lamp outside and without it alike. The ro
 speck where the thin room's right and back walls meet its floor stays, as it does with every pixel
 marching, Low's remainder.
 
+**The world's probes' march at High, read on 2026-10-25.** A pixel the screen's probes stand around
+on no surface like its own read the world's probes by marching the field toward each of eight
+(`bouncedSeen`), for the thin room's corner, which the reach let read the lamp outside. In the
+voxel game's cherry grove at High at 1920 by 1080 that was 9.1% of the pixels, its leaves, grass and
+far blocks, and the march took 3 to 5.7 ms of the scene pass, nearly all the world's probes' cost
+there, the pass 7.7 to 7.9 ms with no read of them at all. Such a pixel marches by a wall thinner
+than a cell alone (`byThinWall`), and the grove's scene pass read 10.53, 10.57; 11.13, 10.84; and
+10.00, 9.66 ms where 13.07, 13.08; 12.11, 12.11; and 15.41, 15.35 in three rounds side by side,
+other programs holding part of the GPU, and an earlier round 10.25 and 10.33 where 12.29 and 12.61.
+The frames are alike to the eye, the bounce rooms read as before at every quality, and the thin
+room's corner holds, where with no march at all it read 2.17 times its wall. A pass gathering the
+world's probes at half the window's size, read first, saved nothing, the march and not the gather
+being the cost.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

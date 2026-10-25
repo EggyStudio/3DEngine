@@ -534,10 +534,13 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         if (near < 1.0)
         {
             // A pixel the screen's probes stand around on no surface like its own, as at a corner,
-            // reads the world's probes it sees through the field (bouncedSeen).
-            // Where no screen probe stands, as at Low, a pixel by a wall thinner than a cell reads them
-            // so too (byThinWall).
-            bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0;
+            // reads the world's probes it sees through the field (bouncedSeen) where it lies by a wall
+            // thinner than a cell, whose probes beyond the reach takes for seen (byThinWall), and so
+            // does one where no screen probe stands, as at Low. Marched at every such pixel, 9% of the
+            // voxel game's cherry grove at High, its leaves, grass and far blocks, the march took 3 to
+            // 5.7 ms of the scene pass at 1920 by 1080, and a world of blocks has no wall that thin.
+            bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
+                && byThinWall(input.world, n);
             float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
                 : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
             if (world.x >= 0.0)
