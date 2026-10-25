@@ -3647,6 +3647,16 @@ batch.
     by turns reading its mean. One commit, small, after item 115 and before 102. Done at `55a33ce9`
     on 2026-10-25, the overload with a window in seconds and the test reading 50.
 
+117. **An index whose key names many entities.** From the voxel game's lookups at 02:33 on
+    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
+    first, Decision 68. KeyIndex keeps one entity to a key, so the game's fires take it by cell
+    while the mobs, many to a column, are still walked for the column bookkeeping. The world gains a
+    grouping index for a component type that names its key, the entities under a key enumerated
+    without allocating, kept on spawn, change and despawn as the single one is, with the guide's
+    line beside it; a test over a thousand entities in twenty groups finding each group's members
+    and none after a despawn. One commit, small, after item 116 and before 108's third phase. Done
+    at `c897565c` on 2026-10-25, GroupIndex beside KeyIndex with the test over twenty columns.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

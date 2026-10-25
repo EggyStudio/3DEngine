@@ -10,20 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `55a33ce9`, item 116, a profile value's mean, read at 03:00 on 2026-10-25, carrying
-ASKS.md and the review's files. SetProfileValue(name, value, seconds) beside the present call shows
-the mean of the values set over the last seconds by GetTime's clock, 0 showing the value as set and
-the plain call dropping a window, FrameProfile.Set keeping the samples with their times, dropping
-those at or before the window's start and summing afresh each set; the test sets 0 and 100 by turns
-each sixty-fourth of a second for two seconds and reads 50, a value set three seconds on reading
-alone and a plain set as set; the cheat sheet's line and the frame guide's paragraph and block. The
-strict build clean, 2,097 plain and shuffled on the GPU, the frame guide's 10 blocks building on the
-package. Both pushed at 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, the
-run watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920
-by 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
-variant's registers, the window's depth at half size and the scene pass shading with overdraw
-pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
-glow pass has. Next 108, the mesh entity as a game's section, then 117, the grouping index, then 118
+Reviewed up to `c897565c`, item 117, the grouping index, read at 03:25 on 2026-10-25, carrying the
+review's files. GroupIndex from ecs.Groups holds many entities to the key a keyed component names,
+Members a span over the index's own list allocating nothing beside CountOf and Count, a list of
+entities a key with each entity's key and place so a removal moves the list's last member into the
+gap, a key left with none dropped, the store's index slot taken so add, replace, remove and despawn
+reach it as they reach KeyIndex and an index made late picking up the entities already holding the
+component. Departures, Index and Groups moved together into EcsWorld.Indexes.cs for N 1.3, a
+component type holding one index of either kind with its exception reworded for STYLE.md. The test
+spawns a thousand mobs in twenty columns, half before the index is asked for, each column's members
+every twentieth, a walk allocating nothing, the members following a despawn, a removal and a move,
+an emptied column no key, and a KeyIndex asked for the same type throwing; the behaviors guide gains
+a line and a block and the cheat sheet names Groups. The strict build clean, 2,098 plain and
+shuffled on the GPU, the guide's 19 blocks building on the package. Held until the build run of
+`55a33ce9` ends, then pushed. After `55a33ce9`, item 116, a profile value's mean, read at 03:00 on
+2026-10-25, carrying ASKS.md and the review's files. SetProfileValue(name, value, seconds) beside
+the present call shows the mean of the values set over the last seconds by GetTime's clock, 0
+showing the value as set and the plain call dropping a window, FrameProfile.Set keeping the samples
+with their times, dropping those at or before the window's start and summing afresh each set; the
+test sets 0 and 100 by turns each sixty-fourth of a second for two seconds and reads 50, a value set
+three seconds on reading alone and a plain set as set; the cheat sheet's line and the frame guide's
+paragraph and block. The strict build clean, 2,097 plain and shuffled on the GPU, the frame guide's
+10 blocks building on the package. Both pushed at 03:05 on 2026-10-25 after the build run of
+`e746f98e` went green whole, the run watched. Item 96 begins with a reading on the game's 5.2.215
+build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut out in turn to tell
+what runs per fragment from the variant's registers, the window's depth at half size and the scene
+pass shading with overdraw pointing at a half-size pass over the window's depth with a two by two
+depth and normal read, as the glow pass has. Next 108, the mesh entity as a game's section, then 118
 and 119, the audio's voices, then 120, the low-pass and the reverb, the ECS gaps the game's drops
 found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene
 pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
@@ -1073,15 +1086,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-117. **An index whose key names many entities.** From the voxel game's lookups at 02:33 on
-    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
-    first, Decision 68. KeyIndex keeps one entity to a key, so the game's fires take it by cell
-    while the mobs, many to a column, are still walked for the column bookkeeping. The world gains a
-    grouping index for a component type that names its key, the entities under a key enumerated
-    without allocating, kept on spawn, change and despawn as the single one is, with the guide's
-    line beside it; a test over a thousand entities in twenty groups finding each group's members
-    and none after a despawn. One commit, small, after item 116 and before 108's third phase.
 
 118. **A played-out voice is let go, and Tick walks the live ones alone.** From the voxel game's
     footsteps at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree.

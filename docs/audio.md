@@ -71,6 +71,8 @@ PlaySound(step);
 ```
 
 `StopSound`, `PauseSound` and `ResumeSound` stop or hold one sound and leave the others playing.
+A sound played once lets its voice go as it plays out, so a game playing each footstep keeps no
+voice for the steps gone, and the frame profile shows the voices playing as `audio.voices`.
 
 ## Editing samples
 

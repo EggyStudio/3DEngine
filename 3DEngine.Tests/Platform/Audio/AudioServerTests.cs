@@ -208,6 +208,39 @@ public class AudioServerTests
     }
 
     [Fact]
+    public void A_Played_Out_Voice_Is_Let_Go_And_A_Tick_Walks_The_Live_Ones_Alone()
+    {
+        var world = new World();
+        using var server = new AudioServer();
+        world.InsertResource(server);
+        world.InitResource<FrameProfile>();
+        var backend = new RecordingBackend();
+        server.SetBackend(backend);
+        double Shown() => world.Resource<FrameProfile>().Snapshot().Values.Single(v => v.Name == "audio.voices").Value;
+
+        var steps = Enumerable.Range(0, 100).Select(_ => server.Play(MakeSound("step.wav"))).ToArray();
+        server.Play(MakeSound("rain.wav"), new AudioVoiceParams { Looping = true });
+        server.Play(MakeSound("held.wav"), new AudioVoiceParams { Paused = true });
+        AudioUpdateSystem.Run(world);
+        server.LiveSourceCount.Should().Be(102, "every voice is playing");
+        Shown().Should().Be(102);
+
+        // Every voice played out, as the backend says once its samples are gone.
+        foreach (var voice in backend.PlayingByVoice.Keys.ToArray()) backend.PlayingByVoice[voice] = false;
+        backend.Calls.Clear();
+        AudioUpdateSystem.Run(world);
+        server.LiveSourceCount.Should().Be(2, "the hundred steps are let go, and the looping and the paused voice kept");
+        Shown().Should().Be(2);
+        backend.Calls.Count(c => c.StartsWith("Stop(")).Should().Be(100, "each step's voice is freed in the backend too");
+        steps.Should().OnlyContain(step => !step.IsPlaying);
+        steps[0].Stop();
+
+        backend.Calls.Clear();
+        AudioUpdateSystem.Run(world);
+        backend.Calls.Count(c => c.StartsWith("Vol(")).Should().Be(2, "a tick walks the two voices left alone");
+    }
+
+    [Fact]
     public void Spatial_Processor_Is_Folded_Into_Voice_Volume_Each_Tick()
     {
         using var server = new AudioServer();

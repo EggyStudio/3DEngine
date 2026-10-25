@@ -19,6 +19,7 @@ internal static class AudioUpdateSystem
         if (world.TryGetResource<Assets<Sound>>(out var assets))
             server.ResolvePending(assets);
         server.Tick();
+        if (world.TryGetResource<FrameProfile>(out var profile)) profile.Set("audio.voices", server.LiveSourceCount);
     }
 }
 

@@ -32,6 +32,8 @@ public sealed class AudioServer : IDisposable
     private readonly object _lock = new();
     private readonly Dictionary<int, VoiceRecord> _voices = new();
     private readonly List<PendingVoice> _pending = new();
+    // The tickets of the voices a tick found played out, kept to be used again.
+    private readonly List<int> _ended = [];
 
     private IAudioBackend _backend = new NullAudioBackend();
     private ISpatialAudioProcessor? _spatial = new DistanceSpatialProcessor();
@@ -284,7 +286,7 @@ public sealed class AudioServer : IDisposable
             int ticket = _nextTicket++;
             _voices[ticket] = new VoiceRecord(voiceId, IsSpatial: false, Position: Vector3.Zero, Volume: parameters.Volume,
                 Looping: false, Paused: parameters.Paused, Orientation: null, DipoleWeight: 0f, DipolePower: 1f,
-                PlaybackRate: parameters.PlaybackRate);
+                PlaybackRate: parameters.PlaybackRate, Stream: true);
             return new AudioSource(ticket, this);
         }
     }
@@ -372,6 +374,13 @@ public sealed class AudioServer : IDisposable
     /// Non-spatial voices skip the spatial processor (gain factor = <c>1</c>) but still
     /// receive the master-volume multiplication so a single options-menu slider scales
     /// every voice in the mix.
+    /// <para>
+    /// A voice played once that the backend has played out is let go first, its ticket with it, so
+    /// its <see cref="AudioSource"/> reads as stopped and the ticks after walk the voices still
+    /// playing alone. A game playing each footstep and never stopping it kept every one, 34 steps
+    /// leaving 36 voices for each tick to walk. A looping, paused or streamed voice is kept until
+    /// it is stopped.
+    /// </para>
     /// </summary>
     internal void Tick()
     {
@@ -389,6 +398,11 @@ public sealed class AudioServer : IDisposable
             foreach (var (ticket, rec) in _voices)
             {
                 if (rec.VoiceId == 0) continue;
+                if (!rec.Looping && !rec.Paused && !rec.Stream && !_backend.IsVoicePlaying(rec.VoiceId))
+                {
+                    _ended.Add(ticket);
+                    continue;
+                }
 
                 float spatialGain = 1f;
                 if (rec.IsSpatial && sp is not null)
@@ -417,6 +431,12 @@ public sealed class AudioServer : IDisposable
 
                 _backend.SetVoiceVolume(rec.VoiceId, rec.Volume * master * spatialGain);
             }
+            foreach (var ticket in _ended)
+            {
+                _backend.StopVoice(_voices[ticket].VoiceId);
+                _voices.Remove(ticket);
+            }
+            _ended.Clear();
             _backend.Update();
         }
     }
@@ -550,7 +570,7 @@ public sealed class AudioServer : IDisposable
         }
     }
 
-    /// <summary>Diagnostic: total live tickets (spatial + non-spatial, including pending).</summary>
+    /// <summary>The voices playing, spatial or not, those waiting on their sound's loading among them, which the frame profile shows as <c>audio.voices</c>.</summary>
     public int LiveSourceCount
     {
         get { lock (_lock) return _voices.Count; }
@@ -588,7 +608,8 @@ public sealed class AudioServer : IDisposable
         float DipolePower = 1f,
         float PlaybackRate = 1f,
         float NearDistance = 0f,
-        float FarDistance = 0f);
+        float FarDistance = 0f,
+        bool Stream = false);
 
     private readonly record struct PendingVoice(int Ticket, Handle<Sound> Handle, AudioVoiceParams Parameters);
 }

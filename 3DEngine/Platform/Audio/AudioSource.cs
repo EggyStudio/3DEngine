@@ -101,7 +101,7 @@ public readonly struct AudioSource : IEquatable<AudioSource>
         Server!.SetPaused(Id, paused);
     }
 
-    /// <summary>Stops and releases the voice. Subsequent calls are no-ops.</summary>
+    /// <summary>Stops and releases the voice. One played once is released as it plays out, and a call after that, or a second one, does nothing.</summary>
     public void Stop()
     {
         if (!IsValid) return;
