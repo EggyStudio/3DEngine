@@ -10,9 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e746f98e`, item 114, an empty emitter costing nothing, read at 02:01 on 2026-10-25,
-carrying ASKS.md and REVIEW.md. The particle step, sort and draw take only the slots that may hold a
-live particle, counted back from the newest, and an emitter whose particles have all died records
+Reviewed up to `6e29cfa0`, item 115, a particle's facing, read at 02:33 on 2026-10-25, carrying the
+review's files. ParticleEmitter.Facing takes Camera, Normal or Velocity and ParticleEmitter.Normal,
+up where left zero; the header's eighth value, written with the placing rows and read by nothing,
+carries the normal and the facing for the born and the placed buffers, the shader turning the normal
+or the velocity by the placing rows and building the square's right and up from that way as it did
+from the camera's so textures and sheet frames play as before, a particle standing still falling
+back to the camera, the lit normal turning toward the eye so a flat square is lit from either side;
+the test reads a large dot facing the camera from above and edge-on, facing up as bright from above
+and covering nothing edge-on, and facing a slow upward velocity the same; the 3D guide's particles
+section gains a paragraph and a ripples block, the cheat sheet and RENDERING.md the facing. The
+strict build clean, 2,096 plain and shuffled on the GPU, 50 tests on lavapipe with validation, the
+guide's 15 blocks building on the package. Held until the build run of `e746f98e` ends, then pushed.
+After `e746f98e`, item 114, an empty emitter costing nothing, read at 02:01 on 2026-10-25, carrying
+ASKS.md and REVIEW.md. The particle step, sort and draw take only the slots that may hold a live
+particle, counted back from the newest, and an emitter whose particles have all died records
 nothing; the CPU keeps each emitter's birth runs with the time by which the longest life of each is
 over, dropping a run once the step's clock passes it, the step's threads walking back from the
 newest slot so a dispatch of the span meets every particle alive with no push value needed, random
@@ -28,14 +40,15 @@ Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at
 part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
 registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
 half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
-has. Next 108, the mesh entity as a game's section, then 115 and 116, the particles' gaps, then 117,
-the grouping index, the ECS gaps the game's drops found, then 102, the far cascade's slab, then 103,
-the screen probes' one switch, then 96, the scene pass's read of the cascades and the shadow fill,
-then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the planar
-reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the
-ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then item 89,
-the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling`
-was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+has. Next 108, the mesh entity as a game's section, then 116, the profile value's mean, then 117,
+the grouping index, then 118 and 119, the audio's voices, then 120, the low-pass and the reverb, the
+ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one
+switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the field's
+foliage share, then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons
+out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's
+non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then
+97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its
+items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `31d1fcb6` came, item 110, pushed at 01:34 on 2026-10-25, its build run green whole at
 02:02 after the clocks went back, Windows in 88 minutes, Linux in 57 and macOS in 33.
@@ -1077,14 +1090,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
-115. **A particle can face a set direction rather than the camera.** From the voxel game's ambient
-    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
-    Every particle faces the camera, so the game's rings on water are a flat mesh rebuilt each frame
-    from a sheet. An emitter takes a facing, the camera, a fixed normal such as up, or the
-    velocity's way, and the particle's quad lies in it with the sheet's frame; a test reading a ring
-    laid flat from above and edge-on, and the guide's particles page. One commit, small, after item
-    114.
-
 116. **A program's profile value can be a mean over a window.** From the voxel game's ambient
     particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
     The profile shows a program's value as last set, so a count that leaps a frame reads as noise
@@ -1100,6 +1105,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     without allocating, kept on spawn, change and despawn as the single one is, with the guide's
     line beside it; a test over a thousand entities in twenty groups finding each group's members
     and none after a despawn. One commit, small, after item 116 and before 108's third phase.
+
+118. **A played-out voice is let go, and Tick walks the live ones alone.** From the voxel game's
+    footsteps at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree.
+    The AudioServer keeps a voice that has played out until Stop is called and Tick walks every
+    voice, 34 steps leaving 36 live voices, so the game stops each step half a second after it
+    began. A one-shot voice is released when its source ends, Tick walking the playing voices alone
+    and a count of them read in the profile; a test playing a hundred short sounds and reading the
+    voices at 0 once they have played out. One commit, small, after item 117 and before 108's third
+    phase.
+
+119. **The dummy driver drains a one-shot voice as a device does.** From the voxel game's footsteps
+    at its `5b62bef` on 2026-10-25, read at 02:47, its ASKS.md entry in the engine's tree. In a
+    hidden run the dummy driver never drains a one-shot voice, so IsPlaying stays true, 6 steps
+    leaving 7 voices after 1,800 frames, and a test or a headless program cannot read a sound's end.
+    The dummy driver advances each voice by the frame's time at its rate and ends it as a device
+    would, IsPlaying falling; a test playing a short sound under the dummy driver and reading it
+    ended after its length. One commit, small, after item 118.
+
+120. **A voice takes a low-pass by cutoff and a room's reverb by wet share, size and decay.** From
+    the voxel game's occlusion and room at its `e433e5c` on 2026-10-25, read at 02:58, its ASKS.md
+    entry in the engine's tree. The game plays a mob's step at a share by the blocks crossed and
+    reads a room's closure and mean distance by rays, but a voice cannot be low-passed behind blocks
+    nor given a room's reverb, so the room is reported and not heard. A voice gains a low-pass with
+    a cutoff a program sets, and the server a reverb a voice takes by a wet share with a room size
+    and a decay, both on the mixer's own processor as the spatial pan is; tests of a tone's spectrum
+    under the cutoff and of a click's tail by the decay, the guide's audio page with the game's
+    readings. One or two commits, after item 119 and before 108's third phase.
 
 108. **A mesh entity can be a voxel game's section, with its own shader, streams, visibility and
     shadow.** From the voxel game's reading for its item 95 at 21:19 on 2026-10-24, its ASKS.md

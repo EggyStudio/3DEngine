@@ -1077,3 +1077,49 @@ key changes. The game walks the mobs for their column meanwhile, which costs lit
 
 Review: item 117 of REVIEW.md, 2026-10-25; a grouping index enumerating the entities under a key
 without allocating; after item 116.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a voice that has played out stays in the audio server until it is stopped
+
+Read on the 3DEngine 5.2.291 package for the game's item 33, its steps. `AudioServer.Play` keeps
+each voice it starts in its table until `AudioSource.Stop` takes it out (`AudioServer.Stop` is the one
+`_voices.Remove`), and `Tick` walks the whole table each frame, working out each spatial voice's pan
+and volume and setting them on the backend. A one-shot sound, as a step, a hit or a click, is played
+and forgotten by a game, so the table grows by one for each. `voxel.sounds` read 34 steps played and
+36 voices in a hidden run of the game in a forest after 1,800 frames, each of them walked every
+frame from then on. The engine lacks a voice that is let go once it has played out, unless it loops,
+or a word on `Play` that a caller must stop every voice it starts. The game stops each of its steps
+half a second after it began meanwhile.
+
+Review: item 118 of REVIEW.md, 2026-10-25; a played-out voice let go when its source ends, Tick
+walking the playing ones; after item 117.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a voice played to SDL's dummy driver never says it has played out
+
+Read on the 3DEngine 5.2.291 package in the same run, hidden, whose log says the device was opened
+through `dummy`, which "takes it at the rate it plays and plays none". The game stopped each step whose
+`AudioSource.IsPlaying` read false, and the voices still grew with the steps, 6 steps and 7 voices
+after 1,800 frames, so `SdlAudioBackend.IsVoicePlaying` kept reading the stream's queued or available bytes as
+more than none for a sound of a third of a second. The engine lacks a dummy device that drains its
+voices' streams as a real one does, so a hidden or offscreen run reads a voice's end as the shown one
+does. The game times its steps itself meanwhile.
+
+Review: item 119 of REVIEW.md, 2026-10-25; the dummy driver ending a one-shot voice as a device
+does; after item 118.
+
+### 2026-10-25, the voxel game in `Voxel-Sandbox`, a voice cannot be dulled behind blocks nor given a room's reverb
+
+Read on the 3DEngine 5.2.291 package for the game's item 33, the occlusion and the reverb. A voice's
+`AudioVoiceParams` and its `AudioSource` set its loudness, balance, pitch, loop and place, and the
+spatial processor its fall with distance and its directivity, and nothing filters it. The game
+counts the opaque cells a line from the listener to a mob's step crosses and halves the loudness for
+each, 0.5 through a wall of one block and 0.125 through three in its tests, 0.002 for a pig nine blocks
+into the rock under seed 1's plains, where the source's sound mods also dull it, by a low-pass whose
+cutoff falls with the blocks crossed. It reads the room about the listener by 26 rays to 24 blocks,
+0.54 of them meeting a block, at 4.8 blocks on average, on seed 1's plains at -172, 62, 12, 0.88 and 2.2
+under the forest's canopy at the spawn, and 0.92 and 7.8 in the deep cave at -59.5, -4, -91.5, for a
+reverb whose wet share and decay would follow them. The engine lacks a low-pass on a voice set by its
+cutoff, and a reverb on a voice or on the mix set by its wet share, its room's size and its decay. The
+game lowers the loudness alone meanwhile and says the room in `voxel.sounds`.
+
+Review: item 120 of REVIEW.md, 2026-10-25; a low-pass by cutoff and a reverb by wet share, size and
+decay on the mixer; after item 119.

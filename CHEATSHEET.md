@@ -90,6 +90,7 @@ string GetClipboardText();                               // The text on the syst
 App GetApp();                                            // The app InitWindow built, for adding plugins, systems and resources
 
 void SetProfileValue(string name, double value);         // Sets a number of the program's own in the frame profile, which e3d command profile reports, as a stress test's count
+void SetProfileValue(string name, double value, double seconds);  // Sets a number of the program's own in the frame profile, shown as the mean of the values set over the last seconds, so a count that leaps from frame to frame reads steady
 double GetProfileAverage(string name);                   // A measured average from the frame profile in milliseconds, as "work", "frame" or "gpu.models", or 0 before it was measured
 void DrawProfileWindow();                                // Draws the frame profile in an ImGui window of its own, which a program shows while it is worked on, with the frame and its work, the program's own values, and each group of averages, largest first, which e3d command profile reports too
 

@@ -155,6 +155,16 @@ ImGui.End();
 ```
 
 `DrawProfileWindow()` draws where each frame's time goes in a window of its own.
+`SetProfileValue` adds a number of the program's own, which the window and `e3d command profile`
+show as it was last set, or as the mean of the values set over a window of seconds, so a count that
+leaps from frame to frame reads steady:
+
+<!-- compiled with:
+int alive = 0;
+-->
+```csharp
+SetProfileValue("particles.alive", alive, 1);
+```
 
 A texture of the program's is drawn in an ImGui window by the id `GetImGuiTextureId` gives it,
 which `ImGui.Image`, `ImGui.ImageButton` and a draw list's `AddImage` take, and a part of it by its

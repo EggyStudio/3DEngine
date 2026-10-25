@@ -8,6 +8,20 @@ public static partial class E3D
         if (TryRes<FrameProfile>(out var profile)) profile.Set(name, value);
     }
 
+    /// <summary>
+    /// Sets a number of the program's own in the frame profile, shown as the mean of the values set
+    /// over the last <paramref name="seconds"/>, so a count that leaps from frame to frame reads steady.
+    /// </summary>
+    /// <remarks>
+    /// The seconds are <see cref="GetTime"/>'s, so a program paced by a fixed frame time means over
+    /// its frames, and 0 shows the value as it is set. A game counting the particles it keeps alive
+    /// shows them by this rather than easing the counts itself.
+    /// </remarks>
+    public static void SetProfileValue(string name, double value, double seconds)
+    {
+        if (TryRes<FrameProfile>(out var profile)) profile.Set(name, value, seconds, GetTime());
+    }
+
     /// <summary>A measured average from the frame profile in milliseconds, as <c>"work"</c>, <c>"frame"</c> or <c>"gpu.models"</c>, or 0 before it was measured.</summary>
     public static double GetProfileAverage(string name) =>
         TryRes<FrameProfile>(out var profile) ? profile.Average(name) : 0;

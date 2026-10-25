@@ -3630,6 +3630,15 @@ batch.
     commit, small, after item 108 and before 102. Done at `e746f98e` on 2026-10-25, the span counted
     back from the newest slot, an empty emitter at nothing.
 
+115. **A particle can face a set direction rather than the camera.** From the voxel game's ambient
+    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
+    Every particle faces the camera, so the game's rings on water are a flat mesh rebuilt each frame
+    from a sheet. An emitter takes a facing, the camera, a fixed normal such as up, or the
+    velocity's way, and the particle's quad lies in it with the sheet's frame; a test reading a ring
+    laid flat from above and edge-on, and the guide's particles page. One commit, small, after item
+    114. Done at `6e29cfa0` on 2026-10-25, the facing and the normal in the header's spare value,
+    the ripples block in the guide.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

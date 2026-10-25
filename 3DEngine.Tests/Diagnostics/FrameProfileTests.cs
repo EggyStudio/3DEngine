@@ -21,6 +21,23 @@ public class FrameProfileTests
     }
 
     [Fact]
+    public void A_Value_Set_Over_A_Window_Shows_Its_Mean_Over_The_Seconds_Before()
+    {
+        var profile = new FrameProfile();
+        double Shown() => profile.Snapshot().Values.Single(v => v.Name == "splashes").Value;
+
+        // Set each sixty-fourth of a second, a time a double holds exactly, 0 and 100 by turns, as
+        // a count that leaps from frame to frame.
+        for (int frame = 0; frame < 128; frame++) profile.Set("splashes", frame % 2 * 100, seconds: 1, now: frame / 64.0);
+        Shown().Should().Be(50, "the last second holds sixty-four of them, half of each");
+
+        profile.Set("splashes", 20, seconds: 1, now: 3);
+        Shown().Should().Be(20, "the values set more than a second before are dropped");
+        profile.Set("splashes", 7);
+        Shown().Should().Be(7, "set with no window, a value shows as it is");
+    }
+
+    [Fact]
     public void The_Slowest_Frame_Is_Kept_Whole_And_Forgotten_Once_Read()
     {
         var profile = new FrameProfile();

@@ -7,7 +7,8 @@ namespace Engine;
 /// frame, the work in it (the schedule's stages, which leave out the wait for the target frame
 /// rate), each stage and system, the renderer's phases and prepare systems, and each render graph
 /// node on the CPU and, where the device writes timestamps, on the GPU. A program adds numbers of its own with
-/// <see cref="E3D.SetProfileValue"/>, as a stress test's count.
+/// <see cref="E3D.SetProfileValue(string, double)"/>, as a stress test's count, shown as it was last set or as the mean
+/// of a window of seconds.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -29,6 +30,9 @@ internal sealed class FrameProfile
     // since a stall of one frame is lost in the averages.
     private Dictionary<string, double> _frame = new(StringComparer.Ordinal);
     private Dictionary<string, double> _slowest = new(StringComparer.Ordinal);
+    // The program's values set over a window, each one's samples with the time each was set,
+    // oldest first, which the value shown is the mean of.
+    private readonly Dictionary<string, Queue<(double At, double Value)>> _windows = new(StringComparer.Ordinal);
 
     /// <summary>How many frames have been measured.</summary>
     public long Frames { get; private set; }
@@ -42,7 +46,37 @@ internal sealed class FrameProfile
     /// <summary>Sets a number of the program's own that the report shows as it is.</summary>
     public void Set(string name, double value)
     {
-        lock (_lock) _values[name] = value;
+        lock (_lock)
+        {
+            _windows.Remove(name);
+            _values[name] = value;
+        }
+    }
+
+    /// <summary>
+    /// Sets a number of the program's own that the report shows as the mean of the values set over
+    /// the last <paramref name="seconds"/> before <paramref name="now"/>, or as it is for none.
+    /// </summary>
+    /// <remarks>
+    /// A count that leaps from frame to frame, as the particles a game keeps alive, reads as noise
+    /// shown as it was last set, and steady as a mean over a second of the frames setting it.
+    /// </remarks>
+    public void Set(string name, double value, double seconds, double now)
+    {
+        if (seconds <= 0)
+        {
+            Set(name, value);
+            return;
+        }
+        lock (_lock)
+        {
+            if (!_windows.TryGetValue(name, out var samples)) _windows[name] = samples = new();
+            samples.Enqueue((now, value));
+            while (samples.Peek().At <= now - seconds) samples.Dequeue();
+            var sum = 0.0;
+            foreach (var (_, sample) in samples) sum += sample;
+            _values[name] = sum / samples.Count;
+        }
     }
 
     /// <summary>Forgets every average, so a measurement starts afresh.</summary>
