@@ -3869,6 +3869,49 @@ batch.
     window's height, the glowstone room's global illumination at 4K 13.3 ms where it read 35.9, the
     rooms at 4K within 0.002 of 1080p.
 
+123. **The world's probes alone do not leak a lamp along a thin wall's edges, so Low stands on its
+    own.** From item 103's reading of 10:16 on 2026-10-25. With the screen probes left out, the thin
+    walls room shows bright saw-toothed leaks of the outside lamp along every wall-floor and
+    wall-ceiling edge and the Cornell box steps faintly at its ceiling edges and the tall block's
+    foot, item 71's edge-leak and stepped-edge terms, which the screen probes covered rather than
+    the cascades mending; the owner means Low as a usable look for a weak machine or a 4K screen, so
+    the leaks go. The coder reads where the leak enters, a probe's rays starting inside a wall
+    thinner than the field's cell, the field's resolve at a thin wall as item 102 read the far
+    cascade's, or the pixel's read of a probe across a wall, and proposes the mend before coding it;
+    the thin walls room and the Cornell box at Low against their references before and after, the
+    leak's line read along one edge, and a pair of pictures. After item 122 and before item 96's
+    remaining cuts. One commit. The coder's proposal at 11:55, taken. The leak enters through the
+    pixel's read of a probe across a wall. Each pixel's world-probe read weighs a probe by its reach
+    toward a point judged 0.3 of the spacing off the pixel's surface, and at a wall's foot that
+    point lies within the thin wall's cells, so a probe outside the wall that reached as far as the
+    wall reads as seen and lends the lamp's light, the eight probes' weights switching across the
+    grid into triangles along each edge; at Medium and High a screen probe's missing match sends
+    those pixels to the field march, at Low nothing does. The probes' own rays are not it, since
+    changing the pixel's read alone removes the saw-teeth, nor the field's resolve, since the march
+    through the same field stops at the wall. Marching every pixel at Low removes the teeth at 0.10
+    ms at 800 by 450 and about half a millisecond at 1080p; the mend marches where another surface
+    lies nearer the judged point than the pixel's own, the field's distance there under the judge's
+    offset by more than three quarters of a cell, one field sample a pixel and a march at edges
+    alone, those pixels taking the sky share as edge pixels do, 0.25 ms at 1080p in the thin walls
+    room and 0.35 in the Cornell box, the rooms at Low within 0.01 of before with view 2 at 0.107
+    and view 3 at 0.261, a faint band left along the right wall's foot where the march ends, a
+    margin of a quarter cell showing a stripe. The cost in the voxel game at Low, where block
+    corners are everywhere, is read before the commit and said in it; the test is the thin room's
+    floor along the wall's foot at Low against its reference. Stopped before the code at 12:07, the
+    game's cost at Low over the millisecond. On the game copy at 1920 by 1080 offscreen at Low, the
+    near-surface march raised gpu.hdr_scene in the glowstone room from 2.6 to 5.2 ms at render
+    distance 4 and 12 alike and at seed 1's spawn at noon from 6.0 to 6.6 up to 8.2 to 8.3, global
+    illumination unchanged at 2.8 and 1.45, since in a voxel world most pixels near a block's edge
+    pass the near-surface test and march to all eight probes. Chosen, the march near a thin surface
+    alone, since the leak needs a wall thinner than about a cell, an outside probe's reach stopping
+    at the far face of a block four cells thick, short of the judged point, so one more field sample
+    a cell past the near surface tells a thin wall from a thick one, the game's blocks marching
+    nowhere and the rooms' 0.1-unit walls marching; the share of the game's pixels that pass and the
+    cost are read before the code, and the fold into item 96's half-size pass, a quarter of the
+    texels marching, is the second form if the first does not hold. Done at `17da0eaa` on
+    2026-10-25, the march at thin walls alone, the game's pixels under one in a hundred and the thin
+    room's floor even along its walls' foot, a speck where two walls meet the floor the remainder.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

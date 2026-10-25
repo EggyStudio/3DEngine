@@ -65,6 +65,28 @@ public sealed class SoakCheckTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void A_Game_That_Ended_Of_Its_Own_Is_Named_With_What_Asked_Its_Main_Loop_To_End()
+    {
+        // As Tumble ended in its soak's first seconds on the pack run of c721746b, with an exit code
+        // of 0 and no warning, the lines the engine writes as a main loop is asked to end say why.
+        var readings = Readings("tumble", 100 << 20);
+        File.WriteAllText(_folder.File("tumble.failed"), "1 Tumble ./e3d command frames.wait 60 --name Tumble --quiet --timeout 600\n");
+        File.WriteAllLines(Path.Combine(_folder.File("sessions"), "Tumble.log"),
+        [
+            "[    0.30s] [INFO ] [Engine] opening",
+            "[    9.10s] [INFO ] [Engine.AppExit] app.quit was asked by e3d, process 4242, started by process 4200, bash build/soak.sh tones, so the app closes.",
+            "[    9.20s] [INFO ] [Engine.Api] WindowShouldClose returns true from here on, since the main loop's driver says the app was asked to close.",
+        ]);
+
+        var (exit, log) = Check(readings);
+
+        exit.Should().Be(1);
+        var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
+        error.Should().Contain("app.quit was asked by e3d, process 4242, started by process 4200, bash build/soak.sh tones")
+            .And.Contain("WindowShouldClose returns true from here on").And.NotContain("opening");
+    }
+
+    [NeedsPythonFact]
     public void Games_That_Hold_Steady_Pass_With_No_Error()
     {
         var (exit, log) = Check(Readings("hopper", 100 << 20, 101 << 20, 100 << 20, 102 << 20, 101 << 20, 100 << 20, 101 << 20, 102 << 20));

@@ -40,6 +40,12 @@ The voxel game's room of forty glowstones at night at 3840 by 2160 at High, scal
 above with the screen's probes every 8 pixels, global illumination 35.9 ms, and below every 16, 13.3
 ms, the two alike to the eye.
 
+![](.github/assets/readings/2026-10-25-item-123-thin-walls.webp)
+The bounce rooms' thin walls with a lamp outside at Low, above with each pixel reading the world's
+probes by their reach, the lamp's light in triangles along each wall's foot, and below with a pixel
+by a wall thinner than a cell reading them through the field, the floor along the foot as dark with
+the lamp outside as without it, a speck left in the far right corner.
+
 The screen probes at four resolutions, read in the voxel game's room of forty glowstones with global
 illumination at High, offscreen, with another session's tests sharing the GPU so every time runs high
 alike. The scene pass is the probes' own cost; the two global illumination columns are the whole of it
@@ -59,6 +65,24 @@ probe covers the same patch of the world at any screen. Global illumination at 4
 to the path-traced references in every view, where a fixed 8 pixels at 4K had drifted. Low's glow-only
 pass costs 4.5 ms of global illumination at 4K and the per-pixel march would cost 108 ms, so the
 quality ladder of item 103 matters there as expected.
+
+The thin walls' leak at Low and what its mend costs, with global illumination at Low, where no
+screen probe stands. The bounce rooms' thin room's floor along its walls' foot is read in linear
+light at 480 by 270 by its test, with the bright lamp outside and without it; the voxel game's two
+scenes are read at 1920 by 1080 offscreen on a scratch copy of the game, the share of pixels
+marching counted from a frame that paints them (item 123).
+
+| Form | thin room's floor, lamp outside / without | voxel room, scene pass | voxel spawn, scene pass |
+|---|---|---|---|
+| each pixel by the probes' reach | 0.303 / 0.196 | 2.6 to 2.8 ms | 6.0 to 7.4 ms |
+| march where another surface is near | no triangles to the eye | 5.1 to 5.2 ms | 8.2 to 8.3 ms |
+| march by a wall thinner than a cell | 0.207 / 0.207 | 3.1 to 3.2 ms | 6.1 to 6.3 ms |
+
+The leak came from a pixel's read of the probes across a wall thinner than the field's cell, its
+reach judged from a point inside the wall's cells, and not from the probes' rays or the field. In
+the voxel game the thin-wall form marches 0.5% of the room's pixels and 0.75% of the spawn's, slivers
+at a few blocks' corners, where marching wherever another surface stands near cost 2.5 ms. A speck
+where the thin room's right and back walls meet its floor stays.
 
 Done that day
 
@@ -82,6 +106,8 @@ Done that day
   and can lie in a range of a shared buffer.
 - Item 122 at `ac46c010`. The screen probes read at 1440p and 4K, and their spacing grows with the
   resolution where the reading says so.
+- Item 123 at `17da0eaa`. The world's probes alone do not leak a lamp along a thin wall's edges, so
+  Low stands on its own.
 
 ## 2026-10-24
 

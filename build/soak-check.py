@@ -16,7 +16,8 @@
 # game that walks a level stood at each half's least and at each half's first and last reading, or
 # the command that ended its soak with its exit code, which build/soak.sh writes beside the readings
 # as <name>.failed, how the game ended where build/open-game.sh's shell wrote it, and the last
-# warnings of the game's own log under build/sessions, or the folder --sessions gives. The process's
+# warnings of the game's own log under build/sessions, or the folder --sessions gives, with the
+# lines the engine writes as a program's main loop is asked to end, which say what asked. The process's
 # resident memory at the first reading kept and at the last is said beside them, and not judged,
 # since a driver's caches move it.
 import os
@@ -105,13 +106,22 @@ def ended(path):
     return code, program, command
 
 
+# What the engine writes as a program's main loop is asked to end, each saying what asked, so a game
+# that ended of its own, with an exit code of 0, says why. The pack run of c721746b read Tumble
+# ending so in its soak's first seconds, its log not kept and its warnings none (Verdict 91).
+CLOSING = ("WindowShouldClose returns true from here on", "The app exits, since", "app.quit was asked by", "frame(s) asked for",
+           "closing before it was ready")
+
+
 def warnings(program):
-    """The last lines at a warning or worse of a program's session log."""
+    """The last lines at a warning or worse of a program's session log, with those saying what ended
+    its main loop."""
     log = os.path.join(SESSIONS, program + ".log")
     if not program or not os.path.exists(log):
         return []
     with open(log, encoding="utf-8", errors="replace") as text:
-        found = [line.rstrip() for line in text if "[WARN ]" in line or "[ERROR]" in line or "[FATAL]" in line]
+        found = [line.rstrip() for line in text
+                 if "[WARN ]" in line or "[ERROR]" in line or "[FATAL]" in line or any(said in line for said in CLOSING)]
     return found[-LOG_LINES:]
 
 
